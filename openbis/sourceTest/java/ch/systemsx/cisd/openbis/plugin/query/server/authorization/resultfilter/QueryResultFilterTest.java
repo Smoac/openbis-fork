@@ -35,12 +35,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.plugin.query.server.authorization.IAuthorizationChecker;
-import ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter.IGroupLoader;
-import ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter.IGroupLoaderFactory;
-import ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter.QueryResultFilter;
 
 /**
  * Test cases for {@link QueryResultFilter}.
@@ -51,15 +49,17 @@ import ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter.Q
 public class QueryResultFilterTest extends AssertJUnit
 {
 
+    private static final String KEY3 = "key3";
+
     private static final String KEY2 = "key2";
 
     private static final String KEY1 = "key1";
 
     private Mockery context;
 
-    private IGroupLoaderFactory loaderFactory;
+    private IEntityDataLoaderFactory loaderFactory;
 
-    private IGroupLoader loader;
+    private IEntityDataLoader loader;
 
     private IAuthorizationChecker authorizationChecker;
 
@@ -67,8 +67,8 @@ public class QueryResultFilterTest extends AssertJUnit
     public void setUp()
     {
         context = new Mockery();
-        loaderFactory = context.mock(IGroupLoaderFactory.class);
-        loader = context.mock(IGroupLoader.class);
+        loaderFactory = context.mock(IEntityDataLoaderFactory.class);
+        loader = context.mock(IEntityDataLoader.class);
         authorizationChecker = context.mock(IAuthorizationChecker.class);
     }
 
@@ -95,17 +95,20 @@ public class QueryResultFilterTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(loaderFactory).create(EntityKind.EXPERIMENT);
+                    exactly(2).of(loaderFactory).create(EntityKind.EXPERIMENT);
                     will(returnValue(loader));
 
-                    one(loaderFactory).create(EntityKind.SAMPLE);
+                    exactly(2).of(loaderFactory).create(EntityKind.SAMPLE);
                     will(returnValue(loader));
 
-                    one(loaderFactory).create(EntityKind.DATA_SET);
+                    exactly(2).of(loaderFactory).create(EntityKind.DATA_SET);
                     will(returnValue(loader));
 
                     exactly(3).of(loader).loadGroups(new HashSet<String>());
                     will(returnValue(new HashMap<String, SpacePE>()));
+
+                    exactly(3).of(loader).loadProjects(new HashSet<String>());
+                    will(returnValue(new HashMap<String, ProjectPE>()));
                 }
             });
 
@@ -129,16 +132,19 @@ public class QueryResultFilterTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(loaderFactory).create(EntityKind.EXPERIMENT);
+                    exactly(2).of(loaderFactory).create(EntityKind.EXPERIMENT);
                     will(returnValue(loader));
 
-                    one(loaderFactory).create(EntityKind.SAMPLE);
+                    exactly(2).of(loaderFactory).create(EntityKind.SAMPLE);
                     will(returnValue(loader));
 
-                    one(loaderFactory).create(EntityKind.DATA_SET);
+                    exactly(2).of(loaderFactory).create(EntityKind.DATA_SET);
                     will(returnValue(loader));
 
                     exactly(3).of(loader).loadGroups(new HashSet<String>());
+                    will(returnValue(new HashMap<String, SpacePE>()));
+
+                    exactly(3).of(loader).loadProjects(new HashSet<String>());
                     will(returnValue(new HashMap<String, SpacePE>()));
                 }
             });
@@ -158,48 +164,76 @@ public class QueryResultFilterTest extends AssertJUnit
         magicHeader.setEntityKind(EntityKind.SAMPLE);
         header.add(magicHeader);
         ArrayList<TableModelRow> rows = new ArrayList<TableModelRow>();
+
         ArrayList<ISerializableComparable> values1 = new ArrayList<ISerializableComparable>();
         values1.add(new StringTableCell(KEY1));
         rows.add(new TableModelRow(values1));
+
         ArrayList<ISerializableComparable> values2 = new ArrayList<ISerializableComparable>();
         values2.add(new StringTableCell(KEY2));
         rows.add(new TableModelRow(values2));
+
+        ArrayList<ISerializableComparable> values3 = new ArrayList<ISerializableComparable>();
+        values3.add(new StringTableCell(KEY3));
+        rows.add(new TableModelRow(values3));
+
         TableModel before = new TableModel(header, rows);
         context.checking(new Expectations()
             {
                 {
-                    one(loaderFactory).create(EntityKind.EXPERIMENT);
+                    exactly(2).of(loaderFactory).create(EntityKind.EXPERIMENT);
                     will(returnValue(loader));
 
-                    one(loaderFactory).create(EntityKind.SAMPLE);
+                    exactly(2).of(loaderFactory).create(EntityKind.SAMPLE);
                     will(returnValue(loader));
 
-                    one(loaderFactory).create(EntityKind.DATA_SET);
+                    exactly(2).of(loaderFactory).create(EntityKind.DATA_SET);
                     will(returnValue(loader));
 
                     HashSet<String> keys = new HashSet<String>();
                     keys.add(KEY1);
                     keys.add(KEY2);
+                    keys.add(KEY3);
 
                     one(loader).loadGroups(keys);
-                    HashMap<String, SpacePE> map = new HashMap<String, SpacePE>();
+                    HashMap<String, SpacePE> spaceMap = new HashMap<String, SpacePE>();
                     SpacePE group = new SpacePE();
-                    map.put(KEY1, group);
-                    will(returnValue(map));
+                    group.setCode("SPACE");
+                    spaceMap.put(KEY1, group);
+                    will(returnValue(spaceMap));
+
+                    one(loader).loadProjects(keys);
+                    HashMap<String, ProjectPE> projectMap = new HashMap<String, ProjectPE>();
+                    ProjectPE project = new ProjectPE();
+                    project.setCode("PROJECT");
+                    project.setSpace(group);
+                    projectMap.put(KEY2, project);
+                    will(returnValue(projectMap));
 
                     exactly(2).of(loader).loadGroups(new HashSet<String>());
                     will(returnValue(new HashMap<String, SpacePE>()));
 
+                    exactly(2).of(loader).loadProjects(new HashSet<String>());
+                    will(returnValue(new HashMap<String, ProjectPE>()));
+
                     one(authorizationChecker).isAuthorized(person, group, RoleWithHierarchy.SPACE_OBSERVER);
                     will(returnValue(true));
 
-                    one(authorizationChecker).isAuthorized(person, null, RoleWithHierarchy.SPACE_OBSERVER);
+                    exactly(2).of(authorizationChecker).isAuthorized(person, (SpacePE) null, RoleWithHierarchy.SPACE_OBSERVER);
+                    will(returnValue(false));
+
+                    one(authorizationChecker).isAuthorized(person, null, project, RoleWithHierarchy.PROJECT_OBSERVER);
+                    will(returnValue(true));
+
+                    one(authorizationChecker).isAuthorized(person, (SpacePE) null, (ProjectPE) null, RoleWithHierarchy.PROJECT_OBSERVER);
                     will(returnValue(false));
                 }
             });
 
         TableModel after = createFilter().filterResults(person, before);
-        assertEquals(1, after.getRows().size());
+        assertEquals(2, after.getRows().size());
+        assertEquals("[" + KEY1 + "]", after.getRows().get(0).getValues().toString());
+        assertEquals("[" + KEY2 + "]", after.getRows().get(1).getValues().toString());
         context.assertIsSatisfied();
     }
 }

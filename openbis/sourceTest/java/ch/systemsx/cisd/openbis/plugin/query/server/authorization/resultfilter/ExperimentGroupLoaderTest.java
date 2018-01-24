@@ -31,11 +31,11 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
-import ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter.ExperimentGroupLoader;
-import ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter.IGroupLoader;
+import ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter.ExperimentDataLoader;
+import ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter.IEntityDataLoader;
 
 /**
- * Test cases for {@link ExperimentGroupLoader}.
+ * Test cases for {@link ExperimentDataLoader}.
  * 
  * @author Izabela Adamczyk
  */
@@ -66,9 +66,9 @@ public class ExperimentGroupLoaderTest extends AssertJUnit
         context.assertIsSatisfied();
     }
 
-    IGroupLoader createLoader()
+    IEntityDataLoader createLoader()
     {
-        return new ExperimentGroupLoader(dao);
+        return new ExperimentDataLoader(dao);
     }
 
     @Test

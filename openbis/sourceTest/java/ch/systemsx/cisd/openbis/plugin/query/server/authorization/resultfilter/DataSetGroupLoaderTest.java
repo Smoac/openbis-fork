@@ -32,11 +32,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
-import ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter.DataSetGroupLoader;
-import ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter.IGroupLoader;
+import ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter.DataSetDataLoader;
+import ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter.IEntityDataLoader;
 
 /**
- * Test cases for {@link DataSetGroupLoader}.
+ * Test cases for {@link DataSetDataLoader}.
  * 
  * @author Izabela Adamczyk
  */
@@ -67,9 +67,9 @@ public class DataSetGroupLoaderTest extends AssertJUnit
         context.assertIsSatisfied();
     }
 
-    IGroupLoader createLoader()
+    IEntityDataLoader createLoader()
     {
-        return new DataSetGroupLoader(dao);
+        return new DataSetDataLoader(dao);
     }
 
     @Test

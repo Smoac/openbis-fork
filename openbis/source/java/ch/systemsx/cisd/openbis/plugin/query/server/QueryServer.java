@@ -126,7 +126,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     @ReturnValueFilter(validatorClass = ExpressionValidator.class)
     public List<QueryExpression> listQueries(String sessionToken, QueryType queryType,
             BasicEntityType entityTypeOrNull)
@@ -163,7 +163,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public void registerQuery(String sessionToken, NewQuery expression)
     {
         Session session = getSession(sessionToken);
@@ -190,7 +190,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public void deleteQueries(String sessionToken, List<TechId> queryIds)
     {
         Session session = getSession(sessionToken);
@@ -212,7 +212,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public void updateQuery(String sessionToken, IQueryUpdates updates)
     {
         Session session = getSession(sessionToken);
@@ -247,7 +247,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public TableModel queryDatabase(String sessionToken, QueryDatabase database, String sqlQuery,
             QueryParameterBindings bindings, boolean onlyPerform)
     {
@@ -271,7 +271,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
     public TableModel queryDatabase(String sessionToken, TechId queryId,
             QueryParameterBindings bindings)
     {

@@ -19,13 +19,16 @@ package ch.systemsx.cisd.openbis.plugin.query.server.authorization;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
 /**
- * Checks if given person has access to chosen group.
+ * Checks if given person has access to chosen group or project.
  * 
  * @author Izabela Adamczyk
  */
 public interface IAuthorizationChecker
 {
     boolean isAuthorized(PersonPE person, SpacePE dataSpaceOrNull, RoleWithHierarchy minimalRole);
+
+    boolean isAuthorized(PersonPE person, SpacePE dataSpaceOrNull, ProjectPE dataProjectOrNull, RoleWithHierarchy minimalRole);
 }

@@ -19,11 +19,11 @@ package ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 /**
- * Creates {@link IGroupLoader} for given {@link EntityKind}.
+ * Creates {@link IEntityDataLoader} for given {@link EntityKind}.
  * 
  * @author Izabela Adamczyk
  */
-public interface IGroupLoaderFactory
+public interface IEntityDataLoaderFactory
 {
-    public IGroupLoader create(EntityKind kind);
+    public IEntityDataLoader create(EntityKind kind);
 }

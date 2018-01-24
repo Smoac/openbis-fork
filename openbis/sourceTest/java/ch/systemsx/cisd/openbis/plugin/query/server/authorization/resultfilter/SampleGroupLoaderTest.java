@@ -30,11 +30,11 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter.IGroupLoader;
-import ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter.SampleGroupLoader;
+import ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter.IEntityDataLoader;
+import ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter.SampleDataLoader;
 
 /**
- * Test cases for {@link SampleGroupLoader}.
+ * Test cases for {@link SampleDataLoader}.
  * 
  * @author Izabela Adamczyk
  */
@@ -65,9 +65,9 @@ public class SampleGroupLoaderTest extends AssertJUnit
         context.assertIsSatisfied();
     }
 
-    IGroupLoader createLoader()
+    IEntityDataLoader createLoader()
     {
-        return new SampleGroupLoader(dao);
+        return new SampleDataLoader(dao);
     }
 
     @Test

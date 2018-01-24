@@ -21,21 +21,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
- * {@link IGroupLoader} for experiments.
+ * {@link IEntityDataLoader} for data sets.
  * 
  * @author Izabela Adamczyk
  */
-class ExperimentGroupLoader implements IGroupLoader
+class DataSetDataLoader implements IEntityDataLoader
 {
 
-    private final IExperimentDAO dao;
+    private final IDataDAO dao;
 
-    public ExperimentGroupLoader(IExperimentDAO dao)
+    public DataSetDataLoader(IDataDAO dao)
     {
         this.dao = dao;
     }
@@ -44,11 +45,24 @@ class ExperimentGroupLoader implements IGroupLoader
     public Map<String, SpacePE> loadGroups(Set<String> keys)
     {
         Map<String, SpacePE> map = new HashMap<String, SpacePE>();
-        List<ExperimentPE> experiments = dao.listByPermID(keys);
-        for (ExperimentPE e : experiments)
+        List<DataPE> data = dao.listByCode(keys);
+        for (DataPE d : data)
         {
-            map.put(e.getPermId(), e.getProject().getSpace());
+            map.put(d.getCode(), d.getSpace());
         }
         return map;
     }
+
+    @Override
+    public Map<String, ProjectPE> loadProjects(Set<String> keys)
+    {
+        Map<String, ProjectPE> map = new HashMap<String, ProjectPE>();
+        List<DataPE> data = dao.listByCode(keys);
+        for (DataPE d : data)
+        {
+            map.put(d.getCode(), d.getProject());
+        }
+        return map;
+    }
+
 }

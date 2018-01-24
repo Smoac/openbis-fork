@@ -41,11 +41,14 @@ public class QueryAccessController
     private static final Logger authorizationLog = LogFactory.getLogger(LogCategory.AUTH,
             QueryAccessController.class);
 
+    private static IDAOFactory daoFactory;
+
     private static Map<String, DatabaseDefinition> definitionsByDbKey;
 
-    public static void initialize(Map<String, DatabaseDefinition> definitions)
+    public static void initialize(IDAOFactory factory, Map<String, DatabaseDefinition> definitions)
     {
-        definitionsByDbKey = definitions;
+        QueryAccessController.daoFactory = factory;
+        QueryAccessController.definitionsByDbKey = definitions;
     }
 
     public static void checkWriteAccess(Session session, String dbKey, String operation)
@@ -63,7 +66,15 @@ public class QueryAccessController
         DatabaseDefinition database = definitionsByDbKey.get(dbKey);
         PersonPE person = session.tryGetPerson();
         SpacePE dataSpaceOrNull = database.tryGetDataSpace();
-        RoleWithHierarchy minimalRole = RoleWithHierarchy.SPACE_OBSERVER;
+        RoleWithHierarchy minimalRole = null;
+
+        if (dataSpaceOrNull == null)
+        {
+            minimalRole = RoleWithHierarchy.PROJECT_OBSERVER;
+        } else
+        {
+            minimalRole = RoleWithHierarchy.SPACE_OBSERVER;
+        }
 
         checkAuthorization(session, "perform", database, person, dataSpaceOrNull, minimalRole);
     }
@@ -84,7 +95,7 @@ public class QueryAccessController
     static boolean isAuthorized(PersonPE person, SpacePE dataSpaceOrNull,
             RoleWithHierarchy minimalRole)
     {
-        return new AuthorizationChecker().isAuthorized(person, dataSpaceOrNull, minimalRole);
+        return new AuthorizationChecker(daoFactory.getAuthorizationConfig()).isAuthorized(person, dataSpaceOrNull, minimalRole);
     }
 
     private static String createErrorMessage(String operation, String userName,

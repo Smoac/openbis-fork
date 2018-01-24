@@ -19,14 +19,17 @@ package ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter;
 import java.util.Map;
 import java.util.Set;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
- * Loads the groups connected with entities described by given keys.
+ * Loads data connected with entities described by given keys.
  * 
  * @author Izabela Adamczyk
  */
-public interface IGroupLoader
+public interface IEntityDataLoader
 {
     Map<String, SpacePE> loadGroups(Set<String> keys);
+
+    Map<String, ProjectPE> loadProjects(Set<String> keys);
 }

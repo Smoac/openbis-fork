@@ -31,8 +31,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.plugin.query.server.authorization.AuthorizationChecker;
 import ch.systemsx.cisd.openbis.plugin.query.server.authorization.IAuthorizationChecker;
 
@@ -44,24 +45,24 @@ import ch.systemsx.cisd.openbis.plugin.query.server.authorization.IAuthorization
  */
 public class QueryResultFilter
 {
-    private final IGroupLoaderFactory groupLoaderFactory;
+    private final IEntityDataLoaderFactory dataLoaderFactory;
 
     private final IAuthorizationChecker authorizationChecker;
 
     private static final EntityKind[] FILTRABLE_ENTITY_KINDS =
-    { EntityKind.EXPERIMENT, EntityKind.SAMPLE, EntityKind.DATA_SET };
+            { EntityKind.EXPERIMENT, EntityKind.SAMPLE, EntityKind.DATA_SET };
 
     public QueryResultFilter(IDAOFactory daoFactory)
     {
-        this.groupLoaderFactory = new GroupLoaderFactory(daoFactory);
-        this.authorizationChecker = new AuthorizationChecker();
+        this.dataLoaderFactory = new EntityDataLoaderFactory(daoFactory);
+        this.authorizationChecker = new AuthorizationChecker(daoFactory.getAuthorizationConfig());
     }
 
     @Private
-    QueryResultFilter(IGroupLoaderFactory groupLoaderFactory,
+    QueryResultFilter(IEntityDataLoaderFactory dataLoaderFactory,
             IAuthorizationChecker authorizationChecker)
     {
-        this.groupLoaderFactory = groupLoaderFactory;
+        this.dataLoaderFactory = dataLoaderFactory;
         this.authorizationChecker = authorizationChecker;
     }
 
@@ -79,19 +80,26 @@ public class QueryResultFilter
         List<Integer> columnsToFilter = getColumnsToFilter(table, kind);
         Set<String> entityIdentifiers = getValues(table, columnsToFilter);
         Map<String, SpacePE> entitySpaces = loadGroups(entityIdentifiers, kind);
+        Map<String, ProjectPE> entityProjects = loadProjects(entityIdentifiers, kind);
         Iterator<TableModelRow> rowIterator = table.getRows().iterator();
+
         rowLoop: while (rowIterator.hasNext())
         {
             TableModelRow row = rowIterator.next();
             for (int c : columnsToFilter)
             {
                 ISerializableComparable value = row.getValues().get(c);
-                if (value != null
-                        && authorizationChecker.isAuthorized(person, entitySpaces.get(value
-                                .toString()), RoleWithHierarchy.SPACE_OBSERVER) == false)
+
+                if (value != null)
                 {
-                    rowIterator.remove();
-                    continue rowLoop;
+                    SpacePE entitySpace = entitySpaces.get(value.toString());
+                    ProjectPE entityProject = entityProjects.get(value.toString());
+
+                    if (canAccessSpace(person, entitySpace) == false && canAccessProject(person, entitySpace, entityProject) == false)
+                    {
+                        rowIterator.remove();
+                        continue rowLoop;
+                    }
                 }
             }
         }
@@ -131,7 +139,22 @@ public class QueryResultFilter
 
     private Map<String, SpacePE> loadGroups(Set<String> values, EntityKind kind)
     {
-        return groupLoaderFactory.create(kind).loadGroups(values);
+        return dataLoaderFactory.create(kind).loadGroups(values);
+    }
+
+    private Map<String, ProjectPE> loadProjects(Set<String> values, EntityKind kind)
+    {
+        return dataLoaderFactory.create(kind).loadProjects(values);
+    }
+
+    private boolean canAccessSpace(PersonPE person, SpacePE space)
+    {
+        return authorizationChecker.isAuthorized(person, space, RoleWithHierarchy.SPACE_OBSERVER);
+    }
+
+    private boolean canAccessProject(PersonPE person, SpacePE space, ProjectPE project)
+    {
+        return authorizationChecker.isAuthorized(person, space, project, RoleWithHierarchy.PROJECT_OBSERVER);
     }
 
 }

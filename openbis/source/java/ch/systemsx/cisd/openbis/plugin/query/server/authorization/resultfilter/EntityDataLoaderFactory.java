@@ -20,30 +20,30 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 /**
- * Default implementation of {@link IGroupLoaderFactory}.
+ * Default implementation of {@link IEntityDataLoaderFactory}.
  * 
  * @author Izabela Adamczyk
  */
-class GroupLoaderFactory implements IGroupLoaderFactory
+class EntityDataLoaderFactory implements IEntityDataLoaderFactory
 {
     private final IDAOFactory factory;
 
-    public GroupLoaderFactory(IDAOFactory factory)
+    public EntityDataLoaderFactory(IDAOFactory factory)
     {
         this.factory = factory;
     }
 
     @Override
-    public IGroupLoader create(EntityKind kind)
+    public IEntityDataLoader create(EntityKind kind)
     {
         switch (kind)
         {
             case EXPERIMENT:
-                return new ExperimentGroupLoader(factory.getExperimentDAO());
+                return new ExperimentDataLoader(factory.getExperimentDAO());
             case SAMPLE:
-                return new SampleGroupLoader(factory.getSampleDAO());
+                return new SampleDataLoader(factory.getSampleDAO());
             case DATA_SET:
-                return new DataSetGroupLoader(factory.getDataDAO());
+                return new DataSetDataLoader(factory.getDataDAO());
             case MATERIAL:
                 throw new UnsupportedOperationException();
         }

@@ -25,14 +25,14 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter.DataSetGroupLoader;
-import ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter.ExperimentGroupLoader;
-import ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter.GroupLoaderFactory;
-import ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter.IGroupLoader;
-import ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter.SampleGroupLoader;
+import ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter.DataSetDataLoader;
+import ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter.ExperimentDataLoader;
+import ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter.EntityDataLoaderFactory;
+import ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter.IEntityDataLoader;
+import ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter.SampleDataLoader;
 
 /**
- * Test cases for {@link GroupLoaderFactory}.
+ * Test cases for {@link EntityDataLoaderFactory}.
  * 
  * @author Izabela Adamczyk
  */
@@ -68,8 +68,8 @@ public class GroupLoaderFactoryTest extends AssertJUnit
                     will(returnValue(null));
                 }
             });
-        IGroupLoader loader = new GroupLoaderFactory(daoFactory).create(EntityKind.EXPERIMENT);
-        assertTrue(loader instanceof ExperimentGroupLoader);
+        IEntityDataLoader loader = new EntityDataLoaderFactory(daoFactory).create(EntityKind.EXPERIMENT);
+        assertTrue(loader instanceof ExperimentDataLoader);
         context.assertIsSatisfied();
     }
 
@@ -83,8 +83,8 @@ public class GroupLoaderFactoryTest extends AssertJUnit
                     will(returnValue(null));
                 }
             });
-        IGroupLoader loader = new GroupLoaderFactory(daoFactory).create(EntityKind.SAMPLE);
-        assertTrue(loader instanceof SampleGroupLoader);
+        IEntityDataLoader loader = new EntityDataLoaderFactory(daoFactory).create(EntityKind.SAMPLE);
+        assertTrue(loader instanceof SampleDataLoader);
         context.assertIsSatisfied();
     }
 
@@ -98,14 +98,14 @@ public class GroupLoaderFactoryTest extends AssertJUnit
                     will(returnValue(null));
                 }
             });
-        IGroupLoader loader = new GroupLoaderFactory(daoFactory).create(EntityKind.DATA_SET);
-        assertTrue(loader instanceof DataSetGroupLoader);
+        IEntityDataLoader loader = new EntityDataLoaderFactory(daoFactory).create(EntityKind.DATA_SET);
+        assertTrue(loader instanceof DataSetDataLoader);
         context.assertIsSatisfied();
     }
 
     @Test(expectedExceptions = UnsupportedOperationException.class)
     public void testFailCreateMaterialLoader() throws Exception
     {
-        new GroupLoaderFactory(daoFactory).create(EntityKind.MATERIAL);
+        new EntityDataLoaderFactory(daoFactory).create(EntityKind.MATERIAL);
     }
 }

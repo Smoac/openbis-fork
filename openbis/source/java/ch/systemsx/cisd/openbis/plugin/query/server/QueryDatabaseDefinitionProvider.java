@@ -157,7 +157,7 @@ public class QueryDatabaseDefinitionProvider implements IQueryDatabaseDefinition
             }
 
         }
-        QueryAccessController.initialize(definitions);
+        QueryAccessController.initialize(daoFactory, definitions);
     }
 
     private static String getDefaultRoleForDataSource(final String dataSpaceOrNull)

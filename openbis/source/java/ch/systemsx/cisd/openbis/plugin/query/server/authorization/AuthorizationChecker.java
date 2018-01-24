@@ -21,9 +21,11 @@ import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.server.authorization.DefaultAccessController;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
@@ -35,14 +37,20 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 public class AuthorizationChecker implements IAuthorizationChecker
 {
 
+    private IAuthorizationConfig authorizationConfig;
+
+    public AuthorizationChecker(IAuthorizationConfig authorizationConfig)
+    {
+        this.authorizationConfig = authorizationConfig;
+    }
+
     @Override
     public boolean isAuthorized(PersonPE person, SpacePE dataSpaceOrNull, RoleWithHierarchy minimalRole)
     {
-        final Set<RoleWithHierarchy> requiredRoles = minimalRole.getRoles();
         if (person != null)
         {
-            List<RoleWithIdentifier> userRoles = DefaultAccessController.getUserRoles(person);
-            DefaultAccessController.retainMatchingRoleWithIdentifiers(userRoles, requiredRoles);
+            List<RoleWithIdentifier> userRoles = getUserRoles(person, minimalRole);
+
             if (userRoles.size() > 0)
             {
                 if (dataSpaceOrNull == null)
@@ -60,6 +68,36 @@ public class AuthorizationChecker implements IAuthorizationChecker
         return false;
     }
 
+    @Override
+    public boolean isAuthorized(PersonPE person, SpacePE dataSpaceOrNull, ProjectPE dataProjectOrNull, RoleWithHierarchy minimalRole)
+    {
+        if (person == null)
+        {
+            return false;
+        }
+
+        if (dataProjectOrNull == null)
+        {
+            return dataSpaceOrNull == null;
+        }
+
+        if (authorizationConfig.isProjectLevelEnabled() && authorizationConfig.isProjectLevelUser(person.getUserId()))
+        {
+            List<RoleWithIdentifier> userRoles = getUserRoles(person, minimalRole);
+            return isProjectMatching(userRoles, dataProjectOrNull);
+        }
+
+        return false;
+    }
+
+    private static List<RoleWithIdentifier> getUserRoles(PersonPE person, RoleWithHierarchy minimalRole)
+    {
+        Set<RoleWithHierarchy> requiredRoles = minimalRole.getRoles();
+        List<RoleWithIdentifier> userRoles = DefaultAccessController.getUserRoles(person);
+        DefaultAccessController.retainMatchingRoleWithIdentifiers(userRoles, requiredRoles);
+        return userRoles;
+    }
+
     private static boolean isSpaceMatching(List<RoleWithIdentifier> userRoles,
             final SpacePE requiredSpace)
     {
@@ -73,6 +111,26 @@ public class AuthorizationChecker implements IAuthorizationChecker
             } else if (roleGroup.equals(RoleLevel.INSTANCE))
             {
                 // permissions on the database instance level allow to access all groups in this
+                // instance
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean isProjectMatching(List<RoleWithIdentifier> userRoles,
+            final ProjectPE requiredProject)
+    {
+
+        for (final RoleWithIdentifier role : userRoles)
+        {
+            final RoleLevel roleGroup = role.getRoleLevel();
+            if (roleGroup.equals(RoleLevel.PROJECT) && role.getAssignedProject().equals(requiredProject))
+            {
+                return true;
+            } else if (roleGroup.equals(RoleLevel.INSTANCE))
+            {
+                // permissions on the database instance level allow to access all projects in this
                 // instance
                 return true;
             }

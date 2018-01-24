@@ -19,11 +19,17 @@ package ch.systemsx.cisd.openbis.plugin.query.server.authorization;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.server.authorization.TestAuthorizationConfig;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -38,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 public class QueryAccessControllerTest
 {
 
-    private static final String DB_INSTANCE = "DB_INSTANCE";
+    private IDAOFactory daoFactory;
 
     private final static RoleAssignmentPE createGroupRole(String groupCode, RoleCode role)
     {
@@ -69,6 +75,21 @@ public class QueryAccessControllerTest
     }
 
     // no person
+
+    @BeforeClass
+    public void setUp()
+    {
+        Mockery context = new Mockery();
+        daoFactory = context.mock(IDAOFactory.class);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getAuthorizationConfig();
+                    will(returnValue(new TestAuthorizationConfig(false, false)));
+                }
+            });
+        QueryAccessController.initialize(daoFactory, new HashMap<>());
+    }
 
     @Test
     public final void testIsAuthorizedWithNoPersonFailure()

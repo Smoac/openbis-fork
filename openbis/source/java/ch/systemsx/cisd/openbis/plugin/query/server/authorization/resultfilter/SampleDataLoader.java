@@ -23,19 +23,20 @@ import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
- * {@link IGroupLoader} for samples.
+ * {@link IEntityDataLoader} for samples.
  * 
  * @author Izabela Adamczyk
  */
-class SampleGroupLoader implements IGroupLoader
+class SampleDataLoader implements IEntityDataLoader
 {
 
     private final ISampleDAO dao;
 
-    public SampleGroupLoader(ISampleDAO dao)
+    public SampleDataLoader(ISampleDAO dao)
     {
         this.dao = dao;
     }
@@ -51,4 +52,27 @@ class SampleGroupLoader implements IGroupLoader
         }
         return map;
     }
+
+    @Override
+    public Map<String, ProjectPE> loadProjects(Set<String> keys)
+    {
+        Map<String, ProjectPE> map = new HashMap<String, ProjectPE>();
+        List<SamplePE> samples = dao.listByPermID(keys);
+        for (SamplePE s : samples)
+        {
+            ProjectPE project = null;
+
+            if (s.getExperiment() != null)
+            {
+                project = s.getExperiment().getProject();
+            } else if (s.getProject() != null)
+            {
+                project = s.getProject();
+            }
+
+            map.put(s.getPermId(), project);
+        }
+        return map;
+    }
+
 }
