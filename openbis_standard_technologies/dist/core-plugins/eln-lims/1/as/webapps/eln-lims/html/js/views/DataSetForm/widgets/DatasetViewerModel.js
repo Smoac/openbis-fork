@@ -42,11 +42,13 @@ function DataSetViewerModel(containerId, profile, entity, serverFacade, datastor
 		
 		if(this.isLinkDataset(datasetCode)) {
 			var cc = this.getDownloadableContentCopy(datasetCode);
-			downloadUrl = profile.EDMSs[cc.externalDms.code] + "?sessionToken=" + encodeURIComponent(mainController.serverFacade.getSession())
+			if(cc) {
+				downloadUrl = profile.EDMSs[cc.externalDms.code] + "?sessionToken=" + encodeURIComponent(mainController.serverFacade.getSession())
 													+ "&datasetPermId=" + encodeURIComponent(datasetCode)
 													+ "&externalDMSCode=" + encodeURIComponent(cc.externalDms.code)
 													+ "&contentCopyPath=" + encodeURIComponent(cc.path)
 													+ "&datasetPathToFile=" + encodeURIComponent(datasetFile.pathInDataSet);
+			}
 		} else {
 			downloadUrl = this.datastoreDownloadURL + '/' + datasetCode + "/" + encodeURIComponent(datasetFile.pathInDataSet) + "?sessionID=" + mainController.serverFacade.getSession();
 		}
@@ -61,13 +63,18 @@ function DataSetViewerModel(containerId, profile, entity, serverFacade, datastor
 		}
 		var size = Math.floor(size * 10) / 10; //Rounded to one decimal
 		
-		var $link = $("<a>").attr("href", downloadUrl)
+		var $link = null;
+		if(downloadUrl) {
+			$link = $("<a>").attr("href", downloadUrl)
 							.attr("target", "_blank")
 							.append(datasetFile.pathInListing)
 							.append(" ("+ size + unit +")")
 							.click(function(event) {
 								event.stopPropagation();
 							});
+		} else {
+			$link = datasetFile.pathInListing;
+		}
 		
 		return $link;
 	}
