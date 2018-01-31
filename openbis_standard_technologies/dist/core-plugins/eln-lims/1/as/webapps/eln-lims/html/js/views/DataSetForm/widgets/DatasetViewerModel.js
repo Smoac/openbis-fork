@@ -37,7 +37,6 @@ function DataSetViewerModel(containerId, profile, entity, serverFacade, datastor
 	this.datastoreDownloadURL = datastoreDownloadURL;
 	
 	this.getDownloadLink = function(datasetCode, datasetFile, isShowSize) {
-		
 		var downloadUrl = null;
 		
 		if(this.isLinkDataset(datasetCode)) {
@@ -73,7 +72,7 @@ function DataSetViewerModel(containerId, profile, entity, serverFacade, datastor
 								event.stopPropagation();
 							});
 		} else {
-			$link = datasetFile.pathInListing;
+			$link = $("<span>").text(datasetFile.pathInListing);
 		}
 		
 		return $link;
