@@ -75,6 +75,8 @@ function DataSetViewerController(containerId, profile, entity, serverFacade, dat
 		var _this = this;
 		var datasetPermIds = [];
 		
+		_this._datasetViewerModel.datasets = datasets; //In case they are loaded after the model is already created.
+		
 		for(var i = 0; i < datasets.length; i++) { //DataSets for entity
 			var dataset = datasets[i];
 			this._datasetViewerModel.entityDataSets[dataset.code] = dataset;
