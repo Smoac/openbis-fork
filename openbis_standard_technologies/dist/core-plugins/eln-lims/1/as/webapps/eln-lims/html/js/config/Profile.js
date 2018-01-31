@@ -116,9 +116,9 @@ $.extend(DefaultProfile.prototype, {
 		
 		this.isAdmin = false;
 
-//		obis integration config
+//		BigDataLink EDMs config
 		this.EDMSs = {
-				"JUANF-BS-MBPR28.D.ETHZ.CH-E96954A7" : "http://localhost:8080/download"
+//				"EXAMPLE-BS-MBPR28.D.ETHZ.CH-E96954A7" : "http://localhost:8080/download"
 		}
 		
 //		Jupyter integration config
