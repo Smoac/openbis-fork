@@ -1,4 +1,19 @@
-apply from: '../gradle/javaproject.gradle'
+apply plugin: 'java'
+apply plugin: 'application'
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.5'
+}
+
+// version = '0.1'
+
+repositories {
+    mavenCentral()
+    ivy {
+        ivyPattern "http://svnsis.ethz.ch/repos/cisd/ivy-repository/trunk/[organisation]/[module]/[revision]/ivy.xml"
+        artifactPattern "http://svnsis.ethz.ch/repos/cisd/ivy-repository/trunk/[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
+    }	
+}
 
 dependencies {
 	compile 'eclipse:jetty-all:9.4.8.v20171121',
@@ -9,4 +24,14 @@ dependencies {
 			'fasterxml:jackson-core:2.0.2',
 			'fasterxml:jackson-databind:2.0.2',
 			'openbis:openbis-v3-api-batteries-included:S269'
+}
+
+
+mainClassName = "ch.ethz.sis.microservices.download.server.startup.Main"
+
+distZip {
+    into(project.name) {
+        from './conf'
+        include '*'
+    }
 }
