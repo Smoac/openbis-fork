@@ -1,0 +1,27 @@
+{
+	"port" : 8080,
+	"services" : [
+		{	
+			"className" : "ch.ethz.sis.microservices.download.server.services.store.FileInfoHandler", 
+			"url" : "/file-information",
+			"parameters" : {
+				"openbis-url" : "http://localhost:8888/openbis/openbis/rmi-application-server-v3",
+				"datastore-url" : "http://localhost:8889/datastore_server/rmi-data-store-server-v3",
+				"services-timeout" : "10000",
+				"allowedExternalDMSCode" : "ADMIN-BS-MBPR28.D.ETHZ.CH-E96954A7",
+				"allowedContentCopyPath" : "/Users/localadmin/obis_data/"
+			}
+		}, 
+		{ 
+			"className" : "ch.ethz.sis.microservices.download.server.services.store.DownloadHandler", 
+			"url" : "/download",
+			"parameters" : { 
+				"openbis-url" : "http://localhost:8888/openbis/openbis/rmi-application-server-v3",
+				"datastore-url" : "http://localhost:8889/datastore_server/rmi-data-store-server-v3",
+				"services-timeout" : "10000",
+				"allowedExternalDMSCode" : "ADMIN-BS-MBPR28.D.ETHZ.CH-E96954A7",
+				"allowedContentCopyPath" : "/Users/localadmin/obis_data/"
+			}
+		} 
+	]
+}

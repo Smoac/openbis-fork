@@ -1,0 +1,12 @@
+apply from: '../gradle/javaproject.gradle'
+
+dependencies {
+	compile 'eclipse:jetty-all:9.4.8.v20171121',
+			'lombok:lombok:1.16.20',
+			'log4j:log4j-api:2.10.0',
+			'log4j:log4j-core:2.10.0',
+			'fasterxml:jackson-annotations:2.0.2',
+			'fasterxml:jackson-core:2.0.2',
+			'fasterxml:jackson-databind:2.0.2',
+			'openbis:openbis-v3-api-batteries-included:S269'
+}
