@@ -5,3 +5,4 @@
 /.updater
 /.dynamic_property_evaluator_queue
 /bin
+/build/

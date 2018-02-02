@@ -1,4 +1,4 @@
 includeFlat 'commonbase', 'common', 'openbis_api', 'openbis-common', 'authentication', 'dbmigration', 'openbis', 
     'datastore_server', 'screening', 'rtd_phosphonetx', 'deep_sequencing_unit', 'rtd_yeastx', 
     'openbis_standard_technologies', 'installation', 'image_readers', 'ui-test', 'js-test', 'datamover', 
-    'plasmid', 'rtd_cina', 'openbis_oai_pmh'
+    'plasmid', 'rtd_cina', 'openbis_oai_pmh', 'openbis_all'
