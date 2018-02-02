@@ -40,123 +40,41 @@ function state_end {
 	echo ""	
 }
 
-function setup13 {
-	state_start "Setup for 13.05"
-  	echo "svn checkout svn+ssh://svncisd.ethz.ch/repos/cisd/build_resources/trunk build_resources"
-	if [ $EXECUTE_COMMANDS ]; then
-  		svn checkout svn+ssh://svncisd.ethz.ch/repos/cisd/build_resources/trunk build_resources
-	fi
-  
-  	echo "cd build_resources"
-	if [ $EXECUTE_COMMANDS ]; then
-  		cd build_resources
-	fi
-	state_end
-}
-
 function setup {
   state_start Setup
   
   if [ $SUBVER -eq 0 ]; then
-    echo "$BIN_DIR/build/branch.sh stage/$VER.x"
+    echo "$BIN_DIR/build/branch.sh $VER.x"
     if [ $EXECUTE_COMMANDS ]; then
-      ./$BIN_DIR/build/branch.sh stage/$VER.x
+      ./$BIN_DIR/build/branch.sh $VER.x
     fi
   fi
   
   state_end
 }
 
-function tag13 {
-	state_start "Tagging openBIS to $FULL_VER..."
-	
-	echo "./tag_release.sh openbis_all $FULL_VER"
-	if [ $EXECUTE_COMMANDS ]; then
-		./tag_release.sh openbis_all $FULL_VER
-	fi
-	state_end
-}
-
 function tag {
-  state_start "Tagging release/$VER.x to $FULL_VER..."
+  state_start "Tagging $VER.x to $FULL_VER..."
   
-  echo "$BIN_DIR/build/tag.sh stage/$VER.x release/$VER.x/$FULL_VER"
+  echo "$BIN_DIR/build/tag.sh $VER.x $FULL_VER"
   if [ $EXECUTE_COMMANDS ]; then
-    "$BIN_DIR/build/tag.sh" stage/$VER.x release/$VER.x/$FULL_VER
+    "$BIN_DIR/build/tag.sh" $VER.x $FULL_VER
   fi
   
   state_end
-}
-
-function build13 {
-	state_start "Building openBIS..."
-	
-	echo "./build_ant.sh openbis_all $FULL_VER"
-	if [ $EXECUTE_COMMANDS ]; then
-		./build_ant.sh openbis_all $FULL_VER
-	fi
-	state_end
 }
 
 function build {
   state_start "Building openBIS $FULL_VER"
   
-  echo "$BIN_DIR/build/build.sh release/$VER.x $FULL_VER"
+  echo "$BIN_DIR/build/build.sh $VER.x $FULL_VER"
   if [ $EXECUTE_COMMANDS ]; then
-    "$BIN_DIR/build/build.sh" release/$VER.x $FULL_VER
+    "$BIN_DIR/build/build.sh" $VER.x $FULL_VER
   fi
   
   state_end
 }
 
-function copy_to_cisd_server {
-	state_start "Copying new openBIS components to sprint-builds'..."
-	
-	if [ $EXECUTE_COMMANDS ]; then
-	  
-		OPENBIS_PATH=~openbis/fileserver/sprint_builds/openBIS
-		SPRINT_DIR=$OPENBIS_PATH/$TODAY-$FULL_VER
-		mkdir -p $SPRINT_DIR
-		cp -p *$FULL_VER*.{zip,gz,jar} $SPRINT_DIR/
-		cp -p *knime*.jar $SPRINT_DIR/
-		chmod g+w -R $SPRINT_DIR
-	fi
-	state_end
-}
-
-function publish_javadocs {
-
-	state_start "Publishing javadocs ..."
-	
-	if [ $EXECUTE_COMMANDS ]; then
-	    local javadocSrcDir=tmp/openbis_all/targets/dist/javadoc
-	    
-	    if [ -d "$javadocSrcDir" ]; then
-			    pushd .
-			    
-			    cp -R $javadocSrcDir $JAVADOC_FOLDER/$FULL_VER
-			    cd $JAVADOC_FOLDER
-			    rm -f current
-			    ln -s $FULL_VER current
-			    
-			    popd
-			fi
-	fi
-	state_end
-}
-
-
-function install_sprint {
-	# If sprint install script is present and executable, run it!
-	if [ $EXECUTE_COMMANDS ]; then
-		if [ -x $SPRINT_INSTALL_SCRIPT ]; then
-			state_start "Installing new sprint builds on '$SPRINT_SERVER'..."
-		    echo Installing server remotely...
-		    cat $SPRINT_INSTALL_SCRIPT | ssh -T $SPRINT_SERVER "cat > ~/$SPRINT_INSTALL_SCRIPT ; chmod 755 ~/$SPRINT_INSTALL_SCRIPT ; ~/$SPRINT_INSTALL_SCRIPT $VER ; rm -f ~/$SPRINT_INSTALL_SCRIPT"
-			state_end
-		fi
-	fi
-}
 
 if [ $EXECUTE_COMMANDS ]; then
 	echo -n
@@ -164,17 +82,8 @@ else
 	state_start "RUNNING DRY RUN"
 fi
 
-if [ ${VER%.*} == "13" ]; then
-  setup13
-  tag13
-  build13
-  copy_to_cisd_server
-  publish_javadocs
-  install_sprint
-else
-  setup
-  tag
-  build
-fi
+setup
+tag
+build
 
 state_start Done!

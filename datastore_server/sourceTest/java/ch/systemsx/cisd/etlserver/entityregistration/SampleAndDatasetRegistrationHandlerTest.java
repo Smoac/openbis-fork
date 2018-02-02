@@ -464,13 +464,10 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
                 new File("sourceTest/java/ch/systemsx/cisd/etlserver/entityregistration/test-data/"
                         + folderName);
 
+        dataSetFile.mkdir();
+
         workingCopy = new File(workingDirectory, folderName);
         FileOperations.getInstance().copy(dataSetFile, workingCopy);
-        final File svnFolder = new File(workingCopy, ".svn");
-        if (svnFolder.exists())
-        {
-            FileOperations.getInstance().deleteRecursively(svnFolder);
-        }
 
         markerFile = new File(workingDirectory, FileConstants.IS_FINISHED_PREFIX + folderName);
         FileUtilities.writeToFile(markerFile, "");
