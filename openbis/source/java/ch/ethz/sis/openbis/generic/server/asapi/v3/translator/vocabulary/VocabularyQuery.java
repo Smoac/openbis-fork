@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.vocabulary;
 
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.util.List;
@@ -32,7 +33,8 @@ import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
 public interface VocabularyQuery extends ObjectQuery
 {
 
-    @Select(sql = "select v.id, v.code, v.description, v.is_internal_namespace as isInternalNamespace, v.modification_timestamp as modificationDate, v.registration_timestamp as registrationDate "
+    @Select(sql = "select v.id, v.code, v.description, v.is_internal_namespace as isInternalNamespace, "
+            + "v.is_managed_internally as isManagedInternally, v.modification_timestamp as modificationDate, v.registration_timestamp as registrationDate "
             + "from controlled_vocabularies v where v.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<VocabularyBaseRecord> getVocabularies(LongSet vocabularyIds);
 
@@ -52,5 +54,9 @@ public interface VocabularyQuery extends ObjectQuery
     @Select(sql = "select t.id as objectId, t.covo_id as relatedId "
             + "from controlled_vocabulary_terms t where t.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getTermVocabularyIds(LongSet termIds);
+
+    @Select(sql = "select covo_id as objectId, id as relatedId from controlled_vocabulary_terms where covo_id = any(?{1})", 
+            parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ObjectRelationRecord> getTermsIds(LongOpenHashSet vocabularyIds);
 
 }

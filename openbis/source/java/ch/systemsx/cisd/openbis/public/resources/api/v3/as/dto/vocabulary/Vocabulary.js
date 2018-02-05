@@ -14,6 +14,9 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.registrationDate = null;
 		prototype.registrator = null;
 		prototype.modificationDate = null;
+		prototype.managedInternally = null;
+		prototype.internalNameSpace = null;
+		prototype.terms = null;
 
 		prototype.getFetchOptions = function() {
 			return this.fetchOptions;
@@ -55,11 +58,37 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setModificationDate = function(modificationDate) {
 			this.modificationDate = modificationDate;
 		};
+		prototype.isManagedInternally = function() {
+			return this.managedInternally;
+		};
+		prototype.setManagedInternally = function(managedInternally) {
+			this.managedInternally = managedInternally;
+		};
+		prototype.isInternalNameSpace = function() {
+			return this.internalNameSpace;
+		};
+		prototype.setInternalNameSpace = function(internalNameSpace) {
+			this.internalNameSpace = internalNameSpace;
+		};
+		prototype.getTerms = function() {
+			if (this.getFetchOptions() && this.getFetchOptions().hasTerms()) {
+				return this.terms;
+			} else {
+				throw new exceptions.NotFetchedException("Terms have not been fetched.");
+			}
+		};
+		prototype.setTerms = function(terms) {
+			this.terms = terms;
+		};
 	}, {
 		fetchOptions : "VocabularyFetchOptions",
 		registrationDate : "Date",
 		registrator : "Person",
-		modificationDate : "Date"
+		modificationDate : "Date",
+		terms : {
+			name : "List",
+			arguments : [ "VocabularyTerm" ]
+		}
 	});
 	return Vocabulary;
 })

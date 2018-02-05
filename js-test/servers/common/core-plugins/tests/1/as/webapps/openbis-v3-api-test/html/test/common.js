@@ -108,6 +108,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.MaterialSearchCriteria = dtos.MaterialSearchCriteria;
 		this.MaterialTypeSearchCriteria = dtos.MaterialTypeSearchCriteria;
 		this.ExternalDmsSearchCriteria = dtos.ExternalDmsSearchCriteria;
+		this.VocabularySearchCriteria = dtos.VocabularySearchCriteria;
 		this.VocabularyTermSearchCriteria = dtos.VocabularyTermSearchCriteria;
 		this.DataSetFileSearchCriteria = dtos.DataSetFileSearchCriteria;
 		this.TagSearchCriteria = dtos.TagSearchCriteria;
@@ -233,6 +234,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.SearchDataSetTypesOperation = dtos.SearchDataSetTypesOperation;
 		this.SearchMaterialsOperation = dtos.SearchMaterialsOperation;
 		this.SearchMaterialTypesOperation = dtos.SearchMaterialTypesOperation;
+		this.SearchVocabulariesOperation = dtos.SearchVocabulariesOperation;
 		this.SearchVocabularyTermsOperation = dtos.SearchVocabularyTermsOperation;
 		this.SearchExternalDmsOperation = dtos.SearchExternalDmsOperation;
 		this.SearchTagsOperation = dtos.SearchTagsOperation;
@@ -899,6 +901,13 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			return fo;
 		};
 
+		this.createVocabularyFetchOptions = function() {
+			var fo = new dtos.VocabularyFetchOptions();
+			fo.withTerms();
+			fo.withRegistrator();
+			return fo;
+		};
+		
 		this.createVocabularyTermFetchOptions = function() {
 			var fo = new dtos.VocabularyTermFetchOptions();
 			fo.withVocabulary();

@@ -1239,6 +1239,28 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testSearch(c, fSearch, fCheck);
 		});
 
+		QUnit.test("searchVocabularies()", function(assert) {
+			var c = new common(assert, openbis);
+
+			var fSearch = function(facade) {
+				var criteria = new c.VocabularySearchCriteria();
+				criteria.withCode().thatEquals("$STORAGE_FORMAT");
+				return facade.searchVocabularies(criteria, c.createVocabularyFetchOptions());
+			}
+
+			var fCheck = function(facade, vocabularies) {
+				c.assertEqual(vocabularies.length, 1);
+				var vocabulary = vocabularies[0];
+				c.assertEqual(vocabulary.getCode(), "$STORAGE_FORMAT", "Code");
+				c.assertEqual(vocabulary.getDescription(), "The on-disk storage format of a data set", "Description");
+				c.assertEqual(vocabulary.isManagedInternally(), true, "Managed internally");
+				c.assertEqual(vocabulary.isInternalNameSpace(), true, "Internal namespace");
+				c.assertEqual(vocabulary.getTerms().length, 2, "# of terms");
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
 		QUnit.test("searchVocabularyTerms()", function(assert) {
 			var c = new common(assert, openbis);
 
@@ -1259,7 +1281,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 			testSearch(c, fSearch, fCheck);
 		});
-
+		
 		QUnit.test("searchExternalDms()", function(assert) {
 			var c = new common(assert, openbis);
 

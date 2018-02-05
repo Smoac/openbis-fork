@@ -33,6 +33,9 @@ public class VocabularyFetchOptions extends FetchOptions<Vocabulary> implements 
 
     @JsonProperty
     private PersonFetchOptions registrator;
+    
+    @JsonProperty
+    private VocabularyTermFetchOptions terms;
 
     @JsonProperty
     private VocabularySortOptions sort;
@@ -57,6 +60,25 @@ public class VocabularyFetchOptions extends FetchOptions<Vocabulary> implements 
     public boolean hasRegistrator()
     {
         return registrator != null;
+    }
+    
+    public VocabularyTermFetchOptions withTerms()
+    {
+        if (terms == null)
+        {
+            terms = new VocabularyTermFetchOptions();
+        }
+        return terms;
+    }
+    
+    public VocabularyTermFetchOptions withTermsUsing(VocabularyTermFetchOptions fetchOptions)
+    {
+        return terms = fetchOptions;
+    }
+    
+    public boolean hasTerms()
+    {
+        return terms != null;
     }
 
     // Method automatically generated with DtoGenerator

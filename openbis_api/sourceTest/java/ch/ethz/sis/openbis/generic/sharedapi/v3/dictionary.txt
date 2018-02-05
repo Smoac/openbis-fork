@@ -1842,3 +1842,13 @@ delete Entity Types
 Delete Entity Types Operation
 Delete Entity Types Operation Result
 Entity Type Deletion Options
+
+get Terms
+has Terms
+search Vocabularies
+Search Vocabularies Operation
+Search Vocabularies Operation Result
+set Terms
+with Terms
+with Terms Using
+

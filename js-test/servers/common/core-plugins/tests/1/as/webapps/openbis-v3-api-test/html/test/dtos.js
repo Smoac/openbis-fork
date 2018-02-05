@@ -589,6 +589,8 @@ var sources = [
 	'as/dto/vocabulary/VocabularyTerm',	
 	'as/dto/vocabulary/search/VocabularySearchCriteria',
 	'as/dto/vocabulary/search/VocabularyTermSearchCriteria',
+	'as/dto/vocabulary/search/SearchVocabulariesOperation',
+	'as/dto/vocabulary/search/SearchVocabulariesOperationResult',
 	'as/dto/vocabulary/search/SearchVocabularyTermsOperation',
 	'as/dto/vocabulary/search/SearchVocabularyTermsOperationResult',
 	'as/dto/vocabulary/create/VocabularyTermCreation',

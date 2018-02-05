@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ETH Zuerich, CISD
+ * Copyright 2018 ETH Zuerich, SIS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,26 +16,16 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.vocabulary;
 
-import java.util.Date;
-
-import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.ObjectBaseRecord;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyTermFetchOptions;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.IObjectToManyRelationTranslator;
 
 /**
- * @author pkupczyk
+ * 
+ *
+ * @author Franz-Josef Elmer
  */
-public class VocabularyBaseRecord extends ObjectBaseRecord
+public interface IVocabularyVocabularyTermTranslator extends IObjectToManyRelationTranslator<VocabularyTerm, VocabularyTermFetchOptions>
 {
-
-    public String code;
-
-    public String description;
-
-    public Boolean isInternalNamespace;
-    
-    public Boolean isManagedInternally;
-
-    public Date registrationDate;
-
-    public Date modificationDate;
 
 }
