@@ -1,4 +1,5 @@
 /test-output
+/targets
 /.shredder
 /.updater
 /.dynamic_property_evaluator_queue
