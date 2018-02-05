@@ -123,6 +123,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag.IUpdateTagsOpera
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.vocabulary.ICreateVocabularyTermsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.vocabulary.IDeleteVocabularyTermsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.vocabulary.IGetVocabularyTermsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.vocabulary.ISearchVocabulariesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.vocabulary.ISearchVocabularyTermsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.vocabulary.IUpdateVocabularyTermsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.utils.ExceptionUtils;
@@ -372,6 +373,9 @@ public class OperationsExecutor implements IOperationsExecutor
     private ISearchExternalDmsOperationExecutor searchExternalDmsExecutor;
 
     @Autowired
+    private ISearchVocabulariesOperationExecutor searchVocabulariesExecutor;
+    
+    @Autowired
     private ISearchVocabularyTermsOperationExecutor searchVocabularyTermsExecutor;
 
     @Autowired
@@ -493,6 +497,7 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(searchRoleAssignmentsExecutor.execute(context, operations));
         resultMap.putAll(searchPersonsExecutor.execute(context, operations));
         resultMap.putAll(searchExternalDmsExecutor.execute(context, operations));
+        resultMap.putAll(searchVocabulariesExecutor.execute(context, operations));
         resultMap.putAll(searchVocabularyTermsExecutor.execute(context, operations));
         resultMap.putAll(searchExperimentTypesExecutor.execute(context, operations));
         resultMap.putAll(searchSampleTypesExecutor.execute(context, operations));

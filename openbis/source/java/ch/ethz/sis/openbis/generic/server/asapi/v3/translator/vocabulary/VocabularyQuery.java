@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.vocabulary;
 
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.util.List;
@@ -52,5 +53,9 @@ public interface VocabularyQuery extends ObjectQuery
     @Select(sql = "select t.id as objectId, t.covo_id as relatedId "
             + "from controlled_vocabulary_terms t where t.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getTermVocabularyIds(LongSet termIds);
+
+    @Select(sql = "select covo_id as objectId, id as relatedId from controlled_vocabulary_terms where covo_id = any(?{1})", 
+            parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ObjectRelationRecord> getTermsIds(LongOpenHashSet vocabularyIds);
 
 }

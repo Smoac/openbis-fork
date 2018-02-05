@@ -17,11 +17,13 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.vocabulary;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyFetchOptions;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
@@ -40,6 +42,9 @@ public class VocabularyTranslator extends AbstractCachingTranslator<Long, Vocabu
 
     @Autowired
     private IVocabularyRegistratorTranslator registratorTranslator;
+    
+    @Autowired
+    private IVocabularyVocabularyTermTranslator termTranslator;
 
     @Override
     protected Vocabulary createObject(TranslationContext context, Long vocabularyId, VocabularyFetchOptions fetchOptions)
@@ -60,6 +65,10 @@ public class VocabularyTranslator extends AbstractCachingTranslator<Long, Vocabu
         {
             relations.put(IVocabularyRegistratorTranslator.class,
                     registratorTranslator.translate(context, vocabularyIds, fetchOptions.withRegistrator()));
+        }
+        if (fetchOptions.hasTerms())
+        {
+            relations.put(IVocabularyVocabularyTermTranslator.class, termTranslator.translate(context, vocabularyIds, fetchOptions.withTerms()));
         }
 
         return relations;
@@ -82,7 +91,11 @@ public class VocabularyTranslator extends AbstractCachingTranslator<Long, Vocabu
             result.setRegistrator(relations.get(IVocabularyRegistratorTranslator.class, vocabularyId));
             result.getFetchOptions().withRegistratorUsing(fetchOptions.withRegistrator());
         }
-
+        if (fetchOptions.hasTerms())
+        {
+            result.setTerms((List<VocabularyTerm>) relations.get(IVocabularyVocabularyTermTranslator.class, vocabularyId));
+            result.getFetchOptions().withTermsUsing(fetchOptions.withTerms());
+        }
     }
 
 }

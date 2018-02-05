@@ -28,6 +28,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /*
  * Class automatically generated with DtoGenerator
@@ -54,6 +55,9 @@ public class Vocabulary implements Serializable, ICodeHolder, IDescriptionHolder
 
     @JsonProperty
     private Date modificationDate;
+    
+    @JsonProperty
+    private List<VocabularyTerm> terms;
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
@@ -143,6 +147,20 @@ public class Vocabulary implements Serializable, ICodeHolder, IDescriptionHolder
     public void setModificationDate(Date modificationDate)
     {
         this.modificationDate = modificationDate;
+    }
+
+    public List<VocabularyTerm> getTerms()
+    {
+        if (getFetchOptions() != null && getFetchOptions().hasTerms())
+        {
+            return terms;
+        }
+        throw new NotFetchedException("Terms have not been fetched.");
+    }
+
+    public void setTerms(List<VocabularyTerm> terms)
+    {
+        this.terms = terms;
     }
 
     // Method automatically generated with DtoGenerator
