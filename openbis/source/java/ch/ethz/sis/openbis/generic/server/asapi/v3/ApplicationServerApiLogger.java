@@ -180,6 +180,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.VocabularyTerm
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.delete.VocabularyTermDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyTermFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyTermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyTermPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularySearchCriteria;
@@ -484,6 +485,14 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     public Map<IMaterialId, Material> getMaterials(String sessionToken, List<? extends IMaterialId> materialIds, MaterialFetchOptions fetchOptions)
     {
         logAccess(sessionToken, "get-materials", "MATERIAL_IDS(%s) FETCH_OPTIONS(%s)", abbreviate(materialIds), fetchOptions);
+        return null;
+    }
+
+    @Override
+    public Map<IVocabularyId, Vocabulary> getVocabularies(String sessionToken, List<? extends IVocabularyId> vocabularyIds,
+            VocabularyFetchOptions fetchOptions)
+    {
+        logAccess(sessionToken, "get-vocabularies", "VOCABULARY_IDS(%s) FETCH_OPTIONS(%s)", abbreviate(vocabularyIds), fetchOptions);
         return null;
     }
 

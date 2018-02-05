@@ -338,8 +338,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.delete.DeleteVocabula
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.delete.VocabularyTermDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyTermFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.get.GetVocabulariesOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.get.GetVocabulariesOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.get.GetVocabularyTermsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.get.GetVocabularyTermsOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyTermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyTermPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.SearchVocabulariesOperation;
@@ -713,6 +716,15 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public Map<IMaterialId, Material> getMaterials(String sessionToken, List<? extends IMaterialId> materialIds, MaterialFetchOptions fetchOptions)
     {
         GetMaterialsOperationResult result = executeOperation(sessionToken, new GetMaterialsOperation(materialIds, fetchOptions));
+        return result.getObjectMap();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<IVocabularyId, Vocabulary> getVocabularies(String sessionToken, List<? extends IVocabularyId> vocabularyIds,
+            VocabularyFetchOptions fetchOptions)
+    {
+        GetVocabulariesOperationResult result = executeOperation(sessionToken, new GetVocabulariesOperation(vocabularyIds, fetchOptions));
         return result.getObjectMap();
     }
 

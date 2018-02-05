@@ -46,6 +46,8 @@ public class SearchVocabularyTest extends AbstractTest
         // Then
         assertEquals(vocabularies.get(0).getCode(), "ORGANISM");
         assertEquals(vocabularies.get(0).getDescription(), "available-organism");
+        assertEquals(vocabularies.get(0).isManagedInternally(), false);
+        assertEquals(vocabularies.get(0).isInternalNameSpace(), false);
     }
 
     @Test
