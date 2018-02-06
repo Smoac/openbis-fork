@@ -2,11 +2,11 @@
 
 ## Introduction ##
 
-This project holds is supposed to be used to developed Java micro services.
+This project is supposed to be used to developed Java micro services.
 
 ## Configuration ##
 
-A json file with the configuration should be given during the startup as an argument, if not given the default "config.json" will be loaded (mostly used for distribution) and if not found "./conf/config.json" is loaded (mostly used for development).
+A json file with the configuration should be given during the startup as an argument. If it os not given the default "config.json" will be loaded (mostly used for distribution) and if not found "./conf/config.json" is loaded (mostly used for development).
 
 ## Build ##
 
@@ -32,7 +32,11 @@ JSON object mapper interface and implementations.
 Logging interface and implementation.
 
 ### ch.ethz.sis.microservices.server.services ###
-Service interface and implementation.
+Service interface and implementations.
+
+To implement a new service is sufficient to extend the class ch.ethz.sis.microservices.server.services.Service. This class extends the standard J2EE HttpServlet and is up to the implementer to decide to accept the different http methods.
+
+This class just provides a convenience method getServiceConfig() to retrieve the configuration.
 
 ### ch.ethz.sis.microservices.server.startup ###
 Main class and launcher.
@@ -77,13 +81,13 @@ All these handlers share the same configuration and input parameters.
 
 ### Configuration ###
 
-openbis-url : Server where is validated that the user sessionToken can retrieve the dataset.
-datastore-url : Server where is validated that the user sessionToken can retrieve the file and that the file exists for the given dataset.
+openbis-url : Server to validate that the user sessionToken can retrieve the dataset.
+datastore-url : Server to validate that the user sessionToken can retrieve the file and that the file exists for the given dataset.
 services-timeout : Timeout when making calls to openBIS or DSS.
-allowedExternalDMSCode : Allowed External DMS code, with the current implementation only one EDMS is possible for the service.
-allowedContentCopyPath : Allowed directory where dataset files should be present, trying to access outside of this directory giving relative paths will result in failure.
+allowedExternalDMSCode : Allowed External DMS code. With the current implementation only one EDMS is possible for the service.
+allowedContentCopyPath : Allowed directory where dataset files should be present. Trying to access outside of this directory giving relative paths will result in failure.
 
-``` Part of config.json
+``` config.json
 {	
 			"className" : "ch.ethz.sis.microservices.server.services.store.FileInfoHandler", 
 			"url" : "/file-information",
@@ -110,13 +114,13 @@ allowedContentCopyPath : Allowed directory where dataset files should be present
 
 ### Input parameters ###
 
-The service only accepts GET requests, the GET request should contain 5 mandatory parameters.
+The service only accepts GET requests. The GET request should contain 5 mandatory parameters.
 
-sessionToken : User session token
-datasetPermId : Dataset perm id the file belongs to, if not found on the AS or DSS an exception is thrown.
-externalDMSCode : Should match the configured allowedExternalDMSCode, if not an exception is thrown.
-contentCopyPath : Content copy path to access, if not found either AS, DSS or file system an exception is thrown.
-datasetPathToFile : File to access, if not found either on the DSS or file system an exception is thrown.
+sessionToken : User session token.
+datasetPermId : Dataset perm id the file belongs to. If not found on the AS or DSS an exception is thrown.
+externalDMSCode : Should match the configured allowedExternalDMSCode. If not an exception is thrown.
+contentCopyPath : Content copy path to access. If not found either AS, DSS or file system an exception is thrown.
+datasetPathToFile : File to access. If not found either on the DSS or file system an exception is thrown.
 
 ### Output ch.ethz.sis.microservices.server.services.store.FileInfoHandler  ###
 The body of the response will contain a JSON map with information from the file.
