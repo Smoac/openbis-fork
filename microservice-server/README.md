@@ -32,7 +32,11 @@ JSON object mapper interface and implementations.
 Logging interface and implementation.
 
 ### ch.ethz.sis.microservices.server.services ###
-Service interface and implementation.
+Service interface and implementations.
+
+To implement a new service is sufficient to extend the class ch.ethz.sis.microservices.server.services.Service. This class extends the standard J2EE HttpServlet and is up to the implementer to decide to accept the different http methods.
+
+This class just provides a convenience method getServiceConfig() to retrieve the configuration.
 
 ### ch.ethz.sis.microservices.server.startup ###
 Main class and launcher.
