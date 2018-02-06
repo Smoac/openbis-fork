@@ -1,4 +1,4 @@
-package ch.ethz.sis.microservices.server.startup;
+package ch.ethz.sis.microservices.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

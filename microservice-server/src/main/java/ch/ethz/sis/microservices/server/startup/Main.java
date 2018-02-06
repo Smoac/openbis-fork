@@ -27,7 +27,14 @@ public class Main
         if (args.length < 1)
         {
             configFile = new File("./conf/config.json");
-            logger.info("No arguments given, starting with default config file: " + (configFile.getAbsolutePath()));
+            if(configFile.exists()) {
+            		logger.info("No arguments given, starting with default config file: " + (configFile.getAbsolutePath()));
+            } else {
+            		configFile = new File("./config.json");
+            		if(configFile.exists()) {
+                		logger.info("No arguments given, starting with default config file: " + (configFile.getAbsolutePath()));
+                }
+            }
         } else
         {
             configFile = new File(args[0]);
