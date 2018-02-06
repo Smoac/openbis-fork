@@ -25,7 +25,8 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
  */
 public final class UndefinedSpaceException extends UserFailureException
 {
-    private static final long serialVersionUID = 1L;
+
+	private static final long serialVersionUID = 1L;
 
     private final static String MESSAGE = "Space not specified, home space unknown";
 
@@ -33,4 +34,5 @@ public final class UndefinedSpaceException extends UserFailureException
     {
         super(MESSAGE);
     }
+
 }
