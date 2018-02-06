@@ -273,30 +273,54 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 
-		QUnit.test("getVocabularyTerms()", function(assert) {
+		QUnit.test("getVocabularies()", function(assert) {
 			var c = new common(assert, openbis);
-			var fo = new c.VocabularyTermFetchOptions();
+			var fo = new c.VocabularyFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 			fechOptionsTestConfig.SortBy = null;
 
 			var fCreate = function(facade) {
-				return $.when(c.createVocabularyTerm(facade), c.createVocabularyTerm(facade)).then(function(permId1, permId2) {
+				return $.when(c.createVocabulary(facade), c.createVocabulary(facade)).then(function(permId1, permId2) {
 					return [ permId1, permId2 ];
 				});
 			}
 
 			var fGet = function(facade, permIds) {
 				testFetchOptionsAssignation(c, fo, fechOptionsTestConfig);
-				return facade.getVocabularyTerms(permIds, fo);
+				return facade.getVocabularies(permIds, fo);
 			}
 
 			var fGetEmptyFetchOptions = function(facade, permIds) {
-				return facade.getVocabularyTerms(permIds, new c.VocabularyTermFetchOptions());
+				return facade.getVocabularies(permIds, new c.VocabularyFetchOptions());
 			}
 
 			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 
+		QUnit.test("getVocabularyTerms()", function(assert) {
+			var c = new common(assert, openbis);
+			var fo = new c.VocabularyTermFetchOptions();
+			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
+			fechOptionsTestConfig.SortBy = null;
+			
+			var fCreate = function(facade) {
+				return $.when(c.createVocabularyTerm(facade), c.createVocabularyTerm(facade)).then(function(permId1, permId2) {
+					return [ permId1, permId2 ];
+				});
+			}
+			
+			var fGet = function(facade, permIds) {
+				testFetchOptionsAssignation(c, fo, fechOptionsTestConfig);
+				return facade.getVocabularyTerms(permIds, fo);
+			}
+			
+			var fGetEmptyFetchOptions = function(facade, permIds) {
+				return facade.getVocabularyTerms(permIds, new c.VocabularyTermFetchOptions());
+			}
+			
+			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
+		});
+		
 		QUnit.test("getExternalDms()", function(assert) {
 			var c = new common(assert, openbis);
 			var fo = new c.ExternalDmsFetchOptions();

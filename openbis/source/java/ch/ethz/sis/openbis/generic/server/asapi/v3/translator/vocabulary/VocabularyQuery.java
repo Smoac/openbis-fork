@@ -34,7 +34,8 @@ public interface VocabularyQuery extends ObjectQuery
 {
 
     @Select(sql = "select v.id, v.code, v.description, v.is_internal_namespace as isInternalNamespace, "
-            + "v.is_managed_internally as isManagedInternally, v.modification_timestamp as modificationDate, v.registration_timestamp as registrationDate "
+            + "v.is_managed_internally as isManagedInternally, v.is_chosen_from_list as isChosenFromList,"
+            + "v.source_uri as urlTemplate, v.modification_timestamp as modificationDate, v.registration_timestamp as registrationDate "
             + "from controlled_vocabularies v where v.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<VocabularyBaseRecord> getVocabularies(LongSet vocabularyIds);
 

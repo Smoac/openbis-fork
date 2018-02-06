@@ -22,6 +22,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationD
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistratorHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -63,6 +64,12 @@ public class Vocabulary implements Serializable, ICodeHolder, IDescriptionHolder
     private boolean internalNameSpace;
     
     @JsonProperty
+    private boolean chosenFromList;
+    
+    @JsonProperty
+    private String urlTemplate;
+    
+    @JsonProperty
     private List<VocabularyTerm> terms;
 
     // Method automatically generated with DtoGenerator
@@ -78,6 +85,12 @@ public class Vocabulary implements Serializable, ICodeHolder, IDescriptionHolder
         this.fetchOptions = fetchOptions;
     }
 
+    @JsonIgnore
+    public VocabularyPermId getPermId()
+    {
+        return new VocabularyPermId(code);
+    }
+    
     // Method automatically generated with DtoGenerator
     @JsonIgnore
     @Override
@@ -175,6 +188,28 @@ public class Vocabulary implements Serializable, ICodeHolder, IDescriptionHolder
     public void setInternalNameSpace(boolean internalNameSpace)
     {
         this.internalNameSpace = internalNameSpace;
+    }
+
+    @JsonIgnore
+    public boolean isChosenFromList()
+    {
+        return chosenFromList;
+    }
+
+    public void setChosenFromList(boolean chosenFromList)
+    {
+        this.chosenFromList = chosenFromList;
+    }
+
+    @JsonIgnore
+    public String getUrlTemplate()
+    {
+        return urlTemplate;
+    }
+
+    public void setUrlTemplate(String urlTemplate)
+    {
+        this.urlTemplate = urlTemplate;
     }
 
     @JsonIgnore

@@ -2,7 +2,7 @@
  * Class automatically generated with
  * {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
  */
-define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
+define([ "stjs", "util/Exceptions", "as/dto/vocabulary/id/VocabularyPermId" ], function(stjs, exceptions) {
 	var Vocabulary = function() {
 	};
 	stjs.extend(Vocabulary, null, [], function(constructor, prototype) {
@@ -16,6 +16,8 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.modificationDate = null;
 		prototype.managedInternally = null;
 		prototype.internalNameSpace = null;
+		prototype.chosenFromList = null;
+		prototype.urlTemplate = null;
 		prototype.terms = null;
 
 		prototype.getFetchOptions = function() {
@@ -26,6 +28,10 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		};
 		prototype.getCode = function() {
 			return this.code;
+		};
+		prototype.getPermId = function() {
+			var VocabularyPermId = require("as/dto/vocabulary/id/VocabularyPermId");
+			return new VocabularyPermId(this.code);
 		};
 		prototype.setCode = function(code) {
 			this.code = code;
@@ -69,6 +75,18 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		};
 		prototype.setInternalNameSpace = function(internalNameSpace) {
 			this.internalNameSpace = internalNameSpace;
+		};
+		prototype.isChosenFromList = function() {
+			return this.chosenFromList;
+		};
+		prototype.setChosenFromList = function(chosenFromList) {
+			this.chosenFromList = chosenFromList;
+		};
+		prototype.getUrlTemplate = function() {
+			return this.urlTemplate;
+		};
+		prototype.setUrlTemplate = function(urlTemplate) {
+			this.urlTemplate = urlTemplate;
 		};
 		prototype.getTerms = function() {
 			if (this.getFetchOptions() && this.getFetchOptions().hasTerms()) {

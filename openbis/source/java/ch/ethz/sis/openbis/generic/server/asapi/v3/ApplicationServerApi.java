@@ -331,8 +331,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.update.TagUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.update.UpdateTagsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.CreateVocabulariesOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.CreateVocabulariesOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.CreateVocabularyTermsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.CreateVocabularyTermsOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.VocabularyCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.VocabularyTermCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.delete.DeleteVocabularyTermsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.delete.VocabularyTermDeletionOptions;
@@ -344,6 +347,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.get.GetVocabularyTerm
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.get.GetVocabularyTermsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyTermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyTermPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.SearchVocabulariesOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.SearchVocabulariesOperationResult;
@@ -510,12 +514,20 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Override
     @Transactional
+    public List<VocabularyPermId> createVocabularies(String sessionToken, List<VocabularyCreation> creations)
+    {
+        CreateVocabulariesOperationResult result = executeOperation(sessionToken, new CreateVocabulariesOperation(creations));
+        return result.getObjectIds();
+    }
+
+    @Override
+    @Transactional
     public List<VocabularyTermPermId> createVocabularyTerms(String sessionToken, List<VocabularyTermCreation> creations)
     {
         CreateVocabularyTermsOperationResult result = executeOperation(sessionToken, new CreateVocabularyTermsOperation(creations));
         return result.getObjectIds();
     }
-
+    
     @Override
     @Transactional
     public List<TagPermId> createTags(String sessionToken, List<TagCreation> creations)

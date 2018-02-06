@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 ETH Zuerich, CISD
+ * Copyright 2018 ETH Zuerich, SIS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,15 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.dto.exception;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.vocabulary;
 
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IOperationExecutor;
 
 /**
- * This <code>UserFailureException</code> extension signals that no space has been specified.
- * 
- * @author Christian Ribeaud
+ * @author Franz-Josef Elmer
+ *
  */
-public final class UndefinedSpaceException extends UserFailureException
+public interface ICreateVocabulariesOperationExecutor extends IOperationExecutor
 {
-
-	private static final long serialVersionUID = 1L;
-
-    private final static String MESSAGE = "Space not specified, home space unknown";
-
-    public UndefinedSpaceException()
-    {
-        super(MESSAGE);
-    }
 
 }

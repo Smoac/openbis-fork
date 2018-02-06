@@ -5,7 +5,7 @@ import java.util.Map;
 
 import ch.ethz.sis.microservices.server.logging.LogManager;
 import ch.ethz.sis.microservices.server.logging.log4j.Log4J2LogFactory;
-import ch.ethz.sis.microservices.server.startup.HttpClient;
+import ch.ethz.sis.microservices.util.HttpClient;
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 

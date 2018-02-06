@@ -27,7 +27,7 @@ define([ "stjs" ], function(stjs) {
 			this.userIds = userIds;
 		};
 	}, {
-		users : {
+		userIds : {
 			name : "List",
 			arguments : [ "Object" ]
 		}

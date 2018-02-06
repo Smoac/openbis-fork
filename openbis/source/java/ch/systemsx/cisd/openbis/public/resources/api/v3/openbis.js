@@ -447,6 +447,21 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			});
 		}
 
+		this.createVocabularies = function(creations) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "createVocabularies",
+					"params" : [ thisFacade._private.sessionToken, creations ]
+				},
+				returnType : {
+					name : "List",
+					arguments : [ "VocabularyPermId" ]
+				}
+			});
+		}
+
 		this.createVocabularyTerms = function(creations) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
@@ -461,7 +476,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 				}
 			});
 		}
-
+		
 		this.createTags = function(creations) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
@@ -814,6 +829,21 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			});
 		}
 
+		this.getVocabularies = function(ids, fetchOptions) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "getVocabularies",
+					"params" : [ thisFacade._private.sessionToken, ids, fetchOptions ]
+				},
+				returnType : {
+					name : "Map",
+					arguments : [ "IVocabularyId", "Vocabulary" ]
+				}
+			});
+		}
+		
 		this.getVocabularyTerms = function(ids, fetchOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({

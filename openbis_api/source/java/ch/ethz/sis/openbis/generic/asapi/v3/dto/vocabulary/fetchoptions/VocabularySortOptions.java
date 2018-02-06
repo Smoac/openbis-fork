@@ -16,7 +16,10 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortOrder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -28,5 +31,18 @@ public class VocabularySortOptions extends SortOptions<Vocabulary>
 {
 
     private static final long serialVersionUID = 1L;
+
+    @JsonIgnore
+    public static final String CODE = "CODE";
+
+    public SortOrder code()
+    {
+        return getOrCreateSorting(CODE);
+    }
+
+    public SortOrder getCode()
+    {
+        return getSorting(CODE);
+    }
 
 }

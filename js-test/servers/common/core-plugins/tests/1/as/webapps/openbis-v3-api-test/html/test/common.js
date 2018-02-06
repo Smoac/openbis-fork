@@ -27,6 +27,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.SampleCreation = dtos.SampleCreation;
 		this.MaterialCreation = dtos.MaterialCreation;
 		this.AttachmentCreation = dtos.AttachmentCreation;
+		this.VocabularyCreation = dtos.VocabularyCreation;
 		this.VocabularyTermCreation = dtos.VocabularyTermCreation;
 		this.TagCreation = dtos.TagCreation;
 		this.AuthorizationGroupCreation = dtos.AuthorizationGroupCreation;
@@ -130,6 +131,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.MaterialFetchOptions = dtos.MaterialFetchOptions;
 		this.MaterialTypeFetchOptions = dtos.MaterialTypeFetchOptions;
 		this.ExternalDmsFetchOptions = dtos.ExternalDmsFetchOptions;
+		this.VocabularyFetchOptions = dtos.VocabularyFetchOptions;
 		this.VocabularyTermFetchOptions = dtos.VocabularyTermFetchOptions;
 		this.TagFetchOptions = dtos.TagFetchOptions;
 		this.AuthorizationGroupFetchOptions = dtos.AuthorizationGroupFetchOptions;
@@ -169,6 +171,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.GetSamplesOperation = dtos.GetSamplesOperation;
 		this.GetDataSetsOperation = dtos.GetDataSetsOperation;
 		this.GetMaterialsOperation = dtos.GetMaterialsOperation;
+		this.GetVocabulariesOperation = dtos.GetVocabulariesOperation;
 		this.GetVocabularyTermsOperation = dtos.GetVocabularyTermsOperation;
 		this.GetTagsOperation = dtos.GetTagsOperation;
 		this.GetAuthorizationGroupsOperation = dtos.GetAuthorizationGroupsOperation;
@@ -187,6 +190,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.CreateDataSetTypesOperation = dtos.CreateDataSetTypesOperation;
 		this.CreateMaterialsOperation = dtos.CreateMaterialsOperation;
 		this.CreateMaterialTypesOperation = dtos.CreateMaterialTypesOperation;
+		this.CreateVocabulariesOperation = dtos.CreateVocabulariesOperation;
 		this.CreateVocabularyTermsOperation = dtos.CreateVocabularyTermsOperation;
 		this.CreateTagsOperation = dtos.CreateTagsOperation;
 		this.CreateAuthorizationGroupsOperation = dtos.CreateAuthorizationGroupsOperation;
@@ -404,6 +408,15 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			});
 		}.bind(this);
 
+		this.createVocabulary = function(facade) {
+			var c = this;
+			var creation = new dtos.VocabularyCreation();
+			creation.setCode(c.generateId("VOCABULARY"));
+			return facade.createVocabularies([ creation ]).then(function(permIds) {
+				return permIds[0];
+			});
+		}.bind(this);
+		
 		this.createVocabularyTerm = function(facade) {
 			var c = this;
 			var creation = new dtos.VocabularyTermCreation();
@@ -594,6 +607,13 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			});
 		}.bind(this);
 
+		this.findVocabulary = function(facade, id) {
+			var c = this;
+			return facade.getVocabularies([ id ], c.createVocabularyFetchOptions()).then(function(vocabularies) {
+				return vocabularies[id];
+			});
+		}.bind(this);
+		
 		this.findVocabularyTerm = function(facade, id) {
 			var c = this;
 			return facade.getVocabularyTerms([ id ], c.createVocabularyTermFetchOptions()).then(function(terms) {

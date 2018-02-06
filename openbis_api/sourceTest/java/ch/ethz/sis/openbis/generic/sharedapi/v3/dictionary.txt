@@ -1851,4 +1851,13 @@ Search Vocabularies Operation Result
 set Terms
 with Terms
 with Terms Using
+create Vocabularies
+Create Vocabularies Operation
+Create Vocabularies Operation Result
+get Vocabularies
+Get Vocabularies Operation
+Get Vocabularies Operation Result
+is Chosen From List
+set Chosen From List
+Vocabulary Creation
 

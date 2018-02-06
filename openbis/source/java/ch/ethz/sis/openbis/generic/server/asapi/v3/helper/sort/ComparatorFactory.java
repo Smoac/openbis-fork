@@ -30,6 +30,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.property.PropertyAssig
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sample.SampleComparatorFactory;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.space.SpaceComparatorFactory;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.tag.TagComparatorFactory;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.vocabulary.VocabularyComparatorFactory;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.vocabulary.VocabularyTermComparatorFactory;
 
 /**
@@ -46,6 +47,7 @@ public abstract class ComparatorFactory
         factories.add(new GlobalSearchObjectComparatorFactory());
         factories.add(new TagComparatorFactory());
         factories.add(new AuthorizationGroupComparatorFactory());
+        factories.add(new VocabularyComparatorFactory());
         factories.add(new VocabularyTermComparatorFactory());
         factories.add(new SpaceComparatorFactory());
         factories.add(new ProjectComparatorFactory());

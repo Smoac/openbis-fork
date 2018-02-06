@@ -468,10 +468,40 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testCreate(c, fCreate, c.findMaterialType, fCheck);
 		});
 
+		QUnit.test("createVocabularies()", function(assert) {
+			var c = new common(assert, openbis);
+			var code = c.generateId("VOCABULARY");
+
+			var fCreate = function(facade) {
+				var vocabularyCreation = new c.VocabularyCreation();
+				vocabularyCreation.setCode(code);
+				vocabularyCreation.setDescription("test description");
+				vocabularyCreation.setManagedInternally(true);
+				vocabularyCreation.setInternalNameSpace(true);
+				vocabularyCreation.setChosenFromList(true);
+				vocabularyCreation.setUrlTemplate("https://www.ethz.ch");
+				var termCreation = new c.VocabularyTermCreation();
+				termCreation.setCode("alpha");
+				vocabularyCreation.setTerms([termCreation]);
+				return facade.createVocabularies([ vocabularyCreation ]);
+			}
+
+			var fCheck = function(vocabulary) {
+				c.assertEqual(vocabulary.getCode(), "$" + code, "Code");
+				c.assertEqual(vocabulary.getDescription(), "test description", "Description");
+				c.assertEqual(vocabulary.isManagedInternally(), true, "Managed internally");
+				c.assertEqual(vocabulary.isInternalNameSpace(), true, "Internal name space");
+				c.assertEqual(vocabulary.isChosenFromList(), true, "Chosen from list");
+				c.assertEqual(vocabulary.getUrlTemplate(), "https://www.ethz.ch", "URL template");
+			}
+
+			testCreate(c, fCreate, c.findVocabulary, fCheck);
+		});
+
 		QUnit.test("createVocabularyTerms()", function(assert) {
 			var c = new common(assert, openbis);
 			var code = c.generateId("VOCABULARY_TERM");
-
+			
 			var fCreate = function(facade) {
 				var termCreation = new c.VocabularyTermCreation();
 				termCreation.setVocabularyId(new c.VocabularyPermId("TEST-VOCABULARY"));
@@ -482,7 +512,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				termCreation.setPreviousTermId(new c.VocabularyTermPermId("TEST-TERM-1", "TEST-VOCABULARY"))
 				return facade.createVocabularyTerms([ termCreation ]);
 			}
-
+			
 			var fCheck = function(term) {
 				c.assertEqual(term.getCode(), code, "Term code");
 				c.assertEqual(term.getVocabulary().getCode(), "TEST-VOCABULARY", "Term vocabulary code");
@@ -491,10 +521,10 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				c.assertEqual(term.isOfficial(), true, "Term official");
 				c.assertEqual(term.getOrdinal(), 2, "Term ordinal");
 			}
-
+			
 			testCreate(c, fCreate, c.findVocabularyTerm, fCheck);
 		});
-
+		
 		QUnit.test("createExternalDataManagementSystem()", function(assert) {
 			var c = new common(assert, openbis);
 			var code = c.generateId("EDMS");

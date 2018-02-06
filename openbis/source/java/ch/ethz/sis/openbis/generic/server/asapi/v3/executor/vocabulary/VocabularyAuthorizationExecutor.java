@@ -31,11 +31,17 @@ public class VocabularyAuthorizationExecutor implements IVocabularyAuthorization
 {
 
     @Override
+    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN })
+    @Capability("CREATE_VOCABULARY")
+    public void canCreate(IOperationContext context)
+    {
+    }
+    
+    @Override
     @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("GET_VOCABULARY")
     public void canGet(IOperationContext context)
     {
-
     }
 
 }

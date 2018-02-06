@@ -87,6 +87,8 @@ public class VocabularyTranslator extends AbstractCachingTranslator<Long, Vocabu
         result.setRegistrationDate(baseRecord.registrationDate);
         result.setInternalNameSpace(baseRecord.isInternalNamespace);
         result.setManagedInternally(baseRecord.isManagedInternally);
+        result.setChosenFromList(baseRecord.isChosenFromList);
+        result.setUrlTemplate(baseRecord.urlTemplate);
 
         if (fetchOptions.hasRegistrator())
         {

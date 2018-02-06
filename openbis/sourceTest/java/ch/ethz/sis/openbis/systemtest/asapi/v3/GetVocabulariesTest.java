@@ -53,6 +53,8 @@ public class GetVocabulariesTest extends AbstractTest
         assertEquals(v1.getDescription(), "available-organism");
         assertEquals(v1.isInternalNameSpace(), false);
         assertEquals(v1.isManagedInternally(), false);
+        assertEquals(v1.isChosenFromList(), true);
+        assertEquals(v1.getUrlTemplate(), null);
         assertEquals(v1.getTerms().toString(), 
                 "[VocabularyTerm DOG, VocabularyTerm FLY, VocabularyTerm GORILLA, VocabularyTerm HUMAN, VocabularyTerm RAT]");
         Vocabulary v2 = result.get(id2);
@@ -60,6 +62,8 @@ public class GetVocabulariesTest extends AbstractTest
         assertEquals(v2.getDescription(), "The on-disk storage format of a data set");
         assertEquals(v2.isInternalNameSpace(), true);
         assertEquals(v2.isManagedInternally(), true);
+        assertEquals(v2.isChosenFromList(), true);
+        assertEquals(v2.getUrlTemplate(), null);
         assertEquals(v2.getTerms().toString(), "[VocabularyTerm BDS_DIRECTORY, VocabularyTerm PROPRIETARY]");
         assertEquals(v2.getTerms().get(1).getLabel(), "proprietary label");
         assertEquals(v2.getTerms().get(1).getDescription(), "proprietary description");

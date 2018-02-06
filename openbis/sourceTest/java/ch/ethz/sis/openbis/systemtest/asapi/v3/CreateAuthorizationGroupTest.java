@@ -58,7 +58,7 @@ public class CreateAuthorizationGroupTest extends AbstractTest
         // Given
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         AuthorizationGroupCreation newGroup = new AuthorizationGroupCreation();
-        newGroup.setCode("NEW_GROUP");
+        newGroup.setCode("MY_TEST_GROUP");
         newGroup.setDescription("Testing");
         newGroup.setUserIds(Arrays.asList(new PersonPermId(TEST_OBSERVER_CISD), new Me()));
         
@@ -81,6 +81,32 @@ public class CreateAuthorizationGroupTest extends AbstractTest
         v3api.logout(sessionToken);
     }
     
+    @Test
+    public void testCreateAuthorizationGroupWithInvalidCode()
+    {
+        // Given
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        AuthorizationGroupCreation newGroup = new AuthorizationGroupCreation();
+        newGroup.setCode("invalid code");
+        newGroup.setDescription("Testing");
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+
+                @Override
+                public void execute()
+                {
+                    // When
+                    v3api.createAuthorizationGroups(sessionToken, Arrays.asList(newGroup));
+
+                }
+            },
+                // Then
+                "Given code 'invalid code' contains illegal characters (allowed: A-Z, a-z, 0-9 and _, -, .");
+
+        v3api.logout(sessionToken);
+    }
+
     @Test
     public void testCreateAuthorizationGroupWithNoUsers()
     {
