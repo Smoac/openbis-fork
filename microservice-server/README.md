@@ -1,46 +1,46 @@
-## MICROSERVICE SERVER ##
+# MICROSERVICE SERVER #
 
-# Introduction #
+## Introduction ##
 
 This project holds is supposed to be used to developed Java micro services.
 
-# Configuration #
+## Configuration ##
 
 A json file with the configuration should be given during the startup as an argument, if not given the default "config.json" will be loaded (mostly used for distribution) and if not found "./conf/config.json" is loaded (mostly used for development).
 
-# Build #
+## Build ##
 
 ./gradlew distZip
 
 The build will be found at ./build/distributions/microservice-server.zip
 
-# Startup #
+## Startup ##
 
 Unzip the build and execute
 
 ./bin/microservice-server
 
-# Main packages #
+## Main packages ##
 
-## ch.ethz.sis.microservices.api ##
+### ch.ethz.sis.microservices.api ###
 Supposed to contain only immutable DTOs annotated with lombok's @Data.
 
-## ch.ethz.sis.microservices.server.json ##
+### ch.ethz.sis.microservices.server.json ###
 JSON object mapper interface and implementations.
 
-## ch.ethz.sis.microservices.server.logging ##
+### ch.ethz.sis.microservices.server.logging ###
 Logging interface and implementation.
 
-## ch.ethz.sis.microservices.server.services ##
+### ch.ethz.sis.microservices.server.services ###
 Service interface and implementation.
 
-## ch.ethz.sis.microservices.server.startup ##
+### ch.ethz.sis.microservices.server.startup ###
 Main class and launcher.
 
-## ch.ethz.sis.microservices.util ##
+### ch.ethz.sis.microservices.util ###
 Utility classes.
 
-# Services description and configuration #
+## Services description and configuration ##
 
 The config.json configuration file currently has two sections:
 	port : The port where the web server starts.
@@ -72,7 +72,7 @@ One parameter is optional:
 }
 ```
 
-## File Service Handlers - (ch.ethz.sis.microservices.server.services.store.FileInfoHandler, ch.ethz.sis.microservices.server.services.store.DownloadHandler) ##
+## File Services - (ch.ethz.sis.microservices.server.services.store.FileInfoHandler, ch.ethz.sis.microservices.server.services.store.DownloadHandler) ##
 All these handlers share the same configuration and input parameters.
 
 ### Configuration ###
