@@ -258,6 +258,7 @@ function MainController(profile) {
 		this._changeView(newViewChange, arg, true, shouldStateBePushToHistory);
 	}
 	this._changeView = function(newViewChange, arg, shouldURLBePushToHistory, shouldStateBePushToHistory) {
+		LayoutManager.isBlocked = false;
 		//
 		// Dirty forms management, to avoid loosing changes.
 		//
@@ -463,6 +464,7 @@ function MainController(profile) {
 					});
 					break;
 				case "showEditExperimentPageFromIdentifier":
+					LayoutManager.isBlocked = true; // CKEDITOR owns hooks and variables that will break if the layout manager does its magic
 					var _this = this;
 					this.serverFacade.listExperimentsForIdentifiers([arg], function(data) {
 						document.title = "" + ELNDictionary.getExperimentKindName(arg) + " " + arg;
@@ -495,6 +497,7 @@ function MainController(profile) {
 					//window.scrollTo(0,0);
 					break;
 				case "showEditSamplePageFromPermId":
+					LayoutManager.isBlocked = true; // CKEDITOR owns hooks and variables that will break if the layout manager does its magic
 					var _this = this;
 					var permId = null;
 					var paginationInfo = null;
@@ -614,6 +617,7 @@ function MainController(profile) {
 					});
 					break;
 				case "showEditDataSetPageFromPermId":
+					LayoutManager.isBlocked = true; // CKEDITOR owns hooks and variables that will break if the layout manager does its magic
 					var _this = this;
 					var dsCriteria = { 	
 							entityKind : "DATASET", 
