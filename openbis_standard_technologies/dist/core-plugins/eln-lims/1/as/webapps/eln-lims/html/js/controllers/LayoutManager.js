@@ -23,6 +23,7 @@ var LayoutManager = {
 	thirdColumn : null,
 	isResizingColumn : false,
 	isLoadingView : false,
+	isBlocked : false,
 	_init : function(isFirstTime) {
 		var _this = this;
 		
@@ -338,7 +339,7 @@ var LayoutManager = {
 		}
 	},
 	canReload : function() {
-		return this.isResizingColumn === false && this.isLoadingView === false;
+		return this.isBlocked == false && this.isResizingColumn === false && this.isLoadingView === false && this.firstColumn.width() > 0;
 	},
 	reloadView : function(view, forceFirstTime) {
 		var _this = this;
@@ -373,6 +374,7 @@ var LayoutManager = {
 		this.secondColumnContentResize();
 	},
 	resize : function(view, forceFirstTime) {
+		console.log("resize");
 		if(this.canReload()) {
 			this.reloadView(view, forceFirstTime);
 		}
