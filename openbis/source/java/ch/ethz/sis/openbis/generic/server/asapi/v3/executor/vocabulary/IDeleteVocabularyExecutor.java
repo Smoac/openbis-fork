@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ETH Zuerich, CISD
+ * Copyright 2018 ETH Zuerich, SIS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,15 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.vocabulary;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.delete.VocabularyDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyId;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IObjectAuthorizationExecutor;
-import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.IDeleteEntityExecutor;
 
 /**
- * @author pkupczyk
+ * @author Franz-Josef Elmer
+ *
  */
-public interface IVocabularyAuthorizationExecutor extends IObjectAuthorizationExecutor
+public interface IDeleteVocabularyExecutor extends IDeleteEntityExecutor<Void, IVocabularyId, VocabularyDeletionOptions>
 {
-
-    void canGet(IOperationContext context);
-
-    void canCreate(IOperationContext context);
-
-    void canUpdate(IOperationContext context, IVocabularyId id, VocabularyPE entity);
-
-    void canDelete(IOperationContext context, IVocabularyId entityId, VocabularyPE entity);
 
 }

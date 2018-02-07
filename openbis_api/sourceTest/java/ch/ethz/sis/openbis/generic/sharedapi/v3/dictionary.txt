@@ -1867,4 +1867,8 @@ update Vocabularies
 Update Vocabularies Operation
 Update Vocabularies Operation Result
 Vocabulary Update
+delete Vocabularies
+Delete Vocabularies Operation
+Delete Vocabularies Operation Result
+Vocabulary Deletion Options
 
