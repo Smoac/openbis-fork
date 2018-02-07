@@ -58,6 +58,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.DataStorePermId = dtos.DataStorePermId;
 		this.MaterialTypeUpdate = dtos.MaterialTypeUpdate;
 		this.MaterialUpdate = dtos.MaterialUpdate;
+		this.VocabularyUpdate = dtos.VocabularyUpdate;
 		this.VocabularyTermUpdate = dtos.VocabularyTermUpdate;
 		this.ExternalDmsUpdate = dtos.ExternalDmsUpdate;
 		this.TagUpdate = dtos.TagUpdate;
@@ -209,6 +210,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.UpdateDataSetTypesOperation = dtos.UpdateDataSetTypesOperation;
 		this.UpdateMaterialsOperation = dtos.UpdateMaterialsOperation;
 		this.UpdateMaterialTypesOperation = dtos.UpdateMaterialTypesOperation;
+		this.UpdateVocabulariesOperation = dtos.UpdateVocabulariesOperation;
 		this.UpdateVocabularyTermsOperation = dtos.UpdateVocabularyTermsOperation;
 		this.UpdateExternalDmsOperation = dtos.UpdateExternalDmsOperation;
 		this.UpdateTagsOperation = dtos.UpdateTagsOperation;

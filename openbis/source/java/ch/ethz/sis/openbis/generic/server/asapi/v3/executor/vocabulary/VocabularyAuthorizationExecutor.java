@@ -18,10 +18,15 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.vocabulary;
 
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.DatabaseCreateOrDeleteModification;
+import ch.systemsx.cisd.openbis.generic.shared.DatabaseUpdateModification;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 
 /**
  * @author pkupczyk
@@ -32,6 +37,7 @@ public class VocabularyAuthorizationExecutor implements IVocabularyAuthorization
 
     @Override
     @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN })
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY)
     @Capability("CREATE_VOCABULARY")
     public void canCreate(IOperationContext context)
     {
@@ -41,6 +47,14 @@ public class VocabularyAuthorizationExecutor implements IVocabularyAuthorization
     @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("GET_VOCABULARY")
     public void canGet(IOperationContext context)
+    {
+    }
+
+    @Override
+    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN })
+    @DatabaseUpdateModification(value = ObjectKind.VOCABULARY)
+    @Capability("UPDATE_VOCABULARY")
+    public void canUpdate(IOperationContext context, IVocabularyId id, VocabularyPE entity)
     {
     }
 

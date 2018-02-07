@@ -705,31 +705,65 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testUpdate(c, fCreate, fUpdate, c.findMaterial, fCheck);
 		});
 		
+		QUnit.test("updateVocabularies()", function(assert) {
+			var c = new common(assert, openbis);
+			var code = c.generateId("VOCABULARY");
+			var description = "Description of " + code;
+
+			var fCreate = function(facade) {
+				var creation = new c.VocabularyCreation();
+				creation.setCode(code);
+				return facade.createVocabularies([ creation ]);
+			}
+
+			var fUpdate = function(facade, permId) {
+				var update = new c.VocabularyUpdate();
+				update.setVocabularyId(permId);
+				update.setDescription(description);
+				update.setManagedInternally(true);
+//				update.setInternalNameSpace(true);
+				update.setChosenFromList(true);
+				update.setUrlTemplate("https://www.ethz.ch")
+				return facade.updateVocabularies([ update ]);
+			}
+
+			var fCheck = function(vocabulary) {
+				c.assertEqual(vocabulary.getCode(), code, "Code");
+				c.assertEqual(vocabulary.getPermId().getPermId(), code, "Perm id");
+				c.assertEqual(vocabulary.getDescription(), description, "Description");
+				c.assertEqual(vocabulary.isManagedInternally(), true, "Managed internally");
+				c.assertEqual(vocabulary.isChosenFromList(), true, "Chosen from list");
+				c.assertEqual(vocabulary.getUrlTemplate(), "https://www.ethz.ch", "URL template");
+			}
+
+			testUpdate(c, fCreate, fUpdate, c.findVocabulary, fCheck);
+		});
+		
 		QUnit.test("updateVocabularyTerms()", function(assert) {
 			var c = new common(assert, openbis);
 			var code = c.generateId("VOCABULARY_TERM");
 			var description = "Description of " + code;
-
+			
 			var fCreate = function(facade) {
 				var termCreation = new c.VocabularyTermCreation();
 				termCreation.setVocabularyId(new c.VocabularyPermId("TEST-VOCABULARY"));
 				termCreation.setCode(code);
 				return facade.createVocabularyTerms([ termCreation ]);
 			}
-
+			
 			var fUpdate = function(facade, permId) {
 				var termUpdate = new c.VocabularyTermUpdate();
 				termUpdate.setVocabularyTermId(permId);
 				termUpdate.setDescription(description);
 				return facade.updateVocabularyTerms([ termUpdate ]);
 			}
-
+			
 			var fCheck = function(term) {
 				c.assertEqual(term.getCode(), code, "Term code");
 				c.assertEqual(term.getVocabulary().getCode(), "TEST-VOCABULARY", "Term vocabulary code");
 				c.assertEqual(term.getDescription(), description, "Term description");
 			}
-
+			
 			testUpdate(c, fCreate, fUpdate, c.findVocabularyTerm, fCheck);
 		});
 

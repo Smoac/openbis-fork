@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -158,8 +157,7 @@ public class CreateVocabularyExecutor
     @Override
     protected List<VocabularyPE> list(IOperationContext context, Collection<Long> ids)
     {
-        List<VocabularyPE> allVocabularies = daoFactory.getVocabularyDAO().listAllEntities();
-        return allVocabularies.stream().filter(v -> ids.contains(v.getId())).collect(Collectors.toList());
+        return daoFactory.getVocabularyDAO().listAllEntities();
     }
 
     @Override

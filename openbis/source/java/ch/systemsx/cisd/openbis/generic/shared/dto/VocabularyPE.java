@@ -50,6 +50,7 @@ import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 
 /**
  * Persistence entity representing controlled vocabulary.
@@ -61,7 +62,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 @Table(name = TableNames.CONTROLLED_VOCABULARY_TABLE, uniqueConstraints =
 { @UniqueConstraint(columnNames =
 { ColumnNames.CODE_COLUMN, ColumnNames.IS_INTERNAL_NAMESPACE }) })
-public class VocabularyPE extends HibernateAbstractRegistrationHolder implements IIdAndCodeHolder,
+public class VocabularyPE extends HibernateAbstractRegistrationHolder implements IIdAndCodeHolder, IIdentityHolder,
         Comparable<VocabularyPE>, Serializable
 {
 
@@ -251,6 +252,20 @@ public class VocabularyPE extends HibernateAbstractRegistrationHolder implements
     public String getCode()
     {
         return CodeConverter.tryToBusinessLayer(getSimpleCode(), isInternalNamespace());
+    }
+
+    @Override
+    @Transient
+    public String getPermId()
+    {
+        return getCode();
+    }
+
+    @Override
+    @Transient
+    public String getIdentifier()
+    {
+        return getCode();
     }
 
     /**

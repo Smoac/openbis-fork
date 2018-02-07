@@ -355,8 +355,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.SearchVocabula
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.SearchVocabularyTermsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularySearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularyTermSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.UpdateVocabulariesOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.UpdateVocabularyTermsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyTermUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.webapp.WebAppSettings;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.OperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.IExecuteOperationExecutor;
@@ -641,12 +643,18 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    public void updateVocabularies(String sessionToken, List<VocabularyUpdate> vocabularyUpdates)
+    {
+        executeOperation(sessionToken, new UpdateVocabulariesOperation(vocabularyUpdates));
+    }
+
+    @Override
     @Transactional
     public void updateVocabularyTerms(String sessionToken, List<VocabularyTermUpdate> updates)
     {
         executeOperation(sessionToken, new UpdateVocabularyTermsOperation(updates));
     }
-
+    
     @Override
     @Transactional
     public void updateTags(String sessionToken, List<TagUpdate> updates)
