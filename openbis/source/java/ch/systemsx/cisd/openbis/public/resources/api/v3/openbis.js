@@ -673,6 +673,17 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			});
 		}
 		
+		this.updateVocabularies = function(updates) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "updateVocabularies",
+					"params" : [ thisFacade._private.sessionToken, updates ]
+				}
+			});
+		}
+
 		this.updateVocabularyTerms = function(updates) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
@@ -683,7 +694,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 				}
 			});
 		}
-
+		
 		this.updateTags = function(updates) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({

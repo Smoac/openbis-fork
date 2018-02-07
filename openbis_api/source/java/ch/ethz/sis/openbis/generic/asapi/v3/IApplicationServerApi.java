@@ -187,6 +187,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyTermPerm
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularySearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularyTermSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyTermUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.webapp.WebAppSettings;
 import ch.systemsx.cisd.common.annotation.TechPreview;
 import ch.systemsx.cisd.common.api.IRpcService;
@@ -281,6 +282,8 @@ public interface IApplicationServerApi extends IRpcService
     @TechPreview
     public void updateExternalDataManagementSystems(String sessionToken, List<ExternalDmsUpdate> externalDmsUpdates);
 
+    public void updateVocabularies(String sessionToken, List<VocabularyUpdate> vocabularyUpdates);
+    
     public void updateVocabularyTerms(String sessionToken, List<VocabularyTermUpdate> vocabularyTermUpdates);
 
     public void updateTags(String sessionToken, List<TagUpdate> tagUpdates);

@@ -1860,4 +1860,11 @@ Get Vocabularies Operation Result
 is Chosen From List
 set Chosen From List
 Vocabulary Creation
+get Chosen From List
+get Internal NameSpace
+get Managed Internally
+update Vocabularies
+Update Vocabularies Operation
+Update Vocabularies Operation Result
+Vocabulary Update
 

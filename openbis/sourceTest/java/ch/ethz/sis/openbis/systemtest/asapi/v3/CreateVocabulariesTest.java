@@ -20,6 +20,7 @@ import static org.testng.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -29,6 +30,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.VocabularyCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.VocabularyTermCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 
@@ -55,15 +57,19 @@ public class CreateVocabulariesTest extends AbstractTest
         VocabularyTermCreation term2 = new VocabularyTermCreation();
         term2.setCode("ALPHA");
         vocabularyCreation.setTerms(Arrays.asList(term1, term2));
+        VocabularyCreation vocabularyCreation2 = new VocabularyCreation();
+        vocabularyCreation2.setCode(vocabularyCreation.getCode());
         
         // When
-        List<VocabularyPermId> vocabularies = v3api.createVocabularies(sessionToken, Arrays.asList(vocabularyCreation));
+        List<VocabularyPermId> vocabularies = v3api.createVocabularies(sessionToken, 
+                Arrays.asList(vocabularyCreation, vocabularyCreation2));
         
         // Then
         VocabularyFetchOptions fetchOptions = new VocabularyFetchOptions();
         fetchOptions.withTerms();
         fetchOptions.withRegistrator();
-        Vocabulary vocabulary = v3api.getVocabularies(sessionToken, vocabularies, fetchOptions).get(vocabularies.get(0));
+        Map<IVocabularyId, Vocabulary> map = v3api.getVocabularies(sessionToken, vocabularies, fetchOptions);
+        Vocabulary vocabulary = map.get(vocabularies.get(0));
         assertEquals(vocabulary.getCode(), "$" + vocabularyCreation.getCode());
         assertEquals(vocabulary.getDescription(), vocabularyCreation.getDescription());
         assertEquals(vocabulary.isManagedInternally(), vocabularyCreation.isManagedInternally());
@@ -72,7 +78,10 @@ public class CreateVocabulariesTest extends AbstractTest
         assertEquals(vocabulary.getUrlTemplate(), vocabularyCreation.getUrlTemplate());
         List<VocabularyTerm> terms = vocabulary.getTerms();
         assertEquals(terms.toString(), "[VocabularyTerm ALPHA, VocabularyTerm OMEGA]");
-        assertEquals(vocabularies.size(), 1);
+        assertEquals(map.get(vocabularies.get(1)).getCode(), vocabularyCreation2.getCode());
+        assertEquals(map.get(vocabularies.get(1)).isInternalNameSpace(), false);
+        assertEquals(map.get(vocabularies.get(1)).isManagedInternally(), false);
+        assertEquals(vocabularies.size(), 2);
         
         v3api.logout(sessionToken);
     }

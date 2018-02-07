@@ -197,10 +197,14 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 			return this._executeUpdateOperation(new c.UpdateMaterialTypesOperation(updates));
 		}
 		
+		this.updateVocabularies = function(updates) {
+			return this._executeUpdateOperation(new c.UpdateVocabulariesOperation(updates));
+		}
+
 		this.updateVocabularyTerms = function(updates) {
 			return this._executeUpdateOperation(new c.UpdateVocabularyTermsOperation(updates));
 		}
-
+		
 		this.updateExternalDataManagementSystems = function(updates) {
 			return this._executeUpdateOperation(new c.UpdateExternalDmsOperation(updates));
 		}

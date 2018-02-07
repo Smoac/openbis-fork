@@ -127,6 +127,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.vocabulary.IGetVocab
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.vocabulary.IGetVocabularyTermsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.vocabulary.ISearchVocabulariesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.vocabulary.ISearchVocabularyTermsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.vocabulary.IUpdateVocabulariesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.vocabulary.IUpdateVocabularyTermsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.utils.ExceptionUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -279,8 +280,11 @@ public class OperationsExecutor implements IOperationsExecutor
     private IUpdateExternalDmsOperationExecutor updateExternalDmsExecutor;
 
     @Autowired
-    private IUpdateVocabularyTermsOperationExecutor updateVocabularyTermsExecutor;
+    private IUpdateVocabulariesOperationExecutor updateVocabulariesExecutor;
 
+    @Autowired
+    private IUpdateVocabularyTermsOperationExecutor updateVocabularyTermsExecutor;
+    
     @Autowired
     private IUpdateOperationExecutionsOperationExecutor updateOperationExecutionsExecutor;
 
@@ -556,6 +560,7 @@ public class OperationsExecutor implements IOperationsExecutor
     {
         resultMap.putAll(updateSemanticAnnotationsExecutor.execute(context, operations));
         resultMap.putAll(updateOperationExecutionsExecutor.execute(context, operations));
+        resultMap.putAll(updateVocabulariesExecutor.execute(context, operations));
         resultMap.putAll(updateVocabularyTermsExecutor.execute(context, operations));
         resultMap.putAll(updateMaterialTypesExecutor.execute(context, operations));
         resultMap.putAll(updateExperimentTypesExecutor.execute(context, operations));
