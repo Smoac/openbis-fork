@@ -409,7 +409,7 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 			return this._executeDeleteOperation(new c.DeleteDataSetsOperation(ids, deletionOptions));
 		}
 
-		this.deleteMaterials = function(ids, deletionOptions) {
+		this.deleteMaterials = function(ids, deletionOptions) {	
 			return this._executeDeleteOperation(new c.DeleteMaterialsOperation(ids, deletionOptions));
 		}
 
@@ -417,6 +417,10 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 			return this._executeDeleteOperation(new c.DeleteExternalDmsOperation(ids, deletionOptions));
 		}
 
+		this.deleteVocabularies = function(ids, deletionOptions) {
+			return this._executeDeleteOperation(new c.DeleteVocabulariesOperation(ids, deletionOptions));
+		}
+		
 		this.deleteVocabularyTerms = function(ids, deletionOptions) {
 			return this._executeDeleteOperation(new c.DeleteVocabularyTermsOperation(ids, deletionOptions));
 		}

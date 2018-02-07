@@ -58,4 +58,12 @@ public class VocabularyAuthorizationExecutor implements IVocabularyAuthorization
     {
     }
 
+    @Override
+    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN })
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY)
+    @Capability("DELETE_VOCABULARY")
+    public void canDelete(IOperationContext context, IVocabularyId entityId, VocabularyPE entity)
+    {
+    }
+
 }

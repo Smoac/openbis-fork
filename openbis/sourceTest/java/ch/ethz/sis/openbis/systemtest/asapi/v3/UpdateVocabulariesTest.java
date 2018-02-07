@@ -23,8 +23,8 @@ import java.util.Arrays;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.VocabularyCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyUpdate;
@@ -136,17 +136,18 @@ public class UpdateVocabulariesTest extends AbstractTest
     @Test(dataProvider = "usersNotAllowedToUpdateVocabularies")
     public void testUpdateWithUserCausingAuthorizationFailure(final String user)
     {
-        assertAuthorizationFailureException(new IDelegatedAction()
+        VocabularyPermId vocabularyId = new VocabularyPermId("ORGANISM");
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
                     String sessionToken = v3api.login(user, PASSWORD);
-                    VocabularyCreation vocabularyCreation = new VocabularyCreation();
-                    vocabularyCreation.setCode("AUTHORIZATION_TEST_VOCABULARY");
-                    v3api.createVocabularies(sessionToken, Arrays.asList(vocabularyCreation));
+                    VocabularyUpdate update = new VocabularyUpdate();
+                    update.setVocabularyId(vocabularyId);
+                    v3api.updateVocabularies(sessionToken, Arrays.asList(update));
                 }
-            });
+            }, vocabularyId);
     }
 
     @DataProvider
