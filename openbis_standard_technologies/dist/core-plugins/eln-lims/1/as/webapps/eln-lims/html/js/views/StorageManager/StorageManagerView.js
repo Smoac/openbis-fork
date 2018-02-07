@@ -23,6 +23,7 @@ function StorageManagerView(storageManagerController, storageManagerModel, stora
 	this._changeLogContainer = $("<div>").append("None");
 	
 	this._moveBtn = FormUtil.getButtonWithIcon("glyphicon-floppy-disk", null, "Save Changes");
+	this._showHideStorageToBtn = FormUtil.getButtonWithIcon("glyphicon-eye-close", null, "Show/Hide Storage B");
 	this._moveBtn.removeClass("btn-default");
 	this._moveBtn.addClass("btn-primary");
 	
@@ -31,7 +32,7 @@ function StorageManagerView(storageManagerController, storageManagerModel, stora
 		var $container = views.content;
 		
 		$header.append($("<h2>").append("Storage Manager"));
-		$header.append(this._moveBtn);
+		$header.append(this._showHideStorageToBtn).append(" ").append(this._moveBtn);
 		
 		var $containerColumn = $("<form>", {
 			'role' : "form", 
@@ -41,16 +42,20 @@ function StorageManagerView(storageManagerController, storageManagerModel, stora
 		
 		var $twoColumnsContainer = $("<div>", {"id" : "storageFromContainer", "class" : "row"});
 		
-		var $storageFromContainer = $("<div>", {"id" : "storageFromContainer", "class" : "col-md-6"});
-		$twoColumnsContainer.append($storageFromContainer);
-		this._storageFromView.repaint($storageFromContainer);
+		this._$storageFromContainer = $("<div>", {"id" : "storageFromContainer", "class" : "col-md-12"});
+		this._storageFromView.repaint(this._$storageFromContainer);
 		
-		var $storageToContainer = $("<div>", {"id" : "storageToContainer", "class" : "col-md-6"});
-		$twoColumnsContainer.append($storageToContainer);
-		this._storageToView.repaint($storageToContainer);
+		this._$storageToContainer = $("<div>", {"id" : "storageToContainer", "class" : "col-md-12"});
+		this._$storageToContainer.hide();
+		var _this = this;
+		this._showHideStorageToBtn.click(function() {
+			_this._$storageToContainer.toggle();
+		});
 		
+		this._storageToView.repaint(this._$storageToContainer);
 		
-		$containerColumn.append($twoColumnsContainer);
+		$containerColumn.append(this._$storageFromContainer);
+		$containerColumn.append(this._$storageToContainer);
 		$containerColumn.append($("<div>").append($("<h2>").append("Changes")).append(this._changeLogContainer));
 		$container.append($containerColumn);
 	}
