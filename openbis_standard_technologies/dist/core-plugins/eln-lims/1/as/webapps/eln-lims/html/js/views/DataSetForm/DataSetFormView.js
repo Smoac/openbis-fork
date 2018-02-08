@@ -22,10 +22,6 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		var $container = views.content;
 		var _this = this;
 		
-		if(!this._dataSetFormModel.isMini && this._dataSetFormModel.mode !== FormMode.VIEW) {
-			LayoutManager.isBlocked = true; // CKEDITOR owns hooks and variables that will break if the layout manager does its magic
-		}
-		
 		//Clean and prepare container
 		var $wrapper = $('<form>', { 'id' : 'mainDataSetForm', 'role' : 'form'});
 		if(this._dataSetFormModel.isMini) {

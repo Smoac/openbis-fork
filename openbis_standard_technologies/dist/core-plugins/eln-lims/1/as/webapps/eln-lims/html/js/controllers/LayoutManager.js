@@ -23,7 +23,6 @@ var LayoutManager = {
 	thirdColumn : null,
 	isResizingColumn : false,
 	isLoadingView : false,
-	isBlocked : false,
 	_init : function(isFirstTime) {
 		var _this = this;
 		
@@ -339,8 +338,7 @@ var LayoutManager = {
 		}
 	},
 	canReload : function() {
-		return  this.isBlocked == false && 
-				this.isResizingColumn === false && 
+		return  this.isResizingColumn === false && 
 				this.isLoadingView === false && 
 				this.firstColumn.width() > 0;
 	},
@@ -384,6 +382,23 @@ var LayoutManager = {
 	}
 }
 
+var rtime;
+var timeout = false;
+var delta = 200;
+
 $(window).resize(function() {
-	LayoutManager.resize(mainController.views, true);
+    rtime = new Date();
+    if (timeout === false) {
+        timeout = true;
+        setTimeout(resizeend, delta);
+    }
 });
+
+function resizeend() {
+    if (new Date() - rtime < delta) {
+        setTimeout(resizeend, delta);
+    } else {
+        timeout = false;
+        LayoutManager.resize(mainController.views, true);
+    }
+}
