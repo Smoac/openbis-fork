@@ -131,26 +131,22 @@ function GridView(gridModel) {
 						sample = jQuery.extend(true, {}, labels[i].data);
 					}
 					
-					if(sample && sample.sampleTypeCode === "STORAGE_POSITION") {
-						if(sample.parents && sample.parents[0]) {
-							if(profile.propertyReplacingCode &&  sample.parents[0].properties &&  sample.parents[0].properties[profile.propertyReplacingCode]) {
-								// Label
-								labels[i].displayName = sample.parents[0].properties[profile.propertyReplacingCode];
-								// Tooltip, show also information from the parent
-								sample.properties[profile.propertyReplacingCode] = sample.parents[0].properties[profile.propertyReplacingCode];
-							} else {
-								//Label
-								labels[i].displayName = sample.parents[0].code;
-								//Tooltip, show also information from the parent
-								sample.code = sample.parents[0].code;
-							}
-							
-							var href = Util.getURLFor(null, "showViewSamplePageFromPermId", sample.parents[0].permId);
-							optSampleTitle = $("<a>", { "href" : href, "class" : "browser-compatible-javascript-link" }).append(labels[i].displayName);
-							optSampleTitle.click(function() {
-								mainController.changeView("showViewSamplePageFromPermId", sample.parents[0].permId);
-							});
+					if(sample && sample.sampleTypeCode === "STORAGE_POSITION" && sample.parents && sample.parents[0]) {
+						if(profile.propertyReplacingCode &&  sample.parents[0].properties &&  sample.parents[0].properties[profile.propertyReplacingCode]) {
+							// Label
+							labels[i].displayName = sample.parents[0].properties[profile.propertyReplacingCode];
+						} else {
+							//Label
+							labels[i].displayName = sample.parents[0].code;
 						}
+							
+						sample = sample.parents[0];
+							
+						var href = Util.getURLFor(null, "showViewSamplePageFromPermId", sample.permId);
+						optSampleTitle = $("<a>", { "href" : href, "class" : "browser-compatible-javascript-link" }).append(labels[i].displayName);
+						optSampleTitle.click(function() {
+							mainController.changeView("showViewSamplePageFromPermId", sample.permId);
+						});
 					}
 					
 					var labelContainer = $("<div>", { class: "storageBox", id : Util.guid() }).append(labels[i].displayName);
