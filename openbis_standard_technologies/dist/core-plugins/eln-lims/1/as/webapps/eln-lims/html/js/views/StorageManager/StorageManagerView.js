@@ -23,7 +23,7 @@ function StorageManagerView(storageManagerController, storageManagerModel, stora
 	this._changeLogContainer = $("<div>").append("None");
 	
 	this._moveBtn = FormUtil.getButtonWithIcon("glyphicon-floppy-disk", null, "Save Changes");
-	this._showHideStorageToBtn = FormUtil.getButtonWithIcon("glyphicon-eye-close", null, "Show/Hide Storage B");
+	this._showHideStorageToBtn = FormUtil.getButtonWithIcon("glyphicon-eye-open", null, "Show/Hide Storage B");
 	this._moveBtn.removeClass("btn-default");
 	this._moveBtn.addClass("btn-primary");
 	
@@ -49,6 +49,14 @@ function StorageManagerView(storageManagerController, storageManagerModel, stora
 		this._$storageToContainer.hide();
 		var _this = this;
 		this._showHideStorageToBtn.click(function() {
+			var iconSpan = $(_this._showHideStorageToBtn.children()[0]);
+			if(iconSpan.hasClass("glyphicon-eye-open")) {
+				iconSpan.removeClass("glyphicon-eye-open");
+				iconSpan.addClass("glyphicon-eye-close");
+			} else if(iconSpan.hasClass("glyphicon-eye-close")) {
+				iconSpan.removeClass("glyphicon-eye-close");
+				iconSpan.addClass("glyphicon-eye-open");
+			}
 			_this._$storageToContainer.toggle();
 		});
 		
