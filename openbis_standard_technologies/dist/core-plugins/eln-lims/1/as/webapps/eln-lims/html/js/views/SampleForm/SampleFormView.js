@@ -76,6 +76,18 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		var nameLabel = this._sampleFormModel.sample.properties[profile.propertyReplacingCode];
 		if(nameLabel) {
 			nameLabel = html.sanitize(nameLabel);
+		} else if(this._sampleFormModel.sample.sampleTypeCode === "STORAGE_POSITION") {
+			var properties = this._sampleFormModel.sample.properties;
+			var storagePropertyGroup = profile.getStoragePropertyGroup();
+			var boxProperty = properties[storagePropertyGroup.boxProperty];
+			if(!boxProperty) {
+				boxProperty = "NoBox";
+			}
+			var positionProperty = properties[storagePropertyGroup.positionProperty];
+			if(!positionProperty) {
+				positionProperty = "NoPos";
+			}
+			nameLabel = boxProperty + " : " + positionProperty;
 		} else {
 			nameLabel = this._sampleFormModel.sample.code;
 		}
