@@ -833,6 +833,8 @@ var FormUtil = new function() {
 			
 			var destroyAndRecreateFunc = destroyAndRecreate($component);
 			
+			mainController.currentView._windowHandlers.push(destroyAndRecreateFunc);
+			
 			destroyAndRecreateFunc();
 			
 			LayoutManager.addResizeEventHandler(destroyAndRecreateFunc);

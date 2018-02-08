@@ -376,7 +376,7 @@ var LayoutManager = {
 	},
 	resize : function(view, forceFirstTime) {
 		if(this.canReload()) {
-			console.log("reloadView");
+			// console.log("reloadView");
 			this.reloadView(view, forceFirstTime);
 		}
 	}
