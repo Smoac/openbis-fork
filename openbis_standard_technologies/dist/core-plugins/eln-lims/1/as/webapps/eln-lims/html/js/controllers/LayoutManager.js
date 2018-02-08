@@ -339,7 +339,10 @@ var LayoutManager = {
 		}
 	},
 	canReload : function() {
-		return this.isBlocked == false && this.isResizingColumn === false && this.isLoadingView === false && this.firstColumn.width() > 0;
+		return  this.isBlocked == false && 
+				this.isResizingColumn === false && 
+				this.isLoadingView === false && 
+				this.firstColumn.width() > 0;
 	},
 	reloadView : function(view, forceFirstTime) {
 		var _this = this;
@@ -374,8 +377,8 @@ var LayoutManager = {
 		this.secondColumnContentResize();
 	},
 	resize : function(view, forceFirstTime) {
-		console.log("resize");
 		if(this.canReload()) {
+			console.log("reloadView");
 			this.reloadView(view, forceFirstTime);
 		}
 	}

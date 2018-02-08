@@ -29,6 +29,10 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 			'action' : 'javascript:void(0);'
 		});
 		
+		if(this._experimentFormModel.mode !== FormMode.VIEW) {
+			LayoutManager.isBlocked = true; // CKEDITOR owns hooks and variables that will break if the layout manager does its magic
+		}
+		
 		var $rightPanel = null;
 		if(this._experimentFormModel.mode === FormMode.VIEW) {
 			$rightPanel = views.auxContent;
