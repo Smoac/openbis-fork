@@ -816,28 +816,12 @@ var FormUtil = new function() {
 			$component.change(function(event) {
 				componentOnChange(event, $(this).val());
 			});
-		} else {			
-			var destroyAndRecreate = function($component) {
-				return function() {
-					if($component.editor) {
-						$component.editor.destroy();
-						delete $component.editor;
-					}
-					var editor = $component.ckeditor().editor;
-					editor.on('change', function(event) {
-						var value = event.editor.getData();
-						componentOnChange(event, value);
-					});
-				}
-			}
-			
-			var destroyAndRecreateFunc = destroyAndRecreate($component);
-			
-			mainController.currentView._windowHandlers.push(destroyAndRecreateFunc);
-			
-			destroyAndRecreateFunc();
-			
-			LayoutManager.addResizeEventHandler(destroyAndRecreateFunc);
+		} else {
+			var editor = $component.ckeditor().editor;
+			editor.on('change', function(event) {
+				var value = event.editor.getData();
+				componentOnChange(event, value);
+			});
 		}
 		
 		return $component;

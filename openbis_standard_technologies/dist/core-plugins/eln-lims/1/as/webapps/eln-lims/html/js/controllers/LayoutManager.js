@@ -355,9 +355,18 @@ var LayoutManager = {
 		}
 	},
 	canReload : function() {
+		// Don't reload when CKEditor is maximized
+		var ckMaximized = false;
+		for(editorId in CKEDITOR.instances) {
+			var commands = CKEDITOR.instances[editorId].commands;
+			if(commands && commands.maximize && commands.maximize.state == 1) {
+				ckMaximized = true;
+			}
+		}
+		
 		return  this.isResizingColumn === false && 
 				this.isLoadingView === false && 
-				this.firstColumn.width() > 0;
+				!ckMaximized;
 	},
 	getContentWidth : function() {
 		var width = $( window ).width();
@@ -395,6 +404,7 @@ var LayoutManager = {
 
 		var isFirstTime = this.mainContainer === null || forceFirstTime === true;
 		// console.log("reloadView called with isFirstTime:" + isFirstTime);
+		
 		this._init(isFirstTime);
 
 		var width = $( window ).width();
@@ -415,6 +425,11 @@ var LayoutManager = {
 	addResizeEventHandler : function(eventHandler) {
 		this.resizeEventHandlers.push(eventHandler);
 	},
+	removeResizeEventHandler : function(eventHandler) {
+		this.resizeEventHandlers = this.resizeEventHandlers.filter(function(el) {
+			return el === eventHandler;
+		});
+	},
 	triggerResizeEventHandlers : function() {
 		for(var idx = 0; idx < this.resizeEventHandlers.length; idx++) {
 			this.resizeEventHandlers[idx]();
@@ -423,29 +438,12 @@ var LayoutManager = {
 	},
 	resize : function(view, forceFirstTime) {
 		if(this.canReload()) {
-			// console.log("reloadView");
+			console.log("reloadView");
 			this.reloadView(view, forceFirstTime);
 		}
 	}
 }
 
-var rtime;
-var timeout = false;
-var delta = 200;
-
 $(window).resize(function() {
-    rtime = new Date();
-    if (timeout === false) {
-        timeout = true;
-        setTimeout(resizeend, delta);
-    }
+    LayoutManager.resize(mainController.views, true);
 });
-
-function resizeend() {
-    if (new Date() - rtime < delta) {
-        setTimeout(resizeend, delta);
-    } else {
-        timeout = false;
-        LayoutManager.resize(mainController.views, true);
-    }
-}
