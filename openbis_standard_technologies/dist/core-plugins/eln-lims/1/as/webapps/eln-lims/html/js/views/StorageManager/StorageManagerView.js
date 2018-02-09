@@ -23,7 +23,20 @@ function StorageManagerView(storageManagerController, storageManagerModel, stora
 	this._changeLogContainer = $("<div>").append("None");
 	
 	this._moveBtn = FormUtil.getButtonWithIcon("glyphicon-floppy-disk", null, "Save Changes");
-	this._showHideStorageToBtn = FormUtil.getButtonWithIcon("glyphicon-eye-open", null, "Show/Hide Storage B");
+	this._showHideStorageToBtn = FormUtil.getButtonWithIcon("glyphicon-eye-open", null, "Toggle Storage B");
+	this._showHideMenuBtn = FormUtil.getButtonWithIcon("glyphicon-resize-full", function() {
+			var iconSpan = $(this.children[0]);
+			if(iconSpan.hasClass("glyphicon-resize-full")) {
+				iconSpan.removeClass("glyphicon-resize-full");
+				iconSpan.addClass("glyphicon-resize-small");
+				LayoutManager.fullScreen();
+			} else if(iconSpan.hasClass("glyphicon-resize-small")) {
+				iconSpan.removeClass("glyphicon-resize-small");
+				iconSpan.addClass("glyphicon-resize-full");
+				LayoutManager.restoreStandardSize();
+			}
+	}, "Toggle Full Screen");
+		
 	this._moveBtn.removeClass("btn-default");
 	this._moveBtn.addClass("btn-primary");
 	
@@ -32,7 +45,7 @@ function StorageManagerView(storageManagerController, storageManagerModel, stora
 		var $container = views.content;
 		
 		$header.append($("<h2>").append("Storage Manager"));
-		$header.append(this._showHideStorageToBtn).append(" ").append(this._moveBtn);
+		$header.append(this._moveBtn).append(" ").append(this._showHideStorageToBtn).append(" ").append(this._showHideMenuBtn);
 		
 		var $containerColumn = $("<form>", {
 			'role' : "form", 

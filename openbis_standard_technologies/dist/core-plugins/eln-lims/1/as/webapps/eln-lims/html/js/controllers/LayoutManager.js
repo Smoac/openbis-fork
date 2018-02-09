@@ -371,6 +371,24 @@ var LayoutManager = {
 			alert("Layout manager unable to know the layout, this should never happen.");
 		}
 	},
+	fullScreen : function() {
+		var width = $( window ).width();
+		if (width > this.DESKTOP_SIZE) {
+			this.firstColumn.hide();
+			this.thirdColumn.hide();
+			this.secondColumn.width(width);
+		} else if (width > this.TABLET_SIZE) {
+			this.firstColumn.hide();
+			this.secondColumn.width(width);
+		} else if (width > this.MOBILE_SIZE) {
+			this.secondColumn.width(width);
+		} else {
+			alert("Layout manager unable to go fullScreen, this should never happen.");
+		}
+	},
+	restoreStandardSize : function() {
+		LayoutManager.resize(mainController.views, true);
+	},
 	reloadView : function(view, forceFirstTime) {
 		var _this = this;
 		this.isLoadingView = true;
