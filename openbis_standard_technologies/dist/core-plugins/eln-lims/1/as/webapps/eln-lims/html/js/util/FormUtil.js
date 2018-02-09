@@ -1149,6 +1149,8 @@ var FormUtil = new function() {
 	this.showDiskSpaceDialog = function() {
 		let _this = this;
 
+		Util.blockUI(null, null, true);
+
 		// TODO move to monitoring section
 		// TODO test in all browsers
 		// TODO add animation
