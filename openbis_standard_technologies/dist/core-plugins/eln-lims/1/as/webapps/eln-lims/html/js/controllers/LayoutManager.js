@@ -6,6 +6,8 @@ var LayoutManager = {
 	TABLET_SIZE : 768,
 	MOBILE_SIZE : 0,
 	MIN_HEADER_HEIGHT : 120,
+	MAX_FIRST_COLUMN_WIDTH : 350,
+	MAX_THIRD_COLUMN_WIDTH : 350,
 	body : null,
 	mainContainer : null,
 	firstColumn : null,
@@ -175,19 +177,29 @@ var LayoutManager = {
 		var width = $( window ).width();
 		var height = $( window ).height();
 		var headerHeight = 0;
-
+		
+		var firstColumnWidth = width * 0.25;
+		if(firstColumnWidth > LayoutManager.MAX_FIRST_COLUMN_WIDTH) {
+			firstColumnWidth = LayoutManager.MAX_FIRST_COLUMN_WIDTH;
+		}
+		
 		if(isFirstTime) {
 			this.firstColumn.append(view.menu);
 			this.firstColumn.css({
 				"display" : "block",
 				"height" : height,
-				"width" : "25%"
+				"width" : firstColumnWidth
 			});
+		}
+		
+		var thirdColumnWidth = (width - this.firstColumn.width()) * 0.34 - 1
+		if(thirdColumnWidth > LayoutManager.MAX_THIRD_COLUMN_WIDTH) {
+			thirdColumnWidth = LayoutManager.MAX_THIRD_COLUMN_WIDTH;
 		}
 		
 		var secondColumWidth;
 		if (view.auxContent) {
-			secondColumWidth = (width - this.firstColumn.width()) * 0.66 - 1;
+			secondColumWidth = width - this.firstColumn.width() - thirdColumnWidth - 1;
 		} else {
 			secondColumWidth = width - this.firstColumn.width() - 1;
 		}
@@ -226,7 +238,7 @@ var LayoutManager = {
 			this.thirdColumn.css({
 				"display" : "block",
 				"height" : height,
-				"width" : (width - this.firstColumn.width()) * 0.34 - 1
+				"width" : thirdColumnWidth
 			});
 			this.thirdColumn.append(view.auxContent);
 		} else {
@@ -241,12 +253,17 @@ var LayoutManager = {
 		var height = $( window ).height();
 		var headerHeight = 0;
 
+		var firstColumnWidth = width * 0.25;
+		if(firstColumnWidth > LayoutManager.MAX_FIRST_COLUMN_WIDTH) {
+			firstColumnWidth = LayoutManager.MAX_FIRST_COLUMN_WIDTH;
+		}
+		
 		if(isFirstTime) {
 			this.firstColumn.append(view.menu);
 			this.firstColumn.css({
 				display : "block",
 				height : height,
-				"width" : "25%"
+				"width" : firstColumnWidth
 			});
 		}
 		
