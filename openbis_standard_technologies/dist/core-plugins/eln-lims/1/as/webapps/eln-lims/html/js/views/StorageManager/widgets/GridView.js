@@ -39,9 +39,16 @@ function GridView(gridModel) {
 		var $emptyCell = $("<th>");
 		$headerRow.append($emptyCell);
 		
+		var contentWidth = LayoutManager.getContentWidth();
+		var headerWidth = 24;
+		var minHeight = 32;
+		var cellWidth = contentWidth/parseInt(this._gridModel.numColumns) - headerWidth;
+		
 		for(var j = 0; j < this._gridModel.numColumns; j++) {
 			var $numberCell = $("<th>").append(j+1);
-			$numberCell.css('width', Math.floor(80/(this._gridModel.numColumns+1)) +'%');
+			$numberCell.css('width', cellWidth +'px');
+			$numberCell.css('text-align', 'center');
+			$numberCell.css('vertical-align', 'middle');
 //			$numberCell.css('padding', '0px');
 			$headerRow.append($numberCell);
 		}
@@ -50,13 +57,16 @@ function GridView(gridModel) {
 		
 		for(var i = 0; i < this._gridModel.numRows; i++) {
 			var $newRow = $("<tr>");
+				$newRow.css('height', minHeight +'px');
 			var rowLabel = i+1;
 			if(this._gridModel.useLettersOnRows) {
 				rowLabel = Util.getLetterForNumber(rowLabel);
 			}
 			var $numberCell = $("<th>").append(rowLabel);
-			$numberCell.css('width', Math.floor(80/(this._gridModel.numColumns+1)) +'%');
+			$numberCell.css('width', headerWidth + 'px');
 			$numberCell.css('padding', '0px');
+			$numberCell.css('text-align', 'center');
+			$numberCell.css('vertical-align', 'middle');
 			$newRow.append($numberCell);
 			
 			for(var j = 0; j < this._gridModel.numColumns; j++) {
@@ -108,7 +118,8 @@ function GridView(gridModel) {
 				}
 				
 				this._addLabels($newColumn, i + 1, j + 1);
-				$newColumn.css('width', Math.floor(80/(this._gridModel.numColumns+1)) +'%');
+				$newColumn.css('width', cellWidth +'px');
+				$newColumn.css('min-height', minHeight +'px');
 				$newColumn.css('padding', '0px');
 				$newColumn.css('overflow', 'hidden');
 				$newRow.append($newColumn);

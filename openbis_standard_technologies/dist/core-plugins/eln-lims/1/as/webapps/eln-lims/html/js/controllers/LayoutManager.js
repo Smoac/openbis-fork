@@ -342,6 +342,18 @@ var LayoutManager = {
 				this.isLoadingView === false && 
 				this.firstColumn.width() > 0;
 	},
+	getContentWidth : function() {
+		var width = $( window ).width();
+		if (width > this.DESKTOP_SIZE) {
+			return this.secondColumn.width();
+		} else if (width > this.TABLET_SIZE) {
+			return this.secondColumn.width();
+		} else if (width > this.MOBILE_SIZE) {
+			return this.firstColumn.width();
+		} else {
+			alert("Layout manager unable to know the layout, this should never happen.");
+		}
+	},
 	reloadView : function(view, forceFirstTime) {
 		var _this = this;
 		this.isLoadingView = true;
