@@ -1151,10 +1151,6 @@ var FormUtil = new function() {
 
 		Util.blockUI(null, null, true);
 
-		// TODO move to monitoring section
-		// TODO test in all browsers
-		// TODO add animation
-
 		mainController.serverFacade.customELNApi({
 			"method" : "getDiskSpace",
 			"diskMountPoints" : _this.profile.diskMountPoints,
