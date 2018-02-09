@@ -131,7 +131,7 @@ var SampleDataGridUtil = new function() {
 							if(!positionProperty) {
 								positionProperty = "NoPos";
 							}
-							var displayName = codeProperty + " [ " + rowProperty + " , " + colProperty + " ] " + boxProperty + " : " + positionProperty;
+							var displayName = codeProperty + " [ " + rowProperty + " , " + colProperty + " ] " + boxProperty + " - " + positionProperty;
 							if(!isFirst) {
 								storage.append(",<br>");
 							}

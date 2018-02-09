@@ -41,7 +41,7 @@ function StorageListView(storageListController, storageListModel) {
 				if(!positionProperty) {
 					positionProperty = "NoPos";
 				}
-				var displayName = boxProperty + " : " + positionProperty;
+				var displayName = boxProperty + " - " + positionProperty;
 				return (data['$object'].newSample)?displayName:FormUtil.getFormLink(displayName, "Sample", data['$object'].permId);
 			},
 			filter : function(data, filter) {

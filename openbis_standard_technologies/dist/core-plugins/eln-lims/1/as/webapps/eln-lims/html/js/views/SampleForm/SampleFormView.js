@@ -87,7 +87,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			if(!positionProperty) {
 				positionProperty = "NoPos";
 			}
-			nameLabel = boxProperty + " : " + positionProperty;
+			nameLabel = boxProperty + " - " + positionProperty;
 		} else {
 			nameLabel = this._sampleFormModel.sample.code;
 		}
