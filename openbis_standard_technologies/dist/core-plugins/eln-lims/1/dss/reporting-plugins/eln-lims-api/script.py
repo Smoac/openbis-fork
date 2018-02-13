@@ -258,6 +258,10 @@ def process(tr, parameters, tableBuilder):
 		result = getFeaturesFromFeatureVector(tr, parameters, tableBuilder);
 		isOk = True;
 
+	if method == "getDiskSpace":
+		result = getDiskSpace(tr, parameters, tableBuilder)
+		isOk = True
+
 	if isOk:
 		tableBuilder.addHeader("STATUS");
 		tableBuilder.addHeader("MESSAGE");
@@ -355,6 +359,25 @@ def getFeaturesFromFeatureVector(tr, parameters, tableBuilder):
 	
 	featuresFromFeatureVector = screeningServiceDSS.loadFeatures(sessionToken, [featureVectorDataset], featuresCodesFromFeatureVector);
 	return getJsonForData(featuresFromFeatureVector);
+
+def getDiskSpace(tr, parameters, tableBuilder):
+	storerootDir = getConfigParameterAsString("storeroot-dir")
+	df = subprocess.check_output(["df", '-h', storerootDir])
+	diskSpaceValues = extractDiskSpaceValues(df)
+	return getJsonForData([diskSpaceValues])
+
+def extractDiskSpaceValues(df):
+	values = {}
+	dfLines = df.splitlines()
+	#reverse because the first column (which we don't need) can contain spaces
+	headerSplitReversed = dfLines[0].replace("Mounted on", "Mounted_on").split()[::-1]
+	valuesSplitReversed = dfLines[1].split()[::-1]
+	for i, column in enumerate(headerSplitReversed):
+		if column in ["Mounted_on", "Size", "Used", "Avail"]:
+			values[column] = valuesSplitReversed[i]
+		elif column in ["Capacity", "Use%"]: # Mac OS X or GNU/Linux
+			values["UsedPercentage"] = valuesSplitReversed[i]
+	return values
 
 def insertSpaceIfMissing(tr, spaceCode):
 	space = tr.getSpace(spaceCode);

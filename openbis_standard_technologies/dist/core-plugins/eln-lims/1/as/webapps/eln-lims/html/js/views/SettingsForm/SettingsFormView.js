@@ -65,7 +65,12 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 				$saveBtn.addClass("btn-primary");
 				toolbarModel.push({ component : $saveBtn, tooltip: "Save" });
 			}
-			
+
+			var $diskSpaceButton = FormUtil.getButtonWithIcon("glyphicon-hdd", function () {
+				FormUtil.showDiskSpaceDialog();
+			});
+			toolbarModel.push({ component : $diskSpaceButton, tooltip: "Show available storage space" });
+
 			var $header = views.header;
 			$header.append($formTitle);
 			$header.append(FormUtil.getToolbar(toolbarModel));
