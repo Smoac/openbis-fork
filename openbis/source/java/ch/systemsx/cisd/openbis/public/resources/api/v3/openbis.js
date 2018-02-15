@@ -447,6 +447,21 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			});
 		}
 
+		this.createPropertyTypes = function(creations) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "createPropertyTypes",
+					"params" : [ thisFacade._private.sessionToken, creations ]
+				},
+				returnType : {
+					name : "List",
+					arguments : [ "PropertyTypePermId" ]
+				}
+			});
+		}
+		
 		this.createVocabularies = function(creations) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
@@ -840,6 +855,21 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			});
 		}
 
+		this.getPropertyTypes = function(ids, fetchOptions) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "getPropertyTypes",
+					"params" : [ thisFacade._private.sessionToken, ids, fetchOptions ]
+				},
+				returnType : {
+					name : "Map",
+					arguments : [ "IPropertyTypeId", "PropertyType" ]
+				}
+			});
+		}
+		
 		this.getVocabularies = function(ids, fetchOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({

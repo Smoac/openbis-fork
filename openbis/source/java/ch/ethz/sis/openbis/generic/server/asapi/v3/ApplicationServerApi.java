@@ -220,8 +220,15 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.update.ProjectUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.update.UpdateProjectsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.CreatePropertyTypesOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.CreatePropertyTypesOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.get.GetPropertyTypesOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.get.GetPropertyTypesOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyTypeId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.PropertyAssignmentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.PropertyTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.SearchPropertyAssignmentsOperation;
@@ -517,6 +524,13 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    public List<PropertyTypePermId> createPropertyTypes(String sessionToken, List<PropertyTypeCreation> newPropertyTypes)
+    {
+        CreatePropertyTypesOperationResult result = executeOperation(sessionToken, new CreatePropertyTypesOperation(newPropertyTypes));
+        return result.getObjectIds();
+    }
+
+    @Override
     @Transactional
     public List<VocabularyPermId> createVocabularies(String sessionToken, List<VocabularyCreation> creations)
     {
@@ -743,6 +757,15 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Override
     @Transactional(readOnly = true)
+    public Map<IPropertyTypeId, PropertyType> getPropertyTypes(String sessionToken, List<? extends IPropertyTypeId> typeIds,
+            PropertyTypeFetchOptions fetchOptions)
+    {
+        GetPropertyTypesOperationResult result = executeOperation(sessionToken, new GetPropertyTypesOperation(typeIds, fetchOptions));
+        return result.getObjectMap();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Map<IVocabularyId, Vocabulary> getVocabularies(String sessionToken, List<? extends IVocabularyId> vocabularyIds,
             VocabularyFetchOptions fetchOptions)
     {
@@ -777,6 +800,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Map<IRoleAssignmentId, RoleAssignment> getRoleAssignments(String sessionToken, List<? extends IRoleAssignmentId> ids,
             RoleAssignmentFetchOptions fetchOptions)
     {
@@ -785,6 +809,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Map<IPersonId, Person> getPersons(String sessionToken, List<? extends IPersonId> ids, PersonFetchOptions fetchOptions)
     {
         GetPersonsOperationResult result = executeOperation(sessionToken, new GetPersonsOperation(ids, fetchOptions));

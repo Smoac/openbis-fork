@@ -426,6 +426,11 @@ var sources = [
 	'as/dto/project/update/UpdateProjectsOperationResult',
 	
 	'as/dto/property/create/PropertyAssignmentCreation',
+	'as/dto/property/create/PropertyTypeCreation',
+	'as/dto/property/create/CreatePropertyTypesOperation',
+	'as/dto/property/create/CreatePropertyTypesOperationResult',
+	'as/dto/property/get/GetPropertyTypesOperation',
+	'as/dto/property/get/GetPropertyTypesOperationResult',
 	'as/dto/property/id/PropertyTypePermId',
 	'as/dto/property/id/PropertyAssignmentPermId',
 	'as/dto/property/fetchoptions/PropertyAssignmentFetchOptions',

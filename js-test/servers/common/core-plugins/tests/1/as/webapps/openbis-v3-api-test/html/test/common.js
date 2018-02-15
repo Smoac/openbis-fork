@@ -35,6 +35,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.PersonCreation = dtos.PersonCreation;
 		this.Role = require('as/dto/roleassignment/Role');
 		this.RoleLevel = require('as/dto/roleassignment/RoleLevel');
+		this.DataType = require('as/dto/property/DataType');
 		this.SemanticAnnotationCreation = dtos.SemanticAnnotationCreation;
 		this.DataSetCreation = dtos.DataSetCreation;
 		this.FullDataSetCreation = dtos.FullDataSetCreation;
@@ -161,6 +162,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.SampleTypeCreation = dtos.SampleTypeCreation;
 		this.DataSetTypeCreation = dtos.DataSetTypeCreation;
 		this.MaterialTypeCreation = dtos.MaterialTypeCreation;
+		this.PropertyTypeCreation = dtos.PropertyTypeCreation;
 		this.WebAppSettings = dtos.WebAppSettings;
 
 		// operations
@@ -172,6 +174,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.GetSamplesOperation = dtos.GetSamplesOperation;
 		this.GetDataSetsOperation = dtos.GetDataSetsOperation;
 		this.GetMaterialsOperation = dtos.GetMaterialsOperation;
+		this.GetPropertyTypesOperation = dtos.GetPropertyTypesOperation;
 		this.GetVocabulariesOperation = dtos.GetVocabulariesOperation;
 		this.GetVocabularyTermsOperation = dtos.GetVocabularyTermsOperation;
 		this.GetTagsOperation = dtos.GetTagsOperation;
@@ -191,6 +194,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.CreateDataSetTypesOperation = dtos.CreateDataSetTypesOperation;
 		this.CreateMaterialsOperation = dtos.CreateMaterialsOperation;
 		this.CreateMaterialTypesOperation = dtos.CreateMaterialTypesOperation;
+		this.CreatePropertyTypesOperation = dtos.CreatePropertyTypesOperation;
 		this.CreateVocabulariesOperation = dtos.CreateVocabulariesOperation;
 		this.CreateVocabularyTermsOperation = dtos.CreateVocabularyTermsOperation;
 		this.CreateTagsOperation = dtos.CreateTagsOperation;
@@ -411,6 +415,18 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			});
 		}.bind(this);
 
+		this.createPropertyType = function(facade) {
+			var c = this;
+			var creation = new dtos.PropertyTypeCreation();
+			creation.setCode(c.generateId("PROPERTY_TYPE"));
+			creation.setLabel("Testing");
+			creation.setDescription("testing");
+			creation.setDataType(c.DataType.VARCHAR);
+			return facade.createPropertyTypes([ creation ]).then(function(permIds) {
+				return permIds[0];
+			});
+		}.bind(this);
+		
 		this.createVocabulary = function(facade) {
 			var c = this;
 			var creation = new dtos.VocabularyCreation();
@@ -610,6 +626,15 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			});
 		}.bind(this);
 
+		this.findPropertyType = function(facade, id) {
+			var c = this;
+			var criteria = new c.PropertyTypeSearchCriteria();
+			criteria.withId().thatEquals(id);
+			return facade.searchPropertyTypes(criteria, c.createPropertyTypeFetchOptions()).then(function(results) {
+				return results.getObjects()[0];
+			});
+		}.bind(this);
+		
 		this.findVocabulary = function(facade, id) {
 			var c = this;
 			return facade.getVocabularies([ id ], c.createVocabularyFetchOptions()).then(function(vocabularies) {
@@ -931,6 +956,13 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			return fo;
 		};
 
+		this.createPropertyTypeFetchOptions = function() {
+			var fo = new dtos.PropertyTyüeFetchOptions();
+			fo.withVocabulary();
+			fo.withMaterialType();
+			return fo;
+		};
+		
 		this.createVocabularyFetchOptions = function() {
 			var fo = new dtos.VocabularyFetchOptions();
 			fo.withTerms();

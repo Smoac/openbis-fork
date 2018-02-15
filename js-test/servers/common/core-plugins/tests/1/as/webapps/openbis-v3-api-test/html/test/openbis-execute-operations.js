@@ -129,6 +129,10 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 			return this._executeCreateOperation(new c.CreateMaterialTypesOperation(creations));
 		}
 
+		this.createPropertyTypes = function(creations) {
+			return this._executeCreateOperation(new c.CreatePropertyTypesOperation(creations));
+		}
+		
 		this.createVocabularyTerms = function(creations) {
 			return this._executeCreateOperation(new c.CreateVocabularyTermsOperation(creations));
 		}
@@ -253,6 +257,10 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 			return this._executeGetOperation(new c.GetMaterialsOperation(ids, fetchOptions));
 		}
 
+		this.getPropertyTypes = function(ids, fetchOptions) {
+			return this._executeGetOperation(new c.GetPropertyTypesOperation(ids, fetchOptions));
+		}
+		
 		this.getVocabularies = function(ids, fetchOptions) {
 			return this._executeGetOperation(new c.GetVocabulariesOperation(ids, fetchOptions));
 		}

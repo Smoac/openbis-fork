@@ -87,6 +87,8 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project.IDeleteProje
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project.IGetProjectsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project.ISearchProjectsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project.IUpdateProjectsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.ICreatePropertyTypesOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.IGetPropertyTypesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.ISearchPropertyAssignmentsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.ISearchPropertyTypesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.roleassignment.ICreateRoleAssignmentsOperationExecutor;
@@ -221,6 +223,9 @@ public class OperationsExecutor implements IOperationsExecutor
     private ICreateSemanticAnnotationsOperationExecutor createSemanticAnnotationsExecutor;
 
     @Autowired
+    private ICreatePropertyTypesOperationExecutor createPropertyTypesExecutor;
+    
+    @Autowired
     private ICreateVocabulariesOperationExecutor createVocabulariesExecutor;
     
     @Autowired
@@ -341,8 +346,11 @@ public class OperationsExecutor implements IOperationsExecutor
     private IGetPersonsOperationExecutor getPersonsExecutor;
     
     @Autowired
-    private IGetVocabulariesOperationExecutor getVocabulariesExecutor;
+    private IGetPropertyTypesOperationExecutor getPropertyTypesExecutor;
 
+    @Autowired
+    private IGetVocabulariesOperationExecutor getVocabulariesExecutor;
+    
     @Autowired
     private IGetVocabularyTermsOperationExecutor getVocabularyTermsExecutor;
     
@@ -543,6 +551,7 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(getAuthorizationGroupsExecutor.execute(context, operations));
         resultMap.putAll(getRoleAssignmentsExecutor.execute(context, operations));
         resultMap.putAll(getPersonsExecutor.execute(context, operations));
+        resultMap.putAll(getPropertyTypesExecutor.execute(context, operations));
         resultMap.putAll(getVocabulariesExecutor.execute(context, operations));
         resultMap.putAll(getVocabularyTermsExecutor.execute(context, operations));
         resultMap.putAll(getExternalDmsExecutor.execute(context, operations));
@@ -588,6 +597,7 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(createPersonsExecutor.execute(context, operations));
         resultMap.putAll(createVocabulariesExecutor.execute(context, operations));
         resultMap.putAll(createVocabularyTermsExecutor.execute(context, operations));
+        resultMap.putAll(createPropertyTypesExecutor.execute(context, operations));
         resultMap.putAll(createExperimentTypesExecutor.execute(context, operations));
         resultMap.putAll(createSampleTypesExecutor.execute(context, operations));
         resultMap.putAll(createDataSetTypesExecutor.execute(context, operations));

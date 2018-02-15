@@ -43,6 +43,7 @@ import org.xml.sax.SAXException;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.common.xml.XMLInfraStructure;
 
 /**
@@ -179,6 +180,24 @@ public class XmlUtils
         } catch (Exception ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+    }
+
+    public static void validateXML(String xmlValue, String xmlName, String schemaFilePath)
+    {
+        if (StringUtils.isBlank(xmlValue))
+        {
+            return;
+        }
+    
+        Document document = parseXmlDocument(xmlValue);
+        Schema schema = XMLInfraStructure.createSchema(schemaFilePath);
+        try
+        {
+            validate(document, schema);
+        } catch (Exception e)
+        {
+            throw UserFailureException.fromTemplate("Provided %s isn't valid. %s", xmlName, e.getMessage());
         }
     }
 }
