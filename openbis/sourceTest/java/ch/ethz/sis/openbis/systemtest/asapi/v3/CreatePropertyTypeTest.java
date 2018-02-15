@@ -112,8 +112,8 @@ public class CreatePropertyTypeTest extends AbstractTest
         assertEquals(propertyType.getDataType(), creation.getDataType());
         assertEquals(propertyType.getDescription(), creation.getDescription());
         assertEquals(propertyType.getLabel(), creation.getLabel());
-        assertEquals(propertyType.isInternalNameSpace(), creation.isInternalNameSpace());
-        assertEquals(propertyType.isManagedInternally(), creation.isManagedInternally());
+        assertEquals(propertyType.isInternalNameSpace().booleanValue(), creation.isInternalNameSpace());
+        assertEquals(propertyType.isManagedInternally().booleanValue(), creation.isManagedInternally());
         assertEquals(types.size(), 1);
 
         v3api.logout(sessionToken);

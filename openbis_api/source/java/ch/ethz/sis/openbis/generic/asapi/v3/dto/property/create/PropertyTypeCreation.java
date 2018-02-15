@@ -45,10 +45,10 @@ public class PropertyTypeCreation implements ICreation, IObjectCreation
     private String description;
     
     @JsonProperty
-    private Boolean managedInternally;
+    private boolean managedInternally;
 
     @JsonProperty
-    private Boolean internalNameSpace;
+    private boolean internalNameSpace;
 
     @JsonProperty
     private DataType dataType;
@@ -99,23 +99,23 @@ public class PropertyTypeCreation implements ICreation, IObjectCreation
     }
 
     @JsonIgnore
-    public Boolean isManagedInternally()
+    public boolean isManagedInternally()
     {
         return managedInternally;
     }
 
-    public void setManagedInternally(Boolean managedInternally)
+    public void setManagedInternally(boolean managedInternally)
     {
         this.managedInternally = managedInternally;
     }
 
     @JsonIgnore
-    public Boolean isInternalNameSpace()
+    public boolean isInternalNameSpace()
     {
         return internalNameSpace;
     }
 
-    public void setInternalNameSpace(Boolean internalNameSpace)
+    public void setInternalNameSpace(boolean internalNameSpace)
     {
         this.internalNameSpace = internalNameSpace;
     }
