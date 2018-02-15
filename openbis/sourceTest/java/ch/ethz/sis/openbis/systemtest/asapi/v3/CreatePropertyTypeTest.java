@@ -43,22 +43,20 @@ import ch.systemsx.cisd.common.action.IDelegatedAction;
 public class CreatePropertyTypeTest extends AbstractTest
 {
     private static String EXAMPLE_SCHEMA =
-            "<?xml version='1.0'?>\n                                            "
-                    + "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'   "
-                    + "targetNamespace='http://www.w3schools.com'               "
-                    + "xmlns='http://www.w3schools.com'                         "
-                    + "elementFormDefault='qualified'>\n                        "
-                    + "<xs:element name='note'>\n                               "
-                    + "  <xs:complexType>\n                                     "
-                    + "    <xs:sequence>\n                                      "
-                    + "      <xs:element name='to' type='xs:string'/>\n         "
-                    + "      <xs:element name='from' type='xs:string'/>\n       "
-                    + "      <xs:element name='heading' type='xs:string'/>\n    "
-                    + "      <xs:element name='body' type='xs:string'/>\n       "
-                    + "    </xs:sequence>\n                                     "
-                    + "  </xs:complexType>\n                                    "
-                    + "</xs:element>\n                                          "
-                    + "</xs:schema>                                             ";
+            "<?xml version='1.0'?>\n"
+            + "<xs:schema targetNamespace='http://my.host.org' xmlns:xs='http://www.w3.org/2001/XMLSchema'>\n"
+            + "<xs:element name='note'>\n" 
+            + "  <xs:complexType>\n"
+            + "    <xs:sequence>\n"
+            + "      <xs:element name='to' type='xs:string'/>\n"
+            + "      <xs:element name='from' type='xs:string'/>\n"
+            + "      <xs:element name='heading' type='xs:string'/>\n"
+            + "      <xs:element name='body' type='xs:string'/>\n" 
+            + "    </xs:sequence>\n"
+            + "  </xs:complexType>\n" 
+            + "</xs:element>\n" 
+            + "</xs:schema>";
+
 
     private static String EXAMPLE_XSLT = "<?xml version='1.0'?>\n"
             + "<xsl:stylesheet version='1.0' xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>"
