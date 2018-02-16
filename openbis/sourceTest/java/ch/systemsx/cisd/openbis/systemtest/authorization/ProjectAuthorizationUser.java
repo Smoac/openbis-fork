@@ -38,6 +38,8 @@ public class ProjectAuthorizationUser
 
     public static final String TEST_PROJECT_PA_OFF = "test_project_pa_off";
 
+    public static final String TEST_GROUP = "admin";
+
     public static final String ETL_SERVER = "etlserver";
 
     public static final String TEST_SPACE_ETL_SERVER = "test_space_etl_server";
@@ -182,7 +184,7 @@ public class ProjectAuthorizationUser
         testProjectPAOn.setTestProjectUser(true);
         testProjectPAOn.setPAEnabled(true);
 
-        ProjectAuthorizationUser testGroup = new ProjectAuthorizationUser("admin");
+        ProjectAuthorizationUser testGroup = new ProjectAuthorizationUser(TEST_GROUP);
         testGroup.setTestGroupUser(true);
 
         return new Object[][] {

@@ -135,7 +135,7 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
     }
 
     PutDataSetExecutor(PutDataSetService service, IETLServerPlugin plugin, String sessionToken,
-            NewDataSetDTO newDataSet, File temporaryIncomingDir)
+            NewDataSetDTO newDataSet, File temporaryIncomingDir, File dataSet)
     {
         this.service = service;
         this.plugin = plugin;
@@ -144,17 +144,7 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
         this.inputStream = null;
         this.copier = FastRecursiveHardLinkMaker.tryCreate(RSyncConfig.getInstance().getAdditionalCommandLineOptions());
         this.temporaryIncomingDir = temporaryIncomingDir;
-        this.dataSetDir = new File(temporaryIncomingDir, newDataSet.getDataSetFolderName());
-        if (dataSetDir.exists())
-        {
-            deleteDataSetDir();
-        }
-        if (false == this.dataSetDir.mkdir())
-        {
-            throw new EnvironmentFailureException("Could not create directory for data set "
-                    + newDataSet.getDataSetFolderName());
-        }
-
+        this.dataSetDir = dataSet;
         overridingTypeExtractor = new OverridingTypeExtractor();
         handler = plugin.getDataSetHandler(this, service.getOpenBisService());
     }

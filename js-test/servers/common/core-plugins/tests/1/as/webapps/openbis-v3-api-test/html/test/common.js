@@ -38,6 +38,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.SemanticAnnotationCreation = dtos.SemanticAnnotationCreation;
 		this.DataSetCreation = dtos.DataSetCreation;
 		this.FullDataSetCreation = dtos.FullDataSetCreation;
+		this.UploadedDataSetCreation = dtos.UploadedDataSetCreation;
 		this.DataSetFileCreation = dtos.DataSetFileCreation;
 		this.LinkedDataCreation = dtos.LinkedDataCreation;
 		this.ContentCopyCreation = dtos.ContentCopyCreation;
@@ -290,7 +291,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.getDtos = function() {
 			return dtos;
 		}
-		
+
 		this.getId = function(entity) {
 			if (typeof entity["getPermId"] === 'function') {
 				return entity.getPermId();
@@ -385,6 +386,33 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			});
 		}.bind(this);
 
+		this.waitUntilIndexed = function(facade, dataSetCode, timeout) {
+			var c = this;
+			var dfd = $.Deferred();
+			var start = new Date().getTime();
+
+			var searchAndWait = function() {
+				var criteria = new c.DataSetSearchCriteria();
+				criteria.withPermId().thatEquals(dataSetCode);
+
+				facade.searchDataSets(criteria, c.createDataSetFetchOptions()).then(function(result) {
+					if (result.getTotalCount() == 0) {
+						var now = new Date().getTime();
+						if (now - start > timeout) {
+							c.fail("Data set " + dataSetCode + " not indexed after " + timeout + " msec.");
+							dfd.reject();
+						} else {
+							setTimeout(searchAndWait, 1000);
+						}
+					} else {
+						dfd.resolve();
+					}
+				});
+			};
+			searchAndWait();
+			return dfd.promise();
+		}.bind(this);
+
 		this.getResponseFromJSTestAggregationService = function(facade, params, callback) {
 			var c = this;
 			return $.ajax({
@@ -438,7 +466,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 				return permIds[0];
 			});
 		}.bind(this);
-		
+
 		this.createExternalDms = function(facade) {
 			var c = this;
 			var creation = new dtos.ExternalDmsCreation();
@@ -475,12 +503,12 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			var c = this;
 			var creation = new dtos.AuthorizationGroupCreation();
 			creation.setCode(c.generateId("AUTHORIZATION_GROUP"));
-			creation.setUserIds([new c.PersonPermId("power_user")]);
+			creation.setUserIds([ new c.PersonPermId("power_user") ]);
 			return facade.createAuthorizationGroups([ creation ]).then(function(permIds) {
 				return permIds[0];
 			});
 		}.bind(this);
-		
+
 		this.createRoleAssignment = function(facade, isUser) {
 			var c = this;
 			return c.createSpace(facade).then(function(spaceId) {
@@ -497,7 +525,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 				});
 			});
 		}.bind(this);
-		
+
 		this.createPerson = function(facade) {
 			var c = this;
 			var creation = new dtos.PersonCreation();
@@ -506,7 +534,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 				return permIds[0];
 			});
 		}.bind(this);
-		
+
 		this.createSemanticAnnotation = function(facade) {
 			var c = this;
 			var creation = new dtos.SemanticAnnotationCreation();
@@ -637,14 +665,14 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 				return groups[id];
 			});
 		}.bind(this);
-		
+
 		this.findRoleAssignment = function(facade, id) {
 			var c = this;
 			return facade.getRoleAssignments([ id ], c.createRoleAssignmentFetchOptions()).then(function(assignments) {
 				return assignments[id];
 			});
 		}.bind(this);
-		
+
 		this.findPerson = function(facade, id) {
 			var c = this;
 			return facade.getPersons([ id ], c.createPersonFetchOptions()).then(function(persons) {
@@ -742,7 +770,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			options.setReason("test reason");
 			return facade.deleteVocabularyTerms([ id ], options);
 		}.bind(this);
-		
+
 		this.replaceVocabularyTerm = function(facade, id) {
 			var c = this;
 			var options = new dtos.VocabularyTermDeletionOptions();
@@ -764,14 +792,14 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			options.setReason("test reason");
 			return facade.deleteAuthorizationGroups([ id ], options);
 		}.bind(this);
-		
+
 		this.deleteRoleAssignment = function(facade, id) {
 			var c = this;
 			var options = new dtos.RoleAssignmentDeletionOptions();
 			options.setReason("test reason");
 			return facade.deleteRoleAssignments([ id ], options);
 		}.bind(this);
-		
+
 		this.deleteOperationExecution = function(facade, id) {
 			var c = this;
 			var options = new dtos.OperationExecutionDeletionOptions();
@@ -977,7 +1005,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			rafo.withProject().withSpace();
 			return fo;
 		};
-		
+
 		this.createRoleAssignmentFetchOptions = function() {
 			var fo = new dtos.RoleAssignmentFetchOptions();
 			fo.withProject();
@@ -987,7 +1015,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			fo.withRegistrator();
 			return fo;
 		};
-		
+
 		this.createPersonFetchOptions = function() {
 			var fo = new dtos.PersonFetchOptions();
 			fo.withSpace();
@@ -995,7 +1023,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			fo.withRegistrator();
 			return fo;
 		};
-		
+
 		this.createPropertyTypeFetchOptions = function() {
 			var fo = new dtos.PropertyTypeFetchOptions();
 			fo.withVocabulary();

@@ -98,39 +98,16 @@ class PutDataSetTopLevelDataSetHandler
     private final File dataSet;
 
     PutDataSetTopLevelDataSetHandler(PutDataSetService service,
-            ITopLevelDataSetRegistrator registrator, String sessionToken, NewDataSetDTO newDataSet, File temporaryIncomingDir)
+            ITopLevelDataSetRegistrator registrator, String sessionToken, NewDataSetDTO newDataSet, File temporaryIncomingDir, File dataSet)
     {
         this.service = service;
         this.registrator = registrator;
         this.sessionToken = sessionToken;
         this.newDataSet = newDataSet;
         this.temporaryIncomingDir = temporaryIncomingDir;
+        this.dataSet = dataSet;
         this.inputStream = null;
-        String dataSetFolderName = newDataSet.getDataSetFolderName();
-        boolean dataSetIsASingleFile =
-                NewDataSetDTO.DEFAULT_DATA_SET_FOLDER_NAME.equals(dataSetFolderName)
-                        && newDataSet.getFileInfos().size() == 1;
-        if (dataSetIsASingleFile)
-        {
-            dataSetDir = temporaryIncomingDir;
-            dataSet =
-                    new File(temporaryIncomingDir, newDataSet.getFileInfos().get(0)
-                            .getPathInDataSet());
-        } else
-        {
-            this.dataSetDir = new File(temporaryIncomingDir, dataSetFolderName);
-            dataSet = dataSetDir;
-        }
-        if (dataSetDir.exists())
-        {
-            deleteDataSetDir();
-        }
-        if (false == this.dataSetDir.mkdir())
-        {
-            throw new EnvironmentFailureException("Could not create directory for data set "
-                    + dataSet.getName());
-        }
-
+        this.dataSetDir = null;
     }
 
     PutDataSetTopLevelDataSetHandler(PutDataSetService service,
