@@ -450,6 +450,30 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 			testCreate(c, fCreate, c.findMaterialType, fCheck);
 		});
+		
+		QUnit.test("createPropertyTypes()", function(assert) {
+			var c = new common(assert, openbis);
+			var code = c.generateId("PROPERTY_TYPE");
+			
+			var fCreate = function(facade) {
+				var creation = new c.PropertyTypeCreation();
+				creation.setCode(code);
+				creation.setDescription("hello");
+				creation.setDataType(c.DataType.INTEGER);
+				creation.setLabel("Test Property Type");
+				return facade.createPropertyTypes([ creation ]);
+			}
+			
+			var fCheck = function(type) {
+				c.assertEqual(type.getCode(), code, "Type code");
+				c.assertEqual(type.getPermId().getPermId(), code, "Type perm id");
+				c.assertEqual(type.getLabel(), "Test Property Type", "Label");
+				c.assertEqual(type.getDescription(), "hello", "Description");
+				c.assertEqual(type.getDataType(), c.DataType.INTEGER, "Data type");
+			}
+			
+			testCreate(c, fCreate, c.findPropertyType, fCheck);
+		});
 
 		QUnit.test("createVocabularies()", function(assert) {
 			var c = new common(assert, openbis);

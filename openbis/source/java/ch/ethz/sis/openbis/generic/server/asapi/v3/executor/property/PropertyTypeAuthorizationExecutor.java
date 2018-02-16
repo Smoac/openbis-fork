@@ -44,4 +44,11 @@ public class PropertyTypeAuthorizationExecutor implements IPropertyTypeAuthoriza
     {
     }
 
+    @Override
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @Capability("CREATE_PROPERTY_TYPE")
+    public void canCreate(IOperationContext context)
+    {
+    }
+
 }

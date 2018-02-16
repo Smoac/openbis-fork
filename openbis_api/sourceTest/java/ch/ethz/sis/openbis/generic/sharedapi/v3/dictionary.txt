@@ -1872,3 +1872,13 @@ Delete Vocabularies Operation
 Delete Vocabularies Operation Result
 Vocabulary Deletion Options
 
+create Property Types
+Create Property Types Operation
+Create Property Types Operation Result
+get Material Type Id
+Property Type Creation
+set Material Type Id
+
+get Property Types
+Get Property Types Operation
+Get Property Types Operation Result

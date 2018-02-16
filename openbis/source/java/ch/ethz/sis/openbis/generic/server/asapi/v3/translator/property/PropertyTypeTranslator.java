@@ -30,6 +30,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.SemanticAnnot
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.AbstractCachingTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationResults;
+import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 
 /**
  * @author pkupczyk
@@ -105,7 +106,8 @@ public class PropertyTypeTranslator extends AbstractCachingTranslator<Long, Prop
         PropertyTypeRecord baseRecord = relations.get(IPropertyTypeBaseTranslator.class, typeId);
 
         result.setCode(baseRecord.code);
-        result.setPermId(new PropertyTypePermId(baseRecord.code));
+        String permId = CodeConverter.tryToBusinessLayer(baseRecord.code, baseRecord.is_internal_namespace);
+        result.setPermId(new PropertyTypePermId(permId));
         result.setLabel(baseRecord.label);
         result.setDescription(baseRecord.description);
         result.setDataType(DataType.valueOf(baseRecord.data_type));

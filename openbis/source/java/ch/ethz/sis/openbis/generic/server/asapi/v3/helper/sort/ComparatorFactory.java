@@ -27,6 +27,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.globalsearch.GlobalSea
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.material.MaterialComparatorFactory;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.project.ProjectComparatorFactory;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.property.PropertyAssignmentComparatorFactory;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.property.PropertyTypeComparatorFactory;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sample.SampleComparatorFactory;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.space.SpaceComparatorFactory;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.tag.TagComparatorFactory;
@@ -55,6 +56,7 @@ public abstract class ComparatorFactory
         factories.add(new SampleComparatorFactory());
         factories.add(new DataSetComparatorFactory());
         factories.add(new MaterialComparatorFactory());
+        factories.add(new PropertyTypeComparatorFactory());
         factories.add(new PropertyAssignmentComparatorFactory());
     }
 

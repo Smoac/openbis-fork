@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ETH Zuerich, SIS
+ * Copyright 2018 ETH Zuerich, SIS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,35 +14,32 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions;
+package ch.ethz.sis.openbis.generic.asapi.v3.dto.property.get;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.Map;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortOrder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.get.GetObjectsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyTypeId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * @author pkupczyk
+ * @author Franz-Josef Elmer
+ *
  */
-@JsonObject("as.dto.property.fetchoptions.PropertyTypeSortOptions")
-public class PropertyTypeSortOptions extends SortOptions<PropertyType>
+@JsonObject("as.dto.property.get.GetPropertyTypesOperationResult")
+public class GetPropertyTypesOperationResult extends GetObjectsOperationResult<IPropertyTypeId, PropertyType>
 {
 
     private static final long serialVersionUID = 1L;
 
-    @JsonIgnore
-    public static final String CODE = "CODE";
-
-    public SortOrder code()
+    @SuppressWarnings("unused")
+    private GetPropertyTypesOperationResult()
     {
-        return getOrCreateSorting(CODE);
     }
 
-    public SortOrder getCode()
+    public GetPropertyTypesOperationResult(Map<IPropertyTypeId, PropertyType> objectMap)
     {
-        return getSorting(CODE);
+        super(objectMap);
     }
-
 }

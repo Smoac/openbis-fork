@@ -120,8 +120,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.search.ProjectSearchCrit
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.update.ProjectUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyTypeId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.PropertyAssignmentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.PropertyTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.RoleAssignment;
@@ -305,6 +308,13 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     public List<EntityTypePermId> createDataSetTypes(String sessionToken, List<DataSetTypeCreation> newDataSetTypes)
     {
         logAccess(sessionToken, "create-data-set-types", "NEW_DATA_SET_TYPES(%s)", abbreviate(newDataSetTypes));
+        return null;
+    }
+
+    @Override
+    public List<PropertyTypePermId> createPropertyTypes(String sessionToken, List<PropertyTypeCreation> newPropertyTypes)
+    {
+        logAccess(sessionToken, "create-property-types", "NEW_PROPERTY_TYPES(%s)", abbreviate(newPropertyTypes));
         return null;
     }
 
@@ -502,6 +512,14 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     public Map<IMaterialId, Material> getMaterials(String sessionToken, List<? extends IMaterialId> materialIds, MaterialFetchOptions fetchOptions)
     {
         logAccess(sessionToken, "get-materials", "MATERIAL_IDS(%s) FETCH_OPTIONS(%s)", abbreviate(materialIds), fetchOptions);
+        return null;
+    }
+
+    @Override
+    public Map<IPropertyTypeId, PropertyType> getPropertyTypes(String sessionToken, List<? extends IPropertyTypeId> typeIds,
+            PropertyTypeFetchOptions fetchOptions)
+    {
+        logAccess(sessionToken, "get-property-types", "PROPERTY_TYPE_IDS(%s) FETCH_OPTIONS(%s)", abbreviate(typeIds), fetchOptions);
         return null;
     }
 

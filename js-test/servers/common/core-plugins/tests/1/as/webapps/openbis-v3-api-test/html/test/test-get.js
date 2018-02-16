@@ -273,27 +273,51 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 
-		QUnit.test("getVocabularies()", function(assert) {
+		QUnit.test("getPropertyTypes()", function(assert) {
 			var c = new common(assert, openbis);
-			var fo = new c.VocabularyFetchOptions();
+			var fo = new c.PropertyTypeFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
 			fechOptionsTestConfig.SortBy = null;
 
 			var fCreate = function(facade) {
-				return $.when(c.createVocabulary(facade), c.createVocabulary(facade)).then(function(permId1, permId2) {
+				return $.when(c.createPropertyType(facade), c.createPropertyType(facade)).then(function(permId1, permId2) {
 					return [ permId1, permId2 ];
 				});
 			}
 
 			var fGet = function(facade, permIds) {
 				testFetchOptionsAssignation(c, fo, fechOptionsTestConfig);
-				return facade.getVocabularies(permIds, fo);
+				return facade.getPropertyTypes(permIds, fo);
 			}
 
 			var fGetEmptyFetchOptions = function(facade, permIds) {
-				return facade.getVocabularies(permIds, new c.VocabularyFetchOptions());
+				return facade.getPropertyTypes(permIds, new c.PropertyTypeFetchOptions());
 			}
 
+			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
+		});
+		
+		QUnit.test("getVocabularies()", function(assert) {
+			var c = new common(assert, openbis);
+			var fo = new c.VocabularyFetchOptions();
+			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
+			fechOptionsTestConfig.SortBy = null;
+			
+			var fCreate = function(facade) {
+				return $.when(c.createVocabulary(facade), c.createVocabulary(facade)).then(function(permId1, permId2) {
+					return [ permId1, permId2 ];
+				});
+			}
+			
+			var fGet = function(facade, permIds) {
+				testFetchOptionsAssignation(c, fo, fechOptionsTestConfig);
+				return facade.getVocabularies(permIds, fo);
+			}
+			
+			var fGetEmptyFetchOptions = function(facade, permIds) {
+				return facade.getVocabularies(permIds, new c.VocabularyFetchOptions());
+			}
+			
 			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 

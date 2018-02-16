@@ -119,8 +119,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.search.ProjectSearchCrit
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.update.ProjectUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyTypeId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.PropertyAssignmentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.PropertyTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.RoleAssignment;
@@ -241,6 +244,8 @@ public interface IApplicationServerApi extends IRpcService
     public List<MaterialPermId> createMaterials(String sessionToken, List<MaterialCreation> newMaterials);
 
     public List<EntityTypePermId> createMaterialTypes(String sessionToken, List<MaterialTypeCreation> newMaterialTypes);
+    
+    public List<PropertyTypePermId> createPropertyTypes(String sessionToken, List<PropertyTypeCreation> newPropertyTypes);
 
     public List<VocabularyPermId> createVocabularies(String sessionToken, List<VocabularyCreation> newVocabularies);
 
@@ -312,6 +317,8 @@ public interface IApplicationServerApi extends IRpcService
 
     public Map<IMaterialId, Material> getMaterials(String sessionToken, List<? extends IMaterialId> materialIds, MaterialFetchOptions fetchOptions);
 
+    public Map<IPropertyTypeId, PropertyType> getPropertyTypes(String sessionToken, List<? extends IPropertyTypeId> typeIds, PropertyTypeFetchOptions fetchOptions);
+    
     public Map<IVocabularyId, Vocabulary> getVocabularies(String sessionToken, List<? extends IVocabularyId> vocabularyIds,
             VocabularyFetchOptions fetchOptions);
 

@@ -18,16 +18,12 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.Collections;
 
-import javax.xml.validation.Schema;
-
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DataRetrievalFailureException;
-import org.w3c.dom.Document;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
-import ch.systemsx.cisd.common.xml.XMLInfraStructure;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -124,27 +120,8 @@ public final class PropertyTypeBO extends VocabularyBO implements IPropertyTypeB
 
     private void validateXmlDocumentValues()
     {
-        validateXML(propertyTypePE.getSchema(), "XML Schema", XmlUtils.XML_SCHEMA_XSD_FILE_RESOURCE);
-        validateXML(propertyTypePE.getTransformation(), "XSLT", XmlUtils.XSLT_XSD_FILE_RESOURCE);
-    }
-
-    private static void validateXML(String xmlValue, String xmlName, String schemaFilePath)
-    {
-        if (StringUtils.isBlank(xmlValue))
-        {
-            return;
-        }
-
-        Document document = XmlUtils.parseXmlDocument(xmlValue);
-        Schema schema = XMLInfraStructure.createSchema(schemaFilePath);
-        try
-        {
-            XmlUtils.validate(document, schema);
-        } catch (Exception e)
-        {
-            throw UserFailureException.fromTemplate("Provided %s isn't valid. %s", xmlName,
-                    e.getMessage());
-        }
+        XmlUtils.validateXML(propertyTypePE.getSchema(), "XML Schema", XmlUtils.XML_SCHEMA_XSD_FILE_RESOURCE);
+        XmlUtils.validateXML(propertyTypePE.getTransformation(), "XSLT", XmlUtils.XSLT_XSD_FILE_RESOURCE);
     }
 
     private MaterialTypePE tryGetMaterialType(MaterialType materialType)
