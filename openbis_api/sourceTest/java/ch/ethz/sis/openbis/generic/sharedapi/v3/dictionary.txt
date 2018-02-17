@@ -1882,3 +1882,8 @@ set Material Type Id
 get Property Types
 Get Property Types Operation
 Get Property Types Operation Result
+
+create Uploaded Data Set
+get Upload Id
+set Upload Id
+Uploaded Data Set Creation
