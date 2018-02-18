@@ -402,6 +402,7 @@ public class Generator extends AbstractGenerator
         gen.addSimpleField(IDeletionId.class, "id");
         gen.addStringField("reason");
         gen.addPluralFetchedField("List<DeletedObject>", List.class.getName(), "deletedObjects", "Deleted objects", DeletedObjectFetchOptions.class);
+        gen.addSimpleField(Date.class, "deletionDate");
 
         gen.setToStringMethod("\"Deletion \" + id");
 

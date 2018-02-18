@@ -22,6 +22,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 /*
@@ -43,6 +44,9 @@ public class Deletion implements Serializable
 
     @JsonProperty
     private List<DeletedObject> deletedObjects;
+
+    @JsonProperty
+    private Date deletionDate;
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
@@ -101,6 +105,19 @@ public class Deletion implements Serializable
     public void setDeletedObjects(List<DeletedObject> deletedObjects)
     {
         this.deletedObjects = deletedObjects;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    public Date getDeletionDate()
+    {
+        return deletionDate;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setDeletionDate(Date deletionDate)
+    {
+        this.deletionDate = deletionDate;
     }
 
     // Method automatically generated with DtoGenerator
