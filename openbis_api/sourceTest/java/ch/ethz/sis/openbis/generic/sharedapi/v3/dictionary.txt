@@ -1889,3 +1889,6 @@ set Upload Id
 Uploaded Data Set Creation
 get Deletion Date
 set Deletion Date
+
+is Force Deletion
+set Force Deletion

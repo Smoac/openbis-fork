@@ -48,6 +48,15 @@ public class DeletionAuthorizationExecutor implements IDeletionAuthorizationExec
     }
 
     @Override
+    @DatabaseCreateOrDeleteModification(value = { ObjectKind.DELETION, ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_DISABLED)
+    @Capability("CONFIRM_DELETION_FORCED")
+    public void canConfirmForced(IOperationContext context,
+            @AuthorizationGuard(guardClass = V3DeletionIdPredicate.class) List<? extends IDeletionId> ids)
+    {
+    }
+
+    @Override
     @DatabaseCreateOrDeleteModification(value = ObjectKind.DELETION)
     @DatabaseUpdateModification(value = { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
     @RolesAllowed({ RoleWithHierarchy.PROJECT_USER, RoleWithHierarchy.SPACE_ETL_SERVER })

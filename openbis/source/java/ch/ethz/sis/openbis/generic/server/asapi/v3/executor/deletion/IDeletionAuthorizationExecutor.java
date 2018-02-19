@@ -29,6 +29,8 @@ public interface IDeletionAuthorizationExecutor extends IObjectAuthorizationExec
 {
 
     void canConfirm(IOperationContext context, List<? extends IDeletionId> ids);
+    
+    void canConfirmForced(IOperationContext context, List<? extends IDeletionId> ids);
 
     void canRevert(IOperationContext context, List<? extends IDeletionId> ids);
 

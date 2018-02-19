@@ -383,9 +383,9 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			});
 		}.bind(this);
 
-		this.createDataSet = function(facade) {
+		this.createDataSet = function(facade, dataSetType) {
 			var c = this;
-			return this.getResponseFromJSTestAggregationService(facade, {}, function(response) {
+			return this.getResponseFromJSTestAggregationService(facade, { "dataSetType" : dataSetType }, function(response) {
 				return new dtos.DataSetPermId(response.result.rows[0][0].value);
 			});
 		}.bind(this);

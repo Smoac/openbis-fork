@@ -18,14 +18,28 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetTypeCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.PhysicalDataCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.delete.DataSetDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.FileFormatTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.ProprietaryStorageFormatPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.RelativeLocationLocatorTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.id.DataStorePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.confirm.ConfirmDeletionsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.DeletionTechId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.delete.ExperimentDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.SynchronousOperationExecutionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
@@ -35,6 +49,102 @@ import ch.systemsx.cisd.common.action.IDelegatedAction;
  */
 public class ConfirmDeletionTest extends AbstractDeletionTest
 {
+
+    @Test
+    public void testConfirmDeletionOfDataSetOfTypeWithDisallowDeletionFalse()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        DataSetTypeCreation typeCreation = new DataSetTypeCreation();
+        typeCreation.setCode("TYPE_WITH_DELETION_ALLOWED");
+        v3api.createDataSetTypes(sessionToken, Arrays.asList(typeCreation));
+
+        DataSetCreation dataSetCreation = dataSetCreation(typeCreation.getCode(), "DATA_SET_WITH_DELETION_ALLOWED");
+        List<DataSetPermId> dataSetIds = v3api.createDataSets(sessionToken, Arrays.asList(dataSetCreation));
+        DataSetPermId dataSetId = dataSetIds.get(0);
+
+        assertDataSetExists(dataSetId);
+
+        DataSetDeletionOptions options = new DataSetDeletionOptions();
+        options.setReason("testing");
+
+        IDeletionId deletionId = v3api.deleteDataSets(sessionToken, Collections.singletonList(dataSetId), options);
+
+        assertDeletionExists(deletionId);
+        assertDataSetDoesNotExist(dataSetId);
+
+        v3api.confirmDeletions(sessionToken, Collections.singletonList(deletionId));
+
+        assertDeletionDoesNotExist(deletionId);
+        assertDataSetDoesNotExist(dataSetId);
+    }
+
+    @Test
+    public void testConfirmDeletionOfDataSetOfTypeWithDisallowDeletionTrueUnforced()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        DataSetTypeCreation typeCreation = new DataSetTypeCreation();
+        typeCreation.setCode("TYPE_WITH_DELETION_DISALLOWED");
+        typeCreation.setDisallowDeletion(true);
+        v3api.createDataSetTypes(sessionToken, Arrays.asList(typeCreation));
+
+        DataSetCreation dataSetCreation = dataSetCreation(typeCreation.getCode(), "DATA_SET_WITH_DELETION_DISALLOWED");
+        List<DataSetPermId> dataSetIds = v3api.createDataSets(sessionToken, Arrays.asList(dataSetCreation));
+        DataSetPermId dataSetId = dataSetIds.get(0);
+
+        assertDataSetExists(dataSetId);
+
+        DataSetDeletionOptions options = new DataSetDeletionOptions();
+        options.setReason("testing");
+
+        IDeletionId deletionId = v3api.deleteDataSets(sessionToken, Collections.singletonList(dataSetId), options);
+
+        assertDeletionExists(deletionId);
+        assertDataSetDoesNotExist(dataSetId);
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.confirmDeletions(sessionToken, Collections.singletonList(deletionId));
+                }
+            }, "Deletion failed because the following data sets have 'Disallow deletion' flag set to true in their type.");
+    }
+
+    @Test
+    public void testConfirmDeletionOfDataSetOfTypeWithDisallowDeletionTrueForced()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        DataSetTypeCreation typeCreation = new DataSetTypeCreation();
+        typeCreation.setCode("TYPE_WITH_DELETION_DISALLOWED");
+        typeCreation.setDisallowDeletion(true);
+        v3api.createDataSetTypes(sessionToken, Arrays.asList(typeCreation));
+
+        DataSetCreation dataSetCreation = dataSetCreation(typeCreation.getCode(), "DATA_SET_WITH_DELETION_DISALLOWED");
+        List<DataSetPermId> dataSetIds = v3api.createDataSets(sessionToken, Arrays.asList(dataSetCreation));
+        DataSetPermId dataSetId = dataSetIds.get(0);
+
+        assertDataSetExists(dataSetId);
+
+        DataSetDeletionOptions options = new DataSetDeletionOptions();
+        options.setReason("testing");
+
+        IDeletionId deletionId = v3api.deleteDataSets(sessionToken, Collections.singletonList(dataSetId), options);
+
+        assertDeletionExists(deletionId);
+        assertDataSetDoesNotExist(dataSetId);
+
+        ConfirmDeletionsOperation confirmOperation = new ConfirmDeletionsOperation(Arrays.asList(deletionId));
+        confirmOperation.setForceDeletion(true);
+
+        v3api.executeOperations(sessionToken, Arrays.asList(confirmOperation), new SynchronousOperationExecutionOptions());
+
+        assertDeletionDoesNotExist(deletionId);
+        assertDataSetDoesNotExist(dataSetId);
+    }
 
     @Test
     public void testConfirmDeletionOfExperimentWithSample()
@@ -216,6 +326,25 @@ public class ConfirmDeletionTest extends AbstractDeletionTest
                     v3api.confirmDeletions(sessionToken2, Collections.singletonList(deletionId));
                 }
             }, deletionId);
+    }
+
+    private DataSetCreation dataSetCreation(String typeCode, String dataSetCode)
+    {
+        PhysicalDataCreation physicalCreation = new PhysicalDataCreation();
+        physicalCreation.setLocation("a/b/c");
+        physicalCreation.setFileFormatTypeId(new FileFormatTypePermId("TIFF"));
+        physicalCreation.setLocatorTypeId(new RelativeLocationLocatorTypePermId());
+        physicalCreation.setStorageFormatId(new ProprietaryStorageFormatPermId());
+
+        DataSetCreation creation = new DataSetCreation();
+        creation.setCode(dataSetCode);
+        creation.setDataSetKind(DataSetKind.PHYSICAL);
+        creation.setTypeId(new EntityTypePermId(typeCode));
+        creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
+        creation.setDataStoreId(new DataStorePermId("STANDARD"));
+        creation.setPhysicalData(physicalCreation);
+
+        return creation;
     }
 
 }
