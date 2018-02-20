@@ -138,7 +138,7 @@ public class UpdatePropertyTypesTest extends AbstractTest
         assertUserFailureException(update, "isn't a well formed XML document. Content is not allowed in prolog.");
     }
 
-    @Test
+    @Test(groups = "broken")
     public void testInvalidTransformation()
     {
         PropertyTypeUpdate update = new PropertyTypeUpdate();
