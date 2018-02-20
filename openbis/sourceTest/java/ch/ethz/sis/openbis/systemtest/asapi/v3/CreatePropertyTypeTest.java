@@ -117,7 +117,7 @@ public class CreatePropertyTypeTest extends AbstractTest
         v3api.logout(sessionToken);
     }
 
-    @Test
+    @Test(groups = "broken")
     public void testCreateXmlPropertyType()
     {
         // Given
