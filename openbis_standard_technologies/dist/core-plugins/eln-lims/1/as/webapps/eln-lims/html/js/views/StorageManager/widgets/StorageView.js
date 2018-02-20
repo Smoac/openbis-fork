@@ -42,12 +42,22 @@ function StorageView(storageController, storageModel, gridViewRack, gridViewPosi
 			//
 			// Merged - Title / Storage / User
 			//
-			var $titleLine = $("<table>", { class : "col-md-12" });
+			var $titleLine = $("<table>", { class : "col-md-12", style : "border-bottom:1px solid rgb(229, 229, 229);" });
 			var $titleLineTr = $("<tr>");
 			$titleLine.append($titleLineTr);
 			
-			var addToTitleLine = function($component) {
-				$titleLineTr.append($("<td>", { width : "33%", "style" : "text-align: center; padding: 4px;" }).append($component));
+			var addToRow = function($row, $label, $component) {
+				if($label) {
+					$row.append($("<td>", { width : "25%", "style" : "text-align: right; padding: 4px; vertical-align: middle; font-weight: bold;" }).append($label));
+				}
+				
+				if($component) {
+					$row.append($("<td>", { width : "25%", "style" : "text-align: left; padding: 4px; vertical-align: middle;" }).append($component));
+				}
+			}
+			
+			var addToTitleLine = function($label, $component) {
+				addToRow($titleLineTr, $label, $component);
 			}
 			
 			//
@@ -57,17 +67,17 @@ function StorageView(storageController, storageModel, gridViewRack, gridViewPosi
 			var $boxLineTr = $("<tr>");
 			$boxLine.append($boxLineTr);
 			
-			var addToBoxLine = function($component) {
-				$boxLineTr.append($("<td>", { width : "33%", "style" : "text-align: center; padding: 4px;" }).append($component));
+			var addToBoxLine = function($label, $component) {
+				addToRow($boxLineTr, $label, $component);
 			}
 			
 			//
 			//
 			//
 			
-			$container.append($titleLine);
 			if( _this._storageModel.config.title) { //It can be null
-				addToTitleLine("<legend>" + _this._storageModel.config.title + "</legend>");
+				addToTitleLine(null, $("<legend>", { style : "border-bottom:none;"}).append(_this._storageModel.config.title));
+				$container.append($titleLine);
 			}
 			
 			if( _this._storageModel.config.storagePropertyGroupSelector === "on") {
@@ -80,8 +90,8 @@ function StorageView(storageController, storageModel, gridViewRack, gridViewPosi
 					_this._defaultStoragesDropDown.val(_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.nameProperty]);
 				}
 				//Paint
-				var $controlGroupStorages = FormUtil.getFieldForComponentWithLabel(_this._defaultStoragesDropDown, "Storage");
-				addToTitleLine($controlGroupStorages);
+				var $controlGroupStorages = FormUtil.getFieldForComponentWithLabel(_this._defaultStoragesDropDown);
+				addToTitleLine("Storage:", $controlGroupStorages);
 				//Attach Event
 				_this._defaultStoragesDropDown.change(function(event) {
 					var storageName = $(this).val();
@@ -100,8 +110,8 @@ function StorageView(storageController, storageModel, gridViewRack, gridViewPosi
 			
 			if(_this._storageModel.config.userSelector === "on" && !_this._storageModel.sample) {
 				//Paint
-				var $controlGroupUserId = FormUtil.getFieldForComponentWithLabel(_this._userIdDropdown, "User Id Filter");
-				addToTitleLine($controlGroupUserId);
+				var $controlGroupUserId = FormUtil.getFieldForComponentWithLabel(_this._userIdDropdown);
+				addToTitleLine("User Id Filter:", $controlGroupUserId);
 				_this._userIdDropdown.multiselect();
 				//Attach Event
 				_this._userIdDropdown.change(function() {
@@ -122,8 +132,8 @@ function StorageView(storageController, storageModel, gridViewRack, gridViewPosi
 			if(_this._storageModel.config.boxSelector === "on" || _this._storageModel.config.rackSelector === "on") {
 				//Paint
 				_this._boxField.hide();
-				var $controlGroupBox = FormUtil.getFieldForComponentWithLabel(_this._boxField, "Box Name");
-				addToBoxLine($controlGroupBox);
+				var $controlGroupBox = FormUtil.getFieldForComponentWithLabel(_this._boxField);
+				addToBoxLine("Box Name:", $controlGroupBox);
 				//Attach Event
 				_this._boxField.keyup(function() {
 					if(_this._storageModel.sample) { // Sample to bind
@@ -143,8 +153,8 @@ function StorageView(storageController, storageModel, gridViewRack, gridViewPosi
 			if(_this._storageModel.config.boxSizeSelector === "on") {
 				//Paint
 				_this._boxSizeDropDown.hide();
-				var $controlGroupBox = FormUtil.getFieldForComponentWithLabel(_this._boxSizeDropDown, "Box Size");
-				addToBoxLine($controlGroupBox);
+				var $controlGroupBox = FormUtil.getFieldForComponentWithLabel(_this._boxSizeDropDown);
+				addToBoxLine("Box Size: ", $controlGroupBox);
 				//Attach Event
 				_this._boxSizeDropDown.change(function() {
 					if(_this._storageModel.sample) { // Sample to bind

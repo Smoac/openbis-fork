@@ -579,8 +579,10 @@ var FormUtil = new function() {
 			controlColumnClass = this.controlColumnClass;
 		}
 		var $controls = $('<div>', { class : 'controls' });
-			
-		$controlGroup.append($controlLabel);
+		
+		if(label) {
+			$controlGroup.append($controlLabel);
+		}
 		
 		if(isInline) {
 			$controlGroup.append($component);
