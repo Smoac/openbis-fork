@@ -235,6 +235,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.SearchPropertyAs
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.SearchPropertyAssignmentsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.SearchPropertyTypesOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.SearchPropertyTypesOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.update.PropertyTypeUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.update.UpdatePropertyTypesOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.RoleAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.create.CreateRoleAssignmentsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.create.CreateRoleAssignmentsOperationResult;
@@ -656,6 +658,12 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public void updateDataSetTypes(String sessionToken, List<DataSetTypeUpdate> dataSetTypeUpdates)
     {
         executeOperation(sessionToken, new UpdateDataSetTypesOperation(dataSetTypeUpdates));
+    }
+
+    @Override
+    public void updatePropertyTypes(String sessionToken, List<PropertyTypeUpdate> propertyTypeUpdates)
+    {
+        executeOperation(sessionToken, new UpdatePropertyTypesOperation(propertyTypeUpdates));
     }
 
     @Override

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -34,8 +35,11 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.Complete;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.CreateDataSetsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.CreateDataSetsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.LinkedDataCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.PhysicalDataCreation;
@@ -54,7 +58,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgressListener;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgressStack;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.OperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.ICreateDataSetExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.IOperationsExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sample.ListSampleTechIdByIdentifier;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.utils.ExceptionUtils;
 import ch.rinn.restrictions.Private;
@@ -334,7 +338,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     private IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
 
     @Autowired
-    private ICreateDataSetExecutor createDataSetExecutor;
+    private IOperationsExecutor operationsExecutor;
 
     private long timeout = 5; // minutes
 
@@ -372,7 +376,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
             IDataStoreServiceRegistrator dataStoreServiceRegistrator,
             IDataStoreDataSourceManager dataSourceManager,
             ISessionManager<Session> sessionManagerForEntityOperation,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, ICreateDataSetExecutor createDataSetExecutor)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, IOperationsExecutor operationsExecutor)
     {
         super(authenticationService, sessionManager, daoFactory, propertiesBatchManager, boFactory);
         this.daoFactory = daoFactory;
@@ -383,7 +387,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         this.dataSourceManager = dataSourceManager;
         this.sessionManagerForEntityOperation = sessionManagerForEntityOperation;
         this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
-        this.createDataSetExecutor = createDataSetExecutor;
+        this.operationsExecutor = operationsExecutor;
     }
 
     @Override
@@ -2676,9 +2680,9 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
 
         try
         {
-            List<DataSetPermId> ids = createDataSetExecutor.create(context, creations);
-            daoFactory.getSessionFactory().getCurrentSession().flush();
-            return ids.size();
+            CreateDataSetsOperation operation = new CreateDataSetsOperation(creations);
+            List<IOperationResult> results = operationsExecutor.execute(context, Arrays.asList(operation));
+            return ((CreateDataSetsOperationResult) results.get(0)).getObjectIds().size();
         } catch (Throwable t)
         {
             throw ExceptionUtils.create(context, t);

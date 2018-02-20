@@ -79,7 +79,7 @@ public class CreatePropertyTypeTest extends AbstractTest
             + "</xsl:template>\n                                        "
             + "</xsl:stylesheet>";
 
-    private static String EXAMPLE_INCORRECT_XSLT = EXAMPLE_XSLT.replaceAll("xsl:stylesheet",
+    static String EXAMPLE_INCORRECT_XSLT = EXAMPLE_XSLT.replaceAll("xsl:stylesheet",
             "xsl:styleshet");
 
     @Test
@@ -117,7 +117,7 @@ public class CreatePropertyTypeTest extends AbstractTest
         v3api.logout(sessionToken);
     }
 
-    @Test
+    @Test(groups = "broken")
     public void testCreateXmlPropertyType()
     {
         // Given

@@ -36,8 +36,9 @@ import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.CreateDataSetsOperationResult;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.ICreateDataSetExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.IOperationsExecutor;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
@@ -184,7 +185,7 @@ public class ETLServiceTest extends AbstractServerTestCase
 
     private IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
 
-    private ICreateDataSetExecutor createDataSetExecutor;
+    private IOperationsExecutor operationsExecutor;
 
     private PersonPE sessionPerson;
 
@@ -209,7 +210,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         sessionPerson = new PersonPE();
         session.setPerson(sessionPerson);
         managedPropertyEvaluatorFactory = new ManagedPropertyEvaluatorFactory(null, new TestJythonEvaluatorPool());
-        createDataSetExecutor = context.mock(ICreateDataSetExecutor.class);
+        operationsExecutor = context.mock(IOperationsExecutor.class);
 
         prepareDataSetRegistrationCache();
     }
@@ -1074,8 +1075,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         final DataSetBatchUpdatesDTO dataSetUpdate = new DataSetBatchUpdatesDTO();
         dataSetUpdate.setDatasetId(CommonTestUtils.TECH_ID);
         dataSetUpdate.setFileFormatTypeCode("new-file-format");
-        dataSetUpdate.setModifiedContainedDatasetCodesOrNull(new String[]
-        { "c1", "c2" });
+        dataSetUpdate.setModifiedContainedDatasetCodesOrNull(new String[] { "c1", "c2" });
 
         final MetaprojectPE metaprojectPE = new MetaprojectPE();
 
@@ -1271,7 +1271,8 @@ public class ETLServiceTest extends AbstractServerTestCase
                     allowing(entityOperationChecker).assertInstanceSampleCreationAllowed(with(any(IAuthSession.class)), with(any(List.class)));
                     allowing(entityOperationChecker).assertInstanceSampleUpdateAllowed(with(any(IAuthSession.class)), with(any(List.class)));
 
-                    one(createDataSetExecutor).create(with(any(IOperationContext.class)), with(any(List.class)));
+                    one(operationsExecutor).execute(with(any(IOperationContext.class)), with(any(List.class)));
+                    will(returnValue(Collections.singletonList(new CreateDataSetsOperationResult(Collections.emptyList()))));
                 }
             });
 
@@ -1319,8 +1320,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         final DataSetBatchUpdatesDTO dataSetUpdate = new DataSetBatchUpdatesDTO();
         dataSetUpdate.setDatasetId(CommonTestUtils.TECH_ID);
         dataSetUpdate.setFileFormatTypeCode("new-file-format");
-        dataSetUpdate.setModifiedContainedDatasetCodesOrNull(new String[]
-        { "c1", "c2" });
+        dataSetUpdate.setModifiedContainedDatasetCodesOrNull(new String[] { "c1", "c2" });
 
         final MetaprojectPE metaprojectPE = new MetaprojectPE();
         metaprojectPE.setOwner(CommonTestUtils.createPersonFromPrincipal(PRINCIPAL));
@@ -1540,7 +1540,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                 new ServiceForDataStoreServer(authenticationService, sessionManager, daoFactory,
                         propertiesBatchManager, boFactory, dssfactory, null,
                         entityOperationChecker, dataStoreServiceRegistrator, dataSourceManager,
-                        sessionManagerForEntityOperations, managedPropertyEvaluatorFactory, createDataSetExecutor);
+                        sessionManagerForEntityOperations, managedPropertyEvaluatorFactory, operationsExecutor);
         etlService.setConversationClient(conversationClient);
         etlService.setConversationServer(conversationServer);
         etlService.setDisplaySettingsProvider(new DisplaySettingsProvider());
@@ -1596,8 +1596,7 @@ public class ETLServiceTest extends AbstractServerTestCase
             DataStoreServiceKind serviceKind, String key)
     {
         // unknown data set type codes should be silently discarded
-        return new DatastoreServiceDescription(key, key, new String[]
-        { DATA_SET_TYPE_CODE, UNKNOWN_DATA_SET_TYPE_CODE }, key, serviceKind);
+        return new DatastoreServiceDescription(key, key, new String[] { DATA_SET_TYPE_CODE, UNKNOWN_DATA_SET_TYPE_CODE }, key, serviceKind);
     }
 
     @SuppressWarnings("deprecation")
@@ -1605,8 +1604,7 @@ public class ETLServiceTest extends AbstractServerTestCase
             DataStoreServiceKind serviceKind, String key, String regex)
     {
         // wildcards should be handled correctly
-        return new DatastoreServiceDescription(key, key, new String[]
-        { regex }, key, serviceKind);
+        return new DatastoreServiceDescription(key, key, new String[] { regex }, key, serviceKind);
     }
 
     private void assignRoles(PersonPE person)

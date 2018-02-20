@@ -444,6 +444,9 @@ var sources = [
 	'as/dto/property/search/SearchPropertyTypesOperationResult',
 	'as/dto/property/search/SearchPropertyAssignmentsOperation',
 	'as/dto/property/search/SearchPropertyAssignmentsOperationResult',
+	'as/dto/property/update/PropertyTypeUpdate',
+	'as/dto/property/update/UpdatePropertyTypesOperation',
+	'as/dto/property/update/UpdatePropertyTypesOperationResult',
 	'as/dto/property/DataType',
 	'as/dto/property/PropertyAssignment',
 	'as/dto/property/PropertyType',
@@ -656,6 +659,7 @@ var sources = [
 	'as/dto/operation/SynchronousOperationExecutionResults',
 	
 	'dss/dto/dataset/create/FullDataSetCreation',
+	'dss/dto/dataset/create/UploadedDataSetCreation',
 	'dss/dto/datasetfile/DataSetFile',
 	'dss/dto/datasetfile/create/DataSetFileCreation',
 	'dss/dto/datasetfile/fetchoptions/DataSetFileSortOptions',

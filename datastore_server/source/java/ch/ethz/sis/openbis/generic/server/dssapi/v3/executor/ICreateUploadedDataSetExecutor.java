@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ETH Zuerich, SIS
+ * Copyright 2018 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.vocabulary;
+package ch.ethz.sis.openbis.generic.server.dssapi.v3.executor;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyUpdate;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.IUpdateEntityExecutor;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.dataset.create.UploadedDataSetCreation;
 
 /**
- * @author Franz-Josef Elmer
- *
+ * @author pkupczyk
  */
-public interface IUpdateVocabularyExecutor extends IUpdateEntityExecutor<VocabularyUpdate, VocabularyPermId>
+public interface ICreateUploadedDataSetExecutor
 {
+
+    DataSetPermId create(String sessionToken, UploadedDataSetCreation creation);
+
 }

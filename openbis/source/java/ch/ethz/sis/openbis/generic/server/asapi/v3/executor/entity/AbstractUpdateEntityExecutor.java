@@ -31,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.FieldUpdateValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.UnauthorizedObjectAccessException;
@@ -216,6 +217,12 @@ public abstract class AbstractUpdateEntityExecutor<UPDATE extends IUpdate, PE ex
             entry.setValue(idToEntityMap.get(entry.getValue().getId()));
         }
     }
+    
+    protected <T> T getNewValue(FieldUpdateValue<T> fieldUpdateValue, T currentValue)
+    {
+        return fieldUpdateValue != null && fieldUpdateValue.isModified() ? fieldUpdateValue.getValue() : currentValue;
+    }
+    
 
     protected abstract ID getId(UPDATE update);
 
