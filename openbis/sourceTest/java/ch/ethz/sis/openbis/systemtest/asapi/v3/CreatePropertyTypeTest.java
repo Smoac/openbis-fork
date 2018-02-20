@@ -362,7 +362,7 @@ public class CreatePropertyTypeTest extends AbstractTest
         assertUserFailureException(creation, "isn't a well formed XML document. Content is not allowed in prolog.");
     }
 
-    @Test
+    @Test(groups = "broken")
     public void testInvalidTransformation()
     {
         PropertyTypeCreation creation = createBasic();
