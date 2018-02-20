@@ -97,6 +97,7 @@ var PrintUtil = new function() {
 			for(code in extraProperties) {
 				var extraProp = extraProperties[code];
 				var propLabel = extraProp.label;
+				extraProp.value = FormUtil.sanitizeRichHTMLText(extraProp.value);
 				if(propLabel.length > 25) {
 					propLabel = propLabel.substring(0, 23) + "..."; 
 				}
@@ -134,9 +135,7 @@ var PrintUtil = new function() {
 				} else {
 					propertyContent = entity.properties[propertyCode];
 					propertyContent = Util.getEmptyIfNull(propertyContent);
-					if(propertyType.dataType === "MULTILINE_VARCHAR") {
-						propertyContent = FormUtil.sanitizeRichHTMLText(propertyContent);
-					}
+					propertyContent = FormUtil.sanitizeRichHTMLText(propertyContent);
 					propertyContent = Util.replaceURLWithHTMLLinks(propertyContent);
 				}
 				

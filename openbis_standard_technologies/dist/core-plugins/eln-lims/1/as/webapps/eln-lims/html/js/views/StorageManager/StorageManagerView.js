@@ -77,7 +77,8 @@ function StorageManagerView(storageManagerController, storageManagerModel, stora
 		
 		$containerColumn.append(this._$storageFromContainer);
 		$containerColumn.append(this._$storageToContainer);
-		$containerColumn.append($("<div>").append($("<h2>").append("Changes")).append(this._changeLogContainer));
+		$containerColumn.append($("<div>", { class : "col-md-12" }).append($("<legend>").append("Changes")).append(this._changeLogContainer));
+		$container.css("padding", "0px");
 		$container.append($containerColumn);
 	}
 	

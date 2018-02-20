@@ -150,17 +150,17 @@ function GridView(gridModel) {
 							//Label
 							labels[i].displayName = sample.parents[0].code;
 						}
-							
+						
 						sample = sample.parents[0];
 							
 						var href = Util.getURLFor(null, "showViewSamplePageFromPermId", sample.permId);
-						optSampleTitle = $("<a>", { "href" : href, "class" : "browser-compatible-javascript-link" }).append(labels[i].displayName);
+						optSampleTitle = $("<a>", { "href" : href, "class" : "browser-compatible-javascript-link" }).text(labels[i].displayName);
 						optSampleTitle.click(function() {
 							mainController.changeView("showViewSamplePageFromPermId", sample.permId);
 						});
 					}
 					
-					var labelContainer = $("<div>", { class: "storageBox", id : Util.guid() }).append(labels[i].displayName);
+					var labelContainer = $("<div>", { class: "storageBox", id : Util.guid() }).text(labels[i].displayName);
 					if (sample) {
 						var tooltip = PrintUtil.getTable(sample, false, optSampleTitle, 'inspectorWhiteFont', 'colorEncodedWellAnnotations-holder-' + sample.permId, null, null);
 						labelContainer.tooltipster({
@@ -170,7 +170,7 @@ function GridView(gridModel) {
 						});
 					} else if(labels[i].displayName) {
 						labelContainer.tooltipster({
-							content: $("<span>").html(labels[i].displayName)
+							content: $("<span>").text(labels[i].displayName)
 						});
 					}
 					var dragCopyFunc = function(object, origX, origY) {
