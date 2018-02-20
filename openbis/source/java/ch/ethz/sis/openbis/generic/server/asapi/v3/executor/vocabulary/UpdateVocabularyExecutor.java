@@ -26,7 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.FieldUpdateValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyUpdate;
@@ -94,11 +93,6 @@ public class UpdateVocabularyExecutor
             vocabulary.setChosenFromList(getNewValue(update.getChosenFromList(), vocabulary.isChosenFromList()));
             vocabulary.setURLTemplate(getNewValue(update.getUrlTemplate(), vocabulary.getURLTemplate()));
         }
-    }
-    
-    private <T> T getNewValue(FieldUpdateValue<T> fieldUpdateValue, T currentValue)
-    {
-        return fieldUpdateValue != null && fieldUpdateValue.isModified() ? fieldUpdateValue.getValue() : currentValue;
     }
     
     @Override

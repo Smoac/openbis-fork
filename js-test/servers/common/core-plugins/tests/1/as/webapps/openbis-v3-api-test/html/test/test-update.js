@@ -705,17 +705,49 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testUpdate(c, fCreate, fUpdate, c.findMaterial, fCheck);
 		});
 		
+		QUnit.test("updatePropertyTypes()", function(assert) {
+			var c = new common(assert, openbis);
+			var code = c.generateId("PROPERTY_TYPE");
+			var description = "Description of " + code;
+			var label = "Label of " + code;
+
+			var fCreate = function(facade) {
+				var creation = new c.PropertyTypeCreation();
+				creation.setCode(code);
+				creation.setLabel("Testing");
+				creation.setDescription("testing");
+				creation.setDataType(c.DataType.VARCHAR);
+				return facade.createPropertyTypes([ creation ]);
+			}
+
+			var fUpdate = function(facade, permId) {
+				var update = new c.PropertyTypeUpdate();
+				update.setTypeId(new c.PropertyTypePermId(code));
+				update.setDescription(description);
+				update.setLabel(label);
+				return facade.updatePropertyTypes([ update ]);
+			}
+
+			var fCheck = function(propertyType) {
+				c.assertEqual(propertyType.getCode(), code, "Code");
+				c.assertEqual(propertyType.getDescription(), description, "Description");
+				c.assertEqual(propertyType.getLabel(), label, "Label");
+			}
+
+			testUpdate(c, fCreate, fUpdate, c.findPropertyType, fCheck);
+		});
+		
 		QUnit.test("updateVocabularies()", function(assert) {
 			var c = new common(assert, openbis);
 			var code = c.generateId("VOCABULARY");
 			var description = "Description of " + code;
-
+			
 			var fCreate = function(facade) {
 				var creation = new c.VocabularyCreation();
 				creation.setCode(code);
 				return facade.createVocabularies([ creation ]);
 			}
-
+			
 			var fUpdate = function(facade, permId) {
 				var update = new c.VocabularyUpdate();
 				update.setVocabularyId(permId);
@@ -724,14 +756,14 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				update.setUrlTemplate("https://www.ethz.ch")
 				return facade.updateVocabularies([ update ]);
 			}
-
+			
 			var fCheck = function(vocabulary) {
 				c.assertEqual(vocabulary.getCode(), code, "Code");
 				c.assertEqual(vocabulary.getPermId().getPermId(), code, "Perm id");
 				c.assertEqual(vocabulary.getDescription(), description, "Description");
 				c.assertEqual(vocabulary.getUrlTemplate(), "https://www.ethz.ch", "URL template");
 			}
-
+			
 			testUpdate(c, fCreate, fUpdate, c.findVocabulary, fCheck);
 		});
 		

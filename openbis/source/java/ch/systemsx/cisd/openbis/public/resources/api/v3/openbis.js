@@ -751,6 +751,17 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			});
 		}
 		
+		this.updatePropertyTypes = function(updates) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "updatePropertyTypes",
+					"params" : [ thisFacade._private.sessionToken, updates ]
+				}
+			});
+		}
+
 		this.updateVocabularies = function(updates) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
@@ -761,7 +772,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 				}
 			});
 		}
-
+		
 		this.updateVocabularyTerms = function(updates) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({

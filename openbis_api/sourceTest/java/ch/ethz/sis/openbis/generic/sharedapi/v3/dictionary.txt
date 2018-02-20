@@ -1887,3 +1887,8 @@ create Uploaded Data Set
 get Upload Id
 set Upload Id
 Uploaded Data Set Creation
+
+Property Type Update
+update Property Types
+Update Property Types Operation
+Update Property Types Operation Result

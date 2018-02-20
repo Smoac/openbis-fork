@@ -91,6 +91,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.ICreateProp
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.IGetPropertyTypesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.ISearchPropertyAssignmentsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.ISearchPropertyTypesOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.IUpdatePropertyTypesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.roleassignment.ICreateRoleAssignmentsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.roleassignment.IDeleteRoleAssignmentsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.roleassignment.IGetRoleAssignmentsOperationExecutor;
@@ -287,6 +288,9 @@ public class OperationsExecutor implements IOperationsExecutor
 
     @Autowired
     private IUpdateExternalDmsOperationExecutor updateExternalDmsExecutor;
+    
+    @Autowired
+    private IUpdatePropertyTypesOperationExecutor updatePropertyTypesExecutor;
 
     @Autowired
     private IUpdateVocabulariesOperationExecutor updateVocabulariesExecutor;
@@ -574,6 +578,7 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(updateSemanticAnnotationsExecutor.execute(context, operations));
         resultMap.putAll(updateOperationExecutionsExecutor.execute(context, operations));
         resultMap.putAll(updateVocabulariesExecutor.execute(context, operations));
+        resultMap.putAll(updatePropertyTypesExecutor.execute(context, operations));
         resultMap.putAll(updateVocabularyTermsExecutor.execute(context, operations));
         resultMap.putAll(updateMaterialTypesExecutor.execute(context, operations));
         resultMap.putAll(updateExperimentTypesExecutor.execute(context, operations));

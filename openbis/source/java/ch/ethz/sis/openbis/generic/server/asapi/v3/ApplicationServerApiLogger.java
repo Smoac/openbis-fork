@@ -127,6 +127,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.PropertyAssignmentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.PropertyTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.update.PropertyTypeUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.RoleAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.create.RoleAssignmentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.delete.RoleAssignmentDeletionOptions;
@@ -434,6 +435,12 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     public void updateMaterialTypes(String sessionToken, List<MaterialTypeUpdate> materialTypeUpdates)
     {
         logAccess(sessionToken, "update-material-types", "MATERIAL_TYPE_UPDATES(%s)", abbreviate(materialTypeUpdates));
+    }
+
+    @Override
+    public void updatePropertyTypes(String sessionToken, List<PropertyTypeUpdate> propertyTypeUpdates)
+    {
+        logAccess(sessionToken, "update-property_types", "PROPERTY_TYPE_UPDATES(%s)", abbreviate(propertyTypeUpdates));
     }
 
     @Override

@@ -164,6 +164,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.DataSetTypeCreation = dtos.DataSetTypeCreation;
 		this.MaterialTypeCreation = dtos.MaterialTypeCreation;
 		this.PropertyTypeCreation = dtos.PropertyTypeCreation;
+		this.PropertyTypeUpdate = dtos.PropertyTypeUpdate;
 		this.WebAppSettings = dtos.WebAppSettings;
 
 		// operations
@@ -215,6 +216,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.UpdateDataSetTypesOperation = dtos.UpdateDataSetTypesOperation;
 		this.UpdateMaterialsOperation = dtos.UpdateMaterialsOperation;
 		this.UpdateMaterialTypesOperation = dtos.UpdateMaterialTypesOperation;
+		this.UpdatePropertyTypesOperation = dtos.UpdatePropertyTypesOperation;
 		this.UpdateVocabulariesOperation = dtos.UpdateVocabulariesOperation;
 		this.UpdateVocabularyTermsOperation = dtos.UpdateVocabularyTermsOperation;
 		this.UpdateExternalDmsOperation = dtos.UpdateExternalDmsOperation;
