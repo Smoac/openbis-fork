@@ -271,6 +271,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.DeleteDataSetsOperation = dtos.DeleteDataSetsOperation;
 		this.DeleteMaterialsOperation = dtos.DeleteMaterialsOperation;
 		this.DeleteExternalDmsOperation = dtos.DeleteExternalDmsOperation;
+		this.DeletePropertyTypesOperation = dtos.DeletePropertyTypesOperation;
 		this.DeleteVocabulariesOperation = dtos.DeleteVocabulariesOperation;
 		this.DeleteVocabularyTermsOperation = dtos.DeleteVocabularyTermsOperation;
 		this.DeleteEntityTypesOperation = dtos.DeleteEntityTypesOperation;
@@ -784,6 +785,13 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			return facade.deleteEntityTypes([ id ], options);
 		}.bind(this);
 
+		this.deletePropertyType = function(facade, id) {
+			var c = this;
+			var options = new dtos.PropertyTypeDeletionOptions();
+			options.setReason("test reason");
+			return facade.deletePropertyTypes([ id ], options);
+		}.bind(this);
+		
 		this.deleteVocabulary = function(facade, id) {
 			var c = this;
 			var options = new dtos.VocabularyDeletionOptions();

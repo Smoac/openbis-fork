@@ -223,6 +223,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.CreatePropertyTypesOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.CreatePropertyTypesOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyTypeCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.delete.DeletePropertyTypesOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.delete.PropertyTypeDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.get.GetPropertyTypesOperation;
@@ -1063,6 +1065,12 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public void deleteMaterials(String sessionToken, List<? extends IMaterialId> materialIds, MaterialDeletionOptions deletionOptions)
     {
         executeOperation(sessionToken, new DeleteMaterialsOperation(materialIds, deletionOptions));
+    }
+
+    @Override
+    public void deletePropertyTypes(String sessionToken, List<? extends IPropertyTypeId> propertyTypeIds, PropertyTypeDeletionOptions deletionOptions)
+    {
+        executeOperation(sessionToken, new DeletePropertyTypesOperation(propertyTypeIds, deletionOptions));
     }
 
     @Override

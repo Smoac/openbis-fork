@@ -170,6 +170,11 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testDeleteWithoutTrash(c, c.createMaterial, c.findMaterial, c.deleteMaterial);
 		});
 
+		QUnit.test("deletePropertyTypes()", function(assert) {
+			var c = new common(assert, openbis);
+			testDeleteWithoutTrash(c, c.createPropertyType, c.findPropertyType, c.deletePropertyType);
+		});
+		
 		QUnit.test("deleteVocabularies()", function(assert) {
 			var c = new common(assert, openbis);
 			testDeleteWithoutTrash(c, c.createVocabulary, c.findVocabulary, c.deleteVocabulary);

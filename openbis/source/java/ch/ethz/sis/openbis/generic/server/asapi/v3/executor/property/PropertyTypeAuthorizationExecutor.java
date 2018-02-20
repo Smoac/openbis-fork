@@ -60,4 +60,11 @@ public class PropertyTypeAuthorizationExecutor implements IPropertyTypeAuthoriza
     {
     }
 
+    @Override
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @Capability("DELETE_PROPERTY_TYPE")
+    public void canDelete(IOperationContext context, IPropertyTypeId entityId, PropertyTypePE entity)
+    {
+    }
+
 }

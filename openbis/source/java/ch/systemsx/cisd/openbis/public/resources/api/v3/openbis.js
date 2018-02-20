@@ -1459,6 +1459,17 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			});
 		}
 		
+		this.deletePropertyTypes = function(ids, deletionOptions) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "deletePropertyTypes",
+					"params" : [ thisFacade._private.sessionToken, ids, deletionOptions ]
+				}
+			});
+		}
+
 		this.deleteVocabularies = function(ids, deletionOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
@@ -1469,7 +1480,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 				}
 			});
 		}
-
+		
 		this.deleteVocabularyTerms = function(ids, deletionOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({

@@ -121,6 +121,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.update.ProjectUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyTypeCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.delete.PropertyTypeDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyTypeId;
@@ -758,6 +759,12 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     public void deleteMaterials(String sessionToken, List<? extends IMaterialId> materialIds, MaterialDeletionOptions deletionOptions)
     {
         logAccess(sessionToken, "delete-materials", "MATERIAL_IDS(%s) DELETION_OPTIONS(%s)", abbreviate(materialIds), deletionOptions);
+    }
+
+    @Override
+    public void deletePropertyTypes(String sessionToken, List<? extends IPropertyTypeId> propertyTypeIds, PropertyTypeDeletionOptions deletionOptions)
+    {
+        logAccess(sessionToken, "delete-property-types", "PROPERTY_TYPES_IDS(%s) DELETION_OPTIONS(%s)", abbreviate(propertyTypeIds), deletionOptions);
     }
 
     @Override

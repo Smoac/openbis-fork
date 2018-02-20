@@ -120,6 +120,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.update.ProjectUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyTypeCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.delete.PropertyTypeDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyTypeId;
@@ -424,6 +425,8 @@ public interface IApplicationServerApi extends IRpcService
 
     public void deleteMaterials(String sessionToken, List<? extends IMaterialId> materialIds, MaterialDeletionOptions deletionOptions);
 
+    public void deletePropertyTypes(String sessionToken, List<? extends IPropertyTypeId> propertyTypeIds, PropertyTypeDeletionOptions deletionOptions);
+    
     public void deleteVocabularies(String sessionToken, List<? extends IVocabularyId> ids, VocabularyDeletionOptions deletionOptions);
 
     public void deleteVocabularyTerms(String sessionToken, List<? extends IVocabularyTermId> termIds, VocabularyTermDeletionOptions deletionOptions);

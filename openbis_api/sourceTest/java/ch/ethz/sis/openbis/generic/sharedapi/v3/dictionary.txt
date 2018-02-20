@@ -1892,3 +1892,8 @@ Property Type Update
 update Property Types
 Update Property Types Operation
 Update Property Types Operation Result
+
+delete Property Types
+Delete Property Types Operation
+Delete Property Types Operation Result
+Property Type Deletion Options

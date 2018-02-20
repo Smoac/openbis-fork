@@ -88,6 +88,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project.IGetProjects
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project.ISearchProjectsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project.IUpdateProjectsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.ICreatePropertyTypesOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.IDeletePropertyTypesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.IGetPropertyTypesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.ISearchPropertyAssignmentsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.ISearchPropertyTypesOperationExecutor;
@@ -179,8 +180,11 @@ public class OperationsExecutor implements IOperationsExecutor
     private IDeleteEntityTypeOperationExecutor deleteEntityTypesExecutor;
 
     @Autowired
-    private IDeleteVocabulariesOperationExecutor deleteVocabulariesExecutor;
+    private IDeletePropertyTypesOperationExecutor deletePropertyTypesExecutor;
 
+    @Autowired
+    private IDeleteVocabulariesOperationExecutor deleteVocabulariesExecutor;
+    
     @Autowired
     private IDeleteVocabularyTermsOperationExecutor deleteVocabularyTermsExecutor;
     
@@ -635,6 +639,7 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(deleteRoleAssignmentsExecutor.execute(context, operations));
         resultMap.putAll(deleteAuthorizationGroupsExecutor.execute(context, operations));
         resultMap.putAll(deleteEntityTypesExecutor.execute(context, operations));
+        resultMap.putAll(deletePropertyTypesExecutor.execute(context, operations));
         resultMap.putAll(deleteVocabularyTermsExecutor.execute(context, operations));
         resultMap.putAll(deleteVocabulariesExecutor.execute(context, operations));
         resultMap.putAll(deleteOperationExecutionsExecutor.execute(context, operations));
