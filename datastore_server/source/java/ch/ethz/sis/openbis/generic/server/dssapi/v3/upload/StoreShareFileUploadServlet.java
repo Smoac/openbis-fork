@@ -29,20 +29,14 @@ import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter;
-
-import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
-import ch.ethz.sis.openbis.generic.server.dssapi.v3.DataStoreServerApiJsonServer;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.api.v1.PutDataSetService;
@@ -50,21 +44,23 @@ import ch.systemsx.cisd.openbis.dss.generic.server.Utils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 
 /**
- * 
- *
  * @author Ganime Betul Akin
  */
 @RestController
-@RequestMapping({"store_share_file_upload", "/datastore_server/store_share_file_upload"})
+@RequestMapping({ "store_share_file_upload", "/datastore_server/store_share_file_upload" })
 public class StoreShareFileUploadServlet extends HttpServlet
 {
     private static final long serialVersionUID = 1L;
-    
-    @SuppressWarnings("hiding")
+
     protected static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             StoreShareFileUploadServlet.class);
 
+    public static final String SESSION_ID_PARAM = Utils.SESSION_ID_PARAM;
+
     public static final String DATA_SET_TYPE_PARAM = "dataSetType";
+
+    public static final String IGNORE_FILE_PATH_PARAM = "ignoreFilePath";
+
     public static final String UPLOAD_ID_PARAM = "uploadID";
 
     private PutDataSetService putService;
@@ -73,26 +69,26 @@ public class StoreShareFileUploadServlet extends HttpServlet
     public final void init(final ServletConfig servletConfig) throws ServletException
     {
         super.init(servletConfig);
-        this.putService =
-                new PutDataSetService(ServiceProvider.getOpenBISService(), operationLog);   
+        this.putService = new PutDataSetService(ServiceProvider.getOpenBISService(), operationLog);
         putService.setStoreDirectory(ServiceProvider.getConfigProvider().getStoreRoot());
-
     }
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException
     {
-        StoreShareFileUploadRequest uploadRequest =
-                new StoreShareFileUploadRequest(request);
+        StoreShareFileUploadRequest uploadRequest = new StoreShareFileUploadRequest(request);
 
         uploadRequest.validate();
-        
-        String dataSetTypeCodeOrNull = uploadRequest.getDataSetType();
-        String uploadId = uploadRequest.getUploadId();
 
         try
         {
             FileItemIterator iterator = uploadRequest.getFiles();
+
+            if (false == iterator.hasNext())
+            {
+                throw new UserFailureException("Please upload at least one file");
+            }
 
             while (iterator.hasNext())
             {
@@ -103,23 +99,30 @@ public class StoreShareFileUploadServlet extends HttpServlet
                 {
                     file = iterator.next();
                     stream = file.openStream();
-                    putService.putFileToStoreShare(uploadRequest.getSessionId(), file.getName(), dataSetTypeCodeOrNull, uploadId, stream);
-                } 
-                catch (Exception e) {
-                   operationLog.error(e.getMessage());
-                }
-                finally
+
+                    /*
+                     * Most browsers send only base file names for files which were uploaded via a regular html form. Still, there are some browsers
+                     * (e.g. Opera) that are known to send file paths as well. To handle all browsers consistently by default we ignore file paths
+                     * even if they are given. We only use the file paths if it has been explicitly requested via <code>IGNORE_FILE_PATH_PARAM</code>
+                     * request parameter. This may be handy in contexts where we have a full control over what gets sent to the servlet (e.g. from a
+                     * Python script that makes http requests to the servlet).
+                     */
+                    String filePath = uploadRequest.isIgnoreFilePath() ? FilenameUtils.getName(file.getName()) : file.getName();
+
+                    putService.putFileToStoreShare(uploadRequest.getSessionId(), filePath, uploadRequest.getDataSetType(),
+                            uploadRequest.getUploadId(), stream);
+                } finally
                 {
                     IOUtils.closeQuietly(stream);
                 }
             }
-
-        } catch (FileUploadException e)
+        } catch (Exception e)
         {
+            operationLog.error(e.getMessage());
             throw CheckedExceptionTunnel.wrapIfNecessary(e);
         }
     }
-    
+
     private class StoreShareFileUploadRequest
     {
 
@@ -132,8 +135,9 @@ public class StoreShareFileUploadServlet extends HttpServlet
 
         public String getSessionId()
         {
-            return request.getParameter(Utils.SESSION_ID_PARAM);
+            return request.getParameter(SESSION_ID_PARAM);
         }
+
         public String getDataSetType()
         {
             return request.getParameter(DATA_SET_TYPE_PARAM);
@@ -142,6 +146,19 @@ public class StoreShareFileUploadServlet extends HttpServlet
         public String getUploadId()
         {
             return request.getParameter(UPLOAD_ID_PARAM);
+        }
+
+        public boolean isIgnoreFilePath()
+        {
+            String str = request.getParameter(IGNORE_FILE_PATH_PARAM);
+
+            if (str == null || str.isEmpty())
+            {
+                return true;
+            } else
+            {
+                return Boolean.valueOf(str);
+            }
         }
 
         public FileItemIterator getFiles() throws FileUploadException, IOException
@@ -154,18 +171,7 @@ public class StoreShareFileUploadServlet extends HttpServlet
         {
             if (ServletFileUpload.isMultipartContent(request) == false)
             {
-                throw new IllegalArgumentException(
-                        "The session workspace form upload accepts only multipart requests");
-            }
-            if (getSessionId() == null)
-            {
-                throw new IllegalArgumentException(Utils.SESSION_ID_PARAM
-                        + " parameter cannot be null");
-            }
-            
-            if (getUploadId() == null)
-            {
-                throw new IllegalArgumentException(UPLOAD_ID_PARAM + " parameter cannot be null");
+                throw new UserFailureException("The file upload accepts only multipart requests");
             }
         }
 
