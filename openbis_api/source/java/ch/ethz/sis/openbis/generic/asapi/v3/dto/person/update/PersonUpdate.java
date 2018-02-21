@@ -41,7 +41,7 @@ public class PersonUpdate implements IUpdate, IObjectUpdate<IPersonId>
     private IPersonId userId;
 
     @JsonProperty
-    private FieldUpdateValue<ISpaceId> homeSpaceId = new FieldUpdateValue<ISpaceId>();
+    private FieldUpdateValue<ISpaceId> spaceId = new FieldUpdateValue<ISpaceId>();
     
     @JsonProperty
     private boolean active = true;
@@ -64,15 +64,15 @@ public class PersonUpdate implements IUpdate, IObjectUpdate<IPersonId>
     }
 
     @JsonIgnore
-    public void setHomeSpaceId(ISpaceId spaceId)
+    public void setSpaceId(ISpaceId spaceId)
     {
-        this.homeSpaceId.setValue(spaceId);
+        this.spaceId.setValue(spaceId);
     }
 
     @JsonIgnore
-    public FieldUpdateValue<ISpaceId> getHomeSpaceId()
+    public FieldUpdateValue<ISpaceId> getSpaceId()
     {
-        return homeSpaceId;
+        return spaceId;
     }
     
     @JsonIgnore
