@@ -121,12 +121,14 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.update.ProjectUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyTypeCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.delete.PropertyTypeDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.PropertyAssignmentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.PropertyTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.update.PropertyTypeUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.RoleAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.create.RoleAssignmentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.delete.RoleAssignmentDeletionOptions;
@@ -434,6 +436,12 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     public void updateMaterialTypes(String sessionToken, List<MaterialTypeUpdate> materialTypeUpdates)
     {
         logAccess(sessionToken, "update-material-types", "MATERIAL_TYPE_UPDATES(%s)", abbreviate(materialTypeUpdates));
+    }
+
+    @Override
+    public void updatePropertyTypes(String sessionToken, List<PropertyTypeUpdate> propertyTypeUpdates)
+    {
+        logAccess(sessionToken, "update-property_types", "PROPERTY_TYPE_UPDATES(%s)", abbreviate(propertyTypeUpdates));
     }
 
     @Override
@@ -751,6 +759,12 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     public void deleteMaterials(String sessionToken, List<? extends IMaterialId> materialIds, MaterialDeletionOptions deletionOptions)
     {
         logAccess(sessionToken, "delete-materials", "MATERIAL_IDS(%s) DELETION_OPTIONS(%s)", abbreviate(materialIds), deletionOptions);
+    }
+
+    @Override
+    public void deletePropertyTypes(String sessionToken, List<? extends IPropertyTypeId> propertyTypeIds, PropertyTypeDeletionOptions deletionOptions)
+    {
+        logAccess(sessionToken, "delete-property-types", "PROPERTY_TYPES_IDS(%s) DELETION_OPTIONS(%s)", abbreviate(propertyTypeIds), deletionOptions);
     }
 
     @Override

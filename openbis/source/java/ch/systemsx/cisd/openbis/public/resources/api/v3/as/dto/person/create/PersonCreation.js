@@ -5,7 +5,7 @@ define([ "stjs" ], function(stjs) {
 		prototype['@type'] = 'as.dto.person.create.PersonCreation';
 		constructor.serialVersionUID = 1;
 		prototype.userId = null;
-		prototype.homeSpaceId = null;
+		prototype.spaceId = null;
 
 		prototype.getUserId = function() {
 			return this.userId;
@@ -13,11 +13,11 @@ define([ "stjs" ], function(stjs) {
 		prototype.setUserId = function(userId) {
 			this.userId = userId;
 		};
-		prototype.getHomeSpaceId = function() {
-			return this.homeSpaceId;
+		prototype.getSpaceId = function() {
+			return this.spaceId;
 		};
-		prototype.setHomeSpaceId = function(spaceId) {
-			this.homeSpaceId = spaceId;
+		prototype.setSpaceId = function(spaceId) {
+			this.spaceId = spaceId;
 		};
 	}, {
 	});

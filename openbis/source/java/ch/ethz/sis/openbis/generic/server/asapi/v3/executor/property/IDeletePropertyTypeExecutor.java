@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ETH Zuerich, CISD
+ * Copyright 2018 ETH Zuerich, SIS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +16,15 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.delete.PropertyTypeDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyTypeId;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IObjectAuthorizationExecutor;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.IDeleteEntityExecutor;
 
 /**
- * @author pkupczyk
+ * @author Franz-Josef Elmer
+ *
  */
-public interface IPropertyTypeAuthorizationExecutor extends IObjectAuthorizationExecutor
+public interface IDeletePropertyTypeExecutor extends IDeleteEntityExecutor<Void, IPropertyTypeId, PropertyTypeDeletionOptions>
 {
-
-    void canGet(IOperationContext context);
-
-    void canSearch(IOperationContext context);
-
-    void canCreate(IOperationContext context);
-
-    void canUpdate(IOperationContext context, IPropertyTypeId id, PropertyTypePE entity);
-
-    void canDelete(IOperationContext context, IPropertyTypeId entityId, PropertyTypePE entity);
 
 }

@@ -18,10 +18,12 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property;
 
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyTypeId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 
 /**
  * @author pkupczyk
@@ -48,6 +50,20 @@ public class PropertyTypeAuthorizationExecutor implements IPropertyTypeAuthoriza
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @Capability("CREATE_PROPERTY_TYPE")
     public void canCreate(IOperationContext context)
+    {
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @Capability("UPDATE_PROPERTY_TYPE")
+    public void canUpdate(IOperationContext context, IPropertyTypeId id, PropertyTypePE entity)
+    {
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @Capability("DELETE_PROPERTY_TYPE")
+    public void canDelete(IOperationContext context, IPropertyTypeId entityId, PropertyTypePE entity)
     {
     }
 

@@ -1887,8 +1887,21 @@ create Uploaded Data Set
 get Upload Id
 set Upload Id
 Uploaded Data Set Creation
+<<<<<<< HEAD
 get Deletion Date
 set Deletion Date
 
 is Force Deletion
 set Force Deletion
+=======
+
+Property Type Update
+update Property Types
+Update Property Types Operation
+Update Property Types Operation Result
+
+delete Property Types
+Delete Property Types Operation
+Delete Property Types Operation Result
+Property Type Deletion Options
+>>>>>>> branch 'master' of https://sissource.ethz.ch/sispub/openbis

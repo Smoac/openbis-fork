@@ -45,6 +45,7 @@ import ch.systemsx.cisd.common.collection.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 
 /**
  * Persistence entity representing property type.
@@ -60,7 +61,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 { @UniqueConstraint(columnNames =
 { ColumnNames.CODE_COLUMN, ColumnNames.IS_INTERNAL_NAMESPACE }) })
 public final class PropertyTypePE extends HibernateAbstractRegistrationHolder implements
-        Comparable<PropertyTypePE>, IIdAndCodeHolder
+        Comparable<PropertyTypePE>, IIdAndCodeHolder, IIdentityHolder
 {
     public static final PropertyTypePE[] EMPTY_ARRAY = new PropertyTypePE[0];
 
@@ -168,6 +169,20 @@ public final class PropertyTypePE extends HibernateAbstractRegistrationHolder im
     public String getCode()
     {
         return CodeConverter.tryToBusinessLayer(getSimpleCode(), isInternalNamespace());
+    }
+
+    @Override
+    @Transient
+    public String getIdentifier()
+    {
+        return getCode();
+    }
+
+    @Override
+    @Transient
+    public String getPermId()
+    {
+        return getCode();
     }
 
     @NotNull(message = ValidationMessages.DATA_TYPE_NOT_NULL_MESSAGE)

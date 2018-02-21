@@ -88,9 +88,11 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project.IGetProjects
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project.ISearchProjectsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project.IUpdateProjectsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.ICreatePropertyTypesOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.IDeletePropertyTypesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.IGetPropertyTypesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.ISearchPropertyAssignmentsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.ISearchPropertyTypesOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.IUpdatePropertyTypesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.roleassignment.ICreateRoleAssignmentsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.roleassignment.IDeleteRoleAssignmentsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.roleassignment.IGetRoleAssignmentsOperationExecutor;
@@ -178,8 +180,11 @@ public class OperationsExecutor implements IOperationsExecutor
     private IDeleteEntityTypeOperationExecutor deleteEntityTypesExecutor;
 
     @Autowired
-    private IDeleteVocabulariesOperationExecutor deleteVocabulariesExecutor;
+    private IDeletePropertyTypesOperationExecutor deletePropertyTypesExecutor;
 
+    @Autowired
+    private IDeleteVocabulariesOperationExecutor deleteVocabulariesExecutor;
+    
     @Autowired
     private IDeleteVocabularyTermsOperationExecutor deleteVocabularyTermsExecutor;
     
@@ -287,6 +292,9 @@ public class OperationsExecutor implements IOperationsExecutor
 
     @Autowired
     private IUpdateExternalDmsOperationExecutor updateExternalDmsExecutor;
+    
+    @Autowired
+    private IUpdatePropertyTypesOperationExecutor updatePropertyTypesExecutor;
 
     @Autowired
     private IUpdateVocabulariesOperationExecutor updateVocabulariesExecutor;
@@ -574,6 +582,7 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(updateSemanticAnnotationsExecutor.execute(context, operations));
         resultMap.putAll(updateOperationExecutionsExecutor.execute(context, operations));
         resultMap.putAll(updateVocabulariesExecutor.execute(context, operations));
+        resultMap.putAll(updatePropertyTypesExecutor.execute(context, operations));
         resultMap.putAll(updateVocabularyTermsExecutor.execute(context, operations));
         resultMap.putAll(updateMaterialTypesExecutor.execute(context, operations));
         resultMap.putAll(updateExperimentTypesExecutor.execute(context, operations));
@@ -630,6 +639,7 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(deleteRoleAssignmentsExecutor.execute(context, operations));
         resultMap.putAll(deleteAuthorizationGroupsExecutor.execute(context, operations));
         resultMap.putAll(deleteEntityTypesExecutor.execute(context, operations));
+        resultMap.putAll(deletePropertyTypesExecutor.execute(context, operations));
         resultMap.putAll(deleteVocabularyTermsExecutor.execute(context, operations));
         resultMap.putAll(deleteVocabulariesExecutor.execute(context, operations));
         resultMap.putAll(deleteOperationExecutionsExecutor.execute(context, operations));

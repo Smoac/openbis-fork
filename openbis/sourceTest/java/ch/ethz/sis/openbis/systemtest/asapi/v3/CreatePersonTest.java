@@ -45,7 +45,7 @@ public class CreatePersonTest extends AbstractTest
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         PersonCreation personCreation = new PersonCreation();
         personCreation.setUserId("user-" + System.currentTimeMillis());
-        personCreation.setHomeSpaceId(new SpacePermId("CISD"));
+        personCreation.setSpaceId(new SpacePermId("CISD"));
         
         // When
         List<PersonPermId> persons = v3api.createPersons(sessionToken, Arrays.asList(personCreation));

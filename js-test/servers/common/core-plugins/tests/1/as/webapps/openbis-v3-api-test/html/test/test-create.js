@@ -633,7 +633,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			var fCreate = function(facade) {
 				var personCreation = new c.PersonCreation();
 				personCreation.setUserId(userId);
-				personCreation.setHomeSpaceId(new c.SpacePermId("TEST"))
+				personCreation.setSpaceId(new c.SpacePermId("TEST"))
 				return facade.createPersons([ personCreation ]);
 			}
 

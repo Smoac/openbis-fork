@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.vocabulary;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyUpdate;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.IUpdateEntityExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.update.IUpdateObjectsOperationExecutor;
 
 /**
  * @author Franz-Josef Elmer
  *
  */
-public interface IUpdateVocabularyExecutor extends IUpdateEntityExecutor<VocabularyUpdate, VocabularyPermId>
+public interface IUpdatePropertyTypesOperationExecutor extends IUpdateObjectsOperationExecutor
 {
+
 }

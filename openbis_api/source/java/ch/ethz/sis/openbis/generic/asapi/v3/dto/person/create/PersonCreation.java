@@ -37,7 +37,7 @@ public class PersonCreation implements ICreation, IObjectCreation
     private String userId;
     
     @JsonProperty
-    private ISpaceId homeSpaceId;
+    private ISpaceId spaceId;
 
     public String getUserId()
     {
@@ -49,14 +49,14 @@ public class PersonCreation implements ICreation, IObjectCreation
         this.userId = userId;
     }
 
-    public ISpaceId getHomeSpaceId()
+    public ISpaceId getSpaceId()
     {
-        return homeSpaceId;
+        return spaceId;
     }
 
-    public void setHomeSpaceId(ISpaceId homeSpaceId)
+    public void setSpaceId(ISpaceId spaceId)
     {
-        this.homeSpaceId = homeSpaceId;
+        this.spaceId = spaceId;
     }
     
 }

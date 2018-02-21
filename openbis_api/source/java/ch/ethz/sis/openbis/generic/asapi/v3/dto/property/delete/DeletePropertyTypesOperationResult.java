@@ -14,16 +14,23 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.vocabulary;
+package ch.ethz.sis.openbis.generic.asapi.v3.dto.property.delete;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyUpdate;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.IUpdateEntityExecutor;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.delete.DeleteObjectsWithoutTrashOperationResult;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author Franz-Josef Elmer
  *
  */
-public interface IUpdateVocabularyExecutor extends IUpdateEntityExecutor<VocabularyUpdate, VocabularyPermId>
+@JsonObject("as.dto.property.delete.DeletePropertyTypesOperationResult")
+public class DeletePropertyTypesOperationResult extends DeleteObjectsWithoutTrashOperationResult
 {
+
+    private static final long serialVersionUID = 1L;
+
+    public DeletePropertyTypesOperationResult()
+    {
+    }
+
 }

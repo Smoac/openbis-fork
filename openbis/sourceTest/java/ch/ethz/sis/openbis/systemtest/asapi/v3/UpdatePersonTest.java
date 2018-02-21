@@ -47,7 +47,7 @@ public class UpdatePersonTest extends AbstractTest
         PersonUpdate personUpdate = new PersonUpdate();
         PersonPermId personId = new PersonPermId("homeless");
         personUpdate.setUserId(personId);
-        personUpdate.setHomeSpaceId(new SpacePermId("TEST-SPACE"));
+        personUpdate.setSpaceId(new SpacePermId("TEST-SPACE"));
         
         assertUserFailureException(new IDelegatedAction()
         {
@@ -69,7 +69,7 @@ public class UpdatePersonTest extends AbstractTest
         PersonUpdate personUpdate = new PersonUpdate();
         PersonPermId personId = new PersonPermId("homeless");
         personUpdate.setUserId(personId);
-        personUpdate.setHomeSpaceId(new SpacePermId("TESTGROUP"));
+        personUpdate.setSpaceId(new SpacePermId("TESTGROUP"));
         
         // When
         v3api.updatePersons(sessionToken, Arrays.asList(personUpdate));
@@ -90,7 +90,7 @@ public class UpdatePersonTest extends AbstractTest
         PersonUpdate personUpdate = new PersonUpdate();
         PersonPermId personId = new PersonPermId("homeless");
         personUpdate.setUserId(personId);
-        personUpdate.setHomeSpaceId(new SpacePermId("CISD"));
+        personUpdate.setSpaceId(new SpacePermId("CISD"));
         
         assertAuthorizationFailureException(new IDelegatedAction()
             {
@@ -109,7 +109,7 @@ public class UpdatePersonTest extends AbstractTest
         // Given
         String sessionToken = v3api.login(TEST_GROUP_OBSERVER, PASSWORD);
         PersonUpdate personUpdate = new PersonUpdate();
-        personUpdate.setHomeSpaceId(new SpacePermId("TESTGROUP"));
+        personUpdate.setSpaceId(new SpacePermId("TESTGROUP"));
         
         // When
         v3api.updatePersons(sessionToken, Arrays.asList(personUpdate));
@@ -131,7 +131,7 @@ public class UpdatePersonTest extends AbstractTest
         PersonUpdate personUpdate = new PersonUpdate();
         IPersonId personId = new Me();
         personUpdate.setUserId(personId);
-        personUpdate.setHomeSpaceId(new SpacePermId("TESTGROUP"));
+        personUpdate.setSpaceId(new SpacePermId("TESTGROUP"));
         
         // When
         v3api.updatePersons(sessionToken, Arrays.asList(personUpdate));
