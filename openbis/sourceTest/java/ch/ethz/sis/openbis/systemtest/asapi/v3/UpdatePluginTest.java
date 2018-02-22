@@ -20,6 +20,7 @@ import static org.testng.Assert.assertEquals;
 
 import java.util.Arrays;
 
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
@@ -62,6 +63,39 @@ public class UpdatePluginTest extends AbstractTest
     {
         PluginUpdate update = new PluginUpdate();
         assertUserFailureException(update, "Plugin id cannot be null.");
+    }
+
+    @Test
+    public void testPluginScriptCanNotCompile()
+    {
+        PluginUpdate update = new PluginUpdate();
+        update.setPluginId(new PluginPermId("properties"));
+        update.setScript("d:");
+        assertUserFailureException(update, "SyntaxError");
+    }
+    
+    @Test(dataProvider = "usersNotAllowedToUpdatePlugins")
+    public void testCreateWithUserCausingAuthorizationFailure(final String user)
+    {
+        PluginPermId pluginId = new PluginPermId("properties");
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    String sessionToken = v3api.login(user, PASSWORD);
+                    PluginUpdate update = new PluginUpdate();
+                    update.setPluginId(pluginId);
+                    v3api.updatePlugins(sessionToken, Arrays.asList(update));
+                }
+            }, pluginId);
+    }
+
+    @DataProvider
+    Object[][] usersNotAllowedToUpdatePlugins()
+    {
+        return createTestUsersProvider(TEST_GROUP_ADMIN, TEST_GROUP_OBSERVER, TEST_GROUP_POWERUSER,
+                TEST_INSTANCE_OBSERVER, TEST_OBSERVER_CISD, TEST_POWER_USER_CISD, TEST_SPACE_USER);
     }
 
     private void assertUserFailureException(PluginUpdate update, String expectedMessage)

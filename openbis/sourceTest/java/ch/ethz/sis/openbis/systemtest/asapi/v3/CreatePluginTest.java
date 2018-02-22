@@ -220,35 +220,28 @@ public class CreatePluginTest extends AbstractTest
         assertUserFailureException(creation, "Plugin type cannot be unspecified.");
     }
     
-    @Test
-    public void testDynamicPropertyScriptCanNotCompile()
+    @Test(dataProvider = "scriptTypes")
+    public void testScriptCanNotCompile(ScriptType scriptType)
     {
         PluginCreation creation = createBasic();
         creation.setPluginType(PluginType.JYTHON);
-        creation.setScriptType(ScriptType.DYNAMIC_PROPERTY);
-        creation.setScript("d\n");
+        creation.setScriptType(scriptType);
+        creation.setScript("d:\n");
         assertUserFailureException(creation, "SyntaxError");
     }
     
-    @Test
-    public void testManagedPropertyScriptCanNotCompile()
+    @DataProvider
+    Object[][] scriptTypes()
     {
-        PluginCreation creation = createBasic();
-        creation.setPluginType(PluginType.JYTHON);
-        creation.setScriptType(ScriptType.MANAGED_PROPERTY);
-        creation.setScript("d\n");
-        assertUserFailureException(creation, "SyntaxError");
+        ScriptType[] values = ScriptType.values();
+        Object[][] result = new Object[values.length][];
+        for (int i = 0; i < values.length; i++)
+        {
+            result[i] = new Object[] { values[i] };
+        }
+        return result;
     }
-    
-    @Test
-    public void testEntityValodationScriptCanNotCompile()
-    {
-        PluginCreation creation = createBasic();
-        creation.setPluginType(PluginType.JYTHON);
-        creation.setScriptType(ScriptType.ENTITY_VALIDATION);
-        creation.setScript("d\n");
-        assertUserFailureException(creation, "SyntaxError");
-    }
+
     
     @Test(dataProvider = "usersNotAllowedToCreatePlugins")
     public void testCreateWithUserCausingAuthorizationFailure(final String user)

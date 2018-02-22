@@ -213,6 +213,10 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 			return this._executeUpdateOperation(new c.UpdatePropertyTypesOperation(updates));
 		}
 		
+		this.updatePlugins = function(updates) {
+			return this._executeUpdateOperation(new c.UpdatePluginsOperation(updates));
+		}
+		
 		this.updateVocabularyTerms = function(updates) {
 			return this._executeUpdateOperation(new c.UpdateVocabularyTermsOperation(updates));
 		}

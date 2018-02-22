@@ -174,6 +174,7 @@ define(
 				this.MaterialTypeCreation = dtos.MaterialTypeCreation;
 				this.PropertyTypeCreation = dtos.PropertyTypeCreation;
 				this.PropertyTypeUpdate = dtos.PropertyTypeUpdate;
+				this.PluginUpdate = dtos.PluginUpdate;
 				this.WebAppSettings = dtos.WebAppSettings;
 
 				// operations
@@ -228,6 +229,7 @@ define(
 				this.UpdateMaterialsOperation = dtos.UpdateMaterialsOperation;
 				this.UpdateMaterialTypesOperation = dtos.UpdateMaterialTypesOperation;
 				this.UpdatePropertyTypesOperation = dtos.UpdatePropertyTypesOperation;
+				this.UpdatePluginsOperation = dtos.UpdatePluginsOperation;
 				this.UpdateVocabulariesOperation = dtos.UpdateVocabulariesOperation;
 				this.UpdateVocabularyTermsOperation = dtos.UpdateVocabularyTermsOperation;
 				this.UpdateExternalDmsOperation = dtos.UpdateExternalDmsOperation;
