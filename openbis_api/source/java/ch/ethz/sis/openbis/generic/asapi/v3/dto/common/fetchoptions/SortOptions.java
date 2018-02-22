@@ -39,10 +39,10 @@ public abstract class SortOptions<OBJECT> implements Serializable
 
     protected SortOrder getOrCreateSorting(String field)
     {
-    		return getOrCreateSorting(field, null);
+    		return getOrCreateSortingWithParameters(field, null);
     }
     
-    protected SortOrder getOrCreateSorting(String field, Map<SortParameter, String> parameters)
+    protected SortOrder getOrCreateSortingWithParameters(String field, Map<SortParameter, String> parameters)
     {
         SortOrder order = getSorting(field);
         if (order == null)

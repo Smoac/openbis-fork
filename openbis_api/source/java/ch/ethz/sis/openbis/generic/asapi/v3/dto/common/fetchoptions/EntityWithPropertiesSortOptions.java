@@ -54,7 +54,7 @@ public class EntityWithPropertiesSortOptions<OBJECT extends ICodeHolder & IPermI
     		parameters.put(SortParameter.FULL_PROPERTY_BOOST,  "10000");
     		parameters.put(SortParameter.FULL_TYPE_BOOST, 	   "1000");
     		parameters.put(SortParameter.PARTIAL_PROPERTY_BOOST, "100");
-		return getOrCreateSorting(FETCHED_FIELDS_SCORE, parameters);
+		return getOrCreateSortingWithParameters(FETCHED_FIELDS_SCORE, parameters);
     }
     
     public SortOrder type()
