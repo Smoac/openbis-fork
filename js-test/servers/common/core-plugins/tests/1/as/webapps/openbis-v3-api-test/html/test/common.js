@@ -434,10 +434,10 @@ define(
 									});
 				}.bind(this);
 
-				this.createDataSet = function(facade) {
+				this.createDataSet = function(facade, dataSetType) {
 					var c = this;
 					return this.getResponseFromJSTestAggregationService(facade,
-							{}, function(response) {
+							{ "dataSetType" : dataSetType }, function(response) {
 								return new dtos.DataSetPermId(
 										response.result.rows[0][0].value);
 							});
