@@ -537,8 +537,6 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 				}
 			});
 		}
-<<<<<<< HEAD
-=======
 		
 		this.createPlugins = function(creations) {
 			var thisFacade = this;
@@ -554,7 +552,6 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 				}
 			});
 		}
->>>>>>> branch 'master' of https://sissource.ethz.ch/sispub/openbis
 
 		this.createVocabularies = function(creations) {
 			var thisFacade = this;
@@ -985,9 +982,6 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 				}
 			});
 		}
-<<<<<<< HEAD
-
-=======
 		
 		this.getPlugins = function(ids, fetchOptions) {
 			var thisFacade = this;
@@ -1004,7 +998,6 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			});
 		}
 		
->>>>>>> branch 'master' of https://sissource.ethz.ch/sispub/openbis
 		this.getVocabularies = function(ids, fetchOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
