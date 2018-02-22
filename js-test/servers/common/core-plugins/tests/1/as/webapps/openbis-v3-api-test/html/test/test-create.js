@@ -729,15 +729,15 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				// Selenium tests does not allow to use FormData class which
 				// would make constructing form data much easier
 
-				var formData = "------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"file\"; filename=\"file1.txt\"\r\nContent-Type: text/plain\r\n\r\n\r\ncontent1\r\n"
-						+ "------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"file\"; filename=\"file2.txt\"\r\nContent-Type: text/plain\r\n\r\n\r\ncontent2\r\n"
+				var formData = "------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"file\"; filename=\"filePath/file1.txt\"\r\nContent-Type: text/plain\r\n\r\n\r\ncontent1\r\n"
+						+ "------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"file\"; filename=\"filePath/file2.txt\"\r\nContent-Type: text/plain\r\n\r\n\r\ncontent2\r\n"
 						+ "------WebKitFormBoundary7MA4YWxkTrZu0gW--";
 
 				var dataStoreFacade = facade.getDataStoreFacade("DSS1");
 
 				return dataStoreFacade.createDataSetUpload("UNKNOWN").then(function(upload) {
 					return $.ajax({
-						url : upload.url,
+						url : upload.getUrl("testFolder", false),
 						type : "POST",
 						processData : false,
 						contentType : "multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW",
@@ -745,8 +745,8 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 					}).then(function() {
 						return c.createExperiment(facade).then(function(experimentPermId) {
 							var creation = new c.UploadedDataSetCreation();
-							creation.setUploadId(upload.id);
-							creation.setTypeId(new c.EntityTypePermId(upload.dataSetType));
+							creation.setUploadId(upload.getId());
+							creation.setTypeId(new c.EntityTypePermId(upload.getDataSetType()));
 							creation.setExperimentId(experimentPermId);
 							creation.setProperty("DESCRIPTION", "test description");
 							creation.setParentIds([ new c.DataSetPermId("20130424111751432-431") ]);
@@ -767,12 +767,13 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 					return dataStoreFacade.searchFiles(criteria, c.createDataSetFileFetchOptions()).then(function(result) {
 						var files = result.getObjects();
-						c.assertEqual(files.length, 5, "Number of files");
+						c.assertEqual(files.length, 6, "Number of files");
 						c.assertEqual(files[0].path, "", "Path 0");
 						c.assertEqual(files[1].path, "original", "Path 1");
-						c.assertEqual(files[2].path, "original/upload", "Path 2");
-						c.assertEqual(files[3].path, "original/upload/file1.txt", "Path 3");
-						c.assertEqual(files[4].path, "original/upload/file2.txt", "Path 4");
+						c.assertEqual(files[2].path, "original/testFolder", "Path 2");
+						c.assertEqual(files[3].path, "original/testFolder/filePath", "Path 3");
+						c.assertEqual(files[4].path, "original/testFolder/filePath/file1.txt", "Path 4");
+						c.assertEqual(files[5].path, "original/testFolder/filePath/file2.txt", "Path 5");
 
 						c.assertEqual(dataSet.getType().getCode(), "UNKNOWN", "Type code");
 						c.assertEqual(dataSet.getProperty("DESCRIPTION"), "test description", "'DESCRIPTION' property value");

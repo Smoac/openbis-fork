@@ -84,7 +84,7 @@ public class CreateUploadedDataSetsTest extends AbstractFileTest
     public void testUploadWithInvalidSession() throws Exception
     {
         ContentResponse response =
-                uploadFiles("admin-180211214633760xF769DD44CAFFAF7B50FBEADF00DBEE1F", UUID.randomUUID().toString(), "UNKNOWN", true,
+                uploadFiles("admin-180211214633760xF769DD44CAFFAF7B50FBEADF00DBEE1F", UUID.randomUUID().toString(), "UNKNOWN", true, null,
                         new FileToUpload());
         assertResponseError(response);
         assertTrue(response.getContentAsString(), response.getContentAsString().contains("user is not logged in"));
@@ -93,7 +93,7 @@ public class CreateUploadedDataSetsTest extends AbstractFileTest
     @Test
     public void testUploadWithoutSession() throws Exception
     {
-        ContentResponse response = uploadFiles(null, UUID.randomUUID().toString(), "UNKNOWN", true, new FileToUpload());
+        ContentResponse response = uploadFiles(null, UUID.randomUUID().toString(), "UNKNOWN", true, null, new FileToUpload());
         assertResponseError(response);
         assertTrue(response.getContentAsString(), response.getContentAsString().contains("Session token cannot be null or empty"));
     }
@@ -103,7 +103,7 @@ public class CreateUploadedDataSetsTest extends AbstractFileTest
     {
         String sessionToken = as.login(TEST_USER, PASSWORD);
 
-        ContentResponse response = uploadFiles(sessionToken, UUID.randomUUID().toString(), null, true, new FileToUpload());
+        ContentResponse response = uploadFiles(sessionToken, UUID.randomUUID().toString(), null, true, null, new FileToUpload());
         assertResponseError(response);
         assertTrue(response.getContentAsString(), response.getContentAsString().contains("Data set type cannot be null or empty"));
     }
@@ -113,7 +113,7 @@ public class CreateUploadedDataSetsTest extends AbstractFileTest
     {
         String sessionToken = as.login(TEST_USER, PASSWORD);
 
-        ContentResponse response = uploadFiles(sessionToken, null, "UNKNOWN", true, new FileToUpload());
+        ContentResponse response = uploadFiles(sessionToken, null, "UNKNOWN", true, null, new FileToUpload());
         assertResponseError(response);
         assertTrue(response.getContentAsString(), response.getContentAsString().contains("Upload id cannot be null or empty"));
     }
@@ -123,7 +123,7 @@ public class CreateUploadedDataSetsTest extends AbstractFileTest
     {
         String sessionToken = as.login(TEST_USER, PASSWORD);
 
-        ContentResponse response = uploadFiles(sessionToken, "iam/incorrect", "UNKNOWN", true, new FileToUpload());
+        ContentResponse response = uploadFiles(sessionToken, "iam/incorrect", "UNKNOWN", true, null, new FileToUpload());
         assertResponseError(response);
         assertTrue(response.getContentAsString(), response.getContentAsString().contains("Upload id must not contain &apos;/&apos;"));
     }
@@ -133,7 +133,7 @@ public class CreateUploadedDataSetsTest extends AbstractFileTest
     {
         String sessionToken = as.login(TEST_USER, PASSWORD);
 
-        ContentResponse response = uploadFiles(sessionToken, UUID.randomUUID().toString(), "UNKNOWN", true);
+        ContentResponse response = uploadFiles(sessionToken, UUID.randomUUID().toString(), "UNKNOWN", true, null);
         assertResponseError(response);
         assertTrue(response.getContentAsString(), response.getContentAsString().contains("Please upload at least one file"));
     }
@@ -144,7 +144,8 @@ public class CreateUploadedDataSetsTest extends AbstractFileTest
         String sessionToken = as.login(TEST_USER, PASSWORD);
 
         ContentResponse response =
-                uploadFiles(sessionToken, UUID.randomUUID().toString(), "UNKNOWN", false, new FileToUpload("name", "iam/../incorrect", "content"));
+                uploadFiles(sessionToken, UUID.randomUUID().toString(), "UNKNOWN", false, null,
+                        new FileToUpload("name", "iam/../incorrect", "content"));
         assertResponseError(response);
         assertTrue(response.getContentAsString(), response.getContentAsString().contains("File path must not contain &apos;../&apos;"));
     }
@@ -155,9 +156,20 @@ public class CreateUploadedDataSetsTest extends AbstractFileTest
         String sessionToken = as.login(TEST_USER, PASSWORD);
 
         ContentResponse response =
-                uploadFiles(sessionToken, UUID.randomUUID().toString(), "UNKNOWN", false, new FileToUpload("name", null, "content"));
+                uploadFiles(sessionToken, UUID.randomUUID().toString(), "UNKNOWN", false, null, new FileToUpload("name", null, "content"));
         assertResponseError(response);
         assertTrue(response.getContentAsString(), response.getContentAsString().contains("File path cannot be null or empty"));
+    }
+    
+    @Test
+    public void testUploadWithFolderPathWithFolderUp() throws Exception
+    {
+        String sessionToken = as.login(TEST_USER, PASSWORD);
+
+        ContentResponse response =
+                uploadFiles(sessionToken, UUID.randomUUID().toString(), "UNKNOWN", false, "iam/../incorrect", new FileToUpload());
+        assertResponseError(response);
+        assertTrue(response.getContentAsString(), response.getContentAsString().contains("Folder path must not contain &apos;../&apos;"));
     }
 
     @Test
@@ -185,7 +197,7 @@ public class CreateUploadedDataSetsTest extends AbstractFileTest
         creation.setSampleId(new SampleIdentifier(sampleIdentifier));
         creation.setUploadId(uploadId);
 
-        ContentResponse response = uploadFiles(sessionToken, uploadId, dataSetType, true, new FileToUpload());
+        ContentResponse response = uploadFiles(sessionToken, uploadId, dataSetType, true, null, new FileToUpload());
         assertResponseOK(response);
 
         try
@@ -212,7 +224,7 @@ public class CreateUploadedDataSetsTest extends AbstractFileTest
         creation.setSampleId(new SampleIdentifier(sampleIdentifier));
         creation.setUploadId(uploadId);
 
-        ContentResponse response = uploadFiles(sessionToken, uploadId, dataSetType, true, new FileToUpload());
+        ContentResponse response = uploadFiles(sessionToken, uploadId, dataSetType, true, null, new FileToUpload());
         assertResponseOK(response);
 
         try
@@ -237,7 +249,7 @@ public class CreateUploadedDataSetsTest extends AbstractFileTest
         creation.setTypeId(new EntityTypePermId(dataSetType));
         creation.setUploadId(uploadId);
 
-        ContentResponse response = uploadFiles(sessionToken, uploadId, dataSetType, true, new FileToUpload());
+        ContentResponse response = uploadFiles(sessionToken, uploadId, dataSetType, true, null, new FileToUpload());
         assertResponseOK(response);
 
         try
@@ -264,7 +276,7 @@ public class CreateUploadedDataSetsTest extends AbstractFileTest
         creation.setSampleId(new SampleIdentifier(sampleIdentifier));
         creation.setUploadId(uploadId);
 
-        ContentResponse response = uploadFiles(sessionToken, uploadId, dataSetType, true, new FileToUpload());
+        ContentResponse response = uploadFiles(sessionToken, uploadId, dataSetType, true, null, new FileToUpload());
         assertResponseOK(response);
 
         try
@@ -291,7 +303,7 @@ public class CreateUploadedDataSetsTest extends AbstractFileTest
         creation.setSampleId(new SampleIdentifier(sampleIdentifier));
         creation.setUploadId(uploadId);
 
-        ContentResponse response = uploadFiles(sessionToken, uploadId, dataSetType, true, new FileToUpload());
+        ContentResponse response = uploadFiles(sessionToken, uploadId, dataSetType, true, null, new FileToUpload());
         assertResponseOK(response);
 
         DataSet dataSet = getCreateAndGetDataSet(sessionToken, creation);
@@ -314,7 +326,7 @@ public class CreateUploadedDataSetsTest extends AbstractFileTest
         creation.setSampleId(new SamplePermId(samplePermId));
         creation.setUploadId(uploadId);
 
-        ContentResponse response = uploadFiles(sessionToken, uploadId, dataSetType, true, new FileToUpload());
+        ContentResponse response = uploadFiles(sessionToken, uploadId, dataSetType, true, null, new FileToUpload());
         assertResponseOK(response);
 
         DataSet dataSet = getCreateAndGetDataSet(sessionToken, creation);
@@ -337,7 +349,7 @@ public class CreateUploadedDataSetsTest extends AbstractFileTest
         creation.setExperimentId(new ExperimentIdentifier(experimentIdentifier));
         creation.setUploadId(uploadId);
 
-        ContentResponse response = uploadFiles(sessionToken, uploadId, dataSetType, true, new FileToUpload());
+        ContentResponse response = uploadFiles(sessionToken, uploadId, dataSetType, true, null, new FileToUpload());
         assertResponseOK(response);
 
         try
@@ -365,7 +377,7 @@ public class CreateUploadedDataSetsTest extends AbstractFileTest
         creation.setExperimentId(new ExperimentIdentifier(experimentIdentifier));
         creation.setUploadId(uploadId);
 
-        ContentResponse response = uploadFiles(sessionToken, uploadId, dataSetType, true, new FileToUpload());
+        ContentResponse response = uploadFiles(sessionToken, uploadId, dataSetType, true, null, new FileToUpload());
         assertResponseOK(response);
 
         DataSet dataSet = getCreateAndGetDataSet(sessionToken, creation);
@@ -388,7 +400,7 @@ public class CreateUploadedDataSetsTest extends AbstractFileTest
         creation.setExperimentId(new ExperimentPermId(experimentPermId));
         creation.setUploadId(uploadId);
 
-        ContentResponse response = uploadFiles(sessionToken, uploadId, dataSetType, true, new FileToUpload());
+        ContentResponse response = uploadFiles(sessionToken, uploadId, dataSetType, true, null, new FileToUpload());
         assertResponseOK(response);
 
         DataSet dataSet = getCreateAndGetDataSet(sessionToken, creation);
@@ -415,7 +427,7 @@ public class CreateUploadedDataSetsTest extends AbstractFileTest
         creation.setUploadId(uploadId);
         creation.setProperties(properties);
 
-        ContentResponse response = uploadFiles(sessionToken, uploadId, dataSetType, true, new FileToUpload());
+        ContentResponse response = uploadFiles(sessionToken, uploadId, dataSetType, true, null, new FileToUpload());
         assertResponseOK(response);
 
         DataSet dataSet = getCreateAndGetDataSet(sessionToken, creation);
@@ -441,7 +453,7 @@ public class CreateUploadedDataSetsTest extends AbstractFileTest
         creation.setParentIds(Arrays.asList(parentId));
         creation.setUploadId(uploadId);
 
-        ContentResponse response = uploadFiles(sessionToken, uploadId, dataSetType, true, new FileToUpload());
+        ContentResponse response = uploadFiles(sessionToken, uploadId, dataSetType, true, null, new FileToUpload());
         assertResponseOK(response);
 
         DataSet dataSet = getCreateAndGetDataSet(sessionToken, creation);
@@ -539,7 +551,7 @@ public class CreateUploadedDataSetsTest extends AbstractFileTest
         creation.setExperimentId(new ExperimentIdentifier(experimentIdentifier));
         creation.setUploadId(uploadId);
 
-        ContentResponse response = uploadFiles(sessionToken, uploadId, dataSetType, false, file);
+        ContentResponse response = uploadFiles(sessionToken, uploadId, dataSetType, false, null, file);
         assertResponseOK(response);
 
         DataSet dataSet = getCreateAndGetDataSet(sessionToken, creation);
@@ -574,7 +586,7 @@ public class CreateUploadedDataSetsTest extends AbstractFileTest
         creation.setExperimentId(new ExperimentIdentifier(experimentIdentifier));
         creation.setUploadId(uploadId);
 
-        ContentResponse response = uploadFiles(sessionToken, uploadId, dataSetType, false, file1, file2, file3, file4);
+        ContentResponse response = uploadFiles(sessionToken, uploadId, dataSetType, false, null, file1, file2, file3, file4);
         assertResponseOK(response);
 
         DataSet dataSet = getCreateAndGetDataSet(sessionToken, creation);
@@ -612,7 +624,7 @@ public class CreateUploadedDataSetsTest extends AbstractFileTest
         creation.setExperimentId(new ExperimentIdentifier(experimentIdentifier));
         creation.setUploadId(uploadId);
 
-        ContentResponse response = uploadFiles(sessionToken, uploadId, dataSetType, null, file1, file2);
+        ContentResponse response = uploadFiles(sessionToken, uploadId, dataSetType, null, null, file1, file2);
         assertResponseOK(response);
 
         DataSet dataSet = getCreateAndGetDataSet(sessionToken, creation);
@@ -647,7 +659,7 @@ public class CreateUploadedDataSetsTest extends AbstractFileTest
         creation.setExperimentId(new ExperimentIdentifier(experimentIdentifier));
         creation.setUploadId(uploadId);
 
-        ContentResponse response = uploadFiles(sessionToken, uploadId, dataSetType, false, file1, file2);
+        ContentResponse response = uploadFiles(sessionToken, uploadId, dataSetType, false, null, file1, file2);
         assertResponseOK(response);
 
         DataSet dataSet = getCreateAndGetDataSet(sessionToken, creation);
@@ -664,6 +676,100 @@ public class CreateUploadedDataSetsTest extends AbstractFileTest
         assertDirectory(files.get(3), "original/upload/folder");
         assertFile(files.get(4), "original/upload/folder/test2.txt", file2.content);
         assertFile(files.get(5), "original/upload/test1.txt", file1.content);
+    }
+
+    @Test
+    public void testCreateWithOneFolderPath() throws Exception
+    {
+        String sessionToken = as.login(TEST_USER, PASSWORD);
+
+        String uploadId = UUID.randomUUID().toString();
+        String dataSetType = "UNKNOWN";
+        String experimentIdentifier = "/CISD/NEMO/EXP1";
+
+        FileToUpload file1 = new FileToUpload("file1", "path/to/ignore/test1.txt", "test1 content");
+
+        ContentResponse response = uploadFiles(sessionToken, uploadId, dataSetType, true, "folderPath", file1);
+        assertResponseOK(response);
+
+        FileToUpload file2 = new FileToUpload("file2", "filePath/test2.txt", "test2 content");
+
+        response = uploadFiles(sessionToken, uploadId, dataSetType, false, "/folderPath", file2);
+        assertResponseOK(response);
+
+        FileToUpload file3 = new FileToUpload("file3", "/filePath/test3.txt", "test3 content");
+
+        response = uploadFiles(sessionToken, uploadId, dataSetType, false, "/folderPath/", file3);
+        assertResponseOK(response);
+
+        UploadedDataSetCreation creation = new UploadedDataSetCreation();
+        creation.setTypeId(new EntityTypePermId(dataSetType));
+        creation.setExperimentId(new ExperimentIdentifier(experimentIdentifier));
+        creation.setUploadId(uploadId);
+
+        DataSet dataSet = getCreateAndGetDataSet(sessionToken, creation);
+
+        assertEquals(dataSetType, dataSet.getType().getCode());
+        assertEquals(experimentIdentifier, dataSet.getExperiment().getIdentifier().getIdentifier());
+
+        List<DownloadedFile> files = downloadFiles(sessionToken, dataSet.getPermId());
+        assertEquals(7, files.size());
+
+        assertDirectory(files.get(0), "");
+        assertDirectory(files.get(1), "original");
+        assertDirectory(files.get(2), "original/folderPath");
+        assertDirectory(files.get(3), "original/folderPath/filePath");
+        assertFile(files.get(4), "original/folderPath/filePath/test2.txt", file2.content);
+        assertFile(files.get(5), "original/folderPath/filePath/test3.txt", file3.content);
+        assertFile(files.get(6), "original/folderPath/test1.txt", file1.content);
+    }
+
+    @Test
+    public void testCreateWithMultipleFolderPaths() throws Exception
+    {
+        String sessionToken = as.login(TEST_USER, PASSWORD);
+
+        String uploadId = UUID.randomUUID().toString();
+        String dataSetType = "UNKNOWN";
+        String experimentIdentifier = "/CISD/NEMO/EXP1";
+
+        FileToUpload file1 = new FileToUpload("file1", "path/to/ignore/test1.txt", "test1 content");
+
+        ContentResponse response = uploadFiles(sessionToken, uploadId, dataSetType, true, "folderPathA", file1);
+        assertResponseOK(response);
+
+        FileToUpload file2 = new FileToUpload("file2", "filePath/test2.txt", "test2 content");
+
+        response = uploadFiles(sessionToken, uploadId, dataSetType, false, "/folderPathB", file2);
+        assertResponseOK(response);
+
+        FileToUpload file3 = new FileToUpload("file3", "/filePath/test3.txt", "test3 content");
+
+        response = uploadFiles(sessionToken, uploadId, dataSetType, false, "/folderPathB/", file3);
+        assertResponseOK(response);
+
+        UploadedDataSetCreation creation = new UploadedDataSetCreation();
+        creation.setTypeId(new EntityTypePermId(dataSetType));
+        creation.setExperimentId(new ExperimentIdentifier(experimentIdentifier));
+        creation.setUploadId(uploadId);
+
+        DataSet dataSet = getCreateAndGetDataSet(sessionToken, creation);
+
+        assertEquals(dataSetType, dataSet.getType().getCode());
+        assertEquals(experimentIdentifier, dataSet.getExperiment().getIdentifier().getIdentifier());
+
+        List<DownloadedFile> files = downloadFiles(sessionToken, dataSet.getPermId());
+        assertEquals(9, files.size());
+
+        assertDirectory(files.get(0), "");
+        assertDirectory(files.get(1), "original");
+        assertDirectory(files.get(2), "original/upload");
+        assertDirectory(files.get(3), "original/upload/folderPathA");
+        assertFile(files.get(4), "original/upload/folderPathA/test1.txt", file1.content);
+        assertDirectory(files.get(5), "original/upload/folderPathB");
+        assertDirectory(files.get(6), "original/upload/folderPathB/filePath");
+        assertFile(files.get(7), "original/upload/folderPathB/filePath/test2.txt", file2.content);
+        assertFile(files.get(8), "original/upload/folderPathB/filePath/test3.txt", file3.content);
     }
 
     @Test
@@ -686,7 +792,7 @@ public class CreateUploadedDataSetsTest extends AbstractFileTest
         creation.setProperties(properties);
         creation.setUploadId(uploadId);
 
-        ContentResponse response = uploadFiles(sessionToken, uploadId, dataSetType, true, file);
+        ContentResponse response = uploadFiles(sessionToken, uploadId, dataSetType, true, null, file);
         assertResponseOK(response);
 
         // first attempt
@@ -728,7 +834,7 @@ public class CreateUploadedDataSetsTest extends AbstractFileTest
         creation.setExperimentId(new ExperimentIdentifier(experimentIdentifier));
         creation.setUploadId(uploadId);
 
-        ContentResponse response = uploadFiles(sessionToken, uploadId, dataSetType, true, file);
+        ContentResponse response = uploadFiles(sessionToken, uploadId, dataSetType, true, null, file);
         assertResponseOK(response);
 
         if (user.isDisabledProjectUser())
@@ -767,7 +873,7 @@ public class CreateUploadedDataSetsTest extends AbstractFileTest
         }
     }
 
-    private ContentResponse uploadFiles(String sessionToken, String uploadId, String dataSetType, Boolean ignoreFilePath,
+    private ContentResponse uploadFiles(String sessionToken, String uploadId, String dataSetType, Boolean ignoreFilePath, String folderPath,
             FileToUpload... filesToUpload)
             throws InterruptedException, TimeoutException, ExecutionException
     {
@@ -794,6 +900,10 @@ public class CreateUploadedDataSetsTest extends AbstractFileTest
         if (ignoreFilePath != null)
         {
             request.param(StoreShareFileUploadServlet.IGNORE_FILE_PATH_PARAM, String.valueOf(ignoreFilePath));
+        }
+        if (folderPath != null)
+        {
+            request.param(StoreShareFileUploadServlet.FOLDER_PATH_PARAM, String.valueOf(folderPath));
         }
         if (dataSetType != null)
         {

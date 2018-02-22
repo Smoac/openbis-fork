@@ -61,6 +61,8 @@ public class StoreShareFileUploadServlet extends HttpServlet
 
     public static final String IGNORE_FILE_PATH_PARAM = "ignoreFilePath";
 
+    public static final String FOLDER_PATH_PARAM = "folderPath";
+
     public static final String UPLOAD_ID_PARAM = "uploadID";
 
     private PutDataSetService putService;
@@ -109,8 +111,12 @@ public class StoreShareFileUploadServlet extends HttpServlet
                      */
                     String filePath = uploadRequest.isIgnoreFilePath() ? FilenameUtils.getName(file.getName()) : file.getName();
 
-                    putService.putFileToStoreShare(uploadRequest.getSessionId(), filePath, uploadRequest.getDataSetType(),
-                            uploadRequest.getUploadId(), stream);
+                    operationLog.info("Received file '" + filePath + "' for upload id '" + uploadRequest.getUploadId() + "' and data set type '"
+                            + uploadRequest.getDataSetType() + "'");
+
+                    putService.putFileToStoreShare(uploadRequest.getSessionId(), uploadRequest.getFolderPath(), filePath,
+                            uploadRequest.getDataSetType(), uploadRequest.getUploadId(), stream);
+
                 } finally
                 {
                     IOUtils.closeQuietly(stream);
@@ -159,6 +165,11 @@ public class StoreShareFileUploadServlet extends HttpServlet
             {
                 return Boolean.valueOf(str);
             }
+        }
+
+        public String getFolderPath()
+        {
+            return request.getParameter(FOLDER_PATH_PARAM);
         }
 
         public FileItemIterator getFiles() throws FileUploadException, IOException
