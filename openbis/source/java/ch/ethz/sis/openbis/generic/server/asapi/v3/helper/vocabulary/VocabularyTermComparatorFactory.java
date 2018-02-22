@@ -17,7 +17,10 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.vocabulary;
 
 import java.util.Comparator;
+import java.util.Map;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortParameter;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyTermSortOptions;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.CodeComparator;
@@ -36,7 +39,7 @@ public class VocabularyTermComparatorFactory extends ComparatorFactory
     }
 
     @Override
-    public Comparator<VocabularyTerm> getComparator(String field)
+    public Comparator<VocabularyTerm> getComparator(String field, Map<SortParameter, String> parameters, ISearchCriteria criteria)
     {
         if (VocabularyTermSortOptions.CODE.equals(field))
         {

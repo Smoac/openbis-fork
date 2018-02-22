@@ -16,17 +16,168 @@ import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.MaterialSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.SortAndPage;
 
 public class SortAndPageTest
 {
+	@Test
+    public void testFetchedFieldsScore_CodeScore()
+    {
+		SampleType sampleTypeA = new SampleType();
+		sampleTypeA.setCode("DUMMY_CODE_A");
+		
+		SampleType sampleTypeB = new SampleType();
+		sampleTypeB.setCode("DUMMY_CODE_B");
+		
+		String propertyCode = "DUMMY_PROPERTY";
+		
+		SampleSearchCriteria c = new SampleSearchCriteria();
+		c.withOrOperator();
+        c.withCode().thatEquals("S2");
+        
+		SampleFetchOptions fo = new SampleFetchOptions();
+		fo.withType();
+		fo.withProperties();
+		fo.sortBy().fetchedFieldsScore();
+		
+        Sample sample1 = new Sample();
+        sample1.setType(sampleTypeA);
+        sample1.setCode("S1");
+        sample1.setProperty(propertyCode, "DUMMY_S1");
+        sample1.setFetchOptions(fo);
+
+        Sample sample2 = new Sample();
+        sample2.setType(sampleTypeB);
+        sample2.setCode("S2");
+        sample2.setProperty(propertyCode, "DUMMY_S2");
+        sample2.setFetchOptions(fo);
+
+        Sample sample3 = new Sample();
+        sample3.setType(sampleTypeA);
+        sample3.setCode("S3");
+        sample3.setProperty(propertyCode, "DUMMY_S3");
+        sample3.setFetchOptions(fo);
+
+        List<Sample> samples = new ArrayList<Sample>();
+        samples.add(sample1);
+        samples.add(sample2);
+        samples.add(sample3);
+
+        Collection<Sample> results = new SortAndPage().sortAndPage(samples, c, fo);
+
+        assertEquals(results, list(sample2, sample1, sample3));
+    }
+	
+	@Test
+    public void testFetchedFieldsScore_PropertyScore()
+    {
+		SampleType sampleTypeA = new SampleType();
+		sampleTypeA.setCode("DUMMY_CODE_A");
+		
+		SampleType sampleTypeB = new SampleType();
+		sampleTypeB.setCode("DUMMY_CODE_B");
+		
+		String propertyCode = "DUMMY_PROPERTY";
+		
+		SampleSearchCriteria c = new SampleSearchCriteria();
+		c.withOrOperator();
+        c.withProperty(propertyCode).thatEquals("DUMMY_S3");
+        
+		SampleFetchOptions fo = new SampleFetchOptions();
+		fo.withType();
+		fo.withProperties();
+		fo.sortBy().fetchedFieldsScore();
+		
+        Sample sample1 = new Sample();
+        sample1.setType(sampleTypeA);
+        sample1.setCode("S1");
+        sample1.setProperty(propertyCode, "DUMMY_S1");
+        sample1.setFetchOptions(fo);
+
+        Sample sample2 = new Sample();
+        sample2.setType(sampleTypeB);
+        sample2.setCode("S2");
+        sample2.setProperty(propertyCode, "DUMMY_S2");
+        sample2.setFetchOptions(fo);
+
+        Sample sample3 = new Sample();
+        sample3.setType(sampleTypeA);
+        sample3.setCode("S3");
+        sample3.setProperty(propertyCode, "DUMMY_S3");
+        sample3.setFetchOptions(fo);
+
+        List<Sample> samples = new ArrayList<Sample>();
+        samples.add(sample1);
+        samples.add(sample2);
+        samples.add(sample3);
+
+        Collection<Sample> results = new SortAndPage().sortAndPage(samples, c, fo);
+
+        assertEquals(results, list(sample3, sample1, sample2));
+    }
+	
+	@Test
+    public void testFetchedFieldsScore_TypeScore()
+    {
+		SampleType sampleTypeA = new SampleType();
+		sampleTypeA.setCode("DUMMY_CODE_A");
+		
+		SampleType sampleTypeB = new SampleType();
+		sampleTypeB.setCode("DUMMY_CODE_B");
+		
+		String propertyCode = "DUMMY_PROPERTY";
+		
+		SampleSearchCriteria c = new SampleSearchCriteria();
+		c.withOrOperator();
+        c.withType().withCode().thatEquals(sampleTypeA.getCode());
+        
+		SampleFetchOptions fo = new SampleFetchOptions();
+		fo.withType();
+		fo.withProperties();
+		fo.sortBy().fetchedFieldsScore();
+		
+        Sample sample1 = new Sample();
+        sample1.setType(sampleTypeA);
+        sample1.setCode("S1");
+        sample1.setProperty(propertyCode, "DUMMY_S1");
+        sample1.setFetchOptions(fo);
+
+        Sample sample2 = new Sample();
+        sample2.setType(sampleTypeB);
+        sample2.setCode("S2");
+        sample2.setProperty(propertyCode, "DUMMY_S2");
+        sample2.setFetchOptions(fo);
+
+        Sample sample3 = new Sample();
+        sample3.setType(sampleTypeA);
+        sample3.setCode("S3");
+        sample3.setProperty(propertyCode, "DUMMY_S3");
+        sample3.setFetchOptions(fo);
+
+        List<Sample> samples = new ArrayList<Sample>();
+        samples.add(sample1);
+        samples.add(sample2);
+        samples.add(sample3);
+
+        Collection<Sample> results = new SortAndPage().sortAndPage(samples, c, fo);
+
+        assertEquals(results, list(sample1, sample3, sample2));
+    }
+	
     @Test
     public void testTopLevel()
     {
+    		MaterialSearchCriteria c = new MaterialSearchCriteria();
+    		
         MaterialFetchOptions fo = new MaterialFetchOptions();
         fo.sortBy().code().desc();
         fo.from(1).count(2);
@@ -48,7 +199,7 @@ public class SortAndPageTest
         materials.add(material2);
         materials.add(material3);
 
-        Collection<Material> results = new SortAndPage().sortAndPage(materials, fo);
+        Collection<Material> results = new SortAndPage().sortAndPage(materials, c, fo);
 
         assertEquals(results, list(material2, material1));
     }
@@ -56,6 +207,8 @@ public class SortAndPageTest
     @Test
     public void testSubLevel()
     {
+    		MaterialSearchCriteria c = new MaterialSearchCriteria();
+    	
         MaterialFetchOptions fo = new MaterialFetchOptions();
         fo.sortBy().code().desc();
         fo.withTags().from(1).count(1);
@@ -81,7 +234,7 @@ public class SortAndPageTest
         materials.add(material1);
         materials.add(material2);
 
-        List<Material> results = new SortAndPage().sortAndPage(materials, fo);
+        List<Material> results = new SortAndPage().sortAndPage(materials, c, fo);
 
         assertEquals(results, list(material2, material1));
         assertEquals(results.get(0).getTags(), set(tag3));
@@ -91,6 +244,8 @@ public class SortAndPageTest
     @Test
     public void testSubLevelThroughSingleRelation()
     {
+    		MaterialSearchCriteria c = new MaterialSearchCriteria();
+    	
         MaterialFetchOptions fo = new MaterialFetchOptions();
         fo.sortBy().code().desc();
         fo.withTags().from(1).count(1);
@@ -149,7 +304,7 @@ public class SortAndPageTest
         materials.add(material1);
         materials.add(material2);
 
-        List<Material> results = new SortAndPage().sortAndPage(materials, fo);
+        List<Material> results = new SortAndPage().sortAndPage(materials, c, fo);
 
         assertEquals(results, list(material2, material1));
 
@@ -168,6 +323,8 @@ public class SortAndPageTest
     @Test
     public void testSortByMultipleFields()
     {
+    		MaterialSearchCriteria c = new MaterialSearchCriteria();
+    	
         MaterialFetchOptions fo = new MaterialFetchOptions();
         fo.sortBy().code().desc();
         fo.sortBy().registrationDate().asc();
@@ -192,7 +349,7 @@ public class SortAndPageTest
         materials.add(material2);
         materials.add(material3);
 
-        List<Material> results = new SortAndPage().sortAndPage(materials, fo);
+        List<Material> results = new SortAndPage().sortAndPage(materials, c, fo);
 
         assertEquals(results.get(0), material3);
         assertEquals(results.get(1), material2);
@@ -202,6 +359,8 @@ public class SortAndPageTest
     @Test
     public void testSamePageMultipleTimes()
     {
+    		MaterialSearchCriteria c = new MaterialSearchCriteria();
+    	
         Tag tag1 = new Tag();
         tag1.setCode("T1");
         Tag tag2 = new Tag();
@@ -227,7 +386,7 @@ public class SortAndPageTest
         materials.add(material1);
         materials.add(material2);
 
-        List<Material> results = new SortAndPage().sortAndPage(materials, fo);
+        List<Material> results = new SortAndPage().sortAndPage(materials, c, fo);
 
         assertEquals(results, list(material2));
         assertEquals(results.get(0).getTags(), set(tag3));

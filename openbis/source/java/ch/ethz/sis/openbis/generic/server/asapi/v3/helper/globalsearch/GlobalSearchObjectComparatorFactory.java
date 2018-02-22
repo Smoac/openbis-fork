@@ -18,7 +18,10 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.globalsearch;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Map;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortParameter;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.GlobalSearchObject;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.fetchoptions.GlobalSearchObjectSortOptions;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.ComparatorFactory;
@@ -37,7 +40,7 @@ public class GlobalSearchObjectComparatorFactory extends ComparatorFactory
     }
 
     @Override
-    public Comparator<GlobalSearchObject> getComparator(String field)
+    public Comparator<GlobalSearchObject> getComparator(String field, Map<SortParameter, String> parameters, ISearchCriteria criteria)
     {
         if (GlobalSearchObjectSortOptions.SCORE.equals(field))
         {

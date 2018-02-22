@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -38,11 +39,16 @@ public abstract class SortOptions<OBJECT> implements Serializable
 
     protected SortOrder getOrCreateSorting(String field)
     {
+    		return getOrCreateSorting(field, null);
+    }
+    
+    protected SortOrder getOrCreateSorting(String field, Map<SortParameter, String> parameters)
+    {
         SortOrder order = getSorting(field);
         if (order == null)
         {
             order = new SortOrder();
-            sortings.add(new Sorting(field, order));
+            sortings.add(new Sorting(field, order, parameters));
         }
         return order;
     }

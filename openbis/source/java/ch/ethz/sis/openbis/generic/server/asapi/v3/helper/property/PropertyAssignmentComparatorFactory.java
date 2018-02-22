@@ -20,6 +20,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortParameter;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentSortOptions;
@@ -69,7 +71,7 @@ public class PropertyAssignmentComparatorFactory extends ComparatorFactory
     }
 
     @Override
-    public Comparator<?> getComparator(String field)
+    public Comparator<?> getComparator(String field, Map<SortParameter, String> parameters, ISearchCriteria criteria)
     {
         return COMPARATORS_BY_FIELD.get(field);
     }
@@ -77,7 +79,7 @@ public class PropertyAssignmentComparatorFactory extends ComparatorFactory
     @Override
     public Comparator<?> getDefaultComparator()
     {
-        return getComparator(PropertyAssignmentSortOptions.ORDINAL);
+        return getComparator(PropertyAssignmentSortOptions.ORDINAL, null, null);
     }
 
     private abstract static class AbstractPropertyAssignmentComparator extends AbstractStringComparator<PropertyAssignment>

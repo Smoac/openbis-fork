@@ -67,7 +67,7 @@ public abstract class AbstractGetObjectsOperationExecutor<OBJECT_ID extends IObj
         
         // sort and page the objects internal collections - ignore the top level changes
         // (we want to maintain all the results and keep them in order of the passed ids)
-        new SortAndPage().sortAndPage(idToObjectMap.values(), operation.getFetchOptions());
+        new SortAndPage().sortAndPage(idToObjectMap.values(), null, operation.getFetchOptions());
 
         return getOperationResult(idToObjectMap);
     }

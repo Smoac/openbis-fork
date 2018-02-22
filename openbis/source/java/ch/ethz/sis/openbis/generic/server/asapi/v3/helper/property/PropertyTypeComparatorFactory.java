@@ -17,7 +17,10 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.property;
 
 import java.util.Comparator;
+import java.util.Map;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortParameter;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyTypeSortOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularySortOptions;
@@ -38,7 +41,7 @@ public class PropertyTypeComparatorFactory extends ComparatorFactory
     }
 
     @Override
-    public Comparator<PropertyType> getComparator(String field)
+    public Comparator<PropertyType> getComparator(String field, Map<SortParameter, String> parameters, ISearchCriteria criteria)
     {
         if (VocabularySortOptions.CODE.equals(field))
         {

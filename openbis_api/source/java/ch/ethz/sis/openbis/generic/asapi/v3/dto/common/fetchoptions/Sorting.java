@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions;
 
 import java.io.Serializable;
+import java.util.Map;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -32,7 +33,9 @@ public class Sorting implements Serializable
     private String field;
 
     private SortOrder order;
-
+    
+    private Map<SortParameter, String> parameters;
+    
     @SuppressWarnings("unused")
     private Sorting()
     {
@@ -40,8 +43,14 @@ public class Sorting implements Serializable
 
     public Sorting(String field, SortOrder order)
     {
+        this(field, order, null);
+    }
+    
+    public Sorting(String field, SortOrder order, Map<SortParameter, String> parameters)
+    {
         this.field = field;
         this.order = order;
+        this.parameters = parameters;
     }
 
     public String getField()
@@ -52,6 +61,10 @@ public class Sorting implements Serializable
     public SortOrder getOrder()
     {
         return order;
+    }
+    
+    public Map<SortParameter, String> getParameters() {
+    		return parameters;
     }
 
     @Override
