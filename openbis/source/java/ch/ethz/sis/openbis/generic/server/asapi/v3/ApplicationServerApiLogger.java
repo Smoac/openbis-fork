@@ -115,6 +115,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.create.PluginCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.fetchoptions.PluginFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.IPluginId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.PluginPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.update.PluginUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.ProjectCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.delete.ProjectDeletionOptions;
@@ -454,6 +455,12 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     public void updatePropertyTypes(String sessionToken, List<PropertyTypeUpdate> propertyTypeUpdates)
     {
         logAccess(sessionToken, "update-property_types", "PROPERTY_TYPE_UPDATES(%s)", abbreviate(propertyTypeUpdates));
+    }
+
+    @Override
+    public void updatePlugins(String sessionToken, List<PluginUpdate> pluginUpdates)
+    {
+        logAccess(sessionToken, "update-plugins", "PLUGIN_UPDATES(%s)", abbreviate(pluginUpdates));
     }
 
     @Override

@@ -32,8 +32,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.ScriptType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.create.PluginCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.fetchoptions.PluginFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.PluginPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyTypeCreation;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 
 /**
@@ -154,7 +152,17 @@ public class CreatePluginTest extends AbstractTest
     {
         PluginCreation creation = createBasic();
         creation.setPluginType(null);
-        assertUserFailureException(creation, "Plugin Type can not be null.");
+        assertUserFailureException(creation, "Plugin type cannot be unspecified.");
+    }
+    
+    @Test
+    public void testDynamicPropertyScriptCanNotCompile()
+    {
+        PluginCreation creation = createBasic();
+        creation.setPluginType(PluginType.JYTHON);
+        creation.setScriptType(ScriptType.DYNAMIC_PROPERTY);
+        creation.setScript("def:");
+        assertUserFailureException(creation, "SyntaxError");
     }
     
     @Test(dataProvider = "usersNotAllowedToCreatePlugins")

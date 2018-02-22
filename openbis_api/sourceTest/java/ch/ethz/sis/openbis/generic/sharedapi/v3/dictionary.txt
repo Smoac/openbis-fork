@@ -1918,16 +1918,23 @@ get Script
 get Script Type
 is Available
 JYTHON
+PREDEPLOYED
 MANAGED_PROPERTY
+NAME
 Plugin
 Plugin Creation
 Plugin Fetch Options
 Plugin Sort Options
 Plugin Type
-PREDEPLOYED
 Script Type
 set Available
 set Entity Kinds
 set Plugin Type
 set Script
 set Script Type
+get Available
+Plugin Update
+update Plugins
+Update Plugins Operation
+Update Plugins Operation Result
+

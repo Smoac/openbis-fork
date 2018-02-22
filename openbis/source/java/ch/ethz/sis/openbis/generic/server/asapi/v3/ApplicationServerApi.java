@@ -211,6 +211,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.get.GetPluginsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.get.GetPluginsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.IPluginId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.PluginPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.update.PluginUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.update.UpdatePluginsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.CreateProjectsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.CreateProjectsOperationResult;
@@ -682,6 +684,12 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public void updatePropertyTypes(String sessionToken, List<PropertyTypeUpdate> propertyTypeUpdates)
     {
         executeOperation(sessionToken, new UpdatePropertyTypesOperation(propertyTypeUpdates));
+    }
+
+    @Override
+    public void updatePlugins(String sessionToken, List<PluginUpdate> pluginUpdates)
+    {
+        executeOperation(sessionToken, new UpdatePluginsOperation(pluginUpdates));
     }
 
     @Override

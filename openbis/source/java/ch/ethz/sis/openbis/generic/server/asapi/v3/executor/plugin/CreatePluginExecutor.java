@@ -21,6 +21,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.Resource;
+
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -40,8 +42,11 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.Collectio
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.CreateProgress;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.IJythonEvaluatorPool;
+import ch.systemsx.cisd.openbis.generic.shared.basic.utils.PluginUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 
@@ -53,6 +58,9 @@ public class CreatePluginExecutor
         extends AbstractCreateEntityExecutor<PluginCreation, ScriptPE, PluginPermId>
         implements ICreatePluginExecutor
 {
+    @Resource(name = ComponentNames.JYTHON_EVALUATOR_POOL)
+    private IJythonEvaluatorPool evaluatorPool;
+    
     @Autowired
     private IDAOFactory daoFactory;
     
@@ -81,7 +89,10 @@ public class CreatePluginExecutor
         if (creation.getScriptType() == null)
         {
             throw new UserFailureException("Script type cannot be unspecified.");
-            
+        }
+        if (creation.getPluginType() == null)
+        {
+            throw new UserFailureException("Plugin type cannot be unspecified.");
         }
         if (creation.getPluginType() == PluginType.JYTHON && creation.getScript() == null)
         {
@@ -131,6 +142,7 @@ public class CreatePluginExecutor
                     script.setPluginType(translate(creation.getPluginType()));
                 }
                 script.setScript(creation.getScript());
+                PluginUtils.checkScriptCompilation(script, evaluatorPool);
                 script.setAvailable(creation.isAvailable());
                 script.setRegistrator(person);
                 scripts.add(script);

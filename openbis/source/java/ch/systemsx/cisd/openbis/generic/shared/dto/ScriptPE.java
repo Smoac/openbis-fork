@@ -43,7 +43,7 @@ import org.hibernate.validator.constraints.Length;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collection.UnmodifiableListDecorator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
@@ -56,7 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
  */
 @Entity
 @Table(name = TableNames.SCRIPTS_TABLE)
-public class ScriptPE extends HibernateAbstractRegistrationHolder implements IIdHolder,
+public class ScriptPE extends HibernateAbstractRegistrationHolder implements IIdentityHolder,
         Comparable<ScriptPE>, Serializable
 {
 
@@ -120,6 +120,20 @@ public class ScriptPE extends HibernateAbstractRegistrationHolder implements IId
     public final Long getId()
     {
         return id;
+    }
+
+    @Override
+    @Transient
+    public String getPermId()
+    {
+        return getName();
+    }
+
+    @Override
+    @Transient
+    public String getIdentifier()
+    {
+        return getName();
     }
 
     @Column(name = ColumnNames.NAME_COLUMN)
