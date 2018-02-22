@@ -472,7 +472,17 @@ var sources = [
 	'as/dto/roleassignment/RoleLevel',
 	'as/dto/roleassignment/RoleAssignment',
 	
+	'as/dto/plugin/create/PluginCreation',
+	'as/dto/plugin/create/CreatePluginsOperation',
+	'as/dto/plugin/create/CreatePluginsOperationResult',
+	'as/dto/plugin/fetchoptions/PluginFetchOptions',
+	'as/dto/plugin/fetchoptions/PluginSortOptions',
+	'as/dto/plugin/get/GetPluginsOperation',
+	'as/dto/plugin/get/GetPluginsOperationResult',
 	'as/dto/plugin/id/PluginPermId',
+	'as/dto/plugin/Plugin',
+	'as/dto/plugin/PluginType',
+	'as/dto/plugin/ScriptType',
 	
 	'as/dto/sample/create/SampleCreation',
 	'as/dto/sample/create/CreateSamplesOperation',

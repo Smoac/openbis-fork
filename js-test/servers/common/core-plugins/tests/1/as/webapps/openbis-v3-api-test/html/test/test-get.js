@@ -297,6 +297,30 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 		
+		QUnit.test("getPlugins()", function(assert) {
+			var c = new common(assert, openbis);
+			var fo = new c.PluginFetchOptions();
+			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
+			fechOptionsTestConfig.SortBy = null;
+			
+			var fCreate = function(facade) {
+				return $.when(c.createPlugin(facade), c.createPlugin(facade)).then(function(permId1, permId2) {
+					return [ permId1, permId2 ];
+				});
+			}
+			
+			var fGet = function(facade, permIds) {
+				testFetchOptionsAssignation(c, fo, fechOptionsTestConfig);
+				return facade.getPlugins(permIds, fo);
+			}
+			
+			var fGetEmptyFetchOptions = function(facade, permIds) {
+				return facade.getPlugins(permIds, new c.PluginFetchOptions());
+			}
+			
+			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
+		});
+
 		QUnit.test("getVocabularies()", function(assert) {
 			var c = new common(assert, openbis);
 			var fo = new c.VocabularyFetchOptions();
@@ -320,7 +344,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			
 			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
-
+		
 		QUnit.test("getVocabularyTerms()", function(assert) {
 			var c = new common(assert, openbis);
 			var fo = new c.VocabularyTermFetchOptions();

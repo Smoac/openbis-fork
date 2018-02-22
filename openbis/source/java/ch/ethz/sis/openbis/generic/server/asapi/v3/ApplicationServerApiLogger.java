@@ -110,6 +110,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.IPersonId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.PersonSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.update.PersonUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.create.PluginCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.fetchoptions.PluginFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.IPluginId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.PluginPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.ProjectCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.delete.ProjectDeletionOptions;
@@ -321,6 +326,13 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     }
 
     @Override
+    public List<PluginPermId> createPlugins(String sessionToken, List<PluginCreation> newPlugins)
+    {
+        logAccess(sessionToken, "create-plugins", "NEW_PLUGINS(%s)", abbreviate(newPlugins));
+        return null;
+    }
+
+    @Override
     public List<VocabularyPermId> createVocabularies(String sessionToken, List<VocabularyCreation> newVocabularies)
     {
         logAccess(sessionToken, "create-vocabularies", "NEW_VOCABULARIES(%s)", abbreviate(newVocabularies));
@@ -528,6 +540,13 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
             PropertyTypeFetchOptions fetchOptions)
     {
         logAccess(sessionToken, "get-property-types", "PROPERTY_TYPE_IDS(%s) FETCH_OPTIONS(%s)", abbreviate(typeIds), fetchOptions);
+        return null;
+    }
+
+    @Override
+    public Map<IPluginId, Plugin> getPlugins(String sessionToken, List<? extends IPluginId> pluginIds, PluginFetchOptions fetchOptions)
+    {
+        logAccess(sessionToken, "get-plugins", "PLUGIN_IDS(%s) FETCH_OPTIONS(%s)", abbreviate(pluginIds), fetchOptions);
         return null;
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ETH Zuerich, CISD
+ * Copyright 2018 ETH Zuerich, SIS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.plugin;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.plugin;
 
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IObjectAuthorizationExecutor;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.common.IObjectToOneRelationTranslator;
 
 /**
- * @author pkupczyk
+ * @author Franz-Josef Elmer
+ *
  */
-public interface IPluginAuthorizationExecutor extends IObjectAuthorizationExecutor
+public interface IPluginRegistratorTranslator extends IObjectToOneRelationTranslator<Person, PersonFetchOptions>
 {
-
-    void canGet(IOperationContext context);
-
-    void canCreate(IOperationContext context);
 
 }

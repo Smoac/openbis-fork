@@ -1897,3 +1897,32 @@ delete Property Types
 Delete Property Types Operation
 Delete Property Types Operation Result
 Property Type Deletion Options
+
+create Plugins
+Create Plugins Operation
+Create Plugins Operation Result
+DYNAMIC_PROPERTY
+ENTITY_VALIDATION
+get EntityKinds
+get Name
+get Plugins
+Get Plugins Operation
+Get Plugins Operation Result
+get Plugin Type
+get Script
+get Script Type
+is Available
+JYTHON
+MANAGED_PROPERTY
+Plugin
+Plugin Creation
+Plugin Fetch Options
+Plugin Sort Options
+Plugin Type
+PREDEPLOYED
+Script Type
+set Available
+set Entity Kinds
+set Plugin Type
+set Script
+set Script Type
