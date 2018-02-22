@@ -72,6 +72,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISpaceHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ITagsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.DataStore;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.Deletion;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.HistoryEntry;
@@ -169,7 +171,7 @@ public class AbstractTest extends SystemTestCase
         logRecorder.reset();
         System.out.println("<<<<<<<<< AFTER METHOD: " + method.getName());
     }
-    
+
     protected void sortPropertyAssignments(List<PropertyAssignment> assignments)
     {
         Collections.sort(assignments, ASSIGNMENT_COMPARATOR);
@@ -830,6 +832,16 @@ public class AbstractTest extends SystemTestCase
         assertCollectionContainsOnly(actualPermIds, expectedTagPermIds);
     }
 
+    protected void assertDeletions(Collection<Deletion> deletions, IDeletionId... expectedIds)
+    {
+        Set<IDeletionId> actualIds = new HashSet<IDeletionId>();
+        for (Deletion deletion : deletions)
+        {
+            actualIds.add(deletion.getId());
+        }
+        assertCollectionContainsOnly(actualIds, expectedIds);
+    }
+
     protected Map<String, Attachment> assertAttachments(Collection<Attachment> attachments, AttachmentCreation... expectedAttachments)
     {
         if (expectedAttachments == null || expectedAttachments.length == 0)
@@ -1199,7 +1211,7 @@ public class AbstractTest extends SystemTestCase
         Object[][] objects = new Object[users.length][];
         for (int i = 0; i < users.length; i++)
         {
-            objects[i] = new Object[] {users[i]};
+            objects[i] = new Object[] { users[i] };
         }
         return objects;
     }
@@ -1251,7 +1263,7 @@ public class AbstractTest extends SystemTestCase
         for (RoleAssignment roleAssignment : roleAssignments)
         {
             Space space = roleAssignment.getSpace();
-            renderedAssignments.add(roleAssignment.getRoleLevel() + "_" + roleAssignment.getRole() + 
+            renderedAssignments.add(roleAssignment.getRoleLevel() + "_" + roleAssignment.getRole() +
                     (space == null ? "" : " " + space));
         }
         Collections.sort(renderedAssignments);

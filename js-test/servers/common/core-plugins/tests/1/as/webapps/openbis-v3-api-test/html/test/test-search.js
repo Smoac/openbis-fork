@@ -1281,7 +1281,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 			testSearch(c, fSearch, fCheck);
 		});
-		
+
 		QUnit.test("searchExternalDms()", function(assert) {
 			var c = new common(assert, openbis);
 
@@ -1327,7 +1327,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 		QUnit.test("searchAuthorizationGroups()", function(assert) {
 			var c = new common(assert, openbis);
 			var code;
-			
+
 			var fSearch = function(facade) {
 				return c.createAuthorizationGroup(facade).then(function(permId) {
 					var criteria = new c.AuthorizationGroupSearchCriteria();
@@ -1336,7 +1336,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 					return facade.searchAuthorizationGroups(criteria, c.createAuthorizationGroupFetchOptions());
 				});
 			}
-			
+
 			var fCheck = function(facade, groups) {
 				c.assertEqual(groups.length, 1);
 				var group = groups[0];
@@ -1345,20 +1345,20 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				c.assertEqual(users[0].getUserId(), "power_user", "User");
 				c.assertEqual(users.length, 1, "# Users");
 			}
-			
+
 			testSearch(c, fSearch, fCheck);
 		});
-		
+
 		QUnit.test("searchAuthorizationGroups() existing with role assigments", function(assert) {
 			var c = new common(assert, openbis);
 			var code;
-			
+
 			var fSearch = function(facade) {
 				var criteria = new c.AuthorizationGroupSearchCriteria();
 				criteria.withCode().thatEquals("TEST-GROUP");
 				return facade.searchAuthorizationGroups(criteria, c.createAuthorizationGroupFetchOptions());
 			}
-			
+
 			var fCheck = function(facade, groups) {
 				c.assertEqual(groups.length, 1);
 				var group = groups[0];
@@ -1384,21 +1384,21 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				c.assertEqual(numberOfTestSpaceAssignments, 1, "Number of TEST space assignments");
 				c.assertEqual(numberOfProjectAssignments, 0, "Number of project assignments");
 			}
-			
+
 			testSearch(c, fSearch, fCheck);
 		});
-		
+
 		QUnit.test("searchRoleAssignments()", function(assert) {
 			var c = new common(assert, openbis);
 			var code;
-			
+
 			var fSearch = function(facade) {
 				var criteria = new c.RoleAssignmentSearchCriteria();
 				criteria.withSpace().withCode().thatEquals("TEST");
 				criteria.withUser().withUserId().thatEquals("observer");
 				return facade.searchRoleAssignments(criteria, c.createRoleAssignmentFetchOptions());
 			}
-			
+
 			var fCheck = function(facade, assignments) {
 				c.assertEqual(assignments.length, 1, "# Role Assignments");
 				var assignment = assignments[0];
@@ -1406,20 +1406,20 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				c.assertEqual(assignment.getRoleLevel(), "SPACE", "Role level");
 				c.assertEqual(assignment.getSpace().getCode(), "TEST", "Space");
 			}
-			
+
 			testSearch(c, fSearch, fCheck);
 		});
-		
+
 		QUnit.test("searchPersons()", function(assert) {
 			var c = new common(assert, openbis);
 			var code;
-			
+
 			var fSearch = function(facade) {
 				var criteria = new c.PersonSearchCriteria();
 				criteria.withUserId().thatContains("bser");
 				return facade.searchPersons(criteria, c.createPersonFetchOptions());
 			}
-			
+
 			var fCheck = function(facade, persons) {
 				c.assertEqual(persons.length, 1, "# persons");
 				var person = persons[0];
@@ -1432,10 +1432,10 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				c.assertEqual(assignment.getRoleLevel(), "SPACE", "Role level");
 				c.assertEqual(assignment.getSpace().getCode(), "TEST", "Space");
 			}
-			
+
 			testSearch(c, fSearch, fCheck);
 		});
-		
+
 		QUnit.test("searchOperationExecutions()", function(assert) {
 			var c = new common(assert, openbis);
 
@@ -1753,6 +1753,32 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				c.assertEqual(types.length, 1);
 				c.assertEqual(types[0].getEntityType().getCode(), "LIBRARY", "Entity type code");
 				c.assertEqual(types[0].getPropertyType().getCode(), "EXTERNAL_SAMPLE_NAME", "Property type code");
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
+		QUnit.test("searchDeletions()", function(assert) {
+			var c = new common(assert, openbis);
+
+			var fSearch = function(facade) {
+				return c.createSample(facade).then(function(permId) {
+					var options = new c.SampleDeletionOptions();
+					options.setReason("test reason");
+					return facade.deleteSamples([ permId ], options).then(function(deletionId) {
+						var criteria = new c.DeletionSearchCriteria();
+						criteria.withId().thatEquals(deletionId);
+						var fetchOptions = new c.DeletionFetchOptions();
+						return facade.searchDeletions(criteria, fetchOptions);
+					});
+				});
+			}
+
+			var fCheck = function(facade, deletions) {
+				c.assertEqual(deletions.length, 1);
+				var deletion = deletions[0];
+				c.assertEqual(deletion.getReason(), "test reason", "reason");
+				c.assertToday(deletion.getDeletionDate(), "deletion date");
 			}
 
 			testSearch(c, fSearch, fCheck);

@@ -65,6 +65,7 @@ public class DeletionTranslator extends
         Deletion deletion = new Deletion();
         deletion.setId(new DeletionTechId(input.getId()));
         deletion.setReason(input.getReason());
+        deletion.setDeletionDate(input.getRegistrationDate());
         deletion.setFetchOptions(new DeletionFetchOptions());
         return deletion;
     }

@@ -12,6 +12,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.id = null;
 		prototype.reason = null;
 		prototype.deletedObjects = null;
+		prototype.deletionDate = null;
 		prototype.getFetchOptions = function() {
 			return this.fetchOptions;
 		};
@@ -40,13 +41,20 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setDeletedObjects = function(deletedObjects) {
 			this.deletedObjects = deletedObjects;
 		};
+		prototype.getDeletionDate = function() {
+			return this.deletionDate;
+		};
+		prototype.setDeletionDate = function(deletionDate) {
+			this.deletionDate = deletionDate;
+		};
 	}, {
 		fetchOptions : "DeletionFetchOptions",
 		id : "IDeletionId",
 		deletedObjects : {
 			name : "List",
 			arguments : [ "DeletedObject" ]
-		}
+		},
+		deletionDate : "Date"
 	});
 	return Deletion;
 })

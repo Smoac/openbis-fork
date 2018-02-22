@@ -27,6 +27,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 public interface IConfirmDeletionExecutor
 {
 
-    public void confirm(IOperationContext context, List<? extends IDeletionId> deletionIds);
+    public void confirm(IOperationContext context, List<? extends IDeletionId> deletionIds, boolean forceDeletion);
 
 }

@@ -68,7 +68,7 @@ public class ConfirmDeletionExecutor implements IConfirmDeletionExecutor
     ICommonBusinessObjectFactory businessObjectFactory;
 
     @Override
-    public void confirm(IOperationContext context, List<? extends IDeletionId> deletionIds)
+    public void confirm(IOperationContext context, List<? extends IDeletionId> deletionIds, boolean forceDeletion)
     {
         if (context == null)
         {
@@ -95,7 +95,13 @@ public class ConfirmDeletionExecutor implements IConfirmDeletionExecutor
 
         try
         {
-            authorizationExecutor.canConfirm(context, deletionIdsWithoutNulls);
+            if (forceDeletion)
+            {
+                authorizationExecutor.canConfirmForced(context, deletionIdsWithoutNulls);
+            } else
+            {
+                authorizationExecutor.canConfirm(context, deletionIdsWithoutNulls);
+            }
         } catch (AuthorizationFailureException ex)
         {
             throw new UnauthorizedObjectAccessException(deletionIdsWithoutNulls);
@@ -135,7 +141,7 @@ public class ConfirmDeletionExecutor implements IConfirmDeletionExecutor
                 throw new ObjectNotFoundException(deletionId);
             }
 
-            deleteDataSets(context, deletion);
+            deleteDataSets(context, deletion, forceDeletion);
             deleteSamples(context, deletion);
             deleteExperiments(context, deletion);
 
@@ -146,7 +152,7 @@ public class ConfirmDeletionExecutor implements IConfirmDeletionExecutor
 
     }
 
-    private void deleteDataSets(IOperationContext context, DeletionPE deletion)
+    private void deleteDataSets(IOperationContext context, DeletionPE deletion, boolean forceDeletion)
     {
         IDeletionDAO deletionDAO = daoFactory.getDeletionDAO();
 
@@ -156,7 +162,7 @@ public class ConfirmDeletionExecutor implements IConfirmDeletionExecutor
         IDeletedDataSetTable deletedDataSetTable =
                 businessObjectFactory.createDeletedDataSetTable(context.getSession());
         deletedDataSetTable.loadByDataSetCodes(dataSetCodes);
-        deletedDataSetTable.permanentlyDeleteLoadedDataSets(deletion.getReason(), false);
+        deletedDataSetTable.permanentlyDeleteLoadedDataSets(deletion.getReason(), forceDeletion);
     }
 
     private void deleteSamples(IOperationContext context, DeletionPE deletion)

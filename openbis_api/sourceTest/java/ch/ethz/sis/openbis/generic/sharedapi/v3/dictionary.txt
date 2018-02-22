@@ -1887,6 +1887,11 @@ create Uploaded Data Set
 get Upload Id
 set Upload Id
 Uploaded Data Set Creation
+get Deletion Date
+set Deletion Date
+
+is Force Deletion
+set Force Deletion
 
 Property Type Update
 update Property Types

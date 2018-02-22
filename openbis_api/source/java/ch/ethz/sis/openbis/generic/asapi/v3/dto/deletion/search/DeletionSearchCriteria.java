@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.search;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractObjectSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchCriteriaToStringBuilder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchOperator;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -30,6 +31,16 @@ public class DeletionSearchCriteria extends AbstractObjectSearchCriteria<IDeleti
 
     private static final long serialVersionUID = 1L;
 
+    public DeletionSearchCriteria withOrOperator()
+    {
+        return (DeletionSearchCriteria) withOperator(SearchOperator.OR);
+    }
+
+    public DeletionSearchCriteria withAndOperator()
+    {
+        return (DeletionSearchCriteria) withOperator(SearchOperator.AND);
+    }
+
     @Override
     protected SearchCriteriaToStringBuilder createBuilder()
     {
@@ -37,4 +48,5 @@ public class DeletionSearchCriteria extends AbstractObjectSearchCriteria<IDeleti
         builder.setName("DELETION");
         return builder;
     }
+
 }

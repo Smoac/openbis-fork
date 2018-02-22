@@ -33,6 +33,8 @@ public class ConfirmDeletionsOperation implements IOperation
 
     private List<? extends IDeletionId> deletionIds;
 
+    private boolean forceDeletion;
+
     @SuppressWarnings("unused")
     private ConfirmDeletionsOperation()
     {
@@ -48,6 +50,16 @@ public class ConfirmDeletionsOperation implements IOperation
         return deletionIds;
     }
 
+    public void setForceDeletion(boolean forceDeletion)
+    {
+        this.forceDeletion = forceDeletion;
+    }
+
+    public boolean isForceDeletion()
+    {
+        return forceDeletion;
+    }
+
     @Override
     public String getMessage()
     {
@@ -57,7 +69,8 @@ public class ConfirmDeletionsOperation implements IOperation
     @Override
     public String toString()
     {
-        return getClass().getSimpleName() + (deletionIds != null ? " " + deletionIds.size() + " deletion(s)" : "");
+        return getClass().getSimpleName()
+                + (deletionIds != null ? " " + deletionIds.size() + " deletion(s)" + (isForceDeletion() ? " forced" : "") : "");
     }
 
 }
