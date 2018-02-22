@@ -21,13 +21,11 @@ import org.springframework.dao.DataRetrievalFailureException;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetTypeWithoutExperimentChecker;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IScriptDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.JythonDynamicPropertyCalculator;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.JythonEntityValidationCalculator;
+import ch.systemsx.cisd.openbis.generic.server.util.PluginUtils;
 import ch.systemsx.cisd.openbis.generic.shared.IJythonEvaluatorPool;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IScriptUpdates;
@@ -38,7 +36,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
-import ch.systemsx.cisd.openbis.generic.shared.managed_property.JythonManagedPropertyEvaluator;
 
 /**
  * The only productive implementation of {@link IScriptBO}. We are using an interface here to keep the system testable.
@@ -125,8 +122,7 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
         assert script != null : "Script not defined";
         try
         {
-            checkScriptCompilation(script.getScriptType(), script.getPluginType(),
-                    script.getScript());
+            PluginUtils.checkScriptCompilation(script, jythonEvaluatorPool);
             getScriptDAO().createOrUpdate(script);
         } catch (final DataAccessException e)
         {
@@ -235,8 +231,7 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
         {
             scriptChanged = true;
             script.setScript(updates.getScript());
-            checkScriptCompilation(script.getScriptType(), script.getPluginType(),
-                    updates.getScript());
+            PluginUtils.checkScriptCompilation(script, jythonEvaluatorPool);
         }
         getScriptDAO().createOrUpdate(script);
 
@@ -263,30 +258,6 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
         {
             getEntityPropertyTypeDAO(assignment.getEntityType().getEntityKind())
                     .scheduleDynamicPropertiesEvaluation(assignment);
-        }
-    }
-
-    private void checkScriptCompilation(ScriptType scriptType, PluginType pluginType,
-            String scriptExpression) throws EvaluatorException
-    {
-        if (pluginType == PluginType.PREDEPLOYED)
-        {
-            return;
-        }
-
-        if (scriptType == ScriptType.MANAGED_PROPERTY)
-        {
-            new JythonManagedPropertyEvaluator(scriptExpression);
-        } else if (scriptType == ScriptType.DYNAMIC_PROPERTY)
-        {
-            JythonDynamicPropertyCalculator calculator =
-                    JythonDynamicPropertyCalculator.create(scriptExpression, jythonEvaluatorPool);
-            calculator.checkScriptCompilation();
-        } else
-        {
-            JythonEntityValidationCalculator calculator =
-                    JythonEntityValidationCalculator.create(scriptExpression, null, jythonEvaluatorPool);
-            calculator.checkScriptCompilation();
         }
     }
 }

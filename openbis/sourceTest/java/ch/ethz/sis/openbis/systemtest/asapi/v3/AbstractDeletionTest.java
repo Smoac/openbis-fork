@@ -22,7 +22,10 @@ import java.util.List;
 import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.Deletion;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.fetchoptions.DeletionFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
@@ -48,6 +51,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchO
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
+
 import junit.framework.Assert;
 
 /**
@@ -206,15 +210,9 @@ public class AbstractDeletionTest extends AbstractTest
 
     private void assertDataSetExists(DataSetPermId dataSetId, boolean exists)
     {
-        String sessionToken = generalInformationService.tryToAuthenticateForAllServices(TEST_USER, PASSWORD);
-
-        ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria criteria =
-                new ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria();
-        criteria.addMatchClause(ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause.createAttributeMatch(
-                ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute.CODE, dataSetId.getPermId()));
-
-        List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet> result = generalInformationService.searchForDataSets(sessionToken, criteria);
-        Assert.assertEquals(exists ? 1 : 0, result.size());
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        Map<IDataSetId, DataSet> map = v3api.getDataSets(sessionToken, Collections.singletonList(dataSetId), new DataSetFetchOptions());
+        Assert.assertEquals(exists ? 1 : 0, map.size());
     }
 
     protected void assertDeletionExists(IDeletionId deletionId)

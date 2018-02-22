@@ -30,7 +30,12 @@ def process(tr, parameters, tableBuilder):
 	method = parameters.get("method");
 	if method is None:
 		sample = findSample(tr)
-		dataSet = createDataSet(tr, sample)
+
+		dataSetType = parameters.get("dataSetType")
+		if dataSetType is None:
+			dataSetType = "ALIGNMENT"
+
+		dataSet = createDataSet(tr, sample, dataSetType)
 		
 		tableBuilder.addHeader("DATA_SET_CODE")
 		row = tableBuilder.addRow()
@@ -53,8 +58,8 @@ def findSample(tr):
 	samples = tr.getSearchService().searchForSamples(criteria)
 	return samples[0]
 	
-def createDataSet(tr, sample):
-	dataSet = tr.createNewDataSet("ALIGNMENT")
+def createDataSet(tr, sample, dataSetType):
+	dataSet = tr.createNewDataSet(dataSetType)
 	dataSet.setSample(sample)
 	tr.createNewFile(dataSet, "test")
 	return dataSet

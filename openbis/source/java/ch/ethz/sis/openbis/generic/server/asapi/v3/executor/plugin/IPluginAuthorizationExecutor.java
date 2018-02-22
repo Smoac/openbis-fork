@@ -16,8 +16,10 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.plugin;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.IPluginId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IObjectAuthorizationExecutor;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 
 /**
  * @author pkupczyk
@@ -26,5 +28,9 @@ public interface IPluginAuthorizationExecutor extends IObjectAuthorizationExecut
 {
 
     void canGet(IOperationContext context);
+
+    void canCreate(IOperationContext context);
+
+    void canUpdate(IOperationContext context, IPluginId id, ScriptPE entity);
 
 }

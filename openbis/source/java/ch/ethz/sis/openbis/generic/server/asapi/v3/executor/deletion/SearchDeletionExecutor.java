@@ -25,9 +25,15 @@ import javax.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.IdSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.fetchoptions.DeletionFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.DeletionTechId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.search.DeletionSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.AbstractSearchObjectManuallyExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.Matcher;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.SimpleFieldMatcher;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDeletionTable;
@@ -70,6 +76,11 @@ public class SearchDeletionExecutor implements ISearchDeletionExecutor
             deletions = listWithoutDeletedObjects(context);
         }
 
+        if (criteria.getCriteria() != null && false == criteria.getCriteria().isEmpty())
+        {
+            deletions = new SearchDeletions(deletions).search(context, criteria);
+        }
+
         if (deletions == null)
         {
             return Collections.emptyList();
@@ -99,6 +110,59 @@ public class SearchDeletionExecutor implements ISearchDeletionExecutor
         IDeletionTable deletionTable = businessObjectFactory.createDeletionTable(context.getSession());
         deletionTable.load(false);
         return deletionTable.getDeletions();
+    }
+
+    private class SearchDeletions extends AbstractSearchObjectManuallyExecutor<DeletionSearchCriteria, Deletion>
+    {
+
+        private List<Deletion> allDeletions;
+
+        public SearchDeletions(List<Deletion> allDeletions)
+        {
+            this.allDeletions = allDeletions;
+        }
+
+        @Override
+        protected List<Deletion> listAll()
+        {
+            return allDeletions;
+        }
+
+        @Override
+        protected Matcher<Deletion> getMatcher(ISearchCriteria criteria)
+        {
+            if (criteria instanceof IdSearchCriteria<?>)
+            {
+                return new IdMatcher();
+            } else
+            {
+                throw new IllegalArgumentException("Unknown search criteria: " + criteria.getClass());
+            }
+        }
+
+        private class IdMatcher extends SimpleFieldMatcher<Deletion>
+        {
+
+            @Override
+            protected boolean isMatching(IOperationContext context, Deletion object, ISearchCriteria criteria)
+            {
+                Object id = ((IdSearchCriteria<?>) criteria).getId();
+
+                if (id == null)
+                {
+                    return true;
+                } else if (id instanceof DeletionTechId)
+                {
+                    DeletionTechId techId = (DeletionTechId) id;
+                    return object.getId().equals(techId.getTechId());
+                } else
+                {
+                    throw new IllegalArgumentException("Unknown id: " + id.getClass());
+                }
+            }
+
+        }
+
     }
 
 }

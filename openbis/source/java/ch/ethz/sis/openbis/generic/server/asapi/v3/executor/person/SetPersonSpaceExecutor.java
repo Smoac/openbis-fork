@@ -50,7 +50,7 @@ public class SetPersonSpaceExecutor
     @Override
     protected ISpaceId getRelatedId(PersonCreation creation)
     {
-        return creation.getHomeSpaceId();
+        return creation.getSpaceId();
     }
 
     @Override

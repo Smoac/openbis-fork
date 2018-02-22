@@ -475,6 +475,33 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testCreate(c, fCreate, c.findPropertyType, fCheck);
 		});
 
+		QUnit.test("createPlugins()", function(assert) {
+			var c = new common(assert, openbis);
+			var name = c.generateId("PLUGIN");
+			
+			var fCreate = function(facade) {
+				var creation = new c.PluginCreation();
+				creation.setName(name);
+				creation.setDescription("hello");
+				creation.setPluginType(c.PluginType.JYTHON);
+				creation.setScriptType(c.ScriptType.ENTITY_VALIDATION);
+				creation.setScript("def a():\n  pass");
+				return facade.createPlugins([ creation ]);
+			}
+			
+			var fCheck = function(plugin) {
+				c.assertEqual(plugin.getName(), name, "Name");
+				c.assertEqual(plugin.getPermId().getPermId(), name, "Perm id");
+				c.assertEqual(plugin.getDescription(), "hello", "Description");
+				c.assertEqual(plugin.getPluginType(), c.PluginType.JYTHON, "Plugin type");
+				c.assertEqual(plugin.getScriptType(), c.ScriptType.ENTITY_VALIDATION, "Script type");
+				c.assertEqual(plugin.getScript(), "def a():\n  pass", "Script");
+				c.assertEqual(plugin.isAvailable(), true, "Available?");
+			}
+			
+			testCreate(c, fCreate, c.findPlugin, fCheck);
+		});
+		
 		QUnit.test("createVocabularies()", function(assert) {
 			var c = new common(assert, openbis);
 			var code = c.generateId("VOCABULARY");
@@ -633,7 +660,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			var fCreate = function(facade) {
 				var personCreation = new c.PersonCreation();
 				personCreation.setUserId(userId);
-				personCreation.setHomeSpaceId(new c.SpacePermId("TEST"))
+				personCreation.setSpaceId(new c.SpacePermId("TEST"))
 				return facade.createPersons([ personCreation ]);
 			}
 

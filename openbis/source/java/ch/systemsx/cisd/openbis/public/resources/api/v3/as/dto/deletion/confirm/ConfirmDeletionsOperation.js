@@ -8,8 +8,15 @@ define([ "stjs", "as/dto/common/operation/IOperation" ], function(stjs, IOperati
 	stjs.extend(ConfirmDeletionsOperation, null, [ IOperation ], function(constructor, prototype) {
 		prototype['@type'] = 'as.dto.deletion.confirm.ConfirmDeletionsOperation';
 		prototype.deletionIds = null;
+		prototype.forceDeletion = false;
 		prototype.getDeletionIds = function() {
 			return this.deletionIds;
+		};
+		prototype.setForceDeletion = function(forceDeletion) {
+			this.forceDeletion = forceDeletion;
+		};
+		prototype.isForceDeletion = function() {
+			return this.forceDeletion;
 		};
 		prototype.getMessage = function() {
 			return "ConfirmDeletionsOperation";

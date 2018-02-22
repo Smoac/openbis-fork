@@ -69,7 +69,7 @@ public class UpdateHomeSpaceExecutor
     @Override
     protected FieldUpdateValue<ISpaceId> getRelatedUpdate(PersonUpdate update)
     {
-        return update.getHomeSpaceId();
+        return update.getSpaceId();
     }
 
     @Override

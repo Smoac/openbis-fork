@@ -525,6 +525,21 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			});
 		}
 		
+		this.createPlugins = function(creations) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "createPlugins",
+					"params" : [ thisFacade._private.sessionToken, creations ]
+				},
+				returnType : {
+					name : "List",
+					arguments : [ "PluginPermId" ]
+				}
+			});
+		}
+
 		this.createVocabularies = function(creations) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
@@ -539,7 +554,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 				}
 			});
 		}
-
+		
 		this.createVocabularyTerms = function(creations) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
@@ -762,6 +777,17 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			});
 		}
 
+		this.updatePlugins = function(updates) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "updatePlugins",
+					"params" : [ thisFacade._private.sessionToken, updates ]
+				}
+			});
+		}
+		
 		this.updateVocabularies = function(updates) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
@@ -940,6 +966,21 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 				returnType : {
 					name : "Map",
 					arguments : [ "IPropertyTypeId", "PropertyType" ]
+				}
+			});
+		}
+		
+		this.getPlugins = function(ids, fetchOptions) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "getPlugins",
+					"params" : [ thisFacade._private.sessionToken, ids, fetchOptions ]
+				},
+				returnType : {
+					name : "Map",
+					arguments : [ "IPluginId", "Plugin" ]
 				}
 			});
 		}
