@@ -16,8 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.create;
 
-import java.util.Set;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -47,7 +45,7 @@ public class PluginCreation implements ICreation, IObjectCreation
     private PluginType pluginType;
     
     @JsonProperty
-    private Set<EntityKind> entityKinds;
+    private EntityKind entityKind;
     
     @JsonProperty
     private ScriptType scriptType;
@@ -92,14 +90,14 @@ public class PluginCreation implements ICreation, IObjectCreation
     }
 
     @JsonIgnore
-    public Set<EntityKind> getEntityKinds()
+    public EntityKind getEntityKind()
     {
-        return entityKinds;
+        return entityKind;
     }
 
-    public void setEntityKinds(Set<EntityKind> entityKinds)
+    public void setEntityKind(EntityKind entityKind)
     {
-        this.entityKinds = entityKinds;
+        this.entityKind = entityKind;
     }
 
     @JsonIgnore

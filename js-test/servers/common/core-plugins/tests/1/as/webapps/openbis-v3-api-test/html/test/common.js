@@ -528,7 +528,7 @@ define(
 					creation.setName(c.generateId("PLUGIN"));
 					creation.setPluginType(c.PluginType.PREDEPLOYED);
 					creation.setScriptType(c.ScriptType.DYNAMIC_PROPERTY);
-					creation.setEntityKinds([ c.EntityKind.SAMPLE ]);
+					creation.setEntityKind(c.EntityKind.SAMPLE);
 					return facade.createPlugins([ creation ]).then(
 							function(permIds) {
 								return permIds[0];

@@ -10,7 +10,7 @@ define([ "stjs" ], function(stjs) {
 		prototype.pluginType = null;
 		prototype.scriptType = null;
 		prototype.available = true;
-		prototype.entityKinds = null;
+		prototype.entityKind = null;
 
 		prototype.getName = function() {
 			return this.name;
@@ -48,19 +48,16 @@ define([ "stjs" ], function(stjs) {
 		prototype.setAvailable = function(available) {
 			this.available = available;
 		};
-		prototype.getEntityKinds = function() {
-			return this.entityKinds;
+		prototype.getEntityKind = function() {
+			return this.entityKind;
 		};
-		prototype.setEntityKinds = function(entityKinds) {
-			this.entityKinds = entityKinds;
+		prototype.setEntityKind = function(entityKind) {
+			this.entityKind = entityKind;
 		};
 	}, {
 		pluginType : "PluginType",
 		scriptType : "ScriptType",
-		entityKinds : {
-			name : "Set",
-			arguments : [ "EntityKind" ]
-		}
+		entityKind : "EntityKind"
 	});
 	return PluginCreation;
 })

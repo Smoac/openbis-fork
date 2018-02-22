@@ -19,7 +19,6 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.plugin;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -128,10 +127,10 @@ public class CreatePluginExecutor
                 ScriptPE script = new ScriptPE();
                 script.setName(creation.getName());
                 script.setDescription(creation.getDescription());
-                Set<EntityKind> entityKinds = creation.getEntityKinds();
-                if (entityKinds != null && entityKinds.size() == 1)
+                EntityKind entityKind = creation.getEntityKind();
+                if (entityKind != null)
                 {
-                    script.setEntityKind(translate(entityKinds.iterator().next()));
+                    script.setEntityKind(translate(entityKind));
                 }
                 if (creation.getScriptType() != null)
                 {
