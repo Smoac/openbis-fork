@@ -226,7 +226,27 @@ public class CreatePluginTest extends AbstractTest
         PluginCreation creation = createBasic();
         creation.setPluginType(PluginType.JYTHON);
         creation.setScriptType(ScriptType.DYNAMIC_PROPERTY);
-        creation.setScript("def:");
+        creation.setScript("d\n");
+        assertUserFailureException(creation, "SyntaxError");
+    }
+    
+    @Test
+    public void testManagedPropertyScriptCanNotCompile()
+    {
+        PluginCreation creation = createBasic();
+        creation.setPluginType(PluginType.JYTHON);
+        creation.setScriptType(ScriptType.MANAGED_PROPERTY);
+        creation.setScript("d\n");
+        assertUserFailureException(creation, "SyntaxError");
+    }
+    
+    @Test
+    public void testEntityValodationScriptCanNotCompile()
+    {
+        PluginCreation creation = createBasic();
+        creation.setPluginType(PluginType.JYTHON);
+        creation.setScriptType(ScriptType.ENTITY_VALIDATION);
+        creation.setScript("d\n");
         assertUserFailureException(creation, "SyntaxError");
     }
     

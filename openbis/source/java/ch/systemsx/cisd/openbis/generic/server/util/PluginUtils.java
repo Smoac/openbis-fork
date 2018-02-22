@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.basic.utils;
+package ch.systemsx.cisd.openbis.generic.server.util;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.JythonDynamicPropertyCalculator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.JythonEntityValidationCalculator;
@@ -26,7 +26,6 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.JythonManagedPro
 
 /**
  * @author Franz-Josef Elmer
- *
  */
 public class PluginUtils
 {
@@ -37,7 +36,7 @@ public class PluginUtils
         {
             return;
         }
-    
+
         String scriptExpression = script.getScript();
         ScriptType scriptType = script.getScriptType();
         if (scriptType == ScriptType.MANAGED_PROPERTY)

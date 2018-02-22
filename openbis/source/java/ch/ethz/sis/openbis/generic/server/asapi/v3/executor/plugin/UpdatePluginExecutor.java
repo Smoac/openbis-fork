@@ -39,8 +39,8 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.util.PluginUtils;
 import ch.systemsx.cisd.openbis.generic.shared.IJythonEvaluatorPool;
-import ch.systemsx.cisd.openbis.generic.shared.basic.utils.PluginUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 
 /**
