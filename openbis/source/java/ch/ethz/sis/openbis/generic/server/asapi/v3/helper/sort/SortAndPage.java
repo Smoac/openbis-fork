@@ -37,6 +37,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.Sorting;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.view.AbstractCollectionView;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.view.ListView;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.view.SetView;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 
 /**
  * @author pkupczyk
@@ -49,7 +50,7 @@ public class SortAndPage
 
     private MethodsCache methodsCache = new MethodsCache();
 
-    public <T, C extends Collection<T>> C sortAndPage(C objects, FetchOptions fo)
+    public <T, C extends Collection<T>> C sortAndPage(C objects, ISearchCriteria c, FetchOptions fo)
     {
         C newObjects = objects;
 
@@ -58,21 +59,21 @@ public class SortAndPage
             newObjects = (C) ((AbstractCollectionView) objects).getOriginalCollection();
         }
 
-        newObjects = (C) sort(newObjects, fo);
+        newObjects = (C) sort(newObjects, c, fo);
         newObjects = (C) page(newObjects, fo);
-        nest(newObjects, fo);
+        nest(newObjects, c, fo);
 
         return newObjects;
     }
-
-    private Collection sort(Collection objects, FetchOptions fo)
+    
+    private Collection sort(Collection objects, ISearchCriteria c, FetchOptions fo)
     {
         if (objects == null || objects.isEmpty())
         {
             return objects;
         }
 
-        Comparator comparator = getComparator(fo);
+        Comparator comparator = getComparator(c, fo);
 
         if (comparator != null)
         {
@@ -135,7 +136,7 @@ public class SortAndPage
         }
     }
 
-    private void nest(Collection objects, FetchOptions fo)
+    private void nest(Collection objects, ISearchCriteria c, FetchOptions fo)
     {
         if (objects == null || objects.isEmpty())
         {
@@ -177,14 +178,14 @@ public class SortAndPage
                         {
                             if (value instanceof Collection)
                             {
-                                Collection newValue = sortAndPage((Collection) value, subFo);
+                                Collection newValue = sortAndPage((Collection) value, c, subFo);
                                 setMethod.invoke(object, newValue);
                             } else if (value instanceof Map)
                             {
-                                sortAndPage(((Map) value).values(), subFo);
+                                sortAndPage(((Map) value).values(), c, subFo);
                             } else
                             {
-                                Collection newValue = sortAndPage(Collections.singleton(value), subFo);
+                                Collection newValue = sortAndPage(Collections.singleton(value), c, subFo);
                                 if (setMethod != null)
                                 {
                                     setMethod.invoke(object, newValue.iterator().next());
@@ -200,7 +201,7 @@ public class SortAndPage
         }
     }
 
-    protected Comparator getComparator(FetchOptions fetchOptions)
+    protected Comparator getComparator(ISearchCriteria criteria, FetchOptions fetchOptions)
     {
         if (fetchOptions == null)
         {
@@ -240,7 +241,7 @@ public class SortAndPage
                             throw new IllegalArgumentException("Comparator factory for sort by " + sortByClass + " not found");
                         }
 
-                        Comparator aComparator = comparatorFactory.getComparator(sorting.getField());
+                        Comparator aComparator = comparatorFactory.getComparator(sorting.getField(), sorting.getParameters(), criteria);
 
                         if (aComparator == null)
                         {

@@ -105,7 +105,7 @@ public class SampleTypeTranslator extends AbstractCachingTranslator<Long, Sample
         {
             Collection<PropertyAssignment> assignments = relations.get(ISamplePropertyAssignmentTranslator.class, typeId);
             List<PropertyAssignment> propertyAssignments = new ArrayList<>(assignments);
-            result.setPropertyAssignments(new SortAndPage().sortAndPage(propertyAssignments, fetchOptions.withPropertyAssignments()));
+            result.setPropertyAssignments(new SortAndPage().sortAndPage(propertyAssignments, null, fetchOptions.withPropertyAssignments()));
         }
 
         if (fetchOptions.hasSemanticAnnotations())

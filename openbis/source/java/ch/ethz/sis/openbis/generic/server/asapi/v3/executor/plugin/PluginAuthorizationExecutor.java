@@ -18,10 +18,12 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.plugin;
 
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.IPluginId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 
 /**
  * @author pkupczyk
@@ -34,6 +36,20 @@ public class PluginAuthorizationExecutor implements IPluginAuthorizationExecutor
     @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("GET_PLUGIN")
     public void canGet(IOperationContext context)
+    {
+    }
+
+    @Override
+    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN })
+    @Capability("CREATE_PLUGIN")
+    public void canCreate(IOperationContext context)
+    {
+    }
+
+    @Override
+    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN })
+    @Capability("UPDATE_PLUGIN")
+    public void canUpdate(IOperationContext context, IPluginId id, ScriptPE entity)
     {
     }
 

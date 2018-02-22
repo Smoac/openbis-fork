@@ -17,9 +17,12 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.authorizationgroup;
 
 import java.util.Comparator;
+import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.AuthorizationGroup;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.fetchoptions.AuthorizationGroupSortOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortParameter;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.CodeComparator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.ComparatorFactory;
 
@@ -38,7 +41,7 @@ public class AuthorizationGroupComparatorFactory extends ComparatorFactory
     }
 
     @Override
-    public Comparator<AuthorizationGroup> getComparator(String field)
+    public Comparator<AuthorizationGroup> getComparator(String field, Map<SortParameter, String> parameters, ISearchCriteria criteria)
     {
         if (AuthorizationGroupSortOptions.CODE.equals(field))
         {

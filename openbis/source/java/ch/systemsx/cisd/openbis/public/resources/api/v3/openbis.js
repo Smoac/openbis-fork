@@ -537,6 +537,24 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 				}
 			});
 		}
+<<<<<<< HEAD
+=======
+		
+		this.createPlugins = function(creations) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "createPlugins",
+					"params" : [ thisFacade._private.sessionToken, creations ]
+				},
+				returnType : {
+					name : "List",
+					arguments : [ "PluginPermId" ]
+				}
+			});
+		}
+>>>>>>> branch 'master' of https://sissource.ethz.ch/sispub/openbis
 
 		this.createVocabularies = function(creations) {
 			var thisFacade = this;
@@ -552,7 +570,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 				}
 			});
 		}
-
+		
 		this.createVocabularyTerms = function(creations) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
@@ -775,6 +793,17 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			});
 		}
 
+		this.updatePlugins = function(updates) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "updatePlugins",
+					"params" : [ thisFacade._private.sessionToken, updates ]
+				}
+			});
+		}
+		
 		this.updateVocabularies = function(updates) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
@@ -956,7 +985,26 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 				}
 			});
 		}
+<<<<<<< HEAD
 
+=======
+		
+		this.getPlugins = function(ids, fetchOptions) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "getPlugins",
+					"params" : [ thisFacade._private.sessionToken, ids, fetchOptions ]
+				},
+				returnType : {
+					name : "Map",
+					arguments : [ "IPluginId", "Plugin" ]
+				}
+			});
+		}
+		
+>>>>>>> branch 'master' of https://sissource.ethz.ch/sispub/openbis
 		this.getVocabularies = function(ids, fetchOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({

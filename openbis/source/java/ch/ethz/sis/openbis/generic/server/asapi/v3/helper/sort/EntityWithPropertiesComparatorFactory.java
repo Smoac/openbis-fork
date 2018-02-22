@@ -17,14 +17,17 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort;
 
 import java.util.Comparator;
+import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.EntityWithPropertiesSortOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortParameter;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityTypeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModificationDateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationDateHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 
 /**
  * @author pkupczyk
@@ -40,9 +43,12 @@ public class EntityWithPropertiesComparatorFactory<OBJECT extends ICodeHolder & 
     }
 
     @Override
-    public Comparator<OBJECT> getComparator(String field)
+    public Comparator<OBJECT> getComparator(String field, Map<SortParameter, String> parameters, ISearchCriteria criteria)
     {
-        if (field.equals(EntityWithPropertiesSortOptions.TYPE))
+    	if (field.equals(EntityWithPropertiesSortOptions.FETCHED_FIELDS_SCORE))
+        {
+            return new FetchedFieldsScoreComparator<OBJECT>(parameters, criteria);
+        } if (field.equals(EntityWithPropertiesSortOptions.TYPE))
         {
             return new TypeComparator<OBJECT>();
         } else if (field.startsWith(EntityWithPropertiesSortOptions.PROPERTY))
@@ -50,7 +56,7 @@ public class EntityWithPropertiesComparatorFactory<OBJECT extends ICodeHolder & 
             return new PropertyComparator<OBJECT>(field.substring(EntityWithPropertiesSortOptions.PROPERTY.length()));
         } else
         {
-            return super.getComparator(field);
+            return super.getComparator(field, parameters, criteria);
         }
     }
 

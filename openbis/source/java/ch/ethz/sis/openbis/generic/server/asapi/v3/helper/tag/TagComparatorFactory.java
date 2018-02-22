@@ -17,7 +17,10 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.tag;
 
 import java.util.Comparator;
+import java.util.Map;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortParameter;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.fetchoptions.TagSortOptions;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.CodeComparator;
@@ -37,7 +40,7 @@ public class TagComparatorFactory extends ComparatorFactory
     }
 
     @Override
-    public Comparator<Tag> getComparator(String field)
+    public Comparator<Tag> getComparator(String field, Map<SortParameter, String> parameters, ISearchCriteria criteria)
     {
         if (TagSortOptions.CODE.equals(field))
         {

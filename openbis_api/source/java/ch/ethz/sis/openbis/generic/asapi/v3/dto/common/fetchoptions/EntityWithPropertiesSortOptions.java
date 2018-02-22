@@ -16,6 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
@@ -34,13 +37,26 @@ public class EntityWithPropertiesSortOptions<OBJECT extends ICodeHolder & IPermI
 {
 
     private static final long serialVersionUID = 1L;
-
+    
+    @JsonIgnore
+    public static final String FETCHED_FIELDS_SCORE = "FETCHED_FIELDS_SCORE";
+    
     @JsonIgnore
     public static final String TYPE = "TYPE";
 
     @JsonIgnore
     public static final String PROPERTY = "PROPERTY";
-
+    
+    public SortOrder fetchedFieldsScore() {
+    		Map<SortParameter, String> parameters = new HashMap<>();
+    		parameters.put(SortParameter.FULL_CODE_BOOST, 	"1000000");
+    		parameters.put(SortParameter.PARTIAL_CODE_BOOST,  "100000");
+    		parameters.put(SortParameter.FULL_PROPERTY_BOOST,  "10000");
+    		parameters.put(SortParameter.FULL_TYPE_BOOST, 	   "1000");
+    		parameters.put(SortParameter.PARTIAL_PROPERTY_BOOST, "100");
+		return getOrCreateSortingWithParameters(FETCHED_FIELDS_SCORE, parameters);
+    }
+    
     public SortOrder type()
     {
         return getOrCreateSorting(TYPE);

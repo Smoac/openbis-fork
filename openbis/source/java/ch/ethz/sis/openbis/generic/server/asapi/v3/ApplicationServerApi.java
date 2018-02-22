@@ -202,6 +202,17 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.SearchPersonsOpera
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.SearchPersonsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.update.PersonUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.update.UpdatePersonsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.create.CreatePluginsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.create.CreatePluginsOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.create.PluginCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.fetchoptions.PluginFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.get.GetPluginsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.get.GetPluginsOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.IPluginId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.PluginPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.update.PluginUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.update.UpdatePluginsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.CreateProjectsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.CreateProjectsOperationResult;
@@ -535,6 +546,13 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    public List<PluginPermId> createPlugins(String sessionToken, List<PluginCreation> newPlugins)
+    {
+        CreatePluginsOperationResult result = executeOperation(sessionToken, new CreatePluginsOperation(newPlugins));
+        return result.getObjectIds();
+    }
+
+    @Override
     @Transactional
     public List<VocabularyPermId> createVocabularies(String sessionToken, List<VocabularyCreation> creations)
     {
@@ -669,6 +687,12 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    public void updatePlugins(String sessionToken, List<PluginUpdate> pluginUpdates)
+    {
+        executeOperation(sessionToken, new UpdatePluginsOperation(pluginUpdates));
+    }
+
+    @Override
     public void updateVocabularies(String sessionToken, List<VocabularyUpdate> vocabularyUpdates)
     {
         executeOperation(sessionToken, new UpdateVocabulariesOperation(vocabularyUpdates));
@@ -771,6 +795,14 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
             PropertyTypeFetchOptions fetchOptions)
     {
         GetPropertyTypesOperationResult result = executeOperation(sessionToken, new GetPropertyTypesOperation(typeIds, fetchOptions));
+        return result.getObjectMap();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<IPluginId, Plugin> getPlugins(String sessionToken, List<? extends IPluginId> pluginIds, PluginFetchOptions fetchOptions)
+    {
+        GetPluginsOperationResult result = executeOperation(sessionToken, new GetPluginsOperation(pluginIds, fetchOptions));
         return result.getObjectMap();
     }
 

@@ -737,6 +737,40 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testUpdate(c, fCreate, fUpdate, c.findPropertyType, fCheck);
 		});
 		
+		QUnit.test("updatePlugins()", function(assert) {
+			var c = new common(assert, openbis);
+			var name = c.generateId("PLUGIN");
+			var description = "Description of " + name;
+			var script = "print 'hello'";
+			
+			var fCreate = function(facade) {
+				var creation = new c.PluginCreation();
+				creation.setName(name);
+				creation.setScript("pass");
+				creation.setDescription("old description");
+				creation.setAvailable(false);
+				creation.setPluginType(c.PluginType.JYTHON);
+				creation.setScriptType(c.ScriptType.MANAGED_PROPERTY);
+				return facade.createPlugins([ creation ]);
+			}
+			
+			var fUpdate = function(facade, permId) {
+				var update = new c.PluginUpdate();
+				update.setPluginId(new c.PluginPermId(name));
+				update.setDescription(description);
+				update.setScript(script);
+				return facade.updatePlugins([ update ]);
+			}
+			
+			var fCheck = function(plugin) {
+				c.assertEqual(plugin.getName(), name, "Name");
+				c.assertEqual(plugin.getDescription(), description, "Description");
+				c.assertEqual(plugin.getScript(), script, "Script");
+			}
+			
+			testUpdate(c, fCreate, fUpdate, c.findPlugin, fCheck);
+		});
+		
 		QUnit.test("updateVocabularies()", function(assert) {
 			var c = new common(assert, openbis);
 			var code = c.generateId("VOCABULARY");
