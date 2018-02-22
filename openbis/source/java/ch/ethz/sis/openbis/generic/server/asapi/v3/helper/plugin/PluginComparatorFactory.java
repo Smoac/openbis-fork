@@ -17,7 +17,10 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.plugin;
 
 import java.util.Comparator;
+import java.util.Map;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortParameter;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.fetchoptions.PluginSortOptions;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.AbstractStringComparator;
@@ -44,7 +47,7 @@ public class PluginComparatorFactory extends ComparatorFactory
     }
 
     @Override
-    public Comparator<Plugin> getComparator(String field)
+    public Comparator<Plugin> getComparator(String field, Map<SortParameter, String> parameters, ISearchCriteria criteria)
     {
         if (PluginSortOptions.NAME.equals(field))
         {

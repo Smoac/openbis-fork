@@ -55,7 +55,14 @@ public class FetchedFieldsScoreComparator<OBJECT extends IEntityTypeHolder & IPr
     private List<Boost> boosts = new ArrayList<Boost>();
     private Map<OBJECT, Integer> scoreCache = new HashMap<>();
     
-	public FetchedFieldsScoreComparator(Map<SortParameter, String> parameters, ISearchCriteria criteria) {
+    private Integer fullCodeBoost = 0;
+    private Integer partialCodeBoost = 0;
+    private Integer fullPropertyBoost = 0;
+    private Integer fullTypeBoost = 0;
+    private Integer partialPropertyBoost = 0;
+	
+	public FetchedFieldsScoreComparator(Map<SortParameter, String> parameters, ISearchCriteria criteria) 
+	{
 		if (criteria == null || (criteria instanceof AbstractEntitySearchCriteria) == false)
         {
             throw new IllegalArgumentException("Missing criteria");
@@ -64,6 +71,28 @@ public class FetchedFieldsScoreComparator<OBJECT extends IEntityTypeHolder & IPr
         if (parameters == null)
         {
             throw new IllegalArgumentException("Missing score parameters");
+        } else 
+        {
+	        	if(parameters.containsKey(SortParameter.FULL_CODE_BOOST)) 
+	        	{
+	        		fullCodeBoost = Integer.parseInt(parameters.get(SortParameter.FULL_CODE_BOOST));
+	        	}
+	        	if(parameters.containsKey(SortParameter.PARTIAL_CODE_BOOST)) 
+	        	{
+	        		partialCodeBoost = Integer.parseInt(parameters.get(SortParameter.PARTIAL_CODE_BOOST));
+	        	}
+	        	if(parameters.containsKey(SortParameter.FULL_PROPERTY_BOOST)) 
+	        	{
+	        		fullPropertyBoost = Integer.parseInt(parameters.get(SortParameter.FULL_PROPERTY_BOOST));
+	        	}
+	        	if(parameters.containsKey(SortParameter.FULL_TYPE_BOOST)) 
+	        	{
+	        		fullTypeBoost = Integer.parseInt(parameters.get(SortParameter.FULL_TYPE_BOOST));
+	        	}
+	        	if(parameters.containsKey(SortParameter.PARTIAL_PROPERTY_BOOST)) 
+	        	{
+	        		partialPropertyBoost = Integer.parseInt(parameters.get(SortParameter.PARTIAL_PROPERTY_BOOST));
+	        	}
         }
         
 		this.parameters = parameters;
@@ -74,10 +103,12 @@ public class FetchedFieldsScoreComparator<OBJECT extends IEntityTypeHolder & IPr
         this.exactMatchTerms = new ArrayList<String>();
         this.boosts = new ArrayList<Boost>();
 
-        for(ISearchCriteria subCriteria:this.criteria.getCriteria()) {
+        for(ISearchCriteria subCriteria:this.criteria.getCriteria()) 
+        {
         		ISearchCriteriaParser<ISearchCriteria> parser = criteriaParsers.get(subCriteria.getClass());
         		
-        		if(parser != null) {
+        		if(parser != null) 
+        		{
         			String value = parser.getValue(subCriteria);
         			
         			// Full Index
@@ -226,10 +257,10 @@ public class FetchedFieldsScoreComparator<OBJECT extends IEntityTypeHolder & IPr
 	        if(code != null) {
 	        		if (isPartialMatch(code, partialTerm))
 	            { // If code matches partially
-	                score += 100000 * boost.getCodeBoost();
+	                score += partialCodeBoost * boost.getCodeBoost();
 	                if (isExactMatch(code, exactTerm))
 	                { // If code matches exactly
-	                    score += 1000000 * boost.getCodeBoost();
+	                    score += fullCodeBoost * boost.getCodeBoost();
 	                }
 	            }
 	        }
@@ -239,7 +270,7 @@ public class FetchedFieldsScoreComparator<OBJECT extends IEntityTypeHolder & IPr
 	        {
 	        		if (isExactMatch(typeCode, exactTerm))
 	            { // If type matches exactly
-	                score += 1000 * boost.getTypeCodeBoost();
+	                score += fullTypeBoost * boost.getTypeCodeBoost();
 	            }
 	        }
 	        
@@ -253,10 +284,10 @@ public class FetchedFieldsScoreComparator<OBJECT extends IEntityTypeHolder & IPr
 	                    String propertyValue = properties.get(propertykey);
 	                    if (isPartialMatch(propertyValue, partialTerm))
 	                    { // If property matches partially
-	                        score += 100 * boost.getPropertyBoost(propertykey);
+	                        score += partialPropertyBoost * boost.getPropertyBoost(propertykey);
 	                        if (isExactMatch(propertyValue, exactTerm))
 	                        { // If property matches exactly
-	                            score += 10000 * boost.getPropertyBoost(propertykey);
+	                            score += fullPropertyBoost * boost.getPropertyBoost(propertykey);
 	                        }
 	                    }
 	                }
@@ -264,7 +295,6 @@ public class FetchedFieldsScoreComparator<OBJECT extends IEntityTypeHolder & IPr
 	        }
 	    }
 		
-		System.out.println("CODE: "+ code + " SCORE: " + score);
 		return score;
 	}
 	
