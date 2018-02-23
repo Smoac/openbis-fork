@@ -362,9 +362,23 @@ def getFeaturesFromFeatureVector(tr, parameters, tableBuilder):
 
 def getDiskSpace(tr, parameters, tableBuilder):
 	storerootDir = getConfigParameterAsString("storeroot-dir")
-	df = subprocess.check_output(["df", '-h', storerootDir])
-	diskSpaceValues = extractDiskSpaceValues(df)
-	return getJsonForData([diskSpaceValues])
+	diskSpaceValues = []
+	diskSpaceValues.append(getDiskSpaceForDirectory(storerootDir))
+	# The storeroot-dir might contain symlinks to different volumes.
+	# So we want to resolve them and show all relevant mount points.
+	findLinks = subprocess.check_output(["find", storerootDir, "-type", "l"])
+	mountPoints = []
+	for symlink in findLinks.splitlines():
+		linkPath = os.path.realpath(symlink)
+		if os.path.exists(linkPath):
+			diskSpaceForDir = getDiskSpaceForDirectory(linkPath)
+			if diskSpaceForDir not in diskSpaceValues:
+				diskSpaceValues.append(diskSpaceForDir)
+	return getJsonForData(diskSpaceValues)
+
+def getDiskSpaceForDirectory(dir):
+	df = subprocess.check_output(["df", '-h', dir])
+	return extractDiskSpaceValues(df)
 
 def extractDiskSpaceValues(df):
 	values = {}
