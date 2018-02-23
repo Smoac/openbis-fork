@@ -57,6 +57,11 @@ public class EntityWithPropertiesSortOptions<OBJECT extends ICodeHolder & IPermI
 		return getOrCreateSortingWithParameters(FETCHED_FIELDS_SCORE, parameters);
     }
     
+    public SortOrder getFetchedFieldsScore()
+    {
+        return getSorting(FETCHED_FIELDS_SCORE);
+    }
+    
     public SortOrder type()
     {
         return getOrCreateSorting(TYPE);

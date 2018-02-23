@@ -23,7 +23,9 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/EntitySortOptions", "as/
 			
 			return this.getOrCreateSortingWithParameters(fields.FETCHED_FIELDS_SCORE, parameters);
 		};
-		
+		prototype.getFetchedFieldsScore = function() {
+			return this.getSorting(fields.FETCHED_FIELDS_SCORE);
+		};
 		prototype.type = function() {
 			return this.getOrCreateSorting(fields.TYPE);
 		};
