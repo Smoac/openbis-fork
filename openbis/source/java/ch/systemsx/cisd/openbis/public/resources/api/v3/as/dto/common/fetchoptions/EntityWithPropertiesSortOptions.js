@@ -14,13 +14,13 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/EntitySortOptions", "as/
 		constructor.serialVersionUID = 1;
 
 		prototype.fetchedFieldsScore = function() {
-			var parameters = {
-				SortParameter.FULL_CODE_BOOST : 		"1000000",
-				SortParameter.PARTIAL_CODE_BOOST : 	 "100000",
-				SortParameter.FULL_PROPERTY_BOOST :    "10000",
-				SortParameter.FULL_TYPE_BOOST : 		   "1000",
-				SortParameter.PARTIAL_PROPERTY_BOOST :   "100"
-			};
+			var parameters = {};
+				parameters[SortParameter.FULL_CODE_BOOST] = 		"1000000";
+				parameters[SortParameter.PARTIAL_CODE_BOOST] = 	 "100000";
+				parameters[SortParameter.FULL_PROPERTY_BOOST] = 	  "10000";
+				parameters[SortParameter.FULL_TYPE_BOOST] = 		   "1000";
+				parameters[SortParameter.PARTIAL_PROPERTY_BOOST] =   "100";
+			
 			return this.getOrCreateSortingWithParameters(fields.FETCHED_FIELDS_SCORE, parameters);
 		};
 		
