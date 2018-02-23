@@ -296,7 +296,8 @@ public class PutDataSetService
         }
     }
 
-    public void putFileToStoreShare(String sessionToken, String filePath, String dataSetType, String uploadId, InputStream inputStream)
+    public void putFileToStoreShare(String sessionToken, String folderPathOrNull, String filePath, String dataSetType, String uploadId,
+            InputStream inputStream)
     {
         if (false == isInitialized)
         {
@@ -315,6 +316,10 @@ public class PutDataSetService
             if (StringUtils.isBlank(filePath))
             {
                 throw new UserFailureException("File path cannot be null or empty");
+            }
+            if (false == StringUtils.isBlank(folderPathOrNull) && folderPathOrNull.contains("../"))
+            {
+                throw new UserFailureException("Folder path must not contain '../'");
             }
             if (filePath.contains("../"))
             {
@@ -351,13 +356,21 @@ public class PutDataSetService
                 uploadSubDir.mkdir();
             }
 
-            File filePathDir = new File(uploadSubDir, FilenameUtils.getPath(filePath));
+            File filePathDir = null;
+            if (StringUtils.isBlank(folderPathOrNull))
+            {
+                filePathDir = new File(uploadSubDir, FilenameUtils.getPath(filePath));
+            } else
+            {
+                filePathDir = new File(uploadSubDir, FilenameUtils.getPath(folderPathOrNull + "/" + filePath));
+            }
             filePathDir.mkdirs();
 
             file = new File(filePathDir, FilenameUtils.getName(filePath));
             outputStream = new FileOutputStream(file);
-
             IOUtils.copyLarge(inputStream, outputStream);
+
+            operationLog.info("File '" + filePath + "' with upload id: '" + uploadId + "' has been stored as '" + file.getCanonicalPath() + "'");
 
         } catch (IOException ioe)
         {
