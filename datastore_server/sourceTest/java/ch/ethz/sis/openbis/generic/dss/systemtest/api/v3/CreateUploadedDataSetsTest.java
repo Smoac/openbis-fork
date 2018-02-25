@@ -16,6 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.dss.systemtest.api.v3;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -160,7 +162,7 @@ public class CreateUploadedDataSetsTest extends AbstractFileTest
         assertResponseError(response);
         assertTrue(response.getContentAsString(), response.getContentAsString().contains("File path cannot be null or empty"));
     }
-    
+
     @Test
     public void testUploadWithFolderPathWithFolderUp() throws Exception
     {
@@ -170,6 +172,52 @@ public class CreateUploadedDataSetsTest extends AbstractFileTest
                 uploadFiles(sessionToken, UUID.randomUUID().toString(), "UNKNOWN", false, "iam/../incorrect", new FileToUpload());
         assertResponseError(response);
         assertTrue(response.getContentAsString(), response.getContentAsString().contains("Folder path must not contain &apos;../&apos;"));
+    }
+
+    @Test
+    public void testUploadWithFilesCleanedAfterLogout() throws Exception
+    {
+        String sessionToken = as.login(TEST_USER, PASSWORD);
+
+        String uploadId = UUID.randomUUID().toString();
+        String dataSetType = "UNKNOWN";
+
+        FileToUpload file = new FileToUpload("file", "test.txt", "test content");
+
+        ContentResponse response = uploadFiles(sessionToken, uploadId, dataSetType, false, null, file);
+        assertResponseOK(response);
+
+        FilenameFilter sessionUploadDirFilter = new FilenameFilter()
+            {
+                @Override
+                public boolean accept(File dir, String name)
+                {
+                    return sessionToken.equals(name);
+                }
+            };
+
+        File rpcIncomingDir = new File(store, "1/rpc-incoming");
+
+        File[] listFiles = rpcIncomingDir.listFiles(sessionUploadDirFilter);
+        assertEquals(1, listFiles.length);
+
+        as.logout(sessionToken);
+
+        // clean up of the session and the upload folder is done asynchronously therefore we have to wait
+
+        long timeoutMillis = System.currentTimeMillis() + 5000;
+        while (System.currentTimeMillis() < timeoutMillis)
+        {
+            listFiles = rpcIncomingDir.listFiles(sessionUploadDirFilter);
+            if (listFiles.length == 0)
+            {
+                return;
+            } else
+            {
+                Thread.sleep(100);
+            }
+        }
+        fail("Session upload folder hasn't been removed after the logout");
     }
 
     @Test
@@ -529,9 +577,7 @@ public class CreateUploadedDataSetsTest extends AbstractFileTest
             fail();
         } catch (UserFailureException e)
         {
-            assertTrue(e.getMessage(),
-                    e.getMessage()
-                            .contains("The folder for the upload id " + uploadId + " could not be found. Have you uploaded the file(s) first?"));
+            assertTrue(e.getMessage(), e.getMessage().contains("No uploaded files found for upload id '" + uploadId + "'"));
         }
     }
 
@@ -814,7 +860,7 @@ public class CreateUploadedDataSetsTest extends AbstractFileTest
         } catch (Exception e)
         {
             String fullStackTrace = ExceptionUtils.getFullStackTrace(e);
-            assertTrue(fullStackTrace, fullStackTrace.contains("The folder for the upload id " + uploadId + " could not be found"));
+            assertTrue(fullStackTrace, fullStackTrace.contains("No uploaded files found for upload id '" + uploadId + "'"));
         }
     }
 

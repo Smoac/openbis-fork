@@ -19,7 +19,6 @@ package ch.ethz.sis.openbis.generic.server.dssapi.v3.upload;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -65,16 +64,6 @@ public class StoreShareFileUploadServlet extends HttpServlet
 
     public static final String UPLOAD_ID_PARAM = "uploadID";
 
-    private PutDataSetService putService;
-
-    @Override
-    public final void init(final ServletConfig servletConfig) throws ServletException
-    {
-        super.init(servletConfig);
-        this.putService = new PutDataSetService(ServiceProvider.getOpenBISService(), operationLog);
-        putService.setStoreDirectory(ServiceProvider.getConfigProvider().getStoreRoot());
-    }
-
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException
@@ -91,6 +80,8 @@ public class StoreShareFileUploadServlet extends HttpServlet
             {
                 throw new UserFailureException("Please upload at least one file");
             }
+
+            PutDataSetService putService = (PutDataSetService) ServiceProvider.getDataStoreService().getPutDataSetService();
 
             while (iterator.hasNext())
             {
