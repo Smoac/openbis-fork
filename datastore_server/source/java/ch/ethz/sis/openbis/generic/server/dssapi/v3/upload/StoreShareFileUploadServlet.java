@@ -19,7 +19,6 @@ package ch.ethz.sis.openbis.generic.server.dssapi.v3.upload;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -61,17 +60,9 @@ public class StoreShareFileUploadServlet extends HttpServlet
 
     public static final String IGNORE_FILE_PATH_PARAM = "ignoreFilePath";
 
+    public static final String FOLDER_PATH_PARAM = "folderPath";
+
     public static final String UPLOAD_ID_PARAM = "uploadID";
-
-    private PutDataSetService putService;
-
-    @Override
-    public final void init(final ServletConfig servletConfig) throws ServletException
-    {
-        super.init(servletConfig);
-        this.putService = new PutDataSetService(ServiceProvider.getOpenBISService(), operationLog);
-        putService.setStoreDirectory(ServiceProvider.getConfigProvider().getStoreRoot());
-    }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -89,6 +80,8 @@ public class StoreShareFileUploadServlet extends HttpServlet
             {
                 throw new UserFailureException("Please upload at least one file");
             }
+
+            PutDataSetService putService = (PutDataSetService) ServiceProvider.getDataStoreService().getPutDataSetService();
 
             while (iterator.hasNext())
             {
@@ -109,8 +102,12 @@ public class StoreShareFileUploadServlet extends HttpServlet
                      */
                     String filePath = uploadRequest.isIgnoreFilePath() ? FilenameUtils.getName(file.getName()) : file.getName();
 
-                    putService.putFileToStoreShare(uploadRequest.getSessionId(), filePath, uploadRequest.getDataSetType(),
-                            uploadRequest.getUploadId(), stream);
+                    operationLog.info("Received file '" + filePath + "' for upload id '" + uploadRequest.getUploadId() + "' and data set type '"
+                            + uploadRequest.getDataSetType() + "'");
+
+                    putService.putFileToStoreShare(uploadRequest.getSessionId(), uploadRequest.getFolderPath(), filePath,
+                            uploadRequest.getDataSetType(), uploadRequest.getUploadId(), stream);
+
                 } finally
                 {
                     IOUtils.closeQuietly(stream);
@@ -159,6 +156,11 @@ public class StoreShareFileUploadServlet extends HttpServlet
             {
                 return Boolean.valueOf(str);
             }
+        }
+
+        public String getFolderPath()
+        {
+            return request.getParameter(FOLDER_PATH_PARAM);
         }
 
         public FileItemIterator getFiles() throws FileUploadException, IOException

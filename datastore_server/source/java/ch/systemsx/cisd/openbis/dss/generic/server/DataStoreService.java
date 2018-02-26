@@ -511,6 +511,8 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         {
             QueueingPathRemoverService.removeRecursively(sessionWorkspace);
         }
+
+        getPutDataSetService().cleanupSession(userSessionToken);
     }
 
     @Override
@@ -587,7 +589,8 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         return availableService;
     }
 
-    private PutDataSetService getPutDataSetService()
+    @Override
+    public PutDataSetService getPutDataSetService()
     {
         if (putService == null)
         {

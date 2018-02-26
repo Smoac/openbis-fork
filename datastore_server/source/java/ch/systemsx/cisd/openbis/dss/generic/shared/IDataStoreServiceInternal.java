@@ -72,4 +72,9 @@ public interface IDataStoreServiceInternal extends IInitializable, IDataStoreSer
 
     public void scheduleTask(String taskKey, IProcessingPluginTask task, Map<String, String> parameterBindings,
             List<DatasetDescription> datasets, String userId, String userEmailOrNull, String userSessionToken);
+
+    /**
+     * Returns the put data set service.
+     */
+    IPutDataSetService getPutDataSetService();
 }

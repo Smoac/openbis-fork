@@ -17,12 +17,15 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort;
 
 import java.util.Comparator;
+import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.EntitySortOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortParameter;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IModificationDateHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationDateHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 
 /**
  * @author pkupczyk
@@ -38,7 +41,7 @@ public class EntityComparatorFactory<OBJECT extends ICodeHolder & IPermIdHolder 
     }
 
     @Override
-    public Comparator<OBJECT> getComparator(String field)
+    public Comparator<OBJECT> getComparator(String field, Map<SortParameter, String> parameters, ISearchCriteria criteria)
     {
         if (EntitySortOptions.CODE.equals(field))
         {

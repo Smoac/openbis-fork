@@ -1,7 +1,8 @@
 define([ "require", "stjs" ], function(require, stjs) {
-	var Sorting = function(field, order) {
+	var Sorting = function(field, order, parameters) {
 		this.field = field;
 		this.order = order;
+		this.parameters = parameters;
 	};
 
 	stjs.extend(Sorting, null, [], function(constructor, prototype) {
@@ -12,6 +13,9 @@ define([ "require", "stjs" ], function(require, stjs) {
 		};
 		prototype.getOrder = function() {
 			return this.order;
+		};
+		prototype.getParameters = function() {
+			return this.parameters;
 		};
 	}, {});
 	return Sorting;

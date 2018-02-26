@@ -77,7 +77,7 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
         }
 
         Collection<OBJECT> allResults = searchAndTranslate(context, criteria, fetchOptions);
-        List<OBJECT> sortedAndPaged = sortAndPage(context, allResults, fetchOptions);
+        List<OBJECT> sortedAndPaged = sortAndPage(context, allResults, criteria, fetchOptions);
 
         SearchResult<OBJECT> searchResult = new SearchResult<OBJECT>(sortedAndPaged, allResults.size());
         return getOperationResult(searchResult);
@@ -119,7 +119,7 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
         return objects;
     }
 
-    private List<OBJECT> sortAndPage(IOperationContext context, Collection<OBJECT> results, FETCH_OPTIONS fetchOptions)
+    private List<OBJECT> sortAndPage(IOperationContext context, Collection<OBJECT> results,  CRITERIA criteria, FETCH_OPTIONS fetchOptions)
     {
         if (results == null || results.isEmpty())
         {
@@ -127,7 +127,7 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
         }
 
         SortAndPage sap = new SortAndPage();
-        Collection<OBJECT> objects = sap.sortAndPage(results, fetchOptions);
+        Collection<OBJECT> objects = sap.sortAndPage(results, criteria, fetchOptions);
 
         operationLog.info("Return " + objects.size() + " object(s) after sorting and paging.");
 

@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.etlserver.api.v1;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Properties;
 
@@ -100,8 +102,7 @@ class DataSetTypeToRegistratorMapper
                             + dropboxName
                             + " = " + dropboxName);
             return defaultHandler;
-        }
-        else
+        } else
         {
             return plugin;
         }
@@ -115,6 +116,14 @@ class DataSetTypeToRegistratorMapper
         }
         ITopLevelDataSetRegistrator plugin = handlerMap.get(dataSetTypeOrNull);
         return (null == plugin) ? defaultHandler : plugin;
+    }
+
+    public Collection<ITopLevelDataSetRegistrator> getRegistrators()
+    {
+        Collection<ITopLevelDataSetRegistrator> registrators = new ArrayList<ITopLevelDataSetRegistrator>();
+        registrators.add(defaultHandler);
+        registrators.addAll(handlerMap.values());
+        return registrators;
     }
 
     public void initializeStoreRootDirectory(File storeDirectory)
