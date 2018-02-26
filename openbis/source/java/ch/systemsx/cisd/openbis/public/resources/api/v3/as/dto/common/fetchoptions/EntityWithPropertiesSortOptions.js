@@ -15,11 +15,11 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/EntitySortOptions", "as/
 
 		prototype.fetchedFieldsScore = function() {
 			var parameters = {};
-				parameters[SortParameter.FULL_CODE_BOOST] = 		"1000000";
-				parameters[SortParameter.PARTIAL_CODE_BOOST] = 	 "100000";
-				parameters[SortParameter.FULL_PROPERTY_BOOST] = 	  "10000";
-				parameters[SortParameter.FULL_TYPE_BOOST] = 		   "1000";
-				parameters[SortParameter.PARTIAL_PROPERTY_BOOST] =   "100";
+				parameters[SortParameter.FULL_MATCH_CODE_BOOST] = 		"1000000";
+				parameters[SortParameter.PARTIAL_MATCH_CODE_BOOST] = 	 	 "100000";
+				parameters[SortParameter.FULL_MATCH_PROPERTY_BOOST] = 	  "10000";
+				parameters[SortParameter.FULL_MATCH_TYPE_BOOST] = 		   "1000";
+				parameters[SortParameter.PARTIAL_MATCH_PROPERTY_BOOST] =   	"100";
 			
 			return this.getOrCreateSortingWithParameters(fields.FETCHED_FIELDS_SCORE, parameters);
 		};

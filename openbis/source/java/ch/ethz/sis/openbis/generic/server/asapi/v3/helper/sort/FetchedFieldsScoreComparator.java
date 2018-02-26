@@ -73,25 +73,25 @@ public class FetchedFieldsScoreComparator<OBJECT extends IEntityTypeHolder & IPr
             throw new IllegalArgumentException("Missing score parameters");
         } else 
         {
-	        	if(parameters.containsKey(SortParameter.FULL_CODE_BOOST)) 
+	        	if(parameters.containsKey(SortParameter.FULL_MATCH_CODE_BOOST)) 
 	        	{
-	        		fullCodeBoost = Integer.parseInt(parameters.get(SortParameter.FULL_CODE_BOOST));
+	        		fullCodeBoost = Integer.parseInt(parameters.get(SortParameter.FULL_MATCH_CODE_BOOST));
 	        	}
-	        	if(parameters.containsKey(SortParameter.PARTIAL_CODE_BOOST)) 
+	        	if(parameters.containsKey(SortParameter.PARTIAL_MATCH_CODE_BOOST)) 
 	        	{
-	        		partialCodeBoost = Integer.parseInt(parameters.get(SortParameter.PARTIAL_CODE_BOOST));
+	        		partialCodeBoost = Integer.parseInt(parameters.get(SortParameter.PARTIAL_MATCH_CODE_BOOST));
 	        	}
-	        	if(parameters.containsKey(SortParameter.FULL_PROPERTY_BOOST)) 
+	        	if(parameters.containsKey(SortParameter.FULL_MATCH_PROPERTY_BOOST)) 
 	        	{
-	        		fullPropertyBoost = Integer.parseInt(parameters.get(SortParameter.FULL_PROPERTY_BOOST));
+	        		fullPropertyBoost = Integer.parseInt(parameters.get(SortParameter.FULL_MATCH_PROPERTY_BOOST));
 	        	}
-	        	if(parameters.containsKey(SortParameter.FULL_TYPE_BOOST)) 
+	        	if(parameters.containsKey(SortParameter.FULL_MATCH_TYPE_BOOST)) 
 	        	{
-	        		fullTypeBoost = Integer.parseInt(parameters.get(SortParameter.FULL_TYPE_BOOST));
+	        		fullTypeBoost = Integer.parseInt(parameters.get(SortParameter.FULL_MATCH_TYPE_BOOST));
 	        	}
-	        	if(parameters.containsKey(SortParameter.PARTIAL_PROPERTY_BOOST)) 
+	        	if(parameters.containsKey(SortParameter.PARTIAL_MATCH_PROPERTY_BOOST)) 
 	        	{
-	        		partialPropertyBoost = Integer.parseInt(parameters.get(SortParameter.PARTIAL_PROPERTY_BOOST));
+	        		partialPropertyBoost = Integer.parseInt(parameters.get(SortParameter.PARTIAL_MATCH_PROPERTY_BOOST));
 	        	}
         }
         
