@@ -49,11 +49,11 @@ public class EntityWithPropertiesSortOptions<OBJECT extends ICodeHolder & IPermI
     
     public SortOrder fetchedFieldsScore() {
     		Map<SortParameter, String> parameters = new HashMap<>();
-    		parameters.put(SortParameter.FULL_CODE_BOOST, 	"1000000");
-    		parameters.put(SortParameter.PARTIAL_CODE_BOOST,  "100000");
-    		parameters.put(SortParameter.FULL_PROPERTY_BOOST,  "10000");
-    		parameters.put(SortParameter.FULL_TYPE_BOOST, 	   "1000");
-    		parameters.put(SortParameter.PARTIAL_PROPERTY_BOOST, "100");
+    		parameters.put(SortParameter.FULL_MATCH_CODE_BOOST, 	"1000000");
+    		parameters.put(SortParameter.PARTIAL_MATCH_CODE_BOOST,  "100000");
+    		parameters.put(SortParameter.FULL_MATCH_PROPERTY_BOOST,  "10000");
+    		parameters.put(SortParameter.FULL_MATCH_TYPE_BOOST, 	   "1000");
+    		parameters.put(SortParameter.PARTIAL_MATCH_PROPERTY_BOOST, "100");
 		return getOrCreateSortingWithParameters(FETCHED_FIELDS_SCORE, parameters);
     }
     
