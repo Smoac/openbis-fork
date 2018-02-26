@@ -30,7 +30,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			});
 		}
 
-		var testSearchWithPagingAndSorting = function(c, fSearch, fetchOptions, fieldName, fieldParameters) {
+		var testSearchWithPagingAndSorting = function(c, fSearch, fetchOptions, fieldName, fieldParameters, disableSortCheck, codeOfFirstAsc) {
 			c.start();
 
 			fetchOptions.from(null).count(null);
@@ -48,37 +48,52 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 					var fieldGetterName = "get" + fieldName.substr(0, 1).toUpperCase() + fieldName.substr(1);
 
-					var comparatorAsc = function(o1, o2) {
-						var v1 = o1[fieldGetterName](fieldParameters);
-						var v2 = o2[fieldGetterName](fieldParameters);
-						return naturalsort(v1, v2);
-					};
-
-					var comparatorDesc = function(o1, o2) {
-						return comparatorAsc(o2, o1);
-					};
-
-					objects.sort(comparatorAsc);
-					var codesAsc = objects.map(function(object) {
-						return object.code;
-					});
-
-					objects.sort(comparatorDesc);
-					var codesDesc = objects.map(function(object) {
-						return object.code;
-					});
-
-					fetchOptions.from(1).count(1);
+					if(disableSortCheck && codeOfFirstAsc) {
+						fetchOptions.from(0).count(1);
+					} else {
+						var comparatorAsc = function(o1, o2) {
+							var v1 = o1[fieldGetterName](fieldParameters);
+							var v2 = o2[fieldGetterName](fieldParameters);
+							return naturalsort(v1, v2);
+						};
+	
+						var comparatorDesc = function(o1, o2) {
+							return comparatorAsc(o2, o1);
+						};
+	
+						objects.sort(comparatorAsc);
+						var codesAsc = objects.map(function(object) {
+							return object.code;
+						});
+	
+						objects.sort(comparatorDesc);
+						var codesDesc = objects.map(function(object) {
+							return object.code;
+						});
+						
+						fetchOptions.from(1).count(1);
+					}
+					
 					fetchOptions.sortBy()[fieldName](fieldParameters);
-
 					return fSearch(facade).then(function(results) {
 						c.ok("Got results ASC");
-						c.assertObjectsWithValues(results.getObjects(), "code", [ codesAsc[1] ]);
+						if(disableSortCheck && codeOfFirstAsc) {
+							c.assertObjectsWithValues(results.getObjects(), "code", [ codeOfFirstAsc ]);
+							fetchOptions.from(null).count(null);
+						} else {
+							c.assertObjectsWithValues(results.getObjects(), "code", [ codesAsc[1] ]);
+						}
+						
+						
 						fetchOptions.sortBy()[fieldName](fieldParameters).desc();
-
 						return fSearch(facade).then(function(results) {
 							c.ok("Got results DESC");
-							c.assertObjectsWithValues(results.getObjects(), "code", [ codesDesc[1] ]);
+							if(disableSortCheck && codeOfFirstAsc) {
+								var lastObject = results.getObjects()[results.getObjects().length - 1];
+								c.assertObjectsWithValues([lastObject], "code", [ codeOfFirstAsc ]);
+							} else {
+								c.assertObjectsWithValues(results.getObjects(), "code", [ codesDesc[1] ]);
+							}
 							c.finish();
 						});
 					});
@@ -228,6 +243,21 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testSearchWithPagingAndSortingByAll(c, function(facade) {
 				return facade.searchExperiments(criteria, fo);
 			}, fo);
+		});
+		
+		QUnit.test("searchExperiments() with paging and sorting by score", function(assert) {
+			var c = new common(assert, openbis);
+
+			var criteria = new c.ExperimentSearchCriteria();
+			criteria.withOrOperator();
+			criteria.withCode().thatContains("EXP");
+			criteria.withCode().thatContains("-1");
+
+			var fo = c.createExperimentFetchOptions();
+
+			testSearchWithPagingAndSorting(c, function(facade) {
+				return facade.searchExperiments(criteria, fo);
+			}, fo, "fetchedFieldsScore", null, true, "EXP-1");
 		});
 
 		QUnit.test("searchExperiments() with sorting by identifier", function(assert) {
@@ -404,7 +434,21 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				return facade.searchSamples(criteria, fo);
 			}, fo);
 		});
-
+		
+		QUnit.test("searchSamples() with paging and sorting by score", function(assert) {
+			var c = new common(assert, openbis);
+			
+			var criteria = new c.SampleSearchCriteria();
+			criteria.withOrOperator();
+			criteria.withCode().thatContains("TEST-SAMPLE-1");
+			
+			var fo = c.createSampleFetchOptions();
+			
+			testSearchWithPagingAndSorting(c, function(facade) {
+				return facade.searchSamples(criteria, fo);
+			}, fo, "fetchedFieldsScore", null, true,"TEST-SAMPLE-1");
+		});
+		
 		QUnit.test("searchSamples() withoutSpace", function(assert) {
 			var c = new common(assert, openbis);
 			var code = c.generateId("SAMPLE");
@@ -745,6 +789,21 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}, fo);
 		});
 
+		QUnit.test("searchDataSets() with paging and sorting by score", function(assert) {
+			var c = new common(assert, openbis);
+
+			var criteria = new c.DataSetSearchCriteria();
+			criteria.withOrOperator();
+			criteria.withCode().thatContains("20130412142");
+			criteria.withCode().thatContains("942295-198");
+
+			var fo = c.createDataSetFetchOptions();
+
+			testSearchWithPagingAndSorting(c, function(facade) {
+				return facade.searchDataSets(criteria, fo);
+			}, fo, "fetchedFieldsScore", null, true, "20130412142942295-198");
+		});
+
 		QUnit.test("searchDataSets() with sorting by property", function(assert) {
 			var c = new common(assert, openbis);
 
@@ -986,6 +1045,21 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testSearchWithPagingAndSortingByAll(c, function(facade) {
 				return facade.searchMaterials(criteria, fo);
 			}, fo);
+		});
+		
+		QUnit.test("searchMaterials() with paging and sorting by score", function(assert) {
+			var c = new common(assert, openbis);
+
+			var criteria = new c.MaterialSearchCriteria();
+			criteria.withOrOperator();
+			criteria.withCode().thatContains("SIRNA");
+			criteria.withCode().thatContains("A-2");
+
+			var fo = c.createMaterialFetchOptions();
+
+			testSearchWithPagingAndSorting(c, function(facade) {
+				return facade.searchMaterials(criteria, fo);
+			}, fo, "fetchedFieldsScore", null, true, "SIRNA-2");
 		});
 
 		QUnit.test("searchMaterials() with sorting by type", function(assert) {
