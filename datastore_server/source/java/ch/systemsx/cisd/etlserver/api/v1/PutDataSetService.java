@@ -274,25 +274,11 @@ public class PutDataSetService implements IPutDataSetService
             doInitialization();
         }
 
-        if (StringUtils.isBlank(sessionToken))
-        {
-            throw new UserFailureException("Session token cannot be null or empty");
-        }
-        if (sessionToken.contains("/"))
-        {
-            throw new UserFailureException("Session token must not contain '/'");
-        }
+        validateSessionToken(sessionToken);
+        validateUploadId(uploadId);
         if (newDataSet == null)
         {
             throw new UserFailureException("New data set cannot be null");
-        }
-        if (StringUtils.isBlank(uploadId))
-        {
-            throw new UserFailureException("Upload id cannot be null or empty");
-        }
-        if (uploadId.contains("/"))
-        {
-            throw new UserFailureException("Upload id must not contain '/'");
         }
 
         ServiceProvider.getOpenBISService().checkSession(sessionToken);
@@ -346,14 +332,8 @@ public class PutDataSetService implements IPutDataSetService
 
         try
         {
-            if (StringUtils.isBlank(sessionToken))
-            {
-                throw new UserFailureException("Session token cannot be null or empty");
-            }
-            if (sessionToken.contains("/"))
-            {
-                throw new UserFailureException("Session token must not contain '/'");
-            }
+            validateSessionToken(sessionToken);
+            validateUploadId(uploadId);
             if (StringUtils.isBlank(filePath))
             {
                 throw new UserFailureException("File path cannot be null or empty");
@@ -369,14 +349,6 @@ public class PutDataSetService implements IPutDataSetService
             if (StringUtils.isBlank(dataSetType))
             {
                 throw new UserFailureException("Data set type cannot be null or empty");
-            }
-            if (StringUtils.isBlank(uploadId))
-            {
-                throw new UserFailureException("Upload id cannot be null or empty");
-            }
-            if (uploadId.contains("/"))
-            {
-                throw new UserFailureException("Upload id must not contain '/'");
             }
             if (inputStream == null)
             {
@@ -613,14 +585,7 @@ public class PutDataSetService implements IPutDataSetService
             doInitialization();
         }
 
-        if (StringUtils.isBlank(sessionToken))
-        {
-            throw new IllegalArgumentException("Session token cannot be null or empty");
-        }
-        if (sessionToken.contains("/"))
-        {
-            throw new UserFailureException("Session token must not contain '/'");
-        }
+        validateSessionToken(sessionToken);
 
         Collection<TopLevelDataSetRegistratorGlobalState> states = getThreadGlobalStates();
 
@@ -643,6 +608,28 @@ public class PutDataSetService implements IPutDataSetService
                         "Could not clean up a user session upload folder '" + sessionUploadDir.getAbsolutePath() + "' together with the user session",
                         e);
             }
+        }
+    }
+
+    private void validateSessionToken(String sessionToken)
+    {
+        validate(sessionToken, "Session token");
+    }
+
+    private void validateUploadId(String uploadId)
+    {
+        validate(uploadId, "Upload id");
+    }
+
+    private void validate(String uploadId, String name)
+    {
+        if (StringUtils.isBlank(uploadId))
+        {
+            throw new UserFailureException(name + " cannot be null or empty");
+        }
+        if (uploadId.contains("/"))
+        {
+            throw new UserFailureException(name + " must not contain '/'");
         }
     }
 
