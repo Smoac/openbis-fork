@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
+import static org.junit.Assert.assertTrue;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotSame;
 import static org.testng.Assert.assertSame;
@@ -884,6 +885,29 @@ public class SearchSampleTest extends AbstractSampleTest
         fo.sortBy().code().desc();
         List<Sample> samples2 = search(sessionToken, criteria, fo);
         assertSampleIdentifiersInOrder(samples2, "/CISD/CP-TEST-3", "/CISD/CP-TEST-2", "/CISD/CP-TEST-1");
+
+        v3api.logout(sessionToken);
+    }
+    
+    @Test
+    public void testSearchWithSortingByCodeScore()
+    {
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withCode().thatContains("CP-TEST");
+        criteria.withCode().thatContains("TEST-1");
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleFetchOptions fo = new SampleFetchOptions();
+        
+        fo.sortBy().fetchedFieldsScore().asc();
+        List<Sample> samples1 = search(sessionToken, criteria, fo);
+        assertTrue(samples1.get(0).getCode().equals("CP-TEST-1"));
+
+        fo.sortBy().fetchedFieldsScore().desc();
+        List<Sample> samples2 = search(sessionToken, criteria, fo);
+        assertTrue(samples2.get(samples1.size() - 1).getCode().equals("CP-TEST-1"));
 
         v3api.logout(sessionToken);
     }
