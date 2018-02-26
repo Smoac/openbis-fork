@@ -211,6 +211,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.get.GetPluginsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.get.GetPluginsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.IPluginId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.PluginPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.search.PluginSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.search.SearchPluginsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.search.SearchPluginsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.update.PluginUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.update.UpdatePluginsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
@@ -960,6 +963,13 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
             MaterialTypeFetchOptions fetchOptions)
     {
         SearchMaterialTypesOperationResult result = executeOperation(sessionToken, new SearchMaterialTypesOperation(searchCriteria, fetchOptions));
+        return result.getSearchResult();
+    }
+
+    @Override
+    public SearchResult<Plugin> searchPlugins(String sessionToken, PluginSearchCriteria searchCriteria, PluginFetchOptions fetchOptions)
+    {
+        SearchPluginsOperationResult result = executeOperation(sessionToken, new SearchPluginsOperation(searchCriteria, fetchOptions));
         return result.getSearchResult();
     }
 

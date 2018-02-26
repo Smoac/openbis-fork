@@ -1252,6 +1252,18 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			});
 		}
 		
+		this.searchPlugins = function(criteria, fetchOptions) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "searchPlugins",
+					"params" : [ thisFacade._private.sessionToken, criteria, fetchOptions ]
+				},
+				returnType : "SearchResult"
+			});
+		}
+		
 		this.searchVocabularies = function(criteria, fetchOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({

@@ -114,6 +114,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.create.PluginCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.fetchoptions.PluginFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.IPluginId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.PluginPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.search.PluginSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.update.PluginUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.ProjectCreation;
@@ -388,9 +389,12 @@ public interface IApplicationServerApi extends IRpcService
     public SearchResult<MaterialType> searchMaterialTypes(String sessionToken, MaterialTypeSearchCriteria searchCriteria,
             MaterialTypeFetchOptions fetchOptions);
 
+    public SearchResult<Plugin> searchPlugins(String sessionToken, PluginSearchCriteria searchCriteria,
+            PluginFetchOptions fetchOptions);
+
     public SearchResult<Vocabulary> searchVocabularies(String sessionToken, VocabularySearchCriteria searchCriteria,
             VocabularyFetchOptions fetchOptions);
-
+    
     public SearchResult<VocabularyTerm> searchVocabularyTerms(String sessionToken, VocabularyTermSearchCriteria searchCriteria,
             VocabularyTermFetchOptions fetchOptions);
     

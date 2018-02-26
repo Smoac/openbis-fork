@@ -1938,3 +1938,9 @@ update Plugins
 Update Plugins Operation
 Update Plugins Operation Result
 
+Plugin Search Criteria
+search Plugins
+Search Plugins Operation
+Search Plugins Operation Result
+Name Search Criteria
+with Name

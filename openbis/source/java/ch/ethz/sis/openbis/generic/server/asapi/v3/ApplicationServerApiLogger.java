@@ -115,6 +115,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.create.PluginCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.fetchoptions.PluginFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.IPluginId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.PluginPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.search.PluginSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.update.PluginUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.ProjectCreation;
@@ -699,6 +700,13 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
             MaterialTypeFetchOptions fetchOptions)
     {
         logAccess(sessionToken, "search-material-types", "SEARCH_CRITERIA:\n%s\nFETCH_OPTIONS:\n%s\n", searchCriteria, fetchOptions);
+        return null;
+    }
+
+    @Override
+    public SearchResult<Plugin> searchPlugins(String sessionToken, PluginSearchCriteria searchCriteria, PluginFetchOptions fetchOptions)
+    {
+        logAccess(sessionToken, "search-plugins", "SEARCH_CRITERIA:\n%s\nFETCH_OPTIONS:\n%s\n", searchCriteria, fetchOptions);
         return null;
     }
 
