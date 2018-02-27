@@ -441,6 +441,11 @@ var SampleDataGridUtil = new function() {
 				criteriaToSend.logicalOperator = options.searchOperator;
 				if(criteriaToSend.logicalOperator === "OR") {
 					criteriaToSend.rules = {};
+					fetchOptions.sort = { 
+							type : "Attribute",
+							name : "fetchedFieldsScore",
+							direction : "asc"
+					}
 				}
 			}
 			
@@ -458,6 +463,7 @@ var SampleDataGridUtil = new function() {
 						name : null,
 						direction : options.sortDirection
 				}
+				
 				switch(options.sortProperty) {
 					case "code":
 						fetchOptions.sort.type = "Attribute";
