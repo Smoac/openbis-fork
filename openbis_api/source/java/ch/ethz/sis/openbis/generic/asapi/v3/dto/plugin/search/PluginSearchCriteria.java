@@ -18,6 +18,8 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.search;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractObjectSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.IdsSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchCriteriaToStringBuilder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchOperator;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.IPluginId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -39,5 +41,33 @@ public class PluginSearchCriteria extends AbstractObjectSearchCriteria<IPluginId
     public NameSearchCriteria withName()
     {
         return with(new NameSearchCriteria());
+    }
+    
+    public ScriptTypeSearchCriteria withScriptType()
+    {
+        return with(new ScriptTypeSearchCriteria());
+    }
+    
+    public PluginTypeSearchCriteria withPluginType()
+    {
+        return with(new PluginTypeSearchCriteria());
+    }
+    
+    public PluginSearchCriteria withOrOperator()
+    {
+        return (PluginSearchCriteria) withOperator(SearchOperator.OR);
+    }
+
+    public PluginSearchCriteria withAndOperator()
+    {
+        return (PluginSearchCriteria) withOperator(SearchOperator.AND);
+    }
+
+    @Override
+    protected SearchCriteriaToStringBuilder createBuilder()
+    {
+        SearchCriteriaToStringBuilder builder = super.createBuilder();
+        builder.setName("PLUGIN");
+        return builder;
     }
 }

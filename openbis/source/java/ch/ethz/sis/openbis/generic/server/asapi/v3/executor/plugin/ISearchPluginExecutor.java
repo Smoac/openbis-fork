@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ETH Zuerich, CISD
+ * Copyright 2018 ETH Zuerich, SIS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,15 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.plugin;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.IPluginId;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IObjectAuthorizationExecutor;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.search.PluginSearchCriteria;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.search.ISearchObjectExecutor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 
 /**
- * @author pkupczyk
+ * @author Franz-Josef Elmer
+ *
  */
-public interface IPluginAuthorizationExecutor extends IObjectAuthorizationExecutor
+public interface ISearchPluginExecutor extends ISearchObjectExecutor<PluginSearchCriteria, ScriptPE>
 {
-
-    void canGet(IOperationContext context);
-
-    void canCreate(IOperationContext context);
-
-    void canUpdate(IOperationContext context, IPluginId id, ScriptPE entity);
-
-    void canSearch(IOperationContext context);
 
 }

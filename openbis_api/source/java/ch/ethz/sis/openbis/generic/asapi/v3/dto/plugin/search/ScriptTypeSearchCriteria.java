@@ -14,34 +14,25 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.fetchoptions;
+package ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.search;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortOrder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.EnumFieldSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchFieldType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.ScriptType;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author Franz-Josef Elmer
+ *
  */
-@JsonObject("as.dto.plugin.fetchoptions.PluginSortOptions")
-public class PluginSortOptions extends SortOptions<Plugin>
+@JsonObject("as.dto.plugin.search.ScriptTypeSearchCriteria")
+public class ScriptTypeSearchCriteria extends EnumFieldSearchCriteria<ScriptType>
 {
     private static final long serialVersionUID = 1L;
 
-    @JsonIgnore
-    public static final String NAME = "NAME";
-
-    public SortOrder name()
+    public ScriptTypeSearchCriteria()
     {
-        return getOrCreateSorting(NAME);
-    }
-
-    public SortOrder getName()
-    {
-        return getSorting(NAME);
+        super("script type", SearchFieldType.ATTRIBUTE);
     }
 
 }

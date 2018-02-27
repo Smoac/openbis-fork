@@ -7,6 +7,7 @@ define([ "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/person/fetch
 		prototype['@type'] = 'as.dto.plugin.fetchoptions.PluginFetchOptions';
 		constructor.serialVersionUID = 1;
 		prototype.registrator = null;
+		prototype.script = null;
 		prototype.sort = null;
 
 		prototype.withRegistrator = function() {
@@ -21,6 +22,13 @@ define([ "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/person/fetch
 		};
 		prototype.hasRegistrator = function() {
 			return this.registrator != null;
+		};
+		prototype.withScript = function() {
+			this.script = true;
+			return this;
+		};
+		prototype.isWithScript = function() {
+			return this.script;
 		};
 		prototype.sortBy = function() {
 			if (this.sort == null) {

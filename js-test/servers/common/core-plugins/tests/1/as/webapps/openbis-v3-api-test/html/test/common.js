@@ -118,6 +118,7 @@ define(
 				this.MaterialSearchCriteria = dtos.MaterialSearchCriteria;
 				this.MaterialTypeSearchCriteria = dtos.MaterialTypeSearchCriteria;
 				this.ExternalDmsSearchCriteria = dtos.ExternalDmsSearchCriteria;
+				this.PluginSearchCriteria = dtos.PluginSearchCriteria;
 				this.VocabularySearchCriteria = dtos.VocabularySearchCriteria;
 				this.VocabularyTermSearchCriteria = dtos.VocabularyTermSearchCriteria;
 				this.DataSetFileSearchCriteria = dtos.DataSetFileSearchCriteria;
@@ -260,6 +261,7 @@ define(
 				this.SearchDataSetTypesOperation = dtos.SearchDataSetTypesOperation;
 				this.SearchMaterialsOperation = dtos.SearchMaterialsOperation;
 				this.SearchMaterialTypesOperation = dtos.SearchMaterialTypesOperation;
+				this.SearchPluginsOperation = dtos.SearchPluginsOperation;
 				this.SearchVocabulariesOperation = dtos.SearchVocabulariesOperation;
 				this.SearchVocabularyTermsOperation = dtos.SearchVocabularyTermsOperation;
 				this.SearchExternalDmsOperation = dtos.SearchExternalDmsOperation;
@@ -1165,6 +1167,7 @@ define(
 
 				this.createPluginFetchOptions = function() {
 					var fo = new dtos.PluginFetchOptions();
+					fo.withScript();
 					fo.withRegistrator();
 					return fo;
 				};

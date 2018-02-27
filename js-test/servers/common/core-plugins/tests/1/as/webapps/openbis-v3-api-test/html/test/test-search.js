@@ -1239,15 +1239,46 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testSearch(c, fSearch, fCheck);
 		});
 
-		QUnit.test("searchVocabularies()", function(assert) {
+		QUnit.test("searchPlugins()", function(assert) {
 			var c = new common(assert, openbis);
 
+			var fSearch = function(facade) {
+				var criteria = new c.PluginSearchCriteria();
+				criteria.withName().thatContains("e");
+				criteria.withScriptType().thatEquals(c.ScriptType.ENTITY_VALIDATION);
+				var fo = c.createPluginFetchOptions();
+				fo.withScript().sortBy().name().desc();
+				return facade.searchPlugins(criteria, fo);
+			}
+
+			var fCheck = function(facade, plugins) {
+				c.assertEqual(plugins.length, 1);
+				var plugin = plugins[0];
+				c.assertEqual(plugin.getName(), "Has_Parents", "Name");
+				c.assertEqual(plugin.getDescription(), "Check if the Entity has a parent", "Description");
+				c.assertEqual(plugin.getPluginType(), c.PluginType.JYTHON, "Plugin type");
+				c.assertEqual(plugin.getScriptType(), c.ScriptType.ENTITY_VALIDATION, "Script type");
+				c.assertEqual(plugin.getFetchOptions().isWithScript(), true, "With script");
+				c.assertEqual(plugin.getScript(), 'def validate(entity, isNew):\n'
+						+ '  parents = entity.entityPE().parents\n'
+						+ '  if parents:\n'
+						+ '    return None\n'
+						+ '  else:\n'
+						+ '    return "No Parents have been selected!"\n' , "Script");
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+
+		QUnit.test("searchVocabularies()", function(assert) {
+			var c = new common(assert, openbis);
+			
 			var fSearch = function(facade) {
 				var criteria = new c.VocabularySearchCriteria();
 				criteria.withCode().thatEquals("$STORAGE_FORMAT");
 				return facade.searchVocabularies(criteria, c.createVocabularyFetchOptions());
 			}
-
+			
 			var fCheck = function(facade, vocabularies) {
 				c.assertEqual(vocabularies.length, 1);
 				var vocabulary = vocabularies[0];
@@ -1257,10 +1288,10 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				c.assertEqual(vocabulary.isInternalNameSpace(), true, "Internal namespace");
 				c.assertEqual(vocabulary.getTerms().length, 2, "# of terms");
 			}
-
+			
 			testSearch(c, fSearch, fCheck);
 		});
-
+		
 		QUnit.test("searchVocabularyTerms()", function(assert) {
 			var c = new common(assert, openbis);
 

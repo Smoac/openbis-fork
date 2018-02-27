@@ -41,7 +41,7 @@ public class GetPluginTest extends AbstractTest
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         PluginPermId id = new PluginPermId("properties");
         PluginFetchOptions fetchOptions = new PluginFetchOptions();
-        fetchOptions.withRegistrator();
+        fetchOptions.withScript().withRegistrator();
         
         // When
         Plugin plugin = v3api.getPlugins(sessionToken, Arrays.asList(id), fetchOptions).get(id);
@@ -68,7 +68,7 @@ public class GetPluginTest extends AbstractTest
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         PluginPermId id = new PluginPermId("testEXPERIMENT");
         PluginFetchOptions fetchOptions = new PluginFetchOptions();
-        fetchOptions.withRegistrator();
+        fetchOptions.withScript().withRegistrator();
         
         // When
         Plugin plugin = v3api.getPlugins(sessionToken, Arrays.asList(id), fetchOptions).get(id);
@@ -107,7 +107,7 @@ public class GetPluginTest extends AbstractTest
         assertEquals(plugin.getPluginType(), PluginType.JYTHON);
         assertEquals(plugin.getScriptType(), ScriptType.MANAGED_PROPERTY);
         assertEquals(plugin.isAvailable(), true);
-        assertEquals(plugin.getScript(), "pass");
+        assertEquals(plugin.getScript(), null);
         assertEqualsDate(plugin.getRegistrationDate(), "2010-10-27 15:16:48");
         assertEquals(plugin.getFetchOptions().hasRegistrator(), false);
         

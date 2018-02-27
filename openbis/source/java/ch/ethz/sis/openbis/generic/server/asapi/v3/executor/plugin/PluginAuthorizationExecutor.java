@@ -40,6 +40,13 @@ public class PluginAuthorizationExecutor implements IPluginAuthorizationExecutor
     }
 
     @Override
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @Capability("SEARCH_PLUGIN")
+    public void canSearch(IOperationContext context)
+    {
+    }
+
+    @Override
     @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN })
     @Capability("CREATE_PLUGIN")
     public void canCreate(IOperationContext context)

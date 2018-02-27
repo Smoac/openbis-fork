@@ -1924,6 +1924,8 @@ NAME
 Plugin
 Plugin Creation
 Plugin Fetch Options
+is Without Script
+without Script
 Plugin Sort Options
 Plugin Type
 Script Type
@@ -1937,14 +1939,19 @@ Plugin Update
 update Plugins
 Update Plugins Operation
 Update Plugins Operation Result
-
 Plugin Search Criteria
 search Plugins
 Search Plugins Operation
 Search Plugins Operation Result
 Name Search Criteria
 with Name
+name
+Plugin Type Search Criteria
+Script Type Search Criteria
+with Plugin Type
+with Script Type
 
+FETCHED_FIELDS_SCORE
 fetchedFieldsScore
 getFetchedFieldsScore
 SortParameter

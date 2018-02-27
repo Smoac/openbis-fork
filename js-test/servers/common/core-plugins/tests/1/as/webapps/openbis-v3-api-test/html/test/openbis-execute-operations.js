@@ -353,10 +353,14 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 			return this._executeSearchOperation(new c.SearchMaterialTypesOperation(criteria, fetchOptions));
 		}
 
+		this.searchPlugins = function(criteria, fetchOptions) {
+			return this._executeSearchOperation(new c.SearchPluginsOperation(criteria, fetchOptions));
+		}
+
 		this.searchVocabularies = function(criteria, fetchOptions) {
 			return this._executeSearchOperation(new c.SearchVocabulariesOperation(criteria, fetchOptions));
 		}
-
+		
 		this.searchVocabularyTerms = function(criteria, fetchOptions) {
 			return this._executeSearchOperation(new c.SearchVocabularyTermsOperation(criteria, fetchOptions));
 		}

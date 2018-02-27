@@ -50,7 +50,8 @@ public class UpdatePluginTest extends AbstractTest
         v3api.updatePlugins(sessionToken, Arrays.asList(update));
 
         // Then
-        Plugin plugin = v3api.getPlugins(sessionToken, Arrays.asList(id), new PluginFetchOptions()).get(id);
+        PluginFetchOptions fetchOptions = new PluginFetchOptions().withScript();
+        Plugin plugin = v3api.getPlugins(sessionToken, Arrays.asList(id), fetchOptions).get(id);
         assertEquals(plugin.getName(), "properties");
         assertEquals(plugin.getScript(), update.getScript().getValue());
         assertEquals(plugin.isAvailable(), false);
