@@ -24,6 +24,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.ArchivingStatus;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.archive.DataSetArchiveOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.lock.DataSetLockOptions;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
@@ -57,20 +58,37 @@ public class ArchiveDataSetTest extends AbstractArchiveUnarchiveDataSetTest
     }
 
     @Test
+    public void testArchiveLockedDataSet() throws Exception
+    {
+        // Given
+        registerDataSet();
+        String sessionToken = v3.login(TEST_USER, PASSWORD);
+        DataSetPermId dataSetId = new DataSetPermId(dataSetCode);
+        v3.lockDataSets(sessionToken, Arrays.asList(dataSetId), new DataSetLockOptions());
+        DataSetArchiveOptions options = new DataSetArchiveOptions();
+        waitUntilDataSetStatus(dataSetCode, ArchivingStatus.LOCKED);
+
+        // Then
+        v3.archiveDataSets(sessionToken, Arrays.asList(dataSetId), options);
+
+        waitUntilDataSetStatus(dataSetCode, ArchivingStatus.LOCKED);
+    }
+
+    @Test
     public void testArchiveWithRemoveFromStoreTrue() throws Exception
     {
         String sessionToken = v3.login(TEST_USER, PASSWORD);
-
+        
         registerDataSet();
-
+        
         DataSetPermId dataSetId = new DataSetPermId(dataSetCode);
         DataSetArchiveOptions options = new DataSetArchiveOptions();
-
+        
         waitUntilDataSetStatus(dataSetCode, ArchivingStatus.AVAILABLE);
         v3.archiveDataSets(sessionToken, Arrays.asList(dataSetId), options);
         waitUntilDataSetStatus(dataSetCode, ArchivingStatus.ARCHIVED);
     }
-
+    
     @Test
     public void testArchiveWithRemoveFromStoreFalse() throws Exception
     {

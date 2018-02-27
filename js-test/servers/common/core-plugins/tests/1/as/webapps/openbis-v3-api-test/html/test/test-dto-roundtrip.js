@@ -1,6 +1,6 @@
 define(['jquery', 'underscore', 'openbis', 'test/common'], function($, _, openbis, common) {
 	return function() {
-		QUnit.module("Dto roundtrip test");
+		QUnit.module("DTO roundtrip test");
 
 		var testAction = function(c, fAction, fCheck) {
 			c.start();
@@ -43,7 +43,6 @@ define(['jquery', 'underscore', 'openbis', 'test/common'], function($, _, openbi
 				actionFacade = facade;
 
 				return _.chain(
-						// [c.getDtos().GlobalSearchTextCriteria]
 						c.getDtos()
 					)
 					.map(function(proto) {

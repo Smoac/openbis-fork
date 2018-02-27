@@ -64,6 +64,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.get.GetDataSetsOperation
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.get.GetDataSetsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.lock.DataSetLockOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.lock.LockDataSetsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.SearchDataSetTypesOperation;
@@ -72,6 +74,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.SearchDataSetsOpe
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.SearchDataSetsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.unarchive.DataSetUnarchiveOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.unarchive.UnarchiveDataSetsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.unlock.DataSetUnlockOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.unlock.UnlockDataSetsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetTypeUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.UpdateDataSetTypesOperation;
@@ -206,6 +210,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.create.CreatePluginsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.create.CreatePluginsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.create.PluginCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.delete.DeletePluginsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.delete.PluginDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.fetchoptions.PluginFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.get.GetPluginsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.get.GetPluginsOperationResult;
@@ -520,6 +526,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional
     public List<EntityTypePermId> createDataSetTypes(String sessionToken, List<DataSetTypeCreation> creations)
     {
         CreateDataSetTypesOperationResult result = executeOperation(sessionToken, new CreateDataSetTypesOperation(creations));
@@ -535,6 +542,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional
     public List<EntityTypePermId> createMaterialTypes(String sessionToken, List<MaterialTypeCreation> creations)
     {
         CreateMaterialTypesOperationResult result = executeOperation(sessionToken, new CreateMaterialTypesOperation(creations));
@@ -542,6 +550,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional
     public List<PropertyTypePermId> createPropertyTypes(String sessionToken, List<PropertyTypeCreation> newPropertyTypes)
     {
         CreatePropertyTypesOperationResult result = executeOperation(sessionToken, new CreatePropertyTypesOperation(newPropertyTypes));
@@ -549,6 +558,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional
     public List<PluginPermId> createPlugins(String sessionToken, List<PluginCreation> newPlugins)
     {
         CreatePluginsOperationResult result = executeOperation(sessionToken, new CreatePluginsOperation(newPlugins));
@@ -588,6 +598,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional
     public List<RoleAssignmentTechId> createRoleAssignments(String sessionToken, List<RoleAssignmentCreation> newRoleAssignments)
     {
         CreateRoleAssignmentsOperationResult result = executeOperation(sessionToken, new CreateRoleAssignmentsOperation(newRoleAssignments));
@@ -595,6 +606,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional
     public List<PersonPermId> createPersons(String sessionToken, List<PersonCreation> newPersons)
     {
         CreatePersonsOperationResult result = executeOperation(sessionToken, new CreatePersonsOperation(newPersons));
@@ -602,6 +614,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional
     public List<ExternalDmsPermId> createExternalDataManagementSystems(String sessionToken,
             List<ExternalDmsCreation> creations)
     {
@@ -639,6 +652,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional
     public void updateExperimentTypes(String sessionToken, List<ExperimentTypeUpdate> experimentTypeUpdates)
     {
         executeOperation(sessionToken, new UpdateExperimentTypesOperation(experimentTypeUpdates));
@@ -652,6 +666,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional
     public void updateSampleTypes(String sessionToken, List<SampleTypeUpdate> sampleTypeUpdates)
     {
         executeOperation(sessionToken, new UpdateSampleTypesOperation(sampleTypeUpdates));
@@ -665,6 +680,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional
     public void updateMaterialTypes(String sessionToken, List<MaterialTypeUpdate> materialTypeUpdates)
     {
         executeOperation(sessionToken, new UpdateMaterialTypesOperation(materialTypeUpdates));
@@ -678,24 +694,28 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional
     public void updateDataSetTypes(String sessionToken, List<DataSetTypeUpdate> dataSetTypeUpdates)
     {
         executeOperation(sessionToken, new UpdateDataSetTypesOperation(dataSetTypeUpdates));
     }
 
     @Override
+    @Transactional
     public void updatePropertyTypes(String sessionToken, List<PropertyTypeUpdate> propertyTypeUpdates)
     {
         executeOperation(sessionToken, new UpdatePropertyTypesOperation(propertyTypeUpdates));
     }
 
     @Override
+    @Transactional
     public void updatePlugins(String sessionToken, List<PluginUpdate> pluginUpdates)
     {
         executeOperation(sessionToken, new UpdatePluginsOperation(pluginUpdates));
     }
 
     @Override
+    @Transactional
     public void updateVocabularies(String sessionToken, List<VocabularyUpdate> vocabularyUpdates)
     {
         executeOperation(sessionToken, new UpdateVocabulariesOperation(vocabularyUpdates));
@@ -723,6 +743,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional
     public void updatePersons(String sessionToken, List<PersonUpdate> personUpdates)
     {
         executeOperation(sessionToken, new UpdatePersonsOperation(personUpdates));
@@ -967,6 +988,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional(readOnly = true)
     public SearchResult<Plugin> searchPlugins(String sessionToken, PluginSearchCriteria searchCriteria, PluginFetchOptions fetchOptions)
     {
         SearchPluginsOperationResult result = executeOperation(sessionToken, new SearchPluginsOperation(searchCriteria, fetchOptions));
@@ -1110,12 +1132,21 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional
+    public void deletePlugins(String sessionToken, List<? extends IPluginId> pluginIds, PluginDeletionOptions deletionOptions)
+    {
+        executeOperation(sessionToken, new DeletePluginsOperation(pluginIds, deletionOptions));
+    }
+
+    @Override
+    @Transactional
     public void deletePropertyTypes(String sessionToken, List<? extends IPropertyTypeId> propertyTypeIds, PropertyTypeDeletionOptions deletionOptions)
     {
         executeOperation(sessionToken, new DeletePropertyTypesOperation(propertyTypeIds, deletionOptions));
     }
 
     @Override
+    @Transactional
     public void deleteVocabularies(String sessionToken, List<? extends IVocabularyId> ids, VocabularyDeletionOptions deletionOptions)
     {
         executeOperation(sessionToken, new DeleteVocabulariesOperation(ids, deletionOptions));
@@ -1129,6 +1160,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional
     public void deleteEntityTypes(String sessionToken, List<? extends IEntityTypeId> entityTypeIds, EntityTypeDeletionOptions deletionOptions)
     {
         executeOperation(sessionToken, new DeleteEntityTypesOperation(entityTypeIds, deletionOptions));
@@ -1142,6 +1174,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional
     public void deleteAuthorizationGroups(String sessionToken, List<? extends IAuthorizationGroupId> groupIds,
             AuthorizationGroupDeletionOptions deletionOptions)
     {
@@ -1149,6 +1182,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional
     public void deleteRoleAssignments(String sessionToken, List<? extends IRoleAssignmentId> assignmentIds,
             RoleAssignmentDeletionOptions deletionOptions)
     {
@@ -1245,6 +1279,20 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional
+    public void lockDataSets(String sessionToken, List<? extends IDataSetId> dataSetIds, DataSetLockOptions options)
+    {
+        executeOperation(sessionToken, new LockDataSetsOperation(dataSetIds, options));
+    }
+
+    @Override
+    @Transactional
+    public void unlockDataSets(String sessionToken, List<? extends IDataSetId> dataSetIds, DataSetUnlockOptions options)
+    {
+        executeOperation(sessionToken, new UnlockDataSetsOperation(dataSetIds, options));
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public SessionInformation getSessionInformation(String sessionToken)
     {
@@ -1300,12 +1348,14 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional
     public void updateExternalDataManagementSystems(String sessionToken, List<ExternalDmsUpdate> updates)
     {
         executeOperation(sessionToken, new UpdateExternalDmsOperation(updates));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public SearchResult<ExternalDms> searchExternalDataManagementSystems(String sessionToken, ExternalDmsSearchCriteria searchCriteria,
             ExternalDmsFetchOptions fetchOptions)
     {
@@ -1314,6 +1364,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
+    @Transactional
     public void deleteExternalDataManagementSystems(String sessionToken, List<? extends IExternalDmsId> externalDmsIds,
             ExternalDmsDeletionOptions deletionOptions)
     {

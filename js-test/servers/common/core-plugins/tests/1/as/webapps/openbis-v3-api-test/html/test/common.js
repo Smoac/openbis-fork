@@ -78,6 +78,7 @@ define(
 				this.SampleDeletionOptions = dtos.SampleDeletionOptions;
 				this.DataSetDeletionOptions = dtos.DataSetDeletionOptions;
 				this.MaterialDeletionOptions = dtos.MaterialDeletionOptions;
+				this.PluginDeletionOptions = dtos.PluginDeletionOptions;
 				this.VocabularyTermDeletionOptions = dtos.VocabularyTermDeletionOptions;
 				this.EntityTypeDeletionOptions = dtos.EntityTypeDeletionOptions;
 				this.ExternalDmsDeletionOptions = dtos.ExternalDmsDeletionOptions;
@@ -118,6 +119,7 @@ define(
 				this.MaterialSearchCriteria = dtos.MaterialSearchCriteria;
 				this.MaterialTypeSearchCriteria = dtos.MaterialTypeSearchCriteria;
 				this.ExternalDmsSearchCriteria = dtos.ExternalDmsSearchCriteria;
+				this.PluginSearchCriteria = dtos.PluginSearchCriteria;
 				this.VocabularySearchCriteria = dtos.VocabularySearchCriteria;
 				this.VocabularyTermSearchCriteria = dtos.VocabularyTermSearchCriteria;
 				this.DataSetFileSearchCriteria = dtos.DataSetFileSearchCriteria;
@@ -162,6 +164,8 @@ define(
 				this.ObjectKindModificationFetchOptions = dtos.ObjectKindModificationFetchOptions;
 				this.DataSetArchiveOptions = dtos.DataSetArchiveOptions;
 				this.DataSetUnarchiveOptions = dtos.DataSetUnarchiveOptions;
+				this.DataSetLockOptions = dtos.DataSetLockOptions;
+				this.DataSetUnlockOptions = dtos.DataSetUnlockOptions;
 				this.PropertyAssignmentCreation = dtos.PropertyAssignmentCreation;
 				this.PropertyTypePermId = dtos.PropertyTypePermId;
 				this.PropertyAssignmentPermId = dtos.PropertyAssignmentPermId;
@@ -260,6 +264,7 @@ define(
 				this.SearchDataSetTypesOperation = dtos.SearchDataSetTypesOperation;
 				this.SearchMaterialsOperation = dtos.SearchMaterialsOperation;
 				this.SearchMaterialTypesOperation = dtos.SearchMaterialTypesOperation;
+				this.SearchPluginsOperation = dtos.SearchPluginsOperation;
 				this.SearchVocabulariesOperation = dtos.SearchVocabulariesOperation;
 				this.SearchVocabularyTermsOperation = dtos.SearchVocabularyTermsOperation;
 				this.SearchExternalDmsOperation = dtos.SearchExternalDmsOperation;
@@ -284,6 +289,7 @@ define(
 				this.DeleteDataSetsOperation = dtos.DeleteDataSetsOperation;
 				this.DeleteMaterialsOperation = dtos.DeleteMaterialsOperation;
 				this.DeleteExternalDmsOperation = dtos.DeleteExternalDmsOperation;
+				this.DeletePluginsOperation = dtos.DeletePluginsOperation;
 				this.DeletePropertyTypesOperation = dtos.DeletePropertyTypesOperation;
 				this.DeleteVocabulariesOperation = dtos.DeleteVocabulariesOperation;
 				this.DeleteVocabularyTermsOperation = dtos.DeleteVocabularyTermsOperation;
@@ -299,6 +305,8 @@ define(
 				this.ExecuteCustomASServiceOperation = dtos.ExecuteCustomASServiceOperation;
 				this.ArchiveDataSetsOperation = dtos.ArchiveDataSetsOperation;
 				this.UnarchiveDataSetsOperation = dtos.UnarchiveDataSetsOperation;
+				this.LockDataSetsOperation = dtos.LockDataSetsOperation;
+				this.UnlockDataSetsOperation = dtos.UnlockDataSetsOperation;
 
 				this.SynchronousOperationExecutionOptions = dtos.SynchronousOperationExecutionOptions;
 				this.AsynchronousOperationExecutionOptions = dtos.AsynchronousOperationExecutionOptions;
@@ -944,6 +952,13 @@ define(
 					return facade.deleteEntityTypes([ id ], options);
 				}.bind(this);
 
+				this.deletePlugin = function(facade, id) {
+					var c = this;
+					var options = new dtos.PluginDeletionOptions();
+					options.setReason("test reason");
+					return facade.deletePlugins([ id ], options);
+				}.bind(this);
+				
 				this.deletePropertyType = function(facade, id) {
 					var c = this;
 					var options = new dtos.PropertyTypeDeletionOptions();
@@ -1165,6 +1180,7 @@ define(
 
 				this.createPluginFetchOptions = function() {
 					var fo = new dtos.PluginFetchOptions();
+					fo.withScript();
 					fo.withRegistrator();
 					return fo;
 				};

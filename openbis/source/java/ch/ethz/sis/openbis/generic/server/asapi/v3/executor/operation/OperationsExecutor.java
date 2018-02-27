@@ -37,9 +37,11 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.ICreateDataS
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.ICreateDataSetsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.IDeleteDataSetsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.IGetDataSetsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.ILockDataSetsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.ISearchDataSetTypesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.ISearchDataSetsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.IUnarchiveDataSetsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.IUnlockDataSetsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.IUpdateDataSetTypesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.IUpdateDataSetsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.IVerifyDataSetsOperationExecutor;
@@ -83,7 +85,9 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.person.IGetPersonsOp
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.person.ISearchPersonsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.person.IUpdatePersonsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.plugin.ICreatePluginsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.plugin.IDeletePluginsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.plugin.IGetPluginsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.plugin.ISearchPluginsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.plugin.IUpdatePluginsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project.ICreateProjectsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.project.IDeleteProjectsOperationExecutor;
@@ -183,8 +187,11 @@ public class OperationsExecutor implements IOperationsExecutor
     private IDeleteEntityTypeOperationExecutor deleteEntityTypesExecutor;
 
     @Autowired
-    private IDeletePropertyTypesOperationExecutor deletePropertyTypesExecutor;
+    private IDeletePluginsOperationExecutor deletePluginsExecutor;
 
+    @Autowired
+    private IDeletePropertyTypesOperationExecutor deletePropertyTypesExecutor;
+    
     @Autowired
     private IDeleteVocabulariesOperationExecutor deleteVocabulariesExecutor;
     
@@ -417,6 +424,9 @@ public class OperationsExecutor implements IOperationsExecutor
     private ISearchExternalDmsOperationExecutor searchExternalDmsExecutor;
 
     @Autowired
+    private ISearchPluginsOperationExecutor searchPluginsExecutor;
+    
+    @Autowired
     private ISearchVocabulariesOperationExecutor searchVocabulariesExecutor;
     
     @Autowired
@@ -477,6 +487,12 @@ public class OperationsExecutor implements IOperationsExecutor
     private IUnarchiveDataSetsOperationExecutor unarchiveDataSetsExecutor;
 
     @Autowired
+    private ILockDataSetsOperationExecutor lockDataSetsExecutor;
+    
+    @Autowired
+    private IUnlockDataSetsOperationExecutor unlockDataSetsExecutor;
+    
+    @Autowired
     private IGetSessionInformationOperationExecutor getSessionInformationExecutor;
 
     @Override
@@ -522,6 +538,8 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(executeCustomASServiceExecutor.execute(context, operations));
         resultMap.putAll(revertDeletionsExecutor.execute(context, operations));
         resultMap.putAll(confirmDeletionsExecutor.execute(context, operations));
+        resultMap.putAll(lockDataSetsExecutor.execute(context, operations));
+        resultMap.putAll(unlockDataSetsExecutor.execute(context, operations));
         resultMap.putAll(archiveDataSetsExecutor.execute(context, operations));
         resultMap.putAll(unarchiveDataSetsExecutor.execute(context, operations));
         resultMap.putAll(getSessionInformationExecutor.execute(context, operations));
@@ -541,6 +559,7 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(searchRoleAssignmentsExecutor.execute(context, operations));
         resultMap.putAll(searchPersonsExecutor.execute(context, operations));
         resultMap.putAll(searchExternalDmsExecutor.execute(context, operations));
+        resultMap.putAll(searchPluginsExecutor.execute(context, operations));
         resultMap.putAll(searchVocabulariesExecutor.execute(context, operations));
         resultMap.putAll(searchVocabularyTermsExecutor.execute(context, operations));
         resultMap.putAll(searchExperimentTypesExecutor.execute(context, operations));
@@ -655,6 +674,7 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(deleteAuthorizationGroupsExecutor.execute(context, operations));
         resultMap.putAll(deleteEntityTypesExecutor.execute(context, operations));
         resultMap.putAll(deletePropertyTypesExecutor.execute(context, operations));
+        resultMap.putAll(deletePluginsExecutor.execute(context, operations));
         resultMap.putAll(deleteVocabularyTermsExecutor.execute(context, operations));
         resultMap.putAll(deleteVocabulariesExecutor.execute(context, operations));
         resultMap.putAll(deleteOperationExecutionsExecutor.execute(context, operations));

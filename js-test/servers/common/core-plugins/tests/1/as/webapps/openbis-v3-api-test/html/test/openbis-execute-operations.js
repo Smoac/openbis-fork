@@ -353,10 +353,14 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 			return this._executeSearchOperation(new c.SearchMaterialTypesOperation(criteria, fetchOptions));
 		}
 
+		this.searchPlugins = function(criteria, fetchOptions) {
+			return this._executeSearchOperation(new c.SearchPluginsOperation(criteria, fetchOptions));
+		}
+
 		this.searchVocabularies = function(criteria, fetchOptions) {
 			return this._executeSearchOperation(new c.SearchVocabulariesOperation(criteria, fetchOptions));
 		}
-
+		
 		this.searchVocabularyTerms = function(criteria, fetchOptions) {
 			return this._executeSearchOperation(new c.SearchVocabularyTermsOperation(criteria, fetchOptions));
 		}
@@ -441,6 +445,10 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 			return this._executeDeleteOperation(new c.DeleteExternalDmsOperation(ids, deletionOptions));
 		}
 
+		this.deletePlugins = function(ids, deletionOptions) {
+			return this._executeDeleteOperation(new c.DeletePluginsOperation(ids, deletionOptions));
+		}
+		
 		this.deletePropertyTypes = function(ids, deletionOptions) {
 			return this._executeDeleteOperation(new c.DeletePropertyTypesOperation(ids, deletionOptions));
 		}
@@ -511,6 +519,18 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 			});
 		}
 
+		this.lockDataSets = function(ids, options) {
+			return this._executeOperation(new c.LockDataSetsOperation(ids, options)).then(function(results) {
+				return results.getResults()[0];
+			});
+		}
+		
+		this.unlockDataSets = function(ids, options) {
+			return this._executeOperation(new c.UnlockDataSetsOperation(ids, options)).then(function(results) {
+				return results.getResults()[0];
+			});
+		}
+		
 		this.executeOperations = function(operations, options) {
 			return this._openbis.executeOperations(operations, options);
 		}

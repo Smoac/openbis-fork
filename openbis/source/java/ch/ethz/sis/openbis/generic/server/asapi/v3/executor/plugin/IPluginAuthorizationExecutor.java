@@ -33,4 +33,8 @@ public interface IPluginAuthorizationExecutor extends IObjectAuthorizationExecut
 
     void canUpdate(IOperationContext context, IPluginId id, ScriptPE entity);
 
+    void canSearch(IOperationContext context);
+
+    void canDelete(IOperationContext context, IPluginId entityId, ScriptPE entity);
+
 }

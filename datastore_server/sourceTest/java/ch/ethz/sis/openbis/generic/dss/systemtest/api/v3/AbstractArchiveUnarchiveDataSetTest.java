@@ -50,11 +50,18 @@ public class AbstractArchiveUnarchiveDataSetTest extends AbstractFileTest
         v3 = ServiceProvider.getV3ApplicationService();
     }
 
+    protected DataSet getDataSet(String sessionToken, DataSetPermId dataSetId)
+    {
+        DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
+        fetchOptions.withPhysicalData();
+        return v3.getDataSets(sessionToken, Arrays.asList(dataSetId), fetchOptions).get(dataSetId);
+    }
+
     protected void waitUntilDataSetStatus(String dataSetCodeToBeFound, ArchivingStatus expectedStatus)
     {
         final long timeoutMillis = 120 * 1000;
         final long finishMillis = System.currentTimeMillis() + timeoutMillis;
-        final long intervalMillis = 100;
+        final long intervalMillis = 500;
 
         String sessionToken = v3.login(TEST_USER, PASSWORD);
 

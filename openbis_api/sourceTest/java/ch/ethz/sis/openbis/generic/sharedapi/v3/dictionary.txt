@@ -1924,6 +1924,8 @@ NAME
 Plugin
 Plugin Creation
 Plugin Fetch Options
+is Without Script
+without Script
 Plugin Sort Options
 Plugin Type
 Script Type
@@ -1937,14 +1939,25 @@ Plugin Update
 update Plugins
 Update Plugins Operation
 Update Plugins Operation Result
-
 Plugin Search Criteria
 search Plugins
 Search Plugins Operation
 Search Plugins Operation Result
 Name Search Criteria
 with Name
+name
+Plugin Type Search Criteria
+Script Type Search Criteria
+with Plugin Type
+with Script Type
+is With Script
+with Script
+delete Plugins
+Delete Plugins Operation
+Delete Plugins Operation Result
+Plugin Deletion Options
 
+FETCHED_FIELDS_SCORE
 fetchedFieldsScore
 getFetchedFieldsScore
 FETCHED_FIELDS_SCORE
@@ -1954,4 +1967,13 @@ FULL_MATCH_PROPERTY_BOOST
 FULL_MATCH_TYPE_BOOST
 PARTIAL_MATCH_CODE_BOOST
 PARTIAL_MATCH_PROPERTY_BOOST
+
+Data Set Lock Options
+Data Set Unlock Options
+lock Data Sets
+Lock Data Sets Operation
+Lock Data Sets Operation Result
+unlock Data Sets
+Unlock Data Sets Operation
+Unlock Data Sets Operation Result
 

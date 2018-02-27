@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.fetchoptions;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
@@ -40,6 +41,9 @@ public class PluginFetchOptions extends FetchOptions<Plugin> implements Serializ
 
     @JsonProperty
     private PluginSortOptions sort;
+    
+    @JsonProperty
+    private boolean script;
 
     public PersonFetchOptions withRegistrator()
     {
@@ -67,6 +71,19 @@ public class PluginFetchOptions extends FetchOptions<Plugin> implements Serializ
             sort = new PluginSortOptions();
         }
         return sort;
+    }
+    
+    @JsonIgnore
+    public PluginFetchOptions withScript()
+    {
+        script = true;
+        return this;
+    }
+    
+    @JsonIgnore
+    public boolean isWithScript()
+    {
+        return script;
     }
 
     @Override

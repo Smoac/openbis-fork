@@ -56,7 +56,7 @@ public class CreatePluginTest extends AbstractTest
         // Then
         assertEquals(ids.size(), 1);
         PluginFetchOptions fetchOptions = new PluginFetchOptions();
-        fetchOptions.withRegistrator();
+        fetchOptions.withScript().withRegistrator();
         Plugin plugin = v3api.getPlugins(sessionToken, ids, fetchOptions).get(ids.get(0));
         assertEquals(plugin.getName(), creation.getName());
         assertEquals(plugin.getPermId().getPermId(), creation.getName());
@@ -96,7 +96,8 @@ public class CreatePluginTest extends AbstractTest
         assertEquals(plugin.getEntityKinds(), null);
         assertEquals(plugin.getScriptType(), ScriptType.DYNAMIC_PROPERTY);
         assertEquals(plugin.getPluginType(), PluginType.JYTHON);
-        assertEquals(plugin.getScript(), creation.getScript());
+        assertEquals(plugin.getFetchOptions().isWithScript(), false);
+        assertEquals(plugin.getScript(), null);
         assertEquals(plugin.getRegistrator().getUserId(), TEST_USER);
         assertEquals(plugin.isAvailable(), true);
         
@@ -121,7 +122,7 @@ public class CreatePluginTest extends AbstractTest
         // Then
         assertEquals(ids.size(), 1);
         PluginFetchOptions fetchOptions = new PluginFetchOptions();
-        fetchOptions.withRegistrator();
+        fetchOptions.withScript().withRegistrator();
         Plugin plugin = v3api.getPlugins(sessionToken, ids, fetchOptions).get(ids.get(0));
         assertEquals(plugin.getName(), creation.getName());
         assertEquals(plugin.getPermId().getPermId(), creation.getName());

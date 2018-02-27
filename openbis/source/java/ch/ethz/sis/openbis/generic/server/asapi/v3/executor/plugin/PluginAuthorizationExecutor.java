@@ -40,6 +40,13 @@ public class PluginAuthorizationExecutor implements IPluginAuthorizationExecutor
     }
 
     @Override
+    @RolesAllowed({ RoleWithHierarchy.PROJECT_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @Capability("SEARCH_PLUGIN")
+    public void canSearch(IOperationContext context)
+    {
+    }
+
+    @Override
     @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN })
     @Capability("CREATE_PLUGIN")
     public void canCreate(IOperationContext context)
@@ -50,6 +57,13 @@ public class PluginAuthorizationExecutor implements IPluginAuthorizationExecutor
     @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN })
     @Capability("UPDATE_PLUGIN")
     public void canUpdate(IOperationContext context, IPluginId id, ScriptPE entity)
+    {
+    }
+
+    @Override
+    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN })
+    @Capability("DELETE_PLUGIN")
+    public void canDelete(IOperationContext context, IPluginId entityId, ScriptPE entity)
     {
     }
 

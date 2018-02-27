@@ -11,10 +11,10 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/SortOptions" ], function
 		prototype['@type'] = 'as.dto.plugin.fetchoptions.PluginSortOptions';
 		constructor.serialVersionUID = 1;
 		
-		prototype.code = function() {
+		prototype.name = function() {
 			return this.getOrCreateSorting(fields.NAME);
 		};
-		prototype.getCode = function() {
+		prototype.getName = function() {
 			return this.getSorting(fields.NAME);
 		};
 	}, {});

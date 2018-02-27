@@ -34,12 +34,12 @@ public class PluginSortOptions extends SortOptions<Plugin>
     @JsonIgnore
     public static final String NAME = "NAME";
 
-    public SortOrder code()
+    public SortOrder name()
     {
         return getOrCreateSorting(NAME);
     }
 
-    public SortOrder getCode()
+    public SortOrder getName()
     {
         return getSorting(NAME);
     }

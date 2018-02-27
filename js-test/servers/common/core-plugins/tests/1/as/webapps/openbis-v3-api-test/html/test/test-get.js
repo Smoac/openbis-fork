@@ -301,7 +301,6 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			var c = new common(assert, openbis);
 			var fo = new c.PluginFetchOptions();
 			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
-			fechOptionsTestConfig.SortBy = null;
 			
 			var fCreate = function(facade) {
 				return $.when(c.createPlugin(facade), c.createPlugin(facade)).then(function(permId1, permId2) {

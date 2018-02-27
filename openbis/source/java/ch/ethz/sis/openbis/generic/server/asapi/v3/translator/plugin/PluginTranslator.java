@@ -106,7 +106,10 @@ public class PluginTranslator
         injectEntityKindsFromPredeployed(plugin);
         plugin.setPluginType(PluginType.valueOf(baseRecord.plugin_type));
         plugin.setScriptType(ScriptType.valueOf(baseRecord.script_type));
-        plugin.setScript(baseRecord.script);
+        if (fetchOptions.isWithScript())
+        {
+            plugin.setScript(baseRecord.script);
+        }
         
         if (fetchOptions.hasRegistrator())
         {
