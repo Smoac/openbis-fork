@@ -22,6 +22,7 @@ import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.ArchivingStatus;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.archive.DataSetArchiveOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.lock.DataSetLockOptions;
@@ -77,6 +78,25 @@ public class UnlockDataSetTest extends AbstractArchiveUnarchiveDataSetTest
         v3.logout(sessionToken);
     }
 
+    @Test
+    public void testUnlockArchivedDataSet() throws Exception
+    {
+        // Given
+        String sessionToken = v3.login(TEST_USER, PASSWORD);
+        registerDataSet();
+        DataSetPermId dataSetId = new DataSetPermId(dataSetCode);
+        v3.archiveDataSets(sessionToken, Arrays.asList(dataSetId), new DataSetArchiveOptions());
+        waitUntilDataSetStatus(dataSetCode, ArchivingStatus.ARCHIVED);
+        
+        // When
+        v3.unlockDataSets(sessionToken, Arrays.asList(dataSetId), new DataSetUnlockOptions());
+        
+        // Then
+        waitUntilDataSetStatus(dataSetCode, ArchivingStatus.ARCHIVED);
+        
+        v3.logout(sessionToken);
+    }
+    
     @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = ".*Object with DataSetPermId = \\[IDONTEXIST\\] has not been found.*")
     public void testUnlockWithNonexistentDataSet() throws Exception
     {

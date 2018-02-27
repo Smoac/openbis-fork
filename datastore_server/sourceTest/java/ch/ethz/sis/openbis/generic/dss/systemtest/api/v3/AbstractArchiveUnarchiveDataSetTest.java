@@ -61,7 +61,7 @@ public class AbstractArchiveUnarchiveDataSetTest extends AbstractFileTest
     {
         final long timeoutMillis = 120 * 1000;
         final long finishMillis = System.currentTimeMillis() + timeoutMillis;
-        final long intervalMillis = 100;
+        final long intervalMillis = 500;
 
         String sessionToken = v3.login(TEST_USER, PASSWORD);
 
