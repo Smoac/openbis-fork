@@ -112,6 +112,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.PersonSearchCriter
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.update.PersonUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.create.PluginCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.delete.PluginDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.fetchoptions.PluginFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.IPluginId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.PluginPermId;
@@ -793,6 +794,12 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     public void deleteMaterials(String sessionToken, List<? extends IMaterialId> materialIds, MaterialDeletionOptions deletionOptions)
     {
         logAccess(sessionToken, "delete-materials", "MATERIAL_IDS(%s) DELETION_OPTIONS(%s)", abbreviate(materialIds), deletionOptions);
+    }
+
+    @Override
+    public void deletePlugins(String sessionToken, List<? extends IPluginId> pluginIds, PluginDeletionOptions deletionOptions)
+    {
+        logAccess(sessionToken, "delete-plugins", "PLUGIN_IDS(%s) DELETION_OPTIONS(%s)", abbreviate(pluginIds), deletionOptions);
     }
 
     @Override

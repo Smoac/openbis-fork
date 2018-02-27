@@ -216,6 +216,11 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testDeleteWithoutTrash(c, c.createMaterial, c.findMaterial, c.deleteMaterial);
 		});
 
+		QUnit.test("deletePlugins()", function(assert) {
+			var c = new common(assert, openbis);
+			testDeleteWithoutTrash(c, c.createPlugin, c.findPlugin, c.deletePlugin);
+		});
+		
 		QUnit.test("deletePropertyTypes()", function(assert) {
 			var c = new common(assert, openbis);
 			testDeleteWithoutTrash(c, c.createPropertyType, c.findPropertyType, c.deletePropertyType);

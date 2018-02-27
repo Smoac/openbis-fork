@@ -1950,6 +1950,12 @@ Plugin Type Search Criteria
 Script Type Search Criteria
 with Plugin Type
 with Script Type
+is With Script
+with Script
+delete Plugins
+Delete Plugins Operation
+Delete Plugins Operation Result
+Plugin Deletion Options
 
 FETCHED_FIELDS_SCORE
 fetchedFieldsScore

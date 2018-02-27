@@ -445,6 +445,10 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 			return this._executeDeleteOperation(new c.DeleteExternalDmsOperation(ids, deletionOptions));
 		}
 
+		this.deletePlugins = function(ids, deletionOptions) {
+			return this._executeDeleteOperation(new c.DeletePluginsOperation(ids, deletionOptions));
+		}
+		
 		this.deletePropertyTypes = function(ids, deletionOptions) {
 			return this._executeDeleteOperation(new c.DeletePropertyTypesOperation(ids, deletionOptions));
 		}

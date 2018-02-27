@@ -206,6 +206,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.create.CreatePluginsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.create.CreatePluginsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.create.PluginCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.delete.DeletePluginsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.delete.PluginDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.fetchoptions.PluginFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.get.GetPluginsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.get.GetPluginsOperationResult;
@@ -1107,6 +1109,12 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public void deleteMaterials(String sessionToken, List<? extends IMaterialId> materialIds, MaterialDeletionOptions deletionOptions)
     {
         executeOperation(sessionToken, new DeleteMaterialsOperation(materialIds, deletionOptions));
+    }
+
+    @Override
+    public void deletePlugins(String sessionToken, List<? extends IPluginId> pluginIds, PluginDeletionOptions deletionOptions)
+    {
+        executeOperation(sessionToken, new DeletePluginsOperation(pluginIds, deletionOptions));
     }
 
     @Override

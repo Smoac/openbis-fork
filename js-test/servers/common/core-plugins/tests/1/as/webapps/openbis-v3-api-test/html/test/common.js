@@ -78,6 +78,7 @@ define(
 				this.SampleDeletionOptions = dtos.SampleDeletionOptions;
 				this.DataSetDeletionOptions = dtos.DataSetDeletionOptions;
 				this.MaterialDeletionOptions = dtos.MaterialDeletionOptions;
+				this.PluginDeletionOptions = dtos.PluginDeletionOptions;
 				this.VocabularyTermDeletionOptions = dtos.VocabularyTermDeletionOptions;
 				this.EntityTypeDeletionOptions = dtos.EntityTypeDeletionOptions;
 				this.ExternalDmsDeletionOptions = dtos.ExternalDmsDeletionOptions;
@@ -286,6 +287,7 @@ define(
 				this.DeleteDataSetsOperation = dtos.DeleteDataSetsOperation;
 				this.DeleteMaterialsOperation = dtos.DeleteMaterialsOperation;
 				this.DeleteExternalDmsOperation = dtos.DeleteExternalDmsOperation;
+				this.DeletePluginsOperation = dtos.DeletePluginsOperation;
 				this.DeletePropertyTypesOperation = dtos.DeletePropertyTypesOperation;
 				this.DeleteVocabulariesOperation = dtos.DeleteVocabulariesOperation;
 				this.DeleteVocabularyTermsOperation = dtos.DeleteVocabularyTermsOperation;
@@ -946,6 +948,13 @@ define(
 					return facade.deleteEntityTypes([ id ], options);
 				}.bind(this);
 
+				this.deletePlugin = function(facade, id) {
+					var c = this;
+					var options = new dtos.PluginDeletionOptions();
+					options.setReason("test reason");
+					return facade.deletePlugins([ id ], options);
+				}.bind(this);
+				
 				this.deletePropertyType = function(facade, id) {
 					var c = this;
 					var options = new dtos.PropertyTypeDeletionOptions();

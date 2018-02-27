@@ -60,4 +60,11 @@ public class PluginAuthorizationExecutor implements IPluginAuthorizationExecutor
     {
     }
 
+    @Override
+    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN })
+    @Capability("DELETE_PLUGIN")
+    public void canDelete(IOperationContext context, IPluginId entityId, ScriptPE entity)
+    {
+    }
+
 }

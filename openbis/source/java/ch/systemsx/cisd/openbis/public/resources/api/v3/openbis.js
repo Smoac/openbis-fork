@@ -1525,6 +1525,17 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			});
 		}
 
+		this.deletePlugins = function(ids, deletionOptions) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "deletePlugins",
+					"params" : [ thisFacade._private.sessionToken, ids, deletionOptions ]
+				}
+			});
+		}
+		
 		this.deletePropertyTypes = function(ids, deletionOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
