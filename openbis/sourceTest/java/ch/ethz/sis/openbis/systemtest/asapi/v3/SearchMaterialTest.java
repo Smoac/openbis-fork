@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
+import static org.junit.Assert.assertTrue;
 import static org.testng.Assert.assertEquals;
 
 import java.util.List;
@@ -387,6 +388,29 @@ public class SearchMaterialTest extends AbstractTest
         List<Material> materials2 = v3api.searchMaterials(sessionToken, criteria, fo).getObjects();
         assertMaterialPermIds(materials2, new MaterialPermId("MYGENE2", "GENE"), new MaterialPermId("MYGENE1", "GENE"),
                 new MaterialPermId("FLU", "VIRUS"));
+
+        v3api.logout(sessionToken);
+    }
+    
+    @Test
+    public void testSearchWithSortingByCodeScore()
+    {
+        MaterialSearchCriteria criteria = new MaterialSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withCode().thatContains("MY");
+        criteria.withCode().thatContains("GENE1");
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        MaterialFetchOptions fo = new MaterialFetchOptions();
+
+        fo.sortBy().fetchedFieldsScore().asc();
+        List<Material> materials1 = v3api.searchMaterials(sessionToken, criteria, fo).getObjects();
+        assertTrue(materials1.get(0).getCode().equals("MYGENE1"));
+
+        fo.sortBy().fetchedFieldsScore().desc();
+        List<Material> materials2 = v3api.searchMaterials(sessionToken, criteria, fo).getObjects();
+        assertTrue(materials2.get(materials2.size() - 1).getCode().equals("MYGENE1"));
 
         v3api.logout(sessionToken);
     }

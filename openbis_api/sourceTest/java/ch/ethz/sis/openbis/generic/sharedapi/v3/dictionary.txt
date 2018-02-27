@@ -1954,6 +1954,7 @@ with Script Type
 FETCHED_FIELDS_SCORE
 fetchedFieldsScore
 getFetchedFieldsScore
+FETCHED_FIELDS_SCORE
 SortParameter
 FULL_MATCH_CODE_BOOST
 FULL_MATCH_PROPERTY_BOOST

@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
+import static org.junit.Assert.assertTrue;
 import static org.testng.Assert.assertEquals;
 
 import java.text.SimpleDateFormat;
@@ -696,6 +697,29 @@ public class SearchExperimentTest extends AbstractExperimentTest
         List<Experiment> experiments2 = v3api.searchExperiments(sessionToken, criteria, fo).getObjects();
         assertExperimentIdentifiersInOrder(experiments2, "/CISD/DEFAULT/EXP-WELLS", "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST",
                 "/CISD/DEFAULT/EXP-REUSE");
+
+        v3api.logout(sessionToken);
+    }
+    
+    @Test
+    public void testSearchWithSortingByCodeScore()
+    {
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withCode().thatContains("EXP-");
+        criteria.withCode().thatContains("-SPACE-TEST");
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ExperimentFetchOptions fo = new ExperimentFetchOptions();
+
+        fo.sortBy().fetchedFieldsScore().asc();
+        List<Experiment> experiments1 = v3api.searchExperiments(sessionToken, criteria, fo).getObjects();
+        assertTrue(experiments1.get(0).getCode().equals("EXP-SPACE-TEST"));
+
+        fo.sortBy().fetchedFieldsScore().desc();
+        List<Experiment> experiments2 = v3api.searchExperiments(sessionToken, criteria, fo).getObjects();
+        assertTrue(experiments2.get(experiments2.size() - 1).getCode().equals("EXP-SPACE-TEST"));
 
         v3api.logout(sessionToken);
     }
