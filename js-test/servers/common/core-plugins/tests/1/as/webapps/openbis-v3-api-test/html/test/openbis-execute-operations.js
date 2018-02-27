@@ -519,6 +519,18 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 			});
 		}
 
+		this.lockDataSets = function(ids, options) {
+			return this._executeOperation(new c.LockDataSetsOperation(ids, options)).then(function(results) {
+				return results.getResults()[0];
+			});
+		}
+		
+		this.unlockDataSets = function(ids, options) {
+			return this._executeOperation(new c.UnlockDataSetsOperation(ids, options)).then(function(results) {
+				return results.getResults()[0];
+			});
+		}
+		
 		this.executeOperations = function(operations, options) {
 			return this._openbis.executeOperations(operations, options);
 		}

@@ -37,9 +37,11 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.ICreateDataS
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.ICreateDataSetsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.IDeleteDataSetsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.IGetDataSetsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.ILockDataSetsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.ISearchDataSetTypesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.ISearchDataSetsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.IUnarchiveDataSetsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.IUnlockDataSetsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.IUpdateDataSetTypesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.IUpdateDataSetsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.IVerifyDataSetsOperationExecutor;
@@ -485,6 +487,12 @@ public class OperationsExecutor implements IOperationsExecutor
     private IUnarchiveDataSetsOperationExecutor unarchiveDataSetsExecutor;
 
     @Autowired
+    private ILockDataSetsOperationExecutor lockDataSetsExecutor;
+    
+    @Autowired
+    private IUnlockDataSetsOperationExecutor unlockDataSetsExecutor;
+    
+    @Autowired
     private IGetSessionInformationOperationExecutor getSessionInformationExecutor;
 
     @Override
@@ -530,6 +538,8 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(executeCustomASServiceExecutor.execute(context, operations));
         resultMap.putAll(revertDeletionsExecutor.execute(context, operations));
         resultMap.putAll(confirmDeletionsExecutor.execute(context, operations));
+        resultMap.putAll(lockDataSetsExecutor.execute(context, operations));
+        resultMap.putAll(unlockDataSetsExecutor.execute(context, operations));
         resultMap.putAll(archiveDataSetsExecutor.execute(context, operations));
         resultMap.putAll(unarchiveDataSetsExecutor.execute(context, operations));
         resultMap.putAll(getSessionInformationExecutor.execute(context, operations));

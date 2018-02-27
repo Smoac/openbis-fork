@@ -164,6 +164,8 @@ define(
 				this.ObjectKindModificationFetchOptions = dtos.ObjectKindModificationFetchOptions;
 				this.DataSetArchiveOptions = dtos.DataSetArchiveOptions;
 				this.DataSetUnarchiveOptions = dtos.DataSetUnarchiveOptions;
+				this.DataSetLockOptions = dtos.DataSetLockOptions;
+				this.DataSetUnlockOptions = dtos.DataSetUnlockOptions;
 				this.PropertyAssignmentCreation = dtos.PropertyAssignmentCreation;
 				this.PropertyTypePermId = dtos.PropertyTypePermId;
 				this.PropertyAssignmentPermId = dtos.PropertyAssignmentPermId;
@@ -303,6 +305,8 @@ define(
 				this.ExecuteCustomASServiceOperation = dtos.ExecuteCustomASServiceOperation;
 				this.ArchiveDataSetsOperation = dtos.ArchiveDataSetsOperation;
 				this.UnarchiveDataSetsOperation = dtos.UnarchiveDataSetsOperation;
+				this.LockDataSetsOperation = dtos.LockDataSetsOperation;
+				this.UnlockDataSetsOperation = dtos.UnlockDataSetsOperation;
 
 				this.SynchronousOperationExecutionOptions = dtos.SynchronousOperationExecutionOptions;
 				this.AsynchronousOperationExecutionOptions = dtos.AsynchronousOperationExecutionOptions;

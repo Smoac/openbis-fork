@@ -1705,6 +1705,28 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			});
 		}
 
+		this.lockDataSets = function(ids, options) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "lockDataSets",
+					"params" : [ thisFacade._private.sessionToken, ids, options ]
+				}
+			});
+		}
+		
+		this.unlockDataSets = function(ids, options) {
+			var thisFacade = this;
+			return thisFacade._private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "unlockDataSets",
+					"params" : [ thisFacade._private.sessionToken, ids, options ]
+				}
+			});
+		}
+		
 		this.executeOperations = function(operations, options) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({

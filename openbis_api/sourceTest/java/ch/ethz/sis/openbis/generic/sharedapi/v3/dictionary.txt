@@ -1968,3 +1968,12 @@ FULL_MATCH_TYPE_BOOST
 PARTIAL_MATCH_CODE_BOOST
 PARTIAL_MATCH_PROPERTY_BOOST
 
+Data Set Lock Options
+Data Set Unlock Options
+lock Data Sets
+Lock Data Sets Operation
+Lock Data Sets Operation Result
+unlock Data Sets
+Unlock Data Sets Operation
+Unlock Data Sets Operation Result
+
