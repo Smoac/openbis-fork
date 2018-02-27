@@ -29,8 +29,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractUpdateEntityToOneRelationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.space.IMapSpaceByIdExecutor;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SimpleSpaceValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
@@ -81,11 +79,6 @@ public class UpdateHomeSpaceExecutor
     @Override
     protected void check(IOperationContext context, PersonPE user, ISpaceId relatedId, SpacePE newHomeSpace)
     {
-        if (new SimpleSpaceValidator().doValidation(user, newHomeSpace) == false)
-        {
-            throw new UserFailureException("Can not set " + newHomeSpace.getCode() + " as home space for user '" 
-                    + user.getUserId() + "' because the user has no access rights.");
-        }
         PersonPE sessionUser = context.getSession().tryGetPerson();
         if (sessionUser.equals(user))
         {

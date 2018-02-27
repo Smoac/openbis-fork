@@ -24,6 +24,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.create.PersonCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.IPersonId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.Me;
@@ -44,21 +45,24 @@ public class UpdatePersonTest extends AbstractTest
     {
         // Given
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        PersonCreation personCreation = new PersonCreation();
+        personCreation.setUserId("user-" + System.currentTimeMillis());
+        PersonPermId personPermId = v3api.createPersons(sessionToken, Arrays.asList(personCreation)).get(0);
         PersonUpdate personUpdate = new PersonUpdate();
-        PersonPermId personId = new PersonPermId("homeless");
-        personUpdate.setUserId(personId);
+        personUpdate.setUserId(personPermId);
         personUpdate.setSpaceId(new SpacePermId("TEST-SPACE"));
+
+        // When
+        v3api.updatePersons(sessionToken, Arrays.asList(personUpdate));
         
-        assertUserFailureException(new IDelegatedAction()
-        {
-            @Override
-            public void execute()
-            {
-                // When
-                v3api.updatePersons(sessionToken, Arrays.asList(personUpdate));
-            }
-            // Then
-        }, "Can not set TEST-SPACE as home space for user 'homeless' because the user has no access rights.");
+        // Then
+        PersonFetchOptions fetchOptions = new PersonFetchOptions();
+        fetchOptions.withSpace();
+        fetchOptions.withRoleAssignments();
+        Person person = v3api.getPersons(sessionToken, Arrays.asList(personPermId), fetchOptions).get(personPermId);
+        assertEquals(person.getRoleAssignments().size(), 0);
+        assertEquals(person.getPermId().getPermId(), personPermId.getPermId());
+        assertEquals(person.getSpace().getCode(), "TEST-SPACE");
     }
     
     @Test
