@@ -48,11 +48,11 @@ function StorageView(storageController, storageModel, gridViewRack, gridViewPosi
 			
 			var addToRow = function($row, $label, $component) {
 				if($label) {
-					$row.append($("<td>", { width : "25%", "style" : "text-align: right; padding: 4px; vertical-align: middle; font-weight: bold;" }).append($label));
+					$row.append($("<td>", { "style" : "white-space:nowrap; width: 1%; text-align: right; padding: 4px; vertical-align: middle; font-weight: bold;" }).append($label));
 				}
 				
 				if($component) {
-					$row.append($("<td>", { width : "25%", "style" : "text-align: left; padding: 4px; vertical-align: middle;" }).append($component));
+					$row.append($("<td>", { "style" : "width : 25%; text-align: left; padding: 4px; vertical-align: middle;" }).append($component));
 				}
 			}
 			
