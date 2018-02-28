@@ -23,7 +23,9 @@ import java.util.Arrays;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.update.PropertyTypeUpdate;
@@ -132,7 +134,7 @@ public class UpdatePropertyTypesTest extends AbstractTest
     public void testInvalidSchema()
     {
         PropertyTypeUpdate update = new PropertyTypeUpdate();
-        update.setTypeId(new PropertyTypePermId("COMMENT"));
+        update.setTypeId(createXmlPropertyType());
         update.setSchema("blabla");
 
         assertUserFailureException(update, "isn't a well formed XML document. Content is not allowed in prolog.");
@@ -142,12 +144,31 @@ public class UpdatePropertyTypesTest extends AbstractTest
     public void testInvalidTransformation()
     {
         PropertyTypeUpdate update = new PropertyTypeUpdate();
-        update.setTypeId(new PropertyTypePermId("COMMENT"));
+        update.setTypeId(createXmlPropertyType());
         update.setTransformation(CreatePropertyTypeTest.EXAMPLE_INCORRECT_XSLT);
 
         assertUserFailureException(update, "Provided XSLT isn't valid.");
     }
 
+    @Test
+    public void testSchemaSpecifiedButDataTypeNotXML()
+    {
+        PropertyTypeUpdate update = new PropertyTypeUpdate();
+        update.setTypeId(new PropertyTypePermId("COMMENT"));
+        update.setSchema(CreatePropertyTypeTest.EXAMPLE_SCHEMA);
+
+        assertUserFailureException(update, "XML schema is specified but data type is VARCHAR.");
+    }
+
+    @Test
+    public void testTransformationSpecifiedButDataTypeNotXML()
+    {
+        PropertyTypeUpdate update = new PropertyTypeUpdate();
+        update.setTypeId(new PropertyTypePermId("COMMENT"));
+        update.setTransformation(CreatePropertyTypeTest.EXAMPLE_XSLT);
+
+        assertUserFailureException(update, "XSLT transformation is specified but data type is VARCHAR.");
+    }
 
     @Test(dataProvider = "usersNotAllowedToUpdatePropertyTypes")
     public void testUpdateWithUserCausingAuthorizationFailure(final String user)
@@ -173,7 +194,21 @@ public class UpdatePropertyTypesTest extends AbstractTest
         return createTestUsersProvider(TEST_GROUP_ADMIN, TEST_GROUP_OBSERVER, TEST_GROUP_POWERUSER,
                 TEST_INSTANCE_OBSERVER, TEST_OBSERVER_CISD, TEST_POWER_USER_CISD, TEST_SPACE_USER);
     }
-        private void assertUserFailureException(PropertyTypeUpdate update, String expectedMessage)
+    
+    private PropertyTypePermId createXmlPropertyType()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        PropertyTypeCreation creation = new PropertyTypeCreation();
+        creation.setCode("TEST-" + System.currentTimeMillis());
+        creation.setLabel("Test");
+        creation.setDescription("Testing");
+        creation.setDataType(DataType.XML);
+        PropertyTypePermId permId = v3api.createPropertyTypes(sessionToken, Arrays.asList(creation)).get(0);
+        v3api.logout(sessionToken);
+        return permId;
+    }
+
+    private void assertUserFailureException(PropertyTypeUpdate update, String expectedMessage)
     {
         // Given
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
