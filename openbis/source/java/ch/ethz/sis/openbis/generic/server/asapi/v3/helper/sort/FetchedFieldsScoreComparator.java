@@ -27,6 +27,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityTypeHol
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractEntitySearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AnyFieldSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CodeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringPropertySearchCriteria;
@@ -157,6 +158,7 @@ public class FetchedFieldsScoreComparator<OBJECT extends IEntityTypeHolder & IPr
     static {
     		criteriaParsers.put(CodeSearchCriteria.class, new CodeCriteriaParser());
     		criteriaParsers.put(StringPropertySearchCriteria.class, new StringPropertySearchCriteriaParser());
+    		criteriaParsers.put(AnyFieldSearchCriteria.class, new AnyFieldSearchCriteriaParser());
     		criteriaParsers.put(SampleTypeSearchCriteria.class, new AbstractEntityTypeSearchCriteriaParser());
     		criteriaParsers.put(ExperimentTypeSearchCriteria.class, new AbstractEntityTypeSearchCriteriaParser());
     		criteriaParsers.put(DataSetTypeSearchCriteria.class, new AbstractEntityTypeSearchCriteriaParser());
@@ -189,6 +191,18 @@ public class FetchedFieldsScoreComparator<OBJECT extends IEntityTypeHolder & IPr
 		@Override
 		public Boost getBoost(StringPropertySearchCriteria criteria, int boost) {
 			return new Boost(0, 0, 0, boost, criteria.getFieldName());
+		}
+    }
+    
+    private static class AnyFieldSearchCriteriaParser implements ISearchCriteriaParser<AnyFieldSearchCriteria> {
+		@Override
+		public String getValue(AnyFieldSearchCriteria criteria) {
+			return criteria.getFieldValue().getValue();
+		}
+
+		@Override
+		public Boost getBoost(AnyFieldSearchCriteria criteria, int boost) {
+			return new Boost(boost, boost, boost, boost, null);
 		}
     }
     
@@ -295,6 +309,7 @@ public class FetchedFieldsScoreComparator<OBJECT extends IEntityTypeHolder & IPr
 	        }
 	    }
 		
+		System.out.println("CODE: " + o.getCode() + " SCORE: " + score);
 		return score;
 	}
 	
