@@ -37,7 +37,7 @@ public class DeletePropertyTypesOperationExecutor
         implements IDeletePropertyTypesOperationExecutor
 {
     @Autowired
-    private IDeletePropertyTypeExecutor exeutor;
+    private IDeletePropertyTypeExecutor executor;
 
     @Override
     protected Class<? extends DeleteObjectsOperation<IPropertyTypeId, PropertyTypeDeletionOptions>> getOperationClass()
@@ -49,7 +49,7 @@ public class DeletePropertyTypesOperationExecutor
     protected DeleteObjectsOperationResult doExecute(IOperationContext context,
             DeleteObjectsOperation<IPropertyTypeId, PropertyTypeDeletionOptions> operation)
     {
-        exeutor.delete(context, operation.getObjectIds(), operation.getOptions());
+        executor.delete(context, operation.getObjectIds(), operation.getOptions());
         return new DeletePropertyTypesOperationResult();
     }
 

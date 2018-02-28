@@ -458,7 +458,7 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     @Override
     public void updatePropertyTypes(String sessionToken, List<PropertyTypeUpdate> propertyTypeUpdates)
     {
-        logAccess(sessionToken, "update-property_types", "PROPERTY_TYPE_UPDATES(%s)", abbreviate(propertyTypeUpdates));
+        logAccess(sessionToken, "update-property-types", "PROPERTY_TYPE_UPDATES(%s)", abbreviate(propertyTypeUpdates));
     }
 
     @Override

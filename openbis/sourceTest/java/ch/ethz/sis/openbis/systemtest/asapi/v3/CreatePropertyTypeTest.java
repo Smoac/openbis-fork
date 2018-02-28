@@ -42,23 +42,22 @@ import ch.systemsx.cisd.common.action.IDelegatedAction;
  */
 public class CreatePropertyTypeTest extends AbstractTest
 {
-    private static String EXAMPLE_SCHEMA =
+    static String EXAMPLE_SCHEMA =
             "<?xml version='1.0'?>\n"
-            + "<xs:schema targetNamespace='http://my.host.org' xmlns:xs='http://www.w3.org/2001/XMLSchema'>\n"
-            + "<xs:element name='note'>\n" 
-            + "  <xs:complexType>\n"
-            + "    <xs:sequence>\n"
-            + "      <xs:element name='to' type='xs:string'/>\n"
-            + "      <xs:element name='from' type='xs:string'/>\n"
-            + "      <xs:element name='heading' type='xs:string'/>\n"
-            + "      <xs:element name='body' type='xs:string'/>\n" 
-            + "    </xs:sequence>\n"
-            + "  </xs:complexType>\n" 
-            + "</xs:element>\n" 
-            + "</xs:schema>";
+                    + "<xs:schema targetNamespace='http://my.host.org' xmlns:xs='http://www.w3.org/2001/XMLSchema'>\n"
+                    + "<xs:element name='note'>\n"
+                    + "  <xs:complexType>\n"
+                    + "    <xs:sequence>\n"
+                    + "      <xs:element name='to' type='xs:string'/>\n"
+                    + "      <xs:element name='from' type='xs:string'/>\n"
+                    + "      <xs:element name='heading' type='xs:string'/>\n"
+                    + "      <xs:element name='body' type='xs:string'/>\n"
+                    + "    </xs:sequence>\n"
+                    + "  </xs:complexType>\n"
+                    + "</xs:element>\n"
+                    + "</xs:schema>";
 
-
-    private static String EXAMPLE_XSLT = "<?xml version='1.0'?>\n"
+    static String EXAMPLE_XSLT = "<?xml version='1.0'?>\n"
             + "<xsl:stylesheet version='1.0' xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>"
             + "<xsl:output method='html'/>\n                            "
             + "<xsl:template match='child::person'>\n                   "
@@ -233,7 +232,7 @@ public class CreatePropertyTypeTest extends AbstractTest
     {
         PropertyTypeCreation creation = createBasic();
         creation.setCode(null);
-        
+
         assertUserFailureException(creation, "Code cannot be empty.");
     }
 
@@ -248,45 +247,46 @@ public class CreatePropertyTypeTest extends AbstractTest
 
     @Test
     public void testMissingLabel()
-    {        
+    {
         PropertyTypeCreation creation = createBasic();
         creation.setLabel(null);
 
         assertUserFailureException(creation, "Label cannot be empty.");
     }
-    
+
     @Test
     public void testEmptyLabel()
     {
         PropertyTypeCreation creation = createBasic();
         creation.setLabel("");
-        
+
         assertUserFailureException(creation, "Label cannot be empty.");
     }
-    
+
     @Test
     public void testMissingDescription()
     {
         PropertyTypeCreation creation = createBasic();
         creation.setDescription(null);
-        
+
         assertUserFailureException(creation, "Description cannot be empty.");
     }
-    
+
     @Test
     public void testEmptyDescription()
     {
         PropertyTypeCreation creation = createBasic();
         creation.setDescription("");
-        
+
         assertUserFailureException(creation, "Description cannot be empty.");
     }
-    
+
     @Test
     public void testMissingDataType()
     {
         PropertyTypeCreation creation = createBasic();
-        creation.setDataType(null);;
+        creation.setDataType(null);
+        ;
 
         assertUserFailureException(creation, "Data type not specified.");
     }
@@ -298,6 +298,16 @@ public class CreatePropertyTypeTest extends AbstractTest
         creation.setDataType(DataType.CONTROLLEDVOCABULARY);
 
         assertUserFailureException(creation, "Data type has been specified as CONTROLLEDVOCABULARY but vocabulary id is missing.");
+    }
+
+    @Test
+    public void tesVocabularyTypetWithUnknownVocabulary()
+    {
+        PropertyTypeCreation creation = createBasic();
+        creation.setDataType(DataType.CONTROLLEDVOCABULARY);
+        creation.setVocabularyId(new VocabularyPermId("UNKNOWN"));
+
+        assertUserFailureException(creation, "VocabularyPermId = [UNKNOWN] has not been found");
     }
 
     @Test
@@ -328,6 +338,16 @@ public class CreatePropertyTypeTest extends AbstractTest
         creation.setMaterialTypeId(new EntityTypePermId("UNKNOWN", EntityKind.DATA_SET));
 
         assertUserFailureException(creation, "Specified entity type id (UNKNOWN, DATA_SET) is not a MATERIAL type.");
+    }
+
+    @Test
+    public void testUnknownMaterialType()
+    {
+        PropertyTypeCreation creation = createBasic();
+        creation.setDataType(DataType.MATERIAL);
+        creation.setMaterialTypeId(new EntityTypePermId("UNKNOWN", EntityKind.MATERIAL));
+
+        assertUserFailureException(creation, "EntityTypePermId = [UNKNOWN, MATERIAL] has not been found.");
     }
 
     @Test
@@ -372,6 +392,26 @@ public class CreatePropertyTypeTest extends AbstractTest
         assertUserFailureException(creation, "Provided XSLT isn't valid.");
     }
 
+    @Test
+    public void testSchemaSpecifiedButDataTypeNotXML()
+    {
+        PropertyTypeCreation creation = createBasic();
+        creation.setDataType(DataType.VARCHAR);
+        creation.setSchema(EXAMPLE_SCHEMA);
+
+        assertUserFailureException(creation, "XML schema is specified but data type is VARCHAR.");
+    }
+
+    @Test
+    public void testTransformationSpecifiedButDataTypeNotXML()
+    {
+        PropertyTypeCreation creation = createBasic();
+        creation.setDataType(DataType.VARCHAR);
+        creation.setTransformation(EXAMPLE_XSLT);
+
+        assertUserFailureException(creation, "XSLT transformation is specified but data type is VARCHAR.");
+    }
+
     @Test(dataProvider = "usersNotAllowedToCreatePropertyTypes")
     public void testCreateWithUserCausingAuthorizationFailure(final String user)
     {
@@ -396,7 +436,7 @@ public class CreatePropertyTypeTest extends AbstractTest
         return createTestUsersProvider(TEST_GROUP_ADMIN, TEST_GROUP_OBSERVER, TEST_GROUP_POWERUSER,
                 TEST_INSTANCE_OBSERVER, TEST_OBSERVER_CISD, TEST_POWER_USER_CISD, TEST_SPACE_USER);
     }
-    
+
     private PropertyTypeCreation createBasic()
     {
         PropertyTypeCreation creation = new PropertyTypeCreation();

@@ -19,8 +19,6 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,14 +28,16 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.update.PropertyTypeUpdate;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IProgress;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractUpdateEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatch;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.batch.MapBatchProcessor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.UpdateRelationProgress;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.util.XmlUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -83,8 +83,6 @@ public class UpdatePropertyTypeExecutor
         {
             throw new UserFailureException("Description cannot be empty.");
         }
-        XmlUtils.validateXML(update.getSchema().getValue(), "XML Schema", XmlUtils.XML_SCHEMA_XSD_FILE_RESOURCE);
-        XmlUtils.validateXML(update.getTransformation().getValue(), "XSLT", XmlUtils.XSLT_XSD_FILE_RESOURCE);
     }
 
     @Override
@@ -96,16 +94,26 @@ public class UpdatePropertyTypeExecutor
     @Override
     protected void updateBatch(IOperationContext context, MapBatch<PropertyTypeUpdate, PropertyTypePE> batch)
     {
-        Set<Entry<PropertyTypeUpdate, PropertyTypePE>> entrySet = batch.getObjects().entrySet();
-        for (Entry<PropertyTypeUpdate, PropertyTypePE> entry : entrySet)
-        {
-            PropertyTypeUpdate update = entry.getKey();
-            PropertyTypePE propertyType = entry.getValue();
-            propertyType.setDescription(getNewValue(update.getDescription(), propertyType.getDescription()));
-            propertyType.setLabel(getNewValue(update.getLabel(), propertyType.getLabel()));
-            propertyType.setSchema(getNewValue(update.getSchema(), propertyType.getSchema()));
-            propertyType.setTransformation(getNewValue(update.getTransformation(), propertyType.getTransformation()));
-        }
+        new MapBatchProcessor<PropertyTypeUpdate, PropertyTypePE>(context, batch)
+            {
+                @Override
+                public void process(PropertyTypeUpdate update, PropertyTypePE propertyType)
+                {
+                    propertyType.setDescription(getNewValue(update.getDescription(), propertyType.getDescription()));
+                    propertyType.setLabel(getNewValue(update.getLabel(), propertyType.getLabel()));
+                    String dataType = propertyType.getType().getCode().name();
+                    CreatePropertyTypeExecutor.validateSchemaAndDataType(dataType, update.getSchema().getValue());
+                    propertyType.setSchema(getNewValue(update.getSchema(), propertyType.getSchema()));
+                    CreatePropertyTypeExecutor.validateTransformationAndDataType(dataType, update.getTransformation().getValue());
+                    propertyType.setTransformation(getNewValue(update.getTransformation(), propertyType.getTransformation()));
+                }
+
+                @Override
+                public IProgress createProgress(PropertyTypeUpdate key, PropertyTypePE value, int objectIndex, int totalObjectCount)
+                {
+                    return new UpdateRelationProgress(key, value, "property type", objectIndex, totalObjectCount);
+                }
+            };
     }
 
     @Override
