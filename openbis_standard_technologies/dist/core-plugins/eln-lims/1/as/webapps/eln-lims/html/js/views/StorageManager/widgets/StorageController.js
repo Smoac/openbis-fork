@@ -390,6 +390,8 @@ function StorageController(configOverride) {
 			!this._storageModel.boxSize && 
 			!this._storageModel.boxPosition) { //Dirty delete case
 			callback(null);
+		} else if(!this._storageModel.storageCode && validationLevel >= ValidationLevel.RACK) {
+			callback("Select a storage please.");
 		} else if((!this._storageModel.row || !this._storageModel.column) && validationLevel >= ValidationLevel.RACK) {
 			callback("Select a rack please.");
 		} else if(!this._storageModel.boxName && validationLevel >= ValidationLevel.BOX) {
