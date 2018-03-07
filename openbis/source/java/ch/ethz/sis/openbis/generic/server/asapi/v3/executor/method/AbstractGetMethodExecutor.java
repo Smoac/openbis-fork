@@ -81,7 +81,7 @@ public abstract class AbstractGetMethodExecutor<OBJECT_ID extends IObjectId, OBJ
     {
         // sort and page the objects internal collections - ignore the top level changes
         // (we want to maintain all the results and keep them in order of the passed ids)
-        new SortAndPage().sortAndPage(map.values(), fetchOptions);
+        new SortAndPage().sortAndPage(map.values(), null, fetchOptions);
     }
 
     protected abstract IMapObjectByIdExecutor<OBJECT_ID, OBJECT_PE> getMapExecutor();

@@ -56,7 +56,7 @@ public class SearchCustomASServiceMethodExecutor extends AbstractSearchObjectMan
             CustomASServiceFetchOptions fetchOptions)
     {
         List<CustomASService> services = search(new OperationContext(sessionManager.getSession(sessionToken)), searchCriteria);
-        List<CustomASService> filtered = new ArrayList<>(new SortAndPage().sortAndPage(services, fetchOptions));
+        List<CustomASService> filtered = new ArrayList<>(new SortAndPage().sortAndPage(services, searchCriteria, fetchOptions));
         return new SearchResult<CustomASService>(filtered, services.size());
     }
 

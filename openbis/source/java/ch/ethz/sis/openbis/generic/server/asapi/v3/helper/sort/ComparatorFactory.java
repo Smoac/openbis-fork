@@ -19,7 +19,10 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortParameter;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.dataset.DataSetComparatorFactory;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.experiment.ExperimentComparatorFactory;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.globalsearch.GlobalSearchObjectComparatorFactory;
@@ -56,7 +59,7 @@ public abstract class ComparatorFactory
 
     public abstract boolean accepts(Class<?> sortOptionsClass);
 
-    public abstract Comparator getComparator(String field);
+    public abstract Comparator getComparator(String field, Map<SortParameter, String> parameters, ISearchCriteria criteria);
 
     public abstract Comparator getDefaultComparator();
 

@@ -17,7 +17,10 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.helper.experiment;
 
 import java.util.Comparator;
+import java.util.Map;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortParameter;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentSortOptions;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sort.EntityWithPropertiesComparatorFactory;
@@ -36,13 +39,13 @@ public class ExperimentComparatorFactory extends EntityWithPropertiesComparatorF
     }
 
     @Override
-    public Comparator<Experiment> getComparator(String field)
+    public Comparator<Experiment> getComparator(String field, Map<SortParameter, String> parameters, ISearchCriteria criteria)
     {
         if (ExperimentSortOptions.IDENTIFIER.equals(field))
         {
             return new IdentifierComparator<Experiment>();
         }
-        return super.getComparator(field);
+        return super.getComparator(field, parameters, criteria);
     }
 
 }

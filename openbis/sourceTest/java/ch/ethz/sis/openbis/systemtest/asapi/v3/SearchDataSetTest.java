@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.util.List;
 
@@ -751,6 +752,29 @@ public class SearchDataSetTest extends AbstractDataSetTest
         fo.sortBy().code().desc();
         List<DataSet> dataSets2 = v3api.searchDataSets(sessionToken, criteria, fo).getObjects();
         assertDataSetCodes(dataSets2, "COMPONENT_2A", "COMPONENT_1B", "COMPONENT_1A");
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testSearchWithSortingByCodeScore()
+    {
+        DataSetSearchCriteria criteria = new DataSetSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withCode().thatContains("COMPONENT");
+        criteria.withCode().thatContains("_1A");
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        DataSetFetchOptions fo = new DataSetFetchOptions();
+
+        fo.sortBy().fetchedFieldsScore().asc();
+        List<DataSet> dataSets1 = v3api.searchDataSets(sessionToken, criteria, fo).getObjects();
+        assertTrue(dataSets1.get(0).getCode().equals("COMPONENT_1A"));
+
+        fo.sortBy().fetchedFieldsScore().desc();
+        List<DataSet> dataSets2 = v3api.searchDataSets(sessionToken, criteria, fo).getObjects();
+        assertTrue(dataSets2.get(dataSets2.size() - 1).getCode().equals("COMPONENT_1A"));
 
         v3api.logout(sessionToken);
     }
