@@ -80,13 +80,13 @@ var PrintUtil = new function() {
 			
 			if(entity.sampleTypeCode) {
 				var href = Util.getURLFor(mainController.sideMenu.getCurrentNodeId(), "showViewSamplePageFromPermId", entity.permId);
-				var codeLink = $("<a>", { "href" : href, "class" : "browser-compatible-javascript-link" }).append(nameLabel);
+				var codeLink = $("<a>", { "href" : href, "class" : "browser-compatible-javascript-link" }).text(nameLabel);
 				codeLink.click(function() {
 					mainController.changeView("showViewSamplePageFromPermId", entity.permId);
 				});
 				$newInspector.append($("<strong>").append(codeLink));
 			} else {
-				$newInspector.append($("<strong>").append(nameLabel));
+				$newInspector.append($("<strong>").text(nameLabel));
 			}
 		}
 		
@@ -97,6 +97,7 @@ var PrintUtil = new function() {
 			for(code in extraProperties) {
 				var extraProp = extraProperties[code];
 				var propLabel = extraProp.label;
+				extraProp.value = FormUtil.sanitizeRichHTMLText(extraProp.value);
 				if(propLabel.length > 25) {
 					propLabel = propLabel.substring(0, 23) + "..."; 
 				}
@@ -134,6 +135,7 @@ var PrintUtil = new function() {
 				} else {
 					propertyContent = entity.properties[propertyCode];
 					propertyContent = Util.getEmptyIfNull(propertyContent);
+					propertyContent = FormUtil.sanitizeRichHTMLText(propertyContent);
 					propertyContent = Util.replaceURLWithHTMLLinks(propertyContent);
 				}
 				
@@ -145,7 +147,7 @@ var PrintUtil = new function() {
 					propertyContent = propertyContent.replace(/\n/g, "<br />");
 				}
 				
-				if(propertyContent !== "") {
+				if(propertyContent && !profile.isSystemProperty(propertyType)) { // Only show non empty properties
 					if(isSingleColumn) {
 						$newInspectorTable
 						.append($("<tr>")

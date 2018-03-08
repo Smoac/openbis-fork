@@ -258,6 +258,7 @@ function MainController(profile) {
 		this._changeView(newViewChange, arg, true, shouldStateBePushToHistory);
 	}
 	this._changeView = function(newViewChange, arg, shouldURLBePushToHistory, shouldStateBePushToHistory) {
+		LayoutManager.isBlocked = false;
 		//
 		// Dirty forms management, to avoid loosing changes.
 		//
@@ -496,39 +497,66 @@ function MainController(profile) {
 					break;
 				case "showEditSamplePageFromPermId":
 					var _this = this;
-					this.serverFacade.searchWithUniqueId(arg, function(data) {
+					var permId = null;
+					var paginationInfo = null;
+					if((typeof arg) !== "string") {
+						permId = arg.permIdOrIdentifier;
+						paginationInfo = arg.paginationInfo;
+						arg = permId;
+					} else {
+						permId = arg;
+					}
+					this.serverFacade.searchWithUniqueId(permId, function(data) {
 						if(!data[0]) {
 							window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
 						} else {
 							document.title = "" + ELNDictionary.Sample + " " + data[0].code;
 							var isELNSubExperiment = $.inArray(data[0].spaceCode, _this.profile.inventorySpaces) === -1 && _this.profile.inventorySpaces.length > 0;
-							_this._showEditSamplePage(data[0], isELNSubExperiment);
+							_this._showEditSamplePage(data[0], isELNSubExperiment, paginationInfo);
 							//window.scrollTo(0,0);
 						}
 					});
 					break;
 				case "showViewSamplePageFromPermId":
 					var _this = this;
-					this.serverFacade.searchWithUniqueId(arg, function(data) {
+					var permId = null;
+					var paginationInfo = null;
+					if((typeof arg) !== "string") {
+						permId = arg.permIdOrIdentifier;
+						paginationInfo = arg.paginationInfo;
+						arg = permId;
+					} else {
+						permId = arg;
+					}
+					this.serverFacade.searchWithUniqueId(permId, function(data) {
 						if(!data[0]) {
 							window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
 						} else {
 							document.title = "" + ELNDictionary.Sample + " " + data[0].code;
 							var isELNSubExperiment = $.inArray(data[0].spaceCode, _this.profile.inventorySpaces) === -1&& _this.profile.inventorySpaces.length > 0;
-							_this._showViewSamplePage(data[0], isELNSubExperiment);
+							_this._showViewSamplePage(data[0], isELNSubExperiment, paginationInfo);
 							//window.scrollTo(0,0);
 						}
 					});
 					break;
 				case "showViewSamplePageFromIdentifier":
 					var _this = this;
-					this.serverFacade.searchWithIdentifiers([arg], function(data) {
+					var identifier = null;
+					var paginationInfo = null;
+					if((typeof arg) !== "string") {
+						identifier = arg.permIdOrIdentifier;
+						paginationInfo = arg.paginationInfo;
+						arg = permId;
+					} else {
+						identifier = arg;
+					}
+					this.serverFacade.searchWithIdentifiers([identifier], function(data) {
 						if(!data[0]) {
 							window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
 						} else {
 							document.title = "" + ELNDictionary.Sample + " " + data[0].code;
 							var isELNSubExperiment = $.inArray(data[0].spaceCode, _this.profile.inventorySpaces) === -1&& _this.profile.inventorySpaces.length > 0;
-							_this._showViewSamplePage(data[0], isELNSubExperiment);
+							_this._showViewSamplePage(data[0], isELNSubExperiment, paginationInfo);
 							//window.scrollTo(0,0);
 						}
 					});
@@ -898,19 +926,19 @@ function MainController(profile) {
 		trashcanController.init(views);
 	}
 	
-	this._showViewSamplePage = function(sample, isELNSubExperiment) {
+	this._showViewSamplePage = function(sample, isELNSubExperiment, paginationInfo) {
 		//Show Form
-		var sampleFormController = new SampleFormController(this, FormMode.VIEW, sample);
+		var sampleFormController = new SampleFormController(this, FormMode.VIEW, sample, paginationInfo);
 		this.currentView = sampleFormController;
 		var views = this._getNewViewModel(true, true, true);
 		sampleFormController.init(views);
 	}
 	
-	this._showEditSamplePage = function(sample, isELNSubExperiment) {
+	this._showEditSamplePage = function(sample, isELNSubExperiment, paginationInfo) {
 		//Show Form
 		var localInstance = this;
 		this.serverFacade.searchWithUniqueId(sample.permId, function(data) {
-			var sampleFormController = new SampleFormController(localInstance, FormMode.EDIT, data[0]);
+			var sampleFormController = new SampleFormController(localInstance, FormMode.EDIT, data[0], paginationInfo);
 			localInstance.currentView = sampleFormController;
 			var views = localInstance._getNewViewModel(true, true, false);
 			sampleFormController.init(views);

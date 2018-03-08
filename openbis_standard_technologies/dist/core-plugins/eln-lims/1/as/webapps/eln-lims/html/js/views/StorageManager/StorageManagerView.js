@@ -23,6 +23,20 @@ function StorageManagerView(storageManagerController, storageManagerModel, stora
 	this._changeLogContainer = $("<div>").append("None");
 	
 	this._moveBtn = FormUtil.getButtonWithIcon("glyphicon-floppy-disk", null, "Save Changes");
+	this._showHideStorageToBtn = FormUtil.getButtonWithIcon("glyphicon-eye-open", null, "Toggle Storage B");
+	this._showHideMenuBtn = FormUtil.getButtonWithIcon("glyphicon-resize-full", function() {
+			var iconSpan = $(this.children[0]);
+			if(iconSpan.hasClass("glyphicon-resize-full")) {
+				iconSpan.removeClass("glyphicon-resize-full");
+				iconSpan.addClass("glyphicon-resize-small");
+				LayoutManager.fullScreen();
+			} else if(iconSpan.hasClass("glyphicon-resize-small")) {
+				iconSpan.removeClass("glyphicon-resize-small");
+				iconSpan.addClass("glyphicon-resize-full");
+				LayoutManager.restoreStandardSize();
+			}
+	}, "Toggle Full Screen");
+		
 	this._moveBtn.removeClass("btn-default");
 	this._moveBtn.addClass("btn-primary");
 	
@@ -31,7 +45,7 @@ function StorageManagerView(storageManagerController, storageManagerModel, stora
 		var $container = views.content;
 		
 		$header.append($("<h2>").append("Storage Manager"));
-		$header.append(this._moveBtn);
+		$header.append(this._moveBtn).append(" ").append(this._showHideStorageToBtn).append(" ").append(this._showHideMenuBtn);
 		
 		var $containerColumn = $("<form>", {
 			'role' : "form", 
@@ -41,17 +55,30 @@ function StorageManagerView(storageManagerController, storageManagerModel, stora
 		
 		var $twoColumnsContainer = $("<div>", {"id" : "storageFromContainer", "class" : "row"});
 		
-		var $storageFromContainer = $("<div>", {"id" : "storageFromContainer", "class" : "col-md-6"});
-		$twoColumnsContainer.append($storageFromContainer);
-		this._storageFromView.repaint($storageFromContainer);
+		this._$storageFromContainer = $("<div>", {"id" : "storageFromContainer", "class" : "col-md-12"});
+		this._storageFromView.repaint(this._$storageFromContainer);
 		
-		var $storageToContainer = $("<div>", {"id" : "storageToContainer", "class" : "col-md-6"});
-		$twoColumnsContainer.append($storageToContainer);
-		this._storageToView.repaint($storageToContainer);
+		this._$storageToContainer = $("<div>", {"id" : "storageToContainer", "class" : "col-md-12"});
+		this._$storageToContainer.hide();
+		var _this = this;
+		this._showHideStorageToBtn.click(function() {
+			var iconSpan = $(_this._showHideStorageToBtn.children()[0]);
+			if(iconSpan.hasClass("glyphicon-eye-open")) {
+				iconSpan.removeClass("glyphicon-eye-open");
+				iconSpan.addClass("glyphicon-eye-close");
+			} else if(iconSpan.hasClass("glyphicon-eye-close")) {
+				iconSpan.removeClass("glyphicon-eye-close");
+				iconSpan.addClass("glyphicon-eye-open");
+			}
+			_this._$storageToContainer.toggle();
+		});
 		
+		this._storageToView.repaint(this._$storageToContainer);
 		
-		$containerColumn.append($twoColumnsContainer);
-		$containerColumn.append($("<div>").append($("<h2>").append("Changes")).append(this._changeLogContainer));
+		$containerColumn.append(this._$storageFromContainer);
+		$containerColumn.append(this._$storageToContainer);
+		$containerColumn.append($("<div>", { class : "col-md-12" }).append($("<legend>").append("Changes")).append(this._changeLogContainer));
+		$container.css("padding", "0px");
 		$container.append($containerColumn);
 	}
 	

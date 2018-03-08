@@ -18,7 +18,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 	this._sampleFormController = sampleFormController;
 	this._sampleFormModel = sampleFormModel;
 	
-	this.repaint = function(views) {
+	this.repaint = function(views, loadFromTemplate) {
 		var $container = views.content;
 		//
 		// Form setup
@@ -74,7 +74,21 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		
 		var $formTitle = $("<div>");
 		var nameLabel = this._sampleFormModel.sample.properties[profile.propertyReplacingCode];
-		if(!nameLabel) {
+		if(nameLabel) {
+			nameLabel = html.sanitize(nameLabel);
+		} else if(this._sampleFormModel.sample.sampleTypeCode === "STORAGE_POSITION") {
+			var properties = this._sampleFormModel.sample.properties;
+			var storagePropertyGroup = profile.getStoragePropertyGroup();
+			var boxProperty = properties[storagePropertyGroup.boxProperty];
+			if(!boxProperty) {
+				boxProperty = "NoBox";
+			}
+			var positionProperty = properties[storagePropertyGroup.positionProperty];
+			if(!positionProperty) {
+				positionProperty = "NoPos";
+			}
+			nameLabel = boxProperty + " - " + positionProperty;
+		} else {
 			nameLabel = this._sampleFormModel.sample.code;
 		}
 		
@@ -133,7 +147,12 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			//Edit
 			if(this._sampleFormModel.mode === FormMode.VIEW) {
 				var $editButton = FormUtil.getButtonWithIcon("glyphicon-edit", function () {
-					mainController.changeView('showEditSamplePageFromPermId', _this._sampleFormModel.sample.permId);
+					var args = {
+							permIdOrIdentifier : _this._sampleFormModel.sample.permId,
+							paginationInfo : _this._sampleFormModel.paginationInfo
+					}
+					
+					mainController.changeView('showEditSamplePageFromPermId', args);
 				});
 				toolbarModel.push({ component : $editButton, tooltip: "Edit" });
 			}
@@ -259,6 +278,40 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			toolbarModel.push({ component : $saveBtn, tooltip: "Save" });
 		}
 		
+		if(this._sampleFormModel.mode !== FormMode.CREATE && this._sampleFormModel.paginationInfo) {
+			var moveToIndex = function(index) {
+				var pagOptionsToSend = $.extend(true, {}, _this._sampleFormModel.paginationInfo.pagOptions);
+				pagOptionsToSend.pageIndex = index;
+				pagOptionsToSend.pageSize = 1;
+				_this._sampleFormModel.paginationInfo.pagFunction(function(result) {
+					if(result && result.objects && result.objects[0] && result.objects[0].permId) {
+						_this._sampleFormModel.paginationInfo.currentIndex = index;
+						var arg = {
+								permIdOrIdentifier : result.objects[0].permId,
+								paginationInfo : _this._sampleFormModel.paginationInfo
+						}
+						mainController.changeView('showViewSamplePageFromPermId', arg);
+					} else {
+						window.alert("The item to go to is no longer available.");
+					}
+				}, pagOptionsToSend);
+			}
+			
+			if(this._sampleFormModel.paginationInfo.currentIndex > 0) {
+				var $backBtn = FormUtil.getButtonWithIcon("glyphicon-arrow-left", function () {
+					moveToIndex(_this._sampleFormModel.paginationInfo.currentIndex-1);
+				});
+				toolbarModel.push({ component : $backBtn, tooltip: "Go to previous Object from list" });
+			}
+			
+			if(this._sampleFormModel.paginationInfo.currentIndex+1 < this._sampleFormModel.paginationInfo.totalCount) {
+				var $nextBtn = FormUtil.getButtonWithIcon("glyphicon-arrow-right", function () {
+					moveToIndex(_this._sampleFormModel.paginationInfo.currentIndex+1);
+				});
+				toolbarModel.push({ component : $nextBtn, tooltip: "Go to next Object from list" });
+			}
+		}
+		
 		var $header = views.header;
 		
 		$header.append($formTitle);
@@ -277,7 +330,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
 			var propertyTypeGroup = sampleType.propertyTypeGroups[i];
 			if(propertyTypeGroup.name === "General") {
-				this._paintPropertiesForSection($formColumn, propertyTypeGroup, i);
+				this._paintPropertiesForSection($formColumn, propertyTypeGroup, i, loadFromTemplate);
 			}
 		}
 		
@@ -380,7 +433,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
 			var propertyTypeGroup = sampleType.propertyTypeGroups[i];
 			if(propertyTypeGroup.name !== "General") {
-				this._paintPropertiesForSection($formColumn, propertyTypeGroup, i);
+				this._paintPropertiesForSection($formColumn, propertyTypeGroup, i, loadFromTemplate);
 			}
 		}
 		
@@ -501,7 +554,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		this._sampleFormModel.isFormLoaded = true;
 	}
 	
-	this._paintPropertiesForSection = function($formColumn, propertyTypeGroup, i) {
+	this._paintPropertiesForSection = function($formColumn, propertyTypeGroup, i, loadFromTemplate) {
 		var _this = this;
 		var sampleTypeCode = this._sampleFormModel.sample.sampleTypeCode;
 		var sampleType = mainController.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
@@ -519,7 +572,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		} else {
 			$legend.remove();
 		}
-			
+		
 		var propertyGroupPropertiesOnForm = 0;
 		for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 			var propertyType = propertyTypeGroup.propertyTypes[j];
@@ -565,7 +618,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				} else {
 					var $component = FormUtil.getFieldForPropertyType(propertyType, value);
 					//Update values if is into edit mode
-					if(this._sampleFormModel.mode === FormMode.EDIT) {
+					if(this._sampleFormModel.mode === FormMode.EDIT || loadFromTemplate) {
 						if(propertyType.dataType === "BOOLEAN") {
 							$($($component.children()[0]).children()[0]).prop('checked', value === "true");
 						} else if(propertyType.dataType === "TIMESTAMP") {

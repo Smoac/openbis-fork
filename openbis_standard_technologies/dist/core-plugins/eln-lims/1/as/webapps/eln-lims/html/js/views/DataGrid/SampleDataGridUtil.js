@@ -1,5 +1,7 @@
 var SampleDataGridUtil = new function() {
 	this.getSampleDataGrid = function(mandatoryConfigPostKey, samplesOrCriteria, rowClick, customOperations, customColumns, optionalConfigPostKey, isOperationsDisabled, isLinksDisabled, isMultiselectable, withExperiment) {
+		var _this = this;
+		var isDynamic = samplesOrCriteria.entityKind && samplesOrCriteria.rules;
 		
 		//Fill Columns model
 		var columnsFirst = [];
@@ -9,8 +11,27 @@ var SampleDataGridUtil = new function() {
 			property : 'identifier',
 			isExportable: true,
 			sortable : true,
-			render : function(data) {
-				return (isLinksDisabled)?data.identifier:FormUtil.getFormLink(data.identifier, "Sample", data.permId);
+			render : function(data, grid) {
+				var paginationInfo = null;
+				if(isDynamic) {
+					var indexFound = null;
+					for(var idx = 0; idx < grid.lastReceivedData.objects.length; idx++) {
+						if(grid.lastReceivedData.objects[idx].permId === data.permId) {
+							indexFound = idx + (grid.lastUsedOptions.pageIndex * grid.lastUsedOptions.pageSize);
+							break;
+						}
+					}
+					
+					if(indexFound !== null) {
+						paginationInfo = {
+								pagFunction : _this.getDataListDynamic(samplesOrCriteria, false),
+								pagOptions : grid.lastUsedOptions,
+								currentIndex : indexFound,
+								totalCount : grid.lastReceivedData.totalCount
+						}
+					}
+				}
+				return (isLinksDisabled)?data.identifier:FormUtil.getFormLink(data.identifier, "Sample", data.permId, paginationInfo);
 			},
 			filter : function(data, filter) {
 				return data.identifier.toLowerCase().indexOf(filter) !== -1;
@@ -74,6 +95,53 @@ var SampleDataGridUtil = new function() {
 			property : 'children',
 			isExportable: false,
 			sortable : false
+		});
+		
+		columnsFirst.push({
+			label : 'Storage',
+			property : 'storage',
+			isExportable: false,
+			sortable : false,
+			render : function(data) {
+				var storage = $("<span>");
+				if(data["$object"].children) {
+					var isFirst = true;
+					for (var cIdx = 0; cIdx < data['$object'].children.length; cIdx++) {
+						if(data['$object'].children[cIdx].sampleTypeCode == "STORAGE_POSITION") {
+							storageData = data['$object'].children[cIdx].properties;
+							var storagePropertyGroup = profile.getStoragePropertyGroup();
+							
+							var codeProperty = storageData[storagePropertyGroup.nameProperty];
+							if(!codeProperty) {
+								codeProperty = "NoCode";
+							}
+							var rowProperty = storageData[storagePropertyGroup.rowProperty];
+							if(!rowProperty) {
+								rowProperty = "NoRow";
+							}
+							var colProperty = storageData[storagePropertyGroup.columnProperty];
+							if(!colProperty) {
+								colProperty = "NoCol";
+							}
+							var boxProperty = storageData[storagePropertyGroup.boxProperty];
+							if(!boxProperty) {
+								boxProperty = "NoBox";
+							}
+							var positionProperty = storageData[storagePropertyGroup.positionProperty];
+							if(!positionProperty) {
+								positionProperty = "NoPos";
+							}
+							var displayName = codeProperty + " [ " + rowProperty + " , " + colProperty + " ] " + boxProperty + " - " + positionProperty;
+							if(!isFirst) {
+								storage.append(",<br>");
+							}
+							storage.append(FormUtil.getFormLink(displayName, "Sample", data['$object'].children[cIdx].permId));
+							isFirst = false;
+						}
+					}
+				}
+				return storage;
+			}
 		});
 
 		if(withExperiment) {
@@ -243,7 +311,7 @@ var SampleDataGridUtil = new function() {
 		
 		//Fill data model
 		var getDataList = null;
-		if(samplesOrCriteria.entityKind && samplesOrCriteria.rules) {
+		if(isDynamic) {
 			getDataList = SampleDataGridUtil.getDataListDynamic(samplesOrCriteria, withExperiment); //Load on demand model
 		} else {
 			getDataList = SampleDataGridUtil.getDataList(samplesOrCriteria); //Static model
@@ -321,11 +389,17 @@ var SampleDataGridUtil = new function() {
 					
 					var children = "";
 					if(sample.children) {
+						var isFirst = true;
 						for (var caIdx = 0; caIdx < sample.children.length; caIdx++) {
-							if(caIdx !== 0) {
+							if(sample.children[caIdx].sampleTypeCode === "STORAGE_POSITION") {
+								continue;
+							}
+							
+							if(!isFirst) {
 								children += ", ";
 							}
 							children += sample.children[caIdx].identifier;
+							isFirst = false;
 						}
 					}
 					
@@ -342,27 +416,36 @@ var SampleDataGridUtil = new function() {
 			
 			var fetchOptions = {
 					minTableInfo : true,
-					withExperiment : withExperiment
+					withExperiment : withExperiment,
+					withChildrenInfo : true
 			};
 			
+			var optionsSearch = null;
 			if(options) {
 				fetchOptions.count = options.pageSize;
 				fetchOptions.from = options.pageIndex * options.pageSize;
+				optionsSearch = options.search;
 			}
 			
-			if(!criteria.cached) {
+			if(!criteria.cached || (criteria.cachedSearch !== optionsSearch)) {
 				fetchOptions.cache = "RELOAD_AND_CACHE";
+				criteria.cachedSearch = optionsSearch;
 				criteria.cached = true;
 			} else {
 				fetchOptions.cache = "CACHE";
 			}
-				
+			
 			var criteriaToSend = $.extend(true, {}, criteria);
 			
 			if(options && options.searchOperator && options.search) {
 				criteriaToSend.logicalOperator = options.searchOperator;
 				if(criteriaToSend.logicalOperator === "OR") {
 					criteriaToSend.rules = {};
+					fetchOptions.sort = { 
+							type : "Attribute",
+							name : "fetchedFieldsScore",
+							direction : "asc"
+					}
 				}
 			}
 			
@@ -380,6 +463,7 @@ var SampleDataGridUtil = new function() {
 						name : null,
 						direction : options.sortDirection
 				}
+				
 				switch(options.sortProperty) {
 					case "code":
 						fetchOptions.sort.type = "Attribute";

@@ -29,6 +29,7 @@ function DataSetViewerModel(containerId, profile, entity, serverFacade, datastor
 	}
 	
 	this.datasets = datasets;
+	this.v3Datasets = [];
 	
 	this.enableUpload = enableUpload;
 	this.enableDeepUnfolding = enableDeepUnfolding;
@@ -36,7 +37,20 @@ function DataSetViewerModel(containerId, profile, entity, serverFacade, datastor
 	this.datastoreDownloadURL = datastoreDownloadURL;
 	
 	this.getDownloadLink = function(datasetCode, datasetFile, isShowSize) {
-		var downloadUrl = this.datastoreDownloadURL + '/' + datasetCode + "/" + encodeURIComponent(datasetFile.pathInDataSet) + "?sessionID=" + mainController.serverFacade.getSession();
+		var downloadUrl = null;
+		
+		if(this.isLinkDataset(datasetCode)) {
+			var cc = this.getDownloadableContentCopy(datasetCode);
+			if(cc) {
+				downloadUrl = profile.EDMSs[cc.externalDms.code] + "?sessionToken=" + encodeURIComponent(mainController.serverFacade.getSession())
+													+ "&datasetPermId=" + encodeURIComponent(datasetCode)
+													+ "&externalDMSCode=" + encodeURIComponent(cc.externalDms.code)
+													+ "&contentCopyPath=" + encodeURIComponent(cc.path)
+													+ "&datasetPathToFile=" + encodeURIComponent(datasetFile.pathInDataSet);
+			}
+		} else {
+			downloadUrl = this.datastoreDownloadURL + '/' + datasetCode + "/" + encodeURIComponent(datasetFile.pathInDataSet) + "?sessionID=" + mainController.serverFacade.getSession();
+		}
 		
 		var size = null;
 		if(parseInt(datasetFile.fileSize) / 1024 > 1024) {
@@ -48,13 +62,18 @@ function DataSetViewerModel(containerId, profile, entity, serverFacade, datastor
 		}
 		var size = Math.floor(size * 10) / 10; //Rounded to one decimal
 		
-		var $link = $("<a>").attr("href", downloadUrl)
+		var $link = null;
+		if(downloadUrl) {
+			$link = $("<a>").attr("href", downloadUrl)
 							.attr("target", "_blank")
 							.append(datasetFile.pathInListing)
 							.append(" ("+ size + unit +")")
 							.click(function(event) {
 								event.stopPropagation();
 							});
+		} else {
+			$link = $("<span>").text(datasetFile.pathInListing);
+		}
 		
 		return $link;
 	}
@@ -80,9 +99,36 @@ function DataSetViewerModel(containerId, profile, entity, serverFacade, datastor
         return false;	    
 	}
 
+	this.isLinkDataset = function(datasetCode) {
+		for(var idx = 0; idx < this.datasets.length; idx++) {
+			if(this.datasets[idx].code === datasetCode && this.datasets[idx].linkDataSet) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	this.getDownloadableContentCopy = function(datasetCode) {
+		for(var idx = 0; idx < this.datasets.length; idx++) {
+			var dataset = this.v3Datasets[idx];
+			if(dataset.code === datasetCode && dataset.linkedData) {
+				var contentCopies = dataset.linkedData.contentCopies;
+				for(var ccIdx = 0; ccIdx < contentCopies.length; ccIdx++) {
+					var contentCopy = contentCopies[ccIdx];
+					if(profile.EDMSs[contentCopy.externalDms.code]) {
+						return contentCopy;
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
 	this.getDirectDirectoryLink = function(datasetCode, pathInDataSet) {
 		var directLinkComponent = null;
-		if(profile.directLinkEnabled && (profile.cifsFileServer || profile.sftpFileServer)) {
+		if(this.isLinkDataset(datasetCode)) {
+			directLinkComponent = "<span class='glyphicon glyphicon-link'></span>";
+		} else if(profile.directLinkEnabled && (profile.cifsFileServer || profile.sftpFileServer)) {
 			var path = null;
 			
 			if(this.isExperiment()) {

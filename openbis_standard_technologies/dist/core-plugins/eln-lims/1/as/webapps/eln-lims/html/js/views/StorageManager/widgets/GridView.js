@@ -39,9 +39,16 @@ function GridView(gridModel) {
 		var $emptyCell = $("<th>");
 		$headerRow.append($emptyCell);
 		
+		var contentWidth = LayoutManager.getContentWidth();
+		var headerWidth = 24;
+		var minHeight = 32;
+		var cellWidth = contentWidth/parseInt(this._gridModel.numColumns) - headerWidth;
+		
 		for(var j = 0; j < this._gridModel.numColumns; j++) {
 			var $numberCell = $("<th>").append(j+1);
-			$numberCell.css('width', Math.floor(80/(this._gridModel.numColumns+1)) +'%');
+			$numberCell.css('width', cellWidth +'px');
+			$numberCell.css('text-align', 'center');
+			$numberCell.css('vertical-align', 'middle');
 //			$numberCell.css('padding', '0px');
 			$headerRow.append($numberCell);
 		}
@@ -50,13 +57,16 @@ function GridView(gridModel) {
 		
 		for(var i = 0; i < this._gridModel.numRows; i++) {
 			var $newRow = $("<tr>");
+				$newRow.css('height', minHeight +'px');
 			var rowLabel = i+1;
 			if(this._gridModel.useLettersOnRows) {
 				rowLabel = Util.getLetterForNumber(rowLabel);
 			}
 			var $numberCell = $("<th>").append(rowLabel);
-			$numberCell.css('width', Math.floor(80/(this._gridModel.numColumns+1)) +'%');
+			$numberCell.css('width', headerWidth + 'px');
 			$numberCell.css('padding', '0px');
+			$numberCell.css('text-align', 'center');
+			$numberCell.css('vertical-align', 'middle');
 			$newRow.append($numberCell);
 			
 			for(var j = 0; j < this._gridModel.numColumns; j++) {
@@ -108,7 +118,8 @@ function GridView(gridModel) {
 				}
 				
 				this._addLabels($newColumn, i + 1, j + 1);
-				$newColumn.css('width', Math.floor(80/(this._gridModel.numColumns+1)) +'%');
+				$newColumn.css('width', cellWidth +'px');
+				$newColumn.css('min-height', minHeight +'px');
 				$newColumn.css('padding', '0px');
 				$newColumn.css('overflow', 'hidden');
 				$newRow.append($newColumn);
@@ -131,29 +142,25 @@ function GridView(gridModel) {
 						sample = jQuery.extend(true, {}, labels[i].data);
 					}
 					
-					if(sample && sample.sampleTypeCode === "STORAGE_POSITION") {
-						if(sample.parents && sample.parents[0]) {
-							if(profile.propertyReplacingCode &&  sample.parents[0].properties &&  sample.parents[0].properties[profile.propertyReplacingCode]) {
-								// Label
-								labels[i].displayName = sample.parents[0].properties[profile.propertyReplacingCode];
-								// Tooltip, show also information from the parent
-								sample.properties[profile.propertyReplacingCode] = sample.parents[0].properties[profile.propertyReplacingCode];
-							} else {
-								//Label
-								labels[i].displayName = sample.parents[0].code;
-								//Tooltip, show also information from the parent
-								sample.code = sample.parents[0].code;
-							}
-							
-							var href = Util.getURLFor(null, "showViewSamplePageFromPermId", sample.parents[0].permId);
-							optSampleTitle = $("<a>", { "href" : href, "class" : "browser-compatible-javascript-link" }).append(labels[i].displayName);
-							optSampleTitle.click(function() {
-								mainController.changeView("showViewSamplePageFromPermId", sample.parents[0].permId);
-							});
+					if(sample && sample.sampleTypeCode === "STORAGE_POSITION" && sample.parents && sample.parents[0]) {
+						if(profile.propertyReplacingCode &&  sample.parents[0].properties &&  sample.parents[0].properties[profile.propertyReplacingCode]) {
+							// Label
+							labels[i].displayName = sample.parents[0].properties[profile.propertyReplacingCode];
+						} else {
+							//Label
+							labels[i].displayName = sample.parents[0].code;
 						}
+						
+						sample = sample.parents[0];
+							
+						var href = Util.getURLFor(null, "showViewSamplePageFromPermId", sample.permId);
+						optSampleTitle = $("<a>", { "href" : href, "class" : "browser-compatible-javascript-link" }).text(labels[i].displayName);
+						optSampleTitle.click(function() {
+							mainController.changeView("showViewSamplePageFromPermId", sample.permId);
+						});
 					}
 					
-					var labelContainer = $("<div>", { class: "storageBox", id : Util.guid() }).append(labels[i].displayName);
+					var labelContainer = $("<div>", { class: "storageBox", id : Util.guid() }).text(labels[i].displayName);
 					if (sample) {
 						var tooltip = PrintUtil.getTable(sample, false, optSampleTitle, 'inspectorWhiteFont', 'colorEncodedWellAnnotations-holder-' + sample.permId, null, null);
 						labelContainer.tooltipster({
@@ -163,7 +170,7 @@ function GridView(gridModel) {
 						});
 					} else if(labels[i].displayName) {
 						labelContainer.tooltipster({
-							content: $("<span>").html(labels[i].displayName)
+							content: $("<span>").text(labels[i].displayName)
 						});
 					}
 					var dragCopyFunc = function(object, origX, origY) {

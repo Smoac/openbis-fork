@@ -115,14 +115,24 @@ $.extend(DefaultProfile.prototype, {
 		}
 		
 		this.isAdmin = false;
+
+//		BigDataLink EDMs config
+		this.EDMSs = {
+//				"EXAMPLE-BS-MBPR28.D.ETHZ.CH-E96954A7" : "http://localhost:8080/download"
+		}
 		
 //		Jupyter integration config
 //		this.jupyterOpenbisEndpoint = "http://10.0.2.2:8888"; //Should not end with slash
 //		this.jupyterIntegrationServerEndpoint = "https://127.0.0.1:8123";
 //		this.jupyterEndpoint = "http://127.0.0.1:8000/";
 		
+		this.systemProperties = ["ANNOTATIONS_STATE"];
 		this.forcedDisableRTF = ["FREEFORM_TABLE_STATE","NAME", "SEQUENCE"];
 		this.forceMonospaceFont = ["SEQUENCE"];
+		
+		this.isSystemProperty = function(propertytype) {
+			return (propertytype && $.inArray(propertytype.code, this.systemProperties) !== -1);
+		}
 		
 		this.isForcedMonospaceFont = function(propertytype) {
 			return (propertytype && $.inArray(propertytype.code, this.forceMonospaceFont) !== -1);

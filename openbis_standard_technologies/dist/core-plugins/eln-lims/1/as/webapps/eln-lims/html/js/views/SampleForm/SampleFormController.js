@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-function SampleFormController(mainController, mode, sample) {
+function SampleFormController(mainController, mode, sample, paginationInfo) {
 	this._mainController = mainController;
-	this._sampleFormModel = new SampleFormModel(mode, sample);
+	this._sampleFormModel = new SampleFormModel(mode, sample, paginationInfo);
 	this._sampleFormView = new SampleFormView(this, this._sampleFormModel);
 //	this._storageControllers = [];
 	this._plateController = null;
-	this._windowHandlers = [];
 	
 	this.init = function(views) {
 		// Loading datasets
@@ -36,18 +35,24 @@ function SampleFormController(mainController, mode, sample) {
 				Util.unblockUI();
 			});
 		} else {
-			//Load view
-			_this._sampleFormView.repaint(views);
-			Util.unblockUI();
+			if(sample.sampleTypeCode === "ORDER") {
+				mainController.serverFacade.searchWithIdentifiers(["/ELN_SETTINGS/ORDER_TEMPLATE"], function(data) {
+					if(data[0]) { //Template found
+						sample.properties = data[0].properties;
+						sample.parents = data[0].parents;
+					}
+					//Load view
+					_this._sampleFormView.repaint(views, true);
+					Util.unblockUI();
+				});
+			} else {
+				//Load view
+				_this._sampleFormView.repaint(views);
+				Util.unblockUI();
+			}
+			
 		}
 		
-	}
-	
-	this.finalize = function() {
-		for(var whIdx = 0; whIdx < this._windowHandlers.length; whIdx++) {
-			$(window).off("resize", this._windowHandlers[whIdx]);
-		}
-		$("#mainContainer").css("overflow-y", "auto");
 	}
 		
 	this.isDirty = function() {

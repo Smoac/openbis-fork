@@ -31,6 +31,7 @@ function DataSetFormModel(mode, entity, dataSet, isMini) {
 	} else {
 		this.dataSet = dataSet;
 	}
+	this.linkedData = null;
 	
 	this.dataSetTypes = null;
 	this.files = [];

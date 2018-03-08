@@ -897,11 +897,13 @@ function ServerFacade(openbisServer) {
 						fetchOptions.withParents();
 					}
 					if(fetchOptions.withChildren) {
-						fetchOptions.withChildren();
+						var childrenFetchOptions = fetchOptions.withChildren();
+						if(advancedFetchOptions.withChildrenInfo) {
+							childrenFetchOptions.withType();
+							childrenFetchOptions.withProperties();
+						}
 					}
 				}
-				
-				
 				
 				if(advancedFetchOptions && advancedFetchOptions.cache) {
 					fetchOptions.cacheMode(advancedFetchOptions.cache);
@@ -919,7 +921,9 @@ function ServerFacade(openbisServer) {
 				if(advancedFetchOptions && advancedFetchOptions.sort) {
 					switch(advancedFetchOptions.sort.type) {
 						case "Attribute":
-							fetchOptions.sortBy()[advancedFetchOptions.sort.name]()[advancedFetchOptions.sort.direction]();
+							if(fetchOptions.sortBy()[advancedFetchOptions.sort.name]) {
+								fetchOptions.sortBy()[advancedFetchOptions.sort.name]()[advancedFetchOptions.sort.direction]();
+							}
 							break;
 						case "Property":
 							fetchOptions.sortBy().property(advancedFetchOptions.sort.name)[advancedFetchOptions.sort.direction]();

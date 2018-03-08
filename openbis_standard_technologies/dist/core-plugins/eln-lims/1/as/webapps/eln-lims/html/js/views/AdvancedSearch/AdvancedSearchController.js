@@ -122,17 +122,20 @@ function AdvancedSearchController(mainController, forceSearch) {
 			
 			var fetchOptions = {};
 			
+			var optionsSearch = null;
 			if(options) {
 				fetchOptions.count = options.pageSize;
 				fetchOptions.from = options.pageIndex * options.pageSize;
 				fetchOptions.minTableInfo = true;
 				fetchOptions.withExperiment = true;
+				optionsSearch = options.search;
 				// TODO : Unused on the UI, should be added for DataSets
 				// fetchOptions.withSample = true;
 			}
 			
-			if(!criteria.cached) {
+			if(!criteria.cached || (criteria.cachedSearch !== optionsSearch)) {
 				fetchOptions.cache = "RELOAD_AND_CACHE";
+				criteria.cachedSearch = optionsSearch;
 				criteria.cached = true;
 			} else {
 				fetchOptions.cache = "CACHE";

@@ -60,7 +60,9 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		var entityPath = FormUtil.getFormPath(spaceCode, projectCode, experimentCode, null, null, sampleCode, sampleIdentifier, datasetCodeAndPermId);
 		
 		var nameLabel = this._dataSetFormModel.dataSet.properties[profile.propertyReplacingCode];
-		if(!nameLabel) {
+		if(nameLabel) {
+			nameLabel = html.sanitize(nameLabel);
+		} else {
 			nameLabel = this._dataSetFormModel.dataSet.code;
 		}
 		
@@ -199,6 +201,40 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		
 		if(!this._dataSetFormModel.isMini) {
 			$dataSetTypeFieldSet.append(FormUtil.getFieldForLabelWithText(ownerName, owner));
+		}
+		
+		//
+		// Content copies info
+		//
+		if(this._dataSetFormModel.linkedData && this._dataSetFormModel.linkedData.contentCopies) {
+			var $ccn = FormUtil.getFieldForLabelWithText("Number of content copies", "" + this._dataSetFormModel.linkedData.contentCopies.length);
+			$dataSetTypeFieldSet.append($ccn);
+			for(var cIdx = 0; cIdx < this._dataSetFormModel.linkedData.contentCopies.length; cIdx++) {
+				var cc = this._dataSetFormModel.linkedData.contentCopies[cIdx];
+				
+				var externalDmsCode = null;
+				if(cc.externalDms && cc.externalDms.code) {
+					externalDmsCode = cc.externalDms.code;
+				}
+				
+				var host = null;
+				if(cc.externalDms && cc.externalDms.address) {
+					host = cc.externalDms.address.split(":")[0];
+				}
+				
+				if(cc) {
+					var $cc = FormUtil.getFieldForLabelWithText("Content Copy " + (cIdx+1) , 
+							"- <u>External DMS</u>: " + externalDmsCode + "<br>" + 
+							"- <u>Host</u>: " + host + "<br>" +
+							"- <u>Directory</u>: " + cc.path + "<br>" +
+							"- <u>Commit Hash</u>: " + cc.gitCommitHash + "<br>" + 
+							"- <u>Repository Id</u>: " + cc.gitRepositoryId + "<br>" +
+							"- <u>Connect cmd</u>: " +  "ssh -t " + host + " \"cd " + cc.path + "; bash\""
+							);
+					$dataSetTypeFieldSet.append($cc);
+				}
+			}
+			
 		}
 		
 		//

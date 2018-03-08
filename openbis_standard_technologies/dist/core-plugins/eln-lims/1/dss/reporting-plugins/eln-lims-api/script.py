@@ -258,6 +258,10 @@ def process(tr, parameters, tableBuilder):
 		result = getFeaturesFromFeatureVector(tr, parameters, tableBuilder);
 		isOk = True;
 
+	if method == "getDiskSpace":
+		result = getDiskSpace(tr, parameters, tableBuilder)
+		isOk = True
+
 	if isOk:
 		tableBuilder.addHeader("STATUS");
 		tableBuilder.addHeader("MESSAGE");
@@ -356,6 +360,43 @@ def getFeaturesFromFeatureVector(tr, parameters, tableBuilder):
 	featuresFromFeatureVector = screeningServiceDSS.loadFeatures(sessionToken, [featureVectorDataset], featuresCodesFromFeatureVector);
 	return getJsonForData(featuresFromFeatureVector);
 
+def getDiskSpace(tr, parameters, tableBuilder):
+	storerootDir = getConfigParameterAsString("storeroot-dir")
+	diskSpaceValues = []
+	diskSpaceValues.append(getDiskSpaceForDirectory(storerootDir))
+	# find symlinks to different drives
+	findLinks = subprocess.check_output(["find", storerootDir, "-type", "l", "-maxdepth", "1"])
+	for symlink in findLinks.splitlines():
+		linkPath = os.path.realpath(symlink)
+		if os.path.exists(linkPath):
+			diskSpaceForDir = getDiskSpaceForDirectory(linkPath)
+			if diskSpaceForDir not in diskSpaceValues:
+				diskSpaceValues.append(diskSpaceForDir)
+	# find mountpoints within the storeroot-dir
+	findDirs = subprocess.check_output(["find", storerootDir, "-type", "d", "-maxdepth", "1"])
+	for dir in findDirs.splitlines():
+		diskSpaceForDir = getDiskSpaceForDirectory(dir)
+		if diskSpaceForDir not in diskSpaceValues:
+			diskSpaceValues.append(diskSpaceForDir)
+	return getJsonForData(diskSpaceValues)
+
+def getDiskSpaceForDirectory(dir):
+	df = subprocess.check_output(["df", '-h', dir])
+	return extractDiskSpaceValues(df)
+
+def extractDiskSpaceValues(df):
+	values = {}
+	dfLines = df.splitlines()
+	#reverse because the first column (which we don't need) can contain spaces
+	headerSplitReversed = dfLines[0].replace("Mounted on", "Mounted_on").split()[::-1]
+	valuesSplitReversed = dfLines[1].split()[::-1]
+	for i, column in enumerate(headerSplitReversed):
+		if column in ["Mounted_on", "Size", "Used", "Avail"]:
+			values[column] = valuesSplitReversed[i]
+		elif column in ["Capacity", "Use%"]: # Mac OS X or GNU/Linux
+			values["UsedPercentage"] = valuesSplitReversed[i]
+	return values
+
 def insertSpaceIfMissing(tr, spaceCode):
 	space = tr.getSpace(spaceCode);
 	if space == None:
@@ -378,12 +419,15 @@ def insertExperimentIfMissing(tr, experimentIdentifier, experimentType, experime
 		experiment.setPropertyValue("NAME", experimentName);
 	return experiment;
 
-def insertSampleIfMissing(tr, sampleIdentifier, experiment, sampleType):
+def insertSampleIfMissing(tr, sampleIdentifier, experiment, sampleType, properties):
 	sample = tr.getSample(sampleIdentifier);
 	if sample == None:
 		sample = tr.createNewSample(sampleIdentifier,	sampleType);
 		if experiment != None:
 			sample.setExperiment(experiment);
+		if properties != None:
+			for key in properties:
+				sample.setPropertyValue(key, properties[key]);
 	return sample;
 	
 def init(tr, parameters, tableBuilder):
@@ -411,6 +455,7 @@ def init(tr, parameters, tableBuilder):
 		insertSpaceIfMissing(tr, "STOCK_ORDERS");
 		insertProjectIfMissing(tr, "/STOCK_ORDERS/ORDERS", projectsCache);
 		insertExperimentIfMissing(tr, "/STOCK_ORDERS/ORDERS/ORDER_COLLECTION", "STOCK", "Order Collection");
+		insertSampleIfMissing(tr, "/ELN_SETTINGS/ORDER_TEMPLATE", None, "ORDER", { "ORDER_STATUS" : "NOT_YET_ORDERED" });
 	
 	## Default lab notebook only on new installations
 	if isNewInstallation:
@@ -424,7 +469,7 @@ def init(tr, parameters, tableBuilder):
 			if isFirstTimeInstallingStorage:
 				insertProjectIfMissing(tr, "/ELN_SETTINGS/STORAGES", projectsCache);
 				storageCollection = insertExperimentIfMissing(tr, "/ELN_SETTINGS/STORAGES/STORAGES_COLLECTION", "COLLECTION", "Storages Collection");
-				bench = insertSampleIfMissing(tr, "/ELN_SETTINGS/BENCH", storageCollection, "STORAGE");
+				bench = insertSampleIfMissing(tr, "/ELN_SETTINGS/BENCH", storageCollection, "STORAGE", None);
 				bench.setPropertyValue("NAME", "Bench");
 				bench.setPropertyValue("ROW_NUM", "1");
 				bench.setPropertyValue("COLUMN_NUM", "1");
@@ -433,7 +478,7 @@ def init(tr, parameters, tableBuilder):
 				bench.setPropertyValue("BOX_SPACE_WARNING", "80");
 				bench.setPropertyValue("STORAGE_VALIDATION_LEVEL", "BOX_POSITION");
 					
-				defaultStorage = insertSampleIfMissing(tr, "/ELN_SETTINGS/DEFAULT_STORAGE", storageCollection, "STORAGE");
+				defaultStorage = insertSampleIfMissing(tr, "/ELN_SETTINGS/DEFAULT_STORAGE", storageCollection, "STORAGE", None);
 				defaultStorage.setPropertyValue("NAME", "Default Storage");
 				defaultStorage.setPropertyValue("ROW_NUM", "4");
 				defaultStorage.setPropertyValue("COLUMN_NUM", "4");
@@ -443,7 +488,7 @@ def init(tr, parameters, tableBuilder):
 				defaultStorage.setPropertyValue("STORAGE_VALIDATION_LEVEL", "BOX_POSITION");
 			
 	if isSampleTypeAvailable(installedTypes, "GENERAL_ELN_SETTINGS"):
-			insertSampleIfMissing(tr, "/ELN_SETTINGS/GENERAL_ELN_SETTINGS", None, "GENERAL_ELN_SETTINGS");
+			insertSampleIfMissing(tr, "/ELN_SETTINGS/GENERAL_ELN_SETTINGS", None, "GENERAL_ELN_SETTINGS", None);
 	
 	# On new installations check if the default types are installed to create their respective PROJECT/EXPERIMENTS
 	if isNewInstallation:

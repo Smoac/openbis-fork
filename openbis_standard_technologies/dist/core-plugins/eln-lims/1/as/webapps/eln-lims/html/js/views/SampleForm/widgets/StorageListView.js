@@ -41,7 +41,7 @@ function StorageListView(storageListController, storageListModel) {
 				if(!positionProperty) {
 					positionProperty = "NoPos";
 				}
-				var displayName = boxProperty + " : " + positionProperty;
+				var displayName = boxProperty + " - " + positionProperty;
 				return (data['$object'].newSample)?displayName:FormUtil.getFormLink(displayName, "Sample", data['$object'].permId);
 			},
 			filter : function(data, filter) {
@@ -142,11 +142,24 @@ function StorageListView(storageListController, storageListModel) {
 				_this.showStorageWidget(data.data['$object'])
 			}
 		}
-		
-		this._dataGrid = new DataGridController(null, columns, [], null, getDataList, rowClick, false, "STORAGE_WIDGET");
-		
+
+		// multi-select delete option
+		let isMultiselectable = false;
+		var extraOptions = [];
+		if(!this._storageListModel.isDisabled) {
+			isMultiselectable = true;
+			extraOptions.push({ name : "Delete selected", action : function(selected) {
+				for (let i=0; i<selected.length; i++) {
+					_this.removeChildFromSampleOrMarkToDelete(selected[i]);
+				}
+				_this._dataGrid.refresh();
+			}});
+		}
+
+		this._dataGrid = new DataGridController(null, columns, [], null, getDataList, rowClick, false, "STORAGE_WIDGET", isMultiselectable);
+
 		var $dataGridContainer = $("<div>");
-		this._dataGrid.init($dataGridContainer);
+		this._dataGrid.init($dataGridContainer, extraOptions);
 		$container.append($dataGridContainer);
 		
 		var $storageAddButton = $("<a>", { class : 'btn btn-default', style : "float: right; background-color:#f9f9f9;" }).append($("<i>", { class : "glyphicon glyphicon-plus" } ));

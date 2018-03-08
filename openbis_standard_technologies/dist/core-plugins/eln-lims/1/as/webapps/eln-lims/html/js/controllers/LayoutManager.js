@@ -6,6 +6,8 @@ var LayoutManager = {
 	TABLET_SIZE : 768,
 	MOBILE_SIZE : 0,
 	MIN_HEADER_HEIGHT : 120,
+	MAX_FIRST_COLUMN_WIDTH : 350,
+	MAX_THIRD_COLUMN_WIDTH : 350,
 	body : null,
 	mainContainer : null,
 	firstColumn : null,
@@ -175,19 +177,29 @@ var LayoutManager = {
 		var width = $( window ).width();
 		var height = $( window ).height();
 		var headerHeight = 0;
-
+		
+		var firstColumnWidth = width * 0.25;
+		if(firstColumnWidth > LayoutManager.MAX_FIRST_COLUMN_WIDTH) {
+			firstColumnWidth = LayoutManager.MAX_FIRST_COLUMN_WIDTH;
+		}
+		
 		if(isFirstTime) {
 			this.firstColumn.append(view.menu);
 			this.firstColumn.css({
 				"display" : "block",
 				"height" : height,
-				"width" : "25%"
+				"width" : firstColumnWidth
 			});
+		}
+		
+		var thirdColumnWidth = (width - this.firstColumn.width()) * 0.34 - 1
+		if(thirdColumnWidth > LayoutManager.MAX_THIRD_COLUMN_WIDTH) {
+			thirdColumnWidth = LayoutManager.MAX_THIRD_COLUMN_WIDTH;
 		}
 		
 		var secondColumWidth;
 		if (view.auxContent) {
-			secondColumWidth = (width - this.firstColumn.width()) * 0.66 - 1;
+			secondColumWidth = width - this.firstColumn.width() - thirdColumnWidth - 1;
 		} else {
 			secondColumWidth = width - this.firstColumn.width() - 1;
 		}
@@ -226,7 +238,7 @@ var LayoutManager = {
 			this.thirdColumn.css({
 				"display" : "block",
 				"height" : height,
-				"width" : (width - this.firstColumn.width()) * 0.34 - 1
+				"width" : thirdColumnWidth
 			});
 			this.thirdColumn.append(view.auxContent);
 		} else {
@@ -241,12 +253,17 @@ var LayoutManager = {
 		var height = $( window ).height();
 		var headerHeight = 0;
 
+		var firstColumnWidth = width * 0.25;
+		if(firstColumnWidth > LayoutManager.MAX_FIRST_COLUMN_WIDTH) {
+			firstColumnWidth = LayoutManager.MAX_FIRST_COLUMN_WIDTH;
+		}
+		
 		if(isFirstTime) {
 			this.firstColumn.append(view.menu);
 			this.firstColumn.css({
 				display : "block",
 				height : height,
-				"width" : "25%"
+				"width" : firstColumnWidth
 			});
 		}
 		
@@ -338,7 +355,48 @@ var LayoutManager = {
 		}
 	},
 	canReload : function() {
-		return this.isResizingColumn === false && this.isLoadingView === false;
+		// Don't reload when CKEditor is maximized
+		var ckMaximized = false;
+		for(editorId in CKEDITOR.instances) {
+			var commands = CKEDITOR.instances[editorId].commands;
+			if(commands && commands.maximize && commands.maximize.state == 1) {
+				ckMaximized = true;
+			}
+		}
+		
+		return  this.isResizingColumn === false && 
+				this.isLoadingView === false && 
+				!ckMaximized;
+	},
+	getContentWidth : function() {
+		var width = $( window ).width();
+		if (width > this.DESKTOP_SIZE) {
+			return this.secondColumn.width();
+		} else if (width > this.TABLET_SIZE) {
+			return this.secondColumn.width();
+		} else if (width > this.MOBILE_SIZE) {
+			return this.firstColumn.width();
+		} else {
+			alert("Layout manager unable to know the layout, this should never happen.");
+		}
+	},
+	fullScreen : function() {
+		var width = $( window ).width();
+		if (width > this.DESKTOP_SIZE) {
+			this.firstColumn.hide();
+			this.thirdColumn.hide();
+			this.secondColumn.width(width);
+		} else if (width > this.TABLET_SIZE) {
+			this.firstColumn.hide();
+			this.secondColumn.width(width);
+		} else if (width > this.MOBILE_SIZE) {
+			this.secondColumn.width(width);
+		} else {
+			alert("Layout manager unable to go fullScreen, this should never happen.");
+		}
+	},
+	restoreStandardSize : function() {
+		LayoutManager.resize(mainController.views, true);
 	},
 	reloadView : function(view, forceFirstTime) {
 		var _this = this;
@@ -346,6 +404,7 @@ var LayoutManager = {
 
 		var isFirstTime = this.mainContainer === null || forceFirstTime === true;
 		// console.log("reloadView called with isFirstTime:" + isFirstTime);
+		
 		this._init(isFirstTime);
 
 		var width = $( window ).width();
@@ -366,6 +425,11 @@ var LayoutManager = {
 	addResizeEventHandler : function(eventHandler) {
 		this.resizeEventHandlers.push(eventHandler);
 	},
+	removeResizeEventHandler : function(eventHandler) {
+		this.resizeEventHandlers = this.resizeEventHandlers.filter(function(el) {
+			return el === eventHandler;
+		});
+	},
 	triggerResizeEventHandlers : function() {
 		for(var idx = 0; idx < this.resizeEventHandlers.length; idx++) {
 			this.resizeEventHandlers[idx]();
@@ -374,11 +438,12 @@ var LayoutManager = {
 	},
 	resize : function(view, forceFirstTime) {
 		if(this.canReload()) {
+			console.log("reloadView");
 			this.reloadView(view, forceFirstTime);
 		}
 	}
 }
 
 $(window).resize(function() {
-	LayoutManager.resize(mainController.views, true);
+    LayoutManager.resize(mainController.views, true);
 });

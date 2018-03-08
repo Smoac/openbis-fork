@@ -21,15 +21,29 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini) 
 	
 	this.init = function(views) {
 		var _this = this;
-		mainController.serverFacade.listDataSetTypes(
-				function(data) {
+		
+		mainController.serverFacade.listDataSetTypes(function(data) {
 					_this._dataSetFormModel.dataSetTypes = data.result;
 					mainController.serverFacade.getSetting("DataSetFormModel.isAutoUpload", function(value) {
 						_this._dataSetFormModel.isAutoUpload = (value === "true");
-						_this._dataSetFormView.repaint(views);
+						
+						if(mode !== FormMode.CREATE) {
+							var datasetPermId = dataSet.code;
+							require([ "as/dto/dataset/id/DataSetPermId", "as/dto/dataset/fetchoptions/DataSetFetchOptions" ],
+									function(DataSetPermId, DataSetFetchOptions) {
+										var ids = [new DataSetPermId(datasetPermId)];
+							            var fetchOptions = new DataSetFetchOptions();
+							            fetchOptions.withLinkedData().withExternalDms();
+							            mainController.openbisV3.getDataSets(ids, fetchOptions).done(function(map) {
+							            	_this._dataSetFormModel.linkedData = map[datasetPermId].linkedData;
+							            	_this._dataSetFormView.repaint(views);
+							            });
+							});
+						} else {
+							_this._dataSetFormView.repaint(views);
+						}
 					});
-				}
-		);
+		});
 	}
 	
 	this.isDirty = function() {
