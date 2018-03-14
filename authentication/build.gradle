@@ -5,9 +5,9 @@ apply from: '../gradle/javaproject.gradle'
 
 dependencies {
 	compile project(':common'),
-      'alfresco:jlan:+',
-      'alfresco:spring-surf-core-configservice:+',
-      'bouncycastle:bcpg:+'
+      'alfresco:jlan:6.2',
+      'alfresco:spring-surf-core-configservice:6.7',
+      'bouncycastle:bcpg:1.45'
       
 	testCompile project(path: ':common', configuration: 'tests')
 } 
