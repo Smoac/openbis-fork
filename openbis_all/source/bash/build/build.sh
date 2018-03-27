@@ -37,12 +37,12 @@ if [ $? -ne 0 ]; then echo "Tag does not exist!"; exit 1; fi
 
 # build
 cd openbis_standard_technologies
-./gradlew :clientsAndApis -x test
-./gradlew :generateJavadoc
+./gradlew :clean :clientsAndApis -x test
+./gradlew :clean :generateJavadoc
 cd ../installation
-./gradlew :build -x test
+./gradlew :clean :build -x test
 cd ../plasmid
-./gradlew :build -x test
+./gradlew :clean :build -x test
 
 cd ../..
 
