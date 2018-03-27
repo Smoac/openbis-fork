@@ -10,7 +10,7 @@ then
 fi
 
 # exit if branch already exists
-branch_heads=`git ls-remote --heads git@sissource.ethz.ch:sis/openbis.git $1`
+branch_heads=`git ls-remote --heads git@sissource.ethz.ch:sispub/openbis.git $1`
 if [ -n "$branch_heads" ]; then
   echo "Branch already exists!"
   exit 1
