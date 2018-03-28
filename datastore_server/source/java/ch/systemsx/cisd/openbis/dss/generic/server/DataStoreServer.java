@@ -42,6 +42,7 @@ import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.server.session.AbstractSessionManager;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
@@ -68,7 +69,6 @@ import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
-import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.common.properties.ExtendedProperties;
 import ch.systemsx.cisd.common.resource.IInitializable;
 import ch.systemsx.cisd.common.servlet.InitializeRequestContextHolderFilter;
@@ -249,6 +249,7 @@ public class DataStoreServer
         servletContextHandler.setAttribute(
                 WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE,
                 ServiceProvider.getApplicationContext());
+        ((AbstractSessionManager) servletContextHandler.getSessionHandler().getSessionManager()).setHttpOnly(true);
         // Disable URL rewriting (forces container to stop appending ";jsessionid=xxx" to urls)
         // to avoid mistakes in URL parsing by download servlets
         servletContextHandler.getSessionHandler().getSessionManager()
