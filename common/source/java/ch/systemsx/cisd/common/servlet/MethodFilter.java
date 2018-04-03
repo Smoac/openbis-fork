@@ -65,7 +65,7 @@ public class MethodFilter implements Filter
         {
             HttpServletResponse httpResponse = (HttpServletResponse) response;
             httpResponse.setHeader("Allow", StringUtils.collectionToDelimitedString(allowedMethods, ", "));
-            httpResponse.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, "Method '" + method + "' not allowed");
+            httpResponse.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, "Method '" + method + "' is not allowed");
         }
     }
 
