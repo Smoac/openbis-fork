@@ -15,6 +15,19 @@
     </listener>
     
     <filter>
+        <filter-name>MethodFilter</filter-name>
+        <filter-class>ch.systemsx.cisd.common.servlet.MethodFilter</filter-class>
+        <init-param>
+            <param-name>allowed-methods</param-name>
+            <param-value>GET POST</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>MethodFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    
+    <filter>
         <filter-name>HeaderFilter</filter-name>
         <filter-class>ch.systemsx.cisd.common.servlet.HeaderFilter</filter-class>
         <init-param>
