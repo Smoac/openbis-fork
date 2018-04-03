@@ -36,15 +36,17 @@ import org.springframework.util.StringUtils;
  */
 public class MethodFilter implements Filter
 {
+    public static final String ALLOWED_METHODS_PARAMETER = "allowed-methods";
+    
     private Set<String> allowedMethods = new HashSet<>();
 
     @Override
     public void init(FilterConfig config) throws ServletException
     {
-        String allowedMethodsAsString = config.getInitParameter("allowed-methods");
+        String allowedMethodsAsString = config.getInitParameter(ALLOWED_METHODS_PARAMETER);
         if (allowedMethodsAsString != null)
         {
-            for (String method : allowedMethodsAsString.split(" "))
+            for (String method : allowedMethodsAsString.split(","))
             {
                 allowedMethods.add(method.trim().toUpperCase());
             }
