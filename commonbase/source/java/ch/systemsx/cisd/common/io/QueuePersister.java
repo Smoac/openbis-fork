@@ -18,24 +18,27 @@ package ch.systemsx.cisd.common.io;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Queue;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
-import ch.systemsx.cisd.common.io.IQueuePersister;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
@@ -186,7 +189,20 @@ public class QueuePersister<E extends Serializable> implements IQueuePersister<E
                                 this.lastRecord = 0;
                             }
                         }
-                        load(randomAccessFile, queue, firstRecord, lastRecord);
+                        boolean complete = load(randomAccessFile, queue, firstRecord, lastRecord);
+                        if (complete == false)
+                        {
+                            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
+                            try
+                            {
+                                FileUtils.copyFile(queueFile, new File(queueFile.getAbsolutePath() + "." + sdf.format(new Date()) + ".broken"));
+                            } catch (IOException e)
+                            {
+                                System.out.println("No space left on device - service can't start");
+                                System.exit(-1);
+                            }
+                        }
+
                         // Clean up
                         if (firstRecord > 0)
                         {
@@ -253,19 +269,26 @@ public class QueuePersister<E extends Serializable> implements IQueuePersister<E
         raf.writeInt(lastRecord);
     }
 
-    private static <E> void load(RandomAccessFile randomAccessFile, Collection<E> collection,
+    private static <E> boolean load(RandomAccessFile randomAccessFile, Collection<E> collection,
             int firstRecord, int lastRecord) throws IOException
     {
         long pos = firstRecord;
         while (pos < lastRecord)
         {
             randomAccessFile.seek(pos);
-            final int len = randomAccessFile.readInt();
-            pos += len + RECORD_HEADER_LENGTH;
-            final byte[] data = new byte[len];
-            randomAccessFile.read(data, 0, len);
-            deserializeAndAdd(collection, data);
+            try
+            {
+                final int len = randomAccessFile.readInt();
+                pos += len + RECORD_HEADER_LENGTH;
+                final byte[] data = new byte[len];
+                randomAccessFile.read(data, 0, len);
+                deserializeAndAdd(collection, data);
+            } catch (EOFException e)
+            {
+                return false;
+            }
         }
+        return true;
     }
 
     @SuppressWarnings("unchecked")
@@ -364,7 +387,8 @@ public class QueuePersister<E extends Serializable> implements IQueuePersister<E
                 {
                     operationLog.error(String.format(
                             "Error adding to tail of queue file '%s', position %d, "
-                                    + "trying to re-open.", queueFile.getPath(), lastRecord), ex);
+                                    + "trying to re-open.",
+                            queueFile.getPath(), lastRecord), ex);
                     closeQuietly();
                     if (i == MAX_RETRIES_ON_FAILURE)
                     {
@@ -420,7 +444,8 @@ public class QueuePersister<E extends Serializable> implements IQueuePersister<E
                 {
                     operationLog.error(String.format(
                             "Error removing from head of queue file '%s', position %d, "
-                                    + "trying to re-open.", queueFile.getPath(), lastRecord), ex);
+                                    + "trying to re-open.",
+                            queueFile.getPath(), lastRecord), ex);
                     closeQuietly();
                     if (i == MAX_RETRIES_ON_FAILURE)
                     {
@@ -697,8 +722,9 @@ public class QueuePersister<E extends Serializable> implements IQueuePersister<E
 
         private static int getNewRecordSize(int oldRecordSize, int elementSize)
         {
-            return (oldRecordSize < 1) ? elementSize : oldRecordSize
-                    * (elementSize / oldRecordSize + 1);
+            return (oldRecordSize < 1) ? elementSize
+                    : oldRecordSize
+                            * (elementSize / oldRecordSize + 1);
         }
 
         //
