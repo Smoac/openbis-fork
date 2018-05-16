@@ -111,7 +111,7 @@ class QueryApiLogger extends AbstractServerLogger implements IQueryApiServer
             String dataStoreCode, String serviceKey, Map<String, Object> parameters)
     {
         logAccess(sessionToken, "create_report_from_aggregation_service",
-                "DATA_STORE(%s) SERVICE(%s) PARAMETERS(%s)", dataStoreCode, serviceKey, parameters);
+                "DATA_STORE(%s) SERVICE(%s) PARAMETER_KEYS(%s)", dataStoreCode, serviceKey, parameters.keySet());
         return null;
     }
 
