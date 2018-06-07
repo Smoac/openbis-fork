@@ -307,6 +307,8 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         {
             checkContainerBusinessRules(sample);
         }
+
+        RelationshipUtils.updateModificationDateAndModifier(sample, session, getTransactionTimeStamp());
     }
 
     /**
