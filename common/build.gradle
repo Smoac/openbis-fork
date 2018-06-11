@@ -25,7 +25,7 @@ dependencies {
 			'rinn:restrictions:1.0.2',
 			'apache:commons-compress:1.8',
             'apache:httpclient:4.3.6',
-            'eclipse:jetty-client:9.2.10.v20150310',
+            'eclipse:jetty-client:9.2.25.v20180606',
             'apache:commons-csv:1.2'
 					
 	testCompile project(path: ':commonbase', configuration: 'tests'),
