@@ -5,7 +5,7 @@ if (System.getProperty("openbis.development-build") != null) {
 	}
 	
 	dependencies {
-	    gwt 'reveregroup:gwt-image-loader:+',
+	    gwt 'reveregroup:gwt-image-loader:1.1.4',
 	    	'google:gwt-dev:+',
 	    	'google:gwt-user:+',
 	    	'google:gwt-debug-panel:+',
