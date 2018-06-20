@@ -75,7 +75,7 @@ public class JythonIngestionService extends
                 public void create(ISimpleTableModelBuilderAdaptor builder)
                 {
                     operationLog.info("Aggregation report for the following parameters "
-                            + "has been requested: " + parameters);
+                            + "has been requested: " + parameters.keySet());
                     IDbModifyingAggregationServiceReportingPluginScriptRunner runner =
                             scriptRunnerFactory
                                     .createDbModifyingAggregationServiceReportingPluginRunner(context);

@@ -71,7 +71,7 @@ public class JythonAggregationService extends AggregationService
                 public void create(ISimpleTableModelBuilderAdaptor builder)
                 {
                     operationLog.info("Aggregation report for the following parameters "
-                            + "has been requested: " + parameters);
+                            + "has been requested: " + parameters.keySet());
                     IAggregationServiceReportingPluginScriptRunner runner =
                             scriptRunnerFactory
                                     .createAggregationServiceReportingPluginRunner(context);
