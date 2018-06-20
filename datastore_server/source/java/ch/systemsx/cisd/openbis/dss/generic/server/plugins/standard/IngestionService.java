@@ -433,7 +433,7 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
         sb.append(getClass().getName());
         sb.append("\n");
         sb.append("Parameters: ");
-        sb.append(parameters);
+        sb.append(parameters.keySet());
 
         operationLog.error(sb.toString(), e);
     }
