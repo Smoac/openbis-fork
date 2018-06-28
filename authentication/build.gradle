@@ -5,7 +5,7 @@ apply from: '../gradle/javaproject.gradle'
 
 dependencies {
 	compile project(':common'),
-      'bouncycastle:bcpg:+'
+      'bouncycastle:bcpg:1.59'
       
 	testCompile project(path: ':common', configuration: 'tests')
 } 
