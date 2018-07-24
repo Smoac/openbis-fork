@@ -505,10 +505,10 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
         registerVocabularies(createdVocabularies);
         addVocabularyTerms(createdVocabularyTerms);
         updateVocabularyTerms(updatedVocabularyTerms);
+        registerScripts(createdScripts);
         registerExperimentTypes(createdExperimentTypes);
         registerSampleTypes(createdSampleTypes);
         registerDataSetTypes(createdDataSetTypes);
-        registerScripts(createdScripts);
         registerMaterialTypes(createdMaterialTypes);
         registerPropertyTypes(createdPropertyTypes);
         registerPropertyAssignments(createdAssignments);
