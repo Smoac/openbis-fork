@@ -61,7 +61,7 @@ cd -
 
 # move components to fileserver
 mv openbis/openbis_standard_technologies/targets/gradle/distributions/openBIS-clients-and-APIs*.zip .
-mv openbis/openbis_standard_technologies/targets/gradle/distributions/microservice-server*.zip .
+mv openbis/openbis_standard_technologies/targets/gradle/distributions/big_data_link_server*.zip .
 mv openbis/installation/targets/gradle/distributions/openBIS-installation-standard-technologies*.tar.gz .
 mv openbis/plasmid/targets/gradle/distributions/datastore_server_plugin-plasmid*.zip .
 
