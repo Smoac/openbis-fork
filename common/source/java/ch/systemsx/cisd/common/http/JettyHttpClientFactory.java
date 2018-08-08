@@ -48,7 +48,7 @@ public class JettyHttpClientFactory
                 String proxyHost = System.getProperties().getProperty("openbis.proxyHost");
                 String proxyPort = System.getProperties().getProperty("openbis.proxyPort");
 
-                if (proxyHost != null && proxyPort != null)
+                if (proxyHost != null && !proxyHost.isEmpty() && proxyPort != null && !proxyPort.isEmpty())
                 {
                     ProxyConfiguration proxyConfig = client.getProxyConfiguration();
                     HttpProxy proxy = new HttpProxy(proxyHost, Integer.parseInt(proxyPort));
