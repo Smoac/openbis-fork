@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.testng.annotations.Test;
@@ -40,6 +41,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.IDssServiceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.ReportingServiceSearchCriteria;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.collection.SimpleComparator;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 
 /**
  * @author Franz-Josef Elmer
@@ -111,14 +113,11 @@ public class ReportingServiceTest extends AbstractFileTest
         ReportingServiceSearchCriteria searchCriteria = new ReportingServiceSearchCriteria();
         ReportingServiceFetchOptions fetchOptions = new ReportingServiceFetchOptions();
         DataSetTypeSearchCriteria typeSearchCriteria = new DataSetTypeSearchCriteria();
-        Date when = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2018-01-01 01:01:01");
         List<String> allDataSetTypeCodes = as.searchDataSetTypes(sessionToken, typeSearchCriteria,
                 new DataSetTypeFetchOptions()).getObjects().stream()
-                .filter(t -> t.getModificationDate().before(when))
                 .map(t -> t.getCode())
                 .collect(Collectors.toList());
         Collections.sort(allDataSetTypeCodes);
-        System.err.println(allDataSetTypeCodes);
 
         // When
         List<ReportingService> services = as.searchReportingServices(sessionToken, searchCriteria, fetchOptions).getObjects();
@@ -133,10 +132,18 @@ public class ReportingServiceTest extends AbstractFileTest
                 services.stream().map(s -> s.getLabel()).collect(Collectors.toList()).toString());
         assertEquals("[]", services.get(0).getDataSetTypeCodes().toString());
         assertEquals("[]", services.get(3).getDataSetTypeCodes().toString());
-        assertEquals(allDataSetTypeCodes.toString(), getSortedDataSetTypeCodes(services.get(1)).toString());
-        assertEquals(allDataSetTypeCodes.toString(), getSortedDataSetTypeCodes(services.get(2)).toString());
+        assertDataSetTypesOfReportingService(allDataSetTypeCodes, services.get(1));
+        assertDataSetTypesOfReportingService(allDataSetTypeCodes, services.get(2));
 
         as.logout(sessionToken);
+    }
+
+    private void assertDataSetTypesOfReportingService(List<String> allDataSetTypeCodes, ReportingService reportingService)
+    {
+        TreeSet<String> dataSetCodes = new TreeSet<>(reportingService.getDataSetTypeCodes());
+        assertEquals(false, dataSetCodes.isEmpty());
+        dataSetCodes.removeAll(allDataSetTypeCodes);
+        assertEquals("[]", dataSetCodes.toString());
     }
 
     @Test
@@ -429,13 +436,6 @@ public class ReportingServiceTest extends AbstractFileTest
                 // Then
                 "Data store code cannot be empty.");
         as.logout(sessionToken);
-    }
-
-    private List<String> getSortedDataSetTypeCodes(ReportingService reportingService)
-    {
-        List<String> codes = new ArrayList<>(reportingService.getDataSetTypeCodes());
-        Collections.sort(codes);
-        return codes;
     }
 
     private static final class MyId implements IDssServiceId, IDataStoreId
