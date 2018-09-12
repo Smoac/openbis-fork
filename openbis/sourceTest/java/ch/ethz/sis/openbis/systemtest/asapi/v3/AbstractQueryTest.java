@@ -59,7 +59,7 @@ public class AbstractQueryTest extends AbstractTest
     protected static final String SELECT_SPACE_CODES_SQL = "select code from spaces order by id asc";
 
     protected static final String SELECT_EXPERIMENT_PERM_IDS_AND_IDENTIFIERS_SQL =
-            "select e.perm_id as experiment_key, '/' || s.code || '/' || p.code || '/' || e.code as experiment_identifier from experiments e, projects p, spaces s where e.proj_id = p.id and p.space_id = s.id order by experiment_identifier asc";
+            "select e.perm_id as experiment_key, '/' || s.code || '/' || p.code || '/' || e.code as experiment_identifier from experiments e, projects p, spaces s where e.proj_id = p.id and p.space_id = s.id and e.registration_timestamp < '2018-01-01 00:00:00' order by experiment_identifier asc";
 
     protected static final String SELECT_PROPERTY_TYPE_CODE_AND_DESCRIPTION_SQL = "select code, description from property_types where code = ${code}";
 
