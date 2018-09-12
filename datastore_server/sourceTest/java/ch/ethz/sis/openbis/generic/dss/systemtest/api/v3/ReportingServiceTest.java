@@ -16,8 +16,11 @@
 
 package ch.ethz.sis.openbis.generic.dss.systemtest.api.v3;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -101,14 +104,19 @@ public class ReportingServiceTest extends AbstractFileTest
     }
 
     @Test
-    public void testSearchReportingService()
+    public void testSearchReportingService() throws ParseException
     {
         // Given
         String sessionToken = as.login(TEST_USER, PASSWORD);
         ReportingServiceSearchCriteria searchCriteria = new ReportingServiceSearchCriteria();
         ReportingServiceFetchOptions fetchOptions = new ReportingServiceFetchOptions();
-        List<String> allDataSetTypeCodes = as.searchDataSetTypes(sessionToken, new DataSetTypeSearchCriteria(),
-                new DataSetTypeFetchOptions()).getObjects().stream().map(t -> t.getCode()).collect(Collectors.toList());
+        DataSetTypeSearchCriteria typeSearchCriteria = new DataSetTypeSearchCriteria();
+        Date when = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2018-01-01 01:01:01");
+        List<String> allDataSetTypeCodes = as.searchDataSetTypes(sessionToken, typeSearchCriteria,
+                new DataSetTypeFetchOptions()).getObjects().stream()
+                .filter(t -> t.getModificationDate().before(when))
+                .map(t -> t.getCode())
+                .collect(Collectors.toList());
         Collections.sort(allDataSetTypeCodes);
         System.err.println(allDataSetTypeCodes);
 
