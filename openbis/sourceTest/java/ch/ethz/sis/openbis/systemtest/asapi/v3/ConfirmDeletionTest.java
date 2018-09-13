@@ -331,12 +331,20 @@ public class ConfirmDeletionTest extends AbstractDeletionTest
     @Test
     public void testLogging()
     {
+        // given
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
-        v3api.confirmDeletions(sessionToken, Arrays.asList(new DeletionTechId(1L), new DeletionTechId(2L)));
-
-        assertAccessLog("confirm-deletions  DELETION_IDS('[1, 2]')");
+        ExperimentPermId experimentId = createCisdExperiment();
+        ExperimentDeletionOptions deletionOptions = new ExperimentDeletionOptions();
+        deletionOptions.setReason("It is just a test");
+        assertExperimentExists(experimentId);
+        IDeletionId deletionId = v3api.deleteExperiments(sessionToken, Collections.singletonList(experimentId), deletionOptions);
+        assertDeletionExists(deletionId);
+        // when
+        v3api.confirmDeletions(sessionToken, Collections.singletonList(deletionId));
+        // then
+        assertAccessLog("confirm-deletions  DELETION_IDS('[" + deletionId + "]')");
     }
+
 
     private DataSetCreation dataSetCreation(String typeCode, String dataSetCode)
     {
