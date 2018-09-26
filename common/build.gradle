@@ -20,7 +20,7 @@ dependencies {
 			'marathon:marathon-spring-util:1.2.5',
 			'lemnik:eodsql:2.2-CISD',
 			'unimi:fastutil:5.1.5',
-            'sis:sis-base:14.12.0',
+            'sis:sis-base:18.08.0',
 			'rinn:restrictions:1.0.2',
 			'apache:commons-compress:1.8',
             'apache:httpclient:4.3.6',
