@@ -16,12 +16,12 @@
 
 package ch.systemsx.cisd.common.io;
 
+import java.io.Closeable;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
-import ch.systemsx.cisd.base.io.ICloseable;
 import ch.systemsx.cisd.base.io.ISynchronizable;
 import ch.systemsx.cisd.common.collection.IExtendedBlockingQueue;
 
@@ -31,7 +31,7 @@ import ch.systemsx.cisd.common.collection.IExtendedBlockingQueue;
  * @author Bernd Rinn
  */
 public class PersistentExtendedBlockingQueueDecorator<E extends Serializable> implements
-        IExtendedBlockingQueue<E>, ICloseable, ISynchronizable
+        IExtendedBlockingQueue<E>, Closeable, ISynchronizable
 {
 
     private final IExtendedBlockingQueue<E> delegate;

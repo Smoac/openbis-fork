@@ -44,6 +44,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.Experime
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.MaterialTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCriteria;
@@ -190,8 +191,10 @@ public class MasterDataExtractor
             {
                 String code =
                         (propertyTypeImmutable.isInternalNamespace()
-                        && propertyTypeImmutable.getCode().startsWith(INTERNAL_NAMESPACE_PREFIX)) ? CodeConverter.tryToDatabase(propertyTypeImmutable
-                                .getCode()) : propertyTypeImmutable.getCode();
+                                && propertyTypeImmutable.getCode().startsWith(INTERNAL_NAMESPACE_PREFIX))
+                                        ? CodeConverter.tryToDatabase(propertyTypeImmutable
+                                                .getCode())
+                                        : propertyTypeImmutable.getCode();
                 Element propertyTypeElement = doc.createElement("xmd:propertyType");
                 propertyTypeElement.setAttribute("code", code);
                 propertyTypeElement.setAttribute("label", propertyTypeImmutable.getLabel());
@@ -202,14 +205,12 @@ public class MasterDataExtractor
                 if (propertyTypeImmutable.getDataType().name().equals(DataType.CONTROLLEDVOCABULARY.name()))
                 {
                     propertyTypeElement.setAttribute("vocabulary", propertyTypeImmutable.getVocabulary().getCode());
-                }
-                else if (propertyTypeImmutable.getDataType().name().equals(DataType.MATERIAL.name()))
+                } else if (propertyTypeImmutable.getDataType().name().equals(DataType.MATERIAL.name()))
                 {
                     if (propertyTypeImmutable.getMaterialType() != null)
                     {
                         propertyTypeElement.setAttribute("material", propertyTypeImmutable.getMaterialType().getCode());
-                    }
-                    else
+                    } else
                     {
                         // for properties like "inhibitor_of" where it is of Material of Any Type
                         propertyTypeElement.setAttribute("material", "");
@@ -231,7 +232,7 @@ public class MasterDataExtractor
                 Element vocabElement = doc.createElement("xmd:controlledVocabulary");
                 String code = vocabImmutable.isInternalNamespace()
                         && vocabImmutable.getCode().startsWith(INTERNAL_NAMESPACE_PREFIX) ? CodeConverter.tryToDatabase(vocabImmutable.getCode())
-                        : vocabImmutable.getCode();
+                                : vocabImmutable.getCode();
                 vocabElement.setAttribute("code", code);
                 vocabElement.setAttribute("description", vocabImmutable.getDescription());
                 vocabElement.setAttribute("urlTemplate", vocabImmutable.getUrlTemplate());
@@ -307,7 +308,8 @@ public class MasterDataExtractor
             {
                 Element experimentTypeElement = getEntityTypeXML(doc, expType, "xmd:collectionType");
                 experimentTypeElement.setAttribute("description", expType.getDescription());
-                experimentTypesElement.setAttribute("validationPlugin", expType.getValidationScript()!= null ? expType.getValidationScript().getName() : "");
+                experimentTypesElement.setAttribute("validationPlugin",
+                        expType.getValidationScript() != null ? expType.getValidationScript().getName() : "");
                 experimentTypesElement.appendChild(experimentTypeElement);
                 Element propertyAssignmentsElement = getPropertyAssignmentXML(doc, expTypeCodePropAssignmentMap.get(expType.getCode()));
                 experimentTypeElement.appendChild(propertyAssignmentsElement);
@@ -358,13 +360,18 @@ public class MasterDataExtractor
         {
             Element propertyAssignmentElement = doc.createElement("xmd:propertyAssignment");
             propertyAssignmentsElement.appendChild(propertyAssignmentElement);
-            propertyAssignmentElement.setAttribute("propertyTypeCode", CodeConverter.tryToBusinessLayer(propAssignment.getPropertyType().getCode(),
-                    propAssignment.getPropertyType().isInternalNameSpace()));
+            propertyAssignmentElement.setAttribute("propertyTypeCode", propAssignment.getPropertyType().getCode());
             propertyAssignmentElement.setAttribute("ordinal", String.valueOf(propAssignment.getOrdinal()));
             propertyAssignmentElement.setAttribute("section", propAssignment.getSection());
             propertyAssignmentElement.setAttribute("showInEdit", String.valueOf(propAssignment.isShowInEditView()));
             propertyAssignmentElement.setAttribute("mandatory", String.valueOf(propAssignment.isMandatory()));
             propertyAssignmentElement.setAttribute("showRawValueInForms", String.valueOf(propAssignment.isShowRawValueInForms()));
+            Plugin plugin = propAssignment.getPlugin();
+            if (plugin != null)
+            {
+                propertyAssignmentElement.setAttribute("plugin", plugin.getPermId().getPermId());
+                propertyAssignmentElement.setAttribute("pluginType", plugin.getPluginType().toString());
+            }
         }
         return propertyAssignmentsElement;
     }
@@ -376,6 +383,7 @@ public class MasterDataExtractor
         DataSetTypeSearchCriteria searchCriteria = new DataSetTypeSearchCriteria();
         DataSetTypeFetchOptions fetchOptions = new DataSetTypeFetchOptions();
         fetchOptions.withPropertyAssignments().withPropertyType().withVocabulary();
+        fetchOptions.withPropertyAssignments().withPlugin();
 
         SearchResult<ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType> searchResult =
                 v3Api.searchDataSetTypes(sessionToken, searchCriteria, fetchOptions);
@@ -394,6 +402,7 @@ public class MasterDataExtractor
         SampleTypeSearchCriteria searchCriteria = new SampleTypeSearchCriteria();
         SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
         fetchOptions.withPropertyAssignments().withPropertyType().withVocabulary();
+        fetchOptions.withPropertyAssignments().withPlugin();
 
         SearchResult<ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType> searchResult =
                 v3Api.searchSampleTypes(sessionToken, searchCriteria, fetchOptions);
@@ -412,6 +421,7 @@ public class MasterDataExtractor
         ExperimentTypeSearchCriteria searchCriteria = new ExperimentTypeSearchCriteria();
         ExperimentTypeFetchOptions fetchOptions = new ExperimentTypeFetchOptions();
         fetchOptions.withPropertyAssignments().withPropertyType().withVocabulary();
+        fetchOptions.withPropertyAssignments().withPlugin();
 
         SearchResult<ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType> searchResult =
                 v3Api.searchExperimentTypes(sessionToken, searchCriteria, fetchOptions);
@@ -430,6 +440,7 @@ public class MasterDataExtractor
         MaterialTypeSearchCriteria searchCriteria = new MaterialTypeSearchCriteria();
         MaterialTypeFetchOptions fetchOptions = new MaterialTypeFetchOptions();
         fetchOptions.withPropertyAssignments().withPropertyType().withVocabulary();
+        fetchOptions.withPropertyAssignments().withPlugin();
 
         SearchResult<ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType> searchResult =
                 v3Api.searchMaterialTypes(sessionToken, searchCriteria, fetchOptions);

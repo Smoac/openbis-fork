@@ -15,6 +15,7 @@
 #
 
 # IDataSetRegistrationTransactionV2 Class
+from ch.systemsx.cisd.openbis.dss.generic.shared import ServiceProvider
 from ch.systemsx.cisd.openbis.dss.client.api.v1 import DssComponentFactory
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import MatchClause, SearchOperator, MatchClauseAttribute
@@ -103,7 +104,10 @@ def getDirectLinkURL():
 							"sftp" : sftpConfig
 						});
 	
-
+def createSampleIdentifier(sampleSpace, sampleProject, sampleCode, projectSamplesEnabled):
+	template = '/%(sampleSpace)s/%(sampleProject)s/%(sampleCode)s' if projectSamplesEnabled and (sampleProject is not None)  else '/%(sampleSpace)s/%(sampleCode)s'
+	return template % vars()
+	
 def isSampleTypeAvailable(sampleTypes, sampleTypeCode):
 	for sampleType in sampleTypes:
 		if sampleType.getCode() == sampleTypeCode:
@@ -165,8 +169,16 @@ def getPropertyValue(propertiesInfo, metadata, key):
 		propertyValue = updateIfIsPropertyRichText(propertiesInfo, key, propertyValue);
 	return propertyValue;
 
+def getProjectCodeFromSampleIdentifier(sampleIdentifier):
+	projectCode = None;
+	sampleIdentifierParts = sampleIdentifier.split("/");
+	if len(sampleIdentifierParts) == 4:
+		projectCode = sampleIdentifierParts[2];
+	return projectCode;
+
 def getSampleByIdentifierForUpdate(tr, identifier):
 	space = identifier.split("/")[1];
+	projectCode = getProjectCodeFromSampleIdentifier(identifier);
 	code = identifier.split("/")[-1];
 	
 	criteria = SearchCriteria();
@@ -176,10 +188,12 @@ def getSampleByIdentifierForUpdate(tr, identifier):
 	
    	searchService = tr.getSearchService();
    	found = list(searchService.searchForSamples(criteria));
-   	if len(found) == 1:
-   		return tr.makeSampleMutable(found[0]);
-   	else:
-   		return None;
+   	
+   	# The search service can return more than one sample with project samples enabled, projects need to be filtered manually
+   	for sample in found:
+   		foundProjectCode = getProjectCodeFromSampleIdentifier(sample.getSampleIdentifier());
+   		if foundProjectCode == projectCode:
+   			return tr.makeSampleMutable(sample);
    	
 def username(sessiontoken):
     m = re.compile('(.*)-[^-]*').match(sessiontoken)
@@ -199,7 +213,7 @@ def process(tr, parameters, tableBuilder):
 	projectSamplesEnabled = v3.getServerInformation(sessionToken)['project-samples-enabled'] == 'true'
 	
 	if method == "init":
-		isOk = init(tr, parameters, tableBuilder);
+		isOk = init(tr, projectSamplesEnabled, parameters, tableBuilder);
 	if method == "isFileAuthUser":
 		result = isFileAuthUser(tr, parameters, tableBuilder);
 		isOk = True;
@@ -233,13 +247,16 @@ def process(tr, parameters, tableBuilder):
 		isOk = insertUpdateExperiment(tr, parameters, tableBuilder);
 	
 	if method == "copySample":
-		isOk = copySample(tr, projectSamplesEnabled, parameters, tableBuilder);
+		result = copySample(tr, projectSamplesEnabled, parameters, tableBuilder);
+		isOk = True;
 	if method == "insertSample":
 		updatePropertiesToIgnore(tr);
-		isOk = insertUpdateSample(tr, projectSamplesEnabled, parameters, tableBuilder);
+		result = insertUpdateSample(tr, projectSamplesEnabled, parameters, tableBuilder);
+		isOk = True;
 	if method == "updateSample":
 		updatePropertiesToIgnore(tr);
-		isOk = insertUpdateSample(tr, projectSamplesEnabled, parameters, tableBuilder);
+		result = insertUpdateSample(tr, projectSamplesEnabled, parameters, tableBuilder);
+		isOk = True;
 	if method == "moveSample":
 		isOk = moveSample(tr, parameters, tableBuilder);
 	if method == "insertDataSet":
@@ -431,7 +448,7 @@ def insertSampleIfMissing(tr, sampleIdentifier, experiment, sampleType, properti
 				sample.setPropertyValue(key, properties[key]);
 	return sample;
 	
-def init(tr, parameters, tableBuilder):
+def init(tr, projectSamplesEnabled, parameters, tableBuilder):
 	projectsCache = {};
 	installedTypes = getSampleTypes(tr, parameters);
 	inventorySpace = tr.getSpace("DEFAULT_LAB_NOTEBOOK");
@@ -470,7 +487,8 @@ def init(tr, parameters, tableBuilder):
 			if isFirstTimeInstallingStorage:
 				insertProjectIfMissing(tr, "/ELN_SETTINGS/STORAGES", projectsCache);
 				storageCollection = insertExperimentIfMissing(tr, "/ELN_SETTINGS/STORAGES/STORAGES_COLLECTION", "COLLECTION", "Storages Collection");
-				bench = insertSampleIfMissing(tr, "/ELN_SETTINGS/BENCH", storageCollection, "STORAGE", None);
+				benchIdentifier = createSampleIdentifier("ELN_SETTINGS", "STORAGES", "BENCH", projectSamplesEnabled)
+				bench = insertSampleIfMissing(tr, benchIdentifier, storageCollection, "STORAGE", None);
 				bench.setPropertyValue("NAME", "Bench");
 				bench.setPropertyValue("ROW_NUM", "1");
 				bench.setPropertyValue("COLUMN_NUM", "1");
@@ -479,7 +497,8 @@ def init(tr, parameters, tableBuilder):
 				bench.setPropertyValue("BOX_SPACE_WARNING", "80");
 				bench.setPropertyValue("STORAGE_VALIDATION_LEVEL", "BOX_POSITION");
 					
-				defaultStorage = insertSampleIfMissing(tr, "/ELN_SETTINGS/DEFAULT_STORAGE", storageCollection, "STORAGE", None);
+				defaultStorageIdentifier = createSampleIdentifier("ELN_SETTINGS", "STORAGES", "DEFAULT_STORAGE", projectSamplesEnabled)
+				defaultStorage = insertSampleIfMissing(tr, defaultStorageIdentifier, storageCollection, "STORAGE", None);
 				defaultStorage.setPropertyValue("NAME", "Default Storage");
 				defaultStorage.setPropertyValue("ROW_NUM", "4");
 				defaultStorage.setPropertyValue("COLUMN_NUM", "4");
@@ -621,8 +640,10 @@ def insertUpdateProject(tr, parameters, tableBuilder):
 	
 def updateDataSet(tr, parameters, tableBuilder):
 	dataSetCode = parameters.get("dataSetCode"); #String
+	dataSetParents = parameters.get("dataSetParents"); #List<String>
 	metadata = parameters.get("metadata"); #java.util.LinkedHashMap<String, String> where the key is the name
 	dataSet = tr.getDataSetForUpdate(dataSetCode);
+	dataSet.setParentDatasets(dataSetParents);
 	properties = getProperties(tr, parameters);
 	#Hack - Fix Sample Lost bug from openBIS, remove when SSDM-1979 is fix
 	#Found in S211: In new openBIS versions if you set the already existing sample when doing a dataset update is deleted
@@ -645,12 +666,15 @@ def insertDataSet(tr, parameters, tableBuilder):
 	dataSetType = parameters.get("dataSetType"); #String
 	folderName = parameters.get("folderName"); #String
 	fileNames = parameters.get("filenames"); #List<String>
+	dataSetParents = parameters.get("dataSetParents"); #List<String>
 	isZipDirectoryUpload = parameters.get("isZipDirectoryUpload"); #String
 	metadata = parameters.get("metadata"); #java.util.LinkedHashMap<String, String> where the key is the name
 	properties = getProperties(tr, parameters);
 
 	#Create Dataset
 	dataSet = tr.createNewDataSet(dataSetType);
+	dataSet.setParentDatasets(dataSetParents);
+	
 	if sampleIdentifier is not None:
 		dataSetSample = getSampleByIdentifierForUpdate(tr, sampleIdentifier);
 		dataSet.setSample(dataSetSample);
@@ -670,13 +694,13 @@ def insertDataSet(tr, parameters, tableBuilder):
 	tempDirFile.mkdirs();
 	
 	#tempDir = System.getProperty("java.io.tmpdir");
-	dss_component = DssComponentFactory.tryCreate(parameters.get("sessionID"), OPENBISURL);
+	dss_component = ServiceProvider.getDssServiceRpcGeneric().getService();
 	
 	for fileName in fileNames:
 		folderFile = File(tempDir + "/" + folderName);
 		folderFile.mkdir();
 		temFile = File(tempDir + "/" + folderName + "/" + fileName);
-		inputStream = dss_component.getFileFromSessionWorkspace(fileName);
+		inputStream = dss_component.getFileFromSessionWorkspace(parameters.get("sessionID"), fileName);
 		outputStream = FileOutputStream(temFile);
 		IOUtils.copyLarge(inputStream, outputStream);
 		IOUtils.closeQuietly(inputStream);
@@ -713,7 +737,7 @@ def insertDataSet(tr, parameters, tableBuilder):
 			tr.moveFile(temFile.getAbsolutePath(), dataSet);
 	#Clean Files from workspace
 	for fileName in fileNames:
-		dss_component.deleteSessionWorkspaceFile(fileName);
+		dss_component.deleteSessionWorkspaceFile(parameters.get("sessionID"), fileName);
 	
 	#Return from the call
 	return True;
@@ -747,15 +771,16 @@ def copyAndLinkAsParent(tr, parameters, tableBuilder):
 def copySample(tr, projectSamplesEnabled, parameters, tableBuilder):
 	#Store Children to copy later
 	sampleSpace = parameters.get("sampleSpace"); #String
+	sampleProject = parameters.get("sampleProject"); #String
 	sampleCode = parameters.get("sampleCode"); #String
-	sampleIdentifier = '/' + sampleSpace + '/' + sampleCode;
+	sampleIdentifier = createSampleIdentifier(sampleSpace, sampleProject, sampleCode, projectSamplesEnabled)
 	
 	sampleChildren = parameters.get("sampleChildren"); #List<String> Identifiers are in SPACE/CODE format
 	parameters.put("sampleChildren", []); #List<String> Identifiers are in SPACE/CODE format
 	
 	#Create new Sample
 	parameters.put("method", "insertSample"); #List<String> Identifiers are in SPACE/CODE format
-	insertUpdateSample(tr, projectSamplesEnabled, parameters, tableBuilder);
+	permId = insertUpdateSample(tr, projectSamplesEnabled, parameters, tableBuilder);
 	
 	#Copy children and attach to Sample
 	if sampleChildren != None:
@@ -769,7 +794,7 @@ def copySample(tr, projectSamplesEnabled, parameters, tableBuilder):
 			except: #For all other children
 				copyChildCode = parameters.get("sampleCode") + "_" + child.getCode();
 
-			copyChildIdentifier = "/" + parameters.get("sampleSpace") + "/" + copyChildCode;
+			copyChildIdentifier = createSampleIdentifier(sampleSpace, sampleProject, copyChildCode, projectSamplesEnabled)
 			
 			# Create new sample children
 			childCopy = tr.createNewSample(copyChildIdentifier, child.getSampleType()); #Create Sample given his id
@@ -792,7 +817,7 @@ def copySample(tr, projectSamplesEnabled, parameters, tableBuilder):
 				if propValue != None:
 					childCopy.setPropertyValue(propCode, propValue);
 			
-	return True;
+	return permId;
 
 #This method is used to return the properties, deleting the storage ones and setting the default storage
 def getCopySampleChildrenPropertyValue(propCode, propValue, notCopyProperties, defaultBenchPropertyList, defaultBenchProperties):
@@ -832,8 +857,8 @@ def insertUpdateSample(tr, projectSamplesEnabled, parameters, tableBuilder):
 	sampleParentsNew = parameters.get("sampleParentsNew");
 	
 	#Create/Get for update sample	
-	sampleIdentifier = ('/%(sampleSpace)s/%(sampleProject)s/%(sampleCode)s' if projectSamplesEnabled else '/%(sampleSpace)s/%(sampleCode)s') % vars()
-	
+	sampleIdentifier = createSampleIdentifier(sampleSpace, sampleProject, sampleCode, projectSamplesEnabled)
+	print "sampleIdentifier: " + sampleIdentifier
 	method = parameters.get("method");
 	if method == "insertSample":
 		sample = tr.createNewSample(sampleIdentifier, sampleType); #Create Sample given his id
@@ -953,7 +978,7 @@ def insertUpdateSample(tr, projectSamplesEnabled, parameters, tableBuilder):
 					sampleWithChanges.setPropertyValue(key,propertyValue);
 		
 	#Return from the call
-	return True;
+	return sample.getPermId();
 	
 def moveSample(tr, parameters, tableBuilder):
 	sampleIdentifier = parameters.get("sampleIdentifier"); #String

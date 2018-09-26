@@ -45,6 +45,7 @@ from .person import Person
 from .group import Group
 from .role_assignment import RoleAssignment
 from .tag import Tag
+from .sample_type import SampleType
 from .semantic_annotation import SemanticAnnotation
 from .plugin import Plugin
 
@@ -523,6 +524,7 @@ class Openbis:
         return [
             'url', 'port', 'hostname',
             'login()', 'logout()', 'is_session_active()', 'token', 'is_token_valid("")',
+            "get_server_information()",
             "get_dataset('permId')",
             "get_datasets()",
             "get_dataset_type('raw_data')",
@@ -724,6 +726,31 @@ class Openbis:
             if os.environ.get('OPENBIS_URL') == self.url:
                 os.environ['OPENBIS_TOKEN'] = self.token
             return self.token
+
+
+    def get_server_information(self):
+        """ Returns a dict containing the following server information:
+            api-version, archiving-configured, authentication-service, enabled-technologies, project-samples-enabled
+         """
+        request = {
+            "method": "getServerInformation",
+            "params": [self.token],
+        }
+        resp = self._post_request(self.as_v3, request)
+        if resp is not None:
+            # result is a dict of strings - use more useful types
+            keys_boolean = ['archiving-configured', 'project-samples-enabled']
+            keys_csv = ['enabled-technologies']
+            for key in keys_boolean:
+                if key in resp:
+                    resp[key] = resp[key] == 'true'
+            for key in keys_csv:
+                if key in resp:
+                    resp[key] = list(map(lambda item: item.strip(), resp[key].split(',')))
+            return ServerInformation(resp)
+        else:
+            raise ValueError("Could not get the server information")
+
 
     def create_permId(self):
         """Have the server generate a new permId"""
@@ -1221,11 +1248,8 @@ class Openbis:
             })
             )
         if project:
-            exp_crit = _subcriteria_for_code(experiment, 'experiment')
             proj_crit = _subcriteria_for_code(project, 'project')
-            exp_crit['criteria'] = []
-            exp_crit['criteria'].append(proj_crit)
-            sub_criteria.append(exp_crit)
+            sub_criteria.append(proj_crit)
         if experiment:
             sub_criteria.append(_subcriteria_for_code(experiment, 'experiment'))
         if properties is not None:
@@ -1309,7 +1333,7 @@ class Openbis:
     get_objects = get_samples # Alias
 
 
-    def get_experiments(self, code=None, type=None, space=None, project=None, tags=None, is_finished=None, props=None, **properties):
+    def get_experiments(self, code=None, permId=None, type=None, space=None, project=None, tags=None, is_finished=None, props=None, **properties):
         """ Searches for all experiment which match the search criteria. Returns a
         «Things» object which can be used in many different situations.
 
@@ -1331,6 +1355,8 @@ class Openbis:
             sub_criteria.append(_subcriteria_for_code(project, 'project'))
         if code:
             sub_criteria.append(_criteria_for_code(code))
+        if permId:
+            sub_criteria.append(_common_search("as.dto.common.search.PermIdSearchCriteria", permId))
         if type:
             sub_criteria.append(_subcriteria_for_type(type, 'Experiment'))
         if tags:
@@ -2015,7 +2041,67 @@ class Openbis:
                 else:
                     return Tag(self, data=resp[permId])
 
-    
+
+    def search_semantic_annotations(self, permId=None, entityType=None, propertyType=None, only_data = False):
+        """ Get a list of semantic annotations for permId, entityType, propertyType or 
+        property type assignment (DataFrame object).
+        :param permId: permId of the semantic annotation.
+        :param entityType: entity (sample) type to search for.
+        :param propertyType: property type to search for
+        :param only_data: return result as plain data object.
+        :return:  Things of DataFrame objects or plain data object
+        """
+
+        criteria = []
+        typeCriteria = []
+
+        if permId is not None:
+            criteria.append({
+                "@type" : "as.dto.common.search.PermIdSearchCriteria",
+                "fieldValue" : {
+                    "@type" : "as.dto.common.search.StringEqualToValue",
+                    "value" : permId
+                }
+            })
+
+        if entityType is not None:
+            typeCriteria.append({
+                "@type" : "as.dto.entitytype.search.EntityTypeSearchCriteria",
+                "criteria" : [_criteria_for_code(entityType)]
+            })
+
+        if propertyType is not None:
+            typeCriteria.append({
+                "@type" : "as.dto.property.search.PropertyTypeSearchCriteria",
+                "criteria" : [_criteria_for_code(propertyType)]
+            })
+
+        if entityType is not None and propertyType is not None:
+            criteria.append({
+                "@type" : "as.dto.property.search.PropertyAssignmentSearchCriteria",
+                "criteria" : typeCriteria
+            })
+        else:
+            criteria += typeCriteria
+
+        saCriteria = {
+            "@type" : "as.dto.semanticannotation.search.SemanticAnnotationSearchCriteria",
+            "criteria" : criteria
+        }
+
+        objects = self._search_semantic_annotations(saCriteria)
+
+        if only_data:
+            return objects
+
+        attrs = ['permId', 'entityType', 'propertyType', 'predicateOntologyId', 'predicateOntologyVersion', 'predicateAccessionId', 'descriptorOntologyId', 'descriptorOntologyVersion', 'descriptorAccessionId', 'creationDate']
+        if len(objects) == 0:
+            annotations = DataFrame(columns=attrs)
+        else:
+            annotations = DataFrame(objects)
+
+        return Things(self, 'semantic_annotation', annotations[attrs], 'permId')
+
     def _search_semantic_annotations(self, criteria):
 
         fetch_options = {
@@ -2039,13 +2125,10 @@ class Openbis:
         }
 
         resp = self._post_request(self.as_v3, request)
-        
-        if resp is not None:
+        if len(resp['objects']) == 0:
+            return []
+        else:
             objects = resp['objects']
-            
-            if len(objects) is 0:
-                raise ValueError("No semantic annotations found!")
-            
             parse_jackson(objects)
             
             for object in objects:
@@ -2060,8 +2143,7 @@ class Openbis:
                 object['creationDate'] = format_timestamp(object['creationDate'])
                 
             return objects
-        else:
-            raise ValueError("No semantic annotations found!")
+
 
     def get_semantic_annotations(self):
         """ Get a list of all available semantic annotations (DataFrame object).
@@ -2069,28 +2151,21 @@ class Openbis:
 
         objects = self._search_semantic_annotations({})
         attrs = ['permId', 'entityType', 'propertyType', 'predicateOntologyId', 'predicateOntologyVersion', 'predicateAccessionId', 'descriptorOntologyId', 'descriptorOntologyVersion', 'descriptorAccessionId', 'creationDate']
-        annotations = DataFrame(objects)
+        if len(objects) == 0:
+            annotations = DataFrame(columns=attrs)
+        else:
+            annotations = DataFrame(objects)
         return Things(self, 'semantic_annotation', annotations[attrs], 'permId')
+
     def get_semantic_annotation(self, permId, only_data = False):
-
-        criteria = {
-            "@type" : "as.dto.semanticannotation.search.SemanticAnnotationSearchCriteria",
-            "criteria" : [{
-                "@type" : "as.dto.common.search.PermIdSearchCriteria",
-                "fieldValue" : {
-                    "@type" : "as.dto.common.search.StringEqualToValue",
-                    "value" : permId
-                }
-            }]
-        }
-
-        objects = self._search_semantic_annotations(criteria)
+        objects = self.search_semantic_annotations(permId=permId, only_data=True)
+        if len(objects) == 0:
+            raise ValueError("Semantic annotation with permId " + permId +  " not found.")
         object = objects[0]
-
         if only_data:
             return object
         else:
-            return SemanticAnnotation(self, isNew=False, **object)    
+            return SemanticAnnotation(self, isNew=False, **object)
 
     def get_plugins(self):
 
@@ -2162,7 +2237,7 @@ class Openbis:
                     return Plugin(self, data=resp[permId])
 
     def new_plugin(self, pluginType= "MANAGED_PROPERTY", pluginKind = "JYTHON", **kwargs):
-        """ Creates a new Plugin in openBIS. The attribute pluginKind must be one of
+        """ Note: not functional yet. Creates a new Plugin in openBIS. The attribute pluginKind must be one of
         the following:
         DYNAMIC_PROPERTY, MANAGED_PROPERTY, ENTITY_VALIDATION;
 
@@ -2199,12 +2274,13 @@ class Openbis:
 
     def get_sample_type(self, type):
         try:
-            return self._get_types_of(
+            property_asignments = self._get_types_of(
                 "searchSampleTypes",
                 "Sample",
                 type,
                 ["generatedCodePrefix", "validationPluginId"]
             )
+            return SampleType(self, property_asignments.data)
         except Exception:
             raise ValueError("no such sample type: {}".format(type))
 
@@ -2285,14 +2361,18 @@ class Openbis:
 
         if type_name is not None and len(resp['objects']) == 1:
             return PropertyAssignments(self, resp['objects'][0])
-        if len(resp['objects']) >= 1:
-            types = DataFrame(resp['objects'])
-            types['modificationDate'] = types['modificationDate'].map(format_timestamp)
-            attributes = self._get_attributes(type_name, types, additional_attributes, optional_attributes)
-            return Things(self, entity.lower() + '_type', types[attributes])
 
+        types = []
+        attrs = self._get_attributes(type_name, types, additional_attributes, optional_attributes)
+        if len(resp['objects']) == 0:
+            types = DataFrame(columns=attrs)
         else:
-            raise ValueError("Nothing found!")
+            objects = resp['objects']
+            parse_jackson(objects)
+            types = DataFrame(objects)
+            types['modificationDate'] = types['modificationDate'].map(format_timestamp)
+        return Things(self, entity.lower() + '_type', types[attrs])
+
 
     def _get_attributes(self, type_name, types, additional_attributes, optional_attributes):
         attributes = ['code', 'description'] + additional_attributes
@@ -2395,7 +2475,7 @@ class Openbis:
         search_request = search_request_for_identifier(sample_ident, 'sample')
 
         fetchopts = {"type": {"@type": "as.dto.sample.fetchoptions.SampleTypeFetchOptions"}}
-        for option in ['tags', 'properties', 'attachments', 'space', 'experiment', 'registrator', 'dataSets']:
+        for option in ['tags', 'properties', 'attachments', 'space', 'experiment', 'registrator', 'dataSets', 'project']:
             fetchopts[option] = fetch_option[option]
 
         if withAttachments:
@@ -2423,7 +2503,11 @@ class Openbis:
                 if only_data:
                     return resp[sample_ident]
                 else:
-                    return Sample(self, self.get_sample_type(resp[sample_ident]["type"]["code"]), resp[sample_ident])
+                    return Sample(
+                        openbis_obj = self,
+                        type = self.get_sample_type(resp[sample_ident]["type"]["code"]),
+                        data = resp[sample_ident]
+                    )
 
     get_object = get_sample # Alias
 
@@ -2564,10 +2648,10 @@ class Openbis:
             }
         return dms_id
 
-    def new_sample(self, type, props=None, **kwargs):
+    def new_sample(self, type, project=None, props=None, **kwargs):
         """ Creates a new sample of a given sample type.
         """
-        return Sample(self, self.get_sample_type(type), None, props, **kwargs)
+        return Sample(self, self.get_sample_type(type), project, None, props, **kwargs)
 
     new_object = new_sample # Alias
 
@@ -2584,6 +2668,7 @@ class Openbis:
         return DataSet(self, type=type_obj, files=files, folder=folder, props=props, **kwargs)
     
     def new_semantic_annotation(self, entityType=None, propertyType=None, **kwargs):
+        """ Note: not functional yet. """
         return SemanticAnnotation(
             openbis_obj=self, isNew=True, 
             entityType=entityType, propertyType=propertyType, **kwargs
@@ -2716,3 +2801,28 @@ class ExternalDMS():
         return self.data.get('code', None)
 
 
+class ServerInformation():
+    
+    def __init__(self, info):
+        self._info = info
+
+    def __dir__(self):
+        return [
+            'api_version', 'archiving_configured', 'authentication_service', 
+            'enabled_technologies', 'project_samples_enabled'
+        ]
+
+    def __getattr__(self, name):
+        return self._info[name.replace('_', '-')]
+    
+    def get_major_version(self):
+        return int(self._info["api-version"].split(".")[0]);
+    
+    def get_minor_version(self):
+        return int(self._info["api-version"].split(".")[1]);
+    
+    def is_openbis_1605(self):
+        return (self.get_major_version() == 3) and (self.get_minor_version() <= 2);
+    
+    def is_openbis_1806(self):
+        return (self.get_major_version() == 3) and (self.get_minor_version() >= 5);

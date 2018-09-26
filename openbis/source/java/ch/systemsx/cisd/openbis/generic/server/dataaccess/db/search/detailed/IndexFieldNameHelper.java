@@ -162,6 +162,8 @@ class IndexFieldNameHelper
                 return SearchFieldConstants.COMPLETE;
             case STATUS:
                 return SearchFieldConstants.STATUS;
+            case ARCHIVING_REQUESTED:
+                return SearchFieldConstants.ARCHIVING_REQUESTED;
             case PRESENT_IN_ARCHIVE:
                 return SearchFieldConstants.PRESENT_IN_ARCHIVE;
             case STORAGE_CONFIRMATION:

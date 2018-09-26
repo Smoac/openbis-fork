@@ -501,6 +501,18 @@ public class SearchDataSetTest extends AbstractDataSetTest
     }
 
     @Test
+    public void testSearchWithPhysicalDataWithArchivingRequestedThatEquals()
+    {
+        DataSetSearchCriteria criteria = new DataSetSearchCriteria();
+        criteria.withPhysicalData().withArchivingRequested().thatEquals(true);
+        testSearch(TEST_USER, criteria, "20081105092159188-3");
+
+        criteria = new DataSetSearchCriteria();
+        criteria.withPhysicalData().withArchivingRequested().thatEquals(false);
+        testSearch(TEST_USER, criteria, 24);
+    }
+
+    @Test
     public void testSearchWithPhysicalDataWithStorageConfirmationThatEquals()
     {
         DataSetSearchCriteria criteria = new DataSetSearchCriteria();

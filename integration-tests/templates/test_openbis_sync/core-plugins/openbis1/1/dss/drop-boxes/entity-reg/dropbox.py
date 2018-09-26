@@ -9,9 +9,9 @@ def process(transaction):
     spaceCode = "SYNC"
     p1 = transaction.createNewProject("/%s/P1" % spaceCode)
     exp1 = transaction.createNewExperiment(p1.getProjectIdentifier() + "/E1", "UNKNOWN")
-    container_smp = transaction.createNewSample("/%s/S1" % spaceCode, "UNKNOWN")
+    container_smp = transaction.createNewSample(p1.getProjectIdentifier() + "/S1", "UNKNOWN")
     container_smp.setExperiment(exp1)
-    component_samp = transaction.createNewSample("/%s/S2" % spaceCode, "UNKNOWN")
+    component_samp = transaction.createNewSample(p1.getProjectIdentifier() + "/S2", "UNKNOWN")
     component_samp.setContainer(container_smp)
     component_samp.setExperiment(exp1)
      

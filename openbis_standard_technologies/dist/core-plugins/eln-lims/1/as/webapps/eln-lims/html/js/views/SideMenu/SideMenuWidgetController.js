@@ -47,6 +47,10 @@ function SideMenuWidgetController(mainController) {
     	this._refreshNode(this.getCurrentNodeId());
     }
     
+    this.refreshNode = function(key) {
+    		this._refreshNode(key);
+    }
+    
     this.refreshNodeParent = function(key) {
     	var node = $(this._sideMenuWidgetModel.tree).fancytree('getTree').getNodeByKey(key);
     	if(node) {

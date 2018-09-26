@@ -40,4 +40,6 @@ public class PhysicalDataBaseRecord extends ObjectBaseRecord
 
     public Integer speedHint;
 
+    public Boolean isArchivingRequested;
+
 }

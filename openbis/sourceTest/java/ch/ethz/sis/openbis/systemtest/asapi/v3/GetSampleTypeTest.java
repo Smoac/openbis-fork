@@ -69,6 +69,7 @@ public class GetSampleTypeTest extends AbstractGetEntityTypeTest
         {
             fo.withPropertyAssignments().withEntityType();
             fo.withPropertyAssignments().withPropertyType();
+            fo.withPropertyAssignments().withPlugin();
         }
         if (withValidationPlugin)
         {

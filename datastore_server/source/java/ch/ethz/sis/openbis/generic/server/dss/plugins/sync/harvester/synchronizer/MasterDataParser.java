@@ -190,7 +190,7 @@ public class MasterDataParser
             String entityKind = getAttribute(pluginElement, "entityKind").trim();
             plugin.setScriptType(ScriptType.valueOf(getAttribute(pluginElement, "type")));
             plugin.setPluginType(PluginType.JYTHON);
-            plugin.setEntityKind(entityKind.equals("") ? null : new EntityKind[] { EntityKind.valueOf(entityKind) });
+            plugin.setEntityKind((entityKind.equals("") || entityKind.equals("All")) ? null : new EntityKind[] { EntityKind.valueOf(entityKind) });
             plugin.setScript(pluginElement.getTextContent());
             validationPlugins.put(plugin.getName(), plugin);
         }
@@ -386,21 +386,14 @@ public class MasterDataParser
             dataSetType.setCode(nameTranslator.translate(getAttribute(dataSetTypeElement, "code")));
             dataSetType.setDescription(getAttribute(dataSetTypeElement, "description"));
             String mainDataSetPattern = getAttribute(dataSetTypeElement, "mainDataSetPattern");
-            if (mainDataSetPattern.length() < 1)
-            {
-                dataSetType.setMainDataSetPattern(null);
-            }
-            else
+            if (StringUtils.isNotBlank(mainDataSetPattern))
             {
                 dataSetType.setMainDataSetPattern(mainDataSetPattern);
             }
-            if (mainDataSetPattern.length() < 1)
+            String mainDataSetPath = getAttribute(dataSetTypeElement, "mainDataSetPath");
+            if (StringUtils.isNotBlank(mainDataSetPath))
             {
-                dataSetType.setMainDataSetPath(null);
-            }
-            else
-            {
-                dataSetType.setMainDataSetPath(mainDataSetPattern);
+                dataSetType.setMainDataSetPath(mainDataSetPath);
             }
             dataSetType.setDeletionDisallow(Boolean.valueOf(getAttribute(dataSetTypeElement, "deletionDisallowed")));
             String validationPluginName = getAttribute(dataSetTypeElement, "validationPlugin");
@@ -442,6 +435,14 @@ public class MasterDataParser
             assignment.setSection(getAttribute(propertyAssignmentElement, "section"));
             assignment.setOrdinal(Long.valueOf(getAttribute(propertyAssignmentElement, "ordinal")));
             assignment.setShownInEditView(Boolean.valueOf(getAttribute(propertyAssignmentElement, "showInEdit")));
+            String pluginId = getAttribute(propertyAssignmentElement, "plugin");
+            if (pluginId != null)
+            {
+                assignment.setScriptName(pluginId);
+                String pluginType = getAttribute(propertyAssignmentElement, "pluginType");
+                assignment.setDynamic(ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.PluginType.DYNAMIC_PROPERTY.toString().equals(pluginType));
+                assignment.setManaged(ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.PluginType.MANAGED_PROPERTY.toString().equals(pluginType));
+            }
             list.add(assignment);
         }
         entityPropertyAssignments.put(entityType.getEntityKind().name(), entityType.getCode(), list);

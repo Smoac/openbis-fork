@@ -7,7 +7,7 @@ dependencies {
     compile project(':common'),
         'imagej:ij:+',
         'sun:jai:+',
-        'bioformats:bioformats:+',
+        'bioformats:bioformats:5.9.2',
         'slf4j:slf4j:+',
         'slf4j:slf4j-log4j12:+'
         

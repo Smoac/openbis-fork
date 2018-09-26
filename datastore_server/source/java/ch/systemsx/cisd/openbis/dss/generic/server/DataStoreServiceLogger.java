@@ -156,8 +156,8 @@ class DataStoreServiceLogger implements IDataStoreService, IInitializable
     }
 
     @Override
-    public void archiveDatasets(String sessionToken, String userSessionToken, List<DatasetDescription> datasets,
-            String userId, String userEmailOrNull, boolean removeFromDataStore)
+    public void archiveDatasets(String sessionToken, String userSessionToken, List<DatasetDescription> datasets, String userId,
+            String userEmailOrNull, boolean removeFromDataStore, Map<String, String> options)
     {
         log("archiveDatasets",
                 "NO_OF_DATASETS(%s) USER_ID (%s) USER_EMAIL(%s) REMOVE_FROM_DATA_STORE(%s)",

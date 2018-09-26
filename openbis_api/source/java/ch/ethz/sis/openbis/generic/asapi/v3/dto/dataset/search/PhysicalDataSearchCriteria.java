@@ -70,6 +70,11 @@ public class PhysicalDataSearchCriteria extends AbstractCompositeSearchCriteria
         return with(new StatusSearchCriteria());
     }
 
+    public ArchivingRequestedSearchCriteria withArchivingRequested()
+    {
+        return with(new ArchivingRequestedSearchCriteria());
+    }
+
     public PresentInArchiveSearchCriteria withPresentInArchive()
     {
         return with(new PresentInArchiveSearchCriteria());

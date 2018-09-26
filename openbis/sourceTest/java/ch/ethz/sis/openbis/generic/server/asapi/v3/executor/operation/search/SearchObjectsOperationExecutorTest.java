@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -51,6 +52,8 @@ import ch.systemsx.cisd.common.concurrent.MessageChannel;
 import ch.systemsx.cisd.common.concurrent.MessageChannelBuilder;
 import ch.systemsx.cisd.common.logging.ConsoleLogger;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.openbis.generic.server.ConcurrentOperationLimiter;
+import ch.systemsx.cisd.openbis.generic.server.ConcurrentOperationLimiterConfig;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
@@ -279,6 +282,7 @@ public class SearchObjectsOperationExecutorTest
                     {
                     }
                 };
+            operationLimiter = new ConcurrentOperationLimiter(new ConcurrentOperationLimiterConfig(new Properties()));
         }
 
         @Override

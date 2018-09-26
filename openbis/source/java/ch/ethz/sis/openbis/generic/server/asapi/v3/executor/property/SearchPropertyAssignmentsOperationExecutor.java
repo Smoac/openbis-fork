@@ -40,6 +40,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.property.IProperty
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.property.PropertyAssignmentKey;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.property.PropertyAssignmentRecord;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 
 /**
  * @author pkupczyk
@@ -97,6 +98,11 @@ public class SearchPropertyAssignmentsOperationExecutor extends
             assignmentRecord.show_raw_value = assignment.getShowRawValue();
             assignmentRecord.type_code = assignment.getEntityType().getCode();
             assignmentRecord.type_id = assignment.getEntityType().getId();
+            ScriptPE script = assignment.getScript();
+            if (script != null)
+            {
+                assignmentRecord.script_id = script.getId();
+            }
             assignmentRecords.add(assignmentRecord);
         }
 

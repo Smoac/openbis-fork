@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.etlserver.path;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -340,7 +341,11 @@ public class PathInfoDatabaseFeedingTask extends AbstractPathInfoDatabaseFeeding
                         }
 
                         IDatasetLocation dataSetLocation = dataSet.tryGetAsDataSet();
-                        feedPathInfoDatabase(dataSetLocation, h5Folders, h5arFolders);
+                        Long size = feedPathInfoDatabase(dataSetLocation, h5Folders, h5arFolders);
+                        if (size != null)
+                        {
+                            service.updatePhysicalDataSetsSize(Collections.singletonMap(dataSet.getCode(), size));
+                        }
                     }
                 }
             };

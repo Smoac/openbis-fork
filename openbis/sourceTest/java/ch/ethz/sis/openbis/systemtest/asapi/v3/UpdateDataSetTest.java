@@ -28,6 +28,7 @@ import java.util.Map;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.PhysicalData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.FileFormatTypePermId;
@@ -394,6 +395,7 @@ public class UpdateDataSetTest extends AbstractSampleTest
         update.setDataSetId(dataSetId);
         PhysicalDataUpdate pdupt = new PhysicalDataUpdate();
         pdupt.setFileFormatTypeId(new FileFormatTypePermId("PLKPROPRIETARY"));
+        pdupt.setArchivingRequested(true);
         update.setPhysicalData(pdupt);
 
         v3api.updateDataSets(sessionToken, Collections.singletonList(update));
@@ -403,7 +405,9 @@ public class UpdateDataSetTest extends AbstractSampleTest
         fe.withPhysicalData().withFileFormatType();
         DataSet result = v3api.getDataSets(sessionToken, Collections.singletonList(dataSetId), fe).get(dataSetId);
 
-        assertEquals(result.getPhysicalData().getFileFormatType().getCode(), "PLKPROPRIETARY");
+        PhysicalData physicalData = result.getPhysicalData();
+        assertEquals(physicalData.getFileFormatType().getCode(), "PLKPROPRIETARY");
+        assertEquals(physicalData.isArchivingRequested(), Boolean.TRUE);
     }
 
     @Test

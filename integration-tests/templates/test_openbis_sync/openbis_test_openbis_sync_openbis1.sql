@@ -3181,7 +3181,7 @@ SELECT pg_catalog.setval('experiment_code_seq', 1, false);
 -- Name: experiment_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('experiment_id_seq', 2, true);
+SELECT pg_catalog.setval('experiment_id_seq', 3, true);
 
 
 --
@@ -3261,6 +3261,7 @@ COPY experiment_types (id, code, description, modification_timestamp, validation
 COPY experiments_all (id, perm_id, code, exty_id, pers_id_registerer, registration_timestamp, modification_timestamp, proj_id, del_id, orig_del, is_public, pers_id_modifier, version) FROM stdin;
 1	20161010123907442-1	DEFAULT	1	1	2016-10-10 12:39:07.442524+02	2016-10-10 12:39:07.442524+02	1	\N	\N	f	\N	0
 2	20161010125004951-1	DEMO-EXP-HCS	2	3	2016-10-10 12:50:06.971812+02	2016-10-10 12:50:06.971812+02	2	\N	\N	f	3	0
+3	20180901153109866-10	SYNC_EXPERIMENT	1	2	2018-09-01 15:31:09.866062+02	2018-09-01 15:31:59.013934+02	3	\N	\N	f	2	0
 \.
 
 
@@ -3496,7 +3497,7 @@ SELECT pg_catalog.setval('operation_executions_id_seq', 1, false);
 -- Name: perm_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('perm_id_seq', 8, true);
+SELECT pg_catalog.setval('perm_id_seq', 14, true);
 
 
 --
@@ -3539,7 +3540,7 @@ SELECT pg_catalog.setval('post_registration_dataset_queue_id_seq', 3, true);
 -- Name: project_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('project_id_seq', 2, true);
+SELECT pg_catalog.setval('project_id_seq', 3, true);
 
 
 --
@@ -3568,6 +3569,7 @@ SELECT pg_catalog.setval('project_relationships_history_id_seq', 4, true);
 COPY projects (id, perm_id, code, space_id, pers_id_leader, description, pers_id_registerer, registration_timestamp, modification_timestamp, pers_id_modifier, version) FROM stdin;
 1	20161010123907442-1	DEFAULT	1	\N	\N	1	2016-10-10 12:39:07.442524+02	2016-10-10 12:39:07.442524+02	\N	0
 2	20161010125006971-8	TEST-PROJECT	2	\N	A demo project	3	2016-10-10 12:50:06.971812+02	2016-10-10 12:50:06.971812+02	3	0
+3	20180901153055950-9	SYNC_PROJECT	3	\N	\N	2	2018-09-01 15:30:55.950159+02	2018-09-01 15:31:59.013934+02	2	0
 \.
 
 
@@ -3660,7 +3662,7 @@ SELECT pg_catalog.setval('sample_code_seq', 1, false);
 -- Name: sample_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('sample_id_seq', 2, true);
+SELECT pg_catalog.setval('sample_id_seq', 12, true);
 
 
 --
@@ -3757,8 +3759,12 @@ COPY sample_types (id, code, description, is_listable, generated_from_depth, par
 --
 
 COPY samples_all (id, perm_id, code, expe_id, saty_id, registration_timestamp, modification_timestamp, pers_id_registerer, del_id, orig_del, space_id, samp_id_part_of, pers_id_modifier, code_unique_check, subcode_unique_check, version, proj_id) FROM stdin;
-1	20161010123907442-1	DEFAULT	1	1	2016-10-10 12:39:07.442524+02	2016-10-10 12:39:07.442524+02	1	\N	\N	1	\N	\N	DEFAULT,-1,-1,1	\N	0	\N
-2	20161010125004966-2	PLATE	2	4	2016-10-10 12:50:06.971812+02	2016-10-10 12:50:06.971812+02	3	\N	\N	2	\N	3	PLATE,-1,-1,2	\N	0	\N
+1	20161010123907442-1	DEFAULT	1	1	2016-10-10 12:39:07.442524+02	2016-10-10 12:39:07.442524+02	1	\N	\N	1	\N	\N	DEFAULT,-1,1,1	\N	0	1
+2	20161010125004966-2	PLATE	2	4	2016-10-10 12:50:06.971812+02	2016-10-10 12:50:06.971812+02	3	\N	\N	2	\N	3	PLATE,-1,2,2	\N	0	2
+9	20180901153134072-11	SYNC_SPACE_SAMPLE	\N	1	2018-09-01 15:31:34.072585+02	2018-09-01 15:31:34.072585+02	2	\N	\N	3	\N	2	SYNC_SPACE_SAMPLE,-1,-1,3	\N	0	\N
+10	20180901153144176-12	SYNC_PROJECT_SAMPLE	\N	1	2018-09-01 15:31:44.176582+02	2018-09-01 15:31:44.176582+02	2	\N	\N	3	\N	2	SYNC_PROJECT_SAMPLE,-1,3,3	\N	0	3
+11	20180901153159013-13	SYNC_EXPERIMENT_SAMPLE	3	1	2018-09-01 15:31:59.013934+02	2018-09-01 15:31:59.013934+02	2	\N	\N	3	\N	2	SYNC_EXPERIMENT_SAMPLE,-1,3,3	\N	0	3
+12	20180901153310961-14	SHARED_SAMPLE	\N	1	2018-09-01 15:33:10.961996+02	2018-09-01 15:33:10.961996+02	2	\N	\N	\N	\N	2	SHARED_SAMPLE,-1,-1,-1	\N	0	\N
 \.
 
 

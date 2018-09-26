@@ -40,19 +40,12 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
 		});
 		toolbarModel.push({ component : $createProj, tooltip: "Create Project" });
 		
-		var $export = FormUtil.getButtonWithIcon("glyphicon-export", function() {
-			Util.blockUI();
-			var facade = mainController.serverFacade;
-			facade.exportAll([{ type: "SPACE", permId : _this._spaceFormModel.space.code, expand : true }], false, function(error, result) {
-				if(error) {
-					Util.showError(error);
-				} else {
-					Util.showSuccess("Export is being processed, you will receive an email when is ready, if you logout the process will stop.", function() { Util.unblockUI(); });
-				}
-			});
-		});
-		toolbarModel.push({ component : $export, tooltip: "Export" });
+		//Export
+		var $exportAll = FormUtil.getExportButton([{ type: "SPACE", permId : _this._spaceFormModel.space.code, expand : true }], false);
+		toolbarModel.push({ component : $exportAll, tooltip: "Export Metadata & Data" });
 		
+		var $exportOnlyMetadata = FormUtil.getExportButton([{ type: "SPACE", permId : _this._spaceFormModel.space.code, expand : true }], true);
+		toolbarModel.push({ component : $exportOnlyMetadata, tooltip: "Export Metadata only" });
 		
 		//Jupyter Button
 		if(profile.jupyterIntegrationServerEndpoint) {
@@ -62,7 +55,20 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
 			});
 			toolbarModel.push({ component : $jupyterBtn, tooltip: "Create Jupyter notebook" });
 		}
-		
+
+		// authorization
+		if (this._spaceFormModel.roles.indexOf("ADMIN") > -1 ) {
+			var $share = FormUtil.getButtonWithIcon("fa fa-users", function() {
+				FormUtil.showAuthorizationDialog({
+					spaceOrProjectLabel: _this._spaceFormModel.space.code,
+					acceptCallback: function(role, shareWith, groupOrUser) {
+						mainController.authorizeUserOrGroup(role, shareWith, groupOrUser, _this._spaceFormModel.space.code);
+					},
+				});
+			});
+			toolbarModel.push({ component : $share, tooltip: "Manage access" });
+		}
+
 		var $header = views.header;
 		$header.append($formTitle);
 		$header.append(FormUtil.getToolbar(toolbarModel));

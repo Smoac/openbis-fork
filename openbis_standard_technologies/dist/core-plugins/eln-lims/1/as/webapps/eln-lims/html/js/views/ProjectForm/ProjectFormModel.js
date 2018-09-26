@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-function ProjectFormModel(mode, project) {
+function ProjectFormModel(mode, project, roles) {
 	this.mode = mode;
 	this.isFormDirty = false;
 	this.project = project;
+	this.roles = roles;
 }

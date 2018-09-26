@@ -16,14 +16,16 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared;
 
+import java.io.Closeable;
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.springframework.remoting.RemoteAccessException;
 
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
-import ch.systemsx.cisd.base.io.ICloseable;
 import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.collection.IExtendedBlockingQueue;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -57,7 +59,7 @@ public class QueueingDataSetStatusUpdaterService
 
     private static IExtendedBlockingQueue<DataSetCodesWithStatus> queue = null;
 
-    private static ICloseable queueCloseableOrNull = null;
+    private static Closeable queueCloseableOrNull = null;
 
     private static Thread thread = null;
 
@@ -139,7 +141,8 @@ public class QueueingDataSetStatusUpdaterService
                                     + CollectionUtils.abbreviate(dataSets.getDataSetCodes(), 10)
                                     + " status to '" + dataSets.getStatus()
                                     + "' has failed.\nRetry will occur not sooner than "
-                                    + Sleeper.getCurrentSleepTime() + ".", ex);
+                                    + Sleeper.getCurrentSleepTime() + ".",
+                            ex);
                 }
             }, "Updater Queue");
         thread.setDaemon(true);
@@ -178,7 +181,13 @@ public class QueueingDataSetStatusUpdaterService
     {
         if (queueCloseableOrNull != null)
         {
-            queueCloseableOrNull.close();
+            try
+            {
+                queueCloseableOrNull.close();
+            } catch (IOException e)
+            {
+                throw new IOExceptionUnchecked(e);
+            }
         }
     }
 

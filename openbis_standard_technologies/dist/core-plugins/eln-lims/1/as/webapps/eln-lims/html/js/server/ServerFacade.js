@@ -57,7 +57,7 @@ function ServerFacade(openbisServer) {
 					location.reload(true);
 				}, true);
 			} else if(response.error === "Request failed: ") {
-				Util.showError(response.error + "openBIS or DSS cannot be reached. Please try again or contact your admin.", null, true);
+				Util.showError(response.error + "openBIS or DSS cannot be reached. Please try again or contact your admin.", null, true, false, true);
 			}
 		}
 		
@@ -295,11 +295,12 @@ function ServerFacade(openbisServer) {
 	//
 	//
 	//
-	this.exportAll = function(entities, includeRoot, callbackFunction) {
+	this.exportAll = function(entities, includeRoot, metadataOnly, callbackFunction) {
 		this.customELNApi({
 			"method" : "exportAll",
 			"includeRoot" : includeRoot,
 			"entities" : entities,
+			"metadataOnly" : metadataOnly,
 		}, callbackFunction, "exports-api");
 	}
 	
@@ -357,7 +358,7 @@ function ServerFacade(openbisServer) {
 	this.getProjectFromIdentifier = function(identifier, callbackFunction) {
 		this.openbisServer.listProjects(function(data) {
 			data.result.forEach(function(project){
-				var projIden = "/" + project.spaceCode + "/" + project.code;
+				var projIden = IdentifierUtil.getProjectIdentifier(project.spaceCode, project.code);
 				if(projIden === identifier) {
 					callbackFunction(project);
 					return;
@@ -439,17 +440,12 @@ function ServerFacade(openbisServer) {
 	}
 	
 	
-	this.deleteSamples = function(samplePermIdsOrIds, reason, callback, confirmDeletions) {
-		if(!confirmDeletions) {
-			var sampleIds = samplePermIdsOrIds;
-			this.openbisServer.deleteSamples(sampleIds, reason, "TRASH", callback);
-		} else {
-			var samplePermIds = samplePermIdsOrIds;
-			require(["as/dto/sample/id/SamplePermId", "as/dto/sample/delete/SampleDeletionOptions" ], 
+	this.deleteSamples = function(samplePermIds, reason, callback, confirmDeletions) {
+		require(["as/dto/sample/id/SamplePermId", "as/dto/sample/delete/SampleDeletionOptions" ], 
 			        function(SamplePermId, SampleDeletionOptions) {
 			            var samplePermIdsObj = [];
 			            for(var sPIdx = 0; sPIdx < samplePermIds.length; sPIdx++) {
-			            	samplePermIdsObj.push(new SamplePermId(samplePermIds[sPIdx]));
+			            		samplePermIdsObj.push(new SamplePermId(samplePermIds[sPIdx]));
 			            }
 			 
 			            var deletionOptions = new SampleDeletionOptions();
@@ -457,14 +453,16 @@ function ServerFacade(openbisServer) {
 			 
 			            // logical deletion (move objects to the trash can)
 			            mainController.openbisV3.deleteSamples(samplePermIdsObj, deletionOptions).done(function(deletionId) {
-			            	if(confirmDeletions) {
-			            		mainController.openbisV3.confirmDeletions([deletionId]).then(callback);
-			            	} else {
-			            		callback(deletionId);
-			            	}
+				            	if(confirmDeletions) {
+				            		// Confirm deletion of samples
+				            		mainController.openbisV3.confirmDeletions([deletionId]).then(function() {
+				            			callback({});
+				            		});
+				            	} else {
+				            		callback(deletionId);
+				            	}
 			            });
-			 });
-		}
+		});
 	}
 	
 	this.deleteExperiments = function(experimentIds, reason, callback) {
@@ -507,7 +505,7 @@ function ServerFacade(openbisServer) {
 		if(sampleToSend.id !== -1) { //Is V1 Sample
 			listDataSetsForV1Sample(sampleToSend);
 		} else { //Ask for a V1 Sample
-			this.searchWithUniqueIdV1(sampleToSend.permId, function(sampleList) {
+			this.searchWithUniqueId(sampleToSend.permId, function(sampleList) {
 				listDataSetsForV1Sample(sampleList[0]);
 			});
 		}
@@ -906,26 +904,30 @@ function ServerFacade(openbisServer) {
 			
 				//Setting the fetchOptions given standard settings
 				var fetchOptions = new EntityFetchOptions();
-				if(fetchOptions.withType) {
-					fetchOptions.withType();
-				}
-				if(fetchOptions.withSpace) {
-					fetchOptions.withSpace();
-				}
-				if(fetchOptions.withRegistrator) {
-					fetchOptions.withRegistrator();
-				}
-				if(fetchOptions.withModifier) {
-					fetchOptions.withModifier();
-				}
-				if(fetchOptions.withProperties) {
-					fetchOptions.withProperties();
-				}
+				
 				
 				//Optional fetchOptions
-				if(!advancedFetchOptions || !advancedFetchOptions.minTableInfo) {
-					if(fetchOptions.withProjects) {
-						fetchOptions.withProjects();
+				if(!advancedFetchOptions ||
+				   (advancedFetchOptions && !(advancedFetchOptions.minTableInfo || advancedFetchOptions.only))
+				   ) {
+					if(fetchOptions.withType) {
+						fetchOptions.withType();
+					}
+					if(fetchOptions.withSpace) {
+						fetchOptions.withSpace();
+					}
+					if(fetchOptions.withRegistrator) {
+						fetchOptions.withRegistrator();
+					}
+					if(fetchOptions.withModifier) {
+						fetchOptions.withModifier();
+					}
+					if(fetchOptions.withProperties) {
+						fetchOptions.withProperties();
+					}
+					
+					if(fetchOptions.withProject) {
+						fetchOptions.withProject();
 					}
 					if(fetchOptions.withSample) {
 						fetchOptions.withSample();
@@ -945,6 +947,9 @@ function ServerFacade(openbisServer) {
 					if(fetchOptions.withLinkedData) {
 						fetchOptions.withLinkedData();
 					}
+					if(fetchOptions.withPhysicalData) {
+						fetchOptions.withPhysicalData();
+					}
 					if(fetchOptions.withParents) {
 						fetchOptions.withParentsUsing(fetchOptions);
 					}
@@ -952,6 +957,22 @@ function ServerFacade(openbisServer) {
 						fetchOptions.withChildrenUsing(fetchOptions);
 					}
 				} else if(advancedFetchOptions.minTableInfo) {
+					if(fetchOptions.withType) {
+						fetchOptions.withType();
+					}
+					if(fetchOptions.withSpace) {
+						fetchOptions.withSpace();
+					}
+					if(fetchOptions.withRegistrator) {
+						fetchOptions.withRegistrator();
+					}
+					if(fetchOptions.withModifier) {
+						fetchOptions.withModifier();
+					}
+					if(fetchOptions.withProperties) {
+						fetchOptions.withProperties();
+					}
+					
 					if(advancedFetchOptions.withExperiment && fetchOptions.withExperiment) {
 						fetchOptions.withExperiment();
 					}
@@ -966,6 +987,41 @@ function ServerFacade(openbisServer) {
 						if(advancedFetchOptions.withChildrenInfo) {
 							childrenFetchOptions.withType();
 							childrenFetchOptions.withProperties();
+						}
+					}
+				} else if(advancedFetchOptions.only) {
+					if(advancedFetchOptions.withSample) {
+						fetchOptions.withSample();
+						if(advancedFetchOptions.withSampleProperties) {
+							fetchOptions.withSample().withProperties();
+						}
+					}
+					if(advancedFetchOptions.withExperiment) {
+						fetchOptions.withExperiment();
+						if(advancedFetchOptions.withExperimentProperties) {
+							fetchOptions.withExperiment().withProperties();
+						}
+					}
+					
+					if(advancedFetchOptions.withProperties) {
+						fetchOptions.withProperties();
+					}
+					if(advancedFetchOptions.withType) {
+						fetchOptions.withType();
+					}
+					if(advancedFetchOptions.withExperiment) {
+						fetchOptions.withExperiment();
+					}
+					if(advancedFetchOptions.withParents) {
+						var parentFetchOptions = fetchOptions.withParents();
+						if(advancedFetchOptions.withParentsType) {
+							parentFetchOptions.withType();
+						}
+					}
+					if(advancedFetchOptions.withChildren) {
+						var childrenFetchOptions = fetchOptions.withChildren();
+						if(advancedFetchOptions.withChildrenType) {
+							childrenFetchOptions.withType();
 						}
 					}
 				}
@@ -1081,7 +1137,17 @@ function ServerFacade(openbisServer) {
 						switch(attributeName) {
 							//Used by all entities
 							case "CODE":
-								criteria.withCode().thatEquals(attributeValue);
+								if(!comparisonOperator) {
+									comparisonOperator = "thatEquals";
+								}
+								switch(comparisonOperator) {
+									case "thatEquals":
+											criteria.withCode().thatEquals(attributeValue);
+											break;
+									case "thatContains":
+											criteria.withCode().thatContains(attributeValue);
+											break;
+								}
 								break;
 							case "PERM_ID":
 								criteria.withPermId().thatEquals(attributeValue);
@@ -1457,20 +1523,7 @@ function ServerFacade(openbisServer) {
 		}
 		
 		if(sampleIdentifier) {
-			var splittedIdentifier = sampleIdentifier.split("/");
-			matchClauses.push({
-				"@type":"AttributeMatchClause",
-				fieldType : "ATTRIBUTE",			
-				attribute : "SPACE",
-				desiredValue : splittedIdentifier[1] 
-			});
-			
-			matchClauses.push({
-				"@type":"AttributeMatchClause",
-				fieldType : "ATTRIBUTE",			
-				attribute : "CODE",
-				desiredValue : splittedIdentifier[splittedIdentifier.length - 1] 
-			});
+			throw "Unexpected operation exception : v1 search by sampleIdentifier removed";
 		}
 		
 		if(sampleCode) {
@@ -1554,7 +1607,6 @@ function ServerFacade(openbisServer) {
 		}
 		
 		if(sampleExperimentIdentifier) {
-			var sampleExperimentIdentifierParts = sampleExperimentIdentifier.split("/");
 			subCriterias.push({
 					"@type" : "SearchSubCriteria",
 					"targetEntityKind" : "EXPERIMENT",	
@@ -1563,17 +1615,17 @@ function ServerFacade(openbisServer) {
 								"@type":"AttributeMatchClause",
 								fieldType : "ATTRIBUTE",			
 								attribute : "SPACE",
-								desiredValue : sampleExperimentIdentifierParts[1]
+								desiredValue : IdentifierUtil.getSpaceCodeFromIdentifier(sampleExperimentIdentifier)
 							},{
 								"@type":"AttributeMatchClause",
 								fieldType : "ATTRIBUTE",			
 								attribute : "PROJECT",
-								desiredValue : sampleExperimentIdentifierParts[2]
+								desiredValue : IdentifierUtil.getProjectCodeFromExperimentIdentifier(sampleExperimentIdentifier)
 							}, {
 								"@type":"AttributeMatchClause",
 								fieldType : "ATTRIBUTE",			
 								attribute : "CODE",
-								desiredValue : sampleExperimentIdentifierParts[3]
+								desiredValue : IdentifierUtil.getCodeFromIdentifier(sampleExperimentIdentifier)
 							}],
 						operator : "MATCH_ALL_CLAUSES"
 				}
@@ -1680,9 +1732,64 @@ function ServerFacade(openbisServer) {
 	{
 		if(profile.searchSamplesUsingV3OnDropbox) {
 			this.searchSamplesV3DSS(fechOptions, callbackFunction);
+		} else if(fechOptions["sampleIdentifier"]) {
+			this.searchSamplesV1replacement(fechOptions, callbackFunction);
 		} else {
 			this.searchSamplesV1(fechOptions, callbackFunction);
 		}
+	}
+	
+	this.searchSamplesV1replacement = function(fechOptions, callbackFunction)
+	{
+		var _this = this;
+		require([ "as/dto/sample/id/SamplePermId", "as/dto/sample/id/SampleIdentifier", "as/dto/sample/fetchoptions/SampleFetchOptions" ],
+        function(SamplePermId, SampleIdentifier, SampleFetchOptions) {
+            var fetchOptions = new SampleFetchOptions();
+            fetchOptions.withSpace();
+            fetchOptions.withType();
+            fetchOptions.withRegistrator();
+            fetchOptions.withModifier();
+            fetchOptions.withExperiment();
+            
+            if(fechOptions["withProperties"]) {
+            		fetchOptions.withProperties();
+            }
+            if(fechOptions["withAncestors"]) {
+            		fetchOptions.withParentsUsing(fetchOptions);
+            }
+            if(fechOptions["withDescendants"]) {
+            		fetchOptions.withChildrenUsing(fetchOptions);
+            }
+            if(fechOptions["withParents"]) {
+            		var pfo = fetchOptions.withParents();
+            		pfo.withSpace();
+            		pfo.withType();
+            		pfo.withRegistrator();
+            		pfo.withModifier();
+            		pfo.withExperiment();
+            }
+            if(fechOptions["withChildren"]) {
+            		var cfo = fetchOptions.withChildren();
+            		cfo.withSpace();
+            		cfo.withType();
+            		cfo.withRegistrator();
+            		cfo.withModifier();
+            		cfo.withExperiment();
+            }
+            
+            var id = null;
+            if(fechOptions["samplePermId"]) {
+            		id = new SamplePermId(fechOptions["samplePermId"]);
+            }
+            if(fechOptions["sampleIdentifier"]) {
+            		id = new SampleIdentifier(fechOptions["sampleIdentifier"]);
+            }
+            
+            mainController.openbisV3.getSamples([id], fetchOptions).done(function(map) {
+                var samples = Util.mapValuesToList(map);
+                callbackFunction(_this.getV3SamplesAsV1(samples));
+            });
+        });
 	}
 	
 	this.searchWithUniqueId = function(samplePermId, callbackFunction)
@@ -1690,14 +1797,14 @@ function ServerFacade(openbisServer) {
 		this.searchSamples({
 			"samplePermId" : samplePermId,
 			"withProperties" : true,
-			"withAncestors" : true,
-			"withDescendants" : true
+			"withParents" : true,
+			"withChildren" : true
 		}, callbackFunction);
 	}
 	
-	this.searchWithUniqueIdV1 = function(samplePermId, callbackFunction)
+	this.searchWithUniqueIdCompleteTree = function(samplePermId, callbackFunction)
 	{	
-		this.searchSamplesV1({
+		this.searchSamples({
 			"samplePermId" : samplePermId,
 			"withProperties" : true,
 			"withAncestors" : true,
@@ -1784,8 +1891,8 @@ function ServerFacade(openbisServer) {
 		var searchFunction = function(sampleIdentifier) {
 			_this.searchSamples({
 				"withProperties" : true,
-				"withAncestors" : true,
-				"withDescendants" : true,
+				"withParents" : true,
+				"withChildren" : true,
 				"sampleIdentifier" : sampleIdentifier
 			}, function(samples) {
 				samples.forEach(function(sample) {
@@ -2069,6 +2176,121 @@ function ServerFacade(openbisServer) {
 				callbackFunction(false);
 			});
         });
+	}
+
+	this.updateDataSet = function(dataSetPermId, newPhysicalData, callbackFunction) {
+		require([ "as/dto/dataset/id/DataSetPermId", "as/dto/dataset/update/DataSetUpdate", 
+			"as/dto/dataset/update/PhysicalDataUpdate", "as/dto/common/update/FieldUpdateValue"],
+				function(DataSetPermId, DataSetUpdate, PhysicalDataUpdate, FieldUpdateValue) {
+
+			var update = new DataSetUpdate();
+			update.setDataSetId(new DataSetPermId(dataSetPermId));
+
+			if (newPhysicalData) {
+				var physicalDataUpdate = new PhysicalDataUpdate();
+				for (var property in newPhysicalData) {
+					if (newPhysicalData.hasOwnProperty(property)) {
+						var setterName = "set" + property[0].toUpperCase() + property.substr(1);
+						if (typeof physicalDataUpdate[setterName] === 'function') {
+							physicalDataUpdate[setterName](newPhysicalData[property]);
+						}
+					}
+				}
+				update.setPhysicalData(physicalDataUpdate);	
+			}
+
+			mainController.openbisV3.updateDataSets([update]).done(function(result) {
+				callbackFunction(true);
+            }).fail(function(result) {
+				Util.showError("Call failed to server: " + JSON.stringify(result));
+				callbackFunction(false);
+			});
+		});
+	}
+
+	this.unarchiveDataSet = function(dataSetPermId, callbackFunction) {
+		require(["as/dto/dataset/id/DataSetPermId", "as/dto/dataset/unarchive/DataSetUnarchiveOptions"], 
+			function(DataSetPermId, DataSetUnarchiveOptions) {
+				var ids = [new DataSetPermId(dataSetPermId)];
+				var options = new DataSetUnarchiveOptions();
+				mainController.openbisV3.unarchiveDataSets(ids, options).done(function(result) {
+					callbackFunction(true);
+				}).fail(function(result) {
+					Util.showError("Call failed to server: " + JSON.stringify(result));
+					callbackFunction(false);
+				});
+			});
+	}
+
+	this.searchRoleAssignments = function(criteriaParams, callbackFunction) {
+		require(["as/dto/roleassignment/search/RoleAssignmentSearchCriteria", "as/dto/roleassignment/fetchoptions/RoleAssignmentFetchOptions"], 
+			function(RoleAssignmentSearchCriteria, RoleAssignmentFetchOptions) {
+				var criteria = new RoleAssignmentSearchCriteria();
+
+				if (criteriaParams.space) {
+					criteria.withSpace().withCode().thatEquals(criteriaParams.space);
+				}
+				if (criteriaParams.project) {
+					criteria.withProject().withCode().thatEquals(criteriaParams.project);
+				}
+				if (criteriaParams.user) {
+					criteria.withUser().withUserId().thatEquals(criteriaParams.user);
+				}
+				var fetchOptions = new RoleAssignmentFetchOptions();
+				fetchOptions.withSpace();
+				fetchOptions.withProject();
+
+				mainController.openbisV3.searchRoleAssignments(criteria, fetchOptions).done(function(result) {
+					callbackFunction(result.objects);
+				}).fail(function(result) {
+					Util.showError("Call failed to server: " + JSON.stringify(result));
+					callbackFunction(false);
+				});
+			});
+	}
+
+	this.createRoleAssignment = function(creationParams, callbackFunction) {
+		require(["as/dto/roleassignment/create/RoleAssignmentCreation", "as/dto/roleassignment/Role", 
+				"as/dto/space/id/SpacePermId", "as/dto/project/id/ProjectPermId", "as/dto/person/id/PersonPermId",
+				"as/dto/authorizationgroup/id/AuthorizationGroupPermId"],
+			function(RoleAssignmentCreation, Role, SpacePermId, ProjectPermId, PersonPermId, AuthorizationGroupPermId) {
+				var creation = new RoleAssignmentCreation();
+				// user or group
+				if (creationParams.user) {
+					creation.setUserId(new PersonPermId(creationParams.user));
+				} else if (creationParams.group) {
+					creation.setAuthorizationGroupId(new AuthorizationGroupPermId(creationParams.group));
+				}
+				// space or project
+				if (creationParams.space) {
+					creation.setSpaceId(new SpacePermId(creationParams.space));
+				} else if (creationParams.project) {
+					creation.setProjectId(new ProjectPermId(creationParams.project));
+				}
+				// role
+				if (creationParams.role == "OBSERVER"){
+					creation.setRole(Role.OBSERVER);
+				} else if (creationParams.role == "USER") {
+					creation.setRole(Role.USER);
+				} else if (creationParams.role == "ADMIN") {
+					creation.setRole(Role.ADMIN);
+				}
+
+				mainController.openbisV3.createRoleAssignments([creation]).done(function(response) {
+					if (response.length == 1) {
+						callbackFunction(response[0]);
+					} else {
+						callbackFunction(false);
+					}
+				}).fail(function(result) {
+					if (result.message) {
+						Util.showError(result.message, null, null, null, null, true);
+					} else {
+						Util.showError("Call failed to server: " + JSON.stringify(result));
+					}
+					callbackFunction(false);
+				});
+			});
 	}
 
 	this.getSessionInformation = function(callbackFunction) {

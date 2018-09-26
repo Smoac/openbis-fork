@@ -100,34 +100,30 @@ function DataSetViewerModel(containerId, profile, entity, serverFacade, datastor
         return false;	    
 	}
 
-	this.isLinkDataset = function(datasetCode) {
-		for(var idx = 0; idx < this.v3Datasets.length; idx++) {
-			if(this.v3Datasets[idx].code === datasetCode && this.v3Datasets[idx].linkedData) {
-				return true;
-			}
-		}
-		return false;
+	this.isAvailable = function(datasetCode) {
+		var dataset = this._getDataset(datasetCode);
+		return dataset && dataset.physicalData 
+			&& ["AVAILABLE", "LOCKED", "ARCHIVE_PENDING", "BACKUP_PENDING"].indexOf(dataset.physicalData.status) >= 0;
 	}
-	
+
+	this.isLinkDataset = function(datasetCode) {
+		var dataset = this._getDataset(datasetCode);
+		return dataset && dataset.linkedData;
+	}
+
 	this.isHistoryDataset = function(datasetCode) {
-		for(var idx = 0; idx < this.v3Datasets.length; idx++) {
-			if(this.v3Datasets[idx].code === datasetCode && this.v3Datasets[idx].properties["HISTORY_ID"]) {
-				return true;
-			}
-		}
-		return false;
+		var dataset = this._getDataset(datasetCode);	
+		return dataset && dataset.properties["HISTORY_ID"];
 	}
 	
 	this.getDownloadableContentCopy = function(datasetCode) {
-		for(var idx = 0; idx < this.datasets.length; idx++) {
-			var dataset = this.v3Datasets[idx];
-			if(dataset.code === datasetCode && dataset.linkedData) {
-				var contentCopies = dataset.linkedData.contentCopies;
-				for(var ccIdx = 0; ccIdx < contentCopies.length; ccIdx++) {
-					var contentCopy = contentCopies[ccIdx];
-					if(profile.EDMSs[contentCopy.externalDms.code]) {
-						return contentCopy;
-					}
+		var dataset = this._getDataset(datasetCode);	
+		if(dataset && dataset.linkedData) {
+			var contentCopies = dataset.linkedData.contentCopies;
+			for(var ccIdx = 0; ccIdx < contentCopies.length; ccIdx++) {
+				var contentCopy = contentCopies[ccIdx];
+				if(profile.EDMSs[contentCopy.externalDms.code]) {
+					return contentCopy;
 				}
 			}
 		}
@@ -191,6 +187,14 @@ function DataSetViewerModel(containerId, profile, entity, serverFacade, datastor
             return this.getImageUrl(datasetCode, datasetFile) + "&mode=thumbnail";
         }
         return null;
+	}
+
+	this._getDataset = function(datasetCode) {
+		for(var idx = 0; idx < this.v3Datasets.length; idx++) {
+			if (this.v3Datasets[idx].code == datasetCode) {
+				return this.v3Datasets[idx];
+			}
+		}
 	}
 
 }

@@ -92,7 +92,7 @@ function LinksView(linksController, linksModel) {
 				if(samplesOnGrid[sIdx].permId === sample.permId) {
 					foundAtIndex = sIdx;
 					if(isAdd) {
-						Util.showError("Sample " + sample.code + " already present, it will not be added again.");
+						Util.showUserError("Sample " + sample.code + " already present, it will not be added again.");
 						return;
 					} else {
 						linksModel.samplesRemoved.push(sample.identifier);
@@ -218,7 +218,7 @@ function LinksView(linksController, linksModel) {
 			if(code) {
 				callback(code);
 			} else {
-				Util.showError("Code missing.");
+				Util.showUserError("Code missing.");
 			}
 		});
 		
@@ -254,12 +254,15 @@ function LinksView(linksController, linksModel) {
 			property : propertyAnnotationCode,
 			isExportable: true,
 			showByDefault: true,
-			sortable : true,
+			sortable : false,
 			render : function(data) {
 				var sample = data["$object"];
 				var currentValue = linksModel.readState(sample.permId, propertyType.code);
 				
 				if(linksModel.isDisabled) {
+					if(propertyType.dataType === "CONTROLLEDVOCABULARY") {
+							currentValue = FormUtil.getVocabularyLabelForTermCode(propertyType, currentValue);
+					}
 					return currentValue;
 				} else {
 					var $field = FormUtil.getFieldForPropertyType(propertyType);
@@ -313,7 +316,9 @@ function LinksView(linksController, linksModel) {
 					$copyAndLink.click(function(e) {
 						stopEventsBuble(e);
 						var copyAndLink = function(code) {
-							var newSampleIdentifier = "/" + mainController.currentView._sampleFormModel.sample.spaceCode + "/" + code;
+							var newSampleIdentifier = IdentifierUtil.getSampleIdentifier(mainController.currentView._sampleFormModel.sample.spaceCode, 
+																			   mainController.currentView._sampleFormModel.sample.projectCode,
+																			   code);
 							Util.blockUI();
 							mainController.serverFacade.customELNApi({
 								"method" : "copyAndLinkAsParent",
@@ -434,7 +439,7 @@ function LinksView(linksController, linksModel) {
 	linksView.getAddAnyBtn = function() {
 		var enabledFunction = function() {
 			var $sampleTypesDropdown = FormUtil.getSampleTypeDropdown("sampleTypeSelector", true);
-			Util.blockUI($sampleTypesDropdown[0].outerHTML + "<br> or <a class='btn btn-default' id='sampleTypeSelectorCancel'>Cancel</a>");
+			Util.showDropdownAndBlockUI("sampleTypeSelector", $sampleTypesDropdown);
 			
 			$("#sampleTypeSelector").on("change", function(event) {
 				var sampleTypeCode = $(this).val();

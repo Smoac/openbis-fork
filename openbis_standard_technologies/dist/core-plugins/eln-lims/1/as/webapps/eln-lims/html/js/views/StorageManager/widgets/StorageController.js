@@ -171,7 +171,7 @@ function StorageController(configOverride) {
 		if(isNew) {
 			this._isUserTypingExistingBox(function(error) {
 				if(error !== null) {
-					Util.showError(error, function() {}, true);
+					Util.showUserError(error, function() {}, true);
 				} else {
 					_this._storageView.showPosField(boxSize, isNew);
 				}
@@ -354,17 +354,17 @@ function StorageController(configOverride) {
 			var validationLevel = (storageConfig)?storageConfig.validationLevel:ValidationLevel.BOX_POSITION;
 			_this._isValidState(validationLevel, function(error0) {
 				if(error0) {
-					Util.showError(error0, function() {}, true);
+					Util.showUserError(error0, function() {}, true);
 					callback(false);
 				} else if(validationLevel >= ValidationLevel.BOX){
 					_this._isUserTypingExistingBox(function(error1) {
 						if(error1) {
-							Util.showError(error1, function() {}, true);
+							Util.showUserError(error1, function() {}, true);
 							callback(false);
 						} else if(validationLevel >= ValidationLevel.BOX_POSITION){
 							_this._isPositionAlreadyUsed(function(error2) {
 								if(error2) {
-									Util.showError(error2, function() {}, true);
+									Util.showUserError(error2, function() {}, true);
 									callback(false);
 								} else {
 									callback(true);

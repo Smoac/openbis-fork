@@ -21,11 +21,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.systemsx.cisd.openbis.generic.server.ConcurrentOperation;
+import ch.systemsx.cisd.openbis.generic.server.IConcurrentOperationLimiter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 
@@ -35,6 +38,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 @Component
 public class InternalOperationExecutor implements IInternalOperationExecutor
 {
+
+    @Autowired
+    private IConcurrentOperationLimiter operationLimiter;
 
     @Override
     public Map<IOperation, IOperationResult> execute(IOperationContext context, List<? extends IOperation> operations)
@@ -47,7 +53,32 @@ public class InternalOperationExecutor implements IInternalOperationExecutor
         {
             if (operation instanceof IInternalOperation && isInstanceAdmin)
             {
-                IInternalOperationResult result = ((IInternalOperation) operation).execute();
+                IOperationResult result = null;
+
+                if (context.isAsync())
+                {
+                    operationLimiter.executeLimitedWithTimeoutAsync(operation.getClass().getSimpleName(),
+                            new ConcurrentOperation<IOperationResult>()
+                                {
+                                    @Override
+                                    public IOperationResult execute()
+                                    {
+                                        return ((IInternalOperation) operation).execute();
+                                    }
+                                });
+                } else
+                {
+                    operationLimiter.executeLimitedWithTimeout(operation.getClass().getSimpleName(),
+                            new ConcurrentOperation<IOperationResult>()
+                                {
+                                    @Override
+                                    public IOperationResult execute()
+                                    {
+                                        return ((IInternalOperation) operation).execute();
+                                    }
+                                });
+                }
+
                 results.put(operation, result);
             }
         }

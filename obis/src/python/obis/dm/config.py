@@ -9,6 +9,7 @@ Configuration for obis.
 Created by Chandrasekhar Ramakrishnan on 2017-02-10.
 Copyright (c) 2017 Chandrasekhar Ramakrishnan. All rights reserved.
 """
+import abc
 import json
 import os
 
@@ -30,7 +31,7 @@ class ConfigLocation(object):
 class ConfigParam(object):
     """Class for configuration parameters."""
 
-    def __init__(self, name, private, is_json=False, ignore_global=False, default_value=None):
+    def __init__(self, name, private=False, is_json=False, ignore_global=False, default_value=None):
         """
         :param name: Name of the parameter.
         :param private: Should the parameter be private to the repo or visible in the data set?
@@ -78,8 +79,10 @@ class ConfigEnv(object):
     def __init__(self):
         self.locations = {}
         self.params = {}
+        self.rules = []
         self.initialize_locations()
         self.initialize_params()
+        self.initialize_rules()
 
     def initialize_locations(self):
         self.add_location(ConfigLocation(['global'], 'user_home', '.obis'))
@@ -99,14 +102,15 @@ class ConfigEnv(object):
                 locations = locations[sub_desc]
 
     def initialize_params(self):
-        self.add_param(ConfigParam(name='openbis_url', private=False))
-        self.add_param(ConfigParam(name='fileservice_url', private=False))
-        self.add_param(ConfigParam(name='user', private=True))
-        self.add_param(ConfigParam(name='verify_certificates', private=True, is_json=True, default_value=True))
-        self.add_param(ConfigParam(name='allow_only_https', private=True, is_json=True, default_value=True))
-        self.add_param(ConfigParam(name='hostname', private=False))
-        self.add_param(ConfigParam(name='git_annex_hash_as_checksum', private=False, is_json=True, default_value=True))
-        self.add_param(ConfigParam(name='git_annex_backend', private=False))
+        self.add_param(ConfigParam(name='openbis_url'))
+        self.add_param(ConfigParam(name='fileservice_url'))
+        self.add_param(ConfigParam(name='user'))
+        self.add_param(ConfigParam(name='verify_certificates', is_json=True, default_value=True))
+        self.add_param(ConfigParam(name='allow_only_https', is_json=True, default_value=True))
+        self.add_param(ConfigParam(name='hostname'))
+        self.add_param(ConfigParam(name='git_annex_hash_as_checksum', is_json=True, default_value=True))
+        self.add_param(ConfigParam(name='git_annex_backend'))
+        self.add_param(ConfigParam(name='obis_metadata_folder'))
 
     def add_param(self, param):
         self.params[param.name] = param
@@ -120,33 +124,49 @@ class ConfigEnv(object):
     def is_usersetting(self):
         return True
 
+    def add_rule(self, rule):
+        self.rules.append(rule)
+
+    def initialize_rules(self):
+        pass
+
 
 class CollectionEnv(ConfigEnv):
 
     def initialize_params(self):
-        self.add_param(ConfigParam(name='id', private=False, ignore_global=True))
+        self.add_param(ConfigParam(name='id', ignore_global=True))
+        self.add_param(ConfigParam(name='permId', ignore_global=True))
+
+    def initialize_rules(self):
+        self.add_rule(ClearPermIdRule())
+        self.add_rule(ClearIdentifierRule())
 
 
 class ObjectEnv(ConfigEnv):
 
     def initialize_params(self):
-        self.add_param(ConfigParam(name='id', private=False, ignore_global=True))
+        self.add_param(ConfigParam(name='id', ignore_global=True))
+        self.add_param(ConfigParam(name='permId', ignore_global=True))
+
+    def initialize_rules(self):
+        self.add_rule(ClearPermIdRule())
+        self.add_rule(ClearIdentifierRule())
 
 
 class DataSetEnv(ConfigEnv):
 
     def initialize_params(self):
-        self.add_param(ConfigParam(name='type', private=False))
-        self.add_param(ConfigParam(name='properties', private=False, is_json=True))        
+        self.add_param(ConfigParam(name='type'))
+        self.add_param(ConfigParam(name='properties', is_json=True))        
 
 
 class RepositoryEnv(ConfigEnv):
     """ These are properties which are not configured by the user but set by obis. """
 
     def initialize_params(self):
-        self.add_param(ConfigParam(name='id', private=True))
-        self.add_param(ConfigParam(name='external_dms_id', private=True))
-        self.add_param(ConfigParam(name='data_set_id', private=True))
+        self.add_param(ConfigParam(name='id'))
+        self.add_param(ConfigParam(name='external_dms_id'))
+        self.add_param(ConfigParam(name='data_set_id'))
 
     def is_usersetting(self):
         return False
@@ -220,7 +240,7 @@ class ConfigResolver(object):
                     result[name] = val
         return result
 
-    def set_value_for_parameter(self, name, value, loc):
+    def set_value_for_parameter(self, name, value, loc, apply_rules=False):
         """Set the value for the parameter
         :param name: Name of the parameter
         :param loc: Either 'local' or 'global'
@@ -238,13 +258,18 @@ class ConfigResolver(object):
         location_path = param.location_path(loc)
         location = self.env.location_at_path(location_path)
         location_dir_path = self.location_resolver.resolve_location(location)
+
         if not os.path.exists(location_dir_path):
             os.makedirs(location_dir_path)
         config_path = os.path.join(location_dir_path, self.categoty + '.json')
         with open(config_path, "w") as f:
             json.dump(location_config_dict, f, sort_keys=True, indent=4)
 
-    def set_value_for_json_parameter(self, json_param_name, name, value, loc):
+        if apply_rules:
+            for rule in self.env.rules:
+                rule.on_set(self, name, value, loc)
+
+    def set_value_for_json_parameter(self, json_param_name, name, value, loc, apply_rules=False):
         """Set one field for the json parameter
         :param json_param_name: Name of the json parameter
         :param name: Name of the field
@@ -264,7 +289,7 @@ class ConfigResolver(object):
             json_value = {}
         json_value[name.upper()] = value
 
-        self.set_value_for_parameter(json_param_name, json.dumps(json_value), loc)
+        self.set_value_for_parameter(json_param_name, json.dumps(json_value), loc, apply_rules=apply_rules)
 
 
     def value_for_parameter(self, param, loc):
@@ -325,16 +350,23 @@ class SettingsResolver(object):
         self.resolvers.append(self.collection)
         self.resolvers.append(self.config)
 
+
+    def get(self, category):
+        for resolver in self.resolvers:
+            if resolver.categoty == category:
+                return resolver
+
+
     def config_dict(self, local_only=False):
         combined_dict = {}
         for resolver in self.resolvers:
             combined_dict[resolver.categoty] = resolver.config_dict(local_only=local_only)
         return combined_dict
 
-    def local_public_properties_paths(self, get_usersettings=False):
+    def local_public_properties_paths(self, omit_usersettings=True):
         paths = []
         for resolver in self.resolvers:
-            if get_usersettings == resolver.is_usersetting():
+            if omit_usersettings == False or resolver.is_usersetting() ==  False:
                 paths.append(resolver.local_public_properties_path())
         return paths
 
@@ -349,3 +381,24 @@ class SettingsResolver(object):
     def set_location_search_order(self, order):
         for resolver in self.resolvers:
             resolver.location_search_order = order
+
+
+class SettingRule(object):
+    """ Setting rules can react to setting changes and trigger further actions. """
+    @abc.abstractmethod
+    def on_set(self, setting, value):
+        pass
+
+
+class ClearPermIdRule(SettingRule):
+    """ When the user sets a new id, the permId might be invalid, so it will be cleared. """
+    def on_set(self, config_resolver, name, value, loc):
+        if name == "id" and value is not None:
+            config_resolver.set_value_for_parameter("permId", None, loc)
+
+
+class ClearIdentifierRule(SettingRule):
+    """ When the user sets a new id, the permId might be invalid, so it will be cleared. """
+    def on_set(self, config_resolver, name, value, loc):
+        if name == "permId" and value is not None:
+            config_resolver.set_value_for_parameter("id", None, loc)

@@ -20,6 +20,7 @@ import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -46,6 +47,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetCodesWithStatus;
+import ch.systemsx.cisd.openbis.generic.server.task.ArchivingByRequestTask;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
@@ -58,8 +60,10 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
 {
     private static final long serialVersionUID = 1L;
 
-    public static final String ORIGINAL_FILE_PATH_KEY = "original-file-path";
+    public static final String CONTAINER_ID_KEY = "container-id";
 
+    public static final String ORIGINAL_FILE_PATH_KEY = "original-file-path";
+    
     public static final String REPLICATED_FILE_PATH_KEY = "replicated-file-path";
 
     public static final String FINALIZER_POLLING_TIME_KEY = "finalizer-polling-time";
@@ -148,18 +152,29 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         Status status = Status.createError(message);
         getCleaner().delete(originalFile);
         getCleaner().delete(parameters.getReplicatedFile());
-        removeFromMapping(originalFile);
+        removeFromMapping(parameters.getContainerId(), originalFile);
         updateStatus(new DataSetCodesWithStatus(dataSetCodes, DataSetArchivingStatus.AVAILABLE, false));
-        ServiceProvider.getOpenBISService().archiveDataSets(dataSetCodes, removeFromDataStore);
+        HashMap<String, String> options = new HashMap<>();
+        if (parameters.getSubDirectory() != null)
+        {
+            options.put(ArchivingByRequestTask.SUB_DIR_KEY, parameters.getSubDirectory());
+        }
+        ServiceProvider.getOpenBISService().archiveDataSets(dataSetCodes, removeFromDataStore, options);
         return status;
     }
 
-    private void removeFromMapping(File originalFile)
+    private void removeFromMapping(Long containerId, File originalFile)
     {
         IMultiDataSetArchiverDBTransaction transaction = getTransaction();
         try
         {
-            transaction.deleteContainer(originalFile.getName());
+            if (containerId != null)
+            {
+                transaction.deleteContainer(containerId);
+            } else
+            {
+                transaction.deleteContainer(originalFile.getName());
+            }
             transaction.commit();
         } catch (Exception ex)
         {
@@ -232,12 +247,17 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         Map<String, String> parameterBindings = context.getParameterBindings();
         operationLog.info("Parameters: " + parameterBindings);
         Parameters parameters = new Parameters();
+        if (parameterBindings.containsKey(CONTAINER_ID_KEY))
+        {
+            parameters.setContainerId(getNumber(parameterBindings, CONTAINER_ID_KEY));
+        }
         parameters.setOriginalFile(new File(getProperty(parameterBindings, ORIGINAL_FILE_PATH_KEY)));
         parameters.setReplicatedFile(new File(getProperty(parameterBindings, REPLICATED_FILE_PATH_KEY)));
         parameters.setPollingTime(getNumber(parameterBindings, FINALIZER_POLLING_TIME_KEY));
         parameters.setStartTime(getTimestamp(parameterBindings, START_TIME_KEY));
         parameters.setWaitingTime(getNumber(parameterBindings, FINALIZER_MAX_WAITING_TIME_KEY));
         parameters.setStatus(DataSetArchivingStatus.valueOf(getProperty(parameterBindings, STATUS_KEY)));
+        parameters.setSubDirectory(parameterBindings.get(ArchivingByRequestTask.SUB_DIR_KEY));
         return parameters;
     }
 
@@ -290,6 +310,10 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         private long waitingTime;
 
         private DataSetArchivingStatus status;
+        
+        private String subDirectory;
+        
+        private Long containerId;
 
         public void setOriginalFile(File file)
         {
@@ -349,6 +373,26 @@ class MultiDataSetArchivingFinalizer implements IProcessingPluginTask
         public DataSetArchivingStatus getStatus()
         {
             return status;
+        }
+
+        public String getSubDirectory()
+        {
+            return subDirectory;
+        }
+
+        public void setSubDirectory(String groupKey)
+        {
+            this.subDirectory = groupKey;
+        }
+
+        public Long getContainerId()
+        {
+            return containerId;
+        }
+
+        public void setContainerId(Long containerId)
+        {
+            this.containerId = containerId;
         }
     }
 

@@ -439,7 +439,7 @@ public abstract class AbstractServerLogger implements IServer
     }
 
     public int archiveDatasets(String sessionToken, List<String> datasetCodes,
-            boolean removeFromDataStore)
+            boolean removeFromDataStore, Map<String, String> options)
     {
         logTracking(sessionToken, "archiveDatasets", "DATASETS(%s), REMOVE_FROM_DATA_STORE(%s)",
                 abbreviate(datasetCodes), removeFromDataStore);

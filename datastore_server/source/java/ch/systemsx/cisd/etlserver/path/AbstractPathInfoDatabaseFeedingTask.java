@@ -64,12 +64,13 @@ abstract class AbstractPathInfoDatabaseFeedingTask extends AbstractMaintenanceTa
 
     protected String checksumType;
 
-    protected void feedPathInfoDatabase(IDatasetLocation dataSet, boolean h5Folders, boolean h5arFolders)
+    protected Long feedPathInfoDatabase(IDatasetLocation dataSet, boolean h5Folders, boolean h5arFolders)
     {
 
         IShareIdManager shareIdManager = directoryProvider.getShareIdManager();
         String dataSetCode = dataSet.getDataSetCode();
         shareIdManager.lock(dataSetCode);
+        Long size = null;
 
         try
         {
@@ -79,7 +80,7 @@ abstract class AbstractPathInfoDatabaseFeedingTask extends AbstractMaintenanceTa
                 getOperationLog().error("Root directory of data set " + dataSetCode
                         + " does not exists: " + dataSetRoot);
                 shareIdManager.releaseLocks();
-                return;
+                return size;
             }
             DatabaseBasedDataSetPathsInfoFeeder feeder =
                     new DatabaseBasedDataSetPathsInfoFeeder(dao, new Hdf5AwareHierarchicalContentFactory(h5Folders, h5arFolders), computeChecksum,
@@ -87,10 +88,10 @@ abstract class AbstractPathInfoDatabaseFeedingTask extends AbstractMaintenanceTa
             Long id = dao.tryGetDataSetId(dataSetCode);
             if (id == null)
             {
-                feeder.addPaths(dataSetCode, dataSet.getDataSetLocation(), dataSetRoot);
+                size = feeder.addPaths(dataSetCode, dataSet.getDataSetLocation(), dataSetRoot);
                 feeder.commit();
                 getOperationLog().info("Paths inside data set " + dataSetCode
-                        + " successfully added to database.");
+                        + " successfully added to database. Data set size: " + size);
             }
         } catch (Exception ex)
         {
@@ -100,6 +101,7 @@ abstract class AbstractPathInfoDatabaseFeedingTask extends AbstractMaintenanceTa
         {
             shareIdManager.releaseLocks();
         }
+        return size;
     }
 
     protected abstract Logger getOperationLog();

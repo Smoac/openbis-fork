@@ -36,6 +36,8 @@ $.extend(DefaultProfile.prototype, {
 		//
 		// DEFAULTS, TYPICALLY DON'T TOUCH IF YOU DON'T KNOW WHAT YOU DO
 		//
+		this.showDatasetArchivingButton = false;
+		
 		this.mainMenu = {
 				showLabNotebook : true,
 				showInventory : true,
@@ -126,8 +128,8 @@ $.extend(DefaultProfile.prototype, {
 //		this.jupyterIntegrationServerEndpoint = "https://127.0.0.1:8002";
 //		this.jupyterEndpoint = "https://127.0.0.1:8000/";
 		
-		this.systemProperties = ["ANNOTATIONS_STATE"];
-		this.forcedDisableRTF = ["FREEFORM_TABLE_STATE","NAME", "SEQUENCE"];
+		this.systemProperties = ["ANNOTATIONS_STATE", "FREEFORM_TABLE_STATE"];
+		this.forcedDisableRTF = ["NAME", "SEQUENCE"];
 		this.forceMonospaceFont = ["SEQUENCE"];
 		
 		this.isRTF = function(propertytype) {
@@ -212,7 +214,7 @@ $.extend(DefaultProfile.prototype, {
 		
 		this.getStorageConfigCollectionForConfigSample = function(sample) {
 			var prefix = this.getSampleConfigSpacePrefix(sample);
-			return "/" + prefix + "ELN_SETTINGS/" + prefix + "STORAGES/" + prefix + "STORAGES_COLLECTION";
+			return IdentifierUtil.getExperimentIdentifier(prefix + "ELN_SETTINGS", prefix + "STORAGES", prefix + "STORAGES_COLLECTION");
 		}
 		
 		this.getStorageSpaceForSample = function(sample) {
@@ -244,7 +246,7 @@ $.extend(DefaultProfile.prototype, {
 		}
 		
 		this.isELNIdentifier = function(identifier) {
-			var space = identifier.split("/")[1];
+			var space = IdentifierUtil.getSpaceCodeFromIdentifier(identifier);
 			return !this.isInventorySpace(space);
 		}
 		
@@ -276,6 +278,65 @@ $.extend(DefaultProfile.prototype, {
 				"experimentTypeCodes" : []
 		}
 		
+		this._deleteSampleConnectionsByTypeIfNotVisited = function(sample, visited) {
+			var permId = null;
+			
+			if(sample["@type"] === "as.dto.sample.Sample") {
+				permId = sample.getPermId().getPermId();
+			} else if(sample["@type"] === "Sample") {
+				permId = sample.permId;
+			}
+					
+			if(visited[permId]) {
+				return;
+			} else {
+				visited[permId] = true;
+			}
+			
+			if(sample.parents) {
+				for(var i=0; i < sample.parents.length; i++) {
+					var sampleParent = sample.parents[i];
+					var sampleTypeCode = null;
+					
+					if(sample["@type"] === "as.dto.sample.Sample") {
+						sampleTypeCode = sampleParent.getType().getCode();
+					} else if(sample["@type"] === "Sample") {
+						sampleTypeCode = sampleParent.sampleTypeCode;
+					}
+					
+					if($.inArray(sampleTypeCode, this.hideTypes["sampleTypeCodes"]) !== -1) {
+						sample.parents.splice(i, 1);
+						i--;
+					} else {
+						this._deleteSampleConnectionsByTypeIfNotVisited(sampleParent, visited);
+					}
+				}
+			}
+			if(sample.children) {
+				for(var i=0; i < sample.children.length; i++) {
+					var sampleChild = sample.children[i];
+					var sampleTypeCode = null;
+					
+					if(sample["@type"] === "as.dto.sample.Sample") {
+						sampleTypeCode = sampleChild.getType().getCode();
+					} else if(sample["@type"] === "Sample") {
+						sampleTypeCode = sampleChild.sampleTypeCode;
+					}
+					
+					if($.inArray(sampleTypeCode, this.hideTypes["sampleTypeCodes"]) !== -1) {
+						sample.children.splice(i, 1);
+						i--;
+					} else {
+						this._deleteSampleConnectionsByTypeIfNotVisited(sampleChild, visited);
+					}
+				}
+			}
+		}
+		
+		this.deleteSampleConnectionsByType = function(sample) {
+			var visited = {};
+			this._deleteSampleConnectionsByTypeIfNotVisited(sample, visited);
+		}
 		
 		this.propertyReplacingCode = "NAME";
 		
@@ -556,6 +617,19 @@ $.extend(DefaultProfile.prototype, {
 			return this.allPropertyTypes;
 		}
 		
+		this.getPropertyTypeFromSampleType = function(sampleType, propertyTypeCode) {
+			for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
+				var propertyTypeGroup = sampleType.propertyTypeGroups[i];
+				for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
+					var propertyType = propertyTypeGroup.propertyTypes[j];
+					if(propertyType.code === propertyTypeCode) {
+						return propertyType;
+					}
+				}
+			}
+			return null;
+		}
+		
 		this.getPropertyType = function(propertyTypeCode) {
 			for (var i = 0; i < this.allPropertyTypes.length; i++) {
 				if(this.allPropertyTypes[i].code === propertyTypeCode) {
@@ -718,6 +792,8 @@ $.extend(DefaultProfile.prototype, {
 
 		this.datasetViewerImagePreviewIconSize = 25; // width in px
 		this.datasetViewerMaxFilesizeForImagePreview = 50000000; // filesize in bytes
+
+		this.archivingThreshold = "ask your administrator";
 
 		this.initPropertyTypes = function(callback) {
 			var _this = this; 
@@ -892,20 +968,30 @@ $.extend(DefaultProfile.prototype, {
 		}
 
 		this.initSettings = function(callback) {
+			// sampleTypeDefinitionsExtension gets overwritten with settings if found
+			for (var sampleTypeCode of Object.keys(this.sampleTypeDefinitionsExtension)) {
+				var sampleTypDefExt = this.sampleTypeDefinitionsExtension[sampleTypeCode];
+				// Add the types to hide == not show
+				if(!sampleTypDefExt.SHOW) {
+					this.hideTypes["sampleTypeCodes"].push(sampleTypeCode);
+				}
+			}
+		
 			var settingsManager = new SettingsManager(this.serverFacade);
 			settingsManager.loadSettingsAndApplyToProfile((function() {
 				callback();
 			}));
 		}
 		
-		this.initAuth = function(callback) {
+		this.initServerInfo = function(callback) {
 			var _this = this;
 			this.serverFacade.getOpenbisV3(function(openbisV3) {
 				openbisV3._private.sessionToken = mainController.serverFacade.getSession();
 				openbisV3.getServerInformation().done(function(serverInformation) {
 	                var authSystem = serverInformation["authentication-service"];
+	                IdentifierUtil.isProjectSamplesEnabled = (serverInformation["project-samples-enabled"] === "true");
 	                if (authSystem && authSystem.indexOf("file") !== -1) {
-	                	_this.isFileAuthenticationService = true;
+	                		_this.isFileAuthenticationService = true;
 	                }
 	                callback();
 	            });
@@ -931,7 +1017,7 @@ $.extend(DefaultProfile.prototype, {
 						_this.initDirectLinkURL(function() {
 							_this.initIsAdmin(function() {
 								_this.initDatasetTypeCodes(function() {
-									_this.initAuth(function() {
+									_this.initServerInfo(function() {
 										_this.isFileAuthUser(function() {
 											_this.initSpaces(function() {
 												_this.initSettings(function() {

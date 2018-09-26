@@ -32,6 +32,7 @@ import java.util.TreeSet;
 import org.apache.log4j.Logger;
 import org.hibernate.FetchMode;
 import org.hibernate.HibernateException;
+import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.StatelessSession;
@@ -606,6 +607,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
 
                 });
         }
+        scheduleDynamicPropertiesEvaluationForDataSets(dataSetCodes);
         hibernateTemplate.flush();
         if (updatedRows != dataSetCodes.size())
         {
@@ -675,63 +677,16 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
             {
                 final int startIndexFinal = startIndex;
                 final int endIndexFinal = endIndex;
-                updatedRows += (Integer) hibernateTemplate.execute(new HibernateCallback()
-                    {
-
-                        //
-                        // HibernateCallback
-                        //
-
-                        @Override
-                        public final Object doInHibernate(final Session session)
-                                throws HibernateException
-                        {
-                            // NOTE: 'VERSIONED' makes modification time modified too
-                            return session
-                                    .createQuery(
-                                            "UPDATE VERSIONED "
-                                                    + EXTERNAL_DATA_TABLE_NAME
-                                                    + " SET status = :status, presentInArchive = :presentInArchive"
-                                                    + " WHERE code IN (:codes) ")
-                                    .setParameter("status", status)
-                                    .setParameter("presentInArchive", presentInArchive)
-                                    .setParameterList("codes",
-                                            dataSetCodes.subList(startIndexFinal, endIndexFinal))
-                                    .executeUpdate();
-                        }
-                    });
+                final List<String> codes = dataSetCodes.subList(startIndexFinal, endIndexFinal);
+                updatedRows += (Integer) hibernateTemplate.execute(new StatusUpdater(presentInArchive, status, codes));
                 startIndex = endIndex;
                 endIndex = Math.min(endIndex + MAX_BATCH_SIZE, len);
             }
         } else
         {
-            updatedRows = (Integer) hibernateTemplate.execute(new HibernateCallback()
-                {
-
-                    //
-                    // HibernateCallback
-                    //
-
-                    @Override
-                    public final Object doInHibernate(final Session session)
-                            throws HibernateException
-                    {
-                        // NOTE: 'VERSIONED' makes modification time modified too
-                        return session
-                                .createQuery(
-                                        "UPDATE VERSIONED "
-                                                + EXTERNAL_DATA_TABLE_NAME
-                                                + " SET status = :status, presentInArchive = :presentInArchive"
-                                                + " WHERE code IN (:codes) ")
-                                .setParameter("status", status)
-                                .setParameter("presentInArchive", presentInArchive)
-                                .setParameterList("codes", dataSetCodes).executeUpdate();
-                    }
-
-                });
+            updatedRows = (Integer) hibernateTemplate.execute(new StatusUpdater(presentInArchive, status, dataSetCodes));
         }
-        List<DataPE> dataSets = tryToFindFullDataSetsByCodes(dataSetCodes, false, false);
-        scheduleDynamicPropertiesEvaluation(dataSets);
+        scheduleDynamicPropertiesEvaluationForDataSets(dataSetCodes);
         hibernateTemplate.flush();
         if (updatedRows != dataSetCodes.size())
         {
@@ -742,6 +697,12 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
             operationLog.info(String.format("UPDATED: %s data set statuses to '%s' and presentInArchive flag to '%s'.", dataSetCodes.size(), status,
                     presentInArchive));
         }
+    }
+
+    private void scheduleDynamicPropertiesEvaluationForDataSets(final List<String> dataSetCodes)
+    {
+        List<DataPE> dataSets = tryToFindFullDataSetsByCodes(dataSetCodes, false, false);
+        scheduleDynamicPropertiesEvaluation(dataSets);
     }
 
     @Override
@@ -838,6 +799,55 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         sqls.selectAttributes = createQueryAttributesHistorySQL();
 
         executePermanentDeleteOfDataSets(EntityType.DATASET, dataIds, registrator, reason, sqls);
+    }
+
+    private static final class StatusUpdater implements HibernateCallback
+    {
+        private final boolean presentInArchive;
+
+        private final DataSetArchivingStatus status;
+
+        private final List<String> codes;
+
+        private StatusUpdater(boolean presentInArchive, DataSetArchivingStatus status, List<String> codes)
+        {
+            this.presentInArchive = presentInArchive;
+            this.status = status;
+            this.codes = codes;
+        }
+
+        @Override
+        public final Object doInHibernate(final Session session)
+                throws HibernateException
+        {
+
+            // NOTE: 'VERSIONED' makes modification time modified too
+            Query query;
+            if (presentInArchive)
+            {
+                query = session
+                        .createQuery(
+                                "UPDATE VERSIONED "
+                                        + EXTERNAL_DATA_TABLE_NAME
+                                        + " SET status = :status, presentInArchive = :presentInArchive, "
+                                        + "     archivingRequested = 'f'"
+                                        + " WHERE code IN (:codes) ");
+            } else
+            {
+                query = session
+                        .createQuery(
+                                "UPDATE VERSIONED "
+                                        + EXTERNAL_DATA_TABLE_NAME
+                                        + " SET status = :status, presentInArchive = :presentInArchive"
+                                        + " WHERE code IN (:codes) ");
+
+            }
+            return query
+                    .setParameter("status", status)
+                    .setParameter("presentInArchive", presentInArchive)
+                    .setParameterList("codes", codes)
+                    .executeUpdate();
+        }
     }
 
     private static class DeletionEventSQLs

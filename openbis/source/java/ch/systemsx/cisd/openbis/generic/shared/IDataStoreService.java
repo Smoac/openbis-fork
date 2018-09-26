@@ -112,10 +112,11 @@ public interface IDataStoreService
      *            doesn't have email and no message will be send in such case.
      * @param removeFromDataStore when set to <code>true</code> the data sets will be removed from the data store after a successful archiving
      *            operation.
+     * @param options which might be used by particular archivers
      */
     public void archiveDatasets(String sessionToken, String userSessionToken,
             List<DatasetDescription> datasets, String userId, String userEmailOrNull,
-            boolean removeFromDataStore);
+            boolean removeFromDataStore, Map<String, String> options);
 
     /**
      * Schedules unarchiving of provided datasets.

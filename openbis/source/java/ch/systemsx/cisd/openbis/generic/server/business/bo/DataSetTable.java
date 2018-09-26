@@ -778,7 +778,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
     //
 
     @Override
-    public int archiveDatasets(boolean removeFromDataStore)
+    public int archiveDatasets(boolean removeFromDataStore, Map<String, String> options)
     {
         Map<DataStorePE, List<ExternalDataPE>> datasetsByStore = groupExternalDataByDataStores();
         Map<DataStoreWithService, List<ExternalDataPE>> datasetsWithService =
@@ -790,7 +790,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         int result =
                 filterByStatusAndUpdate(datasetsByStore, DataSetArchivingStatus.AVAILABLE,
                         pendingStatus);
-        performArchiving(datasetsWithService, removeFromDataStore);
+        performArchiving(datasetsWithService, removeFromDataStore, options);
         return result;
     }
 
@@ -939,7 +939,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
     }
 
     private void performArchiving(Map<DataStoreWithService, List<ExternalDataPE>> datasetsByStore,
-            final boolean removeFromDataStore)
+            final boolean removeFromDataStore, Map<String, String> options)
     {
         performArchivingAction(datasetsByStore, new IArchivingAction()
             {
@@ -948,7 +948,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
                         List<DatasetDescription> descriptions, String userId, String userEmailOrNull)
                 {
                     service.archiveDatasets(sessionToken, session.getSessionToken(), descriptions,
-                            userId, userEmailOrNull, removeFromDataStore);
+                            userId, userEmailOrNull, removeFromDataStore, options);
                 }
 
                 @Override

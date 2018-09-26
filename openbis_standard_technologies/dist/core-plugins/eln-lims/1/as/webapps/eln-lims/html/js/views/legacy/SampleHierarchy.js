@@ -22,6 +22,11 @@ function SampleHierarchy(serverFacade, views, profile, sample) {
 	this.sample = sample;
 	this.hierarchyFilterController = null;
 	
+	//
+	if(this.sample["@type"] === "Sample") { // V1 Sample
+		profile.deleteSampleConnectionsByType(this.sample);
+	}
+	//
 	this.init = function() {
 		this.repaint();
 	}
@@ -99,18 +104,22 @@ function SampleHierarchy(serverFacade, views, profile, sample) {
 			return false;
 		}
 		
+		var FILTERED = {};
+		
 		var selectedSampleTypesFilter = function(sample, selectedSampleTypes) {
-			if(sample.parents) {
-				for(var i = 0; i < sample.parents.length; i++) {
-					sample.parents[i].showLabel = inArray(sample.parents[i].sampleTypeCode, selectedSampleTypes);
-					selectedSampleTypesFilter(sample.parents[i], selectedSampleTypes);
+			if(!FILTERED[sample.permId]) {
+				FILTERED[sample.permId] = true;
+				if(sample.parents) {
+					for(var i = 0; i < sample.parents.length; i++) {
+						sample.parents[i].showLabel = inArray(sample.parents[i].sampleTypeCode, selectedSampleTypes);
+						selectedSampleTypesFilter(sample.parents[i], selectedSampleTypes);
+					}
 				}
-				
-			}
-			if(sample.children) {
-				for(var i = 0; i < sample.children.length; i++) {
-					sample.children[i].showLabel = inArray(sample.children[i].sampleTypeCode, selectedSampleTypes);
-					selectedSampleTypesFilter(sample.children[i], selectedSampleTypes);
+				if(sample.children) {
+					for(var i = 0; i < sample.children.length; i++) {
+						sample.children[i].showLabel = inArray(sample.children[i].sampleTypeCode, selectedSampleTypes);
+						selectedSampleTypesFilter(sample.children[i], selectedSampleTypes);
+					}
 				}
 			}
 		}
@@ -158,20 +167,9 @@ function SampleHierarchy(serverFacade, views, profile, sample) {
 	this._addChildFor = function(permId) {
 		var sampleTypes = this.profile.getAllSampleTypes();
 		
-		var component = "<select id='sampleTypeSelector' class='form-control' required>";
-		component += "<option disabled=\"disabled\" selected></option>";
-		for(var i = 0; i < sampleTypes.length; i++) {
-			var sampleType = sampleTypes[i];
-			var label = Util.getEmptyIfNull(sampleType.description);
-			if(label === "") {
-				label = sampleType.code;
-			}
-			
-			component += "<option value='" + sampleType.code + "'>" + label + "</option>";
-		}
-		component += "</select>";
-		
-		Util.blockUI("Select the type for the Child: <br><br>" + component + "<br> or <a class='btn btn-default' id='sampleTypeSelectorCancel'>Cancel</a>");
+		var $dropdown = FormUtil.getSampleTypeDropdown('sampleTypeSelector', true);
+		Util.blockUI("Select the type for the Child: <br><br>" + $dropdown[0].outerHTML + "<br> or <a class='btn btn-default' id='sampleTypeSelectorCancel'>Cancel</a>");
+		$("#sampleTypeSelector").select2({ width: '100%', theme: "bootstrap" });
 		
 		$("#sampleTypeSelectorCancel").on("click", function(event) { 
 			Util.unblockUI();
@@ -277,6 +275,8 @@ function SampleHierarchy(serverFacade, views, profile, sample) {
 		var _this = this;
 		function addSampleNodes(sample, rootPermId) {
 			if(!NODES[sample.permId]) {
+				NODES[sample.permId] = true;
+				
 				var nodeId =  _this.nodeIdPrefix + sample.permId;
 				var $nodeContent = $('<div>');
 				$nodeContent.css({
@@ -319,7 +319,6 @@ function SampleHierarchy(serverFacade, views, profile, sample) {
 				}
 				
 				var $sampleLink = $('<a>', { 'href' : "javascript:mainController.changeView('showViewSamplePageFromPermId', '" + sample.permId + "')"}).text(nameLabel);
-				
 				
 				
 				if(sample.showLabel || (sample.permId === rootPermId)) {
@@ -370,38 +369,38 @@ function SampleHierarchy(serverFacade, views, profile, sample) {
 				}
 				g.addNode(sample.permId, { label: $nodeContent[0].outerHTML});
 				
-				NODES[sample.permId] = true;
-			}
-			
-			if(sample.parents && !sample.hideGraphConnections && !sample.hideParents) {
-				sample.parents.forEach(addSampleNodes, rootPermId);
-			}
-			if(sample.children && !sample.hideGraphConnections && !sample.hideChildren) {
-				sample.children.forEach(addSampleNodes, rootPermId);
+				if(sample.parents && !sample.hideGraphConnections && !sample.hideParents) {
+					sample.parents.forEach(addSampleNodes, rootPermId);
+				}
+				if(sample.children && !sample.hideGraphConnections && !sample.hideChildren) {
+					sample.children.forEach(addSampleNodes, rootPermId);
+				}
 			}
 		}
 		
 		var EDGES = {};
 		
 		function addSampleEdges(sample) {
-			if(sample.parents && !sample.hideGraphConnections && !sample.hideParents) {
-				for(var i=0; i < sample.parents.length; i++) {
-					if(!EDGES[sample.parents[i].permId + ' -> ' + sample.permId]) {
-						g.addEdge(null, sample.parents[i].permId, sample.permId);
-						EDGES[sample.parents[i].permId + ' -> ' + sample.permId] = true;
+			if(!EDGES[sample.permId]) {
+				EDGES[sample.permId] = true;
+				if(sample.parents && !sample.hideGraphConnections && !sample.hideParents) {
+					for(var i=0; i < sample.parents.length; i++) {
+						if(!EDGES[sample.parents[i].permId + ' -> ' + sample.permId]) {
+							g.addEdge(null, sample.parents[i].permId, sample.permId);
+							EDGES[sample.parents[i].permId + ' -> ' + sample.permId] = true;
+						}
 					}
+					sample.parents.forEach(addSampleEdges);
 				}
-				sample.parents.forEach(addSampleEdges);
-			}
-			if(sample.children && !sample.hideGraphConnections && !sample.hideChildren) {
-				for(var i=0; i < sample.children.length; i++) {
-					if(!EDGES[sample.permId + ' -> ' + sample.children[i].permId]) {
-						g.addEdge(null, sample.permId, sample.children[i].permId);
-						EDGES[sample.permId + ' -> ' + sample.children[i].permId] = true;
+				if(sample.children && !sample.hideGraphConnections && !sample.hideChildren) {
+					for(var i=0; i < sample.children.length; i++) {
+						if(!EDGES[sample.permId + ' -> ' + sample.children[i].permId]) {
+							g.addEdge(null, sample.permId, sample.children[i].permId);
+							EDGES[sample.permId + ' -> ' + sample.children[i].permId] = true;
+						}
 					}
+					sample.children.forEach(addSampleEdges);
 				}
-				
-				sample.children.forEach(addSampleEdges);
 			}
 		}
 		

@@ -17,6 +17,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.semanticAnnotationsInherited = null;
 		prototype.registrator = null;
 		prototype.registrationDate = null;
+		prototype.plugin = null;
 
 		prototype.getFetchOptions = function() {
 			return this.fetchOptions;
@@ -116,6 +117,16 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setRegistrationDate = function(registrationDate) {
 			this.registrationDate = registrationDate;
 		};
+		prototype.getPlugin = function() {
+			if (this.getFetchOptions() && this.getFetchOptions().hasPlugin()) {
+				return this.plugin;
+			} else {
+				throw new exceptions.NotFetchedException("Plugin has not been fetched.");
+			}
+		};
+		prototype.setPlugin = function(plugin) {
+			this.plugin = plugin;
+		};
 	}, {
 		fetchOptions : "PropertyAssignmentFetchOptions",
 		entityType : "IEntityType",
@@ -126,7 +137,8 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		},
 		semanticAnnotationsInherited : "Boolean",
 		registrator : "Person",
-		registrationDate : "Date"
+		registrationDate : "Date",
+		plugin : "Plugin"
 	});
 	return PropertyAssignment;
 })

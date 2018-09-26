@@ -238,6 +238,7 @@ var sources = [
 	'as/dto/dataset/search/LocationSearchCriteria',
 	'as/dto/dataset/search/LocatorTypeSearchCriteria',
 	'as/dto/dataset/search/PhysicalDataSearchCriteria',
+	'as/dto/dataset/search/ArchivingRequestedSearchCriteria',
 	'as/dto/dataset/search/PresentInArchiveSearchCriteria',
 	'as/dto/dataset/search/ShareIdSearchCriteria',
 	'as/dto/dataset/search/SizeSearchCriteria',

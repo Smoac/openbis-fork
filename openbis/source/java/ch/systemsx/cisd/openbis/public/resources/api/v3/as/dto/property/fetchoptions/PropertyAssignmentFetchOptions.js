@@ -1,5 +1,5 @@
 define([ "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/property/fetchoptions/PropertyTypeFetchOptions", "as/dto/person/fetchoptions/PersonFetchOptions",
-		"as/dto/property/fetchoptions/PropertyAssignmentSortOptions", "as/dto/semanticannotation/fetchoptions/SemanticAnnotationFetchOptions" ], function(stjs, FetchOptions) {
+		"as/dto/plugin/fetchoptions/PluginFetchOptions", "as/dto/property/fetchoptions/PropertyAssignmentSortOptions", "as/dto/semanticannotation/fetchoptions/SemanticAnnotationFetchOptions" ], function(stjs, FetchOptions) {
 	var PropertyAssignmentFetchOptions = function() {
 	};
 	stjs.extend(PropertyAssignmentFetchOptions, FetchOptions, [ FetchOptions ], function(constructor, prototype) {
@@ -9,6 +9,7 @@ define([ "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/property/fet
 		prototype.propertyType = null;
 		prototype.semanticAnnotations = null;
 		prototype.registrator = null;
+		prototype.plugin = null;
 		prototype.sort = null;
 
 		prototype.withEntityType = function() {
@@ -63,6 +64,19 @@ define([ "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/property/fet
 		prototype.hasRegistrator = function() {
 			return this.registrator != null;
 		};
+		prototype.withPlugin = function() {
+			if (this.plugin == null) {
+				var PluginFetchOptions = require("as/dto/plugin/fetchoptions/PluginFetchOptions");
+				this.plugin = new PluginFetchOptions();
+			}
+			return this.plugin;
+		};
+		prototype.withPluginUsing = function(fetchOptions) {
+			return this.plugin = fetchOptions;
+		};
+		prototype.hasPlugin = function() {
+			return this.plugin != null;
+		};
 		prototype.sortBy = function() {
 			if (this.sort == null) {
 				var PropertyAssignmentSortOptions = require("as/dto/property/fetchoptions/PropertyAssignmentSortOptions");
@@ -78,6 +92,7 @@ define([ "stjs", "as/dto/common/fetchoptions/FetchOptions", "as/dto/property/fet
 		propertyType : "PropertyTypeFetchOptions",
 		semanticAnnotations : "SemanticAnnotationFetchOptions",
 		registrator : "PersonFetchOptions",
+		plugin : "PluginFetchOptions",
 		sort : "PropertyAssignmentSortOptions"
 	});
 	return PropertyAssignmentFetchOptions;

@@ -33,6 +33,7 @@ import javax.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.hibernate.SQLQuery;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +41,8 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
+import ch.systemsx.cisd.openbis.generic.server.ConcurrentOperation;
+import ch.systemsx.cisd.openbis.generic.server.IConcurrentOperationLimiter;
 import ch.systemsx.cisd.openbis.generic.server.api.v1.sort.SampleSearchResultSorter;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
@@ -161,6 +164,9 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @Resource(name = ComponentNames.MANAGED_PROPERTY_EVALUATOR_FACTORY)
     private IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
 
+    @Autowired
+    private IConcurrentOperationLimiter operationLimiter;
+
     // Default constructor needed by Spring
     public GeneralInformationService()
     {
@@ -168,11 +174,12 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     GeneralInformationService(IOpenBisSessionManager sessionManager, IDAOFactory daoFactory,
             ICommonBusinessObjectFactory boFactory, IPropertiesBatchManager propertiesBatchManager,
-            ICommonServer commonServer)
+            ICommonServer commonServer, IConcurrentOperationLimiter operationLimiter)
     {
         super(sessionManager, daoFactory, propertiesBatchManager);
         this.boFactory = boFactory;
         this.commonServer = commonServer;
+        this.operationLimiter = operationLimiter;
     }
 
     @Override
@@ -369,22 +376,29 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     private List<Sample> searchForSamples(Session session, String userId, final PersonPE user,
             SearchCriteria searchCriteria, EnumSet<SampleFetchOption> fetchOptions)
     {
-        EnumSet<SampleFetchOption> sampleFetchOptions =
-                (fetchOptions != null) ? fetchOptions : EnumSet.noneOf(SampleFetchOption.class);
-        DetailedSearchCriteria detailedSearchCriteria =
-                SearchCriteriaToDetailedSearchCriteriaTranslator.convert(getDAOFactory(),
-                        SearchableEntityKind.SAMPLE, searchCriteria);
-        ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister sampleLister =
-                boFactory.createSampleLister(session, user.getId());
-        Collection<Long> sampleIDs =
-                new SampleSearchManager(getDAOFactory().getHibernateSearchDAO(), sampleLister)
-                        .searchForSampleIDs(userId, detailedSearchCriteria);
+        return operationLimiter.executeLimitedWithTimeout(ConcurrentOperation.SEARCH_SAMPLES, new ConcurrentOperation<List<Sample>>()
+            {
+                @Override
+                public List<Sample> execute()
+                {
+                    EnumSet<SampleFetchOption> sampleFetchOptions =
+                            (fetchOptions != null) ? fetchOptions : EnumSet.noneOf(SampleFetchOption.class);
+                    DetailedSearchCriteria detailedSearchCriteria =
+                            SearchCriteriaToDetailedSearchCriteriaTranslator.convert(getDAOFactory(),
+                                    SearchableEntityKind.SAMPLE, searchCriteria);
+                    ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister sampleLister =
+                            boFactory.createSampleLister(session, user.getId());
+                    Collection<Long> sampleIDs =
+                            new SampleSearchManager(getDAOFactory().getHibernateSearchDAO(), sampleLister)
+                                    .searchForSampleIDs(userId, detailedSearchCriteria);
 
-        SampleByIdentiferValidator filter = new SampleByIdentiferValidator();
-        filter.init(new AuthorizationDataProvider(getDAOFactory()));
-        List<Sample> results = createSampleLister(user).getSamples(sampleIDs, sampleFetchOptions, filter);
+                    SampleByIdentiferValidator filter = new SampleByIdentiferValidator();
+                    filter.init(new AuthorizationDataProvider(getDAOFactory()));
+                    List<Sample> results = createSampleLister(user).getSamples(sampleIDs, sampleFetchOptions, filter);
 
-        return new SampleSearchResultSorter().sort(results, detailedSearchCriteria);
+                    return new SampleSearchResultSorter().sort(results, detailedSearchCriteria);
+                }
+            });
     }
 
     @Override

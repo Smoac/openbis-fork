@@ -41,6 +41,7 @@ import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.test.AssertionUtil;
+import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.common.time.TimingParameters;
 import ch.systemsx.cisd.common.utilities.ITimeAndWaitingProvider;
 import ch.systemsx.cisd.common.utilities.MockTimeProvider;
@@ -52,6 +53,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetCodesWithStatus;
+import ch.systemsx.cisd.openbis.generic.server.task.ArchivingByRequestTask;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.DatasetDescriptionBuilder;
@@ -62,6 +64,8 @@ import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
  */
 public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCase
 {
+
+    private static final String MY_GROUP = "my-group";
 
     private static final long START_TIME = 123456789012l;
 
@@ -128,6 +132,7 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
         parameterBindings.put(MultiDataSetArchivingFinalizer.START_TIME_KEY, START_TIME_AS_STRING);
         parameterBindings.put(MultiDataSetArchivingFinalizer.FINALIZER_MAX_WAITING_TIME_KEY, "300000");
         parameterBindings.put(MultiDataSetArchivingFinalizer.STATUS_KEY, DataSetArchivingStatus.ARCHIVED.toString());
+        parameterBindings.put(ArchivingByRequestTask.SUB_DIR_KEY, MY_GROUP);
         processingContext = new DataSetProcessingContext(null, null,
                 parameterBindings, null, USER_ID, USER_EMAIL);
         updatedStatus = new ArrayList<DataSetCodesWithStatus>();
@@ -160,6 +165,7 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
     public void testReplicationFailDueToMissingArchiveFile()
     {
         final DatasetDescription ds1 = new DatasetDescriptionBuilder("ds1").getDatasetDescription();
+        final RecordingMatcher<Map<String, String>> optionsMatcher = new RecordingMatcher<Map<String, String>>();
 
         dataFileInArchive.delete();
 
@@ -169,7 +175,8 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
                     one(transaction).deleteContainer(dataFileInArchive.getName());
                     one(transaction).commit();
                     one(transaction).close();
-                    one(openBISService).archiveDataSets(Arrays.asList(ds1.getDataSetCode()), true);
+                    one(openBISService).archiveDataSets(with(Arrays.asList(ds1.getDataSetCode())), with(true),
+                            with(optionsMatcher));
                 }
             });
 
@@ -179,7 +186,7 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
                 + "Parameters: {original-file-path=" + dataFileInArchive.getPath()
                 + ", replicated-file-path=" + dataFileReplicated.getPath() + ", "
                 + "finalizer-polling-time=20000, start-time=" + START_TIME_AS_STRING + ", "
-                + "finalizer-max-waiting-time=300000, status=ARCHIVED}\n"
+                + "finalizer-max-waiting-time=300000, status=ARCHIVED, sub-directory=my-group}\n"
                 + "ERROR OPERATION.MultiDataSetArchivingFinalizer - Replication of "
                 + "'" + dataFileInArchive.getPath() + "' failed because the original file does not exist.",
                 logRecorder.getLogContent());
@@ -188,6 +195,7 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
         assertEquals("[[ds1] - AVAILABLE]", updatedStatus.toString());
         assertEquals(false, updatedStatus.get(0).isPresentInArchive());
         assertEquals(Arrays.asList(dataFileInArchive, dataFileReplicated).toString(), cleaner.toString());
+        assertEquals("{" + ArchivingByRequestTask.SUB_DIR_KEY + "=" + MY_GROUP + "}", optionsMatcher.recordedObject().toString());
         context.assertIsSatisfied();
     }
 
@@ -203,7 +211,7 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
                 + "Parameters: {original-file-path=" + dataFileInArchive.getPath()
                 + ", replicated-file-path=" + dataFileReplicated.getPath() + ", "
                 + "finalizer-polling-time=20000, start-time=" + START_TIME_AS_STRING + ", "
-                + "finalizer-max-waiting-time=300000, status=ARCHIVED}\n"
+                + "finalizer-max-waiting-time=300000, status=ARCHIVED, sub-directory=my-group}\n"
                 + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Waiting for replication of archive "
                 + "'" + dataFileInArchive.getPath() + "' containing the following data sets: [ds1]\n"
                 + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Condition fulfilled after < 1sec, condition: "
@@ -228,7 +236,7 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
                 + "Parameters: {original-file-path=" + dataFileInArchive.getPath()
                 + ", replicated-file-path=" + dataFileReplicated.getPath() + ", "
                 + "finalizer-polling-time=20000, start-time=" + START_TIME_AS_STRING + ", "
-                + "finalizer-max-waiting-time=300000, status=AVAILABLE}\n"
+                + "finalizer-max-waiting-time=300000, status=AVAILABLE, sub-directory=my-group}\n"
                 + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Waiting for replication of archive "
                 + "'" + dataFileInArchive.getPath() + "' containing the following data sets: [ds1]\n"
                 + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Condition fulfilled after < 1sec, condition: "
@@ -246,6 +254,7 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
     {
         final DatasetDescription ds1 = new DatasetDescriptionBuilder("ds1").getDatasetDescription();
         final DatasetDescription ds2 = new DatasetDescriptionBuilder("ds2").getDatasetDescription();
+        final RecordingMatcher<Map<String, String>> optionsMatcher = new RecordingMatcher<Map<String, String>>();
         parameterBindings.put(MultiDataSetArchivingFinalizer.REPLICATED_FILE_PATH_KEY, dataFilePartiallyReplicated.getPath());
         context.checking(new Expectations()
             {
@@ -253,7 +262,8 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
                     one(transaction).deleteContainer(dataFileInArchive.getName());
                     one(transaction).commit();
                     one(transaction).close();
-                    one(openBISService).archiveDataSets(Arrays.asList(ds1.getDataSetCode(), ds2.getDataSetCode()), true);
+                    one(openBISService).archiveDataSets(with(Arrays.asList(ds1.getDataSetCode(), ds2.getDataSetCode())),
+                            with(true), with(optionsMatcher));
                 }
             });
         MockTimeProviderWithActions timeProviderWithActions = new MockTimeProviderWithActions(START_TIME, 1000);
@@ -281,7 +291,7 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
                 + "Parameters: {original-file-path=" + dataFileInArchive.getPath()
                 + ", replicated-file-path=" + dataFilePartiallyReplicated.getPath() + ", "
                 + "finalizer-polling-time=20000, start-time=" + START_TIME_AS_STRING + ", "
-                + "finalizer-max-waiting-time=300000, status=ARCHIVED}\n"
+                + "finalizer-max-waiting-time=300000, status=ARCHIVED, sub-directory=my-group}\n"
                 + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Waiting for replication of archive "
                 + "'" + dataFileInArchive.getPath() + "' containing the following data sets: [ds1, ds2]\n"
                 + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Condition still not fulfilled after < 1sec, "
@@ -305,6 +315,7 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
         assertEquals("[[ds1, ds2] - AVAILABLE]", updatedStatus.toString());
         assertEquals(false, updatedStatus.get(0).isPresentInArchive());
         assertEquals(Arrays.asList(dataFileInArchive, dataFilePartiallyReplicated).toString(), cleaner.toString());
+        assertEquals("{" + ArchivingByRequestTask.SUB_DIR_KEY + "=" + MY_GROUP + "}", optionsMatcher.recordedObject().toString());
         context.assertIsSatisfied();
     }
 
@@ -313,6 +324,7 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
     {
         final DatasetDescription ds1 = new DatasetDescriptionBuilder("ds1").getDatasetDescription();
         final DatasetDescription ds2 = new DatasetDescriptionBuilder("ds2").getDatasetDescription();
+        final RecordingMatcher<Map<String, String>> optionsMatcher = new RecordingMatcher<Map<String, String>>();
         parameterBindings.put(MultiDataSetArchivingFinalizer.REPLICATED_FILE_PATH_KEY, dataFilePartiallyReplicated.getPath());
         parameterBindings.put(MultiDataSetArchivingFinalizer.STATUS_KEY, DataSetArchivingStatus.AVAILABLE.toString());
         context.checking(new Expectations()
@@ -321,7 +333,8 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
                     one(transaction).deleteContainer(dataFileInArchive.getName());
                     one(transaction).commit();
                     one(transaction).close();
-                    one(openBISService).archiveDataSets(Arrays.asList(ds1.getDataSetCode(), ds2.getDataSetCode()), false);
+                    one(openBISService).archiveDataSets(with(Arrays.asList(ds1.getDataSetCode(), ds2.getDataSetCode())),
+                            with(false), with(optionsMatcher));
                 }
             });
 
@@ -331,7 +344,7 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
                 + "Parameters: {original-file-path=" + dataFileInArchive.getPath()
                 + ", replicated-file-path=" + dataFilePartiallyReplicated.getPath() + ", "
                 + "finalizer-polling-time=20000, start-time=" + START_TIME_AS_STRING + ", "
-                + "finalizer-max-waiting-time=300000, status=AVAILABLE}\n"
+                + "finalizer-max-waiting-time=300000, status=AVAILABLE, sub-directory=my-group}\n"
                 + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Waiting for replication of archive "
                 + "'" + dataFileInArchive.getPath() + "' containing the following data sets: [ds1, ds2]\n"
                 + "INFO  OPERATION.MultiDataSetArchivingFinalizer - Condition still not fulfilled after < 1sec, "
@@ -349,6 +362,7 @@ public class MultiDataSetArchivingFinalizerTest extends AbstractFileSystemTestCa
         assertEquals("[[ds1, ds2] - AVAILABLE]", updatedStatus.toString());
         assertEquals(false, updatedStatus.get(0).isPresentInArchive());
         assertEquals(Arrays.asList(dataFileInArchive, dataFilePartiallyReplicated).toString(), cleaner.toString());
+        assertEquals("{" + ArchivingByRequestTask.SUB_DIR_KEY + "=" + MY_GROUP + "}", optionsMatcher.recordedObject().toString());
         context.assertIsSatisfied();
     }
 

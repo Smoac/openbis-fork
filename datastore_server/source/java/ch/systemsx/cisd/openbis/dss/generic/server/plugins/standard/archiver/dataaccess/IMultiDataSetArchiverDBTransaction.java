@@ -43,6 +43,8 @@ public interface IMultiDataSetArchiverDBTransaction
     public void requestUnarchiving(List<String> dataSetCodes);
 
     public void resetRequestUnarchiving(long containerId);
+    
+    public void deleteContainer(long containerId);
 
     public void commit();
 

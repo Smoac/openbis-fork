@@ -113,6 +113,7 @@ public class SetDataSetPhysicalDataExecutor implements ISetDataSetPhysicalDataEx
         dataSet.setComplete(complete);
         dataSet.setH5Folders(physicalCreation.isH5Folders());
         dataSet.setH5arFolders(physicalCreation.isH5arFolders());
+        dataSet.setArchivingRequested(physicalCreation.isArchivingRequested());
     }
 
 }

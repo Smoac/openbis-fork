@@ -96,6 +96,8 @@ public final class ExternalDataPE extends DataPE
 
     private int speedHint = Constants.DEFAULT_SPEED_HINT;
 
+    private boolean archivingRequested;
+
     /**
      * Returns the id of the locator type of the location of this external data, or <code>null</code> if not yet set.
      */
@@ -288,6 +290,18 @@ public final class ExternalDataPE extends DataPE
     public void setH5arFolders(boolean h5arFolders)
     {
         this.h5arFolders = h5arFolders;
+    }
+
+    @Column(name = ColumnNames.ARCHIVING_REQUESTED)
+    @Field(name = SearchFieldConstants.ARCHIVING_REQUESTED, index = Index.YES, store = Store.YES)
+    public boolean isArchivingRequested()
+    {
+        return archivingRequested;
+    }
+
+    public void setArchivingRequested(boolean archivingRequested)
+    {
+        this.archivingRequested = archivingRequested;
     }
 
     /**

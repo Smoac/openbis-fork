@@ -97,7 +97,13 @@ public final class ParserUtilities
         @Override
         public void close()
         {
-            lineIterator.close();
+            try
+            {
+                lineIterator.close();
+            } catch (IOException e)
+            {
+                throw new IOExceptionUnchecked(e);
+            }
         }
 
         /**

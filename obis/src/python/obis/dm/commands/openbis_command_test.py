@@ -10,28 +10,26 @@ from .. import data_mgmt
 
 def test_prepare_run(monkeypatch):
     # given
-    dm = data_mgmt.DataMgmt(openbis=Mock())
+    dm = data_mgmt.DataMgmt(openbis=Mock(), git_config={
+        'data_path': '',
+        'metadata_path': '',
+        'invocation_path': ''
+    })
     openbis_command = OpenbisCommand(dm)
+    define_config(openbis_command)
     monkeypatch.setattr(getpass, 'getpass', lambda s: 'password')
     dm.openbis.is_session_active.return_value = False
     # when
     openbis_command.prepare_run()
     # then
     dm.openbis.is_session_active.assert_called()
-    dm.openbis.login.assert_called_with('auser', 'password', save_token=True)
+    dm.openbis.login.assert_called_with('watney', 'password', save_token=True)
 
-# TODO
-# def test_determine_hostname():
-#     # given
-#     dm = data_mgmt.DataMgmt(openbis=Mock())
-#     openbis_command = OpenbisCommand(dm)
-#     define_config(openbis_command)
-#     # when
-#     openbis_command.determine_hostname()
-#     # then
 
 def define_config(openbis_command):
     openbis_command.config_dict = {
-        'hostname': None
+        'config': {
+            'user': 'watney'
+        }
     }
     

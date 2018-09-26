@@ -29,14 +29,10 @@ task deleteGWT(type: Exec) {
 
 task prepareGWT(type:Copy, dependsOn: [deleteGWT, compileJava]) {
     from 'resource/server'
-    from files('../common/resource/server') {
-		exclude 'gwt.xml'
-    }
-    from file('../openbis/resource/server/bis-common.xml')
     into 'targets/www/WEB-INF'
     
     from (project.configurations.runtime.files) {
-        into 'lib'
+        into '../lib'
         exclude 'cisd-cifex*'
         exclude 'common-*'
         exclude 'authentication-*'
@@ -47,10 +43,6 @@ task prepareGWT(type:Copy, dependsOn: [deleteGWT, compileJava]) {
     
     from ('source/java/service.properties') {
         into 'classes'
-    }
-    
-   	doLast {
-        file("targets/www/WEB-INF/gwt.xml").createNewFile()
     }
 }
 

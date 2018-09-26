@@ -254,6 +254,56 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     	    var type = data.node.data.entityType;
     	    var permId = data.node.key;
     	    
+    	    var showLabNotebooks = function(dfd, showEnabled, showDisabled) {
+    	    		var spaceRules = { entityKind : "SPACE", logicalOperator : "AND", rules : { } };
+    	    		mainController.serverFacade.getPersons([mainController.serverFacade.getUserId()], function(persons) {
+    	    			mainController.serverFacade.searchForSpacesAdvanced(spaceRules, null, function(searchResult) {
+    	    			var HOME_SPACE = null;
+    	    			if(persons !== null) {
+    	    				HOME_SPACE = (persons[0].getSpace()?persons[0].getSpace().getCode():null);
+    	    			}
+    	    			if(HOME_SPACE === null) {
+    	    				HOME_SPACE = mainController.serverFacade.getUserId().toUpperCase();
+    	    			}
+    	    			var results = [];
+    	    			var spaces = searchResult.objects;
+    	            var nonInventoryNonHiddenSpaces = []; 
+    	                for (var i = 0; i < spaces.length; i++) {
+    	                    var space = spaces[i];
+    	                    var isInventorySpace = profile.isInventorySpace(space.code);
+    	                    var isHiddenSpace = profile.isHiddenSpace(space.code);
+        	                if(!isInventorySpace && (space.code !== HOME_SPACE) && !isHiddenSpace) {
+        	                		nonInventoryNonHiddenSpaces.push(space.code);
+        	                }
+    	                }
+    	                
+    	                mainController.serverFacade.customELNASAPI({
+    	                		"method" : "doSpacesBelongToDisabledUsers",
+    	                		"spaceCodes" : nonInventoryNonHiddenSpaces
+    	                }, function(disabledSpaces) {
+    	                		for(var i = 0; i < nonInventoryNonHiddenSpaces.length; i++) {
+    	                			var spaceCode = nonInventoryNonHiddenSpaces[i];
+    	                			var foundDisabled = $.inArray(spaceCode, disabledSpaces) !== -1;
+    	                			
+    	                			if(!showDisabled && foundDisabled) {
+    	                				continue; //Skip disabled spaces
+    	                			}
+    	                			
+    	                			if(!showEnabled && !foundDisabled) {
+    	                				continue; //Skip enabled spaces
+    	                			}
+    	                			
+    	                			var normalizedSpaceTitle = Util.getDisplayNameFromCode(spaceCode);
+        	                		var spaceLink = _this.getLinkForNode(normalizedSpaceTitle, spaceCode, "showSpacePage", spaceCode);
+        	              		var spaceNode = { title : spaceLink, entityType: "SPACE", key : spaceCode, folder : true, lazy : true, view : "showSpacePage", viewData: spaceCode };
+        	               		results.push(spaceNode);
+    	                		}
+    	                		dfd.resolve(results);
+    	                });
+    	    			});
+    	    		});
+    	    }
+    	    
     	    switch(type) {
     	    	case "LAB_NOTEBOOK":
     	    		var spaceRules = { entityKind : "SPACE", logicalOperator : "AND", rules : { } };
@@ -280,38 +330,17 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         	                }
     	                }
     	                
-	                    results.push({ title : "Others", entityType: "LAB_NOTEBOOK_OTHERS", key : "LAB_NOTEBOOK_OTHERS", folder : true, lazy : true, view : "showLabNotebookPage" });
+	               	results.push({ title : "Others", entityType: "LAB_NOTEBOOK_OTHERS", key : "LAB_NOTEBOOK_OTHERS", folder : true, lazy : true, view : "showLabNotebookPage" });
+	               	results.push({ title : "Others (disabled)", entityType: "LAB_NOTEBOOK_OTHERS_DISABLED", key : "LAB_NOTEBOOK_OTHERS_DISABLED", folder : true, lazy : true, view : "showLabNotebookPage" });
     	                dfd.resolve(results);
     	    			});
     	    		});
     	    		break;
     	    	case "LAB_NOTEBOOK_OTHERS":
-    	    		var spaceRules = { entityKind : "SPACE", logicalOperator : "AND", rules : { } };
-    	    		mainController.serverFacade.getPersons([mainController.serverFacade.getUserId()], function(persons) {
-    	    			mainController.serverFacade.searchForSpacesAdvanced(spaceRules, null, function(searchResult) {
-    	    			var HOME_SPACE = null;
-    	    			if(persons !== null) {
-    	    				HOME_SPACE = (persons[0].getSpace()?persons[0].getSpace().getCode():null);
-    	    			}
-    	    			if(HOME_SPACE === null) {
-    	    				HOME_SPACE = mainController.serverFacade.getUserId().toUpperCase();
-    	    			}
-    	    			var results = [];
-    	    			var spaces = searchResult.objects;
-    	                for (var i = 0; i < spaces.length; i++) {
-    	                    var space = spaces[i];
-    	                    var isInventorySpace = profile.isInventorySpace(space.code);
-    	                    var isHiddenSpace = profile.isHiddenSpace(space.code);
-        	                if(!isInventorySpace && (space.code !== HOME_SPACE) && !isHiddenSpace) {
-        	                	var normalizedSpaceTitle = Util.getDisplayNameFromCode(space.code);
-        	                	var spaceLink = _this.getLinkForNode(normalizedSpaceTitle, space.getCode(), "showSpacePage", space.getCode());
-        	                    var spaceNode = { title : spaceLink, entityType: "SPACE", key : space.getCode(), folder : true, lazy : true, view : "showSpacePage", viewData: space.getCode() };
-        	                    results.push(spaceNode);
-        	                }
-    	                }
-    	                dfd.resolve(results);
-    	    			});
-    	    		});
+    	        showLabNotebooks(dfd, true, false);
+    	    		break;
+    	    	case "LAB_NOTEBOOK_OTHERS_DISABLED":
+    	        showLabNotebooks(dfd, false, true);
     	    		break;
     	    	case "INVENTORY":
     	    		var spaceRules = { entityKind : "SPACE", logicalOperator : "AND", rules : { } };
@@ -379,7 +408,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     	                    if(experiment.properties && experiment.properties[profile.propertyReplacingCode]) {
     	                    	experimentDisplayName = experiment.properties[profile.propertyReplacingCode];
     	                    }
-    	                    var isInventorySpace = profile.isInventorySpace(experiment.getIdentifier().getIdentifier().split("/")[1]);
+    	                    var isInventorySpace = profile.isInventorySpace(IdentifierUtil.getSpaceCodeFromIdentifier(experiment.getIdentifier().getIdentifier()));
     	                    var viewToUse = null;
     	                    var loadSamples = null;
     	                    if(isInventorySpace) {
@@ -398,7 +427,8 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     	    		break;
     	    	case "EXPERIMENT":
     	    		var sampleRules = { "UUIDv4" : { type : "Experiment", name : "ATTR.PERM_ID", value : permId } };
-    	    		mainController.serverFacade.searchForSamplesAdvanced({ entityKind : "SAMPLE", logicalOperator : "AND", rules : sampleRules }, null,
+    	    		mainController.serverFacade.searchForSamplesAdvanced({ entityKind : "SAMPLE", logicalOperator : "AND", rules : sampleRules }, 
+    	    		{ only : true, withProperties : true, withType : true, withExperiment : true, withParents : true, withChildren : true, withParentsType : true, withChildrenType : true},
     	    		function(searchResult) {
     	    			var samples = searchResult.objects;
     	    			var samplesToShow = [];
@@ -419,7 +449,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     	    					}
     	    					if(!parentIsExperiment) {
     	    						samplesToShow.push(sample);
-	    						}
+	    					}
     	    				}
     	    			}
     	    			
@@ -430,7 +460,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
 	        	                    var sample = samples[i];
 	        	                    var sampleDisplayName = sample.code;
 	        	                    if(sample.properties && sample.properties[profile.propertyReplacingCode]) {
-	        	                    	sampleDisplayName = sample.properties[profile.propertyReplacingCode];
+	        	                    		sampleDisplayName = sample.properties[profile.propertyReplacingCode];
 	        	                    }
 	        	                    
 	        	                    var sampleLink = _this.getLinkForNode(sampleDisplayName, sample.getPermId().getPermId(), "showViewSamplePageFromPermId", sample.getPermId().getPermId());
@@ -446,18 +476,18 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                 	                for (var i = 0; i < datasets.length; i++) {
                 	                    var dataset = datasets[i];
                 	                    if(!dataset.sample) {
-                	                    	experimentDatasets.push(dataset);
+                	                    		experimentDatasets.push(dataset);
                 	                    }
                 	                }
                 	                
                 	                if(experimentDatasets.length > 50) {
-                	                	Util.showInfo("More than 50 Datasets, please use the dataset viewer on the experiment to navigate them.");
+                	                		Util.showInfo("More than 50 Datasets, please use the dataset viewer on the experiment to navigate them.");
                 	                } else {
-                	                	for (var i = 0; i < experimentDatasets.length; i++) {
+                	                		for (var i = 0; i < experimentDatasets.length; i++) {
                     	                    var dataset = experimentDatasets[i];
                     	                    var datasetDisplayName = dataset.code;
                     	                    if(dataset.properties && dataset.properties[profile.propertyReplacingCode]) {
-                    	                    	datasetDisplayName = dataset.properties[profile.propertyReplacingCode];
+                    	                    		datasetDisplayName = dataset.properties[profile.propertyReplacingCode];
                     	                    }
                     	                    
                     	                    var datasetLink = _this.getLinkForNode(datasetDisplayName, dataset.getPermId().getPermId(), "showViewDataSetPageFromPermId", dataset.getPermId().getPermId());
@@ -473,27 +503,29 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     	                }
     	                
     	                var getCancelResultsFunction = function(dfd) {
-    	                	return function() {
-    	                		dfd.resolve([]);
-    	                	}
+    	                		return function() {
+    	                			dfd.resolve([]);
+    	                		}
     	                }
     	                
     	                if(samplesToShow.length > 50) {
-    	                	var toExecute = function() {
-        	                	Util.blockUIConfirm("Do you want to show " + samplesWithoutELNParents.length + " " + ELNDictionary.Samples + " on the tree?", 
-        	    	                	getOkResultsFunction(dfd, samplesToShow),
-        	    	                	getCancelResultsFunction(dfd));
+    	                		var toExecute = function() {
+	        	                	Util.blockUIConfirm("Do you want to show " + samplesWithoutELNParents.length + " " + ELNDictionary.Samples + " on the tree?", 
+	        	    	                	getOkResultsFunction(dfd, samplesToShow),
+	        	    	                	getCancelResultsFunction(dfd));
         	                }
     	                	
-    	                	setTimeout(toExecute, 1000);
+    	                		setTimeout(toExecute, 1000);
     	                } else {
-    	                	getOkResultsFunction(dfd, samplesToShow)();
+    	                		getOkResultsFunction(dfd, samplesToShow)();
     	                }
     	    		});
     	    		break;
     	    	case "SAMPLE":
     	    		var sampleRules = { "UUIDv4" : { type : "Attribute", name : "PERM_ID", value : permId } };
-    	    		mainController.serverFacade.searchForSamplesAdvanced({ entityKind : "SAMPLE", logicalOperator : "AND", rules : sampleRules }, null, function(searchResult) {
+    	    		mainController.serverFacade.searchForSamplesAdvanced({ entityKind : "SAMPLE", logicalOperator : "AND", rules : sampleRules }, 
+    	    		{ only : true, withProperties : true, withType : true, withExperiment : true, withParents : true, withChildren : true, withParentsType : true, withChildrenType : true}
+    	    		, function(searchResult) {
     	    			var results = [];
     	    			var samples = searchResult.objects;
     	    			if(samples && samples[0] && samples[0].children) {

@@ -286,6 +286,11 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         }
 
         @Override
+        public void deleteContainer(long containerId)
+        {
+        }
+
+        @Override
         public void commit()
         {
             containers.addAll(uncommittedContainers);
@@ -752,7 +757,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "committed: true, rolledBack: false", removeTimeInformationFromContent(transaction.toString()));
         assertEquals(archive.getAbsolutePath(), freeSpaceRecorder.getRecordedObjects().get(0).getPath());
         assertEquals(1, freeSpaceRecorder.getRecordedObjects().size());
-        assertEquals("{original-file-path=" + archive.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar, "
+        assertEquals("{container-id=0, original-file-path=" + archive.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar, "
                 + "replicated-file-path=" + replicate.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar, "
                 + "finalizer-polling-time=300000, start-time=yyyyMMdd-HHmmss, "
                 + "finalizer-max-waiting-time=172800000, status=ARCHIVED}",
@@ -838,7 +843,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 "committed: true, rolledBack: false", removeTimeInformationFromContent(transaction.toString()));
         assertEquals(archive.getAbsolutePath(), freeSpaceRecorder.getRecordedObjects().get(0).getPath());
         assertEquals(1, freeSpaceRecorder.getRecordedObjects().size());
-        assertEquals("{original-file-path=" + archive.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar, "
+        assertEquals("{container-id=2, original-file-path=" + archive.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar, "
                 + "replicated-file-path=" + replicate.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar, "
                 + "finalizer-polling-time=300000, start-time=yyyyMMdd-HHmmss, "
                 + "finalizer-max-waiting-time=172800000, status=ARCHIVED}",

@@ -238,19 +238,7 @@ for dataset in datasets:
 
 ## Semantic Annotations
 ```
-# create semantic annotation for sample type (predicate and descriptor values omitted for brevity)
-sa = o.new_semantic_annotation(entityType = 'UNKNOWN')
-sa.save()
-
-# create semantic annotation for property type (predicate and descriptor values omitted for brevity)
-sa = o.new_semantic_annotation(propertyType = 'DESCRIPTION')
-sa.save()
-
-# create semantic annotation for sample property assignment (predicate and descriptor values omitted for brevity)
-sa = o.new_semantic_annotation(entityType = 'UNKNOWN', propertyType = 'DESCRIPTION')
-sa.save()
-
-# create semantic annotation with additional fields
+# create semantic annotation for sample type 'UNKNOWN'
 sa = o.new_semantic_annotation(entityType = 'UNKNOWN',
                       predicateOntologyId = 'po_id',
                       predicateOntologyVersion = 'po_version',
@@ -259,6 +247,19 @@ sa = o.new_semantic_annotation(entityType = 'UNKNOWN',
                       descriptorOntologyVersion = 'do_version',
                       descriptorAccessionId = 'da_id')
 sa.save()
+
+# create semantic annotation for property type (predicate and descriptor values omitted for brevity)
+sa = o.new_semantic_annotation(propertyType = 'DESCRIPTION', ...)
+sa.save()
+
+# create semantic annotation for sample property assignment (predicate and descriptor values omitted for brevity)
+sa = o.new_semantic_annotation(entityType = 'UNKNOWN', propertyType = 'DESCRIPTION', ...)
+sa.save()
+
+# create a semantic annotation directly from a sample type
+# will also create sample property assignment annotations when propertyType is given
+st = o.get_sample_type("ORDER")
+st.new_semantic_annotation(...)
 
 # get all semantic annotations
 o.get_semantic_annotations()

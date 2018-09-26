@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -34,6 +35,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
@@ -49,11 +51,11 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.dataset.IDataSetTy
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.experiment.IExperimentTypeTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.material.IMaterialTypeTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.person.IPersonTranslator;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.plugin.IPluginTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.sample.ISampleTypeTranslator;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.sample.SampleQuery;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.semanticannotation.ISemanticAnnotationTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
-
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.lemnik.eodsql.QueryTool;
 
@@ -85,6 +87,9 @@ public class PropertyAssignmentTranslator implements IPropertyAssignmentTranslat
     @Autowired
     private IPersonTranslator personTranslator;
 
+    @Autowired
+    private IPluginTranslator pluginTranslator;
+    
     @Override
     public Map<Long, PropertyAssignment> getIdToAssignmentMap(TranslationContext context, Collection<PropertyAssignmentRecord> assignmentRecords,
             PropertyAssignmentFetchOptions assignmentFetchOptions)
@@ -145,7 +150,7 @@ public class PropertyAssignmentTranslator implements IPropertyAssignmentTranslat
 
         if (assignmentFetchOptions.hasPropertyType())
         {
-            Map<Long, List<PropertyAssignment>> assignmentsByPropertyTypeId = getAssignmentsByPropertyTypeId(assignments, assignmentRecords);
+            Map<Long, List<PropertyAssignment>> assignmentsByPropertyTypeId = getAssignments(assignments, assignmentRecords, r -> r.prty_id);
             Map<Long, PropertyType> propertyTypeMap =
                     propertyTypeTranslator.translate(context, assignmentsByPropertyTypeId.keySet(), assignmentFetchOptions.withPropertyType());
 
@@ -167,7 +172,7 @@ public class PropertyAssignmentTranslator implements IPropertyAssignmentTranslat
 
         if (assignmentFetchOptions.hasRegistrator())
         {
-            Map<Long, List<PropertyAssignment>> assignmentsByRegistatorId = getAssignmentsByRegistratorId(assignments, assignmentRecords);
+            Map<Long, List<PropertyAssignment>> assignmentsByRegistatorId = getAssignments(assignments, assignmentRecords, r -> r.pers_id_registerer);
             Map<Long, Person> registratorMap =
                     personTranslator.translate(context, assignmentsByRegistatorId.keySet(), assignmentFetchOptions.withRegistrator());
 
@@ -180,12 +185,28 @@ public class PropertyAssignmentTranslator implements IPropertyAssignmentTranslat
                 }
             }
         }
+        
+        if (assignmentFetchOptions.hasPlugin())
+        {
+            Map<Long, List<PropertyAssignment>> assignmentsByPluginId = getAssignments(assignments, assignmentRecords, r -> r.script_id);
+            Map<Long, Plugin> registratorMap =
+                    pluginTranslator.translate(context, assignmentsByPluginId.keySet(), assignmentFetchOptions.withPlugin());
+
+            for (Map.Entry<Long, List<PropertyAssignment>> entry : assignmentsByPluginId.entrySet())
+            {
+                Plugin plugin = registratorMap.get(entry.getKey());
+                for (PropertyAssignment assignment : entry.getValue())
+                {
+                    assignment.setPlugin(plugin);
+                }
+            }
+        }
 
         return assignments;
     }
 
-    private Map<Long, List<PropertyAssignment>> getAssignmentsByPropertyTypeId(Map<PropertyAssignmentKey, PropertyAssignment> assignments,
-            Collection<PropertyAssignmentRecord> assignmentRecords)
+    private Map<Long, List<PropertyAssignment>> getAssignments(Map<PropertyAssignmentKey, PropertyAssignment> assignments,
+            Collection<PropertyAssignmentRecord> assignmentRecords, Function<PropertyAssignmentRecord, Long> extractor)
     {
         Map<Long, List<PropertyAssignment>> map = new HashMap<Long, List<PropertyAssignment>>();
 
@@ -194,39 +215,19 @@ public class PropertyAssignmentTranslator implements IPropertyAssignmentTranslat
             EntityKind entityKind = EntityKind.valueOf(assignmentRecord.kind_code);
             PropertyAssignmentKey key = new PropertyAssignmentKey(assignmentRecord.id, entityKind);
             PropertyAssignment assignment = assignments.get(key);
-            List<PropertyAssignment> list = map.get(assignmentRecord.prty_id);
-
-            if (list == null)
+            Long id = extractor.apply(assignmentRecord);
+            if (id != null)
             {
-                list = new ArrayList<PropertyAssignment>();
-                map.put(assignmentRecord.prty_id, list);
+                List<PropertyAssignment> list = map.get(id);
+                
+                if (list == null)
+                {
+                    list = new ArrayList<PropertyAssignment>();
+                    map.put(id, list);
+                }
+                
+                list.add(assignment);
             }
-
-            list.add(assignment);
-        }
-
-        return map;
-    }
-
-    private Map<Long, List<PropertyAssignment>> getAssignmentsByRegistratorId(Map<PropertyAssignmentKey, PropertyAssignment> assignments,
-            Collection<PropertyAssignmentRecord> assignmentRecords)
-    {
-        Map<Long, List<PropertyAssignment>> map = new HashMap<Long, List<PropertyAssignment>>();
-
-        for (PropertyAssignmentRecord assignmentRecord : assignmentRecords)
-        {
-            EntityKind entityKind = EntityKind.valueOf(assignmentRecord.kind_code);
-            PropertyAssignmentKey key = new PropertyAssignmentKey(assignmentRecord.id, entityKind);
-            PropertyAssignment assignment = assignments.get(key);
-            List<PropertyAssignment> list = map.get(assignmentRecord.pers_id_registerer);
-
-            if (list == null)
-            {
-                list = new ArrayList<PropertyAssignment>();
-                map.put(assignmentRecord.pers_id_registerer, list);
-            }
-
-            list.add(assignment);
         }
 
         return map;

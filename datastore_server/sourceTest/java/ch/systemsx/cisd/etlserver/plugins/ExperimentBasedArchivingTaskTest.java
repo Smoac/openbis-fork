@@ -22,9 +22,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.Level;
+import org.hamcrest.core.IsAnything;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.AfterMethod;
@@ -507,7 +509,7 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(service).archiveDataSets(dataSetCodes, true);
+                    one(service).archiveDataSets(with(dataSetCodes), with(true), with(new IsAnything<Map<String, String>>()));
                 }
             });
     }

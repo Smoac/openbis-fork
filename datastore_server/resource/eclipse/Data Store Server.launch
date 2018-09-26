@@ -10,4 +10,5 @@
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="ch.systemsx.cisd.openbis.dss.generic.DataStoreServer"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="datastore_server"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-ea&#10;-Dpython.path=../libraries/jython/jython-lib"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-ea&#10;-Dpython.path=../libraries/jython/jython-lib&#10;-Dorg.eclipse.jetty.util.log.class=org.eclipse.jetty.util.log.StrErrLog"/>
 </launchConfiguration>

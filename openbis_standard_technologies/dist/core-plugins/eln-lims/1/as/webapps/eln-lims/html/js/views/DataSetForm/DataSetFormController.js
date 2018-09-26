@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-function DataSetFormController(parentController, mode, entity, dataSet, isMini) {
+function DataSetFormController(parentController, mode, entity, dataSet, isMini, dataSetV3) {
 	this._parentController = parentController;
-	this._dataSetFormModel = new DataSetFormModel(mode, entity, dataSet, isMini);
+	this._dataSetFormModel = new DataSetFormModel(mode, entity, dataSet, isMini, dataSetV3);
 	this._dataSetFormView = new DataSetFormView(this, this._dataSetFormModel);
 	
 	this.init = function(views) {
@@ -84,11 +84,11 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini) 
 					if(_this._dataSetFormModel.isExperiment()) {
 						mainController.changeView('showExperimentPageFromIdentifier', _this._dataSetFormModel.entity.identifier.identifier);
 						experimentIdentifier = _this._dataSetFormModel.entity.identifier.identifier;
-						space = experimentIdentifier.split("/")[1];
+						space = IdentifierUtil.getSpaceCodeFromIdentifier(experimentIdentifier);
 					} else {
 						mainController.changeView('showViewSamplePageFromPermId', _this._dataSetFormModel.entity.permId);
 						sampleIdentifier = _this._dataSetFormModel.entity.identifier;
-						space = sampleIdentifier.split("/")[1];
+						space = IdentifierUtil.getSpaceCodeFromIdentifier(sampleIdentifier);
 					}
 					
 					var isInventory = profile.isInventorySpace(space);
@@ -110,13 +110,13 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini) 
 		if(this._dataSetFormModel.mode === FormMode.CREATE) {
 			if(this._dataSetFormModel.files.length === 0) {
 				Util.blockUI();
-				Util.showError("You should upload at least one file.", function() { Util.unblockUI(); });
+				Util.showUserError("You should upload at least one file.", function() { Util.unblockUI(); });
 				return;
 			}
 			
 			if(Uploader.uploadsInProgress()) {
 				Util.blockUI();
-				Util.showError("Please wait the upload to finish.", function() { Util.unblockUI(); });
+				Util.showUserError("Please wait the upload to finish.", function() { Util.unblockUI(); });
 				return;
 			}
 		}
@@ -146,10 +146,10 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini) 
 		
 		if(this._dataSetFormModel.isExperiment()) {
 			experimentIdentifier = this._dataSetFormModel.entity.identifier.identifier;
-			space = experimentIdentifier.split("/")[1];
+			space = IdentifierUtil.getSpaceCodeFromIdentifier(experimentIdentifier);
 		} else {
 			sampleIdentifier = this._dataSetFormModel.entity.identifier;
-			space = sampleIdentifier.split("/")[1];
+			space = IdentifierUtil.getSpaceCodeFromIdentifier(sampleIdentifier);
 		}
 		
 		var isInventory = profile.isInventorySpace(space);
@@ -164,6 +164,15 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini) 
 			dataSetTypeCode = this._dataSetFormModel.dataSet.dataSetTypeCode;
 		}
 		
+		var dataSetParents = [];
+		
+		if(this._dataSetFormModel.datasetParentsComponent) {
+			var dataSetParentObjects = this._dataSetFormModel.datasetParentsComponent.getSelected();
+			for(var oIdx = 0; oIdx < dataSetParentObjects.length; oIdx++) {
+				dataSetParents.push(dataSetParentObjects[oIdx].permId.permId)
+			}
+		}
+		
 		var parameters = {
 				//API Method
 				"method" : method,
@@ -171,6 +180,7 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini) 
 				"dataSetCode" : dataSetCode, //Used for updates
 				"sampleIdentifier" : sampleIdentifier, //Use for creation
 				"experimentIdentifier" : experimentIdentifier, //Use for creation
+				"dataSetParents" : dataSetParents,
 				"dataSetType" : dataSetTypeCode,
 				"filenames" : _this._dataSetFormModel.files,
 				"folderName" : folderName,
@@ -225,4 +235,34 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini) 
 			Util.showError("No DSS available.", function() {Util.unblockUI();});
 		}
 	}
+
+	this.setArchivingRequested = function(archivingRequested) {
+		var _this = this;
+		var dataSetPermId = this._dataSetFormModel.dataSetV3.permId.permId;
+		var physicalDataUpdate = { archivingRequested : archivingRequested }
+		Util.blockUI();
+		mainController.serverFacade.updateDataSet(dataSetPermId, physicalDataUpdate, function() {
+			_this._reloadView();
+			Util.unblockUI();
+		});
+	}
+
+	this.unarchive = function() {
+		var _this = this;
+		var dataSetPermId = this._dataSetFormModel.dataSetV3.permId.permId;
+		Util.blockUI();
+		mainController.serverFacade.unarchiveDataSet(dataSetPermId, function() {
+			_this._reloadView();
+			Util.unblockUI();
+		});
+	}
+
+	this._reloadView = function() {
+		if(this._dataSetFormModel.mode === FormMode.VIEW) {
+			mainController.changeView('showViewDataSetPageFromPermId', this._dataSetFormModel.dataSet.code);
+		} else {
+			mainController.changeView('showEditDataSetPageFromPermId', this._dataSetFormModel.dataSet.code);
+		}
+	}
+
 }

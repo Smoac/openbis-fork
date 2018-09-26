@@ -90,8 +90,10 @@ public enum DataSetAttributeSearchFieldKind implements Serializable, IAttributeS
 
     STATUS("Status"),
 
-    PRESENT_IN_ARCHIVE("Present in archive"),
+    ARCHIVING_REQUESTED("Archiving requested"),
 
+    PRESENT_IN_ARCHIVE("Present in archive"),
+    
     STORAGE_CONFIRMATION("Storage confirmed", new SearchFieldAvailableForAdmins(),
             new SearchFieldBooleanCriterionFactory()),
 

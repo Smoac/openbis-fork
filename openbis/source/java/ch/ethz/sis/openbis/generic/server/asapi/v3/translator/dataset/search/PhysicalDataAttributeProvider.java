@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.dataset.search;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.ArchivingRequestedSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.CompleteSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.LocationSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.PresentInArchiveSearchCriteria;
@@ -53,6 +54,9 @@ public class PhysicalDataAttributeProvider implements IObjectAttributeProvider
         } else if (criteria instanceof StatusSearchCriteria)
         {
             return DataSetAttributeSearchFieldKind.STATUS;
+        } else if (criteria instanceof ArchivingRequestedSearchCriteria)
+        {
+            return DataSetAttributeSearchFieldKind.ARCHIVING_REQUESTED;
         } else if (criteria instanceof PresentInArchiveSearchCriteria)
         {
             return DataSetAttributeSearchFieldKind.PRESENT_IN_ARCHIVE;

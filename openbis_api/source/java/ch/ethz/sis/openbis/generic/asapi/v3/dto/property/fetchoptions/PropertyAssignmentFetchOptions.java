@@ -19,6 +19,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptionsToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.fetchoptions.EntityTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.fetchoptions.PluginFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.fetchoptions.SemanticAnnotationFetchOptions;
@@ -48,6 +49,9 @@ public class PropertyAssignmentFetchOptions extends FetchOptions<PropertyAssignm
 
     @JsonProperty
     private PropertyAssignmentSortOptions sort;
+    
+    @JsonProperty
+    private PluginFetchOptions plugin;
 
     // Method automatically generated with DtoGenerator
     public EntityTypeFetchOptions withEntityType()
@@ -135,6 +139,25 @@ public class PropertyAssignmentFetchOptions extends FetchOptions<PropertyAssignm
     public boolean hasRegistrator()
     {
         return registrator != null;
+    }
+    
+    public PluginFetchOptions withPlugin()
+    {
+        if (plugin == null)
+        {
+            plugin = new PluginFetchOptions();
+        }
+        return plugin;
+    }
+    
+    public PluginFetchOptions withPluginUsing(PluginFetchOptions fetchOptions)
+    {
+        return plugin = fetchOptions;
+    }
+    
+    public boolean hasPlugin()
+    {
+        return plugin != null;
     }
 
     // Method automatically generated with DtoGenerator

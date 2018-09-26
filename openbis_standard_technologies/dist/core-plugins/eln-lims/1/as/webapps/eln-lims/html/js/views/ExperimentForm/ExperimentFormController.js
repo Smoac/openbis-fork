@@ -61,11 +61,10 @@ function ExperimentFormController(mainController, mode, experiment) {
 		var experimentType = this._mainController.profile.getExperimentTypeForExperimentTypeCode(this._experimentFormModel.experiment.experimentTypeCode);
 		
 		//Identification Info (This way of collecting the identifier also works for the creation mode)
-		var projectIdentifier = this._experimentFormModel.experiment.identifier.split("/");
-		var experimentSpace = projectIdentifier[1];
-		var experimentProject = projectIdentifier[2];
+		var experimentSpace = IdentifierUtil.getSpaceCodeFromIdentifier(this._experimentFormModel.experiment.identifier);
+		var experimentProject = IdentifierUtil.getProjectCodeFromExperimentIdentifier(this._experimentFormModel.experiment.identifier);
 		var experimentCode = this._experimentFormModel.experiment.code;
-		var experimentIdentifier = "/" + experimentSpace + "/" + experimentProject + "/" + experimentCode;
+		var experimentIdentifier = IdentifierUtil.getExperimentIdentifier(experimentSpace, experimentProject, experimentCode);
 		
 		var method = "";
 		if(this._experimentFormModel.mode === FormMode.CREATE) {

@@ -68,22 +68,20 @@ public final class DataSetRegistrationTaskExecutor implements ITaskExecutor<Inco
         TableModel resultTable = ingestionService.createAggregationReport(new HashMap<String, Object>(), context);
         if (resultTable != null)
         {
-            List<TableModelColumnHeader> headers = resultTable.getHeader();
-            String[] stringArray = new String[headers.size()];
-            for (int i = 0; i < stringArray.length; i++)
+            for (TableModelColumnHeader header : resultTable.getHeader())
             {
-                if (headers.get(i).getTitle().startsWith("Error"))
+                if (header.getTitle().startsWith("Error"))
                 {
                     String message = resultTable.getRows().get(0).getValues().toString();
                     dsRegistrationSummary.notRegisteredDataSetCodes.add(dataSet.getDataSet().getCode());
                     operationLog.error(message);
                     return Status.createError(message);
                 }
-                else if (headers.get(i).getTitle().startsWith("Added"))
+                else if (header.getTitle().startsWith("Added"))
                 {
                     dsRegistrationSummary.addedDsCount.getAndIncrement();
                 }
-                else if (headers.get(i).getTitle().startsWith("Updated"))
+                else if (header.getTitle().startsWith("Updated"))
                 {
                     dsRegistrationSummary.updatedDsCount.getAndIncrement();
                 }

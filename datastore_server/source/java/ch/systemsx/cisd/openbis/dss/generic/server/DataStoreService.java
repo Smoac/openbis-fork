@@ -333,7 +333,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         IProcessingPluginTask task = new UnarchiveProcessingPluginTask(getArchiverPlugin());
 
         scheduleTask(sessionToken, userSessionToken, UNARCHIVING_PROCESSING_PLUGIN_KEY, task, datasets, userId,
-                userEmailOrNull);
+                userEmailOrNull, new HashMap<>());
     }
 
     @Override
@@ -344,14 +344,14 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     }
 
     @Override
-    public void archiveDatasets(String sessionToken, String userSessionToken,
-            List<DatasetDescription> datasets, String userId, String userEmailOrNull,
-            boolean removeFromDataStore)
+    public void archiveDatasets(String sessionToken, String userSessionToken, List<DatasetDescription> datasets, String userId,
+            String userEmailOrNull, boolean removeFromDataStore, Map<String, String> options)
     {
         String description = removeFromDataStore ? ARCHIVING_PROCESSING_PLUGIN_KEY : COPYING_TO_ARCHIVE_PROCESSING_PLUGIN_KEY;
         IProcessingPluginTask task = new ArchiveProcessingPluginTask(getArchiverPlugin(), removeFromDataStore);
+        System.err.println("archive "+datasets+" options:"+options);
 
-        scheduleTask(sessionToken, userSessionToken, description, task, datasets, userId, userEmailOrNull);
+        scheduleTask(sessionToken, userSessionToken, description, task, datasets, userId, userEmailOrNull, options);
     }
 
     @Override
@@ -392,15 +392,13 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
 
     private void scheduleTask(String sessionToken, String userSessionToken, String description,
             IProcessingPluginTask processingTask, List<DatasetDescription> datasets, String userId,
-            String userEmailOrNull)
+            String userEmailOrNull, Map<String, String> options)
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);
         DatastoreServiceDescription pluginDescription =
                 DatastoreServiceDescription.processing(description, description, null, null);
-        Map<String, String> parameterBindings = new HashMap<String, String>();
-        // parameterBindings.put("sessionToken", sessionToken);
         scheduleTask(userSessionToken, description, processingTask, datasets, userId, userEmailOrNull,
-                pluginDescription, parameterBindings);
+                pluginDescription, options);
     }
 
     @Override
@@ -474,6 +472,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         archiverTaskContext.setUserId(context.getUserId());
         archiverTaskContext.setUserEmail(context.getUserEmailOrNull());
         archiverTaskContext.setUserSessionToken(context.trySessionToken());
+        archiverTaskContext.setOptions(context.getParameterBindings());
         return archiverTaskContext;
     }
 

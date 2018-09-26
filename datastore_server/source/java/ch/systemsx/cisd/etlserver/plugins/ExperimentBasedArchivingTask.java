@@ -332,7 +332,7 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
                 "#" + dataSetCodes.size() + " data sets of experiment "
                         + info.getExperimentIdentifier() + ": " + dataSetCodes;
         operationLog.info("Starting archiving " + message);
-        service.archiveDataSets(dataSetCodes, true);
+        service.archiveDataSets(dataSetCodes, true, new HashMap<>());
         builder.addArchivingMessage(message);
         return true;
     }

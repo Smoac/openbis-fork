@@ -223,12 +223,13 @@ function PlateView(plateController, plateModel) {
 				.append(" ")
 				.append(this._$scaleMax)
 				.append(" ")
-				.append(this._$exportHighlighted)
+				.append(this._$exportHighlighted);
+			this._$scaleDropdown.select2({ width: '100%', placeholder: "Select a scale option", theme: "bootstrap" });
+			
 		}
 		
 		this._$scaleDropdown.empty();
 		if(isEmpty) {
-			this._$scaleDropdown.append($("<option>").attr('value', '').text("Highlight"));
 			this._$scaleMax.hide();
 			this._$scaleMin.hide();
 			this._$exportHighlighted.hide();
@@ -255,7 +256,7 @@ function PlateView(plateController, plateModel) {
 			this._$featureVectorDatasetFeaturesDropdown = FormUtil.getDropDownForTerms(
 					"featureVectorDatasetFeaturesDropdown-" + this._plateModel.sample.permId,
 					[],
-					"Features",
+					"Select a feature",
 					false
 					);
 			this._$featureVectorDatasetFeaturesDropdown.addClass("featureToolbarOption");
@@ -327,7 +328,7 @@ function PlateView(plateController, plateModel) {
 			this._$featureVectorDatasetsDropdown = FormUtil.getDropDownForTerms(
 												"featureVectorDatasetsDropdow-" + this._plateModel.sample.permId,
 												featureVectorDatasetsDropdowTerms,
-												"Dataset",
+												"Select a Feature Vector Dataset",
 												false
 												);
 			this._$featureVectorDatasetsDropdown.addClass("featureToolbarOption");
@@ -375,12 +376,10 @@ function PlateView(plateController, plateModel) {
 			
 			//Build Toolbar
 			this._$toolbar.append(this._$featureVectorDatasetsDropdown)
-					.append(" ")
 					.append(this._$featureVectorDatasetFeaturesDropdown)
-					.append($("</br>"))
-					.append($("</br>"))
-					.append(this._$scaleDropdownContainer)
-					.append(" ");
+					.append(this._$scaleDropdownContainer);
+			this._$featureVectorDatasetsDropdown.select2({ width: '100%', theme: "bootstrap" });
+			this._$featureVectorDatasetFeaturesDropdown.select2({ width: '100%', placeholder: "Select a Feature", theme: "bootstrap" });
 		}
 		
 		//Paint grid
@@ -837,6 +836,7 @@ function PlateView(plateController, plateModel) {
 			}
 		});
 		var $componentWithLabel = $("<span>").append("Color Encoded Annotation: ").append($component);
+		Select2Manager.add($component);
 		return $componentWithLabel;
 	}
 }

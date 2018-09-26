@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared;
 
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
@@ -46,6 +47,8 @@ public class ArchiverTaskContext
     private String userSessionToken;
 
     private boolean forceUnarchiving;
+
+    private Map<String, String> options;
 
     public ArchiverTaskContext(IDataSetDirectoryProvider directoryProvider,
             IHierarchicalContentProvider hierarchicalContentProvider)
@@ -116,6 +119,16 @@ public class ArchiverTaskContext
     public void setForceUnarchiving(boolean delayedUnarchiving)
     {
         this.forceUnarchiving = delayedUnarchiving;
+    }
+
+    public Map<String, String> getOptions()
+    {
+        return options;
+    }
+
+    public void setOptions(Map<String, String> options)
+    {
+        this.options = options;
     }
 
 }

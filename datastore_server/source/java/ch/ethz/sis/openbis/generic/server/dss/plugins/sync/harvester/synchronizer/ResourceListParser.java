@@ -183,8 +183,7 @@ public class ResourceListParser
             if (uri.endsWith("MASTER_DATA/MASTER_DATA/M"))
             {
                 parseMasterData(doc, xpath, uri);
-            }
-            else if (uri.endsWith("/M"))
+            } else if (uri.endsWith("/M"))
             {
                 list.add(uri);
             }
@@ -218,20 +217,16 @@ public class ResourceListParser
         if (SyncEntityKind.PROJECT.getLabel().equals(entityKind))
         {
             parseProjectMetaData(xpath, extractPermIdFromURI(uri), xdNode, lastModificationDate);
-        }
-        else if (SyncEntityKind.EXPERIMENT.getLabel().equals(entityKind))
+        } else if (SyncEntityKind.EXPERIMENT.getLabel().equals(entityKind))
         {
             parseExperimentMetaData(xpath, extractPermIdFromURI(uri), xdNode, lastModificationDate);
-        }
-        else if (SyncEntityKind.SAMPLE.getLabel().equals(entityKind))
+        } else if (SyncEntityKind.SAMPLE.getLabel().equals(entityKind))
         {
             parseSampleMetaData(xpath, extractPermIdFromURI(uri), xdNode, lastModificationDate);
-        }
-        else if (SyncEntityKind.DATA_SET.getLabel().equals(entityKind))
+        } else if (SyncEntityKind.DATA_SET.getLabel().equals(entityKind))
         {
             parseDataSetMetaData(xpath, extractDataSetCodeFromURI(uri), xdNode, lastModificationDate);
-        }
-        else if (SyncEntityKind.MATERIAL.getLabel().equals(entityKind))
+        } else if (SyncEntityKind.MATERIAL.getLabel().equals(entityKind))
         {
             parseMaterialMetaData(xpath, extractMaterialCodeFromURI(uri), xdNode, lastModificationDate);
         }
@@ -287,13 +282,11 @@ public class ResourceListParser
         {
             ds = new NewContainerDataSet();
             ds.setDataSetKind(ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind.CONTAINER);
-        }
-        else if (dsKind.equals(DataSetKind.PHYSICAL.toString()))
+        } else if (dsKind.equals(DataSetKind.PHYSICAL.toString()))
         {
             ds = new NewExternalData();
             ds.setDataSetKind(ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind.PHYSICAL);
-        }
-        else
+        } else
         {
             throw new IllegalArgumentException(dsKind + " data sets are currently not supported");
         }
@@ -304,7 +297,7 @@ public class ResourceListParser
         ds.setSampleIdentifierOrNull(getSampleIdentifier(sampleIdentifier));
         ds.setExperimentIdentifierOrNull(getExperimentIdentifier(experimentIdentifier));
 
-        IncomingDataSet incomingDataSet = data.new IncomingDataSet(ds, lastModificationDate);
+        IncomingDataSet incomingDataSet = new IncomingDataSet(ds, lastModificationDate);
         data.getDataSetsToProcess().put(permId, incomingDataSet);
         incomingDataSet.setConnections(parseConnections(xpath, xdNode));
         ds.setDataSetProperties(parseDataSetProperties(xpath, xdNode));
@@ -318,13 +311,11 @@ public class ResourceListParser
             if (nullAllowed == false)
             {
                 throw new IllegalArgumentException(attrName + " cannot be empty in Resource List");
-            }
-            else
+            } else
             {
                 return null;
             }
-        }
-        else
+        } else
         {
             return val.trim();
         }
@@ -349,7 +340,16 @@ public class ResourceListParser
         SampleIdentifier sampleIdentifier = SampleIdentifierFactory.parse(sampleIdentifierStr);
         SpaceIdentifier spaceLevel = sampleIdentifier.getSpaceLevel();
         String originalSpaceCode = spaceLevel.getSpaceCode();
-        return new SampleIdentifier(new SpaceIdentifier(nameTranslator.translate(originalSpaceCode)), sampleIdentifier.getSampleCode());
+        SpaceIdentifier translatedSpaceIdentifier = new SpaceIdentifier(nameTranslator.translate(originalSpaceCode));
+
+        if (sampleIdentifier.isProjectLevel())
+        {
+            return new SampleIdentifier(new ProjectIdentifier(translatedSpaceIdentifier, sampleIdentifier.getProjectLevel().getProjectCode()),
+                    sampleIdentifier.getSampleCode());
+        } else
+        {
+            return new SampleIdentifier(translatedSpaceIdentifier, sampleIdentifier.getSampleCode());
+        }
     }
 
     private ExperimentIdentifier getExperimentIdentifier(String experimentIdentifierStr)
@@ -375,8 +375,7 @@ public class ResourceListParser
         ProjectIdentifier projectIdentifier = createProjectIdentifier(code, space);
         NewProject newProject = new NewProject(projectIdentifier.toString(), desc);
         newProject.setPermID(permId);
-        IncomingProject incomingProject =
-                data.new IncomingProject(newProject, lastModificationDate);
+        IncomingProject incomingProject = new IncomingProject(newProject, lastModificationDate);
         data.getProjectsToProcess().put(permId, incomingProject);
         incomingProject.setConnections(parseConnections(xpath, xdNode));
         incomingProject.setHasAttachments(hasAttachments(xpath, xdNode));
@@ -392,14 +391,20 @@ public class ResourceListParser
         return new ProjectIdentifier(createSpaceIdentifier(space), code);
     }
 
-    private SampleIdentifier createSampleIdentifier(String code, String space)
+    private SampleIdentifier createSampleIdentifier(String code, String project, String space)
     {
         if (space == null)
         {
             return new SampleIdentifier(nameTranslator.translate(code));
+        } else if (project == null)
+        {
+            SpaceIdentifier spaceIdentifier = createSpaceIdentifier(space);
+            return new SampleIdentifier(spaceIdentifier, code);
+        } else
+        {
+            ProjectIdentifier projectIdentifier = createProjectIdentifier(project, space);
+            return new SampleIdentifier(projectIdentifier, code);
         }
-        SpaceIdentifier spaceIdentifier = createSpaceIdentifier(space);
-        return new SampleIdentifier(spaceIdentifier, code);
     }
 
     private SpaceIdentifier createSpaceIdentifier(String space)
@@ -416,7 +421,7 @@ public class ResourceListParser
         String type = extractType(xdNode);
         NewMaterialWithType newMaterial = new NewMaterialWithType(code, type);
         MaterialWithLastModificationDate materialWithLastModDate =
-                data.new MaterialWithLastModificationDate(newMaterial, lastModificationDate);
+                new MaterialWithLastModificationDate(newMaterial, lastModificationDate);
         data.getMaterialsToProcess().put(code, type, materialWithLastModDate);
         newMaterial.setProperties(parseProperties(xpath, xdNode));
     }
@@ -434,7 +439,7 @@ public class ResourceListParser
             {
                 String to = connNodes.item(i).getAttributes().getNamedItem("to").getTextContent();
                 String type = connNodes.item(i).getAttributes().getNamedItem("type").getTextContent();
-                conns.add(data.new Connection(to, type));
+                conns.add(new Connection(to, type));
             }
         }
         return conns;
@@ -499,7 +504,7 @@ public class ResourceListParser
                 val = nameTranslator.translate(val);
                 val = translateMaterialIdentifier(val);
             }
-            
+
         }
         propertyType.setCode(translatedCode);
         property.setPropertyType(propertyType);
@@ -507,7 +512,8 @@ public class ResourceListParser
         return property;
     }
 
-    private String translateMaterialIdentifier(String value) {
+    private String translateMaterialIdentifier(String value)
+    {
         if (StringUtils.isBlank(value))
         {
             return null;
@@ -526,6 +532,7 @@ public class ResourceListParser
         }
         return new MaterialIdentifier(code, typeCode).toString();
     }
+
     private void parseExperimentMetaData(XPath xpath, String permId, Node xdNode, Date lastModificationDate)
     {
         String code = extractCode(xdNode);
@@ -535,7 +542,7 @@ public class ResourceListParser
         ExperimentIdentifier experimentIdentifier = createExperimentIdentifier(space, project, code);
         NewExperiment newExp = new NewExperiment(experimentIdentifier.toString(), type);
         newExp.setPermID(permId);
-        IncomingExperiment incomingExperiment = data.new IncomingExperiment(newExp, lastModificationDate);
+        IncomingExperiment incomingExperiment = new IncomingExperiment(newExp, lastModificationDate);
         data.getExperimentsToProcess().put(permId, incomingExperiment);
         incomingExperiment.setConnections(parseConnections(xpath, xdNode));
         incomingExperiment.setHasAttachments(hasAttachments(xpath, xdNode));
@@ -547,14 +554,21 @@ public class ResourceListParser
         String code = extractCode(xdNode);
         String type = extractType(xdNode);
         String experiment = extractAttribute(xdNode, "experiment", true);
+        String project = extractAttribute(xdNode, "project", true);
         String space = extractSpace(xdNode, true);
         SampleType sampleType = new SampleType();
         sampleType.setCode(type);
-        
-        SampleIdentifier identifier = createSampleIdentifier(code, space);
+
+        if (false == StringUtils.isBlank(project) && StringUtils.isBlank(space))
+        {
+            throw new IllegalArgumentException("Sample with perm id '" + permId + "' has 'project' attribute specified but 'space' attribute empty");
+        }
+
+        SampleIdentifier identifier = createSampleIdentifier(code, project, space);
         String expIdentifier = null;
         ExperimentIdentifier experimentIdentifier = getExperimentIdentifier(experiment);
-        if (experimentIdentifier != null) {
+        if (experimentIdentifier != null)
+        {
             expIdentifier = experimentIdentifier.toString();
         }
         NewSample newSample = new NewSample(identifier.toString(), sampleType, null, null,
@@ -565,7 +579,11 @@ public class ResourceListParser
         {
             newSample.setDefaultSpaceIdentifier(null);
         }
-        IncomingSample incomingSample = data.new IncomingSample(newSample, lastModificationDate);
+        if (space != null && project != null)
+        {
+            newSample.setProjectIdentifier(createProjectIdentifier(project, space).toString());
+        }
+        IncomingSample incomingSample = new IncomingSample(newSample, lastModificationDate);
         data.getSamplesToProcess().put(permId, incomingSample);
         incomingSample.setHasAttachments(hasAttachments(xpath, xdNode));
         incomingSample.setConnections(parseConnections(xpath, xdNode));
@@ -618,4 +636,3 @@ public class ResourceListParser
 // System.out.print(url_node.item(ji).getNodeName() + ":" + url_node.item(ji).getAttributes().getNamedItem("kind"));
 // System.out.println();
 // }
-

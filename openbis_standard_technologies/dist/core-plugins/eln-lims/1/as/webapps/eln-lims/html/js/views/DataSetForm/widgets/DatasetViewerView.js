@@ -165,11 +165,13 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 						} else {
 							var $fileLink = _this._dataSetViewerModel.getDownloadLink(code, file, true);
 							titleValue = $fileLink[0].outerHTML;
-							var previewLink = _this._dataSetViewerModel.getPreviewLink(code, file);
-							imageUrl = _this._dataSetViewerModel.getImageUrl(code, file);
-							imageIconUrl = _this._dataSetViewerModel.getImageIconUrl(code, file);
-							if (previewLink) {
-								titleValue = previewLink + " " + titleValue;
+							if (_this._dataSetViewerModel.isAvailable(code)) {
+								var previewLink = _this._dataSetViewerModel.getPreviewLink(code, file);
+								imageUrl = _this._dataSetViewerModel.getImageUrl(code, file);
+								imageIconUrl = _this._dataSetViewerModel.getImageIconUrl(code, file);
+								if (previewLink) {
+									titleValue = previewLink + " " + titleValue;
+								}
 							}
 							var notebookLink = _this._dataSetViewerModel.getJupyterNotebookLink(code, file);
 							if (profile.jupyterEndpoint && notebookLink) {

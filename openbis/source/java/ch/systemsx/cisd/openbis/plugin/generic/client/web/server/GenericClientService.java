@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.annotation.Resource;
@@ -39,6 +40,7 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.ExceptionUtils;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
+import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.openbis.common.spring.IUncheckedMultipartFile;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUpdates;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleUpdates;
@@ -113,7 +115,6 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 @Component(value = ResourceNames.GENERIC_PLUGIN_SERVICE)
 public class GenericClientService extends AbstractClientService implements IGenericClientService, IEntityImportService
 {
-
     @Resource(name = ResourceNames.GENERIC_PLUGIN_SERVER)
     private IGenericServerInternal genericServer;
 
@@ -592,9 +593,11 @@ public class GenericClientService extends AbstractClientService implements IGene
         {
             files.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename()));
         }
+        boolean projectSamplesEnabled = genericServer.isProjectSamplesEnabled(sessionToken);
 
         BatchSamplesOperation batchSamplesOperation =
-                SampleUploadSectionsParser.prepareSamples(sampleType, spaceIdentifierSilentOverrideOrNull, experimentIdentifierSilentOverrideOrNull,
+                SampleUploadSectionsParser.prepareSamples(projectSamplesEnabled, sampleType, spaceIdentifierSilentOverrideOrNull,
+                        experimentIdentifierSilentOverrideOrNull,
                         files,
                         defaultGroupIdentifier, sampleCodeGeneratorOrNull, allowExperiments,
                         excelSheetName, operationKind);
@@ -1372,7 +1375,10 @@ public class GenericClientService extends AbstractClientService implements IGene
         Map<String, Object> info = new HashMap<String, Object>();
         try
         {
+            boolean projectSamplesEnabled = genericServer.isProjectSamplesEnabled(getSessionToken());
+
             BatchSamplesOperation batchSamplesOperation = SampleUploadSectionsParser.prepareSamples(
+                    projectSamplesEnabled,
                     sampleType,
                     null,
                     null,

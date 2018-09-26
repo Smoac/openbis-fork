@@ -1120,13 +1120,17 @@ public class AbstractTest extends SystemTestCase
         assertCollectionContainsOnly(actualSet, expectedCodes);
     }
 
-    protected static void assertPropertyAssignments(Collection<PropertyAssignment> propertyAssignments,
+    protected static void assertPropertyAssignments(Collection<PropertyAssignment> propertyAssignments, String pluginNameOrNull,
             String... expectedEntityTypeAndPropertyTypeCodes)
     {
         Set<String> actualSet = new HashSet<String>();
         for (PropertyAssignment propertyAssignment : propertyAssignments)
         {
             actualSet.add(propertyAssignment.getEntityType().getCode() + "." + propertyAssignment.getPropertyType().getCode());
+            if (pluginNameOrNull != null)
+            {
+                assertEquals(propertyAssignment.getPlugin().getName(), pluginNameOrNull);
+            }
         }
 
         assertCollectionContainsOnly(actualSet, expectedEntityTypeAndPropertyTypeCodes);

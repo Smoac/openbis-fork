@@ -382,7 +382,7 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
 
     /** See {@link IServiceForDataStoreServer#archiveDatasets(String, List, boolean)} */
     @ManagedAuthentication
-    public void archiveDataSets(List<String> dataSetCodes, boolean removeFromDataStore)
+    public void archiveDataSets(List<String> dataSetCodes, boolean removeFromDataStore, Map<String, String> options)
             throws UserFailureException;
 
     /** See {@link IServiceForDataStoreServer#unarchiveDatasets(String, List)} */

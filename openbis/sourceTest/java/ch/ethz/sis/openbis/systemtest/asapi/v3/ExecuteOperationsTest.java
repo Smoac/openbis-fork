@@ -86,9 +86,15 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.update.SpaceUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.update.UpdateSpacesOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.update.UpdateSpacesOperationResult;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.internal.IInternalOperation;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.internal.IInternalOperationResult;
 import ch.ethz.sis.openbis.systemtest.asapi.v3.util.EmailUtil;
 import ch.ethz.sis.openbis.systemtest.asapi.v3.util.EmailUtil.Email;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
+import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
+import ch.systemsx.cisd.common.concurrent.MessageChannel;
+import ch.systemsx.cisd.common.concurrent.MessageChannelBuilder;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
@@ -874,6 +880,52 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
     }
 
     @Test
+    public void testExecuteWithConcurrentOperationLimit()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        MessageChannel mainChannel = new MessageChannelBuilder(1000).name("main").getChannel();
+        MessageChannel threadsChannel = new MessageChannelBuilder(1000).name("threads").getChannel();
+
+        Thread thread1 = new Thread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    v3api.executeOperations(sessionToken, Arrays.asList(new DemoOperation1(mainChannel, threadsChannel)),
+                            new SynchronousOperationExecutionOptions());
+                }
+            });
+
+        Thread thread2 = new Thread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    try
+                    {
+                        v3api.executeOperations(sessionToken, Arrays.asList(new DemoOperation2()), new SynchronousOperationExecutionOptions());
+                        threadsChannel.send("thread-2-success");
+                    } catch (UserFailureException e)
+                    {
+                        AssertionUtil.assertContains(
+                                "Sorry, the server is very loaded at the moment. Your request can not be currently processed. Please try again later.",
+                                e.getMessage());
+                        threadsChannel.send("thread-2-timeout");
+                    }
+                }
+            });
+
+        thread1.start();
+        threadsChannel.assertNextMessage("execute-1-start");
+
+        thread2.start();
+        mainChannel.send("thread-2-start");
+
+        threadsChannel.assertNextMessage("thread-2-timeout");
+    }
+
+    @Test
     public void testLogging()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -942,6 +994,53 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
         } finally
         {
             txManager.commit(transaction);
+        }
+    }
+
+    private static class DemoOperation1 implements IInternalOperation
+    {
+        private static final long serialVersionUID = 1L;
+
+        private MessageChannel mainChannel;
+
+        private MessageChannel threadsChannel;
+
+        public DemoOperation1(MessageChannel mainChannel, MessageChannel threadsChannel)
+        {
+            this.mainChannel = mainChannel;
+            this.threadsChannel = threadsChannel;
+        }
+
+        @Override
+        public String getMessage()
+        {
+            return "operation 1";
+        }
+
+        @Override
+        public IInternalOperationResult execute()
+        {
+            threadsChannel.send("execute-1-start");
+            mainChannel.assertNextMessage("thread-2-start");
+            ConcurrencyUtilities.sleep(200);
+            return null;
+        }
+    }
+
+    private static class DemoOperation2 implements IInternalOperation
+    {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public String getMessage()
+        {
+            return "operation 2";
+        }
+
+        @Override
+        public IInternalOperationResult execute()
+        {
+            return null;
         }
     }
 

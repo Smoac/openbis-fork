@@ -165,12 +165,12 @@ abstract class AbstractCommonServer<T extends IServer> extends AbstractServer<T>
     }
 
     public int archiveDatasets(String sessionToken, List<String> datasetCodes,
-            boolean deleteFromDataStore)
+            boolean deleteFromDataStore, Map<String, String> options)
     {
         Session session = getSession(sessionToken);
         IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
         dataSetTable.loadByDataSetCodes(datasetCodes, false, true);
-        return dataSetTable.archiveDatasets(deleteFromDataStore);
+        return dataSetTable.archiveDatasets(deleteFromDataStore, options);
     }
 
     public int unarchiveDatasets(String sessionToken, List<String> datasetCodes)

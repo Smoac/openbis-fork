@@ -203,8 +203,8 @@ public class PathInfoDatabaseRefreshingTaskTest extends AbstractFileSystemTestCa
                 + "ATTRIBUTE,REGISTRATION_DATE," + T4 + ",LESS_THAN_OR_EQUAL]],[]]", 
                 criteriaMatcher.recordedObject().toString());
         AssertionUtil.assertContainsLines(LOG_PREFIX + "Refresh path info for 2 physical data sets.\n" + 
-                LOG_PREFIX + "Paths inside data set ds-5 successfully added to database.\n" + 
-                LOG_PREFIX + "Paths inside data set ds-3 successfully added to database.\n" + 
+                LOG_PREFIX + "Paths inside data set ds-5 successfully added to database. Data set size: 0\n" + 
+                LOG_PREFIX + "Paths inside data set ds-3 successfully added to database. Data set size: 0\n" + 
                 LOG_PREFIX + "Path info for 2 physical data sets refreshed in 0 secs.", 
                 logRecorder.getLogContent());
         File stateFile = createDefaultStateFile();
@@ -238,8 +238,8 @@ public class PathInfoDatabaseRefreshingTaskTest extends AbstractFileSystemTestCa
                 + "SearchCriteria.AttributeMatchClause[ATTRIBUTE,TYPE,A,EQUALS]],[]]", 
                 criteriaMatcher.recordedObject().toString());
         AssertionUtil.assertContainsLines(LOG_PREFIX + "Refresh path info for 2 physical data sets.\n" + 
-                LOG_PREFIX + "Paths inside data set ds-2 successfully added to database.\n" + 
-                LOG_PREFIX + "Paths inside data set ds-1 successfully added to database.\n" + 
+                LOG_PREFIX + "Paths inside data set ds-2 successfully added to database. Data set size: 0\n" + 
+                LOG_PREFIX + "Paths inside data set ds-1 successfully added to database. Data set size: 0\n" + 
                 LOG_PREFIX + "Path info for 2 physical data sets refreshed in 0 secs.", 
                 logRecorder.getLogContent());
         assertEquals(T1 + " [ds-1]", FileUtilities.loadToString(stateFile).trim());
@@ -268,8 +268,8 @@ public class PathInfoDatabaseRefreshingTaskTest extends AbstractFileSystemTestCa
                 + "ATTRIBUTE,REGISTRATION_DATE," + T4 + ",LESS_THAN_OR_EQUAL]],[]]", 
                 criteriaMatcher.recordedObject().toString());
         AssertionUtil.assertContainsLines(LOG_PREFIX + "Refresh path info for 2 physical data sets.\n" + 
-                LOG_PREFIX + "Paths inside data set ds-3 successfully added to database.\n" + 
-                LOG_PREFIX + "Paths inside data set ds-2 successfully added to database.\n" + 
+                LOG_PREFIX + "Paths inside data set ds-3 successfully added to database. Data set size: 0\n" + 
+                LOG_PREFIX + "Paths inside data set ds-2 successfully added to database. Data set size: 0\n" + 
                 LOG_PREFIX + "Path info for 2 physical data sets refreshed in 0 secs.", 
                 logRecorder.getLogContent());
         File stateFile = createDefaultStateFile();
@@ -299,8 +299,8 @@ public class PathInfoDatabaseRefreshingTaskTest extends AbstractFileSystemTestCa
                 + "ATTRIBUTE,REGISTRATION_DATE," + T4 + ",LESS_THAN_OR_EQUAL]],[]]", 
                 criteriaMatcher.recordedObject().toString());
         AssertionUtil.assertContainsLines(LOG_PREFIX + "Refresh path info for 2 physical data sets.\n" + 
-                LOG_PREFIX + "Paths inside data set ds-3 successfully added to database.\n" + 
-                LOG_PREFIX + "Paths inside data set ds-2 successfully added to database.\n" + 
+                LOG_PREFIX + "Paths inside data set ds-3 successfully added to database. Data set size: 0\n" + 
+                LOG_PREFIX + "Paths inside data set ds-2 successfully added to database. Data set size: 0\n" + 
                 LOG_PREFIX + "Path info for 2 physical data sets refreshed in 0 secs.", 
                 logRecorder.getLogContent());
         File stateFile = createDefaultStateFile();
@@ -315,11 +315,11 @@ public class PathInfoDatabaseRefreshingTaskTest extends AbstractFileSystemTestCa
                 + "ATTRIBUTE,REGISTRATION_DATE," + T2 + ",LESS_THAN_OR_EQUAL]],[]]", 
                 criteriaMatcher.recordedObject().toString());
         AssertionUtil.assertContainsLines(LOG_PREFIX + "Refresh path info for 2 physical data sets.\n" + 
-                LOG_PREFIX + "Paths inside data set ds-3 successfully added to database.\n" + 
-                LOG_PREFIX + "Paths inside data set ds-2 successfully added to database.\n" + 
+                LOG_PREFIX + "Paths inside data set ds-3 successfully added to database. Data set size: 0\n" + 
+                LOG_PREFIX + "Paths inside data set ds-2 successfully added to database. Data set size: 0\n" + 
                 LOG_PREFIX + "Path info for 2 physical data sets refreshed in 0 secs.\n" +
                 LOG_PREFIX + "Refresh path info for 1 physical data sets.\n" + 
-                LOG_PREFIX + "Paths inside data set ds-1 successfully added to database.\n" + 
+                LOG_PREFIX + "Paths inside data set ds-1 successfully added to database. Data set size: 0\n" + 
                 LOG_PREFIX + "Path info for 1 physical data sets refreshed in 0 secs.", 
                 logRecorder.getLogContent());
         assertEquals(T1 + " [ds-1]", FileUtilities.loadToString(stateFile).trim());
@@ -332,11 +332,11 @@ public class PathInfoDatabaseRefreshingTaskTest extends AbstractFileSystemTestCa
                 + "ATTRIBUTE,REGISTRATION_DATE," + T1 + ",LESS_THAN_OR_EQUAL]],[]]", 
                 criteriaMatcher.recordedObject().toString());
         AssertionUtil.assertContainsLines(LOG_PREFIX + "Refresh path info for 2 physical data sets.\n" + 
-                LOG_PREFIX + "Paths inside data set ds-3 successfully added to database.\n" + 
-                LOG_PREFIX + "Paths inside data set ds-2 successfully added to database.\n" + 
+                LOG_PREFIX + "Paths inside data set ds-3 successfully added to database. Data set size: 0\n" + 
+                LOG_PREFIX + "Paths inside data set ds-2 successfully added to database. Data set size: 0\n" + 
                 LOG_PREFIX + "Path info for 2 physical data sets refreshed in 0 secs.\n" +
                 LOG_PREFIX + "Refresh path info for 1 physical data sets.\n" + 
-                LOG_PREFIX + "Paths inside data set ds-1 successfully added to database.\n" + 
+                LOG_PREFIX + "Paths inside data set ds-1 successfully added to database. Data set size: 0\n" + 
                 LOG_PREFIX + "Path info for 1 physical data sets refreshed in 0 secs.", 
                 logRecorder.getLogContent());
         assertEquals(T1 + " [ds-1]", FileUtilities.loadToString(stateFile).trim());

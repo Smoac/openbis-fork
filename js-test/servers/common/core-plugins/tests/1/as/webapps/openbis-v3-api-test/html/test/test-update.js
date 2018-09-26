@@ -518,6 +518,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			var fUpdate = function(facade, permId) {
 				var physicalUpdate = new c.PhysicalDataUpdate();
 				physicalUpdate.setFileFormatTypeId(new c.FileFormatTypePermId("TIFF"));
+				physicalUpdate.setArchivingRequested(true);
 
 				var update = new c.DataSetUpdate();
 				update.setDataSetId(permId);
@@ -531,6 +532,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				c.assertEqual(dataSet.getCode(), code, "Code");
 				c.assertEqual(dataSet.getProperties()["NOTES"], "new 409 description", "Property NOTES");
 				c.assertEqual(dataSet.getPhysicalData().getFileFormatType().getCode(), "TIFF", "File format type");
+				c.assertEqual(dataSet.getPhysicalData().isArchivingRequested(), true, "Archiving requested");
 			}
 
 			testUpdate(c, fCreate, fUpdate, c.findDataSet, fCheck);

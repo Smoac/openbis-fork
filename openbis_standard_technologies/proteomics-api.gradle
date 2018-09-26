@@ -63,7 +63,8 @@ task proteomicsApiJavaDocZip(type: Zip, dependsOn: proteomicsApiJavaDoc) {
 
 configurations.create('proteomicsApiDependencies')
 dependencies {
-	proteomicsApiDependencies 'sis:sis-base:14.12.0',
+	proteomicsApiDependencies 'sis:sis-base:18.08.0',
+                            'apache:commons-lang:2.4',
                             'apache:httpclient:4.3.6',
                             'apache:httpcore:4.3.3',
                             'apache:log4j:1.2.15',

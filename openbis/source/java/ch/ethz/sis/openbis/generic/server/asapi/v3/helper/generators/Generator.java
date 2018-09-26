@@ -342,6 +342,7 @@ public class Generator extends AbstractGenerator
         gen.addBooleanField("presentInArchive");
         gen.addBooleanField("storageConfirmation");
         gen.addSimpleField(Integer.class, "speedHint");
+        gen.addBooleanField("archivingRequested");
 
         gen.setToStringMethod("\"PhysicalData \" + location");
 

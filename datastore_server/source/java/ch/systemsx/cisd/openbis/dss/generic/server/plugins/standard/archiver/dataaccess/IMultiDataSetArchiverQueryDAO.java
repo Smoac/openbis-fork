@@ -64,11 +64,15 @@ public interface IMultiDataSetArchiverQueryDAO extends TransactionQuery, IMultiD
     @Update(sql = DELETE_CONTAINER)
     public void deleteContainer(String containerPath);
 
+    final static String DELETE_CONTAINER_BY_ID = "DELETE FROM containers where id = ?{1}";
+
+    @Update(sql = DELETE_CONTAINER_BY_ID)
+    public void deleteContainer(long containerId);
+
     final static String REQUEST_UNARCHIVING = "UPDATE containers SET unarchiving_requested = 't' "
             + "WHERE id in (SELECT ctnr_id FROM data_sets WHERE code = any(?{1}))";
 
-    @Update(sql = REQUEST_UNARCHIVING, parameterBindings =
-    { StringArrayMapper.class })
+    @Update(sql = REQUEST_UNARCHIVING, parameterBindings = { StringArrayMapper.class })
     public void requestUnarchiving(String[] dataSetCodes);
 
     final static String RESET_REQUEST_UNARCHIVING = "UPDATE containers SET unarchiving_requested = 'f' WHERE id = ?{1}";

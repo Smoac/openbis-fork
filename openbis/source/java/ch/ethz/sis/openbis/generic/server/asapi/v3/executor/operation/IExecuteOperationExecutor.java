@@ -21,7 +21,6 @@ import java.util.List;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.IOperationExecutionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.IOperationExecutionResults;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 
 /**
  * @author pkupczyk
@@ -29,6 +28,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 public interface IExecuteOperationExecutor
 {
 
-    public IOperationExecutionResults execute(IOperationContext context, List<? extends IOperation> operations, IOperationExecutionOptions options);
+    public IOperationExecutionResults execute(String sessionToken, List<? extends IOperation> operations, IOperationExecutionOptions options);
 
 }

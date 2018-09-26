@@ -45,6 +45,8 @@ public class PhysicalDataSet extends AbstractExternalData implements IDatasetLoc
 
     private boolean h5arFolders;
 
+    private boolean archivingRequested;
+
     public PhysicalDataSet()
     {
         this(false);
@@ -199,6 +201,16 @@ public class PhysicalDataSet extends AbstractExternalData implements IDatasetLoc
     public void setH5arFolders(boolean h5arFolders)
     {
         this.h5arFolders = h5arFolders;
+    }
+
+    public boolean isArchivingRequested()
+    {
+        return archivingRequested;
+    }
+
+    public void setArchivingRequested(boolean archivingRequested)
+    {
+        this.archivingRequested = archivingRequested;
     }
 
 }

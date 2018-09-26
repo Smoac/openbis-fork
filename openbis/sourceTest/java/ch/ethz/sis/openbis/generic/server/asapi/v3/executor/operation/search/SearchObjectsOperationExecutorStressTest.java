@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
@@ -61,6 +62,8 @@ import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.openbis.generic.server.ConcurrentOperationLimiter;
+import ch.systemsx.cisd.openbis.generic.server.ConcurrentOperationLimiterConfig;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.util.RuntimeCache;
 
@@ -262,6 +265,7 @@ public class SearchObjectsOperationExecutorStressTest
 
             theCache.initCache();
             this.cache = theCache;
+            this.operationLimiter = new ConcurrentOperationLimiter(new ConcurrentOperationLimiterConfig(new Properties()));
         }
 
         @Override

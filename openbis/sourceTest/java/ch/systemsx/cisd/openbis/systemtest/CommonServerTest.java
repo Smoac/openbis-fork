@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -2192,12 +2193,12 @@ public class CommonServerTest extends SystemTestCase
 
         if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
         {
-            commonServer.archiveDatasets(session.getSessionToken(), Arrays.asList(dataSetCode), false);
+            commonServer.archiveDatasets(session.getSessionToken(), Arrays.asList(dataSetCode), false, new HashMap<>());
         } else
         {
             try
             {
-                commonServer.archiveDatasets(session.getSessionToken(), Arrays.asList(dataSetCode), false);
+                commonServer.archiveDatasets(session.getSessionToken(), Arrays.asList(dataSetCode), false, new HashMap<>());
                 fail();
             } catch (AuthorizationFailureException e)
             {

@@ -100,6 +100,7 @@ public class DataSetTranslator
             description.setFileFormatType(dataSet.getFileFormatType().getCode());
             description.setH5Folders(dataSet.isH5Folders());
             description.setH5arFolders(dataSet.isH5arFolders());
+            description.setArchivingRequested(dataSet.isArchivingRequested());
         }
         description.setDataSetSize(data.getSize());
         DataSetType dataSetType = data.getDataSetType();
@@ -392,6 +393,7 @@ public class DataSetTranslator
         dataSet.setLocatorType(TypeTranslator.translate(externalDataPE.getLocatorType()));
         dataSet.setH5Folders(externalDataPE.isH5Folders());
         dataSet.setH5arFolders(externalDataPE.isH5arFolders());
+        dataSet.setArchivingRequested(externalDataPE.isArchivingRequested());
         return dataSet;
     }
 

@@ -23,6 +23,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.presentInArchive = null;
 		prototype.storageConfirmation = null;
 		prototype.speedHint = null;
+		prototype.archivingRequested = null;
 
 		prototype.getFetchOptions = function() {
 			return this.fetchOptions;
@@ -113,6 +114,12 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		};
 		prototype.setSpeedHint = function(speedHint) {
 			this.speedHint = speedHint;
+		};
+		prototype.isArchivingRequested = function() {
+			return this.archivingRequested;
+		};
+		prototype.setArchivingRequested = function(archivingRequested) {
+			this.archivingRequested = archivingRequested;
 		};
 	}, {
 		fetchOptions : "PhysicalDataFetchOptions",

@@ -32,10 +32,7 @@ function InventoryView(inventoryController, inventoryView) {
 		//
 		var toolbarModel = [];
 		
-		var $export = FormUtil.getButtonWithIcon("glyphicon-export", function() {
-			Util.blockUI();
-			var facade = mainController.serverFacade;
-			facade.listSpacesWithProjectsAndRoleAssignments(null, function(dataWithSpacesAndProjects) {
+		mainController.serverFacade.listSpacesWithProjectsAndRoleAssignments(null, function(dataWithSpacesAndProjects) {
 				var spaces = dataWithSpacesAndProjects.result;
 	            var labSpaces = [];
 				for (var i = 0; i < spaces.length; i++) {
@@ -45,20 +42,17 @@ function InventoryView(inventoryController, inventoryView) {
 	                }
 	            }
 	            
-				facade.exportAll(labSpaces, true, function(error, result) {
-					if(error) {
-						Util.showError(error);
-					} else {
-						Util.showSuccess("Export is being processed, you will receive an email when is ready, if you logout the process will stop.", function() { Util.unblockUI(); });
-					}
-				});
-				
-			});
+				//Export
+				var $exportAll = FormUtil.getExportButton(labSpaces, false, true);
+				toolbarModel.push({ component : $exportAll, tooltip: "Export Metadata & Data" });
+		
+				var $exportOnlyMetadata = FormUtil.getExportButton(labSpaces, true, true);
+				toolbarModel.push({ component : $exportOnlyMetadata, tooltip: "Export Metadata only" });
+			
+				views.header.append(FormUtil.getToolbar(toolbarModel));
 		});
-		toolbarModel.push({ component : $export, tooltip: "Export" });
 		
 		views.header.append($formTitle);
-		views.header.append(FormUtil.getToolbar(toolbarModel));
 		views.content.append($formColumn);
 	}
 }

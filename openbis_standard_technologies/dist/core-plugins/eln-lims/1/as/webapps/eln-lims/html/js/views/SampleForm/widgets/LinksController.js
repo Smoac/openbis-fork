@@ -48,11 +48,11 @@ function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, show
 				var sampleTypeAnnotations = sampleTypeHint["ANNOTATION_PROPERTIES"];
 				var sampleTypeCount = (linksModel.samplesByType[sampleTypeCode])?linksModel.samplesByType[sampleTypeCode].length:0;
 				if(sampleTypeCount < sampleTypeMinCount) {
-					Util.showError("Currently only have " + sampleTypeCount + " of the " + sampleTypeMinCount + " required " + sampleTypeCode + ".");
+					Util.showUserError("Currently only have " + sampleTypeCount + " of the " + sampleTypeMinCount + " required " + sampleTypeCode + ".");
 					return false;
 				}
 				if(sampleTypeMaxCount && sampleTypeCount > sampleTypeMaxCount) {
-					Util.showError("Currently have " + sampleTypeCount + " of the maximum " + sampleTypeMaxCount + " for " + sampleTypeCode + ".");
+					Util.showUserError("Currently have " + sampleTypeCount + " of the maximum " + sampleTypeMaxCount + " for " + sampleTypeCode + ".");
 					return false;
 				}
 				
@@ -72,7 +72,7 @@ function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, show
 								
 								var sampleTypeAnnotationIsMandatory = sampleTypeAnnotation["MANDATORY"];
 								if(sampleTypeAnnotationIsMandatory && !sampleFromIdxAnnotations[sampleTypeAnnotationType]) {
-									Util.showError("Missing an annotation " + sampleTypeAnnotationType + " on " + sampleFromIdx.code +".");
+									Util.showUserError("Missing an annotation " + sampleTypeAnnotationType + " on " + sampleFromIdx.code +".");
 									return false;
 								} else {
 									var propertyType = profile.getPropertyType(sampleTypeAnnotationType);
@@ -104,7 +104,7 @@ function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, show
 											break;
 									}
 									if(!isValid) {
-										Util.showError("Annotation " + sampleTypeAnnotationType + " is not an " + propertyType.dataType +".");
+										Util.showUserError("Annotation " + sampleTypeAnnotationType + " is not an " + propertyType.dataType +".");
 										return false;
 									}
 								}

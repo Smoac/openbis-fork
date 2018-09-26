@@ -20,10 +20,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
 import org.apache.log4j.Level;
+import org.hamcrest.core.IsAnything;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.springframework.beans.factory.BeanFactory;
@@ -217,7 +219,7 @@ public class AutoArchiverTaskTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(service).archiveDataSets(dataSetCodes, removeFromDataStore);
+                    one(service).archiveDataSets(with(dataSetCodes), with(removeFromDataStore), with(new IsAnything<Map<String, String>>()));
                 }
             });
     }

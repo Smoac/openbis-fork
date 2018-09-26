@@ -340,6 +340,9 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     @Autowired
     private IOperationsExecutor operationsExecutor;
 
+    @Autowired
+    private IConcurrentOperationLimiter operationLimiter;
+
     private long timeout = 5; // minutes
 
     public ServiceForDataStoreServer(IAuthenticationService authenticationService,
@@ -364,7 +367,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
                                 }
                             }),
                         30),
-                managedPropertyEvaluatorFactory, null);
+                managedPropertyEvaluatorFactory, null, null);
     }
 
     ServiceForDataStoreServer(IAuthenticationService authenticationService,
@@ -376,7 +379,8 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
             IDataStoreServiceRegistrator dataStoreServiceRegistrator,
             IDataStoreDataSourceManager dataSourceManager,
             ISessionManager<Session> sessionManagerForEntityOperation,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, IOperationsExecutor operationsExecutor)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, IOperationsExecutor operationsExecutor,
+            IConcurrentOperationLimiter operationLimiter)
     {
         super(authenticationService, sessionManager, daoFactory, propertiesBatchManager, boFactory);
         this.daoFactory = daoFactory;
@@ -388,6 +392,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         this.sessionManagerForEntityOperation = sessionManagerForEntityOperation;
         this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
         this.operationsExecutor = operationsExecutor;
+        this.operationLimiter = operationLimiter;
     }
 
     @Override
@@ -1216,9 +1221,10 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public int archiveDatasets(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes, boolean removeFromDataStore)
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes,
+            boolean removeFromDataStore, Map<String, String> options)
     {
-        return super.archiveDatasets(sessionToken, datasetCodes, removeFromDataStore);
+        return super.archiveDatasets(sessionToken, datasetCodes, removeFromDataStore, options);
     }
 
     @Override
@@ -2923,12 +2929,20 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria)
     {
         Session session = getSession(sessionToken);
-        DetailedSearchCriteria detailedSearchCriteria =
-                SearchCriteriaToDetailedSearchCriteriaTranslator.convert(getDAOFactory(),
-                        SearchableEntityKind.SAMPLE, searchCriteria);
-        SearchHelper searchHelper =
-                new SearchHelper(session, businessObjectFactory, getDAOFactory());
-        return searchHelper.searchForSamples(session.getUserName(), detailedSearchCriteria);
+
+        return operationLimiter.executeLimitedWithTimeout(ConcurrentOperation.SEARCH_SAMPLES, new ConcurrentOperation<List<Sample>>()
+            {
+                @Override
+                public List<Sample> execute()
+                {
+                    DetailedSearchCriteria detailedSearchCriteria =
+                            SearchCriteriaToDetailedSearchCriteriaTranslator.convert(getDAOFactory(),
+                                    SearchableEntityKind.SAMPLE, searchCriteria);
+                    SearchHelper searchHelper =
+                            new SearchHelper(session, businessObjectFactory, getDAOFactory());
+                    return searchHelper.searchForSamples(session.getUserName(), detailedSearchCriteria);
+                }
+            });
     }
 
     @Override
@@ -2937,12 +2951,20 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
             SearchCriteria searchCriteria)
     {
         Session session = getSession(sessionToken);
-        DetailedSearchCriteria detailedSearchCriteria =
-                SearchCriteriaToDetailedSearchCriteriaTranslator.convert(getDAOFactory(),
-                        SearchableEntityKind.DATA_SET, searchCriteria);
-        SearchHelper searchHelper =
-                new SearchHelper(session, businessObjectFactory, getDAOFactory());
-        return searchHelper.searchForDataSets(session.getUserName(), detailedSearchCriteria);
+
+        return operationLimiter.executeLimitedWithTimeout(ConcurrentOperation.SEARCH_DATA_SETS, new ConcurrentOperation<List<AbstractExternalData>>()
+            {
+                @Override
+                public List<AbstractExternalData> execute()
+                {
+                    DetailedSearchCriteria detailedSearchCriteria =
+                            SearchCriteriaToDetailedSearchCriteriaTranslator.convert(getDAOFactory(),
+                                    SearchableEntityKind.DATA_SET, searchCriteria);
+                    SearchHelper searchHelper =
+                            new SearchHelper(session, businessObjectFactory, getDAOFactory());
+                    return searchHelper.searchForDataSets(session.getUserName(), detailedSearchCriteria);
+                }
+            });
     }
 
     @Override
@@ -2951,11 +2973,20 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     public List<Experiment> searchForExperiments(String sessionToken, SearchCriteria searchCriteria)
     {
         Session session = getSession(sessionToken);
-        DetailedSearchCriteria detailedSearchCriteria =
-                SearchCriteriaToDetailedSearchCriteriaTranslator.convert(getDAOFactory(), SearchableEntityKind.EXPERIMENT, searchCriteria);
-        SearchHelper searchHelper = new SearchHelper(session, businessObjectFactory, getDAOFactory());
-        List<ExperimentPE> experiments = searchHelper.searchForExperiments(sessionToken, detailedSearchCriteria);
-        return translateExperimentsWithMetaprojectAssignments(session, experiments);
+
+        return operationLimiter.executeLimitedWithTimeout(ConcurrentOperation.SEARCH_EXPERIMENTS, new ConcurrentOperation<List<Experiment>>()
+            {
+                @Override
+                public List<Experiment> execute()
+                {
+                    DetailedSearchCriteria detailedSearchCriteria =
+                            SearchCriteriaToDetailedSearchCriteriaTranslator.convert(getDAOFactory(), SearchableEntityKind.EXPERIMENT,
+                                    searchCriteria);
+                    SearchHelper searchHelper = new SearchHelper(session, businessObjectFactory, getDAOFactory());
+                    List<ExperimentPE> experiments = searchHelper.searchForExperiments(sessionToken, detailedSearchCriteria);
+                    return translateExperimentsWithMetaprojectAssignments(session, experiments);
+                }
+            });
     }
 
     @Override

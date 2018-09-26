@@ -25,6 +25,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -168,6 +169,8 @@ public final class CommonServerTest extends AbstractServerTestCase
 
     private ISessionWorkspaceProvider sessionWorkspaceProvider;
 
+    private IConcurrentOperationLimiter operationLimiter;
+
     private final CommonServer createServer()
     {
         CommonServer server =
@@ -187,7 +190,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                         propertiesBatchManager, commonBusinessObjectFactory,
                         dataStoreServiceRegistrator, new LastModificationState(),
                         entityValidatorFactory2, dynamicPropertyCalculatorFactory2,
-                        managedPropertyEvaluatorFactory2);
+                        managedPropertyEvaluatorFactory2, operationLimiter);
         server.setSampleTypeSlaveServerPlugin(sampleTypeSlaveServerPlugin);
         server.setDataSetTypeSlaveServerPlugin(dataSetTypeSlaveServerPlugin);
         server.setBaseIndexURL(SESSION_TOKEN, BASE_INDEX_URL);
@@ -220,6 +223,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         hibernateSessionFactory = context.mock(SessionFactory.class);
         hibernateSession = context.mock(org.hibernate.Session.class);
         sessionWorkspaceProvider = context.mock(ISessionWorkspaceProvider.class);
+        operationLimiter = context.mock(IConcurrentOperationLimiter.class);
     }
 
     @Test
@@ -1869,6 +1873,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         prepareGetSession();
         final boolean removeFromDataStore = true;
         final List<String> dataSetCodes = Arrays.asList("a", "b");
+        final Map<String, String> options = new HashMap<>();
         context.checking(new Expectations()
             {
                 {
@@ -1876,11 +1881,11 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(dataSetTable));
 
                     one(dataSetTable).loadByDataSetCodes(dataSetCodes, false, true);
-                    one(dataSetTable).archiveDatasets(removeFromDataStore);
+                    one(dataSetTable).archiveDatasets(removeFromDataStore, options);
                 }
             });
 
-        createServer().archiveDatasets(SESSION_TOKEN, dataSetCodes, removeFromDataStore);
+        createServer().archiveDatasets(SESSION_TOKEN, dataSetCodes, removeFromDataStore, options);
 
         context.assertIsSatisfied();
     }

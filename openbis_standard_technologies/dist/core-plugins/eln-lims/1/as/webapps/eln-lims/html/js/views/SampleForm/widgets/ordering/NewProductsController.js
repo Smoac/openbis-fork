@@ -39,7 +39,7 @@ function NewProductsController() {
 						permId : "PERM_ID_PLACEHOLDER_FOR/STOCK_CATALOG/" + codePrefix + nextCodeNumber,
 						sampleTypeCode : "PRODUCT",
 						experimentIdentifierOrNull : "/STOCK_CATALOG/PRODUCTS/PRODUCT_COLLECTION",
-						identifier : "/STOCK_CATALOG/" + codePrefix + nextCodeNumber, 
+						identifier : IdentifierUtil.getSampleIdentifier("STOCK_CATALOG", "PRODUCTS", codePrefix + nextCodeNumber), 
 						code : codePrefix + nextCodeNumber,
 						parentsIdentifiers : [$($($productProperties[4]).children()[0]).val()],
 						properties : {

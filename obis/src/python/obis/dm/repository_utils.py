@@ -5,7 +5,7 @@ from .utils import run_shell
 
 
 def copy_repository(ssh_user, host, path):
-        # abort if local folder already exists
+    # abort if local folder already exists
     repository_folder = path.split('/')[-1]
     if os.path.exists(repository_folder):
         return CommandResult(returncode=-1, output="Folder for repository to clone already exists: " + repository_folder)

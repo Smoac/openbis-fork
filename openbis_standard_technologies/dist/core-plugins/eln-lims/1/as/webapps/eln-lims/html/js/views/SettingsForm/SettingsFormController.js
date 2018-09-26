@@ -21,11 +21,17 @@ function SettingsFormController(mainController, settingsSample, mode) {
 	this._settingsManager = new SettingsManager(this._mainController.serverFacade);
 
 	this.init = function(views) {
-		// apply settings to copy of profile, even if invalid, for editing
-		var profileToEdit = jQuery.extend(true, {}, profile);
-		this._settingsManager.loadSettingsAndApplyToProfile((function() {
-			this._settingsFormView.repaint(views, profileToEdit);
-		}).bind(this), profileToEdit);
+		var runningProfile = jQuery.extend(true, {}, profile);
+		var profileToEdit = null;
+		
+		if(settingsSample.properties.ELN_SETTINGS) {
+			profileToEdit = JSON.parse(settingsSample.properties.ELN_SETTINGS);
+		} else {
+			profileToEdit = runningProfile;
+		}
+		
+		this._settingsManager.applySettingsToProfile(profileToEdit, runningProfile);
+		this._settingsFormView.repaint(views, runningProfile);
 	}
 
 	this.save = function(settings) {

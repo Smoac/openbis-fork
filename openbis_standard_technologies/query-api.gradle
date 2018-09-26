@@ -68,7 +68,7 @@ task queryApiJavaDocZip(type: Zip, dependsOn: queryApiJavaDoc) {
 
 configurations.create('queryApiDependencies')
 dependencies {
-	queryApiDependencies 'sis:sis-base:14.12.0',
+	queryApiDependencies 'sis:sis-base:18.08.0',
                         'apache:httpclient:4.3.6',
                         'apache:httpcore:4.3.3',
                         'apache:log4j:1.2.15',
@@ -80,6 +80,7 @@ dependencies {
                         'springframework:spring-webmvc:4.1.4.RELEASE',
                         'springframework:spring-expression:4.1.4.RELEASE',
                         'apache:commons-logging:1.2',				
+                        'apache:commons-lang:2.4',
                         'marathon:marathon-spring-util:1.2.5',
                         'aopalliance:aopalliance:1.0'
 }
@@ -121,8 +122,9 @@ task apiV3Jar(type: Jar) {
 
 configurations.create('apiV3Dependencies')
 dependencies {
-  apiV3Dependencies 'sis:sis-base:14.12.0',
+  apiV3Dependencies 'sis:sis-base:18.08.0',
                     'apache:httpclient:4.3.6',
+                    'apache:commons-lang:2.4',
                     'springframework:spring-web:4.1.4.RELEASE',
                     'marathon:marathon-spring-util:1.2.5'
 }

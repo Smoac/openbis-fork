@@ -149,9 +149,9 @@ public class SearchPropertyAssignmentTest extends AbstractTest
             }
         }
 
-        assertPropertyAssignments(withOwnSemanticAnnotations, "MASTER_PLATE.$PLATE_GEOMETRY", "CONTROL_LAYOUT.$PLATE_GEOMETRY",
+        assertPropertyAssignments(withOwnSemanticAnnotations, null, "MASTER_PLATE.$PLATE_GEOMETRY", "CONTROL_LAYOUT.$PLATE_GEOMETRY",
                 "CELL_PLATE.ORGANISM");
-        assertPropertyAssignments(withInheritedSemanticAnnotations, "MASTER_PLATE.DESCRIPTION", "CONTROL_LAYOUT.DESCRIPTION", "NORMAL.ORGANISM",
+        assertPropertyAssignments(withInheritedSemanticAnnotations, null, "MASTER_PLATE.DESCRIPTION", "CONTROL_LAYOUT.DESCRIPTION", "NORMAL.ORGANISM",
                 "DELETION_TEST.ORGANISM", "DELETION_TEST.DESCRIPTION");
 
         v3api.logout(sessionToken);
@@ -234,12 +234,13 @@ public class SearchPropertyAssignmentTest extends AbstractTest
         PropertyAssignmentFetchOptions fo = new PropertyAssignmentFetchOptions();
         fo.withEntityType();
         fo.withPropertyType();
+        fo.withPlugin();
 
         SearchResult<PropertyAssignment> searchResult =
                 v3api.searchPropertyAssignments(sessionToken, criteria, fo);
         List<PropertyAssignment> propertyAssignments = searchResult.getObjects();
 
-        assertPropertyAssignments(propertyAssignments, expectedEntityTypeAndPropertyTypeCodes);
+        assertPropertyAssignments(propertyAssignments, null, expectedEntityTypeAndPropertyTypeCodes);
         v3api.logout(sessionToken);
     }
 

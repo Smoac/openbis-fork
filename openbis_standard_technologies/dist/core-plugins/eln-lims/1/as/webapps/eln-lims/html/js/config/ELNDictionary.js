@@ -14,7 +14,7 @@ ELNDictionary.getExperimentDualName = function() {
 }
 
 ELNDictionary.getExperimentKindName = function(identifier, isPlural) {
-	var space = identifier.split("/")[1];
+	var space = IdentifierUtil.getSpaceCodeFromIdentifier(identifier);
 	if(profile.isInventorySpace(space)) {
 		return (isPlural)?ELNDictionary.ExperimentsInventory:ELNDictionary.ExperimentInventory;
 	} else {
@@ -55,6 +55,10 @@ ELNDictionary.settingsView = {
 		sampleTypeDefinitionsExtension : {
 			title : ELNDictionary.Sample +" Type definitions Extension",
 			info : "This section is used to extend the common openBIS definitions to: 1. Enable the storage. 2. Specify if the " + ELNDictionary.sample + " type is a protocol. 3. Add intended parent/children hints. 4. Support annotations for these links using properties. 5. Show in dropdowns.",
+		},
+		miscellaneous : {
+			title : "Miscellaneous",
+			info : "Miscellaneous settings."
 		},
 	}
 }

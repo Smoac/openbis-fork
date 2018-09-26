@@ -38,7 +38,7 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 			}
 		}
 		$component.change(changeEvent(tableData, $wrappedTable));
-		
+		Select2Manager.add($component);
 		return $component;
 	}
 	

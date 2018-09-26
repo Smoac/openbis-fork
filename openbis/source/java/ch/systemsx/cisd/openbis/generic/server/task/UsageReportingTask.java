@@ -40,6 +40,7 @@ import org.apache.commons.lang.time.DateUtils;
 import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.maintenance.MaintenanceTaskParameters;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.time.DateTimeUtils;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 import ch.systemsx.cisd.openbis.generic.server.util.PluginUtils;
@@ -51,6 +52,13 @@ import ch.systemsx.cisd.openbis.generic.server.util.PluginUtils;
  */
 public class UsageReportingTask extends AbstractMaintenanceTask
 {
+    public static interface IUsageInfoHandler
+    {
+        public void handleUsageInfo(GroupInfo groupInfo, String user, UsageInfo usageInfo, boolean groupAction);
+
+        public void handleGroupUsageInfo(GroupInfo groupInfo, String user, UsageInfo usageInfo);
+    }
+
     enum UserReportingType
     {
         NONE(), OUTSIDE_GROUP_ONLY()
@@ -80,9 +88,12 @@ public class UsageReportingTask extends AbstractMaintenanceTask
 
     static final String USER_REPORTING_KEY = "user-reporting-type";
 
+    static final String COUNT_ALL_ENTITIES_KEY = "count-all-entities";
+
     static final String DELIM = "\t";
 
     private static final String DATE_FORMAT = "yyyy-MM-dd";
+
     private static final String TIME_STAMP_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     private PeriodType periodType;
@@ -90,6 +101,8 @@ public class UsageReportingTask extends AbstractMaintenanceTask
     private List<EMailAddress> eMailAddresses;
 
     private UserReportingType userReportingType;
+
+    private boolean countAllEntities;
 
     public UsageReportingTask()
     {
@@ -103,19 +116,26 @@ public class UsageReportingTask extends AbstractMaintenanceTask
         periodType = PeriodType.getBestType(interval);
         eMailAddresses = PluginUtils.getEMailAddresses(properties, ",");
         userReportingType = UserReportingType.valueOf(properties.getProperty(USER_REPORTING_KEY, UserReportingType.ALL.name()));
+        countAllEntities = PropertyUtils.getBoolean(properties, COUNT_ALL_ENTITIES_KEY, false);
     }
 
     @Override
     public void execute()
     {
         List<String> groups = getGroups();
-        Period period = periodType.getPeriod(getActualTimeStamp());
+        Date actualTimeStamp = getActualTimeStamp();
+        Period period = periodType.getPeriod(actualTimeStamp);
         SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         String fromDateString = dateFormat.format(period.getFrom());
         String untilDateString = dateFormat.format(period.getUntil());
         operationLog.info("Gather usage information for the period from " + fromDateString + " until " + untilDateString);
         UsageAndGroupsInfo usageAndGroupsInfo = gatherUsageAndGroups(groups, period);
-        String report = createReport(usageAndGroupsInfo, period, groups);
+        UsageAndGroupsInfo usageAndGroupsInfoForAllEntities = null;
+        if (countAllEntities)
+        {
+            usageAndGroupsInfoForAllEntities = gatherUsageAndGroups(groups, new Period(new Date(0), period.getUntil()));
+        }
+        String report = createReport(usageAndGroupsInfo, usageAndGroupsInfoForAllEntities, period, groups);
         sendReport(fromDateString, untilDateString, report);
         operationLog.info("Usage report created and sent.");
     }
@@ -163,12 +183,18 @@ public class UsageReportingTask extends AbstractMaintenanceTask
         }
     }
 
-    private String createReport(UsageAndGroupsInfo usageAndGroupsInfo, Period period, List<String> groups)
+    private String createReport(UsageAndGroupsInfo usageAndGroupsInfo,
+            UsageAndGroupsInfo usageAndGroupsInfoForAllEntitiesOrNull, Period period, List<String> groups)
     {
         StringBuilder builder = new StringBuilder();
         builder.append("period start" + DELIM + "period end" + DELIM + "group name" + DELIM + "number of users" + DELIM
-                + "idle users" + DELIM + "number of new experiments" + DELIM + "number of new samples" + DELIM
-                + "number of new data sets\n");
+                + "idle users" + DELIM + "number of new collections" + DELIM + "number of new objects" + DELIM
+                + "number of new data sets");
+        if (usageAndGroupsInfoForAllEntitiesOrNull != null)
+        {
+            builder.append(DELIM).append("total number of entities");
+        }
+        builder.append("\n");
         Map<String, GroupInfo> groupInfos = initializeGroupInfos(usageAndGroupsInfo);
         Map<String, GroupInfo> individualInfos = new TreeMap<>();
         for (String user : usageAndGroupsInfo.getUsageByUsersAndSpaces().keySet())
@@ -176,6 +202,47 @@ public class UsageReportingTask extends AbstractMaintenanceTask
             individualInfos.put(user, new GroupInfo(Arrays.asList(user)));
         }
 
+        handleUsageAndGroupInfos(usageAndGroupsInfo, groupInfos, individualInfos, new IUsageInfoHandler()
+            {
+                @Override
+                public void handleUsageInfo(GroupInfo groupInfo, String user, UsageInfo usageInfo, boolean groupAction)
+                {
+                    userReportingType.handleUsageInfo(individualInfos.get(user), user, usageInfo, groupAction);
+                }
+
+                @Override
+                public void handleGroupUsageInfo(GroupInfo groupInfo, String user, UsageInfo usageInfo)
+                {
+                    groupInfo.handle(user, usageInfo);
+                }
+            });
+        if (usageAndGroupsInfoForAllEntitiesOrNull != null)
+        {
+            handleUsageAndGroupInfos(usageAndGroupsInfoForAllEntitiesOrNull, groupInfos, individualInfos, new IUsageInfoHandler()
+                {
+                    @Override
+                    public void handleUsageInfo(GroupInfo groupInfo, String user, UsageInfo usageInfo, boolean groupAction)
+                    {
+                        groupInfo.countEntities(usageInfo);
+                    }
+
+                    @Override
+                    public void handleGroupUsageInfo(GroupInfo groupInfo, String user, UsageInfo usageInfo)
+                    {
+                        groupInfo.countEntities(usageInfo);
+                    }
+                });
+        }
+
+        addInfos(builder, period, groupInfos, true);
+
+        addInfos(builder, period, individualInfos, false);
+        return builder.toString();
+    }
+
+    private void handleUsageAndGroupInfos(UsageAndGroupsInfo usageAndGroupsInfo, Map<String, GroupInfo> groupInfos,
+            Map<String, GroupInfo> individualInfos, IUsageInfoHandler handler)
+    {
         Map<String, Set<String>> usersByGroups = usageAndGroupsInfo.getUsersByGroups();
         for (Entry<String, Map<String, UsageInfo>> entry : usageAndGroupsInfo.getUsageByUsersAndSpaces().entrySet())
         {
@@ -184,7 +251,7 @@ public class UsageReportingTask extends AbstractMaintenanceTask
             {
                 String space = entry2.getKey();
                 UsageInfo usageInfo = entry2.getValue();
-                groupInfos.get("").handle(user, usageInfo);
+                handler.handleGroupUsageInfo(groupInfos.get(""), user, usageInfo);
                 String[] spaceParts = space.split("_");
                 boolean groupAction = false;
                 if (spaceParts.length > 1)
@@ -194,18 +261,13 @@ public class UsageReportingTask extends AbstractMaintenanceTask
                     Set<String> groupUsers = usersByGroups.get(group);
                     if (groupInfo != null && groupUsers != null && groupUsers.contains(user))
                     {
-                        groupInfo.handle(user, usageInfo);
+                        handler.handleGroupUsageInfo(groupInfo, user, usageInfo);
                         groupAction = true;
                     }
                 }
-                userReportingType.handleUsageInfo(individualInfos.get(user), user, usageInfo, groupAction);
+                handler.handleUsageInfo(individualInfos.get(user), user, usageInfo, groupAction);
             }
         }
-
-        addInfos(builder, period, groupInfos, true);
-
-        addInfos(builder, period, individualInfos, false);
-        return builder.toString();
     }
 
     private Map<String, GroupInfo> initializeGroupInfos(UsageAndGroupsInfo usageAndGroupsInfo)
@@ -237,7 +299,12 @@ public class UsageReportingTask extends AbstractMaintenanceTask
                 builder.append(StringUtils.join(idleUsers, ' ')).append(DELIM);
                 builder.append(info.getNumberOfNewExperiments()).append(DELIM);
                 builder.append(info.getNumberOfNewSamples()).append(DELIM);
-                builder.append(info.getNumberOfNewDataSets()).append("\n");
+                builder.append(info.getNumberOfNewDataSets());
+                if (countAllEntities)
+                {
+                    builder.append(DELIM).append(info.getNumberOfEntities());
+                }
+                builder.append("\n");
             }
         }
     }
@@ -254,6 +321,8 @@ public class UsageReportingTask extends AbstractMaintenanceTask
 
         private int numberOfNewDataSets;
 
+        private int numberOfEntities;
+
         public GroupInfo(Collection<String> users)
         {
             allUsers.addAll(users);
@@ -268,6 +337,13 @@ public class UsageReportingTask extends AbstractMaintenanceTask
             numberOfNewExperiments += usageInfo.getNumberOfNewExperiments();
             numberOfNewSamples += usageInfo.getNumberOfNewSamples();
             numberOfNewDataSets += usageInfo.getNumberOfNewDataSets();
+        }
+
+        void countEntities(UsageInfo usageInfo)
+        {
+            numberOfEntities += usageInfo.getNumberOfNewDataSets();
+            numberOfEntities += usageInfo.getNumberOfNewExperiments();
+            numberOfEntities += usageInfo.getNumberOfNewSamples();
         }
 
         int getNumberOfUsers()
@@ -295,6 +371,11 @@ public class UsageReportingTask extends AbstractMaintenanceTask
         int getNumberOfNewDataSets()
         {
             return numberOfNewDataSets;
+        }
+
+        int getNumberOfEntities()
+        {
+            return numberOfEntities;
         }
     }
 }

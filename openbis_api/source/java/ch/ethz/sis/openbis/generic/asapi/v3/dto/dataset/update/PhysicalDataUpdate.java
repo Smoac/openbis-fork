@@ -37,6 +37,9 @@ public class PhysicalDataUpdate implements IUpdate
     @Deprecated
     private FieldUpdateValue<IFileFormatTypeId> fileFormatTypeId = new FieldUpdateValue<IFileFormatTypeId>();
 
+    @JsonProperty
+    private FieldUpdateValue<Boolean> archivingRequested = new FieldUpdateValue<Boolean>();
+
     @JsonIgnore
     @Deprecated
     public FieldUpdateValue<IFileFormatTypeId> getFileFormatTypeId()
@@ -49,6 +52,18 @@ public class PhysicalDataUpdate implements IUpdate
     public void setFileFormatTypeId(IFileFormatTypeId fileFormatTypeId)
     {
         this.fileFormatTypeId.setValue(fileFormatTypeId);
+    }
+
+    @JsonIgnore
+    public FieldUpdateValue<Boolean> isArchivingRequested()
+    {
+        return archivingRequested;
+    }
+
+    @JsonIgnore
+    public void setArchivingRequested(boolean archivingRequested)
+    {
+        this.archivingRequested.setValue(archivingRequested);
     }
 
     @Override

@@ -267,6 +267,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     private final IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
 
+    private final IConcurrentOperationLimiter operationLimiter;
+
     private String defaultPutDataStoreServerCodeOrNull;
 
     protected ICommonServer commonServer;
@@ -278,11 +280,11 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             final LastModificationState lastModificationState,
             IEntityValidatorFactory entityValidationFactory,
             IDynamicPropertyCalculatorFactory dynamicPropertyCalculatorFactory,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, IConcurrentOperationLimiter operationLimiter)
     {
         this(authenticationService, sessionManager, daoFactory, null, businessObjectFactory,
                 dataStoreServiceRegistrator, lastModificationState, entityValidationFactory,
-                dynamicPropertyCalculatorFactory, managedPropertyEvaluatorFactory);
+                dynamicPropertyCalculatorFactory, managedPropertyEvaluatorFactory, operationLimiter);
     }
 
     CommonServer(final IAuthenticationService authenticationService,
@@ -293,7 +295,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             final LastModificationState lastModificationState,
             IEntityValidatorFactory entityValidationFactory,
             IDynamicPropertyCalculatorFactory dynamicPropertyCalculatorFactory,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, IConcurrentOperationLimiter operationLimiter)
     {
         super(authenticationService, sessionManager, daoFactory, propertiesBatchManager,
                 businessObjectFactory);
@@ -302,6 +304,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         this.entityValidationFactory = entityValidationFactory;
         this.dynamicPropertyCalculatorFactory = dynamicPropertyCalculatorFactory;
         this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
+        this.operationLimiter = operationLimiter;
     }
 
     ICommonBusinessObjectFactory getBusinessObjectFactory()
@@ -750,9 +753,18 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     public List<Sample> searchForSamples(String sessionToken, DetailedSearchCriteria criteria)
     {
         final Session session = getSession(sessionToken);
-        SearchHelper searchHelper =
-                new SearchHelper(session, businessObjectFactory, getDAOFactory());
-        return searchHelper.searchForSamples(session.getUserName(), criteria);
+
+        return operationLimiter.executeLimitedWithTimeout(ConcurrentOperation.SEARCH_SAMPLES,
+                new ConcurrentOperation<List<Sample>>()
+                    {
+                        @Override
+                        public List<Sample> execute()
+                        {
+                            SearchHelper searchHelper =
+                                    new SearchHelper(session, businessObjectFactory, getDAOFactory());
+                            return searchHelper.searchForSamples(session.getUserName(), criteria);
+                        }
+                    });
     }
 
     @Override
@@ -962,26 +974,34 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     {
         Session session = getSession(sessionToken);
 
-        final List<MatchingEntity> list = new ArrayList<MatchingEntity>();
-        for (final SearchableEntity searchableEntity : searchableEntities)
-        {
-            HibernateSearchDataProvider dataProvider =
-                    new HibernateSearchDataProvider(getDAOFactory());
-            List<MatchingEntity> entities =
-                    getDAOFactory().getHibernateSearchDAO().searchEntitiesByTerm(
-                            session.getUserName(), searchableEntity, queryText, dataProvider,
-                            useWildcardSearchMode, list.size(), maxSize);
-            list.addAll(entities);
-        }
-        Collections.sort(list, new Comparator<MatchingEntity>()
-            {
-                @Override
-                public int compare(MatchingEntity o1, MatchingEntity o2)
-                {
-                    return new Double(o2.getScore()).compareTo(o1.getScore());
-                }
-            });
-        return list;
+        return operationLimiter.executeLimitedWithTimeout(ConcurrentOperation.SEARCH_GLOBALLY,
+                new ConcurrentOperation<List<MatchingEntity>>()
+                    {
+                        @Override
+                        public List<MatchingEntity> execute()
+                        {
+                            final List<MatchingEntity> list = new ArrayList<MatchingEntity>();
+                            for (final SearchableEntity searchableEntity : searchableEntities)
+                            {
+                                HibernateSearchDataProvider dataProvider =
+                                        new HibernateSearchDataProvider(getDAOFactory());
+                                List<MatchingEntity> entities =
+                                        getDAOFactory().getHibernateSearchDAO().searchEntitiesByTerm(
+                                                session.getUserName(), searchableEntity, queryText, dataProvider,
+                                                useWildcardSearchMode, list.size(), maxSize);
+                                list.addAll(entities);
+                            }
+                            Collections.sort(list, new Comparator<MatchingEntity>()
+                                {
+                                    @Override
+                                    public int compare(MatchingEntity o1, MatchingEntity o2)
+                                    {
+                                        return new Double(o2.getScore()).compareTo(o1.getScore());
+                                    }
+                                });
+                            return list;
+                        }
+                    });
     }
 
     @Override
@@ -1665,11 +1685,19 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             DetailedSearchCriteria criteria)
     {
         final Session session = getSession(sessionToken);
-        SearchHelper searchHelper =
-                new SearchHelper(session, businessObjectFactory, getDAOFactory());
-        String userId = session.getUserName();
-        List<ExperimentPE> experiments = searchHelper.searchForExperiments(userId, criteria);
-        return translateExperiments(sessionToken, experiments);
+
+        return operationLimiter.executeLimitedWithTimeout(ConcurrentOperation.SEARCH_EXPERIMENTS, new ConcurrentOperation<List<Experiment>>()
+            {
+                @Override
+                public List<Experiment> execute()
+                {
+                    SearchHelper searchHelper =
+                            new SearchHelper(session, businessObjectFactory, getDAOFactory());
+                    String userId = session.getUserName();
+                    List<ExperimentPE> experiments = searchHelper.searchForExperiments(userId, criteria);
+                    return translateExperiments(sessionToken, experiments);
+                }
+            });
     }
 
     @Override
@@ -1701,9 +1729,17 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             DetailedSearchCriteria criteria)
     {
         final Session session = getSession(sessionToken);
-        SearchHelper searchHelper =
-                new SearchHelper(session, businessObjectFactory, getDAOFactory());
-        return searchHelper.searchForDataSets(session.getUserName(), criteria);
+
+        return operationLimiter.executeLimitedWithTimeout(ConcurrentOperation.SEARCH_DATA_SETS, new ConcurrentOperation<List<AbstractExternalData>>()
+            {
+                @Override
+                public List<AbstractExternalData> execute()
+                {
+                    SearchHelper searchHelper =
+                            new SearchHelper(session, businessObjectFactory, getDAOFactory());
+                    return searchHelper.searchForDataSets(session.getUserName(), criteria);
+                }
+            });
     }
 
     @Override
@@ -1719,25 +1755,32 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             throw new UserFailureException("Unknown user: " + userId);
         }
 
-        SearchHelper searchHelper =
-                new SearchHelper(session, businessObjectFactory, getDAOFactory());
-        List<AbstractExternalData> unfilteredDatasets =
-                searchHelper.searchForDataSets(userId, person.getId(), criteria);
-
-        final ExternalDataValidator validator = new ExternalDataValidator();
-        validator.init(new AuthorizationDataProvider(getDAOFactory()));
-
-        final ArrayList<AbstractExternalData> datasets =
-                new ArrayList<AbstractExternalData>(unfilteredDatasets.size());
-
-        for (AbstractExternalData dataset : unfilteredDatasets)
-        {
-            if (validator.doValidation(person, dataset))
+        return operationLimiter.executeLimitedWithTimeout(ConcurrentOperation.SEARCH_DATA_SETS, new ConcurrentOperation<List<AbstractExternalData>>()
             {
-                datasets.add(dataset);
-            }
-        }
-        return datasets;
+                @Override
+                public List<AbstractExternalData> execute()
+                {
+                    SearchHelper searchHelper =
+                            new SearchHelper(session, businessObjectFactory, getDAOFactory());
+                    List<AbstractExternalData> unfilteredDatasets =
+                            searchHelper.searchForDataSets(userId, person.getId(), criteria);
+
+                    final ExternalDataValidator validator = new ExternalDataValidator();
+                    validator.init(new AuthorizationDataProvider(getDAOFactory()));
+
+                    final ArrayList<AbstractExternalData> datasets =
+                            new ArrayList<AbstractExternalData>(unfilteredDatasets.size());
+
+                    for (AbstractExternalData dataset : unfilteredDatasets)
+                    {
+                        if (validator.doValidation(person, dataset))
+                        {
+                            datasets.add(dataset);
+                        }
+                    }
+                    return datasets;
+                }
+            });
     }
 
     @Override
@@ -2490,7 +2533,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 getDAOFactory().getMetaprojectDAO().listMetaprojectsForEntity(
                         session.tryGetPerson(), sample);
         return SampleTranslator.translate(getSampleTypeSlaveServerPlugin(sample.getSampleType())
-                .getSampleInfo(session, sample), session.getBaseIndexURL(), MetaprojectTranslator
+                .getSampleInfo(session, sample), session.getBaseIndexURL(),
+                MetaprojectTranslator
                         .translate(metaprojectPEs),
                 managedPropertyEvaluatorFactory);
     }
@@ -3168,9 +3212,10 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.PROJECT_POWER_USER)
     @Capability("ARCHIVE_DATASET")
     public int archiveDatasets(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes, boolean removeFromDataStore)
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes,
+            boolean removeFromDataStore, Map<String, String> options)
     {
-        return super.archiveDatasets(sessionToken, datasetCodes, removeFromDataStore);
+        return super.archiveDatasets(sessionToken, datasetCodes, removeFromDataStore, options);
     }
 
     @Override
@@ -4110,9 +4155,17 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     public List<Material> searchForMaterials(String sessionToken, DetailedSearchCriteria criteria)
     {
         final Session session = getSession(sessionToken);
-        SearchHelper searchHelper =
-                new SearchHelper(session, businessObjectFactory, getDAOFactory());
-        return searchHelper.searchForMaterials(session.getUserName(), criteria);
+
+        return operationLimiter.executeLimitedWithTimeout(ConcurrentOperation.SEARCH_MATERIALS, new ConcurrentOperation<List<Material>>()
+            {
+                @Override
+                public List<Material> execute()
+                {
+                    SearchHelper searchHelper =
+                            new SearchHelper(session, businessObjectFactory, getDAOFactory());
+                    return searchHelper.searchForMaterials(session.getUserName(), criteria);
+                }
+            });
     }
 
     @Override

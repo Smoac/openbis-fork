@@ -59,6 +59,7 @@
 				$.jNotify._showOverlay($Div);
 
 			$.jNotify._show(msg);
+			return this;
 		},
 
 		/*******************/
@@ -127,7 +128,7 @@
 						$.jNotify._close();
 					else
 						$Div.css('cursor','pointer').click(function(e){
-							$.jNotify._close();
+							// $.jNotify._close();
 						});
 					break;
 				case 'center':
@@ -140,7 +141,7 @@
 						$.jNotify._close();
 					else
 						$Div.css('cursor','pointer').click(function(e){
-							$.jNotify._close();
+							// $.jNotify._close();
 						});
 					break;
 				case 'bottom' :
@@ -154,7 +155,7 @@
 						$.jNotify._close();
 					else
 						$Div.css('cursor','pointer').click(function(e){
-							$.jNotify._close();
+							// $.jNotify._close();
 						});
 					break;
 			}
@@ -174,7 +175,7 @@
 			overlay.click(function(e){
 				e.preventDefault();
 				opts.TimeShown = 0;
-				$.jNotify._close();
+				// $.jNotify._close();
 			});
 		},
 
@@ -233,21 +234,21 @@
 	/** Init method **/
 	jNotify = function(msg,options) {
 		if($.jNotify._isReadable('jNotify'))
-			$.jNotify.init(msg,options,'jNotify');
+			return $.jNotify.init(msg,options,'jNotify');
 	};
 
 	jNotifyImage = function(msg,options) {
 		if($.jNotify._isReadable('jNotifyImage'))
-			$.jNotify.init(msg,options,'jNotifyImage');
+			return $.jNotify.init(msg,options,'jNotifyImage');
 	};
 	
 	jSuccess = function(msg,options) {
 		if($.jNotify._isReadable('jSuccess'))
-			$.jNotify.init(msg,options,'jSuccess');
+			return $.jNotify.init(msg,options,'jSuccess');
 	};
 
 	jError = function(msg,options) {
 		if($.jNotify._isReadable('jError'))
-			$.jNotify.init(msg,options,'jError');
+			return $.jNotify.init(msg,options,'jError');
 	};
 })(jQuery);

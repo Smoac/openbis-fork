@@ -38,7 +38,9 @@ import org.apache.commons.collections4.map.MultiKeyMap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.DailyRollingFileAppender;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
 import org.w3c.dom.Document;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
@@ -64,6 +66,7 @@ import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.SyncEntityKind
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.entitygraph.EntityGraph;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.entitygraph.IEntityRetriever;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.entitygraph.INode;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.HarvesterMaintenanceTask;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.config.ParallelizedExecutionPreferences;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.config.SyncConfig;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.ResourceListParserData.Connection;
@@ -88,6 +91,8 @@ import ch.systemsx.cisd.cifex.shared.basic.UserFailureException;
 import ch.systemsx.cisd.common.concurrent.ParallelizedExecutor;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.ConversionUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
@@ -184,13 +189,14 @@ public class EntitySynchronizer
         this.operationLog = operationLog;
     }
 
-    public Date syncronizeEntities() throws Exception
+    public Date synchronizeEntities() throws Exception
     {
-        DataSourceConnector dataSourceConnector = new DataSourceConnector(config.getDataSourceURI(), config.getAuthenticationCredentials(), operationLog);
-        return syncronizeEntities(dataSourceConnector);
+        DataSourceConnector dataSourceConnector =
+                new DataSourceConnector(config.getDataSourceURI(), config.getAuthenticationCredentials(), operationLog);
+        return synchronizeEntities(dataSourceConnector);
     }
 
-    private Date syncronizeEntities(IDataSourceConnector dataSourceConnector) throws Exception
+    private Date synchronizeEntities(IDataSourceConnector dataSourceConnector) throws Exception
     {
         // retrieve the document from the data source
         operationLog.info("\n");
@@ -262,13 +268,11 @@ public class EntitySynchronizer
             AttachmentSynchronizationSummary syncSummary = processAttachments(attachmentHoldersToProcess);
             notSyncedAttachmentsHolders = syncSummary.notRegisteredAttachmentHolderCodes;
             operationLog.info("Attachment synchronization summary:\n" + syncSummary.addedCount + " attachment(s) were added.\n"
-                    + syncSummary.updatedCount
-                    + " attachment(s) were updated.\n"
-                    + syncSummary.deletedCount
-                    + " attachment(s) were deleted.\n"
-                    + "attachments for "
-                    + notSyncedAttachmentsHolders.size()
-                    + " entitities FAILED synchronization. ");
+                    + syncSummary.updatedCount + " attachment(s) were updated.\n"
+                    + syncSummary.deletedCount + " attachment(s) were deleted.\n"
+                    + (notSyncedAttachmentsHolders.isEmpty() ? ""
+                            : "synchronization of attachments for "
+                                    + notSyncedAttachmentsHolders.size() + " entitities FAILED."));
         }
 
         // register physical data sets without any hierarchy
@@ -293,11 +297,12 @@ public class EntitySynchronizer
             saveFailedEntitiesFile(dsRegistrationSummary.notRegisteredDataSetCodes, notSyncedAttachmentsHolders);
 
             notRegisteredDataSetCodes = dsRegistrationSummary.notRegisteredDataSetCodes;
-            operationLog.info("Data set synchronization summary:\n" + dsRegistrationSummary.addedDsCount + " data set(s) were added.\n"
-                    + dsRegistrationSummary.updatedDsCount
-                    + " data set(s) were updated.\n"
-                    + notRegisteredDataSetCodes.size()
-                    + " data set(s) FAILED to register.\n"
+            operationLog.info("Data set synchronization summary:\n"
+                    + dsRegistrationSummary.addedDsCount + " data set(s) were added.\n"
+                    + dsRegistrationSummary.updatedDsCount + " data set(s) were updated.\n"
+                    + (notRegisteredDataSetCodes.isEmpty() ? ""
+                            : notRegisteredDataSetCodes.size()
+                                    + " data set(s) FAILED to register.\n")
                     + blackListedDataSetCodes.size() + " data set(s)"
                     + " were skipped because they were BLACK-LISTED.");
         }

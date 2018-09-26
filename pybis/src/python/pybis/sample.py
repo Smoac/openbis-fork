@@ -4,11 +4,11 @@ from .openbis_object import OpenBisObject
 from .definitions import openbis_definitions
 from .utils import VERBOSE
 
-class Sample():
+class Sample(OpenBisObject):
     """ A Sample is one of the most commonly used objects in openBIS.
     """
 
-    def __init__(self, openbis_obj, type, data=None, props=None, **kwargs):
+    def __init__(self, openbis_obj, type, project=None, data=None, props=None, **kwargs):
         self.__dict__['openbis'] = openbis_obj
         self.__dict__['type'] = type
         self.__dict__['p'] = PropertyHolder(openbis_obj, type)
@@ -16,6 +16,9 @@ class Sample():
 
         if data is not None:
             self._set_data(data)
+
+        if project is not None:
+            setattr(self, 'project', project)
 
         if props is not None:
             for key in props:

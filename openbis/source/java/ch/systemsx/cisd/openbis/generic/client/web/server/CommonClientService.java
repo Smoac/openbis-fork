@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -2355,7 +2356,7 @@ public final class CommonClientService extends AbstractClientService implements
     {
         final String sessionToken = getSessionToken();
         List<String> datasetCodes = extractDatasetCodes(displayedOrSelectedDatasetCriteria);
-        int result = commonServer.archiveDatasets(sessionToken, datasetCodes, removeFromDataStore);
+        int result = commonServer.archiveDatasets(sessionToken, datasetCodes, removeFromDataStore, new HashMap<>());
         return new ArchivingResult(datasetCodes.size(), result);
     }
 
@@ -2680,7 +2681,7 @@ public final class CommonClientService extends AbstractClientService implements
     {
         final String sessionToken = getSessionToken();
         List<String> datasetCodes = extractDatasetCodes(criteria);
-        int result = commonServer.archiveDatasets(sessionToken, datasetCodes, removeFromDataStore);
+        int result = commonServer.archiveDatasets(sessionToken, datasetCodes, removeFromDataStore, new HashMap<>());
         return new ArchivingResult(datasetCodes.size(), result);
     }
 

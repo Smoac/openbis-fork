@@ -34,7 +34,7 @@ function CreateUserController() {
 							mainController.changeView("showUserManagerPage");
 						});
 					} else if (message.indexOf("Following persons already exist") !== -1){
-						Util.showError(message, function() {
+						Util.showUserError(message, function() {
 							_this._createUserView.enableAccept();
 						}, true);
 					} else {
@@ -62,7 +62,7 @@ function CreateUserController() {
 								}
 							});
 				} else {
-					Util.showError("Passwords are not equal.", function() { _this._createUserView.enableAccept(); }, true);
+					Util.showUserError("Passwords are not equal.", function() { _this._createUserView.enableAccept(); }, true);
 				}
 			}
 		

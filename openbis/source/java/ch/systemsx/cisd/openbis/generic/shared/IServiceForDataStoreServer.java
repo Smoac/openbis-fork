@@ -566,7 +566,7 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
     @Transactional
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
     public int archiveDatasets(String sessionToken, List<String> datasetCodes,
-            boolean removeFromDataStore);
+            boolean removeFromDataStore, Map<String, String> options);
 
     /**
      * Schedules unarchiving of specified data sets.

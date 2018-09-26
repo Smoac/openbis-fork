@@ -100,6 +100,7 @@ public class PhysicalDataTranslator extends AbstractCachingTranslator<Long, Phys
         result.setPresentInArchive(baseRecord.isPresentInArchive);
         result.setStorageConfirmation(baseRecord.isStorageConfirmed);
         result.setSpeedHint(baseRecord.speedHint);
+        result.setArchivingRequested(baseRecord.isArchivingRequested);
 
         if (fetchOptions.hasFileFormatType())
         {

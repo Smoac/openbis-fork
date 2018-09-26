@@ -168,7 +168,7 @@ def expandAndexport(tr, params):
     v3 = ServiceProvider.getV3ApplicationService();
     v3d = ServiceProvider.getApplicationContext().getBean(V3_DSS_BEAN);
     mailClient = tr.getGlobalState().getMailClient();
-    
+    metadataOnly = params.get("metadataOnly");
     entitiesToExport = [];
     entitiesToExpand = deque([]);
         
@@ -243,7 +243,7 @@ def expandAndexport(tr, params):
                 entityFound = { "type" : "DATASET", "permId" : dataset.getPermId().getPermId() };
                 addToExportWithoutRepeating(entitiesToExport, entityFound);
                 entitiesToExpand.append(entityFound);
-        if type == "DATASET":
+        if type == "DATASET" and not metadataOnly:
             criteria = DataSetFileSearchCriteria();
             criteria.withDataSet().withPermId().thatEquals(permId);
             results = v3d.searchFiles(sessionToken, criteria, DataSetFileFetchOptions());
@@ -344,8 +344,8 @@ def export(sessionToken, entities, includeRoot, userEmail, mailClient):
             fetchOps.withModifier();
             fetchOps.withProperties();
             fetchOps.withTags();
-            fetchOps.withParents();
-            fetchOps.withChildren();
+            fetchOps.withParents().withProperties();
+            fetchOps.withChildren().withProperties();
             entityObj = v3.searchSamples(sessionToken, criteria, fetchOps).getObjects().get(0);
             entityFilePath = getFilePath(entityObj.getExperiment().getProject().getSpace().getCode(), entityObj.getExperiment().getProject().getCode(), entityObj.getExperiment().getCode(), entityObj.getCode(), None);
         if type == "DATASET":
@@ -359,8 +359,8 @@ def export(sessionToken, entities, includeRoot, userEmail, mailClient):
             fetchOps.withModifier();
             fetchOps.withProperties();
             fetchOps.withTags();
-            fetchOps.withParents();
-            fetchOps.withChildren();
+            fetchOps.withParents().withProperties();
+            fetchOps.withChildren().withProperties();
             entityObj = v3.searchDataSets(sessionToken, criteria, fetchOps).getObjects().get(0);
             
             sampleCode = None
@@ -483,11 +483,18 @@ def getDOCX(entityObj, v3, sessionToken, isHTML):
         docxBuilder.addHeader("Parents");
         parents = entityObj.getParents();
         for parent in parents:
-            docxBuilder.addParagraph(parent.getCode());
+            relCodeName = parent.getCode();
+            if "NAME" in parent.getProperties():
+                relCodeName = relCodeName + " (" + parent.getProperties()["NAME"] + ")";
+            docxBuilder.addParagraph(relCodeName);
+        
         docxBuilder.addHeader("Children");
         children = entityObj.getChildren();
         for child in children:
-            docxBuilder.addParagraph(child.getCode());
+            relCodeName = child.getCode();
+            if "NAME" in child.getProperties():
+                relCodeName = relCodeName + " (" + child.getProperties()["NAME"] + ")";
+            docxBuilder.addParagraph(relCodeName);
     
     if not isinstance(entityObj, Project):
         docxBuilder.addHeader("Properties");
@@ -566,11 +573,17 @@ def getTXT(entityObj, v3, sessionToken, isRichText):
         txtBuilder.append("# Parents:").append("\n");
         parents = entityObj.getParents();
         for parent in parents:
-            txtBuilder.append("- ").append(parent.getCode()).append("\n");
+            relCodeName = parent.getCode();
+            if "NAME" in parent.getProperties():
+                relCodeName = relCodeName + " (" + parent.getProperties()["NAME"] + ")";
+            txtBuilder.append("- ").append(relCodeName).append("\n");
         txtBuilder.append("# Children:").append("\n");
         children = entityObj.getChildren();
         for child in children:
-            txtBuilder.append("- ").append(child.getCode()).append("\n");
+            relCodeName = child.getCode();
+            if "NAME" in child.getProperties():
+                relCodeName = relCodeName + " (" + child.getProperties()["NAME"] + ")";
+            txtBuilder.append("- ").append(relCodeName).append("\n");
     
     if not isinstance(entityObj, Project):
         txtBuilder.append("# Properties:").append("\n");

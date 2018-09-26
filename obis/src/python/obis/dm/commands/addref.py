@@ -1,6 +1,6 @@
 import os
 from .openbis_command import OpenbisCommand
-from ..command_result import CommandResult
+from ..command_result import CommandResult, CommandException
 from ..utils import complete_openbis_config
 
 

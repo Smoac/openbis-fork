@@ -24,9 +24,9 @@ function SettingsManager(serverFacade) {
 			if(settingsObjects && settingsObjects.length > 0) {
 				settingsObjects.sort(function(a, b) {
 				    if(a.identifier === "/ELN_SETTINGS/GENERAL_ELN_SETTINGS") { // Global settings are applied first to be overriden by others
-				    		return 1;
-				    } else {
 				    		return -1;
+				    } else {
+				    		return 1;
 				    }
 				});
 				callback(settingsObjects);
@@ -90,10 +90,11 @@ function SettingsManager(serverFacade) {
 		var fieldsToOverride = [
 			"dataSetTypeForFileNameMap",
 			"forcedDisableRTF",
-			"forceMonospaceFont"
+			"forceMonospaceFont",
+			"showDatasetArchivingButton"
 		];
 		for (var field of fieldsToOverride) {
-			if (settings[field]) {
+			if (settings[field] != null) {
 				targetProfile[field] = settings[field];
 			}
 		}
@@ -120,12 +121,20 @@ function SettingsManager(serverFacade) {
 			}
 		}
 		
-		// sampleTypeDefinitionsExtension gets overwritten with settings if found
-		for (var sampleType of Object.keys(settings.sampleTypeDefinitionsExtension)) {
-			profile.sampleTypeDefinitionsExtension[sampleType] = settings.sampleTypeDefinitionsExtension[sampleType];
-			// Add the types to hide == not show
-			if(!settings.sampleTypeDefinitionsExtension[sampleType].SHOW) {
-				targetProfile.hideTypes["sampleTypeCodes"].push(sampleType);
+		
+		for (var sampleTypeCode of Object.keys(settings.sampleTypeDefinitionsExtension)) {
+			// sampleTypeDefinitionsExtension gets overwritten with settings if found
+			targetProfile.sampleTypeDefinitionsExtension[sampleTypeCode] = settings.sampleTypeDefinitionsExtension[sampleTypeCode];
+			
+			// Remove current profile show config
+			if($.inArray(sampleTypeCode, targetProfile.hideTypes["sampleTypeCodes"]) !== -1) {
+				var indexToRemove = $.inArray(sampleTypeCode, targetProfile.hideTypes["sampleTypeCodes"]);
+				targetProfile.hideTypes["sampleTypeCodes"] = targetProfile.hideTypes["sampleTypeCodes"].splice(indexToRemove, 1);
+			}
+			
+			// Add current profile show config
+			if(!settings.sampleTypeDefinitionsExtension[sampleTypeCode].SHOW) {
+				targetProfile.hideTypes["sampleTypeCodes"].push(sampleTypeCode);
 			}
 		}
 	}
@@ -134,7 +143,6 @@ function SettingsManager(serverFacade) {
 		var errors = [];
 		this._validateForcedDisableRTF(settings, errors);
 		this._validateForcedMonospaceFont(settings, errors);
-		this._validateInventorySpaces(settings, errors);
 		this._validateDataSetTypeForFileNameMap(settings, errors);
 		this._validateSampleTypeDefinitionsExtension(settings, errors);
 		return errors;
@@ -209,16 +217,6 @@ function SettingsManager(serverFacade) {
 			for (var item of settings.forceMonospaceFont) {
 				if (this.getForcedMonospaceFontOptions().indexOf(item) === -1) {
 					errors.push(item + " is not a property type.");
-				}
-			}
-		}
-	}
-
-	this._validateInventorySpaces = function(settings, errors) {
-		if (settings.inventorySpaces) {
-			for (var item of settings.inventorySpaces) {
-				if (this.getInventorySpacesOptions().indexOf(item) === -1) {
-					errors.push(item + " is not space.");
 				}
 			}
 		}

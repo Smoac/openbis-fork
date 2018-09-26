@@ -68,6 +68,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleCodeGeneratorBy
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleCodeGeneratorForTempCodes;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
@@ -111,6 +112,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
@@ -1041,9 +1043,12 @@ public final class GenericServer extends AbstractServer<IGenericServerInternal> 
     public void updateTemporaryCodes(String sessionToken, Map<String, List<String>> sampleTypeCodeToTemporaryIdentifiers)
     {
         ISpaceDAO spaceDAO = getDAOFactory().getSpaceDAO();
+        IProjectDAO projectDAO = getDAOFactory().getProjectDAO();
         ISampleDAO sampleDAO = getDAOFactory().getSampleDAO();
         Map<String, SpacePE> spaceCache = new HashMap<String, SpacePE>();
+        Map<String, ProjectPE> projectCache = new HashMap<String, ProjectPE>();
         Map<String, List<String>> spaceToOldSampleCodes = new HashMap<String, List<String>>();
+        Map<String, List<String>> projectToOldSampleCodes = new HashMap<String, List<String>>();
         Map<String, String> identifiersToNewSampleCodes = new HashMap<String, String>();
 
         // Generate Updates for each space and build helper maps
@@ -1060,28 +1065,58 @@ public final class GenericServer extends AbstractServer<IGenericServerInternal> 
                 String tempIdentifier = temporaryIdentifiers.get(tIdx);
                 String spaceCode = tempIdentifier.split("/")[1];
                 String tempSampleCode = tempIdentifier.substring(tempIdentifier.lastIndexOf('/') + 1, tempIdentifier.length());
-                SpacePE spacePE = spaceCache.get(spaceCode);
-                if (spacePE == null)
-                {
-                    spacePE = spaceDAO.tryFindSpaceByCode(spaceCode);
-                    spaceCache.put(spaceCode, spacePE);
+                String[] tempIdentifierParts = tempIdentifier.split("/");
+                String projectIdentifier = null;
+                String projectCode = null;
+                if(tempIdentifierParts.length == 4) {
+                		projectCode = tempIdentifierParts[2];
+                		projectIdentifier = "/" + spaceCode + "/" + projectCode;
                 }
-                List<String> oldSampleCodes = spaceToOldSampleCodes.get(spaceCode);
-                if (oldSampleCodes == null)
-                {
-                    oldSampleCodes = new ArrayList<String>();
-                    spaceToOldSampleCodes.put(spaceCode, oldSampleCodes);
+                
+                List<String> oldSampleCodes = null;
+                if(projectIdentifier != null) {
+                		ProjectPE projectPE = projectCache.get(projectIdentifier);
+                    if(projectPE == null) {
+                    		projectPE = projectDAO.tryFindProject(spaceCode, projectCode);
+                    		projectCache.put(projectIdentifier, projectPE);
+                    }
+                    
+                    oldSampleCodes = projectToOldSampleCodes.get(projectIdentifier);
+                    if (oldSampleCodes == null)
+                    {
+                        oldSampleCodes = new ArrayList<String>();
+                        projectToOldSampleCodes.put(projectIdentifier, oldSampleCodes);
+                    }
+                } else {
+                		SpacePE spacePE = spaceCache.get(spaceCode);
+                    if (spacePE == null)
+                    {
+                        spacePE = spaceDAO.tryFindSpaceByCode(spaceCode);
+                        spaceCache.put(spaceCode, spacePE);
+                    }
+                    
+                    oldSampleCodes = spaceToOldSampleCodes.get(spaceCode);
+                    if (oldSampleCodes == null)
+                    {
+                        oldSampleCodes = new ArrayList<String>();
+                        spaceToOldSampleCodes.put(spaceCode, oldSampleCodes);
+                    }
                 }
                 oldSampleCodes.add(tempSampleCode);
                 identifiersToNewSampleCodes.put(tempIdentifier, newCodes.get(tIdx));
             }
         }
-
+        
         // Retrieve all sample PE objects
         List<SamplePE> allSamplesPE = new ArrayList<SamplePE>();
         for (String spaceCode : spaceToOldSampleCodes.keySet())
         {
             List<SamplePE> samples = sampleDAO.listByCodesAndSpace(spaceToOldSampleCodes.get(spaceCode), null, spaceCache.get(spaceCode));
+            allSamplesPE.addAll(samples);
+        }
+        for (String projectIdentifier : projectToOldSampleCodes.keySet())
+        {
+            List<SamplePE> samples = sampleDAO.listByCodesAndProject(projectToOldSampleCodes.get(projectIdentifier), null, projectCache.get(projectIdentifier));
             allSamplesPE.addAll(samples);
         }
         // Update all codes in sample PE objects

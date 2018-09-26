@@ -929,6 +929,25 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testSearch(c, fSearch, fCheck);
 		});
 
+		QUnit.test("searchDataSets() withPhysicalData with archiving requested", function(assert) {
+			var c = new common(assert, openbis);
+			
+			var fSearch = function(facade) {
+				var criteria = new c.DataSetSearchCriteria();
+				criteria.withCode().thatStartsWith("2013");
+				var pdCriteria = criteria.withPhysicalData();
+				pdCriteria.withArchivingRequested().thatEquals(true);
+				
+				return facade.searchDataSets(criteria, c.createDataSetFetchOptions());
+			}
+			
+			var fCheck = function(facade, dataSets) {
+				c.assertObjectsWithValues(dataSets, "code", [ "20130412152036861-380" ]);
+			}
+			
+			testSearch(c, fSearch, fCheck);
+		});
+		
 		QUnit.test("searchDataSets() withLinkedData", function(assert) {
 			var c = new common(assert, openbis);
 

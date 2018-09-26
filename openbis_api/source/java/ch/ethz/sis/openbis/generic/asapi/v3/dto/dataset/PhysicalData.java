@@ -72,6 +72,9 @@ public class PhysicalData implements Serializable
     @JsonProperty
     private Integer speedHint;
 
+    @JsonProperty
+    private Boolean archivingRequested;
+
     // Method automatically generated with DtoGenerator
     @JsonIgnore
     public PhysicalDataFetchOptions getFetchOptions()
@@ -249,6 +252,19 @@ public class PhysicalData implements Serializable
     public void setSpeedHint(Integer speedHint)
     {
         this.speedHint = speedHint;
+    }
+
+    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    public Boolean isArchivingRequested()
+    {
+        return archivingRequested;
+    }
+
+    // Method automatically generated with DtoGenerator
+    public void setArchivingRequested(Boolean archivingRequested)
+    {
+        this.archivingRequested = archivingRequested;
     }
 
     // Method automatically generated with DtoGenerator

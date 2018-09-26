@@ -1,22 +1,12 @@
 from ch.systemsx.cisd.openbis.dss.generic.shared import ServiceProvider
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id import DataSetPermId
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update import DataSetUpdate
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update import PhysicalDataUpdate
+
 
 def process(transaction):
     incoming_path = transaction.getIncoming()
     executeOperation(incoming_path.name)
-    
-    expid = "/DEFAULT/DEFAULT/ARCHIVING"
-    exp = transaction.getExperiment(expid)
-     
-    if None == exp:
-        exp = transaction.createNewExperiment(expid, "UNKNOWN")
-        exp.setPropertyValue("DESCRIPTION", 'Archiving')
-   
-    dataSet = transaction.createNewDataSet()
-          
-    dataSet.setDataSetType("UNKNOWN")
-    dataSet.setExperiment(exp)
-    
-    transaction.moveFile(incoming_path.getAbsolutePath(), dataSet)
     
 def executeOperation(file_name):
     parts = file_name.split()
@@ -29,3 +19,11 @@ def executeOperation(file_name):
         service.archiveDataSets(data_set_codes, False)
     elif parts[0] == 'unarchive':
         service.unarchiveDataSets(data_set_codes)
+    elif parts[0] == 'requestToArchive':
+        v3 = ServiceProvider.getV3ApplicationService()
+        update = DataSetUpdate()
+        update.setDataSetId(DataSetPermId(data_set_codes[0]))
+        physicalData = PhysicalDataUpdate()
+        physicalData.setArchivingRequested(True)
+        update.setPhysicalData(physicalData)
+        v3.updateDataSets(service.getSessionToken(), [update])

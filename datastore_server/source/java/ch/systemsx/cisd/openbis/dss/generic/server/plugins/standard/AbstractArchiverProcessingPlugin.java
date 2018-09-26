@@ -357,7 +357,6 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
                             : isDataSetPresentInArchive(dataset);
             (upToDateStatus.isSuccess() ? upToDateInArchive : differentInArchive).add(dataset);
         }
-
         return new GroupedDatasets(upToDateInArchive, differentInArchive);
     }
 

@@ -3,6 +3,7 @@ import pybis
 from .openbis_command import OpenbisCommand, ContentCopySelector
 from ..command_result import CommandResult
 from ..checksum import validate_checksum
+from ..utils import cd
 
 class Download(OpenbisCommand):
     """
@@ -29,13 +30,15 @@ class Download(OpenbisCommand):
         data_set = self.openbis.get_dataset(self.data_set_id)
         content_copy_index =  ContentCopySelector(data_set, self.content_copy_index, get_index=True).select()
         files = self.files if self.files is not None else data_set.file_list
-        destination, invalid_files = data_set.download(files, linked_dataset_fileservice_url=self.fileservice_url(), content_copy_index=content_copy_index)
-        if self.skip_integrity_check != True:
-            files = [file for file in files if file not in invalid_files]
-            target_folder = os.path.join(destination, data_set.permId)
-            invalid_files += validate_checksum(self.openbis, files, data_set.permId, target_folder)
-            self.redownload_invalid_files_on_demand(invalid_files, target_folder)
-        return CommandResult(returncode=0, output="Files downloaded to: %s" % target_folder)
+
+        with cd(self.data_mgmt.invocation_path):
+            destination, invalid_files = data_set.download(files, linked_dataset_fileservice_url=self.fileservice_url(), content_copy_index=content_copy_index)
+            if self.skip_integrity_check != True:
+                files = [file for file in files if file not in invalid_files]
+                target_folder = os.path.join(destination, data_set.permId)
+                invalid_files += validate_checksum(self.openbis, files, data_set.permId, target_folder, None)
+                self.redownload_invalid_files_on_demand(invalid_files, target_folder)
+            return CommandResult(returncode=0, output="Files downloaded to: %s" % target_folder)
 
 
     def redownload_invalid_files_on_demand(self, invalid_files, target_folder):

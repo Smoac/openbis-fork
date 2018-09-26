@@ -170,7 +170,7 @@ function StorageListView(storageListController, storageListModel) {
 					newSample : true,
 					newSampleJustCreated : true,
 					code : uuid,
-					identifier : "/" + profile.getStorageSpaceForSample(_this._storageListModel.sample) + "/" + uuid,
+					identifier : IdentifierUtil.getSampleIdentifier(profile.getStorageSpaceForSample(_this._storageListModel.sample), null, uuid),
 					sampleTypeCode : "STORAGE_POSITION",
 					properties : {}
 			};

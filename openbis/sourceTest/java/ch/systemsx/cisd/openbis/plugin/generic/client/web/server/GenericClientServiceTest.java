@@ -137,6 +137,13 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
         multipartFile = context.mock(MultipartFile.class);
         sessionWorkspaceProvider = context.mock(ISessionWorkspaceProvider.class);
         genericClientService = new GenericClientService(genericServer, requestContextProvider);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(genericServer).isProjectSamplesEnabled(SESSION_TOKEN);
+                    will(returnValue(true));
+                }
+            });
     }
 
     @Test
@@ -378,7 +385,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                 {
                     prepareGetHttpSession(this);
                     prepareGetSessionToken(this);
-                    
+
                     allowing(sessionWorkspaceProvider).getSessionWorkspace(SESSION_TOKEN);
                     will(returnValue(getSessionWorkspaceDir()));
 
@@ -458,7 +465,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                 {
                     prepareGetHttpSession(this);
                     prepareGetSessionToken(this);
-                    
+
                     allowing(sessionWorkspaceProvider).getSessionWorkspace(SESSION_TOKEN);
                     will(returnValue(getSessionWorkspaceDir()));
 
@@ -549,7 +556,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                 {
                     prepareGetHttpSession(this);
                     prepareGetSessionToken(this);
-                    
+
                     allowing(sessionWorkspaceProvider).getSessionWorkspace(SESSION_TOKEN);
                     will(returnValue(getSessionWorkspaceDir()));
 
@@ -682,7 +689,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
             {
                 {
                     prepareGetSessionToken(this);
-                    
+
                     allowing(sessionWorkspaceProvider).getSessionWorkspace(SESSION_TOKEN);
                     will(returnValue(getSessionWorkspaceDir()));
 
@@ -781,7 +788,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                 {
                     prepareGetHttpSession(this);
                     prepareGetSessionToken(this);
-                    
+
                     allowing(sessionWorkspaceProvider).getSessionWorkspace(SESSION_TOKEN);
                     will(returnValue(getSessionWorkspaceDir()));
 
@@ -865,7 +872,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                 {
                     prepareGetHttpSession(this);
                     prepareGetSessionToken(this);
-                    
+
                     allowing(sessionWorkspaceProvider).getSessionWorkspace(SESSION_TOKEN);
                     will(returnValue(getSessionWorkspaceDir()));
 

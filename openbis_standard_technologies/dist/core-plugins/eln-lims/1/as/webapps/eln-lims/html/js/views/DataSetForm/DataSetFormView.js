@@ -45,15 +45,15 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			experimentIdentifier = this._dataSetFormModel.entity.experimentIdentifierOrNull;
 		}
 		if(experimentIdentifier) {
-			spaceCode = experimentIdentifier.split("/")[1];
-			projectCode = experimentIdentifier.split("/")[2];
-			experimentCode = experimentIdentifier.split("/")[3];
+			spaceCode = IdentifierUtil.getSpaceCodeFromIdentifier(experimentIdentifier);
+			projectCode = IdentifierUtil.getProjectCodeFromExperimentIdentifier(experimentIdentifier);
+			experimentCode = IdentifierUtil.getCodeFromIdentifier(experimentIdentifier);
 		}
 		var sampleCode;
 		var sampleIdentifier;
 		if(!this._dataSetFormModel.isExperiment()) {
 			sampleCode = this._dataSetFormModel.entity.code;
-			spaceCode = this._dataSetFormModel.entity.identifier.split("/")[1];
+			spaceCode = IdentifierUtil.getSpaceCodeFromIdentifier(this._dataSetFormModel.entity.identifier);
 			sampleIdentifier = this._dataSetFormModel.entity.identifier;
 		}
 		var datasetCodeAndPermId = this._dataSetFormModel.dataSet.code;
@@ -90,6 +90,66 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 				mainController.changeView('showEditDataSetPageFromPermId', _this._dataSetFormModel.dataSet.code);
 			});
 			toolbarModel.push({ component : $editBtn, tooltip: "Edit" });
+
+			//Move
+			var $moveBtn = FormUtil.getButtonWithIcon("glyphicon-move", function () {
+				var moveEntityController = new MoveEntityController("DATASET", _this._dataSetFormModel.dataSet.code);
+				moveEntityController.init();
+			});
+			toolbarModel.push({ component : $moveBtn, tooltip: "Move" });
+			
+			//Archiving Requested Button
+			var physicalData = this._dataSetFormModel.dataSetV3.physicalData;
+
+			if (profile.showDatasetArchivingButton && physicalData) {
+
+				var archiveImage = "./img/archive-not-requested-icon.png";
+				if (physicalData.presentInArchive) {
+					archiveImage = "./img/archive-archived-icon.png";
+				} else if (physicalData.archivingRequested || physicalData.status == "ARCHIVE_PENDING") {
+					archiveImage = "./img/archive-requested-icon.png";
+				}
+
+				var archiveAction = null;
+				var archiveTooltip = null;
+				var $archiveTooltip = null;
+				if (physicalData.status == "AVAILABLE" && !physicalData.presentInArchive) {
+					if (physicalData.archivingRequested) {
+						archiveAction = function() {
+							_this.revokeArchivingRequest();
+						}
+						archiveTooltip = "Revoke archiving request";
+					} else {
+						archiveAction = function() {
+							_this.requestArchiving();
+						}
+						archiveTooltip = "Request archiving";
+					}
+				} else if (physicalData.status == "ARCHIVED") {
+					archiveAction = function() {
+						_this._dataSetFormController.unarchive();
+					}
+					archiveTooltip = "Unarchive";
+				}
+
+				if (archiveTooltip == null) {
+					$archiveTooltip = $("<div>")
+						.append($("<p>").text("Status: " + physicalData.status))
+						.append($("<p>").text("Present in archive: " + physicalData.presentInArchive))
+						.append($("<p>").text("Archiving requested: " + physicalData.archivingRequested));
+				}
+
+				var $archivingRequestedBtn = FormUtil.getButtonWithImage(archiveImage, archiveAction);
+				if (archiveAction == null) {
+					$archivingRequestedBtn.attr("disabled", true);
+				}
+
+				toolbarModel.push({
+					component : $archivingRequestedBtn,
+					tooltip : archiveTooltip,
+					$tooltip : $archiveTooltip
+				});
+			}
 			
 			//Delete Button
 			var $deleteBtn = FormUtil.getDeleteButton(function(reason) {
@@ -104,18 +164,11 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			toolbarModel.push({ component : $hierarchyTable, tooltip: "Hierarchy Table" });
 			
 			//Export
-			var $export = FormUtil.getButtonWithIcon("glyphicon-export", function() {
-				Util.blockUI();
-				var facade = mainController.serverFacade;
-				facade.exportAll([{ type: "DATASET", permId : _this._dataSetFormModel.dataSet.code, expand : true }], false, function(error, result) {
-					if(error) {
-						Util.showError(error);
-					} else {
-						Util.showSuccess("Export is being processed, you will receive an email when is ready, if you logout the process will stop.", function() { Util.unblockUI(); });
-					}
-				});
-			});
-			toolbarModel.push({ component : $export, tooltip: "Export" });
+			var $exportAll = FormUtil.getExportButton([{ type: "DATASET", permId : _this._dataSetFormModel.dataSet.code, expand : true }], false);
+			toolbarModel.push({ component : $exportAll, tooltip: "Export Metadata & Data" });
+		
+			var $exportOnlyMetadata = FormUtil.getExportButton([{ type: "DATASET", permId : _this._dataSetFormModel.dataSet.code, expand : true }], true);
+			toolbarModel.push({ component : $exportOnlyMetadata, tooltip: "Export Metadata only" });
 			
 			//Jupyter Button
 			if(profile.jupyterIntegrationServerEndpoint) {
@@ -148,6 +201,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		$wrapper.append($dataSetTypeFieldSet);
 		
 		var $dataSetTypeSelector = null;
+		
 		if(this._dataSetFormModel.mode === FormMode.CREATE) {
 			$dataSetTypeSelector = FormUtil.getDataSetsDropDown('DATASET_TYPE', this._dataSetFormModel.dataSetTypes);
 			$dataSetTypeSelector.change(function() { 
@@ -158,7 +212,6 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 				}
 				_this.isFormDirty = true;
 			});
-			
 			var $dataSetTypeDropDown = $('<div>', { class : 'form-group' });
 			if(!this._dataSetFormModel.isMini) {
 				$dataSetTypeDropDown.append($('<label>', {class: "control-label"}).html('Data Set Type&nbsp;(*):'));
@@ -177,19 +230,57 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			$dataSetTypeFieldSet.append($dataSetTypeLabel);
 			var $dataSetCodeLabel = FormUtil.getFieldForLabelWithText('Code', this._dataSetFormModel.dataSet.code, null);
 			$dataSetTypeFieldSet.append($dataSetCodeLabel);
-			
-			var datasetParents = "N/A";
-			for(var pIdx = 0; pIdx < this._dataSetFormModel.dataSet.parentCodes.length; pIdx++) {
-				if(pIdx === 0) {
-					datasetParents = this._dataSetFormModel.dataSet.parentCodes[pIdx];
-				} else {
-					datasetParents += ", " + this._dataSetFormModel.dataSet.parentCodes[pIdx];
-				}
+		}
+		
+		// Parents
+		
+		var $dataSetParentsCodeLabel = $("<div>");
+		if(this._dataSetFormModel.mode === FormMode.VIEW) {
+			for(var i = 0; i < this._dataSetFormModel.dataSetV3.parents.length; i++) {
+					var parent = this._dataSetFormModel.dataSetV3.parents[i];
+					var $span = $("<span>");
+					$span.append(FormUtil.getFormLink(parent.permId.permId, "DataSet", parent.permId.permId));
+					var name = parent.properties[profile.propertyReplacingCode];
+					if(name) {
+						$span.append(" : ").append(name);
+					}
+					$dataSetParentsCodeLabel.append($("<div>").append($span));
 			}
 			
-			var $dataSetParentsCodeLabel = FormUtil.getFieldForLabelWithText('Parents', datasetParents, null);
-			$dataSetTypeFieldSet.append($dataSetParentsCodeLabel);
+		} else if(!this._dataSetFormModel.isMini) {
+			this._dataSetFormModel.datasetParentsComponent = new AdvancedEntitySearchDropdown(true, false, "Search parents to add", false, false, true, false);
+			this._dataSetFormModel.datasetParentsComponent.init($dataSetParentsCodeLabel);
+			this._dataSetFormModel.datasetParentsComponent.addSelectedDataSets(this._dataSetFormModel.dataSet.parentCodes);
 		}
+		
+		if((this._dataSetFormModel.mode === FormMode.VIEW && this._dataSetFormModel.dataSetV3.parents.length !== 0) 
+			|| 
+			(this._dataSetFormModel.mode !== FormMode.VIEW && !this._dataSetFormModel.isMini)
+			) {
+			$dataSetTypeFieldSet.append(FormUtil.getFieldForComponentWithLabel($dataSetParentsCodeLabel, 'Parents'));
+		}
+		
+		// Children
+		
+		var $dataSetChildrenCodeLabel = $("<div>");
+		if(this._dataSetFormModel.mode === FormMode.VIEW) {
+			for(var i = 0; i < this._dataSetFormModel.dataSetV3.children.length; i++) {
+					var child = this._dataSetFormModel.dataSetV3.children[i];
+					var $span = $("<span>");
+					$span.append(FormUtil.getFormLink(child.permId.permId, "DataSet", child.permId.permId));
+					var name = child.properties[profile.propertyReplacingCode];
+					if(name) {
+						$span.append(" : ").append(name);
+					}
+					$dataSetChildrenCodeLabel.append($("<div>").append($span));
+			}
+		}
+		
+		if(this._dataSetFormModel.mode === FormMode.VIEW && this._dataSetFormModel.dataSetV3.children.length !== 0) {
+			$dataSetTypeFieldSet.append(FormUtil.getFieldForComponentWithLabel($dataSetChildrenCodeLabel, 'Children'));
+		}
+		
+		//
 		
 		var ownerName = null;
 		var owner = null;
@@ -198,11 +289,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			owner = this._dataSetFormModel.entity.identifier.identifier;
 		} else {
 			ownerName = ELNDictionary.Sample;
-			if(this._dataSetFormModel.entity.experimentIdentifierOrNull) {
-				owner = this._dataSetFormModel.entity.experimentIdentifierOrNull + "/" + this._dataSetFormModel.entity.code;
-			} else {
-				owner = this._dataSetFormModel.entity.identifier;
-			}
+			owner = this._dataSetFormModel.entity.identifier;
 		}
 		
 		if(!this._dataSetFormModel.isMini) {
@@ -340,7 +427,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 					} else {
 						var showSelectDatasetType = function() {
 							var $dropdown = FormUtil.getDataSetsDropDown("datasetTypeForDataset", _this._dataSetFormModel.dataSetTypes);
-							Util.blockUI("Select the type for the Dataset: <br><br>" + $dropdown[0].outerHTML + "<br> or <a class='btn btn-default' id='datasetTypeForDatasetCancel'>Cancel</a>");
+							Util.showDropdownAndBlockUI("datasetTypeForDataset", $dropdown);
 							
 							$("#datasetTypeForDataset").on("change", function(event) {
 								var datasetTypeCode = $("#datasetTypeForDataset")[0].value;
@@ -500,7 +587,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 							identifier = this._dataSetFormModel.entity.identifier;
 						}
 						
-						if(!(profile.inventorySpaces.length > 0 && $.inArray(identifier.split("/")[1], profile.inventorySpaces) === -1)) {
+						if(!(profile.inventorySpaces.length > 0 && $.inArray(IdentifierUtil.getSpaceCodeFromIdentifier(identifier), profile.inventorySpaces) === -1)) {
 							continue;
 						}
 					}
@@ -600,4 +687,47 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		
 		$("#metadataContainer").append($wrapper);
 	}
+
+	this.requestArchiving = function() {
+		var _this = this;
+
+		var $window = $('<form>', { 'action' : 'javascript:void(0);' });
+		$window.submit(function() {
+		    _this._dataSetFormController.setArchivingRequested(true);
+		    Util.unblockUI();
+		});
+
+		$window.append($('<legend>').append('Request archiving'));
+
+		var threshold = profile.archivingThreshold;
+		var warning = "Archiving of your dataset will not be done immediately. " +
+				"Your dataset will be archived if enough other archiving requests are gather from your group (" + threshold + ").";
+		var $warning = $('<p>').text(warning);
+		$window.append($warning);
+
+		var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' });
+		var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
+		$btnCancel.click(function() {
+		    Util.unblockUI();
+		});
+
+		$window.append($btnAccept).append('&nbsp;').append($btnCancel);
+
+		var css = {
+		        'text-align' : 'left',
+		        'top' : '15%',
+		        'width' : '70%',
+		        'left' : '15%',
+		        'right' : '20%',
+		        'overflow' : 'hidden',
+				'background' : '#ffffbf'
+		};
+
+		Util.blockUI($window, css);
+	}
+
+	this.revokeArchivingRequest = function() {
+		this._dataSetFormController.setArchivingRequested(false);
+	}
+
 }

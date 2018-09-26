@@ -27,13 +27,11 @@ package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -42,7 +40,9 @@ import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.mail.util.ByteArrayDataSource;
 
+import org.apache.log4j.DailyRollingFileAppender;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
 
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.SyncEntityKind;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.config.ConfigReader;
@@ -65,6 +65,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 
 /**
  * @author Ganime Betul Akin
@@ -77,10 +78,8 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
 
     private static final String LAST_INCREMENTAL_SYNC_TIMESTAMP = "last-incremental-sync-timestamp";
 
-    protected static final Logger operationLog =
+    private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, HarvesterMaintenanceTask.class);
-
-    final DateFormat formatter = new SimpleDateFormat("dd-MM-yy HH-mm-ss", Locale.ENGLISH);
 
     private static final String HARVESTER_CONFIG_FILE_PROPERTY_NAME = "harvester-config-file";
 
@@ -98,7 +97,7 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
 
     private String dataStoreCode;
 
-    class Timestamps
+    private static class Timestamps
     {
         final Date lastIncSyncTimestamp;
 
@@ -144,111 +143,128 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
     {
         operationLog.info(this.getClass() + " started.");
 
-        SynchronizationConfigReader syncConfigReader = new SynchronizationConfigReader();
         List<SyncConfig> configs;
         try
         {
-            configs = syncConfigReader.readConfiguration(harvesterConfigFile, operationLog);
+            configs = SynchronizationConfigReader.readConfiguration(harvesterConfigFile);
+            for (SyncConfig config : configs)
+            {
+                Logger logger = createLogger(config);
+                try
+                {
+                    logger.info("====================== " + (config.isDryRun() ? "Dry " : "")
+                            + "Running synchronization from data source: " + config.getDataSourceOpenbisURL()
+                            + " for user " + config.getUser());
+                    
+                    logger.info("verbose =  " + config.isVerbose());
+                    String fileName = config.getLastSyncTimestampFileName();
+                    File lastSyncTimestampFile = new File(fileName);
+                    Timestamps timestamps = loadCutOffTimeStamps(lastSyncTimestampFile);
+                    
+                    Date cutOffTimestamp = timestamps.lastIncSyncTimestamp;
+                    boolean isFullSync = lastSyncTimestampFile.exists() == false || isTimeForFullSync(config, timestamps.lastFullSyncTimestamp);
+                    logger.info("Last incremental sync timestamp: " + timestamps.lastIncSyncTimestamp);
+                    logger.info("Last full sync timestamp: " + timestamps.lastFullSyncTimestamp);
+                    if (isFullSync == true)
+                    {
+                        cutOffTimestamp = new Date(0L);
+                        if (lastSyncTimestampFile.exists() == false)
+                        {
+                            logger.info("Performing a full initial sync");
+                        }
+                        else
+                        {
+                            logger.info("Performing a full sync as a minimum of " + config.getFullSyncInterval()
+                            + " day(s) have elapsed since last full sync.");
+                        }
+                    }
+                    else
+                    {
+                        logger.info("Performing an incremental sync");
+                    }
+                    String notSyncedEntitiesFileName = config.getNotSyncedEntitiesFileName();
+                    Set<String> notSyncedDataSetCodes = getNotSyncedDataSetCodes(notSyncedEntitiesFileName);
+                    Set<String> notSyncedAttachmentHolderCodes = getNotSyncedAttachmentHolderCodes(notSyncedEntitiesFileName);
+                    Set<String> blackListedDataSetCodes = getBlackListedDataSetCodes(notSyncedEntitiesFileName);
+                    
+                    Date newCutOffTimestamp = new Date();
+                    
+                    EntitySynchronizer synchronizer =
+                            new EntitySynchronizer(service, dataStoreCode, storeRoot, cutOffTimestamp, timestamps.lastIncSyncTimestamp,
+                                    notSyncedDataSetCodes,
+                                    blackListedDataSetCodes,
+                                    notSyncedAttachmentHolderCodes,
+                                    context, config, logger);
+                    Date resourceListTimestamp = synchronizer.synchronizeEntities();
+                    if (resourceListTimestamp.before(newCutOffTimestamp))
+                    {
+                        newCutOffTimestamp = resourceListTimestamp;
+                    }
+                    Date newLastIncSyncTimestamp = newCutOffTimestamp;
+                    Date newLastFullSyncTimestamp = timestamps.lastFullSyncTimestamp;
+                    if (isFullSync == true)
+                    {
+                        newLastFullSyncTimestamp = newCutOffTimestamp;
+                    }
+                    
+                    if (config.isDryRun() == false)
+                    {
+                        logger.info("Saving the timestamp of sync start to file");
+                        saveSyncTimestamp(lastSyncTimestampFile, newLastIncSyncTimestamp, newLastFullSyncTimestamp);
+                    }
+                    else
+                    {
+                        logger.info("Dry run finished");
+                    }
+                    
+                } catch (Exception e)
+                {
+                    logger.error("Sync failed: ", e);
+                    sendErrorEmail(config, "Synchronization failed");
+                }
+            }
         } catch (Exception e)
         {
             operationLog.error("", e);
             return;
         }
+        operationLog.info(this.getClass() + " finished executing.");
+    }
 
-        for (SyncConfig config : configs)
+    private Logger createLogger(SyncConfig config)
+    {
+        Logger logger = Logger.getLogger(LogFactory.getLoggerName(LogCategory.OPERATION, EntitySynchronizer.class)
+                + "." + config.getDataSourceAlias());
+        String name = "bdfile";
+        if (logger.getAppender(name) == null)
         {
-            try
-            {
-                operationLog.info("-------------------------------------------------------------------------------------------");
-                operationLog.info("-------------------------------------------------------------------------------------------");
-                operationLog
-                        .info((config.isDryRun() ? "Dry " : "") + "Running synchronization from data source: " + config.getDataSourceOpenbisURL()
-                                + " for user " + config.getUser());
-
-                operationLog.info("verbose =  " + config.isVerbose());
-                String fileName = config.getLastSyncTimestampFileName();
-                File lastSyncTimestampFile = new File(fileName);
-                Timestamps timestamps = loadCutOffTimeStamps(lastSyncTimestampFile);
-
-                Date cutOffTimestamp = timestamps.lastIncSyncTimestamp;
-                boolean isFullSync = lastSyncTimestampFile.exists() == false || isTimeForFullSync(config, timestamps.lastFullSyncTimestamp);
-                operationLog.info("Last incremental sync timestamp: " + timestamps.lastIncSyncTimestamp);
-                operationLog.info("Last full sync timestamp: " + timestamps.lastFullSyncTimestamp);
-                if (isFullSync == true)
-                {
-                    cutOffTimestamp = new Date(0L);
-                    if (lastSyncTimestampFile.exists() == false)
-                    {
-                        operationLog.info("Performing a full initial sync");
-                    }
-                    else
-                    {
-                        operationLog.info("Performing a full sync as a minimum of " + config.getFullSyncInterval()
-                                + " day(s) have elapsed since last full sync.");
-                    }
-                }
-                else
-                {
-                    operationLog.info("Performing an incremental sync");
-                }
-                String notSyncedEntitiesFileName = config.getNotSyncedEntitiesFileName();
-                Set<String> notSyncedDataSetCodes = getNotSyncedDataSetCodes(notSyncedEntitiesFileName);
-                Set<String> notSyncedAttachmentHolderCodes = getNotSyncedAttachmentHolderCodes(notSyncedEntitiesFileName);
-                Set<String> blackListedDataSetCodes = getBlackListedDataSetCodes(notSyncedEntitiesFileName);
-
-                Date newCutOffTimestamp = new Date();
-
-                EntitySynchronizer synchronizer =
-                        new EntitySynchronizer(service, dataStoreCode, storeRoot, cutOffTimestamp, timestamps.lastIncSyncTimestamp,
-                                notSyncedDataSetCodes,
-                                blackListedDataSetCodes,
-                                notSyncedAttachmentHolderCodes,
-                                context, config,
-                                operationLog);
-                Date resourceListTimestamp = synchronizer.syncronizeEntities();
-                if (resourceListTimestamp.before(newCutOffTimestamp))
-                {
-                    newCutOffTimestamp = resourceListTimestamp;
-                }
-                Date newLastIncSyncTimestamp = newCutOffTimestamp;
-                Date newLastFullSyncTimestamp = timestamps.lastFullSyncTimestamp;
-                if (isFullSync == true)
-                {
-                    newLastFullSyncTimestamp = newCutOffTimestamp;
-                }
-
-                if (config.isDryRun() == false)
-                {
-                    operationLog.info("Saving the timestamp of sync start to file");
-                    saveSyncTimestamp(lastSyncTimestampFile, newLastIncSyncTimestamp, newLastFullSyncTimestamp);
-                }
-                else
-                {
-                    operationLog.info("Dry run finished");
-                }
-
-                operationLog.info(this.getClass() + " finished executing.");
-            } catch (Exception e)
-            {
-                operationLog.error("Sync failed: ", e);
-                sendErrorEmail(config, "Synchronization failed");
-            }
+            // configure the appender
+            DailyRollingFileAppender console = new DailyRollingFileAppender(); // create appender
+            console.setName(name);
+            String PATTERN = "%d %-5p [%t] %c - %m%n";
+            console.setLayout(new PatternLayout(PATTERN));
+            // console.setThreshold(Level.FATAL);
+            console.setAppend(true);// set to false to overwrite log at every start
+            console.setFile(config.getLogFilePath());
+            console.activateOptions();
+            // add appender to any Logger (here is root)
+            logger.addAppender(console);
+            logger.setAdditivity(false);
         }
+        return logger;
     }
 
     private Timestamps loadCutOffTimeStamps(File lastSyncTimestampFile) throws IOException, ParseException
     {
-        if (lastSyncTimestampFile.exists())
-        {
-            ConfigReader reader = new ConfigReader(lastSyncTimestampFile);
-            String incSyncTimestampStr = reader.getString(TIMESTAMPS_SECTION_HEADER, LAST_INCREMENTAL_SYNC_TIMESTAMP, null, true);
-            String fullSyncTimestampStr = reader.getString(TIMESTAMPS_SECTION_HEADER, LAST_FULL_SYNC_TIMESTAMP, incSyncTimestampStr, false);
-            return new Timestamps(formatter.parse(incSyncTimestampStr), formatter.parse(fullSyncTimestampStr));
-        }
-        else
+        if (lastSyncTimestampFile.exists() == false)
         {
             return new Timestamps(new Date(0L), new Date(0L));
         }
+        ConfigReader reader = new ConfigReader(lastSyncTimestampFile);
+        String incSyncTimestampStr = reader.getString(TIMESTAMPS_SECTION_HEADER, LAST_INCREMENTAL_SYNC_TIMESTAMP, null, true);
+        String fullSyncTimestampStr = reader.getString(TIMESTAMPS_SECTION_HEADER, LAST_FULL_SYNC_TIMESTAMP, incSyncTimestampStr, false);
+        SimpleDateFormat format = createDateFormat();
+        return new Timestamps(format.parse(incSyncTimestampStr), format.parse(fullSyncTimestampStr));
     }
 
     private boolean isTimeForFullSync(SyncConfig config, Date lastFullSyncTimestamp) throws IOException, ParseException
@@ -376,9 +392,16 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
 
     private void saveSyncTimestamp(File lastSyncTimestampFile, Date newLastIncSyncTimestamp, Date newLastFullSyncTimestamp)
     {
+        SimpleDateFormat formatter = createDateFormat();
         FileUtilities.writeToFile(lastSyncTimestampFile, "[" + TIMESTAMPS_SECTION_HEADER + "]");
         FileUtilities.appendToFile(lastSyncTimestampFile, "\n", true);
         FileUtilities.appendToFile(lastSyncTimestampFile, LAST_INCREMENTAL_SYNC_TIMESTAMP + " = " + formatter.format(newLastIncSyncTimestamp), true);
         FileUtilities.appendToFile(lastSyncTimestampFile, LAST_FULL_SYNC_TIMESTAMP + " = " + formatter.format(newLastFullSyncTimestamp), true);
     }
+
+    private SimpleDateFormat createDateFormat()
+    {
+        return new SimpleDateFormat(BasicConstant.DATE_WITHOUT_TIMEZONE_PATTERN);
+    }
+
 }

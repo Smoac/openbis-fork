@@ -1,5 +1,10 @@
+from tabulate import tabulate
+from .utils import VERBOSE
 
 class SemanticAnnotation():
+    """ Semantic annotation for sample types, property types or property type assignments.
+    """
+
     def __init__(self, openbis_obj, isNew=True, **kwargs):
         self._openbis = openbis_obj
         self._isNew = isNew;
@@ -73,8 +78,9 @@ class SemanticAnnotation():
             ]
         }
         
-        self._openbis._post_request(self._openbis.as_v3, request)
+        response = self._openbis._post_request(self._openbis.as_v3, request)
         self._isNew = False
+        self.permId = response[0]['permId']
         
         if VERBOSE: print("Semantic annotation successfully created.")
     
@@ -109,3 +115,18 @@ class SemanticAnnotation():
     def delete(self, reason):
         self._openbis.delete_entity(entity='SemanticAnnotation', id=self.permId, reason=reason)
         if VERBOSE: print("Semantic annotation successfully deleted.")
+
+    def __repr__(self):
+        headers = ['attribute', 'value']
+        lines = []
+        lines.append(['permId', self.permId])
+        lines.append(['entityType', self.entityType])
+        lines.append(['propertyType', self.propertyType])
+        lines.append(['predicateOntologyId', self.predicateOntologyId])
+        lines.append(['predicateOntologyVersion', self.predicateOntologyVersion])
+        lines.append(['predicateAccessionId', self.predicateAccessionId])
+        lines.append(['descriptorOntologyId', self.descriptorOntologyId])
+        lines.append(['descriptorOntologyVersion', self.descriptorOntologyVersion])
+        lines.append(['descriptorAccessionId', self.descriptorAccessionId])
+        lines.append(['creationDate', self.creationDate])
+        return tabulate(lines, headers=headers)

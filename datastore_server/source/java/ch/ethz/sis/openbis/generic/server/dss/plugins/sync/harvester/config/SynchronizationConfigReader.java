@@ -22,10 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.DailyRollingFileAppender;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
-
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
@@ -88,28 +84,28 @@ public class SynchronizationConfigReader
 
     private static final String PARALLELIZED_EXECUTION_PREFS_STOP_ON_FIRST_FAILURE_PROPERTY_NAME = "stop-on-first-failure";
 
-    private Integer defaultFullSyncIntervalInDays = 14;
+    private static final Integer DEFAULT_FULL_SYNC_INTERVAL_IN_DAYS = 14;
 
-    private String defaultLogFileName = "synchronization_{alias}.log";
+    private static final String DEFAULT_LOG_FILE_PATH = "synchronization_{alias}.log";
 
-    private String defaultLastSyncTimestampFileName = "last-sync-timestamp-file_{alias}.txt";
+    private static final String DEFAULT_LAST_SYNC_TIMEESTAMP_FILE_PATH = "last-sync-timestamp-file_{alias}.txt";
 
-    private String defaultNotSyncedEntitiesFileName = "not-synced-entities_{alias}.txt";
+    private static final String DEFAULT_NOT_SYNCED_ENTITIES_FILE_PATH = "not-synced-entities_{alias}.txt";
 
-    private Double defaultMachineLoad = 0.5;
+    private static final double DEFAULT_MACHINE_LOAD = 0.5;
 
-    private Integer defaultMaxThreads = 10;
+    private static final int DEFAULT_MAX_THREADS = 10;
 
-    private Integer defaultRetriesOnFailure = 0;
+    private static final int DEFAULT_RETRIES_ON_FAILURE = 0;
 
-    private Boolean defaultStopOnFirstFailure = false;
+    private static final boolean DEFAULT_STOP_ON_FIRST_FAILURE = false;
 
     private static final String LOG_FILE_PROPERTY_NAME = "log-file";
 
-    List<SyncConfig> configs = new ArrayList<>();
 
-    public List<SyncConfig> readConfiguration(File harvesterConfigFile, Logger logger) throws IOException
+    public static List<SyncConfig> readConfiguration(File harvesterConfigFile) throws IOException
     {
+        List<SyncConfig> configs = new ArrayList<>();
         ConfigReader reader = new ConfigReader(harvesterConfigFile);
         int sectionCount = reader.getSectionCount();
         for (int i = 0; i < sectionCount; i++)
@@ -117,13 +113,9 @@ public class SynchronizationConfigReader
             String section = reader.getSection(i);
             SyncConfig config = new SyncConfig();
             config.setEmailAddresses(reader.getString(section, EMAIL_ADDRESSES_PROPERTY_NAME, null, true));
-            config.setDataSourceAlias(reader.getString(section, DATA_SOURCE_ALIAS_PROPERTY_NAME, null, true));
-            defaultLogFileName = defaultLogFileName.replaceFirst(Pattern.quote("{alias}"), config.getDataSourceAlias());
-            config.setLogFilePath(reader.getString(section, LOG_FILE_PROPERTY_NAME, defaultLogFileName, false));
-            if (config.getLogFilePath() != null)
-            {
-                configureFileAppender(config, logger);
-            }
+            config.setDataSourceAlias(reader.getString(section, DATA_SOURCE_ALIAS_PROPERTY_NAME, section, false));
+            String defaultLogFilePath = DEFAULT_LOG_FILE_PATH.replaceFirst(Pattern.quote("{alias}"), config.getDataSourceAlias());
+            config.setLogFilePath(reader.getString(section, LOG_FILE_PROPERTY_NAME, defaultLogFilePath, false));
             config.setDataSourceURI(reader.getString(section, DATA_SOURCE_URL_PROPERTY_NAME, null, true));
             config.setDataSourceOpenbisURL(reader.getString(section, DATA_SOURCE_OPENBIS_URL_PROPERTY_NAME, null, true));
             config.setDataSourceDSSURL(reader.getString(section, DATA_SOURCE_DSS_URL_PROPERTY_NAME, null, true));
@@ -158,16 +150,16 @@ public class SynchronizationConfigReader
             config.setFullSyncEnabled(fullSync);
             if (fullSync)
             {
-                config.setFullSyncInterval(reader.getInt(section, FULL_SYNC_INTERVAL_PROPERTY_NAME, defaultFullSyncIntervalInDays, false));
+                config.setFullSyncInterval(reader.getInt(section, FULL_SYNC_INTERVAL_PROPERTY_NAME, DEFAULT_FULL_SYNC_INTERVAL_IN_DAYS, false));
             }
 
-            defaultLastSyncTimestampFileName = defaultLastSyncTimestampFileName.replaceFirst(Pattern.quote("{alias}"), config.getDataSourceAlias());
+            String defaultLastSyncTimestampFilePath = DEFAULT_LAST_SYNC_TIMEESTAMP_FILE_PATH.replaceFirst(Pattern.quote("{alias}"), config.getDataSourceAlias());
             config.setLastSyncTimestampFileName(
-                    reader.getString(section, HARVESTER_LAST_SYNC_TIMESTAMP_FILE_PROPERTY_NAME, defaultLastSyncTimestampFileName, false));
+                    reader.getString(section, HARVESTER_LAST_SYNC_TIMESTAMP_FILE_PROPERTY_NAME, defaultLastSyncTimestampFilePath, false));
 
-            defaultNotSyncedEntitiesFileName = defaultNotSyncedEntitiesFileName.replaceFirst(Pattern.quote("{alias}"), config.getDataSourceAlias());
+            String defaultNotSyncedEntitiesFilePath = DEFAULT_NOT_SYNCED_ENTITIES_FILE_PATH.replaceFirst(Pattern.quote("{alias}"), config.getDataSourceAlias());
             config.setNotSyncedDataSetsFileName(
-                    reader.getString(section, HARVESTER_NOT_SYNCED_ENTITIES_FILE_NAME, defaultNotSyncedEntitiesFileName, false));
+                    reader.getString(section, HARVESTER_NOT_SYNCED_ENTITIES_FILE_NAME, defaultNotSyncedEntitiesFilePath, false));
             configs.add(config);
 
             config.setDryRun(reader.getBoolean(section, DRY_RUN_PROPERTY_NAME, false));
@@ -177,36 +169,20 @@ public class SynchronizationConfigReader
                 config.setVerbose(true);
             }
 
-            Double machineLoad = reader.getDouble(section, PARALLELIZED_EXECUTION_PREFS_MACHINE_LOAD_PROPERTY_NAME, defaultMachineLoad, false);
+            Double machineLoad = reader.getDouble(section, PARALLELIZED_EXECUTION_PREFS_MACHINE_LOAD_PROPERTY_NAME, DEFAULT_MACHINE_LOAD, false);
             Integer maxThreads =
-                    reader.getInt(section, PARALLELIZED_EXECUTION_PREFS_MACHINE_MAX_THREADS_PROPERTY_NAME, defaultMaxThreads, false);
+                    reader.getInt(section, PARALLELIZED_EXECUTION_PREFS_MACHINE_MAX_THREADS_PROPERTY_NAME, DEFAULT_MAX_THREADS, false);
             Integer retriesOnFailure =
-                    reader.getInt(section, PARALLELIZED_EXECUTION_PREFS_RETRIES_ON_FAILURE_PROPERTY_NAME, defaultRetriesOnFailure, false);
+                    reader.getInt(section, PARALLELIZED_EXECUTION_PREFS_RETRIES_ON_FAILURE_PROPERTY_NAME, DEFAULT_RETRIES_ON_FAILURE, false);
             Boolean stopOnFailure =
-                    reader.getBoolean(section, PARALLELIZED_EXECUTION_PREFS_STOP_ON_FIRST_FAILURE_PROPERTY_NAME, defaultStopOnFirstFailure);
+                    reader.getBoolean(section, PARALLELIZED_EXECUTION_PREFS_STOP_ON_FIRST_FAILURE_PROPERTY_NAME, DEFAULT_STOP_ON_FIRST_FAILURE);
             config.setParallelizedExecutionPrefs(machineLoad, maxThreads, retriesOnFailure, stopOnFailure);
 
         }
         return configs;
     }
 
-    private void configureFileAppender(SyncConfig config, Logger logger)
-    {
-        DailyRollingFileAppender console = new DailyRollingFileAppender(); // create appender
-        // configure the appender
-        console.setName("bdfile");
-        String PATTERN = "%d %-5p [%t] %c - %m%n";
-        console.setLayout(new PatternLayout(PATTERN));
-        // console.setThreshold(Level.FATAL);
-        console.setAppend(true);// set to false to overwrite log at every start
-        console.setFile(config.getLogFilePath());
-        console.activateOptions();
-        // add appender to any Logger (here is root)
-        logger.addAppender(console);
-        logger.setAdditivity(false);
-    }
-
-    private void createDataSourceToHarvesterSpaceMappings(SyncConfig config)
+    private static void createDataSourceToHarvesterSpaceMappings(SyncConfig config)
     {
         List<String> dataSourceSpaceList = config.getDataSourceSpaces();
         List<String> harvesterSpaceList = config.getHarvesterSpaces();

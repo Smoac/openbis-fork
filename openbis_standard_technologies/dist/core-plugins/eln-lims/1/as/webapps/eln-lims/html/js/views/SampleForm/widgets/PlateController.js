@@ -60,8 +60,8 @@ function PlateController(sample, isDisabled) {
 	
 	this._getMaterialIdentifierFromPropertyValue = function(propertyValue) {
 		var materialIdentifierParts = propertyValue.split(" ");
-		var materialType = materialIdentifierParts[1].substring(1, materialIdentifierParts[1].length-1);
-		var materialIdentifier = "/" + materialType + "/" + materialIdentifierParts[0];
+		var materialType = materialIdentifierParts[1].substring(1, materialIdentifierParts[1].length - 1);
+		var materialIdentifier = IdentifierUtil.getMaterialIdentifier(materialType, materialIdentifierParts[0]);
 		return materialIdentifier;
 	}
 	

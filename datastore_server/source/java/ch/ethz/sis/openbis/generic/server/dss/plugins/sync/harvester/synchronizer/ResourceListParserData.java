@@ -194,7 +194,7 @@ public class ResourceListParserData
         return dsMap;
     }
 
-    public class IncomingEntity<T extends Identifier<T>>
+    public static class IncomingEntity<T extends Identifier<T>>
     {
         private final Identifier<T> entity;
 
@@ -265,7 +265,7 @@ public class ResourceListParserData
         }
     }
 
-    class IncomingProject extends IncomingEntity<NewProject>
+    static class IncomingProject extends IncomingEntity<NewProject>
     {
         public NewProject getProject()
         {
@@ -278,7 +278,7 @@ public class ResourceListParserData
         }
     }
 
-    class IncomingExperiment extends IncomingEntity<NewExperiment>
+    static class IncomingExperiment extends IncomingEntity<NewExperiment>
     {
         public NewExperiment getExperiment()
         {
@@ -290,7 +290,7 @@ public class ResourceListParserData
         }
     }
 
-    class IncomingSample extends IncomingEntity<NewSample>
+    static class IncomingSample extends IncomingEntity<NewSample>
     {
         public NewSample getSample()
         {
@@ -303,7 +303,7 @@ public class ResourceListParserData
         }
     }
 
-    public class IncomingDataSet implements Serializable
+    public static class IncomingDataSet implements Serializable
     {
         private static final long serialVersionUID = 1L;
         private final NewExternalData dataSet;
@@ -350,7 +350,7 @@ public class ResourceListParserData
         }
     }
 
-    class MasterData
+    static class MasterData
     {
         private Map<String, FileFormatType> fileFormatTypesToProcess = new HashMap<String, FileFormatType>();
 
@@ -461,7 +461,7 @@ public class ResourceListParserData
         }
     }
 
-    class Connection
+    static class Connection
     {
         final String toPermId;
 
@@ -485,7 +485,7 @@ public class ResourceListParserData
         }
     }
 
-    enum ConnectionType
+    static enum ConnectionType
     {
         SIMPLE_CONNECTION("Connection"),
         PARENT_CHILD_RELATIONSHIP("Child"),
@@ -504,7 +504,7 @@ public class ResourceListParserData
         }
     }
 
-    class MaterialWithLastModificationDate
+    static class MaterialWithLastModificationDate
     {
         private final NewMaterialWithType material;
 

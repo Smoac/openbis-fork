@@ -27,6 +27,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 	this._sampleTypeDefinitionsMiscellaneousSettingsTableModels = {}; // key: sample type; value: table model
 	this._sampleTypeDefinitionsSettingsTableModels = {}; // key: sample type; value: table model
 	this._sampleTypeDefinitionsHintsTableModels = {}; // key: sample type; value: table model
+	this._miscellaneousTableModel = null;
 
 	this.repaint = function(views, profileToEdit) {
 		var _this = this;
@@ -85,6 +86,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			this._paintInventorySpacesSection($formColumn, texts.inventorySpaces);
 			this._paintDataSetTypesForFileNamesSection($formColumn, texts.dataSetTypeForFileName);
 			this._paintSampleTypesDefinition($formColumn,texts.sampleTypeDefinitionsExtension);
+			this._paintMiscellaneous($formColumn, texts.miscellaneous)
 
 			$container.append($form);
 
@@ -102,6 +104,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			forceMonospaceFont : this._forcedMonospaceTableModel.getValues(),
 			inventorySpaces : this._inventorySpacesTableModel.getValues(),
 			sampleTypeDefinitionsExtension : this._getSampleTypeDefinitionsExtension(),
+			showDatasetArchivingButton : this._miscellaneousTableModel.getValues()["Show Dataset archiving button"],
 		};
 	}
 
@@ -265,11 +268,24 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 	}
 
 	this._getInventorySpacesTableModel = function() {
+		// Not accessible spaces are known on the config anyway, hidding them now will not increase security
+		// Removing them can bring more issues so better keep them
+		
+		var spacesOptions = this._settingsFormController.getInventorySpacesOptions();
+			spacesOptions = JSON.parse(JSON.stringify(spacesOptions));
+		var initialValues = this._profileToEdit.inventorySpaces;
+		
+		for(var i = 0; i < initialValues.length; i++) {
+			if($.inArray(initialValues[i], spacesOptions) === -1) {
+				spacesOptions.push(initialValues[i]);
+			}
+		}
+		
 		return this._getSingleColumnDropdownTableModel({
 			columnName : "Space",
 			placeholder : "select space",
-			options : this._settingsFormController.getInventorySpacesOptions(),
-			initialValues : this._profileToEdit.inventorySpaces,
+			options : spacesOptions,
+			initialValues : initialValues,
 		});
 	}
 
@@ -325,7 +341,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 	this._paintSampleTypesDefinition = function($container, text) {
 		var $fieldset = this._getFieldset($container, text.title, "settings-section-sampletype-definitions");
 		$fieldset.append(FormUtil.getInfoText(text.info));
-		for (var sampleType of this._profileToEdit.getAllSampleTypes(false)) {
+		for (var sampleType of profile.getAllSampleTypes(false)) {
 			// layout
 			var $div = $("<div>").css("padding-left", "15px");
 			var displayName = Util.getDisplayNameFromCode(sampleType.code);
@@ -357,6 +373,46 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			$sampleTypeFieldset.append(this._getTable(hintsTableModel));
 			this._sampleTypeDefinitionsHintsTableModels[sampleType.code] = hintsTableModel;
 		}
+	}
+
+	this._paintMiscellaneous = function($container, text) {
+		var $fieldset = this._getFieldset($container, text.title, "settings-section-miscellaneous");
+		$fieldset.append(FormUtil.getInfoText(text.info));
+		this._miscellaneousTableModel = this._getMiscellaneousTableModel();
+		$fieldset.append(this._getTable(this._miscellaneousTableModel));
+	}
+
+	this._getMiscellaneousTableModel = function() {
+		var tableModel = this._getTableModel();
+		tableModel.fullWidth = false;
+		// define columns
+		tableModel.columns = [{ label : "Setting"}, { label : "enabled"}];
+		tableModel.rowBuilders = {
+			"Setting" : function(rowData) {
+				return $("<span>").text(rowData.showDataSetArchivingButton);
+			},
+			"enabled" : function(rowData) {
+				var $checkbox = $("<input>", { type : "checkbox", name : "cb" });
+				if (rowData.enabled) {
+					$checkbox.attr("checked", true);
+				}
+				return $checkbox;
+			}
+		};
+		// add data
+		tableModel.addRow({
+			showDataSetArchivingButton : "Show Dataset archiving button",
+			enabled : this._profileToEdit.showDatasetArchivingButton
+		});
+		// transform output
+		tableModel.valuesTransformer = function(values) {
+			var settings = {};
+			for (var value of values) {
+				settings[value["Setting"]] = value["enabled"];
+			}
+			return settings;
+		};
+		return tableModel;
 	}
 
 	this._getSampleTypesDefinitionMiscellaneousSettingsTableModel = function(sampleTypeSettings) {
@@ -813,7 +869,6 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			if (this._settingsFormModel.mode === FormMode.VIEW) {
 				$widget.prop("disabled", true);
 			}
-			this._styleWidget($widget);
 		}
 		// remove row button if in edit mode
 		if (tableModel.dynamicRows) {
@@ -839,12 +894,6 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		// add extra row
 		if ($extraRow) {
 			$tbody.append($extraRow);
-		}
-	}
-
-	this._styleWidget = function($widget) {
-		if ($widget.is("select")) {
-			$widget.select2({ width: '100%', theme: "bootstrap" })
 		}
 	}
 

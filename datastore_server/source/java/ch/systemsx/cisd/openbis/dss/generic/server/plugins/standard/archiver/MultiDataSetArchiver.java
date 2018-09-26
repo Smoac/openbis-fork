@@ -25,6 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -71,6 +72,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils.FilterOptions;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
+import ch.systemsx.cisd.openbis.generic.server.task.ArchivingByRequestTask;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
@@ -223,6 +225,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
             }
             result.addResult(dataSets, Status.createError(e.getMessage()), Operation.ARCHIVE);
         }
+        operationLog.info("archiving done. result: " + ((MultiDataSetArchiver.MultiDataSetProcessingStatuses) result).getDataSetsWaitingForReplication());
         return result;
     }
 
@@ -280,8 +283,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
                         + FileUtilities.byteCountToDisplaySize(minimumContainerSize) + ".");
             }
             // if single dataset is bigger than specified maximum, we should still allow it being
-        }
-        else
+        } else
         {
             if (datasetSize < minimumContainerSize)
             {
@@ -289,8 +291,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
                         + FileUtilities.byteCountToDisplaySize(datasetSize)
                         + ") to be archived with multi dataset archiver because minimum size is "
                         + FileUtilities.byteCountToDisplaySize(minimumContainerSize) + ".");
-            }
-            else if (datasetSize > maximumContainerSize)
+            } else if (datasetSize > maximumContainerSize)
             {
                 throw new IllegalArgumentException("Set of data sets specified for archiving is too big ("
                         + FileUtilities.byteCountToDisplaySize(datasetSize)
@@ -306,8 +307,9 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         MultiDataSetProcessingStatuses statuses = new MultiDataSetProcessingStatuses();
 
         // for sharding we use the location of the first datast
-        String containerPath = getFileOperations().generateContainerPath(dataSets);
-        establishContainerDataSetMapping(dataSets, containerPath, transaction);
+        String containerPath = createContainerPath(dataSets, context);
+
+        long containerId = establishContainerDataSetMapping(dataSets, containerPath, transaction);
 
         IHierarchicalContent archivedContent = null;
         try
@@ -321,7 +323,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
             archivedContent = getFileOperations().getContainerAsHierarchicalContent(containerPath, dataSets);
 
             checkArchivedDataSets(archivedContent, dataSets, context, statuses);
-            scheduleFinalizer(containerPath, dataSets, context, removeFromDataStore, statuses);
+            scheduleFinalizer(containerPath, containerId, dataSets, context, removeFromDataStore, statuses);
         } catch (Exception ex)
         {
             getFileOperations().deleteContainerFromFinalDestination(getCleaner(), containerPath);
@@ -341,7 +343,24 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         return statuses;
     }
 
-    private void establishContainerDataSetMapping(List<DatasetDescription> dataSets, String containerPath,
+    private String createContainerPath(List<DatasetDescription> dataSets, ArchiverTaskContext context)
+    {
+        String containerPath = getFileOperations().generateContainerPath(dataSets);
+        String subDirectory = tryGetSubDirectory(context);
+        if (subDirectory != null)
+        {
+            containerPath = subDirectory + "/" + containerPath;
+        }
+        return containerPath;
+    }
+
+    private String tryGetSubDirectory(ArchiverTaskContext context)
+    {
+        Map<String, String> options = context.getOptions();
+        return options != null ? options.get(ArchivingByRequestTask.SUB_DIR_KEY) : null;
+    }
+
+    private long establishContainerDataSetMapping(List<DatasetDescription> dataSets, String containerPath,
             IMultiDataSetArchiverDBTransaction transaction)
     {
         MultiDataSetArchiverContainerDTO container = transaction.createContainer(containerPath);
@@ -349,9 +368,10 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         {
             transaction.insertDataset(dataSet, container);
         }
+        return container.getId();
     }
 
-    private void scheduleFinalizer(String containerPath, List<DatasetDescription> dataSets,
+    private void scheduleFinalizer(String containerPath, long containerId, List<DatasetDescription> dataSets,
             ArchiverTaskContext archiverContext, boolean removeFromDataStore,
             MultiDataSetProcessingStatuses statuses)
     {
@@ -367,6 +387,12 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         String userSessionToken = archiverContext.getUserSessionToken();
         HashMap<String, String> parameterBindings = new LinkedHashMap<String, String>();
         IMultiDataSetFileOperationsManager operations = getFileOperations();
+        String groupKey = tryGetSubDirectory(archiverContext);
+        if (groupKey != null)
+        {
+            parameterBindings.put(ArchivingByRequestTask.SUB_DIR_KEY, groupKey);
+        }
+        parameterBindings.put(MultiDataSetArchivingFinalizer.CONTAINER_ID_KEY, Long.toString(containerId));
         parameterBindings.put(MultiDataSetArchivingFinalizer.ORIGINAL_FILE_PATH_KEY,
                 operations.getOriginalArchiveFilePath(containerPath));
         parameterBindings.put(MultiDataSetArchivingFinalizer.REPLICATED_FILE_PATH_KEY,
@@ -568,7 +594,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
                 return result;
             }
         }
-        
+
         IHierarchicalContentProvider contentProvider = context.getHierarchicalContentProvider();
         for (String dataSetCode : dataSetCodes)
         {
@@ -656,8 +682,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
             if (dataSet.tryGetAsDataSet() != null)
             {
                 result.add(dataSet.tryGetAsDataSet());
-            }
-            else
+            } else
             {
                 throw new IllegalStateException("All data sets in container are expected to be physical datasets, but data set '" + dataSet.getCode()
                         + "' is not ");

@@ -23,12 +23,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
  */
 public class VerifyProgress extends EntityProgress
 {
-
+    public static final String VERIFYING = "verifying";
+    
     private static final long serialVersionUID = 1L;
 
     public VerifyProgress(IIdentityHolder entity, int numItemsProcessed, int totalItemsToProcess)
     {
-        super("verifying", entity, numItemsProcessed, totalItemsToProcess);
+        super(VERIFYING, entity, numItemsProcessed, totalItemsToProcess);
     }
 
 }

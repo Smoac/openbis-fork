@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.etlserver.plugins;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
@@ -93,7 +94,7 @@ public class AutoArchiverTask implements IMaintenanceTask
         {
             operationLog.info("archiving: "
                     + CollectionUtils.abbreviate(Code.extractCodes(dataSets), 10));
-            openBISService.archiveDataSets(Code.extractCodes(dataSets), removeFromDataStore);
+            openBISService.archiveDataSets(Code.extractCodes(dataSets), removeFromDataStore, new HashMap<>());
         }
     }
 

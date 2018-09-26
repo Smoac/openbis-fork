@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.Set;
 
 import org.jmock.Expectations;
@@ -36,6 +37,9 @@ import org.testng.annotations.Test;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
+import ch.systemsx.cisd.openbis.generic.server.ConcurrentOperationLimiter;
+import ch.systemsx.cisd.openbis.generic.server.ConcurrentOperationLimiterConfig;
+import ch.systemsx.cisd.openbis.generic.server.IConcurrentOperationLimiter;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.IValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
@@ -106,9 +110,11 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
         boFactory = context.mock(ICommonBusinessObjectFactory.class);
         sampleLister2 = context.mock(ISampleLister.class, "sampleListerForAPI");
 
+        IConcurrentOperationLimiter operationLimiter = new ConcurrentOperationLimiter(new ConcurrentOperationLimiterConfig(new Properties()));
+
         service =
                 new GeneralInformationService(sessionManager, daoFactory, boFactory,
-                        propertiesBatchManager, commonServer)
+                        propertiesBatchManager, commonServer, operationLimiter)
                     {
                         @Override
                         protected ISampleLister createSampleLister(PersonPE person)
@@ -319,7 +325,8 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
                 + "[SAMPLE_PARENT: ATTRIBUTE CODE: parent code AND "
                 + "PROPERTY PARENT_PROPERTY: parent property value] (with wildcards), "
                 + "ATTRIBUTE CODE: parent code AND PROPERTY PARENT_PROPERTY: "
-                + "parent property value (with wildcards)]", criteriaMatcher.getRecordedObjects()
+                + "parent property value (with wildcards)]",
+                criteriaMatcher.getRecordedObjects()
                         .toString());
         context.assertIsSatisfied();
     }
@@ -351,7 +358,8 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
                 + "[SAMPLE_CHILD: ATTRIBUTE CODE: child code AND "
                 + "PROPERTY CHILD_PROPERTY: child property value] (with wildcards), "
                 + "ATTRIBUTE CODE: child code AND PROPERTY CHILD_PROPERTY: "
-                + "child property value (with wildcards)]", criteriaMatcher.getRecordedObjects()
+                + "child property value (with wildcards)]",
+                criteriaMatcher.getRecordedObjects()
                         .toString());
         context.assertIsSatisfied();
     }

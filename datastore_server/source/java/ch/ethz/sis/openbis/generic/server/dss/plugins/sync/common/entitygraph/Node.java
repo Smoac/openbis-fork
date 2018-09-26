@@ -142,7 +142,9 @@ public class Node<T extends IModificationDateHolder & IModifierHolder & IRegistr
         {
             return null;
         }
-        return ((IProjectHolder) entity).getProject().getCode();
+        
+        Project project = ((IProjectHolder) entity).getProject(); 
+        return project != null ? project.getCode() : null;
     }
 
     public Sample getSampleOrNull()

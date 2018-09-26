@@ -206,6 +206,7 @@
 		<constructor-arg ref="entity-validation-factory" />
 		<constructor-arg ref="dynamic-property-calculator-factory" />
 		<constructor-arg ref="managed-property-evaluator-factory" />
+		<constructor-arg ref="concurrent-operation-limiter" />
 		<property name="CISDHelpdeskEmail" value="cisd.helpdesk@bsse.ethz.ch" />
 		<property name="defaultPutDataStoreServerCode" value="${dss-rpc.put.dss-code}" />
 	</bean>

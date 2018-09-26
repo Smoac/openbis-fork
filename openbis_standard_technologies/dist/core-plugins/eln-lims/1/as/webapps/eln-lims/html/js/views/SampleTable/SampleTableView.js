@@ -26,14 +26,14 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		var $title = $("<div>");
 		if(this._sampleTableModel.title && this._sampleTableModel.experimentIdentifier) {
 			
-			var title = "" + ELNDictionary.getExperimentKindName(this._sampleTableModel.experimentIdentifier) + ": " + this._sampleTableModel.experimentIdentifier.substring(this._sampleTableModel.experimentIdentifier.lastIndexOf("/") + 1);
+			var title = "" + ELNDictionary.getExperimentKindName(this._sampleTableModel.experimentIdentifier) + ": " + IdentifierUtil.getCodeFromIdentifier(this._sampleTableModel.experimentIdentifier);
 			if(this._sampleTableModel.experiment && this._sampleTableModel.experiment.properties[profile.propertyReplacingCode]) {
 				title = "" + ELNDictionary.getExperimentKindName(this._sampleTableModel.experimentIdentifier) + ": " + this._sampleTableModel.experiment.properties[profile.propertyReplacingCode];
 			}
 			
-			var spaceCode = this._sampleTableModel.experimentIdentifier.split("/")[1];
-			var projectCode = this._sampleTableModel.experimentIdentifier.split("/")[2];
-			var experimentCode = this._sampleTableModel.experimentIdentifier.split("/")[3];
+			var spaceCode = IdentifierUtil.getSpaceCodeFromIdentifier(this._sampleTableModel.experimentIdentifier);
+			var projectCode = IdentifierUtil.getProjectCodeFromExperimentIdentifier(this._sampleTableModel.experimentIdentifier);
+			var experimentCode = IdentifierUtil.getCodeFromIdentifier(this._sampleTableModel.experimentIdentifier);
 			var entityPath = FormUtil.getFormPath(spaceCode, projectCode, experimentCode);
 			
 			$title
@@ -48,8 +48,8 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		//
 		var toolbarModel = [];
 		if(this._sampleTableModel.experimentIdentifier) {
-			var experimentSpace = this._sampleTableModel.experimentIdentifier.split("/")[1];
-			var experimentCode = this._sampleTableModel.experimentIdentifier.split("/")[3];
+			var experimentSpace = IdentifierUtil.getSpaceCodeFromIdentifier(this._sampleTableModel.experimentIdentifier);
+			var experimentCode = IdentifierUtil.getCodeFromIdentifier(this._sampleTableModel.experimentIdentifier);
 			var allSampleTypes = profile.getAllSampleTypes();
 			var sampleTypeCodesFound = [];
 			for(var aIdx = 0; aIdx < allSampleTypes.length; aIdx++) {
@@ -193,7 +193,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 	this.createNewSample = function(experimentIdentifier) {
 		var _this = this;
 		var $dropdown = FormUtil.getSampleTypeDropdown("sampleTypeDropdown", true);
-		Util.blockUI("Select the type for the " + ELNDictionary.Sample + ": <br><br>" + $dropdown[0].outerHTML + "<br> or <a class='btn btn-default' id='sampleTypeDropdownCancel'>Cancel</a>");
+		Util.showDropdownAndBlockUI("sampleTypeDropdown", $dropdown);
 		
 		$("#sampleTypeDropdown").on("change", function(event) {
 			var sampleTypeCode = $("#sampleTypeDropdown")[0].value;
@@ -219,7 +219,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 			allowedSampleTypes = [this._sampleTableModel.sampleTypeCodeToUse, "STORAGE_POSITION"];
 		}
 		if(experimentIdentifier) {
-			forcedSpace = "/" + experimentIdentifier.split("/")[1];
+			forcedSpace = IdentifierUtil.getForcedSpaceIdentifier(IdentifierUtil.getSpaceCodeFromIdentifier(experimentIdentifier));
 		}
 		
 		var typeAndFileController = new TypeAndFileController('Register ' + ELNDictionary.Samples + '', "REGISTRATION", function(type, file) {
@@ -245,7 +245,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 					var experimentIdentifierOrDelete = experimentIdentifier;
 					if(experimentIdentifierOrDelete && typeAndFileController.getSampleTypeCode() === "STORAGE_POSITION") {
 						experimentIdentifierOrDelete = "__DELETE__";
-						forcedSpace = "/STORAGE";
+						forcedSpace = IdentifierUtil.getForcedSpaceIdentifier("STORAGE");
 					}
 					if(infoData.result.identifiersPressent) { //If identifiers are present they should match the space of the experiment
 						mainController.serverFacade.registerSamplesWithSilentOverrides(typeAndFileController.getSampleTypeCode(), forcedSpace, experimentIdentifierOrDelete, "sample-file-upload", null, finalCallback);
@@ -266,7 +266,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 			allowedSampleTypes = [this._sampleTableModel.sampleTypeCodeToUse, "STORAGE_POSITION"];
 		}
 		if(experimentIdentifier) {
-			forcedSpace = "/" + experimentIdentifier.split("/")[1];
+			forcedSpace = IdentifierUtil.getForcedSpaceIdentifier(IdentifierUtil.getSpaceCodeFromIdentifier(experimentIdentifier));
 		}
 		var typeAndFileController = new TypeAndFileController('Update ' + ELNDictionary.Samples + '', "UPDATE", function(type, file) {
 			Util.blockUI();
@@ -286,7 +286,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 			var experimentIdentifierOrDelete = experimentIdentifier;
 			if(experimentIdentifierOrDelete && typeAndFileController.getSampleTypeCode() === "STORAGE_POSITION") {
 				experimentIdentifierOrDelete = "__DELETE__";
-				forcedSpace = "/STORAGE";
+				forcedSpace = IdentifierUtil.getForcedSpaceIdentifier("STORAGE");
 			}
 			
 			mainController.serverFacade.fileUpload(typeAndFileController.getFile(), function(result) {

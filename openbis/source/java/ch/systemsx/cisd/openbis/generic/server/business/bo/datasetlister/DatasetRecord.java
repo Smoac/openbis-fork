@@ -73,4 +73,6 @@ public class DatasetRecord extends CodeRecord
     public Boolean h5_folders;
 
     public Boolean h5ar_folders;
+
+    public Boolean archiving_requested;
 }

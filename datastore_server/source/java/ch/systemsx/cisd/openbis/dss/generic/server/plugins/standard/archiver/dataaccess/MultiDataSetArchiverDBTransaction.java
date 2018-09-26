@@ -56,6 +56,12 @@ public class MultiDataSetArchiverDBTransaction implements IMultiDataSetArchiverD
     }
 
     @Override
+    public void deleteContainer(long containerId)
+    {
+        transaction.deleteContainer(containerId);
+    }
+
+    @Override
     public void deleteContainer(String container)
     {
         transaction.deleteContainer(container);

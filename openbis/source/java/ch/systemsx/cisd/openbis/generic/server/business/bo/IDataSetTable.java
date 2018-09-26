@@ -99,9 +99,10 @@ public interface IDataSetTable
      * 
      * @param removeFromDataStore when set to <code>true</code> the data sets will be removed from the data store after a successful archiving
      *            operation.
+     * @param options which might be used by particular archivers.
      * @return number of data sets scheduled for archiving.
      */
-    int archiveDatasets(boolean removeFromDataStore);
+    int archiveDatasets(boolean removeFromDataStore, Map<String, String> options);
 
     /**
      * Schedules unarchiving of loaded data sets. Only archived datasets will be unarchived.

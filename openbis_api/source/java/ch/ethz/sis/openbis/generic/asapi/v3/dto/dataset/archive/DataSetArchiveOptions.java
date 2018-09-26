@@ -17,6 +17,8 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.archive;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -36,6 +38,9 @@ public class DataSetArchiveOptions implements Serializable
     @JsonProperty
     private boolean removeFromDataStore = true;
 
+    @JsonProperty
+    private final Map<String, String> options = new HashMap<String, String>();
+
     @JsonIgnore
     public void setRemoveFromDataStore(boolean removeFromDataStore)
     {
@@ -46,6 +51,18 @@ public class DataSetArchiveOptions implements Serializable
     public boolean isRemoveFromDataStore()
     {
         return removeFromDataStore;
+    }
+
+    public DataSetArchiveOptions withOption(String option, String value)
+    {
+        options.put(option, value);
+        return this;
+    }
+
+    @JsonIgnore
+    public Map<String, String> getOptions()
+    {
+        return options;
     }
 
     @Override

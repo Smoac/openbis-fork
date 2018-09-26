@@ -26,7 +26,9 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchiving
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -78,6 +80,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 @Friend(toClasses = DataSetTable.class)
 public final class DataSetTableTest extends AbstractBOTest
 {
+    private Map<String, String> options = new HashMap<>();
+
     private IDataStoreServiceFactory dssFactory;
 
     private DataStorePE dss1;
@@ -235,9 +239,7 @@ public final class DataSetTableTest extends AbstractBOTest
         final ExternalDataPE d1 = createDataSet("d1", dss1);
         final ExternalDataPE d2 = createDataSet("d2", dss2);
 
-        prepareFindFullDatasets(new ExternalDataPE[]
-        { d1, d2 }, new ExternalDataPE[]
-        { d1 }, false, false);
+        prepareFindFullDatasets(new ExternalDataPE[] { d1, d2 }, new ExternalDataPE[] { d1 }, false, false);
 
         DataSetTable dataSetTable = createDataSetTable();
         dataSetTable.loadByDataSetCodes(Arrays.asList(d1.getCode(), d2.getCode()), false, false);
@@ -277,8 +279,7 @@ public final class DataSetTableTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    prepareFindFullDatasets(new ExternalDataPE[]
-                    { d1, d2 }, false, false);
+                    prepareFindFullDatasets(new ExternalDataPE[] { d1, d2 }, false, false);
                 }
             });
 
@@ -296,7 +297,7 @@ public final class DataSetTableTest extends AbstractBOTest
         final ExternalDataPE d4 = createDataSet("d4n", dss2, ARCHIVE_PENDING);
         final ExternalDataPE d5 = createDataSet("d5n", dss2, UNARCHIVE_PENDING);
         final ExternalDataPE[] allDataSets =
-        { d1, d2, d3, d4, d5 };
+                { d1, d2, d3, d4, d5 };
         context.checking(new Expectations()
             {
                 {
@@ -337,8 +338,7 @@ public final class DataSetTableTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    prepareFindFullDatasets(new ExternalDataPE[]
-                    { d1, d2 }, false, false);
+                    prepareFindFullDatasets(new ExternalDataPE[] { d1, d2 }, false, false);
 
                     PersonPE person = EXAMPLE_SESSION.tryGetPerson();
                     one(eventDAO).persist(createDeletionEvent(d1, person, reason));
@@ -375,8 +375,7 @@ public final class DataSetTableTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    prepareFindFullDatasets(new ExternalDataPE[]
-                    { d1PE, d2PE }, true, false);
+                    prepareFindFullDatasets(new ExternalDataPE[] { d1PE, d2PE }, true, false);
 
                     one(dataStoreServiceConversational2).uploadDataSetsToCIFEX(
                             with(equal(dss2.getSessionToken())),
@@ -401,7 +400,8 @@ public final class DataSetTableTest extends AbstractBOTest
                                     {
                                         description.appendText("Data set d2");
                                     }
-                                }), with(same(uploadContext)));
+                                }),
+                            with(same(uploadContext)));
                 }
             });
 
@@ -423,7 +423,7 @@ public final class DataSetTableTest extends AbstractBOTest
         final ExternalDataPE d4 = createDataSet("d4n", dss2, ARCHIVE_PENDING);
         final ExternalDataPE d5 = createDataSet("d5n", dss2, UNARCHIVE_PENDING);
         final ExternalDataPE[] allDataSets =
-        { d1, d2, d3, d4, d5 };
+                { d1, d2, d3, d4, d5 };
         final DataSetUploadContext uploadContext = new DataSetUploadContext();
         uploadContext.setCifexURL("cifexURL");
         uploadContext.setUserID(EXAMPLE_SESSION.getUserName());
@@ -560,15 +560,14 @@ public final class DataSetTableTest extends AbstractBOTest
         final ExternalDataPE d3Available = createDataSet("d3a", dss3, AVAILABLE);
         final ExternalDataPE d3NonAvailable = createDataSet("d3n", dss3, ARCHIVED);
         final ExternalDataPE[] allDataSets =
-        { d2Available1, d2Available2, d2NonAvailable1, d2NonAvailable2, d3Available,
-                d3NonAvailable, d2NonAvailable3 };
+                { d2Available1, d2Available2, d2NonAvailable1, d2NonAvailable2, d3Available,
+                        d3NonAvailable, d2NonAvailable3 };
         context.checking(new Expectations()
             {
                 {
                     prepareFindFullDatasets(allDataSets, false, true);
 
-                    prepareUpdateDatasetStatuses(new ExternalDataPE[]
-                    { d2Available1, d2Available2, d3Available }, ARCHIVE_PENDING);
+                    prepareUpdateDatasetStatuses(new ExternalDataPE[] { d2Available1, d2Available2, d3Available }, ARCHIVE_PENDING);
 
                     // prepareFlush();
 
@@ -580,7 +579,7 @@ public final class DataSetTableTest extends AbstractBOTest
 
         DataSetTable dataSetTable = createDataSetTable();
         dataSetTable.loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)), false, true);
-        int archived = dataSetTable.archiveDatasets(true);
+        int archived = dataSetTable.archiveDatasets(true, options);
         assertEquals(3, archived);
     }
 
@@ -595,8 +594,8 @@ public final class DataSetTableTest extends AbstractBOTest
         final ExternalDataPE d3Archived = createDataSet("d3a", dss3, ARCHIVED);
         final ExternalDataPE d3NonArchived = createDataSet("d3n", dss3, AVAILABLE);
         final ExternalDataPE[] allDataSets =
-        { d2Archived1, d2Archived2, d2NonArchived1, d2NonArchived2, d3Archived,
-                d3NonArchived, d2NonAvailable3 };
+                { d2Archived1, d2Archived2, d2NonArchived1, d2NonArchived2, d3Archived,
+                        d3NonArchived, d2NonAvailable3 };
         context.checking(new Expectations()
             {
                 {
@@ -605,8 +604,7 @@ public final class DataSetTableTest extends AbstractBOTest
                     preparePrepareForUnarchiving(dataStoreService2, dss2, d2Archived1, d2Archived2, d2NonArchived1, d2NonArchived2, d2NonAvailable3);
                     preparePrepareForUnarchiving(dataStoreService3, dss3, d3Archived, d3NonArchived);
 
-                    prepareUpdateDatasetStatuses(new ExternalDataPE[]
-                    { d2Archived1, d2Archived2, d3Archived }, UNARCHIVE_PENDING);
+                    prepareUpdateDatasetStatuses(new ExternalDataPE[] { d2Archived1, d2Archived2, d3Archived }, UNARCHIVE_PENDING);
 
                     prepareUnarchiving(dataStoreService2, dss2, d2Archived1, d2Archived2);
                     prepareUnarchiving(dataStoreService3, dss3, d3Archived);
@@ -625,9 +623,9 @@ public final class DataSetTableTest extends AbstractBOTest
         final ExternalDataPE d2Archived1 = createDataSet("d2a1", dss2, ARCHIVED);
         final ExternalDataPE d2Archived2 = createDataSet("d2a2", dss2, ARCHIVED);
         final ExternalDataPE[] argumentDataSets =
-        { d2Archived1 };
+                { d2Archived1 };
         final ExternalDataPE[] allDataSets =
-        { d2Archived1, d2Archived2 };
+                { d2Archived1, d2Archived2 };
 
         context.checking(new Expectations()
             {
@@ -638,8 +636,7 @@ public final class DataSetTableTest extends AbstractBOTest
 
                     prepareFindFullDatasets(allDataSets, false, true);
 
-                    prepareUpdateDatasetStatuses(new ExternalDataPE[]
-                    { d2Archived1, d2Archived2 }, UNARCHIVE_PENDING);
+                    prepareUpdateDatasetStatuses(new ExternalDataPE[] { d2Archived1, d2Archived2 }, UNARCHIVE_PENDING);
 
                     prepareUnarchiving(dataStoreService2, dss2, d2Archived1, d2Archived2);
                 }
@@ -692,7 +689,7 @@ public final class DataSetTableTest extends AbstractBOTest
         final DataStorePE dssX = createDataStore("dssX", true);
         final ExternalDataPE d1 = createDataSet("d1", dssX, AVAILABLE);
         final ExternalDataPE[] allDataSets =
-        { d1 };
+                { d1 };
         final String errorMessage = "unexpected local error";
         context.checking(new Expectations()
             {
@@ -709,7 +706,7 @@ public final class DataSetTableTest extends AbstractBOTest
                 .loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)), false, false);
         try
         {
-            dataSetTable.archiveDatasets(true);
+            dataSetTable.archiveDatasets(true, options);
             fail("RuntimeException expected");
         } catch (RuntimeException re)
         {
@@ -723,11 +720,11 @@ public final class DataSetTableTest extends AbstractBOTest
         final ExternalDataPE d2 = createDataSet("d2", dss2, AVAILABLE);
         final ExternalDataPE d3 = createDataSet("d3", dss3, AVAILABLE);
         final ExternalDataPE[] d2Array =
-        { d2 };
+                { d2 };
         final ExternalDataPE[] d3Array =
-        { d3 };
+                { d3 };
         final ExternalDataPE[] allDataSets =
-        { d2, d3 };
+                { d2, d3 };
         context.checking(new Expectations()
             {
                 {
@@ -741,7 +738,8 @@ public final class DataSetTableTest extends AbstractBOTest
                             with(createDatasetDescriptionsMatcher(d2Array)),
                             with(equal(ManagerTestTool.EXAMPLE_PERSON.getUserId())),
                             with(equal(ManagerTestTool.EXAMPLE_PERSON.getEmail())),
-                            with(equal(true)));
+                            with(equal(true)),
+                            with(equal(options)));
                     will(throwException(new RuntimeException()));
 
                     allowing(dataStoreService3).archiveDatasets(
@@ -749,7 +747,8 @@ public final class DataSetTableTest extends AbstractBOTest
                             with(createDatasetDescriptionsMatcher(d3Array)),
                             with(equal(ManagerTestTool.EXAMPLE_PERSON.getUserId())),
                             with(equal(ManagerTestTool.EXAMPLE_PERSON.getEmail())),
-                            with(equal(true)));
+                            with(equal(true)),
+                            with(equal(options)));
                     will(throwException(new RuntimeException()));
 
                     // expect statuses to be reverted after an error
@@ -762,7 +761,7 @@ public final class DataSetTableTest extends AbstractBOTest
                 .loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)), false, false);
         try
         {
-            dataSetTable.archiveDatasets(true);
+            dataSetTable.archiveDatasets(true, options);
             fail("UserFailureException expected");
         } catch (UserFailureException ufe)
         {
@@ -800,7 +799,8 @@ public final class DataSetTableTest extends AbstractBOTest
                             with(createDatasetDescriptionsMatcher(dataSets)),
                             with(equal(ManagerTestTool.EXAMPLE_PERSON.getUserId())),
                             with(equal(ManagerTestTool.EXAMPLE_PERSON.getEmail())),
-                            with(equal(true)));
+                            with(equal(true)),
+                            with(equal(options)));
                 }
             });
     }

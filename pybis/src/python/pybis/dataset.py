@@ -148,15 +148,21 @@ class DataSet(OpenBisObject):
 
         if destination is None:
             destination = self.openbis.hostname
-
-        if self.data['kind'] == 'PHYSICAL':
+        
+        kind = None;
+        if 'kind' in self.data: # openBIS 18.6.x DTO
+            kind = self.data['kind']
+        elif ('type' in self.data) and ('kind' in self.data['type']): # openBIS 16.5.x DTO
+            kind =self.data['type']['kind']
+        
+        if kind == 'PHYSICAL':
             return self._download_physical(files, destination, wait_until_finished, workers)
-        elif self.data['kind'] == 'LINK':
+        elif kind == 'LINK':
             if linked_dataset_fileservice_url is None:
                 raise ValueError("Can't download a LINK data set without the linked_dataset_fileservice_url parameters.")
             return self._download_link(files, destination, wait_until_finished, workers, linked_dataset_fileservice_url, content_copy_index)
         else:
-            raise ValueError("Can't download data set of kind {}.".format(self.data['kind']))
+            raise ValueError("Can't download data set of kind {}.".format(kind))
 
 
     def _download_physical(self, files, destination, wait_until_finished, workers):

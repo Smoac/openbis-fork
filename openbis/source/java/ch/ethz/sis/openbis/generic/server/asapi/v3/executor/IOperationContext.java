@@ -24,4 +24,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.context.IContext;
 public interface IOperationContext extends IContext
 {
 
+    boolean isAsync();
+
 }

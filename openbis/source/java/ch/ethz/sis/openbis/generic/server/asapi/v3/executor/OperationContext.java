@@ -25,9 +25,24 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 public class OperationContext extends Context implements IOperationContext
 {
 
+    private final boolean async;
+
     public OperationContext(Session session)
     {
         super(session);
+        this.async = false;
+    }
+
+    public OperationContext(Session session, boolean async)
+    {
+        super(session);
+        this.async = async;
+    }
+
+    @Override
+    public boolean isAsync()
+    {
+        return async;
     }
 
 }

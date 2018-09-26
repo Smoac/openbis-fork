@@ -54,18 +54,15 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		var experimentCode;
 		if(this._sampleFormModel.sample.experimentIdentifierOrNull) {	
 			var experimentIdentifier = this._sampleFormModel.sample.experimentIdentifierOrNull;
-			projectCode = experimentIdentifier.split("/")[2];
-			experimentCode = experimentIdentifier.split("/")[3];
+			projectCode = IdentifierUtil.getProjectCodeFromExperimentIdentifier(experimentIdentifier);
+			experimentCode = IdentifierUtil.getCodeFromIdentifier(experimentIdentifier);
 		}
-		var containerSampleCode;
 		var containerSampleIdentifier;
+		var containerSampleCode;
 		if(this._sampleFormModel.mode !== FormMode.CREATE) {
-			var containerIdentifierEnd = this._sampleFormModel.sample.identifier.lastIndexOf(":");
-			if(containerIdentifierEnd !== -1) {
-				var containerCodeStart = this._sampleFormModel.sample.identifier.lastIndexOf("/") + 1;
-				var codeWithContainerParts = this._sampleFormModel.sample.identifier.substring(containerCodeStart).split(":");
-				containerSampleCode = codeWithContainerParts[0];
-				containerSampleIdentifier = this._sampleFormModel.sample.identifier.substring(0, containerIdentifierEnd);
+			containerSampleIdentifier = IdentifierUtil.getContainerSampleIdentifierFromContainedSampleIdentifier(this._sampleFormModel.sample.identifier);
+			if(containerSampleIdentifier) {
+				containerSampleCode = IdentifierUtil.getCodeFromIdentifier(containerSampleIdentifier);
 			}
 		}
 		var sampleCode = this._sampleFormModel.sample.code;
@@ -156,6 +153,13 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				});
 				toolbarModel.push({ component : $editButton, tooltip: "Edit" });
 			}
+			
+			//Move
+			var $moveBtn = FormUtil.getButtonWithIcon("glyphicon-move", function () {
+				var moveEntityController = new MoveEntityController("SAMPLE", _this._sampleFormModel.sample.permId);
+				moveEntityController.init();
+			});
+			toolbarModel.push({ component : $moveBtn, tooltip: "Move" });
 			
 			//Copy
 			var $copyButton = $("<a>", { 'class' : 'btn btn-default'} )
@@ -248,18 +252,11 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			toolbarModel.push({ component : $uploadBtn, tooltip: "Helper tool for Dataset upload using eln-lims dropbox" });
 			
 			//Export
-			var $export = FormUtil.getButtonWithIcon("glyphicon-export", function() {
-				Util.blockUI();
-				var facade = mainController.serverFacade;
-				facade.exportAll([{ type: "SAMPLE", permId : _this._sampleFormModel.sample.permId, expand : true }], false, function(error, result) {
-					if(error) {
-						Util.showError(error);
-					} else {
-						Util.showSuccess("Export is being processed, you will receive an email when is ready, if you logout the process will stop.", function() { Util.unblockUI(); });
-					}
-				});
-			});
-			toolbarModel.push({ component : $export, tooltip: "Export" });
+			var $exportAll = FormUtil.getExportButton([{ type: "SAMPLE", permId : _this._sampleFormModel.sample.permId, expand : true }], false);
+			toolbarModel.push({ component : $exportAll, tooltip: "Export Metadata & Data" });
+		
+			var $exportOnlyMetadata = FormUtil.getExportButton([{ type: "SAMPLE", permId : _this._sampleFormModel.sample.permId, expand : true }], true);
+			toolbarModel.push({ component : $exportOnlyMetadata, tooltip: "Export Metadata only" });
 			
 			//Jupyter Button
 			if(profile.jupyterIntegrationServerEndpoint) {
@@ -617,6 +614,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					}
 				} else {
 					var $component = FormUtil.getFieldForPropertyType(propertyType, value);
+					
 					//Update values if is into edit mode
 					if(this._sampleFormModel.mode === FormMode.EDIT || loadFromTemplate) {
 						if(propertyType.dataType === "BOOLEAN") {
@@ -696,7 +694,9 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		$fieldsetOwner.append($fieldset);
 		
 		$fieldset.append(FormUtil.getFieldForLabelWithText("Type", this._sampleFormModel.sample.sampleTypeCode));
-		$fieldset.append(FormUtil.getFieldForLabelWithText(ELNDictionary.getExperimentKindName("/" + this._sampleFormModel.sample.spaceCode), this._sampleFormModel.sample.experimentIdentifierOrNull));
+		if(this._sampleFormModel.sample.experimentIdentifierOrNull) {
+			$fieldset.append(FormUtil.getFieldForLabelWithText(ELNDictionary.getExperimentKindName(this._sampleFormModel.sample.experimentIdentifierOrNull), this._sampleFormModel.sample.experimentIdentifierOrNull));
+		}
 		
 		//
 		// Identification Info - Code
@@ -920,7 +920,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			//Number of Replicas
 			var numberOfReplicas = parseInt($("#childrenReplicas").val());
 			if(isNaN(numberOfReplicas) || numberOfReplicas < 0 || numberOfReplicas > 1000) {
-				Util.showError("The number of children replicas should be an integer number bigger than 0 and lower than 1000.", function() {}, true);
+				Util.showUserError("The number of children replicas should be an integer number bigger than 0 and lower than 1000.", function() {}, true);
 				return;
 			}
 			
@@ -951,23 +951,23 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		var $generateButton = $("<a>", { "class" : "btn btn-default" }).append("Generate!");
 		$generateButton.click(function(event) { 
 			var generatedChildrenSpace = _this._sampleFormModel.sample.spaceCode;
-			
+			var generatedChildrenProject = IdentifierUtil.getProjectCodeFromSampleIdentifier(_this._sampleFormModel.sample.identifier);
 			var numberOfReplicas = parseInt($("#childrenReplicas").val());
 			if(isNaN(numberOfReplicas) || numberOfReplicas < 0 || numberOfReplicas > 1000) {
-				Util.showError("The number of children replicas should be an integer number bigger than 0 and lower than 1000.", function() {}, true);
+				Util.showUserError("The number of children replicas should be an integer number bigger than 0 and lower than 1000.", function() {}, true);
 				return;
 			}
 			var generatedChildrenCodes = getGeneratedChildrenCodes();
 			var generatedChildrenType = $("#childrenTypeSelector").val();
 			if(generatedChildrenType === "") {
-				Util.showError("Please select the children type.", function() {}, true);
+				Util.showUserError("Please select the children type.", function() {}, true);
 			} else {
 				for(var i = 0; i < generatedChildrenCodes.length; i++) {
 					var virtualSample = new Object();
 					virtualSample.newSample = true;
 					virtualSample.permId = Util.guid();
 					virtualSample.code = generatedChildrenCodes[i];
-					virtualSample.identifier = "/" + generatedChildrenSpace + "/" + virtualSample.code;
+					virtualSample.identifier = IdentifierUtil.getSampleIdentifier(generatedChildrenSpace, generatedChildrenProject, virtualSample.code);
 					virtualSample.sampleTypeCode = generatedChildrenType;
 					_this._sampleFormModel.sampleLinksChildren.addVirtualSample(virtualSample);
 				}

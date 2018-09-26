@@ -31,16 +31,21 @@ def generate_perm_id():
     return "{}-{:04d}".format(ts, sequence)
 
 
-def shared_dm():
+def shared_dm(path):
     openbis_config = {
         'allow_http_but_do_not_use_this_in_production_and_only_within_safe_networks': True
     }
-    dm = data_mgmt.DataMgmt(openbis_config=openbis_config)
+    dm = data_mgmt.DataMgmt(openbis_config=openbis_config, git_config={
+        'data_path': path,
+        'metadata_path': path,
+        'invocation_path': path
+    })
+    dm.debug = True
     return dm
 
 
 def test_no_git(tmpdir):
-    git_config = {'find_git': False}
+    git_config = {'find_git': False, 'data_path': None, 'metadata_path': None, 'invocation_path': None}
     dm = data_mgmt.DataMgmt(git_config=git_config)
     try:
         dm.init_data(str(tmpdir), "")
@@ -62,7 +67,7 @@ def git_status(path=None, annex=False):
 
 def check_correct_config_semantics():
     # This how things should work
-    with open('.git/obis/repository.json') as f:
+    with open('.obis/repository.json') as f:
         config_local = json.load(f)
     assert config_local.get('data_set_id') is not None
 
@@ -75,21 +80,23 @@ def check_workaround_config_semantics():
 
 
 def test_data_use_case(tmpdir):
-    dm = shared_dm()
+    dm = shared_dm(tmpdir)
 
     tmp_dir_path = str(tmpdir)
     assert git_status(tmp_dir_path).returncode == 128  # The folder should not be a git repo at first.
 
-    result = dm.init_data(tmp_dir_path, "test")
-    assert result.returncode == 0
-
-    assert git_status(tmp_dir_path).returncode == 0  # The folder should be a git repo now
-    assert git_status(tmp_dir_path, annex=True).returncode == 0  # ...and a git-annex repo as well.
-
-    copy_test_data(tmpdir)
-
     with data_mgmt.cd(tmp_dir_path):
-        dm = shared_dm()
+
+        result = dm.init_data(tmp_dir_path, "test")
+        print(result.output)
+        assert result.returncode == 0
+
+        assert git_status(tmp_dir_path).returncode == 0  # The folder should be a git repo now
+        assert git_status(tmp_dir_path, annex=True).returncode == 0  # ...and a git-annex repo as well.
+
+        copy_test_data(tmpdir)
+
+        dm = shared_dm(tmpdir)
         prepare_registration_expectations(dm)
         set_registration_configuration(dm)
 
@@ -125,17 +132,18 @@ def test_data_use_case(tmpdir):
 
 
 def test_child_data_set(tmpdir):
-    dm = shared_dm()
+    dm = shared_dm(tmpdir)
 
     tmp_dir_path = str(tmpdir)
 
-    result = dm.init_data(tmp_dir_path, "test")
-    assert result.returncode == 0
-
-    copy_test_data(tmpdir)
-
     with data_mgmt.cd(tmp_dir_path):
-        dm = shared_dm()
+
+        result = dm.init_data(tmp_dir_path, "test")
+        assert result.returncode == 0
+
+        copy_test_data(tmpdir)
+
+        dm = shared_dm(tmpdir)
         prepare_registration_expectations(dm)
         set_registration_configuration(dm)
 
@@ -160,36 +168,41 @@ def test_child_data_set(tmpdir):
                                         properties, contents)
 
 
-def test_external_dms_code_and_address():
-    # given
-    dm = shared_dm()
-    prepare_registration_expectations(dm)
-    obis_sync = data_mgmt.OpenbisSync(dm)
-    set_registration_configuration(dm)
-    user = obis_sync.user()
-    hostname = socket.gethostname()
-    expected_edms_id = obis_sync.external_dms_id()
-    result = obis_sync.git_wrapper.git_top_level_path()
-    assert result.failure() == False
-    edms_path, folder = os.path.split(result.output)
-    path_hash = hashlib.sha1(edms_path.encode("utf-8")).hexdigest()[0:8]
-    if expected_edms_id is None:
-        expected_edms_id = "{}-{}-{}".format(user, hostname, path_hash).upper()
-    # when
-    result = obis_sync.get_or_create_external_data_management_system();
-    # then
-    assert result.failure() == False
-    dm.openbis.get_external_data_management_system.assert_called_with(expected_edms_id)
+def test_external_dms_code_and_address(tmpdir):
+    tmp_dir_path = str(tmpdir)
+
+    with data_mgmt.cd(tmp_dir_path):
+        # given
+        dm = shared_dm(tmp_dir_path)
+        prepare_registration_expectations(dm)
+        obis_sync = data_mgmt.OpenbisSync(dm)
+        set_registration_configuration(dm)
+        user = obis_sync.user()
+        hostname = socket.gethostname()
+        expected_edms_id = obis_sync.external_dms_id()
+        result = obis_sync.git_wrapper.git_init()
+        assert result.failure() == False
+        result = obis_sync.git_wrapper.git_top_level_path()
+        assert result.failure() == False
+        edms_path, folder = os.path.split(result.output)
+        path_hash = hashlib.sha1(edms_path.encode("utf-8")).hexdigest()[0:8]
+        if expected_edms_id is None:
+            expected_edms_id = "{}-{}-{}".format(user, hostname, path_hash).upper()
+        # when
+        result = obis_sync.get_or_create_external_data_management_system();
+        # then
+        assert result.failure() == False
+        dm.openbis.get_external_data_management_system.assert_called_with(expected_edms_id)
 
 
 def test_undo_commit_when_sync_fails(tmpdir):
     # given
-    dm = shared_dm()
+    dm = shared_dm(tmpdir)
     dm.git_wrapper = Mock()
     dm.git_wrapper.git_top_level_path = MagicMock(return_value = CommandResult(returncode=0, output=None))
     dm.git_wrapper.git_add = MagicMock(return_value = CommandResult(returncode=0, output=None))
     dm.git_wrapper.git_commit = MagicMock(return_value = CommandResult(returncode=0, output=None))
-    dm._sync = lambda: CommandResult(returncode=-1, output="dummy error")
+    dm._sync = lambda *args: CommandResult(returncode=-1, output="dummy error")
     # when
     result = dm.commit("Added data.")
     # then
@@ -198,18 +211,19 @@ def test_undo_commit_when_sync_fails(tmpdir):
 
 
 def test_init_analysis(tmpdir):
-    dm = shared_dm()
-
     tmp_dir_path = str(tmpdir)
 
-    result = dm.init_data(tmp_dir_path, "test")
-    assert result.returncode == 0
-
-    copy_test_data(tmpdir)
-
     with data_mgmt.cd(tmp_dir_path):
-        dm = shared_dm()
+
+        dm = shared_dm(tmp_dir_path)
         prepare_registration_expectations(dm)
+        openbis = dm.openbis
+
+        result = dm.init_data(tmp_dir_path, "test")
+        assert result.returncode == 0
+
+        copy_test_data(tmpdir)
+
         set_registration_configuration(dm)
 
         result = dm.commit("Added data.")
@@ -217,10 +231,16 @@ def test_init_analysis(tmpdir):
         parent_ds_code = dm.settings_resolver.config_dict()['repository']['data_set_id']
 
         analysis_repo = "analysis"
-        result = dm.init_analysis(analysis_repo, None)
-        assert result.returncode == 0
+        os.mkdir(analysis_repo)
 
         with data_mgmt.cd(analysis_repo):
+
+            dm = shared_dm(os.path.join(tmpdir, analysis_repo))
+            dm.openbis = openbis
+            prepare_new_data_set_expectations(dm)
+
+            result = dm.init_analysis("..")
+            assert result.returncode == 0
 
             set_registration_configuration(dm)
             prepare_new_data_set_expectations(dm)
@@ -268,6 +288,11 @@ def prepare_new_data_set_expectations(dm, properties={}):
                         'physicalData': None, 'linkedData': { 'contentCopies': []}})
     dm.openbis.new_git_data_set = MagicMock(return_value=data_set)
     dm.openbis.get_dataset = MagicMock(return_value=data_set)
+
+    sample = MagicMock()
+    sample.permId = "123-1"
+    sample.identifier = "/SAMPLE/ID"
+    dm.openbis.get_sample = MagicMock(return_value=sample)
 
 
 

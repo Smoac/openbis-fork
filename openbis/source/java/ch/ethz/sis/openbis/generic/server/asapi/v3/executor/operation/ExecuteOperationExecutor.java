@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation;
 
 import java.util.List;
 
+import javax.annotation.Resource;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.AsynchronousOperationE
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.IOperationExecutionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.IOperationExecutionResults;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.SynchronousOperationExecutionOptions;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.OperationContext;
+import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
+import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
+import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
  * @author pkupczyk
@@ -36,6 +40,9 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 @Component
 public class ExecuteOperationExecutor implements IExecuteOperationExecutor
 {
+
+    @Resource(name = ComponentNames.SESSION_MANAGER)
+    private IOpenBisSessionManager sessionManager;
 
     @Autowired
     private ISynchronousOperationExecutor synchronousExecutor;
@@ -45,14 +52,16 @@ public class ExecuteOperationExecutor implements IExecuteOperationExecutor
 
     @Override
     @Transactional
-    public IOperationExecutionResults execute(IOperationContext context, List<? extends IOperation> operations, IOperationExecutionOptions options)
+    public IOperationExecutionResults execute(String sessionToken, List<? extends IOperation> operations, IOperationExecutionOptions options)
     {
+        Session session = sessionManager.getSession(sessionToken);
+
         if (options instanceof SynchronousOperationExecutionOptions)
         {
-            return synchronousExecutor.execute(context, operations, (SynchronousOperationExecutionOptions) options);
+            return synchronousExecutor.execute(new OperationContext(session, false), operations, (SynchronousOperationExecutionOptions) options);
         } else if (options instanceof AsynchronousOperationExecutionOptions)
         {
-            return asynchronousExecutor.execute(context, operations, (AsynchronousOperationExecutionOptions) options);
+            return asynchronousExecutor.execute(new OperationContext(session, true), operations, (AsynchronousOperationExecutionOptions) options);
         } else
         {
             throw new IllegalArgumentException("Operation execution options " + options + " are not supported");

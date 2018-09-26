@@ -113,6 +113,8 @@ public final class SearchFieldConstants
 
     public static final String PRESENT_IN_ARCHIVE = "present_in_archive";
 
+    public static final String ARCHIVING_REQUESTED = "archiving_requested";
+    
     public static final String SPEED_HINT = "speed_hint";
 
     public static final String EXTERNAL_CODE = "external_code";

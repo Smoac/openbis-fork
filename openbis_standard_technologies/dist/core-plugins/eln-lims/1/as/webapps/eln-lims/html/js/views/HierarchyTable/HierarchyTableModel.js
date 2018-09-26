@@ -16,6 +16,11 @@
 
 function HierarchyTableModel(entity) {
 	this.entity = entity;
+	
+	if(this.entity["@type"] === "as.dto.sample.Sample") {  // V3 Sample
+		profile.deleteSampleConnectionsByType(this.entity);
+	}
+	
 	this.relationShipsMap = HierarchyUtil.createRelationShipsMap(entity);
 	
 	this.getData = function(dataList) {
@@ -71,7 +76,7 @@ function HierarchyTableModel(entity) {
 		
 		var historyId = null;
 		if(entity.properties && entity.properties["HISTORY_ID"]) {
-			historyId = dataset.properties["HISTORY_ID"];
+			historyId = entity.properties["HISTORY_ID"];
 		}
 		
 		dataList.push({

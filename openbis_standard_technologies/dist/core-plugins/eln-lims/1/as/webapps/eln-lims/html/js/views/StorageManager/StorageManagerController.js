@@ -37,7 +37,7 @@ function StorageManagerController(mainController) {
 			var isBox = data.samples !== undefined;
 			if(isBox) {
 				var errorMsg = "Boxes can't be put inside other boxes.";
-				Util.showError(errorMsg);
+				Util.showUserError(errorMsg);
 				throw errorMsg;
 			}
 			
@@ -46,11 +46,11 @@ function StorageManagerController(mainController) {
 			if(isMultiplePosition) {
 				//var oldBoxName === data.properties[newStoragePropertyGroup.boxProperty];
 				var errorMsg = "Multiple position " + ELNDictionary.Samples + " are not supported by the manager, please use the " + ELNDictionary.samples + " form for this.";
-				Util.showError(errorMsg);
+				Util.showUserError(errorMsg);
 				throw errorMsg;
 			} else if(!isNewDataHolderEmpty) {
 				var errorMsg = "That position on the box is already used by another " + ELNDictionary.Sample + ".";
-				Util.showError(errorMsg);
+				Util.showUserError(errorMsg);
 				throw errorMsg;
 			} else {
 				var propertiesValues = {};
@@ -100,7 +100,7 @@ function StorageManagerController(mainController) {
 			var isBox = data.samples !== undefined;
 			if(!isBox) {
 				var errorMsg = "" + ELNDictionary.Samples + " can't be put inside a rack without a Box.";
-				Util.showError(errorMsg);
+				Util.showUserError(errorMsg);
 				throw errorMsg;
 			}
 			
@@ -203,9 +203,9 @@ function StorageManagerController(mainController) {
 				var experimentIdentifier = sample.experimentIdentifierOrNull;
 				
 				if(experimentIdentifier) { //If there is a experiment detected, the sample should be attached to the experiment completely.
-					sampleSpace = experimentIdentifier.split("/")[1];
-					sampleProject = experimentIdentifier.split("/")[2];
-					sampleExperiment = experimentIdentifier.split("/")[3];
+					sampleSpace = IdentifierUtil.getSpaceCodeFromIdentifier(experimentIdentifier);
+					sampleProject = IdentifierUtil.getProjectCodeFromExperimentIdentifier(experimentIdentifier);
+					sampleExperiment = IdentifierUtil.getCodeFromIdentifier(experimentIdentifier);
 				}
 				
 				var operation = {
@@ -256,7 +256,7 @@ function StorageManagerController(mainController) {
 	
 	this.init = function(views) {
 		if(!profile.storagesConfiguration["isEnabled"]) {
-			Util.showError("You need to configure the storage options to manage them. :-)");
+			Util.showUserError("You need to configure the storage options to manage them. :-)");
 		} else {
 			this._storageManagerView.repaint(views);
 		}

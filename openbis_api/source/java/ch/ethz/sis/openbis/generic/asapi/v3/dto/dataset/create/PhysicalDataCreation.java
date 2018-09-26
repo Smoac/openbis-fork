@@ -63,6 +63,8 @@ public class PhysicalDataCreation implements ICreation
 
     private boolean h5arFolders = true;
 
+    private boolean archivingRequested = false;
+    
     public String getShareId()
     {
         return shareId;
@@ -163,6 +165,16 @@ public class PhysicalDataCreation implements ICreation
     public void setH5arFolders(boolean h5arFolders)
     {
         this.h5arFolders = h5arFolders;
+    }
+
+    public boolean isArchivingRequested()
+    {
+        return archivingRequested;
+    }
+
+    public void setArchivingRequested(boolean archivingRequested)
+    {
+        this.archivingRequested = archivingRequested;
     }
 
     @Override

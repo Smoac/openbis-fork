@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-function DataSetFormModel(mode, entity, dataSet, isMini) {
+function DataSetFormModel(mode, entity, dataSet, isMini, dataSetV3) {
 	this.mode = mode;
 	this.isMini = isMini;
 	this.isAutoUpload = true;
@@ -30,9 +30,12 @@ function DataSetFormModel(mode, entity, dataSet, isMini) {
 		this.dataSet = { properties : {} };
 	} else {
 		this.dataSet = dataSet;
+		this.dataSetV3 = dataSetV3;
 	}
 	this.linkedData = null;
 	
 	this.dataSetTypes = null;
 	this.files = [];
+	
+	this.datasetParentsComponent = null; 
 }

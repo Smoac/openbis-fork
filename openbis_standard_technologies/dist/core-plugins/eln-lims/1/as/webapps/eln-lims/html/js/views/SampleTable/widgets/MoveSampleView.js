@@ -69,16 +69,19 @@ function MoveSampleView(moveSampleController, moveSampleModel) {
 		var _this = this;
 		$experimentSection.empty();
 		FormUtil.getProjectAndExperimentsDropdown(true, false, true, function($dropdown) {
+			$dropdown.attr("id", "future-projects-drop-down");
 			//Fields
-			var $expTypeField = FormUtil.getExperimentTypeDropdown(null, true);
+			var $expTypeField = FormUtil.getExperimentTypeDropdown("future-experiment-type-drop-down", true);
 			var $expNameField = FormUtil._getInputField('text', null, 'Future ' + ELNDictionary.getExperimentDualName() + ' Name', null, true);
 			
 			//Events
 			var newExpEvent = function(event){
 				$expNameField.val($expNameField.val().toUpperCase());
-				var valueProject = $dropdown.val();
-				var valueExperiment = $expNameField.val();
-				_this._moveSampleModel.experimentIdentifier = valueProject + "/" + valueExperiment;
+				var projectIdentifier = $dropdown.val();
+				var projectSpace = IdentifierUtil.getSpaceCodeFromIdentifier(projectIdentifier);
+				var projectCode = IdentifierUtil.getCodeFromIdentifier(projectIdentifier);
+				var experimentCode = $expNameField.val();
+				_this._moveSampleModel.experimentIdentifier = IdentifierUtil.getExperimentIdentifier(projectSpace, projectCode, experimentCode);
 			};
 			var newTypeEVent = function(event) {
 				var value = $(event.target).val();
@@ -95,15 +98,13 @@ function MoveSampleView(moveSampleController, moveSampleModel) {
 							.append(FormUtil.getFieldForComponentWithLabel($expTypeField, "Future " + ELNDictionary.getExperimentDualName() + " Type"))
 							.append(FormUtil.getFieldForComponentWithLabel($expNameField, "Future " + ELNDictionary.getExperimentDualName() + " Name"));
 		});
-		
-		
-		
 	}
 	
 	this.repaintExistingExperiment = function() {
 		var _this = this;
 		$experimentSection.empty();
 		FormUtil.getProjectAndExperimentsDropdown(false, true, true, function($dropdown) {
+			$dropdown.attr("id", "existing-experiments-drop-down");
 			//Events
 			$dropdown.change(function(event){
 				var value = $(event.target).val();

@@ -12,3 +12,5 @@ sudo yum -y install vim
 sudo yum -y install nano
 sudo yum -y install nmap
 sudo yum -y install net-tools
+
+sudo echo 'export PYTHONWARNINGS="ignore:Unverified HTTPS request"' > /etc/profile

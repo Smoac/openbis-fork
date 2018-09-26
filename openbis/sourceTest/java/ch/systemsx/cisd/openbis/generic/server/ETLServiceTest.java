@@ -28,6 +28,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.hamcrest.BaseMatcher;
@@ -187,6 +188,8 @@ public class ETLServiceTest extends AbstractServerTestCase
 
     private IOperationsExecutor operationsExecutor;
 
+    private IConcurrentOperationLimiter operationLimiter;
+
     private PersonPE sessionPerson;
 
     private IDataStoreDataSourceManager dataSourceManager;
@@ -211,6 +214,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         session.setPerson(sessionPerson);
         managedPropertyEvaluatorFactory = new ManagedPropertyEvaluatorFactory(null, new TestJythonEvaluatorPool());
         operationsExecutor = context.mock(IOperationsExecutor.class);
+        operationLimiter = new ConcurrentOperationLimiter(new ConcurrentOperationLimiterConfig(new Properties()));
 
         prepareDataSetRegistrationCache();
     }
@@ -1408,7 +1412,6 @@ public class ETLServiceTest extends AbstractServerTestCase
                     SampleBuilder sample1 = new SampleBuilder().id(1);
                     SampleBuilder sample2 = new SampleBuilder().id(2);
                     will(returnValue(Arrays.asList(sample1, sample2)));
-
                 }
             });
 
@@ -1540,7 +1543,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                 new ServiceForDataStoreServer(authenticationService, sessionManager, daoFactory,
                         propertiesBatchManager, boFactory, dssfactory, null,
                         entityOperationChecker, dataStoreServiceRegistrator, dataSourceManager,
-                        sessionManagerForEntityOperations, managedPropertyEvaluatorFactory, operationsExecutor);
+                        sessionManagerForEntityOperations, managedPropertyEvaluatorFactory, operationsExecutor, operationLimiter);
         etlService.setConversationClient(conversationClient);
         etlService.setConversationServer(conversationServer);
         etlService.setDisplaySettingsProvider(new DisplaySettingsProvider());

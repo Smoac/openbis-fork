@@ -32,7 +32,7 @@ function DilutionTableView(dilutionTableController, dilutionTableModel) {
 			//Disable field or give alert
 			var sampleType = profile.getSampleTypeForSampleTypeCode(_this._dilutionTableModel.sample.sampleTypeCode);
 			if(!profile.isPropertyPressent(sampleType,"DILUTION_STATE" )) {
-				Util.showError("You need a property with code DILUTION_STATE on this entity to store the state of the dilution widget.");
+				Util.showUserError("You need a property with code DILUTION_STATE on this entity to store the state of the dilution widget.");
 			} else {
 				//Hide State Field
 				$("#DILUTION_STATE").parent().parent().hide();
@@ -132,6 +132,7 @@ function DilutionTableView(dilutionTableController, dilutionTableModel) {
 		if(!_this._dilutionTableModel.isEnabled) {
 			$component.attr('disabled', true)
 		}
+		Select2Manager.add($component);
 		return $component;
 	}
 	
@@ -224,6 +225,7 @@ function DilutionTableView(dilutionTableController, dilutionTableModel) {
 		if(!this._dilutionTableModel.isEnabled) {
 			$component.attr('disabled', true)
 		}
+		Select2Manager.add($component);
 	}
 	
 	this._updateCalculatedValues = function() {

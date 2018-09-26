@@ -47,13 +47,13 @@ function NewProductsView(newProductsController, newProductsModel) {
 				try {
 					var valueParsed = parseInt(value);
 					if("" + valueParsed === "NaN") {
-						Util.showError("Please input a correct quantiy.");
+						Util.showUserError("Please input a correct quantiy.");
 						$(this).val("");
 					} else {
 						$(this).val(valueParsed);
 					}
 				} catch(err) {
-					Util.showError("Please input a correct quantiy.");
+					Util.showUserError("Please input a correct quantiy.");
 					$(this).val("");
 				}
 			});
@@ -65,13 +65,13 @@ function NewProductsView(newProductsController, newProductsModel) {
 						try {
 							var valueParsed = parseFloat(value);
 							if("" + valueParsed === "NaN") {
-								Util.showError("Please input a correct price.");
+								Util.showUserError("Please input a correct price.");
 								$(this).val("");
 							} else {
 								$(this).val(valueParsed);
 							}
 						} catch(err) {
-							Util.showError("Please input a correct price.");
+							Util.showUserError("Please input a correct price.");
 							$(this).val("");
 						}
 					}

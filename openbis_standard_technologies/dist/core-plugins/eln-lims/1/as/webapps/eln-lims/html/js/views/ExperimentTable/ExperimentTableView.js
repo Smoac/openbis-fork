@@ -52,12 +52,13 @@ function ExperimentTableView(experimentTableController, experimentTableModel) {
 	this._showExperimentFromOverviewDropdown = function() {
 		var _this = this;
 		var expDropModel = [];
-		var projectIdentifier = "/" + this._experimentTableModel.project.spaceCode + "/" + this._experimentTableModel.project.code;
+		var projectIdentifier = IdentifierUtil.getProjectIdentifier(this._experimentTableModel.project.spaceCode, this._experimentTableModel.project.code);
 		expDropModel = [{value : "OVERVIEW", label : "Show only overview " + ELNDictionary.getExperimentKindName(projectIdentifier, true), selected : this._experimentTableModel.showInProjectOverview },
 		                {value : "ALL", label : "Show all " + ELNDictionary.getExperimentKindName(projectIdentifier, true), selected : !this._experimentTableModel.showInProjectOverview }];
 		
 		
 		var $experimentDropdown = FormUtil.getDropdown(expDropModel, "Select what " + ELNDictionary.getExperimentKindName(projectIdentifier, true) + " to show");
+		$experimentDropdown.attr("id", "what-experiments-drop-down");
 		
 		$experimentDropdown.change(function() {
 			switch($(this).val()){
@@ -75,8 +76,8 @@ function ExperimentTableView(experimentTableController, experimentTableModel) {
 	
 	this._getProjectExperimentTypesDropdown = function() {
 		var _this = this;
-		var	$typesSelector = $('<select>', { class : 'form-control' });
-		var projectIdentifier = "/" + this._experimentTableModel.project.spaceCode + "/" + this._experimentTableModel.project.code;
+		var	$typesSelector = $('<select>', { class : 'form-control', id : 'project-experiment-type-drop-down' });
+		var projectIdentifier = IdentifierUtil.getProjectIdentifier(this._experimentTableModel.project.spaceCode, this._experimentTableModel.project.code);
 		$typesSelector.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text("Select an " + ELNDictionary.getExperimentKindName(projectIdentifier, true) + " type"));
 		for(typeCode in this._experimentTableModel.types) {
 			$typesSelector.append($('<option>', { 'value' : typeCode }).text(typeCode));
@@ -87,6 +88,7 @@ function ExperimentTableView(experimentTableController, experimentTableModel) {
 			_this._experimentTableController._reloadTableWithType(typeToShow);
 		});
 		this.typeSelector = $typesSelector;
+		Select2Manager.add($typesSelector);
 		return $("<span>").append($typesSelector);
 	}
 	

@@ -1170,6 +1170,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         dataSet.setPostRegistered(record.is_post_registered);
         dataSet.setH5Folders(record.h5_folders);
         dataSet.setH5arFolders(record.h5ar_folders);
+        dataSet.setArchivingRequested(record.archiving_requested);
         return dataSet;
     }
 

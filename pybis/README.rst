@@ -252,6 +252,15 @@ Semantic Annotations
     # get semantic annotation by perm id
     sa = o.get_semantic_annotation("20171015135637955-30")
 
+    # search semantic annotations by entityType
+    sa = o.search_semantic_annotations(entityType="UNKNOWN")
+
+    # search semantic annotations by propertyType
+    sa = o.search_semantic_annotations(propertyType="DESCRIPTION")
+
+    # search semantic annotations by sample property assignments
+    sa = o.search_semantic_annotations(entityType="UNKNOWN", propertyType="DESCRIPTION")
+
     # update semantic annotation
     sa.predicateOntologyId = 'new_po_id'
     sa.descriptorOntologyId = 'new_do_id'

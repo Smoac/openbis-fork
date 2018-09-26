@@ -96,7 +96,7 @@ function MainController(profile) {
 		if(data.result == null){
 			$("#username").focus();
 			var callback = function() {Util.unblockUI();};
-			Util.showError('The given username or password is not correct.', callback);
+			Util.showUserError('The given username or password is not correct.', callback);
 			this.serverFacade.doIfFileAuthenticationService((function() {
 	            this._enablePasswordResetLink();
 			}).bind(this));
@@ -247,8 +247,55 @@ function MainController(profile) {
                 Util.showInfo("A new password has been sent as an email to user " + userId + " if this user exists.");                
             });
         } else {
-            Util.showError("To reset the password, the parameters 'userId' and 'token' need to be set.");
+            Util.showUserError("To reset the password, the parameters 'userId' and 'token' need to be set.");
         }
+	}
+
+	//
+	// authorization
+	//
+
+	// params.space: space code
+	// params.project: (optional) project code
+	// params.callback: function to be called with the role list
+	this.getUserRole = function(params, callback) {
+		if (profile.isAdmin) {
+			callback(["ADMIN"]);
+		} else {
+			var roles = [];
+			mainController.serverFacade.searchRoleAssignments({
+				user: mainController.serverFacade.getUserId(),
+			}, function(roleAssignments) {
+				for (var i=0; i<roleAssignments.length; i++) {
+					var ra = roleAssignments[i];
+					if (ra.space && ra.space.code == params.space
+							&& roles.indexOf(ra.role) < 0) {
+						roles.push(ra.role);
+					}
+					if (ra.project && params.project && ra.project.code == params.project
+							&& roles.indexOf(ra.role) < 0) {
+						roles.push(ra.role);
+					}
+				}
+				callback(roles);
+			});
+		}
+	}
+
+	this.authorizeUserOrGroup = function(role, shareWith, groupOrUser, spaceCode, projectPermId) {
+		Util.blockUI();
+		mainController.serverFacade.createRoleAssignment({
+			user: shareWith == "User" ? groupOrUser : null,
+			group: shareWith == "Group" ? groupOrUser : null,
+			role: role,
+			space: spaceCode,
+			project: projectPermId
+		}, function(result) {
+			Util.unblockUI();
+			if (result) {
+				Util.showSuccess("Access granted.");
+			}
+		});
 	}
 
 	//
@@ -538,7 +585,7 @@ function MainController(profile) {
 							window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
 						} else {
 							document.title = "" + ELNDictionary.Sample + " " + data[0].code;
-							var isELNSubExperiment = $.inArray(data[0].spaceCode, _this.profile.inventorySpaces) === -1&& _this.profile.inventorySpaces.length > 0;
+							var isELNSubExperiment = $.inArray(data[0].spaceCode, _this.profile.inventorySpaces) === -1 && _this.profile.inventorySpaces.length > 0;
 							_this._showViewSamplePage(data[0], isELNSubExperiment, paginationInfo);
 							//window.scrollTo(0,0);
 						}
@@ -585,8 +632,7 @@ function MainController(profile) {
 							logicalOperator : "AND", 
 							rules : { "UUIDv4" : { type : "Attribute", name : "PERM_ID", value : arg } }
 					};
-					
-					this.serverFacade.searchForDataSetsAdvanced(dsCriteria, null, function(results) {
+					this.serverFacade.searchForDataSetsAdvanced(dsCriteria, {withPhysicalData: true}, function(results) {
 						var datasetParentCodes = [];
 						var dataset = results.objects[0];
 						if(dataset) {
@@ -602,7 +648,7 @@ function MainController(profile) {
 								if(dataSetData.result[0].sampleIdentifierOrNull) {
 									_this.serverFacade.searchWithIdentifiers([dataSetData.result[0].sampleIdentifierOrNull], function(sampleData) {
 										document.title = "Data Set " + dataSetData.result[0].code;
-										_this._showViewDataSetPage(sampleData[0], dataSetData.result[0]);
+										_this._showViewDataSetPage(sampleData[0], dataSetData.result[0], dataset);
 										//window.scrollTo(0,0);
 									});
 								} else if(dataSetData.result[0].experimentIdentifier) {
@@ -611,7 +657,7 @@ function MainController(profile) {
 										var experimentCriteria = { entityKind : "EXPERIMENT", logicalOperator : "AND", rules : experimentRules };
 										_this.serverFacade.searchForExperimentsAdvanced(experimentCriteria, null, function(experimentData) {
 											document.title = "Data Set " + dataSetData.result[0].code;
-											_this._showViewDataSetPage(experimentData.objects[0], dataSetData.result[0]);
+											_this._showViewDataSetPage(experimentData.objects[0], dataSetData.result[0], dataset);
 											//window.scrollTo(0,0);
 										});
 									});
@@ -644,7 +690,7 @@ function MainController(profile) {
 								if(dataSetData.result[0].sampleIdentifierOrNull) {
 									_this.serverFacade.searchWithIdentifiers([dataSetData.result[0].sampleIdentifierOrNull], function(sampleData) {
 										document.title = "Data Set " + dataSetData.result[0].code;
-										_this._showEditDataSetPage(sampleData[0], dataSetData.result[0]);
+										_this._showEditDataSetPage(sampleData[0], dataSetData.result[0], dataset);
 										//window.scrollTo(0,0);
 									});
 								} else if(dataSetData.result[0].experimentIdentifier) {
@@ -653,7 +699,7 @@ function MainController(profile) {
 										var experimentCriteria = { entityKind : "EXPERIMENT", logicalOperator : "AND", rules : experimentRules };
 										_this.serverFacade.searchForExperimentsAdvanced(experimentCriteria, null, function(experimentData) {
 											document.title = "Data Set " + dataSetData.result[0].code;
-											_this._showEditDataSetPage(experimentData.objects[0], dataSetData.result[0]);
+											_this._showEditDataSetPage(experimentData.objects[0], dataSetData.result[0], dataset);
 											//window.scrollTo(0,0);
 										});
 									});
@@ -844,9 +890,9 @@ function MainController(profile) {
 					settingsForDropdown.push({ label: settingsObjects[sIdx].identifier, value: settingsObjects[sIdx].identifier})
 				}
 				
-				var $dropdown = FormUtil.getDropdown(settingsForDropdown, "Select settigs");
+				var $dropdown = FormUtil.getDropdown(settingsForDropdown, "Select settings");
 				$dropdown.attr("id", "settingsDropdown");
-				Util.blockUI("Select settings: <br><br>" + $dropdown[0].outerHTML + "<br> or <a class='btn btn-default' id='settingsDropdownCancel'>Cancel</a>");
+				Util.showDropdownAndBlockUI("settingsDropdown", $dropdown);
 				
 				$("#settingsDropdown").on("change", function(event) {
 					var sampleIdentifier = $("#settingsDropdown")[0].value;
@@ -930,7 +976,7 @@ function MainController(profile) {
 	this._showSampleHierarchyPage = function(permId) {
 		//Show View
 		var localInstance = this;
-		this.serverFacade.searchWithUniqueId(permId, function(data) {
+		this.serverFacade.searchWithUniqueIdCompleteTree(permId, function(data) {
 			var views = localInstance._getNewViewModel(true, true, false);
 			var sampleHierarchy = new SampleHierarchy(localInstance.serverFacade, views, localInstance.profile, data[0]);
 			sampleHierarchy.init();
@@ -986,8 +1032,9 @@ function MainController(profile) {
 		//Show Form
 		var sample = {
 				sampleTypeCode : sampleTypeCode,
+				spaceCode : IdentifierUtil.getSpaceCodeFromIdentifier(experimentIdentifier),
+				projectCode : IdentifierUtil.getProjectCodeFromExperimentIdentifier(experimentIdentifier),
 				experimentIdentifierOrNull : experimentIdentifier,
-				spaceCode : experimentIdentifier.substring(1, experimentIdentifier.indexOf('/', 1)),
 				properties : {}
 		}
 		var sampleFormController = new SampleFormController(this, FormMode.CREATE, sample);
@@ -1070,17 +1117,17 @@ function MainController(profile) {
 		this.currentView = newView;
 	}
 	
-	this._showViewDataSetPage = function(sampleOrExperiment, dataset) {
+	this._showViewDataSetPage = function(sampleOrExperiment, dataset, datasetV3) {
 		//Show Form
-		var newView = new DataSetFormController(this, FormMode.VIEW, sampleOrExperiment, dataset);
+		var newView = new DataSetFormController(this, FormMode.VIEW, sampleOrExperiment, dataset, null, datasetV3);
 		var views = this._getNewViewModel(true, true, false);
 		newView.init(views);
 		this.currentView = newView;
 	}
 	
-	this._showEditDataSetPage = function(sampleOrExperiment, dataset) {
+	this._showEditDataSetPage = function(sampleOrExperiment, dataset, datasetV3) {
 		//Show Form
-		var newView = new DataSetFormController(this, FormMode.EDIT, sampleOrExperiment, dataset);
+		var newView = new DataSetFormController(this, FormMode.EDIT, sampleOrExperiment, dataset, null, datasetV3);
 		var views = this._getNewViewModel(true, true, false);
 		newView.init(views);
 		this.currentView = newView;

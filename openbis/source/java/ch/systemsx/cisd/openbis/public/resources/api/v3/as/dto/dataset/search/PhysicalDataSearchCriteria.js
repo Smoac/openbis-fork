@@ -4,7 +4,7 @@
 define([ "require", "stjs", "as/dto/common/search/AbstractCompositeSearchCriteria", "as/dto/dataset/search/ShareIdSearchCriteria", "as/dto/dataset/search/LocationSearchCriteria",
 		"as/dto/dataset/search/SizeSearchCriteria", "as/dto/dataset/search/StorageFormatSearchCriteria", "as/dto/dataset/search/FileFormatTypeSearchCriteria",
 		"as/dto/dataset/search/LocatorTypeSearchCriteria", "as/dto/dataset/search/CompleteSearchCriteria", "as/dto/dataset/search/StatusSearchCriteria",
-		"as/dto/dataset/search/PresentInArchiveSearchCriteria", "as/dto/dataset/search/StorageConfirmationSearchCriteria", "as/dto/dataset/search/SpeedHintSearchCriteria" ], function(require, stjs,
+		"as/dto/dataset/search/ArchivingRequestedSearchCriteria", "as/dto/dataset/search/PresentInArchiveSearchCriteria", "as/dto/dataset/search/StorageConfirmationSearchCriteria", "as/dto/dataset/search/SpeedHintSearchCriteria" ], function(require, stjs,
 		AbstractCompositeSearchCriteria) {
 	var PhysicalDataSearchCriteria = function() {
 		AbstractCompositeSearchCriteria.call(this);
@@ -46,6 +46,10 @@ define([ "require", "stjs", "as/dto/common/search/AbstractCompositeSearchCriteri
 		prototype.withStatus = function() {
 			var StatusSearchCriteria = require("as/dto/dataset/search/StatusSearchCriteria");
 			return this.addCriteria(new StatusSearchCriteria());
+		};
+		prototype.withArchivingRequested = function() {
+			var ArchivingRequestedSearchCriteria = require("as/dto/dataset/search/ArchivingRequestedSearchCriteria");
+			return this.addCriteria(new ArchivingRequestedSearchCriteria());
 		};
 		prototype.withPresentInArchive = function() {
 			var PresentInArchiveSearchCriteria = require("as/dto/dataset/search/PresentInArchiveSearchCriteria");

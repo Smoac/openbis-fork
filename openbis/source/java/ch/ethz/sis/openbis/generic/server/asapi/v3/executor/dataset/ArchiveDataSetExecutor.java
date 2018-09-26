@@ -45,7 +45,7 @@ public class ArchiveDataSetExecutor extends AbstractArchiveUnarchiveDataSetExecu
                 @Override
                 public void execute(IDataSetTable dataSetTable)
                 {
-                    dataSetTable.archiveDatasets(options.isRemoveFromDataStore());
+                    dataSetTable.archiveDatasets(options.isRemoveFromDataStore(), options.getOptions());
                 }
             });
     }

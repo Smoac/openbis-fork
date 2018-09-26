@@ -4,6 +4,7 @@
 define([ "stjs", "as/dto/common/update/FieldUpdateValue" ], function(stjs, FieldUpdateValue) {
 	var PhysicalDataUpdate = function() {
 		this.fileFormatTypeId = new FieldUpdateValue();
+		this.archivingRequested = new FieldUpdateValue();
 	};
 	stjs.extend(PhysicalDataUpdate, null, [], function(constructor, prototype) {
 		prototype['@type'] = 'as.dto.dataset.update.PhysicalDataUpdate';
@@ -13,6 +14,7 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue" ], function(stjs, Field
 		 * @Deprecated
 		 */
 		prototype.fileFormatTypeId = null;
+		prototype.archivingRequested = null;
 
 		/*
 		 * @Deprecated
@@ -26,10 +28,20 @@ define([ "stjs", "as/dto/common/update/FieldUpdateValue" ], function(stjs, Field
 		prototype.setFileFormatTypeId = function(fileFormatTypeId) {
 			this.fileFormatTypeId.setValue(fileFormatTypeId);
 		};
+		prototype.isArchivingRequested = function() {
+			return this.archivingRequested;
+		};
+		prototype.setArchivingRequested = function(archivingRequested) {
+			this.archivingRequested.setValue(archivingRequested);
+		};
 	}, {
 		fileFormatTypeId : {
 			name : "FieldUpdateValue",
 			arguments : [ "IFileFormatTypeId" ]
+		},
+		archivingRequested : {
+			name : "FieldUpdateValue",
+			arguments : [ null ]
 		}
 	});
 	return PhysicalDataUpdate;

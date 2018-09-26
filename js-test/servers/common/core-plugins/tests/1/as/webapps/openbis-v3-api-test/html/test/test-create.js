@@ -191,6 +191,7 @@ define(
 						c.assertEqual(assignment.isMandatory(), true, "Assignment mandatory");
 						c.assertEqual(assignment.isShowInEditView(), true, "Assignment ShowInEditView");
 						c.assertEqual(assignment.isShowRawValueInForms(), true, "Assignment ShowRawValueInForms");
+						c.assertEqual(assignment.getPlugin().getName(), "Diff_time", "Assignment Plugin");
 					}
 
 					testCreate(c, fCreate, c.findExperimentType, fCheck);
@@ -272,6 +273,7 @@ define(
 						c.assertEqual(assignment.isMandatory(), true, "Assignment mandatory");
 						c.assertEqual(assignment.isShowInEditView(), true, "Assignment ShowInEditView");
 						c.assertEqual(assignment.isShowRawValueInForms(), true, "Assignment ShowRawValueInForms");
+						c.assertEqual(assignment.getPlugin().getName(), "Diff_time", "Assignment Plugin");
 					}
 
 					testCreate(c, fCreate, c.findSampleType, fCheck);
@@ -397,6 +399,7 @@ define(
 						c.assertEqual(assignment.isMandatory(), true, "Assignment mandatory");
 						c.assertEqual(assignment.isShowInEditView(), true, "Assignment ShowInEditView");
 						c.assertEqual(assignment.isShowRawValueInForms(), true, "Assignment ShowRawValueInForms");
+						c.assertEqual(assignment.getPlugin().getName(), "Diff_time", "Assignment Plugin");
 					}
 
 					testCreate(c, fCreate, c.findDataSetType, fCheck);
@@ -463,6 +466,7 @@ define(
 						c.assertEqual(assignment.isMandatory(), true, "Assignment mandatory");
 						c.assertEqual(assignment.isShowInEditView(), true, "Assignment ShowInEditView");
 						c.assertEqual(assignment.isShowRawValueInForms(), true, "Assignment ShowRawValueInForms");
+						c.assertEqual(assignment.getPlugin().getName(), "Diff_time", "Assignment Plugin");
 					}
 
 					testCreate(c, fCreate, c.findMaterialType, fCheck);

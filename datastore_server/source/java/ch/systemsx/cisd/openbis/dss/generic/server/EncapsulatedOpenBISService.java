@@ -766,10 +766,10 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     @Override
-    public void archiveDataSets(List<String> dataSetCodes, boolean removeFromDataStore)
+    public void archiveDataSets(List<String> dataSetCodes, boolean removeFromDataStore, Map<String, String> options)
             throws UserFailureException
     {
-        service.archiveDatasets(session.getSessionToken(), dataSetCodes, removeFromDataStore);
+        service.archiveDatasets(session.getSessionToken(), dataSetCodes, removeFromDataStore, options);
     }
 
     @Override

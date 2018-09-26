@@ -12,7 +12,7 @@ from ...scripts import cli
 
 class OpenbisCommand(object):
 
-    def __init__(self, dm, openbis=None):
+    def __init__(self, dm):
         self.data_mgmt = dm
         self.openbis = dm.openbis
         self.git_wrapper = dm.git_wrapper
@@ -60,11 +60,17 @@ class OpenbisCommand(object):
     def object_id(self):
         return self.config_dict['object']['id']
 
+    def object_permId(self):
+        return self.config_dict['object']['permId']
+
     def set_object_id(self, value):
         self.config_dict['object']['id'] = value
 
     def collection_id(self):
         return self.config_dict['collection']['id']
+
+    def collection_permId(self):
+        return self.config_dict['collection']['permId']
 
     def set_collection_id(self, value):
         self.config_dict['collection']['id'] = value
@@ -98,6 +104,12 @@ class OpenbisCommand(object):
 
     def set_openbis_url(self, value):
         self.config_dict['config']['openbis_url'] = value
+
+
+    def log(self, message):
+        command = type(self).__name__
+        self.data_mgmt.log.log(command, message)
+
 
     def prepare_run(self):
         result = self.check_configuration()
@@ -150,13 +162,12 @@ class OpenbisCommand(object):
         result = self.git_wrapper.git_top_level_path()
         if result.failure():
             return result
-        top_level_path = result.output
         edms_path, path_name = os.path.split(result.output)
         if external_dms_id is None:
             external_dms_id = self.generate_external_data_management_system_code(user, hostname, edms_path)
         try:
             external_dms = self.openbis.get_external_data_management_system(external_dms_id.upper())
-        except ValueError as e:
+        except ValueError:
             # external dms does not exist - create it
             try:
                 external_dms = self.openbis.create_external_data_management_system(external_dms_id, external_dms_id,
@@ -175,8 +186,7 @@ class OpenbisCommand(object):
         # ask user
         hostname = self.ask_for_hostname(socket.gethostname())
         # store
-        resolver = self.data_mgmt.settings_resolver.config
-        cli.config_internal(self.data_mgmt, resolver, True, False, prop='hostname', value=hostname, set=True)
+        self.data_mgmt.config('config', True, False, prop='hostname', value=hostname, set=True)
         return hostname
 
     def ask_for_hostname(self, hostname):
@@ -206,7 +216,7 @@ class OpenbisCommand(object):
 class ContentCopySelector(object):
 
 
-    def __init__(self, data_set, content_copy_index, get_index=False):
+    def __init__(self, data_set, content_copy_index=None, get_index=False):
         self.data_set = data_set
         self.content_copy_index = content_copy_index
         self.get_index = get_index

@@ -1111,6 +1111,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			var fo = new dtos.ExperimentTypeFetchOptions();
 			fo.withPropertyAssignments().withPropertyType();
 			fo.withPropertyAssignments().withRegistrator();
+			fo.withPropertyAssignments().withPlugin();
 			return fo;
 		};
 
@@ -1139,6 +1140,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			var fo = new dtos.SampleTypeFetchOptions();
 			fo.withPropertyAssignments().withPropertyType();
 			fo.withPropertyAssignments().withRegistrator();
+			fo.withPropertyAssignments().withPlugin();
 			return fo;
 		};
 
@@ -1168,6 +1170,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			var fo = new dtos.DataSetTypeFetchOptions();
 			fo.withPropertyAssignments().withPropertyType();
 			fo.withPropertyAssignments().withRegistrator();
+			fo.withPropertyAssignments().withPlugin();
 			return fo;
 		};
 
@@ -1186,6 +1189,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			var fo = new dtos.MaterialTypeFetchOptions();
 			fo.withPropertyAssignments().withPropertyType();
 			fo.withPropertyAssignments().withRegistrator();
+			fo.withPropertyAssignments().withPlugin();
 			return fo;
 		};
 
@@ -1293,6 +1297,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 			fo.withPropertyType();
 			fo.withPropertyAssignment().withEntityType();
 			fo.withPropertyAssignment().withPropertyType();
+			fo.withPropertyAssignment().withPlugin();
 			return fo;
 		};
 

@@ -18,9 +18,12 @@ package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchroniz
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -31,11 +34,15 @@ import org.apache.log4j.Logger;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
+import org.eclipse.jetty.client.api.Response;
+import org.eclipse.jetty.client.util.InputStreamResponseListener;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.util.B64Code;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.config.BasicAuthCredentials;
@@ -65,23 +72,45 @@ public class DataSourceConnector implements IDataSourceConnector
     {
         HttpClient client = JettyHttpClientFactory.getHttpClient();
         Request requestEntity = createResourceListRequest(client, spaceBlackList);
-
         operationLog.info("Start loading a resource list from " + requestEntity.getURI());
-
-        ContentResponse contentResponse = getResponse(requestEntity);
-        Document document = parse(contentResponse.getContent());
-
-        if (isResourceListIndex(document))
+        
+        InputStreamResponseListener listener = new InputStreamResponseListener();
+        requestEntity.send(listener);
+        Response response = listener.get(50, TimeUnit.SECONDS);
+        if (response.getStatus() == HttpStatus.OK_200)
         {
-            operationLog.info("Received a resource list index (the resource list was too big and was split into parts).");
-            List<String> locations = getResourceListPartLocations(document);
-            List<Document> parts = loadResourceListParts(client, locations);
-            return mergeResourceListParts(parts);
-        } else
-        {
-            operationLog.info("Received the resource list.");
-            return document;
+            try (InputStream responseContent = listener.getInputStream())
+            {
+                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                factory.setValidating(false);
+                factory.setIgnoringComments(true);
+                factory.setNamespaceAware(true);
+                DocumentBuilder builder = factory.newDocumentBuilder();
+                builder.setEntityResolver(new EntityResolver()
+                    {
+                        
+                        @Override
+                        public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException
+                        {
+                            return new InputSource(new StringReader(""));
+                        }
+                    });
+                Document document = builder.parse(responseContent);
+                
+                if (isResourceListIndex(document))
+                {
+                    operationLog.info("Received a resource list index (the resource list was too big and was split into parts).");
+                    List<String> locations = getResourceListPartLocations(document);
+                    List<Document> parts = loadResourceListParts(client, locations);
+                    return mergeResourceListParts(parts);
+                } else
+                {
+                    operationLog.info("Received the resource list.");
+                    return document;
+                }
+            }
         }
+        throw new IOException("Resource List could not be retrieved: " + response.getStatus());
     }
 
     private boolean isResourceListIndex(Document document)
@@ -173,8 +202,7 @@ public class DataSourceConnector implements IDataSourceConnector
 
     private ContentResponse getResponse(Request requestEntity) throws InterruptedException, TimeoutException, ExecutionException, IOException
     {
-        ContentResponse contentResponse;
-        contentResponse = requestEntity.send();
+        ContentResponse contentResponse = requestEntity.send();
         int statusCode = contentResponse.getStatus();
 
         if (statusCode != HttpStatus.Code.OK.getCode())
@@ -186,23 +214,18 @@ public class DataSourceConnector implements IDataSourceConnector
 
     private Request createResourceListRequest(HttpClient client, List<String> spaceBlackList)
     {
-        StringBuffer sb = new StringBuffer();
-
-        for (String dataSourceSpace : spaceBlackList)
-        {
-            sb.append(dataSourceSpace + ",");
-        }
-
-        String url = dataSourceUrl + "?verb=resourcelist.xml";
-
-        if (sb.length() != 0)
-        {
-            String str = sb.toString();
-            str = str.substring(0, str.length() - 1);
-            url += "&black_list=" + str;
-        }
-
+        String url = createRequestUrl(spaceBlackList);
         return createRequest(client, url);
+    }
+
+    private String createRequestUrl(List<String> spaceBlackList)
+    {
+        String url = dataSourceUrl + "?verb=resourcelist.xml";
+        for (String space : spaceBlackList)
+        {
+            url += "&black_list=" + space;
+        }
+        return url;
     }
 
     private Request createRequest(HttpClient client, String url)

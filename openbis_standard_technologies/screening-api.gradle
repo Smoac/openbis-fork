@@ -82,9 +82,10 @@ task screeningApiJavaDocZip(type: Zip, dependsOn: screeningApiJavaDoc) {
 
 configurations.create('batteries')
 dependencies {
-	batteries   'sis:sis-base:14.12.0',
+	batteries   'sis:sis-base:18.08.0',
                 'apache:httpclient:4.3.6',
                 'apache:httpcore:4.3.3',
+                'apache:commons-lang:2.4',
                 'apache:log4j:1.2.15',
                 'springframework:spring-aop:4.1.4.RELEASE',
                 'springframework:spring-beans:4.1.4.RELEASE',

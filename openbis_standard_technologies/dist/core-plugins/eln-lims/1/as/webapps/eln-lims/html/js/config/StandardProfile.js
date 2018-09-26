@@ -13,27 +13,36 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 	
 		/* New Sample definition tests*/
 		this.sampleTypeDefinitionsExtension = {
+				"UNKNOWN" : {
+					"SHOW" : false,
+				},
 				"ANTIBODY" : {
+					"SHOW" : false,
 					"ENABLE_STORAGE" : true,
 				},
 				
 				"CHEMICAL" : {
+					"SHOW" : false,
 					"ENABLE_STORAGE" : true,
 				},
 				
 				"ENZYME" : {
+					"SHOW" : false,
 					"ENABLE_STORAGE" : true,
 				},
 				
 				"OLIGO" : {
+					"SHOW" : false,
 					"ENABLE_STORAGE" : true,
 				},
 				
 				"RNA" : {
+					"SHOW" : false,
 					"ENABLE_STORAGE" : true,
 				},
 				
 				"MEDIA" : {
+					"SHOW" : false,
 					"ENABLE_STORAGE" : true,
 					"SAMPLE_PARENTS_HINT" : [
 					                             	{
@@ -58,6 +67,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 				},
 
 				"SOLUTION_BUFFER" : {
+					"SHOW" : false,
 					"ENABLE_STORAGE" : true,
 					"SAMPLE_PARENTS_HINT" : [
 					                             	{
@@ -82,32 +92,9 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 				},
 
 				"GENERAL_PROTOCOL" : {
+					"SHOW" : false,
 					"USE_AS_PROTOCOL" : true,
 					"SAMPLE_PARENTS_HINT" : [
-					                             	{
-														"LABEL" : "Chemical",
-														"TYPE": "CHEMICAL",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													},
-					                             	{
-														"LABEL" : "Solution/Buffer",
-														"TYPE": "SOLUTION_BUFFER",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													},
-					                             	{
-														"LABEL" : "Media",
-														"TYPE": "MEDIA",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													},
-					                             	{
-														"LABEL" : "Enzyme",
-														"TYPE": "ENZYME",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													},
 					                             	{
 														"LABEL" : "General protocol",
 														"TYPE": "GENERAL_PROTOCOL",
@@ -118,6 +105,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 				},
 
 				"PCR_PROTOCOL" : {
+					"SHOW" : false,
 					"USE_AS_PROTOCOL" : true,
 					"SAMPLE_PARENTS_HINT" : [
 					                             	{
@@ -142,6 +130,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 				},
 
 				"WESTERN_BLOTTING_PROTOCOL" : {
+					"SHOW" : false,
 					"USE_AS_PROTOCOL" : true,
 					"SAMPLE_PARENTS_HINT" : [
 					                             	{
@@ -166,6 +155,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 				},
 
 				"PLASMID" : {
+					"SHOW" : false,
 					"ENABLE_STORAGE" : true,
 					"SAMPLE_PARENTS_HINT" : [
 					                             	{
@@ -178,6 +168,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 				},
 
 				"BACTERIA" : {
+					"SHOW" : false,
 					"ENABLE_STORAGE" : true,
 					"SAMPLE_PARENTS_HINT" : [
 					                             	{
@@ -196,6 +187,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 				},
 
 				"YEAST" : {
+					"SHOW" : false,
 					"ENABLE_STORAGE" : true,
 					"SAMPLE_PARENTS_HINT" : [
 					                             	{
@@ -214,6 +206,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 				},
 
 				"CELL_LINE" : {
+					"SHOW" : false,
 					"ENABLE_STORAGE" : true,
 					"SAMPLE_PARENTS_HINT" : [
 					                             	{
@@ -238,6 +231,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 				},
 
 				"FLY" : {
+					"SHOW" : false,
 					"ENABLE_STORAGE" : true,
 					"SAMPLE_PARENTS_HINT" : [
 					                             	{
@@ -258,15 +252,16 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 					"SHOW" : false
 				},
 				"STORAGE" : {
+					"SHOW" : false,
 					"SAMPLE_CHILDREN_DISABLED" : true,
-					"SAMPLE_PARENTS_DISABLED" : true,
-					"SHOW" : false
+					"SAMPLE_PARENTS_DISABLED" : true
 				},
 				"STORAGE_POSITION" : {
-					"SAMPLE_CHILDREN_DISABLED" : true,
-					"SHOW" : false
+					"SHOW" : false,
+					"SAMPLE_CHILDREN_DISABLED" : true
 				},
 				"REQUEST" : {
+					"SHOW" : false,
 					"SAMPLE_PARENTS_TITLE" : "Products from Catalog",
 					"SAMPLE_PARENTS_ANY_TYPE_DISABLED" : true,
 					"SAMPLE_CHILDREN_DISABLED" : true,
@@ -279,6 +274,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 					}]
 				},
 				"ORDER" : {
+					"SHOW" : false,
 					"SAMPLE_PARENTS_TITLE" : "Requests",
 					"SAMPLE_PARENTS_ANY_TYPE_DISABLED" : true,
 					"SAMPLE_CHILDREN_DISABLED" : true,
@@ -295,10 +291,12 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 					}]
 				},
 				"SUPPLIER" : {
+					"SHOW" : false,
 					"SAMPLE_CHILDREN_DISABLED" : true,
 					"SAMPLE_PARENTS_DISABLED" : true,
 				},
 				"PRODUCT" : {
+					"SHOW" : false,
 					"SAMPLE_CHILDREN_DISABLED" : true,
 					"SAMPLE_PARENTS_TITLE" : "Suppliers",
 					"SAMPLE_PARENTS_ANY_TYPE_DISABLED" : true,
@@ -311,97 +309,14 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 					}]
 				},
 				"EXPERIMENTAL_STEP" : {
+					"SHOW" : false,
 					"SAMPLE_PARENTS_HINT" : [
-					                             	{
-														"LABEL" : "Antibody",
-														"TYPE": "ANTIBODY",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [ {"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													},
-					                             	{
-														"LABEL" : "Bacteria",
-														"TYPE": "BACTERIA",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													},
-					                             	{
-														"LABEL" : "Cell line",
-														"TYPE": "CELL_LINE",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													},
-					                             	{
-														"LABEL" : "Chemical",
-														"TYPE": "CHEMICAL",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													},
-					                             	{
-														"LABEL" : "Enzyme",
-														"TYPE": "ENZYME",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													},
-					                             	{
-														"LABEL" : "Fly",
-														"TYPE": "FLY",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													},
-					                             	{
-														"LABEL" : "Media",
-														"TYPE": "MEDIA",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													},
-					                             	{
-														"LABEL" : "Oligo",
-														"TYPE": "OLIGO",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													},
-					                             	{
-														"LABEL" : "Plasmid",
-														"TYPE": "PLASMID",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													},
-					                             	{
-														"LABEL" : "RNA",
-														"TYPE": "RNA",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													},
-					                             	{
-														"LABEL" : "Solution/Buffer",
-														"TYPE": "SOLUTION_BUFFER",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													},
-					                             	{
-														"LABEL" : "Yeast",
-														"TYPE": "YEAST",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													},
 					                             	{
 														"LABEL" : "General protocol",
 														"TYPE": "GENERAL_PROTOCOL",
 														"MIN_COUNT" : 0,
 														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													},
-					                             	{
-														"LABEL" : "PCR protocol",
-														"TYPE": "PCR_PROTOCOL",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													},
-					                             	{
-														"LABEL" : "Western blotting protocol",
-														"TYPE": "WESTERN_BLOTTING_PROTOCOL",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													}																																			
+													}																																		
 												],
 				}
 		
@@ -414,7 +329,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 				var changesToDo = null;
 				if((orderStatus === "ORDERED" || orderStatus === "DELIVERED" || orderStatus === "PAID") && !sample.properties["ORDER_STATE"]) {
 					//Set property
-					sample.properties["ORDER_STATE"] = window.btoa(unescape(encodeURIComponent(JSON.stringify(sample))));
+					sample.properties["ORDER_STATE"] = window.btoa(unescape(encodeURIComponent(JSON.stringify(JSON.decycle(sample)))));
 					//Update order state on the requests
 					changesToDo = [];
 					var requests = sample.parents;
@@ -433,7 +348,8 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 		}
 		
 		this.sampleFormContentExtra = function(sampleTypeCode, sample, containerId) {
-			if(sampleTypeCode === "EXPERIMENTAL_STEP") {
+			var sampleType = this.getSampleTypeForSampleTypeCode(sampleTypeCode);
+			if(this.getPropertyTypeFromSampleType(sampleType, "FREEFORM_TABLE_STATE")) {
 				var isEnabled = mainController.currentView._sampleFormModel.mode !== FormMode.VIEW;
 				var freeFormTableController = new FreeFormTableController(sample, isEnabled);
 				freeFormTableController.init($("#" + containerId));
@@ -468,7 +384,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 							var requestProductAnnotations = requestProductsAnnotations[requestProduct.permId];
 							
 							if(requestProduct.parents.length === 0) {
-								Util.showError("Product " + requestProduct.code + " does not have a provider, FIX IT!.");
+								Util.showUserError("Product " + requestProduct.code + " does not have a provider, FIX IT!.");
 								return;
 							}
 							var provider = requestProduct.parents[0];
@@ -484,7 +400,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 							}
 							quantity += parseInt(requestProductAnnotations["QUANTITY_OF_ITEMS"]);
 							if(!quantity) {
-								Util.showError("Product " + requestProduct.code + " from request " +  request.code + " does not have a quantity, FIX IT!.");
+								Util.showUserError("Product " + requestProduct.code + " from request " +  request.code + " does not have a quantity, FIX IT!.");
 								return;
 							}
 							var currencyCode = requestProduct.properties["CURRENCY"];

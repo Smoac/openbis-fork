@@ -185,7 +185,7 @@ var SampleDataGridUtil = new function() {
 
 		if(withExperiment) {
 			columnsFirst.push({
-				label : ELNDictionary.ExperimentELN + '/' + ELNDictionary.ExperimentInventory,
+				label : ELNDictionary.getExperimentDualName(),
 				property : 'experiment',
 				isExportable: true,
 				sortable : false

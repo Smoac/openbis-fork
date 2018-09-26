@@ -87,6 +87,7 @@ function DataSetViewerController(containerId, profile, entity, serverFacade, dat
 						ids.push(id);
 					}
 		            var fetchOptions = new DataSetFetchOptions();
+		            fetchOptions.withPhysicalData();
 		            fetchOptions.withLinkedData().withExternalDms();
 		            fetchOptions.withProperties();
 		            var parentFetchOptions = fetchOptions.withParents();

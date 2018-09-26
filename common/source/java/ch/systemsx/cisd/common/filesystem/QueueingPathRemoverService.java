@@ -16,15 +16,17 @@
 
 package ch.systemsx.cisd.common.filesystem;
 
+import java.io.Closeable;
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
-import ch.systemsx.cisd.base.io.ICloseable;
 import ch.systemsx.cisd.common.collection.ExtendedLinkedBlockingQueue;
 import ch.systemsx.cisd.common.collection.IExtendedBlockingQueue;
 import ch.systemsx.cisd.common.io.PersistentExtendedBlockingQueueDecorator;
@@ -59,7 +61,7 @@ public class QueueingPathRemoverService
 
     private static IExtendedBlockingQueue<File> queue = null;
 
-    private static ICloseable queueCloseableOrNull = null;
+    private static Closeable queueCloseableOrNull = null;
 
     private static Thread thread = null;
 
@@ -189,7 +191,13 @@ public class QueueingPathRemoverService
     {
         if (queueCloseableOrNull != null)
         {
-            queueCloseableOrNull.close();
+            try
+            {
+                queueCloseableOrNull.close();
+            } catch (IOException e)
+            {
+                throw new IOExceptionUnchecked(e);
+            }
         }
     }
 

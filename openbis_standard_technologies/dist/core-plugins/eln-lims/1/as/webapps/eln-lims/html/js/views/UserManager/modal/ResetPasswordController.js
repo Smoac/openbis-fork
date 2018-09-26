@@ -35,7 +35,7 @@ function ResetPasswordController(userId) {
 						}
 					});
 		} else {
-			Util.showError("Passwords are not equal.", function() {}, true);
+			Util.showUserError("Passwords are not equal.", function() {}, true);
 		}
 	}
 	

@@ -402,6 +402,8 @@ public final class ColumnNames
 
     public static final String DESCRIPTOR_ACCESSION_ID = "descriptor_accession_id";
 
+    public static final String ARCHIVING_REQUESTED = "archiving_requested";
+
     private ColumnNames()
     {
         // Can not be instantiated.

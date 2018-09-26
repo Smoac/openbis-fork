@@ -24,6 +24,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.VerifyProgress;
 import ch.systemsx.cisd.common.concurrent.MessageChannel;
 import ch.systemsx.cisd.common.concurrent.MessageChannelBuilder;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -32,10 +33,10 @@ import ch.systemsx.cisd.openbis.common.conversation.context.ServiceConversations
 import ch.systemsx.cisd.openbis.common.conversation.progress.IServiceConversationProgressListener;
 import ch.systemsx.cisd.openbis.generic.server.util.TimeIntervalChecker;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -163,10 +164,6 @@ public class MultiThreadSampleOptimisticLockingTest extends MultiThreadOptimisti
 
     }
 
-    /**
-     * This test is flaky. If the transaction of performEntityOperations() call in the new thread ends before the transaction of
-     * performEntityOperations() call in the main thread, the modifier of the sample will be "optimist" and the test fails.
-     */
     @Test
     public void testRegisterDataSetsForSameSampleInTwoThreads()
     {
@@ -185,7 +182,7 @@ public class MultiThreadSampleOptimisticLockingTest extends MultiThreadOptimisti
                         public void handleProgress(String phaseName, int totalItemsToProcess,
                                 int numItemsProcessed)
                         {
-                            if (phaseName.equals(CREATING_ENTITIES) && numItemsProcessed == 2
+                            if (phaseName.equals(VerifyProgress.VERIFYING) && numItemsProcessed == 2
                                     && totalItemsToProcess == 2)
                             {
                                 messageChannelMain.send(ToolBox.FIRST_REGISTERED);

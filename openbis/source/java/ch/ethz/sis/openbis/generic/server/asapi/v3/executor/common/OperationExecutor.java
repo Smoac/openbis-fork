@@ -20,15 +20,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
+import ch.systemsx.cisd.openbis.generic.server.ConcurrentOperation;
+import ch.systemsx.cisd.openbis.generic.server.IConcurrentOperationLimiter;
 
 /**
  * @author pkupczyk
  */
 public abstract class OperationExecutor<OPERATION extends IOperation, RESULT extends IOperationResult> implements IOperationExecutor
 {
+
+    @Autowired
+    protected IConcurrentOperationLimiter operationLimiter;
 
     @SuppressWarnings("unchecked")
     @Override
@@ -42,7 +49,30 @@ public abstract class OperationExecutor<OPERATION extends IOperation, RESULT ext
             if (operation != null && operationClass.isAssignableFrom(operation.getClass()))
             {
                 OPERATION theOperation = (OPERATION) operation;
-                RESULT result = doExecute(context, theOperation);
+                RESULT result = null;
+
+                if (context.isAsync())
+                {
+                    result = operationLimiter.executeLimitedWithTimeoutAsync(theOperation.getClass().getSimpleName(), new ConcurrentOperation<RESULT>()
+                        {
+                            @Override
+                            public RESULT execute()
+                            {
+                                return doExecute(context, theOperation);
+                            }
+                        });
+                } else
+                {
+                    result = operationLimiter.executeLimitedWithTimeout(theOperation.getClass().getSimpleName(), new ConcurrentOperation<RESULT>()
+                        {
+                            @Override
+                            public RESULT execute()
+                            {
+                                return doExecute(context, theOperation);
+                            }
+                        });
+                }
+
                 results.put(theOperation, result);
             }
         }

@@ -29,17 +29,17 @@ function MoveSampleController(samplePermId, successAction) {
 	this.move = function() {
 		var _this = this;
 		if(!this._moveSampleModel.isNewExperiment && !this._moveSampleModel.experimentIdentifier) {
-			Util.showError("Please choose an " + ELNDictionary.getExperimentDualName() + ".", function() {});
+			Util.showUserError("Please choose an " + ELNDictionary.getExperimentDualName() + ".", function() {});
 			return;
 		}
 		
 		if(this._moveSampleModel.isNewExperiment && !this._moveSampleModel.experimentIdentifier) {
-			Util.showError("Please choose the project and " + ELNDictionary.getExperimentDualName() + " name.", function() {});
+			Util.showUserError("Please choose the project and " + ELNDictionary.getExperimentDualName() + " name.", function() {});
 			return;
 		}
 		
 		if(this._moveSampleModel.isNewExperiment && !this._moveSampleModel.experimentType) {
-			Util.showError("Please choose the " + ELNDictionary.getExperimentDualName() + " type.", function() {});
+			Util.showUserError("Please choose the " + ELNDictionary.getExperimentDualName() + " type.", function() {});
 			return;
 		}
 		
@@ -57,11 +57,10 @@ function MoveSampleController(samplePermId, successAction) {
 								//Add Experiment to the menu if new
 								if(_this._moveSampleModel.isNewExperiment) {
 									var experimentIdentifier = _this._moveSampleModel.experimentIdentifier;
-									var experimentIdentifierParts = experimentIdentifier.split("/");
-									var isInventory = profile.isInventorySpace(experimentIdentifierParts[1]);
+									var isInventory = profile.isInventorySpace(IdentifierUtil.getSpaceCodeFromIdentifier(experimentIdentifier));
 									mainController.sideMenu.refreshExperiment({ 
 										identifier: _this._moveSampleModel.experimentIdentifier, 
-										code: experimentIdentifierParts[3], 
+										code: IdentifierUtil.getCodeFromIdentifier(experimentIdentifier), 
 										properties : {}
 									}, isInventory);
 								}

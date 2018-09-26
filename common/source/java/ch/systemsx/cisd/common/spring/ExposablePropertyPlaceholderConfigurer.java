@@ -27,6 +27,8 @@ import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.core.Constants;
 import org.springframework.util.StringUtils;
 
+import ch.systemsx.cisd.common.properties.ExtendedProperties;
+
 /**
  * Bean that should be used instead of the {@link PropertyPlaceholderConfigurer} if you want to have access to the resolved properties not obligatory
  * from the Spring context. e.g. from JSP or so.
@@ -84,7 +86,7 @@ public class ExposablePropertyPlaceholderConfigurer extends PropertyPlaceholderC
             final ConfigurableListableBeanFactory beanFactoryToProcess, final Properties props)
             throws BeansException
     {
-        resolvedProps = new Properties();
+        resolvedProps = new ExtendedProperties();
         for (final Object key : props.keySet())
         {
             final String keyStr = key.toString();

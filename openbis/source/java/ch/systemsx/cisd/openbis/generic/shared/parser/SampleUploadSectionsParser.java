@@ -25,6 +25,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.DelegatedReader;
 import ch.systemsx.cisd.common.parser.ExcelFileLoader;
 import ch.systemsx.cisd.common.parser.IParserObjectFactory;
@@ -85,7 +86,29 @@ public class SampleUploadSectionsParser
         List<String> generateCodes(int size);
     }
 
-    public static BatchSamplesOperation prepareSamples(final SampleType sampleType,
+    /*
+     * This overloaded method has been kept to provide backwards compatibility for a couple of older uses
+     */
+    public static BatchSamplesOperation prepareSamples(
+            final SampleType sampleType,
+            final String spaceIdentifierSilentOverrideOrNull,
+            final String experimentIdentifierSilentOverrideOrNull,
+            final Collection<NamedInputStream> files, String defaultGroupIdentifier,
+            final SampleCodeGenerator sampleCodeGeneratorOrNull, final boolean allowExperiments,
+            String excelSheetName, BatchOperationKind operationKind)
+    {
+        return prepareSamples(false,
+                sampleType,
+                spaceIdentifierSilentOverrideOrNull,
+                experimentIdentifierSilentOverrideOrNull,
+                files, defaultGroupIdentifier,
+                sampleCodeGeneratorOrNull, allowExperiments,
+                excelSheetName, operationKind);
+    }
+
+    public static BatchSamplesOperation prepareSamples(
+            final boolean projectSamplesEnabled,
+            final SampleType sampleType,
             final String spaceIdentifierSilentOverrideOrNull,
             final String experimentIdentifierSilentOverrideOrNull,
             final Collection<NamedInputStream> files, String defaultGroupIdentifier,
@@ -107,7 +130,7 @@ public class SampleUploadSectionsParser
                 case REGISTRATION:
                     if (isAutoGenerateCodes)
                     {
-                        generateIdentifiers(defaultGroupIdentifier, sampleCodeGeneratorOrNull,
+                        generateIdentifiers(projectSamplesEnabled, defaultGroupIdentifier, sampleCodeGeneratorOrNull,
                                 isAutoGenerateCodes, newSamples);
                     }
                     break;
@@ -267,8 +290,9 @@ public class SampleUploadSectionsParser
                                 createSampleLoaderFromExcel(typeFromSection, isAutoGenerateCodes,
                                         allowExperiments, operationKind);
                         String sectionInFile =
-                                sampleSections.size() == 1 ? "" : " (section:"
-                                        + fs.getSectionName() + ")";
+                                sampleSections.size() == 1 ? ""
+                                        : " (section:"
+                                                + fs.getSectionName() + ")";
                         final List<NewSample> loadedSamples =
                                 excelFileLoader.load(fs.getSheet(), fs.getBegin(), fs.getEnd(),
                                         fileName + sectionInFile, defaults);
@@ -311,8 +335,9 @@ public class SampleUploadSectionsParser
                                 createSampleLoader(typeFromSection, isAutoGenerateCodes,
                                         allowExperiments, operationKind);
                         String sectionInFile =
-                                sampleSections.size() == 1 ? "" : " (section:"
-                                        + fs.getSectionName() + ")";
+                                sampleSections.size() == 1 ? ""
+                                        : " (section:"
+                                                + fs.getSectionName() + ")";
                         final List<NewSample> loadedSamples =
                                 tabFileLoader.load(new DelegatedReader(reader, fileName
                                         + sectionInFile), defaults);
@@ -332,7 +357,8 @@ public class SampleUploadSectionsParser
         return results;
     }
 
-    private static void generateIdentifiers(String defaultGroupIdentifier,
+    static void generateIdentifiers(boolean projectSamplesEnabled,
+            String defaultGroupIdentifier,
             SampleCodeGenerator sampleCodeGenerator, boolean isAutoGenerateCodes,
             List<NewSamplesWithTypes> newSamplesWithTypes)
     {
@@ -344,16 +370,44 @@ public class SampleUploadSectionsParser
             List<String> codes = sampleCodeGenerator.generateCodes(newSamples.size());
             for (int i = 0; i < newSamples.size(); i++)
             {
-                if (newSamples.get(i).getDefaultSpaceIdentifier() == null || newSamples.get(i).getDefaultSpaceIdentifier().isEmpty())
+                NewSample sample = newSamples.get(i);
+                String spaceCodeOrNull = null;
+                if (StringUtils.isBlank(sample.getDefaultSpaceIdentifier()))
                 {
-                    newSamples.get(i).setIdentifier(defaultGroupIdentifier + "/" + codes.get(i));
+                    spaceCodeOrNull = defaultGroupIdentifier;
                 } else
                 {
-                    newSamples.get(i).setIdentifier(
-                            newSamples.get(i).getDefaultSpaceIdentifier() + "/" + codes.get(i));
+                    spaceCodeOrNull = sample.getDefaultSpaceIdentifier();
                 }
+                spaceCodeOrNull = spaceCodeOrNull.substring(1);
+                String projectCodeOrNull = null;
+                if (projectSamplesEnabled && StringUtils.isNotBlank(sample.getExperimentIdentifier()))
+                {
+                    String[] experimentIdentifierParts = sample.getExperimentIdentifier().split("/");
+                    if (experimentIdentifierParts.length != 4)
+                    {
+                        throw new UserFailureException("Incorrect format for the experiment identifier: " + sample.getExperimentIdentifier());
+                    }
+                    spaceCodeOrNull = experimentIdentifierParts[experimentIdentifierParts.length - 3];
+                    projectCodeOrNull = experimentIdentifierParts[experimentIdentifierParts.length - 2];
+                }
+                sample.setIdentifier(createIdentifier(spaceCodeOrNull, projectCodeOrNull, codes.get(i)));
             }
         }
+    }
+
+    private static String createIdentifier(String spaceCodeOrNull, String projectCodeOrNull, String sampleCode)
+    {
+        StringBuilder builder = new StringBuilder("/");
+        if (spaceCodeOrNull != null)
+        {
+            builder.append(spaceCodeOrNull).append("/");
+        }
+        if (projectCodeOrNull != null)
+        {
+            builder.append(projectCodeOrNull).append("/");
+        }
+        return builder.append(sampleCode).toString();
     }
 
     private static void fillIdentifiers(String defaultGroupIdentifier,

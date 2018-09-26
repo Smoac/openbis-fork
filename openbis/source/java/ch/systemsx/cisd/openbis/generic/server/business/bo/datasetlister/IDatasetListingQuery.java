@@ -61,7 +61,8 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
                     + "external_data.speed_hint, "
                     + "external_data.storage_confirmation, "
                     + "external_data.h5_folders, "
-                    + "external_data.h5ar_folders";
+                    + "external_data.h5ar_folders, "
+                    + "external_data.archiving_requested";
 
     public final static String SELECT_ALL =
             "select data.*, " + EXTERNAL_DATA_COLUMNS + ", link_data.id as link_data_id, content_copies.external_code, content_copies.edms_id, "
@@ -111,7 +112,8 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
                     + "ed.speed_hint, "
                     + "ed.storage_confirmation, "
                     + "ed.h5_folders, "
-                    + "ed.h5ar_folders";
+                    + "ed.h5ar_folders, "
+                    + "ed.archiving_requested";
 
     @Select(sql = "with recursive connected_data as ( "
             + "select d.*," + ED_COLUMNS + ", ld.id as link_data_id, prdq.id IS NULL as is_post_registered "

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.etlserver.path;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 
 import org.jmock.Expectations;
@@ -96,7 +97,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
         dataSetFolder = new File(workingDirectory, "ds1");
         dataSetFolder.mkdirs();
     }
-    
+
     @AfterMethod
     public void tearDown(Method method)
     {
@@ -129,7 +130,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
 
         MockPathsInfoDAO pathsInfoDAO = new MockPathsInfoDAO();
         createTask(pathsInfoDAO, "SHA1", 12, 3, 0).execute();
-        
+
         assertEquals("createDataSet(code=ds1, location=2)\n"
                 + "createDataSetFile(0, parent=null, 2 (, 3, d))\n"
                 + "createDataSetFiles:\n"
@@ -139,7 +140,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
                 + "createLastFeedingEvent(Thu Jan 01 01:01:18 CET 1970)\n"
                 + "commit()\n", pathsInfoDAO.getLog());
     }
-    
+
     @Test
     public void testH5AndH5arFolderDisabled()
     {
@@ -159,7 +160,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
 
         MockPathsInfoDAO pathsInfoDAO = new MockPathsInfoDAO();
         createTask(pathsInfoDAO, 12, 3, 0).execute();
-        
+
         assertEquals("createDataSet(code=ds1, location=1)\n"
                 + "createDataSetFile(0, parent=null, 1 (, 1025784, d))\n"
                 + "createDataSetFile(0, parent=1, test-data (test-data, 1025774, d))\n"
@@ -173,7 +174,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
                 + "createLastFeedingEvent(Thu Jan 01 01:01:18 CET 1970)\n"
                 + "commit()\n", pathsInfoDAO.getLog());
     }
-    
+
     @Test
     public void testH5FolderEnabledWithSHA1()
     {
@@ -194,11 +195,11 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
 
         MockPathsInfoDAO pathsInfoDAO = new MockPathsInfoDAO();
         createTask(pathsInfoDAO, "SHA1", 12, 3, 0).execute();
-        
+
         assertEquals("createDataSet(code=ds1, location=1)\n"
                 + "createDataSetFile(0, parent=null, 1 (, 1007978, d))\n"
                 + "createDataSetFile(0, parent=1, test-data (test-data, 1007968, d))\n"
-                + "createDataSetFile(0, parent=2, thumbnails2.h5 (test-data/thumbnails2.h5, 490761, d, checksumCRC32=9fb9b84a, checksum=SHA1:cfb5c11ae566a094c3d950ac0fd89057e3eecf56))\n"  
+                + "createDataSetFile(0, parent=2, thumbnails2.h5 (test-data/thumbnails2.h5, 490761, d, checksumCRC32=9fb9b84a, checksum=SHA1:cfb5c11ae566a094c3d950ac0fd89057e3eecf56))\n"
                 + "createDataSetFiles:\n"
                 + "  0, parent=1, info.txt (info.txt, 10, f, checksumCRC32=176bdc9d, checksum=SHA1:a5105d3fcba551031e7abdb25f9bbdb2ad3a9ffa)\n"
                 + "  0, parent=2, farray.h5 (test-data/farray.h5, 8640, f, checksumCRC32=47dedeef, checksum=SHA1:8f463b0c828b993efd441f602a0907d1bccb0234)\n"
@@ -247,11 +248,11 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
 
         MockPathsInfoDAO pathsInfoDAO = new MockPathsInfoDAO();
         createTask(pathsInfoDAO, 12, 3, 0).execute();
-        
+
         assertEquals("createDataSet(code=ds1, location=1)\n"
                 + "createDataSetFile(0, parent=null, 1 (, 1007978, d))\n"
                 + "createDataSetFile(0, parent=1, test-data (test-data, 1007968, d))\n"
-                + "createDataSetFile(0, parent=2, thumbnails.h5ar (test-data/thumbnails.h5ar, 490761, d, checksumCRC32=9fb9b84a))\n"  
+                + "createDataSetFile(0, parent=2, thumbnails.h5ar (test-data/thumbnails.h5ar, 490761, d, checksumCRC32=9fb9b84a))\n"
                 + "createDataSetFiles:\n"
                 + "  0, parent=1, info.txt (info.txt, 10, f, checksumCRC32=176bdc9d)\n"
                 + "  0, parent=2, farray.h5 (test-data/farray.h5, 8640, f, checksumCRC32=47dedeef)\n"
@@ -279,7 +280,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
                 + "createLastFeedingEvent(Thu Jan 01 01:01:18 CET 1970)\n"
                 + "commit()\n", pathsInfoDAO.getLog());
     }
-    
+
     @Test
     public void testAsMaintenanceTask()
     {
@@ -299,7 +300,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
 
         MockPathsInfoDAO pathsInfoDAO = new MockPathsInfoDAO();
         createTask(pathsInfoDAO, 12, 3, 0).execute();
-        
+
         assertEquals("createDataSet(code=ds1, location=2)\n"
                 + "createDataSetFile(0, parent=null, 2 (, 3, d))\n"
                 + "createDataSetFiles:\n"
@@ -339,7 +340,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
 
         MockPathsInfoDAO pathsInfoDAO = new MockPathsInfoDAO();
         createTask(pathsInfoDAO, 12, 3, 0).execute();
-        
+
         assertEquals("createDataSet(code=ds1, location=2)\n"
                 + "createDataSetFile(0, parent=null, 2 (, 3, d))\n"
                 + "createDataSetFiles:\n"
@@ -379,7 +380,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
 
         MockPathsInfoDAO pathsInfoDAO = new MockPathsInfoDAO();
         createTask(pathsInfoDAO, 2, 3, 0).execute();
-        
+
         assertEquals("createDataSet(code=DS-1000, location=3)\n"
                 + "createDataSetFile(0, parent=null, 3 (, 16, d))\n"
                 + "createDataSetFiles:\n"
@@ -445,7 +446,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
 
         MockPathsInfoDAO pathsInfoDAO = new MockPathsInfoDAO();
         createTask(pathsInfoDAO, 2, 0, 1500).execute();
-        
+
         assertEquals("createDataSet(code=DS-1000, location=3)\n"
                 + "createDataSetFile(0, parent=null, 3 (, 16, d))\n"
                 + "createDataSetFiles:\n"
@@ -552,7 +553,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
 
         MockPathsInfoDAO pathsInfoDAO = new MockPathsInfoDAO();
         createTask(pathsInfoDAO, 2, 0, 0).execute();
-        
+
         assertEquals("createDataSet(code=ds1, location=3)\n"
                 + "createDataSetFile(0, parent=null, 3 (, 16, d))\n"
                 + "createDataSetFiles:\n"
@@ -639,11 +640,12 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
                     one(service).tryGetDataSet(DATA_SET_CODE);
                     will(returnValue(dataSet));
 
+                    one(service).updatePhysicalDataSetsSize(Collections.singletonMap(DATA_SET_CODE, 3L));
                 }
             });
 
         task.createExecutor(DATA_SET_CODE, false).execute();
-        
+
         assertEquals("createDataSet(code=ds1, location=2)\n"
                 + "createDataSetFile(0, parent=null, 2 (, 3, d))\n"
                 + "createDataSetFiles:\n"
@@ -661,6 +663,8 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
                 {
                     one(service).tryGetDataSet(DATA_SET_CODE);
                     will(returnValue(dataSet));
+
+                    one(service).updatePhysicalDataSetsSize(Collections.singletonMap(DATA_SET_CODE, 3L));
                 }
             });
 
@@ -688,7 +692,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
             });
 
         task.createExecutor(DATA_SET_CODE, false).execute();
-        
+
         assertEquals("", mockPathsInfoDAO.getLog());
     }
 
@@ -708,7 +712,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
 
         mockPathsInfoDAO.setDataSetId(42);
         task.createExecutor(DATA_SET_CODE, false).execute();
-        
+
         assertEquals("", mockPathsInfoDAO.getLog());
     }
 
@@ -732,16 +736,16 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
         return dataSet;
     }
 
-    private PathInfoDatabaseFeedingTask createTask(IPathsInfoDAO pathsInfoDAO, 
+    private PathInfoDatabaseFeedingTask createTask(IPathsInfoDAO pathsInfoDAO,
             int chunkSize, int maxNumberOfChunks, long timeLimite)
     {
         return createTask(pathsInfoDAO, null, chunkSize, maxNumberOfChunks, timeLimite);
     }
 
-    private PathInfoDatabaseFeedingTask createTask(IPathsInfoDAO pathsInfoDAO, String checksumType, 
+    private PathInfoDatabaseFeedingTask createTask(IPathsInfoDAO pathsInfoDAO, String checksumType,
             int chunkSize, int maxNumberOfChunks, long timeLimite)
     {
-        return new PathInfoDatabaseFeedingTask(service, directoryProvider, pathsInfoDAO, 
+        return new PathInfoDatabaseFeedingTask(service, directoryProvider, pathsInfoDAO,
                 new MockTimeProvider(0, 1000), true, checksumType, chunkSize, maxNumberOfChunks, timeLimite);
     }
 

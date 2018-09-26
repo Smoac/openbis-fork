@@ -24,6 +24,7 @@ import java.util.Arrays;
 import org.apache.log4j.Logger;
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.VerifyProgress;
 import ch.systemsx.cisd.common.concurrent.MessageChannel;
 import ch.systemsx.cisd.common.concurrent.MessageChannelBuilder;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -71,7 +72,7 @@ public class MultiThreadDataSetOptimisticLockingTest extends MultiThreadOptimist
                         {
                             logger.info(phaseName + " " + numItemsProcessed + "/"
                                     + totalItemsToProcess);
-                            if (phaseName.equals(CREATING_ENTITIES) && numItemsProcessed == 2
+                            if (phaseName.equals(VerifyProgress.VERIFYING) && numItemsProcessed == 2
                                     && totalItemsToProcess == 2)
                             {
                                 messageChannelMain.send(ToolBox.FIRST_REGISTERED);

@@ -82,6 +82,8 @@ public class DatasetDescription implements Serializable, IDatasetLocation
 
     private boolean storageConfirmed;
 
+    private boolean archivingRequested;
+
     public static List<String> extractCodes(List<DatasetDescription> dataSets)
     {
         List<String> result = new ArrayList<String>();
@@ -353,6 +355,16 @@ public class DatasetDescription implements Serializable, IDatasetLocation
     public void setStorageConfirmed(boolean storageConfirmed)
     {
         this.storageConfirmed = storageConfirmed;
+    }
+
+    public boolean isArchivingRequested()
+    {
+        return archivingRequested;
+    }
+
+    public void setArchivingRequested(boolean archivingRequested)
+    {
+        this.archivingRequested = archivingRequested;
     }
 
 }
