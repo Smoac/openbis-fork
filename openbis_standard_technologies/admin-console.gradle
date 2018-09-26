@@ -8,7 +8,7 @@ dependencies {
                     'apache:httpclient:4.3.6',
                     'apache:httpcore:4.3.3',
                     'apache:commons-logging:1.2',
-                    'apache:commons-io:1.4',
+                    'apache:commons-io:2.6',
                     'apache:log4j:1.2.15',
                     'springframework:spring-aop:4.1.4.RELEASE',
                     'springframework:spring-beans:4.1.4.RELEASE',
