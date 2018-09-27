@@ -180,8 +180,12 @@ def getTypeCode(entity):
     return entity.getTypeCodeOrNull() if entity.getTypeCodeOrNull() else ""
 
 def getModifierId(entity):
-    return entity.getEntity().getModifier().getUserId() if entity.getEntity().getModifier() else entity.getEntity().getRegistrator().getUserId()
+    return entity.getEntity().getModifier().getUserId() if entity.getEntity().getModifier() else getRegistratorId(entity)
 
+def getRegistratorId(entity):
+    registrator = entity.getEntity().getRegistrator()
+    return registrator.getUserId() if registrator else ""
+    
 def getSpace(entity):
     return entity.getSpaceOrNull() if entity.getSpaceOrNull() else ""
 
@@ -197,7 +201,7 @@ def createProjectMetaData(entity, url_elm):
     attrs = {"kind": entity.getEntityKind(), 
         "code": entity.getCode(), 
         "registration-timestamp": getRegistrationTimestamp(entity),
-        "registrator": entity.getEntity().getRegistrator().getUserId(),
+        "registrator": getRegistratorId(entity),
         "modifier": getModifierId(entity),
         "space": getSpace(entity), 
         "desc": desc if desc else "" }
@@ -208,7 +212,7 @@ def createSampleMetaData(entity, url_elm):
         "code": entity.getCode(), 
         "type": getTypeCode(entity), 
         "registration-timestamp": getRegistrationTimestamp(entity),
-        "registrator": entity.getEntity().getRegistrator().getUserId(),
+        "registrator": getRegistratorId(entity),
         "modifier": getModifierId(entity),
         "space": getSpace(entity), 
         "project": getProject(entity), 
@@ -220,7 +224,7 @@ def createExperimentMetaData(entity, url_elm):
         "code": entity.getCode(), 
         "type": getTypeCode(entity), 
         "registration-timestamp": getRegistrationTimestamp(entity),
-        "registrator": entity.getEntity().getRegistrator().getUserId(),
+        "registrator": getRegistratorId(entity),
         "modifier": getModifierId(entity),
         "space": getSpace(entity), 
         "project": getProject(entity)}
@@ -234,7 +238,7 @@ def createDataSetMetaData(entity, url_elm):
         "dsKind": dsKind, 
         "type": getTypeCode(entity), 
         "registration-timestamp": getRegistrationTimestamp(entity),
-        "registrator": entity.getEntity().getRegistrator().getUserId(),
+        "registrator":  getRegistratorId(entity),
         "modifier": getModifierId(entity),
         "sample": entity.getSampleIdentifierOrNull() if entity.getSampleIdentifierOrNull() else "", 
         "experiment": entity.getExperimentIdentifierOrNull() if entity.getExperimentIdentifierOrNull() else ""} 

@@ -27,6 +27,8 @@ import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import org.apache.log4j.Logger;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
@@ -53,6 +55,9 @@ import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.entitygraph.En
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.entitygraph.IEntityRetriever;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.entitygraph.INode;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.entitygraph.Node;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.etlserver.plugins.AbstractDataSetDeletionPostProcessingMaintenanceTask;
 //import ch.ethz.sis.openbis.generic.shared.entitygraph.Edge;
 //import ch.ethz.sis.openbis.generic.shared.entitygraph.EntityGraph;
 //import ch.ethz.sis.openbis.generic.shared.entitygraph.Node;
@@ -60,6 +65,8 @@ import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IMasterDataRegistra
 
 public class EntityRetriever implements IEntityRetriever
 {
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, EntityRetriever.class);
+
     private EntityGraph<INode> graph = new EntityGraph<INode>();
 
     private final IApplicationServerApi v3Api;
@@ -89,8 +96,15 @@ public class EntityRetriever implements IEntityRetriever
     @Override
     public EntityGraph<INode> getEntityGraph(String spaceId)
     {
-        buildEntityGraph(spaceId);
-        return graph;
+        long t0 = System.currentTimeMillis();
+        try
+        {
+            buildEntityGraph(spaceId);
+            return graph;
+        } finally
+        {
+            logTime(t0, "getEntityGraph(" + spaceId + ")");
+        }
     }
 
     public boolean spaceExists(String spaceId)
@@ -328,23 +342,43 @@ public class EntityRetriever implements IEntityRetriever
     @Override
     public List<Material> fetchMaterials()
     {
-        MaterialSearchCriteria criteria = new MaterialSearchCriteria();
-
-        final MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
-        fetchOptions.withRegistrator();
-        fetchOptions.withType();
-        fetchOptions.withProperties();
-
-        SearchResult<Material> searchResult =
-                v3Api.searchMaterials(sessionToken, criteria, fetchOptions);
-
-        return searchResult.getObjects();
+        long t0 = System.currentTimeMillis();
+        try
+        {
+            MaterialSearchCriteria criteria = new MaterialSearchCriteria();
+            
+            final MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
+            fetchOptions.withRegistrator();
+            fetchOptions.withType();
+            fetchOptions.withProperties();
+            
+            SearchResult<Material> searchResult =
+                    v3Api.searchMaterials(sessionToken, criteria, fetchOptions);
+            
+            return searchResult.getObjects();
+        } finally
+        {
+            logTime(t0, "fetchMaterials");
+        }
+    }
+    
+    private void logTime(long t0, String method)
+    {
+        long duration = System.currentTimeMillis() - t0;
+        operationLog.info(method + ": " + duration + " msec");
     }
 
     public String fetchMasterDataAsXML() throws ParserConfigurationException, TransformerException
     {
-        MasterDataExtractor masterDataExtractor = new MasterDataExtractor(v3Api, sessionToken, masterDataRegistrationTransaction);
-        return masterDataExtractor.fetchAsXmlString();
+        long t0 = System.currentTimeMillis();
+        try
+        {
+            MasterDataExtractor masterDataExtractor = new MasterDataExtractor(v3Api, sessionToken, masterDataRegistrationTransaction);
+            return masterDataExtractor.fetchAsXmlString();
+        } finally
+        {
+            logTime(t0, "fetchMasterDataAsXML");
+        }
     }
 
     protected List<String> extractCodes(List<? extends ICodeHolder> codeHolders)
