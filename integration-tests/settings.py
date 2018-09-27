@@ -6,7 +6,7 @@ import os.path
 import time
 
 # Base URL of the CI server which hosts the artifacts.
-CI_BASE_URL = 'http://bs-ci01.ethz.ch:8090'
+CI_BASE_URL = 'http://bs-ci03.ethz.ch:8090'
 
 reuseRepository = False
 devMode = False
