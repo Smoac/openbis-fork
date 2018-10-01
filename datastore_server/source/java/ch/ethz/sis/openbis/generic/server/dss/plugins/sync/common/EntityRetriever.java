@@ -19,6 +19,7 @@ import static ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.entityg
 import static ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.entitygraph.Edge.COMPONENT;
 import static ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.entitygraph.Edge.CONNECTION;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -57,7 +58,6 @@ import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.entitygraph.IN
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.entitygraph.Node;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.etlserver.plugins.AbstractDataSetDeletionPostProcessingMaintenanceTask;
 //import ch.ethz.sis.openbis.generic.shared.entitygraph.Edge;
 //import ch.ethz.sis.openbis.generic.shared.entitygraph.EntityGraph;
 //import ch.ethz.sis.openbis.generic.shared.entitygraph.Node;
@@ -91,6 +91,64 @@ public class EntityRetriever implements IEntityRetriever
     public static EntityRetriever createWithSessionToken(IApplicationServerApi v3Api, String sessionToken)
     {
         return new EntityRetriever(v3Api, sessionToken, null);
+    }
+    
+    private boolean ponging;
+    
+    private boolean pongingFinished;
+    
+    public void start(PrintWriter writer)
+    {
+        operationLog.info("Start");
+        new Thread(new Runnable()
+            {
+                
+                @Override
+                public void run()
+                {
+                    ponging = true;
+                    while (ponging)
+                    {
+                        try
+                        {
+                            Thread.sleep(5000);
+                            writer.print(" ");
+                            writer.flush();
+                            operationLog.info("pong");
+                        } catch (InterruptedException e)
+                        {
+                            // silently ignored
+                        }
+                    }
+                    pongingFinished = true;
+                    operationLog.info("ponging finished");
+                    synchronized (EntityRetriever.this)
+                    {
+                        EntityRetriever.this.notifyAll();
+                    }
+                }
+            }, "Pong").start();
+    }
+    
+    public void finish()
+    {
+        operationLog.info("Finish");
+        ponging = false;
+        
+        synchronized (this) {
+                try
+                {
+                    while (pongingFinished == false)
+                    {
+                        wait();
+                    }
+                } catch (InterruptedException e)
+                {
+                    // silently ignored
+                }
+        }
+    
+        
     }
 
     @Override
