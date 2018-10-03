@@ -20,11 +20,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Level;
 import org.hamcrest.core.IsAnything;
 import org.jmock.Expectations;
@@ -49,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PlaceholderDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
@@ -185,15 +188,29 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
     }
 
     @Test
+    public void testOngoingArchiving()
+    {
+        prepareDefaultDataSetSize(20L);
+        prepareListPhysicalDataSetsInStatusArchivingPending(10);
+
+        task.setUp("", properties);
+        task.execute();
+
+        assertEquals("INFO  OPERATION.ExperimentBasedArchivingTask - Does nothing because there are 10 "
+                + "data sets in status ARCHIVE_PENDING.", logRecorder.getLogContent());
+        context.assertIsSatisfied();
+    }
+
+    @Test
     public void testLockedDataSet()
     {
+        prepareListPhysicalDataSetsInStatusArchivingPending(0);
         prepareFreeSpaceProvider(99L);
         prepareListExperiments(e1);
         prepareListDataSetsOf(e1, oldDataSet, lockedDataSet, youngDataSet);
-        lockedDataSet.setSize(100L);
-        oldDataSet.setSize(20L);
-        youngDataSet.setSize(10L);
-        prepareSizesAndTypes(lockedDataSet, oldDataSet, youngDataSet);
+        prepareTypeBySize(lockedDataSet, 100L);
+        prepareTypeBySize(oldDataSet, 20L);
+        prepareTypeBySize(youngDataSet, 10L);
         prepareArchivingDataSets(oldDataSet, youngDataSet);
 
         task.setUp("", properties);
@@ -206,6 +223,7 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
     @Test
     public void testArchiveExperimentContainingNotARealDataSet()
     {
+        prepareListPhysicalDataSetsInStatusArchivingPending(0);
         prepareFreeSpaceProvider(99L);
         prepareListExperiments(e1);
         prepareListDataSetsOf(e1, notARealDataSet);
@@ -220,6 +238,7 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
     @Test
     public void testArchiveExperiments()
     {
+        prepareListPhysicalDataSetsInStatusArchivingPending(0);
         prepareFreeSpaceProvider(99L);
         prepareListExperiments(e1, e2);
         prepareListDataSetsOf(e1);
@@ -236,12 +255,12 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
     public void testArchiveExperimentContainingDataSetsOfAnyType()
     {
         properties.remove(ExperimentBasedArchivingTask.EXCLUDED_DATA_SET_TYPES_KEY);
+        prepareListPhysicalDataSetsInStatusArchivingPending(0);
         prepareFreeSpaceProvider(99L);
         prepareListExperiments(e1);
         prepareListDataSetsOf(e1, dataSetOfIgnoredType, youngDataSet);
         prepareDefaultDataSetSize(20L);
-        youngDataSet.setSize(10L);
-        prepareSizesAndTypes(youngDataSet);
+        prepareTypeBySize(youngDataSet, 10L);
         prepareArchivingDataSets(dataSetOfIgnoredType, youngDataSet);
 
         task.setUp("", properties);
@@ -254,11 +273,11 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
     @Test
     public void testArchiveExperimentContainingDataSetsOfTypeToBeIgnored()
     {
+        prepareListPhysicalDataSetsInStatusArchivingPending(0);
         prepareFreeSpaceProvider(99L);
         prepareListExperiments(e1);
         prepareListDataSetsOf(e1, dataSetOfIgnoredType, youngDataSet);
-        youngDataSet.setSize(10L);
-        prepareSizesAndTypes(youngDataSet);
+        prepareTypeBySize(youngDataSet, 10L);
         prepareArchivingDataSets(youngDataSet);
 
         task.setUp("", properties);
@@ -271,17 +290,17 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
     @Test
     public void testCalculatingExperimentAgeWhereSomeDataSetsAreAlreadyArchived()
     {
+        prepareListPhysicalDataSetsInStatusArchivingPending(0);
         prepareFreeSpaceProvider(99L);
         prepareListExperiments(e1, e2);
         prepareListDataSetsOf(e1, oldDataSet, youngDataSet, veryYoungDataSet);
-        oldDataSet.setSize(10L);
+        prepareTypeBySize(oldDataSet, 10L);
         youngDataSet.setStatus(DataSetArchivingStatus.ARCHIVE_PENDING);
         veryYoungDataSet.setStatus(DataSetArchivingStatus.ARCHIVED);
         prepareListDataSetsOf(e2, middleOldDataSet);
-        middleOldDataSet.setSize(10L);
+        prepareTypeBySize(middleOldDataSet, 10L);
         prepareArchivingDataSets(oldDataSet);
         prepareArchivingDataSets(middleOldDataSet);
-        prepareSizesAndTypes(oldDataSet, middleOldDataSet);
 
         task.setUp("", properties);
         task.execute();
@@ -293,13 +312,13 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
     @Test
     public void testArchiveExperimentsUntilThereIsEnoughFreeSpace()
     {
+        prepareListPhysicalDataSetsInStatusArchivingPending(0);
         prepareFreeSpaceProvider(99L);
         prepareListExperiments(e1, e2);
         prepareListDataSetsOf(e1, veryYoungDataSet);
         prepareListDataSetsOf(e2, oldDataSet, youngDataSet);
-        oldDataSet.setSize(500L);
-        youngDataSet.setSize(700L);
-        prepareSizesAndTypes(oldDataSet, youngDataSet);
+        prepareTypeBySize(oldDataSet, 500L);
+        prepareTypeBySize(youngDataSet, 700L);
         prepareArchivingDataSets(oldDataSet, youngDataSet);
 
         task.setUp("", properties);
@@ -312,20 +331,20 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
     @Test
     public void testArchiveAllExperiments()
     {
+        prepareListPhysicalDataSetsInStatusArchivingPending(0);
         prepareFreeSpaceProvider(90L);
         prepareListExperiments(e3, e1, e2);
         prepareListDataSetsOf(e3, lockedDataSet, dataSetWithNoModificationDate);
         prepareListDataSetsOf(e1, veryYoungDataSet);
         prepareListDataSetsOf(e2, oldDataSet, youngDataSet);
         lockedDataSet.setSize(1000L);
-        dataSetWithNoModificationDate.setSize(100L);
-        oldDataSet.setSize(500L);
-        youngDataSet.setSize(700L);
+        prepareTypeBySize(dataSetWithNoModificationDate, 100L);
+        prepareTypeBySize(oldDataSet, 500L);
+        prepareTypeBySize(youngDataSet, 700L);
         prepareArchivingDataSets(dataSetWithNoModificationDate);
         prepareArchivingDataSets(oldDataSet, youngDataSet);
         prepareArchivingDataSets(veryYoungDataSet);
         prepareDefaultDataSetSize(5000L);
-        prepareSizesAndTypes(dataSetWithNoModificationDate, oldDataSet, youngDataSet);
 
         task.setUp("", properties);
         task.execute();
@@ -338,14 +357,14 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
     @Test
     public void testArchiveDataSetsWithNoSizeEstimates()
     {
+        prepareListPhysicalDataSetsInStatusArchivingPending(0);
         prepareFreeSpaceProvider(90L);
         prepareListExperiments(e1);
         prepareListDataSetsOf(e1, veryYoungDataSet, oldDataSet, youngDataSet);
         lockedDataSet.setSize(1000L);
-        oldDataSet.setSize(500L);
+        prepareTypeBySize(oldDataSet, 500L);
         youngDataSet.setSize(700L);
         prepareArchivingDataSets(veryYoungDataSet, oldDataSet, youngDataSet);
-        prepareSizesAndTypes(oldDataSet);
 
         task.setUp("", properties);
         task.execute();
@@ -355,18 +374,37 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
     }
 
     @Test
+    public void testArchiveDataSetsWithSizeNotUsingEstimates()
+    {
+        prepareListPhysicalDataSetsInStatusArchivingPending(0);
+        prepareFreeSpaceProvider(99L);
+        prepareListExperiments(e1, e2);
+        prepareListDataSetsOf(e1, veryYoungDataSet);
+        prepareListDataSetsOf(e2, oldDataSet, youngDataSet);
+        prepareTypeBySize(oldDataSet, 500L);
+        youngDataSet.setDataSetType(oldDataSet.getDataSetType());
+        youngDataSet.setSize(100 * FileUtils.ONE_MB);
+        prepareArchivingDataSets(oldDataSet, youngDataSet);
+
+        task.setUp("", properties);
+        task.execute();
+
+        checkLog(logEntry(e2, oldDataSet, youngDataSet));
+        context.assertIsSatisfied();
+    }
+
+    @Test
     public void testArchiveExperimentsInCorrectOrderWhereTheOldestDataSetHasNoModificationDate()
     {
+        prepareListPhysicalDataSetsInStatusArchivingPending(0);
         prepareFreeSpaceProvider(99L);
         prepareListExperiments(e1, e2);
         prepareListDataSetsOf(e1, youngDataSet);
         prepareListDataSetsOf(e2, dataSetWithNoModificationDate);
         prepareArchivingDataSets(youngDataSet);
         prepareArchivingDataSets(dataSetWithNoModificationDate);
-        youngDataSet.setSize(700L);
-        dataSetWithNoModificationDate.setSize(500L);
-
-        prepareSizesAndTypes(youngDataSet, dataSetWithNoModificationDate);
+        prepareTypeBySize(youngDataSet, 700L);
+        prepareTypeBySize(dataSetWithNoModificationDate, 500L);
 
         task.setUp("", properties);
         task.execute();
@@ -448,7 +486,7 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
                     {
                         File absoluteFile = new File(dir.getAbsolutePath());
                         one(freeSpaceProvider).freeSpaceKb(new HostAwareFile(absoluteFile));
-                        will(returnValue(1024L * freeSpace));
+                        will(returnValue(FileUtils.ONE_KB * freeSpace));
                     } catch (IOException ex)
                     {
                         throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -485,22 +523,30 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
             });
     }
 
+    private void prepareListPhysicalDataSetsInStatusArchivingPending(int numberOfArchivePending)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    SimpleDataSetInformationDTO dataSet = new SimpleDataSetInformationDTO();
+                    one(service).listPhysicalDataSetsByArchivingStatus(DataSetArchivingStatus.ARCHIVE_PENDING, null);
+                    will(returnValue(Collections.nCopies(numberOfArchivePending, dataSet)));
+                }
+            });
+    }
+
     private void prepareDefaultDataSetSize(long defaultSize)
     {
         properties.put(ExperimentBasedArchivingTask.DATA_SET_SIZE_PREFIX
                 + ExperimentBasedArchivingTask.DEFAULT_DATA_SET_TYPE, "" + defaultSize);
     }
 
-    private void prepareSizesAndTypes(PhysicalDataSet... dataSets)
+    private void prepareTypeBySize(PhysicalDataSet dataSet, long dataSetSize)
     {
-        for (PhysicalDataSet dataSet : dataSets)
-        {
-            String dataSetSize = String.valueOf(dataSet.getSize());
-            String dataSetType = "DS_TYPE_" + dataSetSize;
-            dataSet.getDataSetType().setCode(dataSetType);
-            properties.put(ExperimentBasedArchivingTask.DATA_SET_SIZE_PREFIX + dataSetType,
-                    dataSetSize);
-        }
+        String dataSetType = "DS_TYPE_" + dataSetSize;
+        dataSet.getDataSetType().setCode(dataSetType);
+        properties.put(ExperimentBasedArchivingTask.DATA_SET_SIZE_PREFIX + dataSetType,
+                String.valueOf(dataSetSize));
     }
 
     private void prepareArchivingDataSets(AbstractExternalData... dataSets)

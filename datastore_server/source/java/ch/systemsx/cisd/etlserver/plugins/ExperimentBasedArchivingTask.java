@@ -51,10 +51,10 @@ import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.reflection.ClassUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
@@ -117,8 +117,6 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
 
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
             ExperimentBasedArchivingTask.class);
-
-    private static final long ONE_KB_IN_BYTES = 1024L;
 
     static final String MINIMUM_FREE_SPACE_KEY = "minimum-free-space-in-MB";
 
@@ -229,7 +227,7 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
         {
             String dataSetType = ((String) key).toUpperCase();
             long estimatedSizeInBytes =
-                    ONE_KB_IN_BYTES
+                    FileUtils.ONE_KB
                             * PropertyUtils.getPosLong(dataSetSizeProps, dataSetType, 0L, log);
             if (estimatedSizeInBytes > 0)
             {
@@ -246,6 +244,13 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
     @Override
     public void execute()
     {
+        int numberOfArchivePending = service.listPhysicalDataSetsByArchivingStatus(DataSetArchivingStatus.ARCHIVE_PENDING, null).size();
+        if (numberOfArchivePending > 0)
+        {
+            operationLog.info("Does nothing because there are " + numberOfArchivePending + " data sets in status "
+                    + DataSetArchivingStatus.ARCHIVE_PENDING + ".");
+            return;
+        }
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug("Check free diskspace.");
@@ -308,7 +313,7 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
     {
         try
         {
-            return ONE_KB_IN_BYTES
+            return FileUtils.ONE_KB
                     * freeSpaceProvider.freeSpaceKb(new HostAwareFile(monitoredDirectory));
         } catch (IOException ex)
         {
@@ -386,13 +391,18 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
             long sum = 0L;
             for (PhysicalDataSet dataSetToBeArchived : getDataSetsToBeArchived())
             {
-                sum += estimateSize(dataSetToBeArchived, builder);
+                sum += getOrEstimateSize(dataSetToBeArchived, builder);
             }
             return sum;
         }
 
-        private long estimateSize(PhysicalDataSet dataSet, NotificationMessageBuilder builder)
+        private long getOrEstimateSize(PhysicalDataSet dataSet, NotificationMessageBuilder builder)
         {
+            Long size = dataSet.getSize();
+            if (size != null)
+            {
+                return size;
+            }
             String dataSetType = dataSet.getDataSetType().getCode().toUpperCase();
             Long estimatedDataSetSize = estimatedDataSetSizes.get(dataSetType);
             if (estimatedDataSetSize == null)

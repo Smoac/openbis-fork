@@ -104,6 +104,12 @@ class DeletionCommand extends AbstractDataSetLocationBasedCommand
     }
 
     @Override
+    public String getType()
+    {
+        return "Deletion";
+    }
+
+    @Override
     public String getDescription()
     {
         final StringBuilder b = new StringBuilder();

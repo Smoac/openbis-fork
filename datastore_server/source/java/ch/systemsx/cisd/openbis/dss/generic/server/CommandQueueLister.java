@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
+import java.util.List;
+
 /**
  * A class that provides a lister for the commands in the command queue of the store.
  * 
@@ -37,4 +39,15 @@ public final class CommandQueueLister
         }
         DataSetCommandExecutor.listQueuedCommands(configParams.getCommandQueueDir());
     }
+    
+    public static List<CommandQueueInfo> getCommandQueueInfos()
+    {
+        final ConfigParameters configParams = DataStoreServer.getConfigParameters();
+        if (!configParams.getCommandQueueDir().exists())
+        {
+            configParams.getCommandQueueDir().mkdirs();
+        }
+        return DataSetCommandExecutor.getCommandQueueInfos(configParams.getCommandQueueDir());
+    }
+
 }

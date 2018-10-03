@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -80,11 +81,6 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
     void setShareIdManager(IShareIdManager shareIdManager)
     {
         this.shareIdManager = shareIdManager;
-    }
-
-    private static File getCommandQueueFile(File store)
-    {
-        return getCommandQueueFile(store, null);
     }
 
     private static File getCommandQueueFile(File store, String nameOrNull)
@@ -266,6 +262,31 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
                 }
             }
         }
+    }
+
+    public static List<CommandQueueInfo> getCommandQueueInfos(File store)
+    {
+        List<CommandQueueInfo> result = new ArrayList<>();
+        List<File> commandQueueFiles = listCommandQueueFiles(store);
+        for (File queueFile : commandQueueFiles)
+        {
+            String fileName = queueFile.getName();
+            String queueName = "DEFAULT";
+            if (fileName.length() > COMMAND_QUEUE_FILE_PREFIX.length())
+            {
+                queueName = fileName.substring(COMMAND_QUEUE_FILE_PREFIX.length() + 1);
+            }
+            CommandQueueInfo info = new CommandQueueInfo(queueName);
+            final IExtendedBlockingQueue<IDataSetCommand> commandQueue =
+                    PersistentExtendedBlockingQueueFactory.<IDataSetCommand> createSmartPersist(queueFile);
+            for (final IDataSetCommand cmd : commandQueue)
+            {
+                info.addInfo(new CommandInfo(cmd.getType(), cmd.getDescription(), cmd.getDataSetCodes()));
+            }
+            result.add(info);
+        }
+        Collections.sort(result);
+        return result;
     }
 
     private static List<File> listCommandQueueFiles(File store)

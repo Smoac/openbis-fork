@@ -344,6 +344,12 @@ class UploadingCommand implements IDataSetCommand
     }
 
     @Override
+    public String getType()
+    {
+        return "CIFEX Uploading";
+    }
+
+    @Override
     public String getDescription()
     {
         final StringBuilder b = new StringBuilder();

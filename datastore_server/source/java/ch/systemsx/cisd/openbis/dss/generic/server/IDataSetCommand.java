@@ -34,6 +34,11 @@ interface IDataSetCommand extends Serializable
      */
     void execute(IHierarchicalContentProvider contentProvider,
             IDataSetDirectoryProvider dataSetDirectoryProvider);
+    
+    /**
+     * Returns the type of this command.
+     */
+    String getType();
 
     /**
      * Returns a textual description of this command.

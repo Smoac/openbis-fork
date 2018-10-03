@@ -266,6 +266,12 @@ public class ProcessDatasetsCommand extends AbstractDataSetDescriptionBasedComma
         return getDescription(getShortDescription(""));
     }
 
+    @Override
+    public String getType()
+    {
+        return task.getClass().getSimpleName();
+    }
+
     private static String getDataSetCodes(List<String> datasets)
     {
         if (datasets.isEmpty())

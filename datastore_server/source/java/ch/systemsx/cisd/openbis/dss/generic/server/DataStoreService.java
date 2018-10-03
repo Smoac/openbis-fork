@@ -58,7 +58,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IDataStoreServiceInternal;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
-import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.ISessionWorkspaceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISearchDomainService;
@@ -418,54 +417,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
                 userId, userEmailOrNull, userSessionToken, pluginDescription, mailClientParameters);
     }
 
-    private static class ArchiveProcessingPluginTask implements IProcessingPluginTask
-    {
-
-        private static final long serialVersionUID = 1L;
-
-        private IArchiverPlugin archiverTask;
-
-        private boolean removeFromDataStore;
-
-        public ArchiveProcessingPluginTask(final IArchiverPlugin archiverTask,
-                final boolean removeFromDataStore)
-        {
-            this.archiverTask = archiverTask;
-            this.removeFromDataStore = removeFromDataStore;
-        }
-
-        @Override
-        public ProcessingStatus process(List<DatasetDescription> datasets,
-                DataSetProcessingContext context)
-        {
-            ArchiverTaskContext archiverContext = createContext(context);
-            return archiverTask.archive(datasets, archiverContext, removeFromDataStore);
-        }
-
-    }
-
-    private static class UnarchiveProcessingPluginTask implements IProcessingPluginTask
-    {
-
-        private static final long serialVersionUID = 1L;
-
-        private IArchiverPlugin archiverTask;
-
-        public UnarchiveProcessingPluginTask(final IArchiverPlugin archiverTask)
-        {
-            this.archiverTask = archiverTask;
-        }
-
-        @Override
-        public ProcessingStatus process(List<DatasetDescription> datasets,
-                DataSetProcessingContext context)
-        {
-            ArchiverTaskContext archiverContext = createContext(context);
-            return archiverTask.unarchive(datasets, archiverContext);
-        }
-    }
-
-    private static ArchiverTaskContext createContext(DataSetProcessingContext context)
+    static ArchiverTaskContext createContext(DataSetProcessingContext context)
     {
         ArchiverTaskContext archiverTaskContext = new ArchiverTaskContext(context.getDirectoryProvider(),
                 context.getHierarchicalContentProviderUnfiltered());
