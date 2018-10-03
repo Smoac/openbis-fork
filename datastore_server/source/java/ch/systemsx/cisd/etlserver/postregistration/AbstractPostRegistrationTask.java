@@ -18,7 +18,9 @@ package ch.systemsx.cisd.etlserver.postregistration;
 
 import java.util.Properties;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 
 /**
  * Abstract super class of all implementations of {@link IPostRegistrationTask}.
@@ -31,6 +33,8 @@ public abstract class AbstractPostRegistrationTask implements IPostRegistrationT
 
     protected final IEncapsulatedOpenBISService service;
 
+    private IApplicationServerApi v3api;
+
     public AbstractPostRegistrationTask(Properties properties, IEncapsulatedOpenBISService service)
     {
         this.properties = properties;
@@ -40,5 +44,14 @@ public abstract class AbstractPostRegistrationTask implements IPostRegistrationT
     @Override
     public void clearCache()
     {
+    }
+
+    protected IApplicationServerApi getV3api()
+    {
+        if (v3api == null)
+        {
+            v3api = ServiceProvider.getV3ApplicationService();
+        }
+        return v3api;
     }
 }
