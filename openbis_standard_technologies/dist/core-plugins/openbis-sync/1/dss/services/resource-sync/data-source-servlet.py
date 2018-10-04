@@ -463,8 +463,9 @@ def handle(req, resp):
         params[str(param)] = values
         
     '''TODO fix capability list below''' 
+#    rl = ResourceList()
     rl = ResourceList(allow_multifile=False)
-    #rl.max_sitemap_entries = 500
+    rl.max_sitemap_entries = None
     
     maintainResourceListPartDir()
     
@@ -577,7 +578,6 @@ def deliverResourceList(rl, params, writer):
                 
                 index_xml = rl.as_xml(allow_multifile=True, basename=getResourceListPartURIBase(timestamp))
                 index_xml = injectMdAt(index_xml, rl.md_at)
-                v3EntityRetriever.finish()
                 writer.write(index_xml)
                 
                 num_parts = rl.requires_multifile()
@@ -589,6 +589,7 @@ def deliverResourceList(rl, params, writer):
                     part_path = os.path.join(getResourceListPartDir(), getResourceListPartFileName(timestamp, part_number))
                     with open(part_path, 'w+') as part_file:
                         part_file.write(part_xml)
+                v3EntityRetriever.finish()
             else:
                 xml = injectMetaDataXML(materials, all_entities, rl.as_xml())
                 v3EntityRetriever.finish()
