@@ -444,7 +444,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
 
     }
 
-    private class UnarchiveProcessingPluginTask implements IProcessingPluginTask
+    private static class UnarchiveProcessingPluginTask implements IProcessingPluginTask
     {
 
         private static final long serialVersionUID = 1L;
