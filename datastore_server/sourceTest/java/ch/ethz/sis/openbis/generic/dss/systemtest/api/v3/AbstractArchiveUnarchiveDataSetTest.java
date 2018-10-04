@@ -85,12 +85,12 @@ public class AbstractArchiveUnarchiveDataSetTest extends AbstractFileTest
 
                 if (expectedStatus.equals(actualStatus))
                 {
-                    log.info("Waiting for data set '" + dataSetCodeToBeFound + "' to have archiving status " + expectedStatus
-                            + ". Current archiving status is " + actualStatus);
+                    log.info("Stopped waiting. Dataset '" + dataSetCodeToBeFound + "' has reached the expected archiving status " + expectedStatus);
                     return;
                 } else
                 {
-                    log.info("Stopped waiting. Dataset '" + dataSetCodeToBeFound + "' has reached the expected archiving status " + expectedStatus);
+                    log.info("Waiting for data set '" + dataSetCodeToBeFound + "' to have archiving status " + expectedStatus
+                            + ". Current archiving status is " + actualStatus);
                     try
                     {
                         Thread.sleep(intervalMillis);
