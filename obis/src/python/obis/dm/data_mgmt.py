@@ -78,6 +78,10 @@ class AbstractDataMgmt(metaclass=abc.ABCMeta):
         self.invocation_path = invocation_path
         self.debug = debug
 
+        # setting flags
+        self.restore_on_sigint = True
+        self.ignore_missing_parent = False
+
     def error_raise(self, command, reason):
         """Raise an exception."""
         message = "'{}' failed. {}".format(command, reason)
@@ -89,7 +93,12 @@ class AbstractDataMgmt(metaclass=abc.ABCMeta):
         return
 
     @abc.abstractmethod
-    def init_data(self, desc=None, create=True):
+    def setup_local_settings(self, all_settings):
+        """ Setup local settings - for using obis as a library """
+        return
+
+    @abc.abstractmethod
+    def init_data(self, desc=None):
         """Initialize a data repository at the path with the description.
         :param path: Path for the repository.
         :param desc: An optional short description of the repository (used by git-annex)
@@ -99,7 +108,7 @@ class AbstractDataMgmt(metaclass=abc.ABCMeta):
         return
 
     @abc.abstractmethod
-    def init_analysis(self, parent_folder, desc=None, create=True, apply_config=False):
+    def init_analysis(self, parent_folder, desc=None):
         """Initialize an analysis repository at the path.
         :param parent_folder: Path for the repository.
         :param parent: (required when outside of existing repository) Path for the parent repositort
@@ -108,7 +117,7 @@ class AbstractDataMgmt(metaclass=abc.ABCMeta):
         return
 
     @abc.abstractmethod
-    def commit(self, msg, auto_add=True, ignore_missing_parent=False, sync=True):
+    def commit(self, msg, auto_add=True, sync=True):
         """Commit the current repo.
 
         This issues a git commit and connects to openBIS and creates a data set in openBIS.
@@ -120,7 +129,7 @@ class AbstractDataMgmt(metaclass=abc.ABCMeta):
         return
 
     @abc.abstractmethod
-    def sync(self, ignore_missing_parent=False):
+    def sync(self):
         """Sync the current repo.
 
         This connects to openBIS and creates a data set in openBIS.
@@ -189,16 +198,19 @@ class NoGitDataMgmt(AbstractDataMgmt):
     def get_settings_resolver(self):
         self.error_raise("get settings resolver", "No git command found.")
 
-    def init_data(self, desc=None, create=True):
+    def setup_local_settings(self, all_settings):
+        self.error_raise("setup local settings", "No git command found.")
+
+    def init_data(self, desc=None):
         self.error_raise("init data", "No git command found.")
 
-    def init_analysis(self, parent_folder, desc=None, create=True, apply_config=False):
+    def init_analysis(self, parent_folder, desc=None):
         self.error_raise("init analysis", "No git command found.")
 
-    def commit(self, msg, auto_add=True, ignore_missing_parent=False, sync=True):
+    def commit(self, msg, auto_add=True, sync=True):
         self.error_raise("commit", "No git command found.")
 
-    def sync(self, ignore_missing_parent=False):
+    def sync(self):
         self.error_raise("sync", "No git command found.")
 
     def status(self):
@@ -244,7 +256,8 @@ def with_restore(f):
     def f_with_restore(self, *args):
         self.set_restorepoint()
         try:
-            signal.signal(signal.SIGINT, lambda signal, frame: restore_signal_handler(self))
+            if self.restore_on_sigint:
+                signal.signal(signal.SIGINT, lambda signal, frame: restore_signal_handler(self))
             result = f(self, *args)
             if result.failure():
                 self.restore()
@@ -271,22 +284,13 @@ class GitDataMgmt(AbstractDataMgmt):
             return settings_resolver
 
 
+    # TODO add this to abstract / other class
     def setup_local_settings(self, all_settings):
         self.settings_resolver.set_resolver_location_roots('data_set', '.')
         for resolver_type, settings in all_settings.items():
             resolver = getattr(self.settings_resolver, resolver_type)
             for key, value in settings.items():
                 resolver.set_value_for_parameter(key, value, 'local')
-
-
-    def check_repository_state(self):
-        """Checks if the repo already exists and has uncommitted files."""
-        git_status = self.git_wrapper.git_status()
-        if git_status.failure():
-            return ('NOT_INITIALIZED', None)
-        if git_status.output is not None and len(git_status.output) > 0:
-            return ('PENDING_CHANGES', git_status.output)
-        return ('SYNCHRONIZED', None)
 
 
     def get_data_set_id(self, relative_path):
@@ -299,9 +303,9 @@ class GitDataMgmt(AbstractDataMgmt):
         return settings_resolver.repository.config_dict().get('id')
 
 
-    def init_data(self, desc=None, create=True, apply_config=False):
-        # check that analysis repository does not already exist
-        if os.path.exists('.obis'):
+    def init_data(self, desc=None):
+        # check that repository does not already exist
+        if os.path.exists('.obis') and os.path.exists('.git'):
             return CommandResult(returncode=-1, output="Folder is already an obis repository.")
         result = self.git_wrapper.git_init()
         if result.failure():
@@ -319,14 +323,14 @@ class GitDataMgmt(AbstractDataMgmt):
         return CommandResult(returncode=0, output="")
 
 
-    def init_analysis(self, parent_folder, desc=None, create=True, apply_config=False):
+    def init_analysis(self, parent_folder, desc=None):
         # get data_set_id of parent from current folder or explicit parent argument
         parent_data_set_id = self.get_data_set_id(parent_folder)
         # check that parent repository has been added to openBIS
         if self.get_repository_id(parent_folder) is None:
             return CommandResult(returncode=-1, output="Parent data set must be committed to openBIS before creating an analysis data set.")
         # init analysis repository
-        result = self.init_data(desc, create, apply_config)
+        result = self.init_data(desc)
         if result.failure():
             return result
 
@@ -344,17 +348,17 @@ class GitDataMgmt(AbstractDataMgmt):
 
 
     @with_restore
-    def sync(self, ignore_missing_parent=False):
-        return self._sync(ignore_missing_parent)
+    def sync(self):
+        return self._sync()
 
 
-    def _sync(self, ignore_missing_parent=False):
-        cmd = OpenbisSync(self, ignore_missing_parent)
+    def _sync(self):
+        cmd = OpenbisSync(self, self.ignore_missing_parent)
         return cmd.run()
 
 
     @with_restore
-    def commit(self, msg, auto_add=True, ignore_missing_parent=False, sync=True):
+    def commit(self, msg, auto_add=True, sync=True):
         if auto_add:
             result = self.git_wrapper.git_top_level_path()
             if result.failure():
@@ -367,7 +371,7 @@ class GitDataMgmt(AbstractDataMgmt):
             # TODO If no changes were made check if the data set is in openbis. If not, just sync.
             return result
         if sync:
-            result = self._sync(ignore_missing_parent)
+            result = self._sync()
         return result
 
 
