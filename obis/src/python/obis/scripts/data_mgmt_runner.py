@@ -16,7 +16,7 @@ from .click_util import click_echo, check_result
 class DataMgmtRunner(object):
 
 
-    def __init__(self, context, halt_on_error_log=True, data_path=None, bootstrap_settings=None, check_result=True):
+    def __init__(self, context, halt_on_error_log=True, data_path=None, bootstrap_settings=None, check_result=True, login=True, openbis=None):
         self.context = context
         self.halt_on_error_log = halt_on_error_log
         self.data_path = data_path
@@ -24,6 +24,8 @@ class DataMgmtRunner(object):
         self.invocation_path = os.getcwd()
         self.bootstrap_settings = bootstrap_settings
         self.check_result = check_result
+        self.login = login
+        self.openbis = openbis
 
 
     def init_paths(self, repository=None):
@@ -119,4 +121,4 @@ class DataMgmtRunner(object):
         if self.halt_on_error_log and log.any_log_exists():
             click_echo("Error: A previous command did not finish. Please check the log ({}) and remove it when you want to continue using obis".format(log.folder_path))
             sys.exit(-1)
-        return dm.DataMgmt(openbis_config=openbis_config, git_config=git_config, log=log, debug=self.context['debug'])
+        return dm.DataMgmt(openbis_config=openbis_config, git_config=git_config, log=log, debug=self.context['debug'], login=self.login, openbis=self.openbis)

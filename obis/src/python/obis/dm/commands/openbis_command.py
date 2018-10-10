@@ -133,6 +133,8 @@ class OpenbisCommand(object):
                 return CommandResult(returncode=0, output="")
             else:
                 self.openbis.logout()
+        if self.data_mgmt.login  == False:
+            return CommandResult(returncode=-1, output="No active session.")
         passwd = getpass.getpass("Password for {}:".format(user))
         try:
             self.openbis.login(user, passwd, save_token=True)

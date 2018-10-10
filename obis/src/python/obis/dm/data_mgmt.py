@@ -39,7 +39,7 @@ from ..scripts.click_util import click_echo, check_result
 
 
 # noinspection PyPep8Naming
-def DataMgmt(echo_func=None, settings_resolver=None, openbis_config={}, git_config={}, openbis=None, log=None, debug=False):
+def DataMgmt(echo_func=None, settings_resolver=None, openbis_config={}, git_config={}, openbis=None, log=None, debug=False, login=True):
     """Factory method for DataMgmt instances"""
 
     echo_func = echo_func if echo_func is not None else default_echo
@@ -58,7 +58,7 @@ def DataMgmt(echo_func=None, settings_resolver=None, openbis_config={}, git_conf
 
     complete_openbis_config(openbis_config, settings_resolver)
 
-    return GitDataMgmt(settings_resolver, openbis_config, git_wrapper, openbis, log, data_path, metadata_path, invocation_path, debug)
+    return GitDataMgmt(settings_resolver, openbis_config, git_wrapper, openbis, log, data_path, metadata_path, invocation_path, debug, login)
 
 
 class AbstractDataMgmt(metaclass=abc.ABCMeta):
@@ -67,7 +67,7 @@ class AbstractDataMgmt(metaclass=abc.ABCMeta):
     All operations throw an exepction if they fail.
     """
 
-    def __init__(self, settings_resolver, openbis_config, git_wrapper, openbis, log, data_path, metadata_path, invocation_path, debug=False):
+    def __init__(self, settings_resolver, openbis_config, git_wrapper, openbis, log, data_path, metadata_path, invocation_path, debug=False, login=True):
         self.settings_resolver = settings_resolver
         self.openbis_config = openbis_config
         self.git_wrapper = git_wrapper
@@ -77,6 +77,7 @@ class AbstractDataMgmt(metaclass=abc.ABCMeta):
         self.metadata_path = metadata_path
         self.invocation_path = invocation_path
         self.debug = debug
+        self.login = login
 
         # setting flags
         self.restore_on_sigint = True
