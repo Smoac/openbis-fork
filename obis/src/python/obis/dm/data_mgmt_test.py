@@ -48,7 +48,7 @@ def test_no_git(tmpdir):
     git_config = {'find_git': False, 'data_path': None, 'metadata_path': None, 'invocation_path': None}
     dm = data_mgmt.DataMgmt(git_config=git_config)
     try:
-        dm.init_data(str(tmpdir), "")
+        dm.init_data("")
         assert False, "Command should have failed -- no git defined."
     except ValueError:
         pass
@@ -87,7 +87,7 @@ def test_data_use_case(tmpdir):
 
     with data_mgmt.cd(tmp_dir_path):
 
-        result = dm.init_data(tmp_dir_path, "test")
+        result = dm.init_data("test")
         print(result.output)
         assert result.returncode == 0
 
@@ -138,7 +138,7 @@ def test_child_data_set(tmpdir):
 
     with data_mgmt.cd(tmp_dir_path):
 
-        result = dm.init_data(tmp_dir_path, "test")
+        result = dm.init_data("test")
         assert result.returncode == 0
 
         copy_test_data(tmpdir)
@@ -219,7 +219,7 @@ def test_init_analysis(tmpdir):
         prepare_registration_expectations(dm)
         openbis = dm.openbis
 
-        result = dm.init_data(tmp_dir_path, "test")
+        result = dm.init_data("test")
         assert result.returncode == 0
 
         copy_test_data(tmpdir)
