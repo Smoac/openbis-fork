@@ -250,7 +250,7 @@ def repository_clear(ctx, settings):
 ## data_set: type, properties
 
 
-@cli.group()
+@cli.group('data_set')
 @click.option('-g', '--is_global', default=False, is_flag=True, help='Set/get global or local.')
 @click.option('-p', '--is_data_set_property', default=False, is_flag=True, help='Configure data set property.')
 @click.pass_context
@@ -451,7 +451,7 @@ _init_analysis_params += _init_params
 def repository_init_analysis(ctx, parent, repository, description):
     return init_analysis_impl(ctx, parent, repository, description)
 
-@cli.command(short_help="Initialize the folder as an analysis folder.")
+@cli.command(name='init_analysis', short_help="Initialize the folder as an analysis folder.")
 @click.pass_context
 @add_params(_init_analysis_params)
 def init_analysis(ctx, parent, repository, description):
@@ -484,11 +484,15 @@ _sync_params = [
     click.argument('repository', type=click.Path(exists=True, file_okay=False), required=False),
 ]
 
+def _repository_sync(dm, ignore_missing_parent):
+    dm.ignore_missing_parent = ignore_missing_parent
+    return dm.sync()
+
 @repository.command("sync", short_help="Sync the repository with openBIS.")
 @click.pass_context
 @add_params(_sync_params)
 def repository_sync(ctx, ignore_missing_parent, repository):
-    return ctx.obj['runner'].run("sync", lambda dm: dm.sync(ignore_missing_parent), repository)
+    return ctx.obj['runner'].run("sync", lambda dm: _repository_sync(dm, ignore_missing_parent), repository)
 
 @cli.command(short_help="Sync the repository with openBIS.")
 @click.pass_context
