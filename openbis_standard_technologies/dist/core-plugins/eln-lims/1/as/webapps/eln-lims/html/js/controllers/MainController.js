@@ -282,20 +282,25 @@ function MainController(profile) {
 		}
 	}
 
-	this.authorizeUserOrGroup = function(role, shareWith, groupOrUser, spaceCode, projectPermId) {
-		Util.blockUI();
-		mainController.serverFacade.createRoleAssignment({
-			user: shareWith == "User" ? groupOrUser : null,
-			group: shareWith == "Group" ? groupOrUser : null,
-			role: role,
-			space: spaceCode,
-			project: projectPermId
-		}, function(result) {
-			Util.unblockUI();
-			if (result) {
-				Util.showSuccess("Access granted.");
-			}
+	// gets all role assignments for one space or project (all users)
+	// params.space: space for which the role assignments should be loaded
+	// params.project: project for which the role assignments should be loaded
+	this.getRoleAssignments = function(params, callback) {
+		mainController.serverFacade.searchRoleAssignments({
+			space: params.space,
+			project: params.project,
+		}, function(roleAssignments) {
+			callback(roleAssignments);
 		});
+	}
+
+	// role, grantTo, groupOrUser, spaceCode, projectPermId
+	this.authorizeUserOrGroup = function(params, callback) {
+		mainController.serverFacade.createRoleAssignment(params, callback);
+	}
+
+	this.deleteRoleAssignment = function(roleAssignmentTechId, callback) {
+		mainController.serverFacade.deleteRoleAssignment(roleAssignmentTechId, callback);
 	}
 
 	//
@@ -328,6 +333,9 @@ function MainController(profile) {
 			this.currentView.finalize) {
 			this.currentView.finalize();
 		}
+		
+		CKEditorManager.destroy();
+		
 		//
 		//
 		//

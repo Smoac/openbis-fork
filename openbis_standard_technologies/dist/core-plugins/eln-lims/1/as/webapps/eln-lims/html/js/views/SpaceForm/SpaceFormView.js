@@ -60,10 +60,7 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
 		if (this._spaceFormModel.roles.indexOf("ADMIN") > -1 ) {
 			var $share = FormUtil.getButtonWithIcon("fa fa-users", function() {
 				FormUtil.showAuthorizationDialog({
-					spaceOrProjectLabel: _this._spaceFormModel.space.code,
-					acceptCallback: function(role, shareWith, groupOrUser) {
-						mainController.authorizeUserOrGroup(role, shareWith, groupOrUser, _this._spaceFormModel.space.code);
-					},
+					space: _this._spaceFormModel.space,
 				});
 			});
 			toolbarModel.push({ component : $share, tooltip: "Manage access" });

@@ -2,6 +2,7 @@
 // Requires Jquery, Jquery UI and Bootstrap
 
 var LayoutManager = {
+	FOUND_SIZE : undefined,
 	DESKTOP_SIZE : 992,
 	TABLET_SIZE : 768,
 	MOBILE_SIZE : 0,
@@ -62,13 +63,6 @@ var LayoutManager = {
 				this.thirdColumn.remove();
 				this.thirdColumn = null;
 			}
-		} else {
-			this.secondColumnHeader.children().detach();
-			this.secondColumnHeader.empty();
-			this.secondColumnContent.children().detach();
-			this.secondColumnContent.empty();
-			this.thirdColumn.children().detach();
-			this.thirdColumn.empty();
 		}
 		
 		if(this.firstColumn == null) {
@@ -185,12 +179,13 @@ var LayoutManager = {
 		
 		if(isFirstTime) {
 			this.firstColumn.append(view.menu);
-			this.firstColumn.css({
+		}
+		
+		this.firstColumn.css({
 				"display" : "block",
 				"height" : height,
 				"width" : firstColumnWidth
-			});
-		}
+		});
 		
 		var thirdColumnWidth = (width - this.firstColumn.width()) * 0.34 - 1
 		if(thirdColumnWidth > LayoutManager.MAX_THIRD_COLUMN_WIDTH) {
@@ -212,7 +207,9 @@ var LayoutManager = {
 		
 		if (view.header) {
 			headerHeight = this.MIN_HEADER_HEIGHT;
-			this.secondColumnHeader.append(view.header);
+			if(isFirstTime) {
+				this.secondColumnHeader.append(view.header);
+			}
 			this.secondColumnHeader.css({
 				display : "block",
 				"min-height" : headerHeight,
@@ -227,8 +224,10 @@ var LayoutManager = {
 				display : "block",
 				height : height - headerHeight
 			});
-				
-			this.secondColumnContent.append(view.content);
+			
+			if(isFirstTime) {
+				this.secondColumnContent.append(view.content);
+			}
 		} else {
 			this.secondColumnContent.css({ display : "none" });
 		}
@@ -240,7 +239,10 @@ var LayoutManager = {
 				"height" : height,
 				"width" : thirdColumnWidth
 			});
-			this.thirdColumn.append(view.auxContent);
+			
+			if(isFirstTime) {
+				this.thirdColumn.append(view.auxContent);
+			}
 		} else {
 			this.thirdColumn.css({ 
 				"display" : "none",
@@ -260,12 +262,13 @@ var LayoutManager = {
 		
 		if(isFirstTime) {
 			this.firstColumn.append(view.menu);
-			this.firstColumn.css({
+		}
+		
+		this.firstColumn.css({
 				display : "block",
 				height : height,
 				"width" : firstColumnWidth
-			});
-		}
+		});
 		
 		this.secondColumn.css({
 			display : "block",
@@ -274,7 +277,9 @@ var LayoutManager = {
 
 		if (view.header) {
 			headerHeight = this.MIN_HEADER_HEIGHT;
-			this.secondColumnHeader.append(view.header);
+			if(isFirstTime) {
+				this.secondColumnHeader.append(view.header);
+			}
 			this.secondColumnHeader.css({
 				display : "block",
 				"min-height" : headerHeight,
@@ -290,34 +295,24 @@ var LayoutManager = {
 				height : height - headerHeight
 			});
 			
-			this.secondColumnContent.append(view.content);
+			if(isFirstTime) {
+				this.secondColumnContent.append(view.content);
+			}
 		} else {
 			this.secondColumnContent.css({ display : "none" });
 		}
 		
 
 		if (view.auxContent) {
-			this.secondColumnContent.append(view.auxContent);
+			if(isFirstTime) {
+				this.secondColumnContent.append(view.auxContent);
+			}
 		}
 		this.thirdColumn.css({ display : "none" });
 	},
 	_setMobileLayout : function(view, isFirstTime) {
 		var width = $( window ).width();
 		var height = $( window ).height();
-
-		//
-		// Empty Column each time
-		//
-		if(this.firstColumn) {
-			this.firstColumn.children().detach();
-		}
-		if(this.secondColumn) {
-			this.secondColumn.children().detach();
-		}
-		if(this.thirdColumn) {
-			this.thirdColumn.children().detach();
-		}
-		this.firstColumn.empty();
 		
 		//
 		// Set screen size
@@ -335,7 +330,9 @@ var LayoutManager = {
 		// Attach available views
 		//
 		if (view.menu) {
-			this.firstColumn.append(view.menu);
+			if(isFirstTime) {
+				this.firstColumn.append(view.menu);
+			}
 		}
 
 		if (view.header) {
@@ -343,15 +340,22 @@ var LayoutManager = {
 				"min-height" : this.MIN_HEADER_HEIGHT,
 				"height" : "auto"
 			});
-			this.firstColumn.append(view.header);
+			
+			if(isFirstTime) {
+				this.firstColumn.append(view.header);
+			}
 		}
 		
 		if(view.content) {
-			this.firstColumn.append(view.content);
+			if(isFirstTime) {
+				this.firstColumn.append(view.content);
+			}
 		}
 
 		if (view.auxContent) {
-			this.firstColumn.append(view.auxContent);
+			if(isFirstTime) {
+				this.firstColumn.append(view.auxContent);
+			}
 		}
 	},
 	canReload : function() {
@@ -402,20 +406,36 @@ var LayoutManager = {
 		var _this = this;
 		this.isLoadingView = true;
 
-		var isFirstTime = this.mainContainer === null || forceFirstTime === true;
-		// console.log("reloadView called with isFirstTime:" + isFirstTime);
+		var isFirstTime = this.mainContainer === null || forceFirstTime === true || forceFirstTime === undefined;
 		
 		this._init(isFirstTime);
 
 		var width = $( window ).width();
 		if (width > this.DESKTOP_SIZE) {
-			this._setDesktopLayout(view, isFirstTime);
+			if (this.FOUND_SIZE !== this.DESKTOP_SIZE) {
+				isFirstTime = true;
+				this.FOUND_SIZE = this.DESKTOP_SIZE;
+			}
 		} else if (width > this.TABLET_SIZE) {
-			this._setTabletLayout(view, isFirstTime);
+			if (this.FOUND_SIZE !== this.TABLET_SIZE) {
+				isFirstTime = true;
+				this.FOUND_SIZE = this.TABLET_SIZE;
+			}
 		} else if (width > this.MOBILE_SIZE) {
+			if (this.FOUND_SIZE !== this.MOBILE_SIZE) {
+				isFirstTime = true;
+				this.FOUND_SIZE = this.MOBILE_SIZE;
+			}
+		}
+		
+		console.log("reloadView called with isFirstTime:" + isFirstTime);
+		
+		if (this.FOUND_SIZE === this.DESKTOP_SIZE) {
+			this._setDesktopLayout(view, isFirstTime);
+		} else if (this.FOUND_SIZE === this.TABLET_SIZE) {
+			this._setTabletLayout(view, isFirstTime);
+		} else if (this.FOUND_SIZE === this.MOBILE_SIZE) {
 			this._setMobileLayout(view, isFirstTime);
-		} else {
-			alert("Layout manager unable to set layout, this should never happen.");
 		}
 		
 		this.triggerResizeEventHandlers();
@@ -445,6 +465,6 @@ var LayoutManager = {
 
 $(window).resize(function() {
 	if(mainController && mainController.views) {
-		LayoutManager.resize(mainController.views, true);
+		LayoutManager.resize(mainController.views, false);
 	}
 });

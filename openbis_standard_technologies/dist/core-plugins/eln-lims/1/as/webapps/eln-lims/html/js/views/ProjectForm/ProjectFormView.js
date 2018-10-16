@@ -125,10 +125,7 @@ function ProjectFormView(projectFormController, projectFormModel) {
 			if (this._projectFormModel.roles.indexOf("ADMIN") > -1 ) {
 				var $share = FormUtil.getButtonWithIcon("fa fa-users", function() {
 					FormUtil.showAuthorizationDialog({
-						spaceOrProjectLabel: _this._projectFormModel.project.code,
-						acceptCallback: function(role, shareWith, groupOrUser) {
-							mainController.authorizeUserOrGroup(role, shareWith, groupOrUser, null,  _this._projectFormModel.project.permId);
-						},
+						project: _this._projectFormModel.project,
 					});
 				});
 				toolbarModel.push({ component : $share, tooltip: "Manage access" });

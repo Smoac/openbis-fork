@@ -2239,12 +2239,34 @@ function ServerFacade(openbisServer) {
 				var fetchOptions = new RoleAssignmentFetchOptions();
 				fetchOptions.withSpace();
 				fetchOptions.withProject();
+				fetchOptions.withUser();
+				fetchOptions.withAuthorizationGroup();
 
 				mainController.openbisV3.searchRoleAssignments(criteria, fetchOptions).done(function(result) {
 					callbackFunction(result.objects);
 				}).fail(function(result) {
 					Util.showError("Call failed to server: " + JSON.stringify(result));
 					callbackFunction(false);
+				});
+			});
+	}
+
+	this.deleteRoleAssignment = function(roleAssignmentTechId, callbackFunction) {
+		var userId = this.getUserId()
+		require(["as/dto/roleassignment/delete/RoleAssignmentDeletionOptions"], 
+			function(RoleAssignmentDeletionOptions) {
+
+				var deleteOptions = new RoleAssignmentDeletionOptions();
+				deleteOptions.setReason('deleted by ELN user ' + userId);
+
+				mainController.openbisV3.deleteRoleAssignments([roleAssignmentTechId], deleteOptions).done(function(result) {
+					callbackFunction(true, result);
+				}).fail(function(result) {
+					if (result.message) {
+						callbackFunction(false, result.message);
+					} else {
+						callbackFunction(false, "Call failed to server: " + JSON.stringify(result));
+					}
 				});
 			});
 	}
@@ -2278,17 +2300,16 @@ function ServerFacade(openbisServer) {
 
 				mainController.openbisV3.createRoleAssignments([creation]).done(function(response) {
 					if (response.length == 1) {
-						callbackFunction(response[0]);
+						callbackFunction(true, response[0]);
 					} else {
-						callbackFunction(false);
+						callbackFunction(false, "No role assignments created.");
 					}
 				}).fail(function(result) {
 					if (result.message) {
-						Util.showError(result.message, null, null, null, null, true);
+						callbackFunction(false, result.message);
 					} else {
-						Util.showError("Call failed to server: " + JSON.stringify(result));
+						callbackFunction(false, "Call failed to server: " + JSON.stringify(result));
 					}
-					callbackFunction(false);
 				});
 			});
 	}
