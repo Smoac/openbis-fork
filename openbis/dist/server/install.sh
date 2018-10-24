@@ -117,6 +117,11 @@ echo installing core-plugins
 if [ -f "$server_folder/../core-plugins/core-plugins.properties" ]; then
     excludingStuff="-x core-plugins/core-plugins.properties" 
 fi
+# Before unzipping all file/folders which are symbolic links in the zip file they have to be removed in the target.
+# Otherwise  a 'cannot delete old ...' error happens if the symbolic link was a file/folder. 
+zipinfo "$installation_folder/core-plugins.zip" |egrep "^l"|awk '{$1=$2=$3=$4=$5=$6=$7=$8=""; print $0}'|while read file;do 
+    rm -rf "$server_folder/../$file"
+done
 unzip -quo "$installation_folder/core-plugins.zip" $excludingStuff -d "$server_folder/.."
 
 # Move config files to etc and create symlinks.
