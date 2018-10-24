@@ -280,7 +280,7 @@ public class MaximumIntensityProjectionGenerationAlgorithm implements IImageGene
 
     private int rescale(int intensity, int maxIntensity)
     {
-        return (intensity * 255 + maxIntensity / 2) / maxIntensity;
+        return maxIntensity == 0 ? 0 : (intensity * 255 + maxIntensity / 2) / maxIntensity;
     }
 
     private int addImage(BufferedImage image)

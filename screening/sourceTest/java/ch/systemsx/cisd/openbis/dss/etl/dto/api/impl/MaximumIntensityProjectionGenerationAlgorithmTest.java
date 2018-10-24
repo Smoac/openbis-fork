@@ -156,6 +156,8 @@ public class MaximumIntensityProjectionGenerationAlgorithmTest extends AbstractF
                 .rect(2, 1, 5, 4, new Color(100, 100, 100)).getImage());
         images.put("i3", new ImageBuilder(BufferedImage.TYPE_USHORT_GRAY)
                 .rect(3, 2, 5, 4, new Color(30, 30, 30)).getImage());
+        images.put("i4", new ImageBuilder(BufferedImage.TYPE_INT_RGB)
+                .rect(0, 0, 10, 6, new Color(0, 0, 0)).getImage());
         information = new ImageDataSetInformation();
         information.setIncomingDirectory(new File(workingDirectory, "incoming"));
         structure = new ImageDataSetStructure();
@@ -179,7 +181,7 @@ public class MaximumIntensityProjectionGenerationAlgorithmTest extends AbstractF
     {
 
         MaximumIntensityProjectionGenerationAlgorithmWithMockedLoading generationAlgorithm =
-                new MaximumIntensityProjectionGenerationAlgorithmWithMockedLoading("ABC", 10, 6, "r.png", images, "i3");
+                new MaximumIntensityProjectionGenerationAlgorithmWithMockedLoading("ABC", 10, 6, "r.png", images, "i3", "i4");
         assertEquals("ABC", generationAlgorithm.getDataSetTypeCode());
         assertEquals("r.png", generationAlgorithm.getImageFileName(0));
         Channel channel1 = new Channel("CI1", "i1", new ChannelColorRGB(200, 100, 80));
@@ -203,7 +205,7 @@ public class MaximumIntensityProjectionGenerationAlgorithmTest extends AbstractF
     {
 
         MaximumIntensityProjectionGenerationAlgorithmWithMockedLoading generationAlgorithm =
-                new MaximumIntensityProjectionGenerationAlgorithmWithMockedLoading("ABC", 10, 6, "r.png", images, "i1");
+                new MaximumIntensityProjectionGenerationAlgorithmWithMockedLoading("ABC", 10, 6, "r.png", images, "i1", "i4");
         Channel channel1 = new Channel("CI2", "i2", new ChannelColorRGB(200, 100, 80));
         Channel channel2 = new Channel("CI3", "i3", new ChannelColorRGB(0, 120, 180));
         structure.setChannels(Arrays.asList(channel1, channel2));
@@ -220,6 +222,25 @@ public class MaximumIntensityProjectionGenerationAlgorithmTest extends AbstractF
         assertEquals(1, generatedImages.size());
     }
 
+    @Test
+    public void testOneBlackImage()
+    {
+        MaximumIntensityProjectionGenerationAlgorithmWithMockedLoading generationAlgorithm =
+                new MaximumIntensityProjectionGenerationAlgorithmWithMockedLoading("ABC", 10, 6, "r.png", images, "i1", "i2", "i3");
+        Channel channel1 = new Channel("CI4", "i4", new ChannelColorRGB(0, 0, 0));
+        structure.setChannels(Arrays.asList(channel1));
+        
+        List<BufferedImage> generatedImages = generationAlgorithm.generateImages(information, null, DUMMY_IMAGE_PROVIDER);
+        
+        assertEquals("[incoming/images/i4.png: i4 [lib (reader: reader)]]", generationAlgorithm.recorder.toString());
+        
+        ImageHistogram histogram = ImageHistogram.calculateHistogram(generatedImages.get(0));
+        assertEquals("[0=60]", renderHistogram(histogram.getRedHistogram()));
+        assertEquals("[0=60]", renderHistogram(histogram.getGreenHistogram()));
+        assertEquals("[0=60]", renderHistogram(histogram.getBlueHistogram()));
+        assertEquals(1, generatedImages.size());
+    }
+    
     private String renderHistogram(int[] histogram)
     {
         StringBuilder builder = new StringBuilder();
