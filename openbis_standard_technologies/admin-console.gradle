@@ -4,22 +4,22 @@ configurations.create('adminConsoleLibs')
 dependencies {
     adminConsolePartialLibs 'google:gwt-user:2.4'
 
-    adminConsoleLibs 'sis:sis-base:+',
-                    'apache:httpclient:+',
-                    'apache:httpcore:+',
-                    'apache:commons-logging:+',
-                    'apache:commons-io:+',
-                    'apache:log4j:+',
-                    'springframework:spring-aop:+',
-                    'springframework:spring-beans:+',
-                    'springframework:spring-context:+',
-                    'springframework:spring-core:+',
-                    'springframework:spring-web:+',
-                    'springframework:spring-webmvc:+',
-                    'springframework:spring-expression:+',
-                    'marathon:marathon-spring-util:+',
+    adminConsoleLibs 'sis:sis-base:18.09.0',
+                    'apache:httpclient:4.3.6',
+                    'apache:httpcore:4.3.3',
+                    'apache:commons-logging:1.2',
+                    'apache:commons-io:2.6',
+                    'apache:log4j:1.2.15',
+                    'springframework:spring-aop:4.1.4.RELEASE',
+                    'springframework:spring-beans:4.1.4.RELEASE',
+                    'springframework:spring-context:4.1.4.RELEASE',
+                    'springframework:spring-core:4.1.4.RELEASE',
+                    'springframework:spring-web:4.1.4.RELEASE',
+                    'springframework:spring-webmvc:4.1.4.RELEASE',
+                    'springframework:spring-expression:4.1.4.RELEASE',
+                    'marathon:marathon-spring-util:1.2.5',
                     'jline:jline:0.9.94',
-                    'aopalliance:aopalliance:+'
+                    'aopalliance:aopalliance:1.0'
 }
 
 task adminConsole(type: Jar) {
