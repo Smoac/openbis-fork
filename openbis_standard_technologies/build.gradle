@@ -277,6 +277,7 @@ def downloadFile(url, filename) {
 import org.paleozogt.gradle.zip.SymZip;
 
 task zipCorePlugins(type: SymZip) {
+  includeEmptyDirs = false
   archiveName 'core-plugins.zip'
   downloadFile('https://github.com/aarpon/obit_flow_core_technology/archive/release/18.x.zip', 'flow.zip')
   downloadFile('https://github.com/aarpon/obit_microscopy_core_technology/archive/release/18.x.zip', 'microscopy.zip')
