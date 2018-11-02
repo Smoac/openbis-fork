@@ -31,7 +31,22 @@ function DefaultProfile(serverFacade) {
 }
 
 $.extend(DefaultProfile.prototype, {
-	init: function(serverFacade){
+	init: function(serverFacade) {
+		this.mainLogo = "./img/openBIS_Logo.png";
+		this.mainLogoTitle = "Lab Notebook & Inventory Manager";
+		
+		//this.mainLogo = "./img/cross_Logo_alt.png";
+		//this.mainLogoTitle = "ETH RDH";
+		
+		//
+		// Updating title and logo
+		//
+		$("#mainLogo").attr("src", this.mainLogo);
+		$("#mainLogoTitle").append(this.mainLogoTitle);
+		if(this.mainLogoTitle.length < 10) {
+			$("#mainLogoTitle").css("font-weight", "bold");
+		}
+		
 		this.serverFacade = serverFacade;
 		//
 		// DEFAULTS, TYPICALLY DON'T TOUCH IF YOU DON'T KNOW WHAT YOU DO
@@ -124,6 +139,28 @@ $.extend(DefaultProfile.prototype, {
 //				"ADMIN-BS-MBPR28.D.ETHZ.CH-E96954A7" : "http://localhost:8080/download"
 		}
 		
+		this.plugins = [new MicroscopyTechnology()];
+		this.sampleFormTop = function($container, model) {
+			for(var i = 0; i < this.plugins.length; i++) {
+				this.plugins[i].sampleFormTop($container, model);
+			}
+		}
+		this.sampleFormBottom = function($container, model) {
+			for(var i = 0; i < this.plugins.length; i++) {
+				this.plugins[i].sampleFormBottom($container, model);
+			}
+		}
+		this.dataSetFormTop = function($container, model) {
+			for(var i = 0; i < this.plugins.length; i++) {
+				this.plugins[i].dataSetFormTop($container, model);
+			}
+		}
+		this.dataSetFormBottom = function($container, model) {
+			for(var i = 0; i < this.plugins.length; i++) {
+				this.plugins[i].dataSetFormBottom($container, model);
+			}
+		}
+		
 //		Jupyter integration config
 //		this.jupyterIntegrationServerEndpoint = "https://127.0.0.1:8002";
 //		this.jupyterEndpoint = "https://127.0.0.1:8000/";
@@ -131,6 +168,10 @@ $.extend(DefaultProfile.prototype, {
 		this.systemProperties = ["ANNOTATIONS_STATE", "FREEFORM_TABLE_STATE"];
 		this.forcedDisableRTF = ["NAME", "SEQUENCE"];
 		this.forceMonospaceFont = ["SEQUENCE"];
+		this.imageViewerDataSetCodes = [];
+		this.isImageViewerDataSetCode = function(code) {
+			return (code && $.inArray(code, this.imageViewerDataSetCodes) !== -1);
+		}
 		
 		this.isRTF = function(propertytype) {
 			return (propertytype && 
@@ -241,6 +282,28 @@ $.extend(DefaultProfile.prototype, {
 		this.searchSamplesUsingV3OnDropbox = false;
 		this.searchSamplesUsingV3OnDropboxRunCustom = false;
 		
+		this.getDataSetTypeToolbarConfiguration = function(dataSetTypeCode) {
+			var defaultToolbar = { EDIT : true, MOVE : true, ARCHIVE : true, DELETE : true, HIERARCHY_TABLE : true, EXPORT_ALL : true, EXPORT_METADATA : true };
+			if(this.dataSetTypeDefinitionsExtension[dataSetTypeCode] && this.dataSetTypeDefinitionsExtension[dataSetTypeCode]["TOOLBAR"]) {
+				var toolbarOptions = this.dataSetTypeDefinitionsExtension[dataSetTypeCode]["TOOLBAR"];
+				for(key in toolbarOptions) {
+					defaultToolbar[key] = toolbarOptions[key];
+				}
+			}
+			return defaultToolbar;
+		}
+		
+		this.getSampleTypeToolbarConfiguration = function(sampleTypeCode) {
+			var defaultToolbar = { CREATE : true, EDIT : true, MOVE : true, COPY: true, DELETE : true, PRINT: true, HIERARCHY_GRAPH : true, HIERARCHY_TABLE : true, UPLOAD_DATASET : true, UPLOAD_DATASET_HELPER : true, EXPORT_ALL : true, EXPORT_METADATA : true };
+			if(this.sampleTypeDefinitionsExtension[sampleTypeCode] && this.sampleTypeDefinitionsExtension[sampleTypeCode]["TOOLBAR"]) {
+				var toolbarOptions = this.sampleTypeDefinitionsExtension[sampleTypeCode]["TOOLBAR"];
+				for(key in toolbarOptions) {
+					defaultToolbar[key] = toolbarOptions[key];
+				}
+			}
+			return defaultToolbar;
+		}
+		
 		this.isSampleTypeWithStorage = function(sampleTypeCode) {
 			return this.sampleTypeDefinitionsExtension[sampleTypeCode] && this.sampleTypeDefinitionsExtension[sampleTypeCode]["ENABLE_STORAGE"];
 		}
@@ -341,6 +404,10 @@ $.extend(DefaultProfile.prototype, {
 		this.propertyReplacingCode = "NAME";
 		
 		this.sampleTypeDefinitionsExtension = {
+		
+		}
+		
+		this.dataSetTypeDefinitionsExtension = {
 		
 		}
 		
@@ -968,6 +1035,16 @@ $.extend(DefaultProfile.prototype, {
 		}
 
 		this.initSettings = function(callback) {
+			// sampleTypeDefinitionsExtension and  dataSetTypeDefinitionsExtension gets overwritten with plugins definitions
+			for(var i = 0; i < this.plugins.length; i++) {
+				for(key in this.plugins[i].sampleTypeDefinitionsExtension) {
+					this.sampleTypeDefinitionsExtension[key] = this.plugins[i].sampleTypeDefinitionsExtension[key];
+				}
+				for(key in this.plugins[i].dataSetTypeDefinitionsExtension) {
+					this.dataSetTypeDefinitionsExtension[key] = this.plugins[i].dataSetTypeDefinitionsExtension[key];
+				}
+			}
+			
 			// sampleTypeDefinitionsExtension gets overwritten with settings if found
 			for (var sampleTypeCode of Object.keys(this.sampleTypeDefinitionsExtension)) {
 				var sampleTypDefExt = this.sampleTypeDefinitionsExtension[sampleTypeCode];

@@ -3,7 +3,7 @@
 
 var LayoutManager = {
 	FOUND_SIZE : undefined,
-	DESKTOP_SIZE : 992,
+	DESKTOP_SIZE : 1024,
 	TABLET_SIZE : 768,
 	MOBILE_SIZE : 0,
 	MIN_HEADER_HEIGHT : 120,
@@ -407,8 +407,6 @@ var LayoutManager = {
 		this.isLoadingView = true;
 
 		var isFirstTime = this.mainContainer === null || forceFirstTime === true || forceFirstTime === undefined;
-		
-		this._init(isFirstTime);
 
 		var width = $( window ).width();
 		if (width > this.DESKTOP_SIZE) {
@@ -428,8 +426,7 @@ var LayoutManager = {
 			}
 		}
 		
-		console.log("reloadView called with isFirstTime:" + isFirstTime);
-		
+		this._init(isFirstTime);
 		if (this.FOUND_SIZE === this.DESKTOP_SIZE) {
 			this._setDesktopLayout(view, isFirstTime);
 		} else if (this.FOUND_SIZE === this.TABLET_SIZE) {

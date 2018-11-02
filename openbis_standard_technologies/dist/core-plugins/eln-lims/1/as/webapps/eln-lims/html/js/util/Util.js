@@ -78,7 +78,7 @@ var Util = new function() {
 		if (message) {
 			params.message = message;
 		} else {
-			params.message = '<h1><img src="./img/busy.gif" /> Just a moment...</h1>';
+			params.message = '<img src="./img/busy.gif" />';
 		}
 		if (disabledFadeAnimation) {
 			params.fadeIn = 0;
@@ -156,9 +156,7 @@ var Util = new function() {
 		this.showError(withHTML, andCallback, noBlock, true, false, true);
 	}
 	
-	this.showError = function(withHTML, andCallback, noBlock, isUserError, isEnvironmentError, disableReport) {
-		var withHTMLToShow = null;
-		
+	this.showError = function(withHTML, andCallback, noBlock, isUserError, isEnvironmentError, disableReport) {		
 		var userErrorWarning = "";
 		if(isUserError) {
 			userErrorWarning = "<b>This error looks like a user error:</b>" + "<br>";
@@ -177,15 +175,16 @@ var Util = new function() {
 					 "href: " + location.href.replace(new RegExp("&", 'g'), " - ") + "%0D%0A" +
 					 "error: " + withHTML;
 		
-		var withHTMLToShow = "";
+		var withHTMLToShow = "<div style=\"width:100%;\">";
 		if(disableReport) {
-			withHTMLToShow += "<textarea style=\"background: transparent; border: none;\" rows=\"1\" cols=\"170\">" + withHTML + "</textarea><br>";
+			withHTMLToShow += "<textarea style=\"background: transparent; border: none; width:100%;\" rows=\"1\">" + withHTML + "</textarea><br>";
 			withHTMLToShow += "<a id='jNotifyDismiss' class='btn btn-default'>Dismiss</a>";
 		} else {
-			withHTMLToShow += userErrorWarning + "<br><br><textarea style=\"background: transparent;\" rows=\"8\" cols=\"170\">" + withHTML + "</textarea>" + "<br><br>" + warning + "<br><br>";
+			withHTMLToShow += userErrorWarning + "<br><br><textarea style=\"background: transparent; width:100%;\" rows=\"8\">" + withHTML + "</textarea>" + "<br><br>" + warning + "<br><br>";
 			withHTMLToShow += "<a id='jNotifyDismiss' class='btn btn-default'>Dismiss</a>" + "<a class='btn btn-default' href='mailto:" + profile.devEmail + "?subject=ELN Error Report [" + location.hostname +"] ["+ mainController.serverFacade.openbisServer.getSession() + "]&body=" + report +"'>Send error report</a>";
 		}
-				
+		withHTMLToShow += "</div>";
+		
 		if(!noBlock) {
 			this.blockUINoMessage();
 		}
@@ -196,7 +195,7 @@ var Util = new function() {
 				{
 				  autoHide : false,
 				  clickOverlay : false,
-				  MinWidth : 250,
+				  MinWidth : '80%',
 				  TimeShown : 2000,
 				  ShowTimeEffect : 200,
 				  HideTimeEffect : 200,
@@ -222,7 +221,7 @@ var Util = new function() {
 				{
 				  autoHide : true,
 				  clickOverlay : true,
-				  MinWidth : 250,
+				  MinWidth : '80%',
 				  TimeShown : 2000,
 				  ShowTimeEffect : 200,
 				  HideTimeEffect : 200,
@@ -249,7 +248,7 @@ var Util = new function() {
 				{
 				  autoHide : false,
 				  clickOverlay : false,
-				  MinWidth : 250,
+				  MinWidth : '80%',
 				  TimeShown : 2000,
 				  ShowTimeEffect : 200,
 				  HideTimeEffect : 200,
@@ -411,7 +410,7 @@ var Util = new function() {
 					{
 					  autoHide : false,
 					  clickOverlay : false,
-					  MinWidth : 250,
+					  // MinWidth : '80%',
 					  TimeShown : 2000,
 					  ShowTimeEffect : 200,
 					  HideTimeEffect : 200,

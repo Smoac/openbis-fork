@@ -111,6 +111,8 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		// Toolbar
 		//
 		var toolbarModel = [];
+		var toolbarConfig = profile.getSampleTypeToolbarConfiguration(_this._sampleFormModel.sample.sampleTypeCode);
+		
 		if(this._sampleFormModel.mode === FormMode.VIEW) {
 			//Create Experiment Step
 			if(_this._sampleFormModel.sample.sampleTypeCode === "EXPERIMENTAL_STEP") {
@@ -138,7 +140,9 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					
 					repeatUntilSet();
 				});
-				toolbarModel.push({ component : $createBtn, tooltip: "Create Experimental Step" });
+				if(toolbarConfig.CREATE) {
+					toolbarModel.push({ component : $createBtn, tooltip: "Create Experimental Step" });
+				}
 			}
 			
 			//Edit
@@ -151,7 +155,9 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					
 					mainController.changeView('showEditSamplePageFromPermId', args);
 				});
-				toolbarModel.push({ component : $editButton, tooltip: "Edit" });
+				if(toolbarConfig.EDIT) {
+					toolbarModel.push({ component : $editButton, tooltip: "Edit" });
+				}
 			}
 			
 			//Move
@@ -159,13 +165,17 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				var moveEntityController = new MoveEntityController("SAMPLE", _this._sampleFormModel.sample.permId);
 				moveEntityController.init();
 			});
-			toolbarModel.push({ component : $moveBtn, tooltip: "Move" });
+			if(toolbarConfig.MOVE) {
+				toolbarModel.push({ component : $moveBtn, tooltip: "Move" });
+			}
 			
 			//Copy
 			var $copyButton = $("<a>", { 'class' : 'btn btn-default'} )
 			.append($('<img>', { 'src' : './img/copy-icon.png', 'style' : 'width:16px; height:16px;' }));
 			$copyButton.click(_this._getCopyButtonEvent());
-			toolbarModel.push({ component : $copyButton, tooltip: "Copy" });
+			if(toolbarConfig.COPY) {
+				toolbarModel.push({ component : $copyButton, tooltip: "Copy" });
+			}
 			
 			//Delete
 			var warningText = null;
@@ -213,33 +223,44 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			var $deleteButton = FormUtil.getDeleteButton(function(reason) {
 				_this._sampleFormController.deleteSample(reason);
 			}, true, warningText);
-			toolbarModel.push({ component : $deleteButton, tooltip: "Delete" });
+			
+			if(toolbarConfig.DELETE) {
+				toolbarModel.push({ component : $deleteButton, tooltip: "Delete" });
+			}
 			
 			//Print
 			var $printButton = $("<a>", { 'class' : 'btn btn-default'} ).append($('<span>', { 'class' : 'glyphicon glyphicon-print' }));
 			$printButton.click(function() {
 				PrintUtil.printEntity(_this._sampleFormModel.sample);
 			});
-			toolbarModel.push({ component : $printButton, tooltip: "Print" });
+			if(toolbarConfig.PRINT) {
+				toolbarModel.push({ component : $printButton, tooltip: "Print" });
+			}
 			
 			//Hierarchy Graph
 			var $hierarchyGraph = FormUtil.getButtonWithImage("./img/hierarchy-icon.png", function () {
 				mainController.changeView('showSampleHierarchyPage', _this._sampleFormModel.sample.permId);
 			});
-			toolbarModel.push({ component : $hierarchyGraph, tooltip: "Hierarchy Graph" });
+			if(toolbarConfig.HIERARCHY_GRAPH) {
+				toolbarModel.push({ component : $hierarchyGraph, tooltip: "Hierarchy Graph" });
+			}
 			
 			//Hierarchy Table
 			var $hierarchyTable = FormUtil.getButtonWithIcon("glyphicon-list", function () {
 				mainController.changeView('showSampleHierarchyTablePage', _this._sampleFormModel.sample.permId);
 			});
-			toolbarModel.push({ component : $hierarchyTable, tooltip: "Hierarchy Table" });
+			if(toolbarConfig.HIERARCHY_TABLE) {
+				toolbarModel.push({ component : $hierarchyTable, tooltip: "Hierarchy Table" });
+			}
 			
 			//Create Dataset
 			var $uploadBtn = FormUtil.getButtonWithIcon("glyphicon-upload", function () {
 				mainController.changeView('showCreateDataSetPageFromPermId',_this._sampleFormModel.sample.permId);
 			});
-			toolbarModel.push({ component : $uploadBtn, tooltip: "Upload Dataset" });
-
+			if(toolbarConfig.UPLOAD_DATASET) {
+				toolbarModel.push({ component : $uploadBtn, tooltip: "Upload Dataset" });
+			}
+			
 			//Get dropbox folder name
 			var $uploadBtn = FormUtil.getButtonWithIcon("glyphicon-circle-arrow-up", (function () {
 				var nameElements = [
@@ -249,14 +270,20 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				];
 				FormUtil.showDropboxFolderNameDialog(nameElements);
 			}).bind(this));
-			toolbarModel.push({ component : $uploadBtn, tooltip: "Helper tool for Dataset upload using eln-lims dropbox" });
+			if(toolbarConfig.UPLOAD_DATASET_HELPER) {
+				toolbarModel.push({ component : $uploadBtn, tooltip: "Helper tool for Dataset upload using eln-lims dropbox" });
+			}
 			
 			//Export
 			var $exportAll = FormUtil.getExportButton([{ type: "SAMPLE", permId : _this._sampleFormModel.sample.permId, expand : true }], false);
-			toolbarModel.push({ component : $exportAll, tooltip: "Export Metadata & Data" });
-		
+			if(toolbarConfig.EXPORT_ALL) {
+				toolbarModel.push({ component : $exportAll, tooltip: "Export Metadata & Data" });
+			}
+			
 			var $exportOnlyMetadata = FormUtil.getExportButton([{ type: "SAMPLE", permId : _this._sampleFormModel.sample.permId, expand : true }], true);
-			toolbarModel.push({ component : $exportOnlyMetadata, tooltip: "Export Metadata only" });
+			if(toolbarConfig.EXPORT_METADATA) {
+				toolbarModel.push({ component : $exportOnlyMetadata, tooltip: "Export Metadata only" });
+			}
 			
 			//Jupyter Button
 			if(profile.jupyterIntegrationServerEndpoint) {
@@ -320,6 +347,11 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		if(this._sampleFormModel.mode === FormMode.CREATE) {
 			this._paintIdentificationInfo($formColumn, sampleType);
 		}
+		
+		// Plugin Hook
+		var $sampleFormTop = new $('<div>');
+		$formColumn.append($sampleFormTop);
+		profile.sampleFormTop($sampleFormTop, _this._sampleFormModel);
 		
 		//
 		// Form Defined Properties from General Section
@@ -412,7 +444,9 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		// GENERATE CHILDREN
 		//
-		if((this._sampleFormModel.mode !== FormMode.VIEW) && this._sampleFormModel.isELNSample) {
+		var childrenDisabled = sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension["SAMPLE_CHILDREN_DISABLED"];
+		
+		if((this._sampleFormModel.mode !== FormMode.VIEW) && this._sampleFormModel.isELNSample && !childrenDisabled) {
 			var $generateChildrenBtn = $("<a>", { 'class' : 'btn btn-default', 'style' : 'margin-top:15px;', 'id' : 'generate_children'}).text("Generate Children");
 			$generateChildrenBtn.click(function(event) {
 				_this._generateChildren();
@@ -468,6 +502,11 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		// Extra Content
 		//
 		$formColumn.append($("<div>", { 'id' : 'sample-form-content-extra' }));
+		
+		// Plugin Hook
+		var $sampleFormBottom = new $('<div>');
+		$formColumn.append($sampleFormBottom);
+		profile.sampleFormBottom($sampleFormBottom, _this._sampleFormModel);
 		
 		//
 		// Identification Info on View/Edit

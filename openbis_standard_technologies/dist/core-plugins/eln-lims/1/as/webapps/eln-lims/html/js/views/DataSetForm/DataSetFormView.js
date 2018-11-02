@@ -85,18 +85,24 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		//
 		var toolbarModel = [];
 		if(this._dataSetFormModel.mode === FormMode.VIEW && !this._dataSetFormModel.isMini) {
+			var toolbarConfig = profile.getDataSetTypeToolbarConfiguration(_this._dataSetFormModel.dataSet.dataSetTypeCode);
+		
 			//Edit Button
 			var $editBtn = FormUtil.getButtonWithIcon("glyphicon-edit", function () {
 				mainController.changeView('showEditDataSetPageFromPermId', _this._dataSetFormModel.dataSet.code);
 			});
-			toolbarModel.push({ component : $editBtn, tooltip: "Edit" });
-
+			if(toolbarConfig.EDIT) {
+				toolbarModel.push({ component : $editBtn, tooltip: "Edit" });
+			}
+			
 			//Move
 			var $moveBtn = FormUtil.getButtonWithIcon("glyphicon-move", function () {
 				var moveEntityController = new MoveEntityController("DATASET", _this._dataSetFormModel.dataSet.code);
 				moveEntityController.init();
 			});
-			toolbarModel.push({ component : $moveBtn, tooltip: "Move" });
+			if(toolbarConfig.MOVE) {
+				toolbarModel.push({ component : $moveBtn, tooltip: "Move" });
+			}
 			
 			//Archiving Requested Button
 			var physicalData = this._dataSetFormModel.dataSetV3.physicalData;
@@ -144,31 +150,41 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 					$archivingRequestedBtn.attr("disabled", true);
 				}
 
-				toolbarModel.push({
-					component : $archivingRequestedBtn,
-					tooltip : archiveTooltip,
-					$tooltip : $archiveTooltip
-				});
+				if(toolbarConfig.ARCHIVE) {
+					toolbarModel.push({
+						component : $archivingRequestedBtn,
+						tooltip : archiveTooltip,
+						$tooltip : $archiveTooltip
+					});
+				}
 			}
 			
 			//Delete Button
 			var $deleteBtn = FormUtil.getDeleteButton(function(reason) {
 				_this._dataSetFormController.deleteDataSet(reason);
 			}, true);
-			toolbarModel.push({ component : $deleteBtn, tooltip: "Delete" });
+			if(toolbarConfig.DELETE) {
+				toolbarModel.push({ component : $deleteBtn, tooltip: "Delete" });
+			}
 			
 			//Hierarchy Table
 			var $hierarchyTable = FormUtil.getButtonWithIcon("glyphicon-list", function () {
 				mainController.changeView('showDatasetHierarchyTablePage', _this._dataSetFormModel.dataSet.code);
 			});
-			toolbarModel.push({ component : $hierarchyTable, tooltip: "Hierarchy Table" });
+			if(toolbarConfig.HIERARCHY_TABLE) {
+				toolbarModel.push({ component : $hierarchyTable, tooltip: "Hierarchy Table" });
+			}
 			
 			//Export
 			var $exportAll = FormUtil.getExportButton([{ type: "DATASET", permId : _this._dataSetFormModel.dataSet.code, expand : true }], false);
-			toolbarModel.push({ component : $exportAll, tooltip: "Export Metadata & Data" });
-		
+			if(toolbarConfig.EXPORT_ALL) {
+				toolbarModel.push({ component : $exportAll, tooltip: "Export Metadata & Data" });
+			}
+			
 			var $exportOnlyMetadata = FormUtil.getExportButton([{ type: "DATASET", permId : _this._dataSetFormModel.dataSet.code, expand : true }], true);
-			toolbarModel.push({ component : $exportOnlyMetadata, tooltip: "Export Metadata only" });
+			if(toolbarConfig.EXPORT_METADATA) {
+				toolbarModel.push({ component : $exportOnlyMetadata, tooltip: "Export Metadata only" });
+			}
 			
 			//Jupyter Button
 			if(profile.jupyterIntegrationServerEndpoint) {
@@ -191,6 +207,13 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			var $header = views.header;
 			$header.append($title);
 			$header.append(FormUtil.getToolbar(toolbarModel));
+		}
+		
+		// Plugin Hook
+		if(!this._dataSetFormModel.isMini) {
+			var $datasetFormTop = new $('<div>');
+			$wrapper.append($datasetFormTop);
+			profile.dataSetFormTop($datasetFormTop, this._dataSetFormModel);
 		}
 		
 		//Drop Down DataSetType Field Set
@@ -233,7 +256,6 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		}
 		
 		// Parents
-		
 		var $dataSetParentsCodeLabel = $("<div>");
 		if(this._dataSetFormModel.mode === FormMode.VIEW) {
 			for(var i = 0; i < this._dataSetFormModel.dataSetV3.parents.length; i++) {
@@ -248,9 +270,13 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			}
 			
 		} else if(!this._dataSetFormModel.isMini) {
-			this._dataSetFormModel.datasetParentsComponent = new AdvancedEntitySearchDropdown(true, false, "Search parents to add", false, false, true, false);
-			this._dataSetFormModel.datasetParentsComponent.init($dataSetParentsCodeLabel);
-			this._dataSetFormModel.datasetParentsComponent.addSelectedDataSets(this._dataSetFormModel.dataSet.parentCodes);
+			var dataSetType = this._dataSetFormModel.dataSet.dataSetTypeCode;
+			var parentsEditingDisabled = profile.dataSetTypeDefinitionsExtension[dataSetType] && profile.dataSetTypeDefinitionsExtension[dataSetType]["DATASET_PARENTS_DISABLED"]
+			if(!parentsEditingDisabled) {
+				this._dataSetFormModel.datasetParentsComponent = new AdvancedEntitySearchDropdown(true, false, "Search parents to add", false, false, true, false);
+				this._dataSetFormModel.datasetParentsComponent.init($dataSetParentsCodeLabel);
+				this._dataSetFormModel.datasetParentsComponent.addSelectedDataSets(this._dataSetFormModel.dataSet.parentCodes);
+			}
 		}
 		
 		if((this._dataSetFormModel.mode === FormMode.VIEW && this._dataSetFormModel.dataSetV3.parents.length !== 0) 
@@ -356,6 +382,14 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		$wrapper.append($('<div>', { 'id' : 'APIUploader' } ));
 		
 		$wrapper.append($('<div>', { 'id' : 'fileOptionsContainer' } ));
+		
+		// Plugin Hook
+		if(!this._dataSetFormModel.isMini) {
+			var $datasetFormBottom = new $('<div>');
+			$wrapper.append($datasetFormBottom);
+			profile.dataSetFormBottom($datasetFormBottom, this._dataSetFormModel);
+		}
+		
 		
 		//Show Files
 		var filesViewer = $('<div>', { 'id' : 'filesViewer' } );

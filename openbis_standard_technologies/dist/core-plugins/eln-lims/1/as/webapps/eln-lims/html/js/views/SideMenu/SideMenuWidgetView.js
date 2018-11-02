@@ -120,6 +120,14 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         var $body = $("<div>", {"id": "sideMenuBody"});
         $body.css("overflow-y", "auto");
         
+        LayoutManager.addResizeEventHandler(function() {
+        		if(LayoutManager.FOUND_SIZE === LayoutManager.MOBILE_SIZE) {
+        			$body.css("-webkit-overflow-scrolling", "auto");
+        		} else {
+        			$body.css("-webkit-overflow-scrolling", "touch");
+        		}
+        });
+        
         $widget.append($header)
                .append($body);
 

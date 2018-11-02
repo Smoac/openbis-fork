@@ -1024,6 +1024,13 @@ function ServerFacade(openbisServer) {
 							childrenFetchOptions.withType();
 						}
 					}
+					if(advancedFetchOptions.withAncestors) {
+						var ancestorsFetchOptions = fetchOptions.withParents();
+						if(advancedFetchOptions.withAncestorsProperties) {
+							ancestorsFetchOptions.withProperties();
+						}
+						ancestorsFetchOptions.withParentsUsing(ancestorsFetchOptions);
+					}
 				}
 				
 				if(advancedFetchOptions && advancedFetchOptions.cache) {

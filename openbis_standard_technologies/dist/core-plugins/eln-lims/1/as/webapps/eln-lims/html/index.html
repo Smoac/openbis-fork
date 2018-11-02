@@ -42,6 +42,7 @@
 	
 	<!-- ELN UI Stylesheets -->
 	<link type="text/css" rel="stylesheet" href="./css/style.css" />
+	<link type="text/css" rel="stylesheet" href="/openbis/resources/components/imageviewer/css/image-viewer.css" />
 	
 	<!-- Third party libraries -->
 	<script type="text/javascript" src="./lib/cycle/js/cycle.js"></script>
@@ -260,6 +261,10 @@
 	<script type="text/javascript" src="./js/views/ExperimentTable/ExperimentTableView.js"></script>
 	
 	<script type="text/javascript" src="./etc/config.js"></script>
+	
+	<script type="text/javascript" src="./js/plugins/ELNLIMSPlugin.js"></script>
+	<script type="text/javascript" src="./js/plugins/MicroscopyTechnology.js"></script>
+	
 	<script type="text/javascript">
 	
 	//
@@ -350,8 +355,8 @@
 </head>
 <body class="bodyLogin">
 	<div id="login-form-div" class="loginForm">
-			<img class="loginLogo" src="./img/openBIS_Logo.png" alt="openBIS" />
-			<h1>Lab Notebook & Inventory Manager</h1>
+			<img id="mainLogo" class="loginLogo" src="" alt="openBIS" />
+			<h1 id="mainLogoTitle"></h1>
 			
 			<form id="login-form" action="javascript:">
 				<fieldset>
