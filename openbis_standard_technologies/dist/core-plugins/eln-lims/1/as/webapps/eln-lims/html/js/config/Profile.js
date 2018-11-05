@@ -330,6 +330,10 @@ $.extend(DefaultProfile.prototype, {
 		
 		this.copyPastePlainText = false;
 		this.hideCodes = true;
+		this.systemTypes = {
+				"sampleTypeCodes" : ["GENERAL_ELN_SETTINGS", "STORAGE_POSITION", "STORAGE"],
+				"experimentTypeCodes" : []
+		}
 		this.hideTypes = {
 				"sampleTypeCodes" : ["GENERAL_ELN_SETTINGS", "STORAGE_POSITION", "STORAGE"],
 				"experimentTypeCodes" : []
@@ -361,7 +365,7 @@ $.extend(DefaultProfile.prototype, {
 						sampleTypeCode = sampleParent.sampleTypeCode;
 					}
 					
-					if($.inArray(sampleTypeCode, this.hideTypes["sampleTypeCodes"]) !== -1) {
+					if($.inArray(sampleTypeCode, this.systemTypes["sampleTypeCodes"]) !== -1) {
 						sample.parents.splice(i, 1);
 						i--;
 					} else {
@@ -380,7 +384,7 @@ $.extend(DefaultProfile.prototype, {
 						sampleTypeCode = sampleChild.sampleTypeCode;
 					}
 					
-					if($.inArray(sampleTypeCode, this.hideTypes["sampleTypeCodes"]) !== -1) {
+					if($.inArray(sampleTypeCode, this.systemTypes["sampleTypeCodes"]) !== -1) {
 						sample.children.splice(i, 1);
 						i--;
 					} else {
