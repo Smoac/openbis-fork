@@ -32,20 +32,14 @@ function DefaultProfile(serverFacade) {
 
 $.extend(DefaultProfile.prototype, {
 	init: function(serverFacade) {
+		//
+		// Updating title and logo
+		//
 		this.mainLogo = "./img/openBIS_Logo.png";
 		this.mainLogoTitle = "Lab Notebook & Inventory Manager";
 		
 		//this.mainLogo = "./img/cross_Logo_alt.png";
 		//this.mainLogoTitle = "ETH RDH";
-		
-		//
-		// Updating title and logo
-		//
-		$("#mainLogo").attr("src", this.mainLogo);
-		$("#mainLogoTitle").append(this.mainLogoTitle);
-		if(this.mainLogoTitle.length < 10) {
-			$("#mainLogoTitle").css("font-weight", "bold");
-		}
 		
 		this.serverFacade = serverFacade;
 		//

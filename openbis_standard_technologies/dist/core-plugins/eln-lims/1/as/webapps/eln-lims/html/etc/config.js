@@ -12,6 +12,19 @@ var loadJSResorce = function(pathToResource, onLoad) {
                 head.appendChild(script);
 }
 
+var onLoadInstanceProfileResorceFunc = function() {
+	profile = new InstanceProfile();
+	//
+	// Updating title and logo
+	//
+	$("#mainLogo").attr("src", profile.mainLogo);
+	$("#mainLogoTitle").append(profile.mainLogoTitle);
+	if(this.mainLogoTitle.length < 10) {
+		$("#mainLogoTitle").css("font-weight", "bold");
+	}
+	$("login-form-div").attr("visibility", "visible");
+}
+
 //<PROFILE_PLACEHOLDER>
-loadJSResorce("./etc/InstanceProfile.js", function() { profile = new InstanceProfile(); });
+loadJSResorce("./etc/InstanceProfile.js", onLoadInstanceProfileResorceFunc);
 //</PROFILE_PLACEHOLDER>
