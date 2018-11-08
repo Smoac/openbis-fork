@@ -5,11 +5,11 @@ apply from: '../gradle/javaproject.gradle'
 
 dependencies {
 	compile project(':common'),
-			'fasterxml:jackson-core:+',
-			'fasterxml:jackson-annotations:+'
+			'fasterxml:jackson-core:2.0.2',
+			'fasterxml:jackson-annotations:2.0.2'
 			
 	testCompile project(path: ':common', configuration: 'tests'),
-			'fjelmer:classycle:+',
-			'reflections:reflections:+'
+			'fjelmer:classycle:1.4.2',
+			'reflections:reflections:0.9.5'
 			
 } 

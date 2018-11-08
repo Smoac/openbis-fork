@@ -68,21 +68,21 @@ task queryApiJavaDocZip(type: Zip, dependsOn: queryApiJavaDoc) {
 
 configurations.create('queryApiDependencies')
 dependencies {
-	queryApiDependencies 'sis:sis-base:+',
-                        'apache:httpclient:+',
-                        'apache:httpcore:+',
-                        'apache:log4j:+',
-                        'springframework:spring-aop:+',
-                        'springframework:spring-beans:+',
-                        'springframework:spring-context:+',
-                        'springframework:spring-core:+',
-                        'springframework:spring-web:+',
-                        'springframework:spring-webmvc:+',
-                        'springframework:spring-expression:+',
-                        'apache:commons-logging:+',
-                        'apache:commons-lang:+',
-                        'marathon:marathon-spring-util:+',
-                        'aopalliance:aopalliance:+'
+	queryApiDependencies 'sis:sis-base:18.09.0',
+                        'apache:httpclient:4.3.6',
+                        'apache:httpcore:4.3.3',
+                        'apache:log4j:1.2.15',
+                        'springframework:spring-aop:4.1.4.RELEASE',
+                        'springframework:spring-beans:4.1.4.RELEASE',
+                        'springframework:spring-context:4.1.4.RELEASE',
+                        'springframework:spring-core:4.1.4.RELEASE',
+                        'springframework:spring-web:4.1.4.RELEASE',
+                        'springframework:spring-webmvc:4.1.4.RELEASE',
+                        'springframework:spring-expression:4.1.4.RELEASE',
+                        'apache:commons-logging:1.2',
+                        'apache:commons-lang:2.4',
+                        'marathon:marathon-spring-util:1.2.5',
+                        'aopalliance:aopalliance:1.0'
 }
 
 task queryApiZip(type: Zip, dependsOn: [queryApiJar, queryApiSources, queryApiJavaDocZip]) {
@@ -122,11 +122,11 @@ task apiV3Jar(type: Jar) {
 
 configurations.create('apiV3Dependencies')
 dependencies {
-  apiV3Dependencies 'sis:sis-base:+',
-                    'apache:httpclient:+',
-                    'apache:commons-lang:+',
-                    'springframework:spring-web:+',
-                    'marathon:marathon-spring-util:+'
+  apiV3Dependencies 'sis:sis-base:18.09.0',
+                    'apache:httpclient:4.3.6',
+                    'apache:commons-lang:2.4',
+                    'springframework:spring-web:4.1.4.RELEASE',
+                    'marathon:marathon-spring-util:1.2.5'
 }
 
 apply plugin: 'ivy-publish'
