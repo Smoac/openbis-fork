@@ -1,19 +1,19 @@
 apply from: '../gradle/javaproject.gradle'
 
 dependencies {
-    compile 'apache:commons-io:+',
-            'apache:commons-lang:+',
-			'apache:log4j:+',
-            'sis:sis-base:+',
-	        'rinn:restrictions:+'
+    compile 'apache:commons-io:2.6',
+            'apache:commons-lang:2.4',
+			'apache:log4j:1.2.15',
+            'sis:sis-base:18.09.0',
+	        'rinn:restrictions:1.0.2'
 
-	testCompile 'fjelmer:classycle:+',
-				'hamcrest:hamcrest-integration:+',
-				'hamcrest:hamcrest-library:+',
-				'testng:testng:+'
+	testCompile 'fjelmer:classycle:1.4.2',
+				'hamcrest:hamcrest-integration:1.3',
+				'hamcrest:hamcrest-library:1.3',
+				'testng:testng:6.8-CISD'
 
 	// our jmock version uses hamcrest 1.1 but we use 1.3
-	testCompile ('jmock:jmock:+') {
+	testCompile ('jmock:jmock:2.5.1') {
 		exclude group: 'hamcrest', module: 'hamcrest-core'
         exclude group: 'hamcrest', module: 'hamcrest-library'
 	}

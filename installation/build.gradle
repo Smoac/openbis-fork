@@ -25,8 +25,8 @@ buildscript {
     repositories repositoryConfig
     
     dependencies {
-        classpath 'izpack:izpack:+', 
-            'apache:commons-io:+',
+        classpath 'izpack:izpack:5.0-beta9-SNAPSHOT', 
+            'apache:commons-io:2.6',
             'apache:commons-lang:+'
     }
 }
@@ -34,14 +34,14 @@ buildscript {
 dependencies {
     compile project(':common')
     
-    compile 'izpack:izpack:+'
+    compile 'izpack:izpack:5.0-beta9-SNAPSHOT'
     
     testCompile project(path: ':common', configuration: 'tests')
     
-    archives 'apache:commons-io:+',
-            'apache:log4j:+',
-            'sis:sis-base:+',
-            'postgresql:postgresql:+'
+    archives 'apache:commons-io:2.6',
+            'apache:log4j:1.2.15',
+            'sis:sis-base:18.09.0',
+            'postgresql:postgresql:42.1.4.jre7'
             
 }
 
