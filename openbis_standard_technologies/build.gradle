@@ -58,7 +58,7 @@ configurations.create('datastore_server')
 configurations.create('javadoc_sources')
 configurations.create('javadoc_compilation')
 
-def jettyVersion = '9.4.9'
+def jettyVersion = '9.4.14'
 
 dependencies {
 	compile project(':screening'),
@@ -66,13 +66,13 @@ dependencies {
 	
 	providedCompile 'google:gwt-user:2.4'
 					
-	providedRuntime "eclipse:jetty-deploy:${jettyVersion}.v20180320@jar",
-                    "eclipse:jetty-xml:${jettyVersion}.v20180320@jar",
-                    "eclipse:jetty-webapp:${jettyVersion}.v20180320@jar",
-                    "eclipse:jetty-servlet:${jettyVersion}.v20180320@jar",
-                    "eclipse:jetty-security:${jettyVersion}.v20180320@jar",
-                    "eclipse:jetty-server:${jettyVersion}.v20180320@jar",
-                    "eclipse:jetty-continuation:${jettyVersion}.v20180320@jar"
+	providedRuntime "eclipse:jetty-deploy:${jettyVersion}.v20181114@jar",
+                    "eclipse:jetty-xml:${jettyVersion}.v20181114@jar",
+                    "eclipse:jetty-webapp:${jettyVersion}.v20181114@jar",
+                    "eclipse:jetty-servlet:${jettyVersion}.v20181114@jar",
+                    "eclipse:jetty-security:${jettyVersion}.v20181114@jar",
+                    "eclipse:jetty-server:${jettyVersion}.v20181114@jar",
+                    "eclipse:jetty-continuation:${jettyVersion}.v20181114@jar"
 		
 	gwt 'reveregroup:gwt-image-loader:1.1.4',
                 'google:gwt-dev:2.4'

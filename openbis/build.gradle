@@ -20,7 +20,7 @@ dependencies {
             'lucene:lucene-queryparser:4.10.3',
             'lucene:lucene-analyzers-common:4.10.3',
 			'hibernate:hibernate-search-orm:5.0.1.Final',
-			'eclipse:jetty-deploy:9.4.9.v20180320',
+			'eclipse:jetty-deploy:9.4.14.v20181114',
 			'google:gwt-debug-panel:1.0',
 			'javax:servlet-api:3.1.0',
 			'google:gwt-user:2.4',

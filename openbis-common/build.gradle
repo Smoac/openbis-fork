@@ -16,5 +16,5 @@ dependencies {
 		'truezip:truezip:6.8.1'
 		
 	testCompile project(path: ':common', configuration: 'tests'),
-				'eclipse:jetty-servlet:9.4.9.v20180320'
+				'eclipse:jetty-servlet:9.4.14.v20181114'
 }
