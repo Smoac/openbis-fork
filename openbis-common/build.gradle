@@ -7,14 +7,14 @@ apply from: '../gradle/javaproject.gradle'
 dependencies {
 	compile project(':common'),
 		project(':dbmigration'),
-		'googlecode:jsonrpc4j:+',
-		'reflections:reflections:+',
-		'sis:sis-jhdf5:+',
-		'lemnik:eodsql:+',
-		'springframework:spring-jdbc:+',
-		'apache:commons-collections4:+',
-		'truezip:truezip:+'
+		'googlecode:jsonrpc4j:1.5.3',
+		'reflections:reflections:0.9.5',
+		'sis:sis-jhdf5:14.12.5',
+		'lemnik:eodsql:2.2-CISD',
+		'springframework:spring-jdbc:5.0.1.RELEASE',
+		'apache:commons-collections4:4.1',
+		'truezip:truezip:6.8.1'
 		
 	testCompile project(path: ':common', configuration: 'tests'),
-				'eclipse:jetty-servlet:9.4+'
+				'eclipse:jetty-servlet:9.4.14.v20181114'
 }
