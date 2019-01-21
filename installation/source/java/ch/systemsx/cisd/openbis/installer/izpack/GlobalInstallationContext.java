@@ -52,6 +52,8 @@ public class GlobalInstallationContext
 
     public static final String TECHNOLOGY_ELN_LIMS = "ELN-LIMS";
 
+    public static final String TECHNOLOGY_ELN_LIMS_LIFE_SCIENCES = "ELN-LIMS-LIFE-SCIENCES";
+
     public static final String TECHNOLOGY_MICROSCOPY = "MICROSCOPY";
 
     public static final String TECHNOLOGY_FLOW_CYTOMETRY = "FLOW";
@@ -60,7 +62,7 @@ public class GlobalInstallationContext
 
     public static final String[] TECHNOLOGIES =
             { TECHNOLOGY_PROTEOMICS, TECHNOLOGY_SCREENING, TECHNOLOGY_ILLUMINA_NGS, TECHNOLOGY_ELN_LIMS, TECHNOLOGY_MICROSCOPY,
-                    TECHNOLOGY_FLOW_CYTOMETRY };
+                    TECHNOLOGY_FLOW_CYTOMETRY, TECHNOLOGY_ELN_LIMS_LIFE_SCIENCES };
 
     /**
      * set to true if the installation process is trying to update an existing openBIS installation.

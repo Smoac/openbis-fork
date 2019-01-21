@@ -93,7 +93,7 @@ public class SetEnableTechnologiesVariableActionTest extends AbstractFileSystemT
         variables.setProperty(TECHNOLOGY_SCREENING, "true");
 
         updateEnabledTechnologyProperties(variables, false);
-        assertEquals("[, enabled-modules = monitoring-support, dropbox-monitor, dataset-uploader, dataset-file-search, screening]",
+        assertEquals("[, enabled-modules = monitoring-support, dropbox-monitor, dataset-uploader, dataset-file-search, xls-import, screening]",
                 FileUtilities.loadToStringList(corePluginsProperties).toString());
     }
 
@@ -101,7 +101,7 @@ public class SetEnableTechnologiesVariableActionTest extends AbstractFileSystemT
     public void testUpdateInstallationWithOtherEnabledTechnologiesInAs()
     {
         FileUtilities.writeToFile(corePluginsProperties, "abc = 123\n" + ENABLED_TECHNOLOGIES_KEY
-                + "=monitoring-support, dropbox-monitor, dataset-uploader, dataset-file-search, proteomics, my-tech");
+                + "=monitoring-support, dropbox-monitor, dataset-uploader, dataset-file-search, xls-import, proteomics, my-tech");
         Properties variables = new Properties();
         variables.setProperty(TECHNOLOGY_PROTEOMICS, "true");
         variables.setProperty(TECHNOLOGY_SCREENING, "false");
@@ -109,7 +109,7 @@ public class SetEnableTechnologiesVariableActionTest extends AbstractFileSystemT
         updateEnabledTechnologyProperties(variables, false);
 
         assertEquals("[abc = 123, " + ENABLED_TECHNOLOGIES_KEY + "=monitoring-support, dropbox-monitor, dataset-uploader, "
-                + "dataset-file-search, proteomics, my-tech]",
+                + "dataset-file-search, xls-import, proteomics, my-tech]",
                 FileUtilities.loadToStringList(corePluginsProperties).toString());
     }
 
@@ -117,7 +117,7 @@ public class SetEnableTechnologiesVariableActionTest extends AbstractFileSystemT
     public void testUpdateUnchangedProperty()
     {
         FileUtilities.writeToFile(corePluginsProperties, "abc = 123\n" + ENABLED_TECHNOLOGIES_KEY
-                + "=monitoring-support, dropbox-monitor, dataset-uploader, dataset-file-search, proteomics");
+                + "=monitoring-support, dropbox-monitor, dataset-uploader, dataset-file-search, xls-import, proteomics");
         Properties variables = new Properties();
         variables.setProperty(TECHNOLOGY_PROTEOMICS, "true");
         variables.setProperty(TECHNOLOGY_SCREENING, "false");
@@ -125,8 +125,9 @@ public class SetEnableTechnologiesVariableActionTest extends AbstractFileSystemT
         updateEnabledTechnologyProperties(variables, false);
 
         assertEquals("[abc = 123, " + ENABLED_TECHNOLOGIES_KEY + "=monitoring-support, dropbox-monitor, dataset-uploader, "
-                + "dataset-file-search, proteomics]", FileUtilities
-                .loadToStringList(corePluginsProperties).toString());
+                + "dataset-file-search, xls-import, proteomics]",
+                FileUtilities
+                        .loadToStringList(corePluginsProperties).toString());
     }
 
     @Test
@@ -141,7 +142,7 @@ public class SetEnableTechnologiesVariableActionTest extends AbstractFileSystemT
         updateEnabledTechnologyProperties(variables, false);
 
         assertEquals("[abc = 123, " + ENABLED_TECHNOLOGIES_KEY + " = monitoring-support, dropbox-monitor, dataset-uploader, "
-                + "dataset-file-search, proteomics, screening, answer = 42]",
+                + "dataset-file-search, xls-import, proteomics, screening, answer = 42]",
                 FileUtilities
                         .loadToStringList(corePluginsProperties).toString());
     }
@@ -157,8 +158,9 @@ public class SetEnableTechnologiesVariableActionTest extends AbstractFileSystemT
         updateEnabledTechnologyProperties(variables, false);
 
         assertEquals("[abc = 123, " + ENABLED_TECHNOLOGIES_KEY + " = monitoring-support, dropbox-monitor, dataset-uploader, "
-                + "dataset-file-search, screening]", FileUtilities
-                .loadToStringList(corePluginsProperties).toString());
+                + "dataset-file-search, xls-import, screening]",
+                FileUtilities
+                        .loadToStringList(corePluginsProperties).toString());
     }
 
     @Test
@@ -173,7 +175,7 @@ public class SetEnableTechnologiesVariableActionTest extends AbstractFileSystemT
         updateEnabledTechnologyProperties(variables, false);
 
         assertEquals("[a = b, " + ENABLED_TECHNOLOGIES_KEY + " = monitoring-support, dropbox-monitor, dataset-uploader, "
-                + "dataset-file-search, screening, gamma = alpha]", 
+                + "dataset-file-search, xls-import, screening, gamma = alpha]",
                 FileUtilities.loadToStringList(corePluginsProperties).toString());
     }
 
