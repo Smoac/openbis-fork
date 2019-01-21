@@ -88,8 +88,6 @@ public class GlobalInstallationContext
 
     public static File installDir;
 
-    public static boolean isElnMasterDataNotInstalled = false;
-
     public static void initialize(AutomatedInstallData data)
     {
         String installPath = data.getInstallPath();
@@ -123,14 +121,6 @@ public class GlobalInstallationContext
         {
             populateFirstTimeInstallVariables(data);
         }
-
-        isElnMasterDataNotInstalled = (isFirstTimeInstallation == true) ||
-                ((new File(installDir, "servers/core-plugins/eln-lims/1/as/initialize-master-data.py").exists() == false) &&
-                        (new File(installDir, "servers/core-plugins/eln-lims/1/as/initializemasterdataminimum.py").exists() == false))
-                ||
-                ((new File(installDir, "servers/core-plugins/eln-lims/1/as/.eln-master-data-installed").exists() == false) &&
-                        (new File(installDir, "servers/core-plugins/eln-lims/1/as/initializemasterdataminimum.py").exists() == true));
-
     }
 
     private static boolean installationExists()

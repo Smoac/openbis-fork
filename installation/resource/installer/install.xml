@@ -47,8 +47,6 @@
       <variable name="INSTALL_OPENBIS_TMPEXTRACT" value="$INSTALL_TMPEXTRACT/openBIS-server" />
       <!--  temporary extract folder the "data" contents -->
       <variable name="DATA_TMPEXTRACT" value="$INSTALL_PATH/data-tmp-extract" />
-      <variable name="ELN_MASTER_DATA_PANEL" value="true" condition="isInstallELN+isElnMasterDataNotInstalled" />
-      <variable name="ELN_MASTER_DATA_PANEL" value="false" condition="!isInstallELN|!isElnMasterDataNotInstalled" />
   </dynamicvariables>
 
   <conditions>
@@ -94,21 +92,6 @@
       </java>
       <returnvalue type="boolean">true</returnvalue>
     </condition>
-    <condition type="variable" id="isInstallELN">
-      <name>ELN-LIMS</name>
-      <value>true</value>
-   </condition>
-    <condition type="java" id="isElnMasterDataNotInstalled">
-     <java>
-       <class>ch.systemsx.cisd.openbis.installer.izpack.GlobalInstallationContext</class>
-       <field>isElnMasterDataNotInstalled</field>
-     </java>
-     <returnvalue type="boolean">true</returnvalue>
-    </condition>
-   <condition type="variable" id="shouldShowElnMasterDataPanel">
-        <name>ELN_MASTER_DATA_PANEL</name>
-        <value>true</value>
-    </condition>
   </conditions>
 
   <!-- The panels section. We indicate here which panels we want to use. The order will be respected. -->
@@ -149,9 +132,6 @@
       </actions>
     </panel>
 
-    <panel classname="com.izforge.izpack.panels.userinput.UserInputPanel" id="UserInputPanel.ELN_MASTER_DATA" condition="shouldShowElnMasterDataPanel">
-    </panel>
-
     <panel classname="com.izforge.izpack.panels.userinput.UserInputPanel" id="UserInputPanel.MISC" condition="isFirstTimeInstallation">
       <actions>
         <action stage="postvalidate" classname="ch.systemsx.cisd.openbis.installer.izpack.SetHostnameVariableAction" />
@@ -177,7 +157,6 @@
       <actions>
         <action stage="postvalidate" classname="ch.systemsx.cisd.openbis.installer.izpack.ExecuteSetupScriptsAction" />
         <action stage="postvalidate" classname="ch.systemsx.cisd.openbis.installer.izpack.OpenGettingStartedPageAction" />
-        <action stage="postvalidate" classname="ch.systemsx.cisd.openbis.installer.izpack.ELNMasterDataAction" />
       </actions>
     </panel>
     

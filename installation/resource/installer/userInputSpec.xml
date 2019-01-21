@@ -73,18 +73,6 @@
     </field>
   </panel>
   
-  <panel id="UserInputPanel.ELN_MASTER_DATA">
-    <field type="title" txt="ELN/LIMS master data" bold="true" size="2" />
-
-    <field type="radio" variable="ELN-LIMS-MASTER-DATA">
-      <description align="left" txt="Install ELN/LIMS default entity types (PLASMID, YEAST, FLY, etc.)?" />
-      <spec>
-          <choice txt="Yes" value="true" set="true"/>
-          <choice txt="No" value="false"/>
-      </spec>
-    </field>
-  </panel>
-  
   <panel id="UserInputPanel.MISC">
     <field type="title" txt="Misc" bold="true" size="2" />
     <field type="password" align="left" variable="ADMIN_PASSWORD">
