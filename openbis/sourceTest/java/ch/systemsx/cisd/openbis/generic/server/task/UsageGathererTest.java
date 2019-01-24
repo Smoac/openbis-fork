@@ -254,6 +254,7 @@ public class UsageGathererTest
         DataSet dataSet = new DataSet();
         dataSet.setFetchOptions(dataSetFetchOption());
         dataSet.setExperiment(experiment);
+        dataSet.setRegistrator(experiment.getRegistrator());
         return dataSet;
     }
 
@@ -262,6 +263,7 @@ public class UsageGathererTest
         DataSet dataSet = new DataSet();
         dataSet.setFetchOptions(dataSetFetchOption());
         dataSet.setSample(sample);
+        dataSet.setRegistrator(sample.getRegistrator());
         return dataSet;
     }
 
@@ -345,10 +347,8 @@ public class UsageGathererTest
         fetchOptions.withRegistrator();
         SampleFetchOptions sampleFetchOptions = fetchOptions.withSample();
         sampleFetchOptions.withSpace();
-        sampleFetchOptions.withRegistrator();
         ExperimentFetchOptions experimentFetchOptions = fetchOptions.withExperiment();
         experimentFetchOptions.withProject().withSpace();
-        experimentFetchOptions.withRegistrator();
         return fetchOptions;
     }
 
