@@ -63,21 +63,21 @@ task proteomicsApiJavaDocZip(type: Zip, dependsOn: proteomicsApiJavaDoc) {
 
 configurations.create('proteomicsApiDependencies')
 dependencies {
-	proteomicsApiDependencies 'sis:sis-base:+',
-                            'apache:commons-lang:+',
-                            'apache:httpclient:+',
-                            'apache:httpcore:+',
-                            'apache:log4j:+',
-                            'springframework:spring-aop:+',
-                            'springframework:spring-beans:+',
-                            'springframework:spring-context:+',
-                            'springframework:spring-core:+',
-                            'springframework:spring-web:+',
-                            'springframework:spring-webmvc:+',
-                            'springframework:spring-expression:+',
-                            'apache:commons-logging:+',								
-                            'marathon:marathon-spring-util:+',
-                            'aopalliance:aopalliance:+'
+	proteomicsApiDependencies 'sis:sis-base:18.09.0',
+                            'apache:commons-lang:2.4',
+                            'apache:httpclient:4.3.6',
+                            'apache:httpcore:4.3.3',
+                            'apache:log4j:1.2.15',
+                            'springframework:spring-aop:5.0.1.RELEASE',
+                            'springframework:spring-beans:5.0.1.RELEASE',
+                            'springframework:spring-context:5.0.1.RELEASE',
+                            'springframework:spring-core:5.0.1.RELEASE',
+                            'springframework:spring-web:5.0.1.RELEASE',
+                            'springframework:spring-webmvc:5.0.1.RELEASE',
+                            'springframework:spring-expression:5.0.1.RELEASE',
+                            'apache:commons-logging:1.2',								
+                            'marathon:marathon-spring-util:1.2.5',
+                            'aopalliance:aopalliance:1.0'
 }
 
 task proteomicsApiZip(type: Zip) {
