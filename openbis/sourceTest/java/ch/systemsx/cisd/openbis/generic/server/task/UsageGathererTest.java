@@ -22,9 +22,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -84,6 +86,8 @@ public class UsageGathererTest
 
     private UsageGatherer usageGatherer;
 
+    private Set<String> spacesToBeIgnored;
+
     @BeforeMethod
     public void setUp()
     {
@@ -119,7 +123,8 @@ public class UsageGathererTest
                     will(returnValue(map));
                 }
             });
-        usageGatherer = new UsageGatherer(service);
+        spacesToBeIgnored = new HashSet<>();
+        usageGatherer = new UsageGatherer(service, spacesToBeIgnored);
     }
 
     @Test
@@ -148,6 +153,30 @@ public class UsageGathererTest
     }
 
     @Test
+    public void testWithGroupsIgnoringSpaceDefault()
+    {
+        // Given
+        spacesToBeIgnored.add("DEFAULT");
+        prepareSearchExperiments(experiment(USER_IN_A, space("A_STORAGE")), experiment(USER1, space("DEFAULT")),
+                experiment(USER1, space("DEFAULT")));
+        prepareSearchSamples(sample(USER_IN_A_AND_B, space("B_METHODS")), sample(USER_IN_A, space("B")), sample(USER2, space("A")));
+        prepareSearchDataSets(dataSet(sample(USER1, space("BETA"))), dataSet(experiment(INACTIVE_USER, space("DEFAULT"))));
+
+        // When
+        UsageAndGroupsInfo info = usageGatherer.gatherUsageAndGroups(PERIOD, Arrays.asList("A", "B"));
+
+        // Then
+        String renderedMap = renderUsageInfo(info.getUsageByUsersAndSpaces());
+        assertEquals(renderedMap, "user1 is active in space BETA, 1 new data sets\n"
+                + "user2 is active in space A, 1 new samples\n"
+                + "user_in_a is active in space A_STORAGE, 1 new experiments\n"
+                + "user_in_a is active in space B, 1 new samples\n"
+                + "user_in_a_and_b is active in space B_METHODS, 1 new samples\n");
+        assertEquals(info.getUsersByGroups().toString(), "{A=[user_in_a, user_in_a_and_b], B=[user_in_a_and_b, user_in_b]}");
+        context.assertIsSatisfied();
+    }
+
+    @Test
     public void testWithoutGroups()
     {
         // Given
@@ -163,6 +192,30 @@ public class UsageGathererTest
         assertEquals(renderedMap, "user1 is active in space BETA, 1 new data sets\n"
                 + "user1 is active in space DEFAULT, 1 new experiments\n"
                 + "user2 is active in space A, 1 new samples\n"
+                + "user_in_a is active in space A_STORAGE, 1 new experiments\n"
+                + "user_in_a is active in space B, 1 new samples\n"
+                + "user_in_a_and_b is active in space B_METHODS, 1 new samples\n"
+                + "user_inactive is active in space DEFAULT, 1 new data sets\n");
+        assertEquals(info.getUsersByGroups().toString(), "{}");
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testWithoutGroupsIgnoringSpaceA()
+    {
+        // Given
+        spacesToBeIgnored.add("A");
+        prepareSearchExperiments(experiment(USER_IN_A, space("A_STORAGE")), experiment(USER1, space("DEFAULT")));
+        prepareSearchSamples(sample(USER_IN_A_AND_B, space("B_METHODS")), sample(USER_IN_A, space("B")), sample(USER2, space("A")));
+        prepareSearchDataSets(dataSet(sample(USER1, space("BETA"))), dataSet(experiment(INACTIVE_USER, space("DEFAULT"))));
+
+        // When
+        UsageAndGroupsInfo info = usageGatherer.gatherUsageAndGroups(PERIOD, null);
+
+        // Then
+        String renderedMap = renderUsageInfo(info.getUsageByUsersAndSpaces());
+        assertEquals(renderedMap, "user1 is active in space BETA, 1 new data sets\n"
+                + "user1 is active in space DEFAULT, 1 new experiments\n"
                 + "user_in_a is active in space A_STORAGE, 1 new experiments\n"
                 + "user_in_a is active in space B, 1 new samples\n"
                 + "user_in_a_and_b is active in space B_METHODS, 1 new samples\n"

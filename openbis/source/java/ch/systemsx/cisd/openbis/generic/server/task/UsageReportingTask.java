@@ -104,6 +104,8 @@ public class UsageReportingTask extends AbstractMaintenanceTask
 
     private boolean countAllEntities;
 
+    private Set<String> spacesToBeIgnored;
+
     public UsageReportingTask()
     {
         super(false);
@@ -115,6 +117,7 @@ public class UsageReportingTask extends AbstractMaintenanceTask
         long interval = DateTimeUtils.getDurationInMillis(properties, MaintenanceTaskParameters.INTERVAL_KEY, DateUtils.MILLIS_PER_DAY);
         periodType = PeriodType.getBestType(interval);
         eMailAddresses = PluginUtils.getEMailAddresses(properties, ",");
+        spacesToBeIgnored = new HashSet<>(PropertyUtils.getList(properties, "spaces-to-be-ignored"));
         userReportingType = UserReportingType.valueOf(properties.getProperty(USER_REPORTING_KEY, UserReportingType.ALL.name()));
         countAllEntities = PropertyUtils.getBoolean(properties, COUNT_ALL_ENTITIES_KEY, false);
     }
@@ -147,7 +150,8 @@ public class UsageReportingTask extends AbstractMaintenanceTask
 
     protected UsageAndGroupsInfo gatherUsageAndGroups(List<String> groups, Period period)
     {
-        return new UsageGatherer(CommonServiceProvider.getApplicationServerApi()).gatherUsageAndGroups(period, groups);
+        UsageGatherer gatherer = new UsageGatherer(CommonServiceProvider.getApplicationServerApi(), spacesToBeIgnored);
+        return gatherer.gatherUsageAndGroups(period, groups);
     }
 
     protected IMailClient getMailClient()

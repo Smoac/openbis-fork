@@ -53,9 +53,12 @@ public class UsageGatherer
 
     private IApplicationServerInternalApi service;
 
-    public UsageGatherer(IApplicationServerInternalApi service)
+    private Set<String> spacesToBeIgnored;
+
+    public UsageGatherer(IApplicationServerInternalApi service, Set<String> spacesToBeIgnored)
     {
         this.service = service;
+        this.spacesToBeIgnored = spacesToBeIgnored;
     }
 
     public UsageAndGroupsInfo gatherUsageAndGroups(Period period, List<String> groupsOrNull)
@@ -170,13 +173,16 @@ public class UsageGatherer
             if (usageBySpaces != null)
             {
                 String space = spaceExtractor.apply(entity);
-                UsageInfo usageInfo = usageBySpaces.get(space);
-                if (usageInfo == null)
+                if (spacesToBeIgnored.contains(space) == false)
                 {
-                    usageInfo = new UsageInfo();
-                    usageBySpaces.put(space, usageInfo);
+                    UsageInfo usageInfo = usageBySpaces.get(space);
+                    if (usageInfo == null)
+                    {
+                        usageInfo = new UsageInfo();
+                        usageBySpaces.put(space, usageInfo);
+                    }
+                    consumer.accept(usageInfo);
                 }
-                consumer.accept(usageInfo);
             }
         }
     }
