@@ -31,6 +31,7 @@ import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 import org.springframework.dao.DataAccessException;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.util.EodSqlUtils;
@@ -116,6 +117,7 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
             {
                 transaction.rollback();
             }
+            throw CheckedExceptionTunnel.wrapIfNecessary(e);
         } finally
         {
             EodSqlUtils.clearManagedConnection();
