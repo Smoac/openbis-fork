@@ -127,6 +127,58 @@ public class SearchExperimentTest extends AbstractExperimentTest
     }
 
     @Test
+    public void testSearchWithIdentifierThatEquals()
+    {
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withIdentifier().thatEquals("/CISD/NEMO/EXP1");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP1");
+
+        ExperimentSearchCriteria criteria2 = new ExperimentSearchCriteria();
+        criteria2.withIdentifier().thatEquals("/CISD/NEMO/EXP1*");
+        testSearch(TEST_USER, criteria2, "/CISD/NEMO/EXP1", "/CISD/NEMO/EXP10", "/CISD/NEMO/EXP11");
+
+        ExperimentSearchCriteria criteria3 = new ExperimentSearchCriteria();
+        criteria3.withIdentifier().thatEquals("/CISD/*/EXP-TEST-2");
+        testSearch(TEST_USER, criteria3, "/CISD/NEMO/EXP-TEST-2", "/CISD/NOE/EXP-TEST-2");
+    }
+
+    @Test
+    public void testSearchWithIdentifierThatStartsWith()
+    {
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withIdentifier().thatStartsWith("/TEST-SPACE/TEST-PROJ");
+        testSearch(TEST_USER, criteria, "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+
+        ExperimentSearchCriteria criteria2 = new ExperimentSearchCriteria();
+        criteria2.withIdentifier().thatStartsWith("/CISD/DEFAULT/*S*");
+        testSearch(TEST_USER, criteria2, "/CISD/DEFAULT/EXP-WELLS", "/CISD/DEFAULT/EXP-REUSE");
+    }
+
+    @Test
+    public void testSearchWithIdentifierThatEndsWith()
+    {
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withIdentifier().thatEndsWith("-TEST-2");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-2", "/CISD/NOE/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
+
+        ExperimentSearchCriteria criteria2 = new ExperimentSearchCriteria();
+        criteria2.withIdentifier().thatEndsWith("-TEST-*");
+        testSearch(TEST_USER, criteria2, "/CISD/NEMO/EXP-TEST-1", "/CISD/NEMO/EXP-TEST-2", "/CISD/NOE/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
+    }
+
+    @Test
+    public void testSearchWithIdentifierThatContains()
+    {
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withIdentifier().thatContains("TEST-PROJECT");
+        testSearch(TEST_USER, criteria, "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+
+        ExperimentSearchCriteria criteria2 = new ExperimentSearchCriteria();
+        criteria2.withIdentifier().thatContains("TE*JECT");
+        testSearch(TEST_USER, criteria2, "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+    }
+
+    @Test
     public void testSearchWithCode()
     {
         ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
@@ -504,6 +556,22 @@ public class SearchExperimentTest extends AbstractExperimentTest
         ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
         criteria.withAnyField().thatEquals("EXP-TEST-2");
         testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-2", "/CISD/NOE/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
+    }
+
+    @Test
+    public void testSearchWithAnyFieldMatchingIdentifier()
+    {
+        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withAnyField().thatEquals("/CISD/NEMO/EXP-TEST-*");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-1", "/CISD/NEMO/EXP-TEST-2");
+
+        ExperimentSearchCriteria criteria2 = new ExperimentSearchCriteria();
+        criteria2.withAnyField().thatStartsWith("/CISD/NEMO/EXP1");
+        testSearch(TEST_USER, criteria2, "/CISD/NEMO/EXP1", "/CISD/NEMO/EXP10", "/CISD/NEMO/EXP11");
+
+        ExperimentSearchCriteria criteria3 = new ExperimentSearchCriteria();
+        criteria3.withAnyField().thatEndsWith("TEST-?");
+        testSearch(TEST_USER, criteria3, "/CISD/NEMO/EXP-TEST-1", "/CISD/NEMO/EXP-TEST-2", "/CISD/NOE/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
     }
 
     @Test

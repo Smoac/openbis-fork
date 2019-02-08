@@ -147,6 +147,7 @@ var sources = [
 	'as/dto/common/search/NumberLessThanValue',
 	'as/dto/common/search/NumberPropertySearchCriteria',
 	'as/dto/common/search/PermIdSearchCriteria',
+	'as/dto/common/search/IdentifierSearchCriteria',
 	'as/dto/common/search/RegistrationDateSearchCriteria',
 	'as/dto/common/search/SearchResult',
 	'as/dto/common/search/ServerTimeZone',

@@ -135,7 +135,7 @@ public class DetailedQueryBuilder
                             } else
                             {
                                 fieldPattern = LuceneQueryBuilder.adaptQuery(value, useWildcardSearchMode);
-                                fieldAnalyzer = searchAnalyzer;
+                                fieldAnalyzer = getFieldAnalyzer(entityKind, fieldName, searchAnalyzer);
                             }
 
                             fieldPatterns.add(fieldPattern);
@@ -308,6 +308,17 @@ public class DetailedQueryBuilder
                 return null;
             default:
                 throw InternalErr.error("unknown enum " + fieldKind);
+        }
+    }
+
+    private static Analyzer getFieldAnalyzer(EntityKind entityKind, String fieldName, Analyzer defaultAnalyzer)
+    {
+        if ((EntityKind.SAMPLE.equals(entityKind) || EntityKind.EXPERIMENT.equals(entityKind)) && SearchFieldConstants.IDENTIFIER.equals(fieldName))
+        {
+            return new IgnoreCaseAnalyzer();
+        } else
+        {
+            return defaultAnalyzer;
         }
     }
 

@@ -98,6 +98,62 @@ public class SearchSampleTest extends AbstractSampleTest
     }
 
     @Test
+    public void testSearchWithIdentifierThatEquals()
+    {
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withIdentifier().thatEquals("/CISD/CP-TEST-1");
+        testSearch(TEST_USER, criteria, "/CISD/CP-TEST-1");
+
+        SampleSearchCriteria criteria2 = new SampleSearchCriteria();
+        criteria2.withIdentifier().thatEquals("/CISD/CP-TEST-*");
+        testSearch(TEST_USER, criteria2, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3");
+
+        SampleSearchCriteria criteria3 = new SampleSearchCriteria();
+        criteria3.withIdentifier().thatEquals("/CISD/CP-*-1");
+        testSearch(TEST_USER, criteria3, "/CISD/CP-TEST-1");
+
+        SampleSearchCriteria criteria4 = new SampleSearchCriteria();
+        criteria4.withIdentifier().thatEquals("/*/CP-TEST-*");
+        testSearch(TEST_USER, criteria4, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3", "/TEST-SPACE/CP-TEST-4");
+    }
+
+    @Test
+    public void testSearchWithIdentifierThatStartsWith()
+    {
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withIdentifier().thatStartsWith("/CISD/CP-TEST");
+        testSearch(TEST_USER, criteria, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3");
+
+        SampleSearchCriteria criteria2 = new SampleSearchCriteria();
+        criteria2.withIdentifier().thatStartsWith("/CISD/*-TEST");
+        testSearch(TEST_USER, criteria2, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3", "/CISD/DYNA-TEST-1");
+    }
+
+    @Test
+    public void testSearchWithIdentifierThatEndsWith()
+    {
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withIdentifier().thatEndsWith("-TEST-1");
+        testSearch(TEST_USER, criteria, "/CISD/CP-TEST-1", "/CISD/DYNA-TEST-1");
+
+        SampleSearchCriteria criteria2 = new SampleSearchCriteria();
+        criteria2.withIdentifier().thatEndsWith("-TEST-*");
+        testSearch(TEST_USER, criteria2, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3", "/TEST-SPACE/CP-TEST-4", "/CISD/DYNA-TEST-1");
+    }
+
+    @Test
+    public void testSearchWithIdentifierThatContains()
+    {
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withIdentifier().thatContains("CP-TEST");
+        testSearch(TEST_USER, criteria, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3", "/TEST-SPACE/CP-TEST-4");
+
+        SampleSearchCriteria criteria2 = new SampleSearchCriteria();
+        criteria2.withIdentifier().thatContains("CISD*-TEST");
+        testSearch(TEST_USER, criteria2, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3", "/CISD/DYNA-TEST-1");
+    }
+
+    @Test
     public void testSearchWithCode()
     {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
@@ -750,6 +806,22 @@ public class SearchSampleTest extends AbstractSampleTest
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withAnyField().thatEquals("\"CP-TEST-2\"");
         testSearch(TEST_USER, criteria, "/CISD/CP-TEST-2");
+    }
+
+    @Test
+    public void testSearchWithAnyFieldMatchingIdentifier()
+    {
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withAnyField().thatEquals("/CISD/CP-TEST-*");
+        testSearch(TEST_USER, criteria, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2", "/CISD/CP-TEST-3");
+
+        SampleSearchCriteria criteria2 = new SampleSearchCriteria();
+        criteria2.withAnyField().thatStartsWith("/CISD/DYNA");
+        testSearch(TEST_USER, criteria2, "/CISD/DYNA-TEST-1");
+
+        SampleSearchCriteria criteria3 = new SampleSearchCriteria();
+        criteria3.withAnyField().thatEndsWith("-1");
+        testSearch(TEST_USER, criteria3, "/CISD/CP-TEST-1", "/CISD/DYNA-TEST-1", "/CISD/MP002-1");
     }
 
     @Test

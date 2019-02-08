@@ -217,6 +217,8 @@ class IndexFieldNameHelper
                 return SearchFieldConstants.PREFIX_ENTITY_TYPE + CODE;
             case PERM_ID:
                 return SearchFieldConstants.PERM_ID;
+            case IDENTIFIER:
+                return SearchFieldConstants.IDENTIFIER;
             case PROJECT:
                 return SearchFieldConstants.PREFIX_PROJECT + CODE;
             case PROJECT_PERM_ID:
@@ -307,6 +309,8 @@ class IndexFieldNameHelper
                 return SearchFieldConstants.PREFIX_ENTITY_TYPE + CODE;
             case PERM_ID:
                 return SearchFieldConstants.PERM_ID;
+            case IDENTIFIER:
+                return SearchFieldConstants.IDENTIFIER;
             case SPACE:
                 return SearchFieldConstants.PREFIX_SPACE + CODE;
             case PROJECT:

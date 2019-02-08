@@ -31,6 +31,8 @@ public enum ExperimentAttributeSearchFieldKind implements Serializable, IAttribu
 
     PERM_ID("Perm Id"),
 
+    IDENTIFIER("Identifier"),
+
     PROJECT("Project"),
 
     PROJECT_PERM_ID("Project Perm Id"),

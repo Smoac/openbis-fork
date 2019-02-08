@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.sample.search;
 
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleAttributeSearchFieldKind.CODE;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleAttributeSearchFieldKind.IDENTIFIER;
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleAttributeSearchFieldKind.MODIFICATION_DATE;
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleAttributeSearchFieldKind.MODIFICATION_DATE_FROM;
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleAttributeSearchFieldKind.MODIFICATION_DATE_UNTIL;
@@ -28,6 +29,7 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleAttributeS
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CodeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CodesSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.IdentifierSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ModificationDateSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.PermIdSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.RegistrationDateSearchCriteria;
@@ -49,6 +51,9 @@ public class SampleAttributeProvider extends AbstractEntityAttributeProvider
         } else if (criteria instanceof PermIdSearchCriteria)
         {
             return PERM_ID;
+        } else if (criteria instanceof IdentifierSearchCriteria)
+        {
+            return IDENTIFIER;
         } else if (criteria instanceof RegistrationDateSearchCriteria)
         {
             RegistrationDateSearchCriteria dateCriteria = (RegistrationDateSearchCriteria) criteria;

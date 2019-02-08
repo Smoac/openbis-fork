@@ -321,6 +321,23 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 			testSearch(c, fSearch, fCheck);
 		});
+		
+		QUnit.test("searchExperiments() withIdentifier", function(assert) {
+			var c = new common(assert, openbis);
+
+			var fSearch = function(facade) {
+				var criteria = new c.ExperimentSearchCriteria();
+				criteria.withIdentifier().thatEquals("/TEST/TEST-PROJECT/TEST-EXPERIMENT");
+				return facade.searchExperiments(criteria, c.createExperimentFetchOptions());
+			}
+
+			var fCheck = function(facade, experiments) {
+				c.assertEqual(experiments.length, 1);
+				c.assertEqual(experiments[0].getIdentifier(), "/TEST/TEST-PROJECT/TEST-EXPERIMENT");
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
 
 		QUnit.test("searchExperimentTypes()", function(assert) {
 			var c = new common(assert, openbis);
@@ -624,6 +641,23 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 			var fCheck = function(facade, samples) {
 				c.assertObjectsWithValues(samples, "code", [ "PLATE-1A", "SERIES-1" ]);
+			}
+
+			testSearch(c, fSearch, fCheck);
+		});
+		
+		QUnit.test("searchSamples() withIdentifier", function(assert) {
+			var c = new common(assert, openbis);
+
+			var fSearch = function(facade) {
+				var criteria = new c.SampleSearchCriteria();
+				criteria.withIdentifier().thatEquals("/PLATONIC/PLATE-1");
+				return facade.searchSamples(criteria, c.createSampleFetchOptions());
+			}
+
+			var fCheck = function(facade, samples) {
+				c.assertEqual(samples.length, 1);
+				c.assertEqual(samples[0].getIdentifier(), "/PLATONIC/PLATE-1");
 			}
 
 			testSearch(c, fSearch, fCheck);

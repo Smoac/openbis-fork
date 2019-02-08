@@ -1,10 +1,10 @@
 /**
  * @author pkupczyk
  */
-define([ "require", "stjs", "as/dto/common/search/AbstractEntitySearchCriteria", "as/dto/common/search/SearchOperator", "as/dto/sample/search/SampleSearchRelation", "as/dto/space/search/SpaceSearchCriteria",
-		"as/dto/project/search/ProjectSearchCriteria", "as/dto/project/search/NoProjectSearchCriteria", "as/dto/experiment/search/ExperimentSearchCriteria", "as/dto/experiment/search/NoExperimentSearchCriteria",
-		"as/dto/sample/search/NoSampleContainerSearchCriteria", "as/dto/sample/search/SampleTypeSearchCriteria" ], 
-		function(require, stjs, AbstractEntitySearchCriteria, SearchOperator, SampleSearchRelation) {
+define([ "require", "stjs", "as/dto/common/search/AbstractEntitySearchCriteria", "as/dto/common/search/SearchOperator", "as/dto/sample/search/SampleSearchRelation",
+		"as/dto/space/search/SpaceSearchCriteria", "as/dto/project/search/ProjectSearchCriteria", "as/dto/project/search/NoProjectSearchCriteria", "as/dto/experiment/search/ExperimentSearchCriteria",
+		"as/dto/experiment/search/NoExperimentSearchCriteria", "as/dto/sample/search/NoSampleContainerSearchCriteria", "as/dto/sample/search/SampleTypeSearchCriteria",
+		"as/dto/common/search/IdentifierSearchCriteria" ], function(require, stjs, AbstractEntitySearchCriteria, SearchOperator, SampleSearchRelation) {
 
 	var SampleSearchCriteria = function(relation) {
 		AbstractEntitySearchCriteria.call(this);
@@ -14,6 +14,10 @@ define([ "require", "stjs", "as/dto/common/search/AbstractEntitySearchCriteria",
 		prototype['@type'] = 'as.dto.sample.search.SampleSearchCriteria';
 		constructor.serialVersionUID = 1;
 		prototype.relation = null;
+		prototype.withIdentifier = function() {
+			var IdentifierSearchCriteria = require("as/dto/common/search/IdentifierSearchCriteria");
+			return this.addCriteria(new IdentifierSearchCriteria());
+		};
 		prototype.withSpace = function() {
 			var SpaceSearchCriteria = require("as/dto/space/search/SpaceSearchCriteria");
 			return this.addCriteria(new SpaceSearchCriteria());

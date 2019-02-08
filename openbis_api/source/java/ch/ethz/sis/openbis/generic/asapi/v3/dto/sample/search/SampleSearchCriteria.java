@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractEntitySearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.IdentifierSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchCriteriaToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchOperator;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
@@ -47,6 +48,11 @@ public class SampleSearchCriteria extends AbstractEntitySearchCriteria<ISampleId
     SampleSearchCriteria(SampleSearchRelation relation)
     {
         this.relation = relation;
+    }
+
+    public IdentifierSearchCriteria withIdentifier()
+    {
+        return with(new IdentifierSearchCriteria());
     }
 
     public SpaceSearchCriteria withSpace()
