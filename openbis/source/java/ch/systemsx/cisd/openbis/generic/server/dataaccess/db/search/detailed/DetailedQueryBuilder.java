@@ -134,7 +134,7 @@ public class DetailedQueryBuilder
                                 fieldAnalyzer = PassThroughAnalyzer.INSTANCE;
                             } else
                             {
-                                fieldPattern = LuceneQueryBuilder.adaptQuery(value, useWildcardSearchMode);
+                                fieldPattern = LuceneQueryBuilder.adaptQuery(value, useWildcardSearchMode, getFieldSplit(entityKind, fieldName));
                                 fieldAnalyzer = getFieldAnalyzer(entityKind, fieldName, searchAnalyzer);
                             }
 
@@ -308,6 +308,17 @@ public class DetailedQueryBuilder
                 return null;
             default:
                 throw InternalErr.error("unknown enum " + fieldKind);
+        }
+    }
+
+    private static boolean getFieldSplit(EntityKind entityKind, String fieldName)
+    {
+        if ((EntityKind.SAMPLE.equals(entityKind) || EntityKind.EXPERIMENT.equals(entityKind)) && SearchFieldConstants.IDENTIFIER.equals(fieldName))
+        {
+            return false;
+        } else
+        {
+            return true;
         }
     }
 
