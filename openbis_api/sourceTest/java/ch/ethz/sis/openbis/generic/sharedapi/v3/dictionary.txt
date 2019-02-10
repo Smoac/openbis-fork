@@ -2238,3 +2238,78 @@ set Plugin
 with Plugin
 with Plugin Using
 
+freeze
+freeze For Children
+freeze For Components
+freeze For Containers
+freeze For DataSets
+freeze For Experiments
+freeze For Parents
+freeze For Projects
+freeze For Samples
+is Frozen
+is Frozen For Children
+is Frozen For Components
+is Frozen For Containers
+is Frozen For DataSets
+is Frozen For Experiments
+is Frozen For Parents
+is Frozen For Projects
+is Frozen For Samples
+set Frozen
+set Frozen For Children
+set Frozen For Components
+set Frozen For Containers
+set Frozen For DataSets
+set Frozen For Experiments
+set Frozen For Parents
+set Frozen For Projects
+set Frozen For Samples
+should Be Frozen
+should Be Frozen For Children
+should Be Frozen For Components
+should Be Frozen For Containers
+should Be Frozen For DataSets
+should Be Frozen For Experiments
+should Be Frozen For Parents
+should Be Frozen For Projects
+should Be Frozen For Samples
+
+Identifier Search Criteria
+with Identifier
+
+create Fast Download Session
+download To
+Fast Downloader
+Fast Download Session
+Fast Download Session Options
+get Files
+get File Transfer User Session Id
+get Wished Number Of Streams
+wished Number Of Streams
+DOWNLOAD_ITEM_IDS_PARAMETER
+DOWNLOAD_METHOD
+DOWNLOAD_SESSION_ID_PARAMETER
+DOWNLOAD_STREAM_ID_PARAMETER
+Fast Download Result
+Fast Download Method
+Fast Download Parameter
+FINISH_DOWNLOAD_SESSION_METHOD
+get Download Server
+get Download Session Id
+get Method Name
+get Parameter Name
+get Paths By Id
+METHOD_PARAMETER
+NUMBER_OF_CHUNKS_PARAMETER
+QUEUE_METHOD
+RANGES_PARAMETER
+START_DOWNLOAD_SESSION_METHOD
+USER_SESSION_ID_PARAMETER
+WISHED_NUMBER_OF_STREAMS_PARAMETER
+with Deserializer Provider Factory
+with Download Store Factory
+with Listener
+with Logger
+with Retry Provider Factory
+
