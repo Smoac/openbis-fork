@@ -78,17 +78,30 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		var toolbarModel = [];
 		if(this._experimentFormModel.mode === FormMode.VIEW) {
 			//Create Experiment Step
-			if(profile.getSampleTypeForSampleTypeCode("EXPERIMENTAL_STEP")) {
+			var mandatorySampleTypeCode = null;
+			var mandatorySampleType = null;
+			
+			if(this._experimentFormModel.experiment && 
+					this._experimentFormModel.experiment.properties &&
+					this._experimentFormModel.experiment.properties["$DEFAULT_OBJECT_TYPE"]) {
+				mandatorySampleTypeCode = this._experimentFormModel.experiment.properties["$DEFAULT_OBJECT_TYPE"];
+			} else if(profile.getSampleTypeForSampleTypeCode("EXPERIMENTAL_STEP")) {
+				mandatorySampleTypeCode = "EXPERIMENTAL_STEP";
+			}
+			
+			mandatorySampleType = profile.getSampleTypeForSampleTypeCode(mandatorySampleTypeCode);
+			
+			if(mandatorySampleType) {
 				var $createBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
 					var argsMap = {
-							"sampleTypeCode" : "EXPERIMENTAL_STEP",
+							"sampleTypeCode" : mandatorySampleTypeCode,
 							"experimentIdentifier" : _this._experimentFormModel.experiment.identifier
 					}
 					var argsMapStr = JSON.stringify(argsMap);
 					Util.unblockUI();
 					mainController.changeView("showCreateSubExperimentPage", argsMapStr);
 				});
-				toolbarModel.push({ component : $createBtn, tooltip: "Create Experimental Step" });
+				toolbarModel.push({ component : $createBtn, tooltip: "Create " + Util.getDisplayNameFromCode(mandatorySampleTypeCode) });
 			}
 			
 			//Edit
@@ -368,13 +381,13 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 			var propertyType = propertyTypeGroup.propertyTypes[j];
 			FormUtil.fixStringPropertiesForForm(propertyType, this._experimentFormModel.experiment);
 			
-			if(!propertyType.showInEditViews && this._experimentFormController.mode === FormMode.EDIT) { //Skip
+			if(!propertyType.showInEditViews && this._experimentFormController.mode === FormMode.EDIT && propertyType.code !== "$XMLCOMMENTS") { //Skip
 				continue;
 			} else if(propertyType.dinamic && this._experimentFormController.mode === FormMode.CREATE) { //Skip
 				continue;
 			}
 			
-			if(propertyType.code === "XMLCOMMENTS") {
+			if(propertyType.code === "$XMLCOMMENTS") {
 				var $commentsContainer = $("<div>");
 				$fieldset.append($commentsContainer);
 				var isAvailable = this._experimentFormController._addCommentsWidget($commentsContainer);
@@ -382,7 +395,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 					continue;
 				}
 			} else {
-				if(propertyType.code === "SHOW_IN_PROJECT_OVERVIEW") {
+				if(propertyType.code === "$SHOW_IN_PROJECT_OVERVIEW") {
 					if(!(profile.inventorySpaces.length > 0 && $.inArray(IdentifierUtil.getSpaceCodeFromIdentifier(this._experimentFormModel.experiment.identifier), profile.inventorySpaces) === -1)) {
 						continue;
 					}
@@ -407,7 +420,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 					}
 				} else {
 					var $component = null;
-					if(propertyType.code === "DEFAULT_OBJECT_TYPE") {
+					if(propertyType.code === "$DEFAULT_OBJECT_TYPE") {
 						$component = FormUtil.getSampleTypeDropdown(propertyType.code, true);
 					} else {
 						$component = FormUtil.getFieldForPropertyType(propertyType, value);

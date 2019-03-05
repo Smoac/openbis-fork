@@ -26,6 +26,9 @@ function SideMenuWidgetController(mainController) {
     this._sideMenuWidgetModel = new SideMenuWidgetModel();
     this._sideMenuWidgetView = new SideMenuWidgetView(this, this._sideMenuWidgetModel);
     
+    this._SORT_FIELD_KEY = "side-menu-sort-field";
+
+
     //
     // External API for real time updates
     //
@@ -69,24 +72,30 @@ function SideMenuWidgetController(mainController) {
     // Init method that builds the menu object hierarchy
     //
     this.init = function($container, initCallback) {
-    	this._sideMenuWidgetModel.$container = $container;
         var _this = this;
-        
-        _this._sideMenuWidgetView.repaint($container);
-		
-        var resize = function(event) {
-        	var $elementHead = $("#sideMenuHeader");
-            var sideMenuHeaderHeight = $elementHead.outerHeight();
-            var $elementBody = $("#sideMenuBody");
-            var height = $( window ).height();
-            $elementBody.css('height', height - sideMenuHeaderHeight);
-        }
-        
-        LayoutManager.addResizeEventHandler(resize);
-        
-        initCallback();
+
+        this._mainController.serverFacade.getSetting(this._SORT_FIELD_KEY, function(sortField) {
+            _this._sideMenuWidgetModel.sortField = sortField;
+            _this._sideMenuWidgetModel.$container = $container;
+            
+            _this._sideMenuWidgetView.repaint($container);
+            
+            LayoutManager.addResizeEventHandler(_this.resize);
+            
+            initCallback();    
+        });
     }
-    
+
+    this.resize = function() {
+        var $elementHead = $("#sideMenuHeader");
+        var sideMenuHeaderHeight = $elementHead.outerHeight();
+        var $elementSortField = $("#sideMenuSortBar");
+        var sideMenuSortFieldHeight = $elementSortField.outerHeight();
+        var $elementBody = $("#sideMenuBody");
+        var height = $( window ).height();
+        $elementBody.css('height', height - sideMenuHeaderHeight - sideMenuSortFieldHeight);
+    }
+
     this._showNodeView = function(node) {
 		if(node.data.view) {
 			var viewData =  node.data.viewData;
@@ -110,6 +119,16 @@ function SideMenuWidgetController(mainController) {
         	node.setExpanded(true);
     	}
     }
+
+    //
+    // service calls
+    //
+
+    this.setSortField = function(sortField) {
+        this._sideMenuWidgetModel.sortField = sortField;
+        this._mainController.serverFacade.setSetting(this._SORT_FIELD_KEY, sortField);
+    }
+
 }
 
 function SideMenuWidgetComponent(isSelectable, isTitle, displayName, uniqueId, parent, newMenuIfSelected, newViewIfSelected, newViewIfSelectedData, contextTitle) {

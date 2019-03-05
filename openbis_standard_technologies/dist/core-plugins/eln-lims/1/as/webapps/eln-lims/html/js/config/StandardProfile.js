@@ -12,323 +12,13 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 		this.hideCodes = true;
 		
 		this.storagesConfiguration = { "isEnabled" : false };
-	
-		/* New Sample definition tests*/
-		this.sampleTypeDefinitionsExtension = {
-				"UNKNOWN" : {
-					"SHOW" : false,
-				},
-				"ANTIBODY" : {
-					"SHOW" : false,
-					"ENABLE_STORAGE" : true,
-				},
-				
-				"CHEMICAL" : {
-					"SHOW" : false,
-					"ENABLE_STORAGE" : true,
-				},
-				
-				"ENZYME" : {
-					"SHOW" : false,
-					"ENABLE_STORAGE" : true,
-				},
-				
-				"OLIGO" : {
-					"SHOW" : false,
-					"ENABLE_STORAGE" : true,
-				},
-				
-				"RNA" : {
-					"SHOW" : false,
-					"ENABLE_STORAGE" : true,
-				},
-				
-				"MEDIA" : {
-					"SHOW" : false,
-					"ENABLE_STORAGE" : true,
-					"SAMPLE_PARENTS_HINT" : [
-					                             	{
-														"LABEL" : "Chemical",
-														"TYPE": "CHEMICAL",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													},
-					                             	{
-														"LABEL" : "Solution/Buffer",
-														"TYPE": "SOLUTION_BUFFER",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													},
-					                             	{
-														"LABEL" : "Media",
-														"TYPE": "MEDIA",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													}																								
-												],
-				},
-
-				"SOLUTION_BUFFER" : {
-					"SHOW" : false,
-					"ENABLE_STORAGE" : true,
-					"SAMPLE_PARENTS_HINT" : [
-					                             	{
-														"LABEL" : "Chemical",
-														"TYPE": "CHEMICAL",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													},
-					                             	{
-														"LABEL" : "Solution/Buffer",
-														"TYPE": "SOLUTION_BUFFER",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													},
-					                             	{
-														"LABEL" : "Media",
-														"TYPE": "MEDIA",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													}																								
-												],
-				},
-
-				"GENERAL_PROTOCOL" : {
-					"SHOW" : false,
-					"USE_AS_PROTOCOL" : true,
-					"SAMPLE_PARENTS_HINT" : [
-					                             	{
-														"LABEL" : "General protocol",
-														"TYPE": "GENERAL_PROTOCOL",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													}																												
-												],
-				},
-
-				"PCR_PROTOCOL" : {
-					"SHOW" : false,
-					"USE_AS_PROTOCOL" : true,
-					"SAMPLE_PARENTS_HINT" : [
-					                             	{
-														"LABEL" : "Chemical",
-														"TYPE": "CHEMICAL",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													},
-					                             	{
-														"LABEL" : "Solution/Buffer",
-														"TYPE": "SOLUTION_BUFFER",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													},
-					                             	{
-														"LABEL" : "Enzyme",
-														"TYPE": "ENZYME",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													},																								
-												],
-				},
-
-				"WESTERN_BLOTTING_PROTOCOL" : {
-					"SHOW" : false,
-					"USE_AS_PROTOCOL" : true,
-					"SAMPLE_PARENTS_HINT" : [
-					                             	{
-														"LABEL" : "Chemical",
-														"TYPE": "CHEMICAL",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													},
-					                             	{
-														"LABEL" : "Solution/Buffer",
-														"TYPE": "SOLUTION_BUFFER",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													},
-					                             	{
-														"LABEL" : "Antibody",
-														"TYPE": "ANTIBODY",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY", "MANDATORY" : false }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													},																								
-												],
-				},
-
-				"PLASMID" : {
-					"SHOW" : false,
-					"ENABLE_STORAGE" : true,
-					"SAMPLE_PARENTS_HINT" : [
-					                             	{
-														"LABEL" : "Plasmid",
-														"TYPE": "PLASMID",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													}																		
-												],
-				},
-
-				"BACTERIA" : {
-					"SHOW" : false,
-					"ENABLE_STORAGE" : true,
-					"SAMPLE_PARENTS_HINT" : [
-					                             	{
-														"LABEL" : "Bacteria parents",
-														"TYPE": "BACTERIA",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													},
-					                             	{
-														"LABEL" : "Plasmid",
-														"TYPE": "PLASMID",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "PLASMID_RELATIONSHIP", "MANDATORY" : false },{"TYPE" : "PLASMID_ANNOTATION", "MANDATORY" : false },{"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													}																				
-												],
-				},
-
-				"YEAST" : {
-					"SHOW" : false,
-					"ENABLE_STORAGE" : true,
-					"SAMPLE_PARENTS_HINT" : [
-					                             	{
-														"LABEL" : "Yeast parents",
-														"TYPE": "YEAST",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													},
-					                             	{
-														"LABEL" : "Plasmid",
-														"TYPE": "PLASMID",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "PLASMID_RELATIONSHIP", "MANDATORY" : false },{"TYPE" : "PLASMID_ANNOTATION", "MANDATORY" : false },{"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													}																					
-												],
-				},
-
-				"CELL_LINE" : {
-					"SHOW" : false,
-					"ENABLE_STORAGE" : true,
-					"SAMPLE_PARENTS_HINT" : [
-					                             	{
-														"LABEL" : "Parental cell line",
-														"TYPE": "CELL_LINE",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													},
-					                             	{
-														"LABEL" : "Plasmid",
-														"TYPE": "PLASMID",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "PLASMID_RELATIONSHIP", "MANDATORY" : false },{"TYPE" : "PLASMID_ANNOTATION", "MANDATORY" : false },{"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													},		
-					                             	{
-														"LABEL" : "Parental fly",
-														"TYPE": "FLY",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													}																									
-												],
-				},
-
-				"FLY" : {
-					"SHOW" : false,
-					"ENABLE_STORAGE" : true,
-					"SAMPLE_PARENTS_HINT" : [
-					                             	{
-														"LABEL" : "Fly parents",
-														"TYPE": "FLY",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													},
-					                             	{
-														"LABEL" : "Plasmid",
-														"TYPE": "PLASMID",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "PLASMID_RELATIONSHIP", "MANDATORY" : false },{"TYPE" : "PLASMID_ANNOTATION", "MANDATORY" : false },{"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													}																					
-												],
-				},
-				"GENERAL_ELN_SETTINGS" : {
-					"SHOW" : false
-				},
-				"STORAGE" : {
-					"SHOW" : false,
-					"SAMPLE_CHILDREN_DISABLED" : true,
-					"SAMPLE_PARENTS_DISABLED" : true
-				},
-				"STORAGE_POSITION" : {
-					"SHOW" : false,
-					"SAMPLE_CHILDREN_DISABLED" : true
-				},
-				"REQUEST" : {
-					"SHOW" : false,
-					"SAMPLE_PARENTS_TITLE" : "Products from Catalog",
-					"SAMPLE_PARENTS_ANY_TYPE_DISABLED" : true,
-					"SAMPLE_CHILDREN_DISABLED" : true,
-					"SAMPLE_PARENTS_HINT" : [{
-						"LABEL" : "Products",
-						"TYPE": "PRODUCT",
-						"MIN_COUNT" : 1,
-						"MAX_COUNT" : 1,
-						"ANNOTATION_PROPERTIES" : [{"TYPE" : "QUANTITY_OF_ITEMS", "MANDATORY" : true }, {"TYPE" : "COMMENTS", "MANDATORY" : false }]
-					}]
-				},
-				"ORDER" : {
-					"SHOW" : false,
-					"SAMPLE_PARENTS_TITLE" : "Requests",
-					"SAMPLE_PARENTS_ANY_TYPE_DISABLED" : true,
-					"SAMPLE_CHILDREN_DISABLED" : true,
-					showParents : function(sample) { 
-						var orderStatus = sample.properties["ORDER_STATUS"];
-						var orderSummary = sample.properties["ORDER_STATE"];
-						return orderStatus !== "ORDERED" && orderStatus !== "DELIVERED" && orderStatus !== "PAID" && !orderSummary;
-					},
-					"SAMPLE_PARENTS_HINT" : [{
-						"LABEL" : "Requests",
-						"TYPE": "REQUEST",
-						"MIN_COUNT" : 0,
-						"ANNOTATION_PROPERTIES" : []
-					}]
-				},
-				"SUPPLIER" : {
-					"SHOW" : false,
-					"SAMPLE_CHILDREN_DISABLED" : true,
-					"SAMPLE_PARENTS_DISABLED" : true,
-				},
-				"PRODUCT" : {
-					"SHOW" : false,
-					"SAMPLE_CHILDREN_DISABLED" : true,
-					"SAMPLE_PARENTS_TITLE" : "Suppliers",
-					"SAMPLE_PARENTS_ANY_TYPE_DISABLED" : true,
-					"SAMPLE_PARENTS_HINT" : [{
-						"LABEL" : "Suppliers",
-						"TYPE": "SUPPLIER",
-						"MIN_COUNT" : 1,
-						"MAX_COUNT" : 1,
-						"ANNOTATION_PROPERTIES" : []
-					}]
-				},
-				"EXPERIMENTAL_STEP" : {
-					"SHOW" : false,
-					"SAMPLE_PARENTS_HINT" : [
-					                             	{
-														"LABEL" : "General protocol",
-														"TYPE": "GENERAL_PROTOCOL",
-														"MIN_COUNT" : 0,
-														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
-													}																																		
-												],
-				}
-		}
 		
 		this.sampleFormOnSubmit = function(sample, action) {
 			if(sample.sampleTypeCode === "ORDER") {
-				var orderStatus = sample.properties["ORDER_STATUS"];
+				var orderStatus = sample.properties["$ORDERING.ORDER_STATUS"];
 				var samplesToDelete = null;
 				var changesToDo = null;
-				if((orderStatus === "ORDERED" || orderStatus === "DELIVERED" || orderStatus === "PAID") && !sample.properties["ORDER_STATE"]) {
+				if((orderStatus === "ORDERED" || orderStatus === "DELIVERED" || orderStatus === "PAID") && !sample.properties["$ORDER.ORDER_STATE"]) {
 					//Update parents to hold all info
     	    				var searchSamples = { entityKind : "SAMPLE", logicalOperator : "OR", rules : {} };
 					for(var pIdx = 0; pIdx < sample.parents.length; pIdx++) {
@@ -339,14 +29,14 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 						sample.parents = mainController.serverFacade.getV3SamplesAsV1(result.objects);
 						
 						//Set property
-						sample.properties["ORDER_STATE"] = window.btoa(unescape(encodeURIComponent(JSON.stringify(sample))));
+						sample.properties["$ORDER.ORDER_STATE"] = window.btoa(unescape(encodeURIComponent(JSON.stringify(sample))));
 						
 						//Update order state on the requests
 						changesToDo = [];
 						var requests = sample.parents;
 						if(requests) {
 							for(var rIdx = 0; rIdx < requests.length; rIdx++) {
-								changesToDo.push({ "permId" : requests[rIdx].permId, "identifier" : requests[rIdx].identifier, "properties" : {"ORDER_STATUS" : orderStatus } });
+								changesToDo.push({ "permId" : requests[rIdx].permId, "identifier" : requests[rIdx].identifier, "properties" : {"$ORDERING.ORDER_STATUS" : orderStatus } });
 							}
 						}
 						
@@ -406,12 +96,12 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 								if(!quantity) {
 									quantity = 0;
 								}
-								quantity += parseInt(requestProductAnnotations["QUANTITY_OF_ITEMS"]);
+								quantity += parseInt(requestProductAnnotations["ANNOTATION.REQUEST.QUANTITY_OF_ITEMS"]);
 								if(!quantity) {
 									Util.showUserError("Product " + requestProduct.code + " from request " +  request.code + " does not have a quantity, FIX IT!.");
 									return;
 								}
-								var currencyCode = requestProduct.properties["CURRENCY"];
+								var currencyCode = requestProduct.properties["$PRODUCT.CURRENCY"];
 								if(!currencyCode) {
 									currencyCode = "N/A";
 								}
@@ -421,8 +111,8 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 									absoluteTotalForCurrency = 0;
 								}
 								
-								if(requestProduct.properties["PRICE_PER_UNIT"]) {
-									absoluteTotalForCurrency += parseFloat(requestProduct.properties["PRICE_PER_UNIT"]) * quantity;
+								if(requestProduct.properties["$PRODUCT.PRICE_PER_UNIT"]) {
+									absoluteTotalForCurrency += parseFloat(requestProduct.properties["$PRODUCT.PRICE_PER_UNIT"]) * quantity;
 								}
 								
 								absoluteTotalByCurrency[currencyCode] = absoluteTotalForCurrency;
@@ -440,7 +130,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 							var orderPages = [];
 							for(var providerPermId in productsByProviderPermId) {
 								var provider = providerByPermId[providerPermId];
-								var preferredSupplierLanguage = provider.properties["COMPANY_LANGUAGE"];
+								var preferredSupplierLanguage = provider.properties["$SUPPLIER.COMPANY_LANGUAGE"];
 								
 								var languageLabels = profile.orderLanguage[preferredSupplierLanguage];
 								if(!languageLabels) {
@@ -464,7 +154,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 									page += "\n";
 									page += "- " + languageLabels["ORDER_DATE"] + ": " + Util.getFormatedDate(new Date(registrationDate));
 									page += "\n";
-									page += "- " + languageLabels["ORDER_STATUS"] + ": " + order.properties["ORDER_STATUS"];
+									page += "- " + languageLabels["ORDER_STATUS"] + ": " + order.properties["$ORDERING.ORDER_STATUS"];
 									page += "\n";
 									page += "- " + languageLabels["ORDER_CODE"] + ": " + order.code;
 									page += "\n";
@@ -472,56 +162,56 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 									page += "\n";
 									page += languageLabels["COSTUMER_INFORMATION"];
 									page += "\n";
-									if(order.properties["SHIP_TO"]) {
-										page += "- " + languageLabels["SHIP_TO"] + ": " + order.properties["SHIP_TO"];
+									if(order.properties["$ORDER.SHIP_TO"]) {
+										page += "- " + languageLabels["SHIP_TO"] + ": " + order.properties["$ORDER.SHIP_TO"];
 										page += "\n";
 									}
-									if(order.properties["BILL_TO"]) {
-										page += "- " + languageLabels["BILL_TO"] + ": " + order.properties["BILL_TO"];
+									if(order.properties["$ORDER.BILL_TO"]) {
+										page += "- " + languageLabels["BILL_TO"] + ": " + order.properties["$ORDER.BILL_TO"];
 										page += "\n";
 									}
-									if(order.properties["SHIP_ADDRESS"]) {
-										page += "- " + languageLabels["SHIP_ADDRESS"] + ": " + order.properties["SHIP_ADDRESS"];
+									if(order.properties["$ORDER.SHIP_ADDRESS"]) {
+										page += "- " + languageLabels["SHIP_ADDRESS"] + ": " + order.properties["$ORDER.SHIP_ADDRESS"];
 										page += "\n";
 									}
-									if(order.properties["CONTACT_PHONE"]) {
-										page += "- " + languageLabels["PHONE"] + ": " + order.properties["CONTACT_PHONE"];
+									if(order.properties["$ORDER.CONTACT_PHONE"]) {
+										page += "- " + languageLabels["PHONE"] + ": " + order.properties["$ORDER.CONTACT_PHONE"];
 										page += "\n";
 									}
-									if(order.properties["CONTACT_FAX"]) {
-										page += "- " + languageLabels["FAX"] + ": " + order.properties["CONTACT_FAX"];
+									if(order.properties["$ORDER.CONTACT_FAX"]) {
+										page += "- " + languageLabels["FAX"] + ": " + order.properties["$ORDER.CONTACT_FAX"];
 										page += "\n";
 									}
 									page += "\n";
 									page += "\n";
 									page += languageLabels["SUPPLIER_INFORMATION"];
 									page += "\n";
-									if(provider.properties["NAME"]) {
-										page += "- " + languageLabels["SUPPLIER"] + ": " + provider.properties["NAME"];
+									if(provider.properties[profile.propertyReplacingCode]) {
+										page += "- " + languageLabels["SUPPLIER"] + ": " + provider.properties[profile.propertyReplacingCode];
 										page += "\n";
 									}
-									if(provider.properties["COMPANY_ADDRESS_LINE_1"]) {
-										page += "- " + languageLabels["SUPPLIER_ADDRESS_LINE_1"] + ": " + provider.properties["COMPANY_ADDRESS_LINE_1"]
+									if(provider.properties["$SUPPLIER.COMPANY_ADDRESS_LINE_1"]) {
+										page += "- " + languageLabels["SUPPLIER_ADDRESS_LINE_1"] + ": " + provider.properties["$SUPPLIER.COMPANY_ADDRESS_LINE_1"]
 										page += "\n";
 									}
-									if(provider.properties["COMPANY_ADDRESS_LINE_2"]) {
-										page += "  " + languageLabels["SUPPLIER_ADDRESS_LINE_2"] + "  " + provider.properties["COMPANY_ADDRESS_LINE_2"]
+									if(provider.properties["$SUPPLIER.COMPANY_ADDRESS_LINE_2"]) {
+										page += "  " + languageLabels["SUPPLIER_ADDRESS_LINE_2"] + "  " + provider.properties["$SUPPLIER.COMPANY_ADDRESS_LINE_2"]
 										page += "\n";
 									}
-									if(provider.properties["COMPANY_PHONE"]) {
-										page += "- " + languageLabels["SUPPLIER_PHONE"] + ": " + provider.properties["COMPANY_PHONE"];
+									if(provider.properties["$SUPPLIER.COMPANY_PHONE"]) {
+										page += "- " + languageLabels["SUPPLIER_PHONE"] + ": " + provider.properties["$SUPPLIER.COMPANY_PHONE"];
 										page += "\n";
 									}
-									if(provider.properties["COMPANY_FAX"]) {
-										page += "- " + languageLabels["SUPPLIER_FAX"] + ": " + provider.properties["COMPANY_FAX"];
+									if(provider.properties["$SUPPLIER.COMPANY_FAX"]) {
+										page += "- " + languageLabels["SUPPLIER_FAX"] + ": " + provider.properties["$SUPPLIER.COMPANY_FAX"];
 										page += "\n";
 									}
-									if(provider.properties["COMPANY_EMAIL"]) {
-										page += "- " + languageLabels["SUPPLIER_EMAIL"] + ": " + provider.properties["COMPANY_EMAIL"];
+									if(provider.properties["$SUPPLIER.COMPANY_EMAIL"]) {
+										page += "- " + languageLabels["SUPPLIER_EMAIL"] + ": " + provider.properties["$SUPPLIER.COMPANY_EMAIL"];
 										page += "\n";
 									}
-									if(provider.properties["CUSTOMER_NUMBER"]) {
-										page += "- " + languageLabels["CUSTOMER_NUMBER"] + ": " + provider.properties["CUSTOMER_NUMBER"];
+									if(provider.properties["$SUPPLIER.CUSTOMER_NUMBER"]) {
+										page += "- " + languageLabels["CUSTOMER_NUMBER"] + ": " + provider.properties["$SUPPLIER.CUSTOMER_NUMBER"];
 										page += "\n";
 									}
 									page += "\n";
@@ -534,28 +224,28 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 									for(var pIdx = 0; pIdx < providerProducts.length; pIdx++) {
 										var product = providerProducts[pIdx];
 										var quantity = quantityByProductPermId[product.permId];
-										var unitPriceAsString = product.properties["PRICE_PER_UNIT"];
+										var unitPriceAsString = product.properties["$PRODUCT.PRICE_PER_UNIT"];
 										var unitPrice = "N/A";
 										if(unitPriceAsString) {
 											unitPrice = parseFloat(unitPriceAsString);
 										}
-										var currencyCode = product.properties["CURRENCY"];
+										var currencyCode = product.properties["$PRODUCT.CURRENCY"];
 										if(!currencyCode) {
 											currencyCode = "N/A";
 										}
-										page += quantity + "\t\t" + product.properties["NAME"] + "\t\t" + product.properties["CATALOG_NUM"] + "\t\t" + unitPrice + " " + currencyCode;
+										page += quantity + "\t\t" + product.properties[profile.propertyReplacingCode] + "\t\t" + product.properties["$PRODUCT.CATALOG_NUM"] + "\t\t" + unitPrice + " " + currencyCode;
 										page += "\n";
 										
 										if(unitPriceAsString) {
-											var totalForCurrency = providerTotalByCurrency[product.properties["CURRENCY"]];
+											var totalForCurrency = providerTotalByCurrency[product.properties["$PRODUCT.CURRENCY"]];
 											if(!totalForCurrency) {
 												totalForCurrency = 0;
 											}
 											totalForCurrency += unitPrice * quantity;
 											
-											providerTotalByCurrency[product.properties["CURRENCY"]] = totalForCurrency;
+											providerTotalByCurrency[product.properties["$PRODUCT.CURRENCY"]] = totalForCurrency;
 										} else {
-											providerTotalByCurrency[product.properties["CURRENCY"]] = "N/A";
+											providerTotalByCurrency[product.properties["$PRODUCT.CURRENCY"]] = "N/A";
 										}
 									}
 									page += "\n";
@@ -581,7 +271,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 									}
 									page += languageLabels["ADDITIONAL_INFO_LABEL"];
 									page += "\n";
-									var additionalInfo = order.properties["ADDITIONAL_INFORMATION"];
+									var additionalInfo = order.properties["$ORDER.ADDITIONAL_INFORMATION"];
 									if(!additionalInfo) {
 										additionalInfo = "N/A";
 									}
@@ -647,16 +337,16 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 								for(var pIdx = 0; pIdx < providerProducts.length; pIdx++) {
 									var product = providerProducts[pIdx];
 									var quantity = quantityByProductPermId[product.permId];
-									var unitPriceAsString = product.properties["PRICE_PER_UNIT"];
+									var unitPriceAsString = product.properties["$PRODUCT.PRICE_PER_UNIT"];
 									var unitPrice = "N/A";
 									if(unitPriceAsString) {
 										unitPrice = parseFloat(unitPriceAsString);
 									}
 									var rowData = {};
 									rowData.permId = product.permId;
-									rowData.supplier = provider.properties["NAME"];
-									rowData.name = product.properties["NAME"];
-									rowData.catalogNum =  product.properties["CATALOG_NUM"];
+									rowData.supplier = provider.properties[profile.propertyReplacingCode];
+									rowData.name = product.properties[profile.propertyReplacingCode];
+									rowData.catalogNum =  product.properties["$PRODUCT.CATALOG_NUM"];
 									rowData.quantity = quantity;
 									rowData.unitPrice = unitPrice;
 									if(unitPrice !== "N/A") {
@@ -664,7 +354,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 									} else {
 										rowData.totalProductCost = "N/A";
 									}
-									var currencyCode = product.properties["CURRENCY"];
+									var currencyCode = product.properties["$PRODUCT.CURRENCY"];
 									if(!currencyCode) {
 										currencyCode = "N/A";
 									}
@@ -696,9 +386,9 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 					// Data Structures to Help the reports functionality
 					//
 					var orderSample = mainController.currentView._sampleFormModel.sample;
-					if(orderSample.properties["ORDER_STATE"]) {
+					if(orderSample.properties["$ORDER.ORDER_STATE"]) {
 						isFromState = true;
-						var order = JSON.parse(decodeURIComponent(escape(window.atob(orderSample.properties["ORDER_STATE"]))));
+						var order = JSON.parse(decodeURIComponent(escape(window.atob(orderSample.properties["$ORDER.ORDER_STATE"]))));
 						showOrderSummary(order);
 					} else {
 						var searchSamples = { entityKind : "SAMPLE", logicalOperator : "OR", rules : { "UUIDv4" : { type : "Attribute", name : "PERM_ID", value : orderSample.permId } } };
@@ -720,7 +410,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 		
 
 		this.dataSetTypeForFileNameMap = [
-				{ fileNameExtension : "fasta", dataSetType : "SEQ_FILE" },
+				// { fileNameExtension : "fasta", dataSetType : "SEQ_FILE" },
 		];
 
 }

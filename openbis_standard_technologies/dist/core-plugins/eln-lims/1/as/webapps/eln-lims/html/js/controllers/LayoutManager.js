@@ -407,7 +407,14 @@ var LayoutManager = {
 		this.isLoadingView = true;
 
 		var isFirstTime = this.mainContainer === null || forceFirstTime === true || forceFirstTime === undefined;
-
+		
+		// sideMenuBody scroll fix
+		var firstColumnScroll = null;
+		if(this.FOUND_SIZE >= this.TABLET_SIZE) {
+			firstColumnScroll = $("#sideMenuBody").scrollTop();
+		}
+		//
+		
 		var width = $( window ).width();
 		if (width > this.DESKTOP_SIZE) {
 			if (this.FOUND_SIZE !== this.DESKTOP_SIZE) {
@@ -434,6 +441,12 @@ var LayoutManager = {
 		} else if (this.FOUND_SIZE === this.MOBILE_SIZE) {
 			this._setMobileLayout(view, isFirstTime);
 		}
+		
+		// sideMenuBody scroll fix
+		if(this.FOUND_SIZE >= this.TABLET_SIZE && firstColumnScroll) {
+			$("#sideMenuBody").scrollTop(firstColumnScroll);
+		}
+		//
 		
 		this.triggerResizeEventHandlers();
 		this.isLoadingView = false;

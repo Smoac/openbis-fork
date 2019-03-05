@@ -278,6 +278,8 @@ function MainController(profile) {
 					}
 				}
 				callback(roles);
+			}, function(errorResult) {
+				callback([]);
 			});
 		}
 	}

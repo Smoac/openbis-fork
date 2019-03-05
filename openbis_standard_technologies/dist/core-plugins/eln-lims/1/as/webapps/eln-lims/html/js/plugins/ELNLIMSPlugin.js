@@ -6,6 +6,8 @@ $.extend(ELNLIMSPlugin.prototype, {
 	init: function() {
 	
 	},
+	forcedDisableRTF : ["$NAME"],
+	forceMonospaceFont : [],
 	sampleTypeDefinitionsExtension : {
 	
 	},

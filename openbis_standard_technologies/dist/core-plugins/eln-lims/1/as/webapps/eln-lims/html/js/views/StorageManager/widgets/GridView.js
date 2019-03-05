@@ -141,6 +141,10 @@ function GridView(gridModel) {
 					if (labels[i].data && labels[i].data["@type"] && labels[i].data["@type"] === "Sample") {
 						sample = jQuery.extend(true, {}, labels[i].data);
 					}
+					else if (!labels[i].data.size && labels[i].data && labels[i].data.samples && labels[i].data.samples.length > 0) {
+						// sample which is not in a box
+						sample = jQuery.extend(true, {}, labels[i].data.samples[0]);
+					}
 					
 					if(sample && sample.sampleTypeCode === "STORAGE_POSITION" && sample.parents && sample.parents[0]) {
 						if(profile.propertyReplacingCode &&  sample.parents[0].properties &&  sample.parents[0].properties[profile.propertyReplacingCode]) {
@@ -155,9 +159,9 @@ function GridView(gridModel) {
 							
 						var href = Util.getURLFor(null, "showViewSamplePageFromPermId", sample.permId);
 						optSampleTitle = $("<a>", { "href" : href, "class" : "browser-compatible-javascript-link" }).text(labels[i].displayName);
-						optSampleTitle.click(function() {
+						optSampleTitle.click((function(sample) {
 							mainController.changeView("showViewSamplePageFromPermId", sample.permId);
-						});
+						}).bind(this, sample));
 					}
 					
 					var labelContainer = $("<div>", { class: "storageBox", id : Util.guid() }).text(labels[i].displayName);

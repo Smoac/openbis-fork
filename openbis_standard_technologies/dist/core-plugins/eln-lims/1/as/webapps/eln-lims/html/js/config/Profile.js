@@ -105,13 +105,13 @@ $.extend(DefaultProfile.prototype, {
 					"COSTUMER_INFORMATION" : "Kundeninformation",
 					"SHIP_TO" : "Lieferung an",
 					"BILL_TO" : "Rechnung an",
-					"SHIP_ADDRESS" : "Addresse",
+					"SHIP_ADDRESS" : "Adresse",
 					"PHONE" : "Telefon",
 					"FAX" : "Fax",
 
 					"SUPPLIER_INFORMATION" : "Lieferanteninformation",
 					"SUPPLIER" : "Lieferant",
-					"SUPPLIER_ADDRESS_LINE_1" : "Addresse",
+					"SUPPLIER_ADDRESS_LINE_1" : "Adresse",
 					"SUPPLIER_ADDRESS_LINE_2" : "       ",
 					"SUPPLIER_PHONE" : "Lieferant Telefon",
 					"SUPPLIER_FAX" : "Lieferant Fax",
@@ -133,7 +133,7 @@ $.extend(DefaultProfile.prototype, {
 //				"ADMIN-BS-MBPR28.D.ETHZ.CH-E96954A7" : "http://localhost:8080/download"
 		}
 		
-		this.plugins = [new MicroscopyTechnology()];
+		this.plugins = [new GenericTechnology(), new LifeSciencesTechnology(), new MicroscopyTechnology()];
 		this.sampleFormTop = function($container, model) {
 			for(var i = 0; i < this.plugins.length; i++) {
 				this.plugins[i].sampleFormTop($container, model);
@@ -159,18 +159,24 @@ $.extend(DefaultProfile.prototype, {
 //		this.jupyterIntegrationServerEndpoint = "https://127.0.0.1:8002";
 //		this.jupyterEndpoint = "https://127.0.0.1:8000/";
 		
-		this.systemProperties = ["ANNOTATIONS_STATE", "FREEFORM_TABLE_STATE"];
-		this.forcedDisableRTF = ["NAME", "SEQUENCE"];
-		this.forceMonospaceFont = ["SEQUENCE"];
+		this.systemProperties = ["$ANNOTATIONS_STATE", "$FREEFORM_TABLE_STATE"];
+		this.forcedDisableRTF = [];
+		this.forceMonospaceFont = [];
 		this.imageViewerDataSetCodes = [];
 		this.isImageViewerDataSetCode = function(code) {
 			return (code && $.inArray(code, this.imageViewerDataSetCodes) !== -1);
 		}
 		
 		this.isRTF = function(propertytype) {
-			return (propertytype && 
-					propertytype.dataType === "MULTILINE_VARCHAR" &&
-					$.inArray(propertytype.code, this.forcedDisableRTF) === -1)
+			var isRTF = (propertytype && 
+						propertytype.dataType === "MULTILINE_VARCHAR" &&
+						$.inArray(propertytype.code, this.forcedDisableRTF) === -1);
+			for(var i = 0; i < this.plugins.length; i++) {
+				isRTF = isRTF && (propertytype && 
+						propertytype.dataType === "MULTILINE_VARCHAR" &&
+						$.inArray(propertytype.code, this.plugins[i].forcedDisableRTF) === -1);
+			}
+			return isRTF;
 		}
 		
 		this.isSystemProperty = function(propertytype) {
@@ -178,7 +184,11 @@ $.extend(DefaultProfile.prototype, {
 		}
 		
 		this.isForcedMonospaceFont = function(propertytype) {
-			return (propertytype && $.inArray(propertytype.code, this.forceMonospaceFont) !== -1);
+			var isForcedMonospaceFont = (propertytype && $.inArray(propertytype.code, this.forceMonospaceFont) !== -1);
+			for(var i = 0; i < this.plugins.length; i++) {
+				isForcedMonospaceFont = isForcedMonospaceFont || (propertytype && $.inArray(propertytype.code, this.plugins[i].forceMonospaceFont) !== -1);
+			}
+			return isForcedMonospaceFont;
 		}
 		
 		this.isForcedDisableRTF = function(propertytype) {
@@ -229,7 +239,29 @@ $.extend(DefaultProfile.prototype, {
     	    			callback();
     	    		});
 		}
-		
+
+		this.getHomeSpace = function(callback) {
+			mainController.serverFacade.getPersons([mainController.serverFacade.getUserId()], function(persons) {
+				// check if home space is assigned
+				var HOME_SPACE = null;
+				if(persons !== null) {
+					HOME_SPACE = (persons[0].getSpace()?persons[0].getSpace().getCode():null);
+				}
+				// fallback to space with the same name as the user, if existing
+				if(HOME_SPACE === null) {
+					var username = mainController.serverFacade.getUserId().toUpperCase();
+					mainController.serverFacade.getSpace(username, function(result) {
+						if (result && result.hasOwnProperty(username)) {
+							HOME_SPACE = username;
+						}
+						callback(HOME_SPACE);
+					})
+				} else {
+					callback(HOME_SPACE);
+				}
+			});
+		}
+
 		this.getSampleConfigSpacePrefix = function(sample) {
 			var prefix = null;
 			var spaceCode = sample.spaceCode;
@@ -399,7 +431,7 @@ $.extend(DefaultProfile.prototype, {
 			this._deleteSampleConnectionsByTypeIfNotVisited(sample, visited);
 		}
 		
-		this.propertyReplacingCode = "NAME";
+		this.propertyReplacingCode = "$NAME";
 		
 		this.sampleTypeDefinitionsExtension = {
 		
@@ -479,26 +511,34 @@ $.extend(DefaultProfile.prototype, {
 			
 			propertyGroup = {};
 			propertyGroup.groupDisplayName = "Physical Storage";
-			propertyGroup.nameProperty = "STORAGE_CODE";
-			propertyGroup.rowProperty = "STORAGE_RACK_ROW";
-			propertyGroup.columnProperty = "STORAGE_RACK_COLUMN";
-			propertyGroup.boxProperty = "STORAGE_BOX_NAME";
-			propertyGroup.boxSizeProperty = "STORAGE_BOX_SIZE";
-			propertyGroup.positionProperty = "STORAGE_BOX_POSITION";
-			propertyGroup.userProperty = "STORAGE_USER";
+			propertyGroup.nameProperty = "$STORAGE_POSITION.STORAGE_CODE";
+			propertyGroup.rowProperty = "$STORAGE_POSITION.STORAGE_RACK_ROW";
+			propertyGroup.columnProperty = "$STORAGE_POSITION.STORAGE_RACK_COLUMN";
+			propertyGroup.boxProperty = "$STORAGE_POSITION.STORAGE_BOX_NAME";
+			propertyGroup.boxSizeProperty = "$STORAGE_POSITION.STORAGE_BOX_SIZE";
+			propertyGroup.positionProperty = "$STORAGE_POSITION.STORAGE_BOX_POSITION";
+			propertyGroup.userProperty = "$STORAGE_POSITION.STORAGE_USER";
 			return propertyGroup;
 		}
 		
 		this.getStorageConfigFromSample = function(sample) {
+			//
+			// !!! IMPORTANT
+			// This properties start with $, they are here without it because the V1 API omits the $.
+			//
+			var propertyReplacingCodeNoDolar = profile.propertyReplacingCode;
+			if(propertyReplacingCodeNoDolar.charAt(0) === "$") {
+				propertyReplacingCodeNoDolar = propertyReplacingCodeNoDolar.substring(1);
+			}
 			return {
 				code : sample.code,
-				label : sample.properties[profile.propertyReplacingCode],
-				validationLevel : ValidationLevel[sample.properties["STORAGE_VALIDATION_LEVEL"]],
-				lowRackSpaceWarning : sample.properties["STORAGE_SPACE_WARNING"],
-				lowBoxSpaceWarning : sample.properties["BOX_SPACE_WARNING"],
-				rowNum : sample.properties["ROW_NUM"],
-				colNum : sample.properties["COLUMN_NUM"],
-				boxNum : sample.properties["BOX_NUM"]
+				label : sample.properties[propertyReplacingCodeNoDolar],
+				validationLevel : ValidationLevel[sample.properties["STORAGE.STORAGE_VALIDATION_LEVEL"]],
+				lowRackSpaceWarning : sample.properties["STORAGE.STORAGE_SPACE_WARNING"],
+				lowBoxSpaceWarning : sample.properties["STORAGE.BOX_SPACE_WARNING"],
+				rowNum : sample.properties["STORAGE.ROW_NUM"],
+				colNum : sample.properties["STORAGE.COLUMN_NUM"],
+				boxNum : sample.properties["STORAGE.BOX_NUM"]
 			};
 		}
 		

@@ -24,8 +24,8 @@ function SettingsFormController(mainController, settingsSample, mode) {
 		var runningProfile = jQuery.extend(true, {}, profile);
 		var profileToEdit = null;
 		
-		if(settingsSample.properties.ELN_SETTINGS) {
-			profileToEdit = JSON.parse(settingsSample.properties.ELN_SETTINGS);
+		if(settingsSample.properties["$ELN_SETTINGS"]) {
+			profileToEdit = JSON.parse(settingsSample.properties["$ELN_SETTINGS"]);
 		} else {
 			profileToEdit = runningProfile;
 		}

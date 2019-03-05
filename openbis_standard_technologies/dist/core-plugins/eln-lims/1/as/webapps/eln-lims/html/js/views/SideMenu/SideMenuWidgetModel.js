@@ -26,4 +26,5 @@ function SideMenuWidgetModel() {
     this.$container = null;
     this.tree = null;
     this.selectedNodeData = null;
+    this.sortField = null;
 }

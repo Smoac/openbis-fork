@@ -19,7 +19,7 @@ var onLoadInstanceProfileResorceFunc = function() {
 	//
 	$("#mainLogo").attr("src", profile.mainLogo);
 	$("#mainLogoTitle").append(profile.mainLogoTitle);
-	if(this.mainLogoTitle.length < 10) {
+	if(profile.mainLogoTitle.length < 10) {
 		$("#mainLogoTitle").css("font-weight", "bold");
 	}
 	$("login-form-div").attr("visibility", "visible");

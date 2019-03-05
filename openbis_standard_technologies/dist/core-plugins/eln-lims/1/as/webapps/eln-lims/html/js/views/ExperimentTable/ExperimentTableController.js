@@ -29,7 +29,7 @@ function ExperimentTableController(parentController, title, project, showInProje
 			for(var i = 0; i < data.result.length; i++) {
 				var item = data.result[i];
 				
-				var showOnlyOverview = _this._experimentTableModel.showInProjectOverview && item.properties["SHOW_IN_PROJECT_OVERVIEW"] === "true";
+				var showOnlyOverview = _this._experimentTableModel.showInProjectOverview && item.properties["$SHOW_IN_PROJECT_OVERVIEW"] === "true";
 				var showAll = !_this._experimentTableModel.showInProjectOverview;
 				if(showOnlyOverview || showAll) {
 					_this._experimentTableModel.allExperiments.push(item);
@@ -69,7 +69,7 @@ function ExperimentTableController(parentController, title, project, showInProje
 			for (var idx = 0; idx < this._experimentTableModel.allExperiments.length; idx++) {
 				var exptoCheckType = this._experimentTableModel.allExperiments[idx];
 				if(exptoCheckType.experimentTypeCode === selectedTypeCode) {
-					var showOnlyOverview = this._experimentTableModel.showInProjectOverview && exptoCheckType.properties["SHOW_IN_PROJECT_OVERVIEW"] === "true";
+					var showOnlyOverview = this._experimentTableModel.showInProjectOverview && exptoCheckType.properties["$SHOW_IN_PROJECT_OVERVIEW"] === "true";
 					var showAll = !this._experimentTableModel.showInProjectOverview;
 					if(showOnlyOverview || showAll) {
 						experiments.push(exptoCheckType);

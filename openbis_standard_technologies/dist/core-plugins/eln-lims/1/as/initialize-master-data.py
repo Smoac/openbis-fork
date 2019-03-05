@@ -13,103 +13,73 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-##
-## Configuration
-##
-import elnTypes
-import initializemasterdataminimum
-
 # MasterDataRegistrationTransaction Class
+from ch.ethz.sis.openbis.generic.server.asapi.v3 import ApplicationServerApi
+from ch.systemsx.cisd.openbis.generic.server import CommonServiceProvider
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id import CustomASServiceCode
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.service import CustomASServiceExecutionOptions
+
+# "======================== Helper Functions ========================"
+
 import os
-import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.DataType as DataType
+import sys
+from collections import deque
+from java.nio.file import Files, Paths
+from java.io import File
+from java.util import HashMap
+from java.util import ArrayList
 
-tr = service.transaction();
-initializemasterdataminimum.initBasicMasterData(tr);
-
-##
-## Vocabulary Types
-##
-elnTypes.createVocabularyWithTerms(tr, elnTypes.HOST);
-elnTypes.createVocabularyWithTerms(tr, elnTypes.DETECTION);
-elnTypes.createVocabularyWithTerms(tr, elnTypes.STORAGE);
-elnTypes.createVocabularyWithTerms(tr, elnTypes.CLONALITY);
-elnTypes.createVocabularyWithTerms(tr, elnTypes.BACKBONE);
-elnTypes.createVocabularyWithTerms(tr, elnTypes.BACTERIAL_ANTIBIOTIC_RESISTANCE);
-elnTypes.createVocabularyWithTerms(tr, elnTypes.MARKER);
-elnTypes.createVocabularyWithTerms(tr, elnTypes.STERILIZATION);
-elnTypes.createVocabularyWithTerms(tr, elnTypes.GENETIC_BACKGROUND);
-elnTypes.createVocabularyWithTerms(tr, elnTypes.MATING_TYPE);
-elnTypes.createVocabularyWithTerms(tr, elnTypes.BACKGROUND_SPECIFIC_MARKERS);
-elnTypes.createVocabularyWithTerms(tr, elnTypes.COMMON_MARKERS);
-elnTypes.createVocabularyWithTerms(tr, elnTypes.ENDOGENOUS_PLASMID);
-elnTypes.createVocabularyWithTerms(tr, elnTypes.DIRECTION);
-elnTypes.createVocabularyWithTerms(tr, elnTypes.STRAND);
-elnTypes.createVocabularyWithTerms(tr, elnTypes.RNA_TYPE);
-elnTypes.createVocabularyWithTerms(tr, elnTypes.RNA_BACKBONE);
-elnTypes.createVocabularyWithTerms(tr, elnTypes.ORIGIN);
-elnTypes.createVocabularyWithTerms(tr, elnTypes.CHECK);
-elnTypes.createVocabularyWithTerms(tr, elnTypes.PROTOCOL_TYPE);
-elnTypes.createVocabularyWithTerms(tr, elnTypes.TEMPLATE);
-elnTypes.createVocabularyWithTerms(tr, elnTypes.YES_NO_CHOICE);
-elnTypes.createVocabularyWithTerms(tr, elnTypes.MEMBRANE);
-elnTypes.createVocabularyWithTerms(tr, elnTypes.SPECIES);
-elnTypes.createVocabularyWithTerms(tr, elnTypes.CELL_MEDIUM);
-elnTypes.createVocabularyWithTerms(tr, elnTypes.CELL_TYPE);
-elnTypes.createVocabularyWithTerms(tr, elnTypes.ORGANISM);
-elnTypes.createVocabularyWithTerms(tr, elnTypes.PLASMID_RELATIONSHIP);
-elnTypes.createVocabularyWithTerms(tr, elnTypes.COLOR_ENCODED_ANNOTATIONS);
-
-##
-## Property Types for annotations
-##
-elnTypes.createProperty(tr, "COMMENTS", DataType.MULTILINE_VARCHAR, "Comments", "", None);
-elnTypes.createProperty(tr, "QUANTITY", DataType.VARCHAR, "Quantity", "", None);
-elnTypes.createProperty(tr, "PLASMID_ANNOTATION", DataType.VARCHAR, "Plasmid annotation", "", None);
-elnTypes.createProperty(tr, "PLASMID_RELATIONSHIP", DataType.CONTROLLEDVOCABULARY, "Plasmid relationship", "", "PLASMID_RELATIONSHIP");
-elnTypes.createProperty(tr, "CONTAINED", DataType.VARCHAR, "Contained", "", None);
-elnTypes.createProperty(tr, "COLOR_ENCODED_ANNOTATION", DataType.CONTROLLEDVOCABULARY, "Color Annotation for plate wells", "", "COLOR_ENCODED_ANNOTATIONS");
+TYPES_FOLDER = "%s/master-data/" % [p for p in sys.path if p.find('core-plugins') >= 0][0]
+SCRIPTS = os.path.join(TYPES_FOLDER, 'scripts')
 
 
-##
-## DataSet Types
-##
-elnTypes.createDataSetTypeWithProperties(tr, elnTypes.SEQ_FILE);
-	
-##
-## Experiment Types
-##
+def get_all_scripts():
+    scripts = HashMap()
+    for rel_path, script in list_all_files(SCRIPTS):
+        scripts.put(rel_path, script)
 
-##
-## Sample Types - Materials
-##
-elnTypes.getCommentsScript(tr, "SAMPLE");
-elnTypes.getGeneticModificationsScript(tr, "SAMPLE");
-elnTypes.getRequestsChildrenCodeScript(tr, "SAMPLE");
+    return scripts
+
+class ListForBinaries(ArrayList):
+    def toString(self):
+        return "%s blobs" % self.size()
+
+def list_xls_byte_arrays():
+    xls = ListForBinaries()
+    for f in os.listdir(TYPES_FOLDER):
+        if f.endswith('.xls') or f.endswith('.xlsx'):
+            excel_file = open(os.path.join(TYPES_FOLDER, f))
+            xls.add(excel_file.read())
+            excel_file.close()
+    return xls
 
 
-elnTypes.createSampleTypeWithProperties(tr, elnTypes.ANTIBODY);
-elnTypes.createSampleTypeWithProperties(tr, elnTypes.CHEMICAL);
-elnTypes.createSampleTypeWithProperties(tr, elnTypes.ENZYME);
-elnTypes.createSampleTypeWithProperties(tr, elnTypes.MEDIA);
-elnTypes.createSampleTypeWithProperties(tr, elnTypes.SOLUTION_BUFFER);
-elnTypes.createSampleTypeWithProperties(tr, elnTypes.OLIGO);
-elnTypes.createSampleTypeWithProperties(tr, elnTypes.RNA);
-elnTypes.createSampleTypeWithProperties(tr, elnTypes.PLASMID);
-elnTypes.createSampleTypeWithProperties(tr, elnTypes.BACTERIA);
-elnTypes.createSampleTypeWithProperties(tr, elnTypes.YEAST);
-elnTypes.createSampleTypeWithProperties(tr, elnTypes.CELL_LINE);
-elnTypes.createSampleTypeWithProperties(tr, elnTypes.FLY);
+def list_all_files(source_root_path):
+    todo = []
+    todo.append(File(source_root_path))
+    while todo:
+        f = todo.pop()
+        if f.isDirectory():
+            new_files = f.listFiles()
+            if new_files is not None:
+                todo.extend(f.listFiles())
+            continue
+        if f.isFile():
+            source_file = f.getAbsolutePath()
+            script_file = open(source_file)
+            script = script_file.read()
+            script_file.close()
+            file_path = source_file.replace(source_root_path, "")
+            if file_path.startswith("/"):
+                file_path = file_path[1:]
+            yield file_path, script
 
-##
-## Sample Types - Non Materials
-##
+# "======================== Helper Functions ========================"
 
-elnTypes.createSampleTypeWithProperties(tr, elnTypes.GENERAL_PROTOCOL);
-elnTypes.createSampleTypeWithProperties(tr, elnTypes.PCR_PROTOCOL);
-elnTypes.createSampleTypeWithProperties(tr, elnTypes.WESTERN_BLOTTING_PROTOCOL);
-
-##
-## Version
-##
-elnTypes.createVocabularyWithTerms(tr, elnTypes.ELN_TYPES_METADATA); #Updates the master data version
+api = CommonServiceProvider.getApplicationContext().getBean(ApplicationServerApi.INTERNAL_SERVICE_NAME)
+sessionToken = api.loginAsSystem()
+props = CustomASServiceExecutionOptions().withParameter('xls', list_xls_byte_arrays()).withParameter('scripts', get_all_scripts())
+result = api.executeCustomASService(sessionToken, CustomASServiceCode("xls-import-api"), props);
+print("======================== master-data xls ingestion result ========================")
+print(result)
+print("======================== master-data xls ingestion result ========================")

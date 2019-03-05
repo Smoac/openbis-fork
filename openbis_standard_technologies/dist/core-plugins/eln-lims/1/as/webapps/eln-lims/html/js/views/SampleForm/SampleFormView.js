@@ -266,6 +266,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				var nameElements = [
 					"O",
 					_this._sampleFormModel.sample.spaceCode,
+					IdentifierUtil.getProjectCodeFromSampleIdentifier(_this._sampleFormModel.sample.identifier),
 					_this._sampleFormModel.sample.code,
 				];
 				FormUtil.showDropboxFolderNameDialog(nameElements);
@@ -358,7 +359,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
 			var propertyTypeGroup = sampleType.propertyTypeGroups[i];
-			if(propertyTypeGroup.name === "General") {
+			if(propertyTypeGroup.name === "General" || propertyTypeGroup.name === "General info") {
 				this._paintPropertiesForSection($formColumn, propertyTypeGroup, i, loadFromTemplate);
 			}
 		}
@@ -463,7 +464,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
 			var propertyTypeGroup = sampleType.propertyTypeGroups[i];
-			if(propertyTypeGroup.name !== "General") {
+			if(propertyTypeGroup.name !== "General" && propertyTypeGroup.name !== "General info") {
 				this._paintPropertiesForSection($formColumn, propertyTypeGroup, i, loadFromTemplate);
 			}
 		}
@@ -613,15 +614,15 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 			var propertyType = propertyTypeGroup.propertyTypes[j];
 			FormUtil.fixStringPropertiesForForm(propertyType, this._sampleFormModel.sample);
-			if(!propertyType.showInEditViews && this._sampleFormModel.mode === FormMode.EDIT) { //Skip
+			if(!propertyType.showInEditViews && this._sampleFormModel.mode === FormMode.EDIT && propertyType.code !== "$XMLCOMMENTS") { //Skip
 				continue;
 			} else if(propertyType.dinamic && this._sampleFormModel.mode === FormMode.CREATE) { //Skip
 				continue;
 			}
 			
-			if(propertyType.code === "ANNOTATIONS_STATE" || propertyType.code === "FREEFORM_TABLE_STATE" || propertyType.code === "ORDER_STATE" ) {
+			if(propertyType.code === "$ANNOTATIONS_STATE" || propertyType.code === "$FREEFORM_TABLE_STATE" || propertyType.code === "$ORDER.ORDER_STATE" ) {
 				continue;
-			} else if(propertyType.code === "XMLCOMMENTS") {
+			} else if(propertyType.code === "$XMLCOMMENTS") {
 				var $commentsContainer = $("<div>");
 				$fieldset.append($commentsContainer);
 				var isAvailable = this._sampleFormController._addCommentsWidget($commentsContainer);
@@ -629,7 +630,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					continue;
 				}
 			} else {
-				if(propertyType.code === "SHOW_IN_PROJECT_OVERVIEW") {
+				if(propertyType.code === "$SHOW_IN_PROJECT_OVERVIEW") {
 					if(!(profile.inventorySpaces.length > 0 && $.inArray(this._sampleFormModel.sample.spaceCode, profile.inventorySpaces) === -1)) {
 						continue;
 					}
@@ -705,7 +706,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				$fieldset.append($controlGroup);
 			}
 			
-			if(propertyType.code !== "ANNOTATIONS_STATE") {
+			if(propertyType.code !== "$ANNOTATIONS_STATE") {
 				propertyGroupPropertiesOnForm++;
 			}	
 		}

@@ -34,11 +34,15 @@ function NewProductsView(newProductsController, newProductsModel) {
 		mainController.serverFacade.searchWithType("SUPPLIER", null, false, function(suppliers){
 			var supplierTerms = [];
 			for(var sIdx = 0; sIdx < suppliers.length; sIdx++) {
-				supplierTerms.push({code : suppliers[sIdx].identifier, label : suppliers[sIdx].properties["NAME"]});
+				var name = suppliers[sIdx].properties["$NAME"];
+				if(!name) {
+					name = suppliers[sIdx].properties["NAME"];
+				}
+				supplierTerms.push({code : suppliers[sIdx].identifier, label : name });
 			}
 			var supplierDropdown = FormUtil.getDropDownForTerms(null, supplierTerms, "Select a supplier", true);
 			
-			var currencyVocabulary = profile.getVocabularyByCode("CURRENCY");
+			var currencyVocabulary = profile.getVocabularyByCode("$PRODUCT.CURRENCY");
 			var currencyDropdown = FormUtil.getDropDownForTerms(null, currencyVocabulary.terms, "Select a currency", false);
 			
 			var quantityField = FormUtil.getIntegerInputField(null, "Quantiy", true);

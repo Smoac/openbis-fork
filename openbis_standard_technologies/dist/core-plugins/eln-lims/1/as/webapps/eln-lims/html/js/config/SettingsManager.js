@@ -8,7 +8,7 @@ function SettingsManager(serverFacade) {
 		if (errors.length > 0) {
 			Util.showError(FormUtil._getSanitizedErrorString("Settings validation errors:", errors));
 		} else {
-			settingsSample.properties = { "ELN_SETTINGS" : JSON.stringify(settings) };
+			settingsSample.properties = { "$ELN_SETTINGS" : JSON.stringify(settings) };
 			this._serverFacade.updateSample(settingsSample, function(ok) {
 				if(ok) {
 					_this.applySettingsToProfile(settings, profile);
@@ -44,8 +44,12 @@ function SettingsManager(serverFacade) {
 			if(settingsObjects) {
 				for(var sIdx = 0; sIdx < settingsObjects.length; sIdx++) {
 					var settingsObject = settingsObjects[sIdx];
-					if (settingsObject && settingsObject.properties && settingsObject.properties.ELN_SETTINGS) {
-						var settings = JSON.parse(settingsObject.properties.ELN_SETTINGS);
+					if (settingsObject && settingsObject.properties && (settingsObject.properties["ELN_SETTINGS"] || settingsObject.properties["$ELN_SETTINGS"])) {
+						var settings = settingsObject.properties["$ELN_SETTINGS"];
+						if(!settings) {
+							settings = settingsObject.properties["ELN_SETTINGS"];
+						}
+						settings = JSON.parse(settings);
 						if (settings) {
 							var errors = this._validateSettings(settings);
 							if (errors.length > 0) {
@@ -129,7 +133,7 @@ function SettingsManager(serverFacade) {
 			// Remove current profile show config
 			if($.inArray(sampleTypeCode, targetProfile.hideTypes["sampleTypeCodes"]) !== -1) {
 				var indexToRemove = $.inArray(sampleTypeCode, targetProfile.hideTypes["sampleTypeCodes"]);
-				targetProfile.hideTypes["sampleTypeCodes"] = targetProfile.hideTypes["sampleTypeCodes"].splice(indexToRemove, 1);
+				targetProfile.hideTypes["sampleTypeCodes"].splice(indexToRemove, 1);
 			}
 			
 			// Add current profile show config

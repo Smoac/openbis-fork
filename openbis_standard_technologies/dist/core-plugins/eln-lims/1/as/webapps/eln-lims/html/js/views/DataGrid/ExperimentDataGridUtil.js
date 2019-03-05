@@ -26,21 +26,21 @@ var ExperimentDataGridUtil = new function() {
 			}
 		});
 		
-		if($.inArray("NAME", propertyCodes) !== -1) {
+		if($.inArray("$NAME", propertyCodes) !== -1) {
 			columns.push({
 				label : 'Name',
-				property : 'NAME',
+				property : '$NAME',
 				isExportable: true,
 				sortable : true,
 				render : function(data) {
-					return FormUtil.getFormLink(data.NAME, "Experiment", data.identifier);;
+					return FormUtil.getFormLink(data[profile.propertyReplacingCode], "Experiment", data.identifier);
 				}
 			});
 		}
 		
 		var propertyColumnsToSort = [];
 		for (var idx = 0; idx < propertyCodes.length; idx++) {
-			var propertiesToSkip = ["NAME", "XMLCOMMENTS"];
+			var propertiesToSkip = ["$NAME", "$XMLCOMMENTS"];
 			var propertyCode = propertyCodes[idx];
 			if($.inArray(propertyCode, propertiesToSkip) !== -1) {
 				continue;

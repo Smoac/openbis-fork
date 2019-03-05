@@ -599,13 +599,13 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 				var propertyType = propertyTypeGroup.propertyTypes[j];
 				FormUtil.fixStringPropertiesForForm(propertyType, this._dataSetFormModel.dataSet);
 				
-				if(!propertyType.showInEditViews && this._dataSetFormController.mode === FormMode.EDIT) { //Skip
+				if(!propertyType.showInEditViews && this._dataSetFormController.mode === FormMode.EDIT && propertyType.code !== "$XMLCOMMENTS") { //Skip
 					continue;
 				} else if(propertyType.dinamic && this._dataSetFormController.mode === FormMode.CREATE) { //Skip
 					continue;
 				}
 				
-				if(propertyType.code === "XMLCOMMENTS") {
+				if(propertyType.code === "$XMLCOMMENTS") {
 					var $commentsContainer = $("<div>");
 					$fieldset.append($commentsContainer);
 					var isAvailable = this._dataSetFormController._addCommentsWidget($commentsContainer);
@@ -613,7 +613,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 						continue;
 					}
 				} else {
-					if(propertyType.code === "SHOW_IN_PROJECT_OVERVIEW") {
+					if(propertyType.code === "$SHOW_IN_PROJECT_OVERVIEW") {
 						var identifier = null;
 						if(this._dataSetFormModel.isExperiment()) { 
 							identifier = this._dataSetFormModel.entity.identifier.identifier;

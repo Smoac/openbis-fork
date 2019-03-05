@@ -40,7 +40,7 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 		
 		var properyKeyValueList = null;
 		if (this._sampleTableModel.showInProjectOverview) {
-			properyKeyValueList = [{ "SHOW_IN_PROJECT_OVERVIEW" : "\"true\"" }];
+			properyKeyValueList = [{ "$SHOW_IN_PROJECT_OVERVIEW" : "\"true\"" }];
 		}
 		
 		//
@@ -61,7 +61,7 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 		}
 		
 		if(this._sampleTableModel.showInProjectOverview) {
-			advancedSampleSearchCriteria.rules["2"] = { type : "Property", name : "SHOW_IN_PROJECT_OVERVIEW", value : "true" };
+			advancedSampleSearchCriteria.rules["2"] = { type : "Property", name : "$SHOW_IN_PROJECT_OVERVIEW", value : "true" };
 		}
 		//
 		callback();

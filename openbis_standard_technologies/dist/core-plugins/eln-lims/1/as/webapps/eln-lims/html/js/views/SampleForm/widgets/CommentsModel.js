@@ -20,11 +20,11 @@ function CommentsModel(entity, mode, form) {
 	this.form = form;
 	
 	this.getComments = function() {
-		return this.entity.properties["XMLCOMMENTS"];
+		return this.entity.properties["$XMLCOMMENTS"];
 	}
 	
 	this.setComments = function(commentsXML) {
-		this.entity.properties["XMLCOMMENTS"] = commentsXML;
+		this.entity.properties["$XMLCOMMENTS"] = commentsXML;
 		this.form.isFormDirty = true;
 	}
 }

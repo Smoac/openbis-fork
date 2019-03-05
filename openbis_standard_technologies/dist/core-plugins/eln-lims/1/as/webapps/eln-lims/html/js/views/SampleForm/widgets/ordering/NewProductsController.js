@@ -35,28 +35,29 @@ function NewProductsController() {
 			for(var trIdx = 0; trIdx < $trList.length; trIdx++) {
 				var $productRow = $($trList[trIdx]);
 				var $productProperties = $($productRow.children());
+				var sampleIdentifier = IdentifierUtil.getSampleIdentifier("STOCK_CATALOG", "PRODUCTS", codePrefix + nextCodeNumber);
 				var newProduct = {
-						permId : "PERM_ID_PLACEHOLDER_FOR/STOCK_CATALOG/" + codePrefix + nextCodeNumber,
+						permId : "PERM_ID_PLACEHOLDER_FOR" + sampleIdentifier,
 						sampleTypeCode : "PRODUCT",
 						experimentIdentifierOrNull : "/STOCK_CATALOG/PRODUCTS/PRODUCT_COLLECTION",
-						identifier : IdentifierUtil.getSampleIdentifier("STOCK_CATALOG", "PRODUCTS", codePrefix + nextCodeNumber), 
+						identifier : sampleIdentifier, 
 						code : codePrefix + nextCodeNumber,
 						parentsIdentifiers : [$($($productProperties[4]).children()[0]).val()],
 						properties : {
-							NAME : $($($productProperties[0]).children()[0]).val(),
-							PRICE_PER_UNIT : $($($productProperties[2]).children()[0]).val(),
-							CURRENCY : $($($productProperties[3]).children()[0]).val(),
-							CATALOG_NUM : $($($productProperties[1]).children()[0]).val()
+							"$NAME" : $($($productProperties[0]).children()[0]).val(),
+							"$PRODUCT.PRICE_PER_UNIT" : $($($productProperties[2]).children()[0]).val(),
+							"$PRODUCT.CURRENCY" : $($($productProperties[3]).children()[0]).val(),
+							"$PRODUCT.CATALOG_NUM" : $($($productProperties[1]).children()[0]).val()
 						},
 						annotations : {
-							QUANTITY_OF_ITEMS : $($($productProperties[5]).children()[0]).val()
+							"ANNOTATION.REQUEST.QUANTITY_OF_ITEMS" : $($($productProperties[5]).children()[0]).val()
 						}
 				}
-				if(!newProduct.properties.CURRENCY) {
-					delete newProduct.properties.CURRENCY;
+				if(!newProduct.properties["$PRODUCT.CURRENCY"]) {
+					delete newProduct.properties["$PRODUCT.CURRENCY"];
 				}
-				if(!newProduct.properties.PRICE_PER_UNIT) {
-					delete newProduct.properties.PRICE_PER_UNIT;
+				if(!newProduct.properties["$PRODUCT.PRICE_PER_UNIT"]) {
+					delete newProduct.properties["$PRODUCT.PRICE_PER_UNIT"];
 				}
 				products.push(newProduct);
 				nextCodeNumber++;

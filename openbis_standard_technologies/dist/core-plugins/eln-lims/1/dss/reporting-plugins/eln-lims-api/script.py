@@ -213,7 +213,7 @@ def process(tr, parameters, tableBuilder):
 	projectSamplesEnabled = v3.getServerInformation(sessionToken)['project-samples-enabled'] == 'true'
 	
 	if method == "init":
-		isOk = init(tr, projectSamplesEnabled, parameters, tableBuilder);
+		isOk = True;
 	if method == "isFileAuthUser":
 		result = isFileAuthUser(tr, parameters, tableBuilder);
 		isOk = True;
@@ -414,165 +414,6 @@ def extractDiskSpaceValues(df):
 		elif column in ["Capacity", "Use%"]: # Mac OS X or GNU/Linux
 			values["UsedPercentage"] = valuesSplitReversed[i]
 	return values
-
-def insertSpaceIfMissing(tr, spaceCode):
-	space = tr.getSpace(spaceCode);
-	if space == None:
-		tr.createNewSpace(spaceCode, None);
-	return space;
-
-def insertProjectIfMissing(tr, projectIdentifier, projectsCache):
-	if projectIdentifier in projectsCache:
-		return projectsCache[projectIdentifier];
-	project = tr.getProject(projectIdentifier);
-	if project == None:
-		tr.createNewProject(projectIdentifier);
-	projectsCache[projectIdentifier] = project;
-	return project;
-
-def insertExperimentIfMissing(tr, experimentIdentifier, experimentType, experimentName):
-	experiment = tr.getExperiment(experimentIdentifier);
-	if experiment == None:
-		experiment = tr.createNewExperiment(experimentIdentifier, 	experimentType);
-		experiment.setPropertyValue("NAME", experimentName);
-	return experiment;
-
-def insertSampleIfMissing(tr, sampleIdentifier, experiment, sampleType, properties):
-	sample = tr.getSample(sampleIdentifier);
-	if sample == None:
-		sample = tr.createNewSample(sampleIdentifier,	sampleType);
-		if experiment != None:
-			sample.setExperiment(experiment);
-		if properties != None:
-			for key in properties:
-				sample.setPropertyValue(key, properties[key]);
-	return sample;
-	
-def init(tr, projectSamplesEnabled, parameters, tableBuilder):
-	projectsCache = {};
-	installedTypes = getSampleTypes(tr, parameters);
-	inventorySpace = tr.getSpace("DEFAULT_LAB_NOTEBOOK");
-	methodsSpace = tr.getSpace("METHODS");
-	materialsSpace = tr.getSpace("MATERIALS");
-	isNewInstallation = inventorySpace == None and methodsSpace == None and materialsSpace == None;
-			
-	## Installing Mandatory Spaces/Projects on every login if missing
-	insertSpaceIfMissing(tr, "ELN_SETTINGS");
-	insertSpaceIfMissing(tr, "STORAGE");
-	insertSpaceIfMissing(tr, "METHODS");
-	insertSpaceIfMissing(tr, "MATERIALS");
-
-	if isSampleTypeAvailable(installedTypes, "SUPPLIER") and isSampleTypeAvailable(installedTypes, "PRODUCT") and isSampleTypeAvailable(installedTypes, "REQUEST") and isSampleTypeAvailable(installedTypes, "ORDER"):
-		insertSpaceIfMissing(tr, "STOCK_CATALOG");
-		insertProjectIfMissing(tr, "/STOCK_CATALOG/PRODUCTS", projectsCache);
-		insertExperimentIfMissing(tr, "/STOCK_CATALOG/PRODUCTS/PRODUCT_COLLECTION", "STOCK", "Product Collection");
-		insertProjectIfMissing(tr, "/STOCK_CATALOG/SUPPLIERS", projectsCache);
-		insertExperimentIfMissing(tr, "/STOCK_CATALOG/SUPPLIERS/SUPPLIER_COLLECTION", "STOCK", "Supplier Collection");
-		insertProjectIfMissing(tr, "/STOCK_CATALOG/REQUESTS", projectsCache);
-		insertExperimentIfMissing(tr, "/STOCK_CATALOG/REQUESTS/REQUEST_COLLECTION", "STOCK", "Request Collection");
-		insertSpaceIfMissing(tr, "STOCK_ORDERS");
-		insertProjectIfMissing(tr, "/STOCK_ORDERS/ORDERS", projectsCache);
-		insertExperimentIfMissing(tr, "/STOCK_ORDERS/ORDERS/ORDER_COLLECTION", "STOCK", "Order Collection");
-		insertSampleIfMissing(tr, "/ELN_SETTINGS/ORDER_TEMPLATE", None, "ORDER", { "ORDER_STATUS" : "NOT_YET_ORDERED" });
-	
-	## Default lab notebook only on new installations
-	if isNewInstallation:
-		tr.createNewSpace("DEFAULT_LAB_NOTEBOOK", None);
-		tr.createNewProject("/DEFAULT_LAB_NOTEBOOK/DEFAULT_PROJECT");
-		defaultExperiment = tr.createNewExperiment("/DEFAULT_LAB_NOTEBOOK/DEFAULT_PROJECT/DEFAULT_EXPERIMENT", 	"DEFAULT_EXPERIMENT");
-		defaultExperiment.setPropertyValue("NAME", "Default Experiment");
-	
-	if isSampleTypeAvailable(installedTypes, "STORAGE"):
-			isFirstTimeInstallingStorage = tr.getProject("/ELN_SETTINGS/STORAGES") == None;
-			if isFirstTimeInstallingStorage:
-				insertProjectIfMissing(tr, "/ELN_SETTINGS/STORAGES", projectsCache);
-				storageCollection = insertExperimentIfMissing(tr, "/ELN_SETTINGS/STORAGES/STORAGES_COLLECTION", "COLLECTION", "Storages Collection");
-				benchIdentifier = createSampleIdentifier("ELN_SETTINGS", "STORAGES", "BENCH", projectSamplesEnabled)
-				bench = insertSampleIfMissing(tr, benchIdentifier, storageCollection, "STORAGE", None);
-				bench.setPropertyValue("NAME", "Bench");
-				bench.setPropertyValue("ROW_NUM", "1");
-				bench.setPropertyValue("COLUMN_NUM", "1");
-				bench.setPropertyValue("BOX_NUM", "9999");
-				bench.setPropertyValue("STORAGE_SPACE_WARNING", "80");
-				bench.setPropertyValue("BOX_SPACE_WARNING", "80");
-				bench.setPropertyValue("STORAGE_VALIDATION_LEVEL", "BOX_POSITION");
-					
-				defaultStorageIdentifier = createSampleIdentifier("ELN_SETTINGS", "STORAGES", "DEFAULT_STORAGE", projectSamplesEnabled)
-				defaultStorage = insertSampleIfMissing(tr, defaultStorageIdentifier, storageCollection, "STORAGE", None);
-				defaultStorage.setPropertyValue("NAME", "Default Storage");
-				defaultStorage.setPropertyValue("ROW_NUM", "4");
-				defaultStorage.setPropertyValue("COLUMN_NUM", "4");
-				defaultStorage.setPropertyValue("BOX_NUM", "9999");
-				defaultStorage.setPropertyValue("STORAGE_SPACE_WARNING", "80");
-				defaultStorage.setPropertyValue("BOX_SPACE_WARNING", "80");
-				defaultStorage.setPropertyValue("STORAGE_VALIDATION_LEVEL", "BOX_POSITION");
-			
-	if isSampleTypeAvailable(installedTypes, "GENERAL_ELN_SETTINGS"):
-			insertSampleIfMissing(tr, "/ELN_SETTINGS/GENERAL_ELN_SETTINGS", None, "GENERAL_ELN_SETTINGS", None);
-	
-	# On new installations check if the default types are installed to create their respective PROJECT/EXPERIMENTS
-	if isNewInstallation:
-		if isSampleTypeAvailable(installedTypes, "ANTIBODY"):
-			insertProjectIfMissing(tr, "/MATERIALS/REAGENTS", projectsCache);
-			insertExperimentIfMissing(tr, "/MATERIALS/REAGENTS/ANTIBODY_COLLECTION_1", "MATERIALS", "Antibody Collection 1");
-		
-		if isSampleTypeAvailable(installedTypes, "CHEMICAL"):
-			insertProjectIfMissing(tr, "/MATERIALS/REAGENTS", projectsCache);
-			insertExperimentIfMissing(tr, "/MATERIALS/REAGENTS/CHEMICAL_COLLECTION_1", "MATERIALS", "Chemical Collection 1");
-		
-		if isSampleTypeAvailable(installedTypes, "ENZYME"):
-			insertProjectIfMissing(tr, "/MATERIALS/REAGENTS", projectsCache);
-			insertExperimentIfMissing(tr, "/MATERIALS/REAGENTS/ENZYME_COLLECTION_1", "MATERIALS", "Enzyme Collection 1");
-		
-		if isSampleTypeAvailable(installedTypes, "MEDIA"):
-			insertProjectIfMissing(tr, "/MATERIALS/REAGENTS", projectsCache);
-			insertExperimentIfMissing(tr, "/MATERIALS/REAGENTS/MEDIA_COLLECTION_1", "MATERIALS", "Media Collection 1");
-		
-		if isSampleTypeAvailable(installedTypes, "SOLUTION_BUFFER"):
-			insertProjectIfMissing(tr, "/MATERIALS/REAGENTS", projectsCache);
-			insertExperimentIfMissing(tr, "/MATERIALS/REAGENTS/SOLUTION_BUFFER_COLLECTION_1", "MATERIALS", "Solution Buffer Collection 1");
-			
-		if isSampleTypeAvailable(installedTypes, "BACTERIA"):
-			insertProjectIfMissing(tr, "/MATERIALS/BACTERIA", projectsCache);
-			insertExperimentIfMissing(tr, "/MATERIALS/BACTERIA/BACTERIA_COLLECTION_1", "MATERIALS", "Bacteria Collection 1");
-		
-		if isSampleTypeAvailable(installedTypes, "CELL_LINE"):
-			insertProjectIfMissing(tr, "/MATERIALS/CELL_LINES", projectsCache);
-			insertExperimentIfMissing(tr, "/MATERIALS/CELL_LINES/CELL_LINE_COLLECTION_1", "MATERIALS", "Cell Line Collection 1");
-		
-		if isSampleTypeAvailable(installedTypes, "FLY"):
-			insertProjectIfMissing(tr, "/MATERIALS/FLIES", projectsCache);
-			insertExperimentIfMissing(tr, "/MATERIALS/FLIES/FLY_COLLECTION_1", "MATERIALS", "Fly Collection 1");
-		
-		if isSampleTypeAvailable(installedTypes, "YEAST"):
-			insertProjectIfMissing(tr, "/MATERIALS/YEASTS", projectsCache);
-			insertExperimentIfMissing(tr, "/MATERIALS/YEASTS/YEAST_COLLECTION_1", "MATERIALS", "Yeast Collection 1");
-
-		if isSampleTypeAvailable(installedTypes, "PLASMID"):
-			insertProjectIfMissing(tr, "/MATERIALS/PLASMIDS", projectsCache);
-			insertExperimentIfMissing(tr, "/MATERIALS/PLASMIDS/PLASMID_COLLECTION_1", "MATERIALS", "Plasmid Collection 1");
-
-		if isSampleTypeAvailable(installedTypes, "OLIGO"):
-			insertProjectIfMissing(tr, "/MATERIALS/POLYNUCLEOTIDES", projectsCache);
-			insertExperimentIfMissing(tr, "/MATERIALS/POLYNUCLEOTIDES/OLIGO_COLLECTION_1", "MATERIALS", "Oligo Collection 1");
-		
-		if isSampleTypeAvailable(installedTypes, "RNA"):
-			insertProjectIfMissing(tr, "/MATERIALS/POLYNUCLEOTIDES", projectsCache);
-			insertExperimentIfMissing(tr, "/MATERIALS/POLYNUCLEOTIDES/RNA_COLLECTION_1", "MATERIALS", "RNA Collection 1");
-		
-		if isSampleTypeAvailable(installedTypes, "GENERAL_PROTOCOL"):
-			insertProjectIfMissing(tr, "/METHODS/PROTOCOLS", projectsCache);
-			insertExperimentIfMissing(tr, "/METHODS/PROTOCOLS/GENERAL_PROTOCOLS", "METHODS", "General Protocols");
-		
-		if isSampleTypeAvailable(installedTypes, "PCR_PROTOCOL"):
-			insertProjectIfMissing(tr, "/METHODS/PROTOCOLS", projectsCache);
-			insertExperimentIfMissing(tr, "/METHODS/PROTOCOLS/PCR_PROTOCOLS", "METHODS", "PCR Protocols");
-		
-		if isSampleTypeAvailable(installedTypes, "WESTERN_BLOTTING_PROTOCOL"):
-			insertProjectIfMissing(tr, "/METHODS/PROTOCOLS", projectsCache);
-			insertExperimentIfMissing(tr, "/METHODS/PROTOCOLS/WESTERN_BLOTTING_PROTOCOLS", "METHODS", "Western Botting Protocols");
-	
-	return True;
 
 def isFileAuthUser(tr, parameters, tableBuilder):
 	userId = parameters.get("userId"); #String
@@ -888,10 +729,10 @@ def insertUpdateSample(tr, projectSamplesEnabled, parameters, tableBuilder):
 	if sampleParentsNew != None:
 		for newSampleParent in sampleParentsNew:
 			parent = tr.createNewSample(newSampleParent.get("identifier"), newSampleParent.get("sampleTypeCode")); #Create Sample given his id
-			if newSampleParent.get("annotations") != None and sampleProperties.get("ANNOTATIONS_STATE") != None:
-				sample_ANNOTATIONS_STATE = sampleProperties.get("ANNOTATIONS_STATE");
+			if newSampleParent.get("annotations") != None and sampleProperties.get("$ANNOTATIONS_STATE") != None:
+				sample_ANNOTATIONS_STATE = sampleProperties.get("$ANNOTATIONS_STATE");
 				sample_ANNOTATIONS_STATE = sample_ANNOTATIONS_STATE.replace("PERM_ID_PLACEHOLDER_FOR" + newSampleParent.get("identifier"), parent.getPermId());
-				sampleProperties.put("ANNOTATIONS_STATE", sample_ANNOTATIONS_STATE);
+				sampleProperties.put("$ANNOTATIONS_STATE", sample_ANNOTATIONS_STATE);
 			if newSampleParent.get("experimentIdentifierOrNull") != None:
 				parentExperiment = tr.getExperiment(newSampleParent.get("experimentIdentifierOrNull"));
 				parent.setExperiment(parentExperiment);

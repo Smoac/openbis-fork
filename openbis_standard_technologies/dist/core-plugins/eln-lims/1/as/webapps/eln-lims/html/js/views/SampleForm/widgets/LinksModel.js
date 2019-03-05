@@ -38,7 +38,7 @@ function LinksModel(title, sampleTypeHints, isDisabled, showInfo, disableAddAnyT
 		}
 		
 		var xmlDoc = FormUtil.getXMLFromAnnotations(this.stateObj);
-		mainController.currentView._sampleFormModel.sample.properties["ANNOTATIONS_STATE"] = xmlDoc;
+		mainController.currentView._sampleFormModel.sample.properties["$ANNOTATIONS_STATE"] = xmlDoc;
 	}
 	
 	this.readState = function(permId, propertyTypeCode) {
@@ -53,7 +53,7 @@ function LinksModel(title, sampleTypeHints, isDisabled, showInfo, disableAddAnyT
 		
 		if(mainController.currentView._sampleFormModel.sample) {
 			var availableFields = profile.getAllPropertiCodesForTypeCode(mainController.currentView._sampleFormModel.sample.sampleTypeCode);
-			var pos = $.inArray("ANNOTATIONS_STATE", availableFields);
+			var pos = $.inArray("$ANNOTATIONS_STATE", availableFields);
 			isStateFieldAvailable = (pos !== -1);
 		}
 		

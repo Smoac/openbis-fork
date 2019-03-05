@@ -64,11 +64,11 @@ var FormUtil = new function() {
 	}
 	
 	this.getAnnotationsFromSample = function(sample) {
-		var field = sample.properties["ANNOTATIONS_STATE"];
+		var field = sample.properties["$ANNOTATIONS_STATE"];
 		var stateFieldValue = Util.getEmptyIfNull(field);
 		if(stateFieldValue === "") {
 			stateFieldValue = undefined;
-			sample.properties["ANNOTATIONS_STATE"] = undefined;
+			sample.properties["$ANNOTATIONS_STATE"] = undefined;
 		}
 		return this.getAnnotationsFromField(stateFieldValue);
 	}
@@ -510,7 +510,20 @@ var FormUtil = new function() {
 		$btn.click(clickEvent);
 		return $btn;
 	}
-	
+
+	this.getButtonGroup = function(buttons, size) {
+		var styleClass = "btn-group" + (size ? "-" + size : "");
+		var $buttonGroup = $("<div>", {
+			"class": styleClass,
+			"role": "group",
+		});
+		for (var i=0; i<buttons.length; i++) {
+			$buttonGroup.append(buttons[i]);
+		}
+		$buttonGroup.css({ "margin": "3px" });
+		return $buttonGroup;
+	}
+
 	/**
 	 * @param {string} settingLoadedCallback Can be used to avoid flickering. Only called if dontRestoreState is not true.
 	 * @param {string} dontRestoreState Sets the state to collaped and doesn't load it from server.
@@ -817,7 +830,8 @@ var FormUtil = new function() {
 	// Rich Text Editor Support - (CKEditor)
 	//
 	CKEDITOR.on( 'instanceReady', function( ev ) {
-		ev.editor.config.filebrowserUploadUrl = "/openbis/openbis/file-service/eln-lims?sessionID=" + mainController.serverFacade.getSession();
+		ev.editor.config.filebrowserUploadMethod = "form";
+		ev.editor.config.filebrowserUploadUrl = "/openbis/openbis/file-service/eln-lims?type=Files&sessionID=" + mainController.serverFacade.getSession();
 		ev.editor.dataProcessor.writer.selfClosingEnd = ' />';
 		ev.editor.document.on('drop', function (ev) {
 		      ev.data.preventDefault(true);
@@ -1299,6 +1313,7 @@ var FormUtil = new function() {
 	// params.buttons: array of buttons
 	// params.css: css as a map
 	// params.callback: function to be called on submit
+	// params.onBlock: function to be called when dialog is rendered
 	this.showDialog = function(params) {
 
 		var $window = $('<form>', { 'action' : 'javascript:void(0);' });
@@ -1319,6 +1334,9 @@ var FormUtil = new function() {
 		Util.blockUI($window, params.css, false, function() {
 			if (params.focuseComponent) {
 				params.focuseComponent.focus();
+			}
+			if (params.onBlock) {
+				params.onBlock();
 			}
 		});
 	}

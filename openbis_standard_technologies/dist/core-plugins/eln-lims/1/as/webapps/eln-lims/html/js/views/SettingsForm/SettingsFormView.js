@@ -140,7 +140,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		$fieldset.append(FormUtil.getInfoText(text.info));
 
 		var experimentIdentifier = profile.getStorageConfigCollectionForConfigSample(this._settingsFormModel.settingsSample); //"/ELN_SETTINGS/STORAGES/STORAGES_COLLECTION";
-
+		
 		var $addBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
 			var argsMap = {
 					"sampleTypeCode" : "STORAGE",

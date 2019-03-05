@@ -503,8 +503,8 @@ function PlateView(plateController, plateModel) {
 		var colorEncodedWellAnnotationsSelector = "";
 		
 		if(!well.isEmpty) {
-			//Color Annotations only enabled for wells with a type having COLOR_ENCODED_ANNOTATION property
-			var isAnnotableWell = jQuery.inArray("COLOR_ENCODED_ANNOTATION", profile.getAllPropertiCodesForTypeCode(well.sampleTypeCode) ) !== -1;
+			//Color Annotations only enabled for wells with a type having $WELL.COLOR_ENCODED_ANNOTATION property
+			var isAnnotableWell = jQuery.inArray("$WELL.COLOR_ENCODED_ANNOTATION", profile.getAllPropertiCodesForTypeCode(well.sampleTypeCode) ) !== -1;
 			if(isAnnotableWell) {
 				colorEncodedWellAnnotationsSelector = this._getWellColorAnnotationGroups($cell, well);
 			}							
@@ -772,9 +772,9 @@ function PlateView(plateController, plateModel) {
 	this._repaintWellToColorAnnotation = function(row, column) {
 		var well = this._plateModel.getWell(row,column);
 		if(!well.isEmpty) {
-			var isAnnotableWell = jQuery.inArray("COLOR_ENCODED_ANNOTATION", profile.getAllPropertiCodesForTypeCode(well.sampleTypeCode) ) !== -1;
+			var isAnnotableWell = jQuery.inArray("$WELL.COLOR_ENCODED_ANNOTATION", profile.getAllPropertiCodesForTypeCode(well.sampleTypeCode) ) !== -1;
 			if(isAnnotableWell) {
-				var selectedColorEncodedAnnotation = well.properties["COLOR_ENCODED_ANNOTATION"];
+				var selectedColorEncodedAnnotation = well.properties["$WELL.COLOR_ENCODED_ANNOTATION"];
 				if(selectedColorEncodedAnnotation && selectedColorEncodedAnnotation !== "DEFAULT") {
 					this._repaintWellToColor(row, column, this._getColorForAnnotationCode(selectedColorEncodedAnnotation));
 				} else {
@@ -789,7 +789,7 @@ function PlateView(plateController, plateModel) {
 	}
 	
 	this._getColorForAnnotationCode = function(code) {
-		var valueInfo = profile.getVocabularyTermByCodes("COLOR_ENCODED_ANNOTATIONS", code);
+		var valueInfo = profile.getVocabularyTermByCodes("$WELL.COLOR_ENCODED_ANNOTATIONS", code);
 		if(valueInfo) {
 			return valueInfo.description.split(":")[0].trim();
 		}
@@ -797,7 +797,7 @@ function PlateView(plateController, plateModel) {
 	}
 	
 	this._getWellColorAnnotationGroups = function($cell, well) {
-		var selectedAnnotation = well.properties["COLOR_ENCODED_ANNOTATION"];
+		var selectedAnnotation = well.properties["$WELL.COLOR_ENCODED_ANNOTATION"];
 		var $component = $("<select>", { "id" : 'colorEncodedWellAnnotations-' + well.permId, class : 'form-control', 'permId' : well.permId, "identifier" : well.identifier });
 		if(this._plateModel.isDisabled) {
 			$component.attr('disabled', '');
@@ -809,7 +809,7 @@ function PlateView(plateController, plateModel) {
 		}
 		$component.append($defaultOption);
 			
-		var colorEncodedAnnotations = profile.getVocabularyByCode("COLOR_ENCODED_ANNOTATIONS");
+		var colorEncodedAnnotations = profile.getVocabularyByCode("$WELL.COLOR_ENCODED_ANNOTATIONS");
 		for(var cIdx = 0; cIdx < colorEncodedAnnotations.terms.length; cIdx++) {
 			var $option = $("<option>").attr('value', colorEncodedAnnotations.terms[cIdx].code).text(colorEncodedAnnotations.terms[cIdx].label);
 			if(selectedAnnotation === colorEncodedAnnotations.terms[cIdx].code) {
@@ -830,7 +830,7 @@ function PlateView(plateController, plateModel) {
 			} else {
 				$("#well-"+permId).css( { "background-color" : _this._getColorForAnnotationCode(value) } );
 			}
-			_this._plateModel.changesToDo.push({ "permId" : permId, "identifier" : identifier, "properties" : {"COLOR_ENCODED_ANNOTATION" : value } });
+			_this._plateModel.changesToDo.push({ "permId" : permId, "identifier" : identifier, "properties" : {"$WELL.COLOR_ENCODED_ANNOTATION" : value } });
 			if(mainController.currentView.setDirty) {
 				mainController.currentView.setDirty();
 			}
