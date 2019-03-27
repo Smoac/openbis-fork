@@ -13,7 +13,7 @@ archivesBaseName = 'datastore_server_plugin-plasmid'
 
 dependencies {
     compile project(':datastore_server'),
-    		'openbis:openbis-mobile:+'
+    		'openbis:openbis-mobile:r29271'
             
     testCompile project(path: ':datastore_server', configuration: 'tests')
 }

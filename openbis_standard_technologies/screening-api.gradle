@@ -82,23 +82,23 @@ task screeningApiJavaDocZip(type: Zip, dependsOn: screeningApiJavaDoc) {
 
 configurations.create('batteries')
 dependencies {
-	batteries   'sis:sis-base:+',
-                'apache:httpclient:+',
-                'apache:httpcore:+',
-                'apache:commons-lang3:+',
-                'apache:log4j:+',
-                'springframework:spring-aop:+',
-                'springframework:spring-beans:+',
-                'springframework:spring-context:+',
-                'springframework:spring-core:+',
-                'springframework:spring-web:+',
-                'springframework:spring-webmvc:+',
-                'springframework:spring-expression:+',
-                'apache:commons-logging:+',				
-                'marathon:marathon-spring-util:+',
-                'cisd:cisd-args4j:+',
-                'python:jython:+',
-                'aopalliance:aopalliance:+'
+	batteries   'sis:sis-base:18.09.0',
+                'apache:httpclient:4.3.6',
+                'apache:httpcore:4.3.3',
+                'apache:commons-lang3:3.7',
+                'apache:log4j:1.2.15',
+                'springframework:spring-aop:5.0.1.RELEASE',
+                'springframework:spring-beans:5.0.1.RELEASE',
+                'springframework:spring-context:5.0.1.RELEASE',
+                'springframework:spring-core:5.0.1.RELEASE',
+                'springframework:spring-web:5.0.1.RELEASE',
+                'springframework:spring-webmvc:5.0.1.RELEASE',
+                'springframework:spring-expression:5.0.1.RELEASE',
+                'apache:commons-logging:1.2',				
+                'marathon:marathon-spring-util:1.2.5',
+                'cisd:cisd-args4j:9.11.2',
+                'python:jython:2.5.2',
+                'aopalliance:aopalliance:1.0'
 }
 
 task springExt(type: Jar) {
