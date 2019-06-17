@@ -1659,7 +1659,7 @@ var FormUtil = new function() {
 												Util.unblockUI();
 											});
 										}
-									}, "freeze-api");
+									}, "freeze-api",  _this.showFreezingError);
 								}
 							});
 					Util.blockUI();
@@ -1681,6 +1681,10 @@ var FormUtil = new function() {
 					Util.unblockUI();
 				});
 			}
-		}, "freeze-api");
+		}, "freeze-api", _this.showFreezingError);
+	}
+	
+	this.showFreezingError = function(error) {
+		Util.showError(error.message);
 	}
 }
