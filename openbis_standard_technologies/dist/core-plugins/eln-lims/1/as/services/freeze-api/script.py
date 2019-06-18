@@ -1,5 +1,6 @@
 import java.util.ArrayList as ArrayList
 
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException as AuthorizationFailureException
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames as ComponentNames
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider as CommonServiceProvider
 
@@ -61,6 +62,8 @@ def process(context, parameters):
 			# 2. Verify that the user is an admin in such space
 			userId = sessionToken.split("-")[0];
 			isAdminOfSpace = isUserAdminOnSpace(context.applicationService, sessionToken, userId, spaceCode);
+			if not isAdminOfSpace:
+				raise  AuthorizationFailureException("The user is not enough rights to freeze.")
 			
 			# 3. Create Freeze List
 			defaultFreezeList = getFreezeList(context.applicationService, sessionToken, entity, spaceCode);
