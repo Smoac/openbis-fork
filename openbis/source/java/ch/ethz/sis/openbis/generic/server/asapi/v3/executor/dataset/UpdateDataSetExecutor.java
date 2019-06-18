@@ -139,31 +139,31 @@ public class UpdateDataSetExecutor extends AbstractUpdateEntityExecutor<DataSetU
             RelationshipUtils.updateModificationDateAndModifier(entity, person, timeStamp);
             if (update.shouldBeFrozen())
             {
-                authorizationExecutor.canFreeze(context);
+                authorizationExecutor.canFreeze(context, entity);
                 entity.setFrozen(true);
                 freezingFlags.freeze();
             }
             if (update.shouldBeFrozenForChildren())
             {
-                authorizationExecutor.canFreeze(context);
+                authorizationExecutor.canFreeze(context, entity);
                 entity.setFrozenForChildren(true);
                 freezingFlags.freezeForChildren();
             }
             if (update.shouldBeFrozenForParents())
             {
-                authorizationExecutor.canFreeze(context);
+                authorizationExecutor.canFreeze(context, entity);
                 entity.setFrozenForParents(true);
                 freezingFlags.freezeForParents();
             }
             if (update.shouldBeFrozenForComponents())
             {
-                authorizationExecutor.canFreeze(context);
+                authorizationExecutor.canFreeze(context, entity);
                 entity.setFrozenForComponents(true);
                 freezingFlags.freezeForComponents();
             }
             if (update.shouldBeFrozenForContainers())
             {
-                authorizationExecutor.canFreeze(context);
+                authorizationExecutor.canFreeze(context, entity);
                 entity.setFrozenForContainers(true);
                 freezingFlags.freezeForContainers();
             }

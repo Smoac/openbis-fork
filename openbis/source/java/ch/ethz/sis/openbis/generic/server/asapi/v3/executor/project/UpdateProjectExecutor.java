@@ -122,19 +122,19 @@ public class UpdateProjectExecutor extends AbstractUpdateEntityExecutor<ProjectU
             }
             if (update.shouldBeFrozen())
             {
-                authorizationExecutor.canFreeze(context);
+                authorizationExecutor.canFreeze(context, project);
                 project.setFrozen(true);
                 freezingFlags.freeze();
             }
             if (update.shouldBeFrozenForExperiments())
             {
-                authorizationExecutor.canFreeze(context);
+                authorizationExecutor.canFreeze(context, project);
                 project.setFrozenForExperiment(true);
                 freezingFlags.freezeForExperiments();
             }
             if (update.shouldBeFrozenForSamples())
             {
-                authorizationExecutor.canFreeze(context);
+                authorizationExecutor.canFreeze(context, project);
                 project.setFrozenForSample(true);
                 freezingFlags.freezeForSamples();
             }

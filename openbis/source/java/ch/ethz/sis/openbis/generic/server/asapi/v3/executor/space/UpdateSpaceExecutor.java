@@ -102,19 +102,19 @@ public class UpdateSpaceExecutor extends AbstractUpdateEntityExecutor<SpaceUpdat
             }
             if (update.shouldBeFrozen())
             {
-                authorizationExecutor.canFreeze(context);
+                authorizationExecutor.canFreeze(context, space);
                 space.setFrozen(true);
                 freezingFlags.freeze();
             }
             if (update.shouldBeFrozenForProjects())
             {
-                authorizationExecutor.canFreeze(context);
+                authorizationExecutor.canFreeze(context, space);
                 space.setFrozenForProject(true);
                 freezingFlags.freezeForProjects();
             }
             if (update.shouldBeFrozenForSamples())
             {
-                authorizationExecutor.canFreeze(context);
+                authorizationExecutor.canFreeze(context, space);
                 space.setFrozenForSample(true);
                 freezingFlags.freezeForSamples();
             }

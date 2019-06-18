@@ -138,31 +138,31 @@ public class UpdateSampleExecutor extends AbstractUpdateEntityExecutor<SampleUpd
             }
             if (update.shouldBeFrozen())
             {
-                authorizationExecutor.canFreeze(context);
+                authorizationExecutor.canFreeze(context, entity);
                 entity.setFrozen(true);
                 freezingFlags.freeze();
             }
             if (update.shouldBeFrozenForComponents())
             {
-                authorizationExecutor.canFreeze(context);
+                authorizationExecutor.canFreeze(context, entity);
                 entity.setFrozenForComponent(true);
                 freezingFlags.freezeForComponents();
             }
             if (update.shouldBeFrozenForChildren())
             {
-                authorizationExecutor.canFreeze(context);
+                authorizationExecutor.canFreeze(context, entity);
                 entity.setFrozenForChildren(true);
                 freezingFlags.freezeForChildren();
             }
             if (update.shouldBeFrozenForParents())
             {
-                authorizationExecutor.canFreeze(context);
+                authorizationExecutor.canFreeze(context, entity);
                 entity.setFrozenForParents(true);
                 freezingFlags.freezeForParents();
             }
             if (update.shouldBeFrozenForDataSets())
             {
-                authorizationExecutor.canFreeze(context);
+                authorizationExecutor.canFreeze(context, entity);
                 entity.setFrozenForDataSet(true);
                 freezingFlags.freezeForDataSets();
             }

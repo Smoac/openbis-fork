@@ -78,7 +78,7 @@ public class ProjectAuthorizationExecutor implements IProjectAuthorizationExecut
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
     @Capability("FREEZE_PROJECT")
-    public void canFreeze(IOperationContext context)
+    public void canFreeze(IOperationContext context, @AuthorizationGuard(guardClass = ProjectPEPredicate.class) ProjectPE project)
     {
     }
 

@@ -128,19 +128,19 @@ public class UpdateExperimentExecutor extends AbstractUpdateEntityExecutor<Exper
             RelationshipUtils.updateModificationDateAndModifier(experiment, person, timeStamp);
             if (update.shouldBeFrozen())
             {
-                authorizationExecutor.canFreeze(context);
+                authorizationExecutor.canFreeze(context, experiment);
                 experiment.setFrozen(true);
                 freezingFlags.freeze();
             }
             if (update.shouldBeFrozenForDataSets())
             {
-                authorizationExecutor.canFreeze(context);
+                authorizationExecutor.canFreeze(context, experiment);
                 experiment.setFrozenForDataSet(true);
                 freezingFlags.freezeForDataSets();
             }
             if (update.shouldBeFrozenForSamples())
             {
-                authorizationExecutor.canFreeze(context);
+                authorizationExecutor.canFreeze(context, experiment);
                 experiment.setFrozenForSample(true);
                 freezingFlags.freezeForSamples();
             }

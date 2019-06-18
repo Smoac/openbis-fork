@@ -45,5 +45,5 @@ public interface IDataSetAuthorizationExecutor extends IObjectAuthorizationExecu
 
     void canUnlock(IOperationContext context, IDataSetId dataSetId, DataPE dataSet);
 
-    void canFreeze(IOperationContext context);
+    void canFreeze(IOperationContext context, DataPE dataSet);
 }

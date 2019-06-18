@@ -36,5 +36,5 @@ public interface ISampleAuthorizationExecutor extends IObjectAuthorizationExecut
 
     void canGet(IOperationContext context);
 
-    void canFreeze(IOperationContext context);
+    void canFreeze(IOperationContext context, SamplePE sample);
 }
