@@ -45,6 +45,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.Role;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.create.RoleAssignmentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
@@ -1708,6 +1711,11 @@ public class UpdateSampleTest extends AbstractSampleTest
     public void testUnauthorizedFreezing(MethodWrapper freezeMethod) throws Exception
     {
         // Given
+        RoleAssignmentCreation roleAssignmentCreation = new RoleAssignmentCreation();
+        roleAssignmentCreation.setRole(Role.ADMIN);
+        roleAssignmentCreation.setSpaceId(new SpacePermId("TEST-SPACE"));
+        roleAssignmentCreation.setUserId(new PersonPermId(TEST_POWER_USER_CISD));
+        v3api.createRoleAssignments(systemSessionToken, Arrays.asList(roleAssignmentCreation));
         final String sessionToken = v3api.login(TEST_POWER_USER_CISD, PASSWORD);
         SampleIdentifier sampleId = new SampleIdentifier("/CISD/C1");
         SampleUpdate update = new SampleUpdate();
