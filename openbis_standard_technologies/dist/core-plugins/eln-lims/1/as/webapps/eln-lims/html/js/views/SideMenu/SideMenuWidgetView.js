@@ -557,8 +557,8 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                         for(var sIdx = 0; sIdx < samples.length; sIdx++) {
                             var sample = samples[sIdx];
                             var sampleIsExperiment = sample.type.code.indexOf("EXPERIMENT") > -1;
-                            
-                            if(sampleIsExperiment) {
+                            var sampleTypeOnNav = profile.sampleTypeDefinitionsExtension[sample.type.code] && profile.sampleTypeDefinitionsExtension[sample.type.code]["SHOW_ON_NAV"];
+                            if(sampleIsExperiment || sampleTypeOnNav) {
                                 var parentIsExperiment = false;
                                 if(sample.parents) {
                                     for(var pIdx = 0; pIdx < sample.parents.length; pIdx++) {
@@ -571,7 +571,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                                 }
                                 if(!parentIsExperiment) {
                                     samplesToShow.push(sample);
-                            }
+                                }
                             }
                         }
                         
@@ -580,7 +580,14 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                                 var results = [];
                                 for (var i = 0; i < samples.length; i++) {
                                     var sample = samples[i];
-                                    var sampleDisplayName = sample.code;
+                                    var sampleIsExperiment = sample.type.code.indexOf("EXPERIMENT") > -1;
+                                    var sampleIcon;
+                                    if(sampleIsExperiment) {
+                                        sampleIcon = "fa fa-flask";
+                                    } else {
+                                        sampleIcon = "fa fa-file";
+                                    }
+                                    var sampleDisplayName = sample.code;
                                     if(sample.properties && sample.properties[profile.propertyReplacingCode]) {
                                             sampleDisplayName = sample.properties[profile.propertyReplacingCode];
                                     }
@@ -595,7 +602,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                                         lazy : true,
                                         view : "showViewSamplePageFromPermId",
                                         viewData: sample.getPermId().getPermId(),
-                                        icon : "fa fa-flask",
+                                        icon : sampleIcon,
                                         registrationDate: sample.registrationDate,
                                     };
                                     results.push(sampleNode);
@@ -680,25 +687,33 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                                 for(var cIdx = 0; cIdx < samples[0].children.length; cIdx++) {
                                     var sample = samples[0].children[cIdx];
                                     
-        							if(profile.sampleTypeDefinitionsExtension[sample.type.code] && profile.sampleTypeDefinitionsExtension[sample.type.code]["SHOW_ON_NAV"]) {
+                                    var sampleIsExperiment = sample.type.code.indexOf("EXPERIMENT") > -1;
+                                    var sampleIcon;
+                                    if(sampleIsExperiment) {
+                                        sampleIcon = "fa fa-flask";
+                                    } else {
+                                        sampleIcon = "fa fa-file";
+                                    }
+                                    if(sample.type.code.indexOf("EXPERIMENT") > -1 ||
+                                    (profile.sampleTypeDefinitionsExtension[sample.type.code] && profile.sampleTypeDefinitionsExtension[sample.type.code]["SHOW_ON_NAV"])) {
                                         var sampleDisplayName = sample.code;
-	                                    if(sample.properties && sample.properties[profile.propertyReplacingCode]) {
-	                                            sampleDisplayName = sample.properties[profile.propertyReplacingCode];
-	                                    }
+                                        if(sample.properties && sample.properties[profile.propertyReplacingCode]) {
+                                                sampleDisplayName = sample.properties[profile.propertyReplacingCode];
+                                        }
                                         var sampleLink = _this.getLinkForNode(sampleDisplayName, sample.getPermId().getPermId(), "showViewSamplePageFromPermId", sample.getPermId().getPermId());
-                                    	var sampleNode = {
-	                                        displayName: sampleDisplayName,
-	                                        title : sampleLink,
-	                                        entityType: "SAMPLE",
-	                                        key : sample.getPermId().getPermId(),
-	                                        folder : true,
-	                                        lazy : true,
-	                                        view : "showViewSamplePageFromPermId",
-	                                        viewData: sample.getPermId().getPermId(),
-	                                        icon : "fa fa-flask",
-	                                        registrationDate: sample.registrationDate
-                                    	};
-                                    	results.push(sampleNode);
+                                        var sampleNode = {
+                                            displayName: sampleDisplayName,
+                                            title : sampleLink,
+                                            entityType: "SAMPLE",
+                                            key : sample.getPermId().getPermId(),
+                                            folder : true,
+                                            lazy : true,
+                                            view : "showViewSamplePageFromPermId",
+                                            viewData: sample.getPermId().getPermId(),
+                                            icon : sampleIcon,
+                                            registrationDate: sample.registrationDate
+                                        };
+                                        results.push(sampleNode);
                                     }
                                 }
                             }
