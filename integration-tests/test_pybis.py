@@ -5,11 +5,13 @@
 # Requirement:
 #   The pybis module must be available.
 
-import settings
-import systemtest.testcase
-import systemtest.util as util
 import os
 from random import randrange
+
+import systemtest.testcase
+import systemtest.util as util
+
+import settings
 
 
 class TestCase(systemtest.testcase.TestCase):
@@ -22,7 +24,10 @@ class TestCase(systemtest.testcase.TestCase):
         self.USER_ID = 'SunWukong_' + str(randrange(100000))
         self.SAMPLE_CODE_1 = 'SAMPLE_' + str(randrange(100000))
         self.SAMPLE_CODE_2 = 'SAMPLE_' + str(randrange(100000))
+        self.OBJECT_CODE_1 = 'OBJECT_' + str(randrange(100000))
+        self.OBJECT_CODE_2 = 'OBJECT_' + str(randrange(100000))
         self.EXPERIMENT_CODE = "EXP_" + str(randrange(100000))
+        self.COLLECTION_CODE = "COL_" + str(randrange(100000))
         self.FILE = 'TEST_FILE_' + str(randrange(100000))
 
         self.installOpenbis()
@@ -41,9 +46,12 @@ class TestCase(systemtest.testcase.TestCase):
         self._test_groups(openbis)
         self._test_role_assignments(openbis)
         self._test_samples(openbis)
+        self._test_objects(openbis)
         self._test_experiments(openbis)
+        self._test_collections(openbis)
         self._test_datasets(openbis)
         self._test_entity_types(openbis)
+        # self._test_material_types(openbis)
         self._test_semantic_annotations(openbis)
         self._test_tags(openbis)
         self._test_vocabularies(openbis)
@@ -178,6 +186,19 @@ class TestCase(systemtest.testcase.TestCase):
         self.assertLength('samples with code ' + self.SAMPLE_CODE_1, 0, samples)
         self.assertIn('deletions ids', openbis.get_deletions().permId.values, sample.permId)
 
+    def _test_objects(self, openbis):
+        util.printWhoAmI()
+        objects = openbis.get_objects(code=self.OBJECT_CODE_1)
+        self.assertLength('objects with code ' + self.OBJECT_CODE_1, 0, objects)
+        object = openbis.new_object(type="UNKNOWN", code=self.OBJECT_CODE_1, space=self.SPACE)
+        self.assertNone('object.permId', object.permId)
+        object.save()
+        self.assertNotNone('object.permId', object.permId)
+        object.delete("reason")
+        objects = openbis.get_objects(code=self.OBJECT_CODE_1)
+        self.assertLength('objects with code ' + self.OBJECT_CODE_1, 0, objects)
+        self.assertIn('deletions ids', openbis.get_deletions().permId.values, object.permId)
+
 
     def _test_experiments(self, openbis):
         util.printWhoAmI()
@@ -194,31 +215,67 @@ class TestCase(systemtest.testcase.TestCase):
         experiment.save()
         self.assertNotNone('experiment.permId', experiment.permId)
 
+    def _test_collections(self, openbis):
+        util.printWhoAmI()
+        # should check existing collection
+        self.assertNotEmpty('collections', openbis.get_collections())
+        self.assertLength('collections code=DEFAULT', 1, openbis.get_collections(code='DEFAULT'))
+        self.assertNotEmpty('collections type=UNKNOWN', openbis.get_collections(type='UNKNOWN'))
+        self.assertNotEmpty('collections project=DEFAULT', openbis.get_collections(project='DEFAULT'))
+        collection = openbis.get_collection('/DEFAULT/DEFAULT/DEFAULT')
+        self.assertEquals('collection.project.identifier', '/DEFAULT/DEFAULT', collection.project.identifier)
+        # should create new collection
+        collection = openbis.new_collection(type="UNKNOWN", code=self.COLLECTION_CODE, project="DEFAULT")
+        self.assertNone('collection.permId', collection.permId)
+        collection.save()
+        self.assertNotNone('collection.permId', collection.permId)
+
 
     def _test_datasets(self, openbis):
         util.printWhoAmI()
         sample = openbis.new_sample(type="UNKNOWN", code=self.SAMPLE_CODE_2, space=self.SPACE)
         sample.save()
+        obj = openbis.new_object(type="UNKNOWN", code=self.OBJECT_CODE_2, space=self.SPACE)
+        obj.save()
         with open(self.FILE, "w") as file:
             file.write("content")
         dataset = openbis.new_dataset(files=[self.FILE], type="UNKNOWN")
         dataset.sample = openbis.get_sample('/' + self.SPACE + '/' + self.SAMPLE_CODE_2)
+        dataset.object = openbis.get_object('/' + self.SPACE + '/' + self.OBJECT_CODE_2)
         self.assertNone('dataset.permId', dataset.permId)
         dataset.save()
         self.assertNotNone('dataset.permId', dataset.permId)
         self.assertIn('dataset.file_list', dataset.file_list, "original/" + self.FILE)
         host = dataset.download()
         self.assertTrue('downloaded file exists', os.path.exists(os.path.join(host, dataset.permId, "original", self.FILE)))
+        self.assertNotEmpty('datasets', openbis.get_datasets())
+        fetched_dataset = openbis.get_dataset(dataset.permId)
+        self.assertNotNone('dataset', fetched_dataset)
+        self.assertEquals('dataset.permId', dataset.permId, fetched_dataset.permId)
+        os.remove(self.FILE)
 
 
     def _test_entity_types(self, openbis):
         util.printWhoAmI()
-        for entity in ['dataset', 'experiment', 'sample']:
+        for entity in ['dataset', 'experiment', 'sample', 'collection', 'object']:
             method_all = getattr(openbis, 'get_' + entity + '_types')
             method_one = getattr(openbis, 'get_' + entity + '_type')
             self.assertNotEmpty(entity + ' types', method_all())
             entity_type = method_one('UNKNOWN')
             self.assertEquals('entity_type.code', 'UNKNOWN', entity_type.code)
+
+
+    # def _test_material_types(self, openbis):
+    #     util.printWhoAmI()
+    #     materialType = openbis.new_material_type(code=self.SPACE)
+    #     self.assertNone('materialType.permId', materialType.permId)
+    #     materialType.save()
+    #
+    #     material_types = openbis.get_material_types()
+    #     print('material_types: %s' % (material_types))
+    #     self.assertNotEmpty('material types', material_types)
+    #     found_material_type = openbis.get_material_type('UNKNOWN')
+    #     self.assertEquals('found_material_type.code', 'UNKNOWN', found_material_type.code)
 
 
     def _test_semantic_annotations(self, openbis):
