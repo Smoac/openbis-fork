@@ -8,10 +8,9 @@
 import os
 from random import randrange
 
+import settings
 import systemtest.testcase
 import systemtest.util as util
-
-import settings
 
 
 class TestCase(systemtest.testcase.TestCase):
@@ -91,6 +90,7 @@ class TestCase(systemtest.testcase.TestCase):
         self.assertIn('spaces', openbis.spaces.df.code.values, self.SPACE)
         self.assertIn('spaces', openbis.get_spaces().df.code.values, self.SPACE)
         self.assertLength('spaces', 1, openbis.get_spaces(code=self.SPACE))
+        self.assertNotNone('space', openbis.get_space(code=self.SPACE))
 
 
     def _test_projects(self, openbis):
@@ -289,6 +289,8 @@ class TestCase(systemtest.testcase.TestCase):
         self.assertNotNone('semantic annotation permId', sa.permId)
         sas = openbis.get_semantic_annotations()
         self.assertIn('semantic annotation permIds', sas.df.permId.values, sa.permId)
+        saved_sa = openbis.get_semantic_annotation(sa.permId)
+        self.assertNotNone('semantic annotation', saved_sa)
 
 
     def _test_tags(self, openbis):
