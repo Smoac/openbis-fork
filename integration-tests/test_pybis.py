@@ -320,6 +320,8 @@ class TestCase(systemtest.testcase.TestCase):
         terms = openbis.get_terms(vocabulary='VOBABULARY_1')
         self.assertIn('VOBABULARY_1 terms', terms.df.code.values, 'TERM1')
         self.assertIn('VOBABULARY_1 terms', terms.df.code.values, 'TERM2')
+        self.assertNotNone('vocabulary', openbis.get_vocabulary(code=vocabulary.code))
+        self.assertNotEmpty('vocabularies', openbis.get_vocabularies(code=vocabulary.code))
 
 
     def _test_logout(self, openbis):
