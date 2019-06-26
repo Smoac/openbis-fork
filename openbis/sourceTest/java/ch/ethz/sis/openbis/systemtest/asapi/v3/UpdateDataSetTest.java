@@ -29,13 +29,19 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.PhysicalData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.delete.DataSetDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.FileFormatTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.PhysicalDataUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.id.DataStorePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
@@ -922,6 +928,45 @@ public class UpdateDataSetTest extends AbstractSampleTest
     }
 
     @Test
+    public void testFreezingForChildrenDeletion()
+    {
+        // Given
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        DataSetPermId dsId = new DataSetPermId("20081105092159111-1");
+        DataSetCreation dataSetCreation = createDataSet();
+        dataSetCreation.setParentIds(Arrays.asList(dsId));
+        DataSetPermId childId = v3api.createDataSets(sessionToken, Arrays.asList(dataSetCreation)).get(0);
+
+        DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(dsId);
+        update.freezeForChildren();
+        v3api.updateDataSets(sessionToken, Arrays.asList(update));
+        DataSetDeletionOptions deletionOptions = new DataSetDeletionOptions();
+        deletionOptions.setReason("test");
+
+        // When
+        assertUserFailureException(Void -> v3api.deleteDataSets(sessionToken, Arrays.asList(childId), deletionOptions),
+                // Then
+                "ERROR: Operation DELETE DATA SET CHILD is not allowed because data set 20081105092159111-1 is frozen.");
+    }
+
+    protected DataSetCreation createDataSet()
+    {
+        return createDataSet("D1");
+    }
+
+    protected DataSetCreation createDataSet(String code)
+    {
+        DataSetCreation dataSetCreation = new DataSetCreation();
+        dataSetCreation.setCode(code);
+        dataSetCreation.setTypeId(new EntityTypePermId("DELETION_TEST_CONTAINER", EntityKind.DATA_SET));
+        dataSetCreation.setDataStoreId(new DataStorePermId("STANDARD"));
+        dataSetCreation.setDataSetKind(DataSetKind.CONTAINER);
+        dataSetCreation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP-TEST-1"));
+        return dataSetCreation;
+    }
+
+    @Test
     public void testFreezingForParents()
     {
         // Given
@@ -940,6 +985,28 @@ public class UpdateDataSetTest extends AbstractSampleTest
                 // Then
                 "ERROR: Operation INSERT PARENT_CHILD is not allowed because data set 20081105092259000-20 "
                         + "or 20081105092159111-1 is frozen.");
+    }
+
+    @Test
+    public void testFreezingForParentDeletion()
+    {
+        // Given
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        DataSetPermId dsId = new DataSetPermId("20081105092159111-1");
+        DataSetCreation dataSetCreation = createDataSet();
+        dataSetCreation.setChildIds(Arrays.asList(dsId));
+        DataSetPermId parentId = v3api.createDataSets(sessionToken, Arrays.asList(dataSetCreation)).get(0);
+        DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(dsId);
+        update.freezeForParents();
+        v3api.updateDataSets(sessionToken, Arrays.asList(update));
+        DataSetDeletionOptions deletionOptions = new DataSetDeletionOptions();
+        deletionOptions.setReason("test");
+
+        // When
+        assertUserFailureException(Void -> v3api.deleteDataSets(sessionToken, Arrays.asList(parentId), deletionOptions),
+                // Then
+                "ERROR: Operation DELETE DATA SET PARENT is not allowed because data set 20081105092159111-1 is frozen.");
     }
 
     @Test
@@ -964,6 +1031,30 @@ public class UpdateDataSetTest extends AbstractSampleTest
     }
 
     @Test
+    public void testFreezingForComponentDeletion()
+    {
+        // Given
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        DataSetCreation dsContainer = createDataSet("D1");
+        DataSetPermId contId = v3api.createDataSets(sessionToken, Arrays.asList(dsContainer)).get(0);
+        DataSetCreation dsComp = createDataSet("D2");
+        dsComp.setContainerIds(Arrays.asList(contId));
+        DataSetPermId compId = v3api.createDataSets(sessionToken, Arrays.asList(dsComp)).get(0);
+
+        DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(contId);
+        update.freezeForComponents();
+        v3api.updateDataSets(sessionToken, Arrays.asList(update));
+        DataSetDeletionOptions deletionOptions = new DataSetDeletionOptions();
+        deletionOptions.setReason("test");
+
+        // When
+        assertUserFailureException(Void -> v3api.deleteDataSets(sessionToken, Arrays.asList(compId), deletionOptions),
+                // Then
+                "ERROR: Operation DELETE DATA SET COMPONENT is not allowed because data set D1 is frozen.");
+    }
+
+    @Test
     public void testFreezingForContainers()
     {
         // Given
@@ -982,6 +1073,28 @@ public class UpdateDataSetTest extends AbstractSampleTest
                 // Then
                 "ERROR: Operation INSERT CONTAINER_COMPONENT is not allowed because data set CONTAINER_1 "
                         + "or 20081105092259000-20 is frozen.");
+    }
+
+    @Test
+    public void testFreezingForContainerDeletion()
+    {
+        // Given
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        DataSetPermId dsId = new DataSetPermId("20081105092159111-1");
+        DataSetCreation dataSetCreation = createDataSet();
+        dataSetCreation.setComponentIds(Arrays.asList(dsId));
+        DataSetPermId containerId = v3api.createDataSets(sessionToken, Arrays.asList(dataSetCreation)).get(0);
+        DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(dsId);
+        update.freezeForContainers();
+        v3api.updateDataSets(sessionToken, Arrays.asList(update));
+        DataSetDeletionOptions deletionOptions = new DataSetDeletionOptions();
+        deletionOptions.setReason("test");
+
+        // When
+        assertUserFailureException(Void -> v3api.deleteDataSets(sessionToken, Arrays.asList(containerId), deletionOptions),
+                // Then
+                "ERROR: Operation TRASH is not allowed because data set 20081105092159111-1 is frozen.");
     }
 
     private Collection<String> dataSetCodes(Collection<? extends DataSet> list)
