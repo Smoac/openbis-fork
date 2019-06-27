@@ -8,9 +8,10 @@
 import os
 from random import randrange
 
-import settings
 import systemtest.testcase
 import systemtest.util as util
+
+import settings
 
 
 class TestCase(systemtest.testcase.TestCase):
@@ -54,6 +55,7 @@ class TestCase(systemtest.testcase.TestCase):
         self._test_semantic_annotations(openbis)
         self._test_tags(openbis)
         self._test_vocabularies(openbis)
+        # self._test_plugins(openbis)
         self._test_logout(openbis)
 
 
@@ -149,7 +151,7 @@ class TestCase(systemtest.testcase.TestCase):
         self.assertNone('group.permId', group.permId)
         group = group.save()
         self.assertNotNone('group.permId', group.permId)
-        # Next lines cause the test _test_role_assignments() to fail.
+        # TODO: next lines cause the test _test_role_assignments() to fail.
         # self.assertNotNone('group', openbis.get_group(code=group.permId))
         # self.assertNotEmpty('groups', openbis.get_groups(code=group.permId))
 
@@ -267,6 +269,7 @@ class TestCase(systemtest.testcase.TestCase):
             self.assertEquals('entity_type.code', 'UNKNOWN', entity_type.code)
 
 
+    # TODO: method openbis.new_material_type() does not exist.
     # def _test_material_types(self, openbis):
     #     util.printWhoAmI()
     #     materialType = openbis.new_material_type(code=self.SPACE)
@@ -302,13 +305,14 @@ class TestCase(systemtest.testcase.TestCase):
         tag.save()
         self.assertNotNone('tag.permId', tag.permId)
         self.assertIn('tag permIds', openbis.get_tags().df.permId.values, tag.permId)
+        self.assertNotNone('tag', openbis.get_tag(tag.permId))
 
 
     def _test_vocabularies(self, openbis):
         util.printWhoAmI()
         # should create vocabulary
         vocabulary = openbis.new_vocabulary(
-            code = 'VOBABULARY_1',
+            code = 'VOCABULARY_1',
             description = 'description',
             terms = [
                 { "code": "TERM1", "label": "label1", "description": "description1" },
@@ -319,11 +323,28 @@ class TestCase(systemtest.testcase.TestCase):
         vocabulary.save()
         self.assertNotNone('vocabulary.registrationDate', vocabulary.registrationDate)
         # should get terms
-        terms = openbis.get_terms(vocabulary='VOBABULARY_1')
-        self.assertIn('VOBABULARY_1 terms', terms.df.code.values, 'TERM1')
-        self.assertIn('VOBABULARY_1 terms', terms.df.code.values, 'TERM2')
+        terms = openbis.get_terms(vocabulary='VOCABULARY_1')
+        self.assertNotEmpty('terms', terms)
+        self.assertNotNone('term', openbis.get_term(code='TERM1', vocabularyCode='VOCABULARY_1'))
+        self.assertIn('VOCABULARY_1 terms', terms.df.code.values, 'TERM1')
+        self.assertIn('VOCABULARY_1 terms', terms.df.code.values, 'TERM2')
         self.assertNotNone('vocabulary', openbis.get_vocabulary(code=vocabulary.code))
         self.assertNotEmpty('vocabularies', openbis.get_vocabularies(code=vocabulary.code))
+
+
+    # TODO: plugin.save() is not working properly, it requires a tag to be present in the system.
+    # def _test_plugins(self, openbis):
+    #     util.printWhoAmI()
+    #     plugin = openbis.new_plugin()
+    #     plugin.script = 'print(\'Hello world\')'
+    #     self.assertNone('plugin.permId', plugin.permId)
+    #     plugin.save()
+    #     self.assertNotNone('plugin.permId', plugin.permId)
+    #     plugins = openbis.get_plugins()
+    #     self.assertNotEmpty('plugins', plugins)
+    #     self.assertIn('plugins', plugins, plugin)
+    #     plugin2 = openbis.get_plugin(plugin.permId)
+    #     self.assertNotNone('plugin', plugin2)
 
 
     def _test_logout(self, openbis):
