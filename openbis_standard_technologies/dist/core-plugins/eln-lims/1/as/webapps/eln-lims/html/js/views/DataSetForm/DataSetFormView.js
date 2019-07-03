@@ -86,8 +86,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		var toolbarModel = [];
 		if(this._dataSetFormModel.mode === FormMode.VIEW && !this._dataSetFormModel.isMini) {
 			var toolbarConfig = profile.getDataSetTypeToolbarConfiguration(_this._dataSetFormModel.dataSet.dataSetTypeCode);
-			
-			if(!_this._dataSetFormModel.v3_dataset.frozen) {
+			if (_this._allowedToEdit()) {
 				//Edit Button
 				var $editBtn = FormUtil.getButtonWithIcon("glyphicon-edit", function () {
 					mainController.changeView('showEditDataSetPageFromPermId', _this._dataSetFormModel.dataSet.code);
@@ -95,7 +94,8 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 				if(toolbarConfig.EDIT) {
 					toolbarModel.push({ component : $editBtn, tooltip: "Edit" });
 				}
-				
+			}
+			if(_this._allowedToMove()) {
 				//Move
 				var $moveBtn = FormUtil.getButtonWithIcon("glyphicon-move", function () {
 					var moveEntityController = new MoveEntityController("DATASET", _this._dataSetFormModel.dataSet.code);
@@ -104,7 +104,8 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 				if(toolbarConfig.MOVE) {
 					toolbarModel.push({ component : $moveBtn, tooltip: "Move" });
 				}
-				
+			}
+			if(_this._allowedToDelete()) {
 				//Delete Button
 				var $deleteBtn = FormUtil.getDeleteButton(function(reason) {
 					_this._dataSetFormController.deleteDataSet(reason);
@@ -773,4 +774,26 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		this._dataSetFormController.setArchivingRequested(false);
 	}
 
+	this._allowedToEdit = function() {
+		var dataSet = this._dataSetFormModel.v3_dataset;
+		return dataSet.frozen == false;
+	}
+
+	this._allowedToMove = function() {
+		var dataSet = this._dataSetFormModel.v3_dataset;
+		var experiment = dataSet.experiment;
+		if (experiment && experiment.frozenForDataSets) {
+			return false;
+		}
+		var sample = dataSet.sample;
+		if (sample && sample.frozenForDataSets) {
+			return false;
+		}
+		return true;
+	}
+	
+	this._allowedToDelete = function() {
+		var dataSet = this._dataSetFormModel.v3_dataset;
+		return dataSet.frozen == false && this._allowedToMove();
+	}
 }

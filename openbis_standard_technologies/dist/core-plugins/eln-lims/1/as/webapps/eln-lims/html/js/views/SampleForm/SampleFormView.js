@@ -115,7 +115,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		
 		if(this._sampleFormModel.mode === FormMode.VIEW) {
 			//Create Experiment Step
-			if(_this._sampleFormModel.sample.sampleTypeCode === "EXPERIMENTAL_STEP") {
+			if(_this._sampleFormModel.sample.sampleTypeCode === "EXPERIMENTAL_STEP" && _this._allowedToCreateChild()) {
 				var $createBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
 					var argsMap = {
 							"sampleTypeCode" : "EXPERIMENTAL_STEP",
@@ -145,7 +145,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				}
 			}
 			
-			if(!_this._sampleFormModel.v3_sample.frozen) {
+			if (_this._allowedToEdit()) {
 				//Edit
 				if(this._sampleFormModel.mode === FormMode.VIEW) {
 					var $editButton = FormUtil.getButtonWithIcon("glyphicon-edit", function () {
@@ -160,7 +160,8 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 						toolbarModel.push({ component : $editButton, tooltip: "Edit" });
 					}
 				}
-				
+			}
+			if (_this._allowedToMove()) {
 				//Move
 				var $moveBtn = FormUtil.getButtonWithIcon("glyphicon-move", function () {
 					var moveEntityController = new MoveEntityController("SAMPLE", _this._sampleFormModel.sample.permId);
@@ -169,12 +170,13 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				if(toolbarConfig.MOVE) {
 					toolbarModel.push({ component : $moveBtn, tooltip: "Move" });
 				}
-				
+			}
+			if (_this._allowedToDelete()) {
 				//Delete
 				var warningText = null;
 				if(this._sampleFormModel.sample.children.length > 0 || this._sampleFormModel.datasets.length > 0) {
 					warningText = ""
-					var childrenThatAreNotPositions = 0;
+						var childrenThatAreNotPositions = 0;
 					for(var idx = 0; idx < this._sampleFormModel.sample.children.length; idx++) {
 						var child = this._sampleFormModel.sample.children[idx];
 						if(child.sampleTypeCode !== "STORAGE_POSITION") {
@@ -220,16 +222,19 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				if(toolbarConfig.DELETE) {
 					toolbarModel.push({ component : $deleteButton, tooltip: "Delete" });
 				}
-			
+				
 			}
-			
-			//Copy
-			var $copyButton = $("<a>", { 'class' : 'btn btn-default'} )
-			.append($('<img>', { 'src' : './img/copy-icon.png', 'style' : 'width:16px; height:16px;' }));
-			$copyButton.click(_this._getCopyButtonEvent());
-			if(toolbarConfig.COPY) {
-				toolbarModel.push({ component : $copyButton, tooltip: "Copy" });
+			if (_this._allowedToCopy()) {
+				//Copy
+				var $copyButton = $("<a>", { 'class' : 'btn btn-default'} )
+				.append($('<img>', { 'src' : './img/copy-icon.png', 'style' : 'width:16px; height:16px;' }));
+				$copyButton.click(_this._getCopyButtonEvent());
+				if(toolbarConfig.COPY) {
+					toolbarModel.push({ component : $copyButton, tooltip: "Copy" });
+				}
 			}
+				
+				
 			
 			//Print
 			var $printButton = $("<a>", { 'class' : 'btn btn-default'} ).append($('<span>', { 'class' : 'glyphicon glyphicon-print' }));
@@ -256,7 +261,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				toolbarModel.push({ component : $hierarchyTable, tooltip: "Hierarchy Table" });
 			}
 			
-			if(!_this._sampleFormModel.v3_sample.frozen) {
+			if(_this._allowedToRegisterDataSet()) {
 				//Create Dataset
 				var $uploadBtn = FormUtil.getButtonWithIcon("glyphicon-upload", function () {
 					mainController.changeView('showCreateDataSetPageFromPermId',_this._sampleFormModel.sample.permId);
@@ -562,7 +567,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			$formColumn.append($dataSetViewerContainer);
 		}
 		
-		if(this._sampleFormModel.mode === FormMode.VIEW && !this._sampleFormModel.v3_sample.frozen) {
+		if(this._sampleFormModel.mode === FormMode.VIEW && _this._allowedToRegisterDataSet()) {
 			var $inlineDataSetForm = $("<div>");
 			if($rightPanel) {
 				$rightPanel.append($inlineDataSetForm);
@@ -1148,5 +1153,35 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		
 		// Show Widget
 		Util.blockUI($childrenGenerator, {'text-align' : 'left', 'top' : '10%', 'width' : '80%', 'left' : '10%', 'right' : '10%', 'height' : '80%', 'overflow' : 'auto'});
+	}
+	
+	this._allowedToCreateChild = function() {
+		var sample = this._sampleFormModel.v3_sample;
+		return sample.frozenForChildren == false && sample.experiment.frozenForSamples == false;
+	}
+	
+	this._allowedToEdit = function() {
+		var sample = this._sampleFormModel.v3_sample;
+		return sample.frozen == false;
+	}
+	
+	this._allowedToMove = function() {
+		var sample = this._sampleFormModel.v3_sample;
+		return sample.experiment.frozenForSamples == false;
+	}
+	
+	this._allowedToDelete = function() {
+		var sample = this._sampleFormModel.v3_sample;
+		return sample.frozen == false && sample.experiment.frozenForSamples == false;
+	}
+	
+	this._allowedToCopy = function() {
+		var sample = this._sampleFormModel.v3_sample;
+		return sample.experiment.frozenForSamples == false;
+	}
+	
+	this._allowedToRegisterDataSet = function() {
+		var sample = this._sampleFormModel.v3_sample;
+		return sample.frozenForDataSets == false && sample.experiment.frozenForDataSets == false;
 	}
 }

@@ -35,10 +35,12 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
 		// Toolbar
 		//
 		var toolbarModel = [];
-		var $createProj = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
-			_this._spaceFormController.createProject();
-		});
-		toolbarModel.push({ component : $createProj, tooltip: "Create Project" });
+		if (_this._allowedToCreateProject()) {
+			var $createProj = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
+				_this._spaceFormController.createProject();
+			});
+			toolbarModel.push({ component : $createProj, tooltip: "Create Project" });
+		}
 
 		//Export
 		var $exportAll = FormUtil.getExportButton([{ type: "SPACE", permId : _this._spaceFormModel.space.code, expand : true }], false);
@@ -80,4 +82,10 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
 		
 		$container.append($form);
 	}
+	
+	this._allowedToCreateProject = function() {
+		var space = this._spaceFormModel.v3_space;
+		return space.frozenForProjects == false;
+	}
+	
 }

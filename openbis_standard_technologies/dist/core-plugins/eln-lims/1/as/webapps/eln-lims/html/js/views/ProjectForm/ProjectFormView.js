@@ -74,32 +74,33 @@ function ProjectFormView(projectFormController, projectFormModel) {
 					Util.unblockUI();
 				});
 			}
-			
-			//Create Experiment
-			var isDefaultExperimentPressent = mainController.profile.getExperimentTypeForExperimentTypeCode("DEFAULT_EXPERIMENT") != null;
-			if(isDefaultExperimentPressent) {
-				var $createExpBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
-				if(profile.isInventorySpace(_this._projectFormModel.project.spaceCode)) {
-					var experimentType = profile.getExperimentTypeForExperimentTypeCode(_this._projectFormModel.project.spaceCode);
-					if(experimentType) {
-						_this._projectFormController.createNewExperiment(_this._projectFormModel.project.spaceCode);
-					} else {
-						showSelectExperimentType();
-					}
-				} else {
-					_this._projectFormController.createNewExperiment("DEFAULT_EXPERIMENT");
+			if (_this._allowedToCreateExperiments()) {
+				//Create Experiment
+				var isDefaultExperimentPressent = mainController.profile.getExperimentTypeForExperimentTypeCode("DEFAULT_EXPERIMENT") != null;
+				if(isDefaultExperimentPressent) {
+					var $createExpBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
+						if(profile.isInventorySpace(_this._projectFormModel.project.spaceCode)) {
+							var experimentType = profile.getExperimentTypeForExperimentTypeCode(_this._projectFormModel.project.spaceCode);
+							if(experimentType) {
+								_this._projectFormController.createNewExperiment(_this._projectFormModel.project.spaceCode);
+							} else {
+								showSelectExperimentType();
+							}
+						} else {
+							_this._projectFormController.createNewExperiment("DEFAULT_EXPERIMENT");
+						}
+					});
+					toolbarModel.push({ component : $createExpBtn, tooltip: "Create " + ELNDictionary.getExperimentKindName(projectIdentifier) });
 				}
-				});
-				toolbarModel.push({ component : $createExpBtn, tooltip: "Create " + ELNDictionary.getExperimentKindName(projectIdentifier) });
 			}
-			
-			if(!_this._projectFormModel.v3_project.frozen) {
+			if(_this._allowedToEdit()) {
 				//Edit
 				var $editBtn = FormUtil.getButtonWithIcon("glyphicon-edit", function () {
 					_this._projectFormController.enableEditing();
 				});
 				toolbarModel.push({ component : $editBtn, tooltip: "Edit" });
-			
+			}
+			if(_this._allowedToDelete()) {
 				//Delete
 				var $deleteBtn = FormUtil.getDeleteButton(function(reason) {
 					_this._projectFormController.deleteProject(reason);
@@ -247,5 +248,20 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		}
 		
 		$container.append($form);
+	}
+	
+	this._allowedToCreateExperiments = function() {
+		var project = this._projectFormModel.v3_project;
+		return project.frozenForExperiments == false;
+	}
+	
+	this._allowedToEdit = function() {
+		var project = this._projectFormModel.v3_project;
+		return project.frozen == false;
+	}
+	
+	this._allowedToDelete = function() {
+		var project = this._projectFormModel.v3_project;
+		return project.frozen == false && project.space.frozenForProjects == false;
 	}
 }

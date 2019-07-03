@@ -28,7 +28,13 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 			require([ "as/dto/sample/id/SamplePermId", "as/dto/sample/fetchoptions/SampleFetchOptions" ],
 					function(SamplePermId, SampleFetchOptions) {
 					var id = new SamplePermId(sample.permId);
-					mainController.openbisV3.getSamples([ id ], new SampleFetchOptions()).done(function(map) {
+					var fetchOptions = new SampleFetchOptions();
+					fetchOptions.withSpace();
+					fetchOptions.withProject();
+					fetchOptions.withExperiment();
+					fetchOptions.withParents();
+					fetchOptions.withChildren();
+					mainController.openbisV3.getSamples([ id ], fetchOptions).done(function(map) {
 		                _this._sampleFormModel.v3_sample = map[id];
 		                //
 		                mainController.serverFacade.listDataSetsForSample(_this._sampleFormModel.sample, true, function(datasets) {

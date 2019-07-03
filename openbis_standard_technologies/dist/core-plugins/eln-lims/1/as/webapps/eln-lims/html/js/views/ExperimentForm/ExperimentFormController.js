@@ -25,7 +25,9 @@ function ExperimentFormController(mainController, mode, experiment) {
 		require([ "as/dto/experiment/id/ExperimentPermId", "as/dto/experiment/fetchoptions/ExperimentFetchOptions" ],
 				function(ExperimentPermId, ExperimentFetchOptions) {
 				var id = new ExperimentPermId(experiment.permId);
-				mainController.openbisV3.getExperiments([ id ], new ExperimentFetchOptions()).done(function(map) {
+				var fetchOptions = new ExperimentFetchOptions();
+				fetchOptions.withProject().withSpace();
+				mainController.openbisV3.getExperiments([ id ], fetchOptions).done(function(map) {
 	                _this._experimentFormModel.v3_experiment = map[id];
 	                _this._experimentFormView.repaint(views);
 	            });		
