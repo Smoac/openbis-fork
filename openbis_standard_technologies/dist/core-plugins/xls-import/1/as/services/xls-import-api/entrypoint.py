@@ -77,7 +77,7 @@ def process(context, parameters):
     creations = get_creations_from(definitions, FileHandler(scripts))
     creations_metadata = get_creation_metadata_from(definitions)
     creations = DuplicatesHandler.get_distinct_creations(creations)
-    xls_version_filepath = get_property("xls-import.version-data-file", "../../../data/xls-import-version-info.json")
+    xls_version_filepath = get_property("xls-import.version-data-file", "../../../xls-import-version-info.json")
     if REMOVE_VERSIONS:
         if os.path.exists(xls_version_filepath):
             os.remove(xls_version_filepath)
