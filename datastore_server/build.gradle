@@ -53,6 +53,11 @@ configurations {
 sourceSets.test.runtimeClasspath = configurations.testRuntimeFirst + configurations.testRuntimeSecond + sourceSets.test.runtimeClasspath
 
 sourceSets {
+	main {
+		resources {
+			srcDirs = ['source/java']
+		}
+	}
 	test {
 		resources {
 			srcDirs = ['source/java']

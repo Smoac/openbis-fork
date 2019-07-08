@@ -51,3 +51,11 @@ test {
 testJar {
 	from "source/java/genericCommonContext.xml"
 }
+
+sourceSets {
+	main {
+		resources {
+			srcDirs = ['source/java']
+		}
+	}
+}
