@@ -1,4 +1,4 @@
-from org.apache.commons.lang import StringUtils
+from org.apache.commons.lang3 import StringUtils
 from org.apache.poi.ss.usermodel import CellType
 from org.apache.poi.ss.usermodel import WorkbookFactory
 from org.apache.poi.ss.util import NumberToTextConverter
