@@ -24,6 +24,11 @@ import org.apache.log4j.spi.LoggingEvent;
  */
 public class DefaultAppenderFilter extends Filter
 {
+    public DefaultAppenderFilter()
+    {
+        System.err.println("filter");
+    }
+
     @Override
     public int decide(LoggingEvent event)
     {
@@ -40,9 +45,10 @@ public class DefaultAppenderFilter extends Filter
 
     private int decide(String logger, String message)
     {
-        if ((logger.startsWith("ACCESS.") || logger.startsWith("TRACKING."))
+        if (((logger.startsWith("ACCESS.") || logger.startsWith("TRACKING."))
                 && logger.endsWith("Logger")
                 && message.contains("(START)"))
+                || logger.equals("org.hibernate.orm.deprecation"))
         {
             return Filter.DENY;
         } else
