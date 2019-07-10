@@ -20,6 +20,7 @@ import static ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.STORAGE_
 import static ch.systemsx.cisd.etlserver.ThreadParameters.ON_ERROR_DECISION_KEY;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.locks.Lock;
@@ -27,6 +28,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.action.AbstractDelegatedActionWithResult;
 import ch.systemsx.cisd.common.action.IDelegatedActionWithResult;
@@ -384,6 +386,8 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             markerFileCleanupAction = new DoNothingDelegatedAction();
         }
 
+        checkAccessRightsRecursively(incomingDataSetFile);
+
         // read from configuration prestaging parameter.
         DataSetRegistrationPreStagingBehavior preStagingUsage =
                 state.getGlobalState().getThreadParameters()
@@ -412,6 +416,28 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             handle(dsf, null, null,
                     new NoOpDelegate(DataSetRegistrationPreStagingBehavior.USE_PRESTAGING),
                     cleanupAction);
+        }
+    }
+    
+    private void checkAccessRightsRecursively(File file)
+    {
+        if (file.canRead() == false)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(new IOException(
+                    "No reading rights for data set file '" + file.getAbsolutePath() + "'."));
+        }
+        if (file.isDirectory())
+        {
+            if (file.canWrite() == false)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(new IOException(
+                        "No writing rights for data set folder '" + file.getAbsolutePath() + "'."));
+            }
+            File[] files = file.listFiles();
+            for (File child : files)
+            {
+                checkAccessRightsRecursively(child);
+            }
         }
     }
 
