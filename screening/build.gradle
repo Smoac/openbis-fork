@@ -21,11 +21,6 @@ dependencies {
 }
 
 sourceSets {
-    main {
-        resources {
-            srcDirs = ['source/java']
-        }
-    }
     test {
         resources {
             srcDirs = ['source/java']
