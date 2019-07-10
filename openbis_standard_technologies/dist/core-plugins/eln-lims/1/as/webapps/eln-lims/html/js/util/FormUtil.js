@@ -1370,7 +1370,7 @@ var FormUtil = new function() {
 		Util.blockUI();
 
 		mainController.serverFacade.searchRoleAssignments({
-			space: params.space ? params.space.code : null,
+			space: params.space ? params.space : null,
 			project: params.project ? params.project.code : null,
 		}, function(roleAssignments) {
 
@@ -1378,7 +1378,7 @@ var FormUtil = new function() {
 
 			// components
 			var $roleAssignmentTable = _this._getRoleAssignmentTable(roleAssignments, _this._revokeRoleAssignment.bind(_this, params));
-			var spaceOrProjectLabel = params.space ? params.space.code : params.project.code;
+			var spaceOrProjectLabel = params.space ? params.space : params.project.code;
 			var $roleDropdown = FormUtil.getDropdown([
 				{ label: 'Observer', value: 'OBSERVER', selected: true },
 				{ label: 'User', value: 'USER' },
@@ -1453,7 +1453,7 @@ var FormUtil = new function() {
 			user: grantTo == "User" ? groupOrUser : null,
 			group: grantTo == "Group" ? groupOrUser.toUpperCase() : null,
 			role: role,
-			space: dialogParams.space ? dialogParams.space.code : null,
+			space: dialogParams.space ? dialogParams.space : null,
 			project: dialogParams.project ? dialogParams.project.permId : null,
 		}, function(success, result) {
 			if (success) {

@@ -32,13 +32,12 @@ function InventoryView(inventoryController, inventoryView) {
 		//
 		var toolbarModel = [];
 		
-		mainController.serverFacade.listSpacesWithProjectsAndRoleAssignments(null, function(dataWithSpacesAndProjects) {
-				var spaces = dataWithSpacesAndProjects.result;
+		mainController.serverFacade.listSpaces(function(spaces) {
 	            var labSpaces = [];
 				for (var i = 0; i < spaces.length; i++) {
 	                var space = spaces[i];
-	                if(profile.isInventorySpace(space.code) && !space.code.endsWith("STOCK_CATALOG") && !space.code.endsWith("STOCK_ORDERS") && !space.code.endsWith("ELN_SETTINGS")) {
-	                		labSpaces.push({ type: "SPACE", permId : space.code, expand : true });
+	                if(profile.isInventorySpace(space) && !space.endsWith("STOCK_CATALOG") && !space.endsWith("STOCK_ORDERS") && !space.endsWith("ELN_SETTINGS")) {
+	                		labSpaces.push({ type: "SPACE", permId : space, expand : true });
 	                }
 	            }
 	            

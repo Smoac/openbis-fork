@@ -32,13 +32,12 @@ function LabNotebookView(labNotebookController, labNotebookView) {
 		//
 		var toolbarModel = [];
 		
-		mainController.serverFacade.listSpacesWithProjectsAndRoleAssignments(null, function(dataWithSpacesAndProjects) {
-			var spaces = dataWithSpacesAndProjects.result;
+		mainController.serverFacade.listSpaces(function(spaces) {
 	        var labSpaces = [];
 			for (var i = 0; i < spaces.length; i++) {
 	       		var space = spaces[i];
-	           	if(!profile.isInventorySpace(space.code)) {
-	           		labSpaces.push({ type: "SPACE", permId : space.code, expand : true });
+	           	if(!profile.isInventorySpace(space)) {
+	           		labSpaces.push({ type: "SPACE", permId : space, expand : true });
 	         	}
 	       	}
 	            

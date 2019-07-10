@@ -454,7 +454,7 @@ function MainController(profile) {
 				case "showSpacePage":
 					var _this = this;
 					this.serverFacade.getSpaceFromCode(arg, function(space) {
-						document.title = "Space " + space.code;
+						document.title = "Space " + space;
 						_this._showSpacePage(space);
 						//window.scrollTo(0,0);
 					});

@@ -324,10 +324,12 @@ function ServerFacade(openbisServer) {
 	}
 	
 	this.listSpaces = function(callbackFunction) {
-		this.openbisServer.listSpacesWithProjectsAndRoleAssignments(null, function(data) {
+		var spaceRules = { entityKind : "SPACE", logicalOperator : "AND", rules : { } };
+		mainController.serverFacade.searchForSpacesAdvanced(spaceRules, null, function(spacesSearchResult) {
 			var spaces = [];
-			for(var i = 0; i < data.result.length; i++) {
-				spaces.push(data.result[i].code);
+			for(var sIdx = 0; sIdx < spacesSearchResult.objects.length; sIdx++) {
+				var space = spacesSearchResult.objects[sIdx];
+				spaces.push(space.code);
 			}
 			callbackFunction(spaces);
 		});
@@ -338,9 +340,9 @@ function ServerFacade(openbisServer) {
 	}
 	
 	this.getSpaceFromCode = function(spaceCode, callbackFunction) {
-		this.openbisServer.listSpacesWithProjectsAndRoleAssignments(null, function(data) {
-			data.result.forEach(function(space){
-				if(space.code === spaceCode) {
+		this.listSpaces(function(spaces) {
+			spaces.forEach(function(space){
+				if(space === spaceCode) {
 					callbackFunction(space);
 				}
 			});
