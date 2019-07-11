@@ -1565,7 +1565,7 @@ var FormUtil = new function() {
 						entity = entityMap[key];
 						if(entity.type == entityTypeOrder[typeOrder]) {
 							$table.append($("<tr>")
-									.append($("<td>").append(_this._getBooleanField('freezing-form-' + key.replace("+", "-"), entity.displayName, true)))
+									.append($("<td>").append(_this._getBooleanField(_this._createFormFieldId(key), entity.displayName, true)))
 									.append($("<td>").append(getTypeDisplayName(entity.type)))
 									.append($("<td>").append(entity.permId))
 									.append($("<td>").append(entity.displayName))
@@ -1609,34 +1609,35 @@ var FormUtil = new function() {
 				$window.append($btnAccept).append('&nbsp;').append($btnCancel);
 				
 				$window.submit(function() {
-					var username = mainController.serverFacade.getUserId();
-					var password = $passField.val();					
-					new openbis().login(
-							username, 
-							password, 
-							function(data) { 
-								if(data.result == null) {
-									Util.showUserError('The given password is not correct.');
-								} else {
-									var sessionToken = data.result;
-									
-									
-									for (key in entityMap) {
-										if(!$('#freezing-form-' + key.replace("+", "-"))[0].checked) {
-											delete entityMap[key];
+					if (_this._atLeastOnyEntitySelectedHasBeenSelectedForFreezing(entityMap)) {
+						var username = mainController.serverFacade.getUserId();
+						var password = $passField.val();					
+						new openbis().login(
+								username, 
+								password, 
+								function(data) { 
+									if(data.result == null) {
+										Util.showUserError('The given password is not correct.');
+									} else {
+										var sessionToken = data.result;
+										
+										
+										for (key in entityMap) {
+											if(!$('#' + _this._createFormFieldId(key))[0].checked) {
+												delete entityMap[key];
+											}
 										}
-									}
-									
-									var parameters = {
-											"method" : "freeze",
-											"sessionToken" : sessionToken,
-											"freezeList" : entityMap
-									}
-									mainController.serverFacade.customASService(parameters, function(result) {
-										if(result.status === "OK") {
-											Util.showSuccess("Freezing succeeded.", function() {
-												Util.unblockUI();
-												switch(entityType) {
+										
+										var parameters = {
+												"method" : "freeze",
+												"sessionToken" : sessionToken,
+												"freezeList" : entityMap
+										}
+										mainController.serverFacade.customASService(parameters, function(result) {
+											if(result.status === "OK") {
+												Util.showSuccess("Freezing succeeded.", function() {
+													Util.unblockUI();
+													switch(entityType) {
 													case "SPACE":
 														mainController.changeView('showSpacePage', permId);
 														break;
@@ -1652,17 +1653,22 @@ var FormUtil = new function() {
 													case "DATASET":
 														mainController.changeView('showViewDataSetPageFromPermId', permId);
 														break;
-												}
-											});
-										} else {
-											Util.showUserError('Freezing failed.', function() {
-												Util.unblockUI();
-											});
-										}
-									}, "freeze-api",  _this.showFreezingError);
-								}
-							});
-					Util.blockUI();
+													}
+												});
+											} else {
+												Util.showUserError('Freezing failed.', function() {
+													Util.unblockUI();
+												});
+											}
+										}, "freeze-api",  _this.showFreezingError);
+									}
+								});
+						Util.blockUI();
+					} else {
+						Util.showUserError('Nothing selected for freezing.', function() {
+							Util.unblockUI();
+						});
+					}
 				});
 					
 				var css = {
@@ -1682,6 +1688,19 @@ var FormUtil = new function() {
 				});
 			}
 		}, "freeze-api", _this.showFreezingError);
+	}
+	
+	this._atLeastOnyEntitySelectedHasBeenSelectedForFreezing = function(entityMap) {
+		for (key in entityMap) {
+			if ($('#' + this._createFormFieldId(key))[0].checked) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	this._createFormFieldId = function(key) {
+		return 'freezing-form-' + key.replace("+", "-");
 	}
 	
 	this.showFreezingError = function(error) {
