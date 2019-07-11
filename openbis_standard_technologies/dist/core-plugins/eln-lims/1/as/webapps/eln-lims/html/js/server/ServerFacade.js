@@ -2471,11 +2471,13 @@ function ServerFacade(openbisServer) {
 			function(RoleAssignmentSearchCriteria, RoleAssignmentFetchOptions) {
 				var criteria = new RoleAssignmentSearchCriteria();
 
-				if (criteriaParams.space) {
-					criteria.withSpace().withCode().thatEquals(criteriaParams.space);
-				}
 				if (criteriaParams.project) {
 					criteria.withProject().withCode().thatEquals(criteriaParams.project);
+					if (criteriaParams.space) {
+						criteria.withProject().withSpace().withCode().thatEquals(criteriaParams.space);
+					}
+				} else if (criteriaParams.space) {
+					criteria.withSpace().withCode().thatEquals(criteriaParams.space);
 				}
 				if (criteriaParams.user) {
 					criteria.withUser().withUserId().thatEquals(criteriaParams.user);

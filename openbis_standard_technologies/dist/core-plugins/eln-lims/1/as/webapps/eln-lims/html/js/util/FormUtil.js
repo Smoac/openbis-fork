@@ -1361,8 +1361,8 @@ var FormUtil = new function() {
 		});
 	}
 
-	// params.space: space code (set this or project)
-	// params.project: project code (set this or space)
+	// params.space: space code (or space code of project)
+	// params.project: project code
 	// params.acceptCallback: function to be called with (shareWith, groupOrUser)
 	this.showAuthorizationDialog = function(params) {
 
@@ -1370,7 +1370,7 @@ var FormUtil = new function() {
 		Util.blockUI();
 
 		mainController.serverFacade.searchRoleAssignments({
-			space: params.space ? params.space : null,
+			space: params.space ? params.space : (params.project ? params.project.spaceCode : null),
 			project: params.project ? params.project.code : null,
 		}, function(roleAssignments) {
 
