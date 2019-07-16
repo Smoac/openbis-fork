@@ -83,7 +83,7 @@ class JenkinsArtifactRepository(ArtifactRepository):
         """
         Downloads the requested artifact from Jenkins. It uses the Jenkins API.
         """
-        projectUrl = "%s/job/%s" % (self.baseUrl, project)
+        projectUrl = "%s/job/%s-19.06" % (self.baseUrl, project)
         apiUrl = "%s/lastSuccessfulBuild/api/xml?xpath=//artifact&wrapper=bag" % projectUrl
         printAndFlush("Get artifact info from %s" % apiUrl)
         handle = urlopen(apiUrl) # urllib.urlopen(apiUrl)
