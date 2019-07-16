@@ -83,7 +83,7 @@ def executeCommand(commandWithArguments, failingMessage = None, consoleInput = N
         processOut = subprocess.PIPE if suppressStdOut else None
         # Setting the time zone is needed for sprint server otherwise Java log files have wrong time zone
         os.environ['TZ'] = time.tzname[0]
-        p = subprocess.Popen(commandWithArguments, stdin = processIn, stdout = processOut, encoding='utf8')
+        p = subprocess.Popen(commandWithArguments, stdin = processIn, stdout = processOut)
         if consoleInput != None:
             p.communicate(consoleInput)
         lines = []
