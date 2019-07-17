@@ -78,7 +78,7 @@ sourceSets {
 task cleanDbSuite(type: Test) {
 	useTestNG()
 	systemProperty "ant.project.name", project.name
-	maxHeapSize = "4096m"
+	maxHeapSize = "6144m"
 	jvmArgs '-XX:MaxPermSize=1024m', '-Duser.timezone=Europe/Zurich'
 	testLogging.showStandardStreams = true
 	ignoreFailures = true
@@ -90,7 +90,7 @@ task cleanDbSuite(type: Test) {
 task cleanDbSuiteProjectSamplesEnabled(type: Test) {
 	useTestNG()
 	systemProperty "ant.project.name", project.name
-	maxHeapSize = "4096m"
+	maxHeapSize = "6144m"
 	jvmArgs '-XX:MaxPermSize=1024m', '-Duser.timezone=Europe/Zurich'
 	testLogging.showStandardStreams = true
 	ignoreFailures = true
@@ -103,7 +103,7 @@ task cleanDbSuiteProjectSamplesEnabled(type: Test) {
 task testProjectSamplesEnabled(type: Test) {
 	useTestNG()
 	systemProperty "ant.project.name", project.name
-	maxHeapSize = "4096m"
+	maxHeapSize = "6144m"
 	jvmArgs '-XX:MaxPermSize=1024m', '-Duser.timezone=Europe/Zurich'
 	testLogging.showStandardStreams = true
 	ignoreFailures = true
