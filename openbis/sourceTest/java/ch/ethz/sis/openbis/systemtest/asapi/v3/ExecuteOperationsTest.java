@@ -344,7 +344,7 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
         ISampleId childId = childResult.getObjectIds().get(0);
 
         SampleFetchOptions fo = new SampleFetchOptions();
-        fo.withParents();
+        fo.withParentsUsing(fo);
 
         Map<ISampleId, Sample> samples = v3api.getSamples(sessionToken, Arrays.asList(parentId, childId), fo);
 

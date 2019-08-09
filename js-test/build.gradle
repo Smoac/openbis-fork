@@ -45,7 +45,7 @@ dependencies {
 	
 	testRuntime project(':screening'), project(':rtd_phosphonetx')
 	
-	testRuntimeFirst 'javax:servlet-api:3.1.0', 'reflections:reflections:0.9.10'
+	testRuntimeFirst 'javax:servlet-api:3.1.0', 'reflections:reflections:0.9.10', 'apache:commons-lang3:3.7'
 	
 	testRuntimeSecond 'google:gwt-user:2.4'
 

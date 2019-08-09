@@ -835,8 +835,8 @@ public class CreateSampleTest extends AbstractSampleTest
         List<SamplePermId> sampleIds = v3api.createSamples(sessionToken, Arrays.asList(sampleParent, sampleChild));
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.withComponents();
-        fetchOptions.withContainer();
+        fetchOptions.withComponentsUsing(fetchOptions);
+        fetchOptions.withContainerUsing(fetchOptions);
 
         Map<ISampleId, Sample> map = v3api.getSamples(sessionToken, sampleIds, fetchOptions);
         List<Sample> samples = new ArrayList<Sample>(map.values());
@@ -934,7 +934,7 @@ public class CreateSampleTest extends AbstractSampleTest
         List<SamplePermId> sampleIds = v3api.createSamples(sessionToken, Arrays.asList(sc1, sc2));
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.withContainer();
+        fetchOptions.withContainerUsing(fetchOptions);
 
         Map<ISampleId, Sample> map = v3api.getSamples(sessionToken, sampleIds, fetchOptions);
         List<Sample> samples = new ArrayList<Sample>(map.values());
@@ -960,7 +960,7 @@ public class CreateSampleTest extends AbstractSampleTest
         List<SamplePermId> sampleIds = v3api.createSamples(sessionToken, Arrays.asList(sc1, sc2));
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.withContainer();
+        fetchOptions.withContainerUsing(fetchOptions);
 
         Map<ISampleId, Sample> map = v3api.getSamples(sessionToken, sampleIds, fetchOptions);
         List<Sample> samples = new ArrayList<Sample>(map.values());

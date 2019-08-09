@@ -87,7 +87,7 @@ public class UpdateMaterialTest extends AbstractSampleTest
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
-        fetchOptions.withMaterialProperties().withProperties();
+        fetchOptions.withMaterialPropertiesUsing(fetchOptions);
 
         MaterialPermId selfParentId = new MaterialPermId("SRM_1", "SELF_REF");
         MaterialPermId selfChildId = new MaterialPermId("SRM_1A", "SELF_REF");

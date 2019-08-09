@@ -1,26 +1,99 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
+
+import org.apache.commons.lang3.builder.EqualsBuilder;
+
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
 
 public class TranslationCache
 {
 
-    private Map<String, CacheEntry> entries = new HashMap<String, CacheEntry>();
+    private Map<CacheKey, CacheEntry> entries = new HashMap<CacheKey, CacheEntry>();
 
-    public CacheEntry getEntry(String identifier)
+    public CacheEntry getEntry(CacheKey cacheKey)
     {
-        CacheEntry cacheEntry = entries.get(identifier);
+        CacheEntry cacheEntry = entries.get(cacheKey);
 
         if (cacheEntry == null)
         {
             cacheEntry = new CacheEntry();
-            entries.put(identifier, cacheEntry);
+            entries.put(cacheKey, cacheEntry);
         }
 
         return cacheEntry;
+    }
+
+    public static class CacheKey
+    {
+        private String translatorId;
+
+        private Long objectId;
+
+        private FetchOptions<?> fetchOptions;
+
+        public CacheKey(String translatorId, Long objectId, FetchOptions<?> fetchOptions)
+        {
+            this.translatorId = translatorId;
+            this.objectId = objectId;
+            this.fetchOptions = fetchOptions;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((translatorId == null) ? 0 : translatorId.hashCode());
+            result = prime * result + ((objectId == null) ? 0 : objectId.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+            {
+                return true;
+            }
+            if (obj == null)
+            {
+                return false;
+            }
+
+            CacheKey other = (CacheKey) obj;
+
+            if (translatorId == null)
+            {
+                if (other.translatorId != null)
+                {
+                    return false;
+                }
+            } else if (!translatorId.equals(other.translatorId))
+            {
+                return false;
+            }
+
+            if (objectId == null)
+            {
+                if (other.objectId != null)
+                {
+                    return false;
+                }
+            } else if (!objectId.equals(other.objectId))
+            {
+                return false;
+            }
+
+            if (!EqualsBuilder.reflectionEquals(fetchOptions, other.fetchOptions, false, null, true))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
     }
 
     public static class CacheEntry
@@ -33,8 +106,6 @@ public class TranslationCache
         private boolean translatedObjectSet;
 
         private Object translatedObject;
-
-        private Set<Object> usedFetchOptions;
 
         private CacheEntry()
         {
@@ -70,26 +141,6 @@ public class TranslationCache
         {
             this.translatedObject = translatedObject;
             this.translatedObjectSet = true;
-        }
-
-        public boolean isTranslatedWithFetchOptions(Object fetchOptions)
-        {
-            if (usedFetchOptions == null)
-            {
-                return false;
-            } else
-            {
-                return usedFetchOptions.contains(fetchOptions);
-            }
-        }
-
-        public void addTranslatedWithFetchOptions(Object fetchOptions)
-        {
-            if (usedFetchOptions == null)
-            {
-                usedFetchOptions = new HashSet<Object>();
-            }
-            usedFetchOptions.add(fetchOptions);
         }
 
     }

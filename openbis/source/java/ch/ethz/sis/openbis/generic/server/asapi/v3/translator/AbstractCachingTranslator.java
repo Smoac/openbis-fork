@@ -27,6 +27,7 @@ import org.apache.log4j.Logger;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.FetchOptions;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationCache.CacheEntry;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.TranslationCache.CacheKey;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
@@ -66,7 +67,7 @@ public abstract class AbstractCachingTranslator<I, O, F extends FetchOptions<?>>
 
         for (I input : inputs)
         {
-            CacheEntry cacheEntry = cache.getEntry(getObjectCacheKey(input));
+            CacheEntry cacheEntry = cache.getEntry(getObjectCacheKey(input, fetchOptions));
 
             if (cacheEntry.isTranslatedObjectSet())
             {
@@ -96,7 +97,7 @@ public abstract class AbstractCachingTranslator<I, O, F extends FetchOptions<?>>
     private final void handleAlreadyTranslatedInput(TranslationContext context, I input, Map<I, O> translated, Map<I, O> updated, F fetchOptions)
     {
         TranslationCache cache = context.getTranslationCache();
-        CacheEntry cacheEntry = cache.getEntry(getObjectCacheKey(input));
+        CacheEntry cacheEntry = cache.getEntry(getObjectCacheKey(input, fetchOptions));
         O output = (O) cacheEntry.getTranslatedObject();
 
         if (output == null)
@@ -112,20 +113,7 @@ public abstract class AbstractCachingTranslator<I, O, F extends FetchOptions<?>>
                 operationLog.debug("Found in cache: " + output.getClass() + " with id: " + getObjectId(input));
             }
 
-            if (cacheEntry.isTranslatedWithFetchOptions(fetchOptions))
-            {
-                translated.put(input, output);
-            } else
-            {
-                if (operationLog.isDebugEnabled())
-                {
-                    operationLog.debug("Updating from cache: " + output.getClass() + " with id: " + getObjectId(input));
-                }
-
-                cacheEntry.addTranslatedWithFetchOptions(fetchOptions);
-                updated.put(input, output);
-                translated.put(input, output);
-            }
+            translated.put(input, output);
         }
     }
 
@@ -139,9 +127,8 @@ public abstract class AbstractCachingTranslator<I, O, F extends FetchOptions<?>>
         }
 
         TranslationCache cache = context.getTranslationCache();
-        CacheEntry cacheEntry = cache.getEntry(getObjectCacheKey(input));
+        CacheEntry cacheEntry = cache.getEntry(getObjectCacheKey(input, fetchOptions));
         cacheEntry.setTranslatedObject(output);
-        cacheEntry.addTranslatedWithFetchOptions(fetchOptions);
 
         updated.put(input, output);
         translated.put(input, output);
@@ -166,9 +153,9 @@ public abstract class AbstractCachingTranslator<I, O, F extends FetchOptions<?>>
         }
     }
 
-    private String getObjectCacheKey(I input)
+    private CacheKey getObjectCacheKey(I input, F fetchOptions)
     {
-        return namespace + getObjectId(input);
+        return new TranslationCache.CacheKey(namespace, getObjectId(input), fetchOptions);
     }
 
     private final Collection<I> doShouldTranslate(TranslationContext context, Collection<I> inputs, F fetchOptions)
@@ -179,7 +166,7 @@ public abstract class AbstractCachingTranslator<I, O, F extends FetchOptions<?>>
 
         for (I input : inputs)
         {
-            CacheEntry cacheEntry = cache.getEntry(getObjectCacheKey(input));
+            CacheEntry cacheEntry = cache.getEntry(getObjectCacheKey(input, fetchOptions));
 
             if (cacheEntry.isShouldTranslateSet())
             {
@@ -213,7 +200,7 @@ public abstract class AbstractCachingTranslator<I, O, F extends FetchOptions<?>>
 
         for (I input : checked)
         {
-            CacheEntry cacheEntry = cache.getEntry(getObjectCacheKey(input));
+            CacheEntry cacheEntry = cache.getEntry(getObjectCacheKey(input, fetchOptions));
             cacheEntry.setShouldTranslate(true);
 
             if (operationLog.isDebugEnabled())
@@ -226,7 +213,7 @@ public abstract class AbstractCachingTranslator<I, O, F extends FetchOptions<?>>
 
         for (I input : toCheck)
         {
-            CacheEntry cacheEntry = cache.getEntry(getObjectCacheKey(input));
+            CacheEntry cacheEntry = cache.getEntry(getObjectCacheKey(input, fetchOptions));
             cacheEntry.setShouldTranslate(false);
 
             if (operationLog.isDebugEnabled())

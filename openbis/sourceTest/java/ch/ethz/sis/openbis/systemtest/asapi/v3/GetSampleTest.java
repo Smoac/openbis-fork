@@ -49,6 +49,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.PropertyHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.RelationHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
@@ -505,11 +506,14 @@ public class GetSampleTest extends AbstractSampleTest
     public void testGetWithFetchOptionsNested()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-
-        // fetch parents and their properties
-        fetchOptions.withComponents().withContainer().withExperiment();
         fetchOptions.withProperties();
+        fetchOptions.withType().withValidationPlugin();
+        
+        SampleFetchOptions nestedFetchOptions = fetchOptions.withComponents().withContainer();
+        nestedFetchOptions.withExperiment();
+        nestedFetchOptions.withType().withValidationPlugin();
 
         Map<ISampleId, Sample> map =
                 v3api.getSamples(sessionToken, Collections.singletonList(new SamplePermId("200902091250077-1050")), fetchOptions);
@@ -518,17 +522,30 @@ public class GetSampleTest extends AbstractSampleTest
         assertEquals(1, samples.size());
 
         Sample sample = samples.get(0);
+        Sample nestedSample = sample.getComponents().get(0).getContainer();
+        
+        // sample and nested sample represent the same object in the database but are two different 
+        // objects in memory as they have been fetched with different fetch options
+        
         assertEquals(sample.getCode(), "PLATE_WELLSEARCH");
+        assertEquals(sample.getCode(), nestedSample.getCode());
+        assertTrue(sample != nestedSample);
 
-        // assert that components / container is fetched
-        Assert.assertTrue(sample.getComponents().get(0).getContainer() == sample);
-
-        // assert properties are fetched (original fetch options)
         assertEquals(sample.getProperties().size(), 0);
+        assertPropertiesNotFetched(nestedSample);
 
-        // assert that experiment is fetched as well. (fetch options via component's container)
-        Experiment experiment = sample.getExperiment();
-        assertEquals(experiment.getIdentifier().toString(), "/CISD/DEFAULT/EXP-WELLS");
+        assertExperimentNotFetched(sample);
+        Experiment nestedExperiment = nestedSample.getExperiment();
+        assertEquals(nestedExperiment.getIdentifier().toString(), "/CISD/DEFAULT/EXP-WELLS");
+        
+        // sample type and nested sample type represent the same object in the database and are the same
+        // object in memory as they have both been fetched with equal fetch options
+        
+        SampleType type = sample.getType();
+        SampleType nestedType = nestedSample.getType();
+        assertEquals(type.getCode(), "CELL_PLATE");
+        assertTrue(type == nestedType);
+        
         v3api.logout(sessionToken);
     }
 
@@ -545,8 +562,9 @@ public class GetSampleTest extends AbstractSampleTest
         List<SamplePermId> newSamplePermIds = v3api.createSamples(sessionToken, Collections.singletonList(newSample));
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.withModifier().withRegistrator();
-        fetchOptions.withRegistrator();
+        PersonFetchOptions personFetchOptions = new PersonFetchOptions();
+        fetchOptions.withModifierUsing(personFetchOptions);
+        fetchOptions.withRegistratorUsing(personFetchOptions);
 
         Map<ISampleId, Sample> map =
                 v3api.getSamples(sessionToken, newSamplePermIds,
@@ -779,7 +797,7 @@ public class GetSampleTest extends AbstractSampleTest
         grandparent2Creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.withParents().withParents();
+        fetchOptions.withParentsUsing(fetchOptions);
 
         List<SamplePermId> sampleIds =
                 v3api.createSamples(sessionToken,
@@ -1226,8 +1244,12 @@ public class GetSampleTest extends AbstractSampleTest
         AssertionUtil.assertCollectionSize(dataSets, 2);
 
         DataSet ds1 = dataSets.get(0);
-        assertEquals(ds1.getType().getCode(), "HCS_IMAGE");
-        assertTrue(ds1.getSample() == sample1);
+        DataSet nestedDs1 = ds1.getSample().getDataSets().get(0);
+        
+        assertTrue(nestedDs1 != ds1);
+        assertEquals(nestedDs1.getCode(), ds1.getCode());
+        assertTypeNotFetched(ds1);
+        assertEquals(nestedDs1.getType().getCode(), "HCS_IMAGE");
 
         v3api.logout(sessionToken);
     }
