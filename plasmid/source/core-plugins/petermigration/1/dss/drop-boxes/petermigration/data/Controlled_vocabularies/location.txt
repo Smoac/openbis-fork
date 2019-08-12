@@ -1,1 +1,0 @@
-code	labelSMALL_PETER_LAB	Small Peter LabBIG_PETER_LAB	Big Peter LabNEW_PETER_LAB	New Peter LabMINUS20_C-FLOOR	-20C C-Floor
