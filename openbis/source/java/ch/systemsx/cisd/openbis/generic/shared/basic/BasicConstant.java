@@ -93,7 +93,7 @@ public class BasicConstant
     /**
      * Canonical date format pattern used to render dates in GUI in a more readable way.
      */
-    public static final String RENDERED_CANONICAL_DATE_FORMAT_PATTERN = "yyyy-MM-dd HH:mm:ss ZZZ";
+    public static final String RENDERED_CANONICAL_DATE_FORMAT_PATTERN = "yyyy-MM-dd HH:mm:ss Z";
 
     /**
      * Date format which does not include time zone.
