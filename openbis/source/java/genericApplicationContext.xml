@@ -151,6 +151,8 @@
 		<constructor-arg value="true" />
 		<constructor-arg ref="dao-factory" />
 		<property name="userForAnonymousLogin" value="${user-for-anonymous-login}" />
+		<property name="maxNumberOfSessionsPerUser" value="${max-number-of-sessions-per-user}" />
+		<property name="usersWithUnrestrictedNumberOfSessions" value="${users-with-unrestricted-number-of-sessions}" />
 	</bean>
 
 	<bean id="display-settings-provider"

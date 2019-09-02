@@ -19,6 +19,7 @@ package ch.systemsx.cisd.authentication;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -116,8 +117,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
          */
         boolean hasExpired(Long sessionExpirationTimeOrNull)
         {
-            long sessionExpirationTime = sessionExpirationTimeOrNull == null ?
-                    session.getSessionExpirationTime() : sessionExpirationTimeOrNull;
+            long sessionExpirationTime = sessionExpirationTimeOrNull == null ? session.getSessionExpirationTime() : sessionExpirationTimeOrNull;
             return System.currentTimeMillis() - lastActiveTime > sessionExpirationTime;
         }
     }
@@ -131,7 +131,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
      */
     protected final Map<String, FullSession<T>> sessions =
             new LinkedHashMap<String, FullSession<T>>();
-    
+
     private final IAuthenticationService authenticationService;
 
     private final IRemoteHostProvider remoteHostProvider;
@@ -209,6 +209,17 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
                         + tokenGenerator.getNewToken(now, TIMESTAMP_TOKEN_SEPARATOR);
         synchronized (sessions)
         {
+            int maxNumberOfSessions = getMaxNumberOfSessionsFor(user);
+            if (maxNumberOfSessions > 0)
+            {
+                int numberOfOpenSessions = getNumberOfOpenSessionsFor(user);
+                if (numberOfOpenSessions >= maxNumberOfSessions)
+                {
+                    throw new UserFailureException(numberOfOpenSessions + " open session(s) but only "
+                            + maxNumberOfSessions + " session(s) are allowed for user " + user + ".");
+                }
+            }
+
             final T session =
                     sessionFactory.create(sessionToken, user, principal, getRemoteHost(), now,
                             sessionExpirationPeriodMillis);
@@ -219,6 +230,25 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
 
             return session;
         }
+    }
+
+    private int getNumberOfOpenSessionsFor(String user)
+    {
+        int count = 0;
+        Collection<FullSession<T>> values = sessions.values();
+        for (FullSession<T> session : values)
+        {
+            if (session.getSession().getUserName().equals(user))
+            {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    protected int getMaxNumberOfSessionsFor(String user)
+    {
+        return 0;
     }
 
     private ISessionMonitor getSessionMonitor()

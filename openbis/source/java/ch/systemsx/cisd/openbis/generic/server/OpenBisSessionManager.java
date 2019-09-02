@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import ch.systemsx.cisd.authentication.DefaultSessionManager;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ILogMessagePrefixGenerator;
@@ -36,14 +39,14 @@ public class OpenBisSessionManager extends DefaultSessionManager<Session> implem
 {
     private static final int DEFAULT_SESSION_EXPIRATION_PERIOD_FOR_NO_LOGIN = 10;
 
-    private static final int getSessionExpirationPeriodMinutesForNoLogin(String property)
+    private static final int parseAsIntOrReturnDefaultValue(String string, int defaultValue)
     {
         try
         {
-            return Integer.parseInt(property);
+            return Integer.parseInt(string);
         } catch (NumberFormatException ex)
         {
-            return DEFAULT_SESSION_EXPIRATION_PERIOD_FOR_NO_LOGIN;
+            return defaultValue;
         }
     }
 
@@ -51,12 +54,17 @@ public class OpenBisSessionManager extends DefaultSessionManager<Session> implem
 
     private String userForAnonymousLogin;
 
+    private int maxNumberOfSessionsPerUser;
+
+    private Set<String> usersWithUnrestrictedNumberOfSessions = new HashSet<>();
+
     public OpenBisSessionManager(ISessionFactory<Session> sessionFactory, ILogMessagePrefixGenerator<Session> prefixGenerator,
             IAuthenticationService authenticationService, IRemoteHostProvider remoteHostProvider, int sessionExpirationPeriodMinutes,
             String sessionExpirationPeriodMinutesForNoLogin, boolean tryEmailAsUserName, IDAOFactory daoFactory)
     {
         super(sessionFactory, prefixGenerator, authenticationService, remoteHostProvider, sessionExpirationPeriodMinutes,
-                getSessionExpirationPeriodMinutesForNoLogin(sessionExpirationPeriodMinutesForNoLogin), tryEmailAsUserName);
+                parseAsIntOrReturnDefaultValue(sessionExpirationPeriodMinutesForNoLogin, DEFAULT_SESSION_EXPIRATION_PERIOD_FOR_NO_LOGIN),
+                tryEmailAsUserName);
         this.daoFactory = daoFactory;
     }
 
@@ -66,6 +74,37 @@ public class OpenBisSessionManager extends DefaultSessionManager<Session> implem
     {
         this(sessionFactory, prefixGenerator, authenticationService, remoteHostProvider, sessionExpirationPeriodMinutes,
                 sessionExpirationPeriodMinutesForNoLogin, false, daoFactory);
+    }
+
+    @Override
+    protected int getMaxNumberOfSessionsFor(String user)
+    {
+        if (usersWithUnrestrictedNumberOfSessions.contains(user))
+        {
+            return 0;
+        }
+        PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(user);
+        if (person != null && person.isSystemUser())
+        {
+            return 0;
+        }
+        return maxNumberOfSessionsPerUser;
+    }
+
+    public void setMaxNumberOfSessionsPerUser(String number)
+    {
+        maxNumberOfSessionsPerUser = parseAsIntOrReturnDefaultValue(number, 1);
+    }
+
+    public void setUsersWithUnrestrictedNumberOfSessions(String users)
+    {
+        if (users.startsWith("${") == false)
+        {
+            for (String user : users.split(","))
+            {
+                usersWithUnrestrictedNumberOfSessions.add(user.trim());
+            }
+        }
     }
 
     @Override
