@@ -101,7 +101,7 @@ public class SimplePropertyValidatorTest
                     "M/d/yy HH:mm\n" +
                     "yyyy-MM-dd HH:mm:ss Z\n" +
                     "yyyy-MM-dd'T'HH:mm:ssX\n" +
-                    "yyyy-MM-dd HH:mm:ss ZZZ\n" +
+                    "yyyy-MM-dd HH:mm:ss Z\n" +
                     "yyyy-MM-dd'T'HH:mm:ssXXX]'.");
         }
     }
