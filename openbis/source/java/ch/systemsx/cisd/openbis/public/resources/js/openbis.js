@@ -312,7 +312,7 @@ openbis.prototype.login = function(userId, userPassword, action) {
 		success: 
 			function(loginResponse) {
 				if(loginResponse.error){
-					alert("Login failed");
+					alert("Login failed: " + loginResponse.error.message);
 				}else{
 					openbisObj._internal.sessionToken = loginResponse.result;
 					openbisObj.rememberSession();
