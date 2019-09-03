@@ -45,6 +45,8 @@ class TestCase(systemtest.testcase.TestCase):
         self.installObis()
         self.openbisController = self.createOpenbisController()
         self.openbisController.createTestDatabase("openbis")
+        self.openbisController.asProperties['max-number-of-sessions-per-user'] = '0'
+
         self.openbisController.allUp()
 
         tmpdir = os.path.abspath('obis_data_' + str(randrange(100000)))

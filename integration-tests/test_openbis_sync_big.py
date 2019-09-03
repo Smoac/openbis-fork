@@ -410,6 +410,7 @@ class TestCase(systemtest.testcase.TestCase):
         openbis_data_source.enableProjectSamples()
         openbis_data_source.setDummyAuthentication()
         openbis_data_source.setDataStoreServerProperty("host-address", "https://localhost")
+        openbis_data_source.asProperties['max-number-of-sessions-per-user'] = '0'
         openbis_data_source.dssProperties['database.kind'] = openbis_data_source.databaseKind
         openbis_data_source.createTestDatabase('openbis')
         openbis_data_source.createTestDatabase('pathinfo')
@@ -426,6 +427,7 @@ class TestCase(systemtest.testcase.TestCase):
         openbis_harvester.enableProjectSamples()
         openbis_harvester.setDummyAuthentication()
         openbis_harvester.setDataStoreServerProperty("host-address", "https://localhost")
+        openbis_harvester.asProperties['max-number-of-sessions-per-user'] = '0'
         openbis_harvester.dssProperties['database.kind'] = openbis_harvester.databaseKind
         openbis_harvester.enableCorePlugin("openbis-sync")
         util.copyFromTo(self.getTemplatesFolder(), openbis_harvester.installPath, "harvester-config.txt")

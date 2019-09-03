@@ -27,6 +27,7 @@ class TestCase(systemtest.testcase.TestCase):
         
         openbisController = self.createOpenbisController()
         openbisController.createTestDatabase("openbis")
+        openbisController.asProperties['max-number-of-sessions-per-user'] = '0'
         
         openbisController.allUp()
         
