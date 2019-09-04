@@ -29,6 +29,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
@@ -39,6 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.systemsx.cisd.authentication.DefaultSessionManager;
 import ch.systemsx.cisd.authentication.IPrincipalProvider;
+import ch.systemsx.cisd.authentication.ISessionActionListener;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.action.IDelegatedActionWithResult;
@@ -178,6 +180,15 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     private IApplicationServerApi v3Api;
 
     protected String CISDHelpdeskEmail;
+    
+    private ISessionActionListener sessionActionListener = new ISessionActionListener()
+    {
+        @Override
+        public void sessionClosed(String sessionToken)
+        {
+            logout(sessionToken);
+        }
+    };
 
     protected AbstractServer()
     {
@@ -203,6 +214,12 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         this(sessionManager, daoFactory, propertiesBatchManager);
         this.sampleTypeSlaveServerPlugin = sampleTypeSlaveServerPlugin;
         this.dataSetTypeSlaveServerPlugin = dataSetTypeSlaveServerPlugin;
+    }
+    
+    @PostConstruct
+    public void registerAtSessionManager()
+    {
+        sessionManager.addListener(sessionActionListener);
     }
 
     // For unit tests - in production Spring will inject this object.

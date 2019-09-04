@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Level;
@@ -40,6 +41,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.server.IRemoteHostProvider;
+import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.common.test.RetryTen;
 import ch.systemsx.cisd.common.test.TestReportCleaner;
 
@@ -78,6 +80,8 @@ public class DefaultSessionManagerTest
 
     private Sequence sequence;
 
+    private ISessionActionListener sessionActionListener;
+
     private void assertExceptionMessageForInvalidSessionToken(final UserFailureException ex)
     {
         final String message = ex.getMessage();
@@ -94,6 +98,7 @@ public class DefaultSessionManagerTest
         authenticationService = context.mock(IAuthenticationService.class);
         remoteHostProvider = context.mock(IRemoteHostProvider.class);
         principalProvider = context.mock(IPrincipalProvider.class);
+        sessionActionListener = context.mock(ISessionActionListener.class);
         sequence = context.sequence("sequence");
         context.checking(new Expectations()
             {
@@ -232,6 +237,7 @@ public class DefaultSessionManagerTest
     public void testLimitedNumberOfSession()
     {
         final String user = "bla";
+        RecordingMatcher<BasicSession> recordingSessionMatcher = new RecordingMatcher<BasicSession>();
         context.checking(new Expectations()
             {
                 {
@@ -243,7 +249,7 @@ public class DefaultSessionManagerTest
                     exactly(3).of(authenticationService).tryGetAndAuthenticateUser(user, "blub");
                     will(returnValue(principal));
 
-                    for (int i = 0; i < 2; i++)
+                    for (int i = 0; i < 3; i++)
                     {
                         one(sessionFactory).create(with(any(String.class)), with(equal(user)),
                                 with(equal(principal)), with(equal(REMOTE_HOST)),
@@ -253,26 +259,24 @@ public class DefaultSessionManagerTest
                         will(returnValue(session));
                         inSequence(sequence);
 
-                        one(prefixGenerator).createPrefix(session);
+                        one(prefixGenerator).createPrefix(with(recordingSessionMatcher));
                         will(returnValue("[USER:'" + user + "', HOST:'remote-host']"));
                     }
-
-                    one(prefixGenerator).createPrefix("bla", REMOTE_HOST);
-                    will(returnValue("[USER:'bla', HOST:'remote-host']"));
+                    one(prefixGenerator).createPrefix(with(recordingSessionMatcher));
+                    will(returnValue("[USER:'" + user + "', HOST:'remote-host']"));
+                    
+                    one(sessionActionListener).sessionClosed("bla-1");
                 }
             });
         sessionManager = createSessionManager(SESSION_EXPIRATION_PERIOD_MINUTES, Collections.singletonMap("bla", 2));
+        sessionManager.addListener(sessionActionListener);
 
         assertEquals("bla-1", sessionManager.tryToOpenSession("bla", "blub"));
         assertEquals("bla-2", sessionManager.tryToOpenSession("bla", "blub"));
-        try
-        {
-            assertEquals("bla-3", sessionManager.tryToOpenSession("bla", "blub"));
-            fail("UserFailureException expected");
-        } catch (UserFailureException e)
-        {
-            assertEquals("2 open session(s) but only 2 session(s) are allowed for user bla.", e.getMessage());
-        }
+        assertEquals("bla-3", sessionManager.tryToOpenSession("bla", "blub"));
+        assertEquals("[bla-1, bla-2, bla-1, bla-3]", 
+                recordingSessionMatcher.getRecordedObjects().stream().map(s -> s.getSessionToken())
+                .collect(Collectors.toList()).toString());
 
         context.assertIsSatisfied();
     }

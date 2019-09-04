@@ -36,6 +36,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.authentication.ISessionActionListener;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -73,8 +74,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ResultSetTr
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.TableModelUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.XMLPropertyTransformer;
+import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
+import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.WebClientConfigurationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
@@ -115,6 +118,29 @@ public abstract class AbstractClientService implements IClientService,
 
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     private ExposablePropertyPlaceholderConfigurer configurer;
+
+    @Resource(name = ComponentNames.SESSION_MANAGER)
+    private IOpenBisSessionManager sessionManager;
+
+    private final Map<String, HttpSession> httpSessionsBySessionToken = new HashMap<>();
+
+    private ISessionActionListener sessionActionListener = new ISessionActionListener()
+        {
+            @Override
+            public void sessionClosed(String sessionToken)
+            {
+                synchronized (httpSessionsBySessionToken)
+                {
+                    HttpSession httpSession = httpSessionsBySessionToken.remove(sessionToken);
+                    logout(null, true, httpSession, sessionToken);
+                    if (httpSession != null)
+                    {
+                        operationLog.info("Session " + sessionToken + " closed. "
+                                + "httpSessionsBySessionToken.size() = " + httpSessionsBySessionToken.size());
+                    }
+                }
+            }
+        };
 
     @Autowired
     private TableDataCache<String, Object> tableDataCache;
@@ -653,6 +679,12 @@ public abstract class AbstractClientService implements IClientService,
             return null;
         }
         final HttpSession httpSession = createHttpSession();
+        synchronized (httpSessionsBySessionToken)
+        {
+            httpSessionsBySessionToken.put(session.getSessionToken(), httpSession);
+            operationLog.info("httpSessionsBySessionToken.size() = " + httpSessionsBySessionToken.size());
+        }
+
         // Expiration time of httpSession is 10 seconds less than of session
         final int sessionExpirationTimeInMillis = session.getSessionExpirationTime();
         final int sessionExpirationTimeInSeconds = sessionExpirationTimeInMillis / 1000;
@@ -772,26 +804,31 @@ public abstract class AbstractClientService implements IClientService,
         try
         {
             final HttpSession httpSession = getHttpSession();
-            if (httpSession != null)
-            {
-                String sessionToken = getSessionToken();
-                httpSession.removeAttribute(SessionConstants.OPENBIS_SESSION_TOKEN_ATTRIBUTE_KEY);
-                httpSession.removeAttribute(SessionConstants.OPENBIS_SERVER_ATTRIBUTE_KEY);
-                httpSession.removeAttribute(SessionConstants.OPENBIS_RESULT_SET_MANAGER);
-                httpSession.removeAttribute(SessionConstants.OPENBIS_EXPORT_MANAGER);
-                httpSession.invalidate();
-                IServer server = getServer();
-                if (simpleViewMode == false)
-                {
-                    // only save settings for "normal" view
-                    int maxEntityVisits = getWebClientConfiguration().getMaxEntityVisits();
-                    server.saveDisplaySettings(sessionToken, displaySettings, maxEntityVisits);
-                }
-                server.logout(sessionToken);
-            }
-        } catch (final UserFailureException e)
+            String sessionToken = getSessionToken();
+            logout(displaySettings, simpleViewMode, httpSession, sessionToken);
+        } catch (Exception e)
         {
-            // Just ignore it because we are logging out anyway.
+            operationLog.info("logout exception: " + e);
+        }
+    }
+
+    private void logout(DisplaySettings displaySettings, boolean simpleViewMode, final HttpSession httpSession, String sessionToken)
+    {
+        if (httpSession != null)
+        {
+            httpSession.removeAttribute(SessionConstants.OPENBIS_SESSION_TOKEN_ATTRIBUTE_KEY);
+            httpSession.removeAttribute(SessionConstants.OPENBIS_SERVER_ATTRIBUTE_KEY);
+            httpSession.removeAttribute(SessionConstants.OPENBIS_RESULT_SET_MANAGER);
+            httpSession.removeAttribute(SessionConstants.OPENBIS_EXPORT_MANAGER);
+            httpSession.invalidate();
+            IServer server = getServer();
+            if (simpleViewMode == false)
+            {
+                // only save settings for "normal" view
+                int maxEntityVisits = getWebClientConfiguration().getMaxEntityVisits();
+                server.saveDisplaySettings(sessionToken, displaySettings, maxEntityVisits);
+            }
+            server.logout(sessionToken);
         }
     }
 
@@ -832,5 +869,6 @@ public abstract class AbstractClientService implements IClientService,
     public void setApplicationContext(ApplicationContext applicationContext)
     {
         this.applicationContext = applicationContext;
+        sessionManager.addListener(sessionActionListener);
     }
 }

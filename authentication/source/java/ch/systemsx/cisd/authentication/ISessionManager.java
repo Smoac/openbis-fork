@@ -75,5 +75,7 @@ public interface ISessionManager<T extends BasicSession> extends IRemoteHostProv
      * </p>
      */
     public T tryGetSession(final String sessionToken);
+    
+    public void addListener(ISessionActionListener listener);
 
 }
