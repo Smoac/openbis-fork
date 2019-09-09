@@ -39,8 +39,10 @@
 	<link type="text/css" rel="stylesheet" href="./lib/jquery-fancytree/js/skin-bootstrap/ui.fancytree.min.css" />
 	<link type="text/css" rel="stylesheet" href="./lib/font-awesome/css/font-awesome.min.css" />
 	<link type="text/css" rel="stylesheet" href="./lib/c3/c3.min.css"></script>
-	
-	
+	<link type="text/css" rel="stylesheet" href="./lib/jsuites/jsuites.css"></script>
+	<link type="text/css" rel="stylesheet" href="./lib/jexcel/jexcel.css"></script>
+	<link type="text/css" rel="stylesheet" href="./lib/material-icons/material-icons.css"></script>
+
 	<!-- ELN UI Stylesheets -->
 	<link type="text/css" rel="stylesheet" href="./css/style.css" />
 	<link type="text/css" rel="stylesheet" href="/openbis/resources/components/imageviewer/css/image-viewer.css" />
@@ -75,6 +77,8 @@
 	<script type="text/javascript" src="./lib/caja-HTML-sanitizer/js/lib/html4.js"></script>
 	<script type="text/javascript" src="./lib/caja-HTML-sanitizer/js/lib/uri.js"></script>
 	<script type="text/javascript" src="./lib/caja-HTML-sanitizer/js/sanitizer.js"></script>
+	<script type="text/javascript" src="./lib/jsuites/jsuites.js"></script>
+	<script type="text/javascript" src="./lib/jexcel/jexcel.js"></script>
 
 	<!-- First party libraries -->
 	<script type="text/javascript" src="../../resources/js/openbis.js"></script>
@@ -97,6 +101,7 @@
 	<script type="text/javascript" src="./js/util/FormUtil.js"></script>
 	<script type="text/javascript" src="./js/util/Select2Manager.js"></script>
 	<script type="text/javascript" src="./js/util/CKEditorManager.js"></script>
+	<script type="text/javascript" src="./js/util/JExcelEditorManager.js"></script>
 	<script type="text/javascript" src="./js/util/PrintUtil.js"></script>
 	<script type="text/javascript" src="./js/util/TreeUtil.js"></script>
 	<script type="text/javascript" src="./js/util/JupyterUtil.js"></script>
@@ -249,6 +254,14 @@
 	<script type="text/javascript" src="./js/views/Export/ExportTreeModel.js"></script>
 	<script type="text/javascript" src="./js/views/Export/ExportTreeView.js"></script>
 	
+	<script type="text/javascript" src="./js/views/ResearchCollectionExport/ResearchCollectionExportController.js"></script>
+	<script type="text/javascript" src="./js/views/ResearchCollectionExport/ResearchCollectionExportModel.js"></script>
+	<script type="text/javascript" src="./js/views/ResearchCollectionExport/ResearchCollectionExportView.js"></script>
+
+	<script type="text/javascript" src="./js/views/ZenodoExport/ZenodoExportController.js"></script>
+	<script type="text/javascript" src="./js/views/ZenodoExport/ZenodoExportModel.js"></script>
+	<script type="text/javascript" src="./js/views/ZenodoExport/ZenodoExportView.js"></script>
+
 	<script type="text/javascript" src="./js/views/DrawingBoards/DrawingBoardsController.js"></script>
 	<script type="text/javascript" src="./js/views/DrawingBoards/DrawingBoardsModel.js"></script>
 	<script type="text/javascript" src="./js/views/DrawingBoards/DrawingBoardsView.js"></script>
@@ -315,7 +328,14 @@
 					$.trim($('#password').val()), 
 					function(data) { mainController.enterApp(data, username, password) });
 		});
-		
+		var singleSignOnUrlTemplate = mainController.profile.singleSignOnUrlTemplate;
+		if (singleSignOnUrlTemplate) {
+			var $container = $("#single-sign-on-login");
+			$container.empty();
+			var url = mainController.profile.singleSignOnUrlTemplate.replace("${host}", window.location.hostname);
+			$container.append($("<a>", {href: url, text: mainController.profile.singleSignOnLinkLabel}));
+		}
+
 		mainController.serverFacade.ifRestoredSessionActive(function(data) { mainController.enterApp(data) });
 		
 		// Make the ENTER key the default button
@@ -377,6 +397,7 @@
 
 
 			<center>
+				<div id="single-sign-on-login"></div>
 				<div id="password-reset-container"></div>
 
 				<div style="margin-bottom: 5px;">Compatible With:</div>

@@ -28,13 +28,17 @@ ELNDictionary.settingsView = {
 			title : "Storages",
 			info : "Create and browse storages.",
 		},
-		orders : {
-			title : "Orders",
-			info : "Here you can edit the template for orders.",
+		templates : {
+			title : "Templates",
+			info : "Here you can edit your templates.",
 		},
 		mainMenu : {
 			title : "Main Menu",
 			info : "These options give the opportunity to the administrator to show/hide different sections of the user interface from the main menu.",
+		},
+		customWidgets : {
+		    title : "Custom Widgets",
+            info : "Assign custom widgets to properties!",
 		},
 		forcedDisableRTF : {
 			title : "Forced Disable RTF",

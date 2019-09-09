@@ -274,15 +274,20 @@ var FormUtil = new function() {
 		return $component;
 	}
 	
-	this.getExperimentTypeDropdown = function(id, isRequired) {
+	this.getExperimentTypeDropdown = function(id, isRequired, defaultValue) {
 		var experimentTypes = this.profile.allExperimentTypes;
 		
-		var $component = $("<select>", {"id" : id, class : 'form-control'});
+		var $component = $("<select>", {"id" : id, class : "form-control"});
 		if (isRequired) {
-			$component.attr('required', '');
+			$component.attr("required", "");
 		}
-		
-		$component.append($("<option>").attr('value', '').attr('selected', '').text("Select an " + ELNDictionary.getExperimentDualName() + " type"));
+
+		var $emptyOption = $("<option>").attr("value", "").attr('disabled', '').text("Select an " + ELNDictionary.getExperimentDualName() + " type");
+		if (!defaultValue || defaultValue === "") {
+			$emptyOption.attr("selected", "");
+		}
+
+		$component.append($emptyOption);
 		for(var i = 0; i < experimentTypes.length; i++) {
 			var experimentType = experimentTypes[i];
 			if(profile.isExperimentTypeHidden(experimentType.code)) {
@@ -294,12 +299,22 @@ var FormUtil = new function() {
 			if(description !== "") {
 				label += " (" + description + ")";
 			}
-			
-			$component.append($("<option>").attr('value',experimentType.code).text(label));
+
+			var $option = $("<option>").attr("value", experimentType.code).text(label);
+			if (experimentType.code === defaultValue) {
+				$option.attr("selected", "");
+			}
+			$component.append($option);
 		}
 		Select2Manager.add($component);
 		return $component;
-	}
+	};
+
+	this.getInlineExperimentTypeDropdown = function(id, isRequired, defaultValue) {
+		var $wrapper = $("<span>", { class : "dropdown" });
+		$wrapper.append(this.getExperimentTypeDropdown(id, isRequired, defaultValue));
+		return $wrapper;
+	};
 	
 	this.getSpaceDropdown = function(id, isRequired) {
 		var spaces = this.profile.allSpaces;
@@ -322,25 +337,28 @@ var FormUtil = new function() {
 		Select2Manager.add($dropdown);
 		return $dropdown;
 	}
-	
-	this.getPlainDropdown = function(mapVals, placeHolder) {
 
-		var $component = $("<select>", {class : 'form-control'});
-		if(placeHolder) {
-			$component.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text(placeHolder));
-		}
-		for(var mIdx = 0; mIdx < mapVals.length; mIdx++) {
+	this.setValuesToComponent = function ($component, mapVals) {
+		for (var mIdx = 0; mIdx < mapVals.length; mIdx++) {
 			var $option = $("<option>").attr('value', mapVals[mIdx].value).text(mapVals[mIdx].label);
-			if(mapVals[mIdx].disabled) {
+			if (mapVals[mIdx].disabled) {
 				$option.attr('disabled', '');
 			}
-			if(mapVals[mIdx].selected) {
+			if (mapVals[mIdx].selected) {
 				$option.attr('selected', '');
 			}
 			$component.append($option);
 		}
+	};
+
+	this.getPlainDropdown = function(mapVals, placeHolder) {
+		var $component = $("<select>", {class : 'form-control'});
+		if (placeHolder) {
+			$component.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text(placeHolder));
+		}
+		this.setValuesToComponent($component, mapVals);
 		return $component;
-	}
+	};
 	
 	this.getDataSetsDropDown = function(code, dataSetTypes) {
 		var $component = $("<select>", { class : 'form-control ' });
@@ -348,13 +366,13 @@ var FormUtil = new function() {
 		
 		$component.attr('required', '');
 		
-		$component.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text('Select a dataset type'));
+		$component.append($("<option>").attr('value', '').attr('selected', '').text('Select a dataset type'));
 		
-		for(var i = 0; i < dataSetTypes.length; i++) {
+		for (var i = 0; i < dataSetTypes.length; i++) {
 			var datasetType = dataSetTypes[i];
 			var label = Util.getDisplayNameFromCode(datasetType.code);
 			var description = Util.getEmptyIfNull(datasetType.description);
-			if(description !== "") {
+			if (description !== "") {
 				label += " (" + description + ")";
 			}
 			
@@ -776,6 +794,8 @@ var FormUtil = new function() {
 		}
 		
 		$component.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text(alt));
+		$component.append($("<option>").attr('value', '').text('(empty)'));
+
 		for(var i = 0; i < terms.length; i++) {
 			$component.append($("<option>").attr('value',terms[i].code).text(terms[i].label));
 		}
@@ -1173,7 +1193,17 @@ var FormUtil = new function() {
 	}
 
 	this._getDropboxFolderName = function(nameElements, dataSetTypeCode, name) {
-		var folderName = nameElements.join("+");
+		var folderName = "";
+
+		for(var nIdx = 0; nIdx < nameElements.length; nIdx++) {
+		    if(nameElements[nIdx]) {
+		        if(nIdx !== 0) {
+		            folderName += "+";
+		        }
+		        folderName += nameElements[nIdx];
+		    }
+		}
+
 		for (var optionalPart of [dataSetTypeCode, name]) {
 			if (optionalPart) {
 				folderName += "+" + optionalPart;				
@@ -1509,7 +1539,29 @@ var FormUtil = new function() {
 		
 		return $freezeButton;
 	}
-	
+
+	this.createNewSample = function(experimentIdentifier) {
+    		var _this = this;
+    		var $dropdown = FormUtil.getSampleTypeDropdown("sampleTypeDropdown", true);
+    		Util.showDropdownAndBlockUI("sampleTypeDropdown", $dropdown);
+
+    		$("#sampleTypeDropdown").on("change", function(event) {
+    			var sampleTypeCode = $("#sampleTypeDropdown")[0].value;
+    			var argsMap = {
+    					"sampleTypeCode" : sampleTypeCode,
+    					"experimentIdentifier" : experimentIdentifier
+    			}
+
+    			var argsMapStr = JSON.stringify(argsMap);
+    			Util.unblockUI();
+    			mainController.changeView("showCreateSubExperimentPage", argsMapStr);
+    		});
+
+    		$("#sampleTypeDropdownCancel").on("click", function(event) {
+    			Util.unblockUI();
+    		});
+    }
+
 	this.showFreezeForm = function(entityType, permId) {
 		var _this = this;
 		

@@ -764,3 +764,31 @@ span.fancytree-custom-icon {
 	border : 1px solid #ddd;
 	border-collapse: collapse;
 }
+
+/*
+ * JExcel Bootstrap overrides / fixes
+ */
+
+.jexcel_container,
+.jexcel_toolbar,
+.jexcel_toolbar_item
+{
+  -webkit-box-sizing: initial !important;
+  -moz-box-sizing: initial !important;
+  box-sizing: initial !important;
+}
+
+.jexcel_toolbar {
+    position: sticky;
+    top: 0px;
+    z-index : 800;
+}
+
+.jcolor-content > table > tr > td {
+    padding : 7px !important;
+}
+
+
+.jexcel > thead > tr > td {
+    z-index : auto !important;
+}

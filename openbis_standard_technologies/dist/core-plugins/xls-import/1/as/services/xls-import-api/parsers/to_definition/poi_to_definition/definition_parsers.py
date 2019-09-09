@@ -1,18 +1,20 @@
 from java.lang import UnsupportedOperationException
-from .definition import Definition
+from ..definition import Definition
 from .poi_cleaner import PoiCleaner
 
 
 class DefinitionParserFactory(object):
 
-        @staticmethod
-        def get_parser(definition_type):
-            if definition_type in ['VOCABULARY_TYPE', 'SAMPLE_TYPE', 'EXPERIMENT_TYPE', 'DATASET_TYPE', 'EXPERIMENT', 'SAMPLE']:
-                return GeneralDefinitionParser
-            elif definition_type in ['PROPERTY_TYPE', 'SPACE', 'PROJECT']:
-                return PropertiesOnlyDefinitionParser
-            else:
-                raise UnsupportedOperationException("Definition of " + str(definition_type) + " is not supported (probably yet).")
+    @staticmethod
+    def get_parser(definition_type):
+        if definition_type in ['VOCABULARY_TYPE', 'SAMPLE_TYPE', 'EXPERIMENT_TYPE', 'DATASET_TYPE', 'EXPERIMENT',
+                               'SAMPLE']:
+            return GeneralDefinitionParser
+        elif definition_type in ['PROPERTY_TYPE', 'SPACE', 'PROJECT']:
+            return PropertiesOnlyDefinitionParser
+        else:
+            raise UnsupportedOperationException(
+                "Definition of " + str(definition_type) + " is not supported (probably yet).")
 
 
 class PropertiesOnlyDefinitionParser(object):
@@ -25,12 +27,12 @@ class PropertiesOnlyDefinitionParser(object):
         PROPERTIES_VALUES_ROW_START = 2
 
         row_numbers = {
-            'DEFINITION_TYPE_ROW' : DEFINITION_TYPE_ROW,
-            'DEFINITION_TYPE_CELL' : DEFINITION_TYPE_CELL,
-            'ATTRIBUTES_HEADER_ROW' : None,
-            'ATTRIBUTES_VALUES_ROW' : None,
-            'PROPERTIES_HEADER_ROW' : PROPERTIES_HEADER_ROW,
-            'PROPERTIES_VALUES_ROW_START' : PROPERTIES_VALUES_ROW_START
+            'DEFINITION_TYPE_ROW': DEFINITION_TYPE_ROW,
+            'DEFINITION_TYPE_CELL': DEFINITION_TYPE_CELL,
+            'ATTRIBUTES_HEADER_ROW': None,
+            'ATTRIBUTES_VALUES_ROW': None,
+            'PROPERTIES_HEADER_ROW': PROPERTIES_HEADER_ROW,
+            'PROPERTIES_VALUES_ROW_START': PROPERTIES_VALUES_ROW_START
         }
 
         poi_definition = PoiCleaner.clean_data(poi_definition, row_numbers)
@@ -65,12 +67,12 @@ class GeneralDefinitionParser(object):
         PROPERTIES_VALUES_ROW_START = 4
 
         row_numbers = {
-            'DEFINITION_TYPE_ROW' : DEFINITION_TYPE_ROW,
-            'DEFINITION_TYPE_CELL' : DEFINITION_TYPE_CELL,
-            'ATTRIBUTES_HEADER_ROW' : ATTRIBUTES_HEADER_ROW,
-            'ATTRIBUTES_VALUES_ROW' : ATTRIBUTES_VALUES_ROW,
-            'PROPERTIES_HEADER_ROW' : PROPERTIES_HEADER_ROW,
-            'PROPERTIES_VALUES_ROW_START' : PROPERTIES_VALUES_ROW_START
+            'DEFINITION_TYPE_ROW': DEFINITION_TYPE_ROW,
+            'DEFINITION_TYPE_CELL': DEFINITION_TYPE_CELL,
+            'ATTRIBUTES_HEADER_ROW': ATTRIBUTES_HEADER_ROW,
+            'ATTRIBUTES_VALUES_ROW': ATTRIBUTES_VALUES_ROW,
+            'PROPERTIES_HEADER_ROW': PROPERTIES_HEADER_ROW,
+            'PROPERTIES_VALUES_ROW_START': PROPERTIES_VALUES_ROW_START
         }
 
         poi_definition = PoiCleaner.clean_data(poi_definition, row_numbers)

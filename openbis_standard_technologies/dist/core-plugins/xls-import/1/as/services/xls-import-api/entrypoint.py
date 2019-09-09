@@ -3,10 +3,10 @@ import os
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.operation import SynchronousOperationExecutionOptions
 from ch.systemsx.cisd.common.exceptions import UserFailureException
 from ch.systemsx.cisd.openbis.generic.server import CommonServiceProvider
-from parsers import get_creations_from, get_definitions_from, get_creation_metadata_from, \
+from parsers import get_creations_from, get_definitions_from_xls, get_definitions_from_csv, get_creation_metadata_from, \
     CreationOrUpdateToOperationParser, versionable_types
 from processors import OpenbisDuplicatesHandler, PropertiesLabelHandler, DuplicatesHandler, \
-    unify_properties_representation_of
+    unify_properties_representation_of, validate_creations
 from search_engines import SearchEngine
 from utils import FileHandler
 from utils.openbis_utils import get_version_name_for, get_metadata_name_for
@@ -14,9 +14,9 @@ from utils.openbis_utils import get_version_name_for, get_metadata_name_for
 REMOVE_VERSIONS = False
 
 
-def validate_data(xls_byte_arrays, update_mode, xls_name):
-    if xls_byte_arrays is None:
-        raise UserFailureException('Excel sheet has not been provided. "xls" parameter is None')
+def validate_data(xls_byte_arrays, csv_strings, update_mode, xls_name):
+    if xls_byte_arrays is None and csv_strings is None:
+        raise UserFailureException('Nor Excel sheet nor csv has not been provided. "xls" and "csv" parameters are None')
     if update_mode not in ['IGNORE_EXISTING', 'FAIL_IF_EXISTS', 'UPDATE_IF_EXISTS']:
         raise UserFailureException(
             'Update mode has to be one of following: IGNORE_EXISTING FAIL_IF_EXISTS UPDATE_IF_EXISTS but was ' + (
@@ -26,9 +26,9 @@ def validate_data(xls_byte_arrays, update_mode, xls_name):
 
 
 def get_property(key, defaultValue):
-    propertyConfigurer = CommonServiceProvider.getApplicationContext().getBean("propertyConfigurer");
-    properties = propertyConfigurer.getResolvedProps();
-    return properties.getProperty(key, defaultValue);
+    propertyConfigurer = CommonServiceProvider.getApplicationContext().getBean("propertyConfigurer")
+    properties = propertyConfigurer.getResolvedProps()
+    return properties.getProperty(key, defaultValue)
 
 
 def read_versioning_information(xls_version_filepath):
@@ -69,12 +69,15 @@ def process(context, parameters):
     search_engine = SearchEngine(api, session_token)
 
     xls_byte_arrays = parameters.get('xls', None)
+    csv_strings = parameters.get('csv', None)
     xls_name = parameters.get('xls_name', None)
     scripts = parameters.get('scripts', {})
     update_mode = parameters.get('update_mode', None)
-    validate_data(xls_byte_arrays, update_mode, xls_name)
-    definitions = get_definitions_from(xls_byte_arrays)
+    validate_data(xls_byte_arrays, csv_strings, update_mode, xls_name)
+    definitions = get_definitions_from_xls(xls_byte_arrays)
+    definitions.extend(get_definitions_from_csv(csv_strings))
     creations = get_creations_from(definitions, FileHandler(scripts))
+    validate_creations(creations)
     creations_metadata = get_creation_metadata_from(definitions)
     creations = DuplicatesHandler.get_distinct_creations(creations)
     xls_version_filepath = get_property("xls-import.version-data-file", "../../../xls-import-version-info.json")
@@ -93,7 +96,8 @@ def process(context, parameters):
                     if code in versioning_information:
                         version = versioning_information[code]
                     else:
-                        version = creations_metadata.get_metadata_for(creation_type, creation).version if update_mode != "UPDATE_IF_EXISTS" else 0
+                        version = creations_metadata.get_metadata_for(creation_type,
+                                                                      creation).version if update_mode != "UPDATE_IF_EXISTS" else 0
                     versioning_information[code] = int(version)
     else:
         versioning_information = {}
@@ -101,12 +105,14 @@ def process(context, parameters):
             if creation_type in versionable_types:
                 for creation in creation_collection:
                     code = get_metadata_name_for(creation_type, creation)
-                    versioning_information[code] = creations_metadata.get_metadata_for(creation_type, creation).version if update_mode != "UPDATE_IF_EXISTS" else 0
+                    versioning_information[code] = creations_metadata.get_metadata_for(creation_type,
+                                                                                       creation).version if update_mode != "UPDATE_IF_EXISTS" else 0
 
     existing_elements = search_engine.find_all_existing_elements(creations)
     entity_kinds = search_engine.find_existing_entity_kind_definitions_for(creations)
     existing_vocabularies = search_engine.find_all_existing_vocabularies()
-    existing_unified_kinds = unify_properties_representation_of(creations, entity_kinds, existing_vocabularies, existing_elements)
+    existing_unified_kinds = unify_properties_representation_of(creations, entity_kinds, existing_vocabularies,
+                                                                existing_elements)
     creations = PropertiesLabelHandler.rewrite_property_labels_to_codes(creations, existing_unified_kinds)
     server_duplicates_handler = OpenbisDuplicatesHandler(creations, creations_metadata, existing_elements,
                                                          versioning_information, update_mode)
@@ -117,4 +123,3 @@ def process(context, parameters):
     all_versioning_information[xls_version_name] = versioning_information
     save_versioning_information(all_versioning_information, xls_version_filepath)
     return res
-

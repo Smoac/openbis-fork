@@ -21,23 +21,59 @@ function SettingsFormController(mainController, settingsSample, mode) {
 	this._settingsManager = new SettingsManager(this._mainController.serverFacade);
 
 	this.init = function(views) {
-		var runningProfile = jQuery.extend(true, {}, profile);
-		var profileToEdit = null;
-		
-		if(settingsSample.properties["$ELN_SETTINGS"]) {
-			profileToEdit = JSON.parse(settingsSample.properties["$ELN_SETTINGS"]);
-		} else {
-			profileToEdit = runningProfile;
-		}
-		
-		this._settingsManager.applySettingsToProfile(profileToEdit, runningProfile);
-		this._settingsFormView.repaint(views, runningProfile);
+	    var _this = this;
+	    mainController.serverFacade.getCustomWidgetSettings(function(customWidgetSettings) {
+	        var runningProfile = jQuery.extend(true, {}, profile);
+            var profileToEdit = null;
+
+            if(settingsSample.properties["$ELN_SETTINGS"]) {
+                profileToEdit = JSON.parse(settingsSample.properties["$ELN_SETTINGS"]);
+            } else {
+                profileToEdit = runningProfile;
+            }
+
+            _this._settingsManager.applySettingsToProfile(profileToEdit, runningProfile);
+            _this._settingsFormView.repaint(views, runningProfile);
+            _this._settingsFormModel.customWidgetSettings = customWidgetSettings;
+	    });
 	}
 
-	this.save = function(settings) {
-		this._settingsManager.validateAndsave(this._settingsFormModel.settingsSample, settings, (function() {
-			this._mainController.changeView("showSettingsPage", this._settingsFormModel.settingsSample.identifier);
-		}).bind(this));
+	this.save = function(settings, widgetSettings) {
+	    if(widgetSettings) { // Validate Widget Settings
+            for(var idx = 0; idx < widgetSettings.length; idx++) {
+                var widget = widgetSettings[idx];
+                var property = profile.getPropertyType(widget["Property Type"]);
+                switch(widget.Widget) {
+                    case "Word Processor":
+                        if(property.dataType !== "MULTILINE_VARCHAR") {
+                            Util.showUserError("Word Processor only works with MULTILINE_VARCHAR data type.", function() {}, true);
+                            return;
+                        }
+                        break;
+                    case "Spreadsheet":
+                        if(property.dataType !== "XML") {
+                            Util.showUserError("Spreadsheet only works with XML data type.", function() {}, true);
+                            return;
+                        }
+                        break;
+                }
+            }
+	    }
+
+	    var _this = this;
+	    var onSave = function() {
+	        _this._settingsManager.validateAndsave(_this._settingsFormModel.settingsSample, settings, (function() {
+                _this._mainController.changeView("showSettingsPage", _this._settingsFormModel.settingsSample.identifier);
+            }));
+	    }
+
+	    if(widgetSettings) {
+	        Util.blockUI();
+            this._mainController.serverFacade.setCustomWidgetSettings(widgetSettings, onSave);
+        } else {
+            onSave();
+        }
+
 	}
 
 	this.getAllDatasetTypeCodeOptions = this._settingsManager.getAllDatasetTypeCodeOptions;

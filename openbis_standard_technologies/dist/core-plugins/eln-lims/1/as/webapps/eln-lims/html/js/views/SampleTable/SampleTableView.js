@@ -191,25 +191,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 	// Menu Operations
 	//
 	this.createNewSample = function(experimentIdentifier) {
-		var _this = this;
-		var $dropdown = FormUtil.getSampleTypeDropdown("sampleTypeDropdown", true);
-		Util.showDropdownAndBlockUI("sampleTypeDropdown", $dropdown);
-		
-		$("#sampleTypeDropdown").on("change", function(event) {
-			var sampleTypeCode = $("#sampleTypeDropdown")[0].value;
-			var argsMap = {
-					"sampleTypeCode" : sampleTypeCode,
-					"experimentIdentifier" : experimentIdentifier
-			}
-			
-			var argsMapStr = JSON.stringify(argsMap);
-			Util.unblockUI();
-			mainController.changeView("showCreateSubExperimentPage", argsMapStr);
-		});
-		
-		$("#sampleTypeDropdownCancel").on("click", function(event) { 
-			Util.unblockUI();
-		});
+	    FormUtil.createNewSample(experimentIdentifier);
 	}
 	
 	this.registerSamples = function(experimentIdentifier) {

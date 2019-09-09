@@ -32,22 +32,15 @@ def process(transaction):
 		
 		# Parse entity Kind Format
 		if entityKind == "O":
-			
-			if len(datasetInfo) >= 4:
+			OPENBISURL = DataStoreServer.getConfigParameters().getServerURL() + "/openbis/openbis"
+			v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi, OPENBISURL + IApplicationServerApi.SERVICE_URL, 30 * 1000);
+			projectSamplesEnabled = v3.getServerInformation(transaction.getOpenBisServiceSessionToken())['project-samples-enabled'] == 'true'
+
+			if len(datasetInfo) >= 4 and projectSamplesEnabled:
 				sampleSpace = datasetInfo[1];
 				projectCode = datasetInfo[2];
 				sampleCode = datasetInfo[3];
-				
-				OPENBISURL = DataStoreServer.getConfigParameters().getServerURL() + "/openbis/openbis"
-				v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi, OPENBISURL + IApplicationServerApi.SERVICE_URL, 30 * 1000);
-				projectSamplesEnabled = v3.getServerInformation(transaction.getOpenBisServiceSessionToken())['project-samples-enabled'] == 'true'
-				
-				sample = None
-				if projectSamplesEnabled:
-					sample = transaction.getSample("/" +sampleSpace + "/" + projectCode + "/" + sampleCode);
-				else:
-					sample = transaction.getSample("/" +sampleSpace + "/" + sampleCode);
-				
+				sample = transaction.getSample("/" +sampleSpace + "/" + projectCode + "/" + sampleCode);
 				if sample is None:
 					raise UserFailureException(INVALID_FORMAT_ERROR_MESSAGE + ":" + SAMPLE_MISSING_ERROR_MESSAGE);
 				if len(datasetInfo) >= 5:
@@ -56,9 +49,20 @@ def process(transaction):
 					name = datasetInfo[5];
 				if len(datasetInfo) > 6:
 					raise UserFailureException(INVALID_FORMAT_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE);
+			elif len(datasetInfo) >= 3 and not projectSamplesEnabled:
+				sampleSpace = datasetInfo[1];
+				sampleCode = datasetInfo[2];
+				sample = transaction.getSample("/" +sampleSpace + "/" + sampleCode);
+				if sample is None:
+					raise UserFailureException(INVALID_FORMAT_ERROR_MESSAGE + ":" + SAMPLE_MISSING_ERROR_MESSAGE);
+				if len(datasetInfo) >= 4:
+					datasetType = datasetInfo[3];
+				if len(datasetInfo) >= 5:
+					name = datasetInfo[4];
+				if len(datasetInfo) > 5:
+					raise UserFailureException(INVALID_FORMAT_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE);
 			else:
 				raise UserFailureException(INVALID_FORMAT_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE);
-		
 		if entityKind == "E":
 			if len(datasetInfo) >= 4:
 				experimentSpace = datasetInfo[1];

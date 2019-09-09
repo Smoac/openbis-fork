@@ -68,7 +68,49 @@ function ServerFacade(openbisServer) {
 	}
 	
 	this.openbisServer.setResponseInterceptor(responseInterceptor);
-	
+
+	//
+	// Custom Widget Settings
+	//
+	this.getCustomWidgetSettings = function(doneCallback) {
+        require([ "openbis", "as/dto/property/search/PropertyTypeSearchCriteria", "as/dto/property/fetchoptions/PropertyTypeFetchOptions" ],
+        function(openbis, PropertyTypeSearchCriteria, PropertyTypeFetchOptions) {
+            var ptsc = new PropertyTypeSearchCriteria();
+            var ptfo = new PropertyTypeFetchOptions();
+            mainController.openbisV3.searchPropertyTypes(ptsc, ptfo).done(function(searchResult) {
+                var customWidgetProperties = [];
+                for(var oIdx = 0; oIdx < searchResult.totalCount; oIdx++) {
+                    var propertyType = searchResult.objects[oIdx];
+                    if(propertyType.metaData["custom_widget"]) {
+                        customWidgetProperties.push({
+                            "Property Type" : propertyType.code,
+                            "Widget" : propertyType.metaData["custom_widget"]
+                        });
+                    }
+                }
+                doneCallback(customWidgetProperties);
+            });
+        });
+    }
+
+    this.setCustomWidgetSettings = function(widgetSettings, doneCallback) {
+        require([ "openbis", "as/dto/property/update/PropertyTypeUpdate", "as/dto/property/id/PropertyTypePermId", "as/dto/common/update/ListUpdateActionAdd" ],
+        function(openbis, PropertyTypeUpdate, PropertyTypePermId) {
+            var ptus = [];
+            for(var uIdx = 0; uIdx < widgetSettings.length; uIdx++) {
+                var ptu = new PropertyTypeUpdate();
+                ptu.setTypeId(new PropertyTypePermId(widgetSettings[uIdx]["Property Type"]));
+                var luaa = new ListUpdateActionAdd();
+                luaa.setItems([{"custom_widget" : widgetSettings[uIdx]["Widget"] }])
+                ptu.setMetaDataActions([luaa]);
+                ptus.push(ptu);
+            }
+            mainController.openbisV3.updatePropertyTypes(ptus).done(function() {
+                doneCallback();
+            });
+        });
+    }
+
 	//
 	// Display Settings
 	//
@@ -143,7 +185,27 @@ function ServerFacade(openbisServer) {
         });
 	}
 	*/
-	
+
+    this.scheduleKeepAlive = function() {
+        var _this = this;
+        var TIMEOUT = 60000; //60 Seconds
+
+        setTimeout(function(){
+            _this.keepAlive();
+        }, TIMEOUT);
+    }
+
+	this.keepAlive = function() {
+	    var _this = this;
+	    mainController.openbisV3.isSessionActive().done(function(isSessionActive) {
+	        var timeStamp = Math.floor(Date.now() / 1000);
+            _this.scheduleKeepAlive();
+	    }).fail(function(error) {
+            var timeStamp = Math.floor(Date.now() / 1000);
+            _this.scheduleKeepAlive();
+        });
+	}
+
 	this.getPersons = function(personIds, callbackFunction) {
 		if(!mainController.openbisV3.getPersons) {
 			return null; // In case the method doesn't exist, do nothing
@@ -173,7 +235,7 @@ function ServerFacade(openbisServer) {
 	//
 	this.getUserId = function() {
 		var sessionId = this.openbisServer.getSession();
-		var userId = sessionId.substring(0, sessionId.indexOf("-"));
+		var userId = sessionId.substring(0, sessionId.lastIndexOf("-"));
 		return userId;
 	}
 	
@@ -303,7 +365,112 @@ function ServerFacade(openbisServer) {
 			"entities" : entities,
 			"metadataOnly" : metadataOnly,
 		}, callbackFunction, "exports-api");
-	}
+	};
+
+	//
+	// Research collection export
+	//
+	this.exportRc = function(entities, includeRoot, metadataOnly, submissionUrl, submissionType, userInformation, callbackFunction) {
+		this.asyncExportRc({
+			"method": "exportAll",
+			"includeRoot": includeRoot,
+			"entities": entities,
+			"metadataOnly": metadataOnly,
+			"submissionUrl": submissionUrl,
+			"submissionType": submissionType,
+            "userInformation": userInformation,
+			"originUrl": window.location.origin,
+			"sessionToken": this.openbisServer.getSession(),
+		}, callbackFunction, "rc-exports-api");
+	};
+
+	this.asyncExportRc = function(parameters, callbackFunction, serviceId) {
+		require(["as/dto/service/execute/ExecuteAggregationServiceOperation",
+				"as/dto/operation/AsynchronousOperationExecutionOptions", "as/dto/service/id/DssServicePermId",
+				"as/dto/datastore/id/DataStorePermId", "as/dto/service/execute/AggregationServiceExecutionOptions"],
+			function(ExecuteAggregationServiceOperation, AsynchronousOperationExecutionOptions, DssServicePermId, DataStorePermId,
+					 AggregationServiceExecutionOptions) {
+				var dataStoreCode = profile.getDefaultDataStoreCode();
+				var dataStoreId = new DataStorePermId(dataStoreCode);
+				var dssServicePermId = new DssServicePermId(serviceId, dataStoreId);
+				var options = new AggregationServiceExecutionOptions();
+
+				options.withParameter("sessionToken", parameters["sessionToken"]);
+
+				options.withParameter("entities", parameters["entities"]);
+				options.withParameter("includeRoot", parameters["includeRoot"]);
+				options.withParameter("metadataOnly", parameters["metadataOnly"]);
+				options.withParameter("method", parameters["method"]);
+				options.withParameter("originUrl", parameters["originUrl"]);
+				options.withParameter("submissionType", parameters["submissionType"]);
+				options.withParameter("submissionUrl", parameters["submissionUrl"]);
+				options.withParameter("entities", parameters["entities"]);
+				options.withParameter("userId", parameters["userInformation"]["id"]);
+				options.withParameter("userEmail", parameters["userInformation"]["email"]);
+				options.withParameter("userFirstName", parameters["userInformation"]["firstName"]);
+				options.withParameter("userLastName", parameters["userInformation"]["lastName"]);
+
+				var operation = new ExecuteAggregationServiceOperation(dssServicePermId, options);
+				mainController.openbisV3.executeOperations([operation], new AsynchronousOperationExecutionOptions()).done(function(results) {
+					callbackFunction(results.executionId.permId);
+				});
+			});
+	};
+
+    this.exportZenodo = function(entities, includeRoot, metadataOnly, userInformation, title, callbackFunction) {
+        this.asyncExportZenodo({
+            "method": "exportAll",
+            "includeRoot": includeRoot,
+            "entities": entities,
+            "metadataOnly": metadataOnly,
+            "userInformation": userInformation,
+            "originUrl": window.location.origin,
+            "sessionToken": this.openbisServer.getSession(),
+			"submissionTitle": title,
+        }, callbackFunction, "zenodo-exports-api");
+    };
+
+	this.asyncExportZenodo = function(parameters, callbackFunction, serviceId) {
+		require(["as/dto/service/execute/ExecuteAggregationServiceOperation",
+				"as/dto/operation/AsynchronousOperationExecutionOptions", "as/dto/service/id/DssServicePermId",
+				"as/dto/datastore/id/DataStorePermId", "as/dto/service/execute/AggregationServiceExecutionOptions"],
+			function(ExecuteAggregationServiceOperation, AsynchronousOperationExecutionOptions, DssServicePermId, DataStorePermId,
+					 AggregationServiceExecutionOptions) {
+				var dataStoreCode = profile.getDefaultDataStoreCode();
+				var dataStoreId = new DataStorePermId(dataStoreCode);
+				var dssServicePermId = new DssServicePermId(serviceId, dataStoreId);
+				var options = new AggregationServiceExecutionOptions();
+
+				options.withParameter("sessionToken", parameters["sessionToken"]);
+				options.withParameter("entities", parameters["entities"]);
+				options.withParameter("includeRoot", parameters["includeRoot"]);
+				options.withParameter("metadataOnly", parameters["metadataOnly"]);
+				options.withParameter("method", parameters["method"]);
+				options.withParameter("originUrl", parameters["originUrl"]);
+				options.withParameter("submissionType", parameters["submissionType"]);
+				options.withParameter("submissionUrl", parameters["submissionUrl"]);
+				options.withParameter("entities", parameters["entities"]);
+				options.withParameter("submissionTitle", parameters["submissionTitle"]);
+				options.withParameter("userId", parameters["userInformation"]["id"]);
+				options.withParameter("userEmail", parameters["userInformation"]["email"]);
+				options.withParameter("userFirstName", parameters["userInformation"]["firstName"]);
+				options.withParameter("userLastName", parameters["userInformation"]["lastName"]);
+
+				var operation = new ExecuteAggregationServiceOperation(dssServicePermId, options);
+				mainController.openbisV3.executeOperations([operation], new AsynchronousOperationExecutionOptions()).done(function(results) {
+					callbackFunction(results.executionId.permId);
+				});
+			});
+	};
+
+	//
+	// Gets submission types
+	//
+	this.listSubmissionTypes = function(callbackFunction) {
+		this.customELNApi({
+			"method": "getSubmissionTypes",
+		}, callbackFunction, "rc-exports-api");
+	};
 	
 	//
 	// Metadata Related Functions
@@ -660,7 +827,6 @@ function ServerFacade(openbisServer) {
     this._callPasswordResetService = function(parameters, callbackFunction) {
         var _this = this;
         this.getOpenbisV3(function(openbisV3) {
-
             openbisV3.loginAsAnonymousUser().done(function(sessionToken) {
                 _this.openbisServer._internal.sessionToken = sessionToken;
 
@@ -683,6 +849,7 @@ function ServerFacade(openbisServer) {
     }
 
  	this.customELNApi = function(parameters, callbackFunction, service) {
+		var _this = this;
  		if(!service) {
  			service = "eln-lims-api";
  		}
@@ -694,24 +861,28 @@ function ServerFacade(openbisServer) {
  		
  		var dataStoreCode = profile.getDefaultDataStoreCode();
  		this.openbisServer.createReportFromAggregationService(dataStoreCode, service, parameters, function(data) {
- 			var error = null;
- 			var result = {};
- 			if(data.error) { //Error Case 1
- 				error = data.error.message;
- 			} else if (data.result.columns[1].title === "Error") { //Error Case 2
- 				error = data.result.rows[0][1].value;
- 			} else if (data.result.columns[0].title === "STATUS" && data.result.rows[0][0].value === "OK") { //Success Case
- 				result.message = data.result.rows[0][1].value;
- 				result.data = data.result.rows[0][2].value;
- 				if(result.data) {
- 					result.data = JSON.parse(result.data);
- 				}
- 			} else {
- 				error = "Unknown Error.";
- 			}
- 			callbackFunction(error, result);
+			_this.customELNApiCallbackHandler(data, callbackFunction);
  		});
-	}
+	};
+
+	this.customELNApiCallbackHandler = function(data, callbackFunction) {
+		var error = null;
+		var result = {};
+		if (data && data.error) { //Error Case 1
+			error = data.error.message;
+		} else if (data && data.result.columns[1].title === "Error") { //Error Case 2
+			error = data.result.rows[0][1].value;
+		} else if (data && data.result.columns[0].title === "STATUS" && data.result.rows[0][0].value === "OK") { //Success Case
+			result.message = data.result.rows[0][1].value;
+			result.data = data.result.rows[0][2].value;
+			if(result.data) {
+				result.data = JSON.parse(result.data);
+			}
+		} else {
+			error = "Unknown Error.";
+		}
+		callbackFunction(error, result);
+	};
 
 	this.customELNASAPI = function(parameters, callbackFunction) {
 		this.customASService(parameters, callbackFunction, "as-eln-lims-api");
@@ -910,7 +1081,7 @@ function ServerFacade(openbisServer) {
 			try {
 				//Setting the searchCriteria given the advancedSearchCriteria model
 				var searchCriteria = new EntitySearchCriteria();
-			
+
 				//Setting the fetchOptions given standard settings
 				var fetchOptions = new EntityFetchOptions();
 				
@@ -1001,10 +1172,10 @@ function ServerFacade(openbisServer) {
 					if(advancedFetchOptions.withSample && fetchOptions.withSample) {
 						fetchOptions.withSample();
 					}
-					if(fetchOptions.withParents) {
+					if(fetchOptions.withParents && !(advancedFetchOptions.withParents === false)) {
 						fetchOptions.withParents();
 					}
-					if(fetchOptions.withChildren) {
+					if(fetchOptions.withChildren && !(advancedFetchOptions.withChildren === false)) {
 						var childrenFetchOptions = fetchOptions.withChildren();
 						if(advancedFetchOptions.withChildrenInfo) {
 							childrenFetchOptions.withType();
@@ -1045,12 +1216,9 @@ function ServerFacade(openbisServer) {
 						if(advancedFetchOptions.withChildrenType) {
 							childrenFetchOptions.withType();
 						}
-					}
-					if(advancedFetchOptions.withChildren) {
-						var childrenFetchOptions = fetchOptions.withChildren();
 						if(advancedFetchOptions.withChildrenProperties) {
-							childrenFetchOptions.withProperties();
-						}
+                            childrenFetchOptions.withProperties();
+                        }
 					}
 					if(advancedFetchOptions.withAncestors) {
 						var ancestorsFetchOptions = fetchOptions.withParents();
@@ -1375,33 +1543,70 @@ function ServerFacade(openbisServer) {
 		});
 	}
 
+    this.getResultsWithBrokenEqualsFix = function(hackFixForBrokenEquals, results, operator) {
+        if (!operator) {
+            operator = "AND";
+        }
+
+        if(hackFixForBrokenEquals.length > 0 && results) {
+            var filteredResults = [];
+            var resultsValid = new Array(results.length);
+            for (var vIdx = 0; vIdx < resultsValid.length; vIdx++) {
+                switch(operator) {
+                    case "AND":
+                        resultsValid[vIdx] = true;
+                        break;
+                    case "OR":
+                        resultsValid[vIdx] = false;
+                        break;
+                }
+            }
+
+            for(var rIdx = 0; rIdx < results.length; rIdx++) {
+        	    var result = results[rIdx];
+        	    for(var fIdx = 0; fIdx < hackFixForBrokenEquals.length; fIdx++) {
+        		    if(	result &&
+        		        result.properties &&
+        			    result.properties[hackFixForBrokenEquals[fIdx].propertyCode] === hackFixForBrokenEquals[fIdx].value) {
+        			    switch(operator) {
+                            case "AND":
+                                resultsValid[rIdx] = resultsValid[rIdx] && true;
+                                break;
+                            case "OR":
+                                resultsValid[rIdx] = resultsValid[rIdx] || true;
+                                break;
+                        }
+        		    } else {
+                        switch(operator) {
+                            case "AND":
+                                resultsValid[rIdx] = resultsValid[rIdx] && false;
+                                break;
+                            case "OR":
+                                resultsValid[rIdx] = resultsValid[rIdx] || false;
+                                break;
+                        }
+        	        }
+                }
+            }
+
+            for(var rIdx = 0; rIdx < results.length; rIdx++) {
+        	    if(resultsValid[rIdx]) {
+        	        filteredResults.push(results[rIdx]);
+        	    }
+            }
+
+            results = filteredResults;
+        }
+
+        return results;
+    }
+
 	this.searchForEntityAdvanced = function(advancedSearchCriteria, advancedFetchOptions, callback, criteriaClass, fetchOptionsClass, searchMethodName) {
+		var _this = this;
 		var searchFunction = function(searchCriteria, fetchOptions, hackFixForBrokenEquals) {
 			mainController.openbisV3[searchMethodName](searchCriteria, fetchOptions)
 			.done(function(apiResults) {
-				//
-				// Fix For broken equals PART 2
-				//
-				var results = apiResults.objects;
-				var filteredResults = [];
-				if(hackFixForBrokenEquals.length > 0 && results) {
-					for(var rIdx = 0; rIdx < results.length; rIdx++) {
-						var result = results[rIdx];
-						for(var fIdx = 0; fIdx < hackFixForBrokenEquals.length; fIdx++) {
-							if(	result && 
-								result.properties && 
-								result.properties[hackFixForBrokenEquals[fIdx].propertyCode] === hackFixForBrokenEquals[fIdx].value) {
-								filteredResults.push(result);
-							}
-						}
-					}
-				} else {
-					filteredResults = results;
-				}
-				apiResults.objects = filteredResults;
-				//
-				// Fix For broken equals PART 2 - END
-				//
+				apiResults.objects = _this.getResultsWithBrokenEqualsFix(hackFixForBrokenEquals, apiResults.objects, advancedSearchCriteria.logicalOperator);
 				callback(apiResults);
 			})
 			.fail(function(result) {
@@ -1724,14 +1929,14 @@ function ServerFacade(openbisServer) {
 		var localReference = this;
 		
 		//
-		// Fix For broken equals PART 1
+		// Collection Rules for broken equals Fix
 		// Currently the back-end matches whole words instead doing a standard EQUALS
 		// This fixes some most used cases for the storage system, but other use cases that use subcriterias can fail
 		//
 		var hackFixForBrokenEquals = [];
 		if(sampleCriteria.matchClauses) {
 			for(var cIdx = 0; cIdx < sampleCriteria.matchClauses.length; cIdx++) {
-				if(sampleCriteria.matchClauses[cIdx]["@type"] === "PropertyMatchClause" && 
+				if(sampleCriteria.matchClauses[cIdx]["@type"] === "PropertyMatchClause" &&
 						sampleCriteria.matchClauses[cIdx]["compareMode"] === "EQUALS") {
 					hackFixForBrokenEquals.push({
 						propertyCode : sampleCriteria.matchClauses[cIdx].propertyCode,
@@ -1743,32 +1948,11 @@ function ServerFacade(openbisServer) {
 		//
 		// Fix For broken equals PART 1 - END
 		//
-		
+		var _this = this;
 		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, options, function(data) {
 			var results = localReference.getInitializedSamples(data.result);
-			//
-			// Fix For broken equals PART 2
-			//
-			var filteredResults = [];
-			if(hackFixForBrokenEquals.length > 0 && results) {
-				for(var rIdx = 0; rIdx < results.length; rIdx++) {
-					var result = results[rIdx];
-					for(var fIdx = 0; fIdx < hackFixForBrokenEquals.length; fIdx++) {
-						if(	result && 
-							result.properties && 
-							result.properties[hackFixForBrokenEquals[fIdx].propertyCode] === hackFixForBrokenEquals[fIdx].value) {
-							filteredResults.push(result);
-						}
-					}
-				}
-			} else {
-				filteredResults = results;
-			}
-			//
-			// Fix For broken equals PART 2 - END
-			//
-			
-			callbackFunction(filteredResults);
+			results = _this.getResultsWithBrokenEqualsFix(hackFixForBrokenEquals, results, "AND");
+			callbackFunction(results);
 		});
 	}
 	
@@ -2567,10 +2751,10 @@ function ServerFacade(openbisServer) {
 
 	this.getSessionInformation = function(callbackFunction) {
 		mainController.openbisV3.getSessionInformation().done(function(sessionInfo) {
-                callbackFunction(sessionInfo);
+			callbackFunction(sessionInfo);
         }).fail(function(result) {
-				Util.showFailedServerCallError(result);
-				callbackFunction(false);
+			Util.showFailedServerCallError(result);
+			callbackFunction(false);
 		});
 	}
 

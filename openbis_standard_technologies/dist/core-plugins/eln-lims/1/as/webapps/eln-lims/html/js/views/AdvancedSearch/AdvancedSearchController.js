@@ -140,6 +140,8 @@ function AdvancedSearchController(mainController, forceSearch) {
 				fetchOptions.from = options.pageIndex * options.pageSize;
 				fetchOptions.minTableInfo = true;
 				fetchOptions.withExperiment = true;
+				fetchOptions.withParents = false;
+				fetchOptions.withChildren = false;
 				optionsSearch = options.search;
 				// TODO : Unused on the UI, should be added for DataSets
 				// fetchOptions.withSample = true;

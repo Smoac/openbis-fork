@@ -15,7 +15,6 @@
  */
 
 function ExportTreeView(exportTreeController, exportTreeModel) {
-	var exportTreeController = exportTreeController;
 	var exportTreeModel = exportTreeModel;
 	
 	this.repaint = function(views) {
@@ -25,6 +24,7 @@ function ExportTreeView(exportTreeController, exportTreeModel) {
 		var $form = $("<div>");
 		
 		var $formColumn = $("<form>", {
+			'name': 'exportTreeForm',
 			'role' : "form",
 			'action' : 'javascript:void(0);',
 			'onsubmit' : 'mainController.currentView.exportSelected();'
@@ -32,15 +32,19 @@ function ExportTreeView(exportTreeController, exportTreeModel) {
 			
 		$form.append($formColumn);
 		
-		var $formTitle = $("<h2>").append("Export Builder");
-		
-		$header.append($formTitle);
-		var $infoBox = FormUtil.getInfoBox("You can select any parts of the accesible openBIS structure to export:", [
+        var $formTitle = $("<h2>").append("Export Builder");
+        $header.append($formTitle);
+
+        var $exportButton = $("<input>", { "type": "button", "class": "btn btn-primary", 'value': 'Export Selected',
+                'onClick': '$("form[name=\'exportTreeForm\']").submit()' });
+        $header.append($exportButton);
+
+		var $infoBox = FormUtil.getInfoBox("You can select any parts of the accessible openBIS structure to export:", [
 		                                   "If you select a tree node and do not expand it, everything below this node will be exported by default.",
 		                                   "To export selectively only parts of a tree, open the nodes and select what to export."
 		]);
 		$infoBox.css("border", "none");
-		$header.append($infoBox);
+		$container.append($infoBox);
 		
 		var $tree = $("<div>", { "id" : "exportsTree" });
 		$formColumn.append($("<br>"));
@@ -49,9 +53,5 @@ function ExportTreeView(exportTreeController, exportTreeModel) {
 		$container.append($form);
 		
     	exportTreeModel.tree = TreeUtil.getCompleteTree($tree);
-    	
-    	var $exportButton = $("<input>", { "type": "submit", "class" : "btn btn-primary", 'value' : 'Export Selected' });
-		$formColumn.append($("<br>"));
-		$formColumn.append($exportButton);
 	}
 }

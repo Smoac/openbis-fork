@@ -125,4 +125,12 @@ function ProjectFormController(mainController, mode, project) {
 			Util.showError("No DSS available.", function() {Util.unblockUI();});
 		}
 	}
+
+	this.getDefaultSpaceValue = function (key, callback) {
+		this._mainController.serverFacade.getSetting(key, callback);
+	};
+
+	this.setDefaultSpaceValue = function (key, value) {
+		this._mainController.serverFacade.setSetting(key, value);
+	};
 }

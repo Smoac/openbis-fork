@@ -25,7 +25,7 @@ helper = MasterDataRegistrationHelper(sys.path)
 api = CommonServiceProvider.getApplicationContext().getBean(ApplicationServerApi.INTERNAL_SERVICE_NAME)
 sessionToken = api.loginAsSystem()
 props = CustomASServiceExecutionOptions().withParameter('xls', helper.listXlsByteArrays())\
-    .withParameter('xls_name', 'ELN-LIMS').withParameter('update_mode', 'IGNORE_EXISTING')\
+    .withParameter('xls_name', 'ELN-LIMS').withParameter('update_mode', 'UPDATE_IF_EXISTS')\
     .withParameter('scripts', helper.getAllScripts())
 result = api.executeCustomASService(sessionToken, CustomASServiceCode("xls-import-api"), props);
 print("======================== master-data xls ingestion result ========================")

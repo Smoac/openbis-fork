@@ -22,6 +22,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 
 	this._mainMenuItemsTableModel = null;
 	this._forcedDisableRTFTableModel = null;
+	this._customWidgetsTableModel = null;
 	this._forcedMonospaceTableModel = null;
 	this._inventorySpacesTableModel = null;
 	this._sampleTypeDefinitionsMiscellaneousSettingsTableModels = {}; // key: sample type; value: table model
@@ -60,7 +61,11 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			} else { //Create and Edit
 				//Save
 				var $saveBtn = FormUtil.getButtonWithIcon("glyphicon-floppy-disk", (function() {
-					this._settingsFormController.save(this._getSettings());
+				    var widgetSettings = null;
+				    if(profile.isAdmin) {
+				        widgetSettings = this._customWidgetsTableModel.getValues();
+				    }
+					this._settingsFormController.save(this._getSettings(), widgetSettings);
 				}).bind(this), "Save");
 				$saveBtn.removeClass("btn-default");
 				$saveBtn.addClass("btn-primary");
@@ -80,7 +85,10 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 
 			this._paintMainMenuSection($formColumn, texts.mainMenu);
 			this._paintStoragesSection($formColumn, texts.storages);
-			this._paintOrdersSection($formColumn, texts.orders);
+			this._paintTemplateSection($formColumn, texts.templates);
+			if(profile.isAdmin) {
+	            this._paintCustomWidgetsSection($formColumn, texts.customWidgets);
+			}
 			this._paintForcedDisableRtfSection($formColumn, texts.forcedDisableRTF);
 			this._paintForcedMonospaceSection($formColumn, texts.forceMonospaceFont);
 			this._paintInventorySpacesSection($formColumn, texts.inventorySpaces);
@@ -166,17 +174,39 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		dataGrid.init($gridContainer, extraOptions);
 	}
 	
-	this._paintOrdersSection = function($container, text) {
-		var $fieldset = this._getFieldset($container, text.title, "settings-section-orders");
+	this._paintTemplateSection = function($container, text) {
+		var $fieldset = this._getFieldset($container, text.title, "settings-section-templates");
 		$fieldset.append(FormUtil.getInfoText(text.info));
 
-		var $gridContainer = $("<div>");
+		var $dropdownContainer = $("<p>");
+	    var $dropDownMenu = $("<span>", { class : 'dropdown' });
+        var $caret = $("<a>", { 'href' : '#', 'data-toggle' : 'dropdown', class : 'dropdown-toggle btn btn-default'}).append("Operations ").append($("<b>", { class : 'caret' }));
+        var $list = $("<ul>", { class : 'dropdown-menu', 'role' : 'menu', 'aria-labelledby' :'sampleTableDropdown' });
+        $dropdownContainer.append($dropDownMenu);
+        $dropDownMenu.append($caret);
+        $dropDownMenu.append($list);
+
+        var $createSampleOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Create ' + ELNDictionary.Sample + ''}).append('Create ' + ELNDictionary.Sample + ''));
+
+        var _this = this;
+        $createSampleOption.click(function() {
+            FormUtil.createNewSample("/" + _this._settingsFormModel.settingsSample.spaceCode + "/TEMPLATES/TEMPLATES_COLLECTION");
+        });
+        $list.append($createSampleOption);
+
+        $fieldset.append($dropdownContainer);
+
+        var $gridContainer = $("<div>");
 		$fieldset.append($gridContainer);
 
 		var advancedSampleSearchCriteria = {
 				entityKind : "SAMPLE",
 				logicalOperator : "AND",
-				rules : { "1" : { type : "Attribute", name : "CODE", value : "ORDER_TEMPLATE" } }
+				rules : {
+				          "1" : { type : "Experiment",  name : "ATTR.CODE", value : "TEMPLATES_COLLECTION" },
+				          "2" : { type : "Project",     name : "ATTR.CODE", value : "TEMPLATES" },
+				          "3" : { type : "Space",       name : "ATTR.CODE", value : this._settingsFormModel.settingsSample.spaceCode }
+			    }
 		}
 		var dataGrid = SampleDataGridUtil.getSampleDataGrid(null, advancedSampleSearchCriteria, null, null, null, null, true, null, false);
 		var extraOptions = [];
@@ -197,6 +227,14 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		this._forcedDisableRTFTableModel = this._getForcedDisableRTFTableModel();
 		$fieldset.append(this._getTable(this._forcedDisableRTFTableModel));
 	}
+
+    this._paintCustomWidgetsSection = function($container, text) {
+    		var $fieldset = this._getFieldset($container, text.title, "settings-section-custom-widgets");
+    		$fieldset.append(FormUtil.getInfoText(text.info));
+    		this._customWidgetsTableModel = this._getCustomWidgetsTableModel();
+    		$fieldset.append(this._getTable(this._customWidgetsTableModel));
+    }
+
 
 	this._paintForcedMonospaceSection = function($container, text) {
 		var $fieldset = this._getFieldset($container, text.title, "settings-section-monospace");
@@ -256,6 +294,49 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			options : this._settingsFormController.getForcedDisableRTFOptions(),
 			initialValues : this._profileToEdit.forcedDisableRTF,
 		});
+	}
+
+	this._getCustomWidgetsTableModel = function() {
+        return this._getDoubleColumnDropdownTableModel({
+            columnName : "Property Type",
+    	    placeholder : "select property type",
+    	    options : profile.allPropertyTypes.map(function(_) { return _.code; })
+        }, {
+    	    columnName : "Widget",
+            placeholder : "select widget",
+            options : ["Word Processor", "Spreadsheet"]
+        }, this._settingsFormModel.customWidgetSettings);
+    }
+
+	this._getDoubleColumnDropdownTableModel = function(params, paramsB, initialValues) {
+		var tableModel = this._getTableModel();
+		tableModel.dynamicRows = true;
+		// define columns
+		tableModel.columns = [{ label : params.columnName }, { label : paramsB.columnName }];
+		tableModel.rowBuilders[params.columnName] = function(rowData) {
+			return FormUtil.getDropdown(params.options.map(function(option) {
+				return {
+					label : Util.getDisplayNameFromCode(option),
+					value : option,
+					selected : option === rowData[params.columnName],
+				};
+			}), params.placeholder);
+		}
+		tableModel.rowBuilders[paramsB.columnName] = function(rowData) {
+            return FormUtil.getDropdown(paramsB.options.map(function(option) {
+        	    return {
+        		    label : option,
+        		    value : option,
+        		    selected : option === rowData[paramsB.columnName],
+                };
+            }), paramsB.placeholder);
+        }
+		// add data
+		for (var item of initialValues) {
+			tableModel.addRow(item);
+		}
+
+		return tableModel;
 	}
 
 	this._getForcedMonospaceTableModel = function() {

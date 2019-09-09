@@ -17,15 +17,20 @@ from ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id import VocabularyPer
 from java.lang import UnsupportedOperationException
 from ch.systemsx.cisd.common.exceptions import UserFailureException
 from utils.openbis_utils import is_internal_namespace, get_script_name_for
-from .creation_types import PropertyTypeDefinitionToCreationType, VocabularyDefinitionToCreationType, VocabularyTermDefinitionToCreationType, \
-                    PropertyAssignmentDefinitionToCreationType, SampleTypeDefinitionToCreationType, ExperimentTypeDefinitionToCreationType, \
-                    DatasetTypeDefinitionToCreationType, SpaceDefinitionToCreationType, ProjectDefinitionToCreationType, ExperimentDefinitionToCreationType, \
-                    SampleDefinitionToCreationType, ScriptDefinitionToCreationType
+from .creation_types import PropertyTypeDefinitionToCreationType, VocabularyDefinitionToCreationType, \
+    VocabularyTermDefinitionToCreationType, \
+    PropertyAssignmentDefinitionToCreationType, SampleTypeDefinitionToCreationType, \
+    ExperimentTypeDefinitionToCreationType, \
+    DatasetTypeDefinitionToCreationType, SpaceDefinitionToCreationType, ProjectDefinitionToCreationType, \
+    ExperimentDefinitionToCreationType, \
+    SampleDefinitionToCreationType, ScriptDefinitionToCreationType
+import json
 
 
 def get_boolean_from_string(text):
     if text.lower() not in [u'true', u'false']:
-        raise UserFailureException("Boolean field should either be 'true' or 'false' (case insensitive) but was " + text)
+        raise UserFailureException(
+            "Boolean field should either be 'true' or 'false' (case insensitive) but was " + text)
     return True if text and text.lower() == u'true' else False
 
 
@@ -73,7 +78,10 @@ class PropertyTypeDefinitionToCreationParser(object):
             property_type_creation.description = prop.get(u'description')
             property_type_creation.dataType = DataType.valueOf(prop.get(u'data type'))
             property_type_creation.internalNameSpace = is_internal_namespace(prop.get(u'code'))
-            property_type_creation.vocabularyId = VocabularyPermId(prop.get(u'vocabulary code')) if prop.get(u'vocabulary code') is not None else None
+            property_type_creation.vocabularyId = VocabularyPermId(prop.get(u'vocabulary code')) if prop.get(
+                u'vocabulary code') is not None else None
+            metadata = json.loads(prop.get(u'metadata')) if prop.get(u'metadata') is not None else None
+            property_type_creation.metaData = metadata
             property_creations.append(property_type_creation)
 
         return property_creations
@@ -150,7 +158,8 @@ class SampleTypeDefinitionToCreationParser(object):
         generatedCodePrefix = definition.attributes.get(u'generated code prefix')
         if generatedCodePrefix is not None:
             sample_creation.generatedCodePrefix = generatedCodePrefix
-        if u'validation script' in definition.attributes and definition.attributes.get(u'validation script') is not None:
+        if u'validation script' in definition.attributes and definition.attributes.get(
+                u'validation script') is not None:
             validation_script_path = definition.attributes.get(u'validation script')
             sample_creation.validationPluginId = PluginPermId(get_script_name_for(code, validation_script_path))
 
@@ -174,9 +183,11 @@ class ExperimentTypeDefinitionToCreationParser(object):
         experiment_type_creation = ExperimentTypeCreation()
         experiment_type_creation.code = code
         experiment_type_creation.description = definition.attributes.get(u'description')
-        if u'validation script' in definition.attributes and definition.attributes.get(u'validation script') is not None:
+        if u'validation script' in definition.attributes and definition.attributes.get(
+                u'validation script') is not None:
             validation_script_path = definition.attributes.get(u'validation script')
-            experiment_type_creation.validationPluginId = PluginPermId(get_script_name_for(code, validation_script_path))
+            experiment_type_creation.validationPluginId = PluginPermId(
+                get_script_name_for(code, validation_script_path))
 
         property_assignment_creations = []
         property_assignment_parser = PropertyAssignmentDefinitionToCreationParser()
@@ -198,7 +209,8 @@ class DatasetTypeDefinitionToCreationParser(object):
         code = definition.attributes.get(u'code')
         dataset_type_creation.code = code
         dataset_type_creation.description = definition.attributes.get(u'description')
-        if u'validation script' in definition.attributes and definition.attributes.get(u'validation script') is not None:
+        if u'validation script' in definition.attributes and definition.attributes.get(
+                u'validation script') is not None:
             validation_script_path = definition.attributes.get(u'validation script')
             dataset_type_creation.validationPluginId = PluginPermId(get_script_name_for(code, validation_script_path))
 
@@ -277,7 +289,7 @@ class SampleDefinitionToCreationParser(object):
     def parse(self, definition):
         samples = []
         sample_attributes = [u'$', u'code', u'space', u'project', u'experiment', u'auto generate code', u'parents',
-                                u'children']
+                             u'children']
         for sample_properties in definition.properties:
             sample_creation = SampleCreation()
             sample_creation.typeId = EntityTypePermId(definition.attributes.get(u'sample type'))
@@ -288,9 +300,11 @@ class SampleDefinitionToCreationParser(object):
             if u'$' in sample_properties and sample_properties.get(u'$') is not None:
                 # may overwrite creationId from code, which is intended
                 sample_creation.creationId = CreationId(sample_properties.get(u'$'))
-            if u'auto generate code' in sample_properties and sample_properties.get(u'auto generate code') is not None and \
+            if u'auto generate code' in sample_properties and sample_properties.get(
+                    u'auto generate code') is not None and \
                     sample_properties.get(u'auto generate code') != '':
-                sample_creation.autoGeneratedCode = get_boolean_from_string(sample_properties.get(u'auto generate code'))
+                sample_creation.autoGeneratedCode = get_boolean_from_string(
+                    sample_properties.get(u'auto generate code'))
             if u'space' in sample_properties and sample_properties.get(u'space') is not None:
                 sample_creation.spaceId = CreationId(sample_properties.get(u'space'))
             if u'project' in sample_properties and sample_properties.get(u'project') is not None:

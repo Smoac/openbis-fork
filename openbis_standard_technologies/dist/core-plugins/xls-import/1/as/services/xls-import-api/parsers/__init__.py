@@ -7,8 +7,9 @@ from .definition_to_creation import PropertyTypeDefinitionToCreationType, Vocabu
     SampleDefinitionToCreationType, ScriptDefinitionToCreationType
 from .definition_to_creation_metadata import DefinitionToCreationMetadataParser
 from .excel_to_poi import ExcelToPoiParser
-from .parsers_facade import get_creations_from, get_definitions_from, get_creation_metadata_from
-from .poi_to_definition import PoiToDefinitionParser, Definition
+from .parsers_facade import get_creations_from, get_definitions_from_xls, get_definitions_from_csv, \
+    get_creation_metadata_from
+from .to_definition import PoiToDefinitionParser, CsvReaderToDefinitionParser, Definition
 from .creation_to_update import CreationToUpdateParser, UpdateTypes, PropertyTypeCreationToUpdateType, \
     VocabularyCreationToUpdateType, VocabularyTermCreationToUpdateType, PropertyAssignmentCreationToUpdateType, \
     SampleTypeCreationToUpdateType, ExperimentTypeCreationToUpdateType, DatasetTypeCreationToUpdateType, \

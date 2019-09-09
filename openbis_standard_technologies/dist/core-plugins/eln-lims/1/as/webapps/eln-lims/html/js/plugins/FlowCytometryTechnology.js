@@ -61,7 +61,7 @@ $.extend(FlowCytometryTechnology.prototype, ELNLIMSPlugin.prototype, {
         },
         "FACS_ARIA_SPECIMEN": {
             "TOOLBAR": { CREATE: false, FREEZE: false, EDIT: false, MOVE: false, COPY: false, DELETE: false, PRINT: true, HIERARCHY_GRAPH: true, HIERARCHY_TABLE: true, UPLOAD_DATASET: false, UPLOAD_DATASET_HELPER: false, EXPORT_ALL: true, EXPORT_METADATA: true },
-            "SHOW_ON_NAV": true
+            "SHOW_ON_NAV": false 
         },
         "FACS_ARIA_TUBE": {
             "TOOLBAR": { CREATE: false, FREEZE: false, EDIT: false, MOVE: false, COPY: false, DELETE: false, PRINT: true, HIERARCHY_GRAPH: true, HIERARCHY_TABLE: true, UPLOAD_DATASET: false, UPLOAD_DATASET_HELPER: false, EXPORT_ALL: true, EXPORT_METADATA: true },
@@ -69,11 +69,11 @@ $.extend(FlowCytometryTechnology.prototype, ELNLIMSPlugin.prototype, {
         },
         "FACS_ARIA_TUBESET": {
             "TOOLBAR": { CREATE: false, FREEZE: false, EDIT: false, MOVE: false, COPY: false, DELETE: false, PRINT: true, HIERARCHY_GRAPH: true, HIERARCHY_TABLE: true, UPLOAD_DATASET: false, UPLOAD_DATASET_HELPER: false, EXPORT_ALL: true, EXPORT_METADATA: true },
-            "SHOW_ON_NAV": true
+            "SHOW_ON_NAV": false
         },
         "INFLUX_SPECIMEN": {
             "TOOLBAR": { CREATE: false, FREEZE: false, EDIT: false, MOVE: false, COPY: false, DELETE: false, PRINT: true, HIERARCHY_GRAPH: true, HIERARCHY_TABLE: true, UPLOAD_DATASET: false, UPLOAD_DATASET_HELPER: false, EXPORT_ALL: true, EXPORT_METADATA: true },
-            "SHOW_ON_NAV": true
+            "SHOW_ON_NAV": false 
         },
         "INFLUX_TUBE": {
             "TOOLBAR": { CREATE: false, FREEZE: false, EDIT: false, MOVE: false, COPY: false, DELETE: false, PRINT: true, HIERARCHY_GRAPH: true, HIERARCHY_TABLE: true, UPLOAD_DATASET: false, UPLOAD_DATASET_HELPER: false, EXPORT_ALL: true, EXPORT_METADATA: true },
@@ -81,7 +81,7 @@ $.extend(FlowCytometryTechnology.prototype, ELNLIMSPlugin.prototype, {
         },
         "INFLUX_TUBESET": {
             "TOOLBAR": { CREATE: false, FREEZE: false, EDIT: false, MOVE: false, COPY: false, DELETE: false, PRINT: true, HIERARCHY_GRAPH: true, HIERARCHY_TABLE: true, UPLOAD_DATASET: false, UPLOAD_DATASET_HELPER: false, EXPORT_ALL: true, EXPORT_METADATA: true },
-            "SHOW_ON_NAV": true
+            "SHOW_ON_NAV": false
         },
         "LSR_FORTESSA_PLATE": {
             "TOOLBAR": { CREATE: false, FREEZE: false, EDIT: false, MOVE: false, COPY: false, DELETE: false, PRINT: true, HIERARCHY_GRAPH: true, HIERARCHY_TABLE: true, UPLOAD_DATASET: false, UPLOAD_DATASET_HELPER: false, EXPORT_ALL: true, EXPORT_METADATA: true },
@@ -89,7 +89,7 @@ $.extend(FlowCytometryTechnology.prototype, ELNLIMSPlugin.prototype, {
         },
         "LSR_FORTESSA_SPECIMEN": {
             "TOOLBAR": { CREATE: false, FREEZE: false, EDIT: false, MOVE: false, COPY: false, DELETE: false, PRINT: true, HIERARCHY_GRAPH: true, HIERARCHY_TABLE: true, UPLOAD_DATASET: false, UPLOAD_DATASET_HELPER: false, EXPORT_ALL: true, EXPORT_METADATA: true },
-            "SHOW_ON_NAV": true
+            "SHOW_ON_NAV": false 
         },
         "LSR_FORTESSA_TUBE": {
             "TOOLBAR": { CREATE: false, FREEZE: false, EDIT: false, MOVE: false, COPY: false, DELETE: false, PRINT: true, HIERARCHY_GRAPH: true, HIERARCHY_TABLE: true, UPLOAD_DATASET: false, UPLOAD_DATASET_HELPER: false, EXPORT_ALL: true, EXPORT_METADATA: true },
@@ -97,7 +97,7 @@ $.extend(FlowCytometryTechnology.prototype, ELNLIMSPlugin.prototype, {
         },
         "LSR_FORTESSA_TUBESET": {
             "TOOLBAR": { CREATE: false, FREEZE: false, EDIT: false, MOVE: false, COPY: false, DELETE: false, PRINT: true, HIERARCHY_GRAPH: true, HIERARCHY_TABLE: true, UPLOAD_DATASET: false, UPLOAD_DATASET_HELPER: false, EXPORT_ALL: true, EXPORT_METADATA: true },
-            "SHOW_ON_NAV": true
+            "SHOW_ON_NAV": false
         },
         "LSR_FORTESSA_WELL": {
             "TOOLBAR": { CREATE: false, FREEZE: false, EDIT: false, MOVE: false, COPY: false, DELETE: false, PRINT: true, HIERARCHY_GRAPH: true, HIERARCHY_TABLE: true, UPLOAD_DATASET: false, UPLOAD_DATASET_HELPER: false, EXPORT_ALL: true, EXPORT_METADATA: true },
@@ -105,7 +105,7 @@ $.extend(FlowCytometryTechnology.prototype, ELNLIMSPlugin.prototype, {
         },
         "MOFLO_XDP_SPECIMEN": {
             "TOOLBAR": { CREATE: false, FREEZE: false, EDIT: false, MOVE: false, COPY: false, DELETE: false, PRINT: true, HIERARCHY_GRAPH: true, HIERARCHY_TABLE: true, UPLOAD_DATASET: false, UPLOAD_DATASET_HELPER: false, EXPORT_ALL: true, EXPORT_METADATA: true },
-            "SHOW_ON_NAV": true
+            "SHOW_ON_NAV": false 
         },
         "MOFLO_XDP_TUBE": {
             "TOOLBAR": { CREATE: false, FREEZE: false, EDIT: false, MOVE: false, COPY: false, DELETE: false, PRINT: true, HIERARCHY_GRAPH: true, HIERARCHY_TABLE: true, UPLOAD_DATASET: false, UPLOAD_DATASET_HELPER: false, EXPORT_ALL: true, EXPORT_METADATA: true },
@@ -113,7 +113,7 @@ $.extend(FlowCytometryTechnology.prototype, ELNLIMSPlugin.prototype, {
         },
         "MOFLO_XDP_TUBESET": {
             "TOOLBAR": { CREATE: false, FREEZE: false, EDIT: false, MOVE: false, COPY: false, DELETE: false, PRINT: true, HIERARCHY_GRAPH: true, HIERARCHY_TABLE: true, UPLOAD_DATASET: false, UPLOAD_DATASET_HELPER: false, EXPORT_ALL: true, EXPORT_METADATA: true },
-            "SHOW_ON_NAV": true
+            "SHOW_ON_NAV": false
         },
         "S3E_TUBE": {
             "TOOLBAR": { CREATE: false, FREEZE: false, EDIT: false, MOVE: false, COPY: false, DELETE: false, PRINT: true, HIERARCHY_GRAPH: true, HIERARCHY_TABLE: true, UPLOAD_DATASET: false, UPLOAD_DATASET_HELPER: false, EXPORT_ALL: true, EXPORT_METADATA: true },
@@ -121,11 +121,11 @@ $.extend(FlowCytometryTechnology.prototype, ELNLIMSPlugin.prototype, {
         },
         "S3E_TUBESET": {
             "TOOLBAR": { CREATE: false, FREEZE: false, EDIT: false, MOVE: false, COPY: false, DELETE: false, PRINT: true, HIERARCHY_GRAPH: true, HIERARCHY_TABLE: true, UPLOAD_DATASET: false, UPLOAD_DATASET_HELPER: false, EXPORT_ALL: true, EXPORT_METADATA: true },
-            "SHOW_ON_NAV": true
+            "SHOW_ON_NAV": false
         },
         "S3E_SPECIMEN": {
             "TOOLBAR": { CREATE: false, FREEZE: false, EDIT: false, MOVE: false, COPY: false, DELETE: false, PRINT: true, HIERARCHY_GRAPH: true, HIERARCHY_TABLE: true, UPLOAD_DATASET: false, UPLOAD_DATASET_HELPER: false, EXPORT_ALL: true, EXPORT_METADATA: true },
-            "SHOW_ON_NAV": true
+            "SHOW_ON_NAV": false 
         }
     },
     dataSetTypeDefinitionsExtension: {

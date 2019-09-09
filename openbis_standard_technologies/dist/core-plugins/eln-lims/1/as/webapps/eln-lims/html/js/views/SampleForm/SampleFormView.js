@@ -321,6 +321,68 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			$saveBtn.removeClass("btn-default");
 			$saveBtn.addClass("btn-primary");
 			toolbarModel.push({ component : $saveBtn, tooltip: "Save" });
+
+            // Templates
+            if(toolbarConfig.TEMPLATES && this._sampleFormModel.mode === FormMode.CREATE) {
+                var $templateBtn = FormUtil.getButtonWithIcon("glyphicon-list-alt", function() {
+                    var criteria = {
+                        entityKind : "SAMPLE",
+                    	logicalOperator : "AND",
+                        rules : {
+                            "1" : { type : "Experiment",  name : "ATTR.CODE", value : "TEMPLATES_COLLECTION" },
+                    	    "2" : { type : "Project",     name : "ATTR.CODE", value : "TEMPLATES" },
+                    	    "2" : { type : "Attribute",   name : "SAMPLE_TYPE", value : _this._sampleFormModel.sample.sampleTypeCode },
+                        }
+                    }
+
+                    mainController.serverFacade.searchForSamplesAdvanced(criteria, {
+                    			only : true,
+                    			withProperties : true
+                    }, function(results) {
+                        var settingsForDropdown = [];
+                        for(var rIdx = 0; rIdx < results.totalCount; rIdx++) {
+                            var name = results.objects[rIdx].properties[profile.propertyReplacingCode];
+                            if(!name) {
+                                name = results.objects[rIdx].code;
+                            }
+                            settingsForDropdown.push({  label: name,
+                                                    value: results.objects[rIdx].identifier.identifier});
+                        }
+
+                        var $dropdown = FormUtil.getDropdown(settingsForDropdown, "Select template");
+                        $dropdown.attr("id", "templatesDropdown");
+                        Util.showDropdownAndBlockUI("templatesDropdown", $dropdown);
+
+                        $("#templatesDropdown").on("change", function(event) {
+                            var sampleIdentifier = $("#templatesDropdown")[0].value;
+                            var sample = null;
+                            for(var rIdx = 0; rIdx < results.totalCount; rIdx++) {
+                                if(results.objects[rIdx].identifier.identifier === sampleIdentifier) {
+                                    sample = results.objects[rIdx];
+                                }
+                            }
+                            _this._sampleFormModel.sample.properties = sample.properties;
+
+                            if(_this._sampleFormModel.views.header) {
+                                _this._sampleFormModel.views.header.empty();
+                            }
+                            if(_this._sampleFormModel.views.content) {
+                                 _this._sampleFormModel.views.content.empty();
+                            }
+                            if(_this._sampleFormModel.views.auxContent) {
+                                 _this._sampleFormModel.views.auxContent.empty();
+                            }
+                            _this._sampleFormController.init(_this._sampleFormModel.views, true);
+                            Util.unblockUI();
+                        });
+
+                        $("#templatesDropdownCancel").on("click", function(event) {
+                            Util.unblockUI();
+                        });
+                    });
+                }, "Templates");
+                toolbarModel.push({ component : $templateBtn, tooltip: "Templates" });
+            }
 		}
 		
 		if(this._sampleFormModel.mode !== FormMode.CREATE && this._sampleFormModel.paginationInfo) {
@@ -665,7 +727,14 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				
 				if(this._sampleFormModel.mode === FormMode.VIEW) { //Show values without input boxes if the form is in view mode
 					if(Util.getEmptyIfNull(value) !== "") { //Don't show empty fields, whole empty sections will show the title
-						$controlGroup = FormUtil.createPropertyField(propertyType, value);
+						var customWidget = profile.customWidgetSettings[propertyType.code];
+						if(customWidget === 'Spreadsheet') {
+						    var $jexcelContainer = $("<div>");
+                            JExcelEditorManager.createField($jexcelContainer, this._sampleFormModel.mode, propertyType.code, this._sampleFormModel.sample);
+						    $controlGroup = FormUtil.getFieldForComponentWithLabel($jexcelContainer, propertyType.label);
+						} else {
+						    $controlGroup = FormUtil.createPropertyField(propertyType, value);
+						}
 					} else {
 						continue;
 					}
@@ -709,9 +778,27 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					if(propertyType.managed || propertyType.dinamic) {
 						$component.prop('disabled', true);
 					}
-					
-					if(propertyType.dataType === "MULTILINE_VARCHAR") {
-						$component = FormUtil.activateRichTextProperties($component, changeEvent(propertyType), propertyType);
+
+					var customWidget = profile.customWidgetSettings[propertyType.code];
+					if(customWidget) {
+					    switch(customWidget) {
+					        case 'Word Processor':
+					            if(propertyType.dataType === "MULTILINE_VARCHAR") {
+					                $component = FormUtil.activateRichTextProperties($component, changeEvent(propertyType), propertyType);
+					            } else {
+					                alert("Word Processor only works with MULTILINE_VARCHAR data type.");
+					            }
+					            break;
+					        case 'Spreadsheet':
+					            if(propertyType.dataType === "XML") {
+                                    var $jexcelContainer = $("<div>");
+                                    JExcelEditorManager.createField($jexcelContainer, this._sampleFormModel.mode, propertyType.code, this._sampleFormModel.sample);
+                                    $component = $jexcelContainer;
+					            } else {
+					                alert("Spreadsheet only works with XML data type.");
+					            }
+					            break;
+					    }
 					} else if(propertyType.dataType === "TIMESTAMP") {
 						$component.on("dp.change", changeEvent(propertyType));
 					} else {
@@ -1157,7 +1244,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 	
 	this._allowedToCreateChild = function() {
 		var sample = this._sampleFormModel.v3_sample;
-		return sample.frozenForChildren == false && sample.experiment.frozenForSamples == false;
+		return sample.frozenForChildren == false && (!sample.experiment || sample.experiment.frozenForSamples == false);
 	}
 	
 	this._allowedToEdit = function() {
@@ -1167,21 +1254,21 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 	
 	this._allowedToMove = function() {
 		var sample = this._sampleFormModel.v3_sample;
-		return sample.experiment.frozenForSamples == false;
+		return !sample.experiment || sample.experiment.frozenForSamples == false;
 	}
 	
 	this._allowedToDelete = function() {
 		var sample = this._sampleFormModel.v3_sample;
-		return sample.frozen == false && sample.experiment.frozenForSamples == false;
+		return sample.frozen == false && (!sample.experiment || sample.experiment.frozenForSamples == false);
 	}
 	
 	this._allowedToCopy = function() {
 		var sample = this._sampleFormModel.v3_sample;
-		return sample.experiment.frozenForSamples == false;
+		return !sample.experiment || sample.experiment.frozenForSamples == false;
 	}
 	
 	this._allowedToRegisterDataSet = function() {
 		var sample = this._sampleFormModel.v3_sample;
-		return sample.frozenForDataSets == false && sample.experiment.frozenForDataSets == false;
+		return sample.frozenForDataSets == false && (!sample.experiment || sample.experiment.frozenForDataSets == false);
 	}
 }

@@ -25,13 +25,14 @@ class PoiCleaner(object):
                    If there's no corresponding value, None is inserted.
             4. Headers to lowercase
         '''
-        definition[DEFINITION_TYPE_ROW] = {0:definition[DEFINITION_TYPE_ROW][DEFINITION_TYPE_CELL]}
+        definition[DEFINITION_TYPE_ROW] = {0: definition[DEFINITION_TYPE_ROW][DEFINITION_TYPE_CELL]}
 
         if ATTRIBUTES_HEADER_ROW is not None:
             PoiCleaner.delete_empty_cells_from(definition, ATTRIBUTES_HEADER_ROW)
             if ATTRIBUTES_VALUES_ROW is not None:
                 PoiCleaner.delete_cells_if_no_header(definition, ATTRIBUTES_HEADER_ROW, ATTRIBUTES_VALUES_ROW)
-                PoiCleaner.create_cells_if_no_value_but_header_exists(definition, ATTRIBUTES_HEADER_ROW, ATTRIBUTES_VALUES_ROW)
+                PoiCleaner.create_cells_if_no_value_but_header_exists(definition, ATTRIBUTES_HEADER_ROW,
+                                                                      ATTRIBUTES_VALUES_ROW)
             definition[ATTRIBUTES_HEADER_ROW] = PoiCleaner.dict_values_to_lowercase(definition[ATTRIBUTES_HEADER_ROW])
 
         if PROPERTIES_HEADER_ROW is not None and PoiCleaner.hasProperties(definition, PROPERTIES_HEADER_ROW):
@@ -39,7 +40,8 @@ class PoiCleaner(object):
             if PROPERTIES_VALUES_ROW_START is not None:
                 for property_value_row_num in range(PROPERTIES_VALUES_ROW_START, len(definition)):
                     PoiCleaner.delete_cells_if_no_header(definition, PROPERTIES_HEADER_ROW, property_value_row_num)
-                    PoiCleaner.create_cells_if_no_value_but_header_exists(definition, PROPERTIES_HEADER_ROW, property_value_row_num)
+                    PoiCleaner.create_cells_if_no_value_but_header_exists(definition, PROPERTIES_HEADER_ROW,
+                                                                          property_value_row_num)
             definition[PROPERTIES_HEADER_ROW] = PoiCleaner.dict_values_to_lowercase(definition[PROPERTIES_HEADER_ROW])
 
         return definition

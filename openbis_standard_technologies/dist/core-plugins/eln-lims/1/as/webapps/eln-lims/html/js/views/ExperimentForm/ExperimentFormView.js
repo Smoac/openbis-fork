@@ -399,8 +399,8 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 			} else if(propertyType.dinamic && this._experimentFormController.mode === FormMode.CREATE) { //Skip
 				continue;
 			}
-			
-			if(propertyType.code === "$XMLCOMMENTS") {
+
+            if(propertyType.code === "$XMLCOMMENTS") {
 				var $commentsContainer = $("<div>");
 				$fieldset.append($commentsContainer);
 				var isAvailable = this._experimentFormController._addCommentsWidget($commentsContainer);
@@ -423,11 +423,18 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 				}
 				
 				if(this._experimentFormModel.mode === FormMode.VIEW) { //Show values without input boxes if the form is in view mode
-					if(Util.getEmptyIfNull(value) !== "") { //Don't show empty fields, whole empty sections will show the title
-						$controlGroup = FormUtil.createPropertyField(propertyType, value);
-					} else {
-						continue;
-					}
+		            if(Util.getEmptyIfNull(value) !== "") { //Don't show empty fields, whole empty sections will show the title
+                        var customWidget = profile.customWidgetSettings[propertyType.code];
+                        if(customWidget === 'Spreadsheet') {
+                    	    var $jexcelContainer = $("<div>");
+                            JExcelEditorManager.createField($jexcelContainer, this._experimentFormModel.mode, propertyType.code, this._experimentFormModel.experiment);
+                            $controlGroup = FormUtil.getFieldForComponentWithLabel($jexcelContainer, propertyType.label);
+                        } else {
+                    	    $controlGroup = FormUtil.createPropertyField(propertyType, value);
+                        }
+                    } else {
+                        continue;
+                    }
 				} else {
 					var $component = null;
 					if(propertyType.code === "$DEFAULT_OBJECT_TYPE") {
@@ -472,10 +479,28 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 					if(propertyType.managed || propertyType.dinamic) {
 						$component.prop('disabled', true);
 					}
-					
-					if(propertyType.dataType === "MULTILINE_VARCHAR") {
-						$component = FormUtil.activateRichTextProperties($component, changeEvent(propertyType), propertyType);
-					} else if(propertyType.dataType === "TIMESTAMP") {
+
+					var customWidget = profile.customWidgetSettings[propertyType.code];
+                    if(customWidget) {
+                        switch(customWidget) {
+                            case 'Word Processor':
+                                if(propertyType.dataType === "MULTILINE_VARCHAR") {
+                    		        $component = FormUtil.activateRichTextProperties($component, changeEvent(propertyType), propertyType);
+                    	        } else {
+                    		        alert("Word Processor only works with MULTILINE_VARCHAR data type.");
+                    		    }
+                                break;
+                    	    case 'Spreadsheet':
+                    	        if(propertyType.dataType === "XML") {
+                                    var $jexcelContainer = $("<div>");
+                                    JExcelEditorManager.createField($jexcelContainer, this._experimentFormModel.mode, propertyType.code, this._experimentFormModel.experiment);
+                                    $component = $jexcelContainer;
+                    		    } else {
+                    		        alert("Spreadsheet only works with XML data type.");
+                    		    }
+                    		    break;
+                        }
+                    } else if(propertyType.dataType === "TIMESTAMP") {
 						$component.on("dp.change", changeEvent(propertyType));
 					} else {
 						$component.change(changeEvent(propertyType));

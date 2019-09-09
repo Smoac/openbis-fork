@@ -83,7 +83,7 @@ $.extend(MicroscopyTechnology.prototype, ELNLIMSPlugin.prototype, {
                                 // Return the series name
                                 for (var i = 0; i < model.datasets.length; i++) {
                                     if (model.datasets[i].code === dataSetCode) {
-                                        return model.datasets[i].properties.MICROSCOPY_IMG_CONTAINER_NAME;
+                                        return model.datasets[0].properties["$NAME"];
                                     }
                                 }
 
@@ -127,7 +127,7 @@ $.extend(MicroscopyTechnology.prototype, ELNLIMSPlugin.prototype, {
                             view.getDataSetText = function (dataSetCode) {
                                 // Return the series name
                                 if (model.dataSet.code === dataSetCode) {
-                                    return model.dataSet.properties.MICROSCOPY_IMG_CONTAINER_NAME;
+                                    return model.dataSet.properties["$NAME"];
                                 } else {
                                     // Fall-back (that should not happen)
                                     return dataSetCode;
@@ -190,8 +190,8 @@ $.extend(MicroscopyTechnology.prototype, ELNLIMSPlugin.prototype, {
 
             // Prepare the name to be shown
             var name;
-            if (sample.properties.MICROSCOPY_SAMPLE_NAME) {
-                name = sample.properties.MICROSCOPY_SAMPLE_NAME;
+            if (sample.properties["$NAME"]) {
+                name = sample.properties["$NAME"];
             } else {
                 name = sample.code;
             }
@@ -287,35 +287,37 @@ $.extend(MicroscopyTechnology.prototype, ELNLIMSPlugin.prototype, {
     displayThumbnailForSample: function (model, sample, img_id) {
 
         require([
-            "as/dto/sample/search/SampleSearchCriteria",
-            "as/dto/sample/fetchoptions/SampleFetchOptions",
             "as/dto/dataset/search/DataSetSearchCriteria",
+            "as/dto/dataset/fetchoptions/DataSetFetchOptions",
             "dss/dto/datasetfile/search/DataSetFileSearchCriteria",
             "dss/dto/datasetfile/fetchoptions/DataSetFileFetchOptions",
         ],
 
             function (
-                SampleSearchCriteria,
-                SampleFetchOptions,
                 DataSetSearchCriteria,
+                DataSetFetchOptions,
                 DataSetFileSearchCriteria,
                 DataSetFileFetchOptions) {
 
-                // First retrieve the sample again but with the associated datasets
-                var criteria = new SampleSearchCriteria();
-                criteria.withType().withCode().thatEquals(sample.sampleTypeCode);
-                criteria.withPermId().thatEquals(sample.permId);
-                var fetchOptions = new SampleFetchOptions();
-                fetchOptions.withDataSets().withType();
+
+                var dataSetCriteria = new DataSetSearchCriteria();
+                dataSetCriteria.withType().withCode().thatEquals("MICROSCOPY_IMG_CONTAINER");
+                dataSetCriteria.withSample().withPermId().thatEquals(sample.permId);
+
+                var dataSetFetchOptions = new DataSetFetchOptions();
+                dataSetFetchOptions.withChildren();
+                dataSetFetchOptions.withProperties();
+                dataSetFetchOptions.withComponents();
+                dataSetFetchOptions.withComponents().withType();
 
                 // Query the server
-                mainController.openbisV3.searchSamples(criteria, fetchOptions).done(function (result) {
+                mainController.openbisV3.searchDataSets(dataSetCriteria, dataSetFetchOptions).done(function (result) {
                     if (result.getTotalCount() == 0) {
                         return null;
                     }
-                    var sample = result.getObjects()[0];
-                    for (var i = 0; i < sample.getDataSets().length; i++) {
-                        var dataSet = sample.getDataSets()[i];
+                    var dataSetContainer = result.getObjects()[0];
+                    for (var i = 0; i < dataSetContainer.getComponents().length; i++) {
+                        var dataSet = dataSetContainer.getComponents()[i];
 
                         if (dataSet.getType().code === "MICROSCOPY_IMG_THUMBNAIL") {
 

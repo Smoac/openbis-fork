@@ -21,9 +21,11 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 //	this._storageControllers = [];
 	this._plateController = null;
 	
-	this.init = function(views) {
+	this.init = function(views, loadFromTemplate) {
 		// Loading datasets
 		var _this = this;
+		_this._sampleFormModel.views = views;
+
 		if(mode !== FormMode.CREATE) {
 			require([ "as/dto/sample/id/SamplePermId", "as/dto/sample/fetchoptions/SampleFetchOptions" ],
 					function(SamplePermId, SampleFetchOptions) {
@@ -49,22 +51,23 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 		            });		
 			});
 		} else {
-			if(sample.sampleTypeCode === "ORDER") {
-				mainController.serverFacade.searchWithIdentifiers(["/ELN_SETTINGS/ORDER_TEMPLATE"], function(data) {
-					if(data[0]) { //Template found
-						sample.properties = data[0].properties;
-						sample.parents = data[0].parents;
-					}
-					//Load view
-					_this._sampleFormView.repaint(views, true);
-					Util.unblockUI();
-				});
-			} else {
-				//Load view
-				_this._sampleFormView.repaint(views);
-				Util.unblockUI();
-			}
-			
+//			if(sample.sampleTypeCode === "ORDER") {
+//				mainController.serverFacade.searchWithIdentifiers(["/ELN_SETTINGS/ORDER_TEMPLATE"], function(data) {
+//					if(data[0]) { //Template found
+//						sample.properties = data[0].properties;
+//					}
+//					//Load view
+//					_this._sampleFormView.repaint(views, true);
+//					Util.unblockUI();
+//				});
+//			} else {
+//				//Load view
+//				_this._sampleFormView.repaint(views);
+//				Util.unblockUI();
+//			}
+			//Load view
+            _this._sampleFormView.repaint(views, loadFromTemplate);
+            Util.unblockUI();
 		}
 		
 	}

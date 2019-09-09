@@ -18,7 +18,9 @@ function SampleFormModel(mode, sample, paginationInfo) {
 	this.mode = mode;
 	this.sample = sample;
 	this.datasets = [];
-	
+
+	this.views = null;
+
 	this.isFormDirty = false;
 	this.isFormLoaded = false;
 	this.isELNSample = !profile.isInventorySpace(sample.spaceCode);
