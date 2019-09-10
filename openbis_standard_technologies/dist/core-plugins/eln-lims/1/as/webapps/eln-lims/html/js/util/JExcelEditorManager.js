@@ -7,15 +7,16 @@ var JExcelEditorManager = new function() {
         return function(el, record, x, y, value) {
             var jExcelEditor = _this.jExcelEditors[guid];
             if(jExcelEditor) {
-                // Change column width
-                var columnWidth = parseInt(jExcelEditor.getWidth(x));
-                var td = el.children[1].children[0].children[2].children[y].children[parseInt(x)+1];
-                var columnScrollWidth = td.scrollWidth;
+                if(value) {
+                    // Change column width
+                    var columnWidth = parseInt(jExcelEditor.getWidth(x));
+                    var td = el.children[1].children[0].children[2].children[y].children[parseInt(x)+1];
+                    var columnScrollWidth = td.scrollWidth;
 
-                if(columnScrollWidth > columnWidth) {
-                    jExcelEditor.setWidth(x, columnScrollWidth + 10);
+                    if(columnScrollWidth > columnWidth) {
+                        jExcelEditor.setWidth(x, columnScrollWidth + 10);
+                    }
                 }
-
                 // Save Editor
                 var data = jExcelEditor.getData();
                 var style = jExcelEditor.getStyle();
