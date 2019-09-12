@@ -80,15 +80,19 @@ $.extend(MicroscopyTechnology.prototype, ELNLIMSPlugin.prototype, {
 
                             // Show the series name instead of the dataset code
                             view.getDataSetText = function (dataSetCode) {
+                                var displayName = dataSetCode;
+
                                 // Return the series name
                                 for (var i = 0; i < model.datasets.length; i++) {
-                                    if (model.datasets[i].code === dataSetCode) {
-                                        return model.datasets[0].properties["$NAME"];
+                                    if (model.datasets[i].code === dataSetCode &&
+                                        model.datasets[i].properties[profile.propertyReplacingCode]) {
+                                        displayName = model.datasets[i].properties[profile.propertyReplacingCode];
+                                        break;
                                     }
                                 }
 
                                 // If not found, return the dataset code
-                                return dataSetCode;
+                                return displayName;
                             };
 
                         });
@@ -125,13 +129,13 @@ $.extend(MicroscopyTechnology.prototype, ELNLIMSPlugin.prototype, {
 
                             // Show the series name instead of the dataset code
                             view.getDataSetText = function (dataSetCode) {
+                                var displayName = dataSetCode;
                                 // Return the series name
-                                if (model.dataSet.code === dataSetCode) {
-                                    return model.dataSet.properties["$NAME"];
-                                } else {
-                                    // Fall-back (that should not happen)
-                                    return dataSetCode;
+                                if (model.dataSet.code === dataSetCode &&
+                                    model.dataSet.properties[profile.propertyReplacingCode]) {
+                                    displayName = model.dataSet.properties[profile.propertyReplacingCode];
                                 }
+                                return displayName;
                             };
 
                         });
@@ -189,11 +193,9 @@ $.extend(MicroscopyTechnology.prototype, ELNLIMSPlugin.prototype, {
             }
 
             // Prepare the name to be shown
-            var name;
-            if (sample.properties["$NAME"]) {
-                name = sample.properties["$NAME"];
-            } else {
-                name = sample.code;
+            var name = sample.code;
+            if (sample.properties[profile.propertyReplacingCode]) {
+                name = sample.properties[profile.propertyReplacingCode];
             }
 
             // Make sure it is not too long
