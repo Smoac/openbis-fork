@@ -93,7 +93,7 @@ def export(entities, tr, params):
 def sendToZenodo(tr, params, tempZipFilePath, entities):
     depositRootUrl = str(getConfigurationProperty(tr, 'zenodoUrl')) + '/api/deposit/depositions'
 
-    accessToken = str(getConfigurationProperty(tr, 'accessToken'))
+    accessToken = params.get('accessToken')
     operationLog.info('accessToken: %s' % accessToken)
 
     httpClient = None
@@ -225,7 +225,7 @@ class ZenodoCallable(object):
                     actionCompleted = True
                 elif publicationJson.get('submitted'):
                     operationLog.info('Publication #%d submitted. Registering metadata.' % publicationJson.get('id'))
-                    self.registerPublicationInOpenbis(publicationJson.get('metadata'))
+                    self.registerPublicationInOpenbis(publicationJson.get('metadata'), publicationJson.get('links'))
                     actionCompleted = True
                 else:
                     operationLog.info('Publication #%d not submitted yet.' % publicationJson.get('id'))
@@ -244,13 +244,13 @@ class ZenodoCallable(object):
         return actionCompleted
 
 
-    def registerPublicationInOpenbis(self, publicationMetadataJson):
+    def registerPublicationInOpenbis(self, publicationMetadataJson, publicationLinksJson):
         sessionToken = self.params.get('sessionToken')
         v3 = ServiceProvider.getV3ApplicationService()
         id = CustomASServiceCode('publication-api')
         options = CustomASServiceExecutionOptions() \
             .withParameter('method', 'insertPublication') \
-            .withParameter('publicationURL', self.selfUrl) \
+            .withParameter('publicationURL', publicationLinksJson.get('doi')) \
             .withParameter('openBISRelatedIdentifiers', self.permIdsStr) \
             .withParameter('name', publicationMetadataJson.get('title')) \
             .withParameter('publicationDescription', publicationMetadataJson.get('description')) \

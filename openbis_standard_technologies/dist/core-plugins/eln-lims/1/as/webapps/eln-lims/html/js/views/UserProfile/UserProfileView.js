@@ -21,6 +21,7 @@ function UserProfileView(userProfileController, userProfileModel) {
     this._$firstNameInput = null;
     this._$lastNameInput = null;
     this._$emailInput = null;
+    this._$zenodoToken = null;
 
 	this.repaint = function(views) {
 
@@ -71,23 +72,39 @@ function UserProfileView(userProfileController, userProfileModel) {
             this._$emailInput = $("<input>", { type : "text", class : "form-control" });
             this._$emailInput.val(getUserInformation.email);
             $formColumn.append(this._getFormGroup(this._$emailInput, "Email:"));
+            // personal Zenodo API token
+            this._$zenodoToken = $("<input>", { type : "text", class : "form-control" });
+
+            this._userProfileController.getSettingValue(this._userProfileController._zenodoApiTokenKey, (function (settingsValue) {
+                if (settingsValue) {
+                    this._$zenodoToken.val(settingsValue.trim());
+                }
+            }).bind(this));
+            $formColumn.append(this._getFormGroup(this._$zenodoToken, "Zenodo API Token:"));
+
             // disable in view mode
-            if (this._userProfileModel.mode === FormMode.VIEW) {
+            if (this._userProfileModel.mode === FormMode.VIEW ||
+                    !this._userProfileController.isFileAuthentication()) {
                 this._$firstNameInput.prop("disabled", true);
                 this._$lastNameInput.prop("disabled", true);
                 this._$emailInput.prop("disabled", true);
             }
-        }).bind(this));
 
+            if (this._userProfileModel.mode === FormMode.VIEW) {
+                this._$zenodoToken.prop("disabled", true);
+            }
+        }).bind(this));
     }
 
 	this._getOptionsMenu = function() {
-        var items = [
-            {
+        var items = [];
+        if(this._userProfileController.isFileAuthentication()) {
+            items.push({
                 label : "Change Password",
                 event : this._userProfileController.resetPassword.bind(this._userProfileController),
-            }
-        ];
+            })
+        }
+
         return FormUtil.getOperationsMenu(items);
 	}
 
@@ -96,6 +113,7 @@ function UserProfileView(userProfileController, userProfileModel) {
             firstName : this._$firstNameInput.val(),
             lastName : this._$lastNameInput.val(),
             email : this._$emailInput.val(),
+            zenodoToken : this._$zenodoToken.val()
         };
     }
 

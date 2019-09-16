@@ -104,6 +104,14 @@ function ProjectFormView(projectFormController, projectFormModel) {
 					});
 				}
 			}
+            if (_this._allowedToMove()) {
+                //Move
+                var $moveBtn = FormUtil.getButtonWithIcon("glyphicon-move", function () {
+                    var moveEntityController = new MoveEntityController("PROJECT", _this._projectFormModel.project.permId);
+                    moveEntityController.init();
+                });
+				toolbarModel.push({ component : $moveBtn, tooltip: "Move" });
+            }
 			if(_this._allowedToEdit()) {
 				//Edit
 				var $editBtn = FormUtil.getButtonWithIcon("glyphicon-edit", function () {
@@ -273,20 +281,25 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		}
 		
 		$container.append($form);
-	}
+	};
 	
 	this._allowedToCreateExperiments = function() {
 		var project = this._projectFormModel.v3_project;
 		return project.frozenForExperiments == false;
-	}
+	};
 	
 	this._allowedToEdit = function() {
 		var project = this._projectFormModel.v3_project;
 		return project.frozen == false;
-	}
+	};
+
+	this._allowedToMove = function() {
+		var project = this._projectFormModel.v3_project;
+		return project.frozen == false && project.space.frozenForProjects == false;
+	};
 	
 	this._allowedToDelete = function() {
 		var project = this._projectFormModel.v3_project;
 		return project.frozen == false && project.space.frozenForProjects == false;
-	}
+	};
 }

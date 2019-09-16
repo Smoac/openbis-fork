@@ -61,7 +61,8 @@ $.extend(DefaultProfile.prototype, {
 				showVocabularyViewer : true,
 				showUserManager : true,
 				showUserProfile : true,
-				showResearchCollectionExportBuilder : false,
+			    // Not fully implemented yet.
+				// showResearchCollectionExportBuilder : false,
 				showZenodoExportBuilder : false,
 		}
 		

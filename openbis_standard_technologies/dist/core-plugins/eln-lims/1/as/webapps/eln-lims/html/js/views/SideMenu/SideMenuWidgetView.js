@@ -240,7 +240,8 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
             treeModelUtils.push({ title : jupyterNotebook, entityType: "NEW_JUPYTER_NOTEBOOK", key : "NEW_JUPYTER_NOTEBOOK", folder : false, lazy : false, view : "showNewJupyterNotebookCreator" });
         }
         
-        if(profile.mainMenu.showUserProfile && profile.isFileAuthenticationService && profile.isFileAuthenticationUser) {
+        if(profile.mainMenu.showUserProfile) {
+            // && profile.isFileAuthenticationService && profile.isFileAuthenticationUser
             var userProfileLink = _this.getLinkForNode("User Profile", "USER_PROFILE", "showUserProfilePage", null);
             treeModelUtils.push({ title : userProfileLink, entityType: "USER_PROFILE", key : "USER_PROFILE", folder : false, lazy : false, view : "showUserProfilePage", icon : "glyphicon glyphicon-user" });
         }
@@ -276,15 +277,16 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                 });
             }
 
-            if (profile.mainMenu.showResearchCollectionExportBuilder) {
-                var researchCollectionExportBuilderLink = _this.getLinkForNode("Export to Research Collection",
-                        "EXPORT_TO_RESEARCH_COLLECTION", "showResearchCollectionExportPage", null);
-                treeModelExports.push({
-                    displayName: "Export to Research Collection", title: researchCollectionExportBuilderLink,
-                    entityType: "EXPORT_TO_RESEARCH_COLLECTION", key: "EXPORT_TO_RESEARCH_COLLECTION", folder: false, lazy: false,
-                    view: "showResearchCollectionExportPage", icon: "./img/research-collection-icon.png"
-                });
-            }
+            // Not fully implemented yet.
+            // if (profile.mainMenu.showResearchCollectionExportBuilder) {
+            //     var researchCollectionExportBuilderLink = _this.getLinkForNode("Export to Research Collection",
+            //             "EXPORT_TO_RESEARCH_COLLECTION", "showResearchCollectionExportPage", null);
+            //     treeModelExports.push({
+            //         displayName: "Export to Research Collection", title: researchCollectionExportBuilderLink,
+            //         entityType: "EXPORT_TO_RESEARCH_COLLECTION", key: "EXPORT_TO_RESEARCH_COLLECTION", folder: false, lazy: false,
+            //         view: "showResearchCollectionExportPage", icon: "./img/research-collection-icon.png"
+            //     });
+            // }
 
             if (profile.mainMenu.showZenodoExportBuilder) {
                 var zenodoExportBuilderLink = _this.getLinkForNode("Export to Zenodo", "EXPORT_TO_ZENODO", "showZenodoExportPage", null);

@@ -14,5 +14,6 @@
  * limitations under the License.
  */
 
-function ZenodoExportModel() {
+function ZenodoExportModel(accessToken) {
+    this.accessToken = accessToken;
 }

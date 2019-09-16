@@ -21,7 +21,7 @@ function ZenodoExportView(exportController, exportModel) {
 
         var $form = $("<div>");
         var $formColumn = $("<form>", {
-            'name': 'rcExportForm',
+            'name': 'zenodoExportForm',
             'role': 'form',
             'action': 'javascript:void(0);',
             'onsubmit': 'mainController.currentView.exportSelected();'
@@ -56,7 +56,7 @@ function ZenodoExportView(exportController, exportModel) {
         this.paintTitleTextBox($container);
 
         var $exportButton = $('<input>', { 'type': 'submit', 'class': 'btn btn-primary', 'value': 'Export Selected',
-            'onClick': '$("form[name=\'rcExportForm\']").submit()'});
+            'onClick': '$("form[name=\'zenodoExportForm\']").submit()'});
         $header.append($exportButton);
     };
 

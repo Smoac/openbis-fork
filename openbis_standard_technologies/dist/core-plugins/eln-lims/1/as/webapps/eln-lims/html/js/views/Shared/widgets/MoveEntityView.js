@@ -9,11 +9,12 @@ function MoveEntityView(moveEntityController, moveEntityModel) {
 		switch(moveEntityModel.entity["@type"]) {
 			case "as.dto.experiment.Experiment":
 			case "as.dto.sample.Sample":
+			case "as.dto.project.Project":
 				$window.append($('<legend>').append("Moving " + moveEntityModel.entity.getIdentifier() + " To:"));
-			break;
+				break;
 			case "as.dto.dataset.DataSet":
 				$window.append($('<legend>').append("Moving " + moveEntityModel.entity.getPermId() + " To:"));
-			break;
+				break;
 		}
 		
 		var $searchBox = $('<div>');
@@ -22,14 +23,21 @@ function MoveEntityView(moveEntityController, moveEntityModel) {
 		
 		switch(moveEntityModel.entity["@type"]) {
 			case "as.dto.experiment.Experiment":
-				advancedEntitySearchDropdown = new AdvancedEntitySearchDropdown(false, true, "search entity to move to", false, false, false, true);
-			break;
+				advancedEntitySearchDropdown = new AdvancedEntitySearchDropdown(false, true, "search entity to move to",
+						false, false, false, true, false);
+				break;
 			case "as.dto.sample.Sample":
-				advancedEntitySearchDropdown = new AdvancedEntitySearchDropdown(false, true, "search entity to move to", true, false, false, false);
-			break;
+				advancedEntitySearchDropdown = new AdvancedEntitySearchDropdown(false, true, "search entity to move to",
+						true, false, false, false, false);
+				break;
+			case "as.dto.project.Project":
+				advancedEntitySearchDropdown = new AdvancedEntitySearchDropdown(false, true, "search entity to move to",
+						false, false, false, false, true);
+				break;
 			case "as.dto.dataset.DataSet":
-				advancedEntitySearchDropdown = new AdvancedEntitySearchDropdown(false, true, "search entity to move to", true, true, false, false);
-			break;
+				advancedEntitySearchDropdown = new AdvancedEntitySearchDropdown(false, true, "search entity to move to",
+						true, true, false, false, false);
+				break;
 		}
 		
 		var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' });		

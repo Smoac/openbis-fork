@@ -286,7 +286,8 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			var dataSetType = this._dataSetFormModel.dataSet.dataSetTypeCode;
 			var parentsEditingDisabled = profile.dataSetTypeDefinitionsExtension[dataSetType] && profile.dataSetTypeDefinitionsExtension[dataSetType]["DATASET_PARENTS_DISABLED"]
 			if(!parentsEditingDisabled) {
-				this._dataSetFormModel.datasetParentsComponent = new AdvancedEntitySearchDropdown(true, false, "Search parents to add", false, false, true, false);
+				this._dataSetFormModel.datasetParentsComponent = new AdvancedEntitySearchDropdown(true, false, "Search parents to add",
+						false, false, true, false, false);
 				this._dataSetFormModel.datasetParentsComponent.init($dataSetParentsCodeLabel);
 				this._dataSetFormModel.datasetParentsComponent.addSelectedDataSets(this._dataSetFormModel.dataSet.parentCodes);
 			}

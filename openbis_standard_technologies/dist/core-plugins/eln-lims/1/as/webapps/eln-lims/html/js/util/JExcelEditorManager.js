@@ -69,7 +69,7 @@ var JExcelEditorManager = new function() {
                 component += "</div>";
                 Util.blockUI(component + "<a class='btn btn-default' id='insertAccept'>Accept</a> <a class='btn btn-default' id='insertCancel'>Cancel</a>", FormUtil.getDialogCss());
 
-                var advancedEntitySearchDropdown = new AdvancedEntitySearchDropdown(true, true, "Select Object", false, true, false, false);
+                var advancedEntitySearchDropdown = new AdvancedEntitySearchDropdown(true, true, "Select Object", false, true, false, false, false);
                 advancedEntitySearchDropdown.init($("#objectSelector"));
 
                 $("#insertCancel").on("click", function(event) {

@@ -101,7 +101,8 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	    var $nameField = FormUtil.getTextInputField('Name', 'Name', true);
 
 	    var $searchDropdownContainer = $('<div>');
-	    var advancedEntitySearchDropdown = new AdvancedEntitySearchDropdown(false, true, "search entity to store query", true, false, false, false);
+	    var advancedEntitySearchDropdown = new AdvancedEntitySearchDropdown(false, true, "search entity to store query",
+				true, false, false, false, false);
 	    advancedEntitySearchDropdown.init($searchDropdownContainer);
 			if (HOME_SPACE) {
 		    advancedEntitySearchDropdown.addSelected({

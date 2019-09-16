@@ -48,7 +48,8 @@ function JupyterNotebookView(jupyterNotebookController, jupyterNotebookModel) {
 		var $datasetsContainer = $("<div>", { style : "width: 100%;" });
 		$window.append(FormUtil.getInfoText("Please enter the names/codes of the datasets you want to download, or the names/codes of the experiments/objects which contain those datasets. "));
 		$window.append(FormUtil.getFieldForComponentWithLabel($datasetsContainer, "Datasets"));
-		var datasetsSearchDropdown = new AdvancedEntitySearchDropdown(true, false, "Select as many datasets as you need", false, false, true);
+		var datasetsSearchDropdown = new AdvancedEntitySearchDropdown(true, false, "Select as many datasets as you need",
+				false, false, true, false, false);
 		datasetsSearchDropdown.init($datasetsContainer);
 		
 		if(entity) {
@@ -83,7 +84,8 @@ function JupyterNotebookView(jupyterNotebookController, jupyterNotebookModel) {
 		$window.append("</br>");
 		$window.append(FormUtil.getInfoText("Please enter the name/code of the experiment/object where you want to save the Jupiter notebook."));
 		$window.append(FormUtil.getFieldForComponentWithLabel($ownerContainer, "Owner (*)"));
-		var ownerSearchDropdown = new AdvancedEntitySearchDropdown(false, true, "Select one owner " + ELNDictionary.sample, true, true, false);
+		var ownerSearchDropdown = new AdvancedEntitySearchDropdown(false, true, "Select one owner " + ELNDictionary.sample,
+				true, true, false, false, false);
 		ownerSearchDropdown.init($ownerContainer);
 		
 		if(entity) {

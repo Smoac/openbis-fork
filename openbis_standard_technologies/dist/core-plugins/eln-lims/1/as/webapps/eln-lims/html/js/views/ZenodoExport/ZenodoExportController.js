@@ -15,17 +15,26 @@
  */
 
 function ZenodoExportController(parentController) {
-    var exportModel = new ZenodoExportModel();
-    var exportView = new ZenodoExportView(this, exportModel);
+    this.exportModel = null;
+    this.exportView = null;
+    this.zenodoApiTokenKey = parentController.zenodoApiTokenKey;
 
     this.init = function(views) {
-        exportView.repaint(views);
+        this.getSettingValue(this.zenodoApiTokenKey, (function (accessToken) {
+            if (accessToken && accessToken !== '') {
+                this.exportModel = new ZenodoExportModel(accessToken);
+                this.exportView = new ZenodoExportView(this, this.exportModel);
+                this.exportView.repaint(views);
+            } else {
+                Util.showError('Personal Zenodo API Token missing, please set it in your user profile.');
+            }
+        }).bind(this));
     };
 
     this.exportSelected = function() {
         var _this = this;
-        var selectedNodes = $(exportModel.tree).fancytree('getTree').getSelectedNodes();
-        var title = exportView.$titleTextBox.val().trim();
+        var selectedNodes = $(this.exportModel.tree).fancytree('getTree').getSelectedNodes();
+        var title = this.exportView.$titleTextBox.val().trim();
 
         var toExport = [];
         for (var eIdx = 0; eIdx < selectedNodes.length; eIdx++) {
@@ -41,8 +50,8 @@ function ZenodoExportController(parentController) {
             Util.showInfo('Not only spaces and the root should be selected. It will result in an empty export file.');
         } else {
             Util.blockUI();
-            this.getUserInformation(function(userInformation) {
-                mainController.serverFacade.exportZenodo(toExport, true, false, userInformation, title,
+            this.getUserInformation((function(userInformation) {
+                mainController.serverFacade.exportZenodo(toExport, true, false, userInformation, title, this.exportModel.accessToken,
                         function(operationExecutionPermId) {
                             _this.waitForOpExecutionResponse(operationExecutionPermId, function(error, result) {
                                 Util.unblockUI();
@@ -59,7 +68,7 @@ function ZenodoExportController(parentController) {
                                 }
                             });
                         });
-            });
+            }).bind(this));
         }
     };
 
@@ -111,5 +120,9 @@ function ZenodoExportController(parentController) {
             };
             callback(userInformation);
         });
+    };
+
+    this.getSettingValue = function (key, callback) {
+        parentController.serverFacade.getSetting(key, callback);
     };
 }
