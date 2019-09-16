@@ -142,7 +142,7 @@ public class UserManagementMaintenanceTask extends AbstractMaintenanceTask
                 {
                     operationLog.error("Empty ldapGroupKey for group '" + key + "'. Task aborted.");
                     return false;
-                    
+
                 }
                 List<Principal> principals = getUsersOfGroup(ldapGroupKey);
                 if (group.isEnabled() && principals.isEmpty())
@@ -212,8 +212,8 @@ public class UserManagementMaintenanceTask extends AbstractMaintenanceTask
     protected UserManager createUserManager(Log4jSimpleLogger logger, UserManagerReport report)
     {
         IAuthenticationService authenticationService = (IAuthenticationService) CommonServiceProvider.tryToGetBean("authentication-service");
-        UserManager userManager = new UserManager(authenticationService, CommonServiceProvider.getApplicationServerApi(), 
-                shareIdsMappingFile,                logger, report);
+        UserManager userManager = new UserManager(authenticationService, CommonServiceProvider.getApplicationServerApi(),
+                shareIdsMappingFile, logger, report);
         userManager.setDeactivateUnknwonUsers(deactivateUnknownUsers);
         return userManager;
     }

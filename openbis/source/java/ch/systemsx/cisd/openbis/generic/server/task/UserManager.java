@@ -111,7 +111,7 @@ public class UserManager
 
     private final ISimpleLogger logger;
 
-    private final UserManagerReport report; 
+    private final UserManagerReport report;
 
     private final Map<String, UserInfo> userInfosByUserId = new TreeMap<>();
 
@@ -130,11 +130,10 @@ public class UserManager
     private Map<String, HomeSpaceRequest> requestedHomeSpaceByUserId = new TreeMap<>();
 
     private File shareIdsMappingFileOrNull;
-    
+
     private List<MappingAttributes> mappingAttributesList = new ArrayList<>();
 
     private boolean deactivateUnknownUsers;
-
 
     public UserManager(IAuthenticationService authenticationService, IApplicationServerInternalApi service,
             File shareIdsMappingFileOrNull, ISimpleLogger logger, UserManagerReport report)
@@ -186,12 +185,12 @@ public class UserManager
         return new ConfigurationFailureException("Identifier template '" + identifierTemplate + "' is invalid"
                 + (StringUtils.isBlank(message) ? ". " : " (reason: " + message + "). ") + "Template schema: " + templateSchema);
     }
-    
+
     public void setDeactivateUnknwonUsers(boolean deactivateUnknownUsers)
     {
         this.deactivateUnknownUsers = deactivateUnknownUsers;
     }
-    
+
     public void addGroup(UserGroup group, Map<String, Principal> principalsByUserId)
     {
         String groupCode = group.getKey().toUpperCase();
@@ -213,7 +212,7 @@ public class UserManager
                 userInfo.addGroupInfo(new GroupInfo(groupCode, admins.contains(userId)));
             }
         }
-        logger.log(LogLevel.INFO, principalsByUserId.size() + " users for " + (group.isEnabled() ? "": "disabled ") + "group " + groupCode);
+        logger.log(LogLevel.INFO, principalsByUserId.size() + " users for " + (group.isEnabled() ? "" : "disabled ") + "group " + groupCode);
     }
 
     public void manage()
@@ -244,7 +243,7 @@ public class UserManager
             logger.log(LogLevel.ERROR, "", e);
         }
     }
-    
+
     private void updateMappingFile()
     {
         if (shareIdsMappingFileOrNull != null && mappingAttributesList.isEmpty() == false)
@@ -257,7 +256,7 @@ public class UserManager
             {
                 printWriter = new PrintWriter(newFile);
                 printWriter.println("Identifier\tShare IDs\tArchive Folder");
-                for (MappingAttributes attributes: mappingAttributesList)
+                for (MappingAttributes attributes : mappingAttributesList)
                 {
                     CommaSeparatedListBuilder builder = new CommaSeparatedListBuilder();
                     List<String> shareIds = attributes.getShareIds();
@@ -576,7 +575,7 @@ public class UserManager
         createAuthorizationGroup(context, adminGroupCode);
 
         createCommonSpaces(context, groupCode);
-        
+
         manageUsers(context, groupCode, groupUsers);
     }
 
@@ -948,6 +947,7 @@ public class UserManager
     private static final class MappingAttributes
     {
         private String groupCode;
+
         private List<String> shareIds;
 
         public MappingAttributes(String groupCode, List<String> shareIds)
