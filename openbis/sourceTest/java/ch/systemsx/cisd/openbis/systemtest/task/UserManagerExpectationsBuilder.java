@@ -93,6 +93,8 @@ class UserManagerExpectationsBuilder
     
     private Map<String, Map<AuthorizationLevel, Set<String>>> usersByLevelBySpace = new TreeMap<>();
 
+    private boolean deactivation = true;
+
     UserManagerExpectationsBuilder(IApplicationServerInternalApi v3api, UserManagerTestService testService,
             IOpenBisSessionManager sessionManager, Map<Role, List<String>> commonSpaces)
     {
@@ -108,6 +110,12 @@ class UserManagerExpectationsBuilder
         this.v3api = v3api;
         this.testService = testService;
         this.sessionManager = sessionManager;
+    }
+    
+    public UserManagerExpectationsBuilder noDeactivation()
+    {
+        deactivation = false;
+        return this;
     }
 
     public UserManagerExpectationsBuilder globalSpaces(List<String> globalSpaces)
@@ -359,7 +367,7 @@ class UserManagerExpectationsBuilder
         for (Person person : v3api.getPersons(sessionToken, personIds, fetchOptions).values())
         {
             String userId = person.getUserId();
-            assertEquals(person.isActive(), Boolean.FALSE, "Active flag of " + person);
+            assertEquals(person.isActive(), Boolean.valueOf(deactivation == false), "Active flag of " + person);
             assertEquals(person.getSpace(), null, "Home space of " + person);
             assertEquals(person.getRoleAssignments().size(), 0, "Role assignments of " + person);
             for (Entry<String, Set<String>> entry : usersByGroupId.entrySet())

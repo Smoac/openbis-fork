@@ -81,7 +81,7 @@ public class UserManagerTest extends AbstractTest
     private File workingDir;
 
     private File mappingFile;
-    
+
     private UserManagerReport report;
 
     private static Map<Role, List<String>> commonSpaces()
@@ -1243,6 +1243,7 @@ public class UserManagerTest extends AbstractTest
         assertEquals(manage(userManager).getErrorReport(), "");
         // 2. U2 is no longer known by the authentication service
         userManager = new UserManagerBuilder(v3api, logger, report()).unknownUser(U2).commonSpaces(commonSpaces).get();
+        userManager.addGroup(new UserGroupAsBuilder("G2").admins(U1.getUserId()), users(U1, U3));
 
         // When
         UserManagerReport report = manage(userManager);
@@ -1251,6 +1252,42 @@ public class UserManagerTest extends AbstractTest
         assertEquals(report.getErrorReport(), "");
         assertEquals(report.getAuditLog(), "1970-01-01 01:00:00 [DEACTIVATE-USER] u2\n");
         UserManagerExpectationsBuilder builder = createBuilder();
+        builder.groups("G2").commonSpaces(commonSpaces).users(U1, U3);
+        builder.space("G2_ALPHA").admin(U1).user(U3);
+        builder.space("G2_BETA").admin(U1).user(U3);
+        builder.space("G2_GAMMA").admin(U1).observer(U3);
+        builder.space("G2_U1").admin(U1).non(U3);
+        builder.space("G2_U2").admin(U1).non(U3);
+        builder.space("G2_U3").admin(U1).admin(U3);
+        builder.homeSpace(U1, "G2_U1");
+        builder.unknownUser(U2);
+        builder.homeSpace(U3, "G2_U3");
+        builder.assertExpectations();
+    }
+
+    @Test
+    public void testUserFromAGroupHasLeftedNoDeactivation()
+    {
+        // Given
+        // 1. create group G2 with users U1 (admin), U2 and U3
+        MockLogger logger = new MockLogger();
+        Map<Role, List<String>> commonSpaces = commonSpaces();
+        UserManager userManager = new UserManagerBuilder(v3api, logger, report()).commonSpaces(commonSpaces).get();
+        userManager.addGroup(new UserGroupAsBuilder("G2").admins(U1.getUserId()), users(U1, U2, U3));
+        assertEquals(manage(userManager).getErrorReport(), "");
+        // 2. U2 is no longer known
+        userManager = new UserManagerBuilder(v3api, logger, report()).unknownUser(U2).commonSpaces(commonSpaces).noDeactivation().get();
+        userManager.addGroup(new UserGroupAsBuilder("G2").admins(U1.getUserId()), users(U1, U3));
+
+        // When
+        UserManagerReport report = manage(userManager);
+
+        // Then
+        assertEquals(report.getErrorReport(), "");
+        assertEquals(report.getAuditLog(), "1970-01-01 01:00:00 [REMOVE-USER-FROM-AUTHORIZATION-GROUP] group: G2, user: u2\n"
+                + "1970-01-01 01:00:01 [UNASSIGN-ROLE-FORM-USER] user: u2, role: SPACE_ADMIN for G2_U2\n"
+                + "1970-01-01 01:00:02 [REMOVE-HOME-SPACE-FROM-USER] u2\n");
+        UserManagerExpectationsBuilder builder = createBuilder().noDeactivation();
         builder.groups("G2").commonSpaces(commonSpaces).users(U1, U3);
         builder.space("G2_ALPHA").admin(U1).user(U3);
         builder.space("G2_BETA").admin(U1).user(U3);
@@ -1380,7 +1417,7 @@ public class UserManagerTest extends AbstractTest
         }
         return map;
     }
-    
+
     private UserManagerReport report()
     {
         report = new UserManagerReport(new MockTimeProvider(0, 1000));
@@ -1414,7 +1451,7 @@ public class UserManagerTest extends AbstractTest
         private ISimpleLogger logger;
 
         private UserManagerReport report;
-        
+
         private Set<String> usersUnknownByAuthenticationService = new TreeSet<>();
 
         private List<String> globalSpaces = new ArrayList<>();
@@ -1426,6 +1463,8 @@ public class UserManagerTest extends AbstractTest
         private Map<String, String> commonExperiments = new TreeMap<>();
 
         private File shareIdsMappingFile;
+
+        private boolean deactivateUnknownUsers = true;
 
         UserManagerBuilder(IApplicationServerInternalApi service, ISimpleLogger logger, UserManagerReport report)
         {
@@ -1451,7 +1490,14 @@ public class UserManagerTest extends AbstractTest
             UserManager userManager = new UserManager(authenticationService, service, shareIdsMappingFile, logger, report);
             userManager.setGlobalSpaces(globalSpaces);
             userManager.setCommon(commonSpacesByRole, commonSamples, commonExperiments);
+            userManager.setDeactivateUnknwonUsers(deactivateUnknownUsers);
             return userManager;
+        }
+
+        private UserManagerBuilder noDeactivation()
+        {
+            deactivateUnknownUsers = false;
+            return this;
         }
 
         private UserManagerBuilder unknownUser(Principal user)
