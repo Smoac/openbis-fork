@@ -27,6 +27,8 @@ public class UserGroup
     private boolean enabled = true;
 
     private List<String> ldapGroupKeys;
+    
+    private List<String> users;
 
     private List<String> admins;
 
@@ -70,6 +72,11 @@ public class UserGroup
     public List<String> getLdapGroupKeys()
     {
         return ldapGroupKeys;
+    }
+
+    public List<String> getUsers()
+    {
+        return users;
     }
 
     public List<String> getShareIds()

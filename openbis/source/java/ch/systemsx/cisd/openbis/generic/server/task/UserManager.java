@@ -133,6 +133,8 @@ public class UserManager
     
     private List<MappingAttributes> mappingAttributesList = new ArrayList<>();
 
+    private boolean deactivateUnknownUsers;
+
 
     public UserManager(IAuthenticationService authenticationService, IApplicationServerInternalApi service,
             File shareIdsMappingFileOrNull, ISimpleLogger logger, UserManagerReport report)
@@ -185,6 +187,11 @@ public class UserManager
                 + (StringUtils.isBlank(message) ? ". " : " (reason: " + message + "). ") + "Template schema: " + templateSchema);
     }
     
+    public void setDeactivateUnknwonUsers(boolean deactivateUnknownUsers)
+    {
+        this.deactivateUnknownUsers = deactivateUnknownUsers;
+    }
+    
     public void addGroup(UserGroup group, Map<String, Principal> principalsByUserId)
     {
         String groupCode = group.getKey().toUpperCase();
@@ -217,7 +224,10 @@ public class UserManager
 
             updateMappingFile();
             manageGlobalSpaces(sessionToken, report);
-            revokeUsersUnkownByAuthenticationService(sessionToken, report);
+            if (deactivateUnknownUsers)
+            {
+                revokeUsersUnkownByAuthenticationService(sessionToken, report);
+            }
             CurrentState currentState = loadCurrentState(sessionToken, service);
             for (Entry<String, Map<String, Principal>> entry : usersByGroupCode.entrySet())
             {

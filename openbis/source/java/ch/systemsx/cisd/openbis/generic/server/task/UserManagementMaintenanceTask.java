@@ -30,6 +30,7 @@ import ch.systemsx.cisd.authentication.ldap.LDAPAuthenticationService;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 
@@ -38,6 +39,8 @@ import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
  */
 public class UserManagementMaintenanceTask extends AbstractMaintenanceTask
 {
+    static final String DEACTIVATE_UNKOWN_USERS_PROPERTY = "deactivate-unknown-users";
+
     static final String AUDIT_LOG_FILE_PATH_PROPERTY = "audit-log-file-path";
 
     static final String DEFAULT_AUDIT_LOG_FILE_PATH = "logs/user-management-audit_log.txt";
@@ -56,6 +59,8 @@ public class UserManagementMaintenanceTask extends AbstractMaintenanceTask
 
     private String filterKey;
 
+    private boolean deactivateUnknownUsers;
+
     public UserManagementMaintenanceTask()
     {
         super(true);
@@ -64,18 +69,13 @@ public class UserManagementMaintenanceTask extends AbstractMaintenanceTask
     @Override
     protected void setUpSpecific(Properties properties)
     {
+        deactivateUnknownUsers = PropertyUtils.getBoolean(properties, DEACTIVATE_UNKOWN_USERS_PROPERTY, true);
         auditLogFile = new File(properties.getProperty(AUDIT_LOG_FILE_PATH_PROPERTY, DEFAULT_AUDIT_LOG_FILE_PATH));
         if (auditLogFile.isDirectory())
         {
             throw new ConfigurationFailureException("Audit log file '" + auditLogFile.getAbsolutePath() + "' is a directory.");
         }
         ldapService = getLdapAuthenticationService();
-        if (ldapService.isConfigured() == false)
-        {
-            throw new ConfigurationFailureException("There is no LDAP authentication service configured. "
-                    + "At least 'ldap.server.url', 'ldap.security.principal.distinguished.name', "
-                    + "'ldap.security.principal.password' have to be specified in 'service.properties'.");
-        }
         filterKey = properties.getProperty(LDAP_FILTER_KEY_PROPERTY, DEFAULT_LDAP_FILTER_KEY);
         String shareIdsMappingFilePath = properties.getProperty(SHARES_MAPPING_FILE_PATH_PROPERTY);
         if (shareIdsMappingFilePath != null)
@@ -124,30 +124,36 @@ public class UserManagementMaintenanceTask extends AbstractMaintenanceTask
                 return false;
             }
         }
-        List<String> ldapGroupKeys = group.getLdapGroupKeys();
-        if (ldapGroupKeys == null || ldapGroupKeys.isEmpty())
-        {
-            operationLog.error("No ldapGroupKeys specified for group '" + key + "'. Task aborted.");
-            return false;
-        }
         Map<String, Principal> principalsByUserId = new TreeMap<>();
-        for (String ldapGroupKey : ldapGroupKeys)
+        List<String> users = group.getUsers();
+        if (users != null && users.isEmpty() == false)
         {
-            if (StringUtils.isBlank(ldapGroupKey))
+            for (String user : users)
             {
-                operationLog.error("Empty ldapGroupKey for group '" + key + "'. Task aborted.");
-                return false;
-
+                principalsByUserId.put(user, new Principal(user, "", "", ""));
             }
-            List<Principal> principals = getUsersOfGroup(ldapGroupKey);
-            if (group.isEnabled() && principals.isEmpty())
+        }
+        List<String> ldapGroupKeys = group.getLdapGroupKeys();
+        if (ldapGroupKeys != null && ldapGroupKeys.isEmpty() == false)
+        {
+            for (String ldapGroupKey : ldapGroupKeys)
             {
-                operationLog.error("No users found for ldapGroupKey '" + ldapGroupKey + "' for group '" + key + "'. Task aborted.");
-                return false;
-            }
-            for (Principal principal : principals)
-            {
-                principalsByUserId.put(principal.getUserId(), principal);
+                if (StringUtils.isBlank(ldapGroupKey))
+                {
+                    operationLog.error("Empty ldapGroupKey for group '" + key + "'. Task aborted.");
+                    return false;
+                    
+                }
+                List<Principal> principals = getUsersOfGroup(ldapGroupKey);
+                if (group.isEnabled() && principals.isEmpty())
+                {
+                    operationLog.error("No users found for ldapGroupKey '" + ldapGroupKey + "' for group '" + key + "'. Task aborted.");
+                    return false;
+                }
+                for (Principal principal : principals)
+                {
+                    principalsByUserId.put(principal.getUserId(), principal);
+                }
             }
         }
         userManager.addGroup(group, principalsByUserId);
@@ -170,6 +176,12 @@ public class UserManagementMaintenanceTask extends AbstractMaintenanceTask
 
     protected List<Principal> getUsersOfGroup(String ldapGroupKey)
     {
+        if (ldapService.isConfigured() == false)
+        {
+            throw new ConfigurationFailureException("There is no LDAP authentication service configured. "
+                    + "At least 'ldap.server.url', 'ldap.security.principal.distinguished.name', "
+                    + "'ldap.security.principal.password' have to be specified in 'service.properties'.");
+        }
         return ldapService.listPrincipalsByKeyValue(filterKey, ldapGroupKey);
     }
 
@@ -200,7 +212,9 @@ public class UserManagementMaintenanceTask extends AbstractMaintenanceTask
     protected UserManager createUserManager(Log4jSimpleLogger logger, UserManagerReport report)
     {
         IAuthenticationService authenticationService = (IAuthenticationService) CommonServiceProvider.tryToGetBean("authentication-service");
-        return new UserManager(authenticationService, CommonServiceProvider.getApplicationServerApi(), shareIdsMappingFile,
-                logger, report);
+        UserManager userManager = new UserManager(authenticationService, CommonServiceProvider.getApplicationServerApi(), 
+                shareIdsMappingFile,                logger, report);
+        userManager.setDeactivateUnknwonUsers(deactivateUnknownUsers);
+        return userManager;
     }
 }

@@ -128,17 +128,6 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
     }
 
     @Test
-    public void testSetUpFailedBecauseLdapServiceIsNotConfigured()
-    {
-        // Given
-        UserManagementMaintenanceTaskWithMocks task = new UserManagementMaintenanceTaskWithMocks().withNotConfiguredLdap();
-        FileUtilities.writeToFile(configFile, "");
-
-        // When + Then
-        assertConfigFailure(task, "There is no LDAP authentication service configured.");
-    }
-
-    @Test
     public void testExecuteFailedBecauseOfConfigFileHasBeenDeleted()
     {
         // Given
@@ -189,10 +178,11 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
     }
 
     @Test
-    public void testExecuteMissingLdapGroupKeys()
+    public void testExecuteWithoutLdapGroupKeysAndUsers()
     {
         // Given
-        UserManagementMaintenanceTaskWithMocks task = new UserManagementMaintenanceTaskWithMocks();
+        UserManagementMaintenanceTaskWithMocks task = new UserManagementMaintenanceTaskWithMocks()
+                .withUserManagerReport(new UserManagerReport(new MockTimeProvider(0, 1000)));
         FileUtilities.writeToFile(configFile, "");
         task.setUp("", properties);
         FileUtilities.writeToFile(configFile, "{\"groups\": [{\"key\":\"ABC\"}]}");
@@ -209,7 +199,37 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common spaces: {}\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common samples: {}\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common experiments: {}\n"
-                + "ERROR OPERATION.UserManagementMaintenanceTaskWithMocks - No ldapGroupKeys specified for group 'ABC'. Task aborted.",
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Add group ABC[name:null, enabled:true, ldapGroupKeys:null, users:null, admins:null] with users []\n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - 0 users for group ABC\n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - finished",
+                logRecorder.getLogContent());
+    }
+    
+    @Test
+    public void testExecuteWithUsersButWithoutLdapGroupKeys()
+    {
+        // Given
+        UserManagementMaintenanceTaskWithMocks task = new UserManagementMaintenanceTaskWithMocks()
+                .withUserManagerReport(new UserManagerReport(new MockTimeProvider(0, 1000)));
+        FileUtilities.writeToFile(configFile, "");
+        task.setUp("", properties);
+        FileUtilities.writeToFile(configFile, "{\"groups\": [{\"key\":\"ABC\", \"users\":[\"alpha\", \"beta\"]}]}");
+        
+        // When
+        task.execute();
+        
+        // Then
+        assertEquals("INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Setup plugin \n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Plugin '' initialized. Configuration file: "
+                + configFile.getAbsolutePath() + "\n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - manage 1 groups\n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Global spaces: []\n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common spaces: {}\n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common samples: {}\n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common experiments: {}\n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Add group ABC[name:null, enabled:true, ldapGroupKeys:null, users:[alpha, beta], admins:null] with users [alpha=alpha, beta=beta]\n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - 2 users for group ABC\n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - finished",
                 logRecorder.getLogContent());
     }
 
@@ -343,7 +363,7 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common experiments: {}\n"
                 + "ERROR NOTIFY.UserManagementMaintenanceTaskWithMocks - Identifier template 'A' is invalid "
                 + "(reason: No common space for common sample). Template schema: <common space code>/<common sample code>\n"
-                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Add group SIS[name:sis, enabled:true, ldapGroupKeys:[s], admins:null] with users [u1=u1]\n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Add group SIS[name:sis, enabled:true, ldapGroupKeys:[s], users:null, admins:null] with users [u1=u1]\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - 1 users for group SIS\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - finished",
                 logRecorder.getLogContent());
@@ -375,7 +395,7 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common experiments: {ALPHA/B=B}\n"
                 + "ERROR NOTIFY.UserManagementMaintenanceTaskWithMocks - Identifier template 'ALPHA/B' is invalid. "
                 + "Template schema: <common space code>/<common project code>/<common experiment code>\n"
-                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Add group SIS[name:sis, enabled:true, ldapGroupKeys:[s], admins:null] with users [u1=u1]\n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Add group SIS[name:sis, enabled:true, ldapGroupKeys:[s], users:null, admins:null] with users [u1=u1]\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - 1 users for group SIS\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - finished",
                 logRecorder.getLogContent());
@@ -395,7 +415,7 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
         task.setUp("", properties);
         FileUtilities.writeToFile(configFile, "{\"globalSpaces\":[\"ES\"],\"commonSpaces\":{\"USER\": [\"ALPHA\"]},"
                 + "\"commonSamples\":{\"ALPHA/B\":\"B\"},\"commonExperiments\":{\"ALPHA/P/E\":\"E\"},"
-                + "\"groups\": [{\"name\":\"sis\",\"key\":\"SIS\",\"ldapGroupKeys\": [\"s\"],\"admins\": [\"u2\"]},"
+                + "\"groups\": [{\"name\":\"sis\",\"key\":\"SIS\",\"ldapGroupKeys\": [\"s\"],\"users\":[\"u2\"],\"admins\": [\"u2\"]},"
                 + "{\"name\":\"abc\",\"key\":\"ABC\",\"ldapGroupKeys\": [\"a\"],\"enabled\": false}]}");
 
         // When
@@ -410,9 +430,9 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common spaces: {USER=[ALPHA]}\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common samples: {ALPHA/B=B}\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common experiments: {ALPHA/P/E=E}\n"
-                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Add group SIS[name:sis, enabled:true, ldapGroupKeys:[s], admins:[u2]] with users [u1=u1]\n"
-                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - 1 users for group SIS\n"
-                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Add group ABC[name:abc, enabled:false, ldapGroupKeys:[a], admins:null] with users [u1=u1]\n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Add group SIS[name:sis, enabled:true, ldapGroupKeys:[s], users:[u2], admins:[u2]] with users [u1=u1, u2=u2]\n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - 2 users for group SIS\n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Add group ABC[name:abc, enabled:false, ldapGroupKeys:[a], users:null, admins:null] with users [u1=u1]\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - 1 users for disabled group ABC\n"
                 + "ERROR NOTIFY.UserManagementMaintenanceTaskWithMocks - User management failed for the following reason(s):\n\n"
                 + "This is a test error message\n\n"
@@ -424,7 +444,7 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
                 + "1970-01-01 01:00:02 [CONFIG-UPDATE-START] Last modified: " + lastModified + "\n"
                 + "{\"globalSpaces\":[\"ES\"],\"commonSpaces\":{\"USER\": [\"ALPHA\"]},\"commonSamples\":{\"ALPHA/B\":\"B\"},"
                 + "\"commonExperiments\":{\"ALPHA/P/E\":\"E\"},\"groups\": ["
-                + "{\"name\":\"sis\",\"key\":\"SIS\",\"ldapGroupKeys\": [\"s\"],\"admins\": [\"u2\"]},"
+                + "{\"name\":\"sis\",\"key\":\"SIS\",\"ldapGroupKeys\": [\"s\"],\"users\":[\"u2\"],\"admins\": [\"u2\"]},"
                 + "{\"name\":\"abc\",\"key\":\"ABC\",\"ldapGroupKeys\": [\"a\"],\"enabled\": false}]}\n"
                 + "1970-01-01 01:00:03 [CONFIG-UPDATE-END] \n"
                 + "1970-01-01 01:00:04 [ADD-AUTHORIZATION-GROUP] dummy group\n\n",
@@ -464,7 +484,7 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common spaces: {}\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common samples: {}\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common experiments: {}\n"
-                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Add group ABC[name:abc, enabled:false, ldapGroupKeys:[a], admins:null] with users [u1=u1]\n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Add group ABC[name:abc, enabled:false, ldapGroupKeys:[a], users:null, admins:null] with users [u1=u1]\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - 1 users for disabled group ABC\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - finished\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - manage 1 groups\n"
@@ -472,7 +492,7 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common spaces: {}\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common samples: {}\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common experiments: {}\n"
-                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Add group ABC[name:abc, enabled:false, ldapGroupKeys:[a], admins:null] with users [u1=u1]\n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Add group ABC[name:abc, enabled:false, ldapGroupKeys:[a], users:null, admins:null] with users [u1=u1]\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - 1 users for disabled group ABC\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - finished\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - manage 1 groups\n"
@@ -480,7 +500,7 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common spaces: {}\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common samples: {}\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Common experiments: {}\n"
-                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Add group ABC[name:abc, enabled:true, ldapGroupKeys:[a], admins:null] with users [u1=u1]\n"
+                + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - Add group ABC[name:abc, enabled:true, ldapGroupKeys:[a], users:null, admins:null] with users [u1=u1]\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - 1 users for group ABC\n"
                 + "INFO  OPERATION.UserManagementMaintenanceTaskWithMocks - finished",
                 logRecorder.getLogContent());
@@ -598,7 +618,8 @@ public class UserManagementMaintenanceTaskTest extends AbstractFileSystemTestCas
             public void addGroup(UserGroup group, Map<String, Principal> principalsByUserId)
             {
                 String renderedGroup = group.getKey() + "[name:" + group.getName() + ", enabled:" + group.isEnabled()
-                        + ", ldapGroupKeys:" + group.getLdapGroupKeys() + ", admins:" + group.getAdmins() + "]";
+                        + ", ldapGroupKeys:" + group.getLdapGroupKeys() + ", users:" + group.getUsers()
+                        + ", admins:" + group.getAdmins() + "]";
                 CommaSeparatedListBuilder builder = new CommaSeparatedListBuilder();
                 for (Entry<String, Principal> entry : principalsByUserId.entrySet())
                 {
