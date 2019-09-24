@@ -20,14 +20,12 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.GenericSharedConstan
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
 
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.springframework.remoting.RemoteAccessException;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.base.namedthread.NamingThreadPoolExecutor;
 import ch.systemsx.cisd.common.concurrent.MonitoringProxy;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -44,16 +42,11 @@ import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
  */
 public class DataStoreServiceFactory implements IDataStoreServiceFactory
 {
-    private final static int NUMBER_OF_CORE_THREADS = 10;
-
     private final Map<String, IDataStoreService> services =
             new HashMap<String, IDataStoreService>();
 
     private final static Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE,
             IDataStoreService.class);
-
-    private final static ExecutorService executorService = new NamingThreadPoolExecutor(
-            "Monitoring Proxy").corePoolSize(NUMBER_OF_CORE_THREADS).daemonize();
 
     @Override
     public IDataStoreService create(String serverURL)
@@ -87,14 +80,8 @@ public class DataStoreServiceFactory implements IDataStoreServiceFactory
                     .logLevelForNotSuccessfulCalls(LogLevel.WARN)
                     .timing(TimingParameters.create(-1L, 5, DateUtils.MILLIS_PER_MINUTE))
                     .exceptionClassSuitableForRetrying(RemoteAccessException.class)
-                    .executorService(executorService)
-                    .callAsynchronously(
-                            IDataStoreService.class.getMethod("cleanupSession", new Class<?>[]
-                            { String.class })).get();
+                    .get();
         } catch (SecurityException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        } catch (NoSuchMethodException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }

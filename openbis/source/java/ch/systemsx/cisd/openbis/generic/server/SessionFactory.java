@@ -16,10 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.authentication.ISessionFactory;
 import ch.systemsx.cisd.authentication.Principal;
+import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogLevel;
@@ -39,6 +43,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session.ISessionCleaner;
  */
 public final class SessionFactory implements ISessionFactory<Session>
 {
+    private final static BlockingQueue<CleanUpTask> sessionsToBeClosedQueue = new LinkedBlockingQueue<>();
+
     private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             SessionFactory.class);
 
@@ -47,6 +53,33 @@ public final class SessionFactory implements ISessionFactory<Session>
     private final IDataStoreServiceFactory dssFactory;
 
     private final ISessionWorkspaceProvider sessionWorkspaceProvider;
+
+    static
+    {
+        Thread thread = new Thread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    try
+                    {
+                        while (true)
+                        {
+                            CleanUpTask task = sessionsToBeClosedQueue.take();
+                            task.execute();
+                        }
+                    } catch (InterruptedException ex)
+                    {
+                        // Exit thread.
+                    } catch (InterruptedExceptionUnchecked ex)
+                    {
+                        // Exit thread.
+                    }
+                }
+            }, "Session clean up queue");
+        thread.setDaemon(true);
+        thread.start();
+    }
 
     public SessionFactory()
     {
@@ -95,11 +128,41 @@ public final class SessionFactory implements ISessionFactory<Session>
             final String remoteUrl = datastore.getRemoteUrl();
             if (StringUtils.isBlank(remoteUrl) == false)
             {
-                dssFactory.createMonitored(remoteUrl, LogLevel.WARN).cleanupSession(sessionToken);
+                sessionsToBeClosedQueue.add(new CleanUpTask(dssFactory, remoteUrl, sessionToken));
             } else
             {
                 operationLog.warn("datastore remoteUrl of datastore " + datastore.getCode()
                         + " is empty - skipping DSS session cleanup.");
+            }
+        }
+    }
+
+    private static final class CleanUpTask
+    {
+        private IDataStoreServiceFactory dssFactory;
+
+        private String remoteUrl;
+
+        private String sessionToken;
+
+        CleanUpTask(IDataStoreServiceFactory dssFactory, String remoteUrl, String sessionToken)
+        {
+            this.dssFactory = dssFactory;
+            this.remoteUrl = remoteUrl;
+            this.sessionToken = sessionToken;
+        }
+
+        void execute()
+        {
+            try
+            {
+                operationLog.info("Execute clean-up task for session " + sessionToken + " on DSS " + remoteUrl);
+                dssFactory.createMonitored(remoteUrl, LogLevel.WARN).cleanupSession(sessionToken);
+                operationLog.info("Clean-up task for session " + sessionToken + " finished on DSS " + remoteUrl);
+            } catch (Exception e)
+            {
+                operationLog.error("Clean-up task for session " + sessionToken + " failed on DSS " + remoteUrl 
+                        + ". Reason: " + e, e);
             }
         }
     }
