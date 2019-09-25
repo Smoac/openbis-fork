@@ -29,15 +29,19 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.hamcrest.Description;
 import org.hamcrest.core.IsEqual;
 import org.hibernate.SessionFactory;
 import org.jmock.Expectations;
+import org.jmock.api.Action;
+import org.jmock.api.Invocation;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.authentication.Principal;
+import ch.systemsx.cisd.common.concurrent.MessageChannel;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
@@ -268,6 +272,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     public void testLogout()
     {
         final Session mySession = createSession(CommonTestUtils.USER_ID);
+        MessageChannel messageChannel = new MessageChannel();
         context.checking(new Expectations()
             {
                 {
@@ -284,6 +289,20 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(dataStoreService));
 
                     one(dataStoreService).cleanupSession(SESSION_TOKEN);
+                    will(new Action()
+                        {
+                            @Override
+                            public Object invoke(Invocation invocation) throws Throwable
+                            {
+                                messageChannel.send(mySession);
+                                return null;
+                            }
+
+                            @Override
+                            public void describeTo(Description arg0)
+                            {
+                            }
+                        });
 
                     one(sessionWorkspaceProvider).deleteSessionWorkspace(SESSION_TOKEN);
                 }
@@ -291,6 +310,7 @@ public final class CommonServerTest extends AbstractServerTestCase
 
         createServer().logout(SESSION_TOKEN);
 
+        messageChannel.assertNextMessage(mySession);
         context.assertIsSatisfied();
     }
 
