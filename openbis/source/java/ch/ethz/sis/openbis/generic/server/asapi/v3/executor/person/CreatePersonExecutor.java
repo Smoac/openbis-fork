@@ -21,6 +21,8 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.annotation.Resource;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -40,6 +42,8 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.entity.progress.Create
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
+import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.openbis.generic.server.AuthenticationServiceHolder;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -54,9 +58,11 @@ public class CreatePersonExecutor
         extends AbstractCreateEntityExecutor<PersonCreation, PersonPE, PersonPermId>
         implements ICreatePersonExecutor
 {
+    private static final String ALLOW_MISSING_USER_CREATION_PROPERTY = "allow-missing-user-creation";
+
     @Autowired
     private IDAOFactory daoFactory;
-    
+
     @Autowired
     private ISetPersonSpaceExecutor setPersonSpaceExecutor;
 
@@ -65,6 +71,9 @@ public class CreatePersonExecutor
 
     @Autowired
     private IPersonAuthorizationExecutor authorizationExecutor;
+
+    @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
+    private ExposablePropertyPlaceholderConfigurer configurer;
 
     @Override
     protected IObjectId getId(PersonPE entity)
@@ -99,6 +108,8 @@ public class CreatePersonExecutor
         final List<String> unknownUsers = new ArrayList<String>();
         final DisplaySettings displaySettings = getDefaultDisplaySettings();
         final PersonPE registrator = context.getSession().tryGetPerson();
+        boolean allowMissingUserCreation = PropertyUtils.getBoolean(configurer.getResolvedProps(),
+                ALLOW_MISSING_USER_CREATION_PROPERTY, false);
         final IAuthenticationService authenticationService = authenticationServiceHolder.getAuthenticationService();
         new CollectionBatchProcessor<PersonCreation>(context, batch)
             {
@@ -106,21 +117,28 @@ public class CreatePersonExecutor
                 public void process(PersonCreation personCreation)
                 {
                     String userId = personCreation.getUserId();
+                    PersonPE person = new PersonPE();
+                    person.setDisplaySettings(displaySettings);
+                    person.setActive(true);
+                    person.setRegistrator(registrator);
                     try
                     {
                         Principal principal = authenticationService.getPrincipal(userId);
-                        PersonPE person = new PersonPE();
                         person.setUserId(principal.getUserId());
                         person.setFirstName(principal.getFirstName());
                         person.setLastName(principal.getLastName());
                         person.setEmail(principal.getEmail());
-                        person.setRegistrator(registrator);
-                        person.setDisplaySettings(displaySettings);
-                        person.setActive(true);
                         persons.add(person);
                     } catch (IllegalArgumentException ex)
                     {
-                        unknownUsers.add(userId);
+                        if (allowMissingUserCreation)
+                        {
+                            person.setUserId(normalizeUserId(userId));
+                            persons.add(person);
+                        } else
+                        {
+                            unknownUsers.add(userId);
+                        }
                     }
                 }
 
@@ -137,6 +155,11 @@ public class CreatePersonExecutor
                     StringUtils.join(unknownUsers, ","));
         }
         return persons;
+    }
+
+    private String normalizeUserId(String userId)
+    {
+        return userId.replace("@", "_AT_");
     }
 
     private DisplaySettings getDefaultDisplaySettings()
