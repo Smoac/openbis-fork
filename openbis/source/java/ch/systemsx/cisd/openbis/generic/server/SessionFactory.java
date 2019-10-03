@@ -61,19 +61,19 @@ public final class SessionFactory implements ISessionFactory<Session>
                 @Override
                 public void run()
                 {
-                    try
+                    while (true)
                     {
-                        while (true)
+                        try
                         {
                             CleanUpTask task = sessionsToBeClosedQueue.take();
                             task.execute();
+                        } catch (InterruptedException ex)
+                        {
+                            // Exit thread.
+                        } catch (InterruptedExceptionUnchecked ex)
+                        {
+                            // Exit thread.
                         }
-                    } catch (InterruptedException ex)
-                    {
-                        // Exit thread.
-                    } catch (InterruptedExceptionUnchecked ex)
-                    {
-                        // Exit thread.
                     }
                 }
             }, "Session clean up queue");
@@ -161,7 +161,7 @@ public final class SessionFactory implements ISessionFactory<Session>
                 operationLog.info("Clean-up task for session " + sessionToken + " finished on DSS " + remoteUrl);
             } catch (Exception e)
             {
-                operationLog.error("Clean-up task for session " + sessionToken + " failed on DSS " + remoteUrl 
+                operationLog.error("Clean-up task for session " + sessionToken + " failed on DSS " + remoteUrl
                         + ". Reason: " + e, e);
             }
         }
