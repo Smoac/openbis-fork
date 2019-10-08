@@ -33,4 +33,3 @@ def get_existing_element_based_on(creation_type, creation, existing_elements):
             attr = 'code'
         existing_element = list(filter(lambda existing_element: getattr(creation, attr) == getattr(existing_element, attr), existing_elements))
     return None if len(existing_element) == 0 else existing_element[0]
-

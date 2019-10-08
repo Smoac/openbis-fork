@@ -14,7 +14,8 @@ class DefinitionParserFactory(object):
             return PropertiesOnlyDefinitionParser
         else:
             raise UnsupportedOperationException(
-                "Definition of " + str(definition_type) + " is not supported (probably yet).")
+                "Cannot create  " + str(
+                    definition_type) + ". Make sure Definition (First row, first cell of each definit)")
 
 
 class PropertiesOnlyDefinitionParser(object):

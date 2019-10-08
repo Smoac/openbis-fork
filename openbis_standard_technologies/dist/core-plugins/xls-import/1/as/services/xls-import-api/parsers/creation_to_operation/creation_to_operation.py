@@ -33,52 +33,64 @@ class CreationOrUpdateToOperationParser(object):
 
     @staticmethod
     def parse(creations):
-        creation_operations = []
+        entity_type_creation_operations = []
+        entity_creation_operations = []
+        entity_type_update_operations = []
+        entity_update_operations = []
         if VocabularyDefinitionToCreationType in creations:
-            creation_operations.append(CreateVocabulariesOperation(creations[VocabularyDefinitionToCreationType]))
+            entity_type_creation_operations.append(
+                CreateVocabulariesOperation(creations[VocabularyDefinitionToCreationType]))
         if VocabularyTermDefinitionToCreationType in creations:
-            creation_operations.append(
+            entity_type_creation_operations.append(
                 CreateVocabularyTermsOperation(creations[VocabularyTermDefinitionToCreationType]))
         if PropertyTypeDefinitionToCreationType in creations:
-            creation_operations.append(CreatePropertyTypesOperation(creations[PropertyTypeDefinitionToCreationType]))
+            entity_type_creation_operations.append(
+                CreatePropertyTypesOperation(creations[PropertyTypeDefinitionToCreationType]))
         if SampleTypeDefinitionToCreationType in creations:
-            creation_operations.append(CreateSampleTypesOperation(creations[SampleTypeDefinitionToCreationType]))
+            entity_type_creation_operations.append(
+                CreateSampleTypesOperation(creations[SampleTypeDefinitionToCreationType]))
         if ExperimentTypeDefinitionToCreationType in creations:
-            creation_operations.append(
+            entity_type_creation_operations.append(
                 CreateExperimentTypesOperation(creations[ExperimentTypeDefinitionToCreationType]))
         if DatasetTypeDefinitionToCreationType in creations:
-            creation_operations.append(CreateDataSetTypesOperation(creations[DatasetTypeDefinitionToCreationType]))
-        if SpaceDefinitionToCreationType in creations:
-            creation_operations.append(CreateSpacesOperation(creations[SpaceDefinitionToCreationType]))
-        if ProjectDefinitionToCreationType in creations:
-            creation_operations.append(CreateProjectsOperation(creations[ProjectDefinitionToCreationType]))
-        if ExperimentDefinitionToCreationType in creations:
-            creation_operations.append(CreateExperimentsOperation(creations[ExperimentDefinitionToCreationType]))
-        if SampleDefinitionToCreationType in creations:
-            creation_operations.append(CreateSamplesOperation(creations[SampleDefinitionToCreationType]))
+            entity_type_creation_operations.append(
+                CreateDataSetTypesOperation(creations[DatasetTypeDefinitionToCreationType]))
         if ScriptDefinitionToCreationType in creations:
-            creation_operations.append(CreatePluginsOperation(creations[ScriptDefinitionToCreationType]))
+            entity_type_update_operations.append(CreatePluginsOperation(creations[ScriptDefinitionToCreationType]))
+        if SpaceDefinitionToCreationType in creations:
+            entity_creation_operations.append(CreateSpacesOperation(creations[SpaceDefinitionToCreationType]))
+        if ProjectDefinitionToCreationType in creations:
+            entity_creation_operations.append(CreateProjectsOperation(creations[ProjectDefinitionToCreationType]))
+        if ExperimentDefinitionToCreationType in creations:
+            entity_creation_operations.append(CreateExperimentsOperation(creations[ExperimentDefinitionToCreationType]))
+        if SampleDefinitionToCreationType in creations:
+            entity_creation_operations.append(CreateSamplesOperation(creations[SampleDefinitionToCreationType]))
         if VocabularyCreationToUpdateType in creations:
-            creation_operations.append(UpdateVocabulariesOperation(creations[VocabularyCreationToUpdateType]))
+            entity_type_update_operations.append(UpdateVocabulariesOperation(creations[VocabularyCreationToUpdateType]))
         if VocabularyTermCreationToUpdateType in creations:
-            creation_operations.append(UpdateVocabularyTermsOperation(creations[VocabularyTermCreationToUpdateType]))
+            entity_type_update_operations.append(
+                UpdateVocabularyTermsOperation(creations[VocabularyTermCreationToUpdateType]))
         if PropertyTypeCreationToUpdateType in creations:
-            creation_operations.append(UpdatePropertyTypesOperation(creations[PropertyTypeCreationToUpdateType]))
+            entity_type_update_operations.append(
+                UpdatePropertyTypesOperation(creations[PropertyTypeCreationToUpdateType]))
         if SampleTypeCreationToUpdateType in creations:
-            creation_operations.append(UpdateSampleTypesOperation(creations[SampleTypeCreationToUpdateType]))
+            entity_type_update_operations.append(UpdateSampleTypesOperation(creations[SampleTypeCreationToUpdateType]))
         if ExperimentTypeCreationToUpdateType in creations:
-            creation_operations.append(UpdateExperimentTypesOperation(creations[ExperimentTypeCreationToUpdateType]))
+            entity_type_update_operations.append(
+                UpdateExperimentTypesOperation(creations[ExperimentTypeCreationToUpdateType]))
         if DatasetTypeCreationToUpdateType in creations:
-            creation_operations.append(UpdateDataSetTypesOperation(creations[DatasetTypeCreationToUpdateType]))
-        if SpaceCreationToUpdateType in creations:
-            creation_operations.append(UpdateSpacesOperation(creations[SpaceCreationToUpdateType]))
-        if ProjectCreationToUpdateType in creations:
-            creation_operations.append(UpdateProjectsOperation(creations[ProjectCreationToUpdateType]))
-        if ExperimentCreationToUpdateType in creations:
-            creation_operations.append(UpdateExperimentsOperation(creations[ExperimentCreationToUpdateType]))
-        if SampleCreationToUpdateType in creations:
-            creation_operations.append(UpdateSamplesOperation(creations[SampleCreationToUpdateType]))
+            entity_type_update_operations.append(
+                UpdateDataSetTypesOperation(creations[DatasetTypeCreationToUpdateType]))
         if ScriptCreationToUpdateType in creations:
-            creation_operations.append(UpdatePluginsOperation(creations[ScriptCreationToUpdateType]))
+            entity_type_update_operations.append(UpdatePluginsOperation(creations[ScriptCreationToUpdateType]))
+        if SpaceCreationToUpdateType in creations:
+            entity_update_operations.append(UpdateSpacesOperation(creations[SpaceCreationToUpdateType]))
+        if ProjectCreationToUpdateType in creations:
+            entity_update_operations.append(UpdateProjectsOperation(creations[ProjectCreationToUpdateType]))
+        if ExperimentCreationToUpdateType in creations:
+            entity_update_operations.append(UpdateExperimentsOperation(creations[ExperimentCreationToUpdateType]))
+        if SampleCreationToUpdateType in creations:
+            entity_update_operations.append(UpdateSamplesOperation(creations[SampleCreationToUpdateType]))
 
-        return creation_operations
+
+        return entity_type_creation_operations, entity_creation_operations, entity_type_update_operations, entity_update_operations

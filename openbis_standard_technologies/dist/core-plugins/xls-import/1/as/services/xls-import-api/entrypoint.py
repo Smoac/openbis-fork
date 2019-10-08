@@ -11,8 +11,6 @@ from search_engines import SearchEngine
 from utils import FileHandler
 from utils.openbis_utils import get_version_name_for, get_metadata_name_for
 
-REMOVE_VERSIONS = False
-
 
 def validate_data(xls_byte_arrays, csv_strings, update_mode, xls_name):
     if xls_byte_arrays is None and csv_strings is None:
@@ -44,6 +42,31 @@ def save_versioning_information(versioning_information, xls_version_filepath):
     with open(filepath_new, 'w') as f:
         json.dump(versioning_information, f)
     os.rename(filepath_new, xls_version_filepath)
+
+
+def create_versioning_information(all_versioning_information, creations, creations_metadata, update_mode,
+                                  xls_version_name):
+    if xls_version_name in all_versioning_information:
+        versioning_information = all_versioning_information[xls_version_name]
+        for creation_type, creation_collection in creations.items():
+            if creation_type in versionable_types:
+                for creation in creation_collection:
+                    code = get_metadata_name_for(creation_type, creation)
+                    if code in versioning_information:
+                        version = versioning_information[code]
+                    else:
+                        version = creations_metadata.get_metadata_for(creation_type,
+                                                                      creation).version if update_mode != "UPDATE_IF_EXISTS" else 0
+                    versioning_information[code] = int(version)
+    else:
+        versioning_information = {}
+        for creation_type, creation_collection in creations.items():
+            if creation_type in versionable_types:
+                for creation in creation_collection:
+                    code = get_metadata_name_for(creation_type, creation)
+                    versioning_information[code] = creations_metadata.get_metadata_for(creation_type,
+                                                                                       creation).version if update_mode != "UPDATE_IF_EXISTS" else 0
+    return versioning_information
 
 
 def process(context, parameters):
@@ -81,33 +104,10 @@ def process(context, parameters):
     creations_metadata = get_creation_metadata_from(definitions)
     creations = DuplicatesHandler.get_distinct_creations(creations)
     xls_version_filepath = get_property("xls-import.version-data-file", "../../../xls-import-version-info.json")
-    if REMOVE_VERSIONS:
-        if os.path.exists(xls_version_filepath):
-            os.remove(xls_version_filepath)
     xls_version_name = get_version_name_for(xls_name)
     all_versioning_information = read_versioning_information(xls_version_filepath)
-
-    if xls_version_name in all_versioning_information:
-        versioning_information = all_versioning_information[xls_version_name]
-        for creation_type, creation_collection in creations.items():
-            if creation_type in versionable_types:
-                for creation in creation_collection:
-                    code = get_metadata_name_for(creation_type, creation)
-                    if code in versioning_information:
-                        version = versioning_information[code]
-                    else:
-                        version = creations_metadata.get_metadata_for(creation_type,
-                                                                      creation).version if update_mode != "UPDATE_IF_EXISTS" else 0
-                    versioning_information[code] = int(version)
-    else:
-        versioning_information = {}
-        for creation_type, creation_collection in creations.items():
-            if creation_type in versionable_types:
-                for creation in creation_collection:
-                    code = get_metadata_name_for(creation_type, creation)
-                    versioning_information[code] = creations_metadata.get_metadata_for(creation_type,
-                                                                                       creation).version if update_mode != "UPDATE_IF_EXISTS" else 0
-
+    versioning_information = create_versioning_information(all_versioning_information, creations, creations_metadata,
+                                                           update_mode, xls_version_name)
     existing_elements = search_engine.find_all_existing_elements(creations)
     entity_kinds = search_engine.find_existing_entity_kind_definitions_for(creations)
     existing_vocabularies = search_engine.find_all_existing_vocabularies()
@@ -118,8 +118,20 @@ def process(context, parameters):
                                                          versioning_information, update_mode)
     creations = server_duplicates_handler.rewrite_parentchild_creationid_to_permid()
     creations = server_duplicates_handler.handle_existing_elements_in_creations()
-    operations = CreationOrUpdateToOperationParser.parse(creations)
-    res = str(api.executeOperations(session_token, operations, SynchronousOperationExecutionOptions()).getResults())
+    entity_type_creation_operations, entity_creation_operations, entity_type_update_operations, entity_update_operations = CreationOrUpdateToOperationParser.parse(
+        creations)
+
+    entity_type_update_results = str(api.executeOperations(session_token, entity_type_update_operations,
+                                                           SynchronousOperationExecutionOptions()).getResults())
+    entity_type_creation_results = str(api.executeOperations(session_token, entity_type_creation_operations,
+                                                             SynchronousOperationExecutionOptions()).getResults())
+    entity_creation_results = str(api.executeOperations(session_token, entity_creation_operations,
+                                                        SynchronousOperationExecutionOptions()).getResults())
+    entity_update_results = str(api.executeOperations(session_token, entity_update_operations,
+                                                      SynchronousOperationExecutionOptions()).getResults())
+
     all_versioning_information[xls_version_name] = versioning_information
     save_versioning_information(all_versioning_information, xls_version_filepath)
-    return res
+    return "Update operations performed: {} and {} \n Creation operations performed: {} and {}".format(
+        entity_type_update_results, entity_update_results,
+        entity_type_creation_results, entity_creation_results)
