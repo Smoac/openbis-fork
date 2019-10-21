@@ -47,14 +47,20 @@ import org.w3c.dom.Document;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.ContentCopy;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.LinkedData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.ContentCopyCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.LinkedDataCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.delete.DataSetDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IContentCopyId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.LinkedDataUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.delete.ExperimentDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
@@ -317,7 +323,7 @@ public class EntitySynchronizer
         }
         query.updateProjectRegistrations(registrations);
     }
-    
+
     private void updateExperiments(Collection<IncomingExperiment> experiments, IHarvesterQuery query,
             Map<String, Long> userTechIdsByUserId, Monitor monitor)
     {
@@ -593,7 +599,9 @@ public class EntitySynchronizer
         List<DataSetPermId> dataSetIds =
                 values.stream().map(ds -> new DataSetPermId(ds.getFullDataSet().getMetadataCreation().getCode())).collect(Collectors.toList());
         System.err.println("new data sets:" + dataSetIds);
-        Map<IDataSetId, DataSet> existingDataSets = v3Api.getDataSets(service.getSessionToken(), dataSetIds, new DataSetFetchOptions());
+        DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
+        fetchOptions.withLinkedData();
+        Map<IDataSetId, DataSet> existingDataSets = v3Api.getDataSets(service.getSessionToken(), dataSetIds, fetchOptions);
         System.err.println("existing data sets:" + existingDataSets.keySet());
         List<DataSetUpdate> updates = new ArrayList<>();
         List<FullDataSetCreation> creations = new ArrayList<>();
@@ -604,16 +612,13 @@ public class EntitySynchronizer
             DataSetPermId permId = new DataSetPermId(dataSet.getCode());
             if (existingDataSets.containsKey(permId))
             {
-                DataSetUpdate update = new DataSetUpdate();
-                update.setDataSetId(permId);
-                update.setProperties(dataSet.getProperties());
-                updates.add(update);
+                updates.add(createLinkDataUpdate(existingDataSets, dataSet, permId));
             } else
             {
                 creations.add(fullDataSet);
             }
         }
-        if (updates.isEmpty() && config.isDryRun() == false)
+        if (updates.isEmpty() == false && config.isDryRun() == false)
         {
             v3Api.updateDataSets(service.getSessionToken(), updates);
         }
@@ -621,6 +626,43 @@ public class EntitySynchronizer
         {
             v3DssApi.createDataSets(service.getSessionToken(), creations);
         }
+    }
+
+    private DataSetUpdate createLinkDataUpdate(Map<IDataSetId, DataSet> existingDataSets, DataSetCreation dataSet,
+            DataSetPermId permId)
+    {
+        DataSetUpdate update = new DataSetUpdate();
+        update.setDataSetId(permId);
+        update.setProperties(dataSet.getProperties());
+        LinkedDataCreation linkedDataCreation = dataSet.getLinkedData();
+        if (linkedDataCreation != null)
+        {
+            LinkedData linkedData = existingDataSets.get(permId).getLinkedData();
+            Map<String, ContentCopy> existingContentCopies = getExistingContentCopies(linkedData);
+            LinkedDataUpdate linkedDataUpdate = new LinkedDataUpdate();
+            for (ContentCopyCreation cc : linkedDataCreation.getContentCopies())
+            {
+                String key = cc.getPath() + "," + cc.getGitCommitHash() + "," + cc.getGitRepositoryId();
+                if (existingContentCopies.remove(key) == null)
+                {
+                    linkedDataUpdate.getContentCopies().add(cc);
+                }
+            }
+            linkedDataUpdate.getContentCopies().remove(existingContentCopies.values().stream()
+                    .map(ContentCopy::getId).collect(Collectors.toList()).toArray(new IContentCopyId[0]));
+            update.setLinkedData(linkedDataUpdate);
+        }
+        return update;
+    }
+
+    private Map<String, ContentCopy> getExistingContentCopies(LinkedData linkedData)
+    {
+        HashMap<String, ContentCopy> result = new HashMap<>();
+        for (ContentCopy cc : linkedData.getContentCopies())
+        {
+            result.put(cc.getPath() + "," + cc.getGitCommitHash() + "," + cc.getGitRepositoryId(), cc);
+        }
+        return result;
     }
 
     private List<String> registerAttachments(ResourceListParserData data, MultiKeyMap<String, String> newEntities)
@@ -650,7 +692,7 @@ public class EntitySynchronizer
         monitor.log();
         return notSyncedAttachmentsHolders;
     }
-    
+
     private void populateFileServiceRepository(ResourceListParserData data)
     {
         Monitor monitor = new Monitor("Populate file service repository", operationLog);
@@ -1651,7 +1693,7 @@ public class EntitySynchronizer
         {
             return sample;
         }
-        throw new IllegalArgumentException("sample " + permId+ " hasn't been provided by the data source.");
+        throw new IllegalArgumentException("sample " + permId + " hasn't been provided by the data source.");
     }
 
     private Map<String, ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample> getKnownSamples(Collection<String> samplePermIds)
