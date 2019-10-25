@@ -1,4 +1,5 @@
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id import SampleIdentifier
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id import ProjectIdentifier
 import os
 
 # TODO DRY IT WITH CreationTYpes in definition_to_creation!!!
@@ -20,6 +21,16 @@ def create_sample_identifier_string(sample_creation):
     code = sample_creation.code
     sample_identifier = SampleIdentifier(spaceId, projectId, None, code)
     return sample_identifier.identifier
+
+
+def create_project_identifier_string(project_creation):
+    spaceId = str(project_creation.spaceId)
+    code = project_creation.code
+    project_identifier = ProjectIdentifier(spaceId, code)
+    return str(project_identifier)
+
+def create_experiment_identifier_string(experiment_creation):
+    pass
 
 
 def get_filename_from_path(path):

@@ -14,6 +14,8 @@ from ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create import SpaceCreation
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create import VocabularyCreation
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create import VocabularyTermCreation
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id import VocabularyPermId
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id import ProjectIdentifier
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id import ExperimentIdentifier
 from java.lang import UnsupportedOperationException
 from ch.systemsx.cisd.common.exceptions import UserFailureException
 from utils.openbis_utils import is_internal_namespace, get_script_name_for
@@ -271,7 +273,7 @@ class ExperimentDefinitionToCreationParser(object):
             experiment_creation = ExperimentCreation()
             experiment_creation.typeId = EntityTypePermId(definition.attributes.get(u'experiment type'))
             experiment_creation.code = experiment_properties.get(u'code')
-            experiment_creation.projectId = CreationId(experiment_properties.get(u'project'))
+            experiment_creation.projectId = ProjectIdentifier(experiment_properties.get(u'project'))
             creation_id = experiment_properties.get(u'code')
             experiment_creation.creationId = CreationId(creation_id)
             for prop, value in experiment_properties.items():
@@ -308,9 +310,9 @@ class SampleDefinitionToCreationParser(object):
             if u'space' in sample_properties and sample_properties.get(u'space') is not None:
                 sample_creation.spaceId = CreationId(sample_properties.get(u'space'))
             if u'project' in sample_properties and sample_properties.get(u'project') is not None:
-                sample_creation.projectId = CreationId(sample_properties.get(u'project'))
+                sample_creation.projectId = ProjectIdentifier(sample_properties.get(u'project'))
             if u'experiment' in sample_properties and sample_properties.get(u'experiment') is not None:
-                sample_creation.experimentId = CreationId(sample_properties.get(u'experiment'))
+                sample_creation.experimentId = ExperimentIdentifier(sample_properties.get(u'experiment'))
             if u'parents' in sample_properties and sample_properties.get(u'parents') is not None:
                 parent_creation_ids = []
                 parents = sample_properties.get(u'parents').split('\n')

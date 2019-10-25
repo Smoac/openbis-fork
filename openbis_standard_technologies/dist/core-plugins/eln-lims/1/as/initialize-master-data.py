@@ -21,13 +21,17 @@ from ch.ethz.sis.openbis.generic.asapi.v3.dto.service import CustomASServiceExec
 from ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl import MasterDataRegistrationHelper
 import sys
 
+from ch.systemsx.cisd.openbis.generic.server.hotfix import ELNCollectionTypeMigration
+
+ELNCollectionTypeMigration.migrate()
+
 helper = MasterDataRegistrationHelper(sys.path)
 api = CommonServiceProvider.getApplicationContext().getBean(ApplicationServerApi.INTERNAL_SERVICE_NAME)
 sessionToken = api.loginAsSystem()
 props = CustomASServiceExecutionOptions().withParameter('xls', helper.listXlsByteArrays())\
     .withParameter('xls_name', 'ELN-LIMS').withParameter('update_mode', 'UPDATE_IF_EXISTS')\
     .withParameter('scripts', helper.getAllScripts())
-result = api.executeCustomASService(sessionToken, CustomASServiceCode("xls-import-api"), props);
+result = api.executeCustomASService(sessionToken, CustomASServiceCode("xls-import-api"), props)
 print("======================== master-data xls ingestion result ========================")
 print(result)
 print("======================== master-data xls ingestion result ========================")

@@ -118,7 +118,7 @@ class EntityTypeCreationToUpdateParser(object):
 class TypedEntityCreationToUpdateParser(object):
 
     def parse(self, creation, existing_entity):
-        if creation.typeId != existing_entity.type.permId:
+        if creation.typeId.getPermId() != existing_entity.type.permId.getPermId():
             raise UserFailureException(
                 "Entity Types mismatched. Change of entity type of existing entity not supported.\n" + "Tried to update " + str(
                     existing_entity.identifier) + " of type: " + str(

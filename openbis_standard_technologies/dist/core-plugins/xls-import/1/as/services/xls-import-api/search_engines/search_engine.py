@@ -32,7 +32,7 @@ from parsers import PropertyTypeDefinitionToCreationType, VocabularyDefinitionTo
     ExperimentDefinitionToCreationType, \
     SampleDefinitionToCreationType, ScriptDefinitionToCreationType
 from search_criteria_factory import DefaultCreationElementSearchCriteria, SampleCreationSampleSearchCriteria, \
-    VocabularyTermCreationVocabularyTermSearchCriteria, \
+    VocabularyTermCreationVocabularyTermSearchCriteria, ProjectFromProjectCreationSearchCriteria, \
     ScriptCreationScriptSearchCriteria, EntityCreationEntityTypeSearchCriteria, \
     FindAllSearchCriteria, SpaceFromPropertiesSearchCriteria, ProjectFromPropertiesSearchCriteria, \
     ExperimentFromPropertiesSearchCriteria, SampleCreationSampleChildrenParentSearchCriteria
@@ -192,7 +192,7 @@ class SearchEngine():
             },
             {
                 'creations_type': ProjectDefinitionToCreationType,
-                'search_criteria_build_strategy': DefaultCreationElementSearchCriteria,
+                'search_criteria_build_strategy': ProjectFromProjectCreationSearchCriteria,
                 'search_criteria_class': ProjectSearchCriteria,
                 'search_operation': SearchProjectsOperation,
                 'fetch_options': ProjectFetchOptions()
@@ -267,15 +267,20 @@ class SearchEngine():
             search_criteria_builder = strategy['search_criteria_build_strategy'](search_criteria_class)
             if creations_type in creations:
                 search_criterias = search_criteria_builder.get_search_criteria(creations[creations_type])
-                existing_specific_elements = self._get_existing_elements(search_criterias, **strategy)
-                results_key = strategy[
-                    'result_creations_type'] if 'result_creations_type' in strategy else creations_type
-                if existing_specific_elements is not None:
-                    if results_key not in existing_elements:
-                        existing_elements[results_key] = []
-                    # May contain duplicates when i.e Project exists on the server but is also
-                    # explicitly mentioned in xls sheet, it is ok.
-                    existing_elements[results_key].extend(existing_specific_elements)
+                if search_criterias is not None:
+                    existing_specific_elements = self._get_existing_elements(search_criterias, **strategy)
+                    results_key = strategy[
+                        'result_creations_type'] if 'result_creations_type' in strategy else creations_type
+                    if existing_specific_elements is not None:
+                        if results_key not in existing_elements:
+                            existing_elements[results_key] = []
+                        # May contain duplicates when i.e Project exists on the server but is also
+                        # explicitly mentioned in xls sheet, it is ok.
+                        existing_elements[results_key].extend(existing_specific_elements)
+
+        print("DEBUGDEBUG")
+        print(existing_elements)
+
         return existing_elements
 
     def _get_existing_elements(self, search_criterias, **kwargs):
@@ -290,6 +295,7 @@ class SearchEngine():
     def _execute_search_operation(self, operations):
         execution_results = self.api.executeOperations(self.session_token, operations,
                                                        SynchronousOperationExecutionOptions())
+
         result_objects = []
         for search_result in execution_results.getResults():
             result_objects.extend(search_result.getSearchResult().getObjects())

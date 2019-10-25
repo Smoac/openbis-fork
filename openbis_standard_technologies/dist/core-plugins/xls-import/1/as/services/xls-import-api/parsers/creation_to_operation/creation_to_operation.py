@@ -56,7 +56,7 @@ class CreationOrUpdateToOperationParser(object):
             entity_type_creation_operations.append(
                 CreateDataSetTypesOperation(creations[DatasetTypeDefinitionToCreationType]))
         if ScriptDefinitionToCreationType in creations:
-            entity_type_update_operations.append(CreatePluginsOperation(creations[ScriptDefinitionToCreationType]))
+            entity_type_creation_operations.append(CreatePluginsOperation(creations[ScriptDefinitionToCreationType]))
         if SpaceDefinitionToCreationType in creations:
             entity_creation_operations.append(CreateSpacesOperation(creations[SpaceDefinitionToCreationType]))
         if ProjectDefinitionToCreationType in creations:
@@ -66,23 +66,23 @@ class CreationOrUpdateToOperationParser(object):
         if SampleDefinitionToCreationType in creations:
             entity_creation_operations.append(CreateSamplesOperation(creations[SampleDefinitionToCreationType]))
         if VocabularyCreationToUpdateType in creations:
-            entity_type_update_operations.append(UpdateVocabulariesOperation(creations[VocabularyCreationToUpdateType]))
+            entity_type_creation_operations.append(UpdateVocabulariesOperation(creations[VocabularyCreationToUpdateType]))
         if VocabularyTermCreationToUpdateType in creations:
-            entity_type_update_operations.append(
+            entity_type_creation_operations.append(
                 UpdateVocabularyTermsOperation(creations[VocabularyTermCreationToUpdateType]))
         if PropertyTypeCreationToUpdateType in creations:
-            entity_type_update_operations.append(
+            entity_type_creation_operations.append(
                 UpdatePropertyTypesOperation(creations[PropertyTypeCreationToUpdateType]))
         if SampleTypeCreationToUpdateType in creations:
-            entity_type_update_operations.append(UpdateSampleTypesOperation(creations[SampleTypeCreationToUpdateType]))
+            entity_type_creation_operations.append(UpdateSampleTypesOperation(creations[SampleTypeCreationToUpdateType]))
         if ExperimentTypeCreationToUpdateType in creations:
-            entity_type_update_operations.append(
+            entity_type_creation_operations.append(
                 UpdateExperimentTypesOperation(creations[ExperimentTypeCreationToUpdateType]))
         if DatasetTypeCreationToUpdateType in creations:
-            entity_type_update_operations.append(
+            entity_type_creation_operations.append(
                 UpdateDataSetTypesOperation(creations[DatasetTypeCreationToUpdateType]))
         if ScriptCreationToUpdateType in creations:
-            entity_type_update_operations.append(UpdatePluginsOperation(creations[ScriptCreationToUpdateType]))
+            entity_type_creation_operations.append(UpdatePluginsOperation(creations[ScriptCreationToUpdateType]))
         if SpaceCreationToUpdateType in creations:
             entity_update_operations.append(UpdateSpacesOperation(creations[SpaceCreationToUpdateType]))
         if ProjectCreationToUpdateType in creations:
