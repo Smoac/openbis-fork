@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.common.spring;
 
+import java.io.File;
+import java.io.IOException;
+
 import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -28,13 +31,15 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
- * An application listener, whose sole purpose is to log a marker message immediately after the successful start/stop of the openBIS application
- * server.
+ * An application listener, whose sole purpose is to log a marker message and create a marker file 
+ * immediately after the successful start/stop of the openBIS application server.
  * 
  * @author Kaloyan Enimanev
  */
 public class MarkerLogApplicationListener implements ApplicationListener
 {
+    private static final File STARTED_FILE = new File("SERVER_STARTED");
+
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             MarkerLogApplicationListener.class);
 
@@ -52,10 +57,20 @@ public class MarkerLogApplicationListener implements ApplicationListener
                     // root application context has been initialized
                 } else
                 {
-                    // print a marker string to make it possible
+                    // print a marker string and create marker file to make it possible
                     // for log-analyzing software to determine when the application is up and
                     // running
                     operationLog.info("SERVER STARTED");
+                    try
+                    {
+                        STARTED_FILE.createNewFile();
+                        STARTED_FILE.deleteOnExit();
+                        operationLog.info(STARTED_FILE.getAbsolutePath()+" created");
+                    } catch (IOException ex)
+                    {
+                        operationLog.error("Couldn't create marker file " + STARTED_FILE, ex);
+                    }
+
                 }
             } else if (isStoppingEvent(event))
             {
