@@ -27,6 +27,14 @@ STARTING_MESSAGE="STARTING SERVER"
 STARTED_MESSAGE="SERVER STARTED"
 ERROR_MESSAGE="ERROR"
 
+function assertNoError() {
+    error=`egrep "($STARTING_MESSAGE|$ERROR_MESSAGE)" $1 | egrep -A 1 "$STARTING_MESSAGE" | tail -1 | grep "$ERROR_MESSAGE"`
+    if [ -n "$error" ]; then
+        echo "Failed: $error" 
+        exit 1;
+    fi
+}
+
 if [ -n "$(readlink $0)" ]; then
    # handle symbolic links
    scriptName=$(readlink $0)
@@ -46,10 +54,12 @@ fi
 JETTY_HOME=$BASE/../servers/openBIS-server/jetty
 OPENBIS_LOG=$JETTY_HOME/logs/openbis_log.txt
 JETTY_LOG=$JETTY_HOME/logs/jetty.out
+STARTED_MARKER=$JETTY_HOME/SERVER_STARTED
 TIMEOUT=120
 
 echo Starting openBIS...
 echo $STARTING_MESSAGE >> $OPENBIS_LOG
+rm -f $STARTED_MARKER
 
 # This variable suits as a workaround for cases where newly created files
 # have non-zero age according to our age measuring function
@@ -69,30 +79,13 @@ while [ "$bisLogAgeInSeconds" -lt $TIMEOUT ] || [ "$jettyLogAgeInSeconds" -lt $T
     echo -n "."
     sleep 2
 
-    # get the message "STARTING_SERVER" + the next matching message (i.e. STARTED or ERROR) 
-    bisLogStatus=`egrep "($STARTING_MESSAGE|$STARTED_MESSAGE|$ERROR_MESSAGE)" $OPENBIS_LOG  | egrep -A 1 "$STARTING_MESSAGE" | tail -1`
-    jettyLogStatus=`egrep "($STARTING_MESSAGE|$STARTED_MESSAGE|$ERROR_MESSAGE)" $JETTY_LOG  | egrep -A 1 "$STARTING_MESSAGE" | tail -1`    
-    
-    started=`echo $bisLogStatus | grep "$STARTED_MESSAGE"`
-    if [ -n "$started" ]; then
-        started=`echo $jettyLogStatus | grep "$STARTED_MESSAGE"`
-        if [ -n "$started" ]; then
-            echo "Done."
-            exit 0;
-        fi
+    if [ -f $STARTED_MARKER ]; then
+        echo "Done."
+        exit 0;
     fi
-    
-    error=`echo $bisLogStatus | grep "$ERROR_MESSAGE"`
-    if [ -n "$error" ]; then
-        echo "Failed: $error" 
-        exit 1;
-    fi
-    
-    error=`echo $jettyLogStatus | grep "$ERROR_MESSAGE"`
-    if [ -n "$error" ]; then
-        echo "Failed: $error" 
-        exit 1;
-    fi
+
+    assertNoError $OPENBIS_LOG
+    assertNoError $JETTY_LOG
     
     fileAgeInSeconds $OPENBIS_LOG
     bisLogAgeInSeconds=$(expr $? - $ageOfNewFile)
