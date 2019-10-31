@@ -18,9 +18,13 @@ import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DAOFactory;
 import org.hibernate.Session;
+import org.hibernate.internal.SessionImpl;
 import org.hibernate.query.NativeQuery;
 
 import java.math.BigInteger;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.*;
 
 
@@ -86,6 +90,11 @@ public class ELNCollectionTypeMigration {
         "UPDATE property_types SET code = 'EXPERIMENTAL_STEP.EXPERIMENTAL_RESULTS' WHERE code = 'EXPERIMENTAL_RESULTS' and (select count(*) from core_plugins where name = 'eln-lims') > 0;",
         "UPDATE property_types SET code = 'EXPERIMENTAL_STEP.EXPERIMENTAL_GOALS' WHERE code = 'EXPERIMENTAL_GOALS' and (select count(*) from core_plugins where name = 'eln-lims') > 0;",
         "UPDATE property_types SET code = 'EXPERIMENTAL_STEP.EXPERIMENTAL_DESCRIPTION' WHERE code = 'EXPERIMENTAL_PROCEDURE' and (select count(*) from core_plugins where name = 'eln-lims') > 0;"
+    };
+
+    private static final String[] WIDGET_POST_UPDATES = new String[]{
+        "UPDATE property_types SET meta_data = '{ \"custom_widget\" : \"Word Processor\" }'::jsonb WHERE id IN (SELECT id FROM property_types WHERE daty_id = (SELECT id FROM data_types WHERE code = 'MULTILINE_VARCHAR'));",
+        "UPDATE property_types SET meta_data = NULL WHERE id IN (SELECT id FROM property_types WHERE daty_id IN (SELECT id FROM data_types WHERE code NOT IN ('MULTILINE_VARCHAR', 'XML')));"
     };
 
     private static Set<ExperimentType> getExperimentTypes(String[] experimentCodes) {
@@ -189,6 +198,18 @@ public class ELNCollectionTypeMigration {
         nativeQuery.executeUpdate();
     }
 
+    private static void executeNativeUpdate(String SQL) {
+        try {
+            DAOFactory daoFactory = (DAOFactory) CommonServiceProvider.getApplicationContext().getBean(ComponentNames.DAO_FACTORY);
+            Session currentSession = daoFactory.getSessionFactory().getCurrentSession();
+            Connection connection = ((SessionImpl) currentSession).connection();
+            PreparedStatement statement = connection.prepareStatement(SQL);
+            statement.execute();
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
     private static Map<BigInteger, BigInteger> getMap(List<Object[]> prty_id_AND_etpt_id) {
         Map<BigInteger, BigInteger> prty_id_2_etpt_id = new HashMap();
         for (Object[] row:prty_id_AND_etpt_id) {
@@ -197,8 +218,8 @@ public class ELNCollectionTypeMigration {
         return prty_id_2_etpt_id;
     }
 
-    public static void migrate() {
-        System.out.println("ELNCollectionTypeMigration START");
+    public static void beforeUpgrade() {
+        System.out.println("ELNCollectionTypeMigration beforeUpgrade START");
         // Obtain property types used by experiments that should be of type COLLECTION
         for (String experimentCode:experimentsOfTypeCollection) {
             Set<ExperimentType> experimentTypes = getExperimentTypes(new String[]{experimentCode});
@@ -261,6 +282,16 @@ public class ELNCollectionTypeMigration {
             executeUpdate(PROPERTY_UPDATE, null, null, null, null);
             System.out.println("PROPERTY_UPDATE DONE");
         }
-        System.out.println("ELNCollectionTypeMigration END");
+        System.out.println("ELNCollectionTypeMigration beforeUpgrade END");
+    }
+
+    public static void afterUpgrade() {
+        System.out.println("ELNCollectionTypeMigration afterUpgrade START");
+        for (String WIDGET_POST_UPDATE:WIDGET_POST_UPDATES) {
+            System.out.println("Going to Execute WIDGET_POST_UPDATES: " + WIDGET_POST_UPDATE);
+            executeNativeUpdate(WIDGET_POST_UPDATE);
+            System.out.println("WIDGET_POST_UPDATE DONE");
+        }
+        System.out.println("ELNCollectionTypeMigration afterUpgrade END");
     }
 }

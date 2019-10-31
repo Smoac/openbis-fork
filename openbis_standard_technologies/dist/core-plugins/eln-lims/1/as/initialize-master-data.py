@@ -23,7 +23,7 @@ import sys
 
 from ch.systemsx.cisd.openbis.generic.server.hotfix import ELNCollectionTypeMigration
 
-ELNCollectionTypeMigration.migrate()
+ELNCollectionTypeMigration.beforeUpgrade()
 
 helper = MasterDataRegistrationHelper(sys.path)
 api = CommonServiceProvider.getApplicationContext().getBean(ApplicationServerApi.INTERNAL_SERVICE_NAME)
@@ -32,6 +32,9 @@ props = CustomASServiceExecutionOptions().withParameter('xls', helper.listXlsByt
     .withParameter('xls_name', 'ELN-LIMS').withParameter('update_mode', 'UPDATE_IF_EXISTS')\
     .withParameter('scripts', helper.getAllScripts())
 result = api.executeCustomASService(sessionToken, CustomASServiceCode("xls-import-api"), props)
+
+ELNCollectionTypeMigration.afterUpgrade()
+
 print("======================== master-data xls ingestion result ========================")
 print(result)
 print("======================== master-data xls ingestion result ========================")
