@@ -34,7 +34,7 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.time.DateUtils;
+import org.apache.commons.lang.time.DateUtils;
 
 import ch.ethz.bsse.cisd.dsu.tracking.email.EntityTrackingEmailGenerator;
 import ch.ethz.bsse.cisd.dsu.tracking.email.IEntityTrackingEmailGenerator;
@@ -278,10 +278,9 @@ public class TrackingClient
     }
     
     private static IApplicationServerApi initV3(Parameters params) {
-        int TIMEOUT = 30000;
         v3 = HttpInvokerUtils
                 .createServiceStub(IApplicationServerApi.class, params.getOpenbisServerURL()
-                        + IApplicationServerApi.SERVICE_URL, TIMEOUT);
+                        + IApplicationServerApi.SERVICE_URL, 10000);
         return v3;
    }
 }
