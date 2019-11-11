@@ -59,7 +59,7 @@ public class TrackingBO
 {
     private static final String HIGH_PRIORITY_DATA_SET_TYPE = "FASTQ_GZ";
 
-    private static final String ORIGINAL_PATH = "/original/";
+	private static final String ORIGINAL_PATH = "/original/";
 
     private static final String PROPERTY_RUN_NAME_FOLDER = "RUN_NAME_FOLDER";
 
@@ -410,9 +410,9 @@ public class TrackingBO
                         if (d.tryGetAsDataSet().getStatus().equals(DataSetArchivingStatus.AVAILABLE)
                                 || d.tryGetAsDataSet().getStatus().equals(DataSetArchivingStatus.LOCKED))
                         {                            
-                            // Here we distinguish between data sets types of low and high priority
+                        	// Here we distinguish between data sets types of low and high priority
                             if (d.getDataSetType().getCode().equals(HIGH_PRIORITY_DATA_SET_TYPE)) {
-                                toTransferDataSetsHighPriority.add(d);                              
+                                toTransferDataSetsHighPriority.add(d);                            	
                             }
                             else {
                                 toTransferDataSets.add(d);
@@ -432,7 +432,7 @@ public class TrackingBO
 
         if (commandLineMap.containsKey(TrackingClient.CL_PARAMETER_COPY_DATA_SETS))
         {
-            // Data Sets with higher priority get transferred first 
+        	// Data Sets with higher priority get transferred first 
             // extraDataSetCopy(params, toTransferDataSetsHighPriority);
             // extraDataSetCopy(params, toTransferDataSets);
             ArrayList<AbstractExternalData> toTransferDataSetsAll = new ArrayList<>(toTransferDataSetsHighPriority.size() + toTransferDataSets.size());
@@ -451,7 +451,7 @@ public class TrackingBO
    
     private static SearchResult<ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample> searchForSamples(String permId, String v3sessionToken, IApplicationServerApi v3)
     {
-        SampleSearchCriteria criterion = new SampleSearchCriteria();
+    	SampleSearchCriteria criterion = new SampleSearchCriteria();
         criterion.withPermId().thatEquals(permId);
         
         SampleFetchOptions fetchOptions = new SampleFetchOptions();       
@@ -462,24 +462,24 @@ public class TrackingBO
 
     
     private static void setLaneProperties(HashMap<String, ArrayList<Long>> changedTrackingMap, IApplicationServerApi v3, String v3sessionToken) {
-        
-        for (String lanePermId : changedTrackingMap.keySet()) {
-             SearchResult<ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample> samples = searchForSamples(lanePermId, v3sessionToken, v3);
-             
-             for (ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample sample : samples.getObjects())
-             {
-                 SampleUpdate sampleToUpdate = new SampleUpdate();
-                 sampleToUpdate.setSampleId(sample.getPermId());
-                 sampleToUpdate.setProperty(PROPERTY_DATA_TRANSFERRED, getCurrentDateTime());
+    	
+		for (String lanePermId : changedTrackingMap.keySet()) {
+			 SearchResult<ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample> samples = searchForSamples(lanePermId, v3sessionToken, v3);
+			 
+			 for (ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample sample : samples.getObjects())
+	         {
+				 SampleUpdate sampleToUpdate = new SampleUpdate();
+				 sampleToUpdate.setSampleId(sample.getPermId());
+				 sampleToUpdate.setProperty(PROPERTY_DATA_TRANSFERRED, getCurrentDateTime());
 
-                 v3.updateSamples(v3sessionToken, Arrays.asList(sampleToUpdate));
-             }          
-        }
-    }
+	             v3.updateSamples(v3sessionToken, Arrays.asList(sampleToUpdate));
+	         }			
+		}
+	}
 
     
     private static String getCurrentDateTime() {
-        
+    	
         return new SimpleDateFormat(DATE_FORMAT_PATTERN).format(Calendar.getInstance().getTime());
     }
 
@@ -575,7 +575,7 @@ public class TrackingBO
         }
     }
 
-    private static void extraDataSetCopy(Parameters params, List<AbstractExternalData> dataSets)
+	private static void extraDataSetCopy(Parameters params, List<AbstractExternalData> dataSets)
     {
         RsyncCopier copier = null;
         File rsyncBinary = new File(params.getRsyncBinary());
