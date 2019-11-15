@@ -316,10 +316,10 @@ openbis.prototype.login = function(userId, userPassword, action) {
 				}else{
 					openbisObj._internal.sessionToken = loginResponse.result;
 					openbisObj.rememberSession();
+                    openbisObj._internal.initDataStores(function(){
+                        action(loginResponse);
+                    });
 				}
-				openbisObj._internal.initDataStores(function(){
-					action(loginResponse);	
-				});
 			}
 	 });
 }
