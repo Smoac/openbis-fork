@@ -24,8 +24,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.commons.lang3.StringUtils;
-
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.action.AbstractDelegatedActionWithResult;
 import ch.systemsx.cisd.common.action.IDelegatedActionWithResult;
@@ -66,8 +64,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
-import ch.systemsx.cisd.openbis.generic.shared.util.IRowBuilder;
-import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -411,31 +407,6 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
     protected boolean shouldNotifySuccessfulRegistration()
     {
         return false;
-    }
-
-    protected TableModel errorTableModel(Map<String, Object> parameters, Throwable e)
-    {
-        SimpleTableModelBuilder builder = new SimpleTableModelBuilder(true);
-        builder.addHeader("Parameters");
-        builder.addHeader("Error");
-        IRowBuilder row = builder.addRow();
-        row.setCell("Parameters", parameters.toString());
-        String message = e.getMessage();
-        row.setCell("Error", StringUtils.isBlank(message) ? e.toString() : message);
-        return builder.getTableModel();
-    }
-
-    protected void logInvocationError(Map<String, Object> parameters, Throwable e)
-    {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Error producing aggregation report\n");
-        sb.append("Class: ");
-        sb.append(getClass().getName());
-        sb.append("\n");
-        sb.append("Parameters: ");
-        sb.append(parameters.keySet());
-
-        operationLog.error(sb.toString(), e);
     }
 
     /**

@@ -18,7 +18,10 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+
+import org.apache.commons.lang3.StringUtils;
 
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
@@ -26,6 +29,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportingPluginType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.util.IRowBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
 
 /**
  * The abstract superclass for plug-ins of type DSS_LINK.
@@ -70,6 +75,31 @@ public abstract class AggregationService extends AbstractDatastorePlugin impleme
     {
         return new IllegalArgumentException("The method createReport is not supported by "
                 + getReportingPluginType() + " tasks");
+    }
+
+    protected void logInvocationError(Map<String, Object> parameters, Throwable e)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Error producing aggregation report\n");
+        sb.append("Class: ");
+        sb.append(getClass().getName());
+        sb.append("\n");
+        sb.append("Parameters: ");
+        sb.append(parameters.keySet());
+
+        operationLog.error(sb.toString(), e);
+    }
+
+    protected TableModel errorTableModel(Map<String, Object> parameters, Throwable e)
+    {
+        SimpleTableModelBuilder builder = new SimpleTableModelBuilder(true);
+        builder.addHeader("Parameters");
+        builder.addHeader("Error");
+        IRowBuilder row = builder.addRow();
+        row.setCell("Parameters", parameters.toString());
+        String message = e.getMessage();
+        row.setCell("Error", StringUtils.isBlank(message) ? e.toString() : message);
+        return builder.getTableModel();
     }
 
 }
