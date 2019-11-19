@@ -42,6 +42,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetc
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
@@ -101,10 +102,11 @@ public class ArchivingAggregationServiceTest extends AbstractFileSystemTestCase
         List<TableModelRow> rows = service.createAggregationReport(parameters, processingContext).getRows();
 
         // Then
-        assertEquals("[[ds1, 10000, ds1, 10000]]\n"
-                + "[[ds2, 10010, ds2, 10010]]\n"
-                + "[[ds3, 10020, ds3, 10020]]\n"
-                + "[[, 30030, , ]]\n", renderRows(rows));
+        assertEquals("[[OK, Operation Successful, "
+                + "{\"ds1\":{\"container\":[\"ds1\"],\"container size\":10000,\"size\":10000},"
+                + "\"ds2\":{\"container\":[\"ds2\"],\"container size\":10010,\"size\":10010},"
+                + "\"ds3\":{\"container\":[\"ds3\"],\"container size\":10020,\"size\":10020},"
+                + "\"total size\":30030}]]\n", renderRows(rows));
         assertEquals("[DS1, DS2, DS3]", actualDataSetsMatcher.recordedObject().toString());
         context.assertIsSatisfied();
     }
@@ -125,11 +127,29 @@ public class ArchivingAggregationServiceTest extends AbstractFileSystemTestCase
         List<TableModelRow> rows = service.createAggregationReport(parameters, processingContext).getRows();
 
         // Then
-        assertEquals("[[ds1, 10000, ds1,ds10,ds9, 30060]]\n"
-                + "[[ds2, 10020, ds2,ds3,ds4, 30090]]\n"
-                + "[[ds3, 10040, ds2,ds3,ds4, 30090]]\n"
-                + "[[, 60150, , ]]\n", renderRows(rows));
+        assertEquals("[[OK, Operation Successful, "
+                + "{\"ds1\":{\"container\":[\"ds1\",\"ds10\",\"ds9\"],\"container size\":30060,\"size\":10000},"
+                + "\"ds2\":{\"container\":[\"ds2\",\"ds3\",\"ds4\"],\"container size\":30090,\"size\":10020},"
+                + "\"ds3\":{\"container\":[\"ds2\",\"ds3\",\"ds4\"],\"container size\":30090,\"size\":10040},"
+                + "\"total size\":60150}]]\n", renderRows(rows));
         assertEquals("[DS1, DS10, DS2, DS3, DS4, DS9]", actualDataSetsMatcher.recordedObject().toString());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testTooLargeToUnarchive()
+    {
+        // Given
+        prepareGetContainer("ds1", new UserFailureException("Too large"));
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put(METHOD_KEY, GET_ARCHIVING_INFO_METHOD);
+        parameters.put(ArchivingAggregationService.ARGS_KEY, String.join(", ", "ds1"));
+
+        // When
+        List<TableModelRow> rows = service.createAggregationReport(parameters, processingContext).getRows();
+
+        // Then
+        assertEquals("[[{args=ds1, method=getArchivingInfo}, Too large]]\n", renderRows(rows));
         context.assertIsSatisfied();
     }
 
@@ -192,6 +212,17 @@ public class ArchivingAggregationServiceTest extends AbstractFileSystemTestCase
                 {
                     allowing(archiver).getDataSetCodesForUnarchiving(Arrays.asList(dataSetCode));
                     will(returnValue(Arrays.asList(dataSetCodes)));
+                }
+            });
+    }
+
+    private void prepareGetContainer(String dataSetCode, UserFailureException exception)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(archiver).getDataSetCodesForUnarchiving(Arrays.asList(dataSetCode));
+                    will(throwException(exception));
                 }
             });
     }

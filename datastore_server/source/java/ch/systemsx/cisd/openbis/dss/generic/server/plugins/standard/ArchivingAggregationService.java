@@ -30,10 +30,14 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.server.sharedapi.v3.json.GenericObjectMapper;
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IArchiverPlugin;
@@ -49,13 +53,10 @@ import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
 public class ArchivingAggregationService extends AggregationService
 {
     static final String METHOD_KEY = "method";
-    static final String ARGS_KEY = "args";
-    static final String GET_ARCHIVING_INFO_METHOD = "getArchivingInfo";
-    private static final String DATA_SET_COLUMN = "DataSet";
-    private static final String SIZE_COLUMN = "Size";
-    private static final String CONTAINER_SIZE_COLUMN = "ContainerSize";
-    private static final String CONTAINER_COLUMN = "Container";
 
+    static final String ARGS_KEY = "args";
+
+    static final String GET_ARCHIVING_INFO_METHOD = "getArchivingInfo";
 
     private static final long serialVersionUID = 1L;
 
@@ -74,17 +75,24 @@ public class ArchivingAggregationService extends AggregationService
         this.v3api = v3api;
         this.archiver = archiver;
     }
-    
+
     @Override
     public TableModel createAggregationReport(Map<String, Object> parameters, DataSetProcessingContext context)
     {
-        Object method = parameters.get(METHOD_KEY);
-        List<String> arguments = getArguments(parameters);
-        if (GET_ARCHIVING_INFO_METHOD.equals(method))
+        try
         {
-            return getArchivingInfo(context.trySessionToken(), arguments);
+            Object method = parameters.get(METHOD_KEY);
+            List<String> arguments = getArguments(parameters);
+            if (GET_ARCHIVING_INFO_METHOD.equals(method))
+            {
+                return getArchivingInfo(context.trySessionToken(), arguments);
+            }
+            throw new UserFailureException("Unknown method '" + method + "'.");
+        } catch (Throwable e)
+        {
+            logInvocationError(parameters, e);
+            return errorTableModel(parameters, e);
         }
-        throw new UserFailureException("Unknown method '" + method + "'.");
     }
 
     private TableModel getArchivingInfo(String sessionToken, List<String> dataSetCodes)
@@ -95,24 +103,34 @@ public class ArchivingAggregationService extends AggregationService
         Map<String, Long> containerSizes = getContainerSizes(containersByDataSetCode, dataSetSizes);
         long totalSize = getTotalSize(allDataSets, dataSetSizes);
 
-        SimpleTableModelBuilder builder = new SimpleTableModelBuilder(true);
-        builder.addHeader(DATA_SET_COLUMN);
-        builder.addHeader(SIZE_COLUMN);
-        builder.addHeader(CONTAINER_COLUMN);
-        builder.addHeader(CONTAINER_SIZE_COLUMN);
-        Set<Entry<String, Set<String>>> entrySet = containersByDataSetCode.entrySet();
-        for (Entry<String, Set<String>> entry : entrySet)
+        Map<String, Object> infos = new TreeMap<>();
+        infos.put("total size", totalSize);
+        for (Entry<String, Set<String>> entry : containersByDataSetCode.entrySet())
         {
-            IRowBuilder row = builder.addRow();
+            Map<String, Object> info = new TreeMap<>();
             String dataSetCode = entry.getKey();
-            row.setCell(DATA_SET_COLUMN, dataSetCode);
-            row.setCell(SIZE_COLUMN, dataSetSizes.get(dataSetCode));
-            row.setCell(CONTAINER_COLUMN, String.join(",", entry.getValue()));
-            row.setCell(CONTAINER_SIZE_COLUMN, containerSizes.get(dataSetCode));
+            info.put("size", dataSetSizes.get(dataSetCode));
+            info.put("container", entry.getValue());
+            info.put("container size", containerSizes.get(dataSetCode));
+            infos.put(dataSetCode, info);
         }
-        IRowBuilder row = builder.addRow();
-        row.setCell(SIZE_COLUMN, totalSize);
 
+        SimpleTableModelBuilder builder = new SimpleTableModelBuilder(true);
+        builder.addHeader("STATUS");
+        builder.addHeader("MESSAGE");
+        builder.addHeader("RESULT");
+        IRowBuilder row = builder.addRow();
+        row.setCell("STATUS","OK");
+        row.setCell("MESSAGE", "Operation Successful");
+        GenericObjectMapper objectMapper = new GenericObjectMapper();
+        try
+        {
+            String jsonValue = objectMapper.writeValueAsString(infos);
+            row.setCell("RESULT", jsonValue);
+        } catch (JsonProcessingException e)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(e);
+        }
         return builder.getTableModel();
     }
 
