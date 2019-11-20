@@ -77,7 +77,7 @@ define([ "require", "stjs", "as/dto/common/search/AbstractEntitySearchCriteria",
 	});
 
 	var SampleSearchCriteria = function() {
-		AbstractSampleSearchCriteria.call(this, SampleSearchRelation.PARENTS);
+		AbstractSampleSearchCriteria.call(this, SampleSearchRelation.SAMPLE);
 	};
 	stjs.extend(SampleSearchCriteria, AbstractSampleSearchCriteria, [ AbstractSampleSearchCriteria ], function(constructor, prototype) {
 		prototype['@type'] = 'as.dto.sample.search.SampleSearchCriteria';
