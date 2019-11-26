@@ -21,23 +21,34 @@ function ProjectFormController(mainController, mode, project) {
 	
 	this.init = function(views) {
 		var _this = this;
-		
-		require([ "as/dto/project/id/ProjectPermId", "as/dto/project/fetchoptions/ProjectFetchOptions" ],
-				function(ProjectPermId, ProjectFetchOptions) {
+		if (project.permId) {
+			require([ "as/dto/project/id/ProjectPermId", "as/dto/project/fetchoptions/ProjectFetchOptions", 
+				"as/dto/experiment/id/ExperimentIdentifier", "as/dto/rights/fetchoptions/RightsFetchOptions" ],
+				function(ProjectPermId, ProjectFetchOptions, ExperimentIdentifier, RightsFetchOptions) {
 				var id = new ProjectPermId(project.permId);
 				var fetchOptions = new ProjectFetchOptions();
 				fetchOptions.withSpace();
 				mainController.openbisV3.getProjects([ id ], fetchOptions).done(function(map) {
-	                _this._projectFormModel.v3_project = map[id];
-	                _this._mainController.getUserRole({
-	        			space: _this._projectFormModel.project.spaceCode,
-	        			project: _this._projectFormModel.project.code,
-	        		}, function(roles){
-	        			_this._projectFormModel.roles = roles;
-	        			_this._projectFormView.repaint(views);
-	        		});
-	            });		
-		});
+					_this._projectFormModel.v3_project = map[id];
+					var spaceCode = _this._projectFormModel.project.spaceCode;
+					var projectCode = _this._projectFormModel.project.code;
+					_this._mainController.getUserRole({
+						space: spaceCode,
+						project: projectCode,
+					}, function(roles){
+						_this._projectFormModel.roles = roles;
+						var dummyId = new ExperimentIdentifier("/" + spaceCode + "/" + projectCode + "/DUMMY");
+						mainController.openbisV3.getRights([id, dummyId], new RightsFetchOptions()).done(function(rightsByIds) {
+							_this._projectFormModel.rights = rightsByIds[id];
+							_this._projectFormModel.experimentRights = rightsByIds[dummyId];
+							_this._projectFormView.repaint(views);
+						});
+					});
+				});
+			});
+		} else {
+			_this._projectFormView.repaint(views);
+		}
 	}
 	
 	this.deleteProject = function(reason) {

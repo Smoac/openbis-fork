@@ -592,6 +592,34 @@ var Util = new function() {
 		return displayName;
 	}
 	
+	this.getDisplayNameForEntity2 = function(entity) {
+		var text = null;
+		if(entity["@type"] === "as.dto.dataset.DataSet") {
+			text = entity.permId.permId;
+			if(profile.propertyReplacingCode && entity.properties && entity.properties[profile.propertyReplacingCode]) {
+				text += " (" + entity.properties[profile.propertyReplacingCode] + ")";
+			}
+			if(entity.sample) {
+				text += " " + ELNDictionary.Sample + " [" + Util.getDisplayNameForEntity2(entity.sample) + "]";
+			}
+			
+			if(entity.experiment) {
+				text += " " + ELNDictionary.getExperimentDualName() + " [" + Util.getDisplayNameForEntity2(entity.experiment) + "]";
+			}
+		} else {
+			if(entity.identifier && entity.identifier.identifier) {
+				text = entity.identifier.identifier;
+			}
+			if(!entity.identifier && entity.code) {
+				text = Util.getDisplayNameFromCode(entity.code);
+			}
+			if(profile.propertyReplacingCode && entity.properties && entity.properties[profile.propertyReplacingCode]) {
+				text += " (" + entity.properties[profile.propertyReplacingCode] + ")";
+			}
+		}
+		return text;
+	}
+	
 	this.getDisplayNameFromCode = function(openBISCode) {
 		var normalizedCodeParts = openBISCode.toLowerCase().split('_');
 		var displayName = "";

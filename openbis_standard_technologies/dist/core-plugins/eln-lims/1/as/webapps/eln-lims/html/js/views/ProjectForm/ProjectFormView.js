@@ -174,12 +174,13 @@ function ProjectFormView(projectFormController, projectFormModel) {
 					Util.unblockUI();
 				});
 			};
-
-			//Operations
-			var $operationsMenu = FormUtil.getOperationsMenu([{ label: "Create " + experimentKindName, event: function() {
-				showSelectExperimentType();
-			}}]);
-			toolbarModel.push({ component : $operationsMenu, tooltip: "Extra operations" });
+			if (_this._allowedToCreateExperiments()) {
+				//Operations
+				var $operationsMenu = FormUtil.getOperationsMenu([{ label: "Create " + experimentKindName, event: function() {
+					showSelectExperimentType();
+				}}]);
+				toolbarModel.push({ component : $operationsMenu, tooltip: "Extra operations" });
+			}
 		} else {
 			var $saveBtn = FormUtil.getButtonWithIcon("glyphicon-floppy-disk", function() {
 				_this._projectFormController.updateProject();
@@ -192,7 +193,46 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		var $header = views.header;
 		$header.append($formTitle);
 		$header.append(FormUtil.getToolbar(toolbarModel));
-		
+
+		//
+		// Identification info
+		//
+		$formColumn.append($("<legend>").append("Identification Info"));
+
+		$formColumn.append(FormUtil.getFieldForLabelWithText("Space", this._projectFormModel.project.spaceCode));
+
+		if(this._projectFormModel.mode === FormMode.CREATE) {
+			var $textField = FormUtil._getInputField('text', null, "Project Code", null, true);
+			$textField.keyup(function(event){
+				var textField = $(this);
+				var caretPosition = this.selectionStart;
+				textField.val(textField.val().toUpperCase());
+				this.selectionStart = caretPosition;
+				this.selectionEnd = caretPosition;
+				_this._projectFormModel.project.code = textField.val();
+				_this._projectFormModel.isFormDirty = true;
+			});
+			$formColumn.append(FormUtil.getFieldForComponentWithLabel($textField, "Code"));
+		} else {
+			$formColumn.append(FormUtil.getFieldForLabelWithText("Code", this._projectFormModel.project.code));
+		}
+
+		if(this._projectFormModel.mode !== FormMode.CREATE) {
+			var registrationDetails = this._projectFormModel.project.registrationDetails;
+
+			var $registrator = FormUtil.getFieldForLabelWithText("Registrator", registrationDetails.userId);
+			$formColumn.append($registrator);
+
+			var $registationDate = FormUtil.getFieldForLabelWithText("Registration Date", Util.getFormatedDate(new Date(registrationDetails.registrationDate)));
+			$formColumn.append($registationDate);
+
+			var $modifier = FormUtil.getFieldForLabelWithText("Modifier", registrationDetails.modifierUserId);
+			$formColumn.append($modifier);
+
+			var $modificationDate = FormUtil.getFieldForLabelWithText("Modification Date", Util.getFormatedDate(new Date(registrationDetails.modificationDate)));
+			$formColumn.append($modificationDate);
+		}
+
 		//
 		// Metadata Fields
 		//
@@ -240,57 +280,18 @@ function ProjectFormView(projectFormController, projectFormModel) {
 			var sampleTableController = new SampleTableController(this._projectFormController, null, null, this._projectFormModel.project.permId, true);
 			sampleTableController.init(views);
 		}
-		
-		//
-		// Identification info
-		//
-		$formColumn.append($("<legend>").append("Identification Info"));
-		
-		$formColumn.append(FormUtil.getFieldForLabelWithText("Space", this._projectFormModel.project.spaceCode));
-		
-		if(this._projectFormModel.mode === FormMode.CREATE) {
-			var $textField = FormUtil._getInputField('text', null, "Project Code", null, true);
-			$textField.keyup(function(event){
-				var textField = $(this);
-				var caretPosition = this.selectionStart;
-				textField.val(textField.val().toUpperCase());
-				this.selectionStart = caretPosition;
-				this.selectionEnd = caretPosition;
-				_this._projectFormModel.project.code = textField.val();
-				_this._projectFormModel.isFormDirty = true;
-			});
-			$formColumn.append(FormUtil.getFieldForComponentWithLabel($textField, "Code"));
-		} else {
-			$formColumn.append(FormUtil.getFieldForLabelWithText("Code", this._projectFormModel.project.code));
-		}
-		
-		if(this._projectFormModel.mode !== FormMode.CREATE) {
-			var registrationDetails = this._projectFormModel.project.registrationDetails;
-			
-			var $registrator = FormUtil.getFieldForLabelWithText("Registrator", registrationDetails.userId);
-			$formColumn.append($registrator);
-			
-			var $registationDate = FormUtil.getFieldForLabelWithText("Registration Date", Util.getFormatedDate(new Date(registrationDetails.registrationDate)));
-			$formColumn.append($registationDate);
-			
-			var $modifier = FormUtil.getFieldForLabelWithText("Modifier", registrationDetails.modifierUserId);
-			$formColumn.append($modifier);
-			
-			var $modificationDate = FormUtil.getFieldForLabelWithText("Modification Date", Util.getFormatedDate(new Date(registrationDetails.modificationDate)));
-			$formColumn.append($modificationDate);
-		}
-		
+
 		$container.append($form);
 	};
 	
 	this._allowedToCreateExperiments = function() {
 		var project = this._projectFormModel.v3_project;
-		return project.frozenForExperiments == false;
+		return project.frozenForExperiments == false && this._projectFormModel.experimentRights.rights.indexOf("CREATE") >= 0;
 	};
 	
 	this._allowedToEdit = function() {
 		var project = this._projectFormModel.v3_project;
-		return project.frozen == false;
+		return project.frozen == false && this._projectFormModel.rights.rights.indexOf("UPDATE") >= 0;
 	};
 
 	this._allowedToMove = function() {

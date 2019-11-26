@@ -22,7 +22,7 @@ function CreateUserView(createUserController, createUserModel) {
 	this._passwordGroup = null;
 	this._passFieldRepeat = null;
 	this._passwordGroupRepeat = null;
-	this._$btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' });
+	this._$btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'id' : 'createUserBtn', 'value' : 'Accept' });
 	
 	this.disableAccept = function() {
 		this._$btnAccept.attr("disabled", "");
@@ -63,7 +63,7 @@ function CreateUserView(createUserController, createUserModel) {
 		//
 		// User ID
 		//
-		var $userIdField = FormUtil._getInputField('text', null, 'User ID', null, true);
+		var $userIdField = FormUtil._getInputField('text', 'userId', 'User ID', null, true);
 		$userIdField.change(function(event) {
 			_this._createUserModel.userId = $(this).val();
 		});
@@ -73,7 +73,7 @@ function CreateUserView(createUserController, createUserModel) {
 		//
 		// Password
 		//
-		var $passField = FormUtil._getInputField('password', null, 'Password', null, true);
+		var $passField = FormUtil._getInputField('password', 'passwordId', 'Password', null, true);
 		$passField.change(function(event) {
 			_this._createUserModel.password = $(this).val();
 		});
@@ -87,7 +87,7 @@ function CreateUserView(createUserController, createUserModel) {
 		//
 		// Password Repeat
 		//
-		var $passFieldRepeat = FormUtil._getInputField('password', null, 'Repeat the same password', null, true);
+		var $passFieldRepeat = FormUtil._getInputField('password', 'passwordRepeatId', 'Repeat the same password', null, true);
 		$passFieldRepeat.change(function(event) {
 			_this._createUserModel.passwordRepeat = $(this).val();
 		});
@@ -101,7 +101,7 @@ function CreateUserView(createUserController, createUserModel) {
 		//
 		// Buttons
 		//
-		var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
+		var $btnCancel = $('<a>', { 'class' : 'btn btn-default', 'id' : 'cancelBtn' }).append('Cancel');
 		$btnCancel.click(function() {
 			Util.unblockUI();
 		});

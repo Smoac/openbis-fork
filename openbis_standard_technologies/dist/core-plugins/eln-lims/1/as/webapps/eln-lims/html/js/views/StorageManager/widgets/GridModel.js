@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-function GridModel(isSelectMultiple, isDragable) {
+function GridModel(isSelectMultiple, isDragable, gridId) {
 	this.isDisabled = false;
 	this.isSelectMultiple = false;
 	if(isSelectMultiple) {
@@ -31,6 +31,10 @@ function GridModel(isSelectMultiple, isDragable) {
 	this.labelsFilter = null;
 	this.dataFilter = null;
 	this.useLettersOnRows = false;
+	this.gridId = null;
+	if(gridId) {
+        this.gridId = gridId;
+    }
 	
 	this.reset = function(numRows, numColumns, labels) {
 		this.numRows = numRows;

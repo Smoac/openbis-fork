@@ -23,14 +23,14 @@ function StorageView(storageController, storageModel, gridViewRack, gridViewPosi
 	this._defaultStoragesDropDown = null;
 	this._userIdDropdown = $('<select>', { 'id' : 'userIdSelector' , class : 'multiselect' , 'multiple' : 'multiple'});
 	this._gridContainer = $("<div>");
-	this._boxField = FormUtil._getInputField("text", "", "Box Name", null, false);
-	this._boxSizeDropDown = FormUtil.getDefaultStorageBoxSizesDropDown("", false);
+	this._boxField = FormUtil._getInputField("text", "box-name-id", "Box Name", null, false);
+	this._boxSizeDropDown = FormUtil.getDefaultStorageBoxSizesDropDown("box-size-drop-down-id", false);
 	this._positionContainer = $("<div>");
 	
 	this.repaint = function($container, callbackFunction) {
 		var _this = this;
 		
-		FormUtil.getDefaultStoragesDropDown("", false, function($storagesDropdownComponent) {
+		FormUtil.getDefaultStoragesDropDown(_this._storageModel.config.storageId, false, function($storagesDropdownComponent) {
 			_this._defaultStoragesDropDown = $storagesDropdownComponent;
 			
 			//

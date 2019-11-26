@@ -16,6 +16,8 @@ $.extend(LifeSciencesTechnology.prototype, ELNLIMSPlugin.prototype, {
 				"CHEMICAL" : {
 					"SHOW" : false,
 					"ENABLE_STORAGE" : true,
+					"SHOW_ON_NAV": true,
+				    "SHOW_ON_NAV_FOR_PARENT_TYPES": ["EXPERIMENTAL_STEP"]
 				},
 				"ENZYME" : {
 					"SHOW" : false,
@@ -232,3 +234,5 @@ $.extend(LifeSciencesTechnology.prototype, ELNLIMSPlugin.prototype, {
 		
 	}
 });
+
+profile.plugins.push( new LifeSciencesTechnology());

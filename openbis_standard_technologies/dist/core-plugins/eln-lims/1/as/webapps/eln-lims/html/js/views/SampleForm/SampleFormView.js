@@ -104,7 +104,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		}
 		
 		$formTitle
-			.append($("<h2>").append(title))
+			.append($("<h2 id='sampleFormTitle'>").append(title))
 			.append($("<h4>", { "style" : "font-weight:normal;" } ).append(entityPath));
 		
 		//
@@ -155,7 +155,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 						}
 						
 						mainController.changeView('showEditSamplePageFromPermId', args);
-					});
+					}, null, null, "edit-btn");
 					if(toolbarConfig.EDIT) {
 						toolbarModel.push({ component : $editButton, tooltip: "Edit" });
 					}
@@ -233,9 +233,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					toolbarModel.push({ component : $copyButton, tooltip: "Copy" });
 				}
 			}
-				
-				
-			
+
 			//Print
 			var $printButton = $("<a>", { 'class' : 'btn btn-default'} ).append($('<span>', { 'class' : 'glyphicon glyphicon-print' }));
 			$printButton.click(function() {
@@ -244,7 +242,29 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			if(toolbarConfig.PRINT) {
 				toolbarModel.push({ component : $printButton, tooltip: "Print" });
 			}
-			
+
+			//Barcode
+			if(profile.mainMenu.showBarcodes) {
+                var $barcodeButton = $("<a>", { 'class' : 'btn btn-default'} ).append($('<span>', { 'class' : 'glyphicon glyphicon-barcode' }));
+                $barcodeButton.click(function() {
+                    BarcodeUtil.showBarcode(_this._sampleFormModel.sample);
+                });
+                if(toolbarConfig.BARCODE) {
+                    toolbarModel.push({ component : $barcodeButton, tooltip: "Barcode" });
+                }
+
+                if(profile.isPropertyPressent(sampleType, "$BARCODE")) {
+                    var $barcodeReadButton = $("<a>", { 'class' : 'btn btn-default'} ).append($('<span>', { 'class' : 'glyphicon glyphicon-barcode' }));
+                    $barcodeReadButton.append(" R");
+                    $barcodeReadButton.click(function() {
+                        BarcodeUtil.readBarcode(_this._sampleFormModel.sample);
+                    });
+                    if(toolbarConfig.BARCODE) {
+                        toolbarModel.push({ component : $barcodeReadButton, tooltip: "Update Barcode" });
+                    }
+                }
+            }
+
 			//Hierarchy Graph
 			var $hierarchyGraph = FormUtil.getButtonWithImage("./img/hierarchy-icon.png", function () {
 				mainController.changeView('showSampleHierarchyPage', _this._sampleFormModel.sample.permId);
@@ -317,7 +337,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		} else { //Create and Edit
 			var $saveBtn = FormUtil.getButtonWithIcon("glyphicon-floppy-disk", function() {
 				_this._sampleFormController.createUpdateCopySample();
-			}, "Save");
+			}, "Save", null, "save-btn");
 			$saveBtn.removeClass("btn-default");
 			$saveBtn.addClass("btn-primary");
 			toolbarModel.push({ component : $saveBtn, tooltip: "Save" });
@@ -422,6 +442,10 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		var $header = views.header;
 		
 		$header.append($formTitle);
+		var sampleTypeDefinitionsExtension = profile.sampleTypeDefinitionsExtension[_this._sampleFormModel.sample.sampleTypeCode];
+		if(sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension.extraToolbar) {
+		    toolbarModel = toolbarModel.concat(sampleTypeDefinitionsExtension.extraToolbar(_this._sampleFormModel.mode, _this._sampleFormModel.sample));
+		}
 		$header.append(FormUtil.getToolbar(toolbarModel));
 		
 		//
@@ -786,7 +810,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					            if(propertyType.dataType === "MULTILINE_VARCHAR") {
 					                $component = FormUtil.activateRichTextProperties($component, changeEvent(propertyType), propertyType);
 					            } else {
-					                alert("Word Processor only works with MULTILINE_VARCHAR data type.");
+					                alert("Word Processor only works with MULTILINE_VARCHAR data type, " + propertyType.code + " is " + propertyType.dataType + ".");
 					            }
 					            break;
 					        case 'Spreadsheet':
@@ -795,7 +819,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
                                     JExcelEditorManager.createField($jexcelContainer, this._sampleFormModel.mode, propertyType.code, this._sampleFormModel.sample);
                                     $component = $jexcelContainer;
 					            } else {
-					                alert("Spreadsheet only works with XML data type.");
+					                alert("Spreadsheet only works with XML data type, " + propertyType.code + " is " + propertyType.dataType + ".");
 					            }
 					            break;
 					    }
@@ -847,7 +871,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		var $codeField = null;
 		if(this._sampleFormModel.mode === FormMode.CREATE) {
-			var $textField = FormUtil._getInputField('text', null, "Code", null, true);
+			var $textField = FormUtil._getInputField('text', 'codeId', "Code", null, true);
 			$textField.keyup(function(event){
 				var textField = $(this);
 				var caretPosition = this.selectionStart;
@@ -1244,12 +1268,14 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 	
 	this._allowedToCreateChild = function() {
 		var sample = this._sampleFormModel.v3_sample;
-		return sample.frozenForChildren == false && (!sample.experiment || sample.experiment.frozenForSamples == false);
+		return sample.frozenForChildren == false && (!sample.experiment || sample.experiment.frozenForSamples == false)
+				&& this._sampleFormModel.sampleRights.rights.indexOf("CREATE") >= 0;
 	}
 	
 	this._allowedToEdit = function() {
 		var sample = this._sampleFormModel.v3_sample;
-		return sample.frozen == false;
+		var updateAllowed = this._sampleFormModel.rights.rights.indexOf("UPDATE") >= 0;
+		return updateAllowed && sample.frozen == false;
 	}
 	
 	this._allowedToMove = function() {
@@ -1269,6 +1295,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 	
 	this._allowedToRegisterDataSet = function() {
 		var sample = this._sampleFormModel.v3_sample;
-		return sample.frozenForDataSets == false && (!sample.experiment || sample.experiment.frozenForDataSets == false);
+		return sample.frozenForDataSets == false && (!sample.experiment || sample.experiment.frozenForDataSets == false)
+				&& this._sampleFormModel.sampleRights.rights.indexOf("CREATE") >= 0;
 	}
 }

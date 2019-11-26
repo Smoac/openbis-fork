@@ -9,7 +9,8 @@ from processors import OpenbisDuplicatesHandler, PropertiesLabelHandler, Duplica
     unify_properties_representation_of, validate_creations
 from search_engines import SearchEngine
 from utils import FileHandler
-from utils.openbis_utils import get_version_name_for, get_metadata_name_for
+from utils.openbis_utils import get_version_name_for, get_metadata_name_for, get_metadata_name_for_existing_element
+from parsers.definition_to_creation.creation_types import CreationTypes, VocabularyTermDefinitionToCreationType
 
 
 def validate_data(xls_byte_arrays, csv_strings, update_mode, xls_name):
@@ -47,7 +48,7 @@ def save_versioning_information(versioning_information, xls_version_filepath):
 def create_versioning_information(all_versioning_information, creations, creations_metadata, update_mode,
                                   xls_version_name):
     if xls_version_name in all_versioning_information:
-        versioning_information = all_versioning_information[xls_version_name]
+        versioning_information = all_versioning_information[xls_version_name].copy()
         for creation_type, creation_collection in creations.items():
             if creation_type in versionable_types:
                 for creation in creation_collection:
@@ -67,6 +68,30 @@ def create_versioning_information(all_versioning_information, creations, creatio
                     versioning_information[code] = creations_metadata.get_metadata_for(creation_type,
                                                                                        creation).version if update_mode != "UPDATE_IF_EXISTS" else 0
     return versioning_information
+
+
+def checkDataConsistency(existing_elements, all_versioning_information, xls_version_name, creations):
+    #check that data from json exist in DB
+
+    if xls_version_name not in all_versioning_information:
+        return
+
+    versioning_information = all_versioning_information[xls_version_name]
+
+    existing_elements_dict = set()
+
+    for existing_type, elements in existing_elements.items():
+        for element in elements:
+            existing_elements_dict.add(get_metadata_name_for_existing_element(existing_type, element))
+
+    for creation_type, creation_collection in creations.items():
+        if creation_type in versionable_types:
+            for creation in creation_collection:
+                code = get_metadata_name_for(creation_type, creation)
+
+                if code in versioning_information and code not in existing_elements_dict:
+                    raise Exception("xls-import-version-info.json contains creation = '" + code + "' with creation_type = '" + \
+                                    creation_type + "' that is not in the database. Please edit the file or delete it.")
 
 
 def process(context, parameters):
@@ -109,6 +134,7 @@ def process(context, parameters):
     versioning_information = create_versioning_information(all_versioning_information, creations, creations_metadata,
                                                            update_mode, xls_version_name)
     existing_elements = search_engine.find_all_existing_elements(creations)
+    checkDataConsistency(existing_elements, all_versioning_information, xls_version_name, creations)
     entity_kinds = search_engine.find_existing_entity_kind_definitions_for(creations)
     existing_vocabularies = search_engine.find_all_existing_vocabularies()
     existing_unified_kinds = unify_properties_representation_of(creations, entity_kinds, existing_vocabularies,

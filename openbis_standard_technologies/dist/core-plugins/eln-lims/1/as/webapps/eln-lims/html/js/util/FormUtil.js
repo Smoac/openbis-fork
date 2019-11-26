@@ -516,7 +516,7 @@ var FormUtil = new function() {
 		return $("<i>", { 'class' : 'fa ' + iconClass });
 	}
 	
-	this.getButtonWithIcon = function(iconClass, clickEvent, text, tooltip) {
+	this.getButtonWithIcon = function(iconClass, clickEvent, text, tooltip, id) {
 		var $btn = $("<a>", { 'class' : 'btn btn-default' }).append($("<span>", { 'class' : 'glyphicon ' + iconClass }));
 		if(text) {
 			$btn.append("&nbsp;").append(text);
@@ -525,6 +525,9 @@ var FormUtil = new function() {
 			$btn.attr("title", tooltip);
 			$btn.tooltipster();
 		}
+		if(id) {
+            $btn.attr("id", id);
+        }
 		$btn.click(clickEvent);
 		return $btn;
 	}
@@ -565,7 +568,7 @@ var FormUtil = new function() {
 				mainController.serverFacade.setSetting(key,"false");
 			}
 			
-		}, null, "Show/Hide section");
+		}, null, "Show/Hide section", key);
 		
 		if (dontRestoreState) {
 			$elementToHide.hide();
@@ -693,7 +696,7 @@ var FormUtil = new function() {
 		$component.html(hyperlink ? this.asHyperlink(text) : text);
 		
 		if(id) {
-			$component.attr('id', id);
+			$component.attr('id', this.prepareId(id));
 		}
 		$controls.append($component);
 		
@@ -816,7 +819,7 @@ var FormUtil = new function() {
 	}
 	
 	this._getInputField = function(type, id, alt, step, isRequired) {
-		var $component = $('<input>', {'type' : type, 'id' : id, 'alt' : alt, 'placeholder' : alt, 'class' : 'form-control'});
+		var $component = $('<input>', {'type' : type, 'id' : this.prepareId(id), 'alt' : alt, 'placeholder' : alt, 'class' : 'form-control'});
 		if (isRequired) {
 			$component.attr('required', '');
 		}
@@ -958,7 +961,7 @@ var FormUtil = new function() {
 		return $dropDownMenu;
 	}
 	
-	this.getFormLink = function(displayName, entityKind, permIdOrIdentifier, paginationInfo) {
+	this.getFormLink = function(displayName, entityKind, permIdOrIdentifier, paginationInfo, id) {
 		var view = null;
 		switch(entityKind) {
 			case "Space":
@@ -996,7 +999,7 @@ var FormUtil = new function() {
 			mainController.changeView(view, arg, true);
 		}
 		displayName = String(displayName).replace(/<(?:.|\n)*?>/gm, ''); //Clean any HTML tags
-		var link = $("<a>", { "href" : href, "class" : "browser-compatible-javascript-link" }).text(displayName);
+		var link = $("<a>", { "href" : href, "class" : "browser-compatible-javascript-link", "id" : id }).text(displayName);
 		link.click(click);
 		return link;
 	}
@@ -1229,6 +1232,13 @@ var FormUtil = new function() {
 				.css("margin-right", "3px"))
 			.append($("<span>").text(infoText));
 	}
+
+	this.getWarningText = function(infoText) {
+    		return $("<p>")
+    			.append($("<div>", { class : "glyphicon glyphicon-warning-sign" })
+    				.css("margin-right", "3px"))
+    			.append($("<span>").text(infoText));
+    }
 
     //
     // DSS disk space usage dialog
@@ -1757,5 +1767,13 @@ var FormUtil = new function() {
 	
 	this.showFreezingError = function(error) {
 		Util.showError(error.message);
+	}
+
+	this.prepareId = function(id) {
+		if (id) {
+			id = id[0] === '$' ? id.substring(1) : id;
+			id = id.split(".").join("");
+		}
+		return id;
 	}
 }

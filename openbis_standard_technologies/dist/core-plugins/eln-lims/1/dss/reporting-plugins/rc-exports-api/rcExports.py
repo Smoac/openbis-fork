@@ -17,6 +17,7 @@ import json
 import os
 import traceback
 import xml.etree.ElementTree as ET
+from urlparse import urlsplit
 
 import datetime
 import time
@@ -35,8 +36,8 @@ from org.eclipse.jetty.client.util import BasicAuthentication
 from org.eclipse.jetty.http import HttpMethod
 from org.eclipse.jetty.util.ssl import SslContextFactory
 
-from exportsApi import displayResult, findEntitiesToExport, validateDataSize, getConfigurationProperty, generateFilesInZip, addToZipFile, cleanUp, \
-    generateZipFile, checkResponseStatus
+from exportsApi import displayResult, findEntitiesToExport, validateDataSize, getConfigurationProperty, addToZipFile, generateZipFile, \
+    checkResponseStatus, cleanUp
 
 operationLog = Logger.getLogger(str(LogCategory.OPERATION) + '.rcExports.py')
 
@@ -50,25 +51,11 @@ def process(tr, params, tableBuilder):
     if method == 'exportAll':
         resultUrl = expandAndExport(tr, params)
         displayResult(resultUrl is not None, tableBuilder, '{"url": "' + resultUrl + '"}' if resultUrl is not None else None)
-    elif method == 'getSubmissionTypes':
-        collectionUrls = getSubmissionTypes(tr)
-        displayResult(collectionUrls is not None, tableBuilder, collectionUrls)
 
 
-def getSubmissionTypes(tr):
-    url = getConfigurationProperty(tr, 'service-document-url')
-
-    httpClient = None
-    try:
-        httpClient = authenticateUserJava(url, tr)
-        httpClient.setFollowRedirects(True)
-        httpClient.start()
-
-        collections = fetchServiceDocument(url, httpClient)
-    finally:
-        if httpClient is not None:
-            httpClient.stop()
-    return collections
+def getBaseUrl(url):
+    splitUrl = urlsplit(url)
+    return splitUrl.scheme + '://' + splitUrl.netloc
 
 
 def expandAndExport(tr, params):
@@ -118,7 +105,8 @@ def export(entities, tr, params, userInformation):
 
 
 def sendToDSpace(params, tr, tempZipFileName, tempZipFilePath):
-    depositUrl = str(params.get('submissionUrl'))
+    serviceDocumentUrl = getConfigurationProperty(tr, 'service-document-url')
+    depositUrl = getBaseUrl(serviceDocumentUrl) + str(params.get('submissionUrl'))
 
     headers = {
         'In-Progress': 'true',
@@ -193,9 +181,6 @@ def fetchServiceDocument(url, httpClient):
 def generateExternalZipFile(params, exportDirPath, contentZipFilePath, contentZipFileName, exportZipFileName, userInformation, entities):
     # Generates ZIP file which will go to the research collection server
 
-    originUrl=params.get('originUrl')
-    submissionType = str(params.get('submissionType'))
-
     fileMetadata = [
         {
             'fileName': contentZipFileName,
@@ -211,8 +196,8 @@ def generateExternalZipFile(params, exportDirPath, contentZipFilePath, contentZi
 
         addToZipFile(' ' + contentZipFileName, File(contentZipFilePath), zos)
 
-        generateXML(zipOutputStream=zos, fileMetadata=fileMetadata, exportDirPath=exportDirPath, submissionType=submissionType,
-                    userInformation=userInformation, entities=entities, originUrl=originUrl)
+        generateXML(zipOutputStream=zos, fileMetadata=fileMetadata, exportDirPath=exportDirPath,
+                    userInformation=userInformation, entities=entities, params=params)
     except Exception as e:
         operationLog.error('Exception at: ' + traceback.format_exc())
         operationLog.error('Exception: ' + str(e))
@@ -224,7 +209,10 @@ def generateExternalZipFile(params, exportDirPath, contentZipFilePath, contentZi
             fos.close()
 
 
-def generateXML(zipOutputStream, fileMetadata, exportDirPath, submissionType, userInformation, entities, originUrl):
+def generateXML(zipOutputStream, fileMetadata, exportDirPath, userInformation, entities, params):
+    originUrl=params.get('originUrl')
+    submissionType = str(params.get('submissionType'))
+
     ns = {
         'mets': 'http://www.loc.gov/METS/',
         'xlink': 'http://www.w3.org/1999/xlink',
@@ -296,6 +284,12 @@ def generateXML(zipOutputStream, fileMetadata, exportDirPath, submissionType, us
     publicationDateField.set('qualifier', 'issued')
     publicationDateField.text = datetime.date.today().strftime('%Y-%m-%d')
 
+    openBisApiUrlField = ET.SubElement(dim, ET.QName(dimNS, 'field'))
+    openBisApiUrlField.set('mdschema', 'ethz')
+    openBisApiUrlField.set('element', 'identifier')
+    openBisApiUrlField.set('qualifier', 'openBisApiUrl')
+    openBisApiUrlField.text = originUrl + '/openbis-test/'
+
     elnLimsURLPattern = '/openbis-test/webapp/eln-lims/?menuUniqueId=null&viewName='
 
     for entity in entities:
@@ -337,7 +331,7 @@ def generateXML(zipOutputStream, fileMetadata, exportDirPath, submissionType, us
         fLocat = ET.SubElement(file, ET.QName(metsNS, 'FLocat'))
         fLocat.set('LOCTYPE', 'URL')
         fLocat.set('MIMETYPE', fileMetadatum.get('mimeType'))
-        fLocat.set('RETENTIONPERIOD', '10 years')
+        fLocat.set('RETENTIONPERIOD', params.get('retentionPeriod'))
         fLocat.set(ET.QName(xlinkNS, 'href'), fileMetadatum.get('fileName'))
 
     structMap = ET.SubElement(root, ET.QName(metsNS, 'structMap'))

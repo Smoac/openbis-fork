@@ -18,7 +18,7 @@ from ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id import ProjectIdentifie
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id import ExperimentIdentifier
 from java.lang import UnsupportedOperationException
 from ch.systemsx.cisd.common.exceptions import UserFailureException
-from utils.openbis_utils import is_internal_namespace, get_script_name_for
+from utils.openbis_utils import is_internal_namespace, get_script_name_for, upper_case_code
 from .creation_types import PropertyTypeDefinitionToCreationType, VocabularyDefinitionToCreationType, \
     VocabularyTermDefinitionToCreationType, \
     PropertyAssignmentDefinitionToCreationType, SampleTypeDefinitionToCreationType, \
@@ -73,13 +73,12 @@ class PropertyTypeDefinitionToCreationParser(object):
 
         for prop in definition.properties:
             property_type_creation = PropertyTypeCreation()
-            code = prop.get(u'code')
-            code = code.upper() if code is not None else None
+            code = upper_case_code(prop.get(u'code'))
             property_type_creation.code = code
             property_type_creation.label = prop.get(u'property label')
             property_type_creation.description = prop.get(u'description')
             property_type_creation.dataType = DataType.valueOf(prop.get(u'data type'))
-            property_type_creation.internalNameSpace = is_internal_namespace(prop.get(u'code'))
+            property_type_creation.internalNameSpace = is_internal_namespace(upper_case_code(prop.get(u'code')))
             property_type_creation.vocabularyId = VocabularyPermId(prop.get(u'vocabulary code')) if prop.get(
                 u'vocabulary code') is not None else None
             metadata = json.loads(prop.get(u'metadata')) if prop.get(u'metadata') is not None else None
@@ -95,8 +94,7 @@ class PropertyTypeDefinitionToCreationParser(object):
 class VocabularyDefinitionToCreationParser(object):
 
     def parse(self, definition):
-        code = definition.attributes.get(u'code')
-        code = code.upper() if code is not None else None
+        code = upper_case_code(definition.attributes.get(u'code'))
         vocabulary_creation = VocabularyCreation()
         vocabulary_creation.code = code
         vocabulary_creation.internalNameSpace = is_internal_namespace(code)
@@ -111,11 +109,11 @@ class VocabularyDefinitionToCreationParser(object):
 class VocabularyTermDefinitionToCreationParser(object):
 
     def parse(self, definition):
-        vocabulary_code = VocabularyPermId(definition.attributes.get(u'code'))
+        vocabulary_code = VocabularyPermId(upper_case_code(definition.attributes.get(u'code')))
         vocabulary_creations_terms = []
         for prop in definition.properties:
             vocabulary_creation_term = VocabularyTermCreation()
-            vocabulary_creation_term.code = prop.get(u'code')
+            vocabulary_creation_term.code = upper_case_code(prop.get(u'code'))
             vocabulary_creation_term.label = prop.get(u'label')
             vocabulary_creation_term.description = prop.get(u'description')
             vocabulary_creation_term.vocabularyId = vocabulary_code
@@ -130,7 +128,7 @@ class VocabularyTermDefinitionToCreationParser(object):
 class PropertyAssignmentDefinitionToCreationParser(object):
 
     def parse(self, prop):
-        code = prop.get(u'code')
+        code = upper_case_code(prop.get(u'code'))
         property_assignment_creation = PropertyAssignmentCreation()
         is_mandatory = get_boolean_from_string(prop.get(u'mandatory'))
         property_assignment_creation.mandatory = is_mandatory
@@ -151,7 +149,7 @@ class PropertyAssignmentDefinitionToCreationParser(object):
 class SampleTypeDefinitionToCreationParser(object):
 
     def parse(self, definition):
-        code = definition.attributes.get(u'code')
+        code = upper_case_code(definition.attributes.get(u'code'))
         sample_creation = SampleTypeCreation()
         sample_creation.code = code
         should_auto_generate_codes = get_boolean_from_string(definition.attributes.get(u'auto generate codes'))
@@ -181,7 +179,7 @@ class SampleTypeDefinitionToCreationParser(object):
 class ExperimentTypeDefinitionToCreationParser(object):
 
     def parse(self, definition):
-        code = definition.attributes.get(u'code')
+        code = upper_case_code(definition.attributes.get(u'code'))
         experiment_type_creation = ExperimentTypeCreation()
         experiment_type_creation.code = code
         experiment_type_creation.description = definition.attributes.get(u'description')
@@ -208,7 +206,7 @@ class DatasetTypeDefinitionToCreationParser(object):
 
     def parse(self, definition):
         dataset_type_creation = DataSetTypeCreation()
-        code = definition.attributes.get(u'code')
+        code = upper_case_code(definition.attributes.get(u'code'))
         dataset_type_creation.code = code
         dataset_type_creation.description = definition.attributes.get(u'description')
         if u'validation script' in definition.attributes and definition.attributes.get(
@@ -235,9 +233,9 @@ class SpaceDefinitionToCreationParser(object):
         space_creations = []
         for prop in definition.properties:
             space_creation = SpaceCreation()
-            space_creation.code = prop.get(u'code')
+            space_creation.code = upper_case_code(prop.get(u'code'))
             space_creation.description = prop.get(u'description')
-            creation_id = prop.get(u'code')
+            creation_id = upper_case_code(prop.get(u'code'))
             space_creation.creationId = CreationId(creation_id)
             space_creations.append(space_creation)
         return space_creations
@@ -252,10 +250,10 @@ class ProjectDefinitionToCreationParser(object):
         project_creations = []
         for prop in definition.properties:
             project_creation = ProjectCreation()
-            project_creation.code = prop.get(u'code')
+            project_creation.code = upper_case_code(prop.get(u'code'))
             project_creation.description = prop.get(u'description')
             project_creation.spaceId = CreationId(prop.get(u'space'))
-            creation_id = prop.get(u'code')
+            creation_id = upper_case_code(prop.get(u'code'))
             project_creation.creationId = CreationId(creation_id)
             project_creations.append(project_creation)
         return project_creations
@@ -272,9 +270,9 @@ class ExperimentDefinitionToCreationParser(object):
         for experiment_properties in definition.properties:
             experiment_creation = ExperimentCreation()
             experiment_creation.typeId = EntityTypePermId(definition.attributes.get(u'experiment type'))
-            experiment_creation.code = experiment_properties.get(u'code')
+            experiment_creation.code = upper_case_code(experiment_properties.get(u'code'))
             experiment_creation.projectId = ProjectIdentifier(experiment_properties.get(u'project'))
-            creation_id = experiment_properties.get(u'code')
+            creation_id = upper_case_code(experiment_properties.get(u'code'))
             experiment_creation.creationId = CreationId(creation_id)
             for prop, value in experiment_properties.items():
                 if prop not in project_attributes:
@@ -296,8 +294,8 @@ class SampleDefinitionToCreationParser(object):
             sample_creation = SampleCreation()
             sample_creation.typeId = EntityTypePermId(definition.attributes.get(u'sample type'))
             if u'code' in sample_properties and sample_properties.get(u'code') is not None:
-                sample_creation.code = sample_properties.get(u'code')
-                creation_id = sample_properties.get(u'code')
+                sample_creation.code = upper_case_code(sample_properties.get(u'code'))
+                creation_id = upper_case_code(sample_properties.get(u'code'))
                 sample_creation.creationId = CreationId(creation_id)
             if u'$' in sample_properties and sample_properties.get(u'$') is not None:
                 # may overwrite creationId from code, which is intended
@@ -347,7 +345,7 @@ class ScriptDefinitionToCreationParser(object):
         if u'validation script' in definition.attributes:
             validation_script_path = definition.attributes.get(u'validation script')
             if validation_script_path is not None:
-                code = definition.attributes.get(u'code')
+                code = upper_case_code(definition.attributes.get(u'code'))
                 validation_script_creation = PluginCreation()
                 script = self.context.get_script(validation_script_path)
                 validation_script_creation.name = get_script_name_for(code, validation_script_path)
@@ -358,7 +356,7 @@ class ScriptDefinitionToCreationParser(object):
         for prop in definition.properties:
             if u'dynamic script' in prop:
                 dynamic_prop_script_path = prop.get(u'dynamic script')
-                code = prop.get(u'code')
+                code = upper_case_code(prop.get(u'code'))
                 if dynamic_prop_script_path is not None:
                     validation_script_creation = PluginCreation()
                     script = self.context.get_script(dynamic_prop_script_path)

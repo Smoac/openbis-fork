@@ -108,7 +108,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         var logoutButton = FormUtil.getButtonWithIcon("glyphicon-off", function() {
             $('body').addClass('bodyLogin');
             mainController.serverFacade.logout();
-         });
+         }, null, null, "logoutBtn");
         
         var $searchForm = $("<form>", { "onsubmit": "return false;" })
                             .append(logoutButton)
@@ -183,10 +183,13 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         return $button;
     }
 
-    this.getLinkForNode = function(displayName, menuId, view, viewData) {
+    this.getLinkForNode = function(displayName, menuId, view, viewData, id) {
         var href = Util.getURLFor(menuId, view, viewData);
+        if (id === null) {
+            id = menuId;
+        }
         displayName = String(displayName).replace(/<(?:.|\n)*?>/gm, ''); //Clean any HTML tags
-        var $menuItemLink = $("<a>", {"href": href, "class" : "browser-compatible-javascript-link browser-compatible-javascript-link-tree" }).text(displayName);
+        var $menuItemLink = $("<a>", {"href": href, "id" : id, "class" : "browser-compatible-javascript-link browser-compatible-javascript-link-tree" }).text(displayName);
         return $menuItemLink[0].outerHTML;
     }
 
@@ -216,80 +219,89 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         var treeModel = [];
         
         if(profile.mainMenu.showLabNotebook) {
-            var labNotebookLink = _this.getLinkForNode("Lab Notebook", "LAB_NOTEBOOK", "showLabNotebookPage", null);
+            var labNotebookLink = _this.getLinkForNode("Lab Notebook", "LAB_NOTEBOOK", "showLabNotebookPage", null, null);
             treeModel.push({ displayName: "Lab Notebook", title : labNotebookLink, entityType: "LAB_NOTEBOOK", key : "LAB_NOTEBOOK", folder : true, lazy : true, view : "showLabNotebookPage", icon : "glyphicon glyphicon-book" });
         }
         
         if(profile.mainMenu.showInventory) {
-            var inventoryLink = _this.getLinkForNode("Inventory", "INVENTORY", "showInventoryPage", null);
+            var inventoryLink = _this.getLinkForNode("Inventory", "INVENTORY", "showInventoryPage", null, null);
             treeModel.push({ displayName: "Inventory", title : inventoryLink, entityType: "INVENTORY", key : "INVENTORY", folder : true, lazy : true, view : "showInventoryPage" });
         }
         
         if(profile.mainMenu.showStock) {
-            var stockLink = _this.getLinkForNode("Stock", "STOCK", "showStockPage", null);
+            var stockLink = _this.getLinkForNode("Stock", "STOCK", "showStockPage", null, null);
             treeModel.push({ displayName: "Stock", title : stockLink, entityType: "STOCK", key : "STOCK", folder : true, lazy : true, view : "showStockPage", icon: "fa fa-shopping-cart" });
         }
         
         var treeModelUtils = [];
         
         if(profile.jupyterEndpoint) {
-            var jupyterLink = _this.getLinkForNode("Jupyter Workspace", "JUPYTER_WORKSPACE", "showJupyterWorkspace", null);
+            var jupyterLink = _this.getLinkForNode("Jupyter Workspace", "JUPYTER_WORKSPACE", "showJupyterWorkspace", null, null);
             treeModelUtils.push({ title : jupyterLink, entityType: "JUPYTER_WORKSPACE", key : "JUPYTER_WORKSPACE", folder : false, lazy : false, view : "showJupyterWorkspace" });
             
-            var jupyterNotebook = _this.getLinkForNode("New Jupyter Notebook", "NEW_JUPYTER_NOTEBOOK", "showNewJupyterWorkspaceCreator", null);
+            var jupyterNotebook = _this.getLinkForNode("New Jupyter Notebook", "NEW_JUPYTER_NOTEBOOK", "showNewJupyterWorkspaceCreator", null, null);
             treeModelUtils.push({ title : jupyterNotebook, entityType: "NEW_JUPYTER_NOTEBOOK", key : "NEW_JUPYTER_NOTEBOOK", folder : false, lazy : false, view : "showNewJupyterNotebookCreator" });
         }
         
         if(profile.mainMenu.showUserProfile) {
             // && profile.isFileAuthenticationService && profile.isFileAuthenticationUser
-            var userProfileLink = _this.getLinkForNode("User Profile", "USER_PROFILE", "showUserProfilePage", null);
+            var userProfileLink = _this.getLinkForNode("User Profile", "USER_PROFILE", "showUserProfilePage", null, null);
             treeModelUtils.push({ title : userProfileLink, entityType: "USER_PROFILE", key : "USER_PROFILE", folder : false, lazy : false, view : "showUserProfilePage", icon : "glyphicon glyphicon-user" });
         }
 
+        if(profile.mainMenu.showBarcodes) {
+            var preGenerateBarcodesLink = _this.getLinkForNode("Barcodes Generator", "GENERATE_BARCODES", "showBarcodesGeneratorPage", null, null);
+            treeModelUtils.push({ title : preGenerateBarcodesLink, entityType: "GENERATE_BARCODES", key : "GENERATE_BARCODES", folder : false, lazy : false, view : "showBarcodesGeneratorPage", icon : "glyphicon glyphicon-barcode" });
+        }
+
         if(profile.mainMenu.showDrawingBoard) {
-            var drawingBoardLink = _this.getLinkForNode("Drawing Board", "DRAWING_BOARD", "showDrawingBoard", null);
+            var drawingBoardLink = _this.getLinkForNode("Drawing Board", "DRAWING_BOARD", "showDrawingBoard", null, null);
             treeModelUtils.push({ displayName: "Drawing Board", title : drawingBoardLink, entityType: "DRAWING_BOARD", key : "DRAWING_BOARD", folder : false, lazy : false, view : "showDrawingBoard" });
         }
         
         if(profile.mainMenu.showObjectBrowser) {
-            var sampleBrowserLink = _this.getLinkForNode("" + ELNDictionary.Sample + " Browser", "SAMPLE_BROWSER", "showSamplesPage", null);
+            var sampleBrowserLink = _this.getLinkForNode("" + ELNDictionary.Sample + " Browser", "SAMPLE_BROWSER", "showSamplesPage", null, null);
             treeModelUtils.push({ displayName: "" + ELNDictionary.Sample + " Browser", title : sampleBrowserLink, entityType: "SAMPLE_BROWSER", key : "SAMPLE_BROWSER", folder : false, lazy : false, view : "showSamplesPage", icon : "glyphicon glyphicon-list-alt" });
         }
         
         if(profile.mainMenu.showVocabularyViewer) {
-            var vocabularyBrowserLink = _this.getLinkForNode("Vocabulary Browser", "VOCABULARY_BROWSER", "showVocabularyManagerPage", null);
+            var vocabularyBrowserLink = _this.getLinkForNode("Vocabulary Browser", "VOCABULARY_BROWSER", "showVocabularyManagerPage", null, null);
             treeModelUtils.push({ displayName: "Vocabulary Browser", title : vocabularyBrowserLink, entityType: "VOCABULARY_BROWSER", key : "VOCABULARY_BROWSER", folder : false, lazy : false, view : "showVocabularyManagerPage", icon : "glyphicon glyphicon-list-alt" });
         }
         
         if(profile.mainMenu.showAdvancedSearch) {
-            var advancedSearchLink = _this.getLinkForNode("Advanced Search", "ADVANCED_SEARCH", "showAdvancedSearchPage", null);
+            var advancedSearchLink = _this.getLinkForNode("Advanced Search", "ADVANCED_SEARCH", "showAdvancedSearchPage", null, null);
             treeModelUtils.push({ displayName: "Advanced Search", title : advancedSearchLink, entityType: "ADVANCED_SEARCH", key : "ADVANCED_SEARCH", folder : false, lazy : false, view : "showAdvancedSearchPage", icon : "glyphicon glyphicon-search" });
         }
 
+        if(profile.mainMenu.showUnarchivingHelper) {
+        	var unarchivingHelperLink = _this.getLinkForNode("Unarchiving Helper", "UNARCHIVING_HELPER", "showUnarchivingHelperPage", null, null);
+        	treeModelUtils.push({ displayName: "Unarchiving Helper", title : unarchivingHelperLink, entityType: "UNARCHIVING_HELPER", key : "UNARCHIVING_HELPER", folder : false, lazy : false, view : "showUnarchivingHelperPage", icon : "glyphicon glyphicon-open" });
+        }
+        
         if (profile.mainMenu.showExports || profile.mainMenu.showResearchCollectionExportBuilder || profile.mainMenu.showZenodoExportBuilder) {
             var treeModelExports = [];
 
             if (profile.mainMenu.showExports) {
-                var exportBuilderLink = _this.getLinkForNode("Export to ZIP", "EXPORT_TO_ZIP", "showExportTreePage", null);
+                var exportBuilderLink = _this.getLinkForNode("Export to ZIP", "EXPORT_TO_ZIP", "showExportTreePage", null, null);
                 treeModelExports.push({
                     displayName: "Export to ZIP", title: exportBuilderLink, entityType: "EXPORT_TO_ZIP", key: "EXPORT_TO_ZIP",
                     folder: false, lazy: false, view: "showExportTreePage", icon: "glyphicon glyphicon-export"
                 });
             }
 
-            // Not fully implemented yet.
-            // if (profile.mainMenu.showResearchCollectionExportBuilder) {
-            //     var researchCollectionExportBuilderLink = _this.getLinkForNode("Export to Research Collection",
-            //             "EXPORT_TO_RESEARCH_COLLECTION", "showResearchCollectionExportPage", null);
-            //     treeModelExports.push({
-            //         displayName: "Export to Research Collection", title: researchCollectionExportBuilderLink,
-            //         entityType: "EXPORT_TO_RESEARCH_COLLECTION", key: "EXPORT_TO_RESEARCH_COLLECTION", folder: false, lazy: false,
-            //         view: "showResearchCollectionExportPage", icon: "./img/research-collection-icon.png"
-            //     });
-            // }
+            if (profile.mainMenu.showResearchCollectionExportBuilder) {
+                var researchCollectionExportBuilderLink = _this.getLinkForNode("Export to Research Collection",
+                        "EXPORT_TO_RESEARCH_COLLECTION", "showResearchCollectionExportPage", null, null);
+                treeModelExports.push({
+                    displayName: "Export to Research Collection", title: researchCollectionExportBuilderLink,
+                    entityType: "EXPORT_TO_RESEARCH_COLLECTION", key: "EXPORT_TO_RESEARCH_COLLECTION", folder: false, lazy: false,
+                    view: "showResearchCollectionExportPage", icon: "./img/research-collection-icon.png"
+                });
+            }
 
             if (profile.mainMenu.showZenodoExportBuilder) {
-                var zenodoExportBuilderLink = _this.getLinkForNode("Export to Zenodo", "EXPORT_TO_ZENODO", "showZenodoExportPage", null);
+                var zenodoExportBuilderLink = _this.getLinkForNode("Export to Zenodo", "EXPORT_TO_ZENODO", "showZenodoExportPage", null, null);
                 treeModelExports.push({
                     displayName: "Export to Zenodo", title: zenodoExportBuilderLink, entityType: "EXPORT_TO_ZENODO",
                     key: "EXPORT_TO_ZENODO", folder: false, lazy: false, view: "showZenodoExportPage", icon: "glyphicon glyphicon-export"
@@ -301,22 +313,22 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         }
         
         if(profile.mainMenu.showStorageManager) {
-            var storageManagerLink = _this.getLinkForNode("Storage Manager", "STORAGE_MANAGER", "showStorageManager", null);
+            var storageManagerLink = _this.getLinkForNode("Storage Manager", "STORAGE_MANAGER", "showStorageManager", null, null);
             treeModelUtils.push({ displayName: "Storage Manager", title : storageManagerLink, entityType: "STORAGE_MANAGER", key : "STORAGE_MANAGER", folder : false, lazy : false, view : "showStorageManager" });
         }
         
         if(profile.mainMenu.showUserManager && profile.isAdmin) {
-            var userManagerLink = _this.getLinkForNode("User Manager", "USER_MANAGER", "showUserManagerPage", null);
+            var userManagerLink = _this.getLinkForNode("User Manager", "USER_MANAGER", "showUserManagerPage", null, null);
             treeModelUtils.push({ displayName: "User Manager", title : userManagerLink, entityType: "USER_MANAGER", key : "USER_MANAGER", folder : false, lazy : false, view : "showUserManagerPage", icon : "fa fa-users" });
         }
         
         if(profile.mainMenu.showTrashcan) {
-            var trashCanLink = _this.getLinkForNode("Trashcan", "TRASHCAN", "showTrashcanPage", null);
+            var trashCanLink = _this.getLinkForNode("Trashcan", "TRASHCAN", "showTrashcanPage", null, null);
             treeModelUtils.push({ displayName: "Trashcan", title : trashCanLink, entityType: "TRASHCAN", key : "TRASHCAN", folder : false, lazy : false, view : "showTrashcanPage", icon : "glyphicon glyphicon-trash" });
         }
         
         if(profile.mainMenu.showSettings) {
-            var settingsLink = _this.getLinkForNode("Settings", "SETTINGS", "showSettingsPage", null);
+            var settingsLink = _this.getLinkForNode("Settings", "SETTINGS", "showSettingsPage", null, null);
             treeModelUtils.push({ displayName: "Settings", title : settingsLink, entityType: "SETTINGS", key : "SETTINGS", folder : false, lazy : false, view : "showSettingsPage", icon : "glyphicon glyphicon-cog" });
         }
 
@@ -383,7 +395,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                                     }
                                     
                                     var normalizedSpaceTitle = Util.getDisplayNameFromCode(spaceCode);
-                                    var spaceLink = _this.getLinkForNode(normalizedSpaceTitle, spaceCode, "showSpacePage", spaceCode);
+                                    var spaceLink = _this.getLinkForNode(normalizedSpaceTitle, spaceCode, "showSpacePage", spaceCode, null);
                                     var spaceNode = {
                                         displayName: normalizedSpaceTitle,
                                         title : spaceLink,
@@ -417,7 +429,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                             var isHiddenSpace = profile.isHiddenSpace(space.code);
                             if(!isInventorySpace && (space.code === HOME_SPACE) && !isHiddenSpace) {
                                 var normalizedSpaceTitle = Util.getDisplayNameFromCode(space.code);
-                                var spaceLink = _this.getLinkForNode("My Space (" + normalizedSpaceTitle + ")", space.getCode(), "showSpacePage", space.getCode());
+                                var spaceLink = _this.getLinkForNode("My Space (" + normalizedSpaceTitle + ")", space.getCode(), "showSpacePage", space.getCode(), null);
                                 var spaceNode = {
                                     displayName: "My Space (" + normalizedSpaceTitle + ")",
                                     title : spaceLink,
@@ -458,7 +470,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                             if(((type === "LAB_NOTEBOOK" && !isInventorySpace) || (type === "INVENTORY" && isInventorySpace)) && !isHiddenSpace) {
                                 var normalizedSpaceTitle = Util.getDisplayNameFromCode(space.code);
                                 
-                                var spaceLink = _this.getLinkForNode(normalizedSpaceTitle, space.getCode(), "showSpacePage", space.getCode());
+                                var spaceLink = _this.getLinkForNode(normalizedSpaceTitle, space.getCode(), "showSpacePage", space.getCode(), null);
                                 var spaceNode = {
                                     displayName: normalizedSpaceTitle,
                                     title : spaceLink,
@@ -488,7 +500,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                             var space = spaces[i];
                             if(space.getCode().endsWith("STOCK_CATALOG") || space.getCode().endsWith("STOCK_ORDERS")) {
                                 var normalizedSpaceTitle = Util.getDisplayNameFromCode(space.code);
-                                var spaceLink = _this.getLinkForNode(normalizedSpaceTitle, space.getCode(), "showSpacePage", space.getCode());
+                                var spaceLink = _this.getLinkForNode(normalizedSpaceTitle, space.getCode(), "showSpacePage", space.getCode(), null);
                                 var spaceNode = {
                                     displayName: normalizedSpaceTitle,
                                     title : spaceLink,
@@ -520,7 +532,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                               continue;
                           }
                           var normalizedProjectTitle = Util.getDisplayNameFromCode(project.code);
-                          var projectLink = _this.getLinkForNode(normalizedProjectTitle, project.getPermId().getPermId(), "showProjectPageFromPermId", project.getPermId().getPermId());
+                          var projectLink = _this.getLinkForNode(normalizedProjectTitle, project.getPermId().getPermId(), "showProjectPageFromPermId", project.getPermId().getPermId(), null);
                           results.push({
                               displayName: normalizedProjectTitle,
                               title : projectLink,
@@ -560,7 +572,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                                 loadSamples = true;
                             }
                             
-                            var experimentLink = _this.getLinkForNode(experimentDisplayName, experiment.getPermId().getPermId(), viewToUse, experiment.getIdentifier().getIdentifier());
+                            var experimentLink = _this.getLinkForNode(experimentDisplayName, experiment.getPermId().getPermId(), viewToUse, experiment.getIdentifier().getIdentifier(), experiment.getIdentifier().getIdentifier().split('/').join('_'));
                             results.push({
                                 displayName: experimentDisplayName,
                                 title : experimentLink,
@@ -587,7 +599,9 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                         for(var sIdx = 0; sIdx < samples.length; sIdx++) {
                             var sample = samples[sIdx];
                             var sampleIsExperiment = sample.type.code.indexOf("EXPERIMENT") > -1;
-                            var sampleTypeOnNav = profile.sampleTypeDefinitionsExtension[sample.type.code] && profile.sampleTypeDefinitionsExtension[sample.type.code]["SHOW_ON_NAV"];
+                            var sampleTypeOnNav = profile.sampleTypeDefinitionsExtension[sample.type.code] &&
+                                                  profile.sampleTypeDefinitionsExtension[sample.type.code]["SHOW_ON_NAV"] &&
+                                                  !profile.sampleTypeDefinitionsExtension[sample.type.code]["SHOW_ON_NAV_FOR_PARENT_TYPES"];
                             if(sampleIsExperiment || sampleTypeOnNav) {
                                 var parentIsExperiment = false;
                                 if(sample.parents) {
@@ -622,7 +636,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                                             sampleDisplayName = sample.properties[profile.propertyReplacingCode];
                                     }
                                     
-                                    var sampleLink = _this.getLinkForNode(sampleDisplayName, sample.getPermId().getPermId(), "showViewSamplePageFromPermId", sample.getPermId().getPermId());
+                                    var sampleLink = _this.getLinkForNode(sampleDisplayName, sample.getPermId().getPermId(), "showViewSamplePageFromPermId", sample.getPermId().getPermId(), null);
                                     var sampleNode = {
                                         displayName: sampleDisplayName,
                                         title : sampleLink,
@@ -660,7 +674,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                                                     datasetDisplayName = dataset.properties[profile.propertyReplacingCode];
                                             }
                                             
-                                            var datasetLink = _this.getLinkForNode(datasetDisplayName, dataset.getPermId().getPermId(), "showViewDataSetPageFromPermId", dataset.getPermId().getPermId());
+                                            var datasetLink = _this.getLinkForNode(datasetDisplayName, dataset.getPermId().getPermId(), "showViewDataSetPageFromPermId", dataset.getPermId().getPermId(), null);
                                             results.push({
                                                 displayName: datasetDisplayName,
                                                 title : datasetLink,
@@ -726,24 +740,40 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                                     }
                                     if(sample.type.code.indexOf("EXPERIMENT") > -1 ||
                                     (profile.sampleTypeDefinitionsExtension[sample.type.code] && profile.sampleTypeDefinitionsExtension[sample.type.code]["SHOW_ON_NAV"])) {
-                                        var sampleDisplayName = sample.code;
-                                        if(sample.properties && sample.properties[profile.propertyReplacingCode]) {
-                                                sampleDisplayName = sample.properties[profile.propertyReplacingCode];
-                                        }
-                                        var sampleLink = _this.getLinkForNode(sampleDisplayName, sample.getPermId().getPermId(), "showViewSamplePageFromPermId", sample.getPermId().getPermId());
-                                        var sampleNode = {
-                                            displayName: sampleDisplayName,
-                                            title : sampleLink,
-                                            entityType: "SAMPLE",
-                                            key : sample.getPermId().getPermId(),
-                                            folder : true,
-                                            lazy : true,
-                                            view : "showViewSamplePageFromPermId",
-                                            viewData: sample.getPermId().getPermId(),
-                                            icon : sampleIcon,
-                                            registrationDate: sample.registrationDate
-                                        };
-                                        results.push(sampleNode);
+                                        var parentTypeCode = samples[0].type.code;
+                                        var showOnNavForParentTypes = profile.sampleTypeDefinitionsExtension[sample.type.code]["SHOW_ON_NAV_FOR_PARENT_TYPES"];
+                                        var showSampleOnNav = false;
+                                        if(!showOnNavForParentTypes) {
+                                            showSampleOnNav = true;
+                                        } else {
+                                            for(var ptIdx = 0; ptIdx < showOnNavForParentTypes.length; ptIdx++) {
+                                                if(parentTypeCode === showOnNavForParentTypes[ptIdx]) {
+                                                    showSampleOnNav = true;
+                                                    break;
+                                                }
+                                            }
+                                        }
+
+                                        if(showSampleOnNav) {
+                                            var sampleDisplayName = sample.code;
+                                            if(sample.properties && sample.properties[profile.propertyReplacingCode]) {
+                                                    sampleDisplayName = sample.properties[profile.propertyReplacingCode];
+                                            }
+                                            var sampleLink = _this.getLinkForNode(sampleDisplayName, sample.getPermId().getPermId(), "showViewSamplePageFromPermId", sample.getPermId().getPermId(), null);
+                                            var sampleNode = {
+                                                displayName: sampleDisplayName,
+                                                title : sampleLink,
+                                                entityType: "SAMPLE",
+                                                key : sample.getPermId().getPermId(),
+                                                folder : true,
+                                                lazy : true,
+                                                view : "showViewSamplePageFromPermId",
+                                                viewData: sample.getPermId().getPermId(),
+                                                icon : sampleIcon,
+                                                registrationDate: sample.registrationDate
+                                            };
+                                            results.push(sampleNode);
+                                        }
                                     }
                                 }
                             }
@@ -763,7 +793,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                                         datasetDisplayName = dataset.properties[profile.propertyReplacingCode];
                                     }
                                     
-                                    var datasetLink = _this.getLinkForNode(datasetDisplayName, dataset.getPermId().getPermId(), "showViewDataSetPageFromPermId", dataset.getPermId().getPermId());
+                                    var datasetLink = _this.getLinkForNode(datasetDisplayName, dataset.getPermId().getPermId(), "showViewDataSetPageFromPermId", dataset.getPermId().getPermId(), null);
                                     results.push({
                                         displayName: datasetDisplayName,
                                         title : datasetLink,

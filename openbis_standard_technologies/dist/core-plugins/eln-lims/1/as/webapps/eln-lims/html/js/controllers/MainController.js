@@ -222,6 +222,9 @@ function MainController(profile) {
 
 													// Keep Alive
 													localReference.serverFacade.scheduleKeepAlive();
+
+													// Barcode reading
+													BarcodeUtil.enableAutomaticBarcodeReading();
 												});
 											};
 											
@@ -373,6 +376,12 @@ function MainController(profile) {
 		
 		try {
 			switch (newViewChange) {
+			    case "showBarcodesGeneratorPage":
+			        document.title = "Barcodes Generator";
+			        var barcodesGeneratorViews = this._getNewViewModel(true, true, false);
+			        BarcodeUtil.preGenerateBarcodes(barcodesGeneratorViews);
+			        this.currentView = null;
+			        break;
 				case "showJupyterWorkspace":
 					document.title = "Jupyter Workspace";
 					var views = this._getNewViewModel(false, true, false);
@@ -451,6 +460,11 @@ function MainController(profile) {
 						argToUse = arg;
 					}
 					this._showAdvancedSearchPage(argToUse);
+					//window.scrollTo(0,0);
+					break;
+				case "showUnarchivingHelperPage":
+					document.title = "Unarchiving Helper";
+					this._showUnarchivingHelper();
 					//window.scrollTo(0,0);
 					break;
 				case "showUserManagerPage":
@@ -1010,6 +1024,14 @@ function MainController(profile) {
 		this.currentView = userManagerController;
 	}
 	
+	this._showUnarchivingHelper = function() {
+		var views = this._getNewViewModel(true, true, false);
+		
+		var unarchivingHelperController = new UnarchivingHelperController(this);
+		unarchivingHelperController.init(views);
+		this.currentView = unarchivingHelperController;
+	}
+	
 	this._showSamplesPage = function(experimentIdentifier) {
 		var views = this._getNewViewModel(true, true, false);
 		
@@ -1208,7 +1230,7 @@ function MainController(profile) {
 		var views = this._getNewViewModel(true, true, false);
 		newView.init(views);
 		if(freeText) {
-			newView.search();
+		    setTimeout(function(){ newView.search(); }, 1000);
 		}
 		this.currentView = newView;
 	}

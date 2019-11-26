@@ -110,7 +110,6 @@ class ProjectFromPropertiesSearchCriteria(object):
         space_project = [tuple(str(creation.projectId)[1:].split('/')) for creation in specific_creations if
                          creation.projectId is not None]
         project_codes = [dotdict({'code': project, 'spaceId': space}) for (space, project) in space_project]
-        print "DEBUGDEBUG project_codes: " + str(project_codes)
         if project_codes == []:
             return None
 
@@ -156,7 +155,6 @@ class ProjectFromProjectCreationSearchCriteria(object):
         for creation in specific_creations:
             self.search_criteria.withCode().thatEquals(creation.code)
             self.search_criteria.withSpace().withCode().thatEquals(str(creation.spaceId))
-            print "DEBUGDEBUG creation.code: " + str(creation.code) + " creation.spaceId: " + str(creation.spaceId)
         self.search_criteria.withOrOperator()
         return self.search_criteria
 

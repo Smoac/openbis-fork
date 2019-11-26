@@ -43,7 +43,7 @@ var SampleDataGridUtil = new function() {
 				return sortDirection * naturalSort(value1, value2);
 			}
 		});
-		
+
 		columnsFirst.push({
 			label : 'Code',
 			property : 'code',
@@ -69,7 +69,8 @@ var SampleDataGridUtil = new function() {
 						}
 					}
 				}
-				return (isLinksDisabled)?data.code:FormUtil.getFormLink(data.code, "Sample", data.permId, paginationInfo);
+				var codeId = data.code.toLowerCase() + "-column-id";
+				return (isLinksDisabled)?data.code:FormUtil.getFormLink(data.code, "Sample", data.permId, paginationInfo, codeId);
 			},
 			filter : function(data, filter) {
 				return data.identifier.toLowerCase().indexOf(filter) !== -1;

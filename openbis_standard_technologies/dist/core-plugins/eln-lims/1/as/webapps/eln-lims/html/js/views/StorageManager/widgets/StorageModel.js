@@ -32,7 +32,8 @@ function StorageModel(configOverride) {
 				positionSelector: "off",
 				positionDropEventHandler: null,
 				boxPositionMultiple: "off",
-				positionDragAndDropEnabled: "off"
+				positionDragAndDropEnabled: "off",
+				storageId : "storage-drop-down-id"
 		};
 	}
 	

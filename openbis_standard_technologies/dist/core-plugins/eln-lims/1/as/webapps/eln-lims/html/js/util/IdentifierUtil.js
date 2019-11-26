@@ -79,4 +79,10 @@ var IdentifierUtil = new function() {
 		return experimentIdentifier.split('/')[2];
 	};
 	
+	
+	this.createDummySampleIdentifierFromExperimentIdentifier = function(experimentIdentifier) {
+		var spaceCode = this.getSpaceCodeFromIdentifier(experimentIdentifier);
+		var projectCode = this.getProjectCodeFromExperimentIdentifier(experimentIdentifier);
+		return "/" + spaceCode + "/" + projectCode + "/DUMMY";
+	}
 }

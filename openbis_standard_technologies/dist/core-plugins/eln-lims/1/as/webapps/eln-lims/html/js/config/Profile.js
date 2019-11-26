@@ -56,14 +56,15 @@ $.extend(DefaultProfile.prototype, {
 				showExports : true,
 				showStorageManager : true,
 				showAdvancedSearch : true,
+				showUnarchivingHelper : true,
 				showTrashcan : true,
 				showSettings : true,
 				showVocabularyViewer : true,
 				showUserManager : true,
 				showUserProfile : true,
-			    // Not fully implemented yet.
-				// showResearchCollectionExportBuilder : false,
+				showResearchCollectionExportBuilder : false,
 				showZenodoExportBuilder : false,
+				showBarcodes : false,
 		}
 		
 		this.orderLabInfo = {
@@ -140,7 +141,8 @@ $.extend(DefaultProfile.prototype, {
 		
         this.customWidgetSettings = {};
 
-		this.plugins = [new GenericTechnology(), new LifeSciencesTechnology(), new MicroscopyTechnology(), new FlowCytometryTechnology()];
+		this.plugins = [new GenericTechnology()];
+
 		this.sampleFormTop = function($container, model) {
 			for(var i = 0; i < this.plugins.length; i++) {
 				this.plugins[i].sampleFormTop($container, model);
@@ -350,7 +352,7 @@ $.extend(DefaultProfile.prototype, {
 		}
 		
 		this.getSampleTypeToolbarConfiguration = function(sampleTypeCode) {
-			var defaultToolbar = { CREATE : true, EDIT : true, FREEZE : true, MOVE : true, COPY: true, DELETE : true, PRINT: true, HIERARCHY_GRAPH : true, HIERARCHY_TABLE : true, UPLOAD_DATASET : true, UPLOAD_DATASET_HELPER : true, EXPORT_ALL : true, EXPORT_METADATA : true, TEMPLATES : true };
+			var defaultToolbar = { CREATE : true, EDIT : true, FREEZE : true, MOVE : true, COPY: true, DELETE : true, PRINT: true, HIERARCHY_GRAPH : true, HIERARCHY_TABLE : true, UPLOAD_DATASET : true, UPLOAD_DATASET_HELPER : true, EXPORT_ALL : true, EXPORT_METADATA : true, TEMPLATES : true, BARCODE : true };
 			if(this.sampleTypeDefinitionsExtension[sampleTypeCode] && this.sampleTypeDefinitionsExtension[sampleTypeCode]["TOOLBAR"]) {
 				var toolbarOptions = this.sampleTypeDefinitionsExtension[sampleTypeCode]["TOOLBAR"];
 				for(key in toolbarOptions) {
@@ -397,7 +399,7 @@ $.extend(DefaultProfile.prototype, {
 				"experimentTypeCodes" : []
 		}
 		this.hideTypes = {
-				"sampleTypeCodes" : ["GENERAL_ELN_SETTINGS", "STORAGE_POSITION", "STORAGE"],
+				"sampleTypeCodes" : [],
 				"experimentTypeCodes" : []
 		}
 		

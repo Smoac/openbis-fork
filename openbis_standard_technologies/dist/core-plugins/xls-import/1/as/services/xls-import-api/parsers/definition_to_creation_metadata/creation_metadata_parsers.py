@@ -3,7 +3,7 @@ from ..definition_to_creation import PropertyTypeDefinitionToCreationType, Vocab
     SampleTypeDefinitionToCreationType, ExperimentTypeDefinitionToCreationType, DatasetTypeDefinitionToCreationType, \
     SpaceDefinitionToCreationType, ProjectDefinitionToCreationType, ExperimentDefinitionToCreationType, \
     SampleDefinitionToCreationType, ScriptDefinitionToCreationType
-from utils.openbis_utils import get_metadata_name_for
+from utils.openbis_utils import get_metadata_name_for, upper_case_code
 from ch.systemsx.cisd.common.exceptions import UserFailureException
 from utils.dotdict import dotdict
 
@@ -56,8 +56,7 @@ class PropertyTypeDefinitionToCreationMetadataParser(object):
 
         for prop in definition.properties:
             property_creation_metadata = dotdict()
-            code = prop.get(u'code')
-            code = code.upper() if code is not None else None
+            code = upper_case_code(prop.get(u'code'))
             property_creation_metadata.code = code
             property_creation_metadata.version = get_version(prop.get(u'version', 1))
             creation_metadata[code] = property_creation_metadata
@@ -72,12 +71,12 @@ class VocabularyDefinitionToCreationMetadataParser(object):
     def parse(self, definition):
         creation_metadata = dotdict()
         vocabulary_creation_metadata = dotdict()
-        code = definition.attributes.get(u'code')
+        code = upper_case_code(definition.attributes.get(u'code'))
         vocabulary_creation_metadata.code = code
         vocabulary_creation_metadata.version = get_version(definition.attributes.get(u'version', 1))
         vocabulary_creation_metadata.terms = dotdict()
         for prop in definition.properties:
-            term_code = prop.get(u'code')
+            term_code = upper_case_code(prop.get(u'code'))
             creation_term_metadata = dotdict()
             creation_term_metadata.code = term_code
             creation_term_metadata.version = get_version(prop.get(u'version', 1))
@@ -95,7 +94,7 @@ class SampleTypeDefinitionToCreationMetadataParser(object):
     def parse(self, definition):
         creation_metadata = dotdict()
         sample_type_creation_metadata = dotdict()
-        code = definition.attributes.get(u'code')
+        code = upper_case_code(definition.attributes.get(u'code'))
         sample_type_creation_metadata.code = code
         sample_type_creation_metadata.version = get_version(definition.attributes.get(u'version', 1))
         creation_metadata[code] = sample_type_creation_metadata
@@ -111,7 +110,7 @@ class ExperimentTypeDefinitionToCreationMetadataParser(object):
     def parse(self, definition):
         creation_metadata = dotdict()
         experiment_type_creation_metadata = dotdict()
-        code = definition.attributes.get(u'code')
+        code = upper_case_code(definition.attributes.get(u'code'))
         experiment_type_creation_metadata.code = code
         experiment_type_creation_metadata.version = get_version(definition.attributes.get(u'version', 1))
         creation_metadata[code] = experiment_type_creation_metadata
@@ -127,7 +126,7 @@ class DatasetTypeDefinitionToCreationMetadataParser(object):
     def parse(self, definition):
         creation_metadata = dotdict()
         dataset_type_creation_metadata = dotdict()
-        code = definition.attributes.get(u'code')
+        code = upper_case_code(definition.attributes.get(u'code'))
         dataset_type_creation_metadata.code = code
         dataset_type_creation_metadata.version = get_version(definition.attributes.get(u'version', 1))
         creation_metadata[code] = dataset_type_creation_metadata

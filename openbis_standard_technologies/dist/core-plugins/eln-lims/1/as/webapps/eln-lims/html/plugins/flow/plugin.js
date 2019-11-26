@@ -101,7 +101,8 @@ $.extend(FlowCytometryTechnology.prototype, ELNLIMSPlugin.prototype, {
         },
         "LSR_FORTESSA_WELL": {
             "TOOLBAR": { CREATE: false, FREEZE: false, EDIT: false, MOVE: false, COPY: false, DELETE: false, PRINT: true, HIERARCHY_GRAPH: true, HIERARCHY_TABLE: true, UPLOAD_DATASET: false, UPLOAD_DATASET_HELPER: false, EXPORT_ALL: true, EXPORT_METADATA: true },
-            "SHOW_ON_NAV": true
+            "SHOW_ON_NAV": true,
+            "SHOW_ON_NAV_FOR_PARENT_TYPES": ["LSR_FORTESSA_PLATE"]
         },
         "MOFLO_XDP_SPECIMEN": {
             "TOOLBAR": { CREATE: false, FREEZE: false, EDIT: false, MOVE: false, COPY: false, DELETE: false, PRINT: true, HIERARCHY_GRAPH: true, HIERARCHY_TABLE: true, UPLOAD_DATASET: false, UPLOAD_DATASET_HELPER: false, EXPORT_ALL: true, EXPORT_METADATA: true },
@@ -751,3 +752,5 @@ $.extend(FlowCytometryTechnology.prototype, ELNLIMSPlugin.prototype, {
     }
 
 });
+
+profile.plugins.push( new FlowCytometryTechnology());

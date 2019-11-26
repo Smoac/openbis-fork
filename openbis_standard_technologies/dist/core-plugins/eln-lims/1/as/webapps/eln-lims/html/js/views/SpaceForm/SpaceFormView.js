@@ -68,13 +68,13 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
 			toolbarModel.push({ component : $share, tooltip: "Manage access" });
 		}
 
-        //Freeze
-        if(_this._spaceFormModel.v3_space && _this._spaceFormModel.v3_space.frozen !== undefined) { //Freezing available on the API
-            var isEntityFrozen = _this._spaceFormModel.v3_space.frozen;
-            var isEntityFrozenTooltip = (isEntityFrozen)?"Entity Frozen":"Freeze Entity (Disable further modifications)";
-            var $freezeButton = FormUtil.getFreezeButton("SPACE", _this._spaceFormModel.v3_space.permId.permId, isEntityFrozen);
-            toolbarModel.push({ component : $freezeButton, tooltip: isEntityFrozenTooltip });
-        }
+		//Freeze
+		if(_this._spaceFormModel.v3_space && _this._spaceFormModel.v3_space.frozen !== undefined) { //Freezing available on the API
+			var isEntityFrozen = _this._spaceFormModel.v3_space.frozen;
+			var isEntityFrozenTooltip = (isEntityFrozen)?"Entity Frozen":"Freeze Entity (Disable further modifications)";
+			var $freezeButton = FormUtil.getFreezeButton("SPACE", _this._spaceFormModel.v3_space.permId.permId, isEntityFrozen);
+			toolbarModel.push({ component : $freezeButton, tooltip: isEntityFrozenTooltip });
+		}
 
 		var $header = views.header;
 		$header.append($formTitle);
@@ -85,7 +85,7 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
 	
 	this._allowedToCreateProject = function() {
 		var space = this._spaceFormModel.v3_space;
-		return space.frozenForProjects == false;
+		return space.frozenForProjects == false && this._spaceFormModel.projectRights.rights.indexOf("CREATE") >= 0;
 	}
 	
 }

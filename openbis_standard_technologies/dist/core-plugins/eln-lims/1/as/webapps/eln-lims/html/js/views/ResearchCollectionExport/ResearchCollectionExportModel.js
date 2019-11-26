@@ -15,9 +15,34 @@
  */
 
 function ResearchCollectionExportModel() {
-    this.submissionTypes = [];
-
-    this.addSubmissionType = function(submissionType) {
-        submissionTypes.push(submissionType);
-    };
+    this.submissionTypes = [
+        {
+            label: "Data Collection",
+            value: "/swordv2/collection/20.500.11850/30"
+        },
+        {
+            label: "Dataset",
+            value: "/swordv2/collection/20.500.11850/31"
+        },
+        {
+            label: "Image",
+            value: "/swordv2/collection/20.500.11850/32"
+        },
+        {
+            label: "Model",
+            value: "/swordv2/collection/20.500.11850/33"
+        },
+        {
+            label: "Sound",
+            value: "/swordv2/collection/20.500.11850/35"
+        },
+        {
+            label: "Video",
+            value: "/swordv2/collection/20.500.11850/36"
+        },
+        {
+            label: "Other Research Data",
+            value: "/swordv2/collection/20.500.11850/37"
+        }
+    ];
 }

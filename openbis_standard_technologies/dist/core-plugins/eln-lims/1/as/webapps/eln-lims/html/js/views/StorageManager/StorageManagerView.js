@@ -20,10 +20,10 @@ function StorageManagerView(storageManagerController, storageManagerModel, stora
 	
 	this._storageFromView = storageFromView;
 	this._storageToView = storageToView;
-	this._changeLogContainer = $("<div>").append("None");
+	this._changeLogContainer = $("<div id = 'change-log-container-id'>").append("None");
 	
-	this._moveBtn = FormUtil.getButtonWithIcon("glyphicon-floppy-disk", null, "Save Changes");
-	this._showHideStorageToBtn = FormUtil.getButtonWithIcon("glyphicon-eye-open", null, "Toggle Storage B");
+	this._moveBtn = FormUtil.getButtonWithIcon("glyphicon-floppy-disk", null, "Save Changes", null, "save-changes-btn");
+	this._showHideStorageToBtn = FormUtil.getButtonWithIcon("glyphicon-eye-open", null, "Toggle Storage B", null, 'toggle-storage-b-id');
 	this._showHideMenuBtn = FormUtil.getButtonWithIcon("glyphicon-resize-full", function() {
 			var iconSpan = $(this.children[0]);
 			if(iconSpan.hasClass("glyphicon-resize-full")) {

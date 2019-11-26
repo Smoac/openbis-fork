@@ -449,7 +449,6 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	
 	this._getNewMergedDropdown = function(entityKind, parentOrChildrenOrExperimentOrSample, $newFieldOperatorContainer) {
 		var _this = this;
-		var model = null;
 		var attributesModel = null;
 		if(parentOrChildrenOrExperimentOrSample === "EXPERIMENT") {
 			attributesModel = this._getFieldNameAttributesByEntityKind("EXPERIMENT");
@@ -460,7 +459,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		}
 		attributesModel.push({ value : "", label : "-------------------------", disabled : true });
 		var propertiesModel = this._getFieldNameProperties();
-		model = attributesModel.concat(propertiesModel);
+		var model = attributesModel.concat(propertiesModel);
 		var $dropdown = FormUtil.getDropdown(model, "Select a property");
 		$dropdown.change(function() {
 			var $thisComponent = $(this);
@@ -468,9 +467,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			var uuid = $($($thisComponent.parent()).parent()).attr("id");
 			var selectedValue = $thisComponent.val();
 			_this._advancedSearchModel.criteria.rules[uuid].name = selectedValue; //Update model
-			//alert("updated model! type is now " + _this._advancedSearchModel.criteria.rules[uuid].type + " and name is " + _this._advancedSearchModel.criteria.rules[uuid].name);
-			
-			
+
 			//Reset operator
 			$newFieldOperatorContainer.empty();
 			delete _this._advancedSearchModel.criteria.rules[uuid].operator;
@@ -539,27 +536,12 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		return $dropdown;
 	}
 	
-	this._getNewPropertyDropdown = function() {
-		var _this = this;
-		var model = this._getFieldNameProperties();
-		var $dropdown = FormUtil.getDropdown(model, "Select a property");
-		$dropdown.change(function() {
-			var $thisComponent = $(this);
-			//Get uuid and value and update model (type only)
-			var uuid = $($($thisComponent.parent()).parent()).attr("id");
-			var selectedValue = $thisComponent.val();
-			_this._advancedSearchModel.criteria.rules[uuid].name = selectedValue; //Update model
-			//alert("updated model! type is now " + _this._advancedSearchModel.criteria.rules[uuid].type + " and name is " + _this._advancedSearchModel.criteria.rules[uuid].name);
-		});
-		return $dropdown;
-	}
-	
 	this._getFieldNameProperties = function() {
 		var model = [];
 		var allProp = profile.getPropertyTypes();
 		for(var pIdx = 0; pIdx < allProp.length; pIdx++) {
 			var prop = allProp[pIdx];
-			model.push({ value : "PROP." + prop.code, label : prop.label });
+			model.push({ value : "PROP." + prop.code, label : prop.label + " [" + prop.code + "]" });
 		}
 		
 		model.sort(function(propertyA, propertyB) {
@@ -569,61 +551,45 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		return model;
 	}
 	
-	this._getNewAttributeDropdown = function(entityKind) {
-		var _this = this;
-		var model = this._getFieldNameAttributesByEntityKind(entityKind);
-		var $dropdown = FormUtil.getDropdown(model, "Select a property");
-		$dropdown.change(function() {
-			var $thisComponent = $(this);
-			//Get uuid and value and update model (type only)
-			var uuid = $($($thisComponent.parent()).parent()).attr("id");
-			var selectedValue = $thisComponent.val();
-			_this._advancedSearchModel.criteria.rules[uuid].name = selectedValue; //Update model
-			//alert("updated model! type is now " + _this._advancedSearchModel.criteria.rules[uuid].type + " and name is " + _this._advancedSearchModel.criteria.rules[uuid].name);
-
-		});
-		return $dropdown;
-	}
-	
 	this._getFieldNameAttributesByEntityKind = function(entityKind) {
 		var model = null;
 		switch(entityKind) {
 			case "EXPERIMENT":
-				model = [{ value : "ATTR.CODE", label : "Code" }, 
-				         { value : "ATTR.EXPERIMENT_TYPE", label :  ELNDictionary.getExperimentDualName() + " Type" }, 
-				         { value : "ATTR.PERM_ID", label : "Perm Id" }, 
-				         { value : "ATTR.PROJECT", label : "Project" }, 
-				         { value : "ATTR.PROJECT_PERM_ID", label : "Project Perm Id" }, 
-				         { value : "ATTR.PROJECT_SPACE", label : "Project Space" }, 
-//				         { value : "ATTR.METAPROJECT", label : "Tag" }, TO-DO Not supported by ELN yet
-				         { value : "ATTR.REGISTRATOR", label : "Registrator" }, 
-				         { value : "ATTR.REGISTRATION_DATE", label : "Registration Date" }, 
-				         { value : "ATTR.MODIFIER", label : "Modifier" },
-				         { value : "ATTR.MODIFICATION_DATE", label : "Modification Date" }
+				model = [{ value : "ATTR.CODE", label : "Code [ATTR.CODE]" },
+				         { value : "ATTR.EXPERIMENT_TYPE", label :  ELNDictionary.getExperimentDualName() + " Type [ATTR.EXPERIMENT_TYPE]" },
+				         { value : "ATTR.PERM_ID", label : "Perm Id [ATTR.PERM_ID]" },
+				         { value : "ATTR.PROJECT", label : "Project [ATTR.PROJECT]" },
+				         { value : "ATTR.PROJECT_PERM_ID", label : "Project Perm Id [ATTR.PROJECT_PERM_ID]" },
+				         { value : "ATTR.PROJECT_SPACE", label : "Project Space [ATTR.PROJECT_SPACE]" },
+//				         { value : "ATTR.METAPROJECT", label : "Tag [ATTR.METAPROJECT]" }, TO-DO Not supported by ELN yet
+				         { value : "ATTR.REGISTRATOR", label : "Registrator [ATTR.REGISTRATOR]" },
+				         { value : "ATTR.REGISTRATION_DATE", label : "Registration Date [ATTR.REGISTRATION_DATE]" },
+				         { value : "ATTR.MODIFIER", label : "Modifier [ATTR.MODIFIER]" },
+				         { value : "ATTR.MODIFICATION_DATE", label : "Modification Date [ATTR.MODIFICATION_DATE]" }
 				         ];
 				break;
 			case "SAMPLE":
 				model = [];
-				model.push({ value : "ATTR.CODE", label: "Code" });
+				model.push({ value : "ATTR.CODE", label: "Code [ATTR.CODE]" });
 				if(!this._advancedSearchModel.isSampleTypeForced) {
-					model.push({ value : "ATTR.SAMPLE_TYPE", label: "" + ELNDictionary.Sample + " Type" });
+					model.push({ value : "ATTR.SAMPLE_TYPE", label: "" + ELNDictionary.Sample + " Type [ATTR.SAMPLE_TYPE]" });
 				}
-				model.push({ value : "ATTR.PERM_ID", label: "Perm Id" });
-				model.push({ value : "ATTR.SPACE", label: "Space" });
-//				model.push({ value : "ATTR.METAPROJECT", label: "Tag" }); //TO-DO Not supported by ELN yet
-				model.push({ value : "ATTR.REGISTRATOR", label: "Registrator" });
-				model.push({ value : "ATTR.REGISTRATION_DATE", label: "Registration Date" });
-				model.push({ value : "ATTR.MODIFIER", label: "Modifier" });
-				model.push({ value : "ATTR.MODIFICATION_DATE", label: "Modification Date" });
+				model.push({ value : "ATTR.PERM_ID", label: "Perm Id [ATTR.PERM_ID]" });
+				model.push({ value : "ATTR.SPACE", label: "Space [ATTR.SPACE]" });
+//				model.push({ value : "ATTR.METAPROJECT", label: "Tag [ATTR.METAPROJECT]" }); //TO-DO Not supported by ELN yet
+				model.push({ value : "ATTR.REGISTRATOR", label: "Registrator [ATTR.REGISTRATOR]" });
+				model.push({ value : "ATTR.REGISTRATION_DATE", label: "Registration Date [ATTR.REGISTRATION_DATE]" });
+				model.push({ value : "ATTR.MODIFIER", label: "Modifier [ATTR.MODIFIER]" });
+				model.push({ value : "ATTR.MODIFICATION_DATE", label: "Modification Date [ATTR.MODIFICATION_DATE]" });
 				break;
 			case "DATASET":
-				model = [{ value : "ATTR.CODE", label : "Code" }, 
-				         { value : "ATTR.DATA_SET_TYPE", label : "Data Set Type" }, 
-//				         { value : "ATTR.METAPROJECT", label : "Tag" }, TO-DO Not supported by ELN yet
-				         { value : "ATTR.REGISTRATOR", label : "Registrator" }, 
-				         { value : "ATTR.REGISTRATION_DATE", label : "Registration Date" }, 
-				         { value : "ATTR.MODIFIER", label : "Modifier" },
-				         { value : "ATTR.MODIFICATION_DATE", label : "Modification Date" },
+				model = [{ value : "ATTR.CODE", label : "Code [ATTR.CODE]" },
+				         { value : "ATTR.DATA_SET_TYPE", label : "Data Set Type [ATTR.DATA_SET_TYPE]" },
+//				         { value : "ATTR.METAPROJECT", label : "Tag [ATTR.METAPROJECT]" }, TO-DO Not supported by ELN yet
+				         { value : "ATTR.REGISTRATOR", label : "Registrator [ATTR.REGISTRATOR]" },
+				         { value : "ATTR.REGISTRATION_DATE", label : "Registration Date [ATTR.REGISTRATION_DATE]" },
+				         { value : "ATTR.MODIFIER", label : "Modifier [ATTR.MODIFIER]" },
+				         { value : "ATTR.MODIFICATION_DATE", label : "Modification Date [ATTR.MODIFICATION_DATE]" },
 				         ];
 				break;
 		}

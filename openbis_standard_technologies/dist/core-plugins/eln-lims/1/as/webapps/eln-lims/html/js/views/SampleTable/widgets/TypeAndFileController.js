@@ -17,7 +17,13 @@
 function TypeAndFileController(title, linkType, actionFunction, allowedSampleTypes) {
 	this._typeAndFileModel = new TypeAndFileModel(title, linkType, actionFunction, allowedSampleTypes);
 	this._typeAndFileView = new TypeAndFileView(this, this._typeAndFileModel);
-	
+
+
+	this.setFile = function(file) {
+	    this._typeAndFileView.fileChooser.removeAttr('required');
+	    this._typeAndFileModel.file = file;
+	}
+
 	this.getFile = function() {
 		return this._typeAndFileModel.file;
 	}

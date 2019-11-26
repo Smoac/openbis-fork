@@ -154,7 +154,8 @@ function StorageManagerController(mainController) {
 		positionSelector: "on",
 		positionDropEventHandler: getPositionDropEventHandler(),
 		boxPositionMultiple: "off",
-		positionDragAndDropEnabled: "on"
+		positionDragAndDropEnabled: "on",
+		storageId : "storage-drop-down-id-a"
 	});
 	
 	this._storageToController = new StorageController({
@@ -171,7 +172,8 @@ function StorageManagerController(mainController) {
 		positionSelector: "on",
 		positionDropEventHandler: getPositionDropEventHandler(),
 		boxPositionMultiple: "off",
-		positionDragAndDropEnabled: "on"
+		positionDragAndDropEnabled: "on",
+		storageId : "storage-drop-down-id-b"
 	});
 	
 	this._storageManagerView = new StorageManagerView(this, this._storageManagerModel, this._storageFromController.getView(), this._storageToController.getView());

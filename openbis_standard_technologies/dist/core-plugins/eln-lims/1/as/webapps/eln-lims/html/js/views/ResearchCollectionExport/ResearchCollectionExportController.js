@@ -22,7 +22,7 @@ function ResearchCollectionExportController(parentController) {
         researchCollectionExportView.repaint(views);
     };
 
-    this.initialiseSubmissionTypesDropdown = function() {
+    this.initialiseSubmissionTypesDropdown = function(callback) {
         Util.blockUI();
         mainController.serverFacade.listSubmissionTypes(function(error, result) {
             Util.unblockUI();
@@ -44,9 +44,12 @@ function ResearchCollectionExportController(parentController) {
         var _this = this;
         var selectedNodes = $(researchCollectionExportModel.tree).fancytree('getTree').getSelectedNodes();
 
-        var selectedOption = researchCollectionExportView.$submissionTypeDropdown.find(":selected");
-        var submissionUrl = selectedOption.val();
-        var submissionType = selectedOption.text();
+        var selectedStOption = researchCollectionExportView.$submissionTypeDropdown.find(":selected");
+        var submissionUrl = selectedStOption.val();
+        var submissionType = selectedStOption.text();
+
+        var selectedRpOption = researchCollectionExportView.$retentionPeriodDropdown.find(":selected");
+        var retentionPeriod = selectedRpOption.val();
 
         var toExport = [];
         for (var eIdx = 0; eIdx < selectedNodes.length; eIdx++) {
@@ -59,11 +62,13 @@ function ResearchCollectionExportController(parentController) {
         } else if (!this.isValid(toExport)) {
             Util.showInfo('Not only spaces and the root should be selected. It will result in an empty export file.');
         } else if (!submissionUrl) {
-            Util.showInfo('First select submission type.');
+            Util.showInfo('Select submission type.');
+        } else if (!retentionPeriod) {
+            Util.showInfo('Select retention period.');
         } else {
             Util.blockUI();
             this.getUserInformation(function(userInformation) {
-                mainController.serverFacade.exportRc(toExport, true, false, submissionUrl, submissionType, userInformation,
+                mainController.serverFacade.exportRc(toExport, true, false, submissionUrl, submissionType, retentionPeriod, userInformation,
                         function(operationExecutionPermId) {
                             _this.waitForOpExecutionResponse(operationExecutionPermId, function(error, result) {
                                 Util.unblockUI();
@@ -72,11 +77,7 @@ function ResearchCollectionExportController(parentController) {
                                     win.focus();
                                     mainController.refreshView();
                                 } else {
-                                    if (error) {
-                                        Util.showError(error);
-                                    } else {
-                                        Util.showError('Returned result format is not correct.');
-                                    }
+                                    Util.showError(error ? error : 'Returned result format is not correct.');
                                 }
                             });
                         });

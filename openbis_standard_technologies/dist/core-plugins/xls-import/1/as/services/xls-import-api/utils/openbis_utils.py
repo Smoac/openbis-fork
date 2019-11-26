@@ -48,3 +48,20 @@ def get_metadata_name_for(creation_type, creation):
         code = "{}-{}".format(creation_type, creation.code)
     code = code.upper()
     return code
+
+
+def get_metadata_name_for_existing_element(existing_type, existing_element):
+    if existing_type == VocabularyTermDefinitionToCreationType:
+        code = str(existing_element.permId).split("(")
+        code = code[1].split(")")
+        code = "{}-{}".format(code[0], existing_element.code)
+    else:
+        code = existing_element.code
+
+    code = "{}-{}".format(existing_type, code)
+    code = code.upper()
+    return code
+
+
+def upper_case_code(code):
+    return code.upper() if code is not None else None

@@ -76,7 +76,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 			this._sampleTableModel.sampleTypeCodeToUse = sampleTypeCodeToUse;
 			
 			//Add Sample Type
-			if(sampleTypeCodeToUse !== null) {
+			if(sampleTypeCodeToUse !== null & _this._sampleTableModel.sampleRights.rights.indexOf("CREATE") >= 0) {
 				var $createButton = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
 					var argsMap = {
 							"sampleTypeCode" : sampleTypeCodeToUse,
@@ -85,7 +85,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 					var argsMapStr = JSON.stringify(argsMap);
 					Util.unblockUI();
 					mainController.changeView("showCreateSubExperimentPage", argsMapStr);
-				});
+				}, null, null, "create-btn");
 				
 				toolbarModel.push({ component : $createButton, tooltip: "Create " + Util.getDisplayNameFromCode(sampleTypeCodeToUse) });
 			}
@@ -127,13 +127,13 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 	this._getOptionsMenu = function() {
 		var _this = this;
 		var $dropDownMenu = $("<span>", { class : 'dropdown' });
-		var $caret = $("<a>", { 'href' : '#', 'data-toggle' : 'dropdown', class : 'dropdown-toggle btn btn-default'}).append("Operations ").append($("<b>", { class : 'caret' }));
+		var $caret = $("<a>", { 'href' : '#', 'data-toggle' : 'dropdown', class : 'dropdown-toggle btn btn-default', 'id' : 'options-menu-btn'}).append("Operations ").append($("<b>", { class : 'caret' }));
 		var $list = $("<ul>", { class : 'dropdown-menu', 'role' : 'menu', 'aria-labelledby' :'sampleTableDropdown' });
 		$dropDownMenu.append($caret);
 		$dropDownMenu.append($list);
 		
-		if(_this._sampleTableModel.experimentIdentifier) {
-			var $createSampleOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Create ' + ELNDictionary.Sample + ''}).append('Create ' + ELNDictionary.Sample + ''));
+		if(_this._sampleTableModel.experimentIdentifier && _this._sampleTableModel.sampleRights.rights.indexOf("CREATE") >= 0) {
+			var $createSampleOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Create ' + ELNDictionary.Sample + '', 'id' : 'create-' + ELNDictionary.Sample.toLowerCase() + '-btn'}).append('Create ' + ELNDictionary.Sample + ''));
 			$createSampleOption.click(function() {
 				_this.createNewSample(_this._sampleTableModel.experimentIdentifier);
 			});
@@ -141,13 +141,13 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		}
 		
 		
-		var $batchRegisterOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Batch Register ' + ELNDictionary.Sample + 's'}).append("Batch Register " + ELNDictionary.Sample + "s"));
+		var $batchRegisterOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Batch Register ' + ELNDictionary.Sample + 's', 'id' : 'register-' + ELNDictionary.Sample.toLowerCase() + '-btn'}).append("Batch Register " + ELNDictionary.Sample + "s"));
 		$batchRegisterOption.click(function() {
 			_this.registerSamples(_this._sampleTableModel.experimentIdentifier);
 		});
 		$list.append($batchRegisterOption);
 		
-		var $batchUpdateOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Batch Update ' + ELNDictionary.Sample + 's'}).append("Batch Update " + ELNDictionary.Sample + "s"));
+		var $batchUpdateOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Batch Update ' + ELNDictionary.Sample + 's', 'id' : 'update-' + ELNDictionary.Sample.toLowerCase() + '-btn'}).append("Batch Update " + ELNDictionary.Sample + "s"));
 		$batchUpdateOption.click(function() {
 			_this.updateSamples(_this._sampleTableModel.experimentIdentifier);
 		});
@@ -155,7 +155,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		
 		if(_this._sampleTableModel.experimentIdentifier) {
 			var expKindName = ELNDictionary.getExperimentKindName(_this._sampleTableModel.experimentIdentifier, false);
-			var $searchCollectionOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Search in ' + expKindName  }).append('Search in ' + expKindName));
+			var $searchCollectionOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Search in ' + expKindName, 'id' : 'search-' + ELNDictionary.Sample.toLowerCase() + '-btn'}).append('Search in ' + expKindName));
 			$searchCollectionOption.click(function() {
 				
 				var sampleRules = { "UUIDv4" : { type : "Experiment", name : "ATTR.PERM_ID", value : _this._sampleTableModel.experiment.permId } };
@@ -195,6 +195,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 	}
 	
 	this.registerSamples = function(experimentIdentifier) {
+	    var _this = this;
 		var allowedSampleTypes = null;
 		var forcedSpace = null;
 		var spaceCodeFromIdentifier = null;
@@ -205,7 +206,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 			spaceCodeFromIdentifier = IdentifierUtil.getSpaceCodeFromIdentifier(experimentIdentifier);
 			forcedSpace = IdentifierUtil.getForcedSpaceIdentifier(spaceCodeFromIdentifier);
 		}
-		
+
 		var typeAndFileController = new TypeAndFileController('Register ' + ELNDictionary.Samples + '', "REGISTRATION", function(type, file) {
 			Util.blockUI();
 			mainController.serverFacade.fileUpload(typeAndFileController.getFile(), function(result) {
@@ -224,6 +225,9 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 						} else {
 							Util.showError("Unknown response. Probably an error happened.", function() {Util.unblockUI();});
 						}
+
+						// Remove the controller of this view that should be now out of scope.
+                        _this._sampleTableController.typeAndFileController = null;
 					};
 					
 					var experimentIdentifierOrDelete = experimentIdentifier;
@@ -241,9 +245,13 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 			});
 		}, allowedSampleTypes);
 		typeAndFileController.init();
+
+		// Set the typeAndFileController on the main controller of this view to make it available.
+        this._sampleTableController.typeAndFileController = typeAndFileController;
 	}
 	
 	this.updateSamples = function(experimentIdentifier) {
+	    var _this = this;
 		var allowedSampleTypes = null;
 		var forcedSpace = null;
 		var spaceCodeFromIdentifier = null;
@@ -267,6 +275,9 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 				} else {
 					Util.showError("Unknown response. Probably an error happened.", function() {Util.unblockUI();});
 				}
+
+				// Remove the controller of this view that should be now out of scope.
+				_this._sampleTableController.typeAndFileController = null;
 			};
 			
 			var experimentIdentifierOrDelete = experimentIdentifier;
@@ -281,5 +292,8 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 			});
 		}, allowedSampleTypes);
 		typeAndFileController.init();
+
+		// Set the typeAndFileController on the main controller of this view to make it available.
+		this._sampleTableController.typeAndFileController = typeAndFileController;
 	}
 }

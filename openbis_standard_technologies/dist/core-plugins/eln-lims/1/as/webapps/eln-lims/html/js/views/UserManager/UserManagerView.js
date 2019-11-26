@@ -137,12 +137,12 @@ function UserManagerView(userManagerController, userManagerModel) {
 	this._getOptionsMenu = function() {
 		var _this = this;
 		var $dropDownMenu = $("<span>", { class : 'dropdown' });
-		var $caret = $("<a>", { 'href' : '#', 'data-toggle' : 'dropdown', class : 'dropdown-toggle btn btn-default'}).append("Operations ").append($("<b>", { class : 'caret' }));
+		var $caret = $("<a>", { 'href' : '#', 'data-toggle' : 'dropdown', class : 'dropdown-toggle btn btn-default', id : 'optionsMenu'}).append("Operations ").append($("<b>", { class : 'caret' }));
 		var $list = $("<ul>", { class : 'dropdown-menu', 'role' : 'menu', 'aria-labelledby' :'sampleTableDropdown' });
 		$dropDownMenu.append($caret);
 		$dropDownMenu.append($list);
 		
-		var $createUserOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Create User'}).append("Create User"));
+		var $createUserOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Create User', id : 'createUser'}).append("Create User"));
 		$createUserOption.click(function() {
 			_this._userManagerController.showCreateNewUserModal();
 		});

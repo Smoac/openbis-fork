@@ -138,10 +138,15 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 						archiveTooltip = "Revoke archiving request";
 					} else {
 						archiveAction = function() {
-							_this.requestArchiving();
+							_this.requestOrLockArchiving();
 						}
-						archiveTooltip = "Request archiving";
+						archiveTooltip = "Request or lock archiving";
 					}
+				} else if (physicalData.status == "LOCKED") {
+					archiveAction = function() {
+						_this._dataSetFormController.setArchivingLock(false);
+					}
+					archiveTooltip = "Unlock";
 				} else if (physicalData.status == "ARCHIVED") {
 					archiveAction = function() {
 						_this._dataSetFormController.unarchive();
@@ -219,6 +224,10 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		if(!this._dataSetFormModel.isMini) {
 			var $header = views.header;
 			$header.append($title);
+	        var dataSetTypeDefinitionsExtension = profile.dataSetTypeDefinitionsExtension[_this._dataSetFormModel.dataSet.dataSetTypeCode];
+            if(dataSetTypeDefinitionsExtension && dataSetTypeDefinitionsExtension.extraToolbar) {
+                toolbarModel = toolbarModel.concat(dataSetTypeDefinitionsExtension.extraToolbar(_this._dataSetFormModel.mode, _this._dataSetFormModel.dataSet));
+            }
 			$header.append(FormUtil.getToolbar(toolbarModel));
 		}
 		
@@ -759,6 +768,39 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		$("#metadataContainer").append($wrapper);
 	}
 
+	this.requestOrLockArchiving = function() {
+		var _this = this;
+
+		var $window = $('<form>', { 'action' : 'javascript:void(0);' });
+		$window.append($('<legend>').append("Request or lock archiving"));
+		var $buttons = $('<div>', {'id' : 'rol_archving_buttons'});
+		$window.append($buttons);
+		
+		var $requestButton = $('<div>', {'class' : 'btn btn-default', 'text' : 'Request archiving', 'id' : 'request_archiving'});
+		$requestButton.click(function() {
+			_this.requestArchiving();
+		});
+		var $lockButton = $('<div>', {'class' : 'btn btn-default', 'text' : 'Lock archiving', 'id' : 'lock_archiving'});
+		$lockButton.click(function() {
+			_this.lockArchiving();
+		});
+		var $cancelButton = $('<div>', {'class' : 'btn btn-default', 'text' : 'Cancel', 'id' : 'cancel'});
+		$cancelButton.click(function() {
+			Util.unblockUI();
+		});
+		$buttons.append($requestButton).append('&nbsp;').append($lockButton).append('&nbsp;').append($cancelButton);
+		
+		var css = {
+				'text-align' : 'left',
+				'top' : '15%',
+				'width' : '50%',
+				'left' : '15%',
+				'right' : '20%',
+				'overflow' : 'hidden'
+		};
+		Util.blockUI($window, css);
+	}
+
 	this.requestArchiving = function() {
 		var _this = this;
 
@@ -796,6 +838,39 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 
 		Util.blockUI($window, css);
 	}
+	
+	this.lockArchiving = function() {
+		var _this = this;
+
+		var $window = $('<form>', { 'action' : 'javascript:void(0);' });
+		$window.submit(function() {
+		    _this._dataSetFormController.setArchivingLock(true);
+		    Util.unblockUI();
+		});
+
+		$window.append($('<legend>').append('Lock archiving'));
+		$window.append($('<p>').text("Prevent your dataset from being archived."));
+
+		var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' });
+		var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
+		$btnCancel.click(function() {
+		    Util.unblockUI();
+		});
+
+		$window.append($btnAccept).append('&nbsp;').append($btnCancel);
+
+		var css = {
+		        'text-align' : 'left',
+		        'top' : '15%',
+		        'width' : '70%',
+		        'left' : '15%',
+		        'right' : '20%',
+		        'overflow' : 'hidden',
+				'background' : '#ffffbf'
+		};
+
+		Util.blockUI($window, css);
+	}
 
 	this.revokeArchivingRequest = function() {
 		this._dataSetFormController.setArchivingRequested(false);
@@ -803,7 +878,9 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 
 	this._allowedToEdit = function() {
 		var dataSet = this._dataSetFormModel.v3_dataset;
-		return dataSet.frozen == false;
+		var rights = this._dataSetFormModel.rights;
+		var updateAllowed = rights && rights.rights.indexOf("UPDATE") >= 0;
+		return updateAllowed && dataSet.frozen == false;
 	}
 
 	this._allowedToMove = function() {

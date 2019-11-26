@@ -121,8 +121,14 @@ function SettingsManager(serverFacade) {
 		
 		for (var sampleTypeCode of Object.keys(settings.sampleTypeDefinitionsExtension)) {
 			// sampleTypeDefinitionsExtension gets overwritten with settings if found
-			targetProfile.sampleTypeDefinitionsExtension[sampleTypeCode] = settings.sampleTypeDefinitionsExtension[sampleTypeCode];
-			
+			if(!targetProfile.sampleTypeDefinitionsExtension[sampleTypeCode]) {
+			    targetProfile.sampleTypeDefinitionsExtension[sampleTypeCode] = {};
+			}
+
+			for(var key in settings.sampleTypeDefinitionsExtension[sampleTypeCode]) { // Key by Key, in case there is new Keys not available in the old config
+                targetProfile.sampleTypeDefinitionsExtension[sampleTypeCode][key] = settings.sampleTypeDefinitionsExtension[sampleTypeCode][key];
+            }
+
 			// Remove current profile show config
 			if($.inArray(sampleTypeCode, targetProfile.hideTypes["sampleTypeCodes"]) !== -1) {
 				var indexToRemove = $.inArray(sampleTypeCode, targetProfile.hideTypes["sampleTypeCodes"]);

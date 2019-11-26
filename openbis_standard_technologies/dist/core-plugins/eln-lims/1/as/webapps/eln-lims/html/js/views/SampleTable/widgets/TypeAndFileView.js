@@ -30,7 +30,7 @@ function TypeAndFileView(typeAndFileController, typeAndFileModel) {
 		
 		$window.append($('<legend>').append(this._typeAndFileModel.title));
 
-		var $sampleTypeDropDown = FormUtil.getSampleTypeDropdown(null, true, this._typeAndFileModel.allowedSampleTypes, this._typeAndFileModel.allowedSampleTypes);
+		var $sampleTypeDropDown = FormUtil.getSampleTypeDropdown('choose-type-btn', true, this._typeAndFileModel.allowedSampleTypes, this._typeAndFileModel.allowedSampleTypes);
 		$sampleTypeDropDown.change(function(event) {
 			_this._typeAndFileModel.sampleTypeCode = $(this).val();
 			_this.updateLink($(this).val());
@@ -46,7 +46,7 @@ function TypeAndFileView(typeAndFileController, typeAndFileModel) {
 		var $fileChooserBoxGroup = FormUtil.getFieldForComponentWithLabel(this.fileChooser, 'File');
 		$window.append($fileChooserBoxGroup);
 		
-		var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' });
+		var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept', 'id' : 'accept-type-file' });
 		var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
 		$btnCancel.click(function() {
 			Util.unblockUI();

@@ -27,11 +27,15 @@ function JupyterNotebookView(jupyterNotebookController, jupyterNotebookModel) {
 		$btnOpen.click(["open", $window, this], this._handle);
 		var $btnSave = $('<div>', { 'class' : 'btn btn-default', 'text' : 'Create & download', 'id' : 'save_jnb' });
 		$btnSave.click(["save", $window, this], this._handle);
-		$btns.append($btnOpen).append('&nbsp;').append($btnSave);
+		var $cancelButton = $('<div>', {'class' : 'btn btn-default', 'text' : 'Cancel', 'id' : 'cancel'});
+		$cancelButton.click(function() {
+			Util.unblockUI();
+		});
+		$btns.append($btnOpen).append('&nbsp;').append($btnSave).append('&nbsp;').append($cancelButton);
 		var css = {
 				'text-align' : 'left',
 				'top' : '15%',
-				'width' : '70%',
+				'width' : '50%',
 				'left' : '15%',
 				'right' : '20%',
 				'overflow' : 'hidden'

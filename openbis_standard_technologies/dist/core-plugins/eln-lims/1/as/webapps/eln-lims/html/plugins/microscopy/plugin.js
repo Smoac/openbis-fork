@@ -373,3 +373,5 @@ $.extend(MicroscopyTechnology.prototype, ELNLIMSPlugin.prototype, {
             });
     }
 });
+
+profile.plugins.push( new MicroscopyTechnology());

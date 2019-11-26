@@ -42,7 +42,8 @@ function StorageListView(storageListController, storageListModel) {
 					positionProperty = "NoPos";
 				}
 				var displayName = boxProperty + " - " + positionProperty;
-				return (data['$object'].newSample)?displayName:FormUtil.getFormLink(displayName, "Sample", data['$object'].permId);
+				var id = displayName.split(" ").join("").toLowerCase() + "-id";
+				return (data['$object'].newSample)?displayName:FormUtil.getFormLink(displayName, "Sample", data['$object'].permId, null, id);
 			},
 			filter : function(data, filter) {
 				return data.identifier.toLowerCase().indexOf(filter) !== -1;
@@ -162,7 +163,7 @@ function StorageListView(storageListController, storageListModel) {
 		this._dataGrid.init($dataGridContainer, extraOptions);
 		$container.append($dataGridContainer);
 		
-		var $storageAddButton = $("<a>", { class : 'btn btn-default', style : "float: right; background-color:#f9f9f9;" }).append($("<i>", { class : "glyphicon glyphicon-plus" } ));
+		var $storageAddButton = $("<a id='add-storage-btn'>", { class : 'btn btn-default', style : "float: right; background-color:#f9f9f9;" }).append($("<i>", { class : "glyphicon glyphicon-plus" } ));
 		
 		$storageAddButton.on("click", function(event) {
 			var uuid = Util.guid();
@@ -216,7 +217,8 @@ function StorageListView(storageListController, storageListModel) {
 			positionSelector: "on",
 			positionDropEventHandler: null,
 			boxPositionMultiple: "on",
-			positionDragAndDropEnabled: "off"
+			positionDragAndDropEnabled: "off",
+			storageId : "storage-drop-down-id"
 		});
 		
 		var storagePropGroup = profile.getStoragePropertyGroup();

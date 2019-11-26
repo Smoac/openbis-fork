@@ -22,23 +22,25 @@ function SpaceFormController(mainController, space) {
 	this.init = function(views) {
 		var _this = this;
 		
-		require([ "as/dto/space/id/SpacePermId", "as/dto/space/fetchoptions/SpaceFetchOptions" ],
-			function(SpacePermId, SpaceFetchOptions) {
+		require([ "as/dto/space/id/SpacePermId", "as/dto/space/fetchoptions/SpaceFetchOptions", 
+				"as/dto/project/id/ProjectIdentifier", "as/dto/rights/fetchoptions/RightsFetchOptions" ],
+			function(SpacePermId, SpaceFetchOptions, ProjectIdentifier, RightsFetchOptions) {
 			var id = new SpacePermId(space);
 			mainController.openbisV3.getSpaces([ id ], new SpaceFetchOptions()).done(function(map) {
-                _this._spaceFormModel.v3_space = map[id];
-                _this._mainController.getUserRole({
-        			space: _this._spaceFormModel.space
-        		}, function(roles){
-        			_this._spaceFormModel.roles = roles;
-        			_this._spaceFormView.repaint(views);
-        		});
-            });
-			
-			
+				_this._spaceFormModel.v3_space = map[id];
+				var space = _this._spaceFormModel.space;
+				_this._mainController.getUserRole({
+					space: space
+				}, function(roles){
+					_this._spaceFormModel.roles = roles;
+					var dummyId = new ProjectIdentifier("/" + space + "/DUMMY");
+					mainController.openbisV3.getRights([id, dummyId], new RightsFetchOptions()).done(function(rightsByIds) {
+						_this._spaceFormModel.projectRights = rightsByIds[dummyId];
+						_this._spaceFormView.repaint(views);
+					});
+				});
+			});
 		});
-		
-		
 	}
 
 	this.createProject = function() {

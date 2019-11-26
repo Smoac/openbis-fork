@@ -28,3 +28,7 @@ var onLoadInstanceProfileResorceFunc = function() {
 //<PROFILE_PLACEHOLDER>
 loadJSResorce("./etc/InstanceProfile.js", onLoadInstanceProfileResorceFunc);
 //</PROFILE_PLACEHOLDER>
+
+var PLUGINS_CONFIGURATION = {
+    extraPlugins : ["life-sciences", "flow", "microscopy"]
+}
