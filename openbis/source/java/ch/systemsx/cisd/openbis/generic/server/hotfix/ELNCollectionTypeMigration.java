@@ -24,8 +24,9 @@ import org.hibernate.query.NativeQuery;
 import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 public class ELNCollectionTypeMigration {
@@ -60,37 +61,37 @@ public class ELNCollectionTypeMigration {
         "PLANT_COLLECTION"
     };
 
-    private static final String[] PROPERTY_SQL_UPDATES = new String[]{
-        "UPDATE property_types SET code = 'PRODUCT.COMPANY' WHERE code = 'COMPANY' and (select count(*) from core_plugins where name = 'eln-lims') > 0;",
-        "UPDATE property_types SET code = 'PRODUCT.SIZE_OF_ITEM' WHERE code = 'SIZE_OF_ITEM' and (select count(*) from core_plugins where name = 'eln-lims') > 0;",
-        "UPDATE property_types SET code = 'PRODUCT.HAZARD_STATEMENT' WHERE code = 'HAZARD_STATEMENT' and (select count(*) from core_plugins where name = 'eln-lims') > 0;",
-        "UPDATE property_types SET code = 'PRODUCT.CATEGORY' WHERE code = 'CATEGORY' and (select count(*) from core_plugins where name = 'eln-lims') > 0;",
-        "UPDATE property_types SET code = 'PRODUCT.DESCRIPTION' WHERE code = 'DESCRIPTION' and (select count(*) from core_plugins where name = 'eln-lims') > 0;",
-        "UPDATE property_types SET code = 'PRODUCT.PRODUCT_SECONDARY_NAMES' WHERE code = 'PRODUCT_SECONDARY_NAMES' and (select count(*) from core_plugins where name = 'eln-lims') > 0;",
+    private static final Map<String, String> PROPERTY_UPDATES_MAP = Stream.of(
+            new AbstractMap.SimpleEntry<>("COMPANY", "PRODUCT.COMPANY"),
+            new AbstractMap.SimpleEntry<>("SIZE_OF_ITEM", "PRODUCT.SIZE_OF_ITEM"),
+            new AbstractMap.SimpleEntry<>("HAZARD_STATEMENT", "PRODUCT.HAZARD_STATEMENT"),
+            new AbstractMap.SimpleEntry<>("CATEGORY", "PRODUCT.CATEGORY"),
+            new AbstractMap.SimpleEntry<>("DESCRIPTION", "PRODUCT.DESCRIPTION"),
+            new AbstractMap.SimpleEntry<>("PRODUCT_SECONDARY_NAMES", "PRODUCT.PRODUCT_SECONDARY_NAMES"),
 
-        "UPDATE property_types SET code = 'REQUEST.ORDER_NUMBER' WHERE code = 'ORDER_NUMBER' and (select count(*) from core_plugins where name = 'eln-lims') > 0;",
-        "UPDATE property_types SET code = 'REQUEST.DEPARTMENT' WHERE code = 'DEPARTMENT' and (select count(*) from core_plugins where name = 'eln-lims') > 0;",
-        "UPDATE property_types SET code = 'REQUEST.BUYER' WHERE code = 'BUYER' and (select count(*) from core_plugins where name = 'eln-lims') > 0;",
-        "UPDATE property_types SET code = 'REQUEST.PROJECT' WHERE code = 'PROJECT' and (select count(*) from core_plugins where name = 'eln-lims') > 0;",
+            new AbstractMap.SimpleEntry<>("ORDER_NUMBER", "REQUEST.ORDER_NUMBER"),
+            new AbstractMap.SimpleEntry<>("DEPARTMENT", "REQUEST.DEPARTMENT"),
+            new AbstractMap.SimpleEntry<>("BUYER", "REQUEST.BUYER"),
+            new AbstractMap.SimpleEntry<>("PROJECT", "REQUEST.PROJECT"),
 
-        "UPDATE property_types SET code = 'SUPPLIER.URL' WHERE code = 'URL' and (select count(*) from core_plugins where name = 'eln-lims') > 0;",
-        "UPDATE property_types SET code = 'SUPPLIER.PREFERRED_ORDER_METHOD' WHERE code = 'PREFERRED_ORDER_METHOD' and (select count(*) from core_plugins where name = 'eln-lims') > 0;",
-        "UPDATE property_types SET code = 'SUPPLIER.COMPANY_CONTACT_EMAIL' WHERE code = 'COMPANY_CONTACT_EMAIL' and (select count(*) from core_plugins where name = 'eln-lims') > 0;",
-        "UPDATE property_types SET code = 'SUPPLIER.COMPANY_CONTACT_NAME' WHERE code = 'COMPANY_CONTACT_NAME' and (select count(*) from core_plugins where name = 'eln-lims') > 0;",
+            new AbstractMap.SimpleEntry<>("URL", "SUPPLIER.URL"),
+            new AbstractMap.SimpleEntry<>("PREFERRED_ORDER_METHOD", "SUPPLIER.PREFERRED_ORDER_METHOD"),
+            new AbstractMap.SimpleEntry<>("COMPANY_CONTACT_EMAIL", "SUPPLIER.COMPANY_CONTACT_EMAIL"),
+            new AbstractMap.SimpleEntry<>("COMPANY_CONTACT_NAME", "SUPPLIER.COMPANY_CONTACT_NAME"),
 
-        "UPDATE property_types SET code = 'ORDER.PRICE_PAID' WHERE code = 'PRICE_PAID' and (select count(*) from core_plugins where name = 'eln-lims') > 0;",
+            new AbstractMap.SimpleEntry<>("PRICE_PAID", "ORDER.PRICE_PAID"),
 
-        "UPDATE property_types SET code = 'GENERAL_PROTOCOL.PROTOCOL_TYPE' WHERE code = 'PROTOCOL_TYPE' and (select count(*) from core_plugins where name = 'eln-lims') > 0;",
-        "UPDATE property_types SET code = 'GENERAL_PROTOCOL.PROTOCOL_EVALUATION' WHERE code = 'PROTOCOL_EVALUATION' and (select count(*) from core_plugins where name = 'eln-lims') > 0;",
-        "UPDATE property_types SET code = 'GENERAL_PROTOCOL.TIME_REQUIREMENT' WHERE code = 'TIME_REQUIREMENT' and (select count(*) from core_plugins where name = 'eln-lims') > 0;",
-        "UPDATE property_types SET code = 'GENERAL_PROTOCOL.MATERIALS' WHERE code = 'MATERIALS' and (select count(*) from core_plugins where name = 'eln-lims') > 0;",
+            new AbstractMap.SimpleEntry<>("PROTOCOL_TYPE", "GENERAL_PROTOCOL.PROTOCOL_TYPE"),
+            new AbstractMap.SimpleEntry<>("PROTOCOL_EVALUATION", "GENERAL_PROTOCOL.PROTOCOL_EVALUATION"),
+            new AbstractMap.SimpleEntry<>("TIME_REQUIREMENT", "GENERAL_PROTOCOL.TIME_REQUIREMENT"),
+            new AbstractMap.SimpleEntry<>("MATERIALS", "GENERAL_PROTOCOL.MATERIALS"),
 
-        "UPDATE property_types SET code = 'DEFAULT_EXPERIMENT.GRANT' WHERE code = 'GRANT' and (select count(*) from core_plugins where name = 'eln-lims') > 0;",
+            new AbstractMap.SimpleEntry<>("GRANT", "DEFAULT_EXPERIMENT.GRANT"),
 
-        "UPDATE property_types SET code = 'EXPERIMENTAL_STEP.EXPERIMENTAL_RESULTS' WHERE code = 'EXPERIMENTAL_RESULTS' and (select count(*) from core_plugins where name = 'eln-lims') > 0;",
-        "UPDATE property_types SET code = 'EXPERIMENTAL_STEP.EXPERIMENTAL_GOALS' WHERE code = 'EXPERIMENTAL_GOALS' and (select count(*) from core_plugins where name = 'eln-lims') > 0;",
-        "UPDATE property_types SET code = 'EXPERIMENTAL_STEP.EXPERIMENTAL_DESCRIPTION' WHERE code = 'EXPERIMENTAL_PROCEDURE' and (select count(*) from core_plugins where name = 'eln-lims') > 0;"
-    };
+            new AbstractMap.SimpleEntry<>("EXPERIMENTAL_RESULTS", "EXPERIMENTAL_STEP.EXPERIMENTAL_RESULTS"),
+            new AbstractMap.SimpleEntry<>("EXPERIMENTAL_GOALS", "EXPERIMENTAL_STEP.EXPERIMENTAL_GOALS"),
+            new AbstractMap.SimpleEntry<>("EXPERIMENTAL_PROCEDURE", "EXPERIMENTAL_STEP.EXPERIMENTAL_DESCRIPTION"))
+            .collect(Collectors.toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
 
     private static final String[] WIDGET_POST_UPDATES = new String[]{
         "UPDATE property_types SET meta_data = '{ \"custom_widget\" : \"Word Processor\" }'::jsonb WHERE id IN (SELECT id FROM property_types WHERE daty_id = (SELECT id FROM data_types WHERE code = 'MULTILINE_VARCHAR'));",
@@ -277,9 +278,15 @@ public class ELNCollectionTypeMigration {
             }
         }
 
-        for (String PROPERTY_UPDATE:PROPERTY_SQL_UPDATES) {
-            System.out.println("Going to Execute PROPERTY_UPDATE: " + PROPERTY_UPDATE);
-            executeUpdate(PROPERTY_UPDATE, null, null, null, null);
+        for (Map.Entry<String, String> entry : PROPERTY_UPDATES_MAP.entrySet()) {
+            System.out.println("Going to Execute PROPERTY_UPDATE: " + entry.getKey());
+
+            String query = String.format("UPDATE property_types SET code = '%s' WHERE code = '%s' and " +
+                                         "(select count(*) from property_types where code = '%s') = 0 and " +
+                                         "(select count(*) from core_plugins where name = 'eln-lims') > 0;",
+                                         entry.getValue(), entry.getKey(), entry.getValue());
+
+            executeUpdate(query, null, null, null, null);
             System.out.println("PROPERTY_UPDATE DONE");
         }
         System.out.println("ELNCollectionTypeMigration beforeUpgrade END");
