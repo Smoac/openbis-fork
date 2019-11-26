@@ -532,10 +532,6 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     @Override
     public final SessionContextDTO tryAuthenticate(final String user, final String password)
     {
-        if (DefaultSessionManager.NO_LOGIN_FILE.exists())
-        {
-            throw new UserFailureException("Login is disabled by the administrator.");
-        }
         return tryToAuthenticate(sessionManager.tryToOpenSession(user, password));
     }
 
@@ -599,8 +595,13 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         }
     }
 
-    private SessionContextDTO tryToAuthenticate(final String sessionToken)
+    @Override
+    public SessionContextDTO tryToAuthenticate(final String sessionToken)
     {
+        if (DefaultSessionManager.NO_LOGIN_FILE.exists())
+        {
+            throw new UserFailureException("Login is disabled by the administrator.");
+        }
         if (sessionToken == null)
         {
             return null;

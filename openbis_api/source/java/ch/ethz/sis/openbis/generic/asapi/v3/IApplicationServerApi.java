@@ -28,6 +28,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.id.IAuthoriza
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.search.AuthorizationGroupSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.update.AuthorizationGroupUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.TableModel;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
@@ -152,6 +153,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.id.IQueryId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.id.QueryTechId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.search.QuerySearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.update.QueryUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.rights.Rights;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.rights.fetchoptions.RightsFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.RoleAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.create.RoleAssignmentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.delete.RoleAssignmentDeletionOptions;
@@ -770,6 +773,14 @@ public interface IApplicationServerApi extends IRpcService
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code QueryUpdate} objects, insufficient access rights etc.
      */
     public void updateQueries(String sessionToken, List<QueryUpdate> queryUpdates);
+
+    /**
+     * Gets authorization rights for the provided {@link IObjectId} ids. A result map contains an entry for a given id 
+     * only if an object for that id has been found and that object can be accessed by the user.
+     * 
+     * @throws UserFailureException in case of any problems
+     */
+    public Map<IObjectId, Rights> getRights(String sessionToken, List<? extends IObjectId> ids, RightsFetchOptions fetchOptions);
 
     /**
      * Gets spaces for the provided {@code ISpaceId} ids. A result map contains an entry for a given id only if a space for that id has been found and

@@ -44,6 +44,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.update.Update
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.TableModel;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.get.GetServerInformationOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.get.GetServerInformationOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
@@ -298,6 +299,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.search.SearchQueriesOperat
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.search.SearchQueriesOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.update.QueryUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.update.UpdateQueriesOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.rights.Rights;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.rights.fetchoptions.RightsFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.rights.get.GetRightsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.rights.get.GetRightsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.RoleAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.create.CreateRoleAssignmentsOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.create.CreateRoleAssignmentsOperationResult;
@@ -521,6 +526,12 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public String loginAsSystem()
     {
         return tryToAuthenticateAsSystem().getSessionToken();
+    }
+
+    @Override
+    public void registerUser(String sessionToken)
+    {
+        tryToAuthenticate(sessionToken);
     }
 
     @Override
@@ -843,6 +854,14 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public void updateSemanticAnnotations(String sessionToken, List<SemanticAnnotationUpdate> updates)
     {
         executeOperation(sessionToken, new UpdateSemanticAnnotationsOperation(updates));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<IObjectId, Rights> getRights(String sessionToken, List<? extends IObjectId> ids, RightsFetchOptions fetchOptions)
+    {
+        GetRightsOperationResult result = executeOperation(sessionToken, new GetRightsOperation(ids, fetchOptions));
+        return result.getObjectMap();
     }
 
     @Override

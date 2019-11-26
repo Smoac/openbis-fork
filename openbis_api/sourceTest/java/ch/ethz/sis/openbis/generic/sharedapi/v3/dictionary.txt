@@ -2322,3 +2322,12 @@ get Meta Data
 set Meta Data
 set Meta Data Actions
 
+get Rights
+Get Rights Operation
+Get Rights Operation Result
+Right
+Rights
+Rights Fetch Options
+set Rights
+CREATE
+

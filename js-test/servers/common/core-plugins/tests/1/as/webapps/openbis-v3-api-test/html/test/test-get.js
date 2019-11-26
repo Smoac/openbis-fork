@@ -811,6 +811,22 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 
+		QUnit.test("getRights()", function(assert) {
+			var c = new common(assert);
+			var sampleId = new c.SampleIdentifier("/PLATONIC/PLATE-2");
+			c.start();
+			
+			c.createFacadeAndLogin().then(function(facade) {
+				return facade.getRights([sampleId], new c.RightsFetchOptions()).then(function(rights) {
+					c.assertEqual(rights[sampleId].rights, "UPDATE", "Rights");
+					c.finish();
+				});
+			}).fail(function(error) {
+				c.fail(error.message);
+				c.finish();
+			});
+		});
+		
 		QUnit.test("getServerInformation()", function(assert) {
 			var c = new common(assert);
 			c.start();
@@ -827,7 +843,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				c.finish();
 			});
 		});
-
+		
 	}
 
 	return function() {

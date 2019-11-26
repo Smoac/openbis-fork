@@ -117,6 +117,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.query.IExecuteSqlOpe
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.query.IGetQueriesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.query.ISearchQueriesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.query.IUpdateQueriesOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.rights.IGetRightsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.roleassignment.ICreateRoleAssignmentsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.roleassignment.IDeleteRoleAssignmentsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.roleassignment.IGetRoleAssignmentsOperationExecutor;
@@ -392,8 +393,11 @@ public class OperationsExecutor implements IOperationsExecutor
     private IInternalOperationExecutor internalOperationExecutor;
 
     @Autowired
-    private IGetSpacesOperationExecutor getSpacesExecutor;
+    private IGetRightsOperationExecutor getRightsExecutor;
 
+    @Autowired
+    private IGetSpacesOperationExecutor getSpacesExecutor;
+    
     @Autowired
     private IGetProjectsOperationExecutor getProjectsExecutor;
 
@@ -694,6 +698,7 @@ public class OperationsExecutor implements IOperationsExecutor
     private void executeGets(List<? extends IOperation> operations,
             Map<IOperation, IOperationResult> resultMap, IOperationContext context)
     {
+        resultMap.putAll(getRightsExecutor.execute(context, operations));
         resultMap.putAll(getSpacesExecutor.execute(context, operations));
         resultMap.putAll(getProjectsExecutor.execute(context, operations));
         resultMap.putAll(getExperimentsExecutor.execute(context, operations));

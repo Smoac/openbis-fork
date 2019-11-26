@@ -79,6 +79,7 @@
 	// 'as/dto/vocabulary/id/IVocabularyId',
 	// 'as/dto/vocabulary/id/IVocabularyTermId',
 	// 'as/dto/roleassignment/id/RoleAssignmentTechId',
+	// 'as/dto/rights/Right',
 
 
 // these are the DTOs that can be "manually" created on the client
@@ -538,6 +539,11 @@ var sources = [
 	'as/dto/roleassignment/Role',
 	'as/dto/roleassignment/RoleLevel',
 	'as/dto/roleassignment/RoleAssignment',
+	
+	'as/dto/rights/fetchoptions/RightsFetchOptions',
+	'as/dto/rights/get/GetRightsOperation',
+	'as/dto/rights/get/GetRightsOperationResult',
+	'as/dto/rights/Rights',
 	
 	'as/dto/plugin/create/PluginCreation',
 	'as/dto/plugin/create/CreatePluginsOperation',

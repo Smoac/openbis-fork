@@ -173,6 +173,8 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.ReportingServiceSearchCriteria = dtos.ReportingServiceSearchCriteria;
 		this.ReportingServiceFetchOptions = dtos.ReportingServiceFetchOptions;
 		this.ReportingServiceExecutionOptions = dtos.ReportingServiceExecutionOptions;
+		this.Rights = dtos.Rights;
+		this.RightsFetchOptions = dtos.RightsFetchOptions;
 		this.ProcessingServiceSearchCriteria = dtos.ProcessingServiceSearchCriteria;
 		this.ProcessingServiceFetchOptions = dtos.ProcessingServiceFetchOptions;
 		this.ProcessingServiceExecutionOptions = dtos.ProcessingServiceExecutionOptions;
@@ -221,6 +223,7 @@ define([ 'jquery', 'openbis', 'underscore', 'test/dtos' ], function($, defaultOp
 		this.GetTagsOperation = dtos.GetTagsOperation;
 		this.GetAuthorizationGroupsOperation = dtos.GetAuthorizationGroupsOperation;
 		this.GetRoleAssignmentsOperation = dtos.GetRoleAssignmentsOperation;
+		this.GetRightsOperation = dtos.GetRightsOperation;
 		this.GetPersonsOperation = dtos.GetPersonsOperation;
 		this.GetExternalDmsOperation = dtos.GetExternalDmsOperation;
 		this.GetSemanticAnnotationsOperation = dtos.GetSemanticAnnotationsOperation;

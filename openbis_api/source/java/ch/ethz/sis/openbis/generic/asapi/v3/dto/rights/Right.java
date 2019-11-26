@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ETH Zuerich, SIS
+ * Copyright 2019 ETH Zuerich, SIS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,15 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3;
+package ch.ethz.sis.openbis.generic.asapi.v3.dto.rights;
 
-import org.springframework.transaction.annotation.Transactional;
-
-import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * Extension of {@link IApplicationServerApi} which are only for internal use. These methods are not accessible remotely.
- * 
  * @author Franz-Josef Elmer
  */
-public interface IApplicationServerInternalApi extends IApplicationServerApi
+@JsonObject("as.dto.rights.Right")
+public enum Right
 {
-    @Transactional
-    public String loginAsSystem();
-
-    @Transactional
-    public void registerUser(String sessionToken);
-
+    CREATE, UPDATE
 }

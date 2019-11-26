@@ -93,6 +93,9 @@ public interface IServer extends ISessionProvider
 
     @Transactional
     public SessionContextDTO tryAuthenticateAnonymously();
+    
+    @Transactional
+    public SessionContextDTO tryToAuthenticate(String sessionToken);
 
     /** @return session for the specified token or null if session has expired */
     public SessionContextDTO tryGetSession(String sessionToken);
