@@ -30,6 +30,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Transactional;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -42,8 +43,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 @ContextConfiguration(locations = "classpath:applicationContext.xml")
 @Transactional(transactionManager = "transaction-manager")
 @Rollback
-public class ImportVocabularyTypesTest extends AbstractImportTest
-{
+public class ImportVocabularyTypesTest extends AbstractImportTest {
 
     private static final String VOCABULARIES_TYPES_XLS = "vocabularies/normal_vocab.xls";
 
@@ -68,26 +68,15 @@ public class ImportVocabularyTypesTest extends AbstractImportTest
 
     private static String FILES_DIR;
 
-    private String sessionToken;
-
     @BeforeClass
-    public void setupClass() throws IOException
-    {
+    public void setupClass() throws IOException {
         String f = ImportVocabularyTypesTest.class.getName().replace(".", "/");
         FILES_DIR = f.substring(0, f.length() - ImportVocabularyTypesTest.class.getSimpleName().length()) + "/test_files/";
-
-    }
-
-    @BeforeMethod
-    public void beforeTest()
-    {
-        sessionToken = v3api.login(TEST_USER, PASSWORD);
     }
 
     @Test
     @DirtiesContext
-    public void testNormalVocabularyCreationIsCreated() throws IOException
-    {
+    public void testNormalVocabularyCreationIsCreated() throws IOException {
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, VOCABULARIES_TYPES_XLS)));
         // WHEN
@@ -99,8 +88,7 @@ public class ImportVocabularyTypesTest extends AbstractImportTest
 
     @Test
     @DirtiesContext
-    public void testNormalVocabularyHasFirstTermCreated() throws IOException
-    {
+    public void testNormalVocabularyHasFirstTermCreated() throws IOException {
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, VOCABULARIES_TYPES_XLS)));
         // WHEN
@@ -114,8 +102,7 @@ public class ImportVocabularyTypesTest extends AbstractImportTest
 
     @Test
     @DirtiesContext
-    public void testNormalVocabularyCreatedNoExtraVocabulary() throws IOException
-    {
+    public void testNormalVocabularyCreatedNoExtraVocabulary() throws IOException {
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, VOCABULARIES_TYPES_XLS)));
         // WHEN
@@ -126,8 +113,7 @@ public class ImportVocabularyTypesTest extends AbstractImportTest
 
     @Test
     @DirtiesContext
-    public void testNormalVocabularyHasSecondTermCreated() throws IOException
-    {
+    public void testNormalVocabularyHasSecondTermCreated() throws IOException {
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, VOCABULARIES_TYPES_XLS)));
         // WHEN
@@ -141,8 +127,7 @@ public class ImportVocabularyTypesTest extends AbstractImportTest
 
     @Test
     @DirtiesContext
-    public void testVocabularyWithNoTermDescriptionShouldBeCreated() throws IOException
-    {
+    public void testVocabularyWithNoTermDescriptionShouldBeCreated() throws IOException {
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, VOCABULARIES_NO_TERM_DESCRIPTION)));
         // WHEN
@@ -153,21 +138,18 @@ public class ImportVocabularyTypesTest extends AbstractImportTest
     }
 
     @Test(expectedExceptions = UserFailureException.class)
-    public void shouldThrowExceptionIfNoVocabularyCode() throws IOException
-    {
+    public void shouldThrowExceptionIfNoVocabularyCode() throws IOException {
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, VOCABULARIES_NO_CODE)));
     }
 
     @Test(expectedExceptions = UserFailureException.class)
-    public void shouldThrowExceptionIfNoTermCode() throws IOException
-    {
+    public void shouldThrowExceptionIfNoTermCode() throws IOException {
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, VOCABULARIES_NO_TERM_CODE)));
     }
 
     @Test
     @DirtiesContext
-    public void shouldNotThrowExceptionIfNoVocabularyDescription() throws IOException
-    {
+    public void shouldNotThrowExceptionIfNoVocabularyDescription() throws IOException {
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, VOCABULARIES_NO_DESCRIPTION)));
         // WHEN
@@ -179,8 +161,7 @@ public class ImportVocabularyTypesTest extends AbstractImportTest
 
     @Test
     @DirtiesContext
-    public void shouldNotThrowExceptionIfNoTermLabel() throws IOException
-    {
+    public void shouldNotThrowExceptionIfNoTermLabel() throws IOException {
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, VOCABULARIES_NO_TERM_LABEL)));
         // WHEN
@@ -192,8 +173,7 @@ public class ImportVocabularyTypesTest extends AbstractImportTest
 
     @Test
     @DirtiesContext
-    public void shouldNotThrowExceptionIfNoTerms() throws IOException
-    {
+    public void shouldNotThrowExceptionIfNoTerms() throws IOException {
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, VOCABULARIES_NO_TERMS)));
         // WHEN

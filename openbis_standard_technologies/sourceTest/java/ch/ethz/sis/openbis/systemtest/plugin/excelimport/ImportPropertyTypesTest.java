@@ -7,7 +7,9 @@ import static org.testng.Assert.assertTrue;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.delete.PropertyTypeDeletionOptions;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
@@ -15,7 +17,6 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
@@ -26,8 +27,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 @ContextConfiguration(locations = "classpath:applicationContext.xml")
 @Transactional(transactionManager = "transaction-manager")
 @Rollback
-public class ImportPropertyTypesTest extends AbstractImportTest
-{
+public class ImportPropertyTypesTest extends AbstractImportTest {
 
     @Autowired
     private IApplicationServerInternalApi v3api;
@@ -50,6 +50,10 @@ public class ImportPropertyTypesTest extends AbstractImportTest
 
     private static final String PROPERTY_NON_VOCAB_TYPE_VOCABULARY_CODE = "property_types/vocabcode_when_not_vocabtype.xls";
 
+    private static final String PROPERTY_DUPLICATES_DIFFERENT = "property_types/duplicates_different.xls";
+
+    private static final String PROPERTY_TYPES_DUPLICATES_SAME = "property_types/duplicates_same.xls";
+
     private static final String PROPERTY_VOCABULARY_ON_SERVER = "property_types/with_vocab_on_server.xls";
 
     private static final String PROPERTY_VOCAB_TYPE = "property_types/with_vocab.xls";
@@ -58,25 +62,15 @@ public class ImportPropertyTypesTest extends AbstractImportTest
 
     private static String FILES_DIR;
 
-    private String sessionToken;
-
     @BeforeClass
-    public void setupClass() throws IOException
-    {
+    public void setupClass() throws IOException {
         String f = ImportPropertyTypesTest.class.getName().replace(".", "/");
         FILES_DIR = f.substring(0, f.length() - ImportPropertyTypesTest.class.getSimpleName().length()) + "/test_files/";
     }
 
-    @BeforeMethod
-    public void beforeTest()
-    {
-        sessionToken = v3api.login(TEST_USER, PASSWORD);
-    }
-
     @Test
     @DirtiesContext
-    public void testNormalPropertyTypesAreCreated() throws IOException
-    {
+    public void testNormalPropertyTypesAreCreated() throws IOException {
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROPERTY_TYPES_XLS)));
         // WHEN
@@ -93,8 +87,7 @@ public class ImportPropertyTypesTest extends AbstractImportTest
 
     @Test
     @DirtiesContext
-    public void testInternalPropertyTypesAreCreated() throws IOException
-    {
+    public void testInternalPropertyTypesAreCreated() throws IOException {
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROPERTY_TYPES_XLS)));
         // WHEN
@@ -109,40 +102,70 @@ public class ImportPropertyTypesTest extends AbstractImportTest
         assertNull(notes.getVocabulary());
     }
 
+    @Test
+    @DirtiesContext
+    public void testDuplicatesPropertiesAreAllowedIfTheyAreTheSame() throws IOException {
+        // GIVEN
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROPERTY_TYPES_DUPLICATES_SAME)));
+        // WHEN
+        PropertyType notes = TestUtils.getPropertyType(v3api, sessionToken, "NOTES");
+        // THEN
+        assertEquals(notes.getCode(), "NOTES");
+        assertEquals(notes.getLabel(), "Notes");
+        assertEquals(notes.getDataType(), DataType.MULTILINE_VARCHAR);
+        assertEquals(notes.getDescription(), "Notes Descripton");
+        assertFalse(notes.isInternalNameSpace());
+        assertFalse(notes.isManagedInternally());
+        assertNull(notes.getVocabulary());
+    }
+
     @Test(expectedExceptions = UserFailureException.class)
-    public void testPropertyTypeNoCode() throws IOException
-    {
+    public void testPropertyTypeNoCode() throws IOException {
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROPERTY_NO_CODE)));
     }
 
     @Test(expectedExceptions = UserFailureException.class)
-    public void testPropertyTypeNoLabel() throws IOException
-    {
+    public void testPropertyTypeNoLabel() throws IOException {
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROPERTY_NO_LABEL)));
     }
 
     @Test(expectedExceptions = UserFailureException.class)
-    public void testPropertyTypeNoVocabularyCodeWhenVocabularyType() throws IOException
-    {
+    public void testPropertyTypesDuplicatesAreDifferent() throws IOException {
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROPERTY_DUPLICATES_DIFFERENT)));
+    }
+
+    @Test(expectedExceptions = UserFailureException.class)
+    public void testPropertyTypeNoVocabularyCodeWhenVocabularyType() throws IOException {
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROPERTY_VOCAB_TYPE_NO_VOCABULARY_CODE)));
     }
 
     @Test(expectedExceptions = UserFailureException.class)
-    public void testPropertyTypeNoDataType() throws IOException
-    {
+    public void testPropertyTypeNoDataType() throws IOException {
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROPERTY_NO_DATA_TYPE)));
     }
 
     @Test(expectedExceptions = UserFailureException.class)
-    public void testPropertyTypeNoDescription() throws IOException
-    {
+    public void testPropertyTypeNoDescription() throws IOException {
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROPERTY_NO_DESCRIPTION)));
     }
 
     @Test(expectedExceptions = UserFailureException.class)
-    public void testPropertyTypeVocabularyCodeToNonVocabularyType() throws IOException
-    {
+    public void testPropertyTypeVocabularyCodeToNonVocabularyType() throws IOException {
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROPERTY_NON_VOCAB_TYPE_VOCABULARY_CODE)));
+    }
+
+    @Test(expectedExceptions = Exception.class)
+    @DirtiesContext
+    public void deleteProjectFromDBButNotFromJSON() throws IOException {
+        // GIVEN
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROPERTY_TYPES_XLS)));
+        // WHEN
+        PropertyType type = TestUtils.getPropertyType(v3api, sessionToken, "$INTERNAL_PROP");
+        PropertyTypeDeletionOptions deletionOptions = new PropertyTypeDeletionOptions();
+        deletionOptions.setReason("test");
+        v3api.deletePropertyTypes(sessionToken, Arrays.asList(type.getPermId()), deletionOptions);
+        // THEN
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROPERTY_TYPES_XLS)));
     }
 
 }

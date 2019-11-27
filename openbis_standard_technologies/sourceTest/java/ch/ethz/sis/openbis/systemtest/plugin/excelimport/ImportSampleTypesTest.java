@@ -14,6 +14,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Transactional;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -28,8 +29,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 @ContextConfiguration(locations = "classpath:applicationContext.xml")
 @Transactional(transactionManager = "transaction-manager")
 @Rollback
-public class ImportSampleTypesTest extends AbstractImportTest
-{
+public class ImportSampleTypesTest extends AbstractImportTest {
 
     private static final String SAMPLE_TYPES_XLS = "sample_types/normal_samples.xls";
 
@@ -58,25 +58,15 @@ public class ImportSampleTypesTest extends AbstractImportTest
 
     private static String FILES_DIR;
 
-    private String sessionToken;
-
     @BeforeClass
-    public void setupClass() throws IOException
-    {
+    public void setupClass() throws IOException {
         String f = ImportSampleTypesTest.class.getName().replace(".", "/");
         FILES_DIR = f.substring(0, f.length() - ImportSampleTypesTest.class.getSimpleName().length()) + "/test_files/";
     }
 
-    @BeforeMethod
-    public void beforeTest()
-    {
-        sessionToken = v3api.login(TEST_USER, PASSWORD);
-    }
-
     @Test
     @DirtiesContext
-    public void testNormalSampleTypesAreCreated() throws IOException
-    {
+    public void testNormalSampleTypesAreCreated() throws IOException {
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLE_TYPES_XLS)));
         // WHEN
@@ -87,8 +77,7 @@ public class ImportSampleTypesTest extends AbstractImportTest
 
     @Test
     @DirtiesContext
-    public void testPropertyTypeAssignmentsFromNormalSampleTypesAreCreated() throws IOException
-    {
+    public void testPropertyTypeAssignmentsFromNormalSampleTypesAreCreated() throws IOException {
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLE_TYPES_XLS)));
         // WHEN
@@ -111,8 +100,7 @@ public class ImportSampleTypesTest extends AbstractImportTest
 
     @Test
     @DirtiesContext
-    public void testPropertyTypeAssignmentsFromNormalv2SampleTypesAreCreated() throws IOException
-    {
+    public void testPropertyTypeAssignmentsFromNormalv2SampleTypesAreCreated() throws IOException {
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLE_TYPES_XLS_DIFFERENT_PROPERTY_ASSIGN)));
         // WHEN
@@ -129,8 +117,7 @@ public class ImportSampleTypesTest extends AbstractImportTest
 
     @Test
     @DirtiesContext
-    public void testPropertyTypesFromNormalSampleTypesAreCreated() throws IOException
-    {
+    public void testPropertyTypesFromNormalSampleTypesAreCreated() throws IOException {
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLE_TYPES_XLS)));
         // WHEN
@@ -151,8 +138,7 @@ public class ImportSampleTypesTest extends AbstractImportTest
 
     @Test
     @DirtiesContext
-    public void testSampleTypesWithPropertyHavingDynamicScript() throws IOException
-    {
+    public void testSampleTypesWithPropertyHavingDynamicScript() throws IOException {
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken, TestUtils.getDynamicPluginMap(),
                 Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLE_TYPES_WITH_DYNAMIC_SCRIPT)));
@@ -168,8 +154,7 @@ public class ImportSampleTypesTest extends AbstractImportTest
 
     @Test
     @DirtiesContext
-    public void testSampleTypesWithPropertyHavingValidationScript() throws IOException
-    {
+    public void testSampleTypesWithPropertyHavingValidationScript() throws IOException {
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken, TestUtils.getValidationPluginMap(),
                 Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLE_TYPES_WITH_VALIDATION_SCRIPT)));
@@ -185,8 +170,7 @@ public class ImportSampleTypesTest extends AbstractImportTest
 
     @Test
     @DirtiesContext
-    public void testSampleTypesWithVocabularyInXls() throws IOException
-    {
+    public void testSampleTypesWithVocabularyInXls() throws IOException {
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLE_TYPES_WITH_VOCABULARY)));
         // WHEN
@@ -199,8 +183,7 @@ public class ImportSampleTypesTest extends AbstractImportTest
 
     @Test
     @DirtiesContext
-    public void testSampleTypesWithVocabularyOnServer() throws IOException
-    {
+    public void testSampleTypesWithVocabularyOnServer() throws IOException {
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, VOCABULARY_DETECTION)));
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLE_TYPES_WITH_VOCABULARY_ON_SERVER)));
@@ -214,8 +197,7 @@ public class ImportSampleTypesTest extends AbstractImportTest
 
     @Test
     @DirtiesContext
-    public void testSampleTypesWithAutoGeneratedCodeAttribute() throws IOException
-    {
+    public void testSampleTypesWithAutoGeneratedCodeAttribute() throws IOException {
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLE_TYPES_WITH_AUTO_GENERATED_CODES)));
         // WHEN
@@ -225,8 +207,7 @@ public class ImportSampleTypesTest extends AbstractImportTest
     }
 
     @Test(expectedExceptions = UserFailureException.class)
-    public void shouldThrowExceptionIfNoSampleCode() throws IOException
-    {
+    public void shouldThrowExceptionIfNoSampleCode() throws IOException {
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLE_TYPE_NO_CODE)));
     }
 

@@ -12,6 +12,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Transactional;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -23,8 +24,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 @ContextConfiguration(locations = "classpath:applicationContext.xml")
 @Transactional(transactionManager = "transaction-manager")
 @Rollback
-public class ImportSamplesTest extends AbstractImportTest
-{
+public class ImportSamplesTest extends AbstractImportTest {
     @Autowired
     private IApplicationServerInternalApi v3api;
 
@@ -64,25 +64,15 @@ public class ImportSamplesTest extends AbstractImportTest
 
     private static String FILES_DIR;
 
-    private String sessionToken;
-
     @BeforeClass
-    public void setupClass() throws IOException
-    {
+    public void setupClass() throws IOException {
         String f = ImportSamplesTest.class.getName().replace(".", "/");
         FILES_DIR = f.substring(0, f.length() - ImportSamplesTest.class.getSimpleName().length()) + "/test_files/";
     }
 
-    @BeforeMethod
-    public void beforeTest()
-    {
-        sessionToken = v3api.login(TEST_USER, PASSWORD);
-    }
-
     @Test
     @DirtiesContext
-    public void testSamplesAreCreated() throws IOException
-    {
+    public void testSamplesAreCreated() throws IOException {
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLES_XLS)));
         // WHEN
@@ -96,8 +86,7 @@ public class ImportSamplesTest extends AbstractImportTest
 
     @Test
     @DirtiesContext
-    public void testSamplesAreCreatedSecondSample() throws IOException
-    {
+    public void testSamplesAreCreatedSecondSample() throws IOException {
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLES_XLS)));
         // WHEN
@@ -111,8 +100,7 @@ public class ImportSamplesTest extends AbstractImportTest
 
     @Test
     @DirtiesContext
-    public void testSamplesAreCreatedThirdSample() throws IOException
-    {
+    public void testSamplesAreCreatedThirdSample() throws IOException {
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLES_XLS)));
         // WHEN
@@ -126,8 +114,7 @@ public class ImportSamplesTest extends AbstractImportTest
 
     @Test
     @DirtiesContext
-    public void testSamplesAreCreatedWhenSpaceOnServer() throws IOException
-    {
+    public void testSamplesAreCreatedWhenSpaceOnServer() throws IOException {
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SPACE)));
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLES_SPACE_ELSEWHERE)));
@@ -139,8 +126,7 @@ public class ImportSamplesTest extends AbstractImportTest
 
     @Test
     @DirtiesContext
-    public void testSamplesAreCreatedWhenSpaceInSeparateXls() throws IOException
-    {
+    public void testSamplesAreCreatedWhenSpaceInSeparateXls() throws IOException {
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken,
                 Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLES_SPACE_ELSEWHERE)),
@@ -152,15 +138,13 @@ public class ImportSamplesTest extends AbstractImportTest
     }
 
     @Test(expectedExceptions = UserFailureException.class)
-    public void shouldThrowExceptionIfSpaceDoesntExist() throws IOException
-    {
+    public void shouldThrowExceptionIfSpaceDoesntExist() throws IOException {
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLES_SPACE_ELSEWHERE)));
     }
 
     @Test
     @DirtiesContext
-    public void testSamplesAreCreatedWhenSampleTypeOnServer() throws IOException
-    {
+    public void testSamplesAreCreatedWhenSampleTypeOnServer() throws IOException {
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken,
                 Paths.get(FilenameUtils.concat(FILES_DIR, VOCABULARY_TYPE)),
@@ -174,8 +158,7 @@ public class ImportSamplesTest extends AbstractImportTest
 
     @Test
     @DirtiesContext
-    public void testSamplesAreCreatedWhenSampleTypeInSeparateXls() throws IOException
-    {
+    public void testSamplesAreCreatedWhenSampleTypeInSeparateXls() throws IOException {
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken,
                 Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLES_SAMPLE_TYPE_ELSWHERE)),
@@ -188,8 +171,7 @@ public class ImportSamplesTest extends AbstractImportTest
 
     @Test
     @DirtiesContext
-    public void testSamplesChildrenAreAssignedWhenAddressedByCodeInXls() throws IOException
-    {
+    public void testSamplesChildrenAreAssignedWhenAddressedByCodeInXls() throws IOException {
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken,
                 Paths.get(FilenameUtils.concat(FILES_DIR, CHILD_AS_CODE)));
@@ -205,8 +187,7 @@ public class ImportSamplesTest extends AbstractImportTest
 
     @Test
     @DirtiesContext
-    public void testSamplesParentsAreAssignedWhenAddressedByCodeInXls() throws IOException
-    {
+    public void testSamplesParentsAreAssignedWhenAddressedByCodeInXls() throws IOException {
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken,
                 Paths.get(FilenameUtils.concat(FILES_DIR, PARENT_AS_CODE)));
@@ -222,8 +203,7 @@ public class ImportSamplesTest extends AbstractImportTest
 
     @Test
     @DirtiesContext
-    public void testSamplesChildrenAreAssignedWhenAddressedByDollartagInXls() throws IOException
-    {
+    public void testSamplesChildrenAreAssignedWhenAddressedByDollartagInXls() throws IOException {
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken,
                 Paths.get(FilenameUtils.concat(FILES_DIR, CHILD_AS_DOLLARTAG)));
@@ -239,8 +219,7 @@ public class ImportSamplesTest extends AbstractImportTest
 
     @Test
     @DirtiesContext
-    public void testSamplesParentsAreAssignedWhenAddressedByDollartagInXls() throws IOException
-    {
+    public void testSamplesParentsAreAssignedWhenAddressedByDollartagInXls() throws IOException {
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken,
                 Paths.get(FilenameUtils.concat(FILES_DIR, PARENT_AS_DOLLARTAG)));
@@ -256,8 +235,7 @@ public class ImportSamplesTest extends AbstractImportTest
 
     @Test
     @DirtiesContext
-    public void testCreatesSampleWithNonMandatoryFieldsMissing() throws IOException
-    {
+    public void testCreatesSampleWithNonMandatoryFieldsMissing() throws IOException {
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken,
                 Paths.get(FilenameUtils.concat(FILES_DIR, NON_MANDATORY_FIELD_MISSING)));
@@ -270,8 +248,7 @@ public class ImportSamplesTest extends AbstractImportTest
 
     @Test
     @DirtiesContext
-    public void testCreatesSampleWithAutogeneratedCodeWhenOnPerSampleLevel() throws IOException
-    {
+    public void testCreatesSampleWithAutogeneratedCodeWhenOnPerSampleLevel() throws IOException {
         // GIVEN
         String result = TestUtils.createFrom(v3api, sessionToken,
                 Paths.get(FilenameUtils.concat(FILES_DIR, AUTO_GENERATED_SAMPLE_LEVEL)));
@@ -285,8 +262,7 @@ public class ImportSamplesTest extends AbstractImportTest
 
     @Test
     @DirtiesContext
-    public void testCreatesSampleWithAutogeneratedCodeWhenOnSampleTypeLevel() throws IOException
-    {
+    public void testCreatesSampleWithAutogeneratedCodeWhenOnSampleTypeLevel() throws IOException {
         // GIVEN
         String result = TestUtils.createFrom(v3api, sessionToken,
                 Paths.get(FilenameUtils.concat(FILES_DIR, AUTO_GENERATED_SAMPLE_TYPE_LEVEL)));
@@ -299,14 +275,12 @@ public class ImportSamplesTest extends AbstractImportTest
     }
 
     @Test(expectedExceptions = UserFailureException.class)
-    public void shouldThrowExceptionIfSamplesSpaceProjectDoesntExist() throws IOException
-    {
+    public void shouldThrowExceptionIfSamplesSpaceProjectDoesntExist() throws IOException {
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SAMPLES_SPACE_PROJECT_EXPERIMENT_ELSEWHERE)));
     }
 
     @Test(expectedExceptions = UserFailureException.class)
-    public void shouldThrowExceptionIfMandatoryPropertyIsMissing() throws IOException
-    {
+    public void shouldThrowExceptionIfMandatoryPropertyIsMissing() throws IOException {
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, MANDATORY_FIELD_MISSING)));
     }
 

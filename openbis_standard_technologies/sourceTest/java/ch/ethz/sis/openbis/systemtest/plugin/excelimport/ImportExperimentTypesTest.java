@@ -15,6 +15,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Transactional;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -28,8 +29,8 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 @ContextConfiguration(locations = "classpath:applicationContext.xml")
 @Transactional(transactionManager = "transaction-manager")
 @Rollback
-public class ImportExperimentTypesTest extends AbstractImportTest
-{
+public class ImportExperimentTypesTest extends AbstractImportTest {
+
     @Autowired
     private IApplicationServerInternalApi v3api;
 
@@ -47,25 +48,15 @@ public class ImportExperimentTypesTest extends AbstractImportTest
 
     private static String FILES_DIR;
 
-    private String sessionToken;
-
     @BeforeClass
-    public void setupClass() throws IOException
-    {
+    public void setupClass() throws IOException {
         String f = ImportExperimentTypesTest.class.getName().replace(".", "/");
         FILES_DIR = f.substring(0, f.length() - ImportExperimentTypesTest.class.getSimpleName().length()) + "/test_files/";
     }
 
-    @BeforeMethod
-    public void beforeTest()
-    {
-        sessionToken = v3api.login(TEST_USER, PASSWORD);
-    }
-
     @Test
     @DirtiesContext
-    public void testNormalExperimentTypesAreCreated() throws Exception
-    {
+    public void testNormalExperimentTypesAreCreated() throws Exception {
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, EXPERIMENT_TYPES_XLS)));
         // WHEN
@@ -96,8 +87,7 @@ public class ImportExperimentTypesTest extends AbstractImportTest
 
     @Test
     @DirtiesContext
-    public void testExperimentTypesUpdate() throws Exception
-    {
+    public void testExperimentTypesUpdate() throws Exception {
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, EXPERIMENT_TYPES_XLS)));
         // WHEN
@@ -113,9 +103,9 @@ public class ImportExperimentTypesTest extends AbstractImportTest
         assertFalse(nameProperty.isMandatory());
         assertTrue(nameProperty.isShowInEditView());
         assertEquals(nameProperty.getSection(), "General information");
+        assertEquals(nameProperty.getPropertyType().getDescription(), "NameUpdateDescription");
         assertEquals(nameProperty.getPropertyType().getLabel(), "NameUpdate");
         assertEquals(nameProperty.getPropertyType().getDataType(), DataType.VARCHAR);
-        assertEquals(nameProperty.getPropertyType().getDescription(), "NameUpdateDescription");
         assertEquals(nameProperty.getPlugin(), null);
         assertFalse(defaultObjectTypeProperty.isMandatory());
         assertTrue(defaultObjectTypeProperty.isShowInEditView());
@@ -129,8 +119,7 @@ public class ImportExperimentTypesTest extends AbstractImportTest
 
     @Test
     @DirtiesContext
-    public void testExperimentTypesWithValidationScript() throws IOException
-    {
+    public void testExperimentTypesWithValidationScript() throws IOException {
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken, TestUtils.getValidationPluginMap(),
                 Paths.get(FilenameUtils.concat(FILES_DIR, EXPERIMENT_WITH_VALIDATION_SCRIPT)));
@@ -141,8 +130,7 @@ public class ImportExperimentTypesTest extends AbstractImportTest
     }
 
     @Test(expectedExceptions = UserFailureException.class)
-    public void shouldThrowExceptionIfNoSampleCode() throws IOException
-    {
+    public void shouldThrowExceptionIfNoSampleCode() throws IOException {
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, EXPERIMENT_NO_CODE)));
     }
 

@@ -11,6 +11,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Transactional;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -22,8 +23,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 @ContextConfiguration(locations = "classpath:applicationContext.xml")
 @Transactional(transactionManager = "transaction-manager")
 @Rollback
-public class ImportSpacesTest extends AbstractImportTest
-{
+public class ImportSpacesTest extends AbstractImportTest {
     @Autowired
     private IApplicationServerInternalApi v3api;
 
@@ -39,25 +39,15 @@ public class ImportSpacesTest extends AbstractImportTest
 
     private static String FILES_DIR;
 
-    private String sessionToken;
-
     @BeforeClass
-    public void setupClass() throws IOException
-    {
+    public void setupClass() throws IOException {
         String f = ImportSpacesTest.class.getName().replace(".", "/");
         FILES_DIR = f.substring(0, f.length() - ImportSpacesTest.class.getSimpleName().length()) + "/test_files/";
     }
 
-    @BeforeMethod
-    public void beforeTest()
-    {
-        sessionToken = v3api.login(TEST_USER, PASSWORD);
-    }
-
     @Test
     @DirtiesContext
-    public void testNormalSpacesAreCreated() throws IOException
-    {
+    public void testNormalSpacesAreCreated() throws IOException {
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SPACES_XLS)));
         // WHEN
@@ -69,8 +59,7 @@ public class ImportSpacesTest extends AbstractImportTest
 
     @Test
     @DirtiesContext
-    public void testNormalSpacesAreCreatedSecondSpace() throws IOException
-    {
+    public void testNormalSpacesAreCreatedSecondSpace() throws IOException {
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SPACES_XLS)));
         // WHEN
@@ -81,15 +70,13 @@ public class ImportSpacesTest extends AbstractImportTest
     }
 
     @Test(expectedExceptions = UserFailureException.class)
-    public void shouldThrowExceptionIfNoSpaceCode() throws IOException
-    {
+    public void shouldThrowExceptionIfNoSpaceCode() throws IOException {
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SPACES_NO_CODE)));
     }
 
     @Test
     @DirtiesContext
-    public void shouldCreateSpaceWhenNoDescription() throws IOException
-    {
+    public void shouldCreateSpaceWhenNoDescription() throws IOException {
         // GIVEN
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, SPACES_NO_DESCRIPTION)));
         // WHEN
