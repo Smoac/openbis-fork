@@ -66,4 +66,11 @@ function AdvancedEntitySearchDropdown2(placeholder) {
 		}
 	}
 
+	this.getData = function() {
+		return $select.select2('data');
+	}
+	
+	this.clear = function() {
+		$select.val(null).trigger('change');
+	}
 }

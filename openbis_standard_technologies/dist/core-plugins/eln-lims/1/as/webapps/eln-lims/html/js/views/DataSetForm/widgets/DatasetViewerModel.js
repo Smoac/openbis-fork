@@ -52,22 +52,12 @@ function DataSetViewerModel(containerId, profile, entity, serverFacade, datastor
 			downloadUrl = this.datastoreDownloadURL + '/' + datasetCode + "/" + encodeURIComponent(datasetFile.pathInDataSet) + "?sessionID=" + mainController.serverFacade.getSession();
 		}
 		
-		var size = null;
-		if(parseInt(datasetFile.fileSize) / 1024 > 1024) {
-			size = parseInt(datasetFile.fileSize) / 1024 / 1024;
-			unit = "Mb";
-		} else {
-			size = parseInt(datasetFile.fileSize) / 1024;
-			unit = "Kb";
-		}
-		var size = Math.floor(size * 10) / 10; //Rounded to one decimal
-		
 		var $link = null;
 		if(downloadUrl) {
 			$link = $("<a>").attr("href", downloadUrl)
 							.attr("target", "_blank")
 							.append(datasetFile.pathInListing)
-							.append(" ("+ size + unit +")")
+							.append(" ("+ PrintUtil.renderNumberOfBytes(datasetFile.fileSize) +")")
 							.click(function(event) {
 								event.stopPropagation();
 							});

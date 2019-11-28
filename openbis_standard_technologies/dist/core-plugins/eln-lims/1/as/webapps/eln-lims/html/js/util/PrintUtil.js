@@ -17,6 +17,28 @@
 
 var PrintUtil = new function() {
 
+	this.renderNumberOfBytes = function(bytes) {
+		if (typeof bytes == "string") {
+			bytes = parseInt(bytes)
+		}
+		var size = bytes;
+		var unit = "bytes"
+		var kbytes = bytes / 1024.0;
+		var mbytes = kbytes / 1024.0;
+		var gbytes = mbytes / 1024.0;
+		if (gbytes > 1.0) {
+			size = gbytes;
+			unit = "Gb";
+		} else if (mbytes > 1.0) {
+			size = mbytes;
+			unit = "Mb";
+		} else if (kbytes > 1.0) {
+			size = kbytes;
+			unit = "kb";
+		}
+		return size.toFixed(1) + " " + unit;
+	}
+
 	this.printEntity = function(entity) {
 		var newWindow = window.open(undefined,"print " + entity.permId);
 		var pageToPrint = $("<html>")

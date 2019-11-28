@@ -2678,17 +2678,19 @@ function ServerFacade(openbisServer) {
 
 			mainController.openbisV3.updateDataSets([update]).done(function(result) {
 				callbackFunction(true);
-            }).fail(function(result) {
+			}).fail(function(result) {
 				Util.showFailedServerCallError(result);
 				callbackFunction(false);
 			});
 		});
 	}
 
-	this.unarchiveDataSet = function(dataSetPermId, callbackFunction) {
+	this.unarchiveDataSets = function(dataSetPermIds, callbackFunction) {
 		require(["as/dto/dataset/id/DataSetPermId", "as/dto/dataset/unarchive/DataSetUnarchiveOptions"], 
 			function(DataSetPermId, DataSetUnarchiveOptions) {
-				var ids = [new DataSetPermId(dataSetPermId)];
+				var ids = dataSetPermIds.map(function(dataSetPermId) {
+					return new DataSetPermId(dataSetPermId);
+				});
 				var options = new DataSetUnarchiveOptions();
 				mainController.openbisV3.unarchiveDataSets(ids, options).done(function(result) {
 					callbackFunction(true);

@@ -262,7 +262,7 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini, 
 			Util.unblockUI();
 		});
 	}
-	
+
 	this.unarchive = function() {
 		var _this = this;
 		var dataSetPermId = this._dataSetFormModel.dataSetV3.permId.permId;
@@ -271,21 +271,20 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini, 
 			if (containerSize > 1) {
 				var warning = "Unarchiving this data set leads to unarchiving of additional " 
 					+ (containerSize - 1) + " data sets. All these data sets need " 
-					+ (info["total size"]/1e9).toFixed(1) + " GB memory.\n Do you want to unarchive this data set anyway?";
+					+ PrintUtil.renderNumberOfBytes(info["total size"]) + " memory.\n Do you want to unarchive this data set anyway?";
 				Util.showWarning(warning, function() {
 					_this.forceUnarchiving(dataSetPermId)
 				});
 			} else {
 				_this.forceUnarchiving(dataSetPermId);
 			}
-
 		});
 	}
-	
+
 	this.forceUnarchiving = function(dataSetPermId) {
 		var _this = this;
 		Util.blockUI();
-		mainController.serverFacade.unarchiveDataSet(dataSetPermId, function() {
+		mainController.serverFacade.unarchiveDataSets([dataSetPermId], function() {
 			_this._reloadView();
 			Util.unblockUI();
 		});

@@ -26,7 +26,7 @@ function UnarchivingHelperController(mainController) {
 				});
 			});
 	}
-	
+
 	_populateSearchCriteria = function(searchCriteria, query) {
 		searchCriteria.withOrOperator();
 		searchCriteria.withProperty("$NAME").thatContains(query);
@@ -42,8 +42,8 @@ function UnarchivingHelperController(mainController) {
 			callback(info);
 		});
 	}
-	
-	this.unarchive = function(ids) {
-		alert(ids);
+
+	this.unarchive = function(ids, callback) {
+		mainController.serverFacade.unarchiveDataSets(ids, callback);
 	}
 }
