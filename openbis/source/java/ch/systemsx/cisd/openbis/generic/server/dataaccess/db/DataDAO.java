@@ -739,11 +739,6 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
 
         lockRelatedEntities(dataset);
         getHibernateTemplate().saveOrUpdate(dataset);
-
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info(String.format("ADD: data set '%s'.", dataset));
-        }
     }
 
     private void lockRelatedEntities(DataPE data)
@@ -1183,12 +1178,13 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                 @Override
                 public final Object doInHibernate(final Session session)
                 {
-                    SQLQuery query =
-                            session.createSQLQuery("select data_id_child, data_id_parent from " + TableNames.DATA_SET_RELATIONSHIPS_VIEW
-                                    + " where relationship_id = :relationship and data_id_child in (:children)");
-                    query.setParameterList("children", children);
-                    query.setParameter("relationship", relationship);
-                    return query.list();
+                    InQuery<Long, Object> inQuery = new InQuery<>();
+                    Map<String, Object> fixParams = new HashMap<String, Object>();
+                    fixParams.put("relationship", relationship);
+
+                    String query = "select data_id_child, data_id_parent from " + TableNames.DATA_SET_RELATIONSHIPS_VIEW
+                            + " where relationship_id = :relationship and data_id_child in (:children)";
+                    return inQuery.withBatch(session, query, "children", new ArrayList<>(children), fixParams);
                 }
             });
 
