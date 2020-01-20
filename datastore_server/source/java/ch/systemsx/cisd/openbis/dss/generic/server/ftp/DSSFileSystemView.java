@@ -21,6 +21,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URI;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -51,8 +54,6 @@ import ch.systemsx.cisd.openbis.generic.shared.util.Key;
  */
 public class DSSFileSystemView implements FileSystemView
 {
-    private static final String SPACE_ESCAPE = "__SPACE__";
-
     private static final Set<String> METHOD_NAMES = new HashSet<String>(Arrays.asList(
             "tryToGetExperiment", "listDataSetsByExperimentID"));
 
@@ -155,6 +156,7 @@ public class DSSFileSystemView implements FileSystemView
     public FtpFile getFile(String path) throws FtpException
     {
         String normalizedPath = normalizePath(path);
+        operationLog.info("path:>" + path + "<, normalized path:>"+normalizedPath+"<");
 
         // this check speeds directory listings in the LFTP console client
         if (workingDirectory != null && workingDirectory.getAbsolutePath().equals(normalizedPath))
@@ -203,13 +205,14 @@ public class DSSFileSystemView implements FileSystemView
 
         try
         {
-            URI uri = new URI(fullPath.replaceAll(" ", SPACE_ESCAPE));
-            String normalizedPath = uri.normalize().toString();
+            String fullPathURLEncoded = URLEncoder.encode(fullPath, StandardCharsets.UTF_8.toString());
+            URI uri = new URI(fullPathURLEncoded);
+            String normalizedPathWithURI = uri.normalize().toString();
+            String normalizedPath = URLDecoder.decode(normalizedPathWithURI, StandardCharsets.UTF_8.toString());
             // remove trailing slashes
             normalizedPath = normalizedPath.replaceAll("/*$", "");
             // replace multiple adjacent slashes with a single slash
             normalizedPath = normalizedPath.replaceAll("/+", "/");
-            normalizedPath = normalizedPath.replaceAll(SPACE_ESCAPE, " ");
             return StringUtils.isBlank(normalizedPath) ? FtpConstants.ROOT_DIRECTORY : normalizedPath;
         } catch (Exception ex)
         {
