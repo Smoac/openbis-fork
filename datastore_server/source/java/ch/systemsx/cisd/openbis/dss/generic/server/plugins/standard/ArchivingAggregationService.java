@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -97,21 +98,22 @@ public class ArchivingAggregationService extends AggregationService
 
     private TableModel getArchivingInfo(String sessionToken, List<String> dataSetCodes)
     {
-        Map<String, Set<String>> containersByDataSetCode = getContainers(dataSetCodes);
-        Set<String> allDataSets = mergeAllContainers(containersByDataSetCode);
+        Map<String, Set<String>> bundlesByDataSetCode = getBundles(dataSetCodes);
+        Set<String> allDataSets = mergeAllBundles(bundlesByDataSetCode);
         Map<String, Long> dataSetSizes = getDataSetSizes(sessionToken, allDataSets);
-        Map<String, Long> containerSizes = getContainerSizes(containersByDataSetCode, dataSetSizes);
+        Map<String, Long> bundleSizes = getBundleSizes(bundlesByDataSetCode, dataSetSizes);
         long totalSize = getTotalSize(allDataSets, dataSetSizes);
 
         Map<String, Object> infos = new TreeMap<>();
         infos.put("total size", totalSize);
-        for (Entry<String, Set<String>> entry : containersByDataSetCode.entrySet())
+        for (Entry<String, Set<String>> entry : bundlesByDataSetCode.entrySet())
         {
             Map<String, Object> info = new TreeMap<>();
             String dataSetCode = entry.getKey();
             info.put("size", dataSetSizes.get(dataSetCode));
-            info.put("container", entry.getValue());
-            info.put("container size", containerSizes.get(dataSetCode));
+            info.put("bundleId", getBundleId(entry.getValue()));
+            info.put("numberOfDataSets", entry.getValue().size());
+            info.put("bundleSize", bundleSizes.get(dataSetCode));
             infos.put(dataSetCode, info);
         }
 
@@ -134,7 +136,7 @@ public class ArchivingAggregationService extends AggregationService
         return builder.getTableModel();
     }
 
-    private Map<String, Set<String>> getContainers(List<String> dataSetCodes)
+    private Map<String, Set<String>> getBundles(List<String> dataSetCodes)
     {
         Map<String, Set<String>> results = new TreeMap<String, Set<String>>();
         for (String dataSetCode : new HashSet<>(dataSetCodes))
@@ -144,10 +146,10 @@ public class ArchivingAggregationService extends AggregationService
         return results;
     }
 
-    private Set<String> mergeAllContainers(Map<String, Set<String>> containers)
+    private Set<String> mergeAllBundles(Map<String, Set<String>> bundles)
     {
         Set<String> result = new TreeSet<>();
-        for (Set<String> set : containers.values())
+        for (Set<String> set : bundles.values())
         {
             result.addAll(set);
         }
@@ -167,10 +169,10 @@ public class ArchivingAggregationService extends AggregationService
         return result;
     }
 
-    private Map<String, Long> getContainerSizes(Map<String, Set<String>> containersByDataSetCode, Map<String, Long> dataSetSizes)
+    private Map<String, Long> getBundleSizes(Map<String, Set<String>> bundlesByDataSetCode, Map<String, Long> dataSetSizes)
     {
         Map<String, Long> result = new TreeMap<>();
-        for (Entry<String, Set<String>> entry : containersByDataSetCode.entrySet())
+        for (Entry<String, Set<String>> entry : bundlesByDataSetCode.entrySet())
         {
             long sum = 0;
             for (String dataSetCode : entry.getValue())
@@ -190,6 +192,15 @@ public class ArchivingAggregationService extends AggregationService
             sum += dataSetSizes.get(dataSetCode);
         }
         return sum;
+    }
+    
+    private String getBundleId(Set<String> bundleDataSets)
+    {
+        List<String> sortedDataSets = new ArrayList<>(bundleDataSets);
+        Collections.sort(sortedDataSets);
+        // Because each archived data set can be only in one bundle 
+        // a bundle is uniquely identified by the lexicographically smallest data set.
+        return sortedDataSets.get(0);
     }
 
     private List<String> getArguments(Map<String, Object> parameters)
