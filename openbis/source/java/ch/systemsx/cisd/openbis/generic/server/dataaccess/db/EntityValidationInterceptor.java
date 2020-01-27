@@ -234,35 +234,8 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
                 criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 
                 List<IEntityInformationWithPropertiesHolder> list = criteria.list();
-
-                Set<Long> foundIds = new HashSet<Long>();
                 for (IEntityInformationWithPropertiesHolder entity : list)
                 {
-                    foundIds.add(entity.getId());
-                }
-
-                Iterator<EntityIdentifier> iterator = entitiesToValidate.iterator();
-                while (iterator.hasNext())
-                {
-                    EntityIdentifier next = iterator.next();
-                    if (foundIds.contains(next.getId()) == false)
-                    {
-                        iterator.remove();
-                    }
-                }
-
-                foundIds = new HashSet<Long>();
-                for (EntityIdentifier e : entitiesToValidate)
-                {
-                    foundIds.add(e.getId());
-                }
-
-                for (IEntityInformationWithPropertiesHolder entity : list)
-                {
-                    if (foundIds.contains(entity.getId()) == false)
-                    {
-                        continue;
-                    }
                     validateEntity(tx, entity);
                     if (isRolledBack)
                     {

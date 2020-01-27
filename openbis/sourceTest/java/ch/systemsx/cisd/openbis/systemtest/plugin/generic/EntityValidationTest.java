@@ -144,6 +144,36 @@ public class EntityValidationTest extends GenericSystemTestCase
     }
 
     @Test
+    public void testRegisterImpossibleWithoutExperimentWithPeformEntityOperations()
+    {
+        try
+        {
+            String sampleIdentifier = "/CISD/S-" + System.currentTimeMillis();
+            NewSample newSample = prepareNewSample(sampleIdentifier, IMPOSSIBLE_TYPE, null);
+            performSampleCreation(newSample);
+            fail("Registering of sample with impossible type should fail");
+        } catch (Exception ufe)
+        {
+            assertTrue(ufe.getMessage().contains("Validation of sample"));
+        }
+    }
+    
+    @Test
+    public void testRegisterImpossibleWithExperimentWithPeformEntityOperations()
+    {
+        try
+        {
+            String sampleIdentifier = "/CISD/S-" + System.currentTimeMillis();
+            NewSample newSample = prepareNewSample(sampleIdentifier, IMPOSSIBLE_TYPE, "/CISD/NEMO/EXP1");
+            performSampleCreation(newSample);
+            fail("Registering of sample with impossible type should fail");
+        } catch (Exception ufe)
+        {
+            assertTrue(ufe.getMessage().contains("Validation of sample"));
+        }
+    }
+    
+    @Test
     public void testRegisterImpossibleToUpdate()
     {
         registerNewSample("/CISD/EVT1", IMPOSSIBLE_TO_UPDATE_TYPE);
