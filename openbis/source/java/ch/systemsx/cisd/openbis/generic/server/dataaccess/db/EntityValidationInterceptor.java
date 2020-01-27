@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.hibernate.Criteria;
 import org.hibernate.EmptyInterceptor;
@@ -50,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calcu
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.JythonEntityValidationCalculator.IValidationRequestDelegate;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.IEntityValidatorFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.api.IEntityValidator;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -197,7 +199,6 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
         return cached;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void beforeTransactionCompletion(Transaction tx)
     {
@@ -217,25 +218,18 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
 
         while (entitiesToValidate.size() > 0)
         {
+            Set<Long> foundAllIds = new HashSet<Long>();
             for (List<EntityIdentifier> identifiers : identifierBatchOf(BATCH_SIZE))
             {
-                Class<? extends IEntityInformationWithPropertiesHolder> clazz =
-                        identifiers.get(0).getEntityClass();
-
-                Collection<Long> param = new HashSet<Long>();
-                for (EntityIdentifier identifier : identifiers)
+                List<IEntityInformationWithPropertiesHolder> foundEntities = findEntities(session, identifiers);
+                Set<Long> foundIds = getIdsOfFoundEntitiesToBeValidated(foundEntities);
+                foundAllIds.addAll(foundIds);
+                for (IEntityInformationWithPropertiesHolder entity : foundEntities)
                 {
-                    param.add(identifier.getId());
-                }
-
-                Criteria criteria = session.createCriteria(clazz);
-                criteria.add(Restrictions.in("id", param));
-                criteria.setFetchMode("sampleProperties", FetchMode.JOIN);
-                criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-
-                List<IEntityInformationWithPropertiesHolder> list = criteria.list();
-                for (IEntityInformationWithPropertiesHolder entity : list)
-                {
+                    if (foundIds.contains(entity.getId()) == false)
+                    {
+                        continue;
+                    }
                     validateEntity(tx, entity);
                     if (isRolledBack)
                     {
@@ -243,7 +237,41 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
                     }
                 }
             }
+            Iterator<EntityIdentifier> iterator = entitiesToValidate.iterator();
+            while (iterator.hasNext())
+            {
+                EntityIdentifier next = iterator.next();
+                if (foundAllIds.contains(next.getId()) == false)
+                {
+                    iterator.remove();
+                }
+            }
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<IEntityInformationWithPropertiesHolder> findEntities(Session session, List<EntityIdentifier> identifiers)
+    {
+        Criteria criteria = session.createCriteria(identifiers.get(0).getEntityClass());
+        criteria.add(Restrictions.in("id", identifiers.stream().map(EntityIdentifier::getId).collect(Collectors.toSet())));
+        criteria.setFetchMode("sampleProperties", FetchMode.JOIN);
+        criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+
+        return (List<IEntityInformationWithPropertiesHolder>) criteria.list();
+    }
+
+    private Set<Long> getIdsOfFoundEntitiesToBeValidated(List<IEntityInformationWithPropertiesHolder> foundEntities)
+    {
+        Set<Long> foundIdsToValidate = new HashSet<>();
+        Set<Long> foundIds = foundEntities.stream().map(IIdHolder::getId).collect(Collectors.toSet());
+        for (EntityIdentifier entityToValidate : entitiesToValidate)
+        {
+            if (foundIds.contains(entityToValidate.getId()))
+            {
+                foundIdsToValidate.add(entityToValidate.getId());
+            }
+        }
+        return foundIdsToValidate;
     }
 
     private Iterable<List<EntityIdentifier>> identifierBatchOf(final int batchSize)
