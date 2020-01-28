@@ -88,15 +88,15 @@ public class DSSFileSystemViewTest extends AssertJUnit
     }
 
     @Test
-    public void testGetFile() throws FtpException
+    public void testGetFileNonNormalizedWithStrangeCharactersAndSpaces() throws FtpException
     {
-        prepareTryResolve("/abc/g h_i/j  k l");
+        prepareTryResolve("/DAT_1000-1099/DAT_1015  wb 35-40_(#1-#6)");
 
-        FtpFile file = view.getFile("abc/def/../g h_i//j  k l//");
+        FtpFile file = view.getFile("DAT_1000-1099/abc/../DAT_1015  wb 35-40_(#1-#6)");
 
-        assertEquals("/abc/g h_i/j  k l", file.getAbsolutePath());
+        assertEquals("/DAT_1000-1099/DAT_1015  wb 35-40_(#1-#6)", file.getAbsolutePath());
     }
-
+    
     @Test
     public void testChangeDirAndGetFile() throws FtpException
     {

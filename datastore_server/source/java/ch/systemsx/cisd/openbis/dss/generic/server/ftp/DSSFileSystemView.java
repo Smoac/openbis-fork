@@ -206,6 +206,8 @@ public class DSSFileSystemView implements FileSystemView
         try
         {
             String fullPathURLEncoded = URLEncoder.encode(fullPath, StandardCharsets.UTF_8.toString());
+            // Slashes need to be not encoded. Otherwise normalization would work.
+            fullPathURLEncoded = fullPathURLEncoded.replace("%2F", "/");
             URI uri = new URI(fullPathURLEncoded);
             String normalizedPathWithURI = uri.normalize().toString();
             String normalizedPath = URLDecoder.decode(normalizedPathWithURI, StandardCharsets.UTF_8.toString());
