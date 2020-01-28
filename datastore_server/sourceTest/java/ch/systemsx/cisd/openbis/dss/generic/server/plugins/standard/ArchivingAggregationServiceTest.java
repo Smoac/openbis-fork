@@ -103,9 +103,9 @@ public class ArchivingAggregationServiceTest extends AbstractFileSystemTestCase
 
         // Then
         assertEquals("[[OK, Operation Successful, "
-                + "{\"ds1\":{\"container\":[\"ds1\"],\"container size\":10000,\"size\":10000},"
-                + "\"ds2\":{\"container\":[\"ds2\"],\"container size\":10010,\"size\":10010},"
-                + "\"ds3\":{\"container\":[\"ds3\"],\"container size\":10020,\"size\":10020},"
+                + "{\"ds1\":{\"bundleId\":\"ds1\",\"bundleSize\":10000,\"numberOfDataSets\":1,\"size\":10000},"
+                + "\"ds2\":{\"bundleId\":\"ds2\",\"bundleSize\":10010,\"numberOfDataSets\":1,\"size\":10010},"
+                + "\"ds3\":{\"bundleId\":\"ds3\",\"bundleSize\":10020,\"numberOfDataSets\":1,\"size\":10020},"
                 + "\"total size\":30030}]]\n", renderRows(rows));
         assertEquals("[DS1, DS2, DS3]", actualDataSetsMatcher.recordedObject().toString());
         context.assertIsSatisfied();
@@ -116,9 +116,10 @@ public class ArchivingAggregationServiceTest extends AbstractFileSystemTestCase
     {
         // Given
         prepareGetContainer("ds1", "ds10", "ds9", "ds1");
-        prepareGetContainer("ds2", "ds3", "ds2", "ds4");
-        prepareGetContainer("ds3", "ds2", "ds4", "ds3");
-        RecordingMatcher<List<DataSetPermId>> actualDataSetsMatcher = prepareGetDataSets("ds1", "ds10", "ds2", "ds4", "ds3", "ds9");
+        prepareGetContainer("ds2", "ds12", "ds2", "ds4");
+        prepareGetContainer("ds3", "ds11", "ds3");
+        RecordingMatcher<List<DataSetPermId>> actualDataSetsMatcher 
+            = prepareGetDataSets("ds1", "ds10", "ds2", "ds4", "ds3", "ds9", "ds12", "ds11");
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(METHOD_KEY, GET_ARCHIVING_INFO_METHOD);
         parameters.put(ArchivingAggregationService.ARGS_KEY, String.join(", ", "ds3", "ds1", "ds2"));
@@ -128,11 +129,11 @@ public class ArchivingAggregationServiceTest extends AbstractFileSystemTestCase
 
         // Then
         assertEquals("[[OK, Operation Successful, "
-                + "{\"ds1\":{\"container\":[\"ds1\",\"ds10\",\"ds9\"],\"container size\":30060,\"size\":10000},"
-                + "\"ds2\":{\"container\":[\"ds2\",\"ds3\",\"ds4\"],\"container size\":30090,\"size\":10020},"
-                + "\"ds3\":{\"container\":[\"ds2\",\"ds3\",\"ds4\"],\"container size\":30090,\"size\":10040},"
-                + "\"total size\":60150}]]\n", renderRows(rows));
-        assertEquals("[DS1, DS10, DS2, DS3, DS4, DS9]", actualDataSetsMatcher.recordedObject().toString());
+                + "{\"ds1\":{\"bundleId\":\"ds1\",\"bundleSize\":30060,\"numberOfDataSets\":3,\"size\":10000},"
+                + "\"ds2\":{\"bundleId\":\"ds12\",\"bundleSize\":30110,\"numberOfDataSets\":3,\"size\":10020},"
+                + "\"ds3\":{\"bundleId\":\"ds11\",\"bundleSize\":20110,\"numberOfDataSets\":2,\"size\":10040},"
+                + "\"total size\":80280}]]\n", renderRows(rows));
+        assertEquals("[DS1, DS10, DS11, DS12, DS2, DS3, DS4, DS9]", actualDataSetsMatcher.recordedObject().toString());
         context.assertIsSatisfied();
     }
 
