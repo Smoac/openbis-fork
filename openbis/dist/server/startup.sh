@@ -11,7 +11,7 @@ checkNotRoot
 
 bin/status.sh -q
 if [ $? -eq 0 ]; then
-  echo openBIS AS already running, shut it down before starting a new one. > /dev/stderr
+  echo "openBIS AS already running, shut it down before starting a new one." 2>&1
   exit 1
 fi
 
