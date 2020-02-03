@@ -102,7 +102,7 @@ public class DataSet<T extends DataSetInformation> extends AbstractDataSetImmuta
             }
             if (contents.length < 1)
             {
-                throw new IllegalArgumentException("Data set is empty. transaction.moveFile() might have been ommitted: "
+                throw new IllegalArgumentException("Data set (" + dataSetFolder.getAbsolutePath() + ") is empty. transaction.moveFile() might have been ommitted: "
                         + registrationDetails.getDataSetInformation());
             }
             return contents[0];
@@ -217,13 +217,13 @@ public class DataSet<T extends DataSetInformation> extends AbstractDataSetImmuta
         return registrationDetails.getDataSetType().getCode();
     }
 
-	@Override
-	public DataSetKind getDataSetKind()
-	{
-		return registrationDetails.getDataSetKind();
-	}
+    @Override
+    public DataSetKind getDataSetKind()
+    {
+        return registrationDetails.getDataSetKind();
+    }
 
-	@Override
+    @Override
     public DataSetType getDataSetTypeWithPropertyTypes()
     {
         String dataSetTypeCode = getDataSetType();
@@ -242,13 +242,13 @@ public class DataSet<T extends DataSetInformation> extends AbstractDataSetImmuta
         registrationDetails.setDataSetType(dataSetTypeCode);
     }
 
-	@Override
-	public void setDataSetKind(DataSetKind dataSetKind)
-	{
-		registrationDetails.setDataSetKind(dataSetKind);
-	}
+    @Override
+    public void setDataSetKind(DataSetKind dataSetKind)
+    {
+        registrationDetails.setDataSetKind(dataSetKind);
+    }
 
-	protected void setExperiment(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment exp)
+    protected void setExperiment(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment exp)
     {
         registrationDetails.getDataSetInformation().setExperiment(exp);
         ExperimentIdentifier experimentId =
@@ -313,8 +313,9 @@ public class DataSet<T extends DataSetInformation> extends AbstractDataSetImmuta
     public void setContainedDataSetCodes(List<String> containedDataSetCodes)
     {
         ArrayList<String> newContainedDataSetCodes =
-                (null == containedDataSetCodes) ? new ArrayList<String>() : new ArrayList<String>(
-                        containedDataSetCodes);
+                (null == containedDataSetCodes) ? new ArrayList<String>()
+                        : new ArrayList<String>(
+                                containedDataSetCodes);
         registrationDetails.getDataSetInformation().setContainedDataSetCodes(
                 newContainedDataSetCodes);
 
