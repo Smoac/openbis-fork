@@ -1,11 +1,22 @@
 var SampleDataGridUtil = new function() {
-	this.getSampleDataGrid = function(mandatoryConfigPostKey, samplesOrCriteria, rowClick, customOperations, customColumns, optionalConfigPostKey, isOperationsDisabled, isLinksDisabled, isMultiselectable, withExperiment) {
+	this.getSampleDataGrid = function(mandatoryConfigPostKey, samplesOrCriteria, rowClick, customOperations, customColumns, optionalConfigPostKey, isOperationsDisabled, isLinksDisabled, isMultiselectable, withExperiment, heightPercentage) {
 		var _this = this;
 		var isDynamic = samplesOrCriteria.entityKind && samplesOrCriteria.rules;
 		
 		//Fill Columns model
 		var columnsFirst = [];
 		
+		columnsFirst.push({
+			label : 'Name/Code',
+			property : '$NAME',
+			isExportable: true,
+			sortable : false,
+			render : function(data) {
+				var nameToUse = Util.getNameOrCode(data);
+				return (isLinksDisabled)?nameToUse:FormUtil.getFormLink(nameToUse, "Sample", data.permId);
+			}
+		});
+
 		columnsFirst.push({
 			label : 'Identifier',
 			property : 'identifier',
@@ -21,7 +32,7 @@ var SampleDataGridUtil = new function() {
 							break;
 						}
 					}
-					
+
 					if(indexFound !== null) {
 						paginationInfo = {
 								pagFunction : _this.getDataListDynamic(samplesOrCriteria, false),
@@ -44,191 +55,10 @@ var SampleDataGridUtil = new function() {
 			}
 		});
 
-		columnsFirst.push({
-			label : 'Code',
-			property : 'code',
-			isExportable: false,
-			sortable : true,
-			render : function(data, grid) {
-				var paginationInfo = null;
-				if(isDynamic) {
-					var indexFound = null;
-					for(var idx = 0; idx < grid.lastReceivedData.objects.length; idx++) {
-						if(grid.lastReceivedData.objects[idx].permId === data.permId) {
-							indexFound = idx + (grid.lastUsedOptions.pageIndex * grid.lastUsedOptions.pageSize);
-							break;
-						}
-					}
-					
-					if(indexFound !== null) {
-						paginationInfo = {
-								pagFunction : _this.getDataListDynamic(samplesOrCriteria, false),
-								pagOptions : grid.lastUsedOptions,
-								currentIndex : indexFound,
-								totalCount : grid.lastReceivedData.totalCount
-						}
-					}
-				}
-				var codeId = data.code.toLowerCase() + "-column-id";
-				return (isLinksDisabled)?data.code:FormUtil.getFormLink(data.code, "Sample", data.permId, paginationInfo, codeId);
-			},
-			filter : function(data, filter) {
-				return data.identifier.toLowerCase().indexOf(filter) !== -1;
-			},
-			sort : function(data1, data2, asc) {
-				var value1 = data1.identifier;
-				var value2 = data2.identifier;
-				var sortDirection = (asc)? 1 : -1;
-				return sortDirection * naturalSort(value1, value2);
-			}
-		});
-		
-		columnsFirst.push({
-			label : 'Type',
-			property : 'sampleTypeCode',
-			isExportable: false,
-			sortable : true
-		});
-		
-		columnsFirst.push({
-			label : 'Name',
-			property : '$NAME',
-			isExportable: true,
-			sortable : true,
-			render : function(data) {
-				var nameToUse = "";
-				if(data[profile.propertyReplacingCode]) {
-					nameToUse = data[profile.propertyReplacingCode];
-				}
-				return (isLinksDisabled)?nameToUse:FormUtil.getFormLink(nameToUse, "Sample", data.permId);
-			}
-		});
-		
 		if(customColumns) {
 			columnsFirst = columnsFirst.concat(customColumns);
 		}
-		
-		columnsFirst.push({
-			label : 'Space',
-			property : 'default_space',
-			isExportable: true,
-			sortable : false
-		});
-		
-		columnsFirst.push({
-			label : 'Parents',
-			property : 'parents',
-			isExportable: true,
-			sortable : false,
-			render : function(data, grid) {
-				var output = $("<span>");
-				if(data.parents) {
-					var elements = data.parents.split(", ");
-					for (var eIdx = 0; eIdx < elements.length; eIdx++) {
-						var eIdentifier = elements[eIdx];
-						var eComponent = (isLinksDisabled)?eIdentifier:FormUtil.getFormLink(eIdentifier, "Sample", eIdentifier, null);
-						if(eIdx != 0) {
-							output.append(", ");
-						}
-						output.append(eComponent);
-					}
-				}
-				return output;
-			}
-		});
-		
-		columnsFirst.push({
-			label : 'Children',
-			property : 'children',
-			isExportable: false,
-			sortable : false,
-			render : function(data, grid) {
-				var output = $("<span>");
-				if(data.children) {
-					var elements = data.children.split(", ");
-					for (var eIdx = 0; eIdx < elements.length; eIdx++) {
-						var eIdentifier = elements[eIdx];
-						var eComponent = (isLinksDisabled)?eIdentifier:FormUtil.getFormLink(eIdentifier, "Sample", eIdentifier, null);
-						if(eIdx != 0) {
-							output.append(", ");
-						}
-						output.append(eComponent);
-					}
-				}
-				return output;
-			}
-		});
-		
-		columnsFirst.push({
-			label : 'Storage',
-			property : 'storage',
-			isExportable: false,
-			sortable : false,
-			render : function(data) {
-				var storage = $("<span>");
-				if(data["$object"].children) {
-					var isFirst = true;
-					for (var cIdx = 0; cIdx < data['$object'].children.length; cIdx++) {
-						if(data['$object'].children[cIdx].sampleTypeCode == "STORAGE_POSITION") {
-							var sample = data['$object'].children[cIdx];
-							var displayName = Util.getStoragePositionDisplayName(sample);
-							if(!isFirst) {
-								storage.append(",<br>");
-							}
-							storage.append(FormUtil.getFormLink(displayName, "Sample", sample.permId));
-							isFirst = false;
-						}
-					}
-				}
-				return storage;
-			}
-		});
 
-		if(withExperiment) {
-			columnsFirst.push({
-				label : ELNDictionary.getExperimentDualName(),
-				property : 'experiment',
-				isExportable: true,
-				sortable : false
-			});
-		}
-		
-		columnsFirst.push({
-			label : 'Preview',
-			property : 'preview',
-			isExportable: false,
-			sortable : false,
-			render : function(data) {
-				var previewContainer = $("<div>");
-				mainController.serverFacade.searchDataSetsWithTypeForSamples("ELN_PREVIEW", [data.permId], function(data) {
-					data.result.forEach(function(dataset) {
-						var listFilesForDataSetCallback = function(dataFiles) {
-							for(var pathIdx = 0; pathIdx < dataFiles.result.length; pathIdx++) {
-								if(!dataFiles.result[pathIdx].isDirectory) {
-									var downloadUrl = profile.allDataStores[0].downloadUrl + '/' + dataset.code + "/" + dataFiles.result[pathIdx].pathInDataSet + "?sessionID=" + mainController.serverFacade.getSession();
-									var previewImage = $("<img>", { 'src' : downloadUrl, 'class' : 'zoomableImage', 'style' : 'width:100%;' });
-									previewImage.click(function(event) {
-										Util.showImage(downloadUrl);
-										event.stopPropagation();
-									});
-									previewContainer.append(previewImage);
-									break;
-								}
-							}
-						};
-						mainController.serverFacade.listFilesForDataSet(dataset.code, "/", true, listFilesForDataSetCallback);
-					});
-				});
-				return previewContainer;
-			},
-			filter : function(data, filter) {
-				return false;
-			},
-			sort : function(data1, data2, asc) {
-				return 0;
-			}
-		});
-		
 		columnsFirst.push({
 			label : '---------------',
 			property : null,
@@ -318,9 +148,184 @@ var SampleDataGridUtil = new function() {
 			});
 			return propertyColumnsToSort;
 		}
-		
-		
+
 		var columnsLast = [];
+		columnsLast.push({
+        			label : '---------------',
+        			property : null,
+        			isExportable: false,
+        			sortable : false
+        });
+		columnsLast.push({
+			label : 'Type',
+			property : 'sampleTypeCode',
+			isExportable: false,
+			sortable : true,
+		    render : function(data, grid) {
+                return Util.getDisplayNameFromCode(data.sampleTypeCode);
+            },
+		});
+
+		columnsLast.push({
+			label : 'Code',
+			property : 'code',
+			isExportable: false,
+			sortable : true,
+			render : function(data, grid) {
+				var paginationInfo = null;
+				if(isDynamic) {
+					var indexFound = null;
+					for(var idx = 0; idx < grid.lastReceivedData.objects.length; idx++) {
+						if(grid.lastReceivedData.objects[idx].permId === data.permId) {
+							indexFound = idx + (grid.lastUsedOptions.pageIndex * grid.lastUsedOptions.pageSize);
+							break;
+						}
+					}
+
+					if(indexFound !== null) {
+						paginationInfo = {
+								pagFunction : _this.getDataListDynamic(samplesOrCriteria, false),
+								pagOptions : grid.lastUsedOptions,
+								currentIndex : indexFound,
+								totalCount : grid.lastReceivedData.totalCount
+						}
+					}
+				}
+				var codeId = data.code.toLowerCase() + "-column-id";
+				return (isLinksDisabled)?data.code:FormUtil.getFormLink(data.code, "Sample", data.permId, paginationInfo, codeId);
+			},
+			filter : function(data, filter) {
+				return data.identifier.toLowerCase().indexOf(filter) !== -1;
+			},
+			sort : function(data1, data2, asc) {
+				var value1 = data1.identifier;
+				var value2 = data2.identifier;
+				var sortDirection = (asc)? 1 : -1;
+				return sortDirection * naturalSort(value1, value2);
+			}
+		});
+
+		columnsLast.push({
+			label : 'Space',
+			property : 'default_space',
+			isExportable: true,
+			sortable : false
+		});
+
+		if(withExperiment) {
+			columnsLast.push({
+				label : ELNDictionary.getExperimentDualName(),
+				property : 'experiment',
+				isExportable: true,
+				sortable : false
+			});
+		}
+
+		columnsLast.push({
+			label : 'Parents',
+			property : 'parents',
+			isExportable: true,
+			sortable : false,
+			render : function(data, grid) {
+				var output = $("<span>");
+				if(data.parents) {
+					var elements = data.parents.split(", ");
+					for (var eIdx = 0; eIdx < elements.length; eIdx++) {
+						var eIdentifier = elements[eIdx];
+						var eComponent = (isLinksDisabled)?eIdentifier:FormUtil.getFormLink(eIdentifier, "Sample", eIdentifier, null);
+						if(eIdx != 0) {
+							output.append(", ");
+						}
+						output.append(eComponent);
+					}
+				}
+				return output;
+			}
+		});
+
+		columnsLast.push({
+			label : 'Children',
+			property : 'children',
+			isExportable: false,
+			sortable : false,
+			render : function(data, grid) {
+				var output = $("<span>");
+				if(data.children) {
+					var elements = data.children.split(", ");
+					for (var eIdx = 0; eIdx < elements.length; eIdx++) {
+						var eIdentifier = elements[eIdx];
+						var eComponent = (isLinksDisabled)?eIdentifier:FormUtil.getFormLink(eIdentifier, "Sample", eIdentifier, null);
+						if(eIdx != 0) {
+							output.append(", ");
+						}
+						output.append(eComponent);
+					}
+				}
+				return output;
+			}
+		});
+
+		columnsLast.push({
+			label : 'Storage',
+			property : 'storage',
+			isExportable: false,
+			sortable : false,
+			render : function(data) {
+				var storage = $("<span>");
+				if(data["$object"].children) {
+					var isFirst = true;
+					for (var cIdx = 0; cIdx < data['$object'].children.length; cIdx++) {
+						if(data['$object'].children[cIdx].sampleTypeCode == "STORAGE_POSITION") {
+							var sample = data['$object'].children[cIdx];
+							var displayName = Util.getStoragePositionDisplayName(sample);
+							if(!isFirst) {
+								storage.append(",<br>");
+							}
+							storage.append(FormUtil.getFormLink(displayName, "Sample", sample.permId));
+							isFirst = false;
+						}
+					}
+				}
+				return storage;
+			}
+		});
+
+		columnsLast.push({
+			label : 'Preview',
+			property : 'preview',
+			isExportable: false,
+			sortable : false,
+			render : function(data) {
+				var previewContainer = $("<div>");
+				mainController.serverFacade.searchDataSetsWithTypeForSamples("ELN_PREVIEW", [data.permId], function(data) {
+					data.result.forEach(function(dataset) {
+						var listFilesForDataSetCallback = function(dataFiles) {
+							for(var pathIdx = 0; pathIdx < dataFiles.result.length; pathIdx++) {
+								if(!dataFiles.result[pathIdx].isDirectory) {
+									var downloadUrl = profile.allDataStores[0].downloadUrl + '/' + dataset.code + "/" + dataFiles.result[pathIdx].pathInDataSet + "?sessionID=" + mainController.serverFacade.getSession();
+									var previewImage = $("<img>", { 'src' : downloadUrl, 'class' : 'zoomableImage', 'style' : 'width:100%;' });
+									previewImage.click(function(event) {
+										Util.showImage(downloadUrl);
+										event.stopPropagation();
+									});
+									previewContainer.append(previewImage);
+									break;
+								}
+							}
+						};
+						mainController.serverFacade.listFilesForDataSet(dataset.code, "/", true, listFilesForDataSetCallback);
+					});
+				});
+				return previewContainer;
+			},
+			filter : function(data, filter) {
+				return false;
+			},
+			sort : function(data1, data2, asc) {
+				return 0;
+			}
+		});
+
 		columnsLast.push({
 			label : '---------------',
 			property : null,
@@ -376,7 +381,7 @@ var SampleDataGridUtil = new function() {
 			configKey += "_" + optionalConfigPostKey;
 		}
 		
-		var dataGridController = new DataGridController(null, columnsFirst, columnsLast, dynamicColumnsFunc, getDataList, rowClick, false, configKey, isMultiselectable);
+		var dataGridController = new DataGridController(null, columnsFirst, columnsLast, dynamicColumnsFunc, getDataList, rowClick, false, configKey, isMultiselectable, heightPercentage);
 		return dataGridController;
 	}
 	
@@ -680,4 +685,5 @@ var SampleDataGridUtil = new function() {
 			}
 		}
 	}
+	
 }

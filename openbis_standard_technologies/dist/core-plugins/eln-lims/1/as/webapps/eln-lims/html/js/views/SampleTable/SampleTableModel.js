@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-function SampleTableModel(title, experimentIdentifier, projectPermId, showInProjectOverview, experiment) {
+function SampleTableModel(title, experimentIdentifier, projectPermId, showInProjectOverview, experiment, heightOverride) {
 	this.title = title;
 	this.experimentIdentifier = experimentIdentifier;
 	this.experiment = experiment;
@@ -22,4 +22,5 @@ function SampleTableModel(title, experimentIdentifier, projectPermId, showInProj
 	this.showInProjectOverview = showInProjectOverview;
 	this.allSamples = new Array();
 	this.sampleTypeCodeToUse = null;
+	this.heightOverride = heightOverride;
 }

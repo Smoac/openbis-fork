@@ -28,7 +28,7 @@ from java.net import URI
 from java.nio.file import Paths
 from java.text import SimpleDateFormat
 from java.util import UUID
-from java.util.zip import ZipOutputStream
+from java.util.zip import ZipOutputStream, Deflater
 from org.apache.commons.io import FileUtils
 from org.apache.log4j import Logger
 from org.eclipse.jetty.client import HttpClient
@@ -50,7 +50,8 @@ def process(tr, params, tableBuilder):
 
     if method == 'exportAll':
         resultUrl = expandAndExport(tr, params)
-        displayResult(resultUrl is not None, tableBuilder, '{"url": "' + resultUrl + '"}' if resultUrl is not None else None)
+        displayResult(resultUrl is not None, tableBuilder, '{"url": "' + resultUrl + '"}' if resultUrl is not None else None,
+                      errorMessage=None if resultUrl is not None else 'Archives are not allowed if indefinite retention period is selected.')
 
 
 def getBaseUrl(url):
@@ -62,6 +63,9 @@ def expandAndExport(tr, params):
     entitiesToExport = findEntitiesToExport(params)
     validateDataSize(entitiesToExport, tr)
 
+    if params.get('retentionPeriod') == 'indefinite' and containsArchives(entitiesToExport):
+        return None
+
     userInformation = {
         'firstName': params.get('userFirstName'),
         'lastName': params.get('userLastName'),
@@ -70,6 +74,35 @@ def expandAndExport(tr, params):
 
     operationLog.info('Found ' + str(len(entitiesToExport)) + ' entities to export')
     return export(entities=entitiesToExport, tr=tr, params=params, userInformation=userInformation)
+
+
+def containsArchives(entitiesToExport):
+    for entityToExport in entitiesToExport:
+        print('containsArchives() entityToExport=%s' % str(entityToExport))
+        if entityToExport['type'] == 'FILE' and not entityToExport['isDirectory'] and isArchive(entityToExport['path']):
+            print('Archive found. entityToExport=%s' % str(entityToExport))
+            return True
+    return False
+
+
+def isArchive(path):
+    archiveExtensions = ['7Z', 'A00', 'A01', 'A02', 'ACE', 'AGG', 'AIN', 'ALZ', 'APEX', 'APZ', 'AR', 'ARC', 'ARH', 'ARI', 'ARJ', 'ARK', 'ASR', 'B1', 'B64', 'B6Z', 'BA', 'BDOC', 'BH', 'BNDL', 'BOO',
+                         'BUNDLE', 'BZ', 'BZ2', 'BZA', 'BZIP', 'BZIP2', 'C00', 'C01', 'C02', 'C10', 'CAR', 'CB7', 'CBA', 'CBR', 'CBT', 'CBZ', 'CDZ', 'CP9', 'CPGZ', 'CPT', 'CTX', 'CTZ', 'CXARCHIVE',
+                         'CZIP', 'DAF', 'DAR', 'DD', 'DEB', 'DGC', 'DIST', 'DL_', 'DZ', 'ECS', 'ECSBX', 'EDZ', 'EFW', 'EGG', 'EPI', 'F', 'F3Z', 'FDP', 'FP8', 'FZBZ', 'FZPZ', 'GCA', 'GMZ', 'GZ', 'GZ2',
+                         'GZA', 'GZI', 'GZIP', 'HA', 'HBC', 'HBC2', 'HBE', 'HKI', 'HKI1', 'HKI2', 'HKI3', 'HPK', 'HPKG', 'HYP', 'IADPROJ', 'ICE', 'IPG', 'IPK', 'ISH', 'ISX', 'ITA', 'IZE', 'J', 'JGZ',
+                         'JIC', 'JSONLZ4', 'KGB', 'KZ', 'LAYOUT', 'LBR', 'LEMON', 'LHA', 'LHZD', 'LIBZIP', 'LNX', 'LPKG', 'LQR', 'LZ', 'LZH', 'LZM', 'LZMA', 'LZO', 'LZX', 'MBZ', 'MD', 'MINT', 'MOU',
+                         'MPKG', 'MZP', 'MZP', 'NEX', 'NPK', 'NZ', 'OAR', 'OPK', 'OZ', 'P01', 'P19', 'P7Z', 'PA', 'PACKAGE', 'PAE', 'PAK', 'PAQ6', 'PAQ7', 'PAQ8', 'PAQ8F', 'PAQ8L', 'PAQ8P', 'PAR',
+                         'PAR2', 'PAX', 'PBI', 'PCV', 'PEA', 'PET', 'PF', 'PIM', 'PIT', 'PIZ', 'PKG', 'PRS', 'PSZ', 'PUP', 'PUP', 'PUZ', 'PVMZ', 'PWA', 'QDA', 'R0', 'R00', 'R01', 'R02', 'R03', 'R04',
+                         'R1', 'R2', 'R21', 'R30', 'RAR', 'REV', 'RK', 'RNC', 'RP9', 'RPM', 'RSS', 'RTE', 'RZ', 'S00', 'S01', 'S02', 'S09', 'S7Z', 'SAR', 'SBX', 'SBX', 'SDC', 'SDN', 'SEA', 'SEN',
+                         'SFG', 'SFS', 'SFX', 'SH', 'SHAR', 'SHK', 'SHR', 'SI', 'SIFZ', 'SIT', 'SITX', 'SMPF', 'SNAPPY', 'SNB', 'SPD', 'SPL', 'SPM', 'SPT', 'SQX', 'SQZ', 'SREP', 'STPROJ', 'SY_',
+                         'TAZ', 'TBZ', 'TBZ2', 'TCX', 'TG', 'TGZ', 'TLZ', 'TLZMA', 'TRS', 'TX_', 'TXZ', 'TZ', 'TZST', 'UC2', 'UHA', 'UZIP', 'VEM', 'VFS', 'VIP', 'VMCZ', 'VOCA', 'VPK', 'VSI', 'WA',
+                         'WAFF', 'WAR', 'WARC', 'WASTICKERS', 'WDZ', 'WHL', 'WLB', 'WOT', 'WUX', 'XAPK', 'XAR', 'XEF', 'XEZ', 'XIP', 'XMCDZ', 'XX', 'XZ', 'XZM', 'Y', 'YZ', 'YZ1', 'Z', 'Z01', 'Z02',
+                         'Z03', 'Z04', 'ZAP', 'ZI', 'ZI_', 'ZIP', 'ZIPX', 'ZIX', 'ZL', 'ZOO', 'ZPI', 'ZSPLIT', 'ZST', 'ZW', 'ZZ']
+    splitPath = path.split('.')
+    splitItemsCount = len(splitPath)
+    extension = splitPath[splitItemsCount - 1].upper()
+    print('Checking isArchive(). path=%s, splitItemsCount=%i, extension=%s' % (path, splitItemsCount, extension))
+    return splitItemsCount > 1 and extension in archiveExtensions
 
 
 def export(entities, tr, params, userInformation):
@@ -94,7 +127,8 @@ def export(entities, tr, params, userInformation):
     exportZipFilePath = exportDirPath + '.zip'
     exportZipFileName = exportDirName + '.zip'
 
-    generateZipFile(entities, params, contentDirPath, contentZipFilePath)
+    indefiniteReterntion = (params.get('retentionPeriod') == 'indefinite')
+    generateZipFile(entities, params, contentDirPath, contentZipFilePath, deflated=not indefiniteReterntion)
     FileUtils.forceDelete(File(contentDirPath))
 
     generateExternalZipFile(params=params, exportDirPath=exportDirPath, contentZipFilePath=contentZipFilePath, contentZipFileName=contentZipFileName,
@@ -178,7 +212,8 @@ def fetchServiceDocument(url, httpClient):
     return json.dumps(map(collectionToDictionaryMapper, collections))
 
 
-def generateExternalZipFile(params, exportDirPath, contentZipFilePath, contentZipFileName, exportZipFileName, userInformation, entities):
+def generateExternalZipFile(params, exportDirPath, contentZipFilePath, contentZipFileName, exportZipFileName, userInformation, entities,
+                            deflated=True):
     # Generates ZIP file which will go to the research collection server
 
     fileMetadata = [
@@ -193,6 +228,8 @@ def generateExternalZipFile(params, exportDirPath, contentZipFilePath, contentZi
     try:
         fos = FileOutputStream(exportZipFileName)
         zos = ZipOutputStream(fos)
+        if not deflated:
+            zos.setLevel(Deflater.NO_COMPRESSION)
 
         addToZipFile(' ' + contentZipFileName, File(contentZipFilePath), zos)
 
@@ -211,6 +248,7 @@ def generateExternalZipFile(params, exportDirPath, contentZipFilePath, contentZi
 
 def generateXML(zipOutputStream, fileMetadata, exportDirPath, userInformation, entities, params):
     originUrl=params.get('originUrl')
+    pathNameUrl=params.get('pathNameUrl')
     submissionType = str(params.get('submissionType'))
 
     ns = {
@@ -284,33 +322,17 @@ def generateXML(zipOutputStream, fileMetadata, exportDirPath, userInformation, e
     publicationDateField.set('qualifier', 'issued')
     publicationDateField.text = datetime.date.today().strftime('%Y-%m-%d')
 
+    notesField = ET.SubElement(dim, ET.QName(dimNS, 'field'))
+    notesField.set('mdschema', 'ethz')
+    notesField.set('element', 'notes')
+    notesField.text = 'This export has been made from the openBIS installation %s, if you wish to access the original information please contact the data creator.' \
+                      % (originUrl + pathNameUrl)
+
     openBisApiUrlField = ET.SubElement(dim, ET.QName(dimNS, 'field'))
     openBisApiUrlField.set('mdschema', 'ethz')
     openBisApiUrlField.set('element', 'identifier')
     openBisApiUrlField.set('qualifier', 'openBisApiUrl')
-    openBisApiUrlField.text = originUrl + '/openbis-test/'
-
-    elnLimsURLPattern = '/openbis-test/webapp/eln-lims/?menuUniqueId=null&viewName='
-
-    for entity in entities:
-        type = entity['type']
-        viewName = ''
-        if type == 'SPACE':
-            viewName = 'showSpacePage'
-        if type == 'PROJECT':
-            viewName = 'showProjectPageFromPermId'
-        if type == 'EXPERIMENT':
-            viewName = 'showExperimentPageFromPermId'
-        if type == 'SAMPLE':
-            viewName = 'showViewSamplePageFromPermId'
-        if type == 'DATASET':
-            viewName = 'showViewDataSetPageFromPermId'
-        if type != 'FILE':
-            urlField = ET.SubElement(dim, ET.QName(dimNS, 'field'))
-            urlField.set('mdschema', 'ethz')
-            urlField.set('element', 'identifier')
-            urlField.set('qualifier', 'url')
-            urlField.text = originUrl + elnLimsURLPattern + viewName + '&viewData=' + entity['permId']
+    openBisApiUrlField.text = originUrl + '/openbis/openbis/rmi-application-server-v3.json'
 
     if minDateStr is not None and maxDateStr is not None:
         creationDateField = ET.SubElement(dim, ET.QName(dimNS, 'field'))

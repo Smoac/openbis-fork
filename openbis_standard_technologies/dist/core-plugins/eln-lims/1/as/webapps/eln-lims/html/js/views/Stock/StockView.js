@@ -53,8 +53,8 @@ function StockView(stockController, stockView) {
 				});
 				
 			});
-		});
-		toolbarModel.push({ component : $export, tooltip: "Export" });
+		}, "Export");
+		toolbarModel.push({ component : $export });
 		
 		views.header.append($formTitle);
 		views.header.append(FormUtil.getToolbar(toolbarModel));

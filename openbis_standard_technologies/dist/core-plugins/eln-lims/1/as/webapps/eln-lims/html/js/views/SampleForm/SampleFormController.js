@@ -38,11 +38,30 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 					fetchOptions.withChildren();
 					mainController.openbisV3.getSamples([ id ], fetchOptions).done(function(map) {
 						_this._sampleFormModel.v3_sample = map[id];
-						var expeId = _this._sampleFormModel.v3_sample.getExperiment().getIdentifier().getIdentifier();
-						var dummySampleId = new SampleIdentifier(IdentifierUtil.createDummySampleIdentifierFromExperimentIdentifier(expeId));
+
+						var hasExperiment = false;
+						if(_this._sampleFormModel.v3_sample.getExperiment()) {
+						    hasExperiment = true;
+						}
+
+                        var dummySampleId = null;
+
+                        if(hasExperiment) {
+						    var expeId = _this._sampleFormModel.v3_sample.getExperiment().getIdentifier().getIdentifier();
+						    var dummySampleId = new SampleIdentifier(IdentifierUtil.createDummySampleIdentifierFromExperimentIdentifier(expeId));
+                        }
+
 						mainController.openbisV3.getRights([ id, dummySampleId ], null).done(function(rightsByIds) {
 							_this._sampleFormModel.rights = rightsByIds[id];
-							_this._sampleFormModel.sampleRights = rightsByIds[dummySampleId]; 
+
+							if(dummySampleId) {
+							    _this._sampleFormModel.sampleRights = rightsByIds[dummySampleId];
+							} else {
+							     _this._sampleFormModel.sampleRights = {};
+							     _this._sampleFormModel.sampleRights.rights = [];
+							}
+
+
 							mainController.serverFacade.listDataSetsForSample(_this._sampleFormModel.sample, true, function(datasets) {
 								if(!datasets.error) {
 									_this._sampleFormModel.datasets = datasets.result;
@@ -308,6 +327,7 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 						if(!samplesToDelete) {
 							samplesToDelete = [];
 						}
+						sampleChildrenRemovedFinal.push(child.identifier);
 						samplesToDelete.push(child.permId);
 					}
 				});
@@ -357,6 +377,7 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 			if(isCopyWithNewCode) {
 				parameters["method"] = "copySample";
 				parameters["sampleCode"] = isCopyWithNewCode;
+				parameters["sampleCodeOrig"] = sampleCode;
 				parameters["notCopyProperties"] = [];
 				parameters["defaultBenchPropertyList"] = [];
 				
@@ -370,11 +391,7 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 				}
 				
 				parameters["sampleChildren"] = sampleChildrenFinal;
-				if(!copyChildrenOnCopy) {
-					parameters["sampleChildren"] = [];
-				} else if(profile.storagesConfiguration["isEnabled"]) {
-					// Copying children no longer copies storage information
-				}
+				parameters["copyChildrenOnCopy"] = copyChildrenOnCopy;
 				parameters["sampleChildrenNew"] = [];
 				parameters["sampleChildrenRemoved"] = [];
 			}
@@ -448,16 +465,22 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 			}
 			
 			if(samplesToDelete) {
-				mainController.serverFacade.deleteSamples(samplesToDelete,  "Deleted to trashcan from eln sample form " + _this._sampleFormModel.sample.identifier, 
-															function(response) {
-																if(response.error) {
-																	Util.showError("Deletions failed, other changes were committed: " + response.error.message, callbackOk);
-																} else {
-																	Util.showSuccess(message, callbackOk);
-																}
-																_this._sampleFormModel.isFormDirty = false;
-															}, 
-															false);
+			    mainController.serverFacade.trashStorageSamplesWithoutParents(samplesToDelete,
+			                                                                    "Deleted to trashcan from eln sample form " + _this._sampleFormModel.sample.identifier,
+			                                                                    function(response) {
+			                                                                        Util.showSuccess(message, callbackOk);
+			                                                                    });
+
+//				mainController.serverFacade.deleteSamples(samplesToDelete,  "Deleted to trashcan from eln sample form " + _this._sampleFormModel.sample.identifier,
+//															function(response) {
+//																if(response.error) {
+//																	Util.showError("Deletions failed, other changes were committed: " + response.error.message, callbackOk);
+//																} else {
+//																	Util.showSuccess(message, callbackOk);
+//																}
+//																_this._sampleFormModel.isFormDirty = false;
+//															},
+//															false);
 			} else {
 				Util.showSuccess(message, callbackOk);
 				_this._sampleFormModel.isFormDirty = false;

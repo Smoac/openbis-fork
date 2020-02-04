@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-function DataGridModel(title, columnsFirst, columnsLast, columnsDynamicFunc, data, rowClickEventHandler, datagrid, isMultiselectable) {
+function DataGridModel(title, columnsFirst, columnsLast, columnsDynamicFunc, data, rowClickEventHandler, datagrid, isMultiselectable, heightPercentage) {
 	this.title = title;
 	this.columnsFirst = columnsFirst;
 	this.columnsLast = columnsLast;
@@ -23,4 +23,5 @@ function DataGridModel(title, columnsFirst, columnsLast, columnsDynamicFunc, dat
 	this.rowClickEventHandler = rowClickEventHandler;
 	this.datagrid = datagrid;
 	this.isMultiselectable = isMultiselectable;
+	this.heightPercentage = heightPercentage;
 }

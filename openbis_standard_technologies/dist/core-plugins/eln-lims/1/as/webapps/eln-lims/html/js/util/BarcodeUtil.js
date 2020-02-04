@@ -72,12 +72,14 @@ var BarcodeUtil = new function() {
 
         var $barcodeTypesDropdown = FormUtil.getDropdown(this.supportedBarcodes());
 
-        var $numberDropdown = FormUtil.getDropdown([
-            { label: '10', value: 10, selected: true },
-            { label: '25', value: 25 },
-            { label: '50', value: 50 },
-            { label: '100', value: 100 }
-        ]);
+        var numberDropdownModel = [];
+        for(var nIdx = 1; nIdx <= 100; nIdx++) {
+            numberDropdownModel.push({ label: '' + nIdx, value: nIdx });
+            if(nIdx === 10) {
+                numberDropdownModel[nIdx-1].selected = true;
+            }
+        }
+        var $numberDropdown = FormUtil.getDropdown(numberDropdownModel);
 
         var $width = FormUtil.getDropdown([ { label: '10 mm', value: 10 },
                                             { label: '15 mm', value: 15 },
@@ -117,13 +119,25 @@ var BarcodeUtil = new function() {
             }
         });
 
-        $toolbar.append($generateBtn)
-                .append($("<span>", { style:"width:15%; margin-left: 10px; display:inline-block;"}).append($barcodeTypesDropdown))
+        var $lineHeaders = $("<div>");
+        $lineHeaders.append($("<span>", { style:"width:15%; margin-left: 10px; display:inline-block;"}).append($("<label>", { class : "control-label"}).append("Type:")))
+                .append($("<span>", { style:"width:10%; margin-left: 10px; display:inline-block;"}).append($("<label>", { class : "control-label"}).append("Count:")))
+                .append($("<span>", { style:"width:15%; margin-left: 10px; display:inline-block;"}).append($("<label>", { class : "control-label"}).append("Layout:")))
+                .append($("<span>", { style:"width:15%; margin-left: 10px; display:inline-block;"}).append($("<label>", { class : "control-label"}).append("Width:")))
+                .append($("<span>", { style:"width:15%; margin-left: 10px; display:inline-block;"}).append($("<label>", { class : "control-label"}).append("Height:")));
+        $toolbar.append($lineHeaders);
+
+        var $lineOne = $("<div>");
+        $lineOne.append($("<span>", { style:"width:15%; margin-left: 10px; display:inline-block;"}).append($barcodeTypesDropdown))
                 .append($("<span>", { style:"width:10%; margin-left: 10px; display:inline-block;"}).append($numberDropdown))
                 .append($("<span>", { style:"width:15%; margin-left: 10px; display:inline-block;"}).append($layout))
                 .append($("<span>", { style:"width:15%; margin-left: 10px; display:inline-block;"}).append($width))
                 .append($("<span>", { style:"width:15%; margin-left: 10px; display:inline-block;"}).append($height))
-                .append($("<span>", { style:"width:8%; margin-left: 10px; display:inline-block;"}).append($printButton));
+                .append($("<span>", { style:"margin-left: 10px; display:inline-block;"}).append($generateBtn))
+                .append($("<span>", { style:"margin-left: 10px; display:inline-block;"}).append($printButton));
+        $toolbar.append($lineOne);
+
+
 
         views.header.append($toolbar);
 

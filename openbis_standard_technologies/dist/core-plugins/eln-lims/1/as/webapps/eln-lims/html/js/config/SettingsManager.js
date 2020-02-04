@@ -95,7 +95,8 @@ function SettingsManager(serverFacade) {
 			"dataSetTypeForFileNameMap",
 			"forcedDisableRTF",
 			"forceMonospaceFont",
-			"showDatasetArchivingButton"
+			"showDatasetArchivingButton",
+			"hideSectionsByDefault"
 		];
 		for (var field of fieldsToOverride) {
 			if (settings[field] != null) {
@@ -138,6 +139,11 @@ function SettingsManager(serverFacade) {
 			// Add current profile show config
 			if(!settings.sampleTypeDefinitionsExtension[sampleTypeCode].SHOW) {
 				targetProfile.hideTypes["sampleTypeCodes"].push(sampleTypeCode);
+			}
+
+			// Show on navigation by default
+			if(targetProfile.sampleTypeDefinitionsExtension[sampleTypeCode]["SHOW_ON_NAV"] === undefined) {
+			    targetProfile.sampleTypeDefinitionsExtension[sampleTypeCode]["SHOW_ON_NAV"] = true;
 			}
 		}
 	}

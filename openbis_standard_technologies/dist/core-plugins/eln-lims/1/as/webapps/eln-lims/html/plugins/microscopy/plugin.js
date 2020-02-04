@@ -175,22 +175,13 @@ $.extend(MicroscopyTechnology.prototype, ELNLIMSPlugin.prototype, {
         var sampleView_div = $("<div>");
         $container.append(sampleView_div);
 
-        var newThumbRow = null;
-        var numSample = 0;
+        var newThumbRow = $("<div />", { class: "row" });
+        sampleView_div.append(newThumbRow);
 
         var thisObj = this;
 
         // Prepare the display
         microscopyExperimentSample.children.forEach(function (sample) {
-
-            // Keep track of the number of the sample
-            numSample++;
-
-            // Add a new row for the next three thumbnails
-            if (numSample % 4 === 1) {
-                newThumbRow = $("<div />", { class: "row" });
-                sampleView_div.append(newThumbRow);
-            }
 
             // Prepare the name to be shown
             var name = sample.code;
@@ -201,8 +192,8 @@ $.extend(MicroscopyTechnology.prototype, ELNLIMSPlugin.prototype, {
             // Make sure it is not too long
             var displayName;
             var l = name.length;
-            if (l > 40) {
-                displayName = name.substring(0, 18) + "..." + name.substring(l - 18);
+            if (l > 30) {
+                displayName = name.substring(0, 13) + "..." + name.substring(l - 13);
             } else {
                 displayName = name;
             }
@@ -219,7 +210,7 @@ $.extend(MicroscopyTechnology.prototype, ELNLIMSPlugin.prototype, {
             // elements related to current sample
             var newThumbCol = $("<div />",
                 {
-                    class: "col-md-3",
+                    class: "col-sm-6 col-md-4 col-lg-3",
                     display: "inline",
                     "text-align": "center",
                     id: sample.code

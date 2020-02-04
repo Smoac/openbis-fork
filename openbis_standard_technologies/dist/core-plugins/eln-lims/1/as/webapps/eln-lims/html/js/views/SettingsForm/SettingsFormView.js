@@ -57,8 +57,13 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 					//Edit
 					var $editButton = FormUtil.getButtonWithIcon("glyphicon-edit", function () {
 						mainController.changeView("showEditSettingsPage", _this._settingsFormModel.settingsSample.identifier);
-					}, null, null, "edit-btn");
-					toolbarModel.push({ component : $editButton, tooltip: "Edit" });
+					}, "Edit", null, "edit-btn");
+					toolbarModel.push({ component : $editButton });
+					
+					var $diskSpaceButton = FormUtil.getButtonWithIcon("glyphicon-hdd", function () {
+						FormUtil.showDiskSpaceDialog();
+					}, "Show available storage space");
+					toolbarModel.push({ component : $diskSpaceButton });
 				}
 			} else { //Create and Edit
 				//Save
@@ -71,13 +76,8 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 				}).bind(this), "Save", null, "save-btn");
 				$saveBtn.removeClass("btn-default");
 				$saveBtn.addClass("btn-primary");
-				toolbarModel.push({ component : $saveBtn, tooltip: "Save" });
+				toolbarModel.push({ component : $saveBtn });
 			}
-
-			var $diskSpaceButton = FormUtil.getButtonWithIcon("glyphicon-hdd", function () {
-				FormUtil.showDiskSpaceDialog();
-			});
-			toolbarModel.push({ component : $diskSpaceButton, tooltip: "Show available storage space" });
 
 			var $header = views.header;
 			$header.append($formTitle);
@@ -115,6 +115,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			inventorySpaces : this._inventorySpacesTableModel.getValues(),
 			sampleTypeDefinitionsExtension : this._getSampleTypeDefinitionsExtension(),
 			showDatasetArchivingButton : this._miscellaneousTableModel.getValues()["Show Dataset archiving button"],
+			hideSectionsByDefault : this._miscellaneousTableModel.getValues()["Hide sections by default"],
 		};
 	}
 
@@ -150,7 +151,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		$fieldset.append(FormUtil.getInfoText(text.info));
 
 		var experimentIdentifier = profile.getStorageConfigCollectionForConfigSample(this._settingsFormModel.settingsSample); //"/ELN_SETTINGS/STORAGES/STORAGES_COLLECTION";
-		
+
 		var $addBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
 			var argsMap = {
 					"sampleTypeCode" : "STORAGE",
@@ -159,7 +160,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			var argsMapStr = JSON.stringify(argsMap);
 			Util.unblockUI();
 			mainController.changeView("showCreateSubExperimentPage", argsMapStr);
-		}, null, "Create storage");
+		}, "New Storage");
 
 		$fieldset.append($("<p>").append($addBtn));
 
@@ -171,33 +172,21 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 				logicalOperator : "AND",
 				rules : { "1" : { type : "Attribute", name : "SAMPLE_TYPE", value : "STORAGE" } }
 		}
-		var dataGrid = SampleDataGridUtil.getSampleDataGrid(experimentIdentifier, advancedSampleSearchCriteria, null, null, null, null, true, null, false);
+		var dataGrid = SampleDataGridUtil.getSampleDataGrid(experimentIdentifier, advancedSampleSearchCriteria, null, null, null, null, true, null, false, false, 40);
 		var extraOptions = [];
 		dataGrid.init($gridContainer, extraOptions);
 	}
 	
 	this._paintTemplateSection = function($container, text) {
+		var _this = this;
 		var $fieldset = this._getFieldset($container, text.title, "settings-section-templates");
 		$fieldset.append(FormUtil.getInfoText(text.info));
 
-		var $dropdownContainer = $("<p>");
-	    var $dropDownMenu = $("<span>", { class : 'dropdown' });
-        var $caret = $("<a>", { 'href' : '#', 'data-toggle' : 'dropdown', class : 'dropdown-toggle btn btn-default'}).append("Operations ").append($("<b>", { class : 'caret' }));
-        var $list = $("<ul>", { class : 'dropdown-menu', 'role' : 'menu', 'aria-labelledby' :'sampleTableDropdown' });
-        $dropdownContainer.append($dropDownMenu);
-        $dropDownMenu.append($caret);
-        $dropDownMenu.append($list);
+        var $createTemplate = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
+                FormUtil.createNewSample("/" + _this._settingsFormModel.settingsSample.spaceCode + "/TEMPLATES/TEMPLATES_COLLECTION");
+        }, "New Template");
 
-        var $createSampleOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Create ' + ELNDictionary.Sample + ''}).append('Create ' + ELNDictionary.Sample + ''));
-
-        var _this = this;
-        $createSampleOption.click(function() {
-            FormUtil.createNewSample("/" + _this._settingsFormModel.settingsSample.spaceCode + "/TEMPLATES/TEMPLATES_COLLECTION");
-        });
-        $list.append($createSampleOption);
-
-        $fieldset.append($dropdownContainer);
-
+        $fieldset.append($("<p>").append($createTemplate));
         var $gridContainer = $("<div>");
 		$fieldset.append($gridContainer);
 
@@ -210,7 +199,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 				          "3" : { type : "Space",       name : "ATTR.CODE", value : this._settingsFormModel.settingsSample.spaceCode }
 			    }
 		}
-		var dataGrid = SampleDataGridUtil.getSampleDataGrid(null, advancedSampleSearchCriteria, null, null, null, null, true, null, false);
+		var dataGrid = SampleDataGridUtil.getSampleDataGrid(null, advancedSampleSearchCriteria, null, null, null, null, true, null, false, false, 40);
 		var extraOptions = [];
 		dataGrid.init($gridContainer, extraOptions);
 	}
@@ -472,7 +461,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		tableModel.columns = [{ label : "Setting"}, { label : "enabled"}];
 		tableModel.rowBuilders = {
 			"Setting" : function(rowData) {
-				return $("<span>").text(rowData.showDataSetArchivingButton);
+				return $("<span>").text(rowData.label);
 			},
 			"enabled" : function(rowData) {
 				var $checkbox = $("<input>", { type : "checkbox", name : "cb" });
@@ -484,8 +473,13 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		};
 		// add data
 		tableModel.addRow({
-			showDataSetArchivingButton : "Show Dataset archiving button",
+			label : "Show Dataset archiving button",
 			enabled : this._profileToEdit.showDatasetArchivingButton
+		});
+		tableModel.addRow({
+			label : "Hide sections by default",
+			enabled : this._profileToEdit.hideSectionsByDefault
+			
 		});
 		// transform output
 		tableModel.valuesTransformer = function(values) {
@@ -536,9 +530,13 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 				enabled : sampleTypeSettings["SHOW"],
 				id : code + "_show_in_drop_downs"
 			});
+			var showOnNav = sampleTypeSettings["SHOW_ON_NAV"];
+			if(showOnNav === undefined) {
+			    showOnNav = true;
+			}
 			tableModel.addRow({
                 name : "Show in main menu",
-                enabled : sampleTypeSettings["SHOW_ON_NAV"]
+                enabled : showOnNav
             });
 		} else { // default values
 			tableModel.addRow({
@@ -555,7 +553,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
             });
             tableModel.addRow({
                 name : "Show in main menu",
-                enabled : false
+                enabled : true
             });
 		}
 		// transform output

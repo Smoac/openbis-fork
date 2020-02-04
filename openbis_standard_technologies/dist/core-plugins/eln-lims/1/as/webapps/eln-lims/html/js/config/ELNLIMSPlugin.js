@@ -14,6 +14,12 @@ $.extend(ELNLIMSPlugin.prototype, {
 	dataSetTypeDefinitionsExtension : {
 	
 	},
+	experimentFormTop : function($container, model) {
+
+    },
+    experimentFormBottom : function($container, model) {
+
+    },
 	sampleFormTop : function($container, model) {
 	
 	},
@@ -23,10 +29,24 @@ $.extend(ELNLIMSPlugin.prototype, {
 	dataSetFormTop : function($container, model) {
 	
 	},
+	dataSetFormBottom : function($container, model) {
+
+	},
 	onSampleSave : function(sample, changesToDo, success, failed) {
         success();
 	},
-	dataSetFormBottom : function($container, model) {
-	
+	/*
+	 * Format to be used for utilities
+	 * {
+     * icon : "fa fa-table",
+     * uniqueViewName : "VIEW_NAME_TEST",
+     * label : "Label Test",
+     * paintView : function($header, $content) {
+     *         $header.append($("<h1>").append("Test Header"));
+     *         $content.append($("<p>").append("Test Body"));
+     * }
+	 */
+	getExtraUtilities : function() {
+	    return [];
 	}
 });

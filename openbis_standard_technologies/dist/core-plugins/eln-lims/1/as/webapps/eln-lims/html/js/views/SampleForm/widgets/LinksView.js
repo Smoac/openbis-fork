@@ -151,7 +151,7 @@ function LinksView(linksController, linksModel) {
 			postFix = "ANNOTATIONS_ALL" + linksModel.title;
 		}
 		
-		var dataGrid = SampleDataGridUtil.getSampleDataGrid(containerCode, samplesOnGrid, null, linksView.getCustomOperationsForGrid(), allCustomAnnotations, postFix, linksModel.isDisabled, false);
+		var dataGrid = SampleDataGridUtil.getSampleDataGrid(containerCode, samplesOnGrid, null, linksView.getCustomOperationsForGrid(), allCustomAnnotations, postFix, linksModel.isDisabled, false, false, false, 40);
 		dataGrid.init($dataGridContainer);
 		linksModel.writeState(sample, null, null, false);
 	}
@@ -176,11 +176,9 @@ function LinksView(linksController, linksModel) {
 		$legend.append(linksModel.title).append("&nbsp;").append(addAnyBtn); //.css("margin-top", "20px").css("margin-bottom", "20px");
 
 		if(!linksModel.disableAddAnyType && profile.mainMenu.showBarcodes) {
-		    $legend.append(linksView.getAddAnyBarcode());
+			$legend.append(linksView.getAddAnyBarcode());
 		}
 
-		$legend.prepend(FormUtil.getShowHideButton($fieldset, "SAMPLE-" + linksModel.sampleTypeCode + "-" + linksModel.title));
-		
 		$fieldset.append($samplePicker);
 	}
 	
@@ -434,8 +432,7 @@ function LinksView(linksController, linksModel) {
 			linksController.addSample(e.data["$object"]);
 			$container.empty().hide();
 		}
-		
-		var dataGrid = SampleDataGridUtil.getSampleDataGrid(sampleTypeCode, advancedSampleSearchCriteria, rowClick, null, null, null, true, true, true);
+		var dataGrid = SampleDataGridUtil.getSampleDataGrid(sampleTypeCode, advancedSampleSearchCriteria, rowClick, null, null, null, true, true, true, false, 60);
 		dataGrid.init($gridContainer, extraOptions);
 	}
 			

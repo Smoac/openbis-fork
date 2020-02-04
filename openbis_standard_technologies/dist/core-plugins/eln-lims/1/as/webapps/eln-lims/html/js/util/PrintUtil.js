@@ -185,6 +185,12 @@ var PrintUtil = new function() {
 				}
 				
 				if(propertyContent && !profile.isSystemProperty(propertyType)) { // Only show non empty properties
+					if (propertyLabel === "Spreadsheet" && propertyContent.toUpperCase().startsWith("<DATA>") && propertyContent.toUpperCase().endsWith("</DATA>")) {
+						propertyContent = propertyContent.slice(6, -7);
+						propertyContent = window.atob(propertyContent);
+						propertyContent = this._convertJsonToHtml(JSON.parse(propertyContent));
+					}
+
 					if(isSingleColumn) {
 						$newInspectorTable
 						.append($("<tr>")
@@ -244,7 +250,40 @@ var PrintUtil = new function() {
 		}
 		
 		return $newInspector;
-	}
+	};
+
+	this._convertJsonToHtml = function(json) {
+		data = json["data"];
+		styles = json["style"];
+
+		var commonStyle = "border: 1px solid black;";
+		var tableStyle = commonStyle + " border-collapse: collapse;";
+
+		tableBody = ["<table style='", tableStyle, "'>\n"];
+		for (var i = 0; i < data.length; i++) {
+			tableBody.push("<tr>\n");
+			var dataRow = data[i];
+			for (var j = 0; j < dataRow.length; j++) {
+				var cell = dataRow[j];
+				stylesKey = this._convertNumericToAlphanumeric(i, j);
+				style = styles[stylesKey];
+				tableBody.push("  <td style='", commonStyle, " ", style, "'> ", cell, " </td>\n");
+			}
+			tableBody.push("</tr>\n");
+		}
+		tableBody.push("</table>");
+
+		return tableBody.join("");
+	};
+
+	this._convertNumericToAlphanumeric = function(row, col) {
+		var aCharCode = "A".charCodeAt(0);
+		var ord0 = col % 26;
+		var ord1 = col / 26;
+		var char0 = String.fromCharCode(aCharCode + ord0);
+		var char1 = (ord1 > 0) ? String.fromCharCode(aCharCode + ord1 - 1) : "";
+		return char1 + char0 + (row + 1).toString(10);
+	};
 	
 	this._getMaterialFromCode = function(materials, code) {
 		for(var mIdx = 0; mIdx < materials.length; mIdx++) {

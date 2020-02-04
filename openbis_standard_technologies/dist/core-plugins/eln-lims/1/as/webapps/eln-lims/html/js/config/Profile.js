@@ -141,7 +141,16 @@ $.extend(DefaultProfile.prototype, {
         this.customWidgetSettings = {};
 
 		this.plugins = [new GenericTechnology()];
-
+		this.experimentFormTop = function($container, model) {
+			for(var i = 0; i < this.plugins.length; i++) {
+				this.plugins[i].experimentFormTop($container, model);
+			}
+		}
+		this.experimentFormBottom = function($container, model) {
+			for(var i = 0; i < this.plugins.length; i++) {
+				this.plugins[i].experimentFormBottom($container, model);
+			}
+		}
 		this.sampleFormTop = function($container, model) {
 			for(var i = 0; i < this.plugins.length; i++) {
 				this.plugins[i].sampleFormTop($container, model);
@@ -155,6 +164,11 @@ $.extend(DefaultProfile.prototype, {
 		this.dataSetFormTop = function($container, model) {
 			for(var i = 0; i < this.plugins.length; i++) {
 				this.plugins[i].dataSetFormTop($container, model);
+			}
+		}
+		this.dataSetFormBottom = function($container, model) {
+			for(var i = 0; i < this.plugins.length; i++) {
+				this.plugins[i].dataSetFormBottom($container, model);
 			}
 		}
 		this.onSampleSave = function(sample, changesToDo, action) {
@@ -176,12 +190,27 @@ $.extend(DefaultProfile.prototype, {
                 }
             next();
         }
-		this.dataSetFormBottom = function($container, model) {
-			for(var i = 0; i < this.plugins.length; i++) {
-				this.plugins[i].dataSetFormBottom($container, model);
-			}
-		}
-		
+		this.getPluginUtilities = function() {
+		    var extraUtilities = [];
+            for(var eIdx = 0; eIdx < this.plugins.length; eIdx++) {
+                var pluginExtraUtilities = this.plugins[eIdx].getExtraUtilities();
+                for(var pIdx = 0; pIdx < pluginExtraUtilities.length; pIdx++) {
+                    extraUtilities.push(pluginExtraUtilities[pIdx]);
+                }
+            }
+            return extraUtilities;
+        }
+        this.getPluginUtility = function(uniqueViewName) {
+            for(var eIdx = 0; eIdx < this.plugins.length; eIdx++) {
+                var pluginExtraUtilities = this.plugins[eIdx].getExtraUtilities();
+                for(var pIdx = 0; pIdx < pluginExtraUtilities.length; pIdx++) {
+                   if(pluginExtraUtilities[pIdx].uniqueViewName === uniqueViewName) {
+                        return pluginExtraUtilities[pIdx];
+                   }
+                }
+            }
+            return null;
+        }
 //		Jupyter integration config
 //		this.jupyterIntegrationServerEndpoint = "https://bs-openbis-sis-dev.ethz.ch:8002";
 //		this.jupyterEndpoint = "https://bs-openbis-sis-dev.ethz.ch:8000/";
@@ -238,7 +267,7 @@ $.extend(DefaultProfile.prototype, {
 		this.settingsSpaces = [];
 		//Ending in "ELN_SETTINGS", "STORAGE"
 		this.hideSpacesPostFixes = ["ELN_SETTINGS", "STORAGE"];
-		this.hideSpaces = []; 
+		this.hideSpaces = ["NAGIOS"];
 		
 		this.initSpaces = function(callback) {
 			var _this = this;
@@ -287,6 +316,22 @@ $.extend(DefaultProfile.prototype, {
 					callback(HOME_SPACE);
 				}
 			});
+		}
+
+		this.showOnNav = function(sampleTypeCode) {
+		    var sampleTypeOnNav = true;
+
+		    if(profile.sampleTypeDefinitionsExtension[sampleTypeCode]) {
+		        var sampleTypeDefinitionsExtensionOnNav = null;
+		        if(profile.sampleTypeDefinitionsExtension[sampleTypeCode]["SHOW_ON_NAV"] === undefined) {
+		            sampleTypeDefinitionsExtensionOnNav = true;
+		        } else {
+		            sampleTypeDefinitionsExtensionOnNav = profile.sampleTypeDefinitionsExtension[sampleTypeCode]["SHOW_ON_NAV"];
+		        }
+		        sampleTypeOnNav = profile.sampleTypeDefinitionsExtension[sampleTypeCode] &&
+                                sampleTypeDefinitionsExtensionOnNav;
+		    }
+		    return sampleTypeOnNav;
 		}
 
 		this.getSampleConfigSpacePrefix = function(sample) {

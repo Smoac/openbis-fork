@@ -20,10 +20,11 @@ import json
 import traceback
 
 import time
+from ch.ethz.sis import JobScheduler
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.service import CustomASServiceExecutionOptions
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id import CustomASServiceCode
 from ch.systemsx.cisd.common.logging import LogCategory
 from ch.systemsx.cisd.openbis.dss.generic.shared import ServiceProvider
-from ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id import CustomASServiceCode
-from ch.ethz.sis.openbis.generic.asapi.v3.dto.service import CustomASServiceExecutionOptions
 from java.io import File
 from java.nio.file import Paths
 from org.apache.commons.io import FileUtils
@@ -36,8 +37,7 @@ from org.eclipse.jetty.http import HttpMethod
 from org.eclipse.jetty.util.ssl import SslContextFactory
 from org.json import JSONObject
 
-from ch.ethz.sis import JobScheduler
-from exportsApi import findEntitiesToExport, validateDataSize, getConfigurationProperty, generateZipFile, checkResponseStatus, displayResult, cleanUp
+from exportsApi import findEntitiesToExport, validateDataSize, getConfigurationProperty, generateZipFile, checkResponseStatus, displayResult
 
 operationLog = Logger.getLogger(str(LogCategory.OPERATION) + '.zenodoExports.py')
 
@@ -82,7 +82,7 @@ def export(entities, tr, params):
 
     contentZipFilePath = exportDirPath + '/' + contentZipFileName
 
-    generateZipFile(entities, params, contentDirPath, contentZipFilePath)
+    generateZipFile(entities, params, contentDirPath, contentZipFilePath, deflated=False)
     FileUtils.forceDelete(File(contentDirPath))
 
     resultUrl = sendToZenodo(tr=tr, params=params, tempZipFilePath=contentZipFilePath, entities=entities)

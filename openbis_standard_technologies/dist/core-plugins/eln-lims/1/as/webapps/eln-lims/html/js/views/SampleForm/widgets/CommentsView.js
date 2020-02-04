@@ -99,7 +99,8 @@ function CommentsView(commentsController, commentsModel) {
 		$saveButton.click(function() {
 			//Save Value
 			value = $textBox.val();
-			value = html.sanitize(value);
+			//value = html.sanitize(value);
+		    value = DOMPurify.sanitize(value);
 			_this._commentsController.addNewComment(value);
 			//Remove New Comment Box
 			$textBoxGroup.remove();

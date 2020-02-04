@@ -25,7 +25,6 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 		
 		// Container
 		var $mainContainer = $("#"+this._dataSetViewerModel.containerId);
-		$mainContainer.empty();
 		
 		// Title / Upload Button
 		var $containerTitle = $("<div>", {"id" : this._dataSetViewerModel.containerIdTitle });

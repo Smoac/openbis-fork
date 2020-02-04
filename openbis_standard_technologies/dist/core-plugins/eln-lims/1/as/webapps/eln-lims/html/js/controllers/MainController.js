@@ -369,6 +369,7 @@ function MainController(profile) {
 		}
 		
 		CKEditorManager.destroy();
+		this.sideMenu.removeSubSideMenu();
 		
 		//
 		//
@@ -794,6 +795,12 @@ function MainController(profile) {
 						Util.showInfo("Current Version: " + data);
 					}, 'text');
 					break;
+				case "EXTRA_PLUGIN_UTILITY":
+				    var uniqueViewName = arg;
+				    var viewContainers = mainController._getNewViewModel(true, true, false);
+                    var pluginUtility = profile.getPluginUtility(uniqueViewName);
+                    pluginUtility.paintView(viewContainers.header, viewContainers.content);
+				    break
 				default:
 					window.alert("The system tried to create a non existing view: " + newViewChange);
 					break;
@@ -878,7 +885,9 @@ function MainController(profile) {
 			header.css({ 
 				"padding" : "10px",
 				"height" : "100%",
-				"background-color" : "rgb(248, 248, 248)"
+				"background-color" : "rgb(248, 248, 248)",
+				"position" : "relative",
+                "z-index" : 500
 			});
 			
 			if((typeof withHeaderOrHeaderId === 'string' || withHeaderOrHeaderId instanceof String)) {
@@ -1312,7 +1321,7 @@ function MainController(profile) {
 									}
 								}
 								
-								var dataGrid = new DataGridController(searchDomainLabel + " Search Results", columns, [], null, getDataList, rowClick, true, "SEARCH_" + searchDomainLabel);
+								var dataGrid = new DataGridController(searchDomainLabel + " Search Results", columns, [], null, getDataList, rowClick, true, "SEARCH_" + searchDomainLabel, false, 90);
 								localReference.currentView = dataGrid;
 								var content = localReference._getBackwardsCompatibleMainContainer();
 								dataGrid.init(content);
@@ -1439,7 +1448,7 @@ function MainController(profile) {
 										}
 									}
 									
-									var dataGrid = new DataGridController(searchDomainLabel + " Search Results", columns, [], null, getDataList, rowClick, true, "SEARCH_" + searchDomainLabel);
+									var dataGrid = new DataGridController(searchDomainLabel + " Search Results", columns, [], null, getDataList, rowClick, true, "SEARCH_" + searchDomainLabel, false, 90);
 									localReference.currentView = dataGrid;
 									var content = localReference._getBackwardsCompatibleMainContainer();
 									dataGrid.init(content);
@@ -1611,11 +1620,40 @@ function MainController(profile) {
 				mainController.changeView('showViewSamplePageFromPermId', e.data.permId);
 			}
 			
-			var dataGrid = new DataGridController("Search Results", columns, [], null, getDataList, rowClick, true, "SEARCH_OPENBIS");
+			var dataGrid = new DataGridController("Search Results", columns, [], null, getDataList, rowClick, true, "SEARCH_OPENBIS", false, 90);
 			localReference.currentView = dataGrid;
 			var content = localReference._getBackwardsCompatibleMainContainer();
 			dataGrid.init(content);
 			history.pushState(null, "", ""); //History Push State
 		});
 	}
+	
+	this.getScrollbarWidth = function() {
+		if (this.scrollbarWidth === undefined) {
+			var inner = document.createElement('p');
+			inner.style.width = "100%";
+			inner.style.height = "200px";
+			
+			var outer = document.createElement('div');
+			outer.style.position = "absolute";
+			outer.style.top = "0px";
+			outer.style.left = "0px";
+			outer.style.visibility = "hidden";
+			outer.style.width = "200px";
+			outer.style.height = "150px";
+			outer.style.overflow = "hidden";
+			outer.appendChild (inner);
+			
+			document.body.appendChild (outer);
+			var w1 = inner.offsetWidth;
+			outer.style.overflow = 'scroll';
+			var w2 = inner.offsetWidth;
+			if (w1 == w2) w2 = outer.clientWidth;
+			
+			document.body.removeChild (outer);
+			this.scrollbarWidth = w1 - w2;
+		}
+		return this.scrollbarWidth;
+	}
+
 }

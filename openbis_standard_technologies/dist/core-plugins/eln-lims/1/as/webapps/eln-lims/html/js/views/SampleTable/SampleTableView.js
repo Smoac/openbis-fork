@@ -34,11 +34,8 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 			var spaceCode = IdentifierUtil.getSpaceCodeFromIdentifier(this._sampleTableModel.experimentIdentifier);
 			var projectCode = IdentifierUtil.getProjectCodeFromExperimentIdentifier(this._sampleTableModel.experimentIdentifier);
 			var experimentCode = IdentifierUtil.getCodeFromIdentifier(this._sampleTableModel.experimentIdentifier);
-			var entityPath = FormUtil.getFormPath(spaceCode, projectCode, experimentCode);
-			
-			$title
-				.append($("<h2>").append(title))
-				.append($("<h4>", { "style" : "font-weight:normal;" } ).append(entityPath));
+
+			$title.append($("<h2>").append(title));
 		} else if(this._sampleTableModel.title) {
 			$title.append($("<h2>").append(this._sampleTableModel.title));
 		}
@@ -85,9 +82,9 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 					var argsMapStr = JSON.stringify(argsMap);
 					Util.unblockUI();
 					mainController.changeView("showCreateSubExperimentPage", argsMapStr);
-				}, null, null, "create-btn");
+				}, "New " + Util.getDisplayNameFromCode(sampleTypeCodeToUse), null, "create-btn");
 				
-				toolbarModel.push({ component : $createButton, tooltip: "Create " + Util.getDisplayNameFromCode(sampleTypeCodeToUse) });
+				toolbarModel.push({ component : $createButton });
 			}
 		}
 		
@@ -127,13 +124,13 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 	this._getOptionsMenu = function() {
 		var _this = this;
 		var $dropDownMenu = $("<span>", { class : 'dropdown' });
-		var $caret = $("<a>", { 'href' : '#', 'data-toggle' : 'dropdown', class : 'dropdown-toggle btn btn-default', 'id' : 'options-menu-btn'}).append("Operations ").append($("<b>", { class : 'caret' }));
+		var $caret = $("<a>", { 'href' : '#', 'data-toggle' : 'dropdown', class : 'dropdown-toggle btn btn-default', 'id' : 'options-menu-btn'}).append("More ... ").append($("<b>", { class : 'caret' }));
 		var $list = $("<ul>", { class : 'dropdown-menu', 'role' : 'menu', 'aria-labelledby' :'sampleTableDropdown' });
 		$dropDownMenu.append($caret);
 		$dropDownMenu.append($list);
 		
 		if(_this._sampleTableModel.experimentIdentifier && _this._sampleTableModel.sampleRights.rights.indexOf("CREATE") >= 0) {
-			var $createSampleOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Create ' + ELNDictionary.Sample + '', 'id' : 'create-' + ELNDictionary.Sample.toLowerCase() + '-btn'}).append('Create ' + ELNDictionary.Sample + ''));
+			var $createSampleOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'New ' + ELNDictionary.Sample + '', 'id' : 'create-' + ELNDictionary.Sample.toLowerCase() + '-btn'}).append('New ' + ELNDictionary.Sample + ''));
 			$createSampleOption.click(function() {
 				_this.createNewSample(_this._sampleTableModel.experimentIdentifier);
 			});
@@ -164,6 +161,12 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 				mainController.changeView("showAdvancedSearchPage", JSON.stringify(rules));
 			});
 			$list.append($searchCollectionOption);
+
+			var $detailsOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Edit Collection', 'id' : 'detail-btn'}).append('Edit Collection'));
+            $detailsOption.click(function() {
+                mainController.changeView("showExperimentPageFromIdentifier", _this._sampleTableModel.experimentIdentifier);
+            });
+            $list.append($detailsOption);
 		}
 		
 		return $dropDownMenu;

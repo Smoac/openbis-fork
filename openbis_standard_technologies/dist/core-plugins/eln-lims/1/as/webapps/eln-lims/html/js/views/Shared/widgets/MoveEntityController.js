@@ -84,7 +84,11 @@ function MoveEntityController(entityType, entityPermId) {
 			waitForIndexUpdate();
 		};
 		var fail = function(error) {
-			Util.showError("Move failed: " + JSON.stringify(error));
+			var msg = JSON.stringify(error);
+			if (error && error.data && error.data.message) {
+				msg = error.data.message;
+			}
+			Util.showError("Move failed: " + msg);
 		};
 		
 		switch(entityType) {

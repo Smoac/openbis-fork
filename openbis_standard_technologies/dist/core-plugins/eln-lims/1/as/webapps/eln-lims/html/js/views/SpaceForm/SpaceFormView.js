@@ -29,55 +29,74 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
 		
 		var typeTitle = "Space: ";
 		
-		var $formTitle = $("<h2>").append(typeTitle + this._spaceFormModel.space);
+		var $formTitle = $("<h2>").append(typeTitle + Util.getDisplayNameFromCode(this._spaceFormModel.space));
 		
 		//
 		// Toolbar
 		//
 		var toolbarModel = [];
+		var dropdownOptionsModel = [];
+
 		if (_this._allowedToCreateProject()) {
 			var $createProj = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
 				_this._spaceFormController.createProject();
-			});
-			toolbarModel.push({ component : $createProj, tooltip: "Create Project" });
+			}, "New Project");
+			toolbarModel.push({ component : $createProj});
 		}
 
 		//Export
-		var $exportAll = FormUtil.getExportButton([{ type: "SPACE", permId : _this._spaceFormModel.space, expand : true }], false);
-		toolbarModel.push({ component : $exportAll, tooltip: "Export Metadata & Data" });
-		
-		var $exportOnlyMetadata = FormUtil.getExportButton([{ type: "SPACE", permId : _this._spaceFormModel.space, expand : true }], true);
-		toolbarModel.push({ component : $exportOnlyMetadata, tooltip: "Export Metadata only" });
-		
+		dropdownOptionsModel.push({
+            label : "Export Metadata",
+            action : FormUtil.getExportAction([{ type: "SPACE", permId : _this._spaceFormModel.space, expand : true }], true)
+        });
+
+        dropdownOptionsModel.push({
+            label : "Export Metadata & Data",
+            action : FormUtil.getExportAction([{ type: "SPACE", permId : _this._spaceFormModel.space, expand : true }], false)
+        });
+
 		//Jupyter Button
 		if(profile.jupyterIntegrationServerEndpoint) {
-			var $jupyterBtn = FormUtil.getButtonWithImage("./img/jupyter-icon.png", function () {
-				var jupyterNotebook = new JupyterNotebookController(_this._spaceFormModel.space);
-				jupyterNotebook.init();
-			});
-			toolbarModel.push({ component : $jupyterBtn, tooltip: "Create Jupyter notebook" });
+			dropdownOptionsModel.push({
+                label : "New Jupyter notebook",
+                action : function () {
+                    var jupyterNotebook = new JupyterNotebookController(_this._spaceFormModel.space);
+                    jupyterNotebook.init();
+                }
+            });
 		}
 
 		// authorization
 		if (this._spaceFormModel.roles.indexOf("ADMIN") > -1 ) {
-			var $share = FormUtil.getButtonWithIcon("fa fa-users", function() {
-				FormUtil.showAuthorizationDialog({
-					space: _this._spaceFormModel.space,
-				});
-			});
-			toolbarModel.push({ component : $share, tooltip: "Manage access" });
+			dropdownOptionsModel.push({
+                label : "Manage access",
+                action : function () {
+                    FormUtil.showAuthorizationDialog({
+                        space: _this._spaceFormModel.space,
+                    });
+                }
+            });
 		}
 
 		//Freeze
 		if(_this._spaceFormModel.v3_space && _this._spaceFormModel.v3_space.frozen !== undefined) { //Freezing available on the API
 			var isEntityFrozen = _this._spaceFormModel.v3_space.frozen;
-			var isEntityFrozenTooltip = (isEntityFrozen)?"Entity Frozen":"Freeze Entity (Disable further modifications)";
-			var $freezeButton = FormUtil.getFreezeButton("SPACE", _this._spaceFormModel.v3_space.permId.permId, isEntityFrozen);
-			toolbarModel.push({ component : $freezeButton, tooltip: isEntityFrozenTooltip });
+            if(isEntityFrozen) {
+			    var $freezeButton = FormUtil.getFreezeButton("SPACE", _this._spaceFormModel.v3_space.permId.permId, isEntityFrozen);
+			    toolbarModel.push({ component : $freezeButton, tooltip: "Entity Frozen" });
+            } else {
+                dropdownOptionsModel.push({
+                    label : "Freeze Entity (Disable further modifications)",
+                    action : function() {
+                        FormUtil.showFreezeForm("SPACE", _this._spaceFormModel.v3_space.permId.permId);
+                    }
+                });
+            }
 		}
 
 		var $header = views.header;
 		$header.append($formTitle);
+        FormUtil.addOptionsToToolbar(toolbarModel, dropdownOptionsModel, [], "SPACE-VIEW");
 		$header.append(FormUtil.getToolbar(toolbarModel));
 		
 		$container.append($form);

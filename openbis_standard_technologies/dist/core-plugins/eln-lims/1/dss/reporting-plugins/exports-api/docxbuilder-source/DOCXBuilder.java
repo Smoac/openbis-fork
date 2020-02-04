@@ -20,6 +20,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import ch.systemsx.cisd.common.http.JettyHttpClientFactory;
+import com.github.freva.asciitable.AsciiTable;
 
 public class DOCXBuilder {
 	public static void main(String[] args) throws Exception {
@@ -205,4 +206,20 @@ public class DOCXBuilder {
         ContentResponse contentResponse = requestEntity.send();
         return "data:"+contentResponse.getMediaType()+";base64,"+Base64.getEncoder().encodeToString(contentResponse.getContent());
     }
+
+//	public static String convertJsonToText(final String jsonString) {
+//		return AsciiTable.getTable(null, jsonStringToArray(jsonString));
+//	}
+//
+//	private static String[] jsonStringToArray(final String jsonString) {
+//		final ArrayList<String> stringList = new ArrayList<String>();
+//
+//		final JSONArray jsonArray = new JSONArray(jsonString);
+//
+//		for (int i = 0; i < jsonArray.length(); i++) {
+//			stringList.add(jsonArray.getString(i));
+//		}
+//
+//		return stringList.toArray();
+//	}
 }

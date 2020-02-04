@@ -43,10 +43,10 @@ function LabNotebookView(labNotebookController, labNotebookView) {
 	            
 	        //Export
 			var $exportAll = FormUtil.getExportButton(labSpaces, false, true);
-			toolbarModel.push({ component : $exportAll, tooltip: "Export Metadata & Data" });
+			toolbarModel.push({ component : $exportAll });
 		
 			var $exportOnlyMetadata = FormUtil.getExportButton(labSpaces, true, true);
-			toolbarModel.push({ component : $exportOnlyMetadata, tooltip: "Export Metadata only" });
+			toolbarModel.push({ component : $exportOnlyMetadata });
 			
 			views.header.append(FormUtil.getToolbar(toolbarModel));
 		});

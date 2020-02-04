@@ -15,14 +15,16 @@
 #
 
 import threading
+
 import time
 from ch.systemsx.cisd.common.logging import LogCategory
 from ch.systemsx.cisd.common.mail import EMailAddress
 from ch.systemsx.cisd.openbis.dss.generic.shared import ServiceProvider
-from java.io import File
+from java.io import File, FileOutputStream
+from java.util.zip import ZipOutputStream
 from org.apache.log4j import Logger
 
-from exportsApi import generateZipFile, cleanUp, displayResult, findEntitiesToExport, validateDataSize, generateDownloadUrl
+from exportsApi import cleanUp, displayResult, findEntitiesToExport, validateDataSize, generateDownloadUrl, generateFilesInZip
 
 operationLog = Logger.getLogger(str(LogCategory.OPERATION) + ".generalExports.py")
 
@@ -85,3 +87,16 @@ def sendMail(mailClient, userEmail, downloadURL):
     message = "Download a zip file with your exported data at: " + downloadURL
     mailClient.sendEmailMessage(topic, message, replyTo, fromAddress, recipient1)
     operationLog.info("--- MAIL ---" + " Recipient: " + userEmail + " Topic: " + topic + " Message: " + message)
+
+
+# Generates ZIP file and stores it in workspace
+def generateZipFile(entities, includeRoot, sessionToken, tempDirPath, tempZipFilePath):
+    # Create Zip File
+    fos = FileOutputStream(tempZipFilePath)
+    zos = ZipOutputStream(fos)
+
+    try:
+        generateFilesInZip(zos, entities, includeRoot, sessionToken, tempDirPath)
+    finally:
+        zos.close()
+        fos.close()

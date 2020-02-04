@@ -53,6 +53,19 @@ function NewProductsController() {
 							"ANNOTATION.REQUEST.QUANTITY_OF_ITEMS" : $($($productProperties[5]).children()[0]).val()
 						}
 				}
+				if(!newProduct.properties["$NAME"] && !newProduct.properties["$PRODUCT.CATALOG_NUM"]) {
+                    Util.showError("Indicating a name or catalog number is mandatory for new products.");
+                    return;
+                }
+				if(!newProduct.annotations["ANNOTATION.REQUEST.QUANTITY_OF_ITEMS"] ||
+				    parseInt(newProduct.annotations["ANNOTATION.REQUEST.QUANTITY_OF_ITEMS"]) <= 0) {
+                    Util.showError("Indicating the quantity of items is mandatory for new requests.");
+                    return;
+				}
+				if(!newProduct.parentsIdentifiers[0]) {
+                    Util.showError("Indicating the provider is mandatory for new products.");
+                    return;
+                }
 				if(!newProduct.properties["$PRODUCT.CURRENCY"]) {
 					delete newProduct.properties["$PRODUCT.CURRENCY"];
 				}

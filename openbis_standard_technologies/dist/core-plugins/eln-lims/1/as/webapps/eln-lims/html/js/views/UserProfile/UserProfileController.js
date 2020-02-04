@@ -55,9 +55,11 @@ function UserProfileController(mainController, mode) {
 		this._mainController.serverFacade.updateUserInformation(userId, userInformation, (function(ok) {
 			if (ok) {
 				if(this.isFileAuthentication()) {
-				    Util.showInfo("Profile saved. You will be logged out automatically in order to reload the profile data upon login.", (function() {
-					    this._mainController.serverFacade.logout();
-				    }).bind(this));
+					Util.showInfo("Profile saved. You will be logged out automatically in order to reload the profile data upon login.", 
+							(function() {
+								this._mainController.serverFacade.logout();
+							}).bind(this),
+							false, "OK");
 				} else {
 				    mainController.changeView("showUserProfilePage");
 				}

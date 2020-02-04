@@ -516,21 +516,29 @@ var FormUtil = new function() {
 		return $("<i>", { 'class' : 'fa ' + iconClass });
 	}
 	
-	this.getButtonWithIcon = function(iconClass, clickEvent, text, tooltip, id) {
-		var $btn = $("<a>", { 'class' : 'btn btn-default' }).append($("<span>", { 'class' : 'glyphicon ' + iconClass }));
-		if(text) {
-			$btn.append("&nbsp;").append(text);
-		}
-		if(tooltip) {
-			$btn.attr("title", tooltip);
-			$btn.tooltipster();
-		}
-		if(id) {
+    this.getButtonWithIcon = function(iconClass, clickEvent, text, tooltip, id) {
+        var $btn = null;
+        if(iconClass) {
+            $btn = $("<a>", { 'class' : 'btn btn-default' }).append($("<span>", { 'class' : 'glyphicon ' + iconClass }));
+        } else {
+            $btn = $("<a>", { 'class' : 'btn btn-default' });
+        }
+        if(text && iconClass) {
+            $btn.append("&nbsp;");
+        }
+        if(text) {
+            $btn.append(text);
+        }
+        if(tooltip) {
+            $btn.attr("title", tooltip);
+            $btn.tooltipster();
+        }
+        if(id) {
             $btn.attr("id", id);
         }
-		$btn.click(clickEvent);
-		return $btn;
-	}
+        $btn.click(clickEvent);
+        return $btn;
+    }
 
 	this.getButtonGroup = function(buttons, size) {
 		var styleClass = "btn-group" + (size ? "-" + size : "");
@@ -692,7 +700,8 @@ var FormUtil = new function() {
 		if(text) {
 			text = text.replace(/(?:\r\n|\r|\n)/g, '\n'); //Normalise carriage returns
 		}
-		text = html.sanitize(text);
+		//text = html.sanitize(text);
+		text = DOMPurify.sanitize(text);
 		$component.html(hyperlink ? this.asHyperlink(text) : text);
 		
 		if(id) {
@@ -829,14 +838,22 @@ var FormUtil = new function() {
 		return $component;
 	}
 	
-	this._getTextBox = function(id, alt, isRequired) {
+    this._getTextBox = function(id, alt, isRequired) {
 		var $component = $('<textarea>', {'id' : id, 'alt' : alt, 'style' : 'height: 80px; width: 450px;', 'placeholder' : alt, 'class' : 'form-control'});
 		if (isRequired) {
 			$component.attr('required', '');
 		}
 		return $component;
 	}
-	
+
+	this._getDiv = function(id, alt, isRequired) {
+        var $component = $('<div>', {'id' : id, 'alt' : alt, 'placeholder' : alt});
+        if (isRequired) {
+            $component.attr('required', '');
+        }
+        return $component;
+    }
+
 	this._getDatePickerField = function(id, alt, isRequired, value) {
 		var $component = $('<div>', {'class' : 'form-group', 'style' : 'margin-left: 0px;', 'placeholder' : alt });
 		var $subComponent = $('<div>', {'class' : 'input-group date', 'id' : 'datetimepicker_' + id });
@@ -846,58 +863,83 @@ var FormUtil = new function() {
 		}
 		var $spanAddOn = $('<span>', {'class' : 'input-group-addon'})
 							.append($('<span>', {'class' : 'glyphicon glyphicon-calendar' }));
-		
+
 		$subComponent.append($input);
 		$subComponent.append($spanAddOn);
-		
+
 		var date = null;
 		if(value) {
 			date = Util.parseDate(value);
 		}
-		
-		var datetimepicker = $subComponent.datetimepicker({ 
-			format : 'YYYY-MM-DD HH:mm:ss', 
+
+		var datetimepicker = $subComponent.datetimepicker({
+			format : 'YYYY-MM-DD HH:mm:ss',
 			useCurrent : false,
 			defaultDate : date
 		});
-		
-		
-		
+
 		$component.append($subComponent);
-		
+
 		return $component;
 	}
-	
-	
-	//
-	// Rich Text Editor Support - (CKEditor)
-	//
-	CKEDITOR.on( 'instanceReady', function( ev ) {
-		ev.editor.config.filebrowserUploadMethod = "form";
-		ev.editor.config.filebrowserUploadUrl = "/openbis/openbis/file-service/eln-lims?type=Files&sessionID=" + mainController.serverFacade.getSession();
-		ev.editor.dataProcessor.writer.selfClosingEnd = ' />';
-		ev.editor.document.on('drop', function (ev) {
-		      ev.data.preventDefault(true);
-		});
-	});
-	
-	this.activateRichTextProperties = function($component, componentOnChange, propertyType) {
-		
-		if(profile.isForcedMonospaceFont(propertyType)) {
-			$component.css("font-family", "Consolas, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace");
-		}
-		
+
+    this.createCkeditor = function($component, componentOnChange, value, isReadOnly, toolbarContainer) {
+	    var Builder = null;
+	    if(toolbarContainer) {
+            Builder = CKEDITOR.DecoupledEditor;
+	    } else {
+	        Builder = CKEDITOR.InlineEditor;
+	    }
+
+        Builder.create($component[0], {
+                         simpleUpload: {
+                             uploadUrl: "/openbis/openbis/file-service/eln-lims?type=Files&sessionID=" + mainController.serverFacade.getSession()
+                         }
+                    })
+                    .then( editor => {
+                        if (value) {
+                            value = this.prepareCkeditorData(value);
+                            editor.setData(value);
+                        }
+
+                        editor.isReadOnly = isReadOnly;
+
+                        editor.model.document.on('change:data', function (event) {
+                            var value = editor.getData();
+                            componentOnChange(event, value);
+                        });
+
+                        if(toolbarContainer) {
+                            toolbarContainer.append(editor.ui.view.toolbar.element);
+                        }
+
+                        CKEditorManager.addEditor($component.attr('id'), editor);
+                    })
+                    .catch(error => {
+                        Util.showError(error);
+                    });
+	}
+
+	this.prepareCkeditorData = function(value) {
+	    value = value.replace(/&quot;/g, "\'");
+	    value = value.replace(/(font-size:\d+\.*\d+)pt/g, "$1" + "px"); // https://ckeditor.com/docs/ckeditor5/latest/features/font.html#using-numerical-values
+	    return value;
+	}
+
+	this.activateRichTextProperties = function($component, componentOnChange, propertyType, value, isReadOnly, toolbarContainer) {
 		if(profile.isForcedDisableRTF(propertyType)) {
 			$component.change(function(event) {
 				componentOnChange(event, $(this).val());
 			});
 		} else {
-			var editor = $component.ckeditor().editor;
-			editor.on('change', function(event) {
-				var value = event.editor.getData();
-				componentOnChange(event, value);
-			});
+		    // InlineEditor is not working with textarea that is why $component was changed on div
+		    var $component = this._getDiv($component.attr('id'), $component.attr('alt'), $component.attr('isRequired'));
+		    FormUtil.createCkeditor($component, componentOnChange, value, isReadOnly, toolbarContainer);
 		}
+
+        if(profile.isForcedMonospaceFont(propertyType)) {
+            $component.css("font-family", "Consolas, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace");
+        }
 		
 		return $component;
 	}
@@ -910,7 +952,7 @@ var FormUtil = new function() {
 	}
 	
 	this.sanitizeRichHTMLText = function(originalValue) {
-		if(typeof originalValue === "string") {
+		if (typeof originalValue === "string") {
 			//Take envelope out if pressent
 			var bodyStart = originalValue.indexOf("<body>");
 			var bodyEnd = originalValue.indexOf("</body>");
@@ -918,13 +960,119 @@ var FormUtil = new function() {
 				originalValue = originalValue.substring(bodyStart + 6, bodyEnd);
 			}
 			//Clean the contents
-			originalValue = html.sanitize(originalValue);
+			//originalValue = html.sanitize(originalValue);
+			originalValue = DOMPurify.sanitize(originalValue);
 		}
 		return originalValue;
 	}
+
+	this.addCreationDropdown = function(toolbarModel, types, priorityTypeCodes, actionFactory) {
+		var priorityTypes = [];
+		var otherTypes = [];
+		for (var idx = 0; idx < types.length; idx++) {
+			var type = types[idx];
+			if ($.inArray(type.code, priorityTypeCodes) !== -1) {
+				priorityTypes.push(type);
+			} else {
+				otherTypes.push(type);
+			}
+		}
+		
+		var dropdownModel = [];
+		this._populateDropdownModel(dropdownModel, priorityTypes, actionFactory);
+		if (priorityTypes.length > 0 && otherTypes.length > 0) {
+			dropdownModel.push({ separator : true });
+		}
+		this._populateDropdownModel(dropdownModel, otherTypes, actionFactory);
+		
+		var newWithIcon = $('<span>')
+			.append($('<span>', {'class' : 'glyphicon glyphicon-plus' }))
+			.append('&nbsp;New&nbsp;');
+		FormUtil.addOptionsToToolbar(toolbarModel, dropdownModel, [], null, newWithIcon);
+	}
+	
+	this._populateDropdownModel = function(dropdownModel, types, actionFactory) {
+		types.forEach(function (type) {
+			dropdownModel.push({
+				title : type.description,
+				label : Util.getDisplayNameFromCode(type.code),
+				action : actionFactory(type.code)
+			});
+		});
+	}
+
+	this.addOptionsToToolbar = function(toolbarModel, dropdownOptionsModel, hideShowOptionsModel, namespace, title) {
+		if(!title) {
+			title = "More ... ";
+		}
+		var $dropdownOptionsMenu = $("<span>", { class : 'dropdown' });
+		if(toolbarModel) {
+		    toolbarModel.push({ component : $dropdownOptionsMenu, tooltip: null });
+		}
+		var $dropdownOptionsMenuCaret = $("<a>", { 'href' : '#', 'data-toggle' : 'dropdown', class : 'dropdown-toggle btn btn-default', 'id' : 'options-menu-btn'})
+				.append(title).append($("<b>", { class : 'caret' }));
+		var $dropdownOptionsMenuList = $("<ul>", { class : 'dropdown-menu', 'role' : 'menu' });
+		$dropdownOptionsMenu.append($dropdownOptionsMenuCaret);
+		$dropdownOptionsMenu.append($dropdownOptionsMenuList);
+		for (var idx = 0; idx < dropdownOptionsModel.length; idx++) {
+			var option = dropdownOptionsModel[idx];
+			if(option.separator) {
+				$dropdownOptionsMenuList.append($("<li>", { 'role' : 'presentation' }).append($("<hr>", { style : "margin-top: 5px; margin-bottom: 5px;"})));
+			} else {
+				var label = option.label;
+				var title = option.title ? option.title : label;
+				var $dropdownElement = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : title }).append(label));
+				$dropdownElement.click(option.action);
+				$dropdownOptionsMenuList.append($dropdownElement);
+			}
+		}
+
+		if(hideShowOptionsModel.length > 0 && dropdownOptionsModel.length > 0) {
+			$dropdownOptionsMenuList.append($("<li>", { 'role' : 'presentation' }).append($("<hr>", { style : "margin-top: 5px; margin-bottom: 5px;"})));
+		}
+
+		var settingsKey = namespace + "-showing-sections";
+		mainController.serverFacade.getSetting(settingsKey, function(settingsValue) {
+			var sectionsSettings = settingsValue ? JSON.parse(settingsValue) : {};
+			for (var idx = 0; idx < hideShowOptionsModel.length; idx++) {
+				var option = hideShowOptionsModel[idx];
+				var shown = option.forceToShow === true;
+				if (shown === false) {
+					var sectionSetting = sectionsSettings[option.label];
+					if (sectionSetting !== undefined) {
+						shown = sectionSetting === 'shown';
+					} else {
+						shown = ! profile.hideSectionsByDefault;
+					}
+				}
+				var $section = $(option.section);
+				$section.toggle(shown);
+				var $label = $("<span>").append((shown ? "Hide " : "Show ") + option.label);
+				var $dropdownElement = $("<li>", { 'role' : 'presentation' }).append($("<a>").append($label));
+				var action = function(event) {
+					var option = event.data.option;
+					var $label = event.data.label;
+					var $section = event.data.section;
+					$section.toggle(300, function() {
+						if ($section.css("display") === "none") {
+							$label.text("Show " + option.label);
+							sectionsSettings[option.label] = "hidden";
+						} else {
+							$label.text("Hide " + option.label);
+							sectionsSettings[option.label] = "shown";
+						}
+						$(window).trigger('resize'); // HACK: Fixes table rendering issues when refreshing the grid on fuelux 3.1.0 for all browsers
+						mainController.serverFacade.setSetting(settingsKey, JSON.stringify(sectionsSettings));
+					});
+				};
+				$dropdownElement.click({option : option, label : $label, section : $section}, action);
+				$dropdownOptionsMenuList.append($dropdownElement);
+			}
+		});
+	}
 	
 	this.getToolbar = function(toolbarModel) {
-		var $toolbarContainer = $("<div>", { class : 'toolBox', style : "width: 100%;" });
+		var $toolbarContainer = $("<span>", { class : 'toolBox' });
 		
 		for(var tbIdx = 0; tbIdx < toolbarModel.length; tbIdx++) {
 			var $toolbarComponent = toolbarModel[tbIdx].component;
@@ -947,7 +1095,7 @@ var FormUtil = new function() {
 	
 	this.getOperationsMenu = function(items) {
 		var $dropDownMenu = $("<span>", { class : 'dropdown' });
-		var $caret = $("<a>", { 'href' : '#', 'data-toggle' : 'dropdown', class : 'dropdown-toggle btn btn-default'}).append("Operations ").append($("<b>", { class : 'caret' }));
+		var $caret = $("<a>", { 'href' : '#', 'data-toggle' : 'dropdown', class : 'dropdown-toggle btn btn-default'}).append("More ... ").append($("<b>", { class : 'caret' }));
 		var $list = $("<ul>", { class : 'dropdown-menu', 'role' : 'menu', 'aria-labelledby' :'sampleTableDropdown' });
 		$dropDownMenu.append($caret);
 		$dropDownMenu.append($list);
@@ -1050,8 +1198,7 @@ var FormUtil = new function() {
 	}
 	
 	this.isNumber = function(str) {
-    	var n = Number(str);
-    	return String(n) === str;
+    	return !isNaN(str);
 	}
 
 	//
@@ -1517,22 +1664,24 @@ var FormUtil = new function() {
 		});
 	}
 
+    this.getExportAction = function(exportConfig, metadataOnly, includeRoot) {
+        return function() {
+            Util.blockUI();
+            var facade = mainController.serverFacade;
+            facade.exportAll(exportConfig, (includeRoot)?true:false, metadataOnly, function(error, result) {
+                if(error) {
+                    Util.showError(error);
+                } else {
+               	    Util.showSuccess("Export is being processed, you will receive an email when is ready, if you logout the process will stop.", function() { Util.unblockUI(); });
+                }
+            });
+        };
+    }
+
 	this.getExportButton = function(exportConfig, metadataOnly, includeRoot) {
-			var $export = FormUtil.getButtonWithIcon("glyphicon-export", function() {
-					Util.blockUI();
-					var facade = mainController.serverFacade;
-					facade.exportAll(exportConfig, (includeRoot)?true:false, metadataOnly, function(error, result) {
-						if(error) {
-							Util.showError(error);
-						} else {
-							Util.showSuccess("Export is being processed, you will receive an email when is ready, if you logout the process will stop.", function() { Util.unblockUI(); });
-						}
-					});
-			});
-			if(metadataOnly) {
-				$export.append(" M");
-			}
-			return $export;
+			return FormUtil.getButtonWithIcon("glyphicon-export", 
+					this.getExportAction(exportConfig, metadataOnly, includeRoot),
+					metadataOnly ? "Export Metadata only" : "Export Metadata & Data");
 	};
 	
 	this.getFreezeButton = function(entityType, permId, isEntityFrozen) {
@@ -1541,6 +1690,7 @@ var FormUtil = new function() {
 		
 		if(isEntityFrozen) {
 			$freezeButton.attr("disabled", "disabled");
+			$freezeButton.append("Frozen");
 		} else {
 			$freezeButton.click(function() {
 				_this.showFreezeForm(entityType, permId);
@@ -1549,6 +1699,31 @@ var FormUtil = new function() {
 		
 		return $freezeButton;
 	}
+
+    this.createNewSampleOfTypeWithParent = function(sampleTypeCode, experimentIdentifier, sampleIdentifier, parentSample) {
+        var argsMap = {
+	        "sampleTypeCode" : sampleTypeCode,
+	        "experimentIdentifier" : experimentIdentifier
+	    }
+	    var argsMapStr = JSON.stringify(argsMap);
+
+        mainController.changeView("showCreateSubExperimentPage", argsMapStr);
+
+	    var setParent = function() {
+	        mainController.currentView._sampleFormModel.sampleLinksParents.addSample(parentSample);
+		    Util.unblockUI();
+	    }
+
+	    var repeatUntilSet = function() {
+	        if(mainController.currentView.isLoaded()) {
+		        setParent();
+	        } else {
+		        setTimeout(repeatUntilSet, 100);
+		    }
+	    }
+
+	    repeatUntilSet();
+    }
 
 	this.createNewSample = function(experimentIdentifier) {
     		var _this = this;

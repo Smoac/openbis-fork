@@ -20,15 +20,9 @@ function ZenodoExportController(parentController) {
     this.zenodoApiTokenKey = parentController.zenodoApiTokenKey;
 
     this.init = function(views) {
-        this.getSettingValue(this.zenodoApiTokenKey, (function (accessToken) {
-            if (accessToken && accessToken !== '') {
-                this.exportModel = new ZenodoExportModel(accessToken);
-                this.exportView = new ZenodoExportView(this, this.exportModel);
-                this.exportView.repaint(views);
-            } else {
-                Util.showError('Personal Zenodo API Token missing, please set it in your user profile.');
-            }
-        }).bind(this));
+        this.exportModel = new ZenodoExportModel();
+        this.exportView = new ZenodoExportView(this, this.exportModel);
+        this.exportView.repaint(views);
     };
 
     this.exportSelected = function() {
@@ -51,7 +45,7 @@ function ZenodoExportController(parentController) {
         } else {
             Util.blockUI();
             this.getUserInformation((function(userInformation) {
-                mainController.serverFacade.exportZenodo(toExport, true, false, userInformation, title, this.exportModel.accessToken,
+                mainController.serverFacade.exportZenodo(toExport, true, false, userInformation, title,
                         function(operationExecutionPermId) {
                             _this.waitForOpExecutionResponse(operationExecutionPermId, function(error, result) {
                                 Util.unblockUI();

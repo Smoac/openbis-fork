@@ -269,11 +269,24 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini, 
 		mainController.serverFacade.getArchivingInfo([dataSetPermId], function(info) {
 			var containerSize = info[dataSetPermId]["container"].length;
 			if (containerSize > 1) {
-				var warning = "Unarchiving this data set leads to unarchiving of additional " 
-					+ (containerSize - 1) + " data sets. All these data sets need " 
-					+ PrintUtil.renderNumberOfBytes(info["total size"]) + " memory.\n Do you want to unarchive this data set anyway?";
-				Util.showWarning(warning, function() {
-					_this.forceUnarchiving(dataSetPermId)
+				mainController.serverFacade.getServiceProperty("ui.unarchiving.threshold.relative", "2", function(rThreshold) {
+					mainController.serverFacade.getServiceProperty("ui.unarchiving.threshold.absolute", "10e9", function(aThreshold) {
+						var callback = function() {
+							_this.forceUnarchiving(dataSetPermId)
+						};
+						var totalSize = info["total size"];
+						var size = info[dataSetPermId]["size"];
+						var threshold = Math.max(rThreshold * size, parseFloat(aThreshold));
+						if (totalSize > threshold) {
+							var text = "Unarchiving this data set leads to unarchiving of additional " 
+								+ (containerSize - 1) + " data sets. All these data sets need " 
+								+ PrintUtil.renderNumberOfBytes(totalSize) + " memory.\n" 
+								+ "Do you want to unarchive this data set anyway?";
+							Util.showWarning(text, callback);
+						} else {
+							callback();
+						}
+					});
 				});
 			} else {
 				_this.forceUnarchiving(dataSetPermId);

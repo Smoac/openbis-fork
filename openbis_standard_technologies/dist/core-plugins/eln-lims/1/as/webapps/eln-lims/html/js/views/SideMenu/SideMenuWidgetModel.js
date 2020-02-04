@@ -27,4 +27,6 @@ function SideMenuWidgetModel() {
     this.tree = null;
     this.selectedNodeData = null;
     this.sortField = null;
+    this.percentageOfUsage = 1;
+    this.subSideMenu = null;
 }

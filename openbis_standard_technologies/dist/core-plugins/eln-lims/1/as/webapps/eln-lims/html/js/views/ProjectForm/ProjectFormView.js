@@ -30,7 +30,7 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		});
 		
 		$form.append($formColumn);
-		
+
 		//
 		// Title
 		//
@@ -38,170 +38,173 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		var isInventoryProject = this._projectFormModel.project && profile.isInventorySpace(this._projectFormModel.project.spaceCode);
 		var typeTitle = "Project: ";
 		
-		var spaceCode = this._projectFormModel.project.spaceCode;
-		var projectCode = (this._projectFormModel.mode !== FormMode.CREATE)?this._projectFormModel.project.code:null;
-		var entityPath = FormUtil.getFormPath(spaceCode, projectCode);
-		
 		if(this._projectFormModel.mode === FormMode.CREATE) {
 			title = "Create " + typeTitle;
 		} else if (this._projectFormModel.mode === FormMode.EDIT) {
-			title = "Update " + typeTitle + this._projectFormModel.project.code;
+			title = "Update " + typeTitle + Util.getDisplayNameFromCode(this._projectFormModel.project.code);
 		} else {
-			title = typeTitle + this._projectFormModel.project.code;
+			title = typeTitle + Util.getDisplayNameFromCode(this._projectFormModel.project.code);
 		}
 		
 		var $formTitle = $("<div>");
-			$formTitle
-				.append($("<h2>").append(title))
-				.append($("<h4>", { "style" : "font-weight:normal;" } ).append(entityPath));
-		
+		$formTitle.append($("<h2>").append(title));
 		
 		//
 		// Toolbar
 		//
 		var toolbarModel = [];
+		var dropdownOptionsModel = [];
 		if(this._projectFormModel.mode === FormMode.VIEW) {
 			var experimentKindName = ELNDictionary.getExperimentKindName(projectIdentifier);
 			if (_this._allowedToCreateExperiments()) {
 				//Create Experiment
-				var isDefaultExperimentPresent = mainController.profile.getExperimentTypeForExperimentTypeCode("DEFAULT_EXPERIMENT") != null;
-				if(isDefaultExperimentPresent) {
-					var newExperimentTypeDropdownId = "new-experiment-type-dropdown";
-					var defaultValueKey = entityPath.text() + "-FORM-" + newExperimentTypeDropdownId;
-
-					this._projectFormController.getDefaultSpaceValue(defaultValueKey, function (settingsValue) {
-						var defaultValue;
-						if (settingsValue) {
-							defaultValue = settingsValue;
-						} else if (profile.isInventorySpace(_this._projectFormModel.project.spaceCode)) {
-							var experimentType = profile.getExperimentTypeForExperimentTypeCode(_this._projectFormModel.project.spaceCode);
-							if (experimentType) {
-								defaultValue = _this._projectFormModel.project.spaceCode;
-							} else {
-								defaultValue = "COLLECTION";
-							}
-						} else {
-							defaultValue = "DEFAULT_EXPERIMENT";
-						}
-
-						$("option[value=" + defaultValue + "]").prop("selected", true);
-					});
-
-					var $experimentTypeDropdown = FormUtil.getInlineExperimentTypeDropdown(newExperimentTypeDropdownId, true);
-					var $createExpBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
-						var experimentTypeCode = $("#" + newExperimentTypeDropdownId)[0].value;
-
-						if (experimentTypeCode && experimentTypeCode !== "") {
-							_this._projectFormController.createNewExperiment(experimentTypeCode);
-						}
-					});
-
-					toolbarModel.push({ component: $createExpBtn, tooltip: "Create " + experimentKindName });
-					toolbarModel.push({ component: $experimentTypeDropdown, tooltip: "Type of the " + experimentKindName + " to create" });
-
-					$experimentTypeDropdown.change(function(event) {
-						_this._projectFormController.setDefaultSpaceValue(defaultValueKey, $(event.target).val());
-					});
-				}
+				var experimentTypes = mainController.profile.allExperimentTypes;
+				FormUtil.addCreationDropdown(toolbarModel, experimentTypes, ["DEFAULT_EXPERIMENT", "COLLECTION"], function(typeCode) {
+					return function() {
+						Util.blockUI();
+						setTimeout(function() {
+							_this._projectFormController.createNewExperiment(typeCode);
+						}, 100);
+					}
+					getNewSampleOfTypeWithParent(typeCode,);
+				});
 			}
-            if (_this._allowedToMove()) {
+			if (_this._allowedToMove()) {
                 //Move
-                var $moveBtn = FormUtil.getButtonWithIcon("glyphicon-move", function () {
-                    var moveEntityController = new MoveEntityController("PROJECT", _this._projectFormModel.project.permId);
-                    moveEntityController.init();
+				dropdownOptionsModel.push({
+                    label : "Move",
+                    action : function() {
+                        var moveEntityController = new MoveEntityController("PROJECT", _this._projectFormModel.project.permId);
+                        moveEntityController.init();
+                    }
                 });
-				toolbarModel.push({ component : $moveBtn, tooltip: "Move" });
             }
 			if(_this._allowedToEdit()) {
 				//Edit
 				var $editBtn = FormUtil.getButtonWithIcon("glyphicon-edit", function () {
 					_this._projectFormController.enableEditing();
-				});
-				toolbarModel.push({ component : $editBtn, tooltip: "Edit" });
+				}, "Edit");
+				toolbarModel.push({ component : $editBtn });
 			}
 			if(_this._allowedToDelete()) {
 				//Delete
-				var $deleteBtn = FormUtil.getDeleteButton(function(reason) {
-					_this._projectFormController.deleteProject(reason);
-				}, true);
-				toolbarModel.push({ component : $deleteBtn, tooltip: "Delete" });
+				dropdownOptionsModel.push({
+                    label : "Delete",
+                    action : function() {
+                        var modalView = new DeleteEntityController(function(reason) {
+					        _this._projectFormController.deleteProject(reason);
+                        }, true);
+                        modalView.init();
+                    }
+                });
 			}
 			
 			//Export
-			var $exportAll = FormUtil.getExportButton([{ type: "PROJECT", permId : _this._projectFormModel.project.permId, expand : true }], false);
-			toolbarModel.push({ component : $exportAll, tooltip: "Export Metadata & Data" });
-		
-			var $exportOnlyMetadata = FormUtil.getExportButton([{ type: "PROJECT", permId : _this._projectFormModel.project.permId, expand : true }], true);
-			toolbarModel.push({ component : $exportOnlyMetadata, tooltip: "Export Metadata only" });
-		
+			dropdownOptionsModel.push({
+                label : "Export Metadata",
+                action : FormUtil.getExportAction([{ type: "PROJECT", permId : _this._projectFormModel.project.permId, expand : true }], true)
+            });
+
+            dropdownOptionsModel.push({
+                label : "Export Metadata & Data",
+                action : FormUtil.getExportAction([{ type: "PROJECT", permId : _this._projectFormModel.project.permId, expand : true }], false)
+            });
+
 			//Jupyter Button
 			if(profile.jupyterIntegrationServerEndpoint) {
-				var $jupyterBtn = FormUtil.getButtonWithImage("./img/jupyter-icon.png", function () {
-					var jupyterNotebook = new JupyterNotebookController(_this._projectFormModel.project);
-					jupyterNotebook.init();
-				});
-				toolbarModel.push({ component : $jupyterBtn, tooltip: "Create Jupyter notebook" });
+			    dropdownOptionsModel.push({
+                    label : "New Jupyter notebook",
+                    action : function () {
+                        var jupyterNotebook = new JupyterNotebookController(_this._projectFormModel.project);
+                        jupyterNotebook.init();
+                    }
+                });
 			}
 
 			// authorization
 			if (this._projectFormModel.roles.indexOf("ADMIN") > -1 ) {
-				var $share = FormUtil.getButtonWithIcon("fa fa-users", function() {
-					FormUtil.showAuthorizationDialog({
-						project: _this._projectFormModel.project,
-					});
-				});
-				toolbarModel.push({ component : $share, tooltip: "Manage access" });
+				dropdownOptionsModel.push({
+                    label : "Manage access",
+                    action : function () {
+                        FormUtil.showAuthorizationDialog({
+                            project: _this._projectFormModel.project,
+                        });
+                    }
+                });
 			}
 
             //Freeze
             if(_this._projectFormModel.v3_project && _this._projectFormModel.v3_project.frozen !== undefined) { //Freezing available on the API
                 var isEntityFrozen = _this._projectFormModel.v3_project.frozen;
-                var isEntityFrozenTooltip = (isEntityFrozen)?"Entity Frozen":"Freeze Entity (Disable further modifications)";
-                var $freezeButton = FormUtil.getFreezeButton("PROJECT", this._projectFormModel.v3_project.permId.permId, isEntityFrozen);
-                toolbarModel.push({ component : $freezeButton, tooltip: isEntityFrozenTooltip });
+                if(isEntityFrozen) {
+                    var $freezeButton = FormUtil.getFreezeButton("PROJECT", this._projectFormModel.v3_project.permId.permId, "Entity Frozen");
+                    toolbarModel.push({ component : $freezeButton, tooltip: "Entity Frozen" });
+                } else {
+                    dropdownOptionsModel.push({
+                        label : "Freeze Entity (Disable further modifications)",
+                        action : function() {
+                            FormUtil.showFreezeForm("PROJECT", _this._projectFormModel.v3_project.permId.permId);
+                        }
+                    });
+                }
+
             }
-
-			var showSelectExperimentType = function() {
-				var $dropdown = FormUtil.getExperimentTypeDropdown("experimentTypeDropdown", true);
-				Util.showDropdownAndBlockUI("experimentTypeDropdown", $dropdown);
-
-				$("#experimentTypeDropdown").on("change", function(event) {
-					var experimentTypeCode = $("#experimentTypeDropdown")[0].value;
-					_this._projectFormController.createNewExperiment(experimentTypeCode);
-				});
-
-				$("#experimentTypeDropdownCancel").on("click", function(event) {
-					Util.unblockUI();
-				});
-			};
-			if (_this._allowedToCreateExperiments()) {
-				//Operations
-				var $operationsMenu = FormUtil.getOperationsMenu([{ label: "Create " + experimentKindName, event: function() {
-					showSelectExperimentType();
-				}}]);
-				toolbarModel.push({ component : $operationsMenu, tooltip: "Extra operations" });
-			}
 		} else {
 			var $saveBtn = FormUtil.getButtonWithIcon("glyphicon-floppy-disk", function() {
 				_this._projectFormController.updateProject();
 			}, "Save");
 			$saveBtn.removeClass("btn-default");
 			$saveBtn.addClass("btn-primary");
-			toolbarModel.push({ component : $saveBtn, tooltip: "Save" });
+			toolbarModel.push({ component : $saveBtn });
 		}
 		
 		var $header = views.header;
 		$header.append($formTitle);
+
+		var hideShowOptionsModel = [];
+
+		$formColumn.append(this._createIdentificationInfoSection(hideShowOptionsModel));
+
+		if(this._projectFormModel.isSimpleFolder && this._projectFormModel.mode === FormMode.CREATE) {
+		    //
+		} else {
+            $formColumn.append(this._createDescriptionSection(hideShowOptionsModel));
+		}
+
+		if (this._projectFormModel.mode !== FormMode.CREATE && !isInventoryProject) {
+			$formColumn.append(this._createExperimentsSection(projectIdentifier, hideShowOptionsModel));
+			$formColumn.append(this._createSamplesSection(hideShowOptionsModel));
+		}
+
+		FormUtil.addOptionsToToolbar(toolbarModel, dropdownOptionsModel, hideShowOptionsModel, "PROJECT-VIEW");
 		$header.append(FormUtil.getToolbar(toolbarModel));
 
-		//
-		// Identification info
-		//
-		$formColumn.append($("<legend>").append("Identification Info"));
+		$container.append($form);
+	};
+	
+	this._createIdentificationInfoSection = function(hideShowOptionsModel) {
+		hideShowOptionsModel.push({
+			forceToShow : this._projectFormModel.mode === FormMode.CREATE,
+			label : "Identification Info",
+			section : "#project-identification-info"
+		});
+		
+		var _this = this;
+		var $identificationInfo = $("<div>", { id : "project-identification-info" });
 
-		$formColumn.append(FormUtil.getFieldForLabelWithText("Space", this._projectFormModel.project.spaceCode));
+        $identificationInfo.append($("<legend>").append("Identification Info"));
 
-		if(this._projectFormModel.mode === FormMode.CREATE) {
+		var spaceCode = this._projectFormModel.project.spaceCode;
+		if (this._projectFormModel.mode !== FormMode.CREATE) {
+			var entityPath = FormUtil.getFormPath(spaceCode, this._projectFormModel.project.code);
+			$identificationInfo.append(FormUtil.getFieldForComponentWithLabel(entityPath, "Path"));
+		}
+
+		if(this._projectFormModel.mode !== FormMode.CREATE) {
+		    $identificationInfo.append(FormUtil.getFieldForLabelWithText("Space", spaceCode));
+        }
+
+		if (this._projectFormModel.mode === FormMode.CREATE) {
 			var $textField = FormUtil._getInputField('text', null, "Project Code", null, true);
 			$textField.keyup(function(event){
 				var textField = $(this);
@@ -212,38 +215,46 @@ function ProjectFormView(projectFormController, projectFormModel) {
 				_this._projectFormModel.project.code = textField.val();
 				_this._projectFormModel.isFormDirty = true;
 			});
-			$formColumn.append(FormUtil.getFieldForComponentWithLabel($textField, "Code"));
+			$identificationInfo.append(FormUtil.getFieldForComponentWithLabel($textField, "Code"));
 		} else {
-			$formColumn.append(FormUtil.getFieldForLabelWithText("Code", this._projectFormModel.project.code));
+			$identificationInfo.append(FormUtil.getFieldForLabelWithText("Code", this._projectFormModel.project.code));
 		}
 
 		if(this._projectFormModel.mode !== FormMode.CREATE) {
 			var registrationDetails = this._projectFormModel.project.registrationDetails;
 
 			var $registrator = FormUtil.getFieldForLabelWithText("Registrator", registrationDetails.userId);
-			$formColumn.append($registrator);
+			$identificationInfo.append($registrator);
 
 			var $registationDate = FormUtil.getFieldForLabelWithText("Registration Date", Util.getFormatedDate(new Date(registrationDetails.registrationDate)));
-			$formColumn.append($registationDate);
+			$identificationInfo.append($registationDate);
 
 			var $modifier = FormUtil.getFieldForLabelWithText("Modifier", registrationDetails.modifierUserId);
-			$formColumn.append($modifier);
+			$identificationInfo.append($modifier);
 
 			var $modificationDate = FormUtil.getFieldForLabelWithText("Modification Date", Util.getFormatedDate(new Date(registrationDetails.modificationDate)));
-			$formColumn.append($modificationDate);
+			$identificationInfo.append($modificationDate);
 		}
-
-		//
-		// Metadata Fields
-		//
-		$formColumn.append($("<legend>").append("General"));
+		$identificationInfo.hide();
+		return $identificationInfo;
+	}
+	
+	this._createDescriptionSection = function(hideShowOptionsModel) {
+		hideShowOptionsModel.push({
+			forceToShow : this._projectFormModel.mode === FormMode.CREATE,
+			label : "Description",
+			section : "#project-description"
+		});
 		
+		var _this = this;
+		var $description = $("<div>", { id : "project-description" });
+		$description.append($("<legend>").append("General"));
 		var description = Util.getEmptyIfNull(this._projectFormModel.project.description);
 		if(this._projectFormModel.mode !== FormMode.VIEW) {
 			var $textBox = FormUtil._getTextBox(null, "Description", false);
 			var textBoxEvent = function(jsEvent, newValue) {
 				var valueToUse = null;
-				if(newValue !== undefined && newValue !== null) {
+				if (newValue !== undefined && newValue !== null) {
 					valueToUse = newValue;
 				} else {
 					valueToUse = $(this).val();
@@ -252,37 +263,59 @@ function ProjectFormView(projectFormController, projectFormModel) {
 				_this._projectFormModel.isFormDirty = true;
 			};
 			$textBox.val(description);
-			$textBox = FormUtil.activateRichTextProperties($textBox, textBoxEvent, null);
-			$formColumn.append(FormUtil.getFieldForComponentWithLabel($textBox, "Description"));
+			$textBox = FormUtil.activateRichTextProperties($textBox, textBoxEvent, null, description, false);
+			$description.append(FormUtil.getFieldForComponentWithLabel($textBox, "Description"));
 		} else {
-			$formColumn.append(FormUtil.getFieldForLabelWithText("Description", description));
+			var $textBox = FormUtil._getTextBox(null, "Description", false);
+			$textBox = FormUtil.activateRichTextProperties($textBox, undefined, null, description, true);
+			$description.append(FormUtil.getFieldForComponentWithLabel($textBox, "Description"));
 		}
+		$description.hide();
+		return $description;
+	}
+	
+	this._createExperimentsSection = function(projectIdentifier, hideShowOptionsModel) {
+		var entityKindName = ELNDictionary.getExperimentKindName(projectIdentifier, true);
+		hideShowOptionsModel.push({
+			label : entityKindName,
+			section : "#project-experiments"
+		});
 		
-		// Experiment And Samples Table
-		if(this._projectFormModel.mode !== FormMode.CREATE && !isInventoryProject) {
-			var $experimentsContainer = $("<div>");
-			$formColumn.append($("<legend>").append(ELNDictionary.getExperimentKindName(projectIdentifier, true)))
-			$formColumn.append($experimentsContainer);
-			
-			var experimentTableController = new ExperimentTableController(this._projectFormController, null, jQuery.extend(true, {}, this._projectFormModel.project), true);
-			experimentTableController.init($experimentsContainer);
-			
-			$formColumn.append($("<legend>").append("" + ELNDictionary.Samples + ""))
-			var $samplesContainerHeader = $("<div>");
-			$formColumn.append($samplesContainerHeader);
-			var $samplesContainer = $("<div>");
-			$formColumn.append($samplesContainer);
-			
-			var views = {
-					header : $samplesContainerHeader,
-					content : $samplesContainer
-			}
-			var sampleTableController = new SampleTableController(this._projectFormController, null, null, this._projectFormModel.project.permId, true);
-			sampleTableController.init(views);
+		var $experiments = $("<div>", { id : "project-experiments" });
+		var $experimentsContainer = $("<div>");
+		$experiments.append($("<legend>").append(entityKindName));
+		$experiments.append($experimentsContainer);
+		
+		var experimentTableController = new ExperimentTableController(this._projectFormController, null, jQuery.extend(true, {}, this._projectFormModel.project), true);
+		experimentTableController.init($experimentsContainer);
+		$experiments.hide();
+		return $experiments;
+	}
+	
+	this._createSamplesSection = function(hideShowOptionsModel) {
+		var entityKindName = "" + ELNDictionary.Samples + "";
+		hideShowOptionsModel.push({
+			label : entityKindName,
+			section : "#project-samples"
+		});
+		
+		var $samples = $("<div>", { id : "project-samples" });
+		var $experimentsContainer = $("<div>");
+		$samples.append($("<legend>").append(entityKindName));
+		var $samplesContainerHeader = $("<div>");
+		$samples.append($samplesContainerHeader);
+		var $samplesContainer = $("<div>");
+		$samples.append($samplesContainer);
+		
+		var views = {
+				header : $samplesContainerHeader,
+				content : $samplesContainer
 		}
-
-		$container.append($form);
-	};
+		var sampleTableController = new SampleTableController(this._projectFormController, null, null, this._projectFormModel.project.permId, true, null, 40);
+		sampleTableController.init(views);
+		$samples.hide();
+		return $samples;
+	}
 	
 	this._allowedToCreateExperiments = function() {
 		var project = this._projectFormModel.v3_project;
@@ -291,12 +324,19 @@ function ProjectFormView(projectFormController, projectFormModel) {
 	
 	this._allowedToEdit = function() {
 		var project = this._projectFormModel.v3_project;
-		return project.frozen == false && this._projectFormModel.rights.rights.indexOf("UPDATE") >= 0;
+		return project.frozen == false && this._allowedToUpdate(this._projectFormModel.rights);
 	};
+	
+	this._allowedToUpdate = function(rights) {
+		return rights && rights.rights.indexOf("UPDATE") >= 0;
+	}
 
 	this._allowedToMove = function() {
 		var project = this._projectFormModel.v3_project;
-		return project.frozen == false && project.space.frozenForProjects == false;
+		if (project.frozen || project.space.frozenForProjects) {
+			return false;
+		}
+		return this._allowedToUpdate(this._projectFormModel.rights);
 	};
 	
 	this._allowedToDelete = function() {

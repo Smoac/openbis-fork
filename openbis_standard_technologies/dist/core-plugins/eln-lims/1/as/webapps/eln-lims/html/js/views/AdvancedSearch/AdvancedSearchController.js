@@ -18,6 +18,11 @@ function AdvancedSearchController(mainController, forceSearch) {
 	this._mainController = mainController;
 	this._advancedSearchModel = new AdvancedSearchModel(forceSearch);
 	this._advancedSearchView = new AdvancedSearchView(this, this._advancedSearchModel);
+	this.additionalRules = [];
+	this.fetchWithSample = false;
+	this.enrichResultsFunction = function(results, callback) {
+		callback(results);
+	}
 
 	this.init = function(views) {
 		var _this = this;
@@ -64,6 +69,7 @@ function AdvancedSearchController(mainController, forceSearch) {
 	}
 	
 	this.searchWithPagination = function(criteria, isGlobalSearch) {
+		var _this = this;
 		return function(callback, options) {
 			var callbackForSearch = function(results) {
 				var dataList = [];
@@ -103,6 +109,9 @@ function AdvancedSearchController(mainController, forceSearch) {
 					if(entity.experiment) {
 						rowData.experiment = entity.experiment.code;
 					}
+					if (entity.sample) {
+						rowData.sample = entity.sample.code;
+					}
 					
 					rowData.entityType = (entity.type)?entity.type.code:"";
 					rowData.code =  entity.code;
@@ -125,9 +134,11 @@ function AdvancedSearchController(mainController, forceSearch) {
 					dataList.push(rowData);
 				}
 				
-				callback({
-					objects : dataList,
-					totalCount : results.totalCount
+				_this.enrichResultsFunction(dataList, function(enrichedDataList) {
+					callback({
+						objects : enrichedDataList,
+						totalCount : results.totalCount
+					});
 				});
 				$("#search").removeClass("search-query-searching");
 			}
@@ -142,6 +153,7 @@ function AdvancedSearchController(mainController, forceSearch) {
 				fetchOptions.withExperiment = true;
 				fetchOptions.withParents = false;
 				fetchOptions.withChildren = false;
+				fetchOptions.withSample = _this.fetchWithSample;
 				optionsSearch = options.search;
 				// TODO : Unused on the UI, should be added for DataSets
 				// fetchOptions.withSample = true;
@@ -207,6 +219,8 @@ function AdvancedSearchController(mainController, forceSearch) {
 				}
 			}
 			
+			_this.additionalRules.forEach(rule => criteriaToSend.rules[Util.guid()] = rule);
+			
 			$(".repeater-search").remove();
 			
 			switch(criteriaToSend.entityKind) {
@@ -234,6 +248,8 @@ function AdvancedSearchController(mainController, forceSearch) {
 
 	this._getSearchCriteriaV3 = function(callback) {
 		var criteriaToSend = $.extend(true, {}, this._advancedSearchModel.criteria);
+		this.additionalRules.forEach(rule => criteriaToSend.rules[Util.guid()] = rule);
+
 		switch(criteriaToSend.entityKind) {
 			case "ALL":
 				var freeText = "";

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-function DataGridController(title, columnsFirst, columnsLast, columnsDynamicFunc, data, rowClickEventHandler, showAllColumns,configKey, isMultiselectable) {
+function DataGridController(title, columnsFirst, columnsLast, columnsDynamicFunc, data, rowClickEventHandler, showAllColumns,configKey, isMultiselectable, heightPercentage) {
 	this._grid = null;
 	this._dataGridModel = null;
 	this._dataGridView = null;
@@ -42,7 +42,8 @@ function DataGridController(title, columnsFirst, columnsLast, columnsDynamicFunc
 					tableConfig = null;
 				}
 			}
-			_this._grid = new Grid(columnsFirst, columnsLast, columnsDynamicFunc, data, showAllColumns, tableConfig, onColumnsChange, isMultiselectable);
+			_this._grid = new Grid(columnsFirst, columnsLast, columnsDynamicFunc, data, showAllColumns, tableConfig, 
+					onColumnsChange, isMultiselectable, null, heightPercentage, mainController.getScrollbarWidth());
 			if(rowClickEventHandler) {
 				_this._grid.addRowClickListener(rowClickEventHandler);
 			}
@@ -50,7 +51,7 @@ function DataGridController(title, columnsFirst, columnsLast, columnsDynamicFunc
 				_this._grid.addExtraOptions(extraOptions);
 			}
 			
-			_this._dataGridModel = new DataGridModel(title, columnsFirst, columnsLast, columnsDynamicFunc, data, rowClickEventHandler, _this._grid.render(), isMultiselectable);
+			_this._dataGridModel = new DataGridModel(title, columnsFirst, columnsLast, columnsDynamicFunc, data, rowClickEventHandler, _this._grid.render(), isMultiselectable, heightPercentage);
 			_this._dataGridView = new DataGridView(this, _this._dataGridModel);
 			_this._dataGridView.repaint($container);
 		});	

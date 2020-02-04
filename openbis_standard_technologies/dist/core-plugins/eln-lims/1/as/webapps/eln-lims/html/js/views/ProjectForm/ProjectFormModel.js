@@ -19,4 +19,5 @@ function ProjectFormModel(mode, project, roles) {
 	this.isFormDirty = false;
 	this.project = project;
 	this.roles = roles;
+    this.isSimpleFolder = false;
 }

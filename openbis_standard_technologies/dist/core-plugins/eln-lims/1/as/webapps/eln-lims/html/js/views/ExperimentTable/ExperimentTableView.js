@@ -80,7 +80,7 @@ function ExperimentTableView(experimentTableController, experimentTableModel) {
 		var projectIdentifier = IdentifierUtil.getProjectIdentifier(this._experimentTableModel.project.spaceCode, this._experimentTableModel.project.code);
 		$typesSelector.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text("Select an " + ELNDictionary.getExperimentKindName(projectIdentifier, true) + " type"));
 		for(typeCode in this._experimentTableModel.types) {
-			$typesSelector.append($('<option>', { 'value' : typeCode }).text(typeCode));
+			$typesSelector.append($('<option>', { 'value' : typeCode }).text(Util.getDisplayNameFromCode(typeCode)));
 		}
 		
 		$typesSelector.change(function(event) {

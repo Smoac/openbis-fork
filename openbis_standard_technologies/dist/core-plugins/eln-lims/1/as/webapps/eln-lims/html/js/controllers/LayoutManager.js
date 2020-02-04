@@ -358,20 +358,14 @@ var LayoutManager = {
 			}
 		}
 	},
-	canReload : function() {
-		// Don't reload when CKEditor is maximized
-		var ckMaximized = false;
-		for(editorId in CKEDITOR.instances) {
-			var commands = CKEDITOR.instances[editorId].commands;
-			if(commands && commands.maximize && commands.maximize.state == 1) {
-				ckMaximized = true;
-			}
-		}
-		
-		return  this.isResizingColumn === false && 
-				this.isLoadingView === false && 
-				!ckMaximized;
-	},
+    canReload : function() {
+        // Don't reload when CKEditor is maximized
+        var ckMaximized = CKEditorManager.getMaximized();
+
+        return  this.isResizingColumn === false &&
+                this.isLoadingView === false &&
+                !ckMaximized;
+    },
 	getContentWidth : function() {
 		var width = $( window ).width();
 		if (width > this.DESKTOP_SIZE) {
@@ -416,12 +410,13 @@ var LayoutManager = {
 		//
 		
 		var width = $( window ).width();
-		if (width > this.DESKTOP_SIZE) {
-			if (this.FOUND_SIZE !== this.DESKTOP_SIZE) {
-				isFirstTime = true;
-				this.FOUND_SIZE = this.DESKTOP_SIZE;
-			}
-		} else if (width > this.TABLET_SIZE) {
+//		if (width > this.DESKTOP_SIZE) {
+//			if (this.FOUND_SIZE !== this.DESKTOP_SIZE) {
+//				isFirstTime = true;
+//				this.FOUND_SIZE = this.DESKTOP_SIZE;
+//			}
+//		} else
+		if (width > this.TABLET_SIZE) {
 			if (this.FOUND_SIZE !== this.TABLET_SIZE) {
 				isFirstTime = true;
 				this.FOUND_SIZE = this.TABLET_SIZE;

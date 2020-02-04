@@ -1,9 +1,8 @@
-function Grid(columnsFirst, columnsLast, columnsDynamicFunc, getDataList, showAllColumns, tableSettings, onChangeState, isMultiselectable, staticHeight) {
-	this.init(columnsFirst, columnsLast, columnsDynamicFunc, getDataList, showAllColumns, tableSettings, onChangeState, isMultiselectable, staticHeight);
+function Grid(columnsFirst, columnsLast, columnsDynamicFunc, getDataList, showAllColumns, tableSettings, onChangeState, isMultiselectable, maxHeight, heightPercentage, scrollbarWidth) {
+	this.init(columnsFirst, columnsLast, columnsDynamicFunc, getDataList, showAllColumns, tableSettings, onChangeState, isMultiselectable, maxHeight, heightPercentage, scrollbarWidth);
 }
-
 $.extend(Grid.prototype, {
-	init : function(columnsFirst, columnsLast, columnsDynamicFunc, getDataList, showAllColumns, tableSettings, onChangeState, isMultiselectable, staticHeight) {
+	init : function(columnsFirst, columnsLast, columnsDynamicFunc, getDataList, showAllColumns, tableSettings, onChangeState, isMultiselectable, maxHeight, heightPercentage, scrollbarWidth) {
 		this.columnsFirst = columnsFirst;
 		this.columnsDynamicFunc = columnsDynamicFunc;
 		this.columnsDynamic = [];
@@ -31,7 +30,10 @@ $.extend(Grid.prototype, {
 			this.addMultiSelect(columnsFirst);
 		}
 		this.lastUsedColumns = [];
-		this.staticHeight;
+		if(heightPercentage) {
+			this.maxHeight = ($(window).height() - LayoutManager.secondColumnHeader.outerHeight()) * (heightPercentage/100) - 30;
+		}
+		this.scrollbarWidth = scrollbarWidth;
 	},
 	getSearchOperator : function() {
 		var thisGrid = this;
@@ -113,7 +115,7 @@ $.extend(Grid.prototype, {
 				thisGrid.panel.addClass("fuelux-selectable");
 			}
 			
-			thisGrid.panel.repeater({
+			var repeater = thisGrid.panel.repeater({
 				defaultView : "list",
 				dataSource : function(options, callback) {
 					//Set default sort
@@ -136,7 +138,7 @@ $.extend(Grid.prototype, {
 						thisGrid.list(options, callback);
 					}
 				},
-				staticHeight : thisGrid.staticHeight, //$( window ).height() - LayoutManager.secondColumnHeader.outerHeight() - 30,
+				staticHeight : 10,
 				list_selectable : false,
 				list_noItemsHTML : 'No items found',
 				list_rowRendered : function(helpers, callback) {
@@ -152,6 +154,7 @@ $.extend(Grid.prototype, {
 					callback();
 				}
 			});
+			thisGrid.viewOptions = repeater.data('fu.repeater').viewOptions;
 		});
 		
 		return thisGrid.panel;
@@ -166,7 +169,7 @@ $.extend(Grid.prototype, {
 			e.stopPropagation();
 		});
 		
-		var defaultNumColumns = 5; //Including last always
+		var defaultNumColumns = 3; //Including last always
 		
 		var currentColumns = this.getAllColumns();
 		
@@ -184,7 +187,10 @@ $.extend(Grid.prototype, {
 				} else if(thisGrid.showAllColumns || columnIndex < (defaultNumColumns - 1) || (columnIndex+1 === currentColumns.length)) { //Defaults
 					checkbox.attr("checked", "checked");
 				}
-				
+				if (column.canNotBeHidden) {
+					checkbox.attr("checked", "checked");
+					checkbox.prop("disabled", true);
+				}
 				checkbox.change(function(e) {
 					var $checkbox = $(this);
 					var propertyName = $checkbox.prop('value');
@@ -430,7 +436,7 @@ $.extend(Grid.prototype, {
 		var columns = [];
 
 		var columnsModel = {};
-		var maxColumns = 50;
+		var maxColumns = 200;
 		var enabledColumns = 0;
 		
 		_this.getAllColumns().forEach(function(column) {
@@ -743,9 +749,20 @@ $.extend(Grid.prototype, {
 					thisGrid.firstLoad = false;
 				}
 				
-				// Fix table width since fuelux 3.1.0
-				var newWidth = $(thisGrid.panel).find(".repeater-list-wrapper > .table").width();
-				$(thisGrid.panel).find(".repeater").width(newWidth);
+//              Fix table width since fuelux 3.1.0
+//				var newWidth = $(thisGrid.panel).find(".repeater-list-wrapper > .table").width();
+//				$(thisGrid.panel).find(".repeater").width(newWidth);
+
+				var headerHeight = $(thisGrid.panel).find(".repeater-header").outerHeight(true);
+				var listHeight = Math.max(100, $(thisGrid.panel).find(".repeater-list").outerHeight(true));
+				var footerHeight = $(thisGrid.panel).find(".repeater-footer").outerHeight(true);
+				var viewport = $(thisGrid.panel).find(".repeater-canvas")[0];
+				var scrollbarHeight = viewport.scrollWidth > viewport.offsetWidth ? thisGrid.scrollbarWidth : 0;
+				var totalHeight = headerHeight + listHeight + footerHeight + scrollbarHeight;
+				totalHeight = Math.min(totalHeight, thisGrid.maxHeight);
+				if (thisGrid.viewOptions.staticHeight < totalHeight) {
+					thisGrid.viewOptions.staticHeight = totalHeight;
+				}
 				
 				var optionsDropdowns = $(".dropdown.table-options-dropdown");
 				for(var i = 0; i < optionsDropdowns.length; i++) {

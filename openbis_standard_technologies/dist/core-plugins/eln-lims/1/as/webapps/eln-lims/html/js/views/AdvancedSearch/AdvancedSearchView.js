@@ -26,6 +26,15 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	this._$dataGridContainer = null;
 	this._$saveLoadContainer = null;
 	this._$savedSearchesDropdown = null;
+	this.configKeyPrefix = "ADVANCED_SEARCH_OPENBIS_";
+	this.suppressedColumns = [];
+	this.hideByDefaultColumns = [];
+	this.firstColumns = [];
+	this.additionalColumns = [];
+	this.additionalLastColumns = [];
+	this.resultsTitle = "Results";
+	this.beforeRenderingHook = null;
+	this.extraOptions = null;
 	
 	//
 	// Main Repaint Method
@@ -667,29 +676,18 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	}
 	
 	this.renderResults = function(criteria) {
+		if (this.beforeRenderingHook) {
+			this.beforeRenderingHook();
+		}
 		var isGlobalSearch = this._advancedSearchModel.criteria.entityKind === "ALL";
 		var dataGridController = this._getGridForResults(criteria, isGlobalSearch);
-		dataGridController.init(this._$dataGridContainer);
+		dataGridController.init(this._$dataGridContainer, this.extraOptions);
 	}
 	
 	this._getGridForResults = function(criteria, isGlobalSearch) {
 			var _this = this;
 			
-			var getLinkOnClick = function(code, data, paginationInfo) {
-				if(data.entityKind !== "Sample") {
-					paginationInfo = null;  // TODO - Only supported for samples for now
-				}
-				switch(data.entityKind) {
-					case "Experiment":
-						return FormUtil.getFormLink(code, data.entityKind, data.identifier, paginationInfo);
-						break;
-					default:
-						return FormUtil.getFormLink(code, data.entityKind, data.permId, paginationInfo);
-						break;
-				}
-			}
-		
-			var columns = [ {
+			var columns = _this.firstColumns.concat([ {
 				label : 'Entity Kind',
 				property : 'entityKind',
 				isExportable: true,
@@ -715,7 +713,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				sortable : !isGlobalSearch,
 				render : function(data) {
 					if(data[profile.propertyReplacingCode]) {
-						return getLinkOnClick(data[profile.propertyReplacingCode], data);
+						return _this._getLinkOnClick(data[profile.propertyReplacingCode], data);
 					} else {
 						return "";
 					}
@@ -745,7 +743,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 							}
 						}
 					}
-					return getLinkOnClick(data.code, data, paginationInfo);
+					return _this._getLinkOnClick(data.code, data, paginationInfo);
 				}
 			}, {
 				label : 'Identifier',
@@ -772,14 +770,16 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 							}
 						}
 					}
-					return getLinkOnClick(data.identifier, data, paginationInfo);
+					return _this._getLinkOnClick(data.identifier, data, paginationInfo);
 				}
 			}, {
 				label : ELNDictionary.getExperimentDualName(),
 				property : 'experiment',
 				isExportable: false,
 				sortable : false
-			}];
+			}]);
+			
+			columns = columns.concat(_this.additionalColumns);
 			
 			if(isGlobalSearch) {
 				columns.push({
@@ -893,11 +893,36 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				isExportable: true,
 				sortable : !isGlobalSearch
 			});
-			
+			columnsLast = columnsLast.concat(_this.additionalLastColumns);
+
 			var getDataRows = this._advancedSearchController.searchWithPagination(criteria, isGlobalSearch);
 			
-			var dataGrid = new DataGridController("Results", columns, columnsLast, dynamicColumnsFunc, getDataRows, null, false, "ADVANCED_SEARCH_OPENBIS_" + this._advancedSearchModel.criteria.entityKind);
+			var dataGrid = new DataGridController(this.resultsTitle, this._filterColumns(columns), columnsLast, dynamicColumnsFunc, getDataRows, null, false, this.configKeyPrefix + this._advancedSearchModel.criteria.entityKind, false, 70);
 			return dataGrid;
 	}
 	
+	this._getLinkOnClick = function(code, data, paginationInfo) {
+		if(data.entityKind !== "Sample") {
+			paginationInfo = null;  // TODO - Only supported for samples for now
+		}
+		switch(data.entityKind) {
+			case "Experiment":
+				return FormUtil.getFormLink(code, data.entityKind, data.identifier, paginationInfo);
+				break;
+			default:
+				return FormUtil.getFormLink(code, data.entityKind, data.permId, paginationInfo);
+				break;
+		}
+	}
+	
+	this._filterColumns = function(columns) {
+		var _this = this;
+		var filteredColumns = columns.filter(column => this.suppressedColumns.includes(column.property) == false);
+		filteredColumns.forEach(function(column) {
+			if (_this.hideByDefaultColumns.includes(column.property)) {
+				column.showByDefault = false;
+			}
+		});
+		return filteredColumns;
+	}
 }

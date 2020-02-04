@@ -64,4 +64,29 @@ var TestUtil = new function() {
 
         xhr.send();
     }
+
+    this.ckeditorSetData = function(id, data) {
+        return new Promise(function executor(resolve, reject) {
+            editor = CKEditorManager.getEditorById(id);
+            editor.setData(data);
+            resolve();
+        });
+    }
+
+    this.ckeditorTestData = function(id, data) {
+        return new Promise(function executor(resolve, reject) {
+            try {
+                editor = CKEditorManager.getEditorById(id);
+                var realData = editor.getData();
+
+                if (realData === data) {
+                    resolve();
+                } else {
+                    throw "CKEditor #" + elementId + " should be equal " + data;
+                }
+            } catch(error) {
+                reject();
+            }
+        });
+    }
 }

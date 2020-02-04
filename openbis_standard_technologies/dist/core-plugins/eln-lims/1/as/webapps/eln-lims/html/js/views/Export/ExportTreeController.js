@@ -34,16 +34,17 @@ function ExportTreeController(parentController) {
 		
 		if(toExport.length === 0) {
 			Util.showInfo("First select something to export.");
+		} else {
+			Util.blockUI();
+			mainController.serverFacade.exportAll(toExport, true, false, function(error, result) {
+				if(error) {
+					Util.showError(error);
+				} else {
+					Util.showSuccess("Export is being processed, you will receive an email when it is finished. If you logout the process will stop.", function() { Util.unblockUI(); });
+					mainController.refreshView();
+				}
+			});
 		}
 		
-		Util.blockUI();
-		mainController.serverFacade.exportAll(toExport, true, false, function(error, result) {
-			if(error) {
-				Util.showError(error);
-			} else {
-				Util.showSuccess("Export is being processed, you will receive an email when it is finished. If you logout the process will stop.", function() { Util.unblockUI(); });
-				mainController.refreshView();
-			}
-		});
 	}
 }

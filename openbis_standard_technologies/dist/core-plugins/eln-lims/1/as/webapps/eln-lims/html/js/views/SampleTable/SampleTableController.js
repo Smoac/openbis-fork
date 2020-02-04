@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-function SampleTableController(parentController, title, experimentIdentifier, projectPermId, showInProjectOverview, experiment) {
+function SampleTableController(parentController, title, experimentIdentifier, projectPermId, showInProjectOverview, experiment, heightOverride) {
 	this._parentController = parentController;
-	this._sampleTableModel = new SampleTableModel(title, experimentIdentifier, projectPermId, showInProjectOverview, experiment);
+	this._sampleTableModel = new SampleTableModel(title, experimentIdentifier, projectPermId, showInProjectOverview, experiment, heightOverride);
 	this._sampleTableView = new SampleTableView(this, this._sampleTableModel);
 	this.typeAndFileController = null;
 
@@ -84,7 +84,11 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 	this._reloadTableWithAllSamples = function(advancedSampleSearchCriteria) {
 			//Create and display table
 			var withExperiment = !this._sampleTableModel.experimentIdentifier && !this._sampleTableModel.experiment;
-			var dataGridController = SampleDataGridUtil.getSampleDataGrid(this._sampleTableModel.experimentIdentifier, advancedSampleSearchCriteria, null, null, null, null, null, null, true, withExperiment);
+			var tableHeight = 90;
+			if(this._sampleTableModel.heightOverride) {
+			    tableHeight = this._sampleTableModel.heightOverride;
+			}
+			var dataGridController = SampleDataGridUtil.getSampleDataGrid(this._sampleTableModel.experimentIdentifier, advancedSampleSearchCriteria, null, null, null, null, null, null, true, withExperiment, tableHeight);
 			
 			
 			var extraOptions = [];

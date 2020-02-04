@@ -67,7 +67,7 @@ var UserTests = new function() {
         return new Promise(function executor(resolve, reject) {
             var e = EventUtil;
 
-            var richText = '<p><strong><span style="color:#000080">F<sup>-</sup>&nbsp;tonA21 thi-1 thr-1 leuB6 lacY1</span>&nbsp;<em><span style="color:#008000">glnV44 rfbC1 fhuA1 ?? mcrB e14-(mcrA<sup>-</sup>)</span>&nbsp;</em><u><span style="color:#cc99ff">hsdR(r<sub>K</sub>&nbsp;<sup>-</sup>m<sub>K</sub>&nbsp;<sup>+</sup>) λ<sup>-</sup></span></u></strong></p>';
+            var richText = '<p><span style="color:#000080;"><strong>F-&nbsp;tonA21 thi-1 thr-1 leuB6 lacY1</strong></span><strong>&nbsp;</strong><span style="color:#008000;"><i><strong>glnV44 rfbC1 fhuA1 ?? mcrB e14-(mcrA-)</strong></i></span><i><strong>&nbsp;</strong></i><span style="color:#cc99ff;"><strong><u>hsdR(rK&nbsp;-mK&nbsp;+) λ-</u></strong></span></p>';
 
             Promise.resolve().then(() => e.waitForId("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
                              .then(() => e.click("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
@@ -81,23 +81,15 @@ var UserTests = new function() {
                              .then(() => e.waitForId("NAME"))
                              .then(() => e.change("NAME", name, false))
                              //Paste from Word
-                             .then(() =>  UserTests.ckeditorSetData("BACTERIA.GENOTYPE", richText))
+                             .then(() =>  TestUtil.ckeditorSetData("BACTERIA.GENOTYPE", richText))
                              .then(() => e.waitForId("save-btn"))
                              .then(() => e.click("save-btn"))
                              //Check saving results
                              .then(() => e.waitForId("edit-btn"))
                              .then(() => e.waitForId("NAME"))
                              .then(() => e.equalTo("NAME", name, true, false))
-                             .then(() => e.equalTo("BACTERIAGENOTYPE", richText, true, false))
+                             .then(() => TestUtil.ckeditorTestData("BACTERIA.GENOTYPE", richText))
                              .then(() => resolve());
-        });
-    }
-
-    this.ckeditorSetData = function(id, data) {
-        return new Promise(function executor(resolve, reject) {
-            CKEDITOR.instances[id].setData(data);
-            CKEDITOR.instances[id].fire('change');
-            resolve();
         });
     }
 

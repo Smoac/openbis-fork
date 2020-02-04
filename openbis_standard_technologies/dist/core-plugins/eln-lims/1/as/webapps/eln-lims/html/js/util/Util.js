@@ -241,15 +241,18 @@ var Util = new function() {
 		});
 	}
 	
-	this.showInfo = function(withHTML, andCallback, noBlock) {
+	this.showInfo = function(withHTML, andCallback, noBlock, buttonLabel) {
 		
 		if(!noBlock) {
 			this.blockUINoMessage();
 		}
+		if (!buttonLabel) {
+			buttonLabel = "Dismiss";
+		}
 		
 		var localReference = this;
 		var popUp = jNotify(
-				withHTML + "<br>" + "<a id='jNotifyDismiss' class='btn btn-default'>Dismiss</a>",
+				withHTML + "<br>" + "<a id='jNotifyDismiss' class='btn btn-default'>" + buttonLabel + "</a>",
 				{
 				  autoHide : false,
 				  clickOverlay : false,
@@ -578,6 +581,18 @@ var Util = new function() {
 		           s4() + '-' + s4() + s4() + s4();
 	};
 	
+	this.getNameOrCode = function(data) {
+		var name = data[profile.propertyReplacingCode];
+		if (name) {
+			return name;
+		}
+		if (data.code) {
+			return data.code;
+		}
+		var identifierSegments = data.identifier.split('/');
+		return identifierSegments[identifierSegments.length - 1];
+	}
+
 	this.getDisplayNameForEntity = function(entity) {
 		var displayName = "";
 		if(profile.propertyReplacingCode && 
@@ -684,7 +699,13 @@ var Util = new function() {
 	}
 	
 	this.manageError = function(err) {
-		Util.showError(JSON.stringify(err, null, 2));
+	    var errorString = null;
+	    if(err.stack) {
+	        errorString = err.stack.toString();
+	    } else {
+	        errorString = err.toString();
+	    }
+		Util.showError(errorString);
 	}
 	
 	//

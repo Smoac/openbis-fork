@@ -30,8 +30,8 @@ function SampleFormModel(mode, sample, paginationInfo) {
 	//
 	this.storages = [];
 	this.dataSetViewer = null;
-	this.sampleLinksParents = null;
-	this.sampleLinksChildren = null;
+	this.sampleLinksParents = EmptyLinksController;
+	this.sampleLinksChildren = EmptyLinksController;
 	this.sampleLinksNone = null;
 	this.paginationInfo = paginationInfo;
 }

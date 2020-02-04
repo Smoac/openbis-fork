@@ -14,6 +14,35 @@
  * limitations under the License.
  */
 
+var EmptyLinksController = {
+	    init : function($container) {
+	    },
+        isValid : function() {
+            return true;
+        },
+        addVirtualSample : function(sample) {
+        },
+        addSample : function(sample, isInit) {
+        },
+        addSamplesOnInit : function(samples) {
+        },
+        getSamples : function() {
+            return [];
+        },
+        getSampleByIdentifier : function(identifier) {
+            return [];
+        },
+        getSamplesIdentifiers : function() {
+            return [];
+        },
+        getSamplesAddedIdentifiers : function() {
+            return [];
+        },
+        getSamplesRemovedIdentifiers : function() {
+            return [];
+        }
+};
+
 function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, showAnnotableTypes, disableAddAnyType, sampleTypeCode) {
 	var linksModel = new LinksModel(title, sampleTypeHints, isDisabled, showAnnotableTypes, disableAddAnyType, sampleTypeCode);
 	var linksView = new LinksView(this, linksModel);

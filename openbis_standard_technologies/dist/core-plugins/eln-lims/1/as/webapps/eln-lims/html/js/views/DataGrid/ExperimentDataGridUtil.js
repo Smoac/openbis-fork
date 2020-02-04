@@ -1,12 +1,25 @@
 var ExperimentDataGridUtil = new function() {
-	this.getExperimentDataGrid = function(typeCode, entities, rowClick) {
+	this.getExperimentDataGrid = function(typeCode, entities, rowClick, heightPercentage) {
 		var type = profile.getExperimentTypeForExperimentTypeCode(typeCode);
 		var propertyCodes = profile.getAllPropertiCodesForExperimentTypeCode(typeCode);
 		var propertyCodesDisplayNames = profile.getPropertiesDisplayNamesForExperimentTypeCode(typeCode, propertyCodes);
 		
 		//Fill Columns model
 		var columns = [];
-		
+
+
+		if($.inArray("$NAME", propertyCodes) !== -1) {
+			columns.push({
+				label : 'Name/Code',
+				property : '$NAME',
+				isExportable: true,
+				sortable : false,
+				render : function(data) {
+					return FormUtil.getFormLink(Util.getNameOrCode(data), "Experiment", data.identifier);
+				}
+			});
+		}
+
 		columns.push({
 			label : 'Identifier',
 			property : 'identifier',
@@ -25,18 +38,6 @@ var ExperimentDataGridUtil = new function() {
 				return sortDirection * naturalSort(value1, value2);
 			}
 		});
-		
-		if($.inArray("$NAME", propertyCodes) !== -1) {
-			columns.push({
-				label : 'Name',
-				property : '$NAME',
-				isExportable: true,
-				sortable : true,
-				render : function(data) {
-					return FormUtil.getFormLink(data[profile.propertyReplacingCode], "Experiment", data.identifier);
-				}
-			});
-		}
 		
 		var propertyColumnsToSort = [];
 		for (var idx = 0; idx < propertyCodes.length; idx++) {
@@ -172,7 +173,7 @@ var ExperimentDataGridUtil = new function() {
 			
 		//Create and return a data grid controller
 		var configKey = "ENTITY_TABLE_"+ typeCode;
-		var dataGridController = new DataGridController(null, columns, [], null, getDataList, rowClick, false, configKey);
+		var dataGridController = new DataGridController(null, columns, [], null, getDataList, rowClick, false, configKey, null, heightPercentage);
 		return dataGridController;
 	}
 

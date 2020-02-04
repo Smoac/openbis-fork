@@ -38,7 +38,10 @@ function UserManagerView(userManagerController, userManagerModel) {
 		// ToolBox
 		//
 		var $toolbox = $("<div>", { 'id' : 'toolBoxContainer', class : 'toolBox'});
-		$toolbox.append(this._getOptionsMenu());
+        var $createUser = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
+            _this._userManagerController.showCreateNewUserModal();
+        }, "New User");
+		$toolbox.append($createUser);
 		$header.append($toolbox);
 		
 		//
@@ -124,7 +127,7 @@ function UserManagerView(userManagerController, userManagerModel) {
 			callback(dataList);
 		}
 		
-		var dataGrid = new DataGridController(null, columns, [], null, getDataList, null, false, "USER_MANAGER_TABLE");
+		var dataGrid = new DataGridController(null, columns, [], null, getDataList, null, false, "USER_MANAGER_TABLE", false, 90);
 		dataGrid.init(dataGridContainer);
 		
 		//
@@ -132,22 +135,5 @@ function UserManagerView(userManagerController, userManagerModel) {
 		//
 		$containerColumn.append(dataGridContainer);
 		$container.append($containerColumn);
-	}
-	
-	this._getOptionsMenu = function() {
-		var _this = this;
-		var $dropDownMenu = $("<span>", { class : 'dropdown' });
-		var $caret = $("<a>", { 'href' : '#', 'data-toggle' : 'dropdown', class : 'dropdown-toggle btn btn-default', id : 'optionsMenu'}).append("Operations ").append($("<b>", { class : 'caret' }));
-		var $list = $("<ul>", { class : 'dropdown-menu', 'role' : 'menu', 'aria-labelledby' :'sampleTableDropdown' });
-		$dropDownMenu.append($caret);
-		$dropDownMenu.append($list);
-		
-		var $createUserOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Create User', id : 'createUser'}).append("Create User"));
-		$createUserOption.click(function() {
-			_this._userManagerController.showCreateNewUserModal();
-		});
-		$list.append($createUserOption);
-			
-		return $dropDownMenu;
 	}
 }

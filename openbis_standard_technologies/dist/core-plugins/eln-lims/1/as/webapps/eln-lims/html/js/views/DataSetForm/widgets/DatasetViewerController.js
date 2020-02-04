@@ -41,6 +41,7 @@ function DataSetViewerController(containerId, profile, entity, serverFacade, dat
 		} else {
 			var _this = this;
 			if (this._datasetViewerModel.isExperiment()) {
+			    _this._datasetViewerModel.dataSetsFoundOnSamples = false;
 				serverFacade.listExperimentsForIdentifiers([this._datasetViewerModel.entity.identifier.identifier], function(data) {
 					serverFacade.listDataSetsForExperiment(data.result[0], function(datasets) {
 						var results;
@@ -50,6 +51,8 @@ function DataSetViewerController(containerId, profile, entity, serverFacade, dat
 								var dataset = datasets.result[dIdx];
 								if(!dataset.sampleIdentifierOrNull) {
 									results.push(dataset);
+								} else {
+								    _this._datasetViewerModel.dataSetsFoundOnSamples = true;
 								}
 							}
 						} else {
@@ -58,6 +61,8 @@ function DataSetViewerController(containerId, profile, entity, serverFacade, dat
 						
 						if(results.length > 0) {
 							_this.updateDatasets(results);
+						} else if(_this._datasetViewerModel.dataSetsFoundOnSamples) {
+						    $("#" + _this._datasetViewerModel.containerId).append("DataSets found on owned " + ELNDictionary.Samples + ".");
 						}
 					});
 				});

@@ -80,20 +80,47 @@ function SideMenuWidgetController(mainController) {
             
             _this._sideMenuWidgetView.repaint($container);
             
-            LayoutManager.addResizeEventHandler(_this.resize);
+            LayoutManager.addResizeEventHandler(_this.resizeSideMenuBody());
             
             initCallback();    
         });
     }
 
-    this.resize = function() {
+    this.resizeElement = function($elementBody, percentageOfUsage) {
         var $elementHead = $("#sideMenuHeader");
         var sideMenuHeaderHeight = $elementHead.outerHeight();
         var $elementSortField = $("#sideMenuSortBar");
         var sideMenuSortFieldHeight = $elementSortField.outerHeight();
-        var $elementBody = $("#sideMenuBody");
         var height = $( window ).height();
-        $elementBody.css('height', height - sideMenuHeaderHeight - sideMenuSortFieldHeight);
+        var availableHeight = height - sideMenuHeaderHeight - sideMenuSortFieldHeight;
+        $elementBody.css('height', (availableHeight * percentageOfUsage));
+    }
+
+    this.resizeSideMenuBody = function() {
+        var _this = this;
+        return function() {
+            var $elementBody = $("#sideMenuBody");
+            var percentageOfUsage = _this._sideMenuWidgetModel.percentageOfUsage;
+            _this.resizeElement($elementBody, percentageOfUsage);
+        }
+    }
+
+    this.addSubSideMenu = function(subSideMenu) {
+        subSideMenu.css("margin-left", "3px");
+        this._sideMenuWidgetModel.subSideMenu = subSideMenu;
+        this._sideMenuWidgetModel.percentageOfUsage = 0.5;
+        $("#sideMenuTopContainer").append(subSideMenu);
+        this.resizeElement($("#sideMenuBody"), 0.5);
+        this.resizeElement(subSideMenu, 0.5);
+    }
+
+    this.removeSubSideMenu = function() {
+        if(this._sideMenuWidgetModel.subSideMenu) {
+            this._sideMenuWidgetModel.subSideMenu.remove();
+            this._sideMenuWidgetModel.percentageOfUsage = 1;
+            this.resizeElement($("#sideMenuBody"), 1);
+            this._sideMenuWidgetModel.subSideMenu = null;
+        }
     }
 
     this._showNodeView = function(node) {

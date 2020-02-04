@@ -36,8 +36,8 @@ function UserProfileView(userProfileController, userProfileModel) {
             //Edit
             var $editButton = FormUtil.getButtonWithIcon("glyphicon-edit", function () {
                 mainController.changeView("showEditUserProfilePage");
-            });
-            toolbarModel.push({ component : $editButton, tooltip: "Edit" });
+            }, "Edit");
+            toolbarModel.push({ component : $editButton });
         } else { //Create and Edit
             //Save
             var $saveBtn = FormUtil.getButtonWithIcon("glyphicon-floppy-disk", (function() {
@@ -45,7 +45,7 @@ function UserProfileView(userProfileController, userProfileModel) {
             }).bind(this), "Save");
             $saveBtn.removeClass("btn-default");
             $saveBtn.addClass("btn-primary");
-            toolbarModel.push({ component : $saveBtn, tooltip: "Save" });
+            toolbarModel.push({ component : $saveBtn });
         }
 		// ToolBox
         var $options = this._getOptionsMenu();
