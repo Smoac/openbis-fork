@@ -45,6 +45,7 @@ if [ -d $ROOT/openBIS-server ]; then
 
     copyConfig $CONF/core-plugins "html/etc$" $ROOT/core-plugins
     copyFolderIfExists $CONF/start.d $ROOT/openBIS-server/jetty/start.d
+    copyFolderIfExists $CONF/../openBIS-server/jetty/indices $ROOT/openBIS-server/jetty/indices
 fi
 
 # -- DSS
