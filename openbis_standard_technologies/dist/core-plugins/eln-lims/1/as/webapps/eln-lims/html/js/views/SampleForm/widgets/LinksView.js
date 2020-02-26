@@ -24,6 +24,8 @@ function LinksView(linksController, linksModel) {
 	var $samplePicker = $("<div>");
 	var $savedContainer = null;
 	
+	var dataGrids = [];
+	
 	//
 	// External API
 	//
@@ -154,6 +156,13 @@ function LinksView(linksController, linksModel) {
 		var dataGrid = SampleDataGridUtil.getSampleDataGrid(containerCode, samplesOnGrid, null, linksView.getCustomOperationsForGrid(), allCustomAnnotations, postFix, linksModel.isDisabled, false, false, false, 40);
 		dataGrid.init($dataGridContainer);
 		linksModel.writeState(sample, null, null, false);
+		dataGrids.push(dataGrid);
+	}
+	
+	this.refreshHeight = function() {
+		dataGrids.forEach(function(dataGrid) {
+			dataGrid.refreshHeight();
+		});
 	}
 	
 	this.repaint = function($container) {
@@ -306,8 +315,13 @@ function LinksView(linksController, linksModel) {
 			sortable : false,
 			render : function(data) {
 				//Dropdown Setup
+				var codeId = data.code.toLowerCase() + "-operations-column-id";
+
 				var $dropDownMenu = $("<span>", { class : 'dropdown table-options-dropdown' });
-				var $caret = $("<a>", { 'href' : '#', 'data-toggle' : 'dropdown', class : 'dropdown-toggle btn btn-default'}).append("Operations ").append($("<b>", { class : 'caret' }));
+				var $caret = $("<a>", { 'href' : '#',
+				                        'data-toggle' : 'dropdown',
+				                        class : 'dropdown-toggle btn btn-default',
+				                        'id' : codeId}).append("Operations ").append($("<b>", { class : 'caret' }));
 				var $list = $("<ul>", { class : 'dropdown-menu', 'role' : 'menu', 'aria-labelledby' :'sampleTableDropdown' });
 				$dropDownMenu.append($caret);
 				$dropDownMenu.append($list);
@@ -321,7 +335,8 @@ function LinksView(linksController, linksModel) {
 				$dropDownMenu.click(stopEventsBuble);
 				
 				if(profile.isSampleTypeProtocol(data["$object"].sampleTypeCode)) {
-					var $copyAndLink = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Use as template'}).append("Use as template"));
+				    var id = codeId + "-use-as-template";
+					var $copyAndLink = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'id' : id, 'title' : 'Use as template'}).append("Use as template"));
 					$copyAndLink.click(function(e) {
 						stopEventsBuble(e);
 						var copyAndLink = function(code) {
@@ -434,14 +449,16 @@ function LinksView(linksController, linksModel) {
 		}
 		var dataGrid = SampleDataGridUtil.getSampleDataGrid(sampleTypeCode, advancedSampleSearchCriteria, rowClick, null, null, null, true, true, true, false, 60);
 		dataGrid.init($gridContainer, extraOptions);
+		dataGrids.push(dataGrid);
 	}
 			
 	linksView.getAddBtn = function($container, sampleTypeCode) {
 		var enabledFunction = function() {
 			linksView.showSamplePicker($container, sampleTypeCode);
 		};
-		
-		var $addBtn = FormUtil.getButtonWithIcon("glyphicon-plus", (linksModel.isDisabled)?null:enabledFunction);
+
+		var id = "plus-btn-" + sampleTypeCode.toLowerCase();
+		var $addBtn = FormUtil.getButtonWithIcon("glyphicon-plus", (linksModel.isDisabled)?null:enabledFunction, null, null, id);
 		if(linksModel.isDisabled) {
 			return "";
 		} else {

@@ -81,8 +81,15 @@ function ExperimentTableController(parentController, title, project, showInProje
 			var rowClick = null;
 			
 			//Create and display table
-			var dataGridController = ExperimentDataGridUtil.getExperimentDataGrid(selectedTypeCode, experiments, rowClick, 50);
-			dataGridController.init(this._experimentTableView.getTableContainer());
+			this._dataGridController = ExperimentDataGridUtil.getExperimentDataGrid(selectedTypeCode, experiments, rowClick, 50);
+			this._dataGridController.init(this._experimentTableView.getTableContainer());
+		}
+	}
+	
+	this.refreshHeight = function()
+	{
+		if (this._dataGridController) {
+			this._dataGridController.refreshHeight();
 		}
 	}
 }

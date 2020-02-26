@@ -96,6 +96,7 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 		$container.append($tree);
 		
 		var treeModel = [];
+		var dataSetPosInTree = 0;
 		for(var datasetCode in this._dataSetViewerModel.entityDataSets) {
 			var displayName = this._dataSetViewerModel.entityDataSets[datasetCode].properties[profile.propertyReplacingCode];
 			if(!displayName) {
@@ -106,9 +107,10 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 			
 			var dataset = this._dataSetViewerModel.entityDataSets[datasetCode];
 			var onClick = "mainController.changeView('showViewDataSetPageFromPermId', '" + datasetCode + "');";
-			var dataSetTitle = "<span onclick=\"" + onClick + "\">" 
+			var dataSetTitle = "<span id=\"dataSetPosInTree-" + dataSetPosInTree + "\" onclick=\"" + onClick + "\">"
 					+ dataset.dataSetTypeCode + " : " + displayName + "</span>";
 			treeModel.push({ title : dataSetTitle, key : "/", folder : true, lazy : true, datasetCode : datasetCode });
+			dataSetPosInTree += 1;
 		}
 		
 		var glyph_opts = {
@@ -229,9 +231,12 @@ function DataSetViewerView(dataSetViewerController, dataSetViewerModel) {
 	                content : $tooltip,
 	                position : "left",
 	                functionFormat : function(instance, helper, content) {
-
-	                    var containerWidth = $(helper.origin).offset().left*0.9;
-	                    var containerHeight = $(window).height()*0.9;
+	                    var containerWidth = $(helper.origin).offset().left;
+	                    if (containerWidth < 200) {
+	                    	containerWidth = $(helper.origin).width();
+	                    } 
+	                    containerWidth *= 0.9;
+	                    var containerHeight = $(window).height() * 0.9;
 
 	                    var $img = content.find("img");
 	                    var imageSize = Util.getImageSize(containerWidth, containerHeight, $img[0].width, $img[0].height);

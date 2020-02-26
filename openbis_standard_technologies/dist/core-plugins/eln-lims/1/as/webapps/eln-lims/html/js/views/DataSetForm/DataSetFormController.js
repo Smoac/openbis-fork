@@ -106,6 +106,10 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini, 
 		});
 	}
 	
+	this._showError = function(errorMessage) {
+		Util.blockUI();
+		Util.showUserError(errorMessage, function() { Util.unblockUI(); });
+	}
 	//
 	// Form Submit
 	//
@@ -115,14 +119,16 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini, 
 		//
 		if(this._dataSetFormModel.mode === FormMode.CREATE) {
 			if(this._dataSetFormModel.files.length === 0) {
-				Util.blockUI();
-				Util.showUserError("You should upload at least one file.", function() { Util.unblockUI(); });
+				this._showError("You should upload at least one file.");
+				return;
+			}
+			if ($('#DATASET_TYPE').val() === "") {
+				this._showError("No Data Set Type specified.");
 				return;
 			}
 			
 			if(Uploader.uploadsInProgress()) {
-				Util.blockUI();
-				Util.showUserError("Please wait the upload to finish.", function() { Util.unblockUI(); });
+				this._showError("Please wait the upload to finish.");
 				return;
 			}
 		}

@@ -61,6 +61,10 @@ function LinksController(title, sampleTypeHints, isDisabled, samplesToEdit, show
 		}
 	}
 	
+	this.refreshHeight = function() {
+		linksView.refreshHeight();
+	}
+	
 	//
 	// API - Used by Sample Form
 	//

@@ -57,6 +57,10 @@ function DataGridController(title, columnsFirst, columnsLast, columnsDynamicFunc
 		});	
 	}
 	
+	this.refreshHeight = function() {
+		this._grid.calculateHeight();
+	}
+	
 	this.refresh = function() {
 		this._dataGridModel.datagrid.repeater('render');
 	}

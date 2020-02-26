@@ -43,7 +43,7 @@ function SampleHierarchy(serverFacade, views, profile, sample) {
 		$form.append($formColumn);
 		
 		
-		views.header.append($("<h1>").append("" + ELNDictionary.Sample + " Hierarchy Graph for " + this.sample.identifier));
+		views.header.append($("<h1>").append("Hierarchy Graph: " + Util.getDisplayNameForEntity(this.sample)));
 		localInstance.hierarchyFilterController = new HierarchyFilterController(this.sample, function() { localInstance.filterSampleAndUpdate(); });
 		localInstance.hierarchyFilterController.init(views.header);
 
@@ -311,12 +311,7 @@ function SampleHierarchy(serverFacade, views, profile, sample) {
 							'style' : 'cursor:pointer; width:13px; height:18px;',
 						}));
 				
-				var nameLabel = null;
-				if(sample.properties[profile.propertyReplacingCode]) {
-					nameLabel = sample.code + "(" + sample.properties[profile.propertyReplacingCode] + ")";
-				} else {
-					nameLabel = sample.code;
-				}
+				var nameLabel = Util.getDisplayNameForEntity(sample);
 				
 				var $sampleLink = $('<a>', { 'href' : "javascript:mainController.changeView('showViewSamplePageFromPermId', '" + sample.permId + "')"}).text(nameLabel);
 				
@@ -326,7 +321,7 @@ function SampleHierarchy(serverFacade, views, profile, sample) {
 						.append($hideLink)
 						.append($dataLink)
 						.append($addChildLink)
-						.append(sample.sampleTypeCode + ':')
+						.append(' ' + Util.getDisplayNameFromCode(sample.sampleTypeCode) + ':')
 						.append($sampleLink);
 				
 				if(sample.showDataOnGraph) {

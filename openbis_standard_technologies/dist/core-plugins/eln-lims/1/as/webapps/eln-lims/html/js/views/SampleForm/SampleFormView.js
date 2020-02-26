@@ -1,4 +1,4 @@
-/*
+	/*
  * Copyright 2014 ETH Zuerich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -113,9 +113,10 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 
 		if(this._sampleFormModel.mode === FormMode.VIEW) {
 			// New
-			if(_this._allowedToCreateChild() && toolbarConfig.CREATE) {
+			if(_this._allowedToCreateChild() && this._sampleFormModel.isELNSample && toolbarConfig.CREATE) {
 				var sampleTypes = profile.getAllSampleTypes(true);
-				FormUtil.addCreationDropdown(toolbarModel, sampleTypes, ["ENTRY", "EXPERIMENTAL_STEP"], function(typeCode) {
+				var priorityTypes = ["ENTRY", "EXPERIMENTAL_STEP"];
+				FormUtil.addCreationDropdown(toolbarModel, sampleTypes, priorityTypes, function(typeCode) {
 					return function() {
 						Util.blockUI();
 						setTimeout(function() {
@@ -278,7 +279,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				//Create Dataset
 				var $uploadBtn = FormUtil.getButtonWithIcon("glyphicon-upload", function () {
 					mainController.changeView('showCreateDataSetPageFromPermId',_this._sampleFormModel.sample.permId);
-				}, "Upload");
+				}, "Upload", null, "upload-btn");
 				if(toolbarConfig.UPLOAD_DATASET) {
 					toolbarModel.push({ component : $uploadBtn, tooltip: null });
 				}
@@ -619,7 +620,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 											 'class' : 'zoomableImage',
 											 'id' : 'preview-image',
 											 'src' : './img/image_loading.gif',
-											 'style' : 'max-width:100%; display:none;'
+											 'style' : 'max-width:300px; display:none;'
 											});
 			$previewImage.click(function() {
 				Util.showImage($("#preview-image").attr("src"));
@@ -699,7 +700,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				continue;
 			}
 			
-			if(propertyType.code === "$ANNOTATIONS_STATE" || propertyType.code === "$FREEFORM_TABLE_STATE" || propertyType.code === "$ORDER.ORDER_STATE" ) {
+			if(propertyType.code === "$ANNOTATIONS_STATE" || propertyType.code === "FREEFORM_TABLE_STATE" || propertyType.code === "$ORDER.ORDER_STATE" ) {
 				continue;
 			} else if(propertyType.code === "$XMLCOMMENTS") {
 				var $commentsContainer = $("<div>");
@@ -902,12 +903,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 	}
 	
 	this._createParentsSection = function(hideShowOptionsModel, sampleTypeDefinitionsExtension, sampleTypeCode) {
-		hideShowOptionsModel.push({
-			forceToShow : this._sampleFormModel.mode === FormMode.CREATE && (sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension["FORCE_TO_SHOW_PARENTS_SECTION"]),
-			label : "Parents",
-			section : "#sample-parents"
-		});
-		
+		var _this = this;
 		var requiredParents = [];
 		if (sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension["SAMPLE_PARENTS_HINT"]) {
 			requiredParents = sampleTypeDefinitionsExtension["SAMPLE_PARENTS_HINT"];
@@ -935,15 +931,21 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			this._sampleFormModel.sampleLinksParents.init($sampleParentsWidget);
 		}
 		$sampleParentsWidget.hide();
+		
+		hideShowOptionsModel.push({
+			forceToShow : this._sampleFormModel.mode === FormMode.CREATE && (sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension["FORCE_TO_SHOW_PARENTS_SECTION"]),
+			label : "Parents",
+			section : "#sample-parents",
+			showByDefault : true,
+			beforeShowingAction : function() {
+				_this._sampleFormModel.sampleLinksParents.refreshHeight();
+			}
+		});
+		
 		return $sampleParentsWidget;
 	}
 	
 	this._createChildrenSection = function(hideShowOptionsModel, sampleTypeDefinitionsExtension, sampleTypeCode) {
-		hideShowOptionsModel.push({
-			label : "Children",
-			section : "#sample-children"
-		});
-
 		var _this = this;
 		var requiredChildren = [];
 		if(sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension["SAMPLE_CHILDREN_HINT"]) {
@@ -994,6 +996,16 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			$sampleChildrenWidget.append($generateChildrenBox);
 		}
 		$sampleChildrenWidget.hide();
+		
+		hideShowOptionsModel.push({
+			label : "Children",
+			section : "#sample-children",
+			showByDefault : true,
+			beforeShowingAction : function() {
+				_this._sampleFormModel.sampleLinksChildren.refreshHeight();
+			}
+		});
+		
 		return $sampleChildrenWidget;
 	}
 	

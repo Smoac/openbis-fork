@@ -147,7 +147,6 @@ function GridView(gridModel) {
 						sample = jQuery.extend(true, {}, labels[i].data.samples[0]);
 					}
 					
-					extraProperties = null;
 					if(sample && sample.sampleTypeCode === "STORAGE_POSITION" && sample.parents && sample.parents[0]) {
 						if(profile.propertyReplacingCode &&  sample.parents[0].properties &&  sample.parents[0].properties[profile.propertyReplacingCode]) {
 							// Label
@@ -158,7 +157,6 @@ function GridView(gridModel) {
 						}
 						
 						sample = sample.parents[0];
-						extraProperties = {code : {label : "Code", value : sample.code}};
 							
 						var href = Util.getURLFor(null, "showViewSamplePageFromPermId", sample.permId);
 						optSampleTitle = $("<a>", { "href" : href, "class" : "browser-compatible-javascript-link" }).text(labels[i].displayName);
@@ -167,7 +165,7 @@ function GridView(gridModel) {
 						}).bind(this, sample));
 					}
 
-                    var rowLabel = i + 1;
+                    var rowLabel = posX;
                     if(this._gridModel.useLettersOnRows) {
                         rowLabel = Util.getLetterForNumber(rowLabel);
                     }
@@ -175,7 +173,7 @@ function GridView(gridModel) {
 					var labelContainer = $("<div>", { class: "storageBox", id : storageBoxId }).text(labels[i].displayName);
 					if (sample) {
 						var tooltip = PrintUtil.getTable(sample, false, optSampleTitle, 'inspectorWhiteFont', 
-								'colorEncodedWellAnnotations-holder-' + sample.permId, null, extraProperties);
+								'colorEncodedWellAnnotations-holder-' + sample.permId, null, null);
 						labelContainer.tooltipster({
 							content: $(tooltip),
 							interactive: true,

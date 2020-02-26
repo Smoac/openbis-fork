@@ -127,8 +127,7 @@ def export(entities, tr, params, userInformation):
     exportZipFilePath = exportDirPath + '.zip'
     exportZipFileName = exportDirName + '.zip'
 
-    indefiniteReterntion = (params.get('retentionPeriod') == 'indefinite')
-    generateZipFile(entities, params, contentDirPath, contentZipFilePath, deflated=not indefiniteReterntion)
+    generateZipFile(entities, params, contentDirPath, contentZipFilePath, deflated=False)
     FileUtils.forceDelete(File(contentDirPath))
 
     generateExternalZipFile(params=params, exportDirPath=exportDirPath, contentZipFilePath=contentZipFilePath, contentZipFileName=contentZipFileName,
@@ -229,9 +228,10 @@ def generateExternalZipFile(params, exportDirPath, contentZipFilePath, contentZi
         fos = FileOutputStream(exportZipFileName)
         zos = ZipOutputStream(fos)
         if not deflated:
+            zos.setMethod(ZipOutputStream.STORED)
             zos.setLevel(Deflater.NO_COMPRESSION)
 
-        addToZipFile(' ' + contentZipFileName, File(contentZipFilePath), zos)
+        addToZipFile(' ' + contentZipFileName, File(contentZipFilePath), zos, deflated)
 
         generateXML(zipOutputStream=zos, fileMetadata=fileMetadata, exportDirPath=exportDirPath,
                     userInformation=userInformation, entities=entities, params=params)

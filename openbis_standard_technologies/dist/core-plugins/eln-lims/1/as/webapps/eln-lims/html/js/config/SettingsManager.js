@@ -140,11 +140,6 @@ function SettingsManager(serverFacade) {
 			if(!settings.sampleTypeDefinitionsExtension[sampleTypeCode].SHOW) {
 				targetProfile.hideTypes["sampleTypeCodes"].push(sampleTypeCode);
 			}
-
-			// Show on navigation by default
-			if(targetProfile.sampleTypeDefinitionsExtension[sampleTypeCode]["SHOW_ON_NAV"] === undefined) {
-			    targetProfile.sampleTypeDefinitionsExtension[sampleTypeCode]["SHOW_ON_NAV"] = true;
-			}
 		}
 	}
 

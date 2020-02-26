@@ -19,6 +19,7 @@ $.extend(GenericTechnology.prototype, ELNLIMSPlugin.prototype, {
 		},
 		"STORAGE_POSITION" : {
 			"SHOW" : false,
+			"SHOW_ON_NAV" : false,
 			"SAMPLE_CHILDREN_DISABLED" : true
 		},
 		"REQUEST" : {

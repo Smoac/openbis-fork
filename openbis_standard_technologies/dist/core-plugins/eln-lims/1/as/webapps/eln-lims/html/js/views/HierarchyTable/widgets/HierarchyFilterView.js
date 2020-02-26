@@ -41,7 +41,7 @@ function HierarchyFilterView(controller, model) {
 		var types = this._model.getTypes();
 		var $filtersFormEntityTypes = $('<select>', { 'id' : 'entityTypesSelector' , class : 'multiselect' , 'multiple' : 'multiple'});
 		for (var type in types) {
-			$filtersFormEntityTypes.append($('<option>', { 'value' : type , 'selected' : ''}).html(type));
+			$filtersFormEntityTypes.append($('<option>', { 'value' : type , 'selected' : ''}).html(Util.getDisplayNameFromCode(type)));
 		}
 		
 		$filtersForm

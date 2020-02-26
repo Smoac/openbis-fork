@@ -215,7 +215,7 @@ $.extend(DefaultProfile.prototype, {
 //		this.jupyterIntegrationServerEndpoint = "https://bs-openbis-sis-dev.ethz.ch:8002";
 //		this.jupyterEndpoint = "https://bs-openbis-sis-dev.ethz.ch:8000/";
 		
-		this.systemProperties = ["$ANNOTATIONS_STATE", "$FREEFORM_TABLE_STATE"];
+		this.systemProperties = ["$ANNOTATIONS_STATE", "FREEFORM_TABLE_STATE"];
 		this.forcedDisableRTF = [];
 		this.forceMonospaceFont = [];
 		this.imageViewerDataSetCodes = [];

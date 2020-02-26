@@ -66,7 +66,6 @@ function ProjectFormView(projectFormController, projectFormModel) {
 							_this._projectFormController.createNewExperiment(typeCode);
 						}, 100);
 					}
-					getNewSampleOfTypeWithParent(typeCode,);
 				});
 			}
 			if (_this._allowedToMove()) {
@@ -83,7 +82,7 @@ function ProjectFormView(projectFormController, projectFormModel) {
 				//Edit
 				var $editBtn = FormUtil.getButtonWithIcon("glyphicon-edit", function () {
 					_this._projectFormController.enableEditing();
-				}, "Edit");
+				}, "Edit", null, "edit-btn");
 				toolbarModel.push({ component : $editBtn });
 			}
 			if(_this._allowedToDelete()) {
@@ -152,7 +151,7 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		} else {
 			var $saveBtn = FormUtil.getButtonWithIcon("glyphicon-floppy-disk", function() {
 				_this._projectFormController.updateProject();
-			}, "Save");
+			}, "Save", null, "save-btn");
 			$saveBtn.removeClass("btn-default");
 			$saveBtn.addClass("btn-primary");
 			toolbarModel.push({ component : $saveBtn });
@@ -205,7 +204,7 @@ function ProjectFormView(projectFormController, projectFormModel) {
         }
 
 		if (this._projectFormModel.mode === FormMode.CREATE) {
-			var $textField = FormUtil._getInputField('text', null, "Project Code", null, true);
+			var $textField = FormUtil._getInputField('text', "project-code-id", "Project Code", null, true);
 			$textField.keyup(function(event){
 				var textField = $(this);
 				var caretPosition = this.selectionStart;
@@ -251,7 +250,7 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		$description.append($("<legend>").append("General"));
 		var description = Util.getEmptyIfNull(this._projectFormModel.project.description);
 		if(this._projectFormModel.mode !== FormMode.VIEW) {
-			var $textBox = FormUtil._getTextBox(null, "Description", false);
+			var $textBox = FormUtil._getTextBox("description-id", "Description", false);
 			var textBoxEvent = function(jsEvent, newValue) {
 				var valueToUse = null;
 				if (newValue !== undefined && newValue !== null) {
@@ -276,11 +275,6 @@ function ProjectFormView(projectFormController, projectFormModel) {
 	
 	this._createExperimentsSection = function(projectIdentifier, hideShowOptionsModel) {
 		var entityKindName = ELNDictionary.getExperimentKindName(projectIdentifier, true);
-		hideShowOptionsModel.push({
-			label : entityKindName,
-			section : "#project-experiments"
-		});
-		
 		var $experiments = $("<div>", { id : "project-experiments" });
 		var $experimentsContainer = $("<div>");
 		$experiments.append($("<legend>").append(entityKindName));
@@ -289,15 +283,18 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		var experimentTableController = new ExperimentTableController(this._projectFormController, null, jQuery.extend(true, {}, this._projectFormModel.project), true);
 		experimentTableController.init($experimentsContainer);
 		$experiments.hide();
+		hideShowOptionsModel.push({
+			label : entityKindName,
+			section : "#project-experiments",
+			beforeShowingAction : function() {
+				experimentTableController.refreshHeight();
+			}
+		});
 		return $experiments;
 	}
 	
 	this._createSamplesSection = function(hideShowOptionsModel) {
 		var entityKindName = "" + ELNDictionary.Samples + "";
-		hideShowOptionsModel.push({
-			label : entityKindName,
-			section : "#project-samples"
-		});
 		
 		var $samples = $("<div>", { id : "project-samples" });
 		var $experimentsContainer = $("<div>");
@@ -314,6 +311,13 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		var sampleTableController = new SampleTableController(this._projectFormController, null, null, this._projectFormModel.project.permId, true, null, 40);
 		sampleTableController.init(views);
 		$samples.hide();
+		hideShowOptionsModel.push({
+			label : entityKindName,
+			section : "#project-samples",
+			beforeShowingAction : function() {
+				sampleTableController.refreshHeight();
+			}
+		});
 		return $samples;
 	}
 	

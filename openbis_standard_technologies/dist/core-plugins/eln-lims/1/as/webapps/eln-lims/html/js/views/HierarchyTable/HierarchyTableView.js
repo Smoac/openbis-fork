@@ -32,14 +32,7 @@ function HierarchyTableView(controller, model) {
 		$containerColumn.append(this._container);
 		views.content.append($containerColumn);
 		
-		switch(this._model.entity["@type"]) {
-				case "as.dto.dataset.DataSet":
-					views.header.append($("<h1>").append("Dataset Hierarchy Table for " + this._model.entity.code));
-					break;
-				case "as.dto.sample.Sample":
-					views.header.append($("<h1>").append("" + ELNDictionary.Sample + " Hierarchy Table for " + this._model.entity.identifier));
-					break;
-		}
+		views.header.append($("<h1>").append("Dataset Hierarchy Table: " + Util.getDisplayNameForEntity(this._model.entity)));
 		
 		this._hierarchyFilterController = new HierarchyFilterController(this._model.entity, function() { _this._dataGrid.refresh(); });
 		this._hierarchyFilterController.init(views.header);

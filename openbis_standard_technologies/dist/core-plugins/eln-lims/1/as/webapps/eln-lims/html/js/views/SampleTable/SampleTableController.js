@@ -82,18 +82,19 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 	}
 	
 	this._reloadTableWithAllSamples = function(advancedSampleSearchCriteria) {
+			var _this = this;
 			//Create and display table
 			var withExperiment = !this._sampleTableModel.experimentIdentifier && !this._sampleTableModel.experiment;
 			var tableHeight = 90;
 			if(this._sampleTableModel.heightOverride) {
-			    tableHeight = this._sampleTableModel.heightOverride;
+				tableHeight = this._sampleTableModel.heightOverride;
 			}
-			var dataGridController = SampleDataGridUtil.getSampleDataGrid(this._sampleTableModel.experimentIdentifier, advancedSampleSearchCriteria, null, null, null, null, null, null, true, withExperiment, tableHeight);
+			this._dataGridController = SampleDataGridUtil.getSampleDataGrid(this._sampleTableModel.experimentIdentifier, advancedSampleSearchCriteria, null, null, null, null, null, null, true, withExperiment, tableHeight);
 			
 			
 			var extraOptions = [];
 			extraOptions.push({ name : "Delete selected", action : function(selected) {
-				var grid = dataGridController._grid;
+				var grid = _this._dataGridController._grid;
 				var selected = grid.getSelected();
 				if(selected != undefined && selected.length == 0){
 					Util.showUserError("Please select at least one sample to delete!");
@@ -138,6 +139,12 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
 				}
 			}});
 			
-			dataGridController.init(this._sampleTableView.getTableContainer(), extraOptions);
+			this._dataGridController.init(this._sampleTableView.getTableContainer(), extraOptions);
+	}
+	
+	this.refreshHeight = function() {
+		if (this._dataGridController) {
+			this._dataGridController.refreshHeight();
+		}
 	}
 }

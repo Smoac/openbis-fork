@@ -501,12 +501,15 @@ var FormUtil = new function() {
 		return $btn;
 	}
 	
-	this.getButtonWithText = function(text, clickEvent, btnClass) {
+	this.getButtonWithText = function(text, clickEvent, btnClass, id) {
 		var auxBtnClass = "btn-default";
 		if(btnClass) {
 			auxBtnClass = btnClass;
 		}
 		var $pinBtn = $("<a>", { 'class' : 'btn ' + auxBtnClass });
+		if(id) {
+            $pinBtn.attr("id", id);
+        }
 		$pinBtn.append(text);
 		$pinBtn.click(clickEvent);
 		return $pinBtn;
@@ -786,6 +789,11 @@ var FormUtil = new function() {
 	// Form Fields
 	//
 	this._getBooleanField = function(id, alt, checked) {
+	    if (id) {
+	        if(id.charAt(0) === '$') {
+	            id = id.substring(1);
+	        }
+	    }
 		var attr = {'type' : 'checkbox', 'id' : id, 'alt' : alt, 'placeholder' : alt };
 		if(checked) {
 			attr['checked'] = '';
@@ -1005,11 +1013,16 @@ var FormUtil = new function() {
 		if(!title) {
 			title = "More ... ";
 		}
+		var id = 'options-menu-btn';
+		if (namespace) {
+		    id = id + "-" + namespace;
+		    id = id.toLowerCase();
+		}
 		var $dropdownOptionsMenu = $("<span>", { class : 'dropdown' });
 		if(toolbarModel) {
 		    toolbarModel.push({ component : $dropdownOptionsMenu, tooltip: null });
 		}
-		var $dropdownOptionsMenuCaret = $("<a>", { 'href' : '#', 'data-toggle' : 'dropdown', class : 'dropdown-toggle btn btn-default', 'id' : 'options-menu-btn'})
+		var $dropdownOptionsMenuCaret = $("<a>", { 'href' : '#', 'data-toggle' : 'dropdown', class : 'dropdown-toggle btn btn-default', 'id' : id})
 				.append(title).append($("<b>", { class : 'caret' }));
 		var $dropdownOptionsMenuList = $("<ul>", { class : 'dropdown-menu', 'role' : 'menu' });
 		$dropdownOptionsMenu.append($dropdownOptionsMenuCaret);
@@ -1021,7 +1034,8 @@ var FormUtil = new function() {
 			} else {
 				var label = option.label;
 				var title = option.title ? option.title : label;
-				var $dropdownElement = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : title }).append(label));
+				var id = title.split(" ").join("-").toLowerCase();
+				var $dropdownElement = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : title, 'id' : id}).append(label));
 				$dropdownElement.click(option.action);
 				$dropdownOptionsMenuList.append($dropdownElement);
 			}
@@ -1041,6 +1055,8 @@ var FormUtil = new function() {
 					var sectionSetting = sectionsSettings[option.label];
 					if (sectionSetting !== undefined) {
 						shown = sectionSetting === 'shown';
+					} else if (option.showByDefault) {
+						shown = true;
 					} else {
 						shown = ! profile.hideSectionsByDefault;
 					}
@@ -1048,7 +1064,8 @@ var FormUtil = new function() {
 				var $section = $(option.section);
 				$section.toggle(shown);
 				var $label = $("<span>").append((shown ? "Hide " : "Show ") + option.label);
-				var $dropdownElement = $("<li>", { 'role' : 'presentation' }).append($("<a>").append($label));
+				var id = 'options-menu-btn-' + option.label.split(" ").join("-").toLowerCase();
+				var $dropdownElement = $("<li>", { 'role' : 'presentation' }).append($("<a>", { 'id' : id }).append($label));
 				var action = function(event) {
 					var option = event.data.option;
 					var $label = event.data.label;
@@ -1058,6 +1075,9 @@ var FormUtil = new function() {
 							$label.text("Show " + option.label);
 							sectionsSettings[option.label] = "hidden";
 						} else {
+							if (option.beforeShowingAction) {
+								option.beforeShowingAction();
+							}
 							$label.text("Hide " + option.label);
 							sectionsSettings[option.label] = "shown";
 						}
@@ -1158,7 +1178,9 @@ var FormUtil = new function() {
 			entityPath.append("/").append(this.getFormLink(spaceCode, 'Space', spaceCode));
 		}
 		if(projectCode) {
-			entityPath.append("/").append(this.getFormLink(projectCode, 'Project', IdentifierUtil.getProjectIdentifier(spaceCode, projectCode)));
+		    var projectIdentifier = IdentifierUtil.getProjectIdentifier(spaceCode, projectCode);
+		    var id = "PATH" + projectIdentifier.split(" ").join("-").split("/").join("_");
+			entityPath.append("/").append(this.getFormLink(projectCode, 'Project', projectIdentifier, null, id));
 		}
 		if(experimentCode) {
 			entityPath.append("/").append(this.getFormLink(experimentCode, 'Experiment', IdentifierUtil.getExperimentIdentifier(spaceCode, projectCode, experimentCode)));

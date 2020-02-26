@@ -77,19 +77,21 @@ function CommentsView(commentsController, commentsModel) {
 	this.addAddButton = function() {
 		if(this._commentsModel.mode !== FormMode.VIEW) {
 			var _this = this;
-			var $buttonPlusOne = $("<a>", {"class" : "btn btn-default"});
+			var commentNumber = 0;
+			var $buttonPlusOne = $("<a>", {"class" : "btn btn-default", "id" : "add-comment-btn"});
 			$buttonPlusOne.append($("<span>", { "class" : "glyphicon glyphicon-plus-sign"}));
 			$buttonPlusOne.click(function() {
-				_this.addNewComment();
+				_this.addNewComment(commentNumber);
+				commentNumber++;
 			});
 			this.commentsAddButton.append(FormUtil.getFieldForComponentWithLabel($buttonPlusOne, null));
 		}
 	}
 	
-	this.addNewComment = function() {
-		var $textBox = FormUtil._getTextBox(null, null, false);
+	this.addNewComment = function(commentNumber) {
+		var $textBox = FormUtil._getTextBox("comment-" + commentNumber + "-box", null, false);
 		var $textBoxGroup = FormUtil.getFieldForComponentWithLabel($textBox, null, null);
-		var $saveButton = FormUtil.getButtonWithText("Add Comment");
+		var $saveButton = FormUtil.getButtonWithText("Add Comment", null, null, "save-comment-" + commentNumber + "-btn");
 		var $saveButtonGroup = FormUtil.getFieldForComponentWithLabel($saveButton, null, null);
 		
 		this.commentsContainer.append($textBoxGroup);

@@ -611,7 +611,8 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                 case "EXPERIMENT":
                     var sampleRules = { "UUIDv4" : { type : "Experiment", name : "ATTR.PERM_ID", value : permId } };
                     mainController.serverFacade.searchForSamplesAdvanced({ entityKind : "SAMPLE", logicalOperator : "AND", rules : sampleRules }, 
-                    { only : true, withProperties : true, withType : true, withExperiment : true, withParents : true, withChildren : true, withParentsType : true, withChildrenType : true},
+                    { only : true, withProperties : true, withType : true, withExperiment : true, withParents : true, 
+    				 withParentsExperiment: true, withChildren : true, withParentsType : true, withChildrenType : true},
                     function(searchResult) {
                         var samples = searchResult.objects;
                         var samplesToShow = [];
@@ -619,12 +620,16 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                             var sample = samples[sIdx];
                             var sampleIsExperiment = sample.type.code.indexOf("EXPERIMENT") > -1;
                             var sampleTypeOnNav = profile.showOnNav(sample.type.code);
+    						var sampleExperimentIdentifier = sample.experiment.identifier.identifier;
                             if(sampleIsExperiment || sampleTypeOnNav) {
                                 var parentInELN = false;
                                 if(sample.parents) {
                                     for(var pIdx = 0; pIdx < sample.parents.length; pIdx++) {
-                                        var parentIdentifier = sample.parents[pIdx].identifier.identifier;
-                                        parentInELN = profile.isELNIdentifier(parentIdentifier);
+    									var parent = sample.parents[pIdx];
+                                        var parentIdentifier = parent.identifier.identifier;
+        								var parentExperimentIdentifier = parent.experiment.identifier.identifier;
+                                        parentInELN = profile.isELNIdentifier(parentIdentifier) 
+        										&& parentExperimentIdentifier === sampleExperimentIdentifier;
                                         if(parentInELN) {
                                             break;
                                         }
@@ -739,7 +744,9 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                 case "SAMPLE":
                     var sampleRules = { "UUIDv4" : { type : "Attribute", name : "PERM_ID", value : permId } };
                     mainController.serverFacade.searchForSamplesAdvanced({ entityKind : "SAMPLE", logicalOperator : "AND", rules : sampleRules }, 
-                    { only : true, withProperties : true, withType : true, withExperiment : true, withParents : true, withChildren : true, withChildrenProperties : true, withParentsType : true, withChildrenType : true}
+                    { only : true, withProperties : true, withType : true, withExperiment : true, withParents : true, 
+    				  withChildren : true, withChildrenProperties : true, withChildrenExperiment : true, 
+    				  withParentsType : true, withChildrenType : true}
                     , function(searchResult) {
                         var results = [];
                         var samples = searchResult.objects;
@@ -749,7 +756,9 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                             } else {
                                 for(var cIdx = 0; cIdx < samples[0].children.length; cIdx++) {
                                     var sample = samples[0].children[cIdx];
-                                    
+                                    if (sample.experiment.identifier.identifier !== samples[0].experiment.identifier.identifier) {
+        								continue;
+        							}
                                     var sampleIsExperiment = sample.type.code.indexOf("EXPERIMENT") > -1;
                                     var sampleIcon;
                                     if(sampleIsExperiment) {
