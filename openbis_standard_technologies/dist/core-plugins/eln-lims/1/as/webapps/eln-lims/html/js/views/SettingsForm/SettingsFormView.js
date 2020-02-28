@@ -643,9 +643,13 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 					}
 					if (rowValues["Disable section"]) {
 						settings["SAMPLE_PARENTS_DISABLED"] = true;
+					} else {
+					    settings["SAMPLE_PARENTS_DISABLED"] = false;
 					}
 					if (rowValues["Disable addition of any " + ELNDictionary.sample + " type"]) {
 						settings["SAMPLE_PARENTS_ANY_TYPE_DISABLED"] = true;
+					} else {
+					    settings["SAMPLE_PARENTS_ANY_TYPE_DISABLED"] = false;
 					}
 				} else if (rowValues["Settings for"] === "Children") {
 					if (rowValues["Section name"] && rowValues["Section name"].length > 0) {
@@ -653,9 +657,13 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 					}
 					if (rowValues["Disable section"]) {
 						settings["SAMPLE_CHILDREN_DISABLED"] = true;
+					} else {
+					    settings["SAMPLE_CHILDREN_DISABLED"] = false;
 					}
 					if (rowValues["Disable addition of any " + ELNDictionary.sample + " type"]) {
 						settings["SAMPLE_CHILDREN_ANY_TYPE_DISABLED"] = true;
+					} else {
+					    settings["SAMPLE_CHILDREN_ANY_TYPE_DISABLED"] = false;
 					}
 				}
 			}
