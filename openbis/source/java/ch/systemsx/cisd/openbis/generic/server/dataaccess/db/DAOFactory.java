@@ -16,13 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import javax.annotation.Resource;
 
@@ -400,11 +398,34 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
                 if (triggerExists)
                 {
                     operationLog.info("Enable project samples by dropping the trigger 'disable_project_level_samples'.");
-                    statement.executeUpdate("DROP TRIGGER disable_project_level_samples ON samples_all");
 
+                    // CORNER CASE FIX - FROZEN PROJECTS - BEFORE UPDATE
+                    ResultSet frozenProjects = statement.executeQuery("SELECT id FROM projects WHERE frozen_for_samp='t'");
+                    List<Long> frozenProjectsIds = new ArrayList<>();
+                    while (frozenProjects.next()) {
+                        frozenProjectsIds.add(frozenProjects.getLong("id"));
+                    }
+                    statement.executeUpdate("UPDATE projects SET frozen_for_samp='f' WHERE frozen_for_samp='t'");
+                    //
+
+                    statement.executeUpdate("DROP TRIGGER disable_project_level_samples ON samples_all");
                     statement.executeUpdate(projectConstraintFunction);
                     statement.executeUpdate(projectConstraintTrigger);
                     statement.executeUpdate(setProjectsToSamplesWithExperiments);
+
+                    // CORNER CASE FIX - FROZEN PROJECTS - AFTER UPDATE
+                    if(!frozenProjectsIds.isEmpty()) {
+                        StringBuilder frozenProjectsIdsAsString = new StringBuilder();
+                        for (int idx = 0; idx < frozenProjectsIds.size(); idx++) {
+                            if( idx > 0) {
+                                frozenProjectsIdsAsString.append(",");
+                            }
+                            frozenProjectsIdsAsString.append(frozenProjectsIds.get(idx));
+                        }
+
+                        statement.executeUpdate("UPDATE projects SET frozen_for_samp='t' WHERE id in (" + frozenProjectsIdsAsString + ")");
+                    }
+                    //
                 } else
                 {
                     operationLog.info("Project samples already enabled.");
