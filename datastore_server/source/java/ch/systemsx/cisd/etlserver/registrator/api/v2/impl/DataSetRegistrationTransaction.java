@@ -113,7 +113,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
 
     private final static String ROLLBACK_STACK_FILE_NAME_DATE_FORMAT_PATTERN = "yyyyMMddHHmmssSSS";
 
-    static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+    protected static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DataSetRegistrationTransaction.class);
 
     public static synchronized RollbackStack[] findRollbackStacks(File rollBackStackParentFolder)

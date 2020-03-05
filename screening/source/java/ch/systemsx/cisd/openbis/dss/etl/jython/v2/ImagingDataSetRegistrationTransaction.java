@@ -386,26 +386,32 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
         {
             return;
         }
-        List<BufferedImage> images = algorithm.generateImages(imageDataSetInformation, thumbnailDatasets, imageCache);
-        if (images.size() > 0)
+        try
         {
-            IDataSet representative = createNewDataSet(algorithm.getDataSetTypeCode(), DataSetKind.PHYSICAL);
-            for (int i = 0; i < images.size(); i++)
+            List<BufferedImage> images = algorithm.generateImages(imageDataSetInformation, thumbnailDatasets, imageCache);
+            if (images.size() > 0)
             {
-                BufferedImage imageData = images.get(i);
-                String imageFile = createNewFile(representative, algorithm.getImageFileName(i));
-                File f = new File(imageFile);
-                try
+                IDataSet representative = createNewDataSet(algorithm.getDataSetTypeCode(), DataSetKind.PHYSICAL);
+                for (int i = 0; i < images.size(); i++)
                 {
-                    ImageIO.write(imageData, "png", f);
-                } catch (IOException e)
-                {
-                    throw new EnvironmentFailureException("Can not save representative thumbnail to file '"
-                            + f + "': " + e, e);
+                    BufferedImage imageData = images.get(i);
+                    String imageFile = createNewFile(representative, algorithm.getImageFileName(i));
+                    File f = new File(imageFile);
+                    try
+                    {
+                        ImageIO.write(imageData, "png", f);
+                    } catch (IOException e)
+                    {
+                        throw new EnvironmentFailureException("Can not save representative thumbnail to file '"
+                                + f + "': " + e, e);
+                    }
                 }
+                containedDataSetCodes.add(representative.getDataSetCode());
+                thumbnailDatasets.add(representative);
             }
-            containedDataSetCodes.add(representative.getDataSetCode());
-            thumbnailDatasets.add(representative);
+        } catch (Exception e)
+        {
+            operationLog.error("Couldn't create representative thumbnail. Reason: " + e, e);
         }
     }
 
