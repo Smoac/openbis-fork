@@ -71,6 +71,7 @@ abstract class AbstractImagesDownloadServlet extends AbstractDatasetDownloadServ
             {
                 message += " for " + imageGenDesc;
             }
+            message += ". Reason: " + e;
             operationLog.error(message, e);
             printErrorResponse(response, message);
         }

@@ -37,6 +37,7 @@ import javax.imageio.ImageIO;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSetUpdatable;
@@ -89,6 +90,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
 @SuppressWarnings("rawtypes")
 public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTransaction
 {
+    private static final String THUMBNAIL_GENERATION_FAILURE_PROPERTY = "do-not-fail-upon-thumbnail-generation-failure";
+
     private final IDataSetRegistrationDetailsFactory<ImageDataSetInformation> imageDatasetFactory;
 
     private final IDataSetRegistrationDetailsFactory<DataSetInformation> imageContainerDatasetFactory;
@@ -411,7 +414,18 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
             }
         } catch (Exception e)
         {
-            operationLog.error("Couldn't create representative thumbnail. Reason: " + e, e);
+            Properties properties = getGlobalState().getThreadParameters().getThreadProperties();
+            if (PropertyUtils.getBoolean(properties, THUMBNAIL_GENERATION_FAILURE_PROPERTY, false))
+            {
+                operationLog.error("Couldn't create representative thumbnail. Reason: " + e, e);
+            } else
+            {
+                String dataSetCode = imageDataSetInformation.getDataSetCode();
+                throw new UserFailureException("Failed to generate thumbnails for data set " + dataSetCode
+                        + ". Either image files are corrupted or our image library can not read the images. "
+                        + "In the later case this error message can be suppressed by setting the property '"
+                        + THUMBNAIL_GENERATION_FAILURE_PROPERTY + "' in DSS service.properties to 'true'.", e);
+            }
         }
     }
 

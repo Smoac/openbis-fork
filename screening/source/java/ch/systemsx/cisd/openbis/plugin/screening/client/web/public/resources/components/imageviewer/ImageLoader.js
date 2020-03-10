@@ -76,7 +76,7 @@ define([ "jquery" ], function($) {
 						var thisImage = this;
 
 						thisLoader.callbacks.forEach(function(callback) {
-							callback(e.type === "error" ? "No image available" : thisImage);
+							callback(e.type === "error" ? "Image not available or can not be rendered." : thisImage);
 						});
 
 						thisLoader.timeoutConfig = null;
