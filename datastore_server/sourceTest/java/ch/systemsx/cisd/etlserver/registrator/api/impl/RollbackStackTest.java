@@ -16,8 +16,15 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.impl;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
+
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.etlserver.registrator.api.impl.RollbackStack.IRollbackStackDelegate;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTestWithRollbackStack;
 
 /**
@@ -25,384 +32,172 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTestWithRollba
  */
 public class RollbackStackTest extends AbstractTestWithRollbackStack
 {
-
     @Test
     public void testRollback()
     {
-        // Create some commands
-        TrackingCommand cmd1 = new TrackingCommand();
-        TrackingCommand cmd2 = new TrackingCommand(cmd1);
+        // Given
+        rollbackStack.pushAndExecuteCommand(new MockCommand(logFile, "CMD1"));
+        rollbackStack.pushAndExecuteCommand(new MockCommand(logFile, "CMD2"));
+        rollbackStack.pushAndExecuteCommand(new MockCommand(logFile, "CMD3"));
+        assertEquals("CMD1 executed\n"
+                + "CMD2 executed\n"
+                + "CMD3 executed", getLogs());
+        List<Integer> recordedSizes = new ArrayList<>();
 
-        // Add them to the stack
-        rollbackStack.pushAndExecuteCommand(cmd1);
-        rollbackStack.pushAndExecuteCommand(cmd2);
-        assertEquals(TrackingCommandStatus.EXECUTED, cmd1.status);
-        assertEquals(TrackingCommandStatus.EXECUTED, cmd2.status);
+        // When
+        new RollbackStack(queue1File, queue2File).rollbackAll(new IRollbackStackDelegate()
+            {
+                @Override
+                public void willContinueRollbackAll(RollbackStack stack)
+                {
+                    recordedSizes.add(stack.getSize());
+                }
+            });
 
-        assertEquals(
-                "RollbackStack[{StackElement [command=TrackingCommand [status=EXECUTED], order=0],StackElement [command=TrackingCommand [status=EXECUTED], order=1]}]",
-                rollbackStack.toString());
+        // Then
+        assertEquals("CMD1 executed\n"
+                + "CMD2 executed\n"
+                + "CMD3 executed\n"
+                + "CMD3 rolled back\n"
+                + "CMD2 rolled back\n"
+                + "CMD1 rolled back", getLogs());
+        assertEquals("[2, 1, 0]", recordedSizes.toString());
+    }
 
-        // Rollback and check that the rollback occurred correctly
-        rollbackStack.rollbackAll();
-        assertEquals(TrackingCommandStatus.ROLLEDBACK, cmd1.status);
-        assertEquals(TrackingCommandStatus.ROLLEDBACK, cmd2.status);
-        assertTrue(cmd2.rolledbackBeforePredecessor);
-        assertEquals(cmd2.predecessor, cmd1);
+    @Test
+    public void testLargeRollback()
+    {
+        // Given
+        int n = 100;
+        StringBuilder builder = new StringBuilder();
+        Stack<String> stack = new Stack<>();
+        for (int i = 0; i < n; i++)
+        {
+            String name = "CMD" + i;
+            rollbackStack.pushAndExecuteCommand(new MockCommand(logFile, name));
+            builder.append(name).append(" executed\n");
+            stack.push(name);
+        }
+        while (stack.empty() == false)
+        {
+            builder.append(stack.pop() + " rolled back\n");
+        }
+
+        // When
+        new RollbackStack(queue1File, queue2File).rollbackAll();
+
+        // Then
+        assertEquals(builder.toString().trim(), getLogs());
     }
 
     @Test
     public void testCantRollbackIfLocked()
     {
-        // Create some commands
-        TrackingCommand cmd1 = new TrackingCommand();
-        TrackingCommand cmd2 = new TrackingCommand(cmd1);
-
-        // Add them to the stack
-        rollbackStack.pushAndExecuteCommand(cmd1);
-        rollbackStack.pushAndExecuteCommand(cmd2);
-        assertEquals(TrackingCommandStatus.EXECUTED, cmd1.status);
-        assertEquals(TrackingCommandStatus.EXECUTED, cmd2.status);
-
-        assertEquals(
-                "RollbackStack[{StackElement [command=TrackingCommand [status=EXECUTED], order=0],StackElement [command=TrackingCommand [status=EXECUTED], order=1]}]",
-                rollbackStack.toString());
-
+        // Given
+        rollbackStack.pushAndExecuteCommand(new MockCommand(logFile, "CMD1"));
+        rollbackStack.pushAndExecuteCommand(new MockCommand(logFile, "CMD2"));
         rollbackStack.setLockedState(true);
 
+        // When
         try
         {
             rollbackStack.rollbackAll();
             fail("The rollbackAll should fail when the rollback stack is in locked state");
         } catch (Exception ex)
         {
-            // should catch the exception, because the rollback stack is in the locked state
+            // Then
+            assertEquals("Rollback stack is in the locked state. Triggering rollback forbidden.", ex.getMessage());
+            assertEquals("RollbackStack " + queue1File + " with 2 commands to roll back", rollbackStack.toString());
+
+            rollbackStack.setLockedState(false);
+
+            rollbackStack.rollbackAll();
+            assertEquals("CMD1 executed\n"
+                    + "CMD2 executed\n"
+                    + "CMD2 rolled back\n"
+                    + "CMD1 rolled back", getLogs());
         }
-
-        assertEquals(TrackingCommandStatus.EXECUTED, cmd1.status);
-        assertEquals(TrackingCommandStatus.EXECUTED, cmd2.status);
-
-        rollbackStack.setLockedState(false);
-
-        // Rollback and check that the rollback occurred correctly
-        rollbackStack.rollbackAll();
-
-        assertEquals(TrackingCommandStatus.ROLLEDBACK, cmd1.status);
-        assertEquals(TrackingCommandStatus.ROLLEDBACK, cmd2.status);
-        assertTrue(cmd2.rolledbackBeforePredecessor);
-        assertEquals(cmd2.predecessor, cmd1);
     }
 
     @Test
     public void testResume()
     {
-        // Create some commands
-        TrackingCommand cmd1 = new TrackingCommand();
-        TrackingCommand cmd2 = new TrackingCommand(cmd1);
-        TrackingCommand cmd3 = new TrackingCommand(cmd2);
-
-        // Add them to the stack
-        rollbackStack.pushAndExecuteCommand(cmd1);
-        rollbackStack.pushAndExecuteCommand(cmd2);
-        rollbackStack.pushAndExecuteCommand(cmd3);
-        assertEquals(TrackingCommandStatus.EXECUTED, cmd1.status);
-        assertEquals(TrackingCommandStatus.EXECUTED, cmd2.status);
-        assertEquals(TrackingCommandStatus.EXECUTED, cmd3.status);
-
-        // Rollback one
-        rollbackStack.rollbackAndPop();
-        assertEquals(TrackingCommandStatus.EXECUTED, cmd1.status);
-        assertEquals(TrackingCommandStatus.EXECUTED, cmd2.status);
-        assertEquals(TrackingCommandStatus.ROLLEDBACK, cmd3.status);
-        assertTrue(cmd3.rolledbackBeforePredecessor);
-
-        // Recreate the rollback stack from the files
-        rollbackStack = new RollbackStack(queue1File, queue2File);
-        assertEquals(2, rollbackStack.size());
-
-        // Continue rolling back
-        cmd2 = (TrackingCommand) rollbackStack.rollbackAndPop();
-        assertEquals(TrackingCommandStatus.ROLLEDBACK, cmd2.status);
-        assertTrue(cmd2.rolledbackBeforePredecessor);
-
-        cmd1 = (TrackingCommand) rollbackStack.rollbackAndPop();
-        assertEquals(TrackingCommandStatus.ROLLEDBACK, cmd1.status);
-    }
-
-    @Test
-    public void testEquality()
-    {
-        // Create some commands
-        TrackingCommand cmd1 = new EqualityTrackingCommand(0);
-        TrackingCommand cmd2 = new EqualityTrackingCommand(cmd1, 1);
-        TrackingCommand cmd3 = new EqualityTrackingCommand(cmd2, 2);
-
-        // Add them to the stack
-        rollbackStack.pushAndExecuteCommand(cmd1);
-        rollbackStack.pushAndExecuteCommand(cmd2);
-        rollbackStack.pushAndExecuteCommand(cmd3);
-        assertEquals(TrackingCommandStatus.EXECUTED, cmd1.status);
-        assertEquals(TrackingCommandStatus.EXECUTED, cmd2.status);
-        assertEquals(TrackingCommandStatus.EXECUTED, cmd3.status);
-
-        // Recreate the rollback stack from the files
-        rollbackStack = new RollbackStack(queue1File, queue2File);
-        assertEquals(3, rollbackStack.size());
-
-        // Continue rolling back
-        cmd3 = (TrackingCommand) rollbackStack.rollbackAndPop();
-        assertEquals(TrackingCommandStatus.ROLLEDBACK, cmd3.status);
-        assertTrue(cmd3.rolledbackBeforePredecessor);
-
-        // Continue rolling back
-        cmd2 = (TrackingCommand) rollbackStack.rollbackAndPop();
-        assertEquals(TrackingCommandStatus.ROLLEDBACK, cmd2.status);
-        assertTrue(cmd2.rolledbackBeforePredecessor);
-        assertEquals(cmd3.predecessor, cmd2);
-        assertFalse(cmd3.predecessor == cmd2);
-
-    }
-
-    @SuppressWarnings("deprecation")
-    @Test
-    public void testResumeWithInterruption()
-    {
-        // Create some commands
-        TrackingCommand cmd1 = new TrackingCommand();
-        TrackingCommand cmd2 = new TrackingCommand(cmd1);
-        TrackingCommand cmd3 = new TrackingCommand(cmd2);
-
-        // Add them to the stack
-        rollbackStack.pushAndExecuteCommand(cmd1);
-        rollbackStack.pushAndExecuteCommand(cmd2);
-        rollbackStack.pushAndExecuteCommand(cmd3);
-        assertEquals(TrackingCommandStatus.EXECUTED, cmd1.status);
-        assertEquals(TrackingCommandStatus.EXECUTED, cmd2.status);
-        assertEquals(TrackingCommandStatus.EXECUTED, cmd3.status);
-
-        // Simulate beginning, but not completing, a rollback step
-        rollbackStack.doNotCallJustForTesting_MoveOneElement();
-        assertEquals(TrackingCommandStatus.EXECUTED, cmd1.status);
-        assertEquals(TrackingCommandStatus.EXECUTED, cmd2.status);
-        assertEquals(TrackingCommandStatus.EXECUTED, cmd3.status);
-
-        // Reinitialize the stack from the file
-        rollbackStack = new RollbackStack(queue1File, queue2File);
-        assertEquals(3, rollbackStack.size());
-
-        // Finish the rollback
-        cmd3 = (TrackingCommand) rollbackStack.rollbackAndPop();
-        assertEquals(TrackingCommandStatus.ROLLEDBACK, cmd3.status);
-
-        cmd2 = (TrackingCommand) rollbackStack.rollbackAndPop();
-        assertEquals(TrackingCommandStatus.ROLLEDBACK, cmd2.status);
-
-        cmd1 = (TrackingCommand) rollbackStack.rollbackAndPop();
-        assertEquals(TrackingCommandStatus.ROLLEDBACK, cmd1.status);
-    }
-
-    @SuppressWarnings("deprecation")
-    @Test
-    public void testResumeWithInterruptionDuringMove()
-    {
-        // Create some commands
-        TrackingCommand cmd1 = new TrackingCommand();
-        TrackingCommand cmd2 = new TrackingCommand(cmd1);
-        TrackingCommand cmd3 = new TrackingCommand(cmd2);
-
-        // Add them to the stack
-        rollbackStack.pushAndExecuteCommand(cmd1);
-        rollbackStack.pushAndExecuteCommand(cmd2);
-        rollbackStack.pushAndExecuteCommand(cmd3);
-        assertEquals(TrackingCommandStatus.EXECUTED, cmd1.status);
-        assertEquals(TrackingCommandStatus.EXECUTED, cmd2.status);
-        assertEquals(TrackingCommandStatus.EXECUTED, cmd3.status);
-
-        // Simulate beginning, but not completing, a rollback step
-        rollbackStack.doNotCallJustForTesting_MoveOneElement();
-        rollbackStack.doNotCallJustForTesting_PartiallyMoveOneElement();
-        assertEquals(TrackingCommandStatus.EXECUTED, cmd1.status);
-        assertEquals(TrackingCommandStatus.EXECUTED, cmd2.status);
-        assertEquals(TrackingCommandStatus.EXECUTED, cmd3.status);
-
-        // Reinitialize the stack from the file
-        rollbackStack = new RollbackStack(queue1File, queue2File);
-        // One command should have been duplicated -- this is ok
-        assertEquals(4, rollbackStack.size());
-
-        // Finish the rollback
-        cmd3 = (TrackingCommand) rollbackStack.rollbackAndPop();
-        assertEquals(TrackingCommandStatus.ROLLEDBACK, cmd3.status);
-
-        cmd2 = (TrackingCommand) rollbackStack.rollbackAndPop();
-        assertEquals(TrackingCommandStatus.ROLLEDBACK, cmd2.status);
-
-        cmd1 = (TrackingCommand) rollbackStack.rollbackAndPop();
-        assertEquals(TrackingCommandStatus.ROLLEDBACK, cmd1.status);
-
-        TrackingCommand cmdN = (TrackingCommand) rollbackStack.rollbackAndPop();
-        assertEquals(TrackingCommandStatus.ROLLEDBACK, cmdN.status);
-    }
-
-    @Test
-    public void testIncreasingSerializedCommandSize()
-    {
-        // Create some commands
-        // Add them to the stack
-        for (int i = 0; i < 129; ++i)
+        // Given
+        rollbackStack.pushAndExecuteCommand(new MockCommand(logFile, "CMD1"));
+        rollbackStack.pushAndExecuteCommand(new MockCommand(logFile, "CMD2"));
+        rollbackStack.pushAndExecuteCommand(new MockCommand(logFile, "CMD3"));
+        try
         {
-            StringTrackingCommand cmd = new StringTrackingCommand(createStringOfLength(i));
-            rollbackStack.pushAndExecuteCommand(cmd);
-            assertEquals(TrackingCommandStatus.EXECUTED, cmd.status);
-        }
-
-        // Rollback and check that the rollback occurred correctly
-        rollbackStack.rollbackAll();
-    }
-
-    private String createStringOfLength(int length)
-    {
-        String item = "";
-        for (int j = 0; j < length; ++j)
+            new RollbackStack(queue1File, queue2File).rollbackAll(new IRollbackStackDelegate()
+                {
+                    @Override
+                    public void willContinueRollbackAll(RollbackStack stack)
+                    {
+                        if (stack.getSize() == 2)
+                        {
+                            throw new RuntimeException("interrupted");
+                        }
+                    }
+                });
+            fail("Exception expected");
+        } catch (RuntimeException e)
         {
-            item += "1";
+            assertEquals("interrupted", e.getMessage());
         }
-        return item;
+        assertEquals("CMD1 executed\n"
+                + "CMD2 executed\n"
+                + "CMD3 executed\n"
+                + "CMD3 rolled back", getLogs());
+        clearLogs();
+
+        // When
+        new RollbackStack(queue1File, queue2File).rollbackAll();
+
+        // Then
+        assertEquals("CMD2 rolled back\n"
+                + "CMD1 rolled back", getLogs());
     }
 
-    private static enum TrackingCommandStatus
+    private String getLogs()
     {
-        PENDING_EXECUTE, EXECUTED, ROLLEDBACK
+        return FileUtilities.loadToString(logFile).trim();
     }
 
-    private static class TrackingCommand extends AbstractTransactionalCommand
+    private void clearLogs()
+    {
+        logFile.delete();
+    }
+
+    private static class MockCommand extends AbstractTransactionalCommand
     {
         private static final long serialVersionUID = 1L;
 
-        protected TrackingCommandStatus status = TrackingCommandStatus.PENDING_EXECUTE;
+        private File logFile;
 
-        private final TrackingCommand predecessor;
+        private String name;
 
-        private boolean rolledbackBeforePredecessor = false;
-
-        protected TrackingCommand()
+        MockCommand(File logFile, String name)
         {
-            this.predecessor = null;
-        }
-
-        protected TrackingCommand(TrackingCommand predecessor)
-        {
-            this.predecessor = predecessor;
+            this.logFile = logFile;
+            this.name = name;
         }
 
         @Override
         public void execute()
         {
-            status = TrackingCommandStatus.EXECUTED;
+            log(name + " executed");
         }
 
         @Override
         public void rollback()
         {
-            status = TrackingCommandStatus.ROLLEDBACK;
-            rolledbackBeforePredecessor =
-                    (predecessor != null) ? predecessor.status == TrackingCommandStatus.EXECUTED
-                            : true;
+            log(name + " rolled back");
         }
 
-        @Override
-        public String toString()
+        private void log(String message)
         {
-            return "TrackingCommand [status=" + status + "]";
+            FileUtilities.appendToFile(logFile, message, true);
         }
-
     }
 
-    private static class EqualityTrackingCommand extends TrackingCommand
-    {
-        private static final long serialVersionUID = 1L;
-
-        private final int id;
-
-        private EqualityTrackingCommand(int id)
-        {
-            super();
-            this.id = id;
-        }
-
-        protected EqualityTrackingCommand(TrackingCommand predecessor, int id)
-        {
-            super(predecessor);
-            this.id = id;
-        }
-
-        @Override
-        public int hashCode()
-        {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + id;
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj)
-        {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            EqualityTrackingCommand other = (EqualityTrackingCommand) obj;
-            if (id != other.id)
-                return false;
-            return true;
-        }
-
-        @Override
-        public String toString()
-        {
-            return "EqualityTrackingCommand [id=" + id + ",status=" + status + "]";
-        }
-
-    }
-
-    private static class StringTrackingCommand extends TrackingCommand
-    {
-        private static final long serialVersionUID = 1L;
-
-        private final String text;
-
-        private StringTrackingCommand(String text)
-        {
-            super();
-            this.text = text;
-        }
-
-        @Override
-        public int hashCode()
-        {
-            return text.hashCode();
-        }
-
-        @Override
-        public boolean equals(Object obj)
-        {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            StringTrackingCommand other = (StringTrackingCommand) obj;
-            return text.equals(other.text);
-        }
-
-        @Override
-        public String toString()
-        {
-            return "StringTrackingCommand [text=" + text + ", status=" + status + "]";
-        }
-    }
 }

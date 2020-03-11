@@ -34,13 +34,15 @@ public class AbstractTestWithRollbackStack extends AbstractFileSystemTestCase
     protected File queue2File;
 
     protected RollbackStack rollbackStack;
+    
+    protected File logFile;
 
     @BeforeMethod
     @Override
     public void setUp() throws IOException
     {
         super.setUp();
-
+        logFile = new File(workingDirectory, "log.txt");
         queue1File = new File(workingDirectory, "queue1.dat");
         queue2File = new File(workingDirectory, "queue2.dat");
 

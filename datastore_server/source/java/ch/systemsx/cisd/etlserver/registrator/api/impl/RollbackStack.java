@@ -17,16 +17,18 @@
 package ch.systemsx.cisd.etlserver.registrator.api.impl;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Queue;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.io.PersistentExtendedBlockingQueueDecorator;
-import ch.systemsx.cisd.common.io.PersistentExtendedBlockingQueueFactory;
+import ch.systemsx.cisd.common.collection.SimpleComparator;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.registrator.IRollbackStack;
@@ -42,6 +44,10 @@ import ch.systemsx.cisd.etlserver.registrator.ITransactionalCommand;
  */
 public class RollbackStack implements IRollbackStack
 {
+    private static final String ELEMENT_FILE_PREFIX = "element-";
+    private static final String ELEMENT_FILE_TYPE = ".ser";
+    private static final String ELEMENT_FILE_FORMAT = ELEMENT_FILE_PREFIX + "%07d" + ELEMENT_FILE_TYPE;
+
     /**
      * Delegate methods for the rollback stack, giving clients of the stack control over its behavior.
      * 
@@ -66,10 +72,7 @@ public class RollbackStack implements IRollbackStack
 
     private final Logger operationLog;
 
-    // These are not final because they get swapped around.
-    private PersistentExtendedBlockingQueueDecorator<StackElement> liveLifo;
-
-    private PersistentExtendedBlockingQueueDecorator<StackElement> tempLifo;
+    private int size;
 
     /**
      * Constructor for a rollback stack that uses queue1File and queue2File for the persistent queues.
@@ -97,65 +100,43 @@ public class RollbackStack implements IRollbackStack
 
         this.lockedMarkerFile =
                 new File(queue1File.getParentFile(), queue1File.getName() + ".LOCKED");
+        queue1File.mkdirs();
+        size = getElementFiles().size();
+    }
 
-        PersistentExtendedBlockingQueueDecorator<StackElement> queue1 =
-                PersistentExtendedBlockingQueueFactory.createSmartQueue(queue1File, false);
-        PersistentExtendedBlockingQueueDecorator<StackElement> queue2 =
-                PersistentExtendedBlockingQueueFactory.createSmartQueue(queue2File, false);
-
-        // If both queues are empty, it doesn't matter which is which
-        if (bothQueuesAreEmpty(queue1, queue2))
-        {
-            liveLifo = queue1;
-            tempLifo = queue2;
-        } else
-        {
-            // The live one should be the non-empty one
-            if (queue2.isEmpty())
+    private List<File> getElementFiles()
+    {
+        
+        List<File> elementFiles = new ArrayList<File>();
+        File[] files = this.queue1File.listFiles(new FilenameFilter()
             {
-                liveLifo = queue1;
-                tempLifo = queue2;
-            } else if (queue1.isEmpty())
-            {
-                liveLifo = queue2;
-                tempLifo = queue1;
-            } else
-            {
-                // Both queues are non-empty -- this means a shutdown happened during a rollback.
-                // One queue should have an element at the head with order 0. Take this to be the
-                // temp queue at the time of shutdown and continue from there
-                if (queue2.peek().order == 0)
+                @Override
+                public boolean accept(File dir, String name)
                 {
-                    liveLifo = queue1;
-                    tempLifo = queue2;
-                } else
-                {
-                    assert queue1.peek().order == 0;
-                    liveLifo = queue2;
-                    tempLifo = queue1;
+                    return name.startsWith(ELEMENT_FILE_PREFIX) && name.endsWith(ELEMENT_FILE_TYPE);
                 }
-
-                // Finish moving elements from the live to the temp queue
-                while (liveLifo.size() > 0)
-                {
-                    // Put it into the temp
-                    tempLifo.add(liveLifo.peek());
-                    // Remove from the live
-                    liveLifo.remove();
-                }
-
-                // Finish initialization -- make the temp queue the live one
-                swapStacks();
-            }
+            });
+        if (files != null && files.length > 0)
+        {
+            elementFiles.addAll(Arrays.asList(files));
         }
+        Collections.sort(elementFiles, new SimpleComparator<File, String>()
+            {
+                @Override
+                public String evaluate(File item)
+                {
+                    return item.getName();
+                }
+            });
+        return elementFiles;
     }
 
     /**
      * The size of the rollback stack
      */
-    public int size()
+    public int getSize()
     {
-        return liveLifo.size();
+        return getElementFiles().size();
     }
 
     /**
@@ -164,79 +145,10 @@ public class RollbackStack implements IRollbackStack
     @Override
     public void pushAndExecuteCommand(ITransactionalCommand cmd)
     {
-        // Push is simple -- just put the new command onto the live stack
-        StackElement elt = new StackElement(cmd, liveLifo.size());
-        liveLifo.add(elt);
+        File file = new File(queue1File, String.format(ELEMENT_FILE_FORMAT, size));
+        FileUtilities.writeToFile(file, new StackElement(cmd, size));
+        size++;
         cmd.execute();
-    }
-
-    /**
-     * Rollback the top of the stack and pop it from the stack
-     */
-    ITransactionalCommand rollbackAndPop()
-    {
-        StackElement elt = peek();
-        try
-        {
-            // Roll it back
-            elt.command.rollback();
-        } catch (Throwable ex)
-        {
-            // If any problems happen rolling back a command, log them
-            operationLog.error("Encountered error rolling back command " + elt.toString(), ex);
-        }
-
-        // Remove it from the live stack
-        liveLifo.remove();
-
-        // Make the live the temp
-        swapStacks();
-
-        // return the command
-        return elt.command;
-    }
-
-    /**
-     * Pop the value from the top of the stack *without* rollbacking.
-     */
-    public ITransactionalCommand pop()
-    {
-        StackElement elt = peek();
-        // Remove it from the live stack
-        liveLifo.remove();
-
-        // Make the live the temp
-        swapStacks();
-
-        // return the command
-        return elt.command;
-    }
-
-    StackElement peek()
-    {
-        // Peek is a bit more complicated, since the element we want to peek, the *head* of he
-        // stack,
-        // is at the *tail* of the queue. We first need to move all other elements to the temp stack
-        // and do this such that an interruption of the process does not result in any loss of data
-        // (it could result in a duplication, though).
-
-        // The stack is empty -- return null;
-        if (liveLifo.size() < 1)
-        {
-            return null;
-        }
-
-        // Get all but the last element from the queue
-        while (liveLifo.size() > 1)
-        {
-            // Put it into the temp
-            tempLifo.add(liveLifo.peek());
-            // Remove from the live
-            liveLifo.remove();
-        }
-
-        // This is the tail of the queue, i.e., the head of the stack.
-        return liveLifo.peek();
     }
 
     /**
@@ -264,13 +176,31 @@ public class RollbackStack implements IRollbackStack
             throw new IllegalStateException(
                     "Rollback stack is in the locked state. Triggering rollback forbidden.");
         }
-
-        operationLog.info("Rolling back stack " + this);
-        // Pop and rollback all
-        while (size() > 0)
+        List<File> elementFiles = getElementFiles();
+        if (elementFiles.isEmpty() == false)
         {
-            delegate.willContinueRollbackAll(this);
-            rollbackAndPop();
+            int numberOfElements = elementFiles.size();
+            operationLog.info("Rolling back " + numberOfElements + " commands");
+            for (int i = numberOfElements - 1; i >= 0; i--)
+            {
+                File file = elementFiles.get(i);
+                StackElement stackElement = FileUtilities.loadToObject(file, StackElement.class);
+                try
+                {
+                    // Roll it back
+                    stackElement.command.rollback();
+                } catch (Throwable ex)
+                {
+                    // If any problems happen rolling back a command, log them
+                    operationLog.error("Encountered error rolling back command " + stackElement.toString(), ex);
+                }
+                file.delete();
+                delegate.willContinueRollbackAll(this);
+                if (numberOfElements - i > 1 && (numberOfElements - i) % 100 == 0)
+                {
+                    operationLog.info((numberOfElements - i) + " commands rolled back");
+                }
+            }
         }
     }
 
@@ -284,17 +214,14 @@ public class RollbackStack implements IRollbackStack
             throw new IllegalStateException(
                     "Discarding of locked rollback stack is illegal. Set locked to false first.");
         }
-        // Close the persistent queues
-        liveLifo.close();
-        tempLifo.close();
-
-        liveLifo = null;
-        tempLifo = null;
-
-        // Delete the files
-        queue1File.delete();
-        queue2File.delete();
-
+        FileUtilities.deleteRecursively(queue1File);
+    }
+    
+    @Override
+    public String toString()
+    {
+        List<File> elementFiles = getElementFiles();
+        return "RollbackStack " + queue1File + " with " + elementFiles.size() + " commands to roll back";
     }
 
     /**
@@ -388,54 +315,5 @@ public class RollbackStack implements IRollbackStack
 
     }
 
-    /**
-     * Make the temp stack the live one.
-     */
-    private void swapStacks()
-    {
-        PersistentExtendedBlockingQueueDecorator<StackElement> swap = liveLifo;
-        liveLifo = tempLifo;
-        tempLifo = swap;
-    }
 
-    private static boolean bothQueuesAreEmpty(Queue<StackElement> queue1, Queue<StackElement> queue2)
-    {
-        return queue1.isEmpty() && queue2.isEmpty();
-    }
-
-    @Override
-    public String toString()
-    {
-        ToStringBuilder sb = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
-        sb.append(liveLifo.toArray());
-        return sb.toString();
-    }
-
-    /**
-     * Do not call this method, it will leave the queue in an incorrect state, but we want to do this for testing purposes.
-     * 
-     * @deprecated
-     */
-    @Deprecated
-    void doNotCallJustForTesting_MoveOneElement()
-    {
-        // Put it into the temp
-        tempLifo.add(liveLifo.peek());
-        // Remove from the live
-        liveLifo.remove();
-    }
-
-    /**
-     * Do not call this method, it will leave the queue in an incorrect state, but we want to do this for testing purposes.
-     * 
-     * @deprecated
-     */
-    @Deprecated
-    void doNotCallJustForTesting_PartiallyMoveOneElement()
-    {
-        // Put it into the temp
-        tempLifo.add(liveLifo.peek());
-        // DON'T Remove from the live
-        // liveLifo.remove();
-    }
 }
