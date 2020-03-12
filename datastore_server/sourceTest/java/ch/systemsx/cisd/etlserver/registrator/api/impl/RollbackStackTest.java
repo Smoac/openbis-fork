@@ -45,12 +45,12 @@ public class RollbackStackTest extends AbstractTestWithRollbackStack
         List<Integer> recordedSizes = new ArrayList<>();
 
         // When
-        new RollbackStack(queue1File, queue2File).rollbackAll(new IRollbackStackDelegate()
+        createRollBackStack().rollbackAll(new IRollbackStackDelegate()
             {
                 @Override
                 public void willContinueRollbackAll(RollbackStack stack)
                 {
-                    recordedSizes.add(stack.getSize());
+                    recordedSizes.add(getIndex());
                 }
             });
 
@@ -61,7 +61,7 @@ public class RollbackStackTest extends AbstractTestWithRollbackStack
                 + "CMD3 rolled back\n"
                 + "CMD2 rolled back\n"
                 + "CMD1 rolled back", getLogs());
-        assertEquals("[2, 1, 0]", recordedSizes.toString());
+        assertEquals("[1, 0, -1]", recordedSizes.toString());
     }
 
     @Test
@@ -84,7 +84,7 @@ public class RollbackStackTest extends AbstractTestWithRollbackStack
         }
 
         // When
-        new RollbackStack(queue1File, queue2File).rollbackAll();
+        createRollBackStack().rollbackAll();
 
         // Then
         assertEquals(builder.toString().trim(), getLogs());
@@ -128,12 +128,12 @@ public class RollbackStackTest extends AbstractTestWithRollbackStack
         rollbackStack.pushAndExecuteCommand(new MockCommand(logFile, "CMD3"));
         try
         {
-            new RollbackStack(queue1File, queue2File).rollbackAll(new IRollbackStackDelegate()
+            createRollBackStack().rollbackAll(new IRollbackStackDelegate()
                 {
                     @Override
                     public void willContinueRollbackAll(RollbackStack stack)
                     {
-                        if (stack.getSize() == 2)
+                        if (getIndex() == 1)
                         {
                             throw new RuntimeException("interrupted");
                         }
@@ -151,7 +151,7 @@ public class RollbackStackTest extends AbstractTestWithRollbackStack
         clearLogs();
 
         // When
-        new RollbackStack(queue1File, queue2File).rollbackAll();
+        createRollBackStack().rollbackAll();
 
         // Then
         assertEquals("CMD2 rolled back\n"
@@ -166,6 +166,18 @@ public class RollbackStackTest extends AbstractTestWithRollbackStack
     private void clearLogs()
     {
         logFile.delete();
+    }
+
+    private RollbackStack createRollBackStack()
+    {
+        return new RollbackStack(queue1File, queue2File);
+    }
+
+    private int getIndex()
+    {
+        File indexFile = new File(queue1File.getParentFile(), queue1File.getName() + ".index");
+        int index = Integer.parseInt(FileUtilities.loadExactToString(indexFile));
+        return index;
     }
 
     private static class MockCommand extends AbstractTransactionalCommand

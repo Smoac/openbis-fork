@@ -16,18 +16,18 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.impl;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FilenameFilter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.io.RandomAccessFile;
 
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.collection.SimpleComparator;
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -44,10 +44,6 @@ import ch.systemsx.cisd.etlserver.registrator.ITransactionalCommand;
  */
 public class RollbackStack implements IRollbackStack
 {
-    private static final String ELEMENT_FILE_PREFIX = "element-";
-    private static final String ELEMENT_FILE_TYPE = ".ser";
-    private static final String ELEMENT_FILE_FORMAT = ELEMENT_FILE_PREFIX + "%07d" + ELEMENT_FILE_TYPE;
-
     /**
      * Delegate methods for the rollback stack, giving clients of the stack control over its behavior.
      * 
@@ -63,8 +59,11 @@ public class RollbackStack implements IRollbackStack
         void willContinueRollbackAll(RollbackStack stack);
     }
 
-    // The files that store the persistent queue. Used for discarding the queues.
-    private final File queue1File;
+    private final File commandsFile;
+
+    private final File commandOffsetsFile;
+
+    private final File indexFile;
 
     private final File queue2File;
 
@@ -72,7 +71,11 @@ public class RollbackStack implements IRollbackStack
 
     private final Logger operationLog;
 
-    private int size;
+    private long currentOffset;
+
+    private DataOutputStream commandsOutputStream;
+
+    private DataOutputStream indicesOutputStream;
 
     /**
      * Constructor for a rollback stack that uses queue1File and queue2File for the persistent queues.
@@ -87,7 +90,7 @@ public class RollbackStack implements IRollbackStack
 
     public RollbackStack(File queue1File, File queue2File, Logger operationLog)
     {
-        this.queue1File = queue1File;
+        this.commandsFile = queue1File;
         this.queue2File = queue2File;
 
         if (operationLog == null)
@@ -98,37 +101,10 @@ public class RollbackStack implements IRollbackStack
             this.operationLog = operationLog;
         }
 
-        this.lockedMarkerFile =
-                new File(queue1File.getParentFile(), queue1File.getName() + ".LOCKED");
-        queue1File.mkdirs();
-        size = getElementFiles().size();
-    }
-
-    private List<File> getElementFiles()
-    {
-        
-        List<File> elementFiles = new ArrayList<File>();
-        File[] files = this.queue1File.listFiles(new FilenameFilter()
-            {
-                @Override
-                public boolean accept(File dir, String name)
-                {
-                    return name.startsWith(ELEMENT_FILE_PREFIX) && name.endsWith(ELEMENT_FILE_TYPE);
-                }
-            });
-        if (files != null && files.length > 0)
-        {
-            elementFiles.addAll(Arrays.asList(files));
-        }
-        Collections.sort(elementFiles, new SimpleComparator<File, String>()
-            {
-                @Override
-                public String evaluate(File item)
-                {
-                    return item.getName();
-                }
-            });
-        return elementFiles;
+        this.commandOffsetsFile = new File(queue1File.getParentFile(), queue1File.getName() + ".offsets");
+        this.indexFile = new File(queue1File.getParentFile(), queue1File.getName() + ".index");
+        this.lockedMarkerFile = new File(queue1File.getParentFile(), queue1File.getName() + ".LOCKED");
+        this.operationLog.info("Rollback stack: " + commandsFile);
     }
 
     /**
@@ -136,7 +112,7 @@ public class RollbackStack implements IRollbackStack
      */
     public int getSize()
     {
-        return getElementFiles().size();
+        return (int) (commandOffsetsFile.length() / Long.BYTES);
     }
 
     /**
@@ -145,10 +121,27 @@ public class RollbackStack implements IRollbackStack
     @Override
     public void pushAndExecuteCommand(ITransactionalCommand cmd)
     {
-        File file = new File(queue1File, String.format(ELEMENT_FILE_FORMAT, size));
-        FileUtilities.writeToFile(file, new StackElement(cmd, size));
-        size++;
-        cmd.execute();
+        try
+        {
+            byte[] serializedCommand = SerializationUtils.serialize(cmd);
+            if (indicesOutputStream == null)
+            {
+                indicesOutputStream = new DataOutputStream(new FileOutputStream(commandOffsetsFile, true));
+                currentOffset = 0;
+            }
+            currentOffset += serializedCommand.length;
+            indicesOutputStream.writeLong(currentOffset);
+            indicesOutputStream.flush();
+            if (commandsOutputStream == null)
+            {
+                commandsOutputStream = new DataOutputStream(new FileOutputStream(commandsFile, true));
+            }
+            commandsOutputStream.write(serializedCommand);
+            cmd.execute();
+        } catch (Exception e)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(e);
+        }
     }
 
     /**
@@ -176,32 +169,98 @@ public class RollbackStack implements IRollbackStack
             throw new IllegalStateException(
                     "Rollback stack is in the locked state. Triggering rollback forbidden.");
         }
-        List<File> elementFiles = getElementFiles();
-        if (elementFiles.isEmpty() == false)
+        RandomAccessFile rafile = null;
+        try
         {
-            int numberOfElements = elementFiles.size();
-            operationLog.info("Rolling back " + numberOfElements + " commands");
-            for (int i = numberOfElements - 1; i >= 0; i--)
+            long[] offsets = loadOffsets();
+            int initialIndex = loadIndex(offsets);
+            if (initialIndex >= 0)
             {
-                File file = elementFiles.get(i);
-                StackElement stackElement = FileUtilities.loadToObject(file, StackElement.class);
+                operationLog.info("Rolling back " + (initialIndex + 1) + " of " + offsets.length + " commands");
+                rafile = new RandomAccessFile(commandsFile, "r");
+                int numberOfRolledBackCommands = 0;
+                for (int index = initialIndex; index >= 0; index--)
+                {
+                    long offset2 = offsets[index];
+                    long offset1 = index == 0 ? 0 : offsets[index - 1];
+                    rafile.seek(offset1);
+                    byte[] bytes = new byte[(int) (offset2 - offset1)];
+                    rafile.read(bytes);
+                    ITransactionalCommand cmd = (ITransactionalCommand) SerializationUtils.deserialize(bytes);
+                    try
+                    {
+                        cmd.rollback();
+                    } catch (Throwable t)
+                    {
+                        operationLog.error("Encountered error rolling back command " + cmd.toString(), t);
+                    }
+                    numberOfRolledBackCommands++;
+                    saveIndex(index - 1);
+                    delegate.willContinueRollbackAll(this);
+                    if (numberOfRolledBackCommands % 100 == 0)
+                    {
+                        operationLog.info(numberOfRolledBackCommands + " commands rolled back");
+                    }
+                }
+            }
+        } catch (Exception e)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(e);
+        } finally
+        {
+            if (rafile != null)
+            {
                 try
                 {
-                    // Roll it back
-                    stackElement.command.rollback();
-                } catch (Throwable ex)
+                    rafile.close();
+                } catch (IOException e)
                 {
-                    // If any problems happen rolling back a command, log them
-                    operationLog.error("Encountered error rolling back command " + stackElement.toString(), ex);
-                }
-                file.delete();
-                delegate.willContinueRollbackAll(this);
-                if (numberOfElements - i > 1 && (numberOfElements - i) % 100 == 0)
-                {
-                    operationLog.info((numberOfElements - i) + " commands rolled back");
+                    // silently ignored
                 }
             }
         }
+    }
+
+    private long[] loadOffsets() throws Exception
+    {
+        if (commandOffsetsFile.exists() == false)
+        {
+            return new long[0];
+        }
+        DataInputStream stream = null;
+        try
+        {
+            long[] offsets = new long[getSize()];
+            stream = new DataInputStream(new FileInputStream(commandOffsetsFile));
+            for (int i = 0; i < offsets.length; i++)
+            {
+                offsets[i] = stream.readLong();
+            }
+            return offsets;
+        } finally
+        {
+            try
+            {
+                stream.close();
+            } catch (IOException e)
+            {
+                // silently ignored
+            }
+        }
+    }
+
+    private int loadIndex(long[] offsets)
+    {
+        if (indexFile.exists() == false)
+        {
+            return offsets.length - 1;
+        }
+        return Integer.parseInt(FileUtilities.loadExactToString(indexFile));
+    }
+
+    private void saveIndex(int index)
+    {
+        FileUtilities.writeToFile(indexFile, Integer.toString(index));
     }
 
     /**
@@ -214,14 +273,15 @@ public class RollbackStack implements IRollbackStack
             throw new IllegalStateException(
                     "Discarding of locked rollback stack is illegal. Set locked to false first.");
         }
-        FileUtilities.deleteRecursively(queue1File);
+        commandOffsetsFile.delete();
+        commandsFile.delete();
+        indexFile.delete();
     }
-    
+
     @Override
     public String toString()
     {
-        List<File> elementFiles = getElementFiles();
-        return "RollbackStack " + queue1File + " with " + elementFiles.size() + " commands to roll back";
+        return "RollbackStack " + commandsFile + " with " + getSize() + " commands to roll back";
     }
 
     /**
@@ -229,8 +289,7 @@ public class RollbackStack implements IRollbackStack
      */
     public File[] getBackingFiles()
     {
-        return new File[]
-        { queue1File, queue2File };
+        return new File[] { commandsFile, queue2File };
     }
 
     @Override
@@ -267,53 +326,5 @@ public class RollbackStack implements IRollbackStack
                     + lockedMarkerFile.getAbsolutePath());
         }
     }
-
-    /**
-     * A stack element combines the command with an order. The order is used to implement the ordering in the queue.
-     * <p>
-     * The queue of rollback actions should be LIFO (a stack), but there is no LIFO queue in the available libraries that we can use for this purpose.
-     * Thus, we use a priority queue, which is available, and define the priority comparison operator such that it results in a LIFO queue.
-     * 
-     * @author Chandrasekhar Ramakrishnan
-     */
-    protected static class StackElement implements Serializable, Comparable<StackElement>
-    {
-        private static final long serialVersionUID = 1L;
-
-        private final ITransactionalCommand command;
-
-        private final int order;
-
-        protected StackElement(ITransactionalCommand command, int order)
-        {
-            this.command = command;
-            this.order = order;
-        }
-
-        @Override
-        public int compareTo(StackElement o)
-        {
-            // The order should be the reverse of the step order (later steps should come first in
-            // the ordering).
-            if (o.order < this.order)
-            {
-                return -1;
-            } else if (o.order > this.order)
-            {
-                return 1;
-            } else
-            {
-                return 0;
-            }
-        }
-
-        @Override
-        public String toString()
-        {
-            return "StackElement [command=" + command + ", order=" + order + "]";
-        }
-
-    }
-
 
 }
