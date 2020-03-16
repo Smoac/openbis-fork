@@ -107,7 +107,7 @@ public class RollbackStackTest extends AbstractTestWithRollbackStack
         {
             // Then
             assertEquals("Rollback stack is in the locked state. Triggering rollback forbidden.", ex.getMessage());
-            assertEquals("RollbackStack " + queue1File + " with 2 commands to roll back", rollbackStack.toString());
+            assertEquals("RollbackStack " + commandsFile + " with 2 commands to roll back", rollbackStack.toString());
 
             rollbackStack.setLockedState(false);
 
@@ -170,12 +170,12 @@ public class RollbackStackTest extends AbstractTestWithRollbackStack
 
     private RollbackStack createRollBackStack()
     {
-        return new RollbackStack(queue1File, queue2File);
+        return new RollbackStack(commandsFile);
     }
 
     private int getIndex()
     {
-        File indexFile = new File(queue1File.getParentFile(), queue1File.getName() + ".index");
+        File indexFile = new File(commandsFile.getParentFile(), commandsFile.getName() + ".index");
         int index = Integer.parseInt(FileUtilities.loadExactToString(indexFile));
         return index;
     }

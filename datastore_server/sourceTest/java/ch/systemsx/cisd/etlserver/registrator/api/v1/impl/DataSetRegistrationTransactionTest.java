@@ -162,7 +162,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         checkContentsOfFile(new File(dst));
 
         File[] rollbackQueueFiles = listRollbackQueueFiles();
-        assertEquals(2, rollbackQueueFiles.length);
+        assertEquals(1, rollbackQueueFiles.length);
 
         tr.commit();
 
@@ -198,7 +198,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         checkContentsOfFile(new File(dst));
 
         File[] rollbackQueueFiles = listRollbackQueueFiles();
-        assertEquals(2, rollbackQueueFiles.length);
+        assertEquals(1, rollbackQueueFiles.length);
 
         tr.commit();
 
@@ -232,7 +232,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         newDataSet.setDataSetType(DATA_SET_TYPE.getCode());
 
         File[] rollbackQueueFiles = listRollbackQueueFiles();
-        assertEquals(2, rollbackQueueFiles.length);
+        assertEquals(1, rollbackQueueFiles.length);
 
         tr.commit();
 
@@ -267,7 +267,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         checkContentsOfFile(new File(dst));
 
         File[] rollbackQueueFiles = listRollbackQueueFiles();
-        assertEquals(2, rollbackQueueFiles.length);
+        assertEquals(1, rollbackQueueFiles.length);
 
         tr.commit();
 
@@ -338,7 +338,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         checkContentsOfFile(new File(dst));
 
         File[] rollbackQueueFiles = listRollbackQueueFiles();
-        assertEquals(2, rollbackQueueFiles.length);
+        assertEquals(1, rollbackQueueFiles.length);
 
         DataSetRegistrationTransaction.rollbackDeadTransactions(workingDirectory);
 
@@ -382,19 +382,19 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
 
         // Duplicate the rollback queue so we can simulate a double rollback
         File[] rollbackQueueFiles = listRollbackQueueFiles();
-        assertEquals(2, rollbackQueueFiles.length);
+        assertEquals(1, rollbackQueueFiles.length);
         for (File rollbackQueueFile : rollbackQueueFiles)
         {
             File destFile = new File(workingDirectory, "dup-" + rollbackQueueFile.getName());
             FileUtils.copyFile(rollbackQueueFile, destFile);
         }
         rollbackQueueFiles = listRollbackQueueFiles();
-        assertEquals(4, rollbackQueueFiles.length);
+        assertEquals(2, rollbackQueueFiles.length);
 
         // Do a "normal" rollback
         tr.rollback();
         rollbackQueueFiles = listRollbackQueueFiles();
-        assertEquals(2, rollbackQueueFiles.length);
+        assertEquals(1, rollbackQueueFiles.length);
 
         // Rollback again using the queue we duplicated
         DataSetRegistrationTransaction.rollbackDeadTransactions(workingDirectory);
@@ -482,12 +482,9 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
                 @Override
                 public boolean accept(File dir, String name)
                 {
-                    final String ROLLBACK_QUEUE1_FILE_NAME_SUFFIX = "rollBackQueue1";
+                    final String ROLLBACK_QUEUE1_FILE_NAME_SUFFIX = "rollBackQueue";
 
-                    final String ROLLBACK_QUEUE2_FILE_NAME_SUFFIX = "rollBackQueue2";
-
-                    return name.endsWith(ROLLBACK_QUEUE1_FILE_NAME_SUFFIX)
-                            || name.endsWith(ROLLBACK_QUEUE2_FILE_NAME_SUFFIX);
+                    return name.endsWith(ROLLBACK_QUEUE1_FILE_NAME_SUFFIX);
                 }
 
             });

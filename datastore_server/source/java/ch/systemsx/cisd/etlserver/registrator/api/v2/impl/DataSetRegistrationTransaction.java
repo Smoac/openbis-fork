@@ -107,9 +107,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
 {
     public static final String SUCCESS_MESSAGE = "Successfully committed transaction";
 
-    private static final String ROLLBACK_QUEUE1_FILE_NAME_SUFFIX = "rollBackQueue1";
-
-    private static final String ROLLBACK_QUEUE2_FILE_NAME_SUFFIX = "rollBackQueue2";
+    private static final String ROLLBACK_QUEUE1_FILE_NAME_SUFFIX = "rollBackQueue";
 
     private final static String ROLLBACK_STACK_FILE_NAME_DATE_FORMAT_PATTERN = "yyyyMMddHHmmssSSS";
 
@@ -118,7 +116,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
 
     public static synchronized RollbackStack[] findRollbackStacks(File rollBackStackParentFolder)
     {
-        File[] rollbackQueue1Files = rollBackStackParentFolder.listFiles(new FilenameFilter()
+        File[] rollbackQueueFiles = rollBackStackParentFolder.listFiles(new FilenameFilter()
             {
                 @Override
                 public boolean accept(File dir, String name)
@@ -127,13 +125,11 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
                 }
             });
 
-        RollbackStack[] rollbackStacks = new RollbackStack[rollbackQueue1Files.length];
+        RollbackStack[] rollbackStacks = new RollbackStack[rollbackQueueFiles.length];
 
-        for (int i = 0; i < rollbackQueue1Files.length; i++)
+        for (int i = 0; i < rollbackQueueFiles.length; i++)
         {
-            File rollbackStackQueue1 = rollbackQueue1Files[i];
-            RollbackStack stack = createExistingRollbackStack(rollbackStackQueue1);
-            rollbackStacks[i] = stack;
+            rollbackStacks[i] = new RollbackStack(rollbackQueueFiles[i]);
         }
         return rollbackStacks;
     }
@@ -150,10 +146,10 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
             if (stack.isLockedState())
             {
                 operationLog.info("Found rollback stack in locked state: "
-                        + stack.getBackingFiles()[0] + ". Not Rolling back.");
+                        + stack.getCommandsFile() + ". Not Rolling back.");
             } else
             {
-                operationLog.info("Found dead rollback stack: " + stack.getBackingFiles()[0]
+                operationLog.info("Found dead rollback stack: " + stack.getCommandsFile()
                         + ". Rolling back.");
 
                 try
@@ -184,24 +180,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
                 DateFormatUtils.format(new Date(), ROLLBACK_STACK_FILE_NAME_DATE_FORMAT_PATTERN)
                         + "-" + ai.getAndIncrement() + "-";
         return new RollbackStack(new File(rollBackStackParentFolder, fileNamePrefix
-                + ROLLBACK_QUEUE1_FILE_NAME_SUFFIX), new File(rollBackStackParentFolder,
-                fileNamePrefix + ROLLBACK_QUEUE2_FILE_NAME_SUFFIX));
-    }
-
-    /**
-     * Given a queue1 file, create an existing rollback stack
-     */
-    private static RollbackStack createExistingRollbackStack(File rollbackStackQueue1)
-    {
-        String rollbackStack1FileName = rollbackStackQueue1.getName();
-        // Remove the ROLLBACK_QUEUE1_FILE_NAME_SUFFIX and append the
-        // ROLLBACK_QUEUE2_FILE_NAME_SUFFIX
-        String rollbackStack2FileName =
-                rollbackStack1FileName.substring(0, rollbackStack1FileName.length()
-                        - ROLLBACK_QUEUE1_FILE_NAME_SUFFIX.length())
-                        + ROLLBACK_QUEUE2_FILE_NAME_SUFFIX;
-        return new RollbackStack(rollbackStackQueue1, new File(rollbackStackQueue1.getParentFile(),
-                rollbackStack2FileName));
+                + ROLLBACK_QUEUE1_FILE_NAME_SUFFIX));
     }
 
     private AbstractTransactionState<T> state;

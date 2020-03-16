@@ -29,9 +29,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.impl.RollbackStack;
  */
 public class AbstractTestWithRollbackStack extends AbstractFileSystemTestCase
 {
-    protected File queue1File;
-
-    protected File queue2File;
+    protected File commandsFile;
 
     protected RollbackStack rollbackStack;
     
@@ -43,10 +41,9 @@ public class AbstractTestWithRollbackStack extends AbstractFileSystemTestCase
     {
         super.setUp();
         logFile = new File(workingDirectory, "log.txt");
-        queue1File = new File(workingDirectory, "queue1.dat");
-        queue2File = new File(workingDirectory, "queue2.dat");
+        commandsFile = new File(workingDirectory, "commands.dat");
 
-        rollbackStack = new RollbackStack(queue1File, queue2File);
+        rollbackStack = new RollbackStack(commandsFile);
     }
 
 }

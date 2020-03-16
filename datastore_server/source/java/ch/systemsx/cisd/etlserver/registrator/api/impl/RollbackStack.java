@@ -65,8 +65,6 @@ public class RollbackStack implements IRollbackStack
 
     private final File indexFile;
 
-    private final File queue2File;
-
     private final File lockedMarkerFile;
 
     private final Logger operationLog;
@@ -80,18 +78,16 @@ public class RollbackStack implements IRollbackStack
     /**
      * Constructor for a rollback stack that uses queue1File and queue2File for the persistent queues.
      * 
-     * @param queue1File File for a persistent queue
-     * @param queue2File File for a persistent queue
+     * @param commandsFile File for a persistent queue
      */
-    public RollbackStack(File queue1File, File queue2File)
+    public RollbackStack(File commandsFile)
     {
-        this(queue1File, queue2File, null);
+        this(commandsFile, null);
     }
 
-    public RollbackStack(File queue1File, File queue2File, Logger operationLog)
+    public RollbackStack(File commandsFile, Logger operationLog)
     {
-        this.commandsFile = queue1File;
-        this.queue2File = queue2File;
+        this.commandsFile = commandsFile;
 
         if (operationLog == null)
         {
@@ -101,9 +97,9 @@ public class RollbackStack implements IRollbackStack
             this.operationLog = operationLog;
         }
 
-        this.commandOffsetsFile = new File(queue1File.getParentFile(), queue1File.getName() + ".offsets");
-        this.indexFile = new File(queue1File.getParentFile(), queue1File.getName() + ".index");
-        this.lockedMarkerFile = new File(queue1File.getParentFile(), queue1File.getName() + ".LOCKED");
+        this.commandOffsetsFile = new File(commandsFile.getParentFile(), commandsFile.getName() + ".offsets");
+        this.indexFile = new File(commandsFile.getParentFile(), commandsFile.getName() + ".index");
+        this.lockedMarkerFile = new File(commandsFile.getParentFile(), commandsFile.getName() + ".LOCKED");
         this.operationLog.info("Rollback stack: " + commandsFile);
     }
 
@@ -287,9 +283,9 @@ public class RollbackStack implements IRollbackStack
     /**
      * Internal getter for clients that need to serialize the rollback stack. Use this method with caution since it exposes implementation details.
      */
-    public File[] getBackingFiles()
+    public File getCommandsFile()
     {
-        return new File[] { commandsFile, queue2File };
+        return commandsFile;
     }
 
     @Override

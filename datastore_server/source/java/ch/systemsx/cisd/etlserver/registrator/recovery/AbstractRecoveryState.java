@@ -39,7 +39,7 @@ public abstract class AbstractRecoveryState<T extends DataSetInformation> implem
 
     private File dssRegistrationLogFile;
 
-    private File[] rollbackStackBackingFiles;
+    private File rollbackStackCommandsFile;
 
     private DataSetFile incomingDataSetFile;
 
@@ -53,7 +53,7 @@ public abstract class AbstractRecoveryState<T extends DataSetInformation> implem
             DataSetFile incomingDataSetFile, DataSetRegistrationPersistentMap persistentMap)
     {
         dssRegistrationLogFile = logger.getFile();
-        this.rollbackStackBackingFiles = ((RollbackStack) rollbackStack).getBackingFiles();
+        this.rollbackStackCommandsFile = ((RollbackStack) rollbackStack).getCommandsFile();
 
         this.incomingDataSetFile = incomingDataSetFile;
 
@@ -82,7 +82,7 @@ public abstract class AbstractRecoveryState<T extends DataSetInformation> implem
 
     public RollbackStack getRollbackStack()
     {
-        return new RollbackStack(rollbackStackBackingFiles[0], rollbackStackBackingFiles[1]);
+        return new RollbackStack(rollbackStackCommandsFile);
     }
 
     public DataSetRegistrationPersistentMap getPersistentMap()

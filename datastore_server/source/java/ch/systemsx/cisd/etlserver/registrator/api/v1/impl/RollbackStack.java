@@ -30,11 +30,11 @@ public class RollbackStack extends ch.systemsx.cisd.etlserver.registrator.api.im
 
     public RollbackStack(File queue1File, File queue2File, Logger operationLog)
     {
-        super(queue1File, queue2File, operationLog);
+        super(queue1File, operationLog);
     }
 
     public RollbackStack(File queue1File, File queue2File)
     {
-        super(queue1File, queue2File);
+        super(queue1File);
     }
 }
