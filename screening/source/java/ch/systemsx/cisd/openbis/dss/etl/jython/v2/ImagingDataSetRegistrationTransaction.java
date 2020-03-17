@@ -424,7 +424,8 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
                 throw new UserFailureException("Failed to generate thumbnails for data set " + dataSetCode
                         + ". Either image files are corrupted or our image library can not read the images. "
                         + "In the later case this error message can be suppressed by setting the property '"
-                        + THUMBNAIL_GENERATION_FAILURE_PROPERTY + "' in DSS service.properties to 'true'.", e);
+                        + THUMBNAIL_GENERATION_FAILURE_PROPERTY + "' in DSS service.properties or "
+                        + "in plugin.properties of the drop box to 'true'.", e);
             }
         }
     }
