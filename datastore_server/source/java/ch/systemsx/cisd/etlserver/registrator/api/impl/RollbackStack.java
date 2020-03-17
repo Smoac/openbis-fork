@@ -177,6 +177,7 @@ public class RollbackStack implements IRollbackStack
                 int numberOfRolledBackCommands = 0;
                 for (int index = initialIndex; index >= 0; index--)
                 {
+                    delegate.willContinueRollbackAll(this);
                     long offset2 = offsets[index];
                     long offset1 = index == 0 ? 0 : offsets[index - 1];
                     rafile.seek(offset1);
@@ -192,7 +193,6 @@ public class RollbackStack implements IRollbackStack
                     }
                     numberOfRolledBackCommands++;
                     saveIndex(index - 1);
-                    delegate.willContinueRollbackAll(this);
                     if (numberOfRolledBackCommands % 100 == 0)
                     {
                         operationLog.info(numberOfRolledBackCommands + " commands rolled back");
