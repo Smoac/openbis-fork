@@ -61,7 +61,7 @@ public class RollbackStackTest extends AbstractTestWithRollbackStack
                 + "CMD3 rolled back\n"
                 + "CMD2 rolled back\n"
                 + "CMD1 rolled back", getLogs());
-        assertEquals("[1, 0, -1]", recordedSizes.toString());
+        assertEquals("[-99, 1, 0]", recordedSizes.toString());
     }
 
     @Test
@@ -176,7 +176,7 @@ public class RollbackStackTest extends AbstractTestWithRollbackStack
     private int getIndex()
     {
         File indexFile = new File(commandsFile.getParentFile(), commandsFile.getName() + ".index");
-        int index = Integer.parseInt(FileUtilities.loadExactToString(indexFile));
+        int index = indexFile.exists() ? Integer.parseInt(FileUtilities.loadExactToString(indexFile)) : -99;
         return index;
     }
 
