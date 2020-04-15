@@ -25,7 +25,6 @@ import org.apache.log4j.Logger;
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.config.SyncConfig;
-import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 
 /**
@@ -50,8 +49,6 @@ public class SynchronizationContext
     private Set<String> blackListedDataSetCodes;
 
     private Set<String> attachmentHolderCodesToRetry;
-
-    private DataSetProcessingContext context;
 
     private SyncConfig config;
 
@@ -157,16 +154,6 @@ public class SynchronizationContext
     public void setAttachmentHolderCodesToRetry(Set<String> attachmentHolderCodesToRetry)
     {
         this.attachmentHolderCodesToRetry = attachmentHolderCodesToRetry;
-    }
-
-    public DataSetProcessingContext getContext()
-    {
-        return context;
-    }
-
-    public void setContext(DataSetProcessingContext context)
-    {
-        this.context = context;
     }
 
     public SyncConfig getConfig()

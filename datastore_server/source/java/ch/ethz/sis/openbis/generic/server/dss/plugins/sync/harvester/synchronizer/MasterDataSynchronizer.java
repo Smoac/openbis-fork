@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchroniz
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.id.ExternalDmsPermId
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.id.IExternalDmsId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.update.ExternalDmsUpdate;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.ServiceFinderUtils;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.config.SyncConfig;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.util.Monitor;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
@@ -74,13 +76,17 @@ public class MasterDataSynchronizer
 
     private IApplicationServerApi v3api;
 
-    public MasterDataSynchronizer(String harvesterUser, String harvesterPassword, boolean dryRun, boolean verbose, Logger operationLog)
+    private SyncConfig config;
+
+    public MasterDataSynchronizer(SyncConfig config, Logger operationLog)
     {
+        this.config = config;
         String openBisServerUrl = ServiceProvider.getConfigProvider().getOpenBisServerUrl();
-        this.dryRun = dryRun;
-        this.synchronizerFacade = new SynchronizerFacade(openBisServerUrl, harvesterUser, harvesterPassword, dryRun, verbose, operationLog);
+        this.dryRun = config.isDryRun();
+        this.synchronizerFacade = new SynchronizerFacade(openBisServerUrl, config.getHarvesterUser(),
+                config.getHarvesterPass(), dryRun, config.isVerbose(), operationLog);
         this.commonServer = ServiceFinderUtils.getCommonServer(openBisServerUrl);
-        this.sessionToken = ServiceFinderUtils.login(commonServer, harvesterUser, harvesterPassword);
+        this.sessionToken = ServiceFinderUtils.login(commonServer, config.getHarvesterUser(), config.getHarvesterPass());
         v3api = ServiceProvider.getV3ApplicationService();
         vocabularyTermsToBeDeleted = new HashMap<TechId, List<VocabularyTerm>>();
     }
@@ -113,7 +119,7 @@ public class MasterDataSynchronizer
         synchronizerFacade.printSummary();
     }
 
-    public void cleanupUnusedMasterData()
+    private void cleanupUnusedMasterData()
     {
         for (TechId vocabularyId : vocabularyTermsToBeDeleted.keySet())
         {
@@ -151,10 +157,15 @@ public class MasterDataSynchronizer
             Script existingPluginOrNull = pluginMap.get(name);
             if (existingPluginOrNull != null)
             {
-                existingPluginOrNull.setName(incomingplugin.getName());
-                existingPluginOrNull.setScript(incomingplugin.getScript());
-                existingPluginOrNull.setDescription(incomingplugin.getDescription());
-                synchronizerFacade.updateValidationPlugin(existingPluginOrNull);
+                Date incomingModificationDate = incomingplugin.getModificationDate();
+                if (incomingModificationDate != null
+                        && incomingModificationDate.after(existingPluginOrNull.getModificationDate()))
+                {
+                    existingPluginOrNull.setName(incomingplugin.getName());
+                    existingPluginOrNull.setScript(incomingplugin.getScript());
+                    existingPluginOrNull.setDescription(incomingplugin.getDescription());
+                    synchronizerFacade.updateValidationPlugin(existingPluginOrNull);
+                }
             } else
             {
                 synchronizerFacade.registerValidationPlugin(incomingplugin);
@@ -166,8 +177,7 @@ public class MasterDataSynchronizer
     {
         List<ExternalDmsPermId> ids = externalDataManagementSystems.keySet().stream()
                 .map(ExternalDmsPermId::new).collect(Collectors.toList());
-        Map<IExternalDmsId, ExternalDms> existingDmss 
-            = v3api.getExternalDataManagementSystems(sessionToken,ids, new ExternalDmsFetchOptions());
+        Map<IExternalDmsId, ExternalDms> existingDmss = v3api.getExternalDataManagementSystems(sessionToken, ids, new ExternalDmsFetchOptions());
         List<ExternalDmsCreation> creations = new ArrayList<>();
         List<ExternalDmsUpdate> updates = new ArrayList<>();
         for (ExternalDms externalDms : externalDataManagementSystems.values())
@@ -379,13 +389,16 @@ public class MasterDataSynchronizer
                 synchronizerFacade.assignPropertyType(newETPTAssignment);
             }
         }
-        // remove property assignments that are no longer valid
-        for (EntityTypePropertyType etpt : assignedPropertyTypes)
+        if (config.isPropertyUnassignmentAllowed())
         {
-            if (findInIncomingPropertyAssignments(etpt, incomingAssignmentsList) == false)
+            // remove property assignments that are no longer valid
+            for (EntityTypePropertyType etpt : assignedPropertyTypes)
             {
-                synchronizerFacade.unassignPropertyType(existingEntityType.getEntityKind(), etpt.getPropertyType().getCode(), etpt
-                        .getEntityType().getCode());
+                if (findInIncomingPropertyAssignments(etpt, incomingAssignmentsList) == false)
+                {
+                    synchronizerFacade.unassignPropertyType(existingEntityType.getEntityKind(), etpt.getPropertyType().getCode(), etpt
+                            .getEntityType().getCode());
+                }
             }
         }
     }

@@ -64,7 +64,6 @@ import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
 import ch.systemsx.cisd.common.parser.ILine;
 import ch.systemsx.cisd.common.parser.filter.ILineFilter;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskInfoProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
@@ -95,17 +94,14 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
     private IEncapsulatedOpenBISService service;
 
     private IApplicationServerApi v3Api;
-    
-    private IDataStoreServerApi v3DssApi;
 
-    private DataSetProcessingContext context;
+    private IDataStoreServerApi v3DssApi;
 
     private File harvesterConfigFile;
 
     private IMailClient mailClient;
 
     private String dataStoreCode;
-
 
     private static class Timestamps
     {
@@ -128,11 +124,9 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
         v3Api = ServiceProvider.getV3ApplicationService();
         v3DssApi = ServiceProvider.getDssServiceInternalV3();
 
-        context = new DataSetProcessingContext(null, null, null, null, null, null);
         dataStoreCode = getConfigProvider().getDataStoreCode();
         storeRoot = new File(DssPropertyParametersUtil.loadServiceProperties().getProperty(PluginTaskInfoProvider.STOREROOT_DIR_KEY));
         mailClient = ServiceProvider.getDataStoreService().createEMailClient();
-
 
         String configFileProperty = properties.getProperty(HARVESTER_CONFIG_FILE_PROPERTY_NAME);
         if (configFileProperty == null)
@@ -184,11 +178,11 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
                 + " for user " + config.getUser());
         checkAlias(config);
         logger.info("verbose =  " + config.isVerbose());
-        
+
         String fileName = config.getLastSyncTimestampFileName();
         File lastSyncTimestampFile = new File(fileName);
         Timestamps timestamps = loadCutOffTimeStamps(lastSyncTimestampFile);
-        
+
         Date cutOffTimestamp = timestamps.lastIncSyncTimestamp;
         boolean isFullSync = lastSyncTimestampFile.exists() == false || isTimeForFullSync(config, timestamps.lastFullSyncTimestamp);
         logger.info("Last incremental sync timestamp: " + timestamps.lastIncSyncTimestamp);
@@ -199,14 +193,12 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
             if (lastSyncTimestampFile.exists() == false)
             {
                 logger.info("Performing a full initial sync");
-            }
-            else
+            } else
             {
                 logger.info("Performing a full sync as a minimum of " + config.getFullSyncInterval()
-                + " day(s) have elapsed since last full sync.");
+                        + " day(s) have elapsed since last full sync.");
             }
-        }
-        else
+        } else
         {
             logger.info("Performing an incremental sync");
         }
@@ -214,9 +206,8 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
         Set<String> notSyncedDataSetCodes = getNotSyncedDataSetCodes(notSyncedEntitiesFileName);
         Set<String> notSyncedAttachmentHolderCodes = getNotSyncedAttachmentHolderCodes(notSyncedEntitiesFileName);
         Set<String> blackListedDataSetCodes = getBlackListedDataSetCodes(notSyncedEntitiesFileName);
-        
+
         Date newCutOffTimestamp = new Date();
-        
 
         SynchronizationContext syncContext = new SynchronizationContext();
         syncContext.setService(service);
@@ -229,7 +220,6 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
         syncContext.setDataSetsCodesToRetry(notSyncedDataSetCodes);
         syncContext.setBlackListedDataSetCodes(blackListedDataSetCodes);
         syncContext.setAttachmentHolderCodesToRetry(notSyncedAttachmentHolderCodes);
-        syncContext.setContext(context);
         syncContext.setConfig(config);
         syncContext.setOperationLog(logger);
         EntitySynchronizer synchronizer = new EntitySynchronizer(syncContext);
@@ -244,13 +234,12 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
         {
             newLastFullSyncTimestamp = newCutOffTimestamp;
         }
-        
+
         if (config.isDryRun() == false)
         {
             logger.info("Saving the timestamp of sync start to file");
             saveSyncTimestamp(lastSyncTimestampFile, newLastIncSyncTimestamp, newLastFullSyncTimestamp);
-        }
-        else
+        } else
         {
             logger.info("Dry run finished");
         }
@@ -312,14 +301,12 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
             {
                 // do full sync
                 return true;
-            }
-            else
+            } else
             {
                 // do incremental sync
                 return false;
             }
-        }
-        else
+        } else
         {
             // do incremental sync
             return false;
@@ -333,8 +320,7 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
         {
             List<String> list = FileUtilities.loadToStringList(notSyncedEntitiesFile, linefilter);
             return new LinkedHashSet<String>(list);
-        }
-        else
+        } else
         {
             return new LinkedHashSet<String>();
         }
@@ -399,10 +385,10 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
                 mailClient.sendEmailMessageWithAttachment(subject,
                         "See the attached file for details.",
                         "", new DataHandler(
-                                dataSource), null, null, recipient);
+                                dataSource),
+                        null, null, recipient);
             }
-        }
-        else
+        } else
         {
             for (EMailAddress recipient : config.getEmailAddresses())
             {

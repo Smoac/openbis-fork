@@ -81,6 +81,10 @@ public class SynchronizationConfigReader
 
     private static final String SPACE_WHITE_LIST_PROPERTY_NAME = "space-white-list";
 
+    private static final String MASTER_DATA_UPDATE_PROPERTY_NAME = "master-data-update";
+
+    private static final String PROPERTY_UNASSIGNMENT_ALLOED_PROPERTY_NAME = "property-unassignment-allowed";
+
     private static final String KEEP_ORIGINAL_TIMESTAMPS_AND_USERS_PROPERTY_NAME = "keep-original-timestamps-and-users";
 
     private static final String KEEP_ORIGINAL_FROZEN_FLAGS_PROPERTY_NAME = "keep-original-frozen-flags";
@@ -134,7 +138,7 @@ public class SynchronizationConfigReader
 
             config.setHarvesterUser(reader.getString(section, HARVESTER_USER_PROPERTY_NAME, null, true));
             config.setHarvesterPass(reader.getString(section, HARVESTER_PASS_PROPERTY_NAME, null, true));
-            
+
             config.setSpaceBlackList(reader.getStrings(section, SPACE_BLACK_LIST_PROPERTY_NAME, new ArrayList<>()));
             config.setSpaceWhiteList(reader.getStrings(section, SPACE_WHITE_LIST_PROPERTY_NAME, new ArrayList<>()));
 
@@ -182,6 +186,8 @@ public class SynchronizationConfigReader
             {
                 config.setVerbose(true);
             }
+            config.setMasterDataUpdate(reader.getBoolean(section, MASTER_DATA_UPDATE_PROPERTY_NAME, true));
+            config.setPropertyUnassignmentAllowed(reader.getBoolean(section, PROPERTY_UNASSIGNMENT_ALLOED_PROPERTY_NAME, false));
             config.setKeepOriginalTimestampsAndUsers(reader.getBoolean(section, KEEP_ORIGINAL_TIMESTAMPS_AND_USERS_PROPERTY_NAME, true));
             config.setKeepOriginalFrozenFlags(reader.getBoolean(section, KEEP_ORIGINAL_FROZEN_FLAGS_PROPERTY_NAME, true));
             config.setWishedNumberOfStreams(reader.getInt(section, WISHED_NUMBER_OF_STREAMS_PROPERTY_NAME, null, false));

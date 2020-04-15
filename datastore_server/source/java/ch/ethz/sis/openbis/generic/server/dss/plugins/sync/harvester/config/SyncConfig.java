@@ -219,6 +219,10 @@ public class SyncConfig
     private Boolean dryRun = false;
 
     private Boolean verbose = false;
+    
+    private boolean masterDataUpdate;
+    
+    private boolean propertyUnassignmentAllowed;
 
     private boolean keepOriginalTimestampsAndUsers;
 
@@ -342,6 +346,26 @@ public class SyncConfig
     public void setVerbose(Boolean verbose)
     {
         this.verbose = verbose;
+    }
+
+    public boolean isMasterDataUpdate()
+    {
+        return masterDataUpdate;
+    }
+
+    public void setMasterDataUpdate(boolean masterDataUpdate)
+    {
+        this.masterDataUpdate = masterDataUpdate;
+    }
+
+    public boolean isPropertyUnassignmentAllowed()
+    {
+        return propertyUnassignmentAllowed;
+    }
+
+    public void setPropertyUnassignmentAllowed(boolean propertyUnassignmentAllowed)
+    {
+        this.propertyUnassignmentAllowed = propertyUnassignmentAllowed;
     }
 
     public boolean keepOriginalTimestampsAndUsers()

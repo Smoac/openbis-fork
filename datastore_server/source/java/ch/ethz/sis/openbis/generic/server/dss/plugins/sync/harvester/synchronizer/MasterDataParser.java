@@ -16,8 +16,6 @@
 
 package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer;
 
-import static ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant.ERROR_PROPERTY_PREFIX;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -464,7 +462,6 @@ public class MasterDataParser
             assignment.setEntityKind(entityType.getEntityKind());
             assignment.setEntityTypeCode(entityType.getCode());
             assignment.setMandatory(Boolean.valueOf(getAttribute(propertyAssignmentElement, "mandatory")));
-            assignment.setDefaultValue(ERROR_PROPERTY_PREFIX);
             assignment.setSection(getAttribute(propertyAssignmentElement, "section"));
             // ch.systemsx.cisd.openbis.generic.server.business.bo.EntityTypePropertyTypeBO.createAssignment() increases
             // the provided ordinal by one. Thus, we have to subtract 1 in order to get the same ordinal.

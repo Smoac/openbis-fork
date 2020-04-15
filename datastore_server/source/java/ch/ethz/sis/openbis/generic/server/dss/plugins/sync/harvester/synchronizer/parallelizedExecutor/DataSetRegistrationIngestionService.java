@@ -105,6 +105,7 @@ class DataSetRegistrationIngestionService extends IngestionService<DataSetInform
         if (dataSetForUpdate == null)
         {
             // REGISTER NEW DATA SET after downloading the data set files
+            transaction.setUserId(config.getHarvesterUser());
             File storeRoot = transaction.getGlobalState().getStoreRootDir();
             File temp = new File(storeRoot, this.harvesterTempDir);
             temp.mkdirs();

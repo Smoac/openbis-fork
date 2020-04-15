@@ -167,8 +167,6 @@ public class EntitySynchronizer
 
     private final IDataStoreServerApi v3DssApi;
 
-    private final DataSetProcessingContext context;
-
     private final Date lastSyncTimestamp;
 
     // the following indicates the actual value in the file, not the cutoff calculated according to full sync prefs
@@ -197,7 +195,6 @@ public class EntitySynchronizer
         dataSetsCodesToRetry = synContext.getDataSetsCodesToRetry();
         attachmentHolderCodesToRetry = synContext.getAttachmentHolderCodesToRetry();
         blackListedDataSetCodes = synContext.getBlackListedDataSetCodes();
-        context = synContext.getContext();
         config = synContext.getConfig();
         operationLog = synContext.getOperationLog();
     }
@@ -208,7 +205,10 @@ public class EntitySynchronizer
         ResourceListParserData data = parseResourceList(doc);
 
         processDeletions(data);
-        registerMasterData(data.getMasterData());
+        if (config.isMasterDataUpdate())
+        {
+            registerMasterData(data.getMasterData());
+        }
         MultiKeyMap<String, String> newEntities = registerEntities(data);
         List<String> notSyncedAttachmentsHolders = registerAttachments(data, newEntities);
         populateFileServiceRepository(data);
@@ -732,6 +732,7 @@ public class EntitySynchronizer
     private AtomicEntityOperationDetails createEntityOperationDetails(ResourceListParserData data, Monitor monitor)
     {
         AtomicEntityOperationDetailsBuilder builder = new AtomicEntityOperationDetailsBuilder();
+        builder.user(config.getHarvesterUser());
 
         processSpaces(data, builder);
         processProjects(data, builder);
@@ -1173,6 +1174,8 @@ public class EntitySynchronizer
         // This parallelization is possible because each DS is registered without dependencies
         // and the dependencies are established later on in the sync process.
         ParallelizedExecutionPreferences preferences = config.getParallelizedExecutionPrefs();
+        String sessionToken = service.getSessionToken();
+        DataSetProcessingContext context = new DataSetProcessingContext(null, null, null, null, null, null, sessionToken);
 
         ParallelizedExecutor.process(dsList, new DataSetRegistrationTaskExecutor(dataSetSynchronizationSummary, operationLog, storeRoot, context,
                 config),
@@ -1218,8 +1221,7 @@ public class EntitySynchronizer
     {
         Monitor monitor = new Monitor("Register master data", operationLog);
         operationLog.info("Registering master data...");
-        MasterDataSynchronizer masterDataSyncronizer =
-                new MasterDataSynchronizer(config.getHarvesterUser(), config.getHarvesterPass(), config.isDryRun(), config.isVerbose(), operationLog);
+        MasterDataSynchronizer masterDataSyncronizer = new MasterDataSynchronizer(config, operationLog);
         masterDataSyncronizer.synchronizeMasterData(masterData, monitor);
         monitor.log();
     }
