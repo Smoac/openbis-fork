@@ -16,11 +16,18 @@
 
 package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.util;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
+import java.util.TimeZone;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.PropertyBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
@@ -53,5 +60,22 @@ public class DSPropertyUtils
             list.add(new PropertyBuilder(propertyCode).value(value).getProperty());
         }
         return list.toArray(new IEntityProperty[list.size()]);
+    }
+
+    public static Date convertFromW3CDate(String dateStr)
+    {
+        if (dateStr == null)
+        {
+            return null;
+        }
+        try
+        {
+            DateFormat df1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
+            df1.setTimeZone(TimeZone.getTimeZone("GMT"));
+            return df1.parse(dateStr);
+        } catch (ParseException e)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(e);
+        }
     }
 }

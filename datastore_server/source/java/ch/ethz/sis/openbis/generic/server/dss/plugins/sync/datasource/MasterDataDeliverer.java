@@ -150,6 +150,8 @@ public class MasterDataDeliverer extends AbstractEntityDeliverer<Object>
             addAttribute(writer, "isAvailable", String.valueOf(plugin.isAvailable()));
             addAttribute(writer, "name", plugin.getName());
             addAttribute(writer, "type", plugin.getPluginType(), t -> t.toString());
+            addAttribute(writer, "registration-timestamp", plugin.getRegistrationDate(), h -> DataSourceUtils.convertToW3CDate(h));
+            addAttribute(writer, "modification-timestamp", plugin.getRegistrationDate(), h -> DataSourceUtils.convertToW3CDate(h));
             if (plugin.getScript() != null)
             {
                 writer.writeCData(plugin.getScript());
@@ -198,6 +200,8 @@ public class MasterDataDeliverer extends AbstractEntityDeliverer<Object>
             addAttribute(writer, "internalNamespace", String.valueOf(vocabulary.isInternalNameSpace()));
             addAttribute(writer, "managedInternally", String.valueOf(vocabulary.isManagedInternally()));
             addAttribute(writer, "urlTemplate", vocabulary.getUrlTemplate());
+            addAttribute(writer, "registration-timestamp", vocabulary.getRegistrationDate(), h -> DataSourceUtils.convertToW3CDate(h));
+            addAttribute(writer, "modification-timestamp", vocabulary.getModificationDate(), h -> DataSourceUtils.convertToW3CDate(h));
 
             for (VocabularyTerm term : vocabulary.getTerms())
             {
@@ -206,6 +210,7 @@ public class MasterDataDeliverer extends AbstractEntityDeliverer<Object>
                 addAttributeAndExtractFilePaths(executionContext, writer, "description", term.getDescription());
                 addAttribute(writer, "label", term.getLabel());
                 addAttribute(writer, "ordinal", String.valueOf(term.getOrdinal()));
+                addAttribute(writer, "registration-timestamp", term.getRegistrationDate(), h -> DataSourceUtils.convertToW3CDate(h));
                 addAttribute(writer, "url", vocabulary.getUrlTemplate(),
                         t -> t.replaceAll(BasicConstant.DEPRECATED_VOCABULARY_URL_TEMPLATE_TERM_PATTERN, code)
                                 .replaceAll(BasicConstant.VOCABULARY_URL_TEMPLATE_TERM_PATTERN, code));
@@ -244,6 +249,7 @@ public class MasterDataDeliverer extends AbstractEntityDeliverer<Object>
             addAttribute(writer, "internalNamespace", internalNameSpace);
             addAttribute(writer, "label", propertyType.getLabel());
             addAttribute(writer, "managedInternally", propertyType.isManagedInternally());
+            addAttribute(writer, "registration-timestamp", propertyType.getRegistrationDate(), h -> DataSourceUtils.convertToW3CDate(h));
             if (propertyType.getDataType().name().equals(DataType.CONTROLLEDVOCABULARY.name()))
             {
                 addAttribute(writer, "vocabulary", propertyType.getVocabulary(), v -> v.getCode());
@@ -287,6 +293,7 @@ public class MasterDataDeliverer extends AbstractEntityDeliverer<Object>
             addAttribute(writer, "showParents", type.isShowParents());
             addAttribute(writer, "subcodeUnique", type.isSubcodeUnique());
             addAttribute(writer, "validationPlugin", type.getValidationPlugin(), p -> p.getName());
+            addAttribute(writer, "modification-timestamp", type.getModificationDate(), h -> DataSourceUtils.convertToW3CDate(h));
             addPropertyAssignments(writer, type.getPropertyAssignments());
             writer.writeEndElement();
         }
@@ -311,6 +318,7 @@ public class MasterDataDeliverer extends AbstractEntityDeliverer<Object>
         {
             writeTypeElement(executionContext, writer, "xmd:collectionType", type);
             addAttribute(writer, "validationPlugin", type.getValidationPlugin(), p -> p.getName());
+            addAttribute(writer, "modification-timestamp", type.getModificationDate(), h -> DataSourceUtils.convertToW3CDate(h));
             addPropertyAssignments(writer, type.getPropertyAssignments());
             writer.writeEndElement();
         }
@@ -337,6 +345,7 @@ public class MasterDataDeliverer extends AbstractEntityDeliverer<Object>
             addAttribute(writer, "mainDataSetPath", type.getMainDataSetPath());
             addAttribute(writer, "mainDataSetPattern", type.getMainDataSetPattern());
             addAttribute(writer, "validationPlugin", type.getValidationPlugin(), p -> p.getName());
+            addAttribute(writer, "modification-timestamp", type.getModificationDate(), h -> DataSourceUtils.convertToW3CDate(h));
             addPropertyAssignments(writer, type.getPropertyAssignments());
             writer.writeEndElement();
         }
@@ -360,6 +369,7 @@ public class MasterDataDeliverer extends AbstractEntityDeliverer<Object>
         {
             writeTypeElement(executionContext, writer, "xmd:materialType", type);
             addAttribute(writer, "validationPlugin", type.getValidationPlugin(), p -> p.getName());
+            addAttribute(writer, "modification-timestamp", type.getModificationDate(), h -> DataSourceUtils.convertToW3CDate(h));
             addPropertyAssignments(writer, type.getPropertyAssignments());
             writer.writeEndElement();
         }
@@ -411,6 +421,7 @@ public class MasterDataDeliverer extends AbstractEntityDeliverer<Object>
             addAttribute(writer, "section", propertyAssignment.getSection());
             addAttribute(writer, "showInEdit", propertyAssignment.isShowInEditView());
             addAttribute(writer, "showRawValueInForms", propertyAssignment.isShowRawValueInForms());
+            addAttribute(writer, "registration-timestamp", propertyAssignment.getRegistrationDate(), h -> DataSourceUtils.convertToW3CDate(h));
             writer.writeEndElement();
         }
         writer.writeEndElement();

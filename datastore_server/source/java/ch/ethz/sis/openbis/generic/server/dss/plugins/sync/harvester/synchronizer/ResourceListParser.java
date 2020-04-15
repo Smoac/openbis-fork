@@ -18,18 +18,13 @@ package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchroniz
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier.TYPE_SEPARATOR_PREFIX;
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier.TYPE_SEPARATOR_SUFFIX;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -61,6 +56,7 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.create.DataSetFileC
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.SyncEntityKind;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.translator.DefaultNameTranslator;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.translator.INameTranslator;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.util.DSPropertyUtils;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.util.Monitor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -163,7 +159,7 @@ public class ResourceListParser
                 String lastModDataStr = lastmodNodes.get(0).getTextContent().trim();
                 try
                 {
-                    Date lastModificationDate = convertFromW3CDate(lastModDataStr);
+                    Date lastModificationDate = DSPropertyUtils.convertFromW3CDate(lastModDataStr);
                     List<Node> xdNodes = childrenByType.get("x:xd");
                     if (xdNodes == null)
                     {
@@ -174,7 +170,7 @@ public class ResourceListParser
                         monitor.log(String.format("%7d/%d uri: %s", i + 1, n, uri));
                     }
                     parseMetaData(uri, lastModificationDate, xdNodes.get(0));
-                } catch (ParseException e)
+                } catch (Exception e)
                 {
                     throw new XPathExpressionException("Last modification date cannot be parsed:" + lastModDataStr);
                 }
@@ -226,8 +222,8 @@ public class ResourceListParser
         String timestamp = mdNode.getAttributes().getNamedItem("at").getTextContent();
         try
         {
-            return convertFromW3CDate(timestamp);
-        } catch (ParseException e)
+            return DSPropertyUtils.convertFromW3CDate(timestamp);
+        } catch (Exception e)
         {
             throw new XPathExpressionException("Last modification date cannot be parsed:" + timestamp);
         }
@@ -298,13 +294,6 @@ public class ResourceListParser
             }
         }
         return result;
-    }
-
-    private Date convertFromW3CDate(String lastModDataStr) throws ParseException
-    {
-        DateFormat df1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
-        df1.setTimeZone(TimeZone.getTimeZone("GMT"));
-        return df1.parse(lastModDataStr);
     }
 
     private void parseDataSetMetaData(String permId, Node xdNode, Date lastModificationDate)
@@ -771,8 +760,8 @@ public class ResourceListParser
         String registrationTimestampAsString = extractAttribute(xdNode, "registration-timestamp");
         try
         {
-            timestampsAndUserHolder.setRegistrationTimestamp(convertFromW3CDate(registrationTimestampAsString));
-        } catch (ParseException e)
+            timestampsAndUserHolder.setRegistrationTimestamp(DSPropertyUtils.convertFromW3CDate(registrationTimestampAsString));
+        } catch (Exception e)
         {
             throw new IllegalArgumentException("Invalid registration-timestamp: " + registrationTimestampAsString);
         }
