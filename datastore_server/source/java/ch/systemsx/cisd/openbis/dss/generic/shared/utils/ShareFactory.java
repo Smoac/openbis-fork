@@ -151,8 +151,7 @@ public class ShareFactory
             withdrawShare = PropertyUtils.getBoolean(props, WITHDRAW_SHARE_PROP, false);
             ignoredForShuffling = PropertyUtils.getBoolean(props, IGNORED_FOR_SHUFFLING_PROP, false);
             unarchivingScratchShare = PropertyUtils.getBoolean(props, UNARCHIVING_SCRATCH_SHARE_PROP, false);
-            unarchivingScratchShareMaximumSize = FileUtils.ONE_GB * PropertyUtils.getLong(props, 
-                    UNARCHIVING_SCRATCH_SHARE_MAXIMUM_SIZE_IN_GB_PROP, Long.MAX_VALUE);
+            unarchivingScratchShareMaximumSize = getShareMaximumSize(props);
             experimentIdentifiers =
                     new HashSet<String>(Arrays.asList(PropertyParametersUtil.parseItemisedProperty(
                             props.getProperty(EXPERIMENTS_PROP, ""), EXPERIMENTS_PROP)));
@@ -161,6 +160,12 @@ public class ShareFactory
                             props.getProperty(DATA_SET_TYPES_PROP, ""), DATA_SET_TYPES_PROP)));
         }
 
+    }
+
+    private long getShareMaximumSize(Properties props)
+    {
+        int maxSize = PropertyUtils.getInt(props, UNARCHIVING_SCRATCH_SHARE_MAXIMUM_SIZE_IN_GB_PROP, 0);
+        return maxSize <= 0 ? Long.MAX_VALUE : FileUtils.ONE_GB * maxSize;
     }
 
     private Properties loadShareProperties(File propsFile, ISimpleLogger log)
