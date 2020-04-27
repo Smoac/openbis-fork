@@ -335,9 +335,11 @@ public class SegmentedStoreUtils
         List<SimpleDataSetInformationDTO> filteredDataSetsInShare =
                 getAvailableArchivedDataSetsInUnarchivingScratchShare(unarchivingScratchShare);
 
+        long maxSpace = unarchivingScratchShare.getUnarchivingScratchShareMaximumSize();
+        long availableSpace = maxSpace - calculateTotalSize(filteredDataSetsInShare);
         removeCommonDataSets(filteredDataSets, filteredDataSetsInShare);
         long requestedSpace = calculateTotalSize(filteredDataSets);
-        long actualFreeSpace = unarchivingScratchShare.calculateFreeSpace();
+        long actualFreeSpace = Math.min(availableSpace, unarchivingScratchShare.calculateFreeSpace());
         if (isNotEnoughFreeSpace(requestedSpace, actualFreeSpace))
         {
             Collections.sort(filteredDataSetsInShare, ACCESS_TIMESTAMP_COMPARATOR);
@@ -352,10 +354,11 @@ public class SegmentedStoreUtils
             {
                 deleteDataSet(dataSet, dataSetDirectoryProvider, shareIdManager, logger);
             }
+            availableSpace += calculateTotalSize(dataSetsToRemoveFromShare);
             logger.log(LogLevel.INFO, "The following data sets have been successfully removed from share '"
                     + unarchivingScratchShare.getShareId() + "' and their archiving status has been successfully "
                     + "set back to ARCHIVED: " + CollectionUtils.abbreviate(extractCodes(dataSetsToRemoveFromShare), 10));
-            actualFreeSpace = unarchivingScratchShare.calculateFreeSpace();
+            actualFreeSpace = Math.min(availableSpace, unarchivingScratchShare.calculateFreeSpace());
         }
         logger.log(LogLevel.INFO, "Free space on unarchiving scratch share '"
                 + unarchivingScratchShare.getShareId() + "': "
@@ -377,6 +380,7 @@ public class SegmentedStoreUtils
         }
         return availableDataSets;
     }
+    
 
     /**
      * Remove common data sets from both lists
@@ -402,10 +406,10 @@ public class SegmentedStoreUtils
         }
     }
 
-    public static long calculateTotalSize(List<DatasetDescription> dataSets)
+    public static long calculateTotalSize(List<? extends IDatasetLocation> dataSets)
     {
         long size = 0;
-        for (DatasetDescription dataSet : dataSets)
+        for (IDatasetLocation dataSet : dataSets)
         {
             Long dataSetSize = dataSet.getDataSetSize();
             if (dataSetSize == null)

@@ -295,6 +295,13 @@ public class HierarchicalContentProviderTest extends AssertJUnit
                     return null;
                 }
 
+                @Override
+                public Long getDataSetSize()
+                {
+                    // TODO Auto-generated method stub
+                    return null;
+                }
+
             };
 
         final File dataRootFile = new File("DS_FILE");

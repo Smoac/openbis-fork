@@ -55,14 +55,14 @@ public final class Share
      */
     public static enum ShufflePriority
     {
-        /**
-         * always respect the speed hint of a data set when moving.
-         */
-        SPEED,
-        /**
-         * allows a shuffling operation to ignore the speed hints when moving from incoming to extension share.
-         */
-        MOVE_TO_EXTENSION;
+                    /**
+                     * always respect the speed hint of a data set when moving.
+                     */
+                    SPEED,
+                    /**
+                     * allows a shuffling operation to ignore the speed hints when moving from incoming to extension share.
+                     */
+                    MOVE_TO_EXTENSION;
     }
 
     private final SharesHolder sharesHolderOrNull;
@@ -89,6 +89,8 @@ public final class Share
     private boolean withdrawShare;
 
     private boolean unarchivingScratchShare;
+
+    private long unarchivingScratchShareMaximumSize;
 
     private boolean ignoredForShuffling;
 
@@ -253,6 +255,16 @@ public final class Share
     public void setUnarchivingScratchShare(boolean unarchivingScratchShare)
     {
         this.unarchivingScratchShare = unarchivingScratchShare;
+    }
+
+    public long getUnarchivingScratchShareMaximumSize()
+    {
+        return unarchivingScratchShareMaximumSize;
+    }
+
+    public void setUnarchivingScratchShareMaximumSize(long unarchivingScratchShareMaximumSize)
+    {
+        this.unarchivingScratchShareMaximumSize = unarchivingScratchShareMaximumSize;
     }
 
     public boolean isIgnoredForShuffling()

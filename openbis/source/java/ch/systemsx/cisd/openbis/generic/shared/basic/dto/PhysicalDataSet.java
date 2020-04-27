@@ -63,6 +63,12 @@ public class PhysicalDataSet extends AbstractExternalData implements IDatasetLoc
         return this;
     }
 
+    @Override
+    public Long getDataSetSize()
+    {
+        return getSize();
+    }
+
     public Boolean getComplete()
     {
         return complete;

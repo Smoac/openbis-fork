@@ -126,4 +126,10 @@ public class DatasetLocation implements IDatasetLocation, Serializable, ICodeHol
         this.dataStoreUrl = dataStoreUrl;
     }
 
+    @Override
+    public Long getDataSetSize()
+    {
+        return null;
+    }
+
 }

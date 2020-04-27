@@ -32,4 +32,6 @@ public interface IDatasetLocation
     String getDataStoreCode();
 
     Integer getOrderInContainer(String containerDataSetCode);
+    
+    Long getDataSetSize();
 }
