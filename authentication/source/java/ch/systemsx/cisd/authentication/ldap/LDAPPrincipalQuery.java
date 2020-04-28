@@ -17,11 +17,17 @@
 package ch.systemsx.cisd.authentication.ldap;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.naming.AuthenticationException;
 import javax.naming.Context;
@@ -39,9 +45,13 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
+import ch.systemsx.cisd.common.concurrent.FailureRecord;
+import ch.systemsx.cisd.common.concurrent.ITaskExecutor;
+import ch.systemsx.cisd.common.concurrent.ParallelizedExecutor;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ISelfTestable;
@@ -227,8 +237,9 @@ public final class LDAPPrincipalQuery implements ISelfTestable
     {
         final String distinguishedName = principal.getProperty(DISTINGUISHED_NAME_ATTRIBUTE_NAME);
         final boolean authenticated =
-                (passwordOrNull == null) ? false : authenticateUserByDistinguishedName(
-                        distinguishedName, passwordOrNull);
+                (passwordOrNull == null) ? false
+                        : authenticateUserByDistinguishedName(
+                                distinguishedName, passwordOrNull);
         principal.setAuthenticated(authenticated);
         if (operationLog.isDebugEnabled() && passwordOrNull != null)
         {
@@ -254,7 +265,7 @@ public final class LDAPPrincipalQuery implements ISelfTestable
         } catch (RuntimeException ex)
         {
             operationLog.error(
-                    String.format("Error on creating context to authenticate dn=<%s>", dn), ex);
+                    String.format("Error on creating context to authenticate dn=<%s>: %s", dn, ex));
             throw ex;
         }
     }
@@ -380,9 +391,7 @@ public final class LDAPPrincipalQuery implements ISelfTestable
                 config.getSecurityPrincipalPassword(), true, retry);
     }
 
-    @SuppressWarnings("null")
-    private DirContext createContextForDistinguishedName(String dn, String password,
-            boolean useThreadContext, boolean retry)
+    private DirContext createContextForDistinguishedName(String dn, String password, boolean useThreadContext, boolean retry)
     {
         final DirContext threadContext = useThreadContext ? contextHolder.get() : null;
         if (threadContext != null)
@@ -393,60 +402,145 @@ public final class LDAPPrincipalQuery implements ISelfTestable
         {
             throw new RuntimeException("Try to login user '" + dn + "' with empty password.");
         }
-        final Hashtable<String, String> env = new Hashtable<String, String>();
-        env.put(Context.INITIAL_CONTEXT_FACTORY, LDAP_CONTEXT_FACTORY_CLASSNAME);
-        env.put(Context.PROVIDER_URL, config.getServerUrl());
-        env.put(Context.SECURITY_PROTOCOL, config.getSecurityProtocol());
-        env.put(Context.SECURITY_AUTHENTICATION, config.getSecurityAuthenticationMethod());
-        env.put(Context.REFERRAL, config.getReferral());
-        env.put(Context.SECURITY_PRINCIPAL, dn);
-        env.put(Context.SECURITY_CREDENTIALS, password);
-        env.put(LDAP_CONTEXT_READ_TIMEOUT, Long.toString(config.getTimeout()));
-        env.put(LDAP_CONTEXT_CONNECT_TIMEOUT, Long.toString(config.getTimeout()));
-        if (operationLog.isDebugEnabled())
+        String serverUrl = config.getServerUrl();
+        String[] urls = serverUrl.split(" ");
+        ResultHolder<DirContext> resultHolder = new ResultHolder<DirContext>();
+        Set<Thread> workerThreads = Collections.synchronizedSet(new HashSet<>());
+        ITaskExecutor<String> taskExecutor = createTask(dn, password, resultHolder, workerThreads);
+        Collection<FailureRecord<String>> failures = ParallelizedExecutor.process(Arrays.asList(urls), taskExecutor,
+                0.5, urls.length, "ldap query", config.getMaxRetries(), false);
+        DirContext dirContext = resultHolder.getResult();
+        if (dirContext == null)
         {
-            operationLog.debug(String.format("Try to login to %s with dn=%s",
-                    config.getServerUrl(), dn));
+            if (failures.isEmpty() == false)
+            {
+                String failureReport = ParallelizedExecutor.tryFailuresToString(failures);
+                throw new InvalidAuthenticationException("Failed to create an LDAP dir context: " + failureReport);
+            }
+            throw new InvalidAuthenticationException("Failed to create an LDAP dir context: no failure report");
         }
-        RuntimeException firstException = null;
-        for (int i = 0; i <= config.getMaxRetries(); ++i)
+        if (useThreadContext)
         {
-            try
+            contextHolder.set(dirContext);
+        }
+        return dirContext;
+    }
+
+    private ITaskExecutor<String> createTask(String dn, String password, ResultHolder<DirContext> resultHolder, Set<Thread> workerThreads)
+    {
+        Thread masterThread = Thread.currentThread();
+        return new ITaskExecutor<String>()
             {
-                final InitialDirContext initialDirContext = new InitialDirContext(env);
-                if (useThreadContext)
+                private ThreadLocal<AtomicInteger> numberOfTries = new ThreadLocal<>();
+
+                @Override
+                public Status execute(String url)
                 {
-                    contextHolder.set(initialDirContext);
-                }
-                return initialDirContext;
-            } catch (Exception ex)
-            {
-                if (ex instanceof AuthenticationException)
-                {
-                    throw new InvalidAuthenticationException("Failed to authenticate dn=<" + dn
-                            + ">", ex);
-                }
-                if (firstException == null)
-                {
-                    firstException = CheckedExceptionTunnel.wrapIfNecessary(ex);
-                    if (operationLog.isDebugEnabled() && retry)
+                    workerThreads.add(Thread.currentThread());
+                    if (resultHolder.hasResult())
                     {
-                        operationLog.debug(
-                                "Error connecting to LDAP service: cannot open a context for dn=<"
-                                        + dn + ">, retrying...", ex);
+                        return Status.OK;
+                    }
+                    getNumberOfTries().getAndIncrement();
+                    Hashtable<String, String> env = createEnvironment(url, dn, password);
+                    if (operationLog.isDebugEnabled())
+                    {
+                        operationLog.debug(String.format("Try to login to %s with dn=%s",
+                                config.getServerUrl(), dn));
+                    }
+                    try
+                    {
+                        resultHolder.setResult(new InitialDirContext(env));
+                        interruptWorkers(workerThreads, masterThread);
+                        operationLog.info("Dir context successfully created with LDAP server '" + url + "'.");
+                        return Status.OK;
+                    } catch (Exception ex)
+                    {
+                        if (resultHolder.hasResult())
+                        {
+                            return Status.OK;
+                        }
+                        if (ex instanceof AuthenticationException)
+                        {
+                            String message = "Failed to authenticate dn=<" + dn + "> at LDAP service '" + url + "'.";
+                            operationLog.debug(message, ex);
+                            return Status.createError(message);
+                        }
+                        String message = "Error connecting to LDAP service '" + url
+                                + "': cannot open a context for dn=<" + dn + ">";
+                        if (getNumberOfTries().get() <= config.getMaxRetries())
+                        {
+                            operationLog.debug(message, ex);
+                            ConcurrencyUtilities.sleep(config.getTimeToWaitAfterFailure());
+                        } else
+                        {
+                            operationLog.error(message, ex);
+                        }
+                        return Status.createRetriableError(message);
                     }
                 }
-                if (retry == false)
+
+                private Hashtable<String, String> createEnvironment(String url, String dn, String password)
                 {
-                    break;
+                    Hashtable<String, String> env = new Hashtable<String, String>();
+                    env.put(Context.INITIAL_CONTEXT_FACTORY, LDAP_CONTEXT_FACTORY_CLASSNAME);
+                    env.put(Context.PROVIDER_URL, url);
+                    env.put(Context.SECURITY_PROTOCOL, config.getSecurityProtocol());
+                    env.put(Context.SECURITY_AUTHENTICATION, config.getSecurityAuthenticationMethod());
+                    env.put(Context.REFERRAL, config.getReferral());
+                    env.put(Context.SECURITY_PRINCIPAL, dn);
+                    env.put(Context.SECURITY_CREDENTIALS, password);
+                    env.put(LDAP_CONTEXT_READ_TIMEOUT, Long.toString(config.getTimeout()));
+                    env.put(LDAP_CONTEXT_CONNECT_TIMEOUT, Long.toString(config.getTimeout()));
+                    return env;
                 }
-                if (i < config.getMaxRetries())
+
+                private AtomicInteger getNumberOfTries()
                 {
-                    ConcurrencyUtilities.sleep(config.getTimeToWaitAfterFailure());
+                    AtomicInteger result = numberOfTries.get();
+                    if (result == null)
+                    {
+                        result = new AtomicInteger();
+                        numberOfTries.set(result);
+                    }
+                    return result;
                 }
-            }
+
+                private void interruptWorkers(Set<Thread> workerThreads, Thread masterThread)
+                {
+                    synchronized (workerThreads)
+                    {
+                        for (Iterator<Thread> iterator = workerThreads.iterator(); iterator.hasNext();)
+                        {
+                            Thread thread = iterator.next();
+                            if (thread != masterThread)
+                            {
+                                thread.interrupt();
+                            }
+                        }
+                    }
+                }
+            };
+    }
+
+    private static final class ResultHolder<T>
+    {
+        private T result;
+
+        public T getResult()
+        {
+            return result;
         }
-        throw firstException;
+
+        public synchronized boolean hasResult()
+        {
+            return result != null;
+        }
+
+        public synchronized void setResult(T result)
+        {
+            this.result = result;
+        }
     }
 
     private static String tryGetAttribute(Attributes attributes, String attributeName)
