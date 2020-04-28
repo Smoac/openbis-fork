@@ -52,7 +52,7 @@ public class ParallelizedExecutor
     {
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("Found %d files to process.",
+            operationLog.info(String.format("Found %d items to process.",
                     itemsToProcessOrNull.size()));
         }
         if (itemsToProcessOrNull.isEmpty())

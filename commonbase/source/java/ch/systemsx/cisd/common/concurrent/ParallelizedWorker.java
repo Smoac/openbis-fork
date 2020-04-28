@@ -130,7 +130,6 @@ class ParallelizedWorker<T> implements Runnable
                             operationLog.info(INTERRPTED_MSG);
                             return;
                         }
-                        th.printStackTrace();
                         operationLog.error(
                                 String.format(PROCESSING_FAILURE_MSG_TEMPLATE, taskOrNull), th);
                         failures.add(new FailureRecord<T>(taskOrNull, th));
