@@ -32,7 +32,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 
 /**
  * @author Ganime Betul Akin
@@ -72,18 +71,15 @@ public interface ISynchronizerFacade
 
     public void updateVocabularyTerm(VocabularyTerm term);
 
-    public void updateSampleType(EntityType incomingEntityType);
+    public void updateSampleType(EntityType incomingEntityType, String diff);
 
-    public void updateDataSetType(EntityType incomingEntityType);
+    public void updateDataSetType(EntityType incomingEntityType, String diff);
 
-    public void updateExperimentType(EntityType incomingEntityType);
+    public void updateExperimentType(EntityType incomingEntityType, String diff);
 
-    public void updateMaterialType(EntityType incomingEntityType);
+    public void updateMaterialType(EntityType incomingEntityType, String diff);
 
     public void addVocabularyTerms(String code, TechId techId, List<VocabularyTerm> termsToBeAdded);
-
-    public void deleteVocabularyTerms(TechId vocabularyId, String code, List<VocabularyTerm> list,
-            List<VocabularyTermReplacement> emptyList);
 
     public void printSummary();
 }

@@ -24,6 +24,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.map.MultiKeyMap;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.DiffBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.log4j.Logger;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
@@ -213,8 +216,11 @@ public class MasterDataSynchronizer
             FileFormatType existingTypeOrNull = typeMap.get(typeCode);
             if (existingTypeOrNull != null)
             {
-                existingTypeOrNull.setDescription(incomingType.getDescription());
-                synchronizerFacade.updateFileFormatType(existingTypeOrNull);
+                if (StringUtils.equals(existingTypeOrNull.getDescription(), incomingType.getDescription()) == false)
+                {
+                    existingTypeOrNull.setDescription(incomingType.getDescription());
+                    synchronizerFacade.updateFileFormatType(existingTypeOrNull);
+                }
             } else
             {
                 synchronizerFacade.registerFileFormatType(incomingType);
@@ -325,7 +331,12 @@ public class MasterDataSynchronizer
             List<NewETPTAssignment> list = propertyAssignmentsToProcess.get(entityKind.name(), entityTypeCode);
             if (existingEntityType != null)
             {
-                updateEntityType(entityKind, incomingEntityType);
+                String diff = calculateDiff(entityKind, existingEntityType, incomingEntityType);
+                if (StringUtils.isNotBlank(diff))
+                {
+                    incomingEntityType.setModificationDate(existingEntityType.getModificationDate());
+                    updateEntityType(entityKind, incomingEntityType, diff);
+                }
                 // existingEntityType.setCode(incomingEntityType.getCode());
                 // existingEntityType.setDescription(incomingEntityType.getDescription());
                 // existingEntityType.setValidationScript(incomingEntityType.getValidationScript());
@@ -360,9 +371,10 @@ public class MasterDataSynchronizer
         List<? extends EntityTypePropertyType> assignedPropertyTypes = existingEntityType.getAssignedPropertyTypes();
         for (NewETPTAssignment newETPTAssignment : incomingAssignmentsList)
         {
-            boolean found = findInExistingPropertyAssignments(newETPTAssignment, assignedPropertyTypes);
-            if (found)
+            EntityTypePropertyType foundType = findInExistingPropertyAssignments(newETPTAssignment, assignedPropertyTypes);
+            if (foundType != null)
             {
+                newETPTAssignment.setModificationDate(foundType.getModificationDate());
                 synchronizerFacade.updatePropertyTypeAssignment(newETPTAssignment);
             } else
             {
@@ -397,17 +409,17 @@ public class MasterDataSynchronizer
     }
 
     @SuppressWarnings("rawtypes")
-    private boolean findInExistingPropertyAssignments(NewETPTAssignment incomingETPTAssignment,
+    private EntityTypePropertyType findInExistingPropertyAssignments(NewETPTAssignment incomingETPTAssignment,
             List<? extends EntityTypePropertyType> assignedPropertyTypes)
     {
         for (EntityTypePropertyType entityTypePropertyType : assignedPropertyTypes)
         {
             if (entityTypePropertyType.getPropertyType().getCode().equals(incomingETPTAssignment.getPropertyTypeCode()))
             {
-                return true;
+                return entityTypePropertyType;
             }
         }
-        return false;
+        return null;
     }
 
     private void registerEntityType(EntityKind entityKind, EntityType incomingEntityType)
@@ -431,25 +443,81 @@ public class MasterDataSynchronizer
         }
     }
 
-    private void updateEntityType(EntityKind entityKind, EntityType incomingEntityType)
+    private void updateEntityType(EntityKind entityKind, EntityType incomingEntityType, String diff)
     {
         switch (entityKind)
         {
             case SAMPLE:
-                synchronizerFacade.updateSampleType(incomingEntityType);
+                synchronizerFacade.updateSampleType(incomingEntityType, diff);
                 break;
             case DATA_SET:
-                synchronizerFacade.updateDataSetType(incomingEntityType);
+                synchronizerFacade.updateDataSetType(incomingEntityType, diff);
                 break;
             case EXPERIMENT:
-                synchronizerFacade.updateExperimentType(incomingEntityType);
+                synchronizerFacade.updateExperimentType(incomingEntityType, diff);
                 break;
             case MATERIAL:
-                synchronizerFacade.updateMaterialType(incomingEntityType);
+                synchronizerFacade.updateMaterialType(incomingEntityType, diff);
                 break;
             default:
                 throw new UserFailureException("update not implemented for entity kind: " + entityKind.name());
         }
+    }
+
+    private String calculateDiff(EntityKind entityKind, EntityType existingEntityType, EntityType incomingEntityType)
+    {
+        DiffBuilder diffBuilder = new DiffBuilder(existingEntityType, incomingEntityType, ToStringStyle.SHORT_PREFIX_STYLE, false)
+                .append("description", existingEntityType.getDescription(), incomingEntityType.getDescription())
+                .append("validationPlugin", getPluginName(existingEntityType), getPluginName(incomingEntityType));
+        switch (entityKind)
+        {
+            case SAMPLE:
+                appendToDiffBuilder(diffBuilder, (SampleType) existingEntityType, (SampleType) incomingEntityType);
+                break;
+            case DATA_SET:
+                appendToDiffBuilder(diffBuilder, (DataSetType) existingEntityType, (DataSetType) incomingEntityType);
+                break;
+            case EXPERIMENT:
+                appendToDiffBuilder(diffBuilder, (ExperimentType) existingEntityType, (ExperimentType) incomingEntityType);
+                break;
+            case MATERIAL:
+                appendToDiffBuilder(diffBuilder, (MaterialType) existingEntityType, (MaterialType) incomingEntityType);
+                break;
+            default:
+                throw new UserFailureException("update not implemented for entity kind: " + entityKind.name());
+        }
+        return diffBuilder.build().toString();
+    }
+
+    private String getPluginName(EntityType entityType)
+    {
+        Script validationScript = entityType.getValidationScript();
+        return validationScript == null ? null : validationScript.getName();
+    }
+
+    private void appendToDiffBuilder(DiffBuilder diffBuilder, SampleType existingType, SampleType incomingType)
+    {
+        diffBuilder.append("generatedCodePrefix", existingType.getGeneratedCodePrefix(), incomingType.getGeneratedCodePrefix())
+                .append("listable", existingType.isListable(), incomingType.isListable())
+                .append("showContainer", existingType.isShowContainer(), incomingType.isShowContainer())
+                .append("showParents", existingType.isShowParents(), incomingType.isShowParents())
+                .append("showParentMetadata", existingType.isShowParentMetadata(), incomingType.isShowParentMetadata())
+                .append("subcodeUnique", existingType.isSubcodeUnique(), incomingType.isSubcodeUnique())
+                .append("autoGeneratedCode", existingType.isAutoGeneratedCode(), incomingType.isAutoGeneratedCode());
+    }
+
+    private void appendToDiffBuilder(DiffBuilder diffBuilder, DataSetType existingType, DataSetType incomingType)
+    {
+        diffBuilder.append("mainDataSetPattern", existingType.getMainDataSetPattern(), incomingType.getMainDataSetPattern())
+                .append("mainDataSetPath", existingType.getMainDataSetPath(), incomingType.getMainDataSetPath());
+    }
+
+    private void appendToDiffBuilder(DiffBuilder diffBuilder, ExperimentType existingType, ExperimentType incomingType)
+    {
+    }
+
+    private void appendToDiffBuilder(DiffBuilder diffBuilder, MaterialType existingType, MaterialType incomingType)
+    {
     }
 
     private List<? extends EntityType> getExistingEntityTypes(EntityKind entityKind)
@@ -482,12 +550,16 @@ public class MasterDataSynchronizer
         {
             PropertyType incomingPropertyType = propertyTypesToProcess.get(propTypeCode);
             String propertyTypeCode = incomingPropertyType.getCode();
-            PropertyType propertyTypeOrNull = propertyTypeMap.get(propertyTypeCode);
-            if (propertyTypeOrNull != null)
+            PropertyType propertyType = propertyTypeMap.get(propertyTypeCode);
+            if (propertyType != null)
             {
-                propertyTypeOrNull.setLabel(incomingPropertyType.getLabel());
-                propertyTypeOrNull.setDescription(incomingPropertyType.getDescription());
-                synchronizerFacade.updatePropertyType(propertyTypeOrNull);
+                if (StringUtils.equals(propertyType.getLabel(), incomingPropertyType.getLabel()) == false
+                        || StringUtils.equals(propertyType.getDescription(), incomingPropertyType.getDescription()) == false)
+                {
+                    propertyType.setLabel(incomingPropertyType.getLabel());
+                    propertyType.setDescription(incomingPropertyType.getDescription());
+                    synchronizerFacade.updatePropertyType(propertyType);
+                }
             } else
             {
                 synchronizerFacade.registerPropertyType(incomingPropertyType);

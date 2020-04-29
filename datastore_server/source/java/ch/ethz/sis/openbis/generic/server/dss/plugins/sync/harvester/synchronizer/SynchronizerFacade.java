@@ -14,11 +14,15 @@
  */
 package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 
@@ -39,7 +43,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 
 /**
  * @author Ganime Betul Akin
@@ -51,61 +54,61 @@ public class SynchronizerFacade implements ISynchronizerFacade
 
     private static final Object separatorStr = "---------------------";
 
-    final String sessionToken;
+    private final String sessionToken;
 
-    final ICommonServer commonServer;
+    private final ICommonServer commonServer;
 
-    final Logger operationLog;
+    private final Logger operationLog;
 
-    Map<String, String> fileformatTypesToUpdate = new HashMap<String, String>();
+    private Map<String, String> fileformatTypesToUpdate = new TreeMap<String, String>();
 
-    Set<String> fileformatTypesToAdd = new HashSet<String>();
+    private Set<String> fileformatTypesToAdd = new TreeSet<String>();
 
-    Set<NewETPTAssignment> propertyAssignmentsToUpdate = new HashSet<>();
+    private Set<NewETPTAssignment> propertyAssignmentsToUpdate = new HashSet<>();
 
-    Set<NewETPTAssignment> propertyAssignmentsToAdd = new HashSet<>();
+    private Set<NewETPTAssignment> propertyAssignmentsToAdd = new HashSet<>();
 
-    Map<String, String> propertyAssignmentsToBreak = new HashMap<String, String>();
+    private Map<String, String> propertyAssignmentsToBreak = new TreeMap<String, String>();
 
-    Map<String, String> propertyTypesToUpdate = new HashMap<String, String>();
+    private Map<String, String> propertyTypesToUpdate = new TreeMap<String, String>();
 
-    Set<String> propertyTypesToAdd = new HashSet<String>();
+    private Set<String> propertyTypesToAdd = new TreeSet<String>();
 
-    Map<String, String> validationPluginsToUpdate = new HashMap<String, String>();
+    private Map<String, String> validationPluginsToUpdate = new TreeMap<String, String>();
 
-    Set<String> validationPluginsToAdd = new HashSet<String>();
+    private Set<String> validationPluginsToAdd = new TreeSet<String>();
 
-    final boolean dryRun;
+    private final boolean dryRun;
+
+    private final boolean verbose;
+
+    private Set<String> vocabulariesToAdd = new TreeSet<String>();
+
+    private Map<String, String> vocabulariesToUpdate = new TreeMap<String, String>();
+
+    private Map<String, String> vocabularyTermsToUpdate = new TreeMap<String, String>();
+
+    private Map<String, List<VocabularyTerm>> vocabularyTermsToAdd = new TreeMap<String, List<VocabularyTerm>>();
+
+    private Set<String> sampleTypesToAdd = new TreeSet<String>();
+
+    private Set<String> experimentTypesToAdd = new TreeSet<String>();
+
+    private Set<String> dataSetTypesToAdd = new TreeSet<String>();
+
+    private Set<String> materialTypesToAdd = new TreeSet<String>();
+
+    private Map<String, String> sampleTypesToUpdate = new TreeMap<String, String>();
+
+    private Map<String, String> experimentTypesToUpdate = new TreeMap<String, String>();
+
+    private Map<String, String> dataSetTypesToUpdate = new TreeMap<String, String>();
+
+    private Map<String, String> materialTypesToUpdate = new HashMap<String, String>();
     
-    final boolean verbose;
 
-    Set<String> vocabulariesToAdd = new HashSet<String>();
-
-    Map<String, String> vocabulariesToUpdate = new HashMap<String, String>();
-
-    Map<String, List<VocabularyTerm>> vocabularyTermsToDelete = new HashMap<String, List<VocabularyTerm>>();
-
-    Map<String, String> vocabularyTermsToUpdate = new HashMap<String, String>();
-
-    Map<String, List<VocabularyTerm>> vocabularyTermsToAdd = new HashMap<String, List<VocabularyTerm>>();
-
-    Set<String> sampleTypesToAdd = new HashSet<String>();
-
-    Set<String> experimentTypesToAdd = new HashSet<String>();
-
-    Set<String> dataSetTypesToAdd = new HashSet<String>();
-
-    Set<String> materialTypesToAdd = new HashSet<String>();
-
-    Map<String, String> sampleTypesToUpdate = new HashMap<String, String>();
-
-    Map<String, String> experimentTypesToUpdate = new HashMap<String, String>();
-
-    Map<String, String> dataSetTypesToUpdate = new HashMap<String, String>();
-
-    Map<String, String> materialTypesToUpdate = new HashMap<String, String>();
-
-    public SynchronizerFacade(String openBisServerUrl, String harvesterUser, String harvesterPassword, boolean dryRun, boolean verbose, Logger operationLog)
+    public SynchronizerFacade(String openBisServerUrl, String harvesterUser, String harvesterPassword, boolean dryRun, boolean verbose,
+            Logger operationLog)
     {
         this.commonServer = ServiceFinderUtils.getCommonServer(openBisServerUrl);
         this.sessionToken = ServiceFinderUtils.login(commonServer, harvesterUser, harvesterPassword);
@@ -121,8 +124,8 @@ public class SynchronizerFacade implements ISynchronizerFacade
         {
             String change = "Description :" + type.getDescription();
             fileformatTypesToUpdate.put(type.getCode(), change);
-        } 
-        if(dryRun == false)
+        }
+        if (dryRun == false)
         {
             commonServer.updateFileFormatType(sessionToken, type);
         }
@@ -134,8 +137,8 @@ public class SynchronizerFacade implements ISynchronizerFacade
         if (verbose == true)
         {
             fileformatTypesToAdd.add(type.getCode());
-        }         
-        if(dryRun == false)
+        }
+        if (dryRun == false)
         {
             commonServer.registerFileFormatType(sessionToken, type);
         }
@@ -147,8 +150,8 @@ public class SynchronizerFacade implements ISynchronizerFacade
         if (verbose == true)
         {
             propertyAssignmentsToUpdate.add(newETPTAssignment);
-        } 
-        if(dryRun == false)
+        }
+        if (dryRun == false)
         {
             commonServer.updatePropertyTypeAssignment(sessionToken, newETPTAssignment);
         }
@@ -161,7 +164,7 @@ public class SynchronizerFacade implements ISynchronizerFacade
         {
             propertyAssignmentsToAdd.add(newETPTAssignment);
         }
-        if(dryRun == false)
+        if (dryRun == false)
         {
             commonServer.assignPropertyType(sessionToken, newETPTAssignment);
         }
@@ -173,8 +176,8 @@ public class SynchronizerFacade implements ISynchronizerFacade
         if (verbose == true)
         {
             propertyAssignmentsToBreak.put(entityTypeCode + "(" + entityKind.name() + ")", propertyTypeCode);
-        } 
-        if(dryRun == false)
+        }
+        if (dryRun == false)
         {
             commonServer.unassignPropertyType(sessionToken, entityKind, propertyTypeCode, entityTypeCode);
         }
@@ -187,8 +190,8 @@ public class SynchronizerFacade implements ISynchronizerFacade
         {
             String change = "Label :" + propertyType.getLabel() + " , description :" + propertyType.getDescription();
             propertyTypesToUpdate.put(propertyType.getCode(), change);
-        } 
-        if(dryRun == false)
+        }
+        if (dryRun == false)
         {
             commonServer.updatePropertyType(sessionToken, propertyType);
         }
@@ -201,7 +204,7 @@ public class SynchronizerFacade implements ISynchronizerFacade
         {
             propertyTypesToAdd.add(propertyType.getCode());
         }
-        if(dryRun == false)
+        if (dryRun == false)
         {
             commonServer.registerPropertyType(sessionToken, propertyType);
         }
@@ -212,10 +215,10 @@ public class SynchronizerFacade implements ISynchronizerFacade
     {
         if (verbose == true)
         {
-            String change = "Description :" + script.getDescription(); //+ ", script :" + script.getScript();
+            String change = "Description :" + script.getDescription(); // + ", script :" + script.getScript();
             validationPluginsToUpdate.put(script.getName(), change);
-        } 
-        if(dryRun == false)
+        }
+        if (dryRun == false)
         {
             commonServer.updateScript(sessionToken, script);
         }
@@ -227,8 +230,8 @@ public class SynchronizerFacade implements ISynchronizerFacade
         if (verbose == true)
         {
             validationPluginsToAdd.add(script.getName());
-        } 
-        if(dryRun == false)
+        }
+        if (dryRun == false)
         {
             commonServer.registerScript(sessionToken, script);
         }
@@ -240,8 +243,8 @@ public class SynchronizerFacade implements ISynchronizerFacade
         if (verbose == true)
         {
             vocabulariesToAdd.add(vocab.getCode());
-        } 
-        if(dryRun == false)
+        }
+        if (dryRun == false)
         {
             commonServer.registerVocabulary(sessionToken, vocab);
         }
@@ -254,8 +257,8 @@ public class SynchronizerFacade implements ISynchronizerFacade
         {
             String change = "Code : " + vocab.getCode() + ", description :" + vocab.getDescription();
             vocabulariesToUpdate.put(vocab.getCode(), change);
-        } 
-        if(dryRun == false)
+        }
+        if (dryRun == false)
         {
             commonServer.updateVocabulary(sessionToken, vocab);
         }
@@ -267,8 +270,8 @@ public class SynchronizerFacade implements ISynchronizerFacade
         if (verbose == true)
         {
             sampleTypesToAdd.add(sampleType.getCode());
-        } 
-        if(dryRun == false)
+        }
+        if (dryRun == false)
         {
             commonServer.registerSampleType(sessionToken, sampleType);
         }
@@ -280,8 +283,8 @@ public class SynchronizerFacade implements ISynchronizerFacade
         if (verbose == true)
         {
             dataSetTypesToAdd.add(dataSetType.getCode());
-        } 
-        if(dryRun == false)
+        }
+        if (dryRun == false)
         {
             commonServer.registerDataSetType(sessionToken, dataSetType);
         }
@@ -293,8 +296,8 @@ public class SynchronizerFacade implements ISynchronizerFacade
         if (verbose == true)
         {
             experimentTypesToAdd.add(experimentType.getCode());
-        } 
-        if(dryRun == false)
+        }
+        if (dryRun == false)
         {
             commonServer.registerExperimentType(sessionToken, experimentType);
         }
@@ -307,23 +310,9 @@ public class SynchronizerFacade implements ISynchronizerFacade
         {
             materialTypesToAdd.add(materialType.getCode());
         }
-        if(dryRun == false)
+        if (dryRun == false)
         {
             commonServer.registerMaterialType(sessionToken, materialType);
-        }
-    }
-
-    @Override
-    public void deleteVocabularyTerms(TechId vocabularyId, String vocabularyCode, List<VocabularyTerm> termsToBeDeleted,
-            List<VocabularyTermReplacement> termsToBeReplaced)
-    {
-        if (verbose == true)
-        {
-            vocabularyTermsToDelete.put(vocabularyCode, termsToBeDeleted);
-        } 
-        if(dryRun == false)
-        {
-            commonServer.deleteVocabularyTerms(sessionToken, vocabularyId, termsToBeDeleted, termsToBeReplaced);
         }
     }
 
@@ -336,63 +325,59 @@ public class SynchronizerFacade implements ISynchronizerFacade
                     ", Description :" + term.getDescription();
             vocabulariesToUpdate.put(term.getCode(), change);
         }
-        if(dryRun == false)
+        if (dryRun == false)
         {
             commonServer.updateVocabularyTerm(sessionToken, term);
         }
     }
 
     @Override
-    public void updateSampleType(EntityType entityType)
+    public void updateSampleType(EntityType entityType, String diff)
     {
         if (verbose == true)
         {
-            String change = "Code" + entityType.getCode() + ", Description :" + entityType.getDescription();
-            sampleTypesToUpdate.put(entityType.getCode(), change);
-        }        
-        if(dryRun == false)
+            sampleTypesToUpdate.put(entityType.getCode(), diff);
+        }
+        if (dryRun == false)
         {
             commonServer.updateSampleType(sessionToken, entityType);
         }
     }
 
     @Override
-    public void updateDataSetType(EntityType entityType)
+    public void updateDataSetType(EntityType entityType, String diff)
     {
         if (verbose == true)
         {
-            String change = "Code" + entityType.getCode() + ", Description :" + entityType.getDescription();
-            dataSetTypesToUpdate.put(entityType.getCode(), change);
-        } 
-        if(dryRun == false)
+            dataSetTypesToUpdate.put(entityType.getCode(), diff);
+        }
+        if (dryRun == false)
         {
             commonServer.updateDataSetType(sessionToken, entityType);
         }
     }
 
     @Override
-    public void updateExperimentType(EntityType entityType)
+    public void updateExperimentType(EntityType entityType, String diff)
     {
         if (verbose == true)
         {
-            String change = "Code" + entityType.getCode() + ", Description :" + entityType.getDescription();
-            experimentTypesToUpdate.put(entityType.getCode(), change);
+            experimentTypesToUpdate.put(entityType.getCode(), diff);
         }
-        if(dryRun == false)
+        if (dryRun == false)
         {
             commonServer.updateExperimentType(sessionToken, entityType);
         }
     }
 
     @Override
-    public void updateMaterialType(EntityType entityType)
+    public void updateMaterialType(EntityType entityType, String diff)
     {
         if (verbose == true)
         {
-            String change = "Code" + entityType.getCode() + ", Description :" + entityType.getDescription();
-            materialTypesToUpdate.put(entityType.getCode(), change);
-        } 
-        if(dryRun == false)
+            materialTypesToUpdate.put(entityType.getCode(), diff);
+        }
+        if (dryRun == false)
         {
             commonServer.updateMaterialType(sessionToken, entityType);
         }
@@ -404,8 +389,8 @@ public class SynchronizerFacade implements ISynchronizerFacade
         if (verbose == true)
         {
             vocabularyTermsToAdd.put(vocabularyCode, termsToBeAdded);
-        } 
-        if(dryRun == false)
+        }
+        if (dryRun == false)
         {
             commonServer.addVocabularyTerms(sessionToken, techId, termsToBeAdded, null, true);
         }
@@ -414,7 +399,8 @@ public class SynchronizerFacade implements ISynchronizerFacade
     @Override
     public void printSummary()
     {
-        if (verbose == false) {
+        if (verbose == false)
+        {
             return;
         }
         printSummary(fileformatTypesToAdd, "file format types", "added");
@@ -429,7 +415,6 @@ public class SynchronizerFacade implements ISynchronizerFacade
         printSummary(vocabulariesToAdd, "vocabularies", " added");
         printSummary(vocabulariesToUpdate, "vocabularies", "updated");
 
-        printSummaryVocabularyTerm(vocabularyTermsToDelete, "vocabulary terms", "deleted");
         printSummary(vocabularyTermsToUpdate, "vocabulary terms", "updated");
         printSummary(vocabulariesToAdd, "vocabulary terms", "added");
 
@@ -450,8 +435,10 @@ public class SynchronizerFacade implements ISynchronizerFacade
 
     private void printSummary(Set<String> set, String type, String operation)
     {
-        if (set.isEmpty() == true)
+        if (set.isEmpty())
+        {
             return;
+        }
         operationLog.info(separatorStr);
         String message = String.format(INFO_MESSAGE, type, operation);
         operationLog.info(message);
@@ -464,8 +451,10 @@ public class SynchronizerFacade implements ISynchronizerFacade
 
     private void printSummary(Map<String, String> map, String type, String operation)
     {
-        if (map.isEmpty() == true)
+        if (map.isEmpty())
+        {
             return;
+        }
         operationLog.info(separatorStr);
         String message = String.format(INFO_MESSAGE, type, operation);
         operationLog.info(message);
@@ -476,38 +465,31 @@ public class SynchronizerFacade implements ISynchronizerFacade
         }
     }
 
-    private void printSummaryVocabularyTerm(Map<String, List<VocabularyTerm>> map, String type, String operation)
-    {
-        if (map.isEmpty() == true)
-            return;
-        operationLog.info(separatorStr);
-        String message = String.format(INFO_MESSAGE, type, operation);
-        operationLog.info(message);
-        operationLog.info(separatorStr);
-        for (String key : map.keySet())
-        {
-            String termStr = "";
-            List<VocabularyTerm> terms = map.get(key);
-            for (VocabularyTerm vocabularyTerm : terms)
-            {
-                termStr += vocabularyTerm.getCode();
-                termStr += ", ";
-            }
-            operationLog.info(key + " - " + map.get(key) + ":" + termStr.substring(0, termStr.length() - 1));
-        }
-    }
-
     private void printSummaryPropertyAssignments(Set<NewETPTAssignment> set, String type, String operation)
     {
-        if (set.isEmpty() == true)
+        if (set.isEmpty())
+        {
             return;
+        }
         operationLog.info(separatorStr);
         String message = String.format(INFO_MESSAGE, type, operation);
         operationLog.info(message);
         operationLog.info(separatorStr);
+        List<String> lines = new ArrayList<String>();
         for (NewETPTAssignment assignment : set)
         {
-            operationLog.info(assignment.getEntityTypeCode() + "(" + assignment.getEntityKind().name() + ") : " + assignment.getPropertyTypeCode());
+            lines.add(assignment.getEntityTypeCode() + "(" + assignment.getEntityKind().name() + "): "
+                    + assignment.getPropertyTypeCode());
         }
+        Collections.sort(lines);
+        for (String line : lines)
+        {
+            operationLog.info(line);
+        }
+    }
+    
+    private static final class Summary
+    {
+        
     }
 }

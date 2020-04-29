@@ -204,7 +204,10 @@ public class EntitySynchronizer
         Document doc = getResourceList();
         ResourceListParserData data = parseResourceList(doc);
 
-        processDeletions(data);
+        if (config.isDeletionAllowed())
+        {
+            processDeletions(data);
+        }
         if (config.isMasterDataUpdate())
         {
             registerMasterData(data.getMasterData());
@@ -951,7 +954,7 @@ public class EntitySynchronizer
             } else if (identifier instanceof NewExperiment)
             {
                 entityKind = SyncEntityKind.EXPERIMENT;
-            } else if (identifier instanceof NewExperiment)
+            } else if (identifier instanceof NewProject)
             {
                 entityKind = SyncEntityKind.PROJECT;
             }
@@ -1221,8 +1224,8 @@ public class EntitySynchronizer
     {
         Monitor monitor = new Monitor("Register master data", operationLog);
         operationLog.info("Registering master data...");
-        MasterDataSynchronizer masterDataSyncronizer = new MasterDataSynchronizer(config, operationLog);
-        masterDataSyncronizer.synchronizeMasterData(masterData, monitor);
+        MasterDataSynchronizer masterDataSynchronizer = new MasterDataSynchronizer(config, operationLog);
+        masterDataSynchronizer.synchronizeMasterData(masterData, monitor);
         monitor.log();
     }
 

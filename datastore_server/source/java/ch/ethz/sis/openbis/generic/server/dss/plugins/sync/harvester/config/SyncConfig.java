@@ -223,6 +223,8 @@ public class SyncConfig
     private boolean masterDataUpdate;
     
     private boolean propertyUnassignmentAllowed;
+    
+    private boolean deletionAllowed;
 
     private boolean keepOriginalTimestampsAndUsers;
 
@@ -366,6 +368,16 @@ public class SyncConfig
     public void setPropertyUnassignmentAllowed(boolean propertyUnassignmentAllowed)
     {
         this.propertyUnassignmentAllowed = propertyUnassignmentAllowed;
+    }
+
+    public boolean isDeletionAllowed()
+    {
+        return deletionAllowed;
+    }
+
+    public void setDeletionAllowed(boolean deletionAllowed)
+    {
+        this.deletionAllowed = deletionAllowed;
     }
 
     public boolean keepOriginalTimestampsAndUsers()

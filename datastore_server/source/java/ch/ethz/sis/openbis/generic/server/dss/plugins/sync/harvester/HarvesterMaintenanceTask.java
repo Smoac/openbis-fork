@@ -32,6 +32,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -41,9 +42,9 @@ import javax.activation.DataSource;
 import javax.mail.util.ByteArrayDataSource;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.DailyRollingFileAppender;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
+import org.apache.log4j.RollingFileAppender;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
@@ -261,16 +262,13 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
         if (logger.getAppender(name) == null)
         {
             // configure the appender
-            DailyRollingFileAppender console = new DailyRollingFileAppender(); // create appender
-            console.setName(name);
-            String PATTERN = "%d %-5p [%t] %c - %m%n";
-            console.setLayout(new PatternLayout(PATTERN));
-            // console.setThreshold(Level.FATAL);
-            console.setAppend(true);// set to false to overwrite log at every start
-            console.setFile(config.getLogFilePath());
-            console.activateOptions();
-            // add appender to any Logger (here is root)
-            logger.addAppender(console);
+            RollingFileAppender appender = new RollingFileAppender(); // create appender
+            appender.setMaximumFileSize(Long.MAX_VALUE);
+            appender.setName(name);
+            appender.setLayout(new PatternLayout("%d %-5p %m%n"));
+            appender.setFile(config.getLogFilePath());
+            appender.activateOptions();
+            logger.addAppender(appender);
             logger.setAdditivity(false);
         }
         return logger;
@@ -379,7 +377,7 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
         if (config.getLogFilePath() != null)
         {
             // send the operation log as attachment
-            DataSource dataSource = createDataSource(config.getLogFilePath()); // /Users/gakin/Documents/sync.log
+            DataSource dataSource = createDataSource(config.getLogFilePath());
             for (EMailAddress recipient : config.getEmailAddresses())
             {
                 mailClient.sendEmailMessageWithAttachment(subject,
