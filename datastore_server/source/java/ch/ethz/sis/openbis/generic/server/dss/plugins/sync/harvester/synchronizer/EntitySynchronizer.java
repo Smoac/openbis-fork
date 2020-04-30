@@ -601,11 +601,9 @@ public class EntitySynchronizer
         Collection<IncomingDataSet> values = linkDataSets.values();
         List<DataSetPermId> dataSetIds =
                 values.stream().map(ds -> new DataSetPermId(ds.getFullDataSet().getMetadataCreation().getCode())).collect(Collectors.toList());
-        System.err.println("new data sets:" + dataSetIds);
         DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
         fetchOptions.withLinkedData();
         Map<IDataSetId, DataSet> existingDataSets = v3Api.getDataSets(service.getSessionToken(), dataSetIds, fetchOptions);
-        System.err.println("existing data sets:" + existingDataSets.keySet());
         List<DataSetUpdate> updates = new ArrayList<>();
         List<FullDataSetCreation> creations = new ArrayList<>();
         for (IncomingDataSet incomingDataSet : values)

@@ -49,7 +49,7 @@ public interface ISynchronizerFacade
 
     public void unassignPropertyType(EntityKind entityKind, String propertyTypeCode, String entityTypeCode);
 
-    public void updatePropertyType(PropertyType propertyType);
+    public void updatePropertyType(PropertyType propertyType, String diff);
 
     public void registerPropertyType(PropertyType propertyType);
 
@@ -59,7 +59,7 @@ public interface ISynchronizerFacade
 
     public void registerVocabulary(NewVocabulary vocab);
 
-    public void updateVocabulary(Vocabulary vocab);
+    public void updateVocabulary(Vocabulary vocab, String diff);
 
     public void registerSampleType(SampleType sampleType);
 
@@ -69,7 +69,7 @@ public interface ISynchronizerFacade
 
     public void registerMaterialType(MaterialType materialType);
 
-    public void updateVocabularyTerm(VocabularyTerm term);
+    public void updateVocabularyTerm(VocabularyTerm term, String diff);
 
     public void updateSampleType(EntityType incomingEntityType, String diff);
 
