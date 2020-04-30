@@ -25,7 +25,10 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.map.MultiKeyMap;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.Diff;
 import org.apache.commons.lang3.builder.DiffBuilder;
+import org.apache.commons.lang3.builder.DiffResult;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.log4j.Logger;
 
@@ -56,6 +59,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 
@@ -374,8 +378,12 @@ public class MasterDataSynchronizer
             EntityTypePropertyType foundType = findInExistingPropertyAssignments(newETPTAssignment, assignedPropertyTypes);
             if (foundType != null)
             {
-                newETPTAssignment.setModificationDate(foundType.getModificationDate());
-                synchronizerFacade.updatePropertyTypeAssignment(newETPTAssignment);
+                String diff = calculateDiff(foundType, newETPTAssignment);
+                if (StringUtils.isNotBlank(diff))
+                {
+                    newETPTAssignment.setModificationDate(foundType.getModificationDate());
+                    synchronizerFacade.updatePropertyTypeAssignment(newETPTAssignment, diff);
+                }
             } else
             {
                 synchronizerFacade.assignPropertyType(newETPTAssignment);
@@ -393,6 +401,27 @@ public class MasterDataSynchronizer
                 }
             }
         }
+    }
+
+    @SuppressWarnings("rawtypes")
+    private String calculateDiff(EntityTypePropertyType existingAssignment, NewETPTAssignment incomingAssignment)
+    {
+        DiffBuilder diffBuilder = new DiffBuilder(existingAssignment, incomingAssignment, ToStringStyle.SHORT_PREFIX_STYLE, false)
+                .append("mandatory", existingAssignment.isMandatory(), incomingAssignment.isMandatory())
+                .append("section", existingAssignment.getSection(), incomingAssignment.getSection())
+                // ch.systemsx.cisd.openbis.generic.server.business.bo.EntityTypePropertyTypeBO.createAssignment() increases
+                // the provided ordinal by one. Thus, we have to subtract 1 in order to get the same ordinal.
+                .append("ordinal", new Long(existingAssignment.getOrdinal() - 1), incomingAssignment.getOrdinal())
+                .append("showInEdit", existingAssignment.isShownInEditView(), incomingAssignment.isShownInEditView())
+                .append("plugin", getPluginName(existingAssignment.getScript()), incomingAssignment.getScriptName());
+        Script plugin = existingAssignment.getScript();
+        ScriptType existingPluginType = plugin == null ? null : plugin.getScriptType();
+        ScriptType incomingPluginType = incomingAssignment.isDynamic() ? ScriptType.DYNAMIC_PROPERTY
+                : (incomingAssignment.isManaged() ? ScriptType.MANAGED_PROPERTY : null);
+        diffBuilder.append("pluginType", existingPluginType, incomingPluginType);
+        DiffResult diffResult = diffBuilder.build();
+        return render(diffResult, existingAssignment, incomingAssignment);
+
     }
 
     @SuppressWarnings("rawtypes")
@@ -486,13 +515,35 @@ public class MasterDataSynchronizer
             default:
                 throw new UserFailureException("update not implemented for entity kind: " + entityKind.name());
         }
-        return diffBuilder.build().toString();
+        DiffResult diffResult = diffBuilder.build();
+        return render(diffResult, existingEntityType, incomingEntityType);
     }
 
     private String getPluginName(EntityType entityType)
     {
-        Script validationScript = entityType.getValidationScript();
-        return validationScript == null ? null : validationScript.getName();
+        return getPluginName(entityType.getValidationScript());
+    }
+
+    private String getPluginName(Script plugin)
+    {
+        return plugin == null ? null : plugin.getName();
+    }
+
+    private static String render(DiffResult diffResult, Object existing, Object incoming)
+    {
+        List<Diff<?>> diffs = diffResult.getDiffs();
+        if (diffs.isEmpty())
+        {
+            return "";
+        }
+        ToStringBuilder builderExisting = new ToStringBuilder(existing, diffResult.getToStringStyle());
+        ToStringBuilder builderIncoming = new ToStringBuilder(incoming, diffResult.getToStringStyle());
+        for (Diff<?> diff : diffs)
+        {
+            builderExisting.append(diff.getFieldName(), diff.getLeft());
+            builderIncoming.append(diff.getFieldName(), diff.getRight());
+        }
+        return "incoming " + builderIncoming.build() + " differs from existing " + builderExisting.build();
     }
 
     private void appendToDiffBuilder(DiffBuilder diffBuilder, SampleType existingType, SampleType incomingType)

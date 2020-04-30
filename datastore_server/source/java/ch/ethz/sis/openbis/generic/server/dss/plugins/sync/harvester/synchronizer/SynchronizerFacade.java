@@ -14,12 +14,10 @@
  */
 package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -50,7 +48,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 
 public class SynchronizerFacade implements ISynchronizerFacade
 {
-    private static final String INFO_MESSAGE = "The following %s will be %s";
+    private static final String ADDED = "ADDED";
+
+    private static final String UPDATED = "UPDATED";
+
+    private static final String INFO_MESSAGE = "The following %s have been %s";
 
     private static final Object separatorStr = "---------------------";
 
@@ -63,12 +65,6 @@ public class SynchronizerFacade implements ISynchronizerFacade
     private Map<String, String> fileformatTypesToUpdate = new TreeMap<String, String>();
 
     private Set<String> fileformatTypesToAdd = new TreeSet<String>();
-
-    private Set<NewETPTAssignment> propertyAssignmentsToUpdate = new HashSet<>();
-
-    private Set<NewETPTAssignment> propertyAssignmentsToAdd = new HashSet<>();
-
-    private Map<String, String> propertyAssignmentsToBreak = new TreeMap<String, String>();
 
     private Map<String, String> propertyTypesToUpdate = new TreeMap<String, String>();
 
@@ -98,14 +94,13 @@ public class SynchronizerFacade implements ISynchronizerFacade
 
     private Set<String> materialTypesToAdd = new TreeSet<String>();
 
-    private Map<String, String> sampleTypesToUpdate = new TreeMap<String, String>();
+    private Map<String, EntityTypeSummary> sampleTypesToUpdate = new TreeMap<>();
 
-    private Map<String, String> experimentTypesToUpdate = new TreeMap<String, String>();
+    private Map<String, EntityTypeSummary> experimentTypesToUpdate = new TreeMap<>();
 
-    private Map<String, String> dataSetTypesToUpdate = new TreeMap<String, String>();
+    private Map<String, EntityTypeSummary> dataSetTypesToUpdate = new TreeMap<>();
 
-    private Map<String, String> materialTypesToUpdate = new HashMap<String, String>();
-    
+    private Map<String, EntityTypeSummary> materialTypesToUpdate = new HashMap<>();
 
     public SynchronizerFacade(String openBisServerUrl, String harvesterUser, String harvesterPassword, boolean dryRun, boolean verbose,
             Logger operationLog)
@@ -120,11 +115,7 @@ public class SynchronizerFacade implements ISynchronizerFacade
     @Override
     public void updateFileFormatType(AbstractType type)
     {
-        if (verbose == true)
-        {
-            String change = "Description :" + type.getDescription();
-            fileformatTypesToUpdate.put(type.getCode(), change);
-        }
+        fileformatTypesToUpdate.put(type.getCode(), "Description: " + type.getDescription());
         if (dryRun == false)
         {
             commonServer.updateFileFormatType(sessionToken, type);
@@ -134,10 +125,7 @@ public class SynchronizerFacade implements ISynchronizerFacade
     @Override
     public void registerFileFormatType(FileFormatType type)
     {
-        if (verbose == true)
-        {
-            fileformatTypesToAdd.add(type.getCode());
-        }
+        fileformatTypesToAdd.add(type.getCode());
         if (dryRun == false)
         {
             commonServer.registerFileFormatType(sessionToken, type);
@@ -145,12 +133,11 @@ public class SynchronizerFacade implements ISynchronizerFacade
     }
 
     @Override
-    public void updatePropertyTypeAssignment(NewETPTAssignment newETPTAssignment)
+    public void updatePropertyTypeAssignment(NewETPTAssignment newETPTAssignment, String diff)
     {
-        if (verbose == true)
-        {
-            propertyAssignmentsToUpdate.add(newETPTAssignment);
-        }
+        Map<String, EntityTypeSummary> summaryMap = getEntityTypeSummaryMap(newETPTAssignment.getEntityKind());
+        getEntityTypeSummary(summaryMap, newETPTAssignment.getEntityTypeCode())
+                .updateAssignment(newETPTAssignment.getPropertyTypeCode(), diff);
         if (dryRun == false)
         {
             commonServer.updatePropertyTypeAssignment(sessionToken, newETPTAssignment);
@@ -160,10 +147,9 @@ public class SynchronizerFacade implements ISynchronizerFacade
     @Override
     public void assignPropertyType(NewETPTAssignment newETPTAssignment)
     {
-        if (verbose == true)
-        {
-            propertyAssignmentsToAdd.add(newETPTAssignment);
-        }
+        Map<String, EntityTypeSummary> summaryMap = getEntityTypeSummaryMap(newETPTAssignment.getEntityKind());
+        getEntityTypeSummary(summaryMap, newETPTAssignment.getEntityTypeCode())
+                .addAssignment(newETPTAssignment.getPropertyTypeCode());
         if (dryRun == false)
         {
             commonServer.assignPropertyType(sessionToken, newETPTAssignment);
@@ -173,13 +159,27 @@ public class SynchronizerFacade implements ISynchronizerFacade
     @Override
     public void unassignPropertyType(EntityKind entityKind, String propertyTypeCode, String entityTypeCode)
     {
-        if (verbose == true)
-        {
-            propertyAssignmentsToBreak.put(entityTypeCode + "(" + entityKind.name() + ")", propertyTypeCode);
-        }
+        getEntityTypeSummary(getEntityTypeSummaryMap(entityKind), entityTypeCode).removeAssignment(propertyTypeCode);
         if (dryRun == false)
         {
             commonServer.unassignPropertyType(sessionToken, entityKind, propertyTypeCode, entityTypeCode);
+        }
+    }
+
+    private Map<String, EntityTypeSummary> getEntityTypeSummaryMap(EntityKind entityKind)
+    {
+        switch (entityKind)
+        {
+            case SAMPLE:
+                return sampleTypesToUpdate;
+            case EXPERIMENT:
+                return experimentTypesToUpdate;
+            case DATA_SET:
+                return dataSetTypesToUpdate;
+            case MATERIAL:
+                return materialTypesToUpdate;
+            default:
+                throw new RuntimeException("Unknown entity kind: " + entityKind);
         }
     }
 
@@ -331,13 +331,21 @@ public class SynchronizerFacade implements ISynchronizerFacade
         }
     }
 
+    private EntityTypeSummary getEntityTypeSummary(Map<String, EntityTypeSummary> summariesByType, String entityTypeCode)
+    {
+        EntityTypeSummary summary = summariesByType.get(entityTypeCode);
+        if (summary == null)
+        {
+            summary = new EntityTypeSummary();
+            summariesByType.put(entityTypeCode, summary);
+        }
+        return summary;
+    }
+
     @Override
     public void updateSampleType(EntityType entityType, String diff)
     {
-        if (verbose == true)
-        {
-            sampleTypesToUpdate.put(entityType.getCode(), diff);
-        }
+        getEntityTypeSummary(sampleTypesToUpdate, entityType.getCode()).updateType(diff);
         if (dryRun == false)
         {
             commonServer.updateSampleType(sessionToken, entityType);
@@ -347,10 +355,7 @@ public class SynchronizerFacade implements ISynchronizerFacade
     @Override
     public void updateDataSetType(EntityType entityType, String diff)
     {
-        if (verbose == true)
-        {
-            dataSetTypesToUpdate.put(entityType.getCode(), diff);
-        }
+        getEntityTypeSummary(dataSetTypesToUpdate, entityType.getCode()).updateType(diff);
         if (dryRun == false)
         {
             commonServer.updateDataSetType(sessionToken, entityType);
@@ -360,10 +365,7 @@ public class SynchronizerFacade implements ISynchronizerFacade
     @Override
     public void updateExperimentType(EntityType entityType, String diff)
     {
-        if (verbose == true)
-        {
-            experimentTypesToUpdate.put(entityType.getCode(), diff);
-        }
+        getEntityTypeSummary(experimentTypesToUpdate, entityType.getCode()).updateType(diff);
         if (dryRun == false)
         {
             commonServer.updateExperimentType(sessionToken, entityType);
@@ -373,10 +375,7 @@ public class SynchronizerFacade implements ISynchronizerFacade
     @Override
     public void updateMaterialType(EntityType entityType, String diff)
     {
-        if (verbose == true)
-        {
-            materialTypesToUpdate.put(entityType.getCode(), diff);
-        }
+        getEntityTypeSummary(materialTypesToUpdate, entityType.getCode()).updateType(diff);
         if (dryRun == false)
         {
             commonServer.updateMaterialType(sessionToken, entityType);
@@ -403,34 +402,30 @@ public class SynchronizerFacade implements ISynchronizerFacade
         {
             return;
         }
-        printSummary(fileformatTypesToAdd, "file format types", "added");
-        printSummary(fileformatTypesToUpdate, "file format types", "updated");
+        printSummary(fileformatTypesToAdd, "file format types", ADDED);
+        printSummary(fileformatTypesToUpdate, "file format types", UPDATED);
 
-        printSummary(validationPluginsToAdd, "validation plugins", "added");
-        printSummary(validationPluginsToUpdate, "validation plugins", "updated");
+        printSummary(validationPluginsToAdd, "validation plugins", ADDED);
+        printSummary(validationPluginsToUpdate, "validation plugins", UPDATED);
 
-        printSummary(propertyTypesToAdd, "property types", " added");
-        printSummary(propertyTypesToUpdate, "property types", "updated");
+        printSummary(propertyTypesToAdd, "property types", ADDED);
+        printSummary(propertyTypesToUpdate, "property types", UPDATED);
 
-        printSummary(vocabulariesToAdd, "vocabularies", " added");
-        printSummary(vocabulariesToUpdate, "vocabularies", "updated");
+        printSummary(vocabulariesToAdd, "vocabularies", ADDED);
+        printSummary(vocabulariesToUpdate, "vocabularies", UPDATED);
 
-        printSummary(vocabularyTermsToUpdate, "vocabulary terms", "updated");
-        printSummary(vocabulariesToAdd, "vocabulary terms", "added");
+        printSummary(vocabularyTermsToUpdate, "vocabulary terms", UPDATED);
+        printSummary(vocabulariesToAdd, "vocabulary terms", ADDED);
 
-        printSummary(sampleTypesToAdd, "sample types", "added");
-        printSummary(experimentTypesToAdd, "experiment types", "added");
-        printSummary(dataSetTypesToAdd, "data set types", "added");
-        printSummary(materialTypesToAdd, "material types", "added");
+        printSummary(sampleTypesToAdd, "sample types", ADDED);
+        printSummary(experimentTypesToAdd, "experiment types", ADDED);
+        printSummary(dataSetTypesToAdd, "data set types", ADDED);
+        printSummary(materialTypesToAdd, "material types", ADDED);
 
-        printSummary(sampleTypesToUpdate, "sample types", "updated");
-        printSummary(experimentTypesToUpdate, "experiment types", "updated");
-        printSummary(dataSetTypesToUpdate, "data set types", "updated");
-        printSummary(materialTypesToUpdate, "material types", "updated");
-
-        printSummaryPropertyAssignments(propertyAssignmentsToAdd, "property assignments", "added");
-        printSummaryPropertyAssignments(propertyAssignmentsToUpdate, "property assignments", "updated");
-        printSummary(propertyAssignmentsToBreak, "property assignments", "removed");
+        printEntityTypeSummary(sampleTypesToAdd, sampleTypesToUpdate, "sample types");
+        printEntityTypeSummary(experimentTypesToAdd, experimentTypesToUpdate, "experiment types");
+        printEntityTypeSummary(dataSetTypesToAdd, dataSetTypesToUpdate, "data set types");
+        printEntityTypeSummary(materialTypesToAdd, materialTypesToUpdate, "material types");
     }
 
     private void printSummary(Set<String> set, String type, String operation)
@@ -440,12 +435,39 @@ public class SynchronizerFacade implements ISynchronizerFacade
             return;
         }
         operationLog.info(separatorStr);
-        String message = String.format(INFO_MESSAGE, type, operation);
-        operationLog.info(message);
+        operationLog.info(String.format(INFO_MESSAGE, type, operation));
         operationLog.info(separatorStr);
         for (String str : set)
         {
             operationLog.info(str);
+        }
+    }
+
+    private void printEntityTypeSummary(Set<String> addedEntityTypes, Map<String, EntityTypeSummary> summaries, String itemType)
+    {
+        if (summaries.isEmpty())
+        {
+            return;
+        }
+        operationLog.info(separatorStr);
+        operationLog.info(String.format(INFO_MESSAGE, itemType, UPDATED));
+        operationLog.info(separatorStr);
+        Set<Entry<String, EntityTypeSummary>> entrySet = summaries.entrySet();
+        for (Entry<String, EntityTypeSummary> entry : entrySet)
+        {
+            String entityType = entry.getKey();
+            if (addedEntityTypes.contains(entityType))
+            {
+                continue;
+            }
+            EntityTypeSummary summary = entry.getValue();
+            String diff = summary.getDiff();
+            operationLog.info(entityType + " " + (diff == null ? "no basic changes" : diff));
+            Map<String, String> assignmentChanges = summary.getAssignmentChanges();
+            for (Entry<String, String> entry2 : assignmentChanges.entrySet())
+            {
+                operationLog.info("    " + entry2.getKey() + ": " + entry2.getValue());
+            }
         }
     }
 
@@ -465,31 +487,39 @@ public class SynchronizerFacade implements ISynchronizerFacade
         }
     }
 
-    private void printSummaryPropertyAssignments(Set<NewETPTAssignment> set, String type, String operation)
+    private static final class EntityTypeSummary
     {
-        if (set.isEmpty())
+        private String diff;
+        private Map<String, String> assignmentChanges = new TreeMap<>();
+
+        void updateType(String diff)
         {
-            return;
+            this.diff = diff;
         }
-        operationLog.info(separatorStr);
-        String message = String.format(INFO_MESSAGE, type, operation);
-        operationLog.info(message);
-        operationLog.info(separatorStr);
-        List<String> lines = new ArrayList<String>();
-        for (NewETPTAssignment assignment : set)
+
+        void updateAssignment(String propertyType, String diff)
         {
-            lines.add(assignment.getEntityTypeCode() + "(" + assignment.getEntityKind().name() + "): "
-                    + assignment.getPropertyTypeCode());
+            assignmentChanges.put(propertyType, diff);
         }
-        Collections.sort(lines);
-        for (String line : lines)
+
+        void addAssignment(String propertyType)
         {
-            operationLog.info(line);
+            assignmentChanges.put(propertyType, ADDED);
         }
-    }
-    
-    private static final class Summary
-    {
-        
+
+        void removeAssignment(String propertyType)
+        {
+            assignmentChanges.put(propertyType, "REMOVED");
+        }
+
+        public String getDiff()
+        {
+            return diff;
+        }
+
+        public Map<String, String> getAssignmentChanges()
+        {
+            return assignmentChanges;
+        }
     }
 }

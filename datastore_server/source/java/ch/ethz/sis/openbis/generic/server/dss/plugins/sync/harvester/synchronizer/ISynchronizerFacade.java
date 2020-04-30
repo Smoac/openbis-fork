@@ -43,7 +43,7 @@ public interface ISynchronizerFacade
 
     public void registerFileFormatType(FileFormatType type);
 
-    public void updatePropertyTypeAssignment(NewETPTAssignment newETPTAssignment);
+    public void updatePropertyTypeAssignment(NewETPTAssignment newETPTAssignment, String diff);
 
     public void assignPropertyType(NewETPTAssignment newETPTAssignment);
 
