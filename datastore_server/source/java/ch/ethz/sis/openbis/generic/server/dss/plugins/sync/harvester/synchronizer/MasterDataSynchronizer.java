@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -43,6 +44,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.update.ExternalDmsUp
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.ServiceFinderUtils;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.config.SyncConfig;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.util.Monitor;
+import ch.systemsx.cisd.common.collection.SimpleComparator;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
@@ -379,6 +381,15 @@ public class MasterDataSynchronizer
     {
         assert incomingAssignmentsList != null : "Null assignments list";
         List<? extends EntityTypePropertyType> assignedPropertyTypes = existingEntityType.getAssignedPropertyTypes();
+        Collections.sort(assignedPropertyTypes, new SimpleComparator<EntityTypePropertyType, Long>()
+            {
+                @Override
+                public Long evaluate(EntityTypePropertyType item)
+                {
+                    Long ordinal = item.getOrdinal();
+                    return ordinal == null ? -1 : ordinal;
+                }
+            });
         for (NewETPTAssignment newETPTAssignment : incomingAssignmentsList)
         {
             EntityTypePropertyType foundType = findInExistingPropertyAssignments(newETPTAssignment, assignedPropertyTypes);
