@@ -53,7 +53,7 @@ public interface ISynchronizerFacade
 
     public void registerPropertyType(PropertyType propertyType);
 
-    public void updateValidationPlugin(Script script);
+    public void updateValidationPlugin(Script script, String diff);
 
     public void registerValidationPlugin(Script script);
 
@@ -69,7 +69,7 @@ public interface ISynchronizerFacade
 
     public void registerMaterialType(MaterialType materialType);
 
-    public void updateVocabularyTerm(VocabularyTerm term, String diff);
+    public void updateVocabularyTerm(String vocabularyCode, VocabularyTerm term, String diff);
 
     public void updateSampleType(EntityType incomingEntityType, String diff);
 

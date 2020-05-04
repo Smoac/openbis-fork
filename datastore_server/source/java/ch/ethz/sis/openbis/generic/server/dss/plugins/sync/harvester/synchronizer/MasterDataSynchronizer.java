@@ -18,7 +18,6 @@ package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchroniz
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -154,12 +153,11 @@ public class MasterDataSynchronizer
             Script existingPluginOrNull = pluginMap.get(name);
             if (existingPluginOrNull != null)
             {
-                if (isNewer(incomingplugin.getModificationDate(), existingPluginOrNull.getModificationDate()))
+                String diff = calculateDiff(existingPluginOrNull, incomingplugin);
+                if (StringUtils.isNotBlank(diff))
                 {
-                    existingPluginOrNull.setName(incomingplugin.getName());
-                    existingPluginOrNull.setScript(incomingplugin.getScript());
-                    existingPluginOrNull.setDescription(incomingplugin.getDescription());
-                    synchronizerFacade.updateValidationPlugin(existingPluginOrNull);
+                    incomingplugin.setModificationDate(existingPluginOrNull.getModificationDate());
+                    synchronizerFacade.updateValidationPlugin(incomingplugin, diff);
                 }
             } else
             {
@@ -167,10 +165,21 @@ public class MasterDataSynchronizer
             }
         }
     }
-
-    private static boolean isNewer(Date dateOfIncoming, Date dateOfExisting)
+    
+    private String calculateDiff(Script existingPlugin, Script incomingPlugin)
     {
-        return dateOfIncoming != null && dateOfIncoming.after(dateOfExisting);
+        DiffBuilder diffBuilder = new DiffBuilder(existingPlugin, incomingPlugin, ToStringStyle.SHORT_PREFIX_STYLE, false)
+                .append("description", existingPlugin.getDescription(), incomingPlugin.getDescription());
+        String existingScript = existingPlugin.getScript();
+        String incomingScript = incomingPlugin.getScript();
+        int indexOfDifference = StringUtils.indexOfDifference(existingScript, incomingScript);
+        if (indexOfDifference >= 0)
+        {
+            String existingSnippet = StringUtils.left(existingScript.substring(indexOfDifference), 20);
+            String incommingSnippet = StringUtils.left(incomingScript.substring(indexOfDifference), 20);
+            diffBuilder.append("script", existingSnippet, incommingSnippet);
+        }
+        return render(diffBuilder.build(), existingPlugin, incomingPlugin);
     }
 
     private void processExternalDataManagementSystems(Map<String, ExternalDms> externalDataManagementSystems)
@@ -293,7 +302,7 @@ public class MasterDataSynchronizer
                 if (StringUtils.isNotBlank(diff))
                 {
                     incomingTerm.setModificationDate(existingTerm.getModificationDate());
-                    synchronizerFacade.updateVocabularyTerm(incomingTerm, diff);
+                    synchronizerFacade.updateVocabularyTerm(existingVocabulary.getCode(), incomingTerm, diff);
                 }
             }
         }
