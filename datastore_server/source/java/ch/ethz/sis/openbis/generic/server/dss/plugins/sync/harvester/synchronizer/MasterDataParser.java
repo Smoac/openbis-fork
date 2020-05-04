@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +40,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.id.ExternalDmsPermId
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.translator.DefaultNameTranslator;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.translator.INameTranslator;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.util.DSPropertyUtils;
+import ch.systemsx.cisd.common.collection.SimpleComparator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
@@ -56,18 +58,29 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
+
 /**
- * 
- *
  * @author Ganime Betul Akin
  */
 public class MasterDataParser
 {
+    private static final SimpleComparator<NewETPTAssignment, Long> ASSIGNMENT_COMPARATOR_BY_ORDINAL =
+            new SimpleComparator<NewETPTAssignment, Long>()
+                {
+                    @Override
+                    public Long evaluate(NewETPTAssignment item)
+                    {
+                        Long ordinal = item.getOrdinal();
+                        return ordinal == null ? -1 : ordinal;
+                    }
+                };
+
     private final INameTranslator nameTranslator;
-    
+
     private Map<String, Script> validationPlugins = new HashMap<String, Script>();
 
     private Map<String, ExternalDms> externalDataManagementSystems = new HashMap<>();
+
     private Map<String, FileFormatType> fileFormatTypes = new HashMap<String, FileFormatType>();
 
     private Map<String, PropertyType> propertyTypes = new HashMap<String, PropertyType>();
@@ -127,7 +140,6 @@ public class MasterDataParser
         parseExperimentTypes(docElement.getElementsByTagName("xmd:collectionTypes"));
         parseExternalDataManagementSystems(docElement.getElementsByTagName("xmd:externalDataManagementSystems"));
     }
-
 
     public Map<String, FileFormatType> getFileFormatTypes()
     {
@@ -201,7 +213,7 @@ public class MasterDataParser
             plugin.setPluginType(PluginType.JYTHON);
             plugin.setRegistrationDate(DSPropertyUtils.convertFromW3CDate(getAttribute(pluginElement, "registration-timestamp")));
             plugin.setModificationDate(DSPropertyUtils.convertFromW3CDate(getAttribute(pluginElement, "modification-timestamp")));
-            if (entityKind.equals("") == false &&  entityKind.equals("All") == false)
+            if (entityKind.equals("") == false && entityKind.equals("All") == false)
             {
                 String[] splittedEntityKinds = entityKind.split(",");
                 EntityKind[] entityKinds = new EntityKind[splittedEntityKinds.length];
@@ -247,23 +259,23 @@ public class MasterDataParser
             return;
         }
         validateElementNode(fileFormatTypesNode, "fileFormatTypes");
-        
+
         Element fileFormatTypesElement = (Element) fileFormatTypesNode.item(0);
         NodeList fileFormatTypeNodes = fileFormatTypesElement.getElementsByTagName("xmd:fileFormatType");
-        
+
         for (int i = 0; i < fileFormatTypeNodes.getLength(); i++)
         {
             Element typeElement = (Element) fileFormatTypeNodes.item(i);
-            
+
             FileFormatType type = new FileFormatType();
             String code = getAttribute(typeElement, "code");
             type.setCode(code);
             type.setDescription(getAttribute(typeElement, "description"));
-            
+
             fileFormatTypes.put(code, type);
         }
     }
-    
+
     private void validateElementNode(NodeList nodeList, String tagName) throws XPathExpressionException
     {
         if (nodeList.getLength() != 1)
@@ -438,7 +450,7 @@ public class MasterDataParser
             parsePropertyAssignments(EntityKind.DATA_SET, dataSetType, dataSetTypeElement);
         }
     }
-    
+
     private Script getValidationPlugin(Element element)
     {
         String name = getAttribute(element, "validationPlugin");
@@ -489,6 +501,8 @@ public class MasterDataParser
             }
             list.add(assignment);
         }
+        Collections.sort(list, ASSIGNMENT_COMPARATOR_BY_ORDINAL);
+
         entityPropertyAssignments.put(entityType.getEntityKind().name(), entityType.getCode(), list);
     }
 
@@ -523,15 +537,13 @@ public class MasterDataParser
             {
                 String vocabularyCode = nameTranslator.translate((getAttribute(propertyTypeElement, "vocabulary")));
                 newPropertyType.setVocabulary(vocabularies.get(vocabularyCode));
-            }
-            else if (dataTypeCode.equals(DataTypeCode.MATERIAL))
+            } else if (dataTypeCode.equals(DataTypeCode.MATERIAL))
             {
                 String materialCode = getAttribute(propertyTypeElement, "material");
                 if (StringUtils.isBlank(materialCode))
                 {
                     newPropertyType.setMaterialType(null); // material of any type
-                }
-                else
+                } else
                 {
                     newPropertyType.setMaterialType(materialTypes.get(nameTranslator.translate(materialCode)));
                 }
