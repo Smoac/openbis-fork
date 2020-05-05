@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
@@ -217,7 +218,17 @@ public class MonitoredIOStreamCopier
             {
                 throw writingException;
             }
-            queue.put(writingItem);
+//            queue.put(writingItem);
+            int timeout = 60;
+            boolean successful = queue.offer(writingItem, timeout, TimeUnit.SECONDS);
+            if (successful == false)
+            {
+                if (writingException != null)
+                {
+                    throw writingException;
+                }
+                throw new EnvironmentFailureException("Writing item couldn't be added. Time out " + timeout + " sec.");
+            }
         } catch (InterruptedException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
