@@ -212,9 +212,9 @@ public class EntitySynchronizer
             registerMasterData(data.getMasterData());
         }
         MultiKeyMap<String, String> newEntities = registerEntities(data);
-        List<String> notSyncedAttachmentsHolders = registerAttachments(data, newEntities);
+        registerAttachments(data, newEntities);
         populateFileServiceRepository(data);
-        registerDataSets(data, notSyncedAttachmentsHolders);
+        registerDataSets(data);
 
         if (config.keepOriginalTimestampsAndUsers())
         {
@@ -541,7 +541,7 @@ public class EntitySynchronizer
             });
     }
 
-    private void registerDataSets(ResourceListParserData data, List<String> notSyncedAttachmentsHolders) throws IOException
+    private void registerDataSets(ResourceListParserData data) throws IOException
     {
         Monitor monitor = new Monitor("Register data sets", operationLog);
         operationLog.info("Registering data sets...");
@@ -565,7 +565,7 @@ public class EntitySynchronizer
             DataSetSynchronizationSummary dsRegistrationSummary = registerPhysicalDataSets(physicalDSMap);
 
             // backup the current not synched data set codes file, delete the original file
-            saveFailedEntitiesFile(dsRegistrationSummary.notRegisteredDataSetCodes, notSyncedAttachmentsHolders);
+            saveFailedEntitiesFile(dsRegistrationSummary.notRegisteredDataSetCodes);
 
             notRegisteredDataSetCodes = dsRegistrationSummary.notRegisteredDataSetCodes;
             operationLog.info("Data set synchronization summary:\n"
@@ -665,32 +665,21 @@ public class EntitySynchronizer
         return result;
     }
 
-    private List<String> registerAttachments(ResourceListParserData data, MultiKeyMap<String, String> newEntities)
+    private void registerAttachments(ResourceListParserData data, MultiKeyMap<String, String> newEntities)
     {
         Monitor monitor = new Monitor("Register attachments", operationLog);
         operationLog.info("Processing attachments...");
         List<IncomingEntity<?>> attachmentHoldersToProcess =
                 data.filterAttachmentHoldersByLastModificationDate(lastSyncTimestamp, attachmentHolderCodesToRetry);
         monitor.log(attachmentHoldersToProcess.size() + " to process");
-        if (config.isVerbose())
-        {
-            verboseLogProcessAttachments(attachmentHoldersToProcess, newEntities);
-        }
 
-        List<String> notSyncedAttachmentsHolders = new ArrayList<String>();
-        if (config.isDryRun() == false)
-        {
-            AttachmentSynchronizationSummary syncSummary = processAttachments(attachmentHoldersToProcess, monitor);
-            notSyncedAttachmentsHolders = syncSummary.notRegisteredAttachmentHolderCodes;
-            operationLog.info("Attachment synchronization summary:\n" + syncSummary.addedCount + " attachment(s) were added.\n"
-                    + syncSummary.updatedCount + " attachment(s) were updated.\n"
-                    + syncSummary.deletedCount + " attachment(s) were deleted.\n"
-                    + (notSyncedAttachmentsHolders.isEmpty() ? ""
-                            : "synchronization of attachments for "
-                                    + notSyncedAttachmentsHolders.size() + " entitities FAILED."));
-        }
+        AttachmentSynchronizationSummary syncSummary = processAttachments(attachmentHoldersToProcess, monitor);
+        SummaryUtils.printShortSummaryHeader(operationLog);
+        SummaryUtils.printShortAddedSummary(operationLog, syncSummary.addedCount.intValue(), "attachments");
+        SummaryUtils.printShortUpdatedSummary(operationLog, syncSummary.updatedCount.intValue(), "attachments");
+        SummaryUtils.printShortRemovedSummary(operationLog, syncSummary.deletedCount.intValue(), "attachments");
+        SummaryUtils.printShortSummaryFooter(operationLog);
         monitor.log();
-        return notSyncedAttachmentsHolders;
     }
 
     private void populateFileServiceRepository(ResourceListParserData data)
@@ -824,27 +813,6 @@ public class EntitySynchronizer
         }
     }
 
-    private void verboseLogProcessAttachments(List<IncomingEntity<?>> attachmentHoldersToProcess, MultiKeyMap<String, String> newEntities)
-    {
-        if (attachmentHoldersToProcess.isEmpty() == false)
-        {
-            operationLog.info("-------Attachments for the following entities will be processed-------");
-            for (IncomingEntity<?> holder : attachmentHoldersToProcess)
-            {
-                // the following is done to not list holders in the log when they are just being created and have no attachments
-                // updated ones will logged because the attachments might have been deleted.
-                if (newEntities.containsKey(holder.getEntityKind().toString(), holder.getPermID()) == true)
-                {
-                    if (holder.hasAttachments() == false)
-                    {
-                        continue;
-                    }
-                }
-                operationLog.info(holder.getIdentifier());
-            }
-        }
-    }
-
     private void verboseLogDataSetUpdateOperation(List<DataSetBatchUpdatesDTO> dataSetUpdates)
     {
         if (dataSetUpdates.isEmpty() == false)
@@ -943,7 +911,7 @@ public class EntitySynchronizer
         String sessionTokenDataSource = v3apiDataSource.login(config.getUser(), config.getPassword());
         ParallelizedExecutor.process(attachmentHoldersChunks,
                 new AttachmentsSynchronizer(v3Api, service.getSessionToken(), v3apiDataSource, sessionTokenDataSource,
-                        lastSyncTimestamp, synchronizationSummary, monitor),
+                        lastSyncTimestamp, synchronizationSummary, config.isDryRun(), monitor),
                 preferences.getMachineLoad(), preferences.getMaxThreads(), "process attachments", preferences.getRetriesOnFail(),
                 preferences.isStopOnFailure());
 
@@ -1153,7 +1121,7 @@ public class EntitySynchronizer
         return dataSetSynchronizationSummary;
     }
 
-    private void saveFailedEntitiesFile(List<String> notRegisteredDataSetCodes, List<String> notSyncedAttachmentsHolders) throws IOException
+    private void saveFailedEntitiesFile(List<String> notRegisteredDataSetCodes) throws IOException
     {
         File notSyncedEntitiesFile = new File(config.getNotSyncedEntitiesFileName());
         if (notSyncedEntitiesFile.exists())
@@ -1165,11 +1133,6 @@ public class EntitySynchronizer
         for (String dsCode : notRegisteredDataSetCodes)
         {
             FileUtilities.appendToFile(notSyncedEntitiesFile, SyncEntityKind.DATA_SET + "-" + dsCode, true);
-        }
-        // append the ids of holder entities for the failed attachment synchronizations
-        for (String holderCode : notSyncedAttachmentsHolders)
-        {
-            FileUtilities.appendToFile(notSyncedEntitiesFile, holderCode, true);
         }
         // append the blacklisted codes to the end of the file
         for (String dsCode : blackListedDataSetCodes)

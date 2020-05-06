@@ -85,6 +85,11 @@ public class SummaryUtils
         printShortSummary(logger, size, type, UPDATED);
     }
 
+    public static void printShortRemovedSummary(Logger logger, int size, String type)
+    {
+        printShortSummary(logger, size, type, REMOVED);
+    }
+    
     private static void printShortSummary(Logger logger, int size, String type, String operation)
     {
         logger.info(String.format("| %7d %s %s", size, type, operation));

@@ -28,8 +28,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class AttachmentSynchronizationSummary
 {
-    public final List<String> notRegisteredAttachmentHolderCodes = Collections.synchronizedList(new ArrayList<String>());
-
     public final AtomicInteger addedCount = new AtomicInteger(0);
 
     public final AtomicInteger updatedCount = new AtomicInteger(0);

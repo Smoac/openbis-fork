@@ -68,12 +68,12 @@ public class AttachmentsSynchronizer implements ITaskExecutor<List<IncomingEntit
 
     public AttachmentsSynchronizer(IApplicationServerApi v3api, String sessionToken,
             IApplicationServerApi v3apiDataSource, String sessionTokenDataSource, Date lastSyncTimestamp,
-            AttachmentSynchronizationSummary synchronizationSummary, Monitor monitor)
+            AttachmentSynchronizationSummary synchronizationSummary, boolean dryRun, Monitor monitor)
     {
         handlersByEntityKind = new HashMap<>();
-        handlersByEntityKind.put(SyncEntityKind.PROJECT, new ProjectsHandler());
-        handlersByEntityKind.put(SyncEntityKind.EXPERIMENT, new ExperimentsHandler());
-        handlersByEntityKind.put(SyncEntityKind.SAMPLE, new SamplesHandler());
+        handlersByEntityKind.put(SyncEntityKind.PROJECT, new ProjectsHandler(dryRun));
+        handlersByEntityKind.put(SyncEntityKind.EXPERIMENT, new ExperimentsHandler(dryRun));
+        handlersByEntityKind.put(SyncEntityKind.SAMPLE, new SamplesHandler(dryRun));
         Collection<AbstractHandler> values = handlersByEntityKind.values();
         for (AbstractHandler handler : values)
         {
@@ -141,9 +141,11 @@ public class AttachmentsSynchronizer implements ITaskExecutor<List<IncomingEntit
 
         protected SyncEntityKind entityKind;
 
-        AbstractHandler(SyncEntityKind entityKind)
-        {
+        protected boolean dryRun;
 
+        AbstractHandler(boolean dryRun, SyncEntityKind entityKind)
+        {
+            this.dryRun = dryRun;
             this.entityKind = entityKind;
         }
 
@@ -181,12 +183,12 @@ public class AttachmentsSynchronizer implements ITaskExecutor<List<IncomingEntit
         {
             this.monitor = monitor;
         }
-        
+
         private void log(List<IncomingEntity<?>> entities, int numberOfEntitiesWithAttachments, int totalNumberOfEntities, String description)
         {
             List<String> ids = entities.stream().map(IncomingEntity::getIdentifier).collect(Collectors.toList());
             String idsAsString = CollectionUtils.abbreviate(ids, 20);
-            monitor.log(String.format("%4d (of %4d) %ss %s. %s", 
+            monitor.log(String.format("%4d (of %4d) %ss %s. %s",
                     numberOfEntitiesWithAttachments, totalNumberOfEntities, entityKind, description, idsAsString));
         }
 
@@ -331,9 +333,9 @@ public class AttachmentsSynchronizer implements ITaskExecutor<List<IncomingEntit
 
     private static final class ProjectsHandler extends AbstractHandler
     {
-        public ProjectsHandler()
+        public ProjectsHandler(boolean dryRun)
         {
-            super(SyncEntityKind.PROJECT);
+            super(dryRun, SyncEntityKind.PROJECT);
         }
 
         @SuppressWarnings("unchecked")
@@ -358,15 +360,19 @@ public class AttachmentsSynchronizer implements ITaskExecutor<List<IncomingEntit
                 projectUpdate.getAttachments().setActions(entry.getValue().getActions());
                 updates.add(projectUpdate);
             }
+            if (dryRun)
+            {
+                return;
+            }
             v3api.updateProjects(sessionToken, updates);
         }
     }
 
     private static final class ExperimentsHandler extends AbstractHandler
     {
-        public ExperimentsHandler()
+        public ExperimentsHandler(boolean dryRun)
         {
-            super(SyncEntityKind.EXPERIMENT);
+            super(dryRun, SyncEntityKind.EXPERIMENT);
         }
 
         @SuppressWarnings("unchecked")
@@ -391,15 +397,19 @@ public class AttachmentsSynchronizer implements ITaskExecutor<List<IncomingEntit
                 experimentUpdate.getAttachments().setActions(entry.getValue().getActions());
                 updates.add(experimentUpdate);
             }
+            if (dryRun)
+            {
+                return;
+            }
             v3api.updateExperiments(sessionToken, updates);
         }
     }
 
     private static final class SamplesHandler extends AbstractHandler
     {
-        public SamplesHandler()
+        public SamplesHandler(boolean dryRun)
         {
-            super(SyncEntityKind.SAMPLE);
+            super(dryRun, SyncEntityKind.SAMPLE);
         }
 
         @SuppressWarnings("unchecked")
@@ -423,6 +433,10 @@ public class AttachmentsSynchronizer implements ITaskExecutor<List<IncomingEntit
                 sampleUpdate.setSampleId(new SamplePermId(entry.getKey()));
                 sampleUpdate.getAttachments().setActions(entry.getValue().getActions());
                 updates.add(sampleUpdate);
+            }
+            if (dryRun)
+            {
+                return;
             }
             v3api.updateSamples(sessionToken, updates);
         }
