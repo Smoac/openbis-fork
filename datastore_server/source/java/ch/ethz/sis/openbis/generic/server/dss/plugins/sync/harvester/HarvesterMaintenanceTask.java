@@ -32,7 +32,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -42,9 +41,9 @@ import javax.activation.DataSource;
 import javax.mail.util.ByteArrayDataSource;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.FileAppender;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
-import org.apache.log4j.RollingFileAppender;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
@@ -262,8 +261,7 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
         if (logger.getAppender(name) == null)
         {
             // configure the appender
-            RollingFileAppender appender = new RollingFileAppender(); // create appender
-            appender.setMaximumFileSize(Long.MAX_VALUE);
+            FileAppender appender = new FileAppender(); // create appender
             appender.setName(name);
             appender.setLayout(new PatternLayout("%d %-5p %m%n"));
             appender.setFile(config.getLogFilePath());

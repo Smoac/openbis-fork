@@ -98,6 +98,7 @@ import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronize
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.util.DSPropertyUtils;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.util.Monitor;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.util.ServiceUtils;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.util.SummaryUtils;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.util.V3Facade;
 import ch.systemsx.cisd.common.concurrent.ParallelizedExecutor;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -118,7 +119,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Identifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
@@ -127,7 +127,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterialWithType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -717,15 +716,20 @@ public class EntitySynchronizer
     private MultiKeyMap<String, String> registerEntities(ResourceListParserData data)
     {
         Monitor monitor = new Monitor("Register entities", operationLog);
-        AtomicEntityOperationDetails entityOperationDetails = createEntityOperationDetails(data, monitor);
+        AtomicEntityOperationDetails details = createEntityOperationDetails(data, monitor);
 
         MultiKeyMap<String, String> newEntities = new MultiKeyMap<String, String>();
         if (config.isDryRun() == false)
         {
-            AtomicEntityOperationResult operationResult = service.performEntityOperations(entityOperationDetails);
-            newEntities = getNewEntities(entityOperationDetails);
+            AtomicEntityOperationResult operationResult = service.performEntityOperations(details);
+            newEntities = getNewEntities(details);
             operationLog.info("Entity operation result: " + operationResult);
         }
+        if (config.isVerbose() == true)
+        {
+            printSummary(details);
+        }
+        printShortSummary(details);
         monitor.log();
         return newEntities;
     }
@@ -741,12 +745,7 @@ public class EntitySynchronizer
         processSamples(data, builder, monitor);
         processMaterials(data, builder);
 
-        AtomicEntityOperationDetails entityOperationDetails = builder.getDetails();
-        if (config.isVerbose() == true)
-        {
-            verboseLogEntityOperations(entityOperationDetails);
-        }
-        return entityOperationDetails;
+        return builder.getDetails();
     }
 
     private void processSpaces(ResourceListParserData data, AtomicEntityOperationDetailsBuilder builder)
@@ -858,109 +857,77 @@ public class EntitySynchronizer
         }
     }
 
-    private void verboseLogEntityOperations(AtomicEntityOperationDetails details)
+    private void printShortSummary(AtomicEntityOperationDetails details)
     {
-        List<NewSpace> spaceRegistrations = details.getSpaceRegistrations();
-        if (spaceRegistrations.size() > 0)
-        {
-            operationLog.info("-------The following spaces will be created------- ");
-            for (NewSpace newSpace : spaceRegistrations)
-            {
-                operationLog.info(newSpace.getCode());
-            }
-        }
-        verboseLogEntityRegistrations(details.getProjectRegistrations());
-        verboseLogEntityRegistrations(details.getExperimentRegistrations());
-        verboseLogEntityRegistrations(details.getSampleRegistrations());
-        verboseLogMaterialRegistration(details.getMaterialRegistrations());
-        verboseLogSampleUpdates(details.getSampleUpdates());
-        verboseLogExperimentUpdates(details.getExperimentUpdates());
-        verboseLogProjectUpdates(details.getProjectUpdates());
-        verboseLogMaterialUpdates(details.getMaterialUpdates());
+        SummaryUtils.printShortSummaryHeader(operationLog);
+        SummaryUtils.printShortAddedSummary(operationLog, details.getSpaceRegistrations().size(), "SPACES");
+        SummaryUtils.printShortAddedSummary(operationLog, details.getProjectRegistrations().size(), "PROJECTS");
+        SummaryUtils.printShortUpdatedSummary(operationLog, details.getProjectUpdates().size(), "PROJECTS");
+        SummaryUtils.printShortAddedSummary(operationLog, details.getExperimentRegistrations().size(), "EXPERIMENTS");
+        SummaryUtils.printShortUpdatedSummary(operationLog, details.getExperimentUpdates().size(), "EXPERIMENTS");
+        SummaryUtils.printShortAddedSummary(operationLog, details.getSampleRegistrations().size(), "SAMPLES");
+        SummaryUtils.printShortUpdatedSummary(operationLog, details.getSampleUpdates().size(), "SAMPLE");
+        SummaryUtils.printShortAddedSummary(operationLog, details.getMaterialRegistrations().size(), "MATERIALS");
+        SummaryUtils.printShortUpdatedSummary(operationLog, details.getMaterialUpdates().size(), "MATERIALS");
+        SummaryUtils.printShortSummaryFooter(operationLog);
     }
 
-    private void verboseLogMaterialUpdates(List<MaterialUpdateDTO> materialUpdates)
+    private void printSummary(AtomicEntityOperationDetails details)
+    {
+        printSummary(details.getSpaceRegistrations(), "SPACES");
+        printSummary(details.getProjectRegistrations(), "PROJECTS");
+        printProjectUpdatesSummary(details.getProjectUpdates());
+        printSummary(details.getExperimentRegistrations(), "EXPERIMENTS");
+        printExperimentUpdatesSummary(details.getExperimentUpdates());
+        printSummary(details.getSampleRegistrations(), "SAMPLES");
+        printSampleUpdatesSummary(details.getSampleUpdates());
+        printMaterialsSummary(details.getMaterialRegistrations());
+        printMaterialUpdatesSummary(details.getMaterialUpdates());
+    }
+
+    private void printSummary(List<?> items, String type)
+    {
+        List<String> identifiers = items.stream().map(Object::toString).collect(Collectors.toList());
+        SummaryUtils.printAddedSummary(operationLog, identifiers, type);
+    }
+
+    private void printProjectUpdatesSummary(List<ProjectUpdatesDTO> updates)
+    {
+        List<String> identifiers = updates.stream().map(ProjectUpdatesDTO::getIdentifier).collect(Collectors.toList());
+        SummaryUtils.printUpdatedSummary(operationLog, identifiers, "PROJECTS");
+    }
+
+    private void printExperimentUpdatesSummary(List<ExperimentUpdatesDTO> updates)
+    {
+        List<String> identifiers = updates.stream().map(u -> u.getProjectIdentifier().asProjectIdentifierString()).collect(Collectors.toList());
+        SummaryUtils.printUpdatedSummary(operationLog, identifiers, "EXPERIMENTS");
+    }
+
+    private void printSampleUpdatesSummary(List<SampleUpdatesDTO> updates)
+    {
+        List<String> identifiers = updates.stream().map(u -> u.getSampleIdentifier().toString()).collect(Collectors.toList());
+        SummaryUtils.printUpdatedSummary(operationLog, identifiers, "SAMPLES");
+    }
+
+    private void printMaterialsSummary(Map<String, List<NewMaterial>> materials)
+    {
+        List<String> details = new ArrayList<>();
+        for (Entry<String, List<NewMaterial>> entry : materials.entrySet())
+        {
+            String typeCode = entry.getKey();
+            for (NewMaterial material : entry.getValue())
+            {
+                details.add(MaterialIdentifier.print(material.getCode(), typeCode));
+            }
+        }
+        SummaryUtils.printAddedSummary(operationLog, details, "MATERIALS");
+    }
+
+    private void printMaterialUpdatesSummary(List<MaterialUpdateDTO> materialUpdates)
     {
         if (materialUpdates.isEmpty() == false)
         {
-            operationLog.info("-------" + materialUpdates.size() + " materials will be updated-------");
-        }
-    }
-
-    private void verboseLogMaterialRegistration(Map<String, List<NewMaterial>> materials)
-    {
-        if (materials.isEmpty() == false)
-        {
-            operationLog.info("-------The following materials will be registered-------");
-            for (String type : materials.keySet())
-            {
-                operationLog.info("-------Materials of type " + type + " -------");
-                List<NewMaterial> list = materials.get(type);
-                for (NewMaterial newMaterial : list)
-                {
-                    operationLog.info(newMaterial.getCode());
-                }
-            }
-        }
-    }
-
-    private void verboseLogSampleUpdates(List<SampleUpdatesDTO> sampleUpdates)
-    {
-        if (sampleUpdates.isEmpty() == false)
-        {
-            operationLog.info("-------The following samples will be updated-------");
-            for (SampleUpdatesDTO dto : sampleUpdates)
-            {
-                operationLog.info(dto.getSampleIdentifier());
-            }
-        }
-    }
-
-    private void verboseLogExperimentUpdates(List<ExperimentUpdatesDTO> experimentUpdates)
-    {
-        if (experimentUpdates.isEmpty() == false)
-        {
-            operationLog.info("-------The following experiments will be updated-------");
-            for (ExperimentUpdatesDTO dto : experimentUpdates)
-            {
-                operationLog.info(dto.getProjectIdentifier());
-            }
-        }
-    }
-
-    private void verboseLogProjectUpdates(List<ProjectUpdatesDTO> projectUpdates)
-    {
-        if (projectUpdates.isEmpty() == false)
-        {
-            operationLog.info("-------The following projects will be updated-------");
-            for (ProjectUpdatesDTO dto : projectUpdates)
-            {
-                operationLog.info(dto.getIdentifier());
-            }
-        }
-    }
-
-    private void verboseLogEntityRegistrations(List<? extends Identifier<?>> entityRegistrations)
-    {
-        if (entityRegistrations.isEmpty() == false)
-        {
-            Identifier<?> identifier = entityRegistrations.get(0);
-            SyncEntityKind entityKind = null;
-            if (identifier instanceof NewSample)
-            {
-                entityKind = SyncEntityKind.SAMPLE;
-            } else if (identifier instanceof NewExperiment)
-            {
-                entityKind = SyncEntityKind.EXPERIMENT;
-            } else if (identifier instanceof NewProject)
-            {
-                entityKind = SyncEntityKind.PROJECT;
-            }
-            operationLog.info("-------The following " + entityKind + "(s) will be created-------");
-            for (Identifier<?> entity : entityRegistrations)
-            {
-                operationLog.info(entity.getIdentifier());
-            }
+            SummaryUtils.printUpdatedSummary(operationLog, Arrays.asList(materialUpdates.size() + " materials"), "MATERIALS");
         }
     }
 
@@ -1457,8 +1424,7 @@ public class EntitySynchronizer
         }
     }
 
-    private void processExperiments(ResourceListParserData data,
-            AtomicEntityOperationDetailsBuilder builder)
+    private void processExperiments(ResourceListParserData data, AtomicEntityOperationDetailsBuilder builder)
     {
         // process experiments
         Map<String, IncomingExperiment> experimentsToProcess = data.getExperimentsToProcess();
@@ -1467,16 +1433,8 @@ public class EntitySynchronizer
             NewExperiment incomingExp = exp.getExperiment();
             if (exp.getLastModificationDate().after(lastSyncTimestamp))
             {
-                Experiment experiment = null;
-                try
-                {
-                    experiment = service.tryGetExperimentByPermId(incomingExp.getPermID());
-                } catch (Exception e)
-                {
-                    // doing nothing because when the experiment with the perm id not found
-                    // an exception will be thrown. Seems to be the same with entity kinds
-                }
-
+                ExperimentIdentifier identifier = ExperimentIdentifierFactory.parse(incomingExp.getIdentifier());
+                Experiment experiment = service.tryGetExperiment(identifier);
                 if (experiment == null)
                 {
                     // ADD EXPERIMENT
@@ -1542,16 +1500,8 @@ public class EntitySynchronizer
             NewProject incomingProject = prj.getProject();
             if (prj.getLastModificationDate().after(lastSyncTimestamp))
             {
-                Project project = null;
-                try
-                {
-                    project = service.tryGetProjectByPermId(incomingProject.getPermID());
-                } catch (Exception e)
-                {
-                    // TODO doing nothing because when the project with the perm is not found
-                    // an exception will be thrown. See bug report SSDM-4108
-                }
-
+                ProjectIdentifier identifier = ProjectIdentifierFactory.parse(incomingProject.getIdentifier());
+                Project project = service.tryGetProject(identifier);
                 if (project == null)
                 {
                     // ADD PROJECT
@@ -1584,8 +1534,8 @@ public class EntitySynchronizer
     {
         // process samples
         Map<String, IncomingSample> samplesToProcess = data.getSamplesToProcess();
-        Map<String, ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample> knownSamples = getKnownSamples(samplesToProcess.keySet());
-        Map<SampleIdentifier, NewSample> samplesToUpdate = new HashMap<SampleIdentifier, NewSample>();
+        Map<String, ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample> knownSamples = getKnownSamples(samplesToProcess);
+        Map<String, NewSample> samplesToUpdate = new HashMap<>();
         Set<String> sampleWithUpdatedParents = new HashSet<String>();
         int count = 0;
         int n = samplesToProcess.size();
@@ -1598,9 +1548,8 @@ public class EntitySynchronizer
             NewSample incomingSample = sample.getSample();
             if (sample.getLastModificationDate().after(lastSyncTimestamp))
             {
-                SampleIdentifier sampleIdentifier = SampleIdentifierFactory.parse(incomingSample);
-                ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample knownSample = null;
-                knownSample = knownSamples.get(incomingSample.getPermID());
+                String sampleIdentifier = incomingSample.getIdentifier();
+                ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample knownSample = knownSamples.get(sampleIdentifier);
                 if (knownSample == null)
                 {
                     // ADD SAMPLE
@@ -1608,7 +1557,7 @@ public class EntitySynchronizer
                 } else
                 {
                     // defer creation of sample update objects until all samples have been gone through;
-                    samplesToUpdate.put(sampleIdentifier, incomingSample);
+                    samplesToUpdate.put(knownSample.getPermId().getPermId(), incomingSample);
                     ;
                     for (ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample child : knownSample.getChildren())
                     {
@@ -1658,10 +1607,17 @@ public class EntitySynchronizer
         }
 
         // create sample update dtos for the samples that need to be updated
-        for (SampleIdentifier sampleIdentifier : samplesToUpdate.keySet())
+        createSampleUpdates(builder, samplesToUpdate, sampleWithUpdatedParents);
+    }
+
+    private void createSampleUpdates(AtomicEntityOperationDetailsBuilder builder, Map<String, NewSample> samplesToUpdate,
+            Set<String> sampleWithUpdatedParents)
+    {
+        for (Entry<String, NewSample> entry : samplesToUpdate.entrySet())
         {
-            NewSample incomingSmp = samplesToUpdate.get(sampleIdentifier);
-            Sample sample = service.tryGetSampleByPermId(incomingSmp.getPermID());
+            String samplePermId = entry.getKey();
+            NewSample incomingSmp = entry.getValue();
+            Sample sample = service.tryGetSampleByPermId(samplePermId);
 
             TechId sampleId = TechId.create(sample);
             ExperimentIdentifier experimentIdentifier = getExperimentIdentifier(incomingSmp);
@@ -1682,7 +1638,7 @@ public class EntitySynchronizer
             SampleUpdatesDTO updates =
                     new SampleUpdatesDTO(sampleId, newPropList, experimentIdentifier,
                             projectIdentifier, Collections.<NewAttachment> emptyList(),
-                            sample.getVersion(), sampleIdentifier, containerIdentifier,
+                            sample.getVersion(), SampleIdentifierFactory.parse(incomingSmp), containerIdentifier,
                             modifiedParentIds);
             builder.sampleUpdate(updates);
         }
@@ -1699,17 +1655,20 @@ public class EntitySynchronizer
         throw new IllegalArgumentException("sample " + permId + " hasn't been provided by the data source.");
     }
 
-    private Map<String, ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample> getKnownSamples(Collection<String> samplePermIds)
+    private Map<String, ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample> getKnownSamples(Map<String, IncomingSample> samplesToProcess)
     {
         String sessionToken = service.getSessionToken();
-        List<SamplePermId> sampleIds = samplePermIds.stream().map(SamplePermId::new).collect(Collectors.toList());
+        List<ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier> sampleIds =
+                samplesToProcess.values().stream().map(
+                        s -> new ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier(s.getSample().getIdentifier()))
+                        .collect(Collectors.toList());
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
         fetchOptions.withChildren();
         Map<ISampleId, ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample> samples = v3Api.getSamples(sessionToken, sampleIds, fetchOptions);
         HashMap<String, ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample> result = new HashMap<>();
         for (ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample sample : samples.values())
         {
-            result.put(sample.getPermId().getPermId(), sample);
+            result.put(sample.getIdentifier().getIdentifier(), sample);
         }
         return result;
     }

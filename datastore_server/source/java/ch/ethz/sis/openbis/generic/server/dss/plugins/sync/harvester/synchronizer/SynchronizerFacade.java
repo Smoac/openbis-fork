@@ -15,6 +15,7 @@
 package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -25,6 +26,7 @@ import java.util.TreeSet;
 import org.apache.log4j.Logger;
 
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.ServiceFinderUtils;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.util.SummaryUtils;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -49,16 +51,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 
 public class SynchronizerFacade implements ISynchronizerFacade
 {
-    private static final String ADDED = "ADDED";
-
-    private static final String REMOVED = "REMOVED";
-
-    private static final String UPDATED = "UPDATED";
-
-    private static final String INFO_MESSAGE = "The following %s have been %s";
-
-    private static final Object separatorStr = "---------------------";
-
     private final String sessionToken;
 
     private final ICommonServer commonServer;
@@ -356,93 +348,73 @@ public class SynchronizerFacade implements ISynchronizerFacade
     {
         if (verbose)
         {
-            printSummary(fileformatTypesToAdd, "file format types", ADDED);
-            printSummary(fileformatTypesToUpdate, "file format types", UPDATED);
+            SummaryUtils.printAddedSummary(operationLog, fileformatTypesToAdd, "file format types");
+            printUpdatedSummary(fileformatTypesToUpdate, "file format types");
 
-            printSummary(validationPluginsToAdd, "validation plugins", ADDED);
-            printSummary(validationPluginsToUpdate, "validation plugins", UPDATED);
+            SummaryUtils.printAddedSummary(operationLog, validationPluginsToAdd, "validation plugins");
+            printUpdatedSummary(validationPluginsToUpdate, "validation plugins");
 
-            printSummary(vocabulariesToAdd, "vocabularies", ADDED);
+            SummaryUtils.printAddedSummary(operationLog, vocabulariesToAdd, "vocabularies");
             printUpdateSummary(vocabulariesToAdd, vocabulariesToUpdate, "vocabularies");
 
-            printSummary(propertyTypesToAdd, "property types", ADDED);
-            printSummary(propertyTypesToUpdate, "property types", UPDATED);
+            SummaryUtils.printAddedSummary(operationLog, propertyTypesToAdd, "property types");
+            printUpdatedSummary(propertyTypesToUpdate, "property types");
 
-            printSummary(experimentTypesToAdd, "experiment types", ADDED);
+            SummaryUtils.printAddedSummary(operationLog, experimentTypesToAdd, "experiment types");
             printUpdateSummary(experimentTypesToAdd, experimentTypesToUpdate, "experiment types");
-            printSummary(sampleTypesToAdd, "sample types", ADDED);
+            SummaryUtils.printAddedSummary(operationLog, sampleTypesToAdd, "sample types");
             printUpdateSummary(sampleTypesToAdd, sampleTypesToUpdate, "sample types");
-            printSummary(dataSetTypesToAdd, "data set types", ADDED);
+            SummaryUtils.printAddedSummary(operationLog, dataSetTypesToAdd, "data set types");
             printUpdateSummary(dataSetTypesToAdd, dataSetTypesToUpdate, "data set types");
-            printSummary(materialTypesToAdd, "material types", ADDED);
+            SummaryUtils.printAddedSummary(operationLog, materialTypesToAdd, "material types");
             printUpdateSummary(materialTypesToAdd, materialTypesToUpdate, "material types");
         }
-        operationLog.info("/-------------- Short Summary --------------");
-        printShortSummary(fileformatTypesToAdd.size(), "file format types", ADDED);
-        printShortSummary(fileformatTypesToUpdate.size(), "file format types", UPDATED);
-        printShortSummary(validationPluginsToAdd.size(), "validation plugins", ADDED);
-        printShortSummary(validationPluginsToUpdate.size(), "validation plugins", UPDATED);
-        printShortSummary(vocabulariesToUpdate, "vocabularies", "terms");
-        printShortSummary(propertyTypesToAdd.size(), "property types", ADDED);
-        printShortSummary(propertyTypesToUpdate.size(), "property types", UPDATED);
-        printShortSummary(experimentTypesToAdd.size(), "experiment types", ADDED);
-        printShortSummary(experimentTypesToUpdate, "experiment types", "property assignments");
-        printShortSummary(sampleTypesToAdd.size(), "sample types", ADDED);
-        printShortSummary(sampleTypesToUpdate, "sample types", "property assignments");
-        printShortSummary(dataSetTypesToAdd.size(), "data set types", ADDED);
-        printShortSummary(dataSetTypesToUpdate, "data set types", "property assignments");
-        printShortSummary(materialTypesToAdd.size(), "material types", ADDED);
-        printShortSummary(materialTypesToUpdate, "material types", "property assignments");
-        operationLog.info("\\___________________________________________");
+        SummaryUtils.printShortSummaryHeader(operationLog);
+        SummaryUtils.printShortAddedSummary(operationLog, fileformatTypesToAdd.size(), "file format types");
+        SummaryUtils.printShortUpdatedSummary(operationLog, fileformatTypesToUpdate.size(), "file format types");
+        SummaryUtils.printShortAddedSummary(operationLog, validationPluginsToAdd.size(), "validation plugins");
+        SummaryUtils.printShortUpdatedSummary(operationLog, validationPluginsToUpdate.size(), "validation plugins");
+        SummaryUtils.printShortAddedSummary(operationLog, vocabulariesToAdd.size(), "vocabularies");
+        printShortSummary(vocabulariesToAdd, vocabulariesToUpdate, "vocabularies", "terms");
+        SummaryUtils.printShortAddedSummary(operationLog, propertyTypesToAdd.size(), "property types");
+        SummaryUtils.printShortUpdatedSummary(operationLog, propertyTypesToUpdate.size(), "property types");
+        SummaryUtils.printShortAddedSummary(operationLog, experimentTypesToAdd.size(), "experiment types");
+        printShortSummary(experimentTypesToAdd, experimentTypesToUpdate, "experiment types", "property assignments");
+        SummaryUtils.printShortAddedSummary(operationLog, sampleTypesToAdd.size(), "sample types");
+        printShortSummary(sampleTypesToAdd, sampleTypesToUpdate, "sample types", "property assignments");
+        SummaryUtils.printShortAddedSummary(operationLog, dataSetTypesToAdd.size(), "data set types");
+        printShortSummary(dataSetTypesToAdd, dataSetTypesToUpdate, "data set types", "property assignments");
+        SummaryUtils.printShortAddedSummary(operationLog, materialTypesToAdd.size(), "material types");
+        printShortSummary(materialTypesToAdd, materialTypesToUpdate, "material types", "property assignments");
+        SummaryUtils.printShortSummaryFooter(operationLog);
     }
 
-    private void printShortSummary(int size, String type, String operation)
+    private void printShortSummary(Set<String> added, Map<String, UpdateSummary> updates, String type, String subType)
     {
-        operationLog.info(String.format("| %7d %s %s", size, type, operation));
-    }
-
-    private void printShortSummary(Map<String, UpdateSummary> updates, String type, String subType)
-    {
-        printShortSummary(updates.size(), type, UPDATED);
         int numberOfUpdates = 0;
         int numberOfAdds = 0;
         int numberOfRemoves = 0;
+        int numberOfUpdatedItems = 0;
         for (UpdateSummary updateSummary : updates.values())
         {
+            if (added.contains(updateSummary.getItem()))
+            {
+                continue;
+            }
+            numberOfUpdatedItems++;
             numberOfUpdates += updateSummary.getNumberOfUpdates();
             numberOfAdds += updateSummary.getNumberOfAdds();
             numberOfRemoves += updateSummary.getNumberOfRemoves();
         }
-        String prefix = "|          %7d %s ";
-        operationLog.info(String.format(prefix + ADDED, numberOfAdds, subType));
-        operationLog.info(String.format(prefix + UPDATED, numberOfUpdates, subType));
-        operationLog.info(String.format(prefix + REMOVED, numberOfRemoves, subType));
-    }
-
-    private void printSummary(Set<String> set, String type, String operation)
-    {
-        if (set.isEmpty())
-        {
-            return;
-        }
-        operationLog.info(separatorStr);
-        operationLog.info(String.format(INFO_MESSAGE, type, operation));
-        operationLog.info(separatorStr);
-        for (String str : set)
-        {
-            operationLog.info(str);
-        }
+        SummaryUtils.printShortUpdatedSummary(operationLog, numberOfUpdatedItems, type);
+        SummaryUtils.printShortAddedSummaryDetail(operationLog, numberOfAdds, subType);
+        SummaryUtils.printShortUpdatedSummaryDetail(operationLog, numberOfUpdates, subType);
+        SummaryUtils.printShortRemovedSummaryDetail(operationLog, numberOfRemoves, subType);
     }
 
     private void printUpdateSummary(Set<String> addedEntityTypes, Map<String, UpdateSummary> summaries, String itemType)
     {
-        if (summaries.isEmpty())
-        {
-            return;
-        }
-        operationLog.info(separatorStr);
-        operationLog.info(String.format(INFO_MESSAGE, itemType, UPDATED));
-        operationLog.info(separatorStr);
+        List<String> details = new LinkedList<>();
         for (Entry<String, UpdateSummary> entry : summaries.entrySet())
         {
             String entityType = entry.getKey();
@@ -452,29 +424,24 @@ public class SynchronizerFacade implements ISynchronizerFacade
             }
             UpdateSummary summary = entry.getValue();
             String diff = summary.getDiff();
-            operationLog.info(entityType + " " + (diff == null ? "no basic changes" : diff));
+            details.add(entityType + " " + (diff == null ? "no basic changes" : diff));
             Map<String, String> assignmentChanges = summary.getChanges();
             for (Entry<String, String> entry2 : assignmentChanges.entrySet())
             {
-                operationLog.info("    " + entry2.getKey() + ": " + entry2.getValue());
+                details.add("    " + entry2.getKey() + ": " + entry2.getValue());
             }
         }
+        SummaryUtils.printUpdatedSummary(operationLog, details, itemType);
     }
 
-    private void printSummary(Map<String, String> map, String type, String operation)
+    private void printUpdatedSummary(Map<String, String> map, String type)
     {
-        if (map.isEmpty())
-        {
-            return;
-        }
-        operationLog.info(separatorStr);
-        String message = String.format(INFO_MESSAGE, type, operation);
-        operationLog.info(message);
-        operationLog.info(separatorStr);
+        List<String> details = new LinkedList<>();
         for (String key : map.keySet())
         {
-            operationLog.info(key + " - " + map.get(key));
+            details.add(key + " - " + map.get(key));
         }
+        SummaryUtils.printUpdatedSummary(operationLog, details, type);
     }
 
     private UpdateSummary getEntityTypeSummary(Map<String, UpdateSummary> summariesByType, String entityTypeCode)
@@ -482,7 +449,7 @@ public class SynchronizerFacade implements ISynchronizerFacade
         UpdateSummary summary = summariesByType.get(entityTypeCode);
         if (summary == null)
         {
-            summary = new UpdateSummary();
+            summary = new UpdateSummary(entityTypeCode);
             summariesByType.put(entityTypeCode, summary);
         }
         return summary;
@@ -493,7 +460,7 @@ public class SynchronizerFacade implements ISynchronizerFacade
         UpdateSummary vocabularySummary = vocabulariesToUpdate.get(vocabularyCode);
         if (vocabularySummary == null)
         {
-            vocabularySummary = new UpdateSummary();
+            vocabularySummary = new UpdateSummary(vocabularyCode);
             vocabulariesToUpdate.put(vocabularyCode, vocabularySummary);
         }
         return vocabularySummary;
@@ -501,6 +468,7 @@ public class SynchronizerFacade implements ISynchronizerFacade
 
     private static final class UpdateSummary
     {
+        private final String item;
         private String diff;
 
         private Map<String, String> changes = new TreeMap<>();
@@ -510,6 +478,12 @@ public class SynchronizerFacade implements ISynchronizerFacade
         private int numberOfAdds;
 
         private int numberOfRemoves;
+
+
+        public UpdateSummary(String item)
+        {
+            this.item = item;
+        }
 
         void update(String diff)
         {
@@ -524,14 +498,19 @@ public class SynchronizerFacade implements ISynchronizerFacade
 
         void add(String item)
         {
-            changes.put(item, ADDED);
+            changes.put(item, "ADDED");
             numberOfAdds++;
         }
 
         void remove(String item)
         {
-            changes.put(item, REMOVED);
+            changes.put(item, "REMOVED");
             numberOfRemoves++;
+        }
+
+        public String getItem()
+        {
+            return item;
         }
 
         public String getDiff()
