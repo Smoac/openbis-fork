@@ -584,8 +584,6 @@ public class EntitySynchronizer
 
         // link physical data sets registered above to container data sets
         // and set parent/child relationships
-        operationLog.info("\n");
-        operationLog.info("Start establishing data set hierarchies...");
         List<String> skippedDataSets = new ArrayList<String>();
         skippedDataSets.addAll(notRegisteredDataSetCodes);
         skippedDataSets.addAll(blackListedDataSetCodes);

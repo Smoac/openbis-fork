@@ -162,6 +162,7 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
                     logger.error("Sync failed: ", e);
                     sendErrorEmail(config, "Synchronization failed");
                 }
+                logger.removeAllAppenders();
             }
         } catch (Exception e)
         {
