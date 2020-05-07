@@ -77,11 +77,11 @@ public final class DataSetRegistrationTaskExecutor implements ITaskExecutor<Data
                 }
                 else if (header.getTitle().startsWith("Added"))
                 {
-                    dsRegistrationSummary.addedDsCount.getAndIncrement();
+                    dsRegistrationSummary.createdDataSets.add(dataSet.getCode());
                 }
                 else if (header.getTitle().startsWith("Updated"))
                 {
-                    dsRegistrationSummary.updatedDsCount.getAndIncrement();
+                    dsRegistrationSummary.updatedDataSets.add(dataSet.getCode());
                 }
             }
         }

@@ -19,18 +19,16 @@ package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchroniz
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * 
- *
  * @author Ganime Betul Akin
  */
 public class DataSetSynchronizationSummary
 {
     public final List<String> notRegisteredDataSetCodes = Collections.synchronizedList(new ArrayList<String>());
 
-    public final AtomicInteger addedDsCount = new AtomicInteger(0);
+    public final List<String> createdDataSets = Collections.synchronizedList(new ArrayList<String>());
 
-    public final AtomicInteger updatedDsCount = new AtomicInteger(0);
+    public final List<String> updatedDataSets = Collections.synchronizedList(new ArrayList<String>());
+
 }

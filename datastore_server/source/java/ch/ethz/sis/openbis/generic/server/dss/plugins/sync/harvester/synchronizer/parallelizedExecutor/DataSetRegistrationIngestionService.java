@@ -87,22 +87,12 @@ class DataSetRegistrationIngestionService extends IngestionService<DataSetInform
     @Override
     protected TableModel process(IDataSetRegistrationTransactionV2 transaction, Map<String, Object> parameters, DataSetProcessingContext context)
     {
-        String dataSetCode = dataSet.getCode();
-        ISampleImmutable sample = null;
-        if (dataSet.getSampleId() != null)
-        {
-            sample = transaction.getSampleForUpdate(dataSet.getSampleId().toString());
-        }
-        IExperimentImmutable experiment = null;
-        if (dataSet.getExperimentId() != null)
-        {
-            experiment = transaction.getExperimentForUpdate(dataSet.getExperimentId().toString());
-        }
-
+        ISampleImmutable sample = getSampleForUpdate(transaction);
+        IExperimentImmutable experiment = getExperimentForUpdate(transaction);
         List<NewProperty> dataSetProperties = getProperties(dataSet);
 
-        IDataSetUpdatable dataSetForUpdate = transaction.getDataSetForUpdate(dataSetCode);
-        if (dataSetForUpdate == null)
+        String dataSetCode = dataSet.getCode();
+        if (transaction.getSearchService().getDataSet(dataSetCode) == null)
         {
             // REGISTER NEW DATA SET after downloading the data set files
             transaction.setUserId(config.getHarvesterUser());
@@ -118,25 +108,29 @@ class DataSetRegistrationIngestionService extends IngestionService<DataSetInform
             {
                 return errorTableModel(parameters, e);
             }
-
-            String dataSetType = ((EntityTypePermId) dataSet.getTypeId()).getPermId();
-            IDataSet ds = transaction.createNewDataSet(dataSetType, dataSetCode);
-            ds.setDataSetKind(DataSetKind.valueOf(dataSet.getDataSetKind().toString()));
-            ds.setSample(sample);
-            ds.setExperiment(experiment);
-            for (NewProperty newProperty : dataSetProperties)
+            if (config.isDryRun() == false)
             {
-                ds.setPropertyValue(newProperty.getPropertyCode(), newProperty.getValue());
-            }
-
-            for (File f : dir.listFiles())
-            {
-                transaction.moveFile(f.getAbsolutePath(), ds);
+                String dataSetType = ((EntityTypePermId) dataSet.getTypeId()).getPermId();
+                IDataSet ds = transaction.createNewDataSet(dataSetType, dataSetCode);
+                ds.setDataSetKind(DataSetKind.valueOf(dataSet.getDataSetKind().toString()));
+                ds.setSample(sample);
+                ds.setExperiment(experiment);
+                for (NewProperty newProperty : dataSetProperties)
+                {
+                    ds.setPropertyValue(newProperty.getPropertyCode(), newProperty.getValue());
+                }
+                
+                for (File f : dir.listFiles())
+                {
+                    transaction.moveFile(f.getAbsolutePath(), ds);
+                }
             }
             return summaryTableModel(parameters, "Added");
-        } else
+        } 
+        if (config.isDryRun() == false)
         {
             // UPDATE data set meta data excluding the container/contained relationships
+            IDataSetUpdatable dataSetForUpdate = transaction.getDataSetForUpdate(dataSetCode);
             dataSetForUpdate.setSample(sample);
             dataSetForUpdate.setExperiment(experiment);
             List<? extends IDataSetId> parentIds = dataSet.getParentIds();
@@ -158,8 +152,26 @@ class DataSetRegistrationIngestionService extends IngestionService<DataSetInform
             {
                 dataSetForUpdate.setPropertyValue(propCode, "");
             }
-            return summaryTableModel(parameters, "Updated");
         }
+        return summaryTableModel(parameters, "Updated");
+    }
+
+    private IExperimentImmutable getExperimentForUpdate(IDataSetRegistrationTransactionV2 transaction)
+    {
+        if (dataSet.getExperimentId() != null && config.isDryRun() == false)
+        {
+            return transaction.getExperimentForUpdate(dataSet.getExperimentId().toString());
+        }
+        return null;
+    }
+
+    private ISampleImmutable getSampleForUpdate(IDataSetRegistrationTransactionV2 transaction)
+    {
+        if (dataSet.getSampleId() != null && config.isDryRun() == false)
+        {
+            return transaction.getSampleForUpdate(dataSet.getSampleId().toString());
+        }
+        return null;
     }
 
     private List<NewProperty> getProperties(DataSetCreation metadata)

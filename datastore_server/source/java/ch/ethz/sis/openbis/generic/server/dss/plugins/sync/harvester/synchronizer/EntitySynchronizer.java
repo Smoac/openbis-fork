@@ -554,29 +554,33 @@ public class EntitySynchronizer
                 data.filterByDataSetKindAndLastModificationDate(DataSetKind.PHYSICAL, lastSyncTimestamp, dataSetsCodesToRetry,
                         blackListedDataSetCodes);
 
+        DataSetSynchronizationSummary summary = registerPhysicalDataSets(physicalDSMap);
         if (config.isVerbose())
         {
-            verboseLogPhysicalDataSetRegistrations(physicalDSMap);
+            Collections.sort(summary.createdDataSets);
+            printSummary(summary.createdDataSets, "PHYSICAL DATA SETS");
+            Collections.sort(summary.updatedDataSets);
+            SummaryUtils.printUpdatedSummary(operationLog, summary.updatedDataSets, "PHYSICAL DATA SETS");
         }
 
-        List<String> notRegisteredDataSetCodes = new ArrayList<>();
-        if (config.isDryRun() == false)
+        // backup the current not synched data set codes file, delete the original file
+        List<String> notRegisteredDataSetCodes = summary.notRegisteredDataSetCodes;
+        saveFailedEntitiesFile(summary.createdDataSets);
+        SummaryUtils.printShortSummaryHeader(operationLog);
+        SummaryUtils.printShortAddedSummary(operationLog, summary.createdDataSets.size(), "PHYSICAL DATA SETS");
+        if (notRegisteredDataSetCodes.isEmpty() == false)
         {
-            DataSetSynchronizationSummary dsRegistrationSummary = registerPhysicalDataSets(physicalDSMap);
-
-            // backup the current not synched data set codes file, delete the original file
-            saveFailedEntitiesFile(dsRegistrationSummary.notRegisteredDataSetCodes);
-
-            notRegisteredDataSetCodes = dsRegistrationSummary.notRegisteredDataSetCodes;
-            operationLog.info("Data set synchronization summary:\n"
-                    + dsRegistrationSummary.addedDsCount + " data set(s) were added.\n"
-                    + dsRegistrationSummary.updatedDsCount + " data set(s) were updated.\n"
-                    + (notRegisteredDataSetCodes.isEmpty() ? ""
-                            : notRegisteredDataSetCodes.size()
-                                    + " data set(s) FAILED to register.\n")
-                    + blackListedDataSetCodes.size() + " data set(s)"
-                    + " were skipped because they were BLACK-LISTED.");
+            SummaryUtils.printShortSummary(operationLog, notRegisteredDataSetCodes.size(), "PHYSICAL DATA SETS", 
+                    "FAILED to register.");
         }
+        SummaryUtils.printShortUpdatedSummary(operationLog, summary.updatedDataSets.size(), "PHYSICAL DATA SETS");
+        if (blackListedDataSetCodes.isEmpty() == false)
+        {
+            SummaryUtils.printShortSummary(operationLog, blackListedDataSetCodes.size(), "PHYSICAL DATA SETS", 
+                    "were skipped because they were BLACK-LISTED.");
+            
+        }
+        SummaryUtils.printShortSummaryFooter(operationLog);
 
         // link physical data sets registered above to container data sets
         // and set parent/child relationships
@@ -626,6 +630,15 @@ public class EntitySynchronizer
         {
             v3DssApi.createDataSets(service.getSessionToken(), creations);
         }
+        if (config.isVerbose())
+        {
+            printSummary(creations, "LINK DATA SETS");
+            printLinkDataSetUpdatesSummary(updates);
+        }
+        SummaryUtils.printShortSummaryHeader(operationLog);
+        SummaryUtils.printShortAddedSummary(operationLog, creations.size(), "LINK DATA SETS");
+        SummaryUtils.printShortUpdatedSummary(operationLog, updates.size(), "LINK DATA SETS");
+        SummaryUtils.printShortSummaryFooter(operationLog);
     }
 
     private DataSetUpdate createLinkDataUpdate(Map<IDataSetId, DataSet> existingDataSets, DataSetCreation dataSet,
@@ -693,13 +706,23 @@ public class EntitySynchronizer
         {
             String path = entry.getKey();
             byte[] fileContent = entry.getValue();
-            File file = new File(fileRepo, path);
-            file.getParentFile().mkdirs();
-            FileUtilities.writeToFile(file, fileContent);
+            if (config.isDryRun() == false)
+            {
+                File file = new File(fileRepo, path);
+                file.getParentFile().mkdirs();
+                FileUtilities.writeToFile(file, fileContent);
+            }
+            if (config.isVerbose())
+            {
+                operationLog.info(String.format("%10d bytes, file: %s", fileContent.length, path));
+            }
             count++;
             totalSize += fileContent.length;
         }
-        monitor.log(count + " files (total size: " + FileUtilities.byteCountToDisplaySize(totalSize) + ") have been saved.");
+        SummaryUtils.printShortSummaryHeader(operationLog);
+        operationLog.info("| " + count + " files (total size: " + FileUtilities.byteCountToDisplaySize(totalSize) + ") have been saved.");
+        SummaryUtils.printShortSummaryFooter(operationLog);
+        monitor.log();
     }
 
     private MultiKeyMap<String, String> registerEntities(ResourceListParserData data)
@@ -801,30 +824,6 @@ public class EntitySynchronizer
         return newEntities;
     }
 
-    private void verboseLogPhysicalDataSetRegistrations(Map<String, IncomingDataSet> physicalDSMap)
-    {
-        if (physicalDSMap.isEmpty() == false)
-        {
-            operationLog.info("-------The following physical data sets will be processed-------");
-            for (String dsCode : physicalDSMap.keySet())
-            {
-                operationLog.info(dsCode);
-            }
-        }
-    }
-
-    private void verboseLogDataSetUpdateOperation(List<DataSetBatchUpdatesDTO> dataSetUpdates)
-    {
-        if (dataSetUpdates.isEmpty() == false)
-        {
-            operationLog.info("-------The relationship hirearchies for the following pdata sets will be established-------");
-            for (DataSetBatchUpdatesDTO dto : dataSetUpdates)
-            {
-                operationLog.info(dto.getDatasetCode());
-            }
-        }
-    }
-
     private void printShortSummary(AtomicEntityOperationDetails details)
     {
         SummaryUtils.printShortSummaryHeader(operationLog);
@@ -877,6 +876,18 @@ public class EntitySynchronizer
         SummaryUtils.printUpdatedSummary(operationLog, identifiers, "SAMPLES");
     }
 
+    private void printDataSetUpdatesSummary(List<DataSetBatchUpdatesDTO> updates)
+    {
+        List<String> identifiers = updates.stream().map(u -> u.getCode()).collect(Collectors.toList());
+        SummaryUtils.printUpdatedSummary(operationLog, identifiers, "DATA SETS");
+    }
+    
+    private void printLinkDataSetUpdatesSummary(List<DataSetUpdate> updates)
+    {
+        List<String> identifiers = updates.stream().map(u -> u.getDataSetId().toString()).collect(Collectors.toList());
+        SummaryUtils.printUpdatedSummary(operationLog, identifiers, "LINK DATA SETS");
+    }
+    
     private void printMaterialsSummary(Map<String, List<NewMaterial>> materials)
     {
         List<String> details = new ArrayList<>();
@@ -1071,16 +1082,21 @@ public class EntitySynchronizer
             builder.dataSetUpdate(dsBatchUpdatesDTO);
         }
 
+        AtomicEntityOperationDetails details = builder.getDetails();
+        if (config.isDryRun() == false)
+        {
+            AtomicEntityOperationResult operationResult = service.performEntityOperations(details);
+            operationLog.info("entity operation result: " + operationResult);
+        }
         if (config.isVerbose())
         {
-            verboseLogDataSetUpdateOperation(builder.getDetails().getDataSetUpdates());
+            printSummary(details.getDataSetRegistrations(), "CONTAINER DATA SETS");
+            printDataSetUpdatesSummary(details.getDataSetUpdates());
         }
-        if (config.isDryRun())
-        {
-            return;
-        }
-        AtomicEntityOperationResult operationResult = service.performEntityOperations(builder.getDetails());
-        operationLog.info("entity operation result: " + operationResult);
+        SummaryUtils.printShortSummaryHeader(operationLog);
+        SummaryUtils.printShortAddedSummary(operationLog, details.getDataSetRegistrations().size(), "CONTAINER DATA SETS");
+        SummaryUtils.printShortUpdatedSummary(operationLog, details.getDataSetUpdates().size(), "CONTAINER DATA SETS");
+        SummaryUtils.printShortSummaryFooter(operationLog);
     }
 
     private boolean isParentModified(Map<String, Set<String>> dsToParents, NewExternalData dataSet)
