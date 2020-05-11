@@ -231,16 +231,18 @@ public class EntitySynchronizer
     private void updateTimestampsAndUsers(ResourceListParserData data)
     {
         Monitor monitor = new Monitor("Update timestamps and users", operationLog);
+        SummaryUtils.printShortSummaryHeader(operationLog);
         createMissingUsers(data, monitor);
         DataSource dataSource = ServiceProvider.getDataSourceProvider().getDataSource("openbis-db");
         IHarvesterQuery query = QueryTool.getQuery(dataSource, IHarvesterQuery.class);
         Map<String, Long> userTechIdsByUserId = getUserTechIds(query);
-        updateMaterials(data.getMaterialsToProcess().values(), query, userTechIdsByUserId, monitor);
         updateSpaces(data.getRelevantSpacesToProcess(), query, userTechIdsByUserId, monitor);
         updateProjects(data.getProjectsToProcess().values(), query, userTechIdsByUserId, monitor);
         updateExperiments(data.getExperimentsToProcess().values(), query, userTechIdsByUserId, monitor);
         updateSamples(data.getSamplesToProcess().values(), query, userTechIdsByUserId, monitor);
         updateDataSets(data.getDataSetsToProcess().values(), query, userTechIdsByUserId, monitor);
+        updateMaterials(data.getMaterialsToProcess().values(), query, userTechIdsByUserId, monitor);
+        SummaryUtils.printShortSummaryFooter(operationLog);
     }
 
     private Map<String, Long> getUserTechIds(IHarvesterQuery query)
@@ -275,8 +277,8 @@ public class EntitySynchronizer
                 personCreations.add(personCreation);
             }
         }
-        monitor.log(personCreations.size() + " from " + users.size() + " users are new.");
-        if (personCreations.isEmpty() == false)
+        SummaryUtils.printShortAddedSummary(operationLog, personCreations.size(), "users");
+        if (personCreations.isEmpty() == false && config.isDryRun() == false)
         {
             v3Api.createPersons(service.getSessionToken(), personCreations);
         }
@@ -285,132 +287,150 @@ public class EntitySynchronizer
     private void updateMaterials(Collection<IncomingMaterial> materials, IHarvesterQuery query,
             Map<String, Long> userTechIdsByUserId, Monitor monitor)
     {
-        monitor.log("update " + materials.size() + " materials");
-        List<MaterialTypeRecord> listAllMaterialTypes = query.listAllMaterialTypes();
-        Map<String, Long> materialTypeIdsByCode = new HashMap<>();
-        for (MaterialTypeRecord materialTypeRecord : listAllMaterialTypes)
+        if (config.isDryRun() == false)
         {
-            materialTypeIdsByCode.put(materialTypeRecord.code, materialTypeRecord.id);
+            List<MaterialTypeRecord> listAllMaterialTypes = query.listAllMaterialTypes();
+            Map<String, Long> materialTypeIdsByCode = new HashMap<>();
+            for (MaterialTypeRecord materialTypeRecord : listAllMaterialTypes)
+            {
+                materialTypeIdsByCode.put(materialTypeRecord.code, materialTypeRecord.id);
+            }
+            List<RegistrationDTO> registrations = new ArrayList<>();
+            for (IncomingMaterial incomingMaterial : materials)
+            {
+                NewMaterialWithType material = incomingMaterial.getMaterial();
+                Long typeId = materialTypeIdsByCode.get(material.getType());
+                addRegistration(registrations, material.getCode(), typeId, incomingMaterial, userTechIdsByUserId);
+            }
+            query.updateMaterialRegistrations(registrations);
         }
-        List<RegistrationDTO> registrations = new ArrayList<>();
-        for (IncomingMaterial incomingMaterial : materials)
-        {
-            NewMaterialWithType material = incomingMaterial.getMaterial();
-            Long typeId = materialTypeIdsByCode.get(material.getType());
-            addRegistration(registrations, material.getCode(), typeId, incomingMaterial, userTechIdsByUserId);
-        }
-        query.updateMaterialRegistrations(registrations);
+        SummaryUtils.printShortUpdatedSummary(operationLog, materials.size(), "materials");
     }
 
     private void updateSpaces(Collection<IncomingSpace> spaces, IHarvesterQuery query,
             Map<String, Long> userTechIdsByUserId, Monitor monitor)
     {
-        monitor.log("update " + spaces.size() + " spaces");
-        List<RegistrationDTO> registrations = new ArrayList<>();
-        for (IncomingSpace incomingSpace : spaces)
+        if (config.isDryRun() == false)
         {
-            addRegistration(registrations, incomingSpace.getPermID(), incomingSpace, userTechIdsByUserId);
+            List<RegistrationDTO> registrations = new ArrayList<>();
+            for (IncomingSpace incomingSpace : spaces)
+            {
+                addRegistration(registrations, incomingSpace.getPermID(), incomingSpace, userTechIdsByUserId);
+            }
+            query.updateSpaceRegistrations(registrations);
         }
-        query.updateSpaceRegistrations(registrations);
+        SummaryUtils.printShortUpdatedSummary(operationLog, spaces.size(), "spaces");
     }
 
     private void updateProjects(Collection<IncomingProject> projects, IHarvesterQuery query,
             Map<String, Long> userTechIdsByUserId, Monitor monitor)
     {
-        monitor.log("update " + projects.size() + " projects");
-        List<RegistrationDTO> registrations = new ArrayList<>();
-        for (IncomingProject incomingProject : projects)
+        if (config.isDryRun() == false)
         {
-            addRegistration(registrations, incomingProject.getPermID(), incomingProject, userTechIdsByUserId);
+            List<RegistrationDTO> registrations = new ArrayList<>();
+            for (IncomingProject incomingProject : projects)
+            {
+                addRegistration(registrations, incomingProject.getPermID(), incomingProject, userTechIdsByUserId);
+            }
+            query.updateProjectRegistrations(registrations);
         }
-        query.updateProjectRegistrations(registrations);
+        SummaryUtils.printShortUpdatedSummary(operationLog, projects.size(), "projects");
     }
 
     private void updateExperiments(Collection<IncomingExperiment> experiments, IHarvesterQuery query,
             Map<String, Long> userTechIdsByUserId, Monitor monitor)
     {
-        monitor.log("update " + experiments.size() + " experiments");
-        List<RegistrationDTO> registrations = new ArrayList<>();
-        for (IncomingExperiment incomingExperiment : experiments)
+        if (config.isDryRun() == false)
         {
-            addRegistration(registrations, incomingExperiment.getPermID(), incomingExperiment, userTechIdsByUserId);
+            List<RegistrationDTO> registrations = new ArrayList<>();
+            for (IncomingExperiment incomingExperiment : experiments)
+            {
+                addRegistration(registrations, incomingExperiment.getPermID(), incomingExperiment, userTechIdsByUserId);
+            }
+            query.updateExperimentRegistrations(registrations);
         }
-        query.updateExperimentRegistrations(registrations);
+        SummaryUtils.printShortUpdatedSummary(operationLog, experiments.size(), "experiments");
     }
 
     private void updateSamples(Collection<IncomingSample> samples, IHarvesterQuery query,
             Map<String, Long> userTechIdsByUserId, Monitor monitor)
     {
-        monitor.log("update " + samples.size() + " samples");
-        BatchOperationExecutor.executeInBatches(new IBatchOperation<IncomingSample>()
-            {
-                @Override
-                public List<IncomingSample> getAllEntities()
+        if (config.isDryRun() == false)
+        {
+            BatchOperationExecutor.executeInBatches(new IBatchOperation<IncomingSample>()
                 {
-                    return new ArrayList<>(samples);
-                }
-
-                @Override
-                public void execute(List<IncomingSample> samples)
-                {
-                    List<RegistrationDTO> registrations = new ArrayList<>();
-                    for (IncomingSample incomingSamples : samples)
+                    @Override
+                    public List<IncomingSample> getAllEntities()
                     {
-                        addRegistration(registrations, incomingSamples.getPermID(), incomingSamples, userTechIdsByUserId);
+                        return new ArrayList<>(samples);
                     }
-                    query.updateSampleRegistrations(registrations);
-                }
 
-                @Override
-                public String getEntityName()
-                {
-                    return "sample";
-                }
+                    @Override
+                    public void execute(List<IncomingSample> samples)
+                    {
+                        List<RegistrationDTO> registrations = new ArrayList<>();
+                        for (IncomingSample incomingSamples : samples)
+                        {
+                            addRegistration(registrations, incomingSamples.getPermID(), incomingSamples, userTechIdsByUserId);
+                        }
+                        query.updateSampleRegistrations(registrations);
+                    }
 
-                @Override
-                public String getOperationName()
-                {
-                    return "update registration";
-                }
-            });
+                    @Override
+                    public String getEntityName()
+                    {
+                        return "sample";
+                    }
+
+                    @Override
+                    public String getOperationName()
+                    {
+                        return "update registration";
+                    }
+                });
+        }
+        SummaryUtils.printShortUpdatedSummary(operationLog, samples.size(), "samples");
     }
 
     private void updateDataSets(Collection<IncomingDataSet> dataSets, IHarvesterQuery query,
             Map<String, Long> userTechIdsByUserId, Monitor monitor)
     {
-        monitor.log("update " + dataSets.size() + " data sets");
-        BatchOperationExecutor.executeInBatches(new IBatchOperation<IncomingDataSet>()
-            {
-                @Override
-                public List<IncomingDataSet> getAllEntities()
+        if (config.isDryRun() == false)
+        {
+            BatchOperationExecutor.executeInBatches(new IBatchOperation<IncomingDataSet>()
                 {
-                    return new ArrayList<>(dataSets);
-                }
-
-                @Override
-                public void execute(List<IncomingDataSet> dataSets)
-                {
-                    List<RegistrationDTO> registrations = new ArrayList<>();
-                    for (IncomingDataSet incomingDataSet : dataSets)
+                    @Override
+                    public List<IncomingDataSet> getAllEntities()
                     {
-                        addRegistration(registrations, incomingDataSet.getFullDataSet().getMetadataCreation().getCode(),
-                                incomingDataSet, userTechIdsByUserId);
+                        return new ArrayList<>(dataSets);
                     }
-                    query.updateDataSetRegistrations(registrations);
-                }
 
-                @Override
-                public String getEntityName()
-                {
-                    return "data set";
-                }
+                    @Override
+                    public void execute(List<IncomingDataSet> dataSets)
+                    {
+                        List<RegistrationDTO> registrations = new ArrayList<>();
+                        for (IncomingDataSet incomingDataSet : dataSets)
+                        {
+                            addRegistration(registrations, incomingDataSet.getFullDataSet().getMetadataCreation().getCode(),
+                                    incomingDataSet, userTechIdsByUserId);
+                        }
+                        query.updateDataSetRegistrations(registrations);
+                    }
 
-                @Override
-                public String getOperationName()
-                {
-                    return "update registration";
-                }
-            });
+                    @Override
+                    public String getEntityName()
+                    {
+                        return "data set";
+                    }
+
+                    @Override
+                    public String getOperationName()
+                    {
+                        return "update registration";
+                    }
+                });
+        }
+        SummaryUtils.printShortUpdatedSummary(operationLog, dataSets.size(), "data sets");
     }
 
     private void addRegistration(List<RegistrationDTO> registrations, String permID, AbstractTimestampsAndUserHolder entity,
@@ -454,91 +474,108 @@ public class EntitySynchronizer
         Monitor monitor = new Monitor("Update frozen flags", operationLog);
         DataSource dataSource = ServiceProvider.getDataSourceProvider().getDataSource("openbis-db");
         IHarvesterQuery query = QueryTool.getQuery(dataSource, IHarvesterQuery.class);
+        SummaryUtils.printShortSummaryHeader(operationLog);
         updateSpaceFrozenFlags(data.getRelevantSpacesToProcess(), query, monitor);
         updateProjectFrozenFlags(data.getProjectsToProcess().values(), query, monitor);
         updateExperimentFrozenFlags(data.getExperimentsToProcess().values(), query, monitor);
         updateSampleFrozenFlags(data.getSamplesToProcess().values(), query, monitor);
         updateDataSetFrozenFlags(data.getDataSetsToProcess().values(), query, monitor);
+        SummaryUtils.printShortSummaryFooter(operationLog);
     }
 
     private void updateSpaceFrozenFlags(Collection<IncomingSpace> spaces, IHarvesterQuery query, Monitor monitor)
     {
-        monitor.log("Update frozen flags of " + spaces.size() + " spaces.");
-        query.updateSpaceFrozenFlags(spaces.stream().map(IncomingSpace::getFrozenFlags).collect(Collectors.toList()));
+        if (config.isDryRun() == false)
+        {
+            query.updateSpaceFrozenFlags(spaces.stream().map(IncomingSpace::getFrozenFlags).collect(Collectors.toList()));
+        }
+        SummaryUtils.printShortUpdatedSummary(operationLog, spaces.size(), "spaces");
     }
 
     private void updateProjectFrozenFlags(Collection<IncomingProject> projects, IHarvesterQuery query, Monitor monitor)
     {
-        monitor.log("Update frozen flags of " + projects.size() + " projects.");
-        query.updateProjectFrozenFlags(projects.stream().map(IncomingProject::getFrozenFlags).collect(Collectors.toList()));
+        if (config.isDryRun() == false)
+        {
+            query.updateProjectFrozenFlags(projects.stream().map(IncomingProject::getFrozenFlags).collect(Collectors.toList()));
+        }
+        SummaryUtils.printShortUpdatedSummary(operationLog, projects.size(), "projects");
     }
 
     private void updateExperimentFrozenFlags(Collection<IncomingExperiment> experiments, IHarvesterQuery query, Monitor monitor)
     {
-        monitor.log("Update frozen flags of " + experiments.size() + " experiments.");
-        query.updateExperimentFrozenFlags(experiments.stream().map(IncomingExperiment::getFrozenFlags).collect(Collectors.toList()));
+        if (config.isDryRun() == false)
+        {
+            query.updateExperimentFrozenFlags(experiments.stream().map(IncomingExperiment::getFrozenFlags).collect(Collectors.toList()));
+        }
+        SummaryUtils.printShortUpdatedSummary(operationLog, experiments.size(), "experiments");
     }
 
     private void updateSampleFrozenFlags(Collection<IncomingSample> samples, IHarvesterQuery query, Monitor monitor)
     {
-        monitor.log("Update frozen flags of " + samples.size() + " samples.");
-        BatchOperationExecutor.executeInBatches(new IBatchOperation<IncomingSample>()
-            {
-                @Override
-                public List<IncomingSample> getAllEntities()
+        if (config.isDryRun() == false)
+        {
+            BatchOperationExecutor.executeInBatches(new IBatchOperation<IncomingSample>()
                 {
-                    return new ArrayList<>(samples);
-                }
+                    @Override
+                    public List<IncomingSample> getAllEntities()
+                    {
+                        return new ArrayList<>(samples);
+                    }
 
-                @Override
-                public void execute(List<IncomingSample> samples)
-                {
-                    query.updateSampleFrozenFlags(samples.stream().map(IncomingSample::getFrozenFlags).collect(Collectors.toList()));
-                }
+                    @Override
+                    public void execute(List<IncomingSample> samples)
+                    {
+                        query.updateSampleFrozenFlags(samples.stream().map(IncomingSample::getFrozenFlags).collect(Collectors.toList()));
+                    }
 
-                @Override
-                public String getEntityName()
-                {
-                    return "sample";
-                }
+                    @Override
+                    public String getEntityName()
+                    {
+                        return "sample";
+                    }
 
-                @Override
-                public String getOperationName()
-                {
-                    return "update frozen flags";
-                }
-            });
+                    @Override
+                    public String getOperationName()
+                    {
+                        return "update frozen flags";
+                    }
+                });
+        }
+        SummaryUtils.printShortUpdatedSummary(operationLog, samples.size(), "samples");
     }
 
     private void updateDataSetFrozenFlags(Collection<IncomingDataSet> dataSets, IHarvesterQuery query, Monitor monitor)
     {
-        monitor.log("Update frozen flags of " + dataSets.size() + " data sets.");
-        BatchOperationExecutor.executeInBatches(new IBatchOperation<IncomingDataSet>()
-            {
-                @Override
-                public List<IncomingDataSet> getAllEntities()
+        if (config.isDryRun() == false)
+        {
+            BatchOperationExecutor.executeInBatches(new IBatchOperation<IncomingDataSet>()
                 {
-                    return new ArrayList<>(dataSets);
-                }
+                    @Override
+                    public List<IncomingDataSet> getAllEntities()
+                    {
+                        return new ArrayList<>(dataSets);
+                    }
 
-                @Override
-                public void execute(List<IncomingDataSet> dataSets)
-                {
-                    query.updateDataSetFrozenFlags(dataSets.stream().map(IncomingDataSet::getFrozenFlags).collect(Collectors.toList()));
-                }
+                    @Override
+                    public void execute(List<IncomingDataSet> dataSets)
+                    {
+                        query.updateDataSetFrozenFlags(dataSets.stream().map(IncomingDataSet::getFrozenFlags).collect(Collectors.toList()));
+                    }
 
-                @Override
-                public String getEntityName()
-                {
-                    return "data set";
-                }
+                    @Override
+                    public String getEntityName()
+                    {
+                        return "data set";
+                    }
 
-                @Override
-                public String getOperationName()
-                {
-                    return "update frozen flags";
-                }
-            });
+                    @Override
+                    public String getOperationName()
+                    {
+                        return "update frozen flags";
+                    }
+                });
+        }
+        SummaryUtils.printShortUpdatedSummary(operationLog, dataSets.size(), "dataSets");
     }
 
     private void registerDataSets(ResourceListParserData data) throws IOException
@@ -570,15 +607,15 @@ public class EntitySynchronizer
         SummaryUtils.printShortAddedSummary(operationLog, summary.createdDataSets.size(), "PHYSICAL DATA SETS");
         if (notRegisteredDataSetCodes.isEmpty() == false)
         {
-            SummaryUtils.printShortSummary(operationLog, notRegisteredDataSetCodes.size(), "PHYSICAL DATA SETS", 
+            SummaryUtils.printShortSummary(operationLog, notRegisteredDataSetCodes.size(), "PHYSICAL DATA SETS",
                     "FAILED to register.");
         }
         SummaryUtils.printShortUpdatedSummary(operationLog, summary.updatedDataSets.size(), "PHYSICAL DATA SETS");
         if (blackListedDataSetCodes.isEmpty() == false)
         {
-            SummaryUtils.printShortSummary(operationLog, blackListedDataSetCodes.size(), "PHYSICAL DATA SETS", 
+            SummaryUtils.printShortSummary(operationLog, blackListedDataSetCodes.size(), "PHYSICAL DATA SETS",
                     "were skipped because they were BLACK-LISTED.");
-            
+
         }
         SummaryUtils.printShortSummaryFooter(operationLog);
 
@@ -853,39 +890,45 @@ public class EntitySynchronizer
     private void printSummary(List<?> items, String type)
     {
         List<String> identifiers = items.stream().map(Object::toString).collect(Collectors.toList());
+        Collections.sort(identifiers);
         SummaryUtils.printAddedSummary(operationLog, identifiers, type);
     }
 
     private void printProjectUpdatesSummary(List<ProjectUpdatesDTO> updates)
     {
         List<String> identifiers = updates.stream().map(ProjectUpdatesDTO::getIdentifier).collect(Collectors.toList());
+        Collections.sort(identifiers);
         SummaryUtils.printUpdatedSummary(operationLog, identifiers, "PROJECTS");
     }
 
     private void printExperimentUpdatesSummary(List<ExperimentUpdatesDTO> updates)
     {
         List<String> identifiers = updates.stream().map(u -> u.getProjectIdentifier().asProjectIdentifierString()).collect(Collectors.toList());
+        Collections.sort(identifiers);
         SummaryUtils.printUpdatedSummary(operationLog, identifiers, "EXPERIMENTS");
     }
 
     private void printSampleUpdatesSummary(List<SampleUpdatesDTO> updates)
     {
         List<String> identifiers = updates.stream().map(u -> u.getSampleIdentifier().toString()).collect(Collectors.toList());
+        Collections.sort(identifiers);
         SummaryUtils.printUpdatedSummary(operationLog, identifiers, "SAMPLES");
     }
 
     private void printDataSetUpdatesSummary(List<DataSetBatchUpdatesDTO> updates)
     {
         List<String> identifiers = updates.stream().map(u -> u.getCode()).collect(Collectors.toList());
+        Collections.sort(identifiers);
         SummaryUtils.printUpdatedSummary(operationLog, identifiers, "DATA SETS");
     }
-    
+
     private void printLinkDataSetUpdatesSummary(List<DataSetUpdate> updates)
     {
         List<String> identifiers = updates.stream().map(u -> u.getDataSetId().toString()).collect(Collectors.toList());
+        Collections.sort(identifiers);
         SummaryUtils.printUpdatedSummary(operationLog, identifiers, "LINK DATA SETS");
     }
-    
+
     private void printMaterialsSummary(Map<String, List<NewMaterial>> materials)
     {
         List<String> details = new ArrayList<>();
@@ -897,6 +940,7 @@ public class EntitySynchronizer
                 details.add(MaterialIdentifier.print(material.getCode(), typeCode));
             }
         }
+        Collections.sort(details);
         SummaryUtils.printAddedSummary(operationLog, details, "MATERIALS");
     }
 
@@ -1093,7 +1137,7 @@ public class EntitySynchronizer
         }
         SummaryUtils.printShortSummaryHeader(operationLog);
         SummaryUtils.printShortAddedSummary(operationLog, details.getDataSetRegistrations().size(), "CONTAINER DATA SETS");
-        SummaryUtils.printShortUpdatedSummary(operationLog, details.getDataSetUpdates().size(), "CONTAINER DATA SETS");
+        SummaryUtils.printShortUpdatedSummary(operationLog, details.getDataSetUpdates().size(), "DATA SETS");
         SummaryUtils.printShortSummaryFooter(operationLog);
     }
 
@@ -1410,8 +1454,15 @@ public class EntitySynchronizer
             NewExperiment incomingExp = exp.getExperiment();
             if (exp.getLastModificationDate().after(lastSyncTimestamp))
             {
-                ExperimentIdentifier identifier = ExperimentIdentifierFactory.parse(incomingExp.getIdentifier());
-                Experiment experiment = service.tryGetExperiment(identifier);
+                Experiment experiment = null;
+                try
+                {
+                    experiment = service.tryGetExperimentByPermId(incomingExp.getPermID());
+                } catch (Exception e)
+                {
+                    // doing nothing because when the experiment with the perm id not found
+                    // an exception will be thrown. Seems to be the same with entity kinds
+                }
                 if (experiment == null)
                 {
                     // ADD EXPERIMENT
@@ -1477,8 +1528,15 @@ public class EntitySynchronizer
             NewProject incomingProject = prj.getProject();
             if (prj.getLastModificationDate().after(lastSyncTimestamp))
             {
-                ProjectIdentifier identifier = ProjectIdentifierFactory.parse(incomingProject.getIdentifier());
-                Project project = service.tryGetProject(identifier);
+                Project project = null;
+                try
+                {
+                    project = service.tryGetProjectByPermId(incomingProject.getPermID());
+                } catch (Exception e)
+                {
+                    // TODO doing nothing because when the project with the perm is not found
+                    // an exception will be thrown. See bug report SSDM-4108
+                }
                 if (project == null)
                 {
                     // ADD PROJECT
@@ -1511,8 +1569,8 @@ public class EntitySynchronizer
     {
         // process samples
         Map<String, IncomingSample> samplesToProcess = data.getSamplesToProcess();
-        Map<String, ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample> knownSamples = getKnownSamples(samplesToProcess);
-        Map<String, NewSample> samplesToUpdate = new HashMap<>();
+        Map<String, ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample> knownSamples = getKnownSamples(samplesToProcess.keySet());
+        Map<SampleIdentifier, NewSample> samplesToUpdate = new HashMap<SampleIdentifier, NewSample>();
         Set<String> sampleWithUpdatedParents = new HashSet<String>();
         int count = 0;
         int n = samplesToProcess.size();
@@ -1525,8 +1583,9 @@ public class EntitySynchronizer
             NewSample incomingSample = sample.getSample();
             if (sample.getLastModificationDate().after(lastSyncTimestamp))
             {
-                String sampleIdentifier = incomingSample.getIdentifier();
-                ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample knownSample = knownSamples.get(sampleIdentifier);
+                SampleIdentifier sampleIdentifier = SampleIdentifierFactory.parse(incomingSample);
+                ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample knownSample = null;
+                knownSample = knownSamples.get(incomingSample.getPermID());
                 if (knownSample == null)
                 {
                     // ADD SAMPLE
@@ -1534,7 +1593,7 @@ public class EntitySynchronizer
                 } else
                 {
                     // defer creation of sample update objects until all samples have been gone through;
-                    samplesToUpdate.put(knownSample.getPermId().getPermId(), incomingSample);
+                    samplesToUpdate.put(sampleIdentifier, incomingSample);
                     ;
                     for (ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample child : knownSample.getChildren())
                     {
@@ -1583,18 +1642,16 @@ public class EntitySynchronizer
             }
         }
 
-        // create sample update dtos for the samples that need to be updated
         createSampleUpdates(builder, samplesToUpdate, sampleWithUpdatedParents);
     }
 
-    private void createSampleUpdates(AtomicEntityOperationDetailsBuilder builder, Map<String, NewSample> samplesToUpdate,
+    private void createSampleUpdates(AtomicEntityOperationDetailsBuilder builder, Map<SampleIdentifier, NewSample> samplesToUpdate,
             Set<String> sampleWithUpdatedParents)
     {
-        for (Entry<String, NewSample> entry : samplesToUpdate.entrySet())
+        for (SampleIdentifier sampleIdentifier : samplesToUpdate.keySet())
         {
-            String samplePermId = entry.getKey();
-            NewSample incomingSmp = entry.getValue();
-            Sample sample = service.tryGetSampleByPermId(samplePermId);
+            NewSample incomingSmp = samplesToUpdate.get(sampleIdentifier);
+            Sample sample = service.tryGetSampleByPermId(incomingSmp.getPermID());
 
             TechId sampleId = TechId.create(sample);
             ExperimentIdentifier experimentIdentifier = getExperimentIdentifier(incomingSmp);
@@ -1615,7 +1672,7 @@ public class EntitySynchronizer
             SampleUpdatesDTO updates =
                     new SampleUpdatesDTO(sampleId, newPropList, experimentIdentifier,
                             projectIdentifier, Collections.<NewAttachment> emptyList(),
-                            sample.getVersion(), SampleIdentifierFactory.parse(incomingSmp), containerIdentifier,
+                            sample.getVersion(), sampleIdentifier, containerIdentifier,
                             modifiedParentIds);
             builder.sampleUpdate(updates);
         }
@@ -1632,20 +1689,17 @@ public class EntitySynchronizer
         throw new IllegalArgumentException("sample " + permId + " hasn't been provided by the data source.");
     }
 
-    private Map<String, ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample> getKnownSamples(Map<String, IncomingSample> samplesToProcess)
+    private Map<String, ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample> getKnownSamples(Collection<String> samplePermIds)
     {
         String sessionToken = service.getSessionToken();
-        List<ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier> sampleIds =
-                samplesToProcess.values().stream().map(
-                        s -> new ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier(s.getSample().getIdentifier()))
-                        .collect(Collectors.toList());
+        List<SamplePermId> sampleIds = samplePermIds.stream().map(SamplePermId::new).collect(Collectors.toList());
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
         fetchOptions.withChildren();
         Map<ISampleId, ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample> samples = v3Api.getSamples(sessionToken, sampleIds, fetchOptions);
         HashMap<String, ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample> result = new HashMap<>();
         for (ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample sample : samples.values())
         {
-            result.put(sample.getIdentifier().getIdentifier(), sample);
+            result.put(sample.getPermId().getPermId(), sample);
         }
         return result;
     }

@@ -155,6 +155,7 @@ public class MasterDataSynchronizer
                 if (StringUtils.isNotBlank(diff))
                 {
                     incomingplugin.setModificationDate(existingPluginOrNull.getModificationDate());
+                    incomingplugin.setId(existingPluginOrNull.getId());
                     synchronizerFacade.updateValidationPlugin(incomingplugin, diff);
                 }
             } else
@@ -163,7 +164,7 @@ public class MasterDataSynchronizer
             }
         }
     }
-    
+
     private String calculateDiff(Script existingPlugin, Script incomingPlugin)
     {
         DiffBuilder diffBuilder = new DiffBuilder(existingPlugin, incomingPlugin, ToStringStyle.SHORT_PREFIX_STYLE, false)
@@ -262,6 +263,7 @@ public class MasterDataSynchronizer
                 if (StringUtils.isNotBlank(diff))
                 {
                     newVocabulary.setModificationDate(existingVocabulary.getModificationDate());
+                    newVocabulary.setId(existingVocabulary.getId());
                     synchronizerFacade.updateVocabulary(newVocabulary, diff);
                 }
                 processVocabularyTerms(sessionToken, commonServer, newVocabulary, existingVocabulary);
@@ -271,15 +273,15 @@ public class MasterDataSynchronizer
             }
         }
     }
-    
+
     private String calculateDiff(Vocabulary existingVocabulary, NewVocabulary newVocabulary)
     {
         DiffBuilder diffBuilder = new DiffBuilder(existingVocabulary, newVocabulary, ToStringStyle.SHORT_PREFIX_STYLE, false)
-            .append("description", existingVocabulary.getDescription(), newVocabulary.getDescription())
-            .append("urlTemplate", existingVocabulary.getURLTemplate(), newVocabulary.getURLTemplate())
-            .append("managedInternally", existingVocabulary.isManagedInternally(), newVocabulary.isManagedInternally())
-            .append("internalNamespace", existingVocabulary.isInternalNamespace(), newVocabulary.isInternalNamespace())
-            .append("chosenFromList", existingVocabulary.isChosenFromList(), newVocabulary.isChosenFromList());
+                .append("description", existingVocabulary.getDescription(), newVocabulary.getDescription())
+                .append("urlTemplate", existingVocabulary.getURLTemplate(), newVocabulary.getURLTemplate())
+                .append("managedInternally", existingVocabulary.isManagedInternally(), newVocabulary.isManagedInternally())
+                .append("internalNamespace", existingVocabulary.isInternalNamespace(), newVocabulary.isInternalNamespace())
+                .append("chosenFromList", existingVocabulary.isChosenFromList(), newVocabulary.isChosenFromList());
         DiffResult diffResult = diffBuilder.build();
         return render(diffResult, existingVocabulary, newVocabulary);
     }
@@ -300,6 +302,7 @@ public class MasterDataSynchronizer
                 if (StringUtils.isNotBlank(diff))
                 {
                     incomingTerm.setModificationDate(existingTerm.getModificationDate());
+                    incomingTerm.setId(existingTerm.getId());
                     synchronizerFacade.updateVocabularyTerm(existingVocabulary.getCode(), incomingTerm, diff);
                 }
             }
@@ -307,18 +310,17 @@ public class MasterDataSynchronizer
 
         synchronizerFacade.addVocabularyTerms(existingVocabulary.getCode(), new TechId(existingVocabulary.getId()), termsToBeAdded);
     }
-    
+
     private String calculateDiff(VocabularyTerm existingTerm, VocabularyTerm incomingTerm)
     {
         DiffBuilder diffBuilder = new DiffBuilder(existingTerm, incomingTerm, ToStringStyle.SHORT_PREFIX_STYLE, false)
-        .append("label", existingTerm.getLabel(), incomingTerm.getLabel())
-        .append("description", existingTerm.getDescription(), incomingTerm.getDescription())
-        .append("ordinal", existingTerm.getOrdinal(), incomingTerm.getOrdinal())
-        .append("url", existingTerm.getUrl(), incomingTerm.getUrl());
+                .append("label", existingTerm.getLabel(), incomingTerm.getLabel())
+                .append("description", existingTerm.getDescription(), incomingTerm.getDescription())
+                .append("url", existingTerm.getUrl(), incomingTerm.getUrl());
         DiffResult diffResult = diffBuilder.build();
         return render(diffResult, existingTerm, incomingTerm);
     }
-    
+
     private Map<String, VocabularyTerm> getTermsByCode(Vocabulary vocabulary)
     {
         Map<String, VocabularyTerm> result = new TreeMap<>();
@@ -427,7 +429,8 @@ public class MasterDataSynchronizer
                 // ch.systemsx.cisd.openbis.generic.server.business.bo.EntityTypePropertyTypeBO.createAssignment() increases
                 // the provided ordinal by one. Thus, we have to subtract 1 in order to get the same ordinal.
                 .append("ordinal", new Long(existingAssignment.getOrdinal() - 1), incomingAssignment.getOrdinal())
-                .append("showInEdit", existingAssignment.isShownInEditView(), incomingAssignment.isShownInEditView())
+                .append("showInEdit", existingAssignment.isShownInEditView(),
+                        incomingAssignment.isDynamic() ? false : incomingAssignment.isShownInEditView())
                 .append("plugin", getPluginName(existingAssignment.getScript()), incomingAssignment.getScriptName());
         Script plugin = existingAssignment.getScript();
         ScriptType existingPluginType = plugin == null ? null : plugin.getScriptType();
@@ -623,6 +626,7 @@ public class MasterDataSynchronizer
                 if (StringUtils.isNotBlank(diff))
                 {
                     incomingPropertyType.setModificationDate(existingPropertyType.getModificationDate());
+                    incomingPropertyType.setId(existingPropertyType.getId());
                     synchronizerFacade.updatePropertyType(incomingPropertyType, diff);
                 }
             } else
@@ -631,26 +635,40 @@ public class MasterDataSynchronizer
             }
         }
     }
-    
+
     private String calculateDiff(PropertyType existingPropertyType, PropertyType incomingPropertyType)
     {
         DiffBuilder diffBuilder = new DiffBuilder(existingPropertyType, incomingPropertyType, ToStringStyle.SHORT_PREFIX_STYLE, false)
-            .append("label", existingPropertyType.getLabel(), incomingPropertyType.getLabel())
-            .append("dataType", existingPropertyType.getDataType().getCode(), incomingPropertyType.getDataType().getCode())
-            .append("description", existingPropertyType.getDescription(), incomingPropertyType.getDescription())
-            .append("internalNamespace", existingPropertyType.isInternalNamespace(), incomingPropertyType.isInternalNamespace())
-            .append("managedInternally", existingPropertyType.isManagedInternally(), incomingPropertyType.isManagedInternally())
-            .append("vocabulary", getCode(existingPropertyType.getVocabulary()), 
-                    getCode(incomingPropertyType.getVocabulary()))
-            .append("material", getCode(existingPropertyType.getMaterialType()), 
-                    getCode(incomingPropertyType.getMaterialType()));
+                .append("label", existingPropertyType.getLabel(), incomingPropertyType.getLabel())
+                .append("dataType", existingPropertyType.getDataType().getCode(), incomingPropertyType.getDataType().getCode())
+                .append("description", existingPropertyType.getDescription(), incomingPropertyType.getDescription())
+                .append("internalNamespace", existingPropertyType.isInternalNamespace(), incomingPropertyType.isInternalNamespace())
+                .append("managedInternally", existingPropertyType.isManagedInternally(), incomingPropertyType.isManagedInternally())
+                .append("vocabulary", getCode(existingPropertyType.getVocabulary()),
+                        getCode(incomingPropertyType.getVocabulary()))
+                .append("material", getCode(existingPropertyType.getMaterialType()),
+                        getCode(incomingPropertyType.getMaterialType()));
         DiffResult diffResult = diffBuilder.build();
         return render(diffResult, existingPropertyType, incomingPropertyType);
     }
-    
+
+    private String getCode(Vocabulary vocabulary)
+    {
+        if (vocabulary == null)
+        {
+            return null;
+        }
+        String code = vocabulary.getCode();
+        if (vocabulary.isInternalNamespace() && code.startsWith("$") == false)
+        {
+            code = "$" + code;
+        }
+        return code;
+    }
+
     private String getCode(ICodeHolder codeHolder)
     {
         return codeHolder == null ? null : codeHolder.getCode();
     }
-    
+
 }
