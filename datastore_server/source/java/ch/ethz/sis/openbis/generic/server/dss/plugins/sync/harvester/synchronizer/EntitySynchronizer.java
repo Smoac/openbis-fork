@@ -1203,7 +1203,7 @@ public class EntitySynchronizer
     {
         File backupLastSyncTimeStampFile = new File(config.getNotSyncedEntitiesFileName() + ".bk");
         FileUtils.copyFile(notSyncedDataSetsFile, backupLastSyncTimeStampFile);
-        FileUtils.writeStringToFile(notSyncedDataSetsFile, "", Charset.defaultCharset());
+        FileUtilities.writeToFile(notSyncedDataSetsFile, "");
     }
 
     private void registerMasterData(MasterData masterData)
