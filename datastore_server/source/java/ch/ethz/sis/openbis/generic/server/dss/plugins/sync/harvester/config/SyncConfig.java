@@ -220,9 +220,7 @@ public class SyncConfig
 
     private Boolean verbose = false;
 
-    private boolean masterDataUpdate;
-
-    private boolean propertyTypeUpdateAllowed;
+    private boolean masterDataUpdateAllowed;
 
     private boolean propertyUnassignmentAllowed;
 
@@ -352,14 +350,14 @@ public class SyncConfig
         this.verbose = verbose;
     }
 
-    public boolean isMasterDataUpdate()
+    public boolean isMasterDataUpdateAllowed()
     {
-        return masterDataUpdate;
+        return masterDataUpdateAllowed;
     }
 
-    public void setMasterDataUpdate(boolean masterDataUpdate)
+    public void setMasterDataUpdateAllowed(boolean masterDataUpdate)
     {
-        this.masterDataUpdate = masterDataUpdate;
+        this.masterDataUpdateAllowed = masterDataUpdate;
     }
 
     public boolean isPropertyUnassignmentAllowed()
@@ -370,16 +368,6 @@ public class SyncConfig
     public void setPropertyUnassignmentAllowed(boolean propertyUnassignmentAllowed)
     {
         this.propertyUnassignmentAllowed = propertyUnassignmentAllowed;
-    }
-
-    public boolean isPropertyTypeUpdateAllowed()
-    {
-        return propertyTypeUpdateAllowed;
-    }
-
-    public void setPropertyTypeUpdateAllowed(boolean propertyTypeUpdateAllowed)
-    {
-        this.propertyTypeUpdateAllowed = propertyTypeUpdateAllowed;
     }
 
     public boolean isDeletionAllowed()

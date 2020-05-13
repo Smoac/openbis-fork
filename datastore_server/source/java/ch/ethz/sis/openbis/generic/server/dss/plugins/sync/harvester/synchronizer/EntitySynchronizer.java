@@ -206,10 +206,7 @@ public class EntitySynchronizer
         {
             processDeletions(data);
         }
-        if (config.isMasterDataUpdate())
-        {
-            registerMasterData(data.getMasterData());
-        }
+        registerMasterData(data.getMasterData());
         MultiKeyMap<String, String> newEntities = registerEntities(data);
         registerAttachments(data, newEntities);
         populateFileServiceRepository(data);

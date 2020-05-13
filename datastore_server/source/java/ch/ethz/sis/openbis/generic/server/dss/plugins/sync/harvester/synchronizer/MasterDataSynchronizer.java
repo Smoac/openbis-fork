@@ -152,7 +152,7 @@ public class MasterDataSynchronizer
             if (existingPluginOrNull != null)
             {
                 String diff = calculateDiff(existingPluginOrNull, incomingplugin);
-                if (StringUtils.isNotBlank(diff))
+                if (StringUtils.isNotBlank(diff) && config.isMasterDataUpdateAllowed())
                 {
                     incomingplugin.setModificationDate(existingPluginOrNull.getModificationDate());
                     incomingplugin.setId(existingPluginOrNull.getId());
@@ -260,7 +260,7 @@ public class MasterDataSynchronizer
             if (existingVocabulary != null)
             {
                 String diff = calculateDiff(existingVocabulary, newVocabulary);
-                if (StringUtils.isNotBlank(diff))
+                if (StringUtils.isNotBlank(diff) && config.isMasterDataUpdateAllowed())
                 {
                     newVocabulary.setModificationDate(existingVocabulary.getModificationDate());
                     newVocabulary.setId(existingVocabulary.getId());
@@ -299,7 +299,7 @@ public class MasterDataSynchronizer
             } else
             {
                 String diff = calculateDiff(existingTerm, incomingTerm);
-                if (StringUtils.isNotBlank(diff))
+                if (StringUtils.isNotBlank(diff) && config.isMasterDataUpdateAllowed())
                 {
                     incomingTerm.setModificationDate(existingTerm.getModificationDate());
                     incomingTerm.setId(existingTerm.getId());
@@ -353,7 +353,7 @@ public class MasterDataSynchronizer
             if (existingEntityType != null)
             {
                 String diff = calculateDiff(entityKind, existingEntityType, incomingEntityType);
-                if (StringUtils.isNotBlank(diff) && config.isPropertyTypeUpdateAllowed())
+                if (StringUtils.isNotBlank(diff) && config.isMasterDataUpdateAllowed())
                 {
                     incomingEntityType.setModificationDate(existingEntityType.getModificationDate());
                     updateEntityType(entityKind, incomingEntityType, diff);
@@ -393,7 +393,7 @@ public class MasterDataSynchronizer
             if (foundType != null)
             {
                 String diff = calculateDiff(foundType, newETPTAssignment);
-                if (StringUtils.isNotBlank(diff) && config.isPropertyTypeUpdateAllowed())
+                if (StringUtils.isNotBlank(diff) && config.isMasterDataUpdateAllowed())
                 {
                     newETPTAssignment.setModificationDate(foundType.getModificationDate());
                     synchronizerFacade.updatePropertyTypeAssignment(newETPTAssignment, diff);
@@ -620,7 +620,7 @@ public class MasterDataSynchronizer
             if (existingPropertyType != null)
             {
                 String diff = calculateDiff(existingPropertyType, incomingPropertyType);
-                if (StringUtils.isNotBlank(diff))
+                if (StringUtils.isNotBlank(diff) && config.isMasterDataUpdateAllowed())
                 {
                     incomingPropertyType.setModificationDate(existingPropertyType.getModificationDate());
                     incomingPropertyType.setId(existingPropertyType.getId());
