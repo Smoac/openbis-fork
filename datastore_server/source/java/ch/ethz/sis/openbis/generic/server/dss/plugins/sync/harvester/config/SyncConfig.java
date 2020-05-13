@@ -219,11 +219,13 @@ public class SyncConfig
     private Boolean dryRun = false;
 
     private Boolean verbose = false;
-    
+
     private boolean masterDataUpdate;
-    
+
+    private boolean propertyTypeUpdateAllowed;
+
     private boolean propertyUnassignmentAllowed;
-    
+
     private boolean deletionAllowed;
 
     private boolean keepOriginalTimestampsAndUsers;
@@ -368,6 +370,16 @@ public class SyncConfig
     public void setPropertyUnassignmentAllowed(boolean propertyUnassignmentAllowed)
     {
         this.propertyUnassignmentAllowed = propertyUnassignmentAllowed;
+    }
+
+    public boolean isPropertyTypeUpdateAllowed()
+    {
+        return propertyTypeUpdateAllowed;
+    }
+
+    public void setPropertyTypeUpdateAllowed(boolean propertyTypeUpdateAllowed)
+    {
+        this.propertyTypeUpdateAllowed = propertyTypeUpdateAllowed;
     }
 
     public boolean isDeletionAllowed()
