@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.ftp;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.ftpserver.ftplet.Authentication;
 import org.apache.ftpserver.ftplet.AuthenticationFailedException;
 import org.apache.ftpserver.ftplet.FtpException;
@@ -41,6 +45,8 @@ public class FtpUserManager implements UserManager
             FtpUserManager.class);
 
     private final IServiceForDataStoreServer service;
+    
+    private final Map<String, String> sessionTokensByUser = Collections.synchronizedMap(new HashMap<>());
 
     public FtpUserManager(IServiceForDataStoreServer service)
     {
@@ -54,11 +60,22 @@ public class FtpUserManager implements UserManager
         {
             UsernamePasswordAuthentication upa = (UsernamePasswordAuthentication) authentication;
             String user = upa.getUsername();
-            String password = upa.getPassword();
-            SessionContextDTO session = service.tryAuthenticate(user, password);
-            if (session != null && session.getSessionToken() != null)
+            String sessionToken = sessionTokensByUser.get(user);
+            if (sessionToken != null)
             {
-                return new FtpUser(user, session.getSessionToken());
+                SessionContextDTO session = service.tryGetSession(sessionToken);
+                sessionToken = session == null ? null : session.getSessionToken();
+            }
+            if (sessionToken == null)
+            {
+                String password = upa.getPassword();
+                SessionContextDTO session = service.tryAuthenticate(user, password);
+                sessionToken = session == null ? null : session.getSessionToken();
+                sessionTokensByUser.put(user, sessionToken);
+            }
+            if (sessionToken != null)
+            {
+                return new FtpUser(user, sessionToken);
             }
         } else
         {
