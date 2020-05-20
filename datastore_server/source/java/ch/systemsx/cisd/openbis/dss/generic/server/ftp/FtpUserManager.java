@@ -45,7 +45,7 @@ public class FtpUserManager implements UserManager
             FtpUserManager.class);
 
     private final IServiceForDataStoreServer service;
-    
+
     private final Map<String, String> sessionTokensByUser = Collections.synchronizedMap(new HashMap<>());
 
     public FtpUserManager(IServiceForDataStoreServer service)
@@ -60,7 +60,8 @@ public class FtpUserManager implements UserManager
         {
             UsernamePasswordAuthentication upa = (UsernamePasswordAuthentication) authentication;
             String user = upa.getUsername();
-            String sessionToken = sessionTokensByUser.get(user);
+            String key = String.format("%s:%s", upa.getUsername(), upa.getPassword());
+            String sessionToken = sessionTokensByUser.get(key);
             if (sessionToken != null)
             {
                 SessionContextDTO session = service.tryGetSession(sessionToken);
@@ -71,7 +72,7 @@ public class FtpUserManager implements UserManager
                 String password = upa.getPassword();
                 SessionContextDTO session = service.tryAuthenticate(user, password);
                 sessionToken = session == null ? null : session.getSessionToken();
-                sessionTokensByUser.put(user, sessionToken);
+                sessionTokensByUser.put(key, sessionToken);
             }
             if (sessionToken != null)
             {
