@@ -340,6 +340,13 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     }
 
     @Override
+    public boolean isArchivingPossible(String sessionToken)
+    {
+        sessionTokenManager.assertValidSessionToken(sessionToken);
+        return getArchiverPlugin().isArchivingPossible();
+    }
+
+    @Override
     public List<String> getDataSetCodesForUnarchiving(String sessionToken, String userSessionToken, List<String> datasets, String userId)
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);

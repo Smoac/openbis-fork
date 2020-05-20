@@ -782,15 +782,43 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
     {
         Map<DataStorePE, List<ExternalDataPE>> datasetsByStore = groupExternalDataByDataStores();
         Map<DataStoreWithService, List<ExternalDataPE>> datasetsWithService =
-                enrichWithService(datasetsByStore);
+                removeDataStoresWhereArchivingIsCurrentlyNotPossible(enrichWithService(datasetsByStore));
 
         DataSetArchivingStatus pendingStatus =
                 (removeFromDataStore) ? DataSetArchivingStatus.ARCHIVE_PENDING
                         : DataSetArchivingStatus.BACKUP_PENDING;
         int result =
-                filterByStatusAndUpdate(datasetsByStore, DataSetArchivingStatus.AVAILABLE,
+                filterByStatusAndUpdate(remap(datasetsWithService), DataSetArchivingStatus.AVAILABLE,
                         pendingStatus);
+        
         performArchiving(datasetsWithService, removeFromDataStore, options);
+        return result;
+    }
+    
+    private Map<DataStorePE, List<ExternalDataPE>> remap(Map<DataStoreWithService, List<ExternalDataPE>> datasetsWithService)
+    {
+        Map<DataStorePE, List<ExternalDataPE>> result = new HashMap<>();
+        for (Entry<DataStoreWithService, List<ExternalDataPE>> entry : datasetsWithService.entrySet())
+        {
+            result.put(entry.getKey().dataStore, entry.getValue());
+        }
+        return result;
+    }
+
+    private Map<DataStoreWithService, List<ExternalDataPE>> removeDataStoresWhereArchivingIsCurrentlyNotPossible(Map<DataStoreWithService, List<ExternalDataPE>> datasetsWithService)
+    {
+        Map<DataStoreWithService, List<ExternalDataPE>> result = new HashMap<>();
+        for (Entry<DataStoreWithService, List<ExternalDataPE>> entry : datasetsWithService.entrySet())
+        {
+            DataStoreWithService storeWithService = entry.getKey();
+            if (storeWithService.service.isArchivingPossible(storeWithService.dataStore.getSessionToken()))
+            {
+                result.put(storeWithService, entry.getValue());
+            } else
+            {
+                operationLog.warn("Archiving is currently not possible on Data Store " + storeWithService.dataStore.getCode());
+            }
+        }
         return result;
     }
 

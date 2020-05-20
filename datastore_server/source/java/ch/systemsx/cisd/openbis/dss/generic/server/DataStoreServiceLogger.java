@@ -165,6 +165,13 @@ class DataStoreServiceLogger implements IDataStoreService, IInitializable
     }
 
     @Override
+    public boolean isArchivingPossible(String sessionToken)
+    {
+        log("isArchivingPossible", "");
+        return false;
+    }
+
+    @Override
     public List<String> getDataSetCodesForUnarchiving(String sessionToken, String userSessionToken, List<String> datasets, String userId)
     {
         log("getDataSetCodesForUnarchiving", "NO_OF_DATASETS(%s)", datasets.size());

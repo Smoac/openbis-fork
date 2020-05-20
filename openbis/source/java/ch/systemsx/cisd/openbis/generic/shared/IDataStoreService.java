@@ -129,6 +129,11 @@ public interface IDataStoreService
             List<DatasetDescription> datasets, String userId, String userEmailOrNull);
 
     /**
+     * Asks DSS whether archiving is currently possible or not.
+     */
+    public boolean isArchivingPossible(String sessionToken);
+
+    /**
      * Asks arcvhiver to provide an extended list of data sets to unarchive.
      * 
      * @param userId id of user who initiated unarchiving.

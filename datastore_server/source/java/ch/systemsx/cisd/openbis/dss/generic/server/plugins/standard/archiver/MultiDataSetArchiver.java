@@ -17,7 +17,10 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
+import java.nio.file.FileStore;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -33,6 +36,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -119,6 +123,10 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         }
     }
 
+    public static final String MINIMUM_FREE_SPACE_AT_FINAL_DESTINATION_IN_BYTES = "minimum-free-space-at-final-destination-in-bytes";
+
+    public static final String MINIMUM_FREE_SPACE_AT_FINAL_DESTINATION_IN_PERCENTAGE = "minimum-free-space-at-final-destination-in-percentage";
+
     public static final String MINIMUM_CONTAINER_SIZE_IN_BYTES = "minimum-container-size-in-bytes";
 
     public static final Long DEFAULT_MINIMUM_CONTAINER_SIZE_IN_BYTES = 10 * FileUtils.ONE_GB;
@@ -144,6 +152,12 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
     private transient IDataStoreServiceInternal dataStoreService;
 
     private transient IMultiDataSetArchiveCleaner cleaner;
+
+    private final long absoluteMinimumFreeSpaceAtDestination;
+
+    private final int relativeMinimumFreeSpaceAtDestination;
+
+    private final String finalDestination;
 
     private final long minimumContainerSize;
 
@@ -172,6 +186,10 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         super(properties, storeRoot, null, null);
         this.timeProvider = timeProvider;
         delayUnarchiving = PropertyUtils.getBoolean(properties, DELAY_UNARCHIVING, false);
+
+        absoluteMinimumFreeSpaceAtDestination = PropertyUtils.getLong(properties, MINIMUM_FREE_SPACE_AT_FINAL_DESTINATION_IN_BYTES, -1L);
+        relativeMinimumFreeSpaceAtDestination = PropertyUtils.getInt(properties, MINIMUM_FREE_SPACE_AT_FINAL_DESTINATION_IN_PERCENTAGE, -1);
+        finalDestination = properties.getProperty(MultiDataSetFileOperationsManager.FINAL_DESTINATION_KEY);
         this.minimumContainerSize = PropertyUtils.getLong(properties, MINIMUM_CONTAINER_SIZE_IN_BYTES, DEFAULT_MINIMUM_CONTAINER_SIZE_IN_BYTES);
         this.maximumContainerSize = PropertyUtils.getLong(properties, MAXIMUM_CONTAINER_SIZE_IN_BYTES, DEFAULT_MAXIMUM_CONTAINER_SIZE_IN_BYTES);
         this.maximumUnarchivingCapacityInMB =
@@ -184,6 +202,48 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         cleanerProperties = PropertyParametersUtil.extractSingleSectionProperties(properties, CLEANER_PROPS, false)
                 .getProperties();
         getCleaner(); // Checks proper configuration of cleaner
+    }
+
+    @Override
+    public boolean isArchivingPossible()
+    {
+        boolean possible = super.isArchivingPossible();
+        if (possible && (absoluteMinimumFreeSpaceAtDestination > 0 || relativeMinimumFreeSpaceAtDestination > 0))
+        {
+            try
+            {
+                FileStore fileStore = Files.getFileStore(new File(finalDestination).toPath());
+                long usableSpace = fileStore.getUsableSpace();
+                if (absoluteMinimumFreeSpaceAtDestination > 0)
+                {
+                    possible = usableSpace >= absoluteMinimumFreeSpaceAtDestination;
+                    if (possible == false)
+                    {
+                        operationLog.warn("Archiving not triggered because the usable free space "
+                                + FileUtils.byteCountToDisplaySize(usableSpace)
+                                + " is less then the specified minimum free space "
+                                + FileUtils.byteCountToDisplaySize(absoluteMinimumFreeSpaceAtDestination));
+                    }
+                }
+                if (possible && relativeMinimumFreeSpaceAtDestination > 0)
+                {
+                    long totalSpace = fileStore.getTotalSpace();
+                    long percentage = (usableSpace * 100) / totalSpace;
+                    possible = percentage >= relativeMinimumFreeSpaceAtDestination;
+                    if (possible == false)
+                    {
+                        operationLog.warn("Archiving not triggered because the usable free space is only "
+                                + percentage + "% of the total space "
+                                + FileUtils.byteCountToDisplaySize(totalSpace) + " but the specified minimum is "
+                                + relativeMinimumFreeSpaceAtDestination + "%.");
+                    }
+                }
+            } catch (IOException e)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(e);
+            }
+        }
+        return possible;
     }
 
     @Override
@@ -225,7 +285,8 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
             }
             result.addResult(dataSets, Status.createError(e.getMessage()), Operation.ARCHIVE);
         }
-        operationLog.info("archiving done. result: " + ((MultiDataSetArchiver.MultiDataSetProcessingStatuses) result).getDataSetsWaitingForReplication());
+        operationLog
+                .info("archiving done. result: " + ((MultiDataSetArchiver.MultiDataSetProcessingStatuses) result).getDataSetsWaitingForReplication());
         return result;
     }
 

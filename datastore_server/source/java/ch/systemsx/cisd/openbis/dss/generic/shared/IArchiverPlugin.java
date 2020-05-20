@@ -32,6 +32,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 public interface IArchiverPlugin extends Serializable
 {
     /**
+     * Returns <code>false</code> if archiving is currently <b>not</b> possible.
+     */
+    boolean isArchivingPossible();
+
+    /**
      * Asynchronously processes archiving of the specified datasets.
      * 
      * @returns {@link ProcessingStatus} of the finished processing with statuses of processing for all scheduled data sets or null if processing

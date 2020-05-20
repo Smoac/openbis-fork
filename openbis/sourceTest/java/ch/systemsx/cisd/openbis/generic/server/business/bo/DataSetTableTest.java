@@ -733,6 +733,8 @@ public final class DataSetTableTest extends AbstractBOTest
                     prepareUpdateDatasetStatuses(allDataSets, ARCHIVE_PENDING);
 
                     String userSessionToken = ManagerTestTool.EXAMPLE_SESSION.getSessionToken();
+                    one(dataStoreService2).isArchivingPossible(dss2.getSessionToken());
+                    will(returnValue(true));
                     allowing(dataStoreService2).archiveDatasets(
                             with(equal(dss2.getSessionToken())), with(equal(userSessionToken)),
                             with(createDatasetDescriptionsMatcher(d2Array)),
@@ -742,6 +744,8 @@ public final class DataSetTableTest extends AbstractBOTest
                             with(equal(options)));
                     will(throwException(new RuntimeException()));
 
+                    one(dataStoreService3).isArchivingPossible(dss3.getSessionToken());
+                    will(returnValue(true));
                     allowing(dataStoreService3).archiveDatasets(
                             with(equal(dss3.getSessionToken())), with(equal(userSessionToken)),
                             with(createDatasetDescriptionsMatcher(d3Array)),
@@ -794,6 +798,8 @@ public final class DataSetTableTest extends AbstractBOTest
             {
                 {
                     String userSessionToken = ManagerTestTool.EXAMPLE_SESSION.getSessionToken();
+                    one(service).isArchivingPossible(store.getSessionToken());
+                    will(returnValue(true));
                     one(service).archiveDatasets(with(equal(store.getSessionToken())),
                             with(equal(userSessionToken)),
                             with(createDatasetDescriptionsMatcher(dataSets)),

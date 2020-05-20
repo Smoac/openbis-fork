@@ -157,6 +157,17 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
                 DEFAULT_PAUSE_FILE_POOLING_TIME);
     }
 
+    @Override
+    public boolean isArchivingPossible()
+    {
+        if (pauseFile.exists())
+        {
+            operationLog.warn("Archiving not triggered because presence of pause file '" + pauseFile + "'.");
+            return false;
+        }
+        return true;
+    }
+
     /**
      * NOTE: this method is not allowed to throw exception as this will leave data sets in the openBIS database with an inconsistent status.
      * 
@@ -246,8 +257,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
             if (dataset.getDataSetSize() > maximumBatchSizeInBytes)
             {
                 results.add(Collections.singletonList(dataset));
-            }
-            else
+            } else
             {
                 currentResult.add(dataset);
                 runningSum += dataset.getDataSetSize();
@@ -817,7 +827,8 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
                 throw ConfigurationFailureException.fromTemplate(
                         "Unarchiving of data set '%s' has failed, because no appropriate "
                                 + "destination share was found. Most probably there is not enough "
-                                + "free space in the data store.", dataSetCode);
+                                + "free space in the data store.",
+                        dataSetCode);
             }
         }
 
