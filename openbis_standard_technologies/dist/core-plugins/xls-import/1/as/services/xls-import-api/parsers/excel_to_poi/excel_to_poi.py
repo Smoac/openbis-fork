@@ -14,19 +14,21 @@ class ExcelToPoiParser(object):
         definitions = []
         for sheet in workbook.sheetIterator():
             i = 0
-            sheet_done = False
-            while not sheet_done:
+            rowCount = sheet.getLastRowNum() + 1
+
+            while i < rowCount:
                 definition_rows = []
-                while not ExcelToPoiParser.is_row_empty(sheet.getRow(i)):
+
+                while i < rowCount and not ExcelToPoiParser.is_row_empty(sheet.getRow(i)):
                     row = sheet.getRow(i)
                     definition_rows.append(row)
                     i += 1
-                i += 1  # skip empty row
 
-                if not definition_rows:
-                    sheet_done = True
-                else:
-                    definitions.append(definition_rows)
+                # skip all empty rows
+                while i < rowCount and ExcelToPoiParser.is_row_empty(sheet.getRow(i)):
+                    i += 1
+
+                definitions.append(definition_rows)
 
         workbook.close()
 

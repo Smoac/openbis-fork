@@ -284,7 +284,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 								Util.downloadTextFile(orderPages[pageIdx], "order_" + sample.code + "_p" + pageIdx + ".txt");
 							}
 							
-						}, "Print Order");
+						}, "Print Order", null, "print-order-id");
 						
 						//
 						// Order Summary Grid
@@ -295,42 +295,73 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 							isExportable: true,
 							sortable : true,
 							render : function(data) {
-								return FormUtil.getFormLink(data.catalogNum, "Sample", data.permId);
+								return FormUtil.getFormLink(data.catalogNum, "Sample", data.permId, null, 'catalogNum-' + data.rowId);
 							}
 						},{
 							label : 'Supplier',
 							property : 'supplier',
 							isExportable: true,
-							sortable : true
+							sortable : true,
+                            render : function(data) {
+                                var $component = $('<div>', {'id' : 'supplier-' + data.rowId});
+                                $component.append(data.supplier);
+                                return $component;
+                            }
 						}, {
 							label : 'Name',
 							property : 'name',
 							isExportable: true,
-							sortable : true
+							sortable : true,
+                            render : function(data) {
+                                var $component = $('<div>', {'id' : 'name-' + data.rowId});
+                                $component.append(data.name);
+                                return $component;
+                            }
 						}, {
 							label : 'Quantity',
 							property : 'quantity',
 							isExportable: true,
 							sortable : true,
+							render : function(data) {
+                                var $component = $('<div>', {'id' : 'quantity-' + data.rowId});
+                                $component.append(data.quantity);
+                                return $component;
+                            }
 						}, {
 							label : 'Unit Price',
 							property : 'unitPrice',
 							isExportable: true,
-							sortable : true
+							sortable : true,
+							render : function(data) {
+                                var $component = $('<div>', {'id' : 'unitPrice-' + data.rowId});
+                                $component.append(data.unitPrice);
+                                return $component;
+                            }
 						}, {
 							label : 'Total Product Cost',
 							property : 'totalProductCost',
 							isExportable: true,
-							sortable : true
+							sortable : true,
+							render : function(data) {
+                                var $component = $('<div>', {'id' : 'totalProductCost-' + data.rowId});
+                                $component.append(data.totalProductCost);
+                                return $component;
+                            }
 						}, {
 							label : 'Currency',
 							property : 'currency',
 							isExportable: true,
-							sortable : true
+							sortable : true,
+							render : function(data) {
+                                var $component = $('<div>', {'id' : 'currency-' + data.rowId});
+                                $component.append(data.currency);
+                                return $component;
+                            }
 						}];
 						
 						var getDataRows = function(callback) {
 							var rows = [];
+							var index = 0;
 							for(var providerPermId in productsByProviderPermId) {
 								var provider = providerByPermId[providerPermId];
 								var providerProducts = productsByProviderPermId[providerPermId];
@@ -349,6 +380,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 									rowData.catalogNum =  product.properties["$PRODUCT.CATALOG_NUM"];
 									rowData.quantity = quantity;
 									rowData.unitPrice = unitPrice;
+									rowData.rowId = index;
 									if(unitPrice !== "N/A") {
 										rowData.totalProductCost = rowData.quantity * rowData.unitPrice;
 									} else {
@@ -360,6 +392,7 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 									}
 									rowData.currency = currencyCode;
 									rows.push(rowData);
+									++index;
 								}
 								
 							}

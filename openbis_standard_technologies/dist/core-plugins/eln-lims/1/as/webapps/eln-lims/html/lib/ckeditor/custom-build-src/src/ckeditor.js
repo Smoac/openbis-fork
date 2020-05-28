@@ -42,7 +42,8 @@ import PasteFromOffice from '@ckeditor/ckeditor5-paste-from-office/src/pastefrom
 import Table from '@ckeditor/ckeditor5-table/src/table';
 import TableToolbar from '@ckeditor/ckeditor5-table/src/tabletoolbar';
 import RemoveFormat from '@ckeditor/ckeditor5-remove-format/src/removeformat';
-import MathType from '@wiris/mathtype-ckeditor5/src/plugin';
+import SpecialCharacters from '@ckeditor/ckeditor5-special-characters/src/specialcharacters';
+import SpecialCharactersEssentials from '@ckeditor/ckeditor5-special-characters/src/specialcharactersessentials';
 
 class InlineEditor extends InlineEditorBase {}
 class DecoupledEditor extends DecoupledEditorBase {}
@@ -75,7 +76,8 @@ const plugins = [Essentials,
                  	Table,
                  	TableToolbar,
                  	RemoveFormat,
-                 	MathType];
+                 	SpecialCharacters,
+                 	SpecialCharactersEssentials];
 
 // Plugins to include in the build.
 InlineEditor.builtinPlugins = plugins;
@@ -99,8 +101,7 @@ const config = {
                			'strikethrough',
                			'highlight',
                			'|',
-               			'MathType',
-               			'ChemType',
+               			'specialCharacters',
                			'|',
                			'alignment',
                			'|',

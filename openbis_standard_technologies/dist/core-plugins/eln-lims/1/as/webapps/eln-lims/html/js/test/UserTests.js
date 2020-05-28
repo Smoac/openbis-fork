@@ -1,41 +1,5 @@
 var UserTests = new function() {
 
-    this.startUserTests = function() {
-        testChain = Promise.resolve();
-                 //5. User Manager (end of test)
-        testChain.then(() => TestUtil.deleteCookies("suitename"))
-                 .then(() => TestUtil.login("testId", "pass"))
-                 .then(() => this.inventorySpaceForTestUser())
-                 //6. Sample Form - Creation
-                 .then(() => this.creationSampleForm())
-                 //13. Inventory Table - Imports for Create - Automatic Codes
-                 .then(() => this.importsAutomaticCodes())
-                 //14. Inventory Table - Imports for Create - Given Codes
-                 .then(() => this.importsGivenCodes())
-                 //15. Sample Form - Storage
-                 .then(() => this.storageTest())
-                 //16. Storage Manager - Moving Box
-                 .then(() => this.movingBoxTest())
-                 //17. Storage Manager - Moving Sample
-                 .then(() => this.movingSampleTest())
-                 //18. Create Protocol
-                 .then(() => this.createProtocol())
-                 //19. Project Form - Create/Update
-                 .then(() => this.createProject())
-                 //20. Experiment Form - Create/Update
-                 .then(() => this.createExperiment())
-                 //21. Experiment Step Form - Create/Update
-                 .then(() => this.createExperimentStep())
-                 //22. is now disabled
-                 //23. Experiment Step Form - Dataset Uploader and Viewer
-                 .then(() => this.datasetUploader())
-                 //24. Experiment Step Form - Children Generator (not exist)
-                 //24. Project  Form - Show in project overview
-                 .then(() => this.showInProjectOverview())
-                 .catch(error => { console.log(error) });
-    }
-
-
     this.inventorySpaceForTestUser = function() {
         return new Promise(function executor(resolve, reject) {
             var e = EventUtil;
@@ -63,7 +27,8 @@ var UserTests = new function() {
 
             Promise.resolve().then(() => TestUtil.verifyInventory(ids))
                              .then(() => e.verifyExistence("USER_MANAGER", false))
-                             .then(() => resolve());
+                             .then(() => resolve())
+                             .catch((error) => reject(error));
         });
     }
 
@@ -75,7 +40,9 @@ var UserTests = new function() {
                              .then(() => UserTests.createBacteria("BAC2", "Burantimonas"))
                              .then(() => UserTests.createBacteria("BAC3", "Curantimonas"))
                              .then(() => UserTests.createBacteria("BAC4", "Durantimonas"))
-                             .then(() => resolve());
+                             .then(() => TestUtil.testPassed(6))
+                             .then(() => resolve())
+                             .catch((error) => reject(error));
         });
     }
 
@@ -116,7 +83,237 @@ var UserTests = new function() {
                      .then(() => e.waitForId("NAME"))
                      .then(() => e.equalTo("NAME", name, true, false))
                      .then(() => TestUtil.ckeditorTestData("BACTERIA.GENOTYPE", richText))
-                     .then(() => resolve());
+                     .then(() => resolve())
+                     .catch((error) => reject(error));
+        });
+    }
+
+    this.editSampleForm = function() {
+        var baseURL = location.protocol + '//' + location.host + location.pathname;
+        var pathToResource = "js/test/resources/test-image.png";
+
+        return new Promise(function executor(resolve, reject) {
+            var e = EventUtil;
+
+            Promise.resolve().then(() => e.waitForId("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
+                             .then(() => e.click("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
+                             .then(() => e.waitForId("bac3-column-id"))
+                             .then(() => e.click("bac3-column-id"))
+                             // Edit Bacteria 3
+                             .then(() => e.waitForId("edit-btn"))
+                             .then(() => e.click("edit-btn"))
+                             // add photo in Bacteria genotype
+                             .then(() => e.waitForCkeditor("BACTERIA.GENOTYPE"))
+                             .then(() => TestUtil.ckeditorDropFile("BACTERIA.GENOTYPE", "test-image.png", baseURL + pathToResource))
+                             // add mother
+                             .then(() => e.waitForId("plus-btn-bacteria-parents"))
+                             .then(() => e.click("plus-btn-bacteria-parents"))
+                             .then(() => e.waitForId("bac1-column-id"))
+                             .then(() => e.click("bac1-column-id"))
+                             .then(() => e.waitForId("comments-bac1"))
+                             .then(() => e.change("comments-bac1", "mother"))
+                             // add father
+                             .then(() => e.click("plus-btn-bacteria-parents"))
+                             .then(() => e.waitForId("bac2-column-id"))
+                             .then(() => e.click("bac2-column-id"))
+                             .then(() => e.waitForId("comments-bac2"))
+                             .then(() => e.change("comments-bac2", "father"))
+                             // add Child
+                             .then(() => e.waitForId("plus-btn-children-type-selector"))
+                             .then(() => e.click("plus-btn-children-type-selector"))
+                             .then(() => e.waitForId("sampleTypeSelector"))
+                             .then(() => e.changeSelect2("sampleTypeSelector", "Bacteria"))
+                             .then(() => e.waitForId("bac4-column-id"))
+                             .then(() => e.click("bac4-column-id"))
+                             .then(() => e.waitForId("bac4-operations-column-id"))
+                             // save
+                             .then(() => e.waitForId("save-btn"))
+                             .then(() => e.click("save-btn"))
+                             .then(() => e.waitForId("edit-btn"))
+                             // check parents and children
+                             .then(() => e.waitForId("bac1-column-id"))
+                             .then(() => e.waitForId("bac2-column-id"))
+                             .then(() => e.waitForId("bac4-column-id"))
+                             .then(() => TestUtil.testPassed(7))
+                             .then(() => resolve())
+                             .catch((error) => reject(error));
+        });
+    }
+
+    this.sampleHierarchyAsGraph = function() {
+        return new Promise(function executor(resolve, reject) {
+            var e = EventUtil;
+            Promise.resolve().then(() => e.waitForId("options-menu-btn-sample-view-bacteria"))
+                             .then(() => e.click("options-menu-btn-sample-view-bacteria"))
+                             // show Hierarchy Graph
+                             .then(() => e.waitForId("hierarchy-graph"))
+                             .then(() => e.click("hierarchy-graph"))
+                             // check parents and children
+                             .then(() => e.waitForId("bac1"))
+                             .then(() => e.waitForId("bac2"))
+                             .then(() => e.waitForId("bac3"))
+                             .then(() => e.waitForId("bac4"))
+                             .then(() => TestUtil.testPassed(8))
+                             .then(() => resolve())
+                             .catch((error) => reject(error));
+        });
+    }
+
+    this.sampleHierarchyAsTable = function() {
+        var parentAnnotations = "<b>Code</b>: BAC1, <b>Comments</b>: mother<br><br><b>Code</b>: BAC2, <b>Comments</b>: father";
+        var childrenAnnotations = "<b>Code</b>: BAC4";
+
+        return new Promise(function executor(resolve, reject) {
+            var e = EventUtil;
+
+            // return to bacteria 3
+            Promise.resolve().then(() => e.waitForId("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
+                             .then(() => e.click("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
+                             .then(() => e.waitForId("bac3-column-id"))
+                             .then(() => e.click("bac3-column-id"))
+                             // show Hierarchy Graph
+                             .then(() => e.waitForId("options-menu-btn-sample-view-bacteria"))
+                             .then(() => e.click("options-menu-btn-sample-view-bacteria"))
+                             .then(() => e.waitForId("hierarchy-table"))
+                             .then(() => e.click("hierarchy-table"))
+                             .then(() => e.sleep(2000)) // wait for table
+                             // show Identifier
+                             .then(() => e.waitForId("columns-dropdown-id"))
+                             .then(() => e.click("columns-dropdown-id"))
+                             .then(() => e.waitForId("identifier-cln"))
+                             .then(() => e.click("identifier-cln"))
+                             .then(() => e.click("columns-dropdown-id"))
+                             // check parents and children
+                             .then(() => e.waitForId("bac1"))
+                             .then(() => e.waitForId("bac2"))
+                             .then(() => e.waitForId("bac3"))
+                             .then(() => e.equalTo("children-annotations-bac3", childrenAnnotations, true, false))
+                             .then(() => e.waitForId("bac4"))
+                             // show the Parent/Annotations column
+                             .then(() => e.waitForId("columns-dropdown-id"))
+                             .then(() => e.click("columns-dropdown-id"))
+                             .then(() => e.waitForId("parentannotations-cln"))
+                             .then(() => e.click("parentannotations-cln"))
+                             .then(() => e.click("columns-dropdown-id"))
+                             // check parents comments
+                             .then(() => e.waitForId("parent-annotations-bac3"))
+                             .then(() => e.equalTo("parent-annotations-bac3", parentAnnotations, true, false))
+                             .then(() => TestUtil.testPassed(9))
+                             .then(() => resolve())
+                             .catch((error) => reject(error));
+        });
+    }
+
+    this.copySampleForm = function() {
+        return new Promise(function executor(resolve, reject) {
+            var e = EventUtil;
+
+            // return to bacteria 3
+            Promise.resolve().then(() => e.waitForId("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
+                             .then(() => e.click("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
+                             .then(() => e.waitForId("bac3-column-id"))
+                             .then(() => e.click("bac3-column-id"))
+                             .then(() => e.waitForId("edit-btn"))
+                             // copy
+                             .then(() => e.waitForId("options-menu-btn-sample-view-bacteria"))
+                             .then(() => e.click("options-menu-btn-sample-view-bacteria"))
+                             .then(() => e.waitForId("copy"))
+                             .then(() => e.click("copy"))
+                             // link parents
+                             .then(() => e.waitForId("linkParentsOnCopy"))
+                             .then(() => e.checked("linkParentsOnCopy", true))
+                             .then(() => e.waitForId("copyChildrenToParent"))
+                             .then(() => e.checked("copyChildrenToParent", true))
+                             .then(() => e.waitForId("copyAccept"))
+                             .then(() => e.click("copyAccept"))
+                             .then(() => e.sleep(3500)) // wait when copy will finished
+                             // go to bac1
+                             .then(() => e.waitForId("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
+                             .then(() => e.click("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
+                             .then(() => e.waitForId("bac1-column-id"))
+                             .then(() => e.click("bac1-column-id"))
+                             // check new object in bac1 graph
+                             .then(() => e.waitForId("options-menu-btn-sample-view-bacteria"))
+                             .then(() => e.click("options-menu-btn-sample-view-bacteria"))
+                             .then(() => e.waitForId("hierarchy-graph"))
+                             .then(() => e.click("hierarchy-graph"))
+                             // origin bacteria
+                             .then(() => e.waitForId("bac3"))
+                             .then(() => e.waitForId("bac4"))
+                             // copy of origin bacteria
+                             .then(() => e.waitForId("bac5"))
+                             .then(() => e.waitForId("bac5_bac4"))
+                             .then(() => TestUtil.testPassed(10))
+                             .then(() => resolve())
+                             .catch((error) => reject(error));
+        });
+    }
+
+    this.deleteSampleForm = function() {
+
+        return new Promise(function executor(resolve, reject) {
+            var e = EventUtil;
+            Promise.resolve().then(() => e.waitForId("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
+                             // navigation to BAC5
+                             .then(() => e.click("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
+                             .then(() => e.waitForId("bac5-column-id"))
+                             .then(() => e.click("bac5-column-id"))
+                             // delete
+                             .then(() => e.waitForId("options-menu-btn-sample-view-bacteria"))
+                             .then(() => e.click("options-menu-btn-sample-view-bacteria"))
+                             .then(() => e.waitForId("delete"))
+                             .then(() => e.click("delete"))
+                             // fill Confirm form
+                             .then(() => e.waitForId("reason-to-delete-id"))
+                             .then(() => e.write("reason-to-delete-id", "test"))
+                             .then(() => e.waitForId("accept-btn"))
+                             .then(() => e.click("accept-btn"))
+                             //You should see the error
+                             .then(() => e.waitForId("jNotifyDismiss"))
+                             .then(() => e.click("jNotifyDismiss"))
+                             .then(() => TestUtil.testPassed(11))
+                             .then(() => resolve())
+                             .catch((error) => reject(error));
+        });
+    }
+
+    this.exportsImportsUpdate = function() {
+        var baseURL = location.protocol + '//' + location.host + location.pathname;
+        var pathToCheckResource = "js/test/resources/exportedTableAllColumnsAllRows.tsv";
+        var pathToUpdateResource = "js/test/resources/updateAllColumnsAllRows.tsv";
+
+        return new Promise(function executor(resolve, reject) {
+            var e = EventUtil;
+            Promise.resolve().then(() => TestUtil.overloadSaveAs())
+                             .then(() => e.waitForId("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
+                             .then(() => e.click("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
+                             // export all columns with all rows
+                             .then(() => e.waitForId("export-btn-id"))
+                             .then(() => e.click("export-btn-id"))
+                             .then(() => e.waitForId("export-all-columns-and-rows"))
+                             .then(() => e.click("export-all-columns-and-rows"))
+                             .then(() => e.sleep(3000)) // wait for download
+                             .then(() => TestUtil.checkFileEquality("exportedTableAllColumnsAllRows.tsv", baseURL + pathToCheckResource, TestUtil.idReplacer))
+                             .then(() => e.equalTo("bac1-column-id", "Aurantimonas", true, false))
+                             .then(() => e.equalTo("bac2-column-id", "Burantimonas", true, false))
+                             .then(() => e.equalTo("bac3-column-id", "Curantimonas", true, false))
+                             .then(() => e.equalTo("bac4-column-id", "Durantimonas", true, false))
+                             .then(() => e.equalTo("bac5-column-id", "Curantimonas", true, false))
+                             .then(() => e.equalTo("bac5_bac4-column-id", "Durantimonas", true, false))
+                             // Batch Update Objects
+                             .then(() => UserTests.importBacteriasFromFile(baseURL + pathToUpdateResource, false))
+                             .then(() => e.sleep(3500)) // wait for import
+                             // check names after update
+                             .then(() => e.equalTo("bac1-column-id", "AA", true, false))
+                             .then(() => e.equalTo("bac2-column-id", "BB", true, false))
+                             .then(() => e.equalTo("bac3-column-id", "CC", true, false))
+                             .then(() => e.equalTo("bac4-column-id", "DD", true, false))
+                             .then(() => e.equalTo("bac5-column-id", "EE", true, false))
+                             .then(() => e.equalTo("bac5_bac4-column-id", "FF", true, false))
+                             .then(() => TestUtil.returnRealSaveAs())
+                             .then(() => TestUtil.testPassed(12))
+                             .then(() => resolve())
+                             .catch((error) => reject(error));
         });
     }
 
@@ -126,13 +323,18 @@ var UserTests = new function() {
 
         return new Promise(function executor(resolve, reject) {
             var e = EventUtil;
-            Promise.resolve().then(() => UserTests.importBacteriasFromFile(baseURL + pathToResource))
+            Promise.resolve().then(() => e.waitForId("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
+                             .then(() => e.click("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
+                             .then(() => UserTests.importBacteriasFromFile(baseURL + pathToResource, true))
+                             .then(() => e.sleep(3500)) // wait for saving
                              // check that bacterias was created
-                             .then(() => e.waitForId("bac5-column-id"))
                              .then(() => e.waitForId("bac6-column-id"))
                              .then(() => e.waitForId("bac7-column-id"))
                              .then(() => e.waitForId("bac8-column-id"))
-                             .then(() => resolve());
+                             .then(() => e.waitForId("bac9-column-id"))
+                             .then(() => TestUtil.testPassed(13))
+                             .then(() => resolve())
+                             .catch((error) => reject(error));
         });
     }
 
@@ -142,34 +344,45 @@ var UserTests = new function() {
 
         return new Promise(function executor(resolve, reject) {
             var e = EventUtil;
-            Promise.resolve().then(() => UserTests.importBacteriasFromFile(baseURL + pathToResource))
+            Promise.resolve().then(() => UserTests.importBacteriasFromFile(baseURL + pathToResource, true))
+                             .then(() => e.sleep(3500)) // wait for saving
                              // check that bacterias was created
-                             .then(() => e.waitForId("bac10-column-id"))
-                             .then(() => e.waitForId("bac11-column-id"))
                              .then(() => e.waitForId("next-page-id"))
                              .then(() => e.click("next-page-id"))
+                             .then(() => e.waitForId("bac10-column-id"))
+                             .then(() => e.waitForId("bac11-column-id"))
                              .then(() => e.waitForId("bac12-column-id"))
                              .then(() => e.waitForId("bac13-column-id"))
-                             .then(() => resolve());
+                             .then(() => TestUtil.testPassed(14))
+                             .then(() => resolve())
+                             .catch((error) => reject(error));
         });
     }
 
-    this.importBacteriasFromFile = function(file) {
+    this.importBacteriasFromFile = function(file, isNew) {
         return new Promise(function executor(resolve, reject) {
             var e = EventUtil;
 
-            Promise.resolve().then(() => e.waitForId("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
-                             .then(() => e.click("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
-                             .then(() => e.waitForId("sample-options-menu-btn"))
-                             .then(() => e.click("sample-options-menu-btn"))
-                             .then(() => e.waitForId("register-object-btn"))
-                             .then(() => e.click("register-object-btn"))
-                             .then(() => e.waitForId("choose-type-btn"))
-                             .then(() => e.change("choose-type-btn", "BACTERIA", false))
-                             .then(() => TestUtil.setFile("name", file, "text"))
-                             .then(() => e.waitForId("accept-type-file"))
-                             .then(() => e.click("accept-type-file"))
-                             .then(() => resolve());
+            var testChain = Promise.resolve();
+
+            testChain.then(() => e.waitForId("sample-options-menu-btn"))
+                     .then(() => e.click("sample-options-menu-btn"));
+
+            if (isNew) {
+                testChain.then(() => e.waitForId("register-object-btn"))
+                         .then(() => e.click("register-object-btn"));
+            } else {
+                testChain.then(() => e.waitForId("update-object-btn"))
+                         .then(() => e.click("update-object-btn"));
+            }
+
+            testChain.then(() => e.waitForId("choose-type-btn"))
+                     .then(() => e.change("choose-type-btn", "BACTERIA", false))
+                     .then(() => TestUtil.setFile("name", file, "text"))
+                     .then(() => e.waitForId("accept-type-file"))
+                     .then(() => e.click("accept-type-file"))
+                     .then(() => resolve())
+                     .catch((error) => reject(error));
         });
     }
 
@@ -186,7 +399,7 @@ var UserTests = new function() {
                              // we wait for the save-button, cause page contains add-storage-btn
                              // even when page can't be edit. So we wait when page be reloaded.
                              .then(() => e.waitForId("save-btn"))
-                             .then(() => e.sleep(2000))
+                             .then(() => e.sleep(2000)) // wait for saving
                              .then(() => e.waitForId("add-storage-btn"))
                              .then(() => e.click("add-storage-btn"))
                              .then(() => e.waitForId("storage-drop-down-id"))
@@ -204,7 +417,9 @@ var UserTests = new function() {
                              .then(() => e.click("save-btn"))
                              // check that new storage was created
                              .then(() => e.waitForId("testbox-c2-id"))
-                             .then(() => resolve());
+                             .then(() => TestUtil.testPassed(15))
+                             .then(() => resolve())
+                             .catch((error) => reject(error));
         });
     }
 
@@ -225,8 +440,10 @@ var UserTests = new function() {
                              .then(() => e.dragAndDrop("storage-drop-down-id-a-1-2-storage-box", "storage-drop-down-id-b-1-1", false))
                              .then(() => e.equalTo("change-log-container-id", "None", false, false))
                              .then(() => e.click("save-changes-btn"))
-                             .then(() => e.sleep(3000))
-                             .then(() => resolve());
+                             .then(() => e.sleep(3000)) // wait for saving
+                             .then(() => TestUtil.testPassed(16))
+                             .then(() => resolve())
+                             .catch((error) => reject(error));
         });
     }
 
@@ -245,6 +462,7 @@ var UserTests = new function() {
                              .then(() => e.dragAndDrop("storage-drop-down-id-a-C-2-storage-box", "storage-drop-down-id-a-A-3", false))
                              .then(() => e.equalTo("change-log-container-id", "None", false, false))
                              .then(() => e.click("save-changes-btn"))
+                             .then(() => e.sleep(3000)) // wait for saving
                              // Open object BAC1 and verify storage.
                              .then(() => e.waitForId("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
                              .then(() => e.click("_MATERIALS_BACTERIA_BACTERIA_COLLECTION"))
@@ -252,8 +470,9 @@ var UserTests = new function() {
                              .then(() => e.click("bac1-column-id"))
                              .then(() => e.waitForId("testbox-a3-id"))
                              .then(() => e.equalTo("testbox-a3-id", "Test Box - A3", true, false))
-                             .then(() => e.sleep(3000))
-                             .then(() => resolve());
+                             .then(() => TestUtil.testPassed(17))
+                             .then(() => resolve())
+                             .catch((error) => reject(error));
         });
     }
 
@@ -274,7 +493,9 @@ var UserTests = new function() {
                              .then(() => e.waitForId("save-btn"))
                              .then(() => e.click("save-btn"))
                              .then(() => e.waitForId("edit-btn"))
-                             .then(() => resolve());
+                             .then(() => TestUtil.testPassed(18))
+                             .then(() => resolve())
+                             .catch((error) => reject(error));
         });
     }
 
@@ -301,7 +522,9 @@ var UserTests = new function() {
                              .then(() => e.waitForId("save-btn"))
                              .then(() => e.click("save-btn"))
                              .then(() => e.waitForId("edit-btn"))
-                             .then(() => resolve());
+                             .then(() => TestUtil.testPassed(19))
+                             .then(() => resolve())
+                             .catch((error) => reject(error));
         });
     }
 
@@ -364,7 +587,9 @@ var UserTests = new function() {
                              .then(() => e.change("END_DATE", "", false))
                              .then(() => e.waitForId("save-btn"))
                              .then(() => e.click("save-btn"))
-                             .then(() => resolve());
+                             .then(() => TestUtil.testPassed(20))
+                             .then(() => resolve())
+                             .catch((error) => reject(error));
         });
     }
 
@@ -394,8 +619,8 @@ var UserTests = new function() {
                              .then(() => e.waitForId("START_DATE"))
                              .then(() => e.change("START_DATE", tomorrow, false))
                              // add protocol
-                             .then(() => e.waitForId("plus-btn-general_protocol"))
-                             .then(() => e.click("plus-btn-general_protocol"))
+                             .then(() => e.waitForId("plus-btn-general-protocol"))
+                             .then(() => e.click("plus-btn-general-protocol"))
                              .then(() => e.waitForId("gen1-column-id"))
                              .then(() => e.click("gen1-column-id"))
                              // Operations
@@ -428,7 +653,9 @@ var UserTests = new function() {
                              // save
                              .then(() => e.waitForId("save-btn"))
                              .then(() => e.click("save-btn"))
-                             .then(() => resolve());
+                             .then(() => TestUtil.testPassed(21))
+                             .then(() => resolve())
+                             .catch((error) => reject(error));
         });
     }
 
@@ -467,14 +694,16 @@ var UserTests = new function() {
                              .then(() => e.change("NAME", "New Name", false))
                              .then(() => e.click("save-btn"))
                              .then(() => e.waitForId("dataset-edit-btn"))
-                             .then(() => resolve());
+                             .then(() => TestUtil.testPassed(23))
+                             .then(() => resolve())
+                             .catch((error) => reject(error));
         });
     }
 
     this.showInProjectOverview = function() {
         return new Promise(function executor(resolve, reject) {
             var e = EventUtil;
-                             // go to project 101
+
             Promise.resolve().then(() => e.waitForId("PATH_TESTID_PROJECT_101"))
                              .then(() => e.click("PATH_TESTID_PROJECT_101"))
                              // click "Show Experiments"
@@ -495,7 +724,244 @@ var UserTests = new function() {
                              .then(() => e.click("options-menu-btn-objects"))
                              .then(() => e.waitForId("project-samples"))
                              .then(() => e.waitForStyle("project-samples", "display", "", false))
-                             .then(() => resolve());
+                             .then(() => TestUtil.testPassed(25))
+                             .then(() => resolve())
+                             .catch((error) => reject(error));
         });
     }
+
+    this.search = function() {
+        return new Promise(function executor(resolve, reject) {
+            var e = EventUtil;
+
+            Promise.resolve().then(() => e.waitForId("search"))
+                             // start global search
+                             .then(() => e.click("search"))
+                             .then(() => e.change("search", "BAC5", false))
+                             .then(() => e.keypress("search", 13, false))
+                             .then(() => e.waitForId("save-btn"))
+                             // check searching results
+                             .then(() => e.waitForId("columns-dropdown-id"))
+                             .then(() => e.click("columns-dropdown-id"))
+                             .then(() => e.waitForId("code-cln"))
+                             .then(() => e.click("code-cln"))
+                             .then(() => e.click("columns-dropdown-id"))
+                             .then(() => e.waitForId("bac5-id"))
+                             .then(() => e.waitForId("bac5_bac4-id"))
+                             // save query
+                             .then(() => e.waitForId("save-btn"))
+                             .then(() => e.click("save-btn"))
+                             .then(() => e.waitForId("Name"))
+                             .then(() => e.write("Name", "Search for BAC5", false))
+                             .then(() => e.waitForId("search-query-save-btn"))
+                             .then(() => e.click("search-query-save-btn"))
+                             .then(() => e.sleep(3000)) // wait for saving
+                             // Click on BAC5
+                             .then(() => e.waitForId("bac5-id"))
+                             .then(() => e.click("bac5-id"))
+                             .then(() => e.waitForId("edit-btn"))
+                             // Click on Advanced Search
+                             .then(() => e.waitForId("ADVANCED_SEARCH"))
+                             .then(() => e.click("ADVANCED_SEARCH"))
+                             .then(() => e.waitForId("saved-search-dropdown-id"))
+                             .then(() => e.triggerSelectSelect2("saved-search-dropdown-id", 0, false))
+                             .then(() => e.waitForId("search-btn"))
+                             .then(() => e.click("search-btn"))
+                             // check search results
+                             .then(() => e.waitForId("bac5-id"))
+                             .then(() => e.waitForId("bac5_bac4-id"))
+                             .then(() => TestUtil.testPassed(26))
+                             .then(() => resolve())
+                             .catch((error) => reject(error));
+        });
+    }
+
+    this.supplierForm = function() {
+        return new Promise(function executor(resolve, reject) {
+            var e = EventUtil;
+
+            Promise.resolve().then(() => e.waitForId("STOCK_CATALOG"))
+                             // path to Supplier Collection
+                             .then(() => e.click("STOCK_CATALOG"))
+                             .then(() => e.waitForId("SUPPLIERS"))
+                             .then(() => e.click("SUPPLIERS"))
+                             //create English supplier
+                             .then(() => UserTests.createSupplier("EN", "ENGLISH", "companyen@email.com"))
+                             //create German supplier
+                             .then(() => UserTests.createSupplier("DE", "GERMAN", "companyde@email.com"))
+                             .then(() => TestUtil.testPassed(27))
+                             .then(() => resolve())
+                             .catch((error) => reject(error));
+        });
+    }
+
+    this.createSupplier = function(langCode, language, email) {
+        return new Promise(function executor(resolve, reject) {
+            var e = EventUtil;
+
+            Promise.resolve().then(() => e.waitForId("_STOCK_CATALOG_SUPPLIERS_SUPPLIER_COLLECTION"))
+                             .then(() => e.click("_STOCK_CATALOG_SUPPLIERS_SUPPLIER_COLLECTION"))
+                             .then(() => e.waitForId("create-btn"))
+                             .then(() => e.click("create-btn"))
+                             .then(() => e.waitForId("save-btn"))
+                             .then(() => e.waitForFill("codeId"))
+                             .then(() => e.waitForId("NAME"))
+                             .then(() => e.change("NAME", "Company " + langCode + " Name"))
+                             .then(() => e.waitForId("SUPPLIERCOMPANY_ADDRESS_LINE_1"))
+                             .then(() => e.change("SUPPLIERCOMPANY_ADDRESS_LINE_1", "Company " + langCode + " Address"))
+                             .then(() => e.waitForId("SUPPLIERCOMPANY_EMAIL"))
+                             .then(() => e.change("SUPPLIERCOMPANY_EMAIL", email))
+                             .then(() => e.waitForId("SUPPLIERCOMPANY_LANGUAGE"))
+                             .then(() => e.changeSelect2("SUPPLIERCOMPANY_LANGUAGE", language))
+                             .then(() => e.waitForId("SUPPLIERCUSTOMER_NUMBER"))
+                             .then(() => e.change("SUPPLIERCUSTOMER_NUMBER", langCode + "001"))
+                             .then(() => e.waitForId("SUPPLIERPREFERRED_ORDER_METHOD"))
+                             .then(() => e.changeSelect2("SUPPLIERPREFERRED_ORDER_METHOD", "MANUAL"))
+                             .then(() => e.waitForId("save-btn"))
+                             .then(() => e.click("save-btn"))
+                             .then(() => e.waitForId("edit-btn")) // wait for saving
+                             .then(() => resolve())
+                             .catch((error) => reject(error));
+        });
+    }
+
+    this.productForm = function() {
+        return new Promise(function executor(resolve, reject) {
+            var e = EventUtil;
+
+            Promise.resolve().then(() => e.waitForId("STOCK_CATALOG"))
+                             // path to Product Collection
+                             .then(() => e.click("STOCK_CATALOG"))
+                             .then(() => e.waitForId("PRODUCTS"))
+                             .then(() => e.click("PRODUCTS"))
+                             //create English product form
+                             .then(() => UserTests.createProductForm("EN", "EUR", "sup1-column-id"))
+                             //create German product form
+                             .then(() => UserTests.createProductForm("DE", "EUR", "sup2-column-id"))
+                             .then(() => TestUtil.testPassed(28))
+                             .then(() => resolve())
+                             .catch((error) => reject(error));
+        });
+    }
+
+    this.createProductForm = function(langCode, currency, supId) {
+        return new Promise(function executor(resolve, reject) {
+            var e = EventUtil;
+
+            Promise.resolve().then(() => e.waitForId("_STOCK_CATALOG_PRODUCTS_PRODUCT_COLLECTION"))
+                             .then(() => e.click("_STOCK_CATALOG_PRODUCTS_PRODUCT_COLLECTION"))
+                             .then(() => e.waitForId("create-btn"))
+                             .then(() => e.click("create-btn"))
+                             .then(() => e.waitForId("save-btn"))
+                             .then(() => e.waitForFill("codeId"))
+                             .then(() => e.waitForId("NAME"))
+                             .then(() => e.change("NAME", "Product " + langCode + " Name"))
+                             .then(() => e.waitForId("PRODUCTCATALOG_NUM"))
+                             .then(() => e.change("PRODUCTCATALOG_NUM", "CC " + langCode))
+                             .then(() => e.waitForId("PRODUCTPRICE_PER_UNIT"))
+                             .then(() => e.change("PRODUCTPRICE_PER_UNIT", 2))
+                             .then(() => e.waitForId("PRODUCTCURRENCY"))
+                             .then(() => e.changeSelect2("PRODUCTCURRENCY", currency))
+                             .then(() => e.waitForId("save-btn"))
+                             .then(() => e.click("save-btn"))
+                             // Error: Currently only have 0 of the 1 required SUPPLIER.
+                             .then(() => e.waitForId("jNotifyDismiss"))
+                             .then(() => e.click("jNotifyDismiss"))
+                             .then(() => e.waitForId("plus-btn-suppliers"))
+                             .then(() => e.click("plus-btn-suppliers"))
+                             .then(() => e.waitForId(supId))
+                             .then(() => e.click(supId))
+                             .then(() => e.sleep(2000)) // wait for form's update
+                             .then(() => e.waitForId("save-btn"))
+                             .then(() => e.click("save-btn"))
+                             .then(() => e.waitForId("edit-btn")) // wait for saving
+                             .then(() => resolve())
+                             .catch((error) => reject(error));
+        });
+    }
+
+     this.requestForm = function() {
+         return new Promise(function executor(resolve, reject) {
+             var e = EventUtil;
+
+             Promise.resolve().then(() => e.waitForId("STOCK_CATALOG"))
+                              // path to Request Collection
+                              .then(() => e.click("STOCK_CATALOG"))
+                              .then(() => e.waitForId("REQUESTS"))
+                              .then(() => e.click("REQUESTS"))
+                              // create Request with Products from Catalog
+                              .then(() => e.waitForId("_STOCK_CATALOG_REQUESTS_REQUEST_COLLECTION"))
+                              .then(() => e.click("_STOCK_CATALOG_REQUESTS_REQUEST_COLLECTION"))
+                              .then(() => e.waitForId("create-btn"))
+                              .then(() => e.click("create-btn"))
+                              .then(() => e.waitForId("ORDERINGORDER_STATUS"))
+                              .then(() => e.changeSelect2("ORDERINGORDER_STATUS", "NOT_YET_ORDERED"))
+                              // add Products from Catalog
+                              .then(() => e.waitForId("plus-btn-products"))
+                              .then(() => e.click("plus-btn-products"))
+                              .then(() => e.waitForId("pro1-column-id"))
+                              .then(() => e.click("pro1-column-id"))
+                              .then(() => e.waitForId("quantity-of-items-pro1"))
+                              .then(() => e.change("quantity-of-items-pro1", "18"))
+                              .then(() => e.waitForId("save-btn"))
+                              .then(() => e.click("save-btn"))
+                              .then(() => e.waitForId("edit-btn")) // wait for saving
+                              // create Request with new Product
+                              .then(() => e.waitForId("_STOCK_CATALOG_REQUESTS_REQUEST_COLLECTION"))
+                              .then(() => e.click("_STOCK_CATALOG_REQUESTS_REQUEST_COLLECTION"))
+                              .then(() => e.waitForId("create-btn"))
+                              .then(() => e.click("create-btn"))
+                              .then(() => e.waitForId("ORDERINGORDER_STATUS"))
+                              .then(() => e.changeSelect2("ORDERINGORDER_STATUS", "NOT_YET_ORDERED"))
+                              .then(() => e.waitForId("add-new-product-btn"))
+                              .then(() => e.click("add-new-product-btn"))
+                              // fill new product
+                              .then(() => e.waitForId("new-product-name-1"))
+                              .then(() => e.change("new-product-name-1", "Product EN 2 Name"))
+                              .then(() => e.waitForId("new-product-currency-1"))
+                              .then(() => e.changeSelect2("new-product-currency-1", "CHF"))
+                              .then(() => e.waitForId("new-product-supplier-1"))
+                              .then(() => e.changeSelect2("new-product-supplier-1", "/STOCK_CATALOG/SUPPLIERS/SUP1"))
+                              .then(() => e.waitForId("new-product-quantity-1"))
+                              .then(() => e.change("new-product-quantity-1", "18"))
+                              .then(() => e.waitForId("save-btn"))
+                              .then(() => e.click("save-btn"))
+                              .then(() => e.waitForId("edit-btn")) // wait for saving
+                              .then(() => TestUtil.testPassed(29))
+                              .then(() => resolve())
+                              .catch((error) => reject(error));
+         });
+     }
+
+     this.orderForm = function() {
+         return new Promise(function executor(resolve, reject) {
+             var e = EventUtil;
+
+             Promise.resolve().then(() => e.waitForId("STOCK_ORDERS"))
+                              // path to Order Collection
+                              .then(() => e.click("STOCK_ORDERS"))
+                              .then(() => e.waitForId("ORDERS"))
+                              .then(() => e.click("ORDERS"))
+                              .then(() => e.waitForId("_STOCK_ORDERS_ORDERS_ORDER_COLLECTION"))
+                              .then(() => e.click("_STOCK_ORDERS_ORDERS_ORDER_COLLECTION"))
+                              // wait page reload
+                              .then(() => e.waitForId("sample-options-menu-btn"))
+                              // There should be no + button
+                              .then(() => e.verifyExistence("create-btn", false))
+                              .then(() => TestUtil.testPassed(30))
+                              .then(() => resolve())
+                              .catch((error) => reject(error));
+         });
+      }
+
+     this.logout = function() {
+         return new Promise(function executor(resolve, reject) {
+            var e = EventUtil;
+
+            Promise.resolve().then(() => TestUtil.setCookies("suitename", "finishTest"))
+                             .then(() => e.click("logoutBtn"))
+                             .then(() => resolve())
+                             .catch((error) => reject(error));
+         });
+     }
 }

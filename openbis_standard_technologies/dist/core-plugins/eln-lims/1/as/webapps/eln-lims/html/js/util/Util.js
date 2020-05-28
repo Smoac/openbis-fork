@@ -161,7 +161,8 @@ var Util = new function() {
 		this.showError("Call failed to server: " + (msg ? msg : JSON.stringify(error)));
 	}
 	
-	this.showError = function(withHTML, andCallback, noBlock, isUserError, isEnvironmentError, disableReport) {		
+	this.showError = function(withHTML, andCallback, noBlock, isUserError, isEnvironmentError, disableReport) {
+	    disableReport = true; // Report permanently disabled
 		var userErrorWarning = "";
 		if(isUserError) {
 			userErrorWarning = "<b>This error looks like a user error:</b>" + "<br>";

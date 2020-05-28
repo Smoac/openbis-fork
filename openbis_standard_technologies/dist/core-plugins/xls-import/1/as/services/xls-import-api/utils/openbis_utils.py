@@ -1,5 +1,6 @@
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id import SampleIdentifier
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id import ProjectIdentifier
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id import ExperimentIdentifier
 import os
 
 # TODO DRY IT WITH CreationTYpes in definition_to_creation!!!
@@ -30,7 +31,10 @@ def create_project_identifier_string(project_creation):
     return str(project_identifier)
 
 def create_experiment_identifier_string(experiment_creation):
-    pass
+    projectId = str(experiment_creation.projectId)
+    code = experiment_creation.code
+    experiment_identifier = ExperimentIdentifier(projectId + "/" + code)
+    return str(experiment_identifier)
 
 
 def get_filename_from_path(path):

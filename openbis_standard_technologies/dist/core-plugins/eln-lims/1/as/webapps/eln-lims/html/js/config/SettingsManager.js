@@ -81,6 +81,10 @@ function SettingsManager(serverFacade) {
 		return profile.allSpaces;
 	}
 
+    this.getInventorySpacesReadOnlyOptions = function() {
+		return profile.allSpaces;
+	}
+
 	this.getSampleTypeOptions = function() {
 		return profile.getAllSampleTypes().map( function(_) { return _.code; } )
 	}
@@ -99,17 +103,21 @@ function SettingsManager(serverFacade) {
 			"hideSectionsByDefault"
 		];
 		for (var field of fieldsToOverride) {
-			if (settings[field] != null) {
+			if (settings[field] !== null && settings[field] !== undefined) {
 				targetProfile[field] = settings[field];
 			}
 		}
 		
 		// array fields to add/remove values to defaults
 		var fieldsToAdd = [
-			"inventorySpaces"
+			"inventorySpaces", "inventorySpacesReadOnly"
 		];
+
 		for (var field of fieldsToAdd) {
-			targetProfile[field] = settings[field];
+		    // We add fields only if they have been populated, to avoid overriding new ones
+		    if(settings[field] !== null && settings[field] !== undefined) {
+			    targetProfile[field] = settings[field];
+			}
 		}
 		
 		// main menu, checks menu items one by one to keep new ones
@@ -155,6 +163,13 @@ function SettingsManager(serverFacade) {
 
     this._validateSpaces = function(settings, errors) {
         if(settings.inventorySpaces) {
+            for(var idx = 0; idx < settings.inventorySpaces.length; idx++) {
+                if(!settings.inventorySpaces[idx]) {
+                    errors.push("Empty value found instead of a space, please delete it before save.");
+                }
+            }
+        }
+        if(settings.inventorySpacesReadOnly) {
             for(var idx = 0; idx < settings.inventorySpaces.length; idx++) {
                 if(!settings.inventorySpaces[idx]) {
                     errors.push("Empty value found instead of a space, please delete it before save.");

@@ -432,10 +432,10 @@ function AdvancedSearchController(mainController, forceSearch) {
 
 	this._ensureExperiment = function(dummyExperiment, callback) {
 		var _this = this;
-		_this._mainController.serverFacade.searchExperiments(
-			dummyExperiment.projectCode, dummyExperiment.code, function(result) {
-				if (result != null && result.objects != null && result.objects.length > 0) {
-					callback(result.objects[0]);
+		_this._mainController.serverFacade.getExperimentOrNull(
+			dummyExperiment.identifier.identifier, function(experiment) {
+				if (experiment != null) {
+					callback(experiment);
 				} else {
 					var experimentTypePermId = 'COLLECTION';
 					_this._mainController.serverFacade.createExperiment(

@@ -97,7 +97,8 @@ function HierarchyTableView(controller, model) {
 				property : 'identifier',
 				sortable : true,
 				render : function(data) {
-					return FormUtil.getFormLink(data.identifier, "Sample", data.permId, null);
+				    var id = data.code.toLowerCase();
+					return FormUtil.getFormLink(data.identifier, "Sample", data.permId, null, id);
 				}
 			});
 		}
@@ -127,7 +128,10 @@ function HierarchyTableView(controller, model) {
 				property : 'parentAnnotations',
 				sortable : true,
 				render : function(data) {
-					return _this._annotationsRenderer(_this._model.relationShipsMap[data.permId].parents, data.entity);
+				    var id = "parent-annotations-" + data.entity.code.toLowerCase();
+				    var $component = $("<div>", { id : id });
+				    $component.append(_this._annotationsRenderer(_this._model.relationShipsMap[data.permId].parents, data.entity));
+				    return $component;
 				}
 			});
 			columns.push({
@@ -135,7 +139,10 @@ function HierarchyTableView(controller, model) {
 				property : 'childrenAnnotations',
 				sortable : true,
 				render : function(data) {
-					return _this._annotationsRenderer(_this._model.relationShipsMap[data.permId].children, data.entity);
+					var id = "children-annotations-" + data.entity.code.toLowerCase();
+                    var $component = $("<div>", { id : id });
+                    $component.append(_this._annotationsRenderer(_this._model.relationShipsMap[data.permId].children, data.entity));
+                    return $component;
 				}
 			});
 		}

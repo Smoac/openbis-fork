@@ -710,6 +710,8 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 					if(this._dataSetFormModel.mode === FormMode.VIEW) {
 						if(Util.getEmptyIfNull(value) !== "") { //Don't show empty fields, whole empty sections will show the title
                             var customWidget = profile.customWidgetSettings[propertyType.code];
+						    var forceDisableRTF = profile.isForcedDisableRTF(propertyType);
+                            if(customWidget && !forceDisableRTF) {
                                 if (customWidget === 'Spreadsheet') {
                                     var $jexcelContainer = $("<div>");
                                     JExcelEditorManager.createField($jexcelContainer, this._dataSetFormModel.mode, propertyType.code, this._dataSetFormModel.dataSet);
@@ -720,13 +722,14 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
                                     $component = FormUtil.activateRichTextProperties($component, undefined, propertyType, value, true);
                                     $controlGroup = FormUtil.getFieldForComponentWithLabel($component, propertyType.label);
                                     $fieldset.append($controlGroup);
-                                } else {
-                                    $controlGroup = FormUtil.createPropertyField(propertyType, value);
-                                    $fieldset.append($controlGroup);
                                 }
                             } else {
-                                continue;
+                                $controlGroup = FormUtil.createPropertyField(propertyType, value);
+                                $fieldset.append($controlGroup);
                             }
+                        } else {
+                            continue;
+                        }
 					} else {
 						var $controlGroup = $('<div>', {class : 'form-group'});
 						var requiredStar = (propertyType.mandatory)?"&nbsp;(*)":"";				
@@ -778,7 +781,9 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 						}
 						
 						var customWidget = profile.customWidgetSettings[propertyType.code];
-                        if(customWidget) {
+						var forceDisableRTF = profile.isForcedDisableRTF(propertyType);
+
+                        if(customWidget && !forceDisableRTF) {
                             switch(customWidget) {
                                 case 'Word Processor':
                                     if(propertyType.dataType === "MULTILINE_VARCHAR") {

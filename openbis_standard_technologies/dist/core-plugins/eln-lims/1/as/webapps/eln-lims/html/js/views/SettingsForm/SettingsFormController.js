@@ -85,6 +85,7 @@ function SettingsFormController(mainController, settingsSample, mode) {
 	this.getForcedDisableRTFOptions = this._settingsManager.getForcedDisableRTFOptions;
 	this.getForcedMonospaceFontOptions = this._settingsManager.getForcedMonospaceFontOptions;
 	this.getInventorySpacesOptions = this._settingsManager.getInventorySpacesOptions;
+    this.getInventorySpacesReadOnlyOptions = this._settingsManager.getInventorySpacesReadOnlyOptions;
 	this.getSampleTypeOptions = this._settingsManager.getSampleTypeOptions;
 	this.getAnnotationPropertyTypeOptions = this._settingsManager.getAnnotationPropertyTypeOptions;
 

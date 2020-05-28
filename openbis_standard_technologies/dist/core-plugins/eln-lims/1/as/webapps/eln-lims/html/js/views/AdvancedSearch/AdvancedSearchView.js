@@ -125,7 +125,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		    });
 			}
 
-	    var $btnSave = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Save' });
+	    var $btnSave = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Save', 'id' : 'search-query-save-btn' });
 	    var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
 	    $btnCancel.click(function() {
 	      Util.unblockUI();
@@ -190,10 +190,11 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			});
 		}
 		this._$savedSearchesDropdown = FormUtil.getPlainDropdown(savedSearchOptions);
-		this._$savedSearchesDropdown.change(function(change) {
-			var i = _this._$savedSearchesDropdown.val();
-			_this._advancedSearchController.selectSavedSearch(i);
-		});
+		this._$savedSearchesDropdown.attr("id", "saved-search-dropdown-id");
+		this._$savedSearchesDropdown.on("select2:select", function () {
+            var i = _this._$savedSearchesDropdown.val();
+            _this._advancedSearchController.selectSavedSearch(i);
+        });
 		$container.append(this._$savedSearchesDropdown);
 		this._$savedSearchesDropdown.select2({
 			width: '400px',
@@ -209,7 +210,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 
 		var $buttonSave = FormUtil.getButtonWithIcon('glyphicon-floppy-disk', function() {
 			_this._save();
-		}, 'Save');
+		}, 'Save', null, "save-btn");
 		$buttonSave.css({ 'margin-left': '8px'});
 		$container.append($buttonSave);
 
@@ -243,7 +244,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		
 		var $submitButton = FormUtil.getButtonWithIcon('glyphicon-search', function() {
 			_this._advancedSearchController.search();
-		});
+		}, null, null, "search-btn");
 		
 		$submitButton.css("margin-top", "22px");
 		var $submitButtonGroup = FormUtil.getFieldForComponentWithLabel($submitButton, "", null, true);
@@ -707,18 +708,6 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				isExportable: true,
 				sortable : !isGlobalSearch
 			}, {
-				label : 'Name',
-				property : '$NAME',
-				isExportable: true,
-				sortable : !isGlobalSearch,
-				render : function(data) {
-					if(data[profile.propertyReplacingCode]) {
-						return _this._getLinkOnClick(data[profile.propertyReplacingCode], data);
-					} else {
-						return "";
-					}
-				}
-			}, {
 				label : 'Code',
 				property : 'code',
 				isExportable: true,
@@ -733,7 +722,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 								break;
 							}
 						}
-						
+
 						if(indexFound !== null) {
 							paginationInfo = {
 									pagFunction : _this._advancedSearchController.searchWithPagination(_this._advancedSearchModel.criteria, false),
@@ -743,7 +732,20 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 							}
 						}
 					}
-					return _this._getLinkOnClick(data.code, data, paginationInfo);
+					var id = data.code.toLowerCase() + "-id";
+					return _this._getLinkOnClick(data.code, data, paginationInfo, id);
+				}
+			}, {
+				label : 'Name',
+				property : '$NAME',
+				isExportable: true,
+				sortable : !isGlobalSearch,
+				render : function(data) {
+					if(data[profile.propertyReplacingCode]) {
+						return _this._getLinkOnClick(data[profile.propertyReplacingCode], data);
+					} else {
+						return "";
+					}
 				}
 			}, {
 				label : 'Identifier',
@@ -901,16 +903,16 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			return dataGrid;
 	}
 	
-	this._getLinkOnClick = function(code, data, paginationInfo) {
+	this._getLinkOnClick = function(code, data, paginationInfo, id) {
 		if(data.entityKind !== "Sample") {
 			paginationInfo = null;  // TODO - Only supported for samples for now
 		}
 		switch(data.entityKind) {
 			case "Experiment":
-				return FormUtil.getFormLink(code, data.entityKind, data.identifier, paginationInfo);
+				return FormUtil.getFormLink(code, data.entityKind, data.identifier, paginationInfo, id);
 				break;
 			default:
-				return FormUtil.getFormLink(code, data.entityKind, data.permId, paginationInfo);
+				return FormUtil.getFormLink(code, data.entityKind, data.permId, paginationInfo, id);
 				break;
 		}
 	}

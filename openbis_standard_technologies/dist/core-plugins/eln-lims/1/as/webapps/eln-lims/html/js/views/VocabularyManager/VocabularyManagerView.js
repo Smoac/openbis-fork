@@ -32,7 +32,7 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 		});
 		
 		var $containerHeader = $("<div>");
-		$containerHeader.append($("<h2>").append("Vocabulary Browser"));
+		$containerHeader.append($("<h2>", {"id" : "vocabulary-browser-title-id"}).append("Vocabulary Browser"));
 		$containerHeader.append(this._subtitle);
 		views.header.append($containerHeader);
 		views.content.append($containerColumn);
@@ -59,8 +59,10 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 			var dataList = [];
 			for(var idx = 0; idx < _this._vocabularyManagerModel.vocabularies.length; idx++) {
 				var vocabulary =  _this._vocabularyManagerModel.vocabularies[idx];
+				var id = FormUtil.prepareId(vocabulary.code).toLowerCase() + "_id";
+				var codeDiv = "<div id= " + id +">" + vocabulary.code + "</did>";
 				dataList.push({
-					code : vocabulary.code,
+					code : codeDiv,
 					description : vocabulary.description,
 					object : vocabulary
 				});

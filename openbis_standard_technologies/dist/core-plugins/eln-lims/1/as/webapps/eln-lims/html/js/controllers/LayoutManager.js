@@ -378,6 +378,12 @@ var LayoutManager = {
 			alert("Layout manager unable to know the layout, this should never happen.");
 		}
 	},
+    getExpectedContentHeight : function() {
+        return $(window).height() - LayoutManager.secondColumnHeader.outerHeight();
+    },
+    getExpectedContentWidth : function() {
+        return LayoutManager.secondColumnHeader.outerWidth();
+    },
 	fullScreen : function() {
 		var width = $( window ).width();
 		if (width > this.DESKTOP_SIZE) {

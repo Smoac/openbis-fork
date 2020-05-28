@@ -34,7 +34,7 @@ function DeleteEntityView(deleteEntityController, deleteEntityModel) {
 		}
 		
 		if(this._deleteEntityModel.includeReason) {
-			var $reasonTextBox = FormUtil._getTextBox(null, 'Reason for the delete', true);
+			var $reasonTextBox = FormUtil._getTextBox("reason-to-delete-id", 'Reason for the delete', true);
 			$reasonTextBox.keyup(function(event) {
 				_this._deleteEntityModel.reason = $(this).val();
 			});
@@ -43,7 +43,7 @@ function DeleteEntityView(deleteEntityController, deleteEntityModel) {
 		}
 		
 		
-		var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' });
+		var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' , 'id' : 'accept-btn'});
 		var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
 		$btnCancel.click(function() {
 			Util.unblockUI();

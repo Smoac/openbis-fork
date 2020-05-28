@@ -32,9 +32,9 @@
 			
 			<div class="repeater-search">
 				<div class="search input-group">
-					<input type="search" class="form-control" placeholder="Filter" /> 
+					<input type="search" class="form-control" placeholder="Filter" id="search-input-id" />
 					<span class="input-group-btn">
-						<button class="btn btn-default" type="button">
+						<button class="btn btn-default" type="button" id="search-button-id">
 							<span class="glyphicon glyphicon-search"></span> <span class="sr-only">Search</span>
 						</button>
 					</span>
@@ -53,14 +53,14 @@
 			</div>
 			
 			<div class="dropdown optionsDropdown" class="dropdown" style = "display: inline; padding-left: 10px;">
-				<button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" >
+				<button class="btn btn-default dropdown-toggle" id="export-btn-id" type="button" data-toggle="dropdown" >
 					Exports and ... <span class="caret"></span>
 				</button>
 				<ul class="dropdown-menu" role="menu"></ul>
 			</div>
 			
 			<div class="dropdown columnDropdown" style = "display: inline; padding-left: 10px;">
-				<button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+				<button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" id="columns-dropdown-id">
 					Columns <span class="caret"></span>
 				</button>
 				<ul style="max-height:500px; overflow:scroll; overflow-x: hidden;" class="dropdown-menu" role="menu"></ul>
@@ -75,7 +75,7 @@
 	<div class="repeater-footer">
 		<div class="repeater-footer-left">
 			<div class="repeater-itemization">
-				<span><span class="repeater-start"></span> - <span class="repeater-end"></span> of <span class="repeater-count"></span> items</span>
+				<span><span class="repeater-start"></span> - <span class="repeater-end"></span> of <span class="repeater-count" id="total-count-id"></span> items</span>
 				<div class="btn-group selectlist" data-resize="auto">
 					<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
 						<span class="selected-label">&nbsp;</span> <span class="caret"></span> <span class="sr-only">Toggle Dropdown</span>

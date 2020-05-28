@@ -12,6 +12,14 @@ var loadJSResorce = function(pathToResource, onLoad) {
     head.appendChild(script);
 };
 
+var setFavicons = function(img) {
+    var head = document.getElementsByTagName('head')[0];
+    var iconLink= document.createElement('link');
+    iconLink.setAttribute('rel', 'icon');
+    iconLink.setAttribute('href', img);
+    head.appendChild(iconLink);
+};
+
 var onLoadInstanceProfileResorceFunc = function() {
 	profile = new InstanceProfile();
 	//
@@ -27,6 +35,7 @@ var onLoadInstanceProfileResorceFunc = function() {
 
 //<PROFILE_PLACEHOLDER>
 loadJSResorce("./etc/InstanceProfile.js", onLoadInstanceProfileResorceFunc);
+setFavicons("./img/favicon.ico");
 //</PROFILE_PLACEHOLDER>
 
 var PLUGINS_CONFIGURATION = {

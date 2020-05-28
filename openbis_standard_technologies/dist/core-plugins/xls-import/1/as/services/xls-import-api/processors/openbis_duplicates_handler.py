@@ -118,9 +118,9 @@ class OpenbisDuplicatesHandler(object):
             for creations_type, existing_elements in self.existing_elements.items():
                 if not creations_type in self.creations:
                     continue
-                if creations_type == VocabularyTermDefinitionToCreationType:
+                elif creations_type == VocabularyTermDefinitionToCreationType:
                     continue
-                if creations_type == VocabularyDefinitionToCreationType:
+                elif creations_type == VocabularyDefinitionToCreationType:
                     terms = [obj.terms for obj in existing_elements]
                     terms = [item for sublist in terms for item in sublist]
                     existing_object_codes = [(obj.code, obj.vocabulary.code) for obj in terms]
@@ -130,7 +130,7 @@ class OpenbisDuplicatesHandler(object):
                     self.creations[VocabularyTermDefinitionToCreationType] = list(filter(
                         lambda creation: (creation.code, str(creation.vocabularyId)) not in existing_object_codes,
                         self.creations[VocabularyTermDefinitionToCreationType]))
-                if creations_type == SampleDefinitionToCreationType:
+                elif creations_type == SampleDefinitionToCreationType:
                     existing_object_codes = [obj.identifier.identifier for obj in existing_elements]
                     duplicates_list[creations_type] = list(filter(
                         lambda creation: creation.code is not None and create_sample_identifier_string(
@@ -138,7 +138,7 @@ class OpenbisDuplicatesHandler(object):
                     self.creations[creations_type] = list(filter(
                         lambda creation: creation.code is None or create_sample_identifier_string(
                             creation) not in existing_object_codes, self.creations[creations_type]))
-                if creations_type == ProjectDefinitionToCreationType:
+                elif creations_type == ProjectDefinitionToCreationType:
                     existing_object_codes = [str(obj.identifier) for obj in existing_elements]
                     duplicates_list[creations_type] = list(
                         filter(lambda creation: create_project_identifier_string(creation) in existing_object_codes,

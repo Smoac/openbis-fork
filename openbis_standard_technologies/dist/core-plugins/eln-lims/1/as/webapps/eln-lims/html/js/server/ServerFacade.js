@@ -304,7 +304,7 @@ function ServerFacade(openbisServer) {
 	}
 
 	this._handleAggregationServiceData = function(callbackFunction, data) {
-		if(data.result.rows[0][0].value == "OK") {
+		if (data.result && data.result.rows[0][0].value == "OK") {
 			callbackFunction(true);
 		} else {
 			Util.showError("Call failed to server: <pre>" + JSON.stringify(data, null, 2) + "</pre>");
@@ -2715,17 +2715,21 @@ function ServerFacade(openbisServer) {
 		);
 	}
 
-	this.searchExperiments = function(projectCode, experimentCode, callbackFunction) {
-		require(["as/dto/experiment/search/ExperimentSearchCriteria", "as/dto/experiment/fetchoptions/ExperimentFetchOptions"],
-			function(ExperimentSearchCriteria, ExperimentFetchOptions) {
-				var searchCriteria = new ExperimentSearchCriteria();
+	this.getExperimentOrNull = function(identifier, callbackFunction) {
+		require(["as/dto/experiment/id/ExperimentIdentifier", "as/dto/experiment/fetchoptions/ExperimentFetchOptions"],
+			function(ExperimentIdentifier, ExperimentFetchOptions) {
+				var experimentIdentifier = new ExperimentIdentifier(identifier);
+
 				var fetchOptions = new ExperimentFetchOptions();
-				searchCriteria.withProject().withCode().thatEquals(projectCode);
-				searchCriteria.withCode().thatEquals(experimentCode);
 				fetchOptions.withProject().withSpace();
 
-				mainController.openbisV3.searchExperiments(searchCriteria, fetchOptions).done(function(result) {
-					callbackFunction(result);
+				mainController.openbisV3.getExperiments([experimentIdentifier], fetchOptions).done(function(result) {
+					// callbackFunction(result);
+					if(result[identifier]) {
+					    callbackFunction(result[identifier]);
+					} else {
+					    callbackFunction(null);
+					}
 				}).fail(function(result) {
 					Util.showFailedServerCallError(result);
 					callbackFunction(false);

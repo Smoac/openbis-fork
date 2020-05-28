@@ -28,7 +28,7 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 		//
 		// Title and Empty all button
 		//
-		var deleteAllBtn = $("<a>", { "class" : "btn btn-primary", "style" : "margin-top: 10px;"}).append("Empty Trash");
+		var deleteAllBtn = $("<a>", { "class" : "btn btn-primary", "style" : "margin-top: 10px;", "id" : "empty-trash-btn"}).append("Empty Trash");
 		deleteAllBtn.click(function() {
 			Util.showWarning(deleteMessageMany, function() {
 				_this._trashManagerController.emptyTrash();
@@ -125,8 +125,11 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 					if(list === "") {
 						list =  type + ":";
 					}
-					list += "<br>";
+					var id = 'deleted-' + deletion.deletedEntities[enIdx].identifier + "-id";
+					id = id.split("/").join("-").toLowerCase();
+					list += "<br><div id = " + id + ">";
 					list += deletion.deletedEntities[enIdx].identifier + " (" + deletion.deletedEntities[enIdx].entityType + ")";
+					list += "</div>";
 					return list;
 				}
 				

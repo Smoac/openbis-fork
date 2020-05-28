@@ -25,6 +25,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 	this._customWidgetsTableModel = null;
 	this._forcedMonospaceTableModel = null;
 	this._inventorySpacesTableModel = null;
+	this._inventorySpacesReadOnlyTableModel = null;
 	this._sampleTypeDefinitionsMiscellaneousSettingsTableModels = {}; // key: sample type; value: table model
 	this._sampleTypeDefinitionsSettingsTableModels = {}; // key: sample type; value: table model
 	this._sampleTypeDefinitionsHintsTableModels = {}; // key: sample type; value: table model
@@ -113,6 +114,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			forcedDisableRTF : this._forcedDisableRTFTableModel.getValues(),
 			forceMonospaceFont : this._forcedMonospaceTableModel.getValues(),
 			inventorySpaces : this._inventorySpacesTableModel.getValues(),
+			inventorySpacesReadOnly : this._inventorySpacesReadOnlyTableModel.getValues(),
 			sampleTypeDefinitionsExtension : this._getSampleTypeDefinitionsExtension(),
 			showDatasetArchivingButton : this._miscellaneousTableModel.getValues()["Show Dataset archiving button"],
 			hideSectionsByDefault : this._miscellaneousTableModel.getValues()["Hide sections by default"],
@@ -239,6 +241,8 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		$fieldset.append(FormUtil.getInfoText(text.info));
 		this._inventorySpacesTableModel = this._getInventorySpacesTableModel();
 		$fieldset.append(this._getTable(this._inventorySpacesTableModel));
+		this._inventorySpacesReadOnlyTableModel = this._getInventorySpacesReadOnlyTableModel();
+        $fieldset.append(this._getTable(this._inventorySpacesReadOnlyTableModel));
 	}
 
 	this._getMainMenuItemsTableModel = function() {
@@ -340,7 +344,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 	}
 
 	this._getInventorySpacesTableModel = function() {
-		// Not accessible spaces are known on the config anyway, hidding them now will not increase security
+		// Not accessible spaces are known on the config anyway, hiding them now will not increase security
 		// Removing them can bring more issues so better keep them
 		
 		var spacesOptions = this._settingsFormController.getInventorySpacesOptions();
@@ -355,6 +359,28 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		
 		return this._getSingleColumnDropdownTableModel({
 			columnName : "Space",
+			placeholder : "select space",
+			options : spacesOptions,
+			initialValues : initialValues,
+		});
+	}
+
+    this._getInventorySpacesReadOnlyTableModel = function() {
+		// Not accessible spaces are known on the config anyway, hiding them now will not increase security
+		// Removing them can bring more issues so better keep them
+
+		var spacesOptions = this._settingsFormController.getInventorySpacesReadOnlyOptions();
+			spacesOptions = JSON.parse(JSON.stringify(spacesOptions));
+		var initialValues = this._profileToEdit.inventorySpacesReadOnly.filter(space => space != null);
+
+		for(var i = 0; i < initialValues.length; i++) {
+			if($.inArray(initialValues[i], spacesOptions) === -1) {
+				spacesOptions.push(initialValues[i]);
+			}
+		}
+
+		return this._getSingleColumnDropdownTableModel({
+			columnName : "Space Read only",
 			placeholder : "select space",
 			options : spacesOptions,
 			initialValues : initialValues,

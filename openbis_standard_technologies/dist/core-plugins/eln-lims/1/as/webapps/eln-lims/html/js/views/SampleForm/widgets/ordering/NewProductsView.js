@@ -3,6 +3,7 @@ function NewProductsView(newProductsController, newProductsModel) {
 	this._newProductsModel = newProductsModel;
 	
 	this._$newProductsTableBody = $("<tbody>");
+	this.rowIndex = 0;
 	
 	this.repaint = function($container) {
 		var _this = this;
@@ -22,7 +23,8 @@ function NewProductsView(newProductsController, newProductsModel) {
 											.append($("<th>").append("Quantiy"))
 											.append($("<th>").append(FormUtil.getButtonWithIcon("glyphicon-plus", function() {
 												_this.addNewProduct(_this._$newProductsTableBody);
-											})));
+												_this.rowIndex++;
+											}, null, null, "add-new-product-btn")));
 		
 		$newProductsTable.append($newProductsTableHead.append($newProductsTableHeaders)).append(this._$newProductsTableBody);
 		$newProducts.append($newProductsTable);
@@ -31,6 +33,7 @@ function NewProductsView(newProductsController, newProductsModel) {
 	}
 	
 	this.addNewProduct = function($newProductsTableBody) {
+	    var _this = this;
 		mainController.serverFacade.searchWithType("SUPPLIER", null, false, function(suppliers){
 			var supplierTerms = [];
 			for(var sIdx = 0; sIdx < suppliers.length; sIdx++) {
@@ -40,12 +43,12 @@ function NewProductsView(newProductsController, newProductsModel) {
 				}
 				supplierTerms.push({code : suppliers[sIdx].identifier, label : name });
 			}
-			var supplierDropdown = FormUtil.getDropDownForTerms(null, supplierTerms, "Select a supplier", true);
+			var supplierDropdown = FormUtil.getDropDownForTerms("new-product-supplier-" + _this.rowIndex, supplierTerms, "Select a supplier", true);
 			
 			var currencyVocabulary = profile.getVocabularyByCode("$PRODUCT.CURRENCY");
-			var currencyDropdown = FormUtil.getDropDownForTerms(null, currencyVocabulary.terms, "Select a currency", false);
+			var currencyDropdown = FormUtil.getDropDownForTerms("new-product-currency-" + _this.rowIndex, currencyVocabulary.terms, "Select a currency", false);
 			
-			var quantityField = FormUtil.getIntegerInputField(null, "Quantiy", true);
+			var quantityField = FormUtil.getIntegerInputField("new-product-quantity-" + _this.rowIndex, "Quantiy", true);
 			quantityField.change(function() {
 				var value = $(this).val();
 				try {
@@ -83,7 +86,7 @@ function NewProductsView(newProductsController, newProductsModel) {
 			
 			var catalogNumField = FormUtil.getTextInputField(null, "Catalog Num", true);
 			
-			var nameField = FormUtil.getTextInputField(null, "Name", true);
+			var nameField = FormUtil.getTextInputField("new-product-name-" + _this.rowIndex, "Name", true);
 			
 			var $newProductsTableRow = $("<tr>")
 			.append($("<td>").append(nameField))

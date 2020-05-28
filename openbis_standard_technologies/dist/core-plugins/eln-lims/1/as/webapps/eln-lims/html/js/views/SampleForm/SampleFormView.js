@@ -616,11 +616,22 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		// PREVIEW IMAGE
 		//
 		if(this._sampleFormModel.mode !== FormMode.CREATE) {
+
+            var maxWidth = Math.floor(LayoutManager.getExpectedContentWidth() / 3);
+            var maxHeight = Math.floor(LayoutManager.getExpectedContentHeight() / 3);
+
+            var previewStyle = null;
+            if (maxHeight < maxWidth) {
+                previewStyle = "max-height:" + maxHeight + "px; display:none;";
+            } else {
+                previewStyle = "max-width:" + maxWidth + "px; display:none;";
+            }
+
 			var $previewImage = $("<img>", { 'data-preview-loaded' : 'false',
 											 'class' : 'zoomableImage',
 											 'id' : 'preview-image',
 											 'src' : './img/image_loading.gif',
-											 'style' : 'max-width:300px; display:none;'
+											 'style' : previewStyle
 											});
 			$previewImage.click(function() {
 				Util.showImage($("#preview-image").attr("src"));
@@ -727,17 +738,20 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				if(this._sampleFormModel.mode === FormMode.VIEW) { //Show values without input boxes if the form is in view mode
 					if(Util.getEmptyIfNull(value) !== "") { //Don't show empty fields, whole empty sections will show the title
 						var customWidget = profile.customWidgetSettings[propertyType.code];
-						if (customWidget === 'Spreadsheet') {
-						    var $jexcelContainer = $("<div>");
-                            JExcelEditorManager.createField($jexcelContainer, this._sampleFormModel.mode, propertyType.code, this._sampleFormModel.sample);
-						    $controlGroup = FormUtil.getFieldForComponentWithLabel($jexcelContainer, propertyType.label);
-						} else if (customWidget === 'Word Processor') {
-						    var $component = FormUtil.getFieldForPropertyType(propertyType, value);
-						    $component = FormUtil.activateRichTextProperties($component, undefined, propertyType, value, true);
-						    $controlGroup = FormUtil.getFieldForComponentWithLabel($component, propertyType.label);
-						} else {
-						    $controlGroup = FormUtil.createPropertyField(propertyType, value);
-						}
+						var forceDisableRTF = profile.isForcedDisableRTF(propertyType);
+                        if(customWidget && !forceDisableRTF) {
+                            if (customWidget === 'Spreadsheet') {
+                                var $jexcelContainer = $("<div>");
+                                JExcelEditorManager.createField($jexcelContainer, this._sampleFormModel.mode, propertyType.code, this._sampleFormModel.sample);
+                                $controlGroup = FormUtil.getFieldForComponentWithLabel($jexcelContainer, propertyType.label);
+                            } else if (customWidget === 'Word Processor') {
+                                var $component = FormUtil.getFieldForPropertyType(propertyType, value);
+                                $component = FormUtil.activateRichTextProperties($component, undefined, propertyType, value, true);
+                                $controlGroup = FormUtil.getFieldForComponentWithLabel($component, propertyType.label);
+                            }
+                        } else {
+                            $controlGroup = FormUtil.createPropertyField(propertyType, value);
+                        }
 					} else {
 						continue;
 					}
@@ -783,7 +797,9 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					}
 
 					var customWidget = profile.customWidgetSettings[propertyType.code];
-					if(customWidget) {
+					var forceDisableRTF = profile.isForcedDisableRTF(propertyType);
+
+					if(customWidget && !forceDisableRTF) {
 					    switch(customWidget) {
 					        case 'Word Processor':
 					            if(propertyType.dataType === "MULTILINE_VARCHAR") {
@@ -1032,7 +1048,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				    component += "<span class='checkbox'><label><input type='checkbox' id='linkParentsOnCopy'>Link Parents</label></span>";
 					component += "<span>Copy Children</span>";
 					component += "<span class='checkbox'><label><input type='radio' name='copyChildrenOnCopy' value='None' checked>Don't Copy</label></span>";
-					component += "<span class='checkbox'><label><input type='radio' name='copyChildrenOnCopy' value='ToParentCollection'>Into parents collection</label></span>";
+					component += "<span class='checkbox'><label><input type='radio' id='copyChildrenToParent' name='copyChildrenOnCopy' value='ToParentCollection'>Into parents collection</label></span>";
 					//component += "<span class='checkbox'><label><input type='radio' name='copyChildrenOnCopy' value='ToOriginalCollection'>Into original collection</label></span>";
 					component += "</div>";
 					component += "</div>";

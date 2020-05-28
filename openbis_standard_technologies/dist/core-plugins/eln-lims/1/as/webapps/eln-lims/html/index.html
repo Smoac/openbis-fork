@@ -307,8 +307,6 @@
 	<script type="text/javascript" src="./js/test/AdminTests.js"></script>
 	<script type="text/javascript" src="./js/test/TestProtocol.js"></script>
 
-	<script src="https://wiris.net/demo/plugins/app/WIRISplugins.js?viewer=image"></script>
-
 	<script type="text/javascript">
 	
 	//
@@ -389,12 +387,20 @@
 		    mainController.resetPassword();
 		}
 		var test = queryString.test;
-		if(test == "true") {
-			TestProtocol.startAdminTests();
+		var testWithLogin = queryString.testWithLogin;
+
+		if (testWithLogin == "true") {
+			TestProtocol.startAdminTests(true);
+		} else if (test == "true") {
+			TestProtocol.startAdminTests(false);
 		}
 
 		if ($.cookie("suitename") == "testId") {
 			TestProtocol.startUserTests();
+		}
+
+		if ($.cookie("suitename") == "finishTest") {
+			TestProtocol.finishTests();
 		}
 	}
 
@@ -449,7 +455,7 @@
 			<center>
 				<div id="single-sign-on-login"></div>
 				<div id="password-reset-container"></div>
-
+				<div id="help"></div>
 				<div style="margin-bottom: 5px;">Compatible With:</div>
 				<img src="./img/browser-icon-chrome.png" style="width: 43px; height:43px;" /><img src="./img/browser-icon-safari.png" style="width: 43px; height:43px;" /><img src="./img/browser-icon-firefox.png" style="width: 43px; height:43px;" />
 			</center>

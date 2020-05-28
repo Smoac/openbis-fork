@@ -71,7 +71,7 @@ def create_versioning_information(all_versioning_information, creations, creatio
 
 
 def checkDataConsistency(existing_elements, all_versioning_information, xls_version_name, creations):
-    #check that data from json exist in DB
+    # This method throw an exception when DB is empty, but xls-import-version-info.json is not
 
     if xls_version_name not in all_versioning_information:
         return
@@ -81,17 +81,27 @@ def checkDataConsistency(existing_elements, all_versioning_information, xls_vers
     existing_elements_dict = set()
 
     for existing_type, elements in existing_elements.items():
+        if existing_type not in versionable_types:
+            continue
         for element in elements:
             existing_elements_dict.add(get_metadata_name_for_existing_element(existing_type, element))
+
+    versionable_codes_count = 0
+    versionable_and_not_exist_codes_count = 0
 
     for creation_type, creation_collection in creations.items():
         if creation_type in versionable_types:
             for creation in creation_collection:
                 code = get_metadata_name_for(creation_type, creation)
 
-                if code in versioning_information and code not in existing_elements_dict:
-                    raise Exception("xls-import-version-info.json contains creation = '" + code + "' with creation_type = '" + \
-                                    creation_type + "' that is not in the database. Please edit the file or delete it.")
+                if code in versioning_information:
+                    versionable_codes_count = versionable_codes_count + 1
+                    if code not in existing_elements_dict:
+                        versionable_and_not_exist_codes_count = versionable_and_not_exist_codes_count + 1
+
+    if versionable_codes_count > 0 and versionable_codes_count == versionable_and_not_exist_codes_count:
+        raise Exception("All creations from xls-import-version-info.json does not exist in the database." + \
+                        "The database may have been deleted. Please delete xls-import-version-info.json too and restart the app.")
 
 
 def process(context, parameters):

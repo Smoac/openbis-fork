@@ -230,11 +230,22 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		// PREVIEW IMAGE
 		//
 		if(this._experimentFormModel.mode !== FormMode.CREATE) {
+
+            var maxWidth = Math.floor(LayoutManager.getExpectedContentWidth() / 3);
+            var maxHeight = Math.floor(LayoutManager.getExpectedContentHeight() / 3);
+
+            var previewStyle = null;
+            if (maxHeight < maxWidth) {
+                previewStyle = "max-height:" + maxHeight + "px; display:none;";
+            } else {
+                previewStyle = "max-width:" + maxWidth + "px; display:none;";
+            }
+
 			var $previewImage = $("<img>", { 'data-preview-loaded' : 'false',
 											 'class' : 'zoomableImage',
 											 'id' : 'preview-image',
 											 'src' : './img/image_loading.gif',
-											 'style' : 'max-height:300px; display:none;'
+											 'style' : previewStyle
 											});
 			$previewImage.click(function() {
 				Util.showImage($("#preview-image").attr("src"));
@@ -461,14 +472,17 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 				if(this._experimentFormModel.mode === FormMode.VIEW) { //Show values without input boxes if the form is in view mode
 		            if(Util.getEmptyIfNull(value) !== "") { //Don't show empty fields, whole empty sections will show the title
                         var customWidget = profile.customWidgetSettings[propertyType.code];
-                        if (customWidget === 'Spreadsheet') {
-                    	    var $jexcelContainer = $("<div>");
-                            JExcelEditorManager.createField($jexcelContainer, this._experimentFormModel.mode, propertyType.code, this._experimentFormModel.experiment);
-                            $controlGroup = FormUtil.getFieldForComponentWithLabel($jexcelContainer, propertyType.label);
-                        } else if (customWidget === 'Word Processor') {
-                            var $component = FormUtil.getFieldForPropertyType(propertyType, value);
-                            $component = FormUtil.activateRichTextProperties($component, undefined, propertyType, value, true);
-                            $controlGroup = FormUtil.getFieldForComponentWithLabel($component, propertyType.label);
+						var forceDisableRTF = profile.isForcedDisableRTF(propertyType);
+                        if(customWidget && !forceDisableRTF) {
+                            if (customWidget === 'Spreadsheet') {
+                                var $jexcelContainer = $("<div>");
+                                JExcelEditorManager.createField($jexcelContainer, this._experimentFormModel.mode, propertyType.code, this._experimentFormModel.experiment);
+                                $controlGroup = FormUtil.getFieldForComponentWithLabel($jexcelContainer, propertyType.label);
+                            } else if (customWidget === 'Word Processor') {
+                                var $component = FormUtil.getFieldForPropertyType(propertyType, value);
+                                $component = FormUtil.activateRichTextProperties($component, undefined, propertyType, value, true);
+                                $controlGroup = FormUtil.getFieldForComponentWithLabel($component, propertyType.label);
+                            }
                         } else {
                     	    $controlGroup = FormUtil.createPropertyField(propertyType, value);
                         }
@@ -521,7 +535,9 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 					}
 
 					var customWidget = profile.customWidgetSettings[propertyType.code];
-                    if(customWidget) {
+					var forceDisableRTF = profile.isForcedDisableRTF(propertyType);
+
+                    if(customWidget && !forceDisableRTF) {
                         switch(customWidget) {
                             case 'Word Processor':
                                 if(propertyType.dataType === "MULTILINE_VARCHAR") {

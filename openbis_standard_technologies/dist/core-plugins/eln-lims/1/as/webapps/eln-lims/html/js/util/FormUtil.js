@@ -789,15 +789,13 @@ var FormUtil = new function() {
 	// Form Fields
 	//
 	this._getBooleanField = function(id, alt, checked) {
-	    if (id) {
-	        if(id.charAt(0) === '$') {
-	            id = id.substring(1);
-	        }
-	    }
-		var attr = {'type' : 'checkbox', 'id' : id, 'alt' : alt, 'placeholder' : alt };
+		var attr = {'type' : 'checkbox', 'alt' : alt, 'placeholder' : alt };
 		if(checked) {
 			attr['checked'] = '';
 		}
+		if (id) {
+            attr['id'] = this.prepareId(id);
+        }
 		return $('<div>', {'class' : 'checkbox'}).append($('<label>').append($('<input>', attr)));
 	}
 	
@@ -807,7 +805,7 @@ var FormUtil = new function() {
 	
 	this._getDropDownFieldForVocabulary = function(code, terms, alt, isRequired) {
 		var $component = $("<select>", {'placeholder' : alt, 'class' : 'form-control'});
-		$component.attr('id', code);
+		$component.attr('id', this.prepareId(code));
 		
 		if (isRequired) {
 			$component.attr('required', '');
@@ -891,7 +889,62 @@ var FormUtil = new function() {
 		return $component;
 	}
 
+    this.ckEditor4to5ImageStyleMigration = function(value) {
+        var buffer = "";
+        var offset = 0;
+
+        while(offset < value.length) {
+            currentImageStartOffset = -1;
+            currentImageEndOffset = -1;
+            styleTag = null;
+
+            currentImageStartOffset = value.indexOf("<img", offset);
+            if(currentImageStartOffset !== -1) {
+                currentImageEndOffset = value.indexOf(">", currentImageStartOffset);
+            }
+
+            if(currentImageStartOffset !== -1 && currentImageEndOffset !== -1) {
+                currentStyleStartOffset = null;
+                currentStyleEndOffset = null;
+
+                currentStyleStartOffset = value.indexOf("style=\"", currentImageStartOffset);
+                if(currentStyleStartOffset !== -1) {
+                    currentStyleEndOffset = value.indexOf("\"", currentStyleStartOffset + "style=\"".length);
+                }
+
+                if(currentStyleStartOffset !== -1 && currentStyleEndOffset !== -1) {
+                    styleTag = value.substring(currentStyleStartOffset, currentStyleEndOffset + "\"".length);
+                }
+            }
+
+            // Move offset
+            if(currentImageEndOffset !== -1) {
+                buffer = buffer + value.substring(offset, currentImageStartOffset);
+                if(styleTag !== null) {
+                    buffer = buffer + "<figure class=\"image image_resized\"" + styleTag + ">";
+                }
+                buffer = buffer + value.substring(currentImageStartOffset, currentImageEndOffset + ">".length);
+                if(styleTag !== null) {
+                    buffer = buffer + "</figure>";
+                }
+                offset = currentImageEndOffset + ">".length;
+            } else {
+                buffer = buffer + value.substring(offset, value.length);
+                offset = value.length;
+            }
+        }
+
+        return buffer;
+    }
+
     this.createCkeditor = function($component, componentOnChange, value, isReadOnly, toolbarContainer) {
+        // CKEditor 4 to 5 Image style Migration
+        if( value &&
+            value.indexOf("<img")  !== -1 &&
+            value.indexOf("<figure") === -1) {
+            value = this.ckEditor4to5ImageStyleMigration(value);
+        }
+
 	    var Builder = null;
 	    if(toolbarContainer) {
             Builder = CKEDITOR.DecoupledEditor;
@@ -929,7 +982,6 @@ var FormUtil = new function() {
 	}
 
 	this.prepareCkeditorData = function(value) {
-	    value = value.replace(/&quot;/g, "\'");
 	    value = value.replace(/(font-size:\d+\.*\d+)pt/g, "$1" + "px"); // https://ckeditor.com/docs/ckeditor5/latest/features/font.html#using-numerical-values
 	    return value;
 	}
@@ -1010,6 +1062,7 @@ var FormUtil = new function() {
 	}
 
 	this.addOptionsToToolbar = function(toolbarModel, dropdownOptionsModel, hideShowOptionsModel, namespace, title) {
+	    var _this = this;
 		if(!title) {
 			title = "More ... ";
 		}
@@ -1034,7 +1087,7 @@ var FormUtil = new function() {
 			} else {
 				var label = option.label;
 				var title = option.title ? option.title : label;
-				var id = title.split(" ").join("-").toLowerCase();
+				var id = _this.prepareId(title).toLowerCase();
 				var $dropdownElement = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : title, 'id' : id}).append(label));
 				$dropdownElement.click(option.action);
 				$dropdownOptionsMenuList.append($dropdownElement);
@@ -1064,7 +1117,7 @@ var FormUtil = new function() {
 				var $section = $(option.section);
 				$section.toggle(shown);
 				var $label = $("<span>").append((shown ? "Hide " : "Show ") + option.label);
-				var id = 'options-menu-btn-' + option.label.split(" ").join("-").toLowerCase();
+				var id = 'options-menu-btn-' + _this.prepareId(option.label).toLowerCase();
 				var $dropdownElement = $("<li>", { 'role' : 'presentation' }).append($("<a>", { 'id' : id }).append($label));
 				var action = function(event) {
 					var option = event.data.option;
@@ -1179,7 +1232,7 @@ var FormUtil = new function() {
 		}
 		if(projectCode) {
 		    var projectIdentifier = IdentifierUtil.getProjectIdentifier(spaceCode, projectCode);
-		    var id = "PATH" + projectIdentifier.split(" ").join("-").split("/").join("_");
+		    var id = "PATH" + this.prepareId(projectIdentifier);
 			entityPath.append("/").append(this.getFormLink(projectCode, 'Project', projectIdentifier, null, id));
 		}
 		if(experimentCode) {
@@ -1970,6 +2023,7 @@ var FormUtil = new function() {
 		if (id) {
 			id = id[0] === '$' ? id.substring(1) : id;
 			id = id.split(".").join("");
+			id = id.split(" ").join("-").split("/").join("_");
 		}
 		return id;
 	}

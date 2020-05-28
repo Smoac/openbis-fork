@@ -86,9 +86,11 @@ function AdvancedEntitySearchDropdown(isMultiple,
 		require([ "as/dto/dataset/id/DataSetPermId", "as/dto/dataset/fetchoptions/DataSetFetchOptions" ],
 				function(DataSetPermId, DataSetFetchOptions) {
 					var ids = [];
-					for(var dIdx = 0; dIdx < datasetPermIds.length; dIdx++) {
-						var id = new DataSetPermId(datasetPermIds[dIdx]);
-						ids.push(id);
+					if (datasetPermIds !== undefined) {
+					    for(var dIdx = 0; dIdx < datasetPermIds.length; dIdx++) {
+                            var id = new DataSetPermId(datasetPermIds[dIdx]);
+                            ids.push(id);
+                        }
 					}
 		            var fetchOptions = new DataSetFetchOptions();
 		            fetchOptions.withProperties();
@@ -233,6 +235,7 @@ function AdvancedEntitySearchDropdown(isMultiple,
 	//
 	this.init = function($container) {
 		$select.attr("multiple", "multiple");
+		$select.attr("id", "advanced-entity-search-dropdown-id");
 		
 		if(isRequired) {
 			$select.attr("required", "required");

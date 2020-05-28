@@ -1,8 +1,8 @@
-function Grid(columnsFirst, columnsLast, columnsDynamicFunc, getDataList, showAllColumns, tableSettings, onChangeState, isMultiselectable, maxHeight, heightPercentage, scrollbarWidth) {
-	this.init(columnsFirst, columnsLast, columnsDynamicFunc, getDataList, showAllColumns, tableSettings, onChangeState, isMultiselectable, maxHeight, heightPercentage, scrollbarWidth);
+function Grid(columnsFirst, columnsLast, columnsDynamicFunc, getDataList, showAllColumns, tableSettings, onChangeState, isMultiselectable, forceFullContentHeight, heightPercentage, scrollbarWidth, title) {
+	this.init(columnsFirst, columnsLast, columnsDynamicFunc, getDataList, showAllColumns, tableSettings, onChangeState, isMultiselectable, forceFullContentHeight, heightPercentage, scrollbarWidth, title);
 }
 $.extend(Grid.prototype, {
-	init : function(columnsFirst, columnsLast, columnsDynamicFunc, getDataList, showAllColumns, tableSettings, onChangeState, isMultiselectable, maxHeight, heightPercentage, scrollbarWidth) {
+	init : function(columnsFirst, columnsLast, columnsDynamicFunc, getDataList, showAllColumns, tableSettings, onChangeState, isMultiselectable, forceFullContentHeight, heightPercentage, scrollbarWidth, title) {
 		this.columnsFirst = columnsFirst;
 		this.columnsDynamicFunc = columnsDynamicFunc;
 		this.columnsDynamic = [];
@@ -11,6 +11,7 @@ $.extend(Grid.prototype, {
 		this.showAllColumns = showAllColumns;
 		this.tableSettings = tableSettings;
 		this.firstLoad = true;
+		this.title = title;
 		
 		if(!this.tableSettings) {
 			this.tableSettings = {
@@ -30,6 +31,7 @@ $.extend(Grid.prototype, {
 			this.addMultiSelect(columnsFirst);
 		}
 		this.lastUsedColumns = [];
+		this.forceFullContentHeight = forceFullContentHeight;
 		if(heightPercentage) {
 			this.maxHeight = ($(window).height() - LayoutManager.secondColumnHeader.outerHeight()) * (heightPercentage/100) - 30;
 		}
@@ -57,6 +59,13 @@ $.extend(Grid.prototype, {
 				sortable : false,
 				render : function(data) {
 					var $checkbox = $("<input>", { type : 'checkbox' , class: "repeater-checkbox multi-selectable-checkbox"});
+
+					for(var idx = 0; idx < _this.selectedItems.length; idx++) {
+                        if(_this.selectedItems[idx].permId === data.$object.permId) {
+                    	    $checkbox.prop('checked', true);
+                        }
+                    }
+
 					$checkbox.change(function() {
 						var isChecked = $(this).is(":checked");
 						if(isChecked){ //add data to selectedItems
@@ -175,10 +184,25 @@ $.extend(Grid.prototype, {
 		
 		columnsForDropdown.forEach(function(column, columnIndex) {
 			if(!column.showByDefault && !column.hide) {
+
 				var checkbox = $("<input>")
 				.attr("type", "checkbox")
 				.attr("value", column.property)
 				.attr("style", "margin-left: 5px;");
+
+				if (column.property != null) {
+
+				    var id = column.property + "-cln";
+				    if (this.title !== undefined && this.title !== null) {
+				        id = this.title + "-" + id;
+				    }
+				    id = id.split(" ").join("-").split(".").join("-");
+				    if (id[0] === '$') {
+				        id = id.substring(1, id.length - 1);
+				    }
+				    id = id.toLowerCase();
+				    checkbox.attr("id", id)
+                }
 			
 				if(thisGrid.tableSettings && thisGrid.tableSettings.columns && Object.keys(thisGrid.tableSettings.columns).length !== 0) {
 					if((thisGrid.tableSettings.columns[column.property] === true)) { //If settings are present
@@ -279,9 +303,15 @@ $.extend(Grid.prototype, {
 		}
 		
 		// Export all rows with all columns
-		for(option in options) {
+		for (option in options) {
+		    var id = "export-all-columns-and-rows";
+		    if (option.length > 0) {
+		        id = id + "-" + option.split('(').join("").split(')').join("").split(' ').join("-")
+		    }
+
 			var labelARAC = $("<label>", { style : 'white-space: nowrap; cursor:pointer;' })
 							.attr("role", "menuitem")
+							.attr("id", id)
 							.append("Export all columns with all rows " + option);
 	
 			var itemARAC = $("<li>")
@@ -785,9 +815,13 @@ $.extend(Grid.prototype, {
 		var viewport = $panel.find(".repeater-canvas")[0];
 		var scrollbarHeight = viewport.scrollWidth > viewport.offsetWidth ? thisGrid.scrollbarWidth : 0;
 		var totalHeight = headerHeight + listHeight + footerHeight + scrollbarHeight;
-		totalHeight = Math.min(totalHeight, thisGrid.maxHeight);
-		if (thisGrid.viewOptions.staticHeight < totalHeight) {
-			thisGrid.viewOptions.staticHeight = totalHeight;
+		if(thisGrid.forceFullContentHeight) {
+		    thisGrid.viewOptions.staticHeight = totalHeight;
+		} else {
+		    totalHeight = Math.min(totalHeight, thisGrid.maxHeight);
+            if (thisGrid.viewOptions.staticHeight < totalHeight) {
+                thisGrid.viewOptions.staticHeight = totalHeight;
+            }
 		}
 
 	},

@@ -25,6 +25,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
     this._sideMenuWidgetModel = sideMenuWidgetModel;
     
     var toggleMenuSizeBig = false;
+    var MIN_LENGTH = 3;
     var DISPLAY_NAME_LENGTH_SHORT = 15;
     var DISPLAY_NAME_LENGTH_LONG = 300;
     var cutDisplayNameAtLength = DISPLAY_NAME_LENGTH_SHORT; // Fix for long names
@@ -43,6 +44,11 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
 
         var searchFunction = function() {
             var searchText = $("#search").val();
+            if(searchText.length < MIN_LENGTH) {
+                Util.showInfo("The minimum length for a global text search is " + MIN_LENGTH + " characters.", function() {}, true);
+                return false;
+            }
+
             var domainIndex = $("#search").attr("domain-index");
             var searchDomain = null;
             var searchDomainLabel = null;
@@ -94,11 +100,20 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         var searchElement = $("<input>", {"id": "search", "type": "text", "class": "form-control search-query", "placeholder": "Global Search"});
         searchElement.keypress(function (e) {
              var key = e.which;
-             if(key == 13)  // the enter key code
+             var onFocus = searchElement.is(":focus");
+             var searchString = searchElement.val();
+             if(key == 13 && // the enter key code
+                onFocus && // ensure is focused
+                searchString.length >= MIN_LENGTH) // min search length of 3 characters
               {
                 searchFunction();
-                return false;  
-              }
+                return false;
+              } else if(key == 13 &&
+                        onFocus &&
+                        searchString.length < MIN_LENGTH) {
+                Util.showInfo("The minimum length for a global text search is " + MIN_LENGTH + " characters.", function() {}, true);
+                return false;
+              }
         });
         searchElement.css({"display" : "inline", "width" : "30%"});
         searchElement.css({"padding-top" : "2px"});
@@ -547,7 +562,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                               continue;
                           }
                           var normalizedProjectTitle = Util.getDisplayNameFromCode(project.code);
-                          var projectLink = _this.getLinkForNode(normalizedProjectTitle, project.getPermId().getPermId(), "showProjectPageFromPermId", project.getPermId().getPermId(), null);
+                          var projectLink = _this.getLinkForNode(normalizedProjectTitle, project.getPermId().getPermId(), "showProjectPageFromPermId", project.getPermId().getPermId(), project.code);
                           results.push({
                               displayName: normalizedProjectTitle,
                               title : projectLink,
@@ -621,7 +636,8 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                             var sampleIsExperiment = sample.type.code.indexOf("EXPERIMENT") > -1;
                             var sampleTypeOnNav = profile.showOnNav(sample.type.code);
     						var sampleExperimentIdentifier = sample.experiment.identifier.identifier;
-                            if(sampleIsExperiment || sampleTypeOnNav) {
+                            if((sampleIsExperiment || sampleTypeOnNav) &&
+                                profile.showOnNav(sample.type.code)) {
                                 var parentInELN = false;
                                 if(sample.parents) {
                                     for(var pIdx = 0; pIdx < sample.parents.length; pIdx++) {
@@ -730,7 +746,7 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
                         
                         if(samplesToShow.length > 50) {
                             var toExecute = function() {
-                                Util.blockUIConfirm("Do you want to show " + samplesWithoutELNParents.length + " " + ELNDictionary.Samples + " on the tree?",
+                                Util.blockUIConfirm("Do you want to show " + samplesToShow.length + " " + ELNDictionary.Samples + " on the tree?",
                                         getOkResultsFunction(dfd, samplesToShow),
                                         getCancelResultsFunction(dfd));
                             };

@@ -312,8 +312,9 @@ function SampleHierarchy(serverFacade, views, profile, sample) {
 						}));
 				
 				var nameLabel = Util.getDisplayNameForEntity(sample);
+				var id = sample.code.toLowerCase();
 				
-				var $sampleLink = $('<a>', { 'href' : "javascript:mainController.changeView('showViewSamplePageFromPermId', '" + sample.permId + "')"}).text(nameLabel);
+				var $sampleLink = $('<a>', { 'id' : id, 'href' : "javascript:mainController.changeView('showViewSamplePageFromPermId', '" + sample.permId + "')"}).text(nameLabel);
 				
 				
 				if(sample.showLabel || (sample.permId === rootPermId)) {

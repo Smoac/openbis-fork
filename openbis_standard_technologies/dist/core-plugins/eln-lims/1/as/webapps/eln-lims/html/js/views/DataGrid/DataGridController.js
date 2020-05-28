@@ -43,7 +43,7 @@ function DataGridController(title, columnsFirst, columnsLast, columnsDynamicFunc
 				}
 			}
 			_this._grid = new Grid(columnsFirst, columnsLast, columnsDynamicFunc, data, showAllColumns, tableConfig, 
-					onColumnsChange, isMultiselectable, null, heightPercentage, mainController.getScrollbarWidth());
+					onColumnsChange, isMultiselectable, true, heightPercentage, mainController.getScrollbarWidth(), title);
 			if(rowClickEventHandler) {
 				_this._grid.addRowClickListener(rowClickEventHandler);
 			}
