@@ -93,7 +93,7 @@ public class OpenBisSessionManager extends DefaultSessionManager<Session> implem
 
     public void setMaxNumberOfSessionsPerUser(String number)
     {
-        maxNumberOfSessionsPerUser = parseAsIntOrReturnDefaultValue(number, 1);
+        maxNumberOfSessionsPerUser = parseAsIntOrReturnDefaultValue(number, 5);
     }
 
     public void setUsersWithUnrestrictedNumberOfSessions(String users)
