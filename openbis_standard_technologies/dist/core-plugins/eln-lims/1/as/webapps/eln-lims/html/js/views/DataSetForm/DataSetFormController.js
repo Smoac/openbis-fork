@@ -273,7 +273,7 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini, 
 		var _this = this;
 		var dataSetPermId = this._dataSetFormModel.dataSetV3.permId.permId;
 		mainController.serverFacade.getArchivingInfo([dataSetPermId], function(info) {
-			var containerSize = info[dataSetPermId]["container"].length;
+			var containerSize = info[dataSetPermId]["numberOfDataSets"].length;
 			if (containerSize > 1) {
 				mainController.serverFacade.getServiceProperty("ui.unarchiving.threshold.relative", "2", function(rThreshold) {
 					mainController.serverFacade.getServiceProperty("ui.unarchiving.threshold.absolute", "10e9", function(aThreshold) {

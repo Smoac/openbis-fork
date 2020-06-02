@@ -121,6 +121,15 @@ class OpenbisDuplicatesHandler(object):
                 elif creations_type == VocabularyTermDefinitionToCreationType:
                     continue
                 elif creations_type == VocabularyDefinitionToCreationType:
+                    # VocabularyCreation
+                    distinct_property_name = self._get_distinct_property_name(creations_type)
+                    duplicates_list[creations_type] = self.get_creations_for_existing_objects(creations_type,
+                                                                                              existing_elements,
+                                                                                              distinct_property_name)
+                    self.creations[creations_type] = self._filter_creations_from_existing_objects(creations_type,
+                                                                                                  existing_elements,
+                                                                                                  distinct_property_name)
+                    # VocabularyTermCreation
                     terms = [obj.terms for obj in existing_elements]
                     terms = [item for sublist in terms for item in sublist]
                     existing_object_codes = [(obj.code, obj.vocabulary.code) for obj in terms]

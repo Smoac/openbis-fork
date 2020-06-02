@@ -7,37 +7,36 @@ var ExperimentDataGridUtil = new function() {
 		//Fill Columns model
 		var columns = [];
 
-
-		if($.inArray("$NAME", propertyCodes) !== -1) {
-			columns.push({
-				label : 'Name/Code',
-				property : '$NAME',
-				isExportable: true,
-				sortable : false,
-				render : function(data) {
-					return FormUtil.getFormLink(Util.getNameOrCode(data), "Experiment", data.identifier);
-				}
-			});
-		}
-
 		columns.push({
-			label : 'Identifier',
-			property : 'identifier',
-			isExportable: true,
+			label : 'Code',
+			property : 'code',
+			isExportable: false,
 			sortable : true,
-			render : function(data) {
-				return FormUtil.getFormLink(data.identifier, "Experiment", data.identifier);
+			render : function(data, grid) {
+				return FormUtil.getFormLink(data.code, "Experiment", data.identifier);
 			},
 			filter : function(data, filter) {
-				return data.identifier.toLowerCase().indexOf(filter) !== -1;
+				return data.code.toLowerCase().indexOf(filter) !== -1;
 			},
 			sort : function(data1, data2, asc) {
-				var value1 = data1.identifier;
-				var value2 = data2.identifier;
+				var value1 = data1.code;
+				var value2 = data2.code;
 				var sortDirection = (asc)? 1 : -1;
 				return sortDirection * naturalSort(value1, value2);
 			}
 		});
+
+		if($.inArray("$NAME", propertyCodes) !== -1) {
+			columns.push({
+				label : 'Name',
+				property : '$NAME',
+				isExportable: true,
+				sortable : true,
+				render : function(data) {
+					return FormUtil.getFormLink(data[profile.propertyReplacingCode], "Experiment", data.identifier);
+				}
+			});
+		}
 		
 		var propertyColumnsToSort = [];
 		for (var idx = 0; idx < propertyCodes.length; idx++) {
@@ -119,7 +118,26 @@ var ExperimentDataGridUtil = new function() {
 			isExportable: false,
 			sortable : false
 		});
-		
+
+		columns.push({
+			label : 'Identifier',
+			property : 'identifier',
+			isExportable: true,
+			sortable : true,
+			render : function(data) {
+				return FormUtil.getFormLink(data.identifier, "Experiment", data.identifier);
+			},
+			filter : function(data, filter) {
+				return data.identifier.toLowerCase().indexOf(filter) !== -1;
+			},
+			sort : function(data1, data2, asc) {
+				var value1 = data1.identifier;
+				var value2 = data2.identifier;
+				var sortDirection = (asc)? 1 : -1;
+				return sortDirection * naturalSort(value1, value2);
+			}
+		});
+
 		columns.push({
 			label : 'Registrator',
 			property : 'registrator',
@@ -153,7 +171,8 @@ var ExperimentDataGridUtil = new function() {
 			var dataList = [];
 			for(var sIdx = 0; sIdx < entities.length; sIdx++) {
 				var entity = entities[sIdx];
-				var model = {		'identifier' : entity.identifier, 
+				var model = {		'code' : entity.code,
+				                    'identifier' : entity.identifier,
 									'permId' : entity.permId,
 									'registrator' : entity.registrationDetails.userId,
 									'registrationDate' : Util.getFormatedDate(new Date(entity.registrationDetails.registrationDate)),

@@ -45,15 +45,16 @@ var SampleDataGridUtil = new function() {
 		});
 
 		columnsFirst.push({
-			label : 'Name/Code',
+			label : 'Name',
 			property : '$NAME',
 			isExportable: true,
-			sortable : false,
+			sortable : true,
 			render : function(data) {
-				var nameToUse = Util.getNameOrCode(data);
-				var codeId = data.code.toLowerCase() + "-column-id";
-				var $controlLabel = $('<label>', { 'id' : codeId }).html(nameToUse);
-				return (isLinksDisabled) ? $controlLabel : FormUtil.getFormLink(nameToUse, "Sample", data.permId, null, codeId);
+				var nameToUse = "";
+                if(data[profile.propertyReplacingCode]) {
+                    nameToUse = data[profile.propertyReplacingCode];
+                }
+				return (isLinksDisabled) ? nameToUse : FormUtil.getFormLink(nameToUse, "Sample", data.permId);
 			}
 		});
 
