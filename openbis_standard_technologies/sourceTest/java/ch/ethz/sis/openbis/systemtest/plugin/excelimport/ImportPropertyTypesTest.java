@@ -157,14 +157,29 @@ public class ImportPropertyTypesTest extends AbstractImportTest {
     @Test(expectedExceptions = Exception.class)
     @DirtiesContext
     public void deleteProjectFromDBButNotFromJSON() throws IOException {
-        // GIVEN
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROPERTY_TYPES_XLS)));
-        // WHEN
+
         PropertyType type = TestUtils.getPropertyType(v3api, sessionToken, "$INTERNAL_PROP");
         PropertyTypeDeletionOptions deletionOptions = new PropertyTypeDeletionOptions();
         deletionOptions.setReason("test");
         v3api.deletePropertyTypes(sessionToken, Arrays.asList(type.getPermId()), deletionOptions);
-        // THEN
+
+        // After deleting one property, the exception is not thrown.
+        // Because it can be deleted by the user an DB is fine.
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROPERTY_TYPES_XLS)));
+
+        // remove all data from DB
+        type = TestUtils.getPropertyType(v3api, sessionToken, "$INTERNAL_PROP");
+        deletionOptions = new PropertyTypeDeletionOptions();
+        deletionOptions.setReason("test");
+        v3api.deletePropertyTypes(sessionToken, Arrays.asList(type.getPermId()), deletionOptions);
+
+        type = TestUtils.getPropertyType(v3api, sessionToken, "NOTES");
+        deletionOptions = new PropertyTypeDeletionOptions();
+        deletionOptions.setReason("test");
+        v3api.deletePropertyTypes(sessionToken, Arrays.asList(type.getPermId()), deletionOptions);
+
+        // exception should be thrown because DB is empty.
         TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROPERTY_TYPES_XLS)));
     }
 
