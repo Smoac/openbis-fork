@@ -790,6 +790,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
                                         $component = FormUtil.activateRichTextProperties($component, changeEvent(propertyType), propertyType, value, false);
                                     } else {
                                         alert("Word Processor only works with MULTILINE_VARCHAR data type.");
+                                        $component.change(changeEvent(propertyType));
                                     }
                                     break;
                                 case 'Spreadsheet':
@@ -799,6 +800,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
                                         $component = $jexcelContainer;
                                     } else {
                                         alert("Spreadsheet only works with XML data type.");
+                                        $component.change(changeEvent(propertyType));
                                     }
                                     break;
                             }
