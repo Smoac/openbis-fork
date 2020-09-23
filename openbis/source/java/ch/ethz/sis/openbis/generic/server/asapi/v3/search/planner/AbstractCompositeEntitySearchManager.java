@@ -75,10 +75,16 @@ public abstract class AbstractCompositeEntitySearchManager<CRITERIA extends Abst
                 authorisationInformation);
     }
 
-    protected Set<Long> doSearchForIDs(final Long userId, final Collection<ISearchCriteria> parentsCriteria,
-            final Collection<ISearchCriteria> childrenCriteria, final Collection<ISearchCriteria> mainCriteria,
-            final SearchOperator finalSearchOperator, final String idsColumnName, final TableMapper tableMapper, final AuthorisationInformation authorisationInformation)
+    protected Set<Long> doSearchForIDs(final Long userId,
+            final Collection<ISearchCriteria> upstreamRelationshipsCriteria,
+            final Collection<ISearchCriteria> downstreamRelationshipsCriteria,
+            final Collection<ISearchCriteria> mainCriteria,
+            final SearchOperator finalSearchOperator, final String idsColumnName, final TableMapper tableMapper,
+            final AuthorisationInformation authorisationInformation)
     {
+        // upstreamRelationshipsCriteria & downstreamRelationshipsCriteria are relationships from the relationships
+        // table, for datasets it is both the parent-child relationships and containers but for samples it is only the
+        // parent-child ones.
         final Set<Long> mainCriteriaIntermediateResults;
         if (!mainCriteria.isEmpty())
         {
@@ -92,45 +98,61 @@ public abstract class AbstractCompositeEntitySearchManager<CRITERIA extends Abst
         }
 
         final Set<Long> parentCriteriaIntermediateResults;
-        if (!parentsCriteria.isEmpty())
+        final Set<Long> containerCriteriaIntermediateResults;
+        if (!upstreamRelationshipsCriteria.isEmpty())
         {
-            parentCriteriaIntermediateResults = Arrays.stream(IGetRelationshipIdExecutor.RelationshipType.values())
-                    .flatMap(relationshipType ->
-                    {
-                        final Collection<ISearchCriteria> filteredParentsCriteria =
-                                getCriteriaByRelationshipType(parentsCriteria, relationshipType);
+            final Collection<ISearchCriteria> filteredParentsCriteria =
+                    getCriteriaByRelationshipType(upstreamRelationshipsCriteria,
+                            IGetRelationshipIdExecutor.RelationshipType.PARENT_CHILD);
 
-                        // The parents criteria can be or not recursive, they are resolved by a recursive call
-                        final Set<Long> finalParentIds = findFinalRelationshipIds(userId, authorisationInformation,
-                                finalSearchOperator, filteredParentsCriteria, tableMapper);
-                        final Set<Long> finalParentIdsFiltered = filterIDsByUserRights(userId, authorisationInformation,
-                                finalParentIds);
-                        return getChildrenIdsOf(finalParentIdsFiltered, tableMapper,
-                                relationshipType).stream();
+            if (!filteredParentsCriteria.isEmpty())
+            {
+                final Set<Long> finalParentIds = findFinalRelationshipIds(userId, authorisationInformation,
+                        finalSearchOperator, filteredParentsCriteria, tableMapper);
+                final Set<Long> finalParentIdsFiltered = filterIDsByUserRights(userId, authorisationInformation,
+                        finalParentIds);
+                parentCriteriaIntermediateResults = getChildrenIdsOf(finalParentIdsFiltered, tableMapper,
+                        IGetRelationshipIdExecutor.RelationshipType.PARENT_CHILD);
+            } else
+                {
+                parentCriteriaIntermediateResults = null;
+            }
 
-                    }).collect(Collectors.toSet());
+            final Collection<ISearchCriteria> filteredContainersCriteria =
+                    getCriteriaByRelationshipType(upstreamRelationshipsCriteria,
+                            IGetRelationshipIdExecutor.RelationshipType.CONTAINER_COMPONENT);
+
+            if (!filteredContainersCriteria.isEmpty())
+            {
+                final Set<Long> finalContainerIds = findFinalRelationshipIds(userId, authorisationInformation,
+                        finalSearchOperator, filteredContainersCriteria, tableMapper);
+                final Set<Long> finalContainerIdsFiltered = filterIDsByUserRights(userId, authorisationInformation,
+                        finalContainerIds);
+                containerCriteriaIntermediateResults = getChildrenIdsOf(finalContainerIdsFiltered, tableMapper,
+                        IGetRelationshipIdExecutor.RelationshipType.CONTAINER_COMPONENT);
+            } else
+            {
+                containerCriteriaIntermediateResults = null;
+            }
         } else
         {
             parentCriteriaIntermediateResults = null;
+            containerCriteriaIntermediateResults = null;
         }
 
         final Set<Long> childrenCriteriaIntermediateResults;
-        if (!childrenCriteria.isEmpty())
+        if (!downstreamRelationshipsCriteria.isEmpty())
         {
-            childrenCriteriaIntermediateResults = Arrays.stream(IGetRelationshipIdExecutor.RelationshipType.values())
-                    .flatMap(relationshipType ->
-                    {
-                        final Collection<ISearchCriteria> filteredChildrenCriteria =
-                                getCriteriaByRelationshipType(childrenCriteria, relationshipType);
+            final Collection<ISearchCriteria> filteredChildrenCriteria =
+                    getCriteriaByRelationshipType(downstreamRelationshipsCriteria,
+                            IGetRelationshipIdExecutor.RelationshipType.PARENT_CHILD);
 
-                        // The children criteria can be or not recursive, they are resolved by a recursive call
-                        final Set<Long> finalChildrenIds = findFinalRelationshipIds(userId, authorisationInformation,
-                                finalSearchOperator, filteredChildrenCriteria, tableMapper);
-                        final Set<Long> finalChildrenIdsFiltered = filterIDsByUserRights(userId,
-                                authorisationInformation, finalChildrenIds);
-                        return getParentsIdsOf(finalChildrenIdsFiltered, tableMapper,
-                                relationshipType).stream();
-                    }).collect(Collectors.toSet());
+            final Set<Long> finalChildrenIds = findFinalRelationshipIds(userId, authorisationInformation,
+                    finalSearchOperator, filteredChildrenCriteria, tableMapper);
+            final Set<Long> finalChildrenIdsFiltered = filterIDsByUserRights(userId,
+                    authorisationInformation, finalChildrenIds);
+            childrenCriteriaIntermediateResults = getParentsIdsOf(finalChildrenIdsFiltered, tableMapper,
+                    IGetRelationshipIdExecutor.RelationshipType.PARENT_CHILD);
         } else
         {
             childrenCriteriaIntermediateResults = null;
@@ -138,15 +160,21 @@ public abstract class AbstractCompositeEntitySearchManager<CRITERIA extends Abst
 
         // Reaching this point we have the intermediate results of all recursive queries
         final Set<Long> results;
-        if (containsValues(mainCriteriaIntermediateResults) || containsValues(parentCriteriaIntermediateResults) ||
-                containsValues(childrenCriteriaIntermediateResults))
+        if (containsValues(mainCriteriaIntermediateResults) || containsValues(parentCriteriaIntermediateResults)
+                || containsValues(containerCriteriaIntermediateResults)
+                || containsValues(childrenCriteriaIntermediateResults))
         {
             // If we have results, we merge them
             results = mergeResults(finalSearchOperator,
-                    mainCriteriaIntermediateResults != null ? Collections.singleton(mainCriteriaIntermediateResults) : Collections.emptySet(),
-                    childrenCriteriaIntermediateResults != null ? Collections.singleton(childrenCriteriaIntermediateResults) : Collections.emptySet(),
-                    parentCriteriaIntermediateResults != null ? Collections.singleton(parentCriteriaIntermediateResults) : Collections.emptySet());
-        } else if (mainCriteria.isEmpty() && parentsCriteria.isEmpty() && childrenCriteria.isEmpty())
+                    mainCriteriaIntermediateResults != null
+                            ? Collections.singleton(mainCriteriaIntermediateResults) : Collections.emptySet(),
+                    childrenCriteriaIntermediateResults != null
+                            ? Collections.singleton(childrenCriteriaIntermediateResults) : Collections.emptySet(),
+                    parentCriteriaIntermediateResults != null
+                            ? Collections.singleton(parentCriteriaIntermediateResults) : Collections.emptySet(),
+                    containerCriteriaIntermediateResults != null
+                            ? Collections.singleton(containerCriteriaIntermediateResults) : Collections.emptySet());
+        } else if (mainCriteria.isEmpty() && upstreamRelationshipsCriteria.isEmpty() && downstreamRelationshipsCriteria.isEmpty())
         {
             // If we don't have results and criteria are empty, return all.
             results = getAllIds(userId, authorisationInformation, idsColumnName, tableMapper);

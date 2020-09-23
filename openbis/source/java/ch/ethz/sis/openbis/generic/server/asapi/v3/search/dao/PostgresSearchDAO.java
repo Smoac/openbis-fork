@@ -89,28 +89,35 @@ public class PostgresSearchDAO implements ISQLSearchDAO
 
     private void assertPropertyTypesConsistent(final TranslationContext translationContext)
     {
-        final String pt = "pt";
-        final String dt = "dt";
-        final String propertyTypeAlias = "propertytype";
-        final String dataTypeAlias = "datatype";
-        final String isManagedInternallyAlias = "ismanagedinternally";
-        final String sql = SELECT + SP + pt + PERIOD + CODE_COLUMN + SP + propertyTypeAlias + COMMA
-                + SP + pt + PERIOD + IS_MANAGED_INTERNALLY + SP + isManagedInternallyAlias + COMMA
-                + SP + dt + PERIOD + CODE_COLUMN + SP + dataTypeAlias + NL
-                + FROM + SP + PROPERTY_TYPES_TABLE + SP + pt + NL
-                + INNER_JOIN + SP + DATA_TYPES_TABLE + SP + dt + SP
-                + ON + SP + pt + PERIOD + DATA_TYPE_COLUMN + SP + EQ + SP + dt + PERIOD + ID_COLUMN;
+        final Map<String, String> dataTypeByPropertyCode;
 
-        final List<Map<String, Object>> queryResultList = sqlExecutor.execute(sql, Collections.emptyList());
-        final Map<String, String> dataTypesOfPropertyTypes = queryResultList.stream().collect(Collectors.toMap(
-                (valueByColumnName) -> ((((Boolean)valueByColumnName.get(isManagedInternallyAlias))?"$":"") + ((String)valueByColumnName.get(propertyTypeAlias))),
-                (valueByColumnName) -> (String) valueByColumnName.get(dataTypeAlias)));
+        if(translationContext.getDataTypeByPropertyCode() == null) {
+            final String pt = "pt";
+            final String dt = "dt";
+            final String propertyTypeAlias = "propertytype";
+            final String dataTypeAlias = "datatype";
+            final String isManagedInternallyAlias = "ismanagedinternally";
+            final String sql = SELECT + SP + pt + PERIOD + CODE_COLUMN + SP + propertyTypeAlias + COMMA
+                    + SP + pt + PERIOD + IS_MANAGED_INTERNALLY + SP + isManagedInternallyAlias + COMMA
+                    + SP + dt + PERIOD + CODE_COLUMN + SP + dataTypeAlias + NL
+                    + FROM + SP + PROPERTY_TYPES_TABLE + SP + pt + NL
+                    + INNER_JOIN + SP + DATA_TYPES_TABLE + SP + dt + SP
+                    + ON + SP + pt + PERIOD + DATA_TYPE_COLUMN + SP + EQ + SP + dt + PERIOD + ID_COLUMN;
+
+            final List<Map<String, Object>> queryResultList = sqlExecutor.execute(sql, Collections.emptyList());
+            dataTypeByPropertyCode = queryResultList.stream().collect(Collectors.toMap(
+                    (valueByColumnName) -> ((((Boolean) valueByColumnName.get(isManagedInternallyAlias)) ? "$" : "") + ((String) valueByColumnName.get(propertyTypeAlias))),
+                    (valueByColumnName) -> (String) valueByColumnName.get(dataTypeAlias)));
+            translationContext.setDataTypeByPropertyCode(dataTypeByPropertyCode);
+        } else {
+            dataTypeByPropertyCode = translationContext.getDataTypeByPropertyCode();
+        }
 
         translationContext.getCriteria().forEach(criterion ->
         {
             if (criterion instanceof NumberPropertySearchCriteria)
             {
-                final String dataType = dataTypesOfPropertyTypes.get(((NumberPropertySearchCriteria) criterion)
+                final String dataType = dataTypeByPropertyCode.get(((NumberPropertySearchCriteria) criterion)
                         .getFieldName());
                 if (!dataType.equals(DataTypeCode.INTEGER.toString())
                         && !dataType.equals(DataTypeCode.REAL.toString()))
@@ -119,7 +126,7 @@ public class PostgresSearchDAO implements ISQLSearchDAO
                 }
             } else if (criterion instanceof DatePropertySearchCriteria)
             {
-                final String dataType = dataTypesOfPropertyTypes.get(((DatePropertySearchCriteria) criterion)
+                final String dataType = dataTypeByPropertyCode.get(((DatePropertySearchCriteria) criterion)
                         .getFieldName());
                 if (!dataType.equals(DataTypeCode.TIMESTAMP.toString())
                         && !dataType.equals(DataTypeCode.DATE.toString()))

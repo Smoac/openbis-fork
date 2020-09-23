@@ -50,6 +50,8 @@ public class TranslationContext
 
     private Map<String, String> dataTypeByPropertyName;
 
+    private Map<String, String> dataTypeByPropertyCode;
+
     private Collection<Long> ids;
 
     private SortOptions<?> sortOptions;
@@ -141,6 +143,14 @@ public class TranslationContext
     public void setDataTypeByPropertyName(final Map<String, String> dataTypeByPropertyName)
     {
         this.dataTypeByPropertyName = dataTypeByPropertyName;
+    }
+
+    public Map<String, String> getDataTypeByPropertyCode() {
+        return dataTypeByPropertyCode;
+    }
+
+    public void setDataTypeByPropertyCode(Map<String, String> dataTypeByPropertyCode) {
+        this.dataTypeByPropertyCode = dataTypeByPropertyCode;
     }
 
     public Collection<Long> getIds()

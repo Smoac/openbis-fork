@@ -37,26 +37,22 @@ import java.util.Set;
  * 
  * @author Viktor Kovtun
  */
-public class SampleContainerSearchManager extends AbstractCompositeEntitySearchManager<SampleContainerSearchCriteria, Sample, Long>
+public class SampleContainerSearchManager extends AbstractLocalSearchManager<SampleContainerSearchCriteria, Sample,
+        Long>
 {
 
-    public SampleContainerSearchManager(final ISQLSearchDAO searchDAO, final ISQLAuthorisationInformationProviderDAO authProvider,
+    public SampleContainerSearchManager(final ISQLSearchDAO searchDAO,
+            final ISQLAuthorisationInformationProviderDAO authProvider,
             final IID2PEMapper<Long, Long> idsMapper)
     {
         super(searchDAO, authProvider, idsMapper);
-    }
-
-    @Override
-    protected Class<? extends AbstractCompositeSearchCriteria> getParentsSearchCriteriaClass()
-    {
-        return SampleParentsSearchCriteria.class;
     }
 
     public Set<Long> searchForIDs(final Long userId, final AuthorisationInformation authorisationInformation,
             final SampleContainerSearchCriteria criteria,
             final AbstractCompositeSearchCriteria parentCriteria, final String idsColumnName)
     {
-        return doSearchForIDs(userId, authorisationInformation, criteria, null, idsColumnName, TableMapper.SAMPLE);
+        return super.searchForIDs(userId, authorisationInformation, criteria, idsColumnName, TableMapper.SAMPLE);
     }
 
     @Override
@@ -65,29 +61,9 @@ public class SampleContainerSearchManager extends AbstractCompositeEntitySearchM
     }
 
     @Override
-    protected Class<? extends AbstractCompositeSearchCriteria> getChildrenSearchCriteriaClass()
-    {
-        return SampleChildrenSearchCriteria.class;
-    }
-
-    @Override
-    protected SampleContainerSearchCriteria createEmptyCriteria()
-    {
-        throw new UnsupportedOperationException("This method is not supposed to be called.");
-    }
-
-    @Override
     protected Set<Long> doFilterIDsByUserRights(final Set<Long> ids, final AuthorisationInformation authorisationInformation)
     {
         return getAuthProvider().getAuthorisedSamples(ids, authorisationInformation);
-    }
-
-    @Override
-    protected Set<Long> getAllIds(final Long userId, final AuthorisationInformation authorisationInformation, final String idsColumnName,
-            final TableMapper tableMapper)
-    {
-        return getSearchDAO().queryDBWithNonRecursiveCriteria(userId, new DummyCompositeSearchCriterion(), tableMapper,
-                idsColumnName, authorisationInformation);
     }
 
 }
