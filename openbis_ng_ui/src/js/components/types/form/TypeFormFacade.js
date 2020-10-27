@@ -200,6 +200,7 @@ export default class TypeFormFacade {
       criteria.withType().withCode().thatEquals(typeCode)
 
       const fo = strategy.createEntityFetchOptions()
+      fo.from(0)
       fo.count(0)
 
       return strategy.createEntitySearchOperation(criteria, fo)
@@ -238,6 +239,7 @@ export default class TypeFormFacade {
       criteria.withProperty(propertyTypeCode)
 
       const fo = strategy.createEntityFetchOptions()
+      fo.from(0)
       fo.count(0)
 
       return strategy.createEntitySearchOperation(criteria, fo)
@@ -296,6 +298,7 @@ export default class TypeFormFacade {
       criteria.withProperty(propertyTypeCode)
 
       const fo = strategy.createEntityFetchOptions()
+      fo.from(0)
       fo.count(0)
 
       return strategy.createEntitySearchOperation(criteria, fo)

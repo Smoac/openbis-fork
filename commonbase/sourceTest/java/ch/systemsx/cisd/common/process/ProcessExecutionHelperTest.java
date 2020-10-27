@@ -470,7 +470,7 @@ public class ProcessExecutionHelperTest
         assertEquals(stdout1, result.getOutput().get(0));
         assertEquals(stderr1, result.getOutput().get(1));
         assertEquals(stdout2, result.getOutput().get(2));
-        assertEquals(143, result.getExitValue());
+        assertTrue(result.getExitValue() != 0);
     }
 
     @Test(groups =
