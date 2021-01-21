@@ -188,34 +188,6 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
     }
 
     @Override
-    public void tryDeleteOrInvalidatePredeployedPlugin(String name, ScriptType scriptType)
-    {
-        assert name != null : "Script name cannot be null";
-        assert scriptType != null : "Script type cannot be null";
-
-        IScriptDAO scriptDAO = getScriptDAO();
-        script = scriptDAO.tryFindByName(name);
-
-        if (script != null)
-        {
-            if (script.getPluginType() == PluginType.PREDEPLOYED
-                    && script.getScriptType() == scriptType)
-            {
-                script.setAvailable(false);
-                save();
-            } else
-            {
-                StringBuilder sb = new StringBuilder("Cannot delete ");
-                sb.append(scriptType)
-                        .append(" plugin '")
-                        .append(name)
-                        .append("' because plugin of different kind with the same name already exists.");
-                throw new IllegalArgumentException(sb.toString());
-            }
-        }
-    }
-
-    @Override
     public void update(IScriptUpdates updates)
     {
         loadDataByTechId(TechId.create(updates));

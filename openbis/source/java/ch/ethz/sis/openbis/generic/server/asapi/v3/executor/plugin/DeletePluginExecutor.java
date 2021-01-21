@@ -33,11 +33,9 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.AbstractDeleteEntityExecutor;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.generic.server.IHotDeploymentController;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IScriptDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.IEntityValidatorFactory;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 
 /**
@@ -83,29 +81,9 @@ public class DeletePluginExecutor
     protected Void delete(IOperationContext context, Collection<ScriptPE> entities, PluginDeletionOptions deletionOptions)
     {
         IScriptDAO scriptDAO = daoFactory.getScriptDAO();
-        List<String> namesOfPredeployedPlugins = new ArrayList<String>();
         for (ScriptPE script : entities)
         {
-            if (script.getPluginType() == PluginType.PREDEPLOYED)
-            {
-                namesOfPredeployedPlugins.add(script.getName());
-            }
             scriptDAO.delete(script);
-        }
-        if (namesOfPredeployedPlugins.isEmpty() == false)
-        {
-            IHotDeploymentController hotDeploymentController =
-                    entityValidationFactory.getHotDeploymentController();
-            if (hotDeploymentController == null)
-            {
-                operationLog.warn("Can not disable pre-deployed plugins because of missing controller.");
-            } else
-            {
-                for (String name : namesOfPredeployedPlugins)
-                {
-                    hotDeploymentController.disablePlugin(name);
-                }
-            }
         }
         return null;
     }

@@ -1927,7 +1927,6 @@ get Script
 get Script Type
 is Available
 JYTHON
-PREDEPLOYED
 MANAGED_PROPERTY
 NAME
 Plugin

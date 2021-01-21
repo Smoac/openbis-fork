@@ -2163,30 +2163,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     {
         Session session = getSession(sessionToken);
         IScriptBO scriptBO = businessObjectFactory.createScriptBO(session);
-        List<String> namesOfPredeployedPlugins = new ArrayList<String>();
         for (TechId id : scriptIds)
         {
             ScriptPE script = scriptBO.deleteByTechId(id);
-            if (script.getPluginType() == PluginType.PREDEPLOYED)
-            {
-                namesOfPredeployedPlugins.add(script.getName());
-            }
-        }
-        if (namesOfPredeployedPlugins.isEmpty())
-        {
-            return;
-        }
-        IHotDeploymentController hotDeploymentController =
-                entityValidationFactory.getHotDeploymentController();
-        if (hotDeploymentController == null)
-        {
-            operationLog
-                    .warn("Can not disable hot-deployed plugins because of missing controller.");
-            return;
-        }
-        for (String name : namesOfPredeployedPlugins)
-        {
-            hotDeploymentController.disablePlugin(name);
         }
     }
 
@@ -3095,37 +3074,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     @Override
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
-    public void registerOrUpdatePredeployedPlugin(String sessionToken, Script script)
-    {
-        Session session = getSession(sessionToken);
-        try
-        {
-            IScriptBO bo = businessObjectFactory.createScriptBO(session);
-            bo.tryDefineOrUpdateIfPossible(script);
-        } catch (IllegalArgumentException e)
-        {
-            operationLog.warn(e.getMessage());
-        }
-    }
-
-    @Override
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
-    public void invalidatePredeployedPlugin(String sessionToken, String name, ScriptType scriptType)
-    {
-        Session session = getSession(sessionToken);
-
-        try
-        {
-            IScriptBO bo = businessObjectFactory.createScriptBO(session);
-            bo.tryDeleteOrInvalidatePredeployedPlugin(name, scriptType);
-        } catch (IllegalArgumentException e)
-        {
-            operationLog.warn(e.getMessage());
-        }
-    }
-
-    @Override
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public void deleteAuthorizationGroups(String sessionToken, List<TechId> authGroupIds,
             String reason)
     {
@@ -3158,10 +3106,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final List<ScriptPE> scripts =
                 getDAOFactory().getScriptDAO().listEntities(scriptTypeOrNull, entityKindOrNull);
         Collections.sort(scripts);
-        List<Script> result =
-                ScriptTranslator.enhancePredeployedPlugins(ScriptTranslator.translate(scripts),
-                        entityValidationFactory, dynamicPropertyCalculatorFactory,
-                        managedPropertyEvaluatorFactory);
+        List<Script> result = ScriptTranslator.translate(scripts);
+
         if (entityKindOrNull != null)
         {
             for (Iterator<Script> iterator = result.iterator(); iterator.hasNext();)
@@ -3427,9 +3373,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     {
         getSession(sessionToken);
         ScriptPE script = getDAOFactory().getScriptDAO().getByTechId(scriptId);
-        return ScriptTranslator.enhancePredeployedPlugin(ScriptTranslator.translate(script),
-                entityValidationFactory, dynamicPropertyCalculatorFactory,
-                managedPropertyEvaluatorFactory);
+        return ScriptTranslator.translate(script);
     }
 
     @Override
@@ -4426,25 +4370,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     private AuthorizationServiceUtils getAuthorizationService(Session session)
     {
         return new AuthorizationServiceUtils(getDAOFactory(), session.tryGetPerson());
-    }
-
-    @Override
-    @RolesAllowed(RoleWithHierarchy.PROJECT_OBSERVER)
-    public List<String> listPredeployedPlugins(String sessionToken, ScriptType scriptType)
-    {
-        checkSession(sessionToken);
-
-        switch (scriptType)
-        {
-            case ENTITY_VALIDATION:
-                return entityValidationFactory.listPredeployedPlugins();
-            case DYNAMIC_PROPERTY:
-                return dynamicPropertyCalculatorFactory.listPredeployedPlugins();
-            case MANAGED_PROPERTY:
-                return managedPropertyEvaluatorFactory.listPredeployedPlugins();
-        }
-
-        return null;
     }
 
     @Override
