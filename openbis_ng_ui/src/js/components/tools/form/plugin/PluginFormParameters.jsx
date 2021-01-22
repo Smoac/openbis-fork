@@ -81,7 +81,6 @@ class PluginFormParameters extends React.PureComponent {
       <Container>
         {this.renderHeader(plugin)}
         {this.renderMessageDisabled(plugin)}
-        {this.renderMessagePredeployed(plugin)}
         {this.renderName(plugin)}
         {this.renderEntityKind(plugin)}
         {this.renderDescription(plugin)}
@@ -113,22 +112,6 @@ class PluginFormParameters extends React.PureComponent {
         <div className={classes.field}>
           <Message type='warning'>
             {messages.get(messages.PLUGIN_IS_DISABLED)}
-          </Message>
-        </div>
-      )
-    } else {
-      return null
-    }
-  }
-
-  renderMessagePredeployed(plugin) {
-    const { classes } = this.props
-
-    if (plugin.pluginKind === openbis.PluginKind.PREDEPLOYED) {
-      return (
-        <div className={classes.field}>
-          <Message type='info'>
-            {messages.get(messages.PLUGIN_IS_PREDEPLOYED)}
           </Message>
         </div>
       )

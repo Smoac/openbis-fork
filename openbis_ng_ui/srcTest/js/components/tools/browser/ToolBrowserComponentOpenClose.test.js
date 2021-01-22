@@ -16,7 +16,6 @@ describe(ToolBrowserComponentTest.SUITE, () => {
 async function testOpenClose() {
   const {
     testDynamicPropertyJythonPlugin,
-    testDynamicPropertyPredeployedPlugin,
     testManagedPropertyJythonPlugin,
     testEntityValidationJythonPlugin,
     testQuery
@@ -24,7 +23,6 @@ async function testOpenClose() {
 
   openbis.mockSearchPlugins([
     testDynamicPropertyJythonPlugin,
-    testDynamicPropertyPredeployedPlugin,
     testManagedPropertyJythonPlugin,
     testEntityValidationJythonPlugin
   ])
@@ -42,13 +40,12 @@ async function testOpenClose() {
     nodes: [
       { level: 0, text: 'Dynamic Property Plugins' },
       { level: 1, text: testDynamicPropertyJythonPlugin.name },
-      { level: 1, text: testDynamicPropertyPredeployedPlugin.name },
       { level: 0, text: 'Entity Validation Plugins' },
       { level: 0, text: 'Queries' }
     ]
   })
 
-  browser.getNodes()[3].getIcon().click()
+  browser.getNodes()[2].getIcon().click()
   await browser.update()
 
   browser.expectJSON({
@@ -58,14 +55,13 @@ async function testOpenClose() {
     nodes: [
       { level: 0, text: 'Dynamic Property Plugins' },
       { level: 1, text: testDynamicPropertyJythonPlugin.name },
-      { level: 1, text: testDynamicPropertyPredeployedPlugin.name },
       { level: 0, text: 'Entity Validation Plugins' },
       { level: 1, text: testEntityValidationJythonPlugin.name },
       { level: 0, text: 'Queries' }
     ]
   })
 
-  browser.getNodes()[5].getIcon().click()
+  browser.getNodes()[4].getIcon().click()
   await browser.update()
 
   browser.expectJSON({
@@ -75,7 +71,6 @@ async function testOpenClose() {
     nodes: [
       { level: 0, text: 'Dynamic Property Plugins' },
       { level: 1, text: testDynamicPropertyJythonPlugin.name },
-      { level: 1, text: testDynamicPropertyPredeployedPlugin.name },
       { level: 0, text: 'Entity Validation Plugins' },
       { level: 1, text: testEntityValidationJythonPlugin.name },
       { level: 0, text: 'Queries' },
@@ -83,7 +78,7 @@ async function testOpenClose() {
     ]
   })
 
-  browser.getNodes()[5].getIcon().click()
+  browser.getNodes()[4].getIcon().click()
   await browser.update()
 
   browser.expectJSON({
@@ -93,7 +88,6 @@ async function testOpenClose() {
     nodes: [
       { level: 0, text: 'Dynamic Property Plugins' },
       { level: 1, text: testDynamicPropertyJythonPlugin.name },
-      { level: 1, text: testDynamicPropertyPredeployedPlugin.name },
       { level: 0, text: 'Entity Validation Plugins' },
       { level: 1, text: testEntityValidationJythonPlugin.name },
       { level: 0, text: 'Queries' }

@@ -16,7 +16,6 @@ describe(ToolBrowserComponentTest.SUITE, () => {
 async function testFilter() {
   const {
     testDynamicPropertyJythonPlugin,
-    testDynamicPropertyPredeployedPlugin,
     testManagedPropertyJythonPlugin,
     testEntityValidationJythonPlugin,
     testQuery
@@ -24,7 +23,6 @@ async function testFilter() {
 
   openbis.mockSearchPlugins([
     testDynamicPropertyJythonPlugin,
-    testDynamicPropertyPredeployedPlugin,
     testManagedPropertyJythonPlugin,
     testEntityValidationJythonPlugin
   ])
@@ -57,7 +55,6 @@ async function testFilter() {
     nodes: [
       { level: 0, text: 'Dynamic Property Plugins' },
       { level: 1, text: testDynamicPropertyJythonPlugin.name },
-      { level: 1, text: testDynamicPropertyPredeployedPlugin.name },
       { level: 0, text: 'Entity Validation Plugins' },
       { level: 1, text: testEntityValidationJythonPlugin.name },
       { level: 0, text: 'Queries' },
