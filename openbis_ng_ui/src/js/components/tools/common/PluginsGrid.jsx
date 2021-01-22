@@ -45,11 +45,6 @@ class PluginsGrid extends React.PureComponent {
             getValue: ({ row }) => row.description.value
           },
           {
-            name: 'pluginKind',
-            label: messages.get(messages.PLUGIN_KIND),
-            getValue: ({ row }) => row.pluginKind.value
-          },
-          {
             name: 'entityKind',
             label: messages.get(messages.ENTITY_KIND),
             getValue: ({ row }) => {
