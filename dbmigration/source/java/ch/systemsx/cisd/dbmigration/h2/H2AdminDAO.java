@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 
 import javax.sql.DataSource;
 
+import ch.systemsx.cisd.dbmigration.*;
 import org.apache.log4j.Logger;
 import org.h2.tools.DeleteDbFiles;
 import org.springframework.jdbc.support.SQLErrorCodesFactory;
@@ -36,15 +37,10 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.dbmigration.AbstractDatabaseAdminDAO;
-import ch.systemsx.cisd.dbmigration.DatabaseVersionLogDAO;
-import ch.systemsx.cisd.dbmigration.IDatabaseAdminDAO;
-import ch.systemsx.cisd.dbmigration.IMassUploader;
-import ch.systemsx.cisd.dbmigration.MassUploadFileType;
 
 /**
  * Implementation of {@link IDatabaseAdminDAO} for H2.
- * 
+ *
  * @author Bernd Rinn
  */
 public class H2AdminDAO extends AbstractDatabaseAdminDAO
@@ -69,7 +65,7 @@ public class H2AdminDAO extends AbstractDatabaseAdminDAO
 
     /**
      * Creates an instance.
-     * 
+     *
      * @param dataSource Data source able to create/drop the specified database.
      * @param scriptExecutor An executor of SQL scripts within the new database.
      * @param massUploader A class that can perform mass (batch) uploads into database tables.
@@ -158,6 +154,12 @@ public class H2AdminDAO extends AbstractDatabaseAdminDAO
         massUploader.performMassUpload(massUploadFiles);
         final Script finishScript = tryLoadScript(dumpFolder, "finish", version);
         scriptExecutor.execute(finishScript, true, null);
+    }
+
+    @Override
+    public void applyFullTextSearchScripts(final ISqlScriptProvider scriptProvider, final String version, final boolean applyMainScript)
+    {
+        // No implementation.
     }
 
     private Script tryLoadScript(final File dumpFolder, String prefix, String version)

@@ -176,7 +176,7 @@ class SelectFormField extends React.PureComponent {
   }
 
   renderOption(option) {
-    const { emptyOption, classes } = this.props
+    const { classes } = this.props
 
     return (
       <MenuItem
@@ -184,11 +184,7 @@ class SelectFormField extends React.PureComponent {
         value={option.value || ''}
         classes={{ root: classes.option }}
       >
-        {option === emptyOption ? (
-          <em>{this.getOptionText(option)}</em>
-        ) : (
-          this.getOptionText(option)
-        )}
+        {this.getOptionText(option)}
       </MenuItem>
     )
   }

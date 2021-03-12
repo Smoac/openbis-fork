@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
 import org.apache.commons.dbcp.BasicDataSource;
@@ -96,6 +97,11 @@ public class DatabaseConfigurationContext implements DisposableBean
         setOwner(null);
         setPassword("");
         setSequenceUpdateNeeded(true);
+    }
+
+    @PostConstruct
+    private void setTestEnvironmentHostOrConfigured() {
+        this.urlHostPart = DatabaseEngine.getTestEnvironmentHostOrConfigured(this.urlHostPart);
     }
 
     public final void initDataSourceFactory(final IDataSourceFactory factory)
@@ -178,7 +184,7 @@ public class DatabaseConfigurationContext implements DisposableBean
     private final String getUrl(final String dsDatabaseName) throws ConfigurationFailureException
     {
         checkDatabaseEngine();
-        return databaseEngine.getURL(urlHostPart, dsDatabaseName);
+        return databaseEngine.getURL(this.urlHostPart, dsDatabaseName);
     }
 
     /**
@@ -414,7 +420,7 @@ public class DatabaseConfigurationContext implements DisposableBean
      */
     public final String getUrlHostPart()
     {
-        return urlHostPart;
+        return this.urlHostPart;
     }
 
     /**
@@ -430,6 +436,7 @@ public class DatabaseConfigurationContext implements DisposableBean
         {
             this.urlHostPart = null;
         }
+        setTestEnvironmentHostOrConfigured();
     }
 
     private boolean isSet(String propertyValueStr)
@@ -493,7 +500,7 @@ public class DatabaseConfigurationContext implements DisposableBean
     private final String getAdminURL() throws ConfigurationFailureException
     {
         checkDatabaseEngine();
-        return databaseEngine.getAdminURL(urlHostPart, getDatabaseName());
+        return databaseEngine.getAdminURL(this.urlHostPart, getDatabaseName());
     }
 
     /**

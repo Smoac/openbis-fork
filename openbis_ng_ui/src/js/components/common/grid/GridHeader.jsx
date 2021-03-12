@@ -13,7 +13,8 @@ const styles = theme => ({
       top: 0,
       zIndex: 10,
       fontWeight: 'bold',
-      backgroundColor: theme.palette.background.primary
+      backgroundColor: theme.palette.background.primary,
+      minWidth: '120px'
     }
   },
   cell: {
@@ -45,7 +46,7 @@ class GridHeader extends React.PureComponent {
 
     return (
       <GridHeaderLabel
-        key={column.field}
+        key={column.name}
         column={column}
         sort={sort}
         sortDirection={sortDirection}
@@ -59,9 +60,9 @@ class GridHeader extends React.PureComponent {
 
     return (
       <GridHeaderFilter
-        key={column.field}
+        key={column.name}
         column={column}
-        filter={filters[column.field]}
+        filter={filters[column.name]}
         onFilterChange={onFilterChange}
       />
     )

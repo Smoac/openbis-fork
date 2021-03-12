@@ -25,8 +25,5 @@ export default class TypeFormControllerTest {
     expect(this.facade.loadType).toHaveBeenCalledWith(
       this.context.getProps().object
     )
-    expect(this.facade.loadUsages).toHaveBeenCalledWith(
-      this.context.getProps().object
-    )
   }
 }

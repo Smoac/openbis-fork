@@ -20,7 +20,6 @@ import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.Sear
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.*;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.utils.TranslatorUtils.appendStringComparatorOp;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.utils.TranslatorUtils.buildFullIdentifierConcatenationString;
-import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.ID_COLUMN;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.SAMPLE_IDENTIFIER_COLUMN;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.PROJECTS_TABLE;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.SPACES_TABLE;
@@ -76,33 +75,15 @@ public class IdentifierSearchConditionTranslator implements IConditionTranslator
 
         if (tableMapper != TableMapper.SAMPLE)
         {
-            buildFullIdentifierConcatenationString(sqlBuilder, spacesTableAlias, projectsTableAlias, samplesTableAlias);
+            buildFullIdentifierConcatenationString(sqlBuilder, spacesTableAlias, projectsTableAlias, samplesTableAlias,
+                    true);
         } else
         {
             sqlBuilder.append(LOWER).append(LP).append(MAIN_TABLE_ALIAS).append(PERIOD)
                     .append(SAMPLE_IDENTIFIER_COLUMN).append(RP);
         }
-        appendStringComparatorOp(fieldValue.getClass(), fieldValue.getValue().toLowerCase(), sqlBuilder, args);
-    }
-
-    /**
-     * Builds the following query:<p/>
-     * <code>
-     *     t0.[columnName] = (SELECT id FROM [subqueryTable] WHERE [subqueryTableColumn] = ?)
-     * </code>
-     * @param sqlBuilder SQL builder to add the query part to.
-     * @param columnName name of the column in the main table to be equal to the result in the subquery.
-     * @param subqueryTable table which should be queried for code.
-     * @param subqueryTableColumn name of the column in the subtable to search by.
-     */
-    private static void buildSelectByIdConditionWithSubquery(final StringBuilder sqlBuilder, final String columnName, final String subqueryTable,
-            final String subqueryTableColumn, final Class<?> valueClass, final String finalValue, final List<Object> args)
-    {
-        sqlBuilder.append(MAIN_TABLE_ALIAS).append(PERIOD).append(columnName).append(SP).append(IN).append(SP).append(LP).
-                append(SELECT).append(SP).append(ID_COLUMN).append(SP).append(FROM).append(SP).append(subqueryTable).append(SP).
-                append(WHERE).append(SP).append(subqueryTableColumn).append(SP);
-        appendStringComparatorOp(valueClass, finalValue, sqlBuilder, args);
-        sqlBuilder.append(RP);
+        appendStringComparatorOp(fieldValue.getClass(), fieldValue.getValue().toLowerCase(), criterion.isUseWildcards(),
+                sqlBuilder, args);
     }
 
 }

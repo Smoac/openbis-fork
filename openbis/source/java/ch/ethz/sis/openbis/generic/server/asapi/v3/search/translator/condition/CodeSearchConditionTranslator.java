@@ -21,98 +21,46 @@ import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractStringValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringFieldSearchCriteria;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sample.SampleIdentifierParts;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SearchCriteriaTranslator;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.utils.FullEntityIdentifier;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.utils.JoinInformation;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.utils.TranslatorUtils;
 
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.AND;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.EQ;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.FROM;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.IS_NOT_NULL;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.LP;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.PERIOD;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.RP;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.SELECT;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.SP;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.WHERE;
-import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.CODE_COLUMN;
-import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.ID_COLUMN;
-import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.NAME_COLUMN;
-import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.OWNER_COLUMN;
-import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.PART_OF_SAMPLE_COLUMN;
-import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.USER_COLUMN;
-import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.PERSONS_TABLE;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper.SAMPLE;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper.TAG;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.*;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.*;
 
 public class CodeSearchConditionTranslator implements IConditionTranslator<StringFieldSearchCriteria>
 {
 
     @Override
-    public Map<String, JoinInformation> getJoinInformationMap(final StringFieldSearchCriteria criterion, final TableMapper tableMapper,
-            final IAliasFactory aliasFactory)
+    public Map<String, JoinInformation> getJoinInformationMap(final StringFieldSearchCriteria criterion,
+            final TableMapper tableMapper, final IAliasFactory aliasFactory)
     {
         return null;
     }
 
     @Override
-    public void translate(final StringFieldSearchCriteria criterion, final TableMapper tableMapper, final List<Object> args,
-            final StringBuilder sqlBuilder, final Map<String, JoinInformation> aliases,
+    public void translate(final StringFieldSearchCriteria criterion, final TableMapper tableMapper,
+            final List<Object> args, final StringBuilder sqlBuilder, final Map<String, JoinInformation> aliases,
             final Map<String, String> dataTypeByPropertyCode)
     {
         switch (criterion.getFieldType())
         {
             case ATTRIBUTE:
             {
-                final String columnName = (criterion.getFieldName().equals(NAME_COLUMN)) ?  NAME_COLUMN : CODE_COLUMN;
                 final AbstractStringValue value = criterion.getFieldValue();
-
+                final boolean useWildcards = criterion.isUseWildcards();
                 if (value != null && value.getValue() != null)
                 {
-                    final String innerValue = value.getValue();
-
-                    final FullEntityIdentifier fullObjectIdentifier = new FullEntityIdentifier(innerValue, null);
-                    final SampleIdentifierParts identifierParts = fullObjectIdentifier.getParts();
-
-                    if (identifierParts.getProjectCodeOrNull() != null)
-                    {
-                        throw new IllegalArgumentException("There cannot be project code for this entity.");
-                    }
-
-                    final String entityCode = fullObjectIdentifier.getEntityCode();
-                    final String spaceCode = identifierParts.getSpaceCodeOrNull();
-                    final String containerCode = identifierParts.getContainerCodeOrNull();
-
-                    if (spaceCode != null)
-                    {
-                        sqlBuilder.append(SearchCriteriaTranslator.MAIN_TABLE_ALIAS).append(PERIOD).append(OWNER_COLUMN).append(SP).append(EQ).append(SP).
-                                append(LP);
-                        sqlBuilder.append(SELECT).append(SP).append(ID_COLUMN).append(SP).
-                                append(FROM).append(SP).append(PERSONS_TABLE).append(SP).
-                                append(WHERE).append(SP).append(USER_COLUMN).append(SP);
-                        TranslatorUtils.appendStringComparatorOp(value.getClass(), spaceCode.toLowerCase(), sqlBuilder, args);
-                        sqlBuilder.append(RP);
-                        sqlBuilder.append(SP).append(AND).append(SP);
-                    }
-
-                    if (containerCode != null)
-                    {
-                        sqlBuilder.append(SearchCriteriaTranslator.MAIN_TABLE_ALIAS).append(PERIOD).append(PART_OF_SAMPLE_COLUMN).append(SP).
-                                append(EQ).append(SP).append(LP).
-                                append(SELECT).append(SP).append(ID_COLUMN).append(SP).append(FROM).append(SP).
-                                append(tableMapper.getEntitiesTable()).append(SP).
-                                append(WHERE).append(SP).append(columnName).append(SP);
-                        TranslatorUtils.appendStringComparatorOp(value.getClass(), containerCode, sqlBuilder, args);
-
-                        sqlBuilder.append(RP).append(SP).append(AND).append(SP);
-                    }
-
-                    sqlBuilder.append(SearchCriteriaTranslator.MAIN_TABLE_ALIAS).append(PERIOD).append(columnName).append(SP);
-                    TranslatorUtils.appendStringComparatorOp(value.getClass(), entityCode, sqlBuilder, args);
+                    final String stringValue = value.getValue();
+                    translateSearchByCodeCondition(sqlBuilder, tableMapper, value.getClass(), stringValue, useWildcards,
+                            args);
                 } else
                 {
-                    sqlBuilder.append(SearchCriteriaTranslator.MAIN_TABLE_ALIAS).append(PERIOD).append(columnName).append(SP).append(IS_NOT_NULL);
+                    sqlBuilder.append(SearchCriteriaTranslator.MAIN_TABLE_ALIAS).append(PERIOD).append(CODE_COLUMN)
+                            .append(SP).append(IS_NOT_NULL);
                 }
                 break;
             }
@@ -124,6 +72,65 @@ public class CodeSearchConditionTranslator implements IConditionTranslator<Strin
                 throw new IllegalArgumentException();
             }
         }
+    }
+
+    static void translateSearchByCodeCondition(final StringBuilder sqlBuilder, final TableMapper tableMapper,
+            final Class<?> valueClass, final String stringValue, final boolean useWildcards,
+            final List<Object> args)
+    {
+        if (tableMapper == SAMPLE)
+        {
+            buildCodeQueryForSamples(sqlBuilder, () -> TranslatorUtils.appendStringComparatorOp(
+                    valueClass, stringValue, useWildcards, sqlBuilder, args));
+        } else
+        {
+            final String column = (tableMapper == TAG) ? NAME_COLUMN : CODE_COLUMN;
+            sqlBuilder.append(SearchCriteriaTranslator.MAIN_TABLE_ALIAS).append(PERIOD)
+                    .append(column).append(SP);
+            TranslatorUtils.appendStringComparatorOp(valueClass, stringValue.toUpperCase(),
+                    useWildcards, sqlBuilder, args);
+        }
+    }
+
+    /**
+     * Builds the following query part
+     * <pre>
+     * CASE
+     *     WHEN t0.samp_id_part_of IS NULL THEN code {comparisonBuilder.run()}
+     *     ELSE substr(t0.sample_identifier, length(t0.sample_identifier)
+     *             - strpos(reverse(t0.sample_identifier), '/') + 2) {comparisonBuilder.run()}
+     * END
+     * </pre>
+     * {@code comparisonBuilder.run()} is executed to add string comparisons depending on the use case.
+     *
+     * @param sqlBuilder query builder.
+     * @param comparisonBuilder runnable which adds comparison operators to the query builder.
+     */
+    public static void buildCodeQueryForSamples(final StringBuilder sqlBuilder, final Runnable comparisonBuilder)
+    {
+        sqlBuilder.append(CASE).append(NL)
+                .append(SP).append(SP).append(WHEN).append(SP)
+                .append(SearchCriteriaTranslator.MAIN_TABLE_ALIAS).append(PERIOD)
+                .append(PART_OF_SAMPLE_COLUMN).append(SP).append(IS_NULL).append(SP)
+                .append(THEN).append(SP).append(SearchCriteriaTranslator.MAIN_TABLE_ALIAS)
+                .append(PERIOD).append(CODE_COLUMN);
+        comparisonBuilder.run();
+        sqlBuilder.append(NL).append(SP).append(SP).append(ELSE).append(SP)
+                .append(SUBSTR).append(LP).append(SearchCriteriaTranslator.MAIN_TABLE_ALIAS)
+                .append(PERIOD).append(SAMPLE_IDENTIFIER_COLUMN).append(COMMA).append(SP)
+                .append(LENGTH).append(LP).append(SearchCriteriaTranslator.MAIN_TABLE_ALIAS)
+                .append(PERIOD).append(SAMPLE_IDENTIFIER_COLUMN).append(RP).append(SP)
+                .append(MINUS).append(SP)
+                .append(STRPOS).append(LP)
+                .append(REVERSE).append(LP)
+                .append(SearchCriteriaTranslator.MAIN_TABLE_ALIAS)
+                .append(PERIOD).append(SAMPLE_IDENTIFIER_COLUMN)
+                .append(RP).append(COMMA).append(SP).append(SQ).append('/')
+                .append(SQ)
+                .append(RP).append(SP).append(PLUS).append(SP).append(2)
+                .append(RP);
+        comparisonBuilder.run();
+        sqlBuilder.append(NL).append(END);
     }
 
 }

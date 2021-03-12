@@ -307,6 +307,11 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testDeleteWithoutTrash(c, c.createQuery, c.findQuery, c.deleteQuery);
 		});
 
+		QUnit.test("deletePersons()", function(assert) {
+			var c = new common(assert, openbis);
+			testDeleteWithoutTrash(c, c.createPerson, c.findPerson, c.deletePerson);
+		});
+
 	}
 
 	return function() {

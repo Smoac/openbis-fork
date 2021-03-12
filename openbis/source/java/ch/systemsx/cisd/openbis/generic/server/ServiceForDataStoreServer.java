@@ -100,7 +100,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectPe
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleAugmentedCodePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleAugmentedCodeReadWritePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleIdentifierPredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SamplePermIdPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SamplePermIdNullAllowedPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SamplePermIdStringPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleUpdatesPredicate;
@@ -697,11 +697,10 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
-    public Sample tryGetSampleByPermId(String sessionToken, @AuthorizationGuard(guardClass = SamplePermIdPredicate.class) PermId permId)
+    public Sample tryGetSampleByPermId(String sessionToken, @AuthorizationGuard(guardClass = SamplePermIdNullAllowedPredicate.class) PermId permId)
             throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
-        assert permId != null : "Unspecified sample perm id.";
 
         final Session session = getSession(sessionToken);
         SamplePE sample = tryLoadSample(session, permId.getId());

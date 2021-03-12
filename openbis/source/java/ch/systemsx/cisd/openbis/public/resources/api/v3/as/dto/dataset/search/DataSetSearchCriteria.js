@@ -4,7 +4,8 @@
 define([ "require", "stjs", "as/dto/common/search/AbstractEntitySearchCriteria", "as/dto/common/search/SearchOperator", "as/dto/dataset/search/DataSetSearchRelation",
 		"as/dto/experiment/search/ExperimentSearchCriteria", "as/dto/experiment/search/NoExperimentSearchCriteria", "as/dto/sample/search/SampleSearchCriteria",
 		"as/dto/sample/search/NoSampleSearchCriteria", "as/dto/dataset/search/DataSetTypeSearchCriteria", "as/dto/dataset/search/PhysicalDataSearchCriteria",
-		"as/dto/dataset/search/LinkedDataSearchCriteria" ], function(require, stjs, AbstractEntitySearchCriteria, SearchOperator, DataSetSearchRelation) {
+		"as/dto/dataset/search/LinkedDataSearchCriteria", "as/dto/common/search/TextAttributeSearchCriteria" ],
+	function(require, stjs, AbstractEntitySearchCriteria, SearchOperator, DataSetSearchRelation) {
 	var AbstractDataSetSearchCriteria = function(relation) {
 		AbstractEntitySearchCriteria.call(this);
 		this.relation = relation ? relation : DataSetSearchRelation.DATASET;
@@ -70,6 +71,9 @@ define([ "require", "stjs", "as/dto/common/search/AbstractEntitySearchCriteria",
 	var DataSetSearchCriteria = function() {
 		AbstractDataSetSearchCriteria.call(this, DataSetSearchRelation.PARENTS);
 	};
+	// var TextAttributeSearchCriteria = function(relation) {
+	// 	AbstractSearchCriteria.call(this);
+	// };
 	stjs.extend(DataSetSearchCriteria, AbstractDataSetSearchCriteria, [ AbstractDataSetSearchCriteria ], function(constructor, prototype) {
 		prototype['@type'] = 'as.dto.dataset.search.DataSetSearchCriteria';
 		constructor.serialVersionUID = 1;
@@ -81,6 +85,13 @@ define([ "require", "stjs", "as/dto/common/search/AbstractEntitySearchCriteria",
 		};
 		prototype.withContainer = function() {
 			return this.addCriteria(new DataSetContainerSearchCriteria());
+		};
+		prototype.withSubcriteria = function() {
+			return this.addCriteria(new DataSetSearchCriteria());
+		};
+		prototype.withTextAttribute = function() {
+			var TextAttributeSearchCriteria = require("as/dto/common/search/TextAttributeSearchCriteria");
+			return this.addCriteria(new TextAttributeSearchCriteria());
 		};
 	}, {
 		relation : {
@@ -96,7 +107,7 @@ define([ "require", "stjs", "as/dto/common/search/AbstractEntitySearchCriteria",
 			arguments : [ "ISearchCriteria" ]
 		}
 	});
-	
+
 	var DataSetParentsSearchCriteria = function() {
 		AbstractDataSetSearchCriteria.call(this, DataSetSearchRelation.PARENTS);
 	};

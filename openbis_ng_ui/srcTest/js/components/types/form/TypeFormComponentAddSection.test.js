@@ -93,7 +93,7 @@ async function testAddSection() {
         enabled: true
       },
       message: {
-        text: 'You have unsaved changes.',
+        text: 'You have unsaved changes',
         type: 'warning'
       }
     }

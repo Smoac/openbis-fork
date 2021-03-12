@@ -29,4 +29,10 @@ public class DefaultNameTranslator implements INameTranslator
     {
         return name;
     }
+
+    @Override
+    public String translateBack(String name)
+    {
+        return name;
+    }
 }

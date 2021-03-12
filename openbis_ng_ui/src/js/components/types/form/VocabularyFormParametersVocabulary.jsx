@@ -6,6 +6,7 @@ import TextField from '@src/js/components/common/form/TextField.jsx'
 import Message from '@src/js/components/common/form/Message.jsx'
 import VocabularyFormSelectionType from '@src/js/components/types/form/VocabularyFormSelectionType.js'
 import users from '@src/js/common/consts/users.js'
+import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -81,13 +82,20 @@ class VocabularyFormParametersVocabulary extends React.PureComponent {
 
     return (
       <Container>
-        <Header>Vocabulary</Header>
+        {this.renderHeader(vocabulary)}
         {this.renderMessageSystemInternal(vocabulary)}
         {this.renderCode(vocabulary)}
         {this.renderDescription(vocabulary)}
         {this.renderUrlTemplate(vocabulary)}
       </Container>
     )
+  }
+
+  renderHeader(vocabulary) {
+    const message = vocabulary.original
+      ? messages.VOCABULARY_TYPE
+      : messages.NEW_VOCABULARY_TYPE
+    return <Header>{messages.get(message)}</Header>
   }
 
   renderMessageSystemInternal(vocabulary) {
@@ -100,8 +108,7 @@ class VocabularyFormParametersVocabulary extends React.PureComponent {
       return (
         <div className={classes.field}>
           <Message type='lock'>
-            This is a system internal vocabulary. The vocabulary parameters
-            cannot be changed.
+            {messages.get(messages.VOCABULARY_TYPE_IS_INTERNAL)}
           </Message>
         </div>
       )
@@ -122,7 +129,7 @@ class VocabularyFormParametersVocabulary extends React.PureComponent {
       <div className={classes.field}>
         <TextField
           reference={this.references.code}
-          label='Code'
+          label={messages.get(messages.CODE)}
           name='code'
           mandatory={true}
           error={error}
@@ -149,7 +156,7 @@ class VocabularyFormParametersVocabulary extends React.PureComponent {
       <div className={classes.field}>
         <TextField
           reference={this.references.description}
-          label='Description'
+          label={messages.get(messages.DESCRIPTION)}
           name='description'
           error={error}
           disabled={!enabled}
@@ -175,7 +182,7 @@ class VocabularyFormParametersVocabulary extends React.PureComponent {
       <div className={classes.field}>
         <TextField
           reference={this.references.urlTemplate}
-          label='URL template'
+          label={messages.get(messages.URL_TEMPLATE)}
           name='urlTemplate'
           error={error}
           disabled={!enabled}

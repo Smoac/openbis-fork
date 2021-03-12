@@ -84,7 +84,7 @@ public class SimpleDatabaseConfigurationContext implements DisposableBean
             String password, String validationQuery)
     {
         this.driverClassName = driverClassName;
-        this.url = url;
+        this.url = DatabaseEngine.getTestEnvironmentURLOrConfigured(url);
         this.username = username;
         this.password = password;
         this.validationQuery = validationQuery;
@@ -93,7 +93,7 @@ public class SimpleDatabaseConfigurationContext implements DisposableBean
     public SimpleDatabaseConfigurationContext(Properties properties)
     {
         this.driverClassName = getMandatoryProperty(properties, DRIVER_KEY);
-        this.url = getMandatoryProperty(properties, URL_KEY);
+        this.url = DatabaseEngine.getTestEnvironmentURLOrConfigured(getMandatoryProperty(properties, URL_KEY));
         this.username =
                 getProperty(properties, USER_KEY, System.getProperty("user.name")
                         .toLowerCase());

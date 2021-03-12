@@ -199,7 +199,6 @@ final class LineBasedUserStore<T extends UserEntry> implements IUserStore<T>
     public boolean isPasswordCorrect(String user, String password)
     {
         assert user != null;
-        assert password != null;
 
         final UserEntry userEntryOrNull = tryGetUserById(user);
         if (userEntryOrNull == null)

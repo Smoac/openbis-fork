@@ -34,6 +34,19 @@ class Sample(
             for key in kwargs:
                 setattr(self, key, kwargs[key])
 
+            if 'experiment' in kwargs:
+                try:
+                    experiment = getattr(self, 'experiment')
+                    project = None
+                    if not 'project' in kwargs:
+                        project = experiment.project
+                        setattr(self.a, 'project', experiment.project)
+                    if not 'space' in kwargs:
+                        project = project or experiment.project
+                        setattr(self.a, 'space', project.space)
+                except Exception:
+                    pass
+
         if getattr(self, 'parents') is None:
             self.a.__dict__['_parents'] = []
         else:
@@ -66,7 +79,6 @@ class Sample(
 
     def __dir__(self):
         return [
-            'p', 'props', 
             'type',
             'get_parents()', 'get_children()', 'get_components()',
             'add_parents()', 'add_children()', 'add_components()', 
@@ -76,7 +88,9 @@ class Sample(
             'space', 'project', 'experiment', 'container', 'tags',
             'set_tags()', 'add_tags()', 'del_tags()',
             'add_attachment()', 'get_attachments()', 'download_attachments()',
-            'save()', 'delete()'
+            'save()', 'delete()', 'mark_to_be_deleted()', 'unmark_to_be_deleted()', 'is_marked_to_be_deleted()',
+            'attrs',
+            'props',
         ] + super().__dir__()
 
 
@@ -133,8 +147,15 @@ class Sample(
         if name in ['container']:
             return getattr(self, "_"+name)(value)
 
-        # must be an attribute in the AttributeHolder class
-        setattr(self.__dict__['a'], name, value)
+        if name in ['p', 'props']:
+            if isinstance(value, dict):
+                for p in value:
+                    setattr(self.__dict__['p'], p, value[p])
+            else:
+                raise ValueError("please provide a dictionary for setting properties")
+        else:
+            # must be an attribute in the AttributeHolder class
+            setattr(self.__dict__['a'], name, value)
 
     def _repr_html_(self):
         return self.a._repr_html_()

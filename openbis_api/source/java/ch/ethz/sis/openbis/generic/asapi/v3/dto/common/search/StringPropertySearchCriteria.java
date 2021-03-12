@@ -37,4 +37,9 @@ public class StringPropertySearchCriteria extends StringFieldSearchCriteria
         super(fieldName, SearchFieldType.PROPERTY);
     }
 
+    public void thatMatches(final String string)
+    {
+        setFieldValue(new StringMatchesValue(string));
+    }
+
 }

@@ -7,6 +7,7 @@ import CheckboxField from '@src/js/components/common/form/CheckboxField.jsx'
 import Message from '@src/js/components/common/form/Message.jsx'
 import VocabularyFormSelectionType from '@src/js/components/types/form/VocabularyFormSelectionType.js'
 import users from '@src/js/common/consts/users.js'
+import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -85,7 +86,7 @@ class VocabularyFormParametersTerm extends React.PureComponent {
 
     return (
       <Container>
-        <Header>Term</Header>
+        <Header>{messages.get(messages.TERM)}</Header>
         {this.renderMessageVisible(term)}
         {this.renderMessageSystemInternal(term)}
         {this.renderCode(term)}
@@ -103,8 +104,9 @@ class VocabularyFormParametersTerm extends React.PureComponent {
       return (
         <div className={classes.field}>
           <Message type='warning'>
-            The selected term is currently not visible in the term list due to
-            the chosen filtering and paging.
+            {messages.get(
+              messages.OBJECT_NOT_VISIBLE_DUE_TO_FILTERING_AND_PAGING
+            )}
           </Message>
         </div>
       )
@@ -120,8 +122,7 @@ class VocabularyFormParametersTerm extends React.PureComponent {
       return (
         <div className={classes.field}>
           <Message type='lock'>
-            This is a system internal term. The term parameters cannot be
-            changed. The term cannot be removed.
+            {messages.get(messages.TERM_IS_INTERNAL)}
           </Message>
         </div>
       )
@@ -142,7 +143,7 @@ class VocabularyFormParametersTerm extends React.PureComponent {
       <div className={classes.field}>
         <TextField
           reference={this.references.code}
-          label='Code'
+          label={messages.get(messages.CODE)}
           name='code'
           mandatory={true}
           error={error}
@@ -169,7 +170,7 @@ class VocabularyFormParametersTerm extends React.PureComponent {
       <div className={classes.field}>
         <TextField
           reference={this.references.label}
-          label='Label'
+          label={messages.get(messages.LABEL)}
           name='label'
           error={error}
           disabled={!enabled}
@@ -195,7 +196,7 @@ class VocabularyFormParametersTerm extends React.PureComponent {
       <div className={classes.field}>
         <TextField
           reference={this.references.description}
-          label='Description'
+          label={messages.get(messages.DESCRIPTION)}
           name='description'
           error={error}
           disabled={!enabled}
@@ -221,9 +222,9 @@ class VocabularyFormParametersTerm extends React.PureComponent {
       <div className={classes.field}>
         <CheckboxField
           reference={this.references.official}
-          label='Official'
+          label={messages.get(messages.OFFICIAL)}
           name='official'
-          description='Unofficial (aka ad-hoc) terms can be created by regular users from the non-admin UI. Once verified a term can be made official by an admin. WARNING: Official terms cannot be made unofficial again.'
+          description={messages.get(messages.OFFICIAL_TERM_HINT)}
           error={error}
           disabled={!enabled}
           value={value}

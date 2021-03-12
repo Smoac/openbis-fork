@@ -4,6 +4,7 @@ import Container from '@src/js/components/common/form/Container.jsx'
 import Header from '@src/js/components/common/form/Header.jsx'
 import TextField from '@src/js/components/common/form/TextField.jsx'
 import TypeFormSelectionType from '@src/js/components/types/form/TypeFormSelectionType.js'
+import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -63,7 +64,7 @@ class TypeFormParametersSection extends React.PureComponent {
 
     return (
       <Container>
-        <Header>Section</Header>
+        <Header>{messages.get(messages.SECTION)}</Header>
         {this.renderName(section)}
       </Container>
     )
@@ -81,7 +82,7 @@ class TypeFormParametersSection extends React.PureComponent {
       <div className={classes.field}>
         <TextField
           reference={this.reference}
-          label='Name'
+          label={messages.get(messages.NAME)}
           name='name'
           error={error}
           disabled={!enabled}

@@ -188,7 +188,7 @@ public class SynchronizationConfigReader
 
             config.setDryRun(reader.getBoolean(section, DRY_RUN_PROPERTY_NAME, false));
             config.setVerbose(reader.getBoolean(section, VERBOSE_PROPERTY_NAME, true));
-            if (config.isDryRun() == true)
+            if (config.isDryRun())
             {
                 config.setVerbose(true);
             }

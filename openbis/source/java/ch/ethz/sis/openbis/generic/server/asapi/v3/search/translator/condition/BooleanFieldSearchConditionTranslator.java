@@ -87,16 +87,14 @@ public class BooleanFieldSearchConditionTranslator implements IConditionTranslat
                             DataTypeCode.BOOLEAN, casting));
                 }
 
-                final boolean internalProperty = TranslatorUtils.isPropertyInternal(criterion.getFieldName());
-
                 translateBooleanProperty(tableMapper, args, sqlBuilder, aliases, criterion.getFieldValue(),
-                        criterion.getFieldName(), internalProperty);
+                        criterion.getFieldName());
                 break;
             }
 
             case ANY_PROPERTY:
             {
-                translateBooleanProperty(tableMapper, args, sqlBuilder, aliases, criterion.getFieldValue(), null, null);
+                translateBooleanProperty(tableMapper, args, sqlBuilder, aliases, criterion.getFieldValue(), null);
                 break;
             }
 
@@ -109,7 +107,7 @@ public class BooleanFieldSearchConditionTranslator implements IConditionTranslat
 
     static void translateBooleanProperty(final TableMapper tableMapper, final List<Object> args,
             final StringBuilder sqlBuilder, final Map<String, JoinInformation> aliases, final Boolean value,
-            final String fullPropertyName, final Boolean internalProperty)
+            final String fullPropertyName)
     {
         final JoinInformation joinInformation = aliases.get(tableMapper.getAttributeTypesTable());
         final String entityTypesSubTableAlias = joinInformation.getSubTableAlias();
@@ -126,14 +124,11 @@ public class BooleanFieldSearchConditionTranslator implements IConditionTranslat
                 .append(PERIOD).append(ColumnNames.CODE_COLUMN).append(SP).append(EQ).append(SP)
                 .append(SQ).append(DataType.BOOLEAN).append(SQ);
 
-        if (internalProperty != null)
-        {
-            sqlBuilder.append(SP).append(AND).append(SP);
-            TranslatorUtils.appendInternalExternalConstraint(sqlBuilder, args, entityTypesSubTableAlias, internalProperty);
-        }
-
         if (fullPropertyName != null)
         {
+            sqlBuilder.append(SP).append(AND).append(SP);
+            TranslatorUtils.appendInternalExternalConstraint(sqlBuilder, args, entityTypesSubTableAlias,
+                    TranslatorUtils.isPropertyInternal(fullPropertyName));
             sqlBuilder.append(SP).append(AND);
             sqlBuilder.append(SP).append(entityTypesSubTableAlias).append(PERIOD).append(ColumnNames.CODE_COLUMN)
                     .append(SP).append(EQ).append(SP).append(QU);

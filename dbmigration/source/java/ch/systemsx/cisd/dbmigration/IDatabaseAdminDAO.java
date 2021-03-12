@@ -20,7 +20,7 @@ import java.io.File;
 
 /**
  * Interface for administration of a database.
- * 
+ *
  * @author Franz-Josef Elmer
  */
 public interface IDatabaseAdminDAO
@@ -67,6 +67,14 @@ public interface IDatabaseAdminDAO
     public void restoreDatabaseFromDump(File dumpFolder, String version);
 
     /**
+     * Applies scripts for full text search.
+     *  @param scriptProvider script provider.
+     * @param version version of scripts.
+     * @param applyMainScript if {@code true} the main script should be applied, otherwise only before and after scripts are applied.
+     */
+    void applyFullTextSearchScripts(ISqlScriptProvider scriptProvider, String version, final boolean applyMainScript);
+
+    /**
      * Drops the database.
      */
     public void dropDatabase();
@@ -75,4 +83,5 @@ public interface IDatabaseAdminDAO
      * Initialize error codes for this database.
      */
     public void initializeErrorCodes();
+
 }

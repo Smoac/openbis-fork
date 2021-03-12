@@ -277,6 +277,24 @@ public class GeneralInformationServiceTest extends SystemTestCase
     }
 
     @Test
+    public void testSearchForSamplesByCodeWithWildcard()
+    {
+        final SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "B1B3*"));
+        final List<Sample> samples = generalInformationService.searchForSamples(sessionToken, searchCriteria);
+        assertEntities("[/CISD/B1B3, /CISD/B1B3:B01, /CISD/B1B3:B03]", samples);
+    }
+
+    @Test
+    public void testSearchForSamplesByAnyFieldMatchingCodeOfComponent()
+    {
+        final SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAnyFieldMatch("B1B3:B01"));
+        final List<Sample> samples = generalInformationService.searchForSamples(sessionToken, searchCriteria);
+        assertEntities("[/CISD/B1B3:B01]", samples);
+    }
+
+    @Test
     public void testSearchForSamplesByPermIdAndCheckModifier()
     {
         SearchCriteria searchCriteria = new SearchCriteria();

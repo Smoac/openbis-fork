@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 IN=../datamover1/data/extra_local_copy
 OUT=../datamover2/data/incoming
 MARKER=.marker_stop_processing

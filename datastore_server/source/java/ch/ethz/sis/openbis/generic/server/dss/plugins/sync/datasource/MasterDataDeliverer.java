@@ -181,7 +181,8 @@ public class MasterDataDeliverer extends AbstractEntityDeliverer<Object>
             String sessionToken) throws XMLStreamException
     {
         VocabularyFetchOptions fetchOptions = new VocabularyFetchOptions();
-        fetchOptions.withTerms();
+        fetchOptions.withTerms().withRegistrator();
+        fetchOptions.withRegistrator();
         List<Vocabulary> vocabularies = context.getV3api().searchVocabularies(sessionToken, VOCABULARY_SEARCH_CRITERIA, fetchOptions).getObjects();
         if (vocabularies.isEmpty())
         {
@@ -200,6 +201,7 @@ public class MasterDataDeliverer extends AbstractEntityDeliverer<Object>
             addAttribute(writer, "managedInternally", String.valueOf(vocabulary.isManagedInternally()));
             addAttribute(writer, "urlTemplate", vocabulary.getUrlTemplate());
             addAttribute(writer, "registration-timestamp", vocabulary.getRegistrationDate(), h -> DataSourceUtils.convertToW3CDate(h));
+            addAttribute(writer, "registrator", vocabulary.getRegistrator().getUserId());
             addAttribute(writer, "modification-timestamp", vocabulary.getModificationDate(), h -> DataSourceUtils.convertToW3CDate(h));
 
             for (VocabularyTerm term : vocabulary.getTerms())
@@ -210,6 +212,7 @@ public class MasterDataDeliverer extends AbstractEntityDeliverer<Object>
                 addAttribute(writer, "label", term.getLabel());
                 addAttribute(writer, "ordinal", String.valueOf(term.getOrdinal()));
                 addAttribute(writer, "registration-timestamp", term.getRegistrationDate(), h -> DataSourceUtils.convertToW3CDate(h));
+                addAttribute(writer, "registrator", term.getRegistrator().getUserId());
                 addAttribute(writer, "url", vocabulary.getUrlTemplate(),
                         t -> t.replaceAll(BasicConstant.DEPRECATED_VOCABULARY_URL_TEMPLATE_TERM_PATTERN, code)
                                 .replaceAll(BasicConstant.VOCABULARY_URL_TEMPLATE_TERM_PATTERN, code));
@@ -226,6 +229,7 @@ public class MasterDataDeliverer extends AbstractEntityDeliverer<Object>
         PropertyTypeFetchOptions fetchOptions = new PropertyTypeFetchOptions();
         fetchOptions.withMaterialType();
         fetchOptions.withVocabulary();
+        fetchOptions.withRegistrator();
         List<PropertyType> propertyTypes =
                 context.getV3api().searchPropertyTypes(sessionToken, PROPERTY_TYPE_SEARCH_CRITERIA, fetchOptions).getObjects();
         if (propertyTypes.isEmpty())
@@ -248,6 +252,7 @@ public class MasterDataDeliverer extends AbstractEntityDeliverer<Object>
             addAttribute(writer, "label", propertyType.getLabel());
             addAttribute(writer, "managedInternally", managedInternally);
             addAttribute(writer, "registration-timestamp", propertyType.getRegistrationDate(), h -> DataSourceUtils.convertToW3CDate(h));
+            addAttribute(writer, "registrator", propertyType.getRegistrator().getUserId());
             if (propertyType.getDataType().name().equals(DataType.CONTROLLEDVOCABULARY.name()))
             {
                 addAttribute(writer, "vocabulary", propertyType.getVocabulary(), v -> v.getCode());

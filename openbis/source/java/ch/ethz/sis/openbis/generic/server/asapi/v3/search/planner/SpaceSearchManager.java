@@ -46,6 +46,12 @@ public class SpaceSearchManager extends AbstractLocalSearchManager<SpaceSearchCr
     }
 
     @Override
+    protected AbstractCompositeSearchCriteria createEmptyCriteria()
+    {
+        return new SpaceSearchCriteria();
+    }
+
+    @Override
     protected Set<Long> doFilterIDsByUserRights(final Set<Long> ids, final AuthorisationInformation authorisationInformation)
     {
         return getAuthProvider().getAuthorisedSpaces(ids, authorisationInformation);
@@ -56,7 +62,7 @@ public class SpaceSearchManager extends AbstractLocalSearchManager<SpaceSearchCr
 
             final AbstractCompositeSearchCriteria parentCriteria, final String idsColumnName)
     {
-        final Set<Long> mainCriteriaIntermediateResults = getSearchDAO().queryDBWithNonRecursiveCriteria(userId, criteria, TableMapper.SPACE,
+        final Set<Long> mainCriteriaIntermediateResults = getSearchDAO().queryDBForIdsAndRanksWithNonRecursiveCriteria(userId, criteria, TableMapper.SPACE,
                 idsColumnName, authorisationInformation);
 
         // If we have results, we use them

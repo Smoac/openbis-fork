@@ -121,6 +121,7 @@ class TypeForm extends React.PureComponent {
         />
         <TypeFormDialogRemoveSection
           open={removeSectionDialogOpen}
+          object={object}
           selection={selection}
           sections={sections}
           onConfirm={controller.handleRemoveConfirm}
@@ -128,6 +129,7 @@ class TypeForm extends React.PureComponent {
         />
         <TypeFormDialogRemoveProperty
           open={removePropertyDialogOpen}
+          object={object}
           selection={selection}
           properties={properties}
           onConfirm={controller.handleRemoveConfirm}

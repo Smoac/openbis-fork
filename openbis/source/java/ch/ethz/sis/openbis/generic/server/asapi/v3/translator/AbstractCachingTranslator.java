@@ -140,7 +140,7 @@ public abstract class AbstractCachingTranslator<I, O, F extends FetchOptions<?>>
         }
     }
 
-    protected Long getObjectId(I input)
+    protected Object getObjectId(I input)
     {
         if (input instanceof IIdHolder)
         {
@@ -182,7 +182,7 @@ public abstract class AbstractCachingTranslator<I, O, F extends FetchOptions<?>>
 
                 if (operationLog.isDebugEnabled())
                 {
-                    Long id = getObjectId(input);
+                    Object id = getObjectId(input);
 
                     if (should)
                     {

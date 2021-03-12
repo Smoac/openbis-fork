@@ -40,13 +40,20 @@ import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.DATA_ID_CO
  *
  * @author Viktor Kovtun
  */
-public class LinkedDataSetKindSearchManager extends AbstractLocalSearchManager<LinkedDataSearchCriteria, DataSetType, Long>
+public class LinkedDataSetKindSearchManager extends AbstractLocalSearchManager<LinkedDataSearchCriteria, DataSetType,
+        Long>
 {
 
     public LinkedDataSetKindSearchManager(final ISQLSearchDAO searchDAO, final ISQLAuthorisationInformationProviderDAO authProvider,
             final IID2PEMapper<Long, Long> idsMapper)
     {
         super(searchDAO, authProvider, idsMapper);
+    }
+
+    @Override
+    protected AbstractCompositeSearchCriteria createEmptyCriteria()
+    {
+        return new LinkedDataSearchCriteria();
     }
 
     @Override
@@ -86,7 +93,7 @@ public class LinkedDataSetKindSearchManager extends AbstractLocalSearchManager<L
         final DummyCompositeSearchCriterion compositeSearchCriterion = new DummyCompositeSearchCriterion();
         compositeSearchCriterion.setCriteria(Collections.singletonList(dataSetKindSearchCriteria));
 
-        final Set<Long> mainCriteriaIntermediateResults = getSearchDAO().queryDBWithNonRecursiveCriteria(userId, compositeSearchCriterion, DATA_SET, idsColumnName, authorisationInformation);
+        final Set<Long> mainCriteriaIntermediateResults = getSearchDAO().queryDBForIdsAndRanksWithNonRecursiveCriteria(userId, compositeSearchCriterion, DATA_SET, idsColumnName, authorisationInformation);
 
         // If we have results, we use them
         // If we don't have results and criteria are not empty, there are no results.

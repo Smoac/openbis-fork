@@ -1,5 +1,6 @@
 import React from 'react'
 import ConfirmationDialog from '@src/js/components/common/dialog/ConfirmationDialog.jsx'
+import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
 class BrowserDialogRemoveNode extends React.Component {
@@ -23,7 +24,7 @@ class BrowserDialogRemoveNode extends React.Component {
     const { node } = this.props
 
     if (node) {
-      return `Do you want to remove "${node.text}"?`
+      return messages.get(messages.CONFIRMATION_REMOVE, node.text)
     } else {
       return null
     }
@@ -33,7 +34,7 @@ class BrowserDialogRemoveNode extends React.Component {
     const { node } = this.props
 
     if (node) {
-      return `Are you sure you want to remove "${node.text}"? Some data will be lost!`
+      return messages.get(messages.CONFIRMATION_REMOVE, node.text)
     } else {
       return null
     }

@@ -5,6 +5,7 @@ from .openbis_object import OpenBisObject
 from .things import Things
 from .utils import check_datatype, split_identifier, format_timestamp, is_identifier, is_permid, nvl, extract_permid, extract_code, extract_name, VERBOSE
 from .definitions import get_method_for_entity, get_type_for_entity, get_definition_for_entity
+from .semantic_annotation import SemanticAnnotation
 
 class EntityType:
     """ EntityTypes define a variety of an entity, eg. sample, dataSet, experiment

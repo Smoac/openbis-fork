@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.IDataSourceFactory;
 /**
  * Creates a {@link DataSource} using {@link DatabaseConfigurationContext} and given properties. The database is migrated to the version specified by
  * {@link #VERSION_HOLDER_CLASS_KEY} property if specified.
- * 
+ *
  * @author Izabela Adamczyk
  */
 public class DefaultDataSourceFactory implements IDataSourceFactory
@@ -61,7 +61,7 @@ public class DefaultDataSourceFactory implements IDataSourceFactory
         if (propertiesVersion != null)
         {
             String version = propertiesVersion;
-            DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(context, version);
+            DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(context, version, null);
         } else
         {
             // Now try the version-holder-class-based varient
@@ -71,7 +71,7 @@ public class DefaultDataSourceFactory implements IDataSourceFactory
                 IDatabaseVersionHolder versionHolder =
                         ClassUtils.create(IDatabaseVersionHolder.class, versionClass);
                 String version = versionHolder.getDatabaseVersion();
-                DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(context, version);
+                DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(context, version, null);
             }
         }
         return new DataSourceWithDefinition(context.getDataSource(),

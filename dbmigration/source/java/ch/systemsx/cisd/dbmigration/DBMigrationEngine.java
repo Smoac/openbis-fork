@@ -16,35 +16,47 @@
 
 package ch.systemsx.cisd.dbmigration;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.db.ISqlScriptExecutor;
 import ch.systemsx.cisd.common.db.Script;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.dbmigration.java.IMigrationStepExecutor;
 
 /**
  * Class for creating and migrating a database.
- * 
+ *
  * @author Franz-Josef Elmer
  */
 public final class DBMigrationEngine
 {
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, DBMigrationEngine.class);
+    /** Path to the file which has the last version of applied full text search migration scripts. */
+    public static final String FULL_TEXT_SEARCH_DOCUMENT_VERSION_FILE_PATH = "etc/full-text-search-document-version";
+
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, DBMigrationEngine.class);
 
     /**
      * Creates or migrates a database specified in the context for/to the specified version.
-     * 
+     *
      * @return the SQL script provider.
      */
-    public final static ISqlScriptProvider createOrMigrateDatabaseAndGetScriptProvider(
-            final DatabaseConfigurationContext context, final String databaseVersion)
+    public static ISqlScriptProvider createOrMigrateDatabaseAndGetScriptProvider(
+            final DatabaseConfigurationContext context, final String databaseVersion,
+            final String fullTextSearchDocumentVersion)
     {
         assert context != null : "Unspecified database configuration context.";
         assert StringUtils.isNotBlank(databaseVersion) : "Unspecified database version.";
@@ -58,6 +70,11 @@ public final class DBMigrationEngine
                 new DBMigrationEngine(migrationDAOFactory, sqlScriptProvider, context
                         .isCreateFromScratch());
         migrationEngine.migrateTo(databaseVersion);
+        if (Integer.parseInt(databaseVersion) >= 180)
+        {
+            migrationEngine.migrateFullTextSearch(fullTextSearchDocumentVersion);
+        }
+
         /*
          * This triggers population of a lazily populated hashmap of error codes which requires locking and connection to the database. This can lead
          * to dead-locks in multi-threaded code.
@@ -82,7 +99,7 @@ public final class DBMigrationEngine
 
     /**
      * Creates an instance for the specified DAO factory and SQL script provider.
-     * 
+     *
      * @param shouldCreateFromScratch If <code>true</code> the database should be dropped and created from scratch.
      */
     public DBMigrationEngine(final IDAOFactory daoFactory, final ISqlScriptProvider scriptProvider,
@@ -99,7 +116,7 @@ public final class DBMigrationEngine
 
     /**
      * Create or migrate database to the specified version.
-     * 
+     *
      * @throws ConfigurationFailureException If creation/migration fails due to a missing script
      * @throws EnvironmentFailureException If creation/migration fails due to an inconsistent database.
      */
@@ -165,6 +182,48 @@ public final class DBMigrationEngine
         }
     }
 
+    /**
+     * Executes the scripts related to full text search.
+     * @param fullTextSearchDocumentVersion version of full text search document scripts.
+     */
+    private void migrateFullTextSearch(final String fullTextSearchDocumentVersion)
+    {
+        final File file = new File(FULL_TEXT_SEARCH_DOCUMENT_VERSION_FILE_PATH);
+        final Integer ftsDocumentVersionFromFile = readVersionFromFile(file);
+        if (fullTextSearchDocumentVersion != null && (ftsDocumentVersionFromFile == null
+                || Integer.parseInt(fullTextSearchDocumentVersion) > ftsDocumentVersionFromFile))
+        {
+            operationLog.info("Applying full text search scripts...");
+            adminDAO.applyFullTextSearchScripts(scriptProvider, fullTextSearchDocumentVersion,
+                    shouldCreateFromScratch || ftsDocumentVersionFromFile == null);
+            operationLog.info("Full text search scripts applied.");
+            operationLog.info(String.format("Writing new version to file %s.", file.getAbsolutePath()));
+            FileUtilities.writeToFile(file, fullTextSearchDocumentVersion);
+        } else
+        {
+            operationLog.info("Skipped application of full text search scripts.");
+        }
+    }
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    private Integer readVersionFromFile(final File file)
+    {
+        if (file.exists() == false)
+        {
+            operationLog.debug(String.format("File '%s' not found", file.getAbsolutePath()));
+            return null;
+        }
+        try
+        {
+            return Integer.parseInt(FileUtilities.loadToString(file).trim());
+        } catch (final NumberFormatException e)
+        {
+            operationLog.error(String.format("Contents of the file '%s' cannot be parsed as integer",
+                    file.getAbsolutePath()));
+            throw e;
+        }
+    }
+
     private final LogEntry getAndCheckLastLogEntry()
     {
         final LogEntry entry = logDAO.getLastEntry();
@@ -191,11 +250,16 @@ public final class DBMigrationEngine
         adminDAO.createGroups();
         if (scriptProvider.isDumpRestore(version))
         {
+            operationLog.info(String.format("Restoring from dump the database of the version %s.", version));
             adminDAO.restoreDatabaseFromDump(scriptProvider.getDumpFolder(version), version);
+            operationLog.info("Restoring from dump finished.");
         } else
         {
+            operationLog.info(String.format("Creating a new database with the version %s and populating it with data.",
+                    version));
             createEmptyDatabase(version);
             fillWithInitialData(version);
+            operationLog.info("Creation and populating of the database finished.");
         }
         if (operationLog.isInfoEnabled())
         {
@@ -327,6 +391,12 @@ public final class DBMigrationEngine
             operationLog.info("Database '" + adminDAO.getDatabaseName() + "' does not exist.");
         }
         return result;
+    }
+
+    public static void deleteFullTextSearchDocumentVersionFile()
+    {
+        final File file = new File(FULL_TEXT_SEARCH_DOCUMENT_VERSION_FILE_PATH);
+        file.delete();
     }
 
 }

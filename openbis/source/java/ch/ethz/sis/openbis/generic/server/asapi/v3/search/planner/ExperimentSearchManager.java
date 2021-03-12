@@ -45,6 +45,12 @@ public class ExperimentSearchManager extends AbstractLocalSearchManager<Experime
     }
 
     @Override
+    protected AbstractCompositeSearchCriteria createEmptyCriteria()
+    {
+        return new ExperimentSearchCriteria();
+    }
+
+    @Override
     protected Set<Long> doFilterIDsByUserRights(final Set<Long> ids, final AuthorisationInformation authorisationInformation)
     {
         return getAuthProvider().getAuthorisedExperiments(ids, authorisationInformation);

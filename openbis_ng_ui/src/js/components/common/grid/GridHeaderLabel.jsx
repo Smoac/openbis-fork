@@ -31,7 +31,7 @@ class GridHeaderLabel extends React.PureComponent {
 
     if (column.visible) {
       if (column.sortable) {
-        const active = sort === column.field
+        const active = sort === column.name
         return (
           <TableCell classes={{ root: classes.cell }}>
             <TableSortLabel

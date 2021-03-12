@@ -35,13 +35,16 @@ public class SamplePermIdPredicate extends AbstractDatabaseInstancePredicate<Per
 
     private final SamplePEPredicate samplePEPredicate;
 
+    private final boolean nullAllowed;
+
     public SamplePermIdPredicate()
     {
-        this(true);
+        this(true, false);
     }
 
-    public SamplePermIdPredicate(boolean isReadAccess)
+    public SamplePermIdPredicate(boolean isReadAccess, boolean nullAllowed)
     {
+        this.nullAllowed = nullAllowed;
         samplePEPredicate = new SamplePEPredicate(isReadAccess);
     }
 
@@ -69,8 +72,8 @@ public class SamplePermIdPredicate extends AbstractDatabaseInstancePredicate<Per
         SamplePE sample = authorizationDataProvider.tryGetSampleByPermId(id.getId());
         if (sample == null)
         {
-            return Status.createError(String.format("There is no sample with perm id '%s'.",
-                    id.getId()));
+            return nullAllowed ? Status.OK
+                    : Status.createError(String.format("There is no sample with perm id '%s'.", id.getId()));
         }
         return samplePEPredicate.evaluate(person, allowedRoles, sample);
     }

@@ -4,7 +4,8 @@
 define([ "require", "stjs", "as/dto/common/search/AbstractEntitySearchCriteria", "as/dto/common/search/SearchOperator", "as/dto/sample/search/SampleSearchRelation",
 		"as/dto/space/search/SpaceSearchCriteria", "as/dto/project/search/ProjectSearchCriteria", "as/dto/project/search/NoProjectSearchCriteria", "as/dto/experiment/search/ExperimentSearchCriteria",
 		"as/dto/experiment/search/NoExperimentSearchCriteria", "as/dto/sample/search/NoSampleContainerSearchCriteria", "as/dto/sample/search/SampleTypeSearchCriteria",
-		"as/dto/common/search/IdentifierSearchCriteria" ], function(require, stjs, AbstractEntitySearchCriteria, SearchOperator, SampleSearchRelation) {
+		"as/dto/common/search/IdentifierSearchCriteria", "as/dto/common/search/TextAttributeSearchCriteria" ],
+	function(require, stjs, AbstractEntitySearchCriteria, SearchOperator, SampleSearchRelation) {
 
 	var AbstractSampleSearchCriteria = function(relation) {
 		AbstractEntitySearchCriteria.call(this);
@@ -33,7 +34,7 @@ define([ "require", "stjs", "as/dto/common/search/AbstractEntitySearchCriteria",
 		prototype.withoutProject = function() {
 			var NoProjectSearchCriteria = require("as/dto/project/search/NoProjectSearchCriteria");
 			return this.addCriteria(new NoProjectSearchCriteria());
-		};		
+		};
 		prototype.withExperiment = function() {
 			var ExperimentSearchCriteria = require("as/dto/experiment/search/ExperimentSearchCriteria");
 			return this.addCriteria(new ExperimentSearchCriteria());
@@ -91,6 +92,13 @@ define([ "require", "stjs", "as/dto/common/search/AbstractEntitySearchCriteria",
 		prototype.withContainer = function() {
 			return this.addCriteria(new SampleContainerSearchCriteria());
 		};
+		prototype.withSubcriteria = function() {
+			return this.addCriteria(new SampleSearchCriteria());
+		};
+		prototype.withTextAttribute = function() {
+			var TextAttributeSearchCriteria = require("as/dto/common/search/TextAttributeSearchCriteria");
+			return this.addCriteria(new TextAttributeSearchCriteria());
+		};
 	}, {
 		relation : {
 			name : "Enum",
@@ -126,7 +134,7 @@ define([ "require", "stjs", "as/dto/common/search/AbstractEntitySearchCriteria",
 			arguments : [ "ISearchCriteria" ]
 		}
 	});
-	
+
 	var SampleChildrenSearchCriteria = function() {
 		AbstractSampleSearchCriteria.call(this, SampleSearchRelation.CHILDREN);
 	};

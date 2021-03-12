@@ -1,10 +1,10 @@
 #!/bin/bash
 # Overrides all configuration files with those which can be found in the specified config backup directory.
-# Assumes that openbis is installed in the parent directory of the directory where this script is located. 
+# Assumes that openbis is installed in the parent directory of the directory where this script is located.
 
 CONF=$1
 if [ "$CONF" == "" ]; then
-  echo Error: directory from which configuration should be restored has not been specified! 
+  echo Error: directory from which configuration should be restored has not been specified!
   exit 1
 fi
 
@@ -42,6 +42,8 @@ if [ -d $ROOT/openBIS-server ]; then
     restore $CONF/capabilities $ROOT/openBIS-server/jetty/etc capabilities
     restore $CONF/../openBIS-server/jetty/webapps/openbis/custom/welcomePageSimpleGeneric.html $ROOT/openBIS-server/jetty/webapps/openbis/custom welcomePageSimpleGeneric.html
     restore $CONF/config.json $ROOT/big_data_link_server config.json
+    restore $CONF/full-text-search-document-version $ROOT/openBIS-server/jetty/etc full-text-search-document-version
+    restore $CONF/instance-id $ROOT/openBIS-server/jetty/etc instance-id
 
     copyConfig $CONF/core-plugins "html/etc$" $ROOT/core-plugins
     copyFolderIfExists $CONF/start.d $ROOT/openBIS-server/jetty/start.d
@@ -54,4 +56,4 @@ restore $CONF/dss-service.properties $ROOT/datastore_server/etc service.properti
 restore $CONF/dss-log.xml $ROOT/datastore_server/etc log.xml
 restore $CONF/datastore_server.conf $ROOT/datastore_server/etc datastore_server.conf
 restore $CONF/.keystore $ROOT/datastore_server/etc openBIS.keystore
-copyIfExists $CONF/ext-lib $ROOT/datastore_server 
+copyIfExists $CONF/ext-lib $ROOT/datastore_server

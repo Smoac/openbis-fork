@@ -111,6 +111,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.search.OperationExecut
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.operation.update.OperationExecutionUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.create.PersonCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.delete.PersonDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.IPersonId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
@@ -119,6 +120,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.update.PersonUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.create.PluginCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.delete.PluginDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.evaluate.PluginEvaluationOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.evaluate.PluginEvaluationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.fetchoptions.PluginFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.IPluginId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.PluginPermId;
@@ -144,13 +147,17 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.PropertyAssignme
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.PropertyTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.update.PropertyTypeUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.Query;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.QueryDatabase;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.create.QueryCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.delete.QueryDeletionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.execute.QueryExecutionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.execute.SqlExecutionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.fetchoptions.QueryDatabaseFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.fetchoptions.QueryFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.id.IQueryDatabaseId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.id.IQueryId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.id.QueryTechId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.search.QueryDatabaseSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.search.QuerySearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.update.QueryUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.rights.Rights;
@@ -247,9 +254,9 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
  * V3 application server API. Detailed documentation on how to use the API together code examples in both Java and Javascript can be found at "openBIS
  * V3 API" openBIS WIKI page.
  * <p>
- * The required access rights of the methods are the default ones. They can be configured with a capability-role map.
- * For more details see "Installation and Administrator Guide of the openBIS Server" openBIS WIKI page.
- * 
+ * The required access rights of the methods are the default ones. They can be configured with a capability-role map. For more details see
+ * "Installation and Administrator Guide of the openBIS Server" openBIS WIKI page.
+ *
  * @author pkupczyk
  */
 public interface IApplicationServerApi extends IRpcService
@@ -269,7 +276,7 @@ public interface IApplicationServerApi extends IRpcService
     /**
      * Authenticates a user basing on the provided user id and password. If the authentication is successful, then returns a session token. Otherwise
      * returns null.
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public String login(String userId, String password);
@@ -278,21 +285,21 @@ public interface IApplicationServerApi extends IRpcService
      * Authenticates a user basing on the provided user id and password and makes the session look like as if it was a different user. If the
      * authentication is successful, then returns a session token. Otherwise returns null. The provided user id and password must represent an
      * {@code INSTANCE_ADMIN} account.
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public String loginAs(String userId, String password, String asUserId);
 
     /**
      * Authenticates as an anonymous user who does not require a password.
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public String loginAsAnonymousUser();
 
     /**
      * Terminates a user's session.
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public void logout(String sessionToken);
@@ -302,7 +309,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public SessionInformation getSessionInformation(String sessionToken);
@@ -312,7 +319,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public boolean isSessionActive(String sessionToken);
@@ -323,7 +330,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code SPACE_ADMIN} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code SpaceCreation} objects, insufficient access rights etc.
      */
     public List<SpacePermId> createSpaces(String sessionToken, List<SpaceCreation> newSpaces);
@@ -334,7 +341,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code SPACE_POWER_USER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code ProjectCreation} objects, insufficient access rights etc.
      */
     public List<ProjectPermId> createProjects(String sessionToken, List<ProjectCreation> newProjects);
@@ -345,7 +352,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_USER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code ExperimentCreation} objects, insufficient access rights etc.
      */
     public List<ExperimentPermId> createExperiments(String sessionToken, List<ExperimentCreation> newExperiments);
@@ -356,7 +363,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code INSTANCE_ADMIN}
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code ExperimentTypeCreation} objects, insufficient access rights etc.
      */
     public List<EntityTypePermId> createExperimentTypes(String sessionToken, List<ExperimentTypeCreation> newExperimentTypes);
@@ -367,7 +374,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_USER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code SampleCreation} objects, insufficient access rights etc.
      */
     public List<SamplePermId> createSamples(String sessionToken, List<SampleCreation> newSamples);
@@ -378,7 +385,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code INSTANCE_ADMIN}
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code SampleTypeCreation} objects, insufficient access rights etc.
      */
     public List<EntityTypePermId> createSampleTypes(String sessionToken, List<SampleTypeCreation> newSampleTypes);
@@ -389,7 +396,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code SPACE_ETL_SERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code DataSetCreation} objects, insufficient access rights etc.
      */
     public List<DataSetPermId> createDataSets(String sessionToken, List<DataSetCreation> newDataSets);
@@ -400,7 +407,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code INSTANCE_ADMIN}
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code DataSetTypeCreation} objects, insufficient access rights etc.
      */
     public List<EntityTypePermId> createDataSetTypes(String sessionToken, List<DataSetTypeCreation> newDataSetTypes);
@@ -411,7 +418,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code INSTANCE_ADMIN}
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code MaterialCreation} objects, insufficient access rights etc.
      */
     public List<MaterialPermId> createMaterials(String sessionToken, List<MaterialCreation> newMaterials);
@@ -422,7 +429,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code INSTANCE_ADMIN}
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code MaterialTypeCreation} objects, insufficient access rights etc.
      */
     public List<EntityTypePermId> createMaterialTypes(String sessionToken, List<MaterialTypeCreation> newMaterialTypes);
@@ -433,7 +440,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code INSTANCE_ADMIN}
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code PropertyTypeCreation} objects, insufficient access rights etc.
      */
     public List<PropertyTypePermId> createPropertyTypes(String sessionToken, List<PropertyTypeCreation> newPropertyTypes);
@@ -444,7 +451,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code INSTANCE_ADMIN}
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code PluginCreation} objects, insufficient access rights etc.
      */
     public List<PluginPermId> createPlugins(String sessionToken, List<PluginCreation> newPlugins);
@@ -455,7 +462,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code INSTANCE_ADMIN}
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code VocabularyCreation} objects, insufficient access rights etc.
      */
     public List<VocabularyPermId> createVocabularies(String sessionToken, List<VocabularyCreation> newVocabularies);
@@ -469,7 +476,7 @@ public interface IApplicationServerApi extends IRpcService
      * <li>official terms - {@code PROJECT_POWER_USER} or stronger</li>
      * <li>internally managed - {@code INSTANCE_ADMIN}</li>
      * </ul>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code VocabularyTermCreation} objects, insufficient access rights etc.
      */
     public List<VocabularyTermPermId> createVocabularyTerms(String sessionToken, List<VocabularyTermCreation> newVocabularyTerms);
@@ -480,7 +487,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code TagCreation} objects, insufficient access rights etc.
      */
     public List<TagPermId> createTags(String sessionToken, List<TagCreation> newTags);
@@ -491,7 +498,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code INSTANCE_ADMIN}
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code AuthorizationGroupCreation} objects, insufficient access rights
      *             etc.
      */
@@ -506,7 +513,7 @@ public interface IApplicationServerApi extends IRpcService
      * <li>space roles - {@code SPACE_ADMIN} or stronger</li>
      * <li>project roles - {@code PROJECT_ADMIN} or stronger</li>
      * </ul>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code RoleAssignmentCreation} objects, insufficient access rights etc.
      */
     public List<RoleAssignmentTechId> createRoleAssignments(String sessionToken, List<RoleAssignmentCreation> newRoleAssignments);
@@ -517,7 +524,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code INSTANCE_ADMIN}
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code PersonCreation} objects, insufficient access rights etc.
      */
     public List<PersonPermId> createPersons(String sessionToken, List<PersonCreation> newPersons);
@@ -528,7 +535,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code INSTANCE_ADMIN}
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code ExternalDmsCreation} objects, insufficient access rights etc.
      */
     public List<ExternalDmsPermId> createExternalDataManagementSystems(String sessionToken,
@@ -540,7 +547,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: depends on a query database (more details at "Custom Database Queries" openBIS WIKI page)
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code ExternalDmsCreation} objects, insufficient access rights etc.
      */
     public List<QueryTechId> createQueries(String sessionToken, List<QueryCreation> newQueries);
@@ -551,7 +558,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code INSTANCE_ADMIN}
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code SemanticAnnotationCreation} objects, insufficient access rights
      *             etc.
      */
@@ -562,7 +569,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code SPACE_ADMIN} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code SpaceUpdate} objects, insufficient access rights etc.
      */
     public void updateSpaces(String sessionToken, List<SpaceUpdate> spaceUpdates);
@@ -572,7 +579,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code SPACE_POWER_USER} / {@code PROJECT_ADMIN} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code ProjectUpdate} objects, insufficient access rights etc.
      */
     public void updateProjects(String sessionToken, List<ProjectUpdate> projectUpdates);
@@ -582,7 +589,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_USER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code ExperimentUpdate} objects, insufficient access rights etc.
      */
     public void updateExperiments(String sessionToken, List<ExperimentUpdate> experimentUpdates);
@@ -592,7 +599,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code INSTANCE_ADMIN}
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code ExperimentTypeUpdate} objects, insufficient access rights etc.
      */
     public void updateExperimentTypes(String sessionToken, List<ExperimentTypeUpdate> experimentTypeUpdates);
@@ -602,7 +609,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_USER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code SampleUpdate} objects, insufficient access rights etc.
      */
     public void updateSamples(String sessionToken, List<SampleUpdate> sampleUpdates);
@@ -612,7 +619,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code INSTANCE_ADMIN}
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code SampleTypeUpdate} objects, insufficient access rights etc.
      */
     public void updateSampleTypes(String sessionToken, List<SampleTypeUpdate> sampleTypeUpdates);
@@ -622,7 +629,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_POWER_USER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code DataSetUpdate} objects, insufficient access rights etc.
      */
     public void updateDataSets(String sessionToken, List<DataSetUpdate> dataSetUpdates);
@@ -632,7 +639,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code INSTANCE_ADMIN}
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code DataSetTypeUpdate} objects, insufficient access rights etc.
      */
     public void updateDataSetTypes(String sessionToken, List<DataSetTypeUpdate> dataSetTypeUpdates);
@@ -642,7 +649,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code INSTANCE_ADMIN}
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code MaterialUpdate} objects, insufficient access rights etc.
      */
     public void updateMaterials(String sessionToken, List<MaterialUpdate> materialUpdates);
@@ -652,7 +659,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code INSTANCE_ADMIN}
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code MaterialTypeUpdate} objects, insufficient access rights etc.
      */
     public void updateMaterialTypes(String sessionToken, List<MaterialTypeUpdate> materialTypeUpdates);
@@ -662,7 +669,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code INSTANCE_ADMIN}
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code ExternalDmsUpdate} objects, insufficient access rights etc.
      */
     public void updateExternalDataManagementSystems(String sessionToken, List<ExternalDmsUpdate> externalDmsUpdates);
@@ -672,7 +679,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code INSTANCE_ADMIN}
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code PropertyTypeUpdate} objects, insufficient access rights etc.
      */
     public void updatePropertyTypes(String sessionToken, List<PropertyTypeUpdate> propertyTypeUpdates);
@@ -683,7 +690,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code INSTANCE_ADMIN}
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code PluginUpdate} objects, insufficient access rights etc.
      */
     public void updatePlugins(String sessionToken, List<PluginUpdate> pluginUpdates);
@@ -693,7 +700,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code INSTANCE_ADMIN}
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code VocabularyUpdate} objects, insufficient access rights etc.
      */
     public void updateVocabularies(String sessionToken, List<VocabularyUpdate> vocabularyUpdates);
@@ -706,7 +713,7 @@ public interface IApplicationServerApi extends IRpcService
      * <li>official terms - {@code PROJECT_POWER_USER} or stronger</li>
      * <li>internally managed - {@code INSTANCE_ADMIN}</li>
      * </ul>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code VocabularyTermUpdate} objects, insufficient access rights etc.
      */
     public void updateVocabularyTerms(String sessionToken, List<VocabularyTermUpdate> vocabularyTermUpdates);
@@ -716,7 +723,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code TagUpdate} objects, insufficient access rights etc.
      */
     public void updateTags(String sessionToken, List<TagUpdate> tagUpdates);
@@ -726,7 +733,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code INSTANCE_ADMIN}
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code AuthorizationGroupUpdate} objects, insufficient access rights etc.
      */
     public void updateAuthorizationGroups(String sessionToken, List<AuthorizationGroupUpdate> authorizationGroupUpdates);
@@ -739,7 +746,7 @@ public interface IApplicationServerApi extends IRpcService
      * <li>home space - user himself/herself / {@code SPACE_ADMIN} or stronger</li>
      * <li>webapp settings - user himself/herself / {@code INSTANCE_ADMIN}</li>
      * </ul>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code PersonUpdate} objects, insufficient access rights etc.
      */
     public void updatePersons(String sessionToken, List<PersonUpdate> personUpdates);
@@ -749,7 +756,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: user who created the operation execution / {@code INSTANCE_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code OperationExecutionUpdate} objects, insufficient access rights etc.
      */
     public void updateOperationExecutions(String sessionToken, List<OperationExecutionUpdate> executionUpdates);
@@ -759,7 +766,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code INSTANCE_ADMIN}
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code SemanticAnnotationUpdate} objects, insufficient access rights etc.
      */
     public void updateSemanticAnnotations(String sessionToken, List<SemanticAnnotationUpdate> annotationUpdates);
@@ -769,15 +776,15 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: depends on a query and a query database (more details at "Custom Database Queries" openBIS WIKI page)
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems, e.g. incorrect {@code QueryUpdate} objects, insufficient access rights etc.
      */
     public void updateQueries(String sessionToken, List<QueryUpdate> queryUpdates);
 
     /**
-     * Gets authorization rights for the provided {@link IObjectId} ids. A result map contains an entry for a given id 
-     * only if an object for that id has been found and that object can be accessed by the user.
-     * 
+     * Gets authorization rights for the provided {@link IObjectId} ids. A result map contains an entry for a given id only if an object for that id
+     * has been found and that object can be accessed by the user.
+     *
      * @throws UserFailureException in case of any problems
      */
     public Map<IObjectId, Rights> getRights(String sessionToken, List<? extends IObjectId> ids, RightsFetchOptions fetchOptions);
@@ -793,7 +800,7 @@ public interface IApplicationServerApi extends IRpcService
      * Required access rights: {@code PROJECT_OBSERVER} or stronger (a project user can see a space if it has access to any of the projects in that
      * space)
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public Map<ISpaceId, Space> getSpaces(String sessionToken, List<? extends ISpaceId> spaceIds,
@@ -809,7 +816,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public Map<IProjectId, Project> getProjects(String sessionToken, List<? extends IProjectId> projectIds,
@@ -825,7 +832,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public Map<IExperimentId, Experiment> getExperiments(String sessionToken, List<? extends IExperimentId> experimentIds,
@@ -841,7 +848,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public Map<IEntityTypeId, ExperimentType> getExperimentTypes(String sessionToken, List<? extends IEntityTypeId> experimentTypeIds,
@@ -857,7 +864,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public Map<ISampleId, Sample> getSamples(String sessionToken, List<? extends ISampleId> sampleIds, SampleFetchOptions fetchOptions);
@@ -872,7 +879,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public Map<IEntityTypeId, SampleType> getSampleTypes(String sessionToken, List<? extends IEntityTypeId> sampleTypeIds,
@@ -888,7 +895,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public Map<IDataSetId, DataSet> getDataSets(String sessionToken, List<? extends IDataSetId> dataSetIds, DataSetFetchOptions fetchOptions);
@@ -903,7 +910,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public Map<IEntityTypeId, DataSetType> getDataSetTypes(String sessionToken, List<? extends IEntityTypeId> dataSetTypeIds,
@@ -919,7 +926,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public Map<IMaterialId, Material> getMaterials(String sessionToken, List<? extends IMaterialId> materialIds, MaterialFetchOptions fetchOptions);
@@ -934,7 +941,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public Map<IEntityTypeId, MaterialType> getMaterialTypes(String sessionToken, List<? extends IEntityTypeId> materialTypeIds,
@@ -950,7 +957,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public Map<IPropertyTypeId, PropertyType> getPropertyTypes(String sessionToken, List<? extends IPropertyTypeId> typeIds,
@@ -966,7 +973,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public Map<IPluginId, Plugin> getPlugins(String sessionToken, List<? extends IPluginId> pluginIds, PluginFetchOptions fetchOptions);
@@ -981,7 +988,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public Map<IVocabularyId, Vocabulary> getVocabularies(String sessionToken, List<? extends IVocabularyId> vocabularyIds,
@@ -997,7 +1004,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public Map<IVocabularyTermId, VocabularyTerm> getVocabularyTerms(String sessionToken, List<? extends IVocabularyTermId> vocabularyTermIds,
@@ -1013,7 +1020,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public Map<ITagId, Tag> getTags(String sessionToken, List<? extends ITagId> tagIds, TagFetchOptions fetchOptions);
@@ -1028,7 +1035,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_ADMIN} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public Map<IAuthorizationGroupId, AuthorizationGroup> getAuthorizationGroups(String sessionToken, List<? extends IAuthorizationGroupId> groupIds,
@@ -1044,7 +1051,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_ADMIN} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public Map<IRoleAssignmentId, RoleAssignment> getRoleAssignments(String sessionToken, List<? extends IRoleAssignmentId> ids,
@@ -1060,7 +1067,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public Map<IPersonId, Person> getPersons(String sessionToken, List<? extends IPersonId> ids, PersonFetchOptions fetchOptions);
@@ -1075,7 +1082,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public Map<IExternalDmsId, ExternalDms> getExternalDataManagementSystems(String sessionToken, List<? extends IExternalDmsId> externalDmsIds,
@@ -1091,7 +1098,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public Map<ISemanticAnnotationId, SemanticAnnotation> getSemanticAnnotations(String sessionToken,
@@ -1107,7 +1114,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: user who created the operation execution / {@code INSTANCE_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public Map<IOperationExecutionId, OperationExecution> getOperationExecutions(String sessionToken,
@@ -1123,10 +1130,26 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: depends on a query and a query database (more details at "Custom Database Queries" openBIS WIKI page)
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public Map<IQueryId, Query> getQueries(String sessionToken, List<? extends IQueryId> queryIds, QueryFetchOptions fetchOptions);
+
+    /**
+     * Gets query databases for the provided {@code IQueryDatabaseId} ids. A result map contains an entry for a given id only if a query database for
+     * that id has been found and that query database can be accessed by the user.
+     * <p>
+     * By default the returned query databases contain only basic information. Any additional information to be fetched has to be explicitly requested
+     * via {@code QueryDatabaseFetchOptions}.
+     * </p>
+     * <p>
+     * Required access rights: depends on a query database (more details at "Custom Database Queries" openBIS WIKI page)
+     * </p>
+     *
+     * @throws UserFailureException in case of any problems
+     */
+    public Map<IQueryDatabaseId, QueryDatabase> getQueryDatabases(String sessionToken, List<? extends IQueryDatabaseId> queryDatabaseIds,
+            QueryDatabaseFetchOptions fetchOptions);
 
     /**
      * Searches for spaces basing on the provided {@code SpaceSearchCriteria}.
@@ -1138,7 +1161,7 @@ public interface IApplicationServerApi extends IRpcService
      * Required access rights: {@code PROJECT_OBSERVER} or stronger (a project user can see a space if it has access to any of the projects in that
      * space)
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public SearchResult<Space> searchSpaces(String sessionToken, SpaceSearchCriteria searchCriteria, SpaceFetchOptions fetchOptions);
@@ -1152,7 +1175,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public SearchResult<Project> searchProjects(String sessionToken, ProjectSearchCriteria searchCriteria, ProjectFetchOptions fetchOptions);
@@ -1160,18 +1183,13 @@ public interface IApplicationServerApi extends IRpcService
     /**
      * Searches for experiments basing on the provided {@code ExperimentSearchCriteria}.
      * <p>
-     * WARNING: The search internally uses a Lucene index which is updated asynchronously. Recent creations/updates/deletions may be therefore visible
-     * to the search after some delay. In case such a delay is unacceptable {@code getExperiments} method should be used instead (it does not use the
-     * Lucene index and is guaranteed to see the latest data).
-     * </p>
-     * <p>
      * By default the returned experiments contain only basic information. Any additional information to be fetched has to be explicitly requested via
      * {@code ExperimentFetchOptions}.
      * </p>
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public SearchResult<Experiment> searchExperiments(String sessionToken, ExperimentSearchCriteria searchCriteria,
@@ -1186,7 +1204,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public SearchResult<ExperimentType> searchExperimentTypes(String sessionToken, ExperimentTypeSearchCriteria searchCriteria,
@@ -1195,18 +1213,13 @@ public interface IApplicationServerApi extends IRpcService
     /**
      * Searches for samples basing on the provided {@code SampleSearchCriteria}.
      * <p>
-     * WARNING: The search internally uses a Lucene index which is updated asynchronously. Recent creations/updates/deletions may be therefore visible
-     * to the search after some delay. In case such a delay is unacceptable {@code getSamples} method should be used instead (it does not use the
-     * Lucene index and is guaranteed to see the latest data).
-     * </p>
-     * <p>
      * By default the returned samples contain only basic information. Any additional information to be fetched has to be explicitly requested via
      * {@code SampleFetchOptions}.
      * </p>
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public SearchResult<Sample> searchSamples(String sessionToken, SampleSearchCriteria searchCriteria, SampleFetchOptions fetchOptions);
@@ -1220,7 +1233,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public SearchResult<SampleType> searchSampleTypes(String sessionToken, SampleTypeSearchCriteria searchCriteria,
@@ -1229,18 +1242,13 @@ public interface IApplicationServerApi extends IRpcService
     /**
      * Searches for data sets basing on the provided {@code DataSetSearchCriteria}.
      * <p>
-     * WARNING: The search internally uses a Lucene index which is updated asynchronously. Recent creations/updates/deletions may be therefore visible
-     * to the search after some delay. In case such a delay is unacceptable {@code getDataSets} method should be used instead (it does not use the
-     * Lucene index and is guaranteed to see the latest data).
-     * </p>
-     * <p>
      * By default the returned data sets contain only basic information. Any additional information to be fetched has to be explicitly requested via
      * {@code DataSetFetchOptions}.
      * </p>
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public SearchResult<DataSet> searchDataSets(String sessionToken, DataSetSearchCriteria searchCriteria, DataSetFetchOptions fetchOptions);
@@ -1254,7 +1262,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public SearchResult<DataSetType> searchDataSetTypes(String sessionToken, DataSetTypeSearchCriteria searchCriteria,
@@ -1263,18 +1271,13 @@ public interface IApplicationServerApi extends IRpcService
     /**
      * Searches for materials basing on the provided {@code MaterialSearchCriteria}.
      * <p>
-     * WARNING: The search internally uses a Lucene index which is updated asynchronously. Recent creations/updates/deletions may be therefore visible
-     * to the search after some delay. In case such a delay is unacceptable {@code getMaterials} method should be used instead (it does not use the
-     * Lucene index and is guaranteed to see the latest data).
-     * </p>
-     * <p>
      * By default the returned materials contain only basic information. Any additional information to be fetched has to be explicitly requested via
      * {@code MaterialFetchOptions}.
      * </p>
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public SearchResult<Material> searchMaterials(String sessionToken, MaterialSearchCriteria searchCriteria, MaterialFetchOptions fetchOptions);
@@ -1288,7 +1291,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public SearchResult<ExternalDms> searchExternalDataManagementSystems(String sessionToken, ExternalDmsSearchCriteria searchCriteria,
@@ -1303,7 +1306,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public SearchResult<MaterialType> searchMaterialTypes(String sessionToken, MaterialTypeSearchCriteria searchCriteria,
@@ -1319,7 +1322,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public SearchResult<Plugin> searchPlugins(String sessionToken, PluginSearchCriteria searchCriteria,
@@ -1334,7 +1337,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public SearchResult<Vocabulary> searchVocabularies(String sessionToken, VocabularySearchCriteria searchCriteria,
@@ -1349,7 +1352,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public SearchResult<VocabularyTerm> searchVocabularyTerms(String sessionToken, VocabularyTermSearchCriteria searchCriteria,
@@ -1364,7 +1367,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public SearchResult<Tag> searchTags(String sessionToken, TagSearchCriteria searchCriteria, TagFetchOptions fetchOptions);
@@ -1378,7 +1381,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_ADMIN} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public SearchResult<AuthorizationGroup> searchAuthorizationGroups(String sessionToken, AuthorizationGroupSearchCriteria searchCriteria,
@@ -1393,7 +1396,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_ADMIN} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public SearchResult<RoleAssignment> searchRoleAssignments(String sessionToken, RoleAssignmentSearchCriteria searchCriteria,
@@ -1408,7 +1411,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public SearchResult<Person> searchPersons(String sessionToken, PersonSearchCriteria searchCriteria, PersonFetchOptions fetchOptions);
@@ -1423,7 +1426,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public SearchResult<CustomASService> searchCustomASServices(String sessionToken, CustomASServiceSearchCriteria searchCriteria,
@@ -1439,7 +1442,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public SearchResult<SearchDomainService> searchSearchDomainServices(String sessionToken, SearchDomainServiceSearchCriteria searchCriteria,
@@ -1455,7 +1458,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public SearchResult<AggregationService> searchAggregationServices(String sessionToken, AggregationServiceSearchCriteria searchCriteria,
@@ -1471,7 +1474,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public SearchResult<ReportingService> searchReportingServices(String sessionToken, ReportingServiceSearchCriteria searchCriteria,
@@ -1487,7 +1490,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public SearchResult<ProcessingService> searchProcessingServices(String sessionToken, ProcessingServiceSearchCriteria searchCriteria,
@@ -1504,7 +1507,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public SearchResult<ObjectKindModification> searchObjectKindModifications(String sessionToken,
@@ -1513,17 +1516,13 @@ public interface IApplicationServerApi extends IRpcService
     /**
      * Searches for experiments, samples, data sets and materials at once basing on the provided {@code GlobalSearchCriteria}.
      * <p>
-     * WARNING: The search internally uses a Lucene index which is updated asynchronously. Recent creations/updates/deletions may be therefore visible
-     * to the search after some delay.
-     * </p>
-     * <p>
      * By default the returned objects contain only basic information. Any additional information to be fetched has to be explicitly requested via
      * {@code GlobalSearchObjectFetchOptions}.
      * </p>
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public SearchResult<GlobalSearchObject> searchGlobally(String sessionToken, GlobalSearchCriteria searchCriteria,
@@ -1538,7 +1537,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: user who created the operation execution / {@code INSTANCE_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public SearchResult<OperationExecution> searchOperationExecutions(String sessionToken, OperationExecutionSearchCriteria searchCriteria,
@@ -1553,7 +1552,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public SearchResult<DataStore> searchDataStores(String sessionToken, DataStoreSearchCriteria searchCriteria, DataStoreFetchOptions fetchOptions);
@@ -1567,7 +1566,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public SearchResult<SemanticAnnotation> searchSemanticAnnotations(String sessionToken, SemanticAnnotationSearchCriteria searchCriteria,
@@ -1582,7 +1581,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public SearchResult<PropertyType> searchPropertyTypes(String sessionToken, PropertyTypeSearchCriteria searchCriteria,
@@ -1597,7 +1596,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public SearchResult<PropertyAssignment> searchPropertyAssignments(String sessionToken, PropertyAssignmentSearchCriteria searchCriteria,
@@ -1612,10 +1611,25 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: depends on a query and a query database (more details at "Custom Database Queries" openBIS WIKI page)
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public SearchResult<Query> searchQueries(String sessionToken, QuerySearchCriteria searchCriteria, QueryFetchOptions fetchOptions);
+
+    /**
+     * Searches for query databases basing on the provided {@code QueryDatabaseSearchCriteria}.
+     * <p>
+     * By default the returned query databases contain only basic information. Any additional information to be fetched has to be explicitly requested
+     * via {@code QueryDatabaseFetchOptions}.
+     * </p>
+     * <p>
+     * Required access rights: depends on a query database (more details at "Custom Database Queries" openBIS WIKI page)
+     * </p>
+     *
+     * @throws UserFailureException in case of any problems
+     */
+    public SearchResult<QueryDatabase> searchQueryDatabases(String sessionToken, QueryDatabaseSearchCriteria searchCriteria,
+            QueryDatabaseFetchOptions fetchOptions);
 
     /**
      * Permanently deletes spaces with the provided {@code ISpaceId} ids. Additional deletion options (e.g. deletion reason) can be set via
@@ -1623,7 +1637,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code SPACE_ADMIN} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public void deleteSpaces(String sessionToken, List<? extends ISpaceId> spaceIds, SpaceDeletionOptions deletionOptions);
@@ -1634,7 +1648,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code SPACE_POWER_USER} / {@code PROJECT_ADMIN} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public void deleteProjects(String sessionToken, List<? extends IProjectId> projectIds, ProjectDeletionOptions deletionOptions);
@@ -1646,7 +1660,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_POWER_USER} or stronger
      * </p>
-     * 
+     *
      * @see #confirmDeletions(String, List)
      * @see #revertDeletions(String, List)
      * @throws UserFailureException in case of any problems
@@ -1660,7 +1674,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_POWER_USER} or stronger
      * </p>
-     * 
+     *
      * @see #confirmDeletions(String, List)
      * @see #revertDeletions(String, List)
      * @throws UserFailureException in case of any problems
@@ -1674,7 +1688,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_POWER_USER} or stronger
      * </p>
-     * 
+     *
      * @see #confirmDeletions(String, List)
      * @see #revertDeletions(String, List)
      * @throws UserFailureException in case of any problems
@@ -1687,7 +1701,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code INSTANCE_ADMIN}
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public void deleteMaterials(String sessionToken, List<? extends IMaterialId> materialIds, MaterialDeletionOptions deletionOptions);
@@ -1698,7 +1712,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code INSTANCE_ADMIN}
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public void deletePlugins(String sessionToken, List<? extends IPluginId> pluginIds, PluginDeletionOptions deletionOptions);
@@ -1709,7 +1723,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code INSTANCE_ADMIN}
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public void deletePropertyTypes(String sessionToken, List<? extends IPropertyTypeId> propertyTypeIds,
@@ -1721,7 +1735,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code INSTANCE_ADMIN}
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public void deleteVocabularies(String sessionToken, List<? extends IVocabularyId> ids, VocabularyDeletionOptions deletionOptions);
@@ -1734,7 +1748,7 @@ public interface IApplicationServerApi extends IRpcService
      * <li>unofficial and official terms - {@code PROJECT_POWER_USER} or stronger</li>
      * <li>internally managed - {@code INSTANCE_ADMIN}</li>
      * </ul>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public void deleteVocabularyTerms(String sessionToken, List<? extends IVocabularyTermId> termIds, VocabularyTermDeletionOptions deletionOptions);
@@ -1745,7 +1759,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code INSTANCE_ADMIN}
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public void deleteExperimentTypes(String sessionToken, List<? extends IEntityTypeId> experimentTypeIds,
@@ -1757,7 +1771,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code INSTANCE_ADMIN}
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public void deleteSampleTypes(String sessionToken, List<? extends IEntityTypeId> sampleTypeIds, SampleTypeDeletionOptions deletionOptions);
@@ -1768,7 +1782,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code INSTANCE_ADMIN}
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public void deleteDataSetTypes(String sessionToken, List<? extends IEntityTypeId> dataSetTypeIds, DataSetTypeDeletionOptions deletionOptions);
@@ -1779,7 +1793,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code INSTANCE_ADMIN}
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public void deleteMaterialTypes(String sessionToken, List<? extends IEntityTypeId> materialTypeIds, MaterialTypeDeletionOptions deletionOptions);
@@ -1790,7 +1804,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code INSTANCE_ADMIN}
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public void deleteExternalDataManagementSystems(String sessionToken, List<? extends IExternalDmsId> externalDmsIds,
@@ -1802,7 +1816,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public void deleteTags(String sessionToken, List<? extends ITagId> tagIds, TagDeletionOptions deletionOptions);
@@ -1813,7 +1827,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code INSTANCE_ADMIN}
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public void deleteAuthorizationGroups(String sessionToken, List<? extends IAuthorizationGroupId> groupIds,
@@ -1828,7 +1842,7 @@ public interface IApplicationServerApi extends IRpcService
      * <li>space roles - {@code SPACE_ADMIN} or stronger</li>
      * <li>project roles - {@code PROJECT_ADMIN} or stronger</li>
      * </ul>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public void deleteRoleAssignments(String sessionToken, List<? extends IRoleAssignmentId> assignmentIds,
@@ -1840,7 +1854,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: user who created the operation execution / {@code INSTANCE_ADMIN}
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public void deleteOperationExecutions(String sessionToken, List<? extends IOperationExecutionId> executionIds,
@@ -1852,7 +1866,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code INSTANCE_ADMIN}
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public void deleteSemanticAnnotations(String sessionToken, List<? extends ISemanticAnnotationId> annotationIds,
@@ -1864,10 +1878,21 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: depends on a query and a query database (more details at "Custom Database Queries" openBIS WIKI page)
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public void deleteQueries(String sessionToken, List<? extends IQueryId> queryIds, QueryDeletionOptions deletionOptions);
+
+    /**
+     * Permanently deletes persons with the provided {@code IPersonId} ids. Additional deletion options (e.g. deletion reason) can be set via
+     * {@code PersonDeletionOptions}.
+     * <p>
+     * Required access rights: {@code INSTANCE_ADMIN}
+     * </p>
+     *
+     * @throws UserFailureException in case of any problems
+     */
+    public void deletePersons(String sessionToken, List<? extends IPersonId> personIds, PersonDeletionOptions deletionOptions);
 
     /**
      * Searches for deletions basing on the provided {@code DeletionSearchCriteria}.
@@ -1878,7 +1903,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_USER}
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public SearchResult<Deletion> searchDeletions(String sessionToken, DeletionSearchCriteria searchCriteria, DeletionFetchOptions fetchOptions);
@@ -1888,7 +1913,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_USER} or stronger
      * </p>
-     * 
+     *
      * @see #deleteExperiments(String, List, ExperimentDeletionOptions)
      * @see #deleteSamples(String, List, SampleDeletionOptions)
      * @see #deleteDataSets(String, List, DataSetDeletionOptions)
@@ -1901,7 +1926,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_ADMIN} or stronger
      * </p>
-     * 
+     *
      * @see #deleteExperiments(String, List, ExperimentDeletionOptions)
      * @see #deleteSamples(String, List, SampleDeletionOptions)
      * @see #deleteDataSets(String, List, DataSetDeletionOptions)
@@ -1916,7 +1941,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public Object executeCustomASService(String sessionToken, ICustomASServiceId serviceId, CustomASServiceExecutionOptions options);
@@ -1928,7 +1953,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public SearchResult<SearchDomainServiceExecutionResult> executeSearchDomainService(String sessionToken,
@@ -1941,7 +1966,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public TableModel executeAggregationService(String sessionToken, IDssServiceId serviceId, AggregationServiceExecutionOptions options);
@@ -1953,7 +1978,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public TableModel executeReportingService(String sessionToken, IDssServiceId serviceId, ReportingServiceExecutionOptions options);
@@ -1965,7 +1990,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_USER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public void executeProcessingService(String sessionToken, IDssServiceId serviceId, ProcessingServiceExecutionOptions options);
@@ -1976,7 +2001,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: depends on a query and a query database (more details at "Custom Database Queries" openBIS WIKI page)
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public TableModel executeQuery(String sessionToken, IQueryId queryId, QueryExecutionOptions options);
@@ -1987,17 +2012,29 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: depends on a database (more details at "Custom Database Queries" openBIS WIKI page)
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public TableModel executeSql(String sessionToken, String sql, SqlExecutionOptions options);
+
+    /**
+     * Evaluates the provided plugin (e.g. a dynamic property plugin or an entity validation plugin). Parameters to be passed to the plugin can be set
+     * via {@code PluginEvaluationOptions} subclasses. The method returns appropriate subclasses of {@code PluginEvaluationResult} depending on the
+     * plugin type.
+     * <p>
+     * Required access rights: {@code INSTANCE_ADMIN}
+     * </p>
+     *
+     * @throws UserFailureException in case of any problems
+     */
+    public PluginEvaluationResult evaluatePlugin(String sessionToken, PluginEvaluationOptions options);
 
     /**
      * Archives data sets with the provided {@code IDataSetId} ids. Additional archiving options can be set via {@code DataSetArchiveOptions}.
      * <p>
      * Required access rights: {@code PROJECT_POWER_USER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public void archiveDataSets(String sessionToken, List<? extends IDataSetId> dataSetIds, DataSetArchiveOptions options);
@@ -2007,7 +2044,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_USER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public void unarchiveDataSets(String sessionToken, List<? extends IDataSetId> dataSetIds, DataSetUnarchiveOptions options);
@@ -2017,7 +2054,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_ADMIN} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public void lockDataSets(String sessionToken, List<? extends IDataSetId> dataSetIds, DataSetLockOptions options);
@@ -2027,7 +2064,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_ADMIN} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public void unlockDataSets(String sessionToken, List<? extends IDataSetId> dataSetIds, DataSetUnlockOptions options);
@@ -2040,7 +2077,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @see #getOperationExecutions(String, List, OperationExecutionFetchOptions)
      * @see #searchOperationExecutions(String, OperationExecutionSearchCriteria, OperationExecutionFetchOptions)
      * @see #updateOperationExecutions(String, List)
@@ -2062,7 +2099,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_OBSERVER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public Map<String, String> getServerInformation(String sessionToken);
@@ -2073,7 +2110,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_USER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public List<String> createPermIdStrings(String sessionToken, int count);
@@ -2084,7 +2121,7 @@ public interface IApplicationServerApi extends IRpcService
      * <p>
      * Required access rights: {@code PROJECT_USER} or stronger
      * </p>
-     * 
+     *
      * @throws UserFailureException in case of any problems
      */
     public List<String> createCodes(String sessionToken, String prefix, EntityKind entityKind, int count);

@@ -352,6 +352,10 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 			return this._executeGetOperation(new c.GetQueriesOperation(ids, fetchOptions));
 		}
 
+		this.getQueryDatabases = function(ids, fetchOptions) {
+			return this._executeGetOperation(new c.GetQueryDatabasesOperation(ids, fetchOptions));
+		}
+
 		this.searchSpaces = function(criteria, fetchOptions) {
 			return this._executeSearchOperation(new c.SearchSpacesOperation(criteria, fetchOptions));
 		}
@@ -476,6 +480,10 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 			return this._executeSearchOperation(new c.SearchQueriesOperation(criteria, fetchOptions));
 		}
 
+		this.searchQueryDatabases = function(criteria, fetchOptions) {
+			return this._executeSearchOperation(new c.SearchQueryDatabasesOperation(criteria, fetchOptions));
+		}
+
 		this.deleteSpaces = function(ids, deletionOptions) {
 			return this._executeDeleteOperation(new c.DeleteSpacesOperation(ids, deletionOptions));
 		}
@@ -560,6 +568,10 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 			return this._executeDeleteOperation(new c.DeleteQueriesOperation(ids, deletionOptions));
 		}
 
+		this.deletePersons = function(ids, deletionOptions) {
+			return this._executeDeleteOperation(new c.DeletePersonsOperation(ids, deletionOptions));
+		}
+
 		this.searchDeletions = function(criteria, fetchOptions) {
 			return this._executeSearchOperation(new c.SearchDeletionsOperation(criteria, fetchOptions));
 		}
@@ -614,6 +626,12 @@ define([ 'jquery', 'openbis', 'test/common' ], function($, openbis, common) {
 
 		this.executeSql = function(sql, options) {
 			return this._executeOperation(new c.ExecuteSqlOperation(sql, options)).then(function(results) {
+				return results.getResults()[0].getResult();
+			});
+		}
+
+		this.evaluatePlugin = function(options) {
+			return this._executeOperation(new c.EvaluatePluginOperation(options)).then(function(results) {
 				return results.getResults()[0].getResult();
 			});
 		}

@@ -42,6 +42,8 @@ public class PropertyType extends Code<PropertyType> implements IPropertyTypeUpd
     private String label;
 
     private Date modificationDate;
+    
+    private Person registrator;
 
     private boolean managedInternally;
 
@@ -110,6 +112,16 @@ public class PropertyType extends Code<PropertyType> implements IPropertyTypeUpd
     public void setModificationDate(Date modificationDate)
     {
         this.modificationDate = modificationDate;
+    }
+
+    public Person getRegistrator()
+    {
+        return registrator;
+    }
+
+    public void setRegistrator(Person registrator)
+    {
+        this.registrator = registrator;
     }
 
     public boolean isInternalNamespace()

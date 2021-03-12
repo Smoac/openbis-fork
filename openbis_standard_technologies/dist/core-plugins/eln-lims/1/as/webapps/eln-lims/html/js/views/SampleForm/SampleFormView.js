@@ -248,9 +248,9 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 
                     if(profile.isPropertyPressent(sampleType, "$BARCODE")) {
                         dropdownOptionsModel.push({
-                            label : "Barcode Update",
+                            label : "Custom Barcode Update",
                             action : function() {
-                                BarcodeUtil.readBarcode(_this._sampleFormModel.sample);
+                                BarcodeUtil.readBarcode([_this._sampleFormModel.sample]);
                             }
                         });
                     }
@@ -718,7 +718,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				continue;
 			}
 			
-			if(propertyType.code === "$ANNOTATIONS_STATE" || propertyType.code === "FREEFORM_TABLE_STATE" || propertyType.code === "$ORDER.ORDER_STATE" ) {
+			if(propertyType.code === "$ANNOTATIONS_STATE" || propertyType.code === "FREEFORM_TABLE_STATE" || propertyType.code === "$ORDER.ORDER_STATE" || propertyType.code === "$BARCODE" ) {
 				continue;
 			} else if(propertyType.code === "$XMLCOMMENTS") {
 				var $commentsContainer = $("<div>");
@@ -909,7 +909,18 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		}
 		
 		$fieldset.append($codeField);
-		
+
+        if(this._sampleFormModel.mode !== FormMode.CREATE && profile.mainMenu.showBarcodes) {
+		    var $defaultBarcodeField = FormUtil.getFieldForLabelWithText("Default Barcode", this._sampleFormModel.sample.permId);
+		    $fieldset.append($defaultBarcodeField);
+
+		    var $customBarcodeProperty = this._sampleFormModel.sample.properties["$BARCODE"];
+		    if($customBarcodeProperty) {
+		        var $customBarcodePropertyField = FormUtil.getFieldForLabelWithText("Custom Barcode", $customBarcodeProperty);
+		        $fieldset.append($customBarcodePropertyField);
+		    }
+        }
+
 		//
 		// Identification Info - Registration and modification times
 		//

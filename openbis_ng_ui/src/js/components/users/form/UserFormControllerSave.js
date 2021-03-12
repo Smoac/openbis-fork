@@ -108,7 +108,11 @@ export default class UserFormControllerSave extends PageControllerSave {
     update.setSpaceId(
       user.space.value ? new openbis.SpacePermId(user.space.value) : null
     )
-    update.active = user.active.value
+    if (user.active.value) {
+      update.activate()
+    } else {
+      update.deactivate()
+    }
     return new openbis.UpdatePersonsOperation([update])
   }
 

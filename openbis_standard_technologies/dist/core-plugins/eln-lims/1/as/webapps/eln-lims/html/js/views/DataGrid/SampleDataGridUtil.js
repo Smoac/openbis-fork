@@ -496,27 +496,33 @@ var SampleDataGridUtil = new function() {
 			}
 			
 			var criteriaToSend = $.extend(true, {}, criteria);
-			
+
 			if(options && options.searchOperator && options.search) {
 				criteriaToSend.logicalOperator = options.searchOperator;
-				if(criteriaToSend.logicalOperator === "OR") {
-					criteriaToSend.rules = {};
-					fetchOptions.sort = { 
-							type : "Attribute",
-							name : "fetchedFieldsScore",
-							direction : "asc"
-					}
+			    var filter = options.search.toLowerCase().split(/[ ,]+/); //Split by regular space or comma
+
+				if(criteriaToSend.logicalOperator === "AND") {
+                    for(var fIdx = 0; fIdx < filter.length; fIdx++) {
+                        var fKeyword = filter[fIdx];
+                        criteriaToSend.rules[Util.guid()] = { type : "All", name : "", value : fKeyword };
+                    }
+				} else if(criteriaToSend.logicalOperator === "OR") { // Using sub criteria
+				    criteriaToSend.rules = {};
+				    criteriaToSend.subCriteria = {};
+
+				    for(var fIdx = 0; fIdx < filter.length; fIdx++) {
+                        var subCriteria = $.extend(true, {}, criteria);
+                        delete subCriteria.cached;
+                        delete subCriteria.cachedSearch;
+                        subCriteria.logicalOperator = "AND";
+                        var fKeyword = filter[fIdx];
+                        subCriteria.rules[Util.guid()] = { type : "All", name : "", value : fKeyword };
+                        criteriaToSend.subCriteria[Util.guid()] = subCriteria;
+                    }
+
 				}
 			}
-			
-			if(options && options.search) {
-				var filter = options.search.toLowerCase().split(/[ ,]+/); //Split by regular space or comma
-				for(var fIdx = 0; fIdx < filter.length; fIdx++) {
-					var fKeyword = filter[fIdx];
-					criteriaToSend.rules[Util.guid()] = { type : "All", name : "", value : fKeyword };
-				}
-			}
-			
+
 			if(options && options.sortProperty && options.sortDirection) {
 				fetchOptions.sort = { 
 						type : null,
@@ -646,20 +652,6 @@ var SampleDataGridUtil = new function() {
 				$dropDownMenu.dropdown();
 				$dropDownMenu.click(stopEventsBuble);
 				
-				var $hierarchyGraph = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Open Hierarchy'}).append("Open Hierarchy"));
-				$hierarchyGraph.click(function(event) {
-					stopEventsBuble(event);
-					mainController.changeView('showSampleHierarchyPage', data.permId, true);
-				});
-				$list.append($hierarchyGraph);
-				
-				var $hierarchyTable = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Open Hierarchy Table'}).append("Open Hierarchy Table"));
-				$hierarchyTable.click(function(event) {
-					stopEventsBuble(event);
-					mainController.changeView('showSampleHierarchyTablePage', data.permId, true);
-				});
-				$list.append($hierarchyTable);
-				
 				var $upload = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'File Upload'}).append("File Upload"));
 				$upload.click(function(event) {
 					stopEventsBuble(event);
@@ -676,6 +668,29 @@ var SampleDataGridUtil = new function() {
 					moveSampleController.init();
 				});
 				$list.append($move);
+
+                if(profile.mainMenu.showBarcodes) {
+                    var $updateBarcode = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Update Barcode'}).append("Update Barcode"));
+                    $updateBarcode.click(function(event) {
+                        stopEventsBuble(event);
+                        BarcodeUtil.readBarcode([data]);
+                    });
+                    $list.append($updateBarcode);
+                }
+
+				var $hierarchyGraph = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Open Hierarchy'}).append("Open Hierarchy"));
+				$hierarchyGraph.click(function(event) {
+					stopEventsBuble(event);
+					mainController.changeView('showSampleHierarchyPage', data.permId, true);
+				});
+				$list.append($hierarchyGraph);
+
+				var $hierarchyTable = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Open Hierarchy Table'}).append("Open Hierarchy Table"));
+				$hierarchyTable.click(function(event) {
+					stopEventsBuble(event);
+					mainController.changeView('showSampleHierarchyTablePage', data.permId, true);
+				});
+				$list.append($hierarchyTable);
 				
 				return $dropDownMenu;
 			},

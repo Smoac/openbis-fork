@@ -32,6 +32,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.plugin.PluginComparato
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.project.ProjectComparatorFactory;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.property.PropertyAssignmentComparatorFactory;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.property.PropertyTypeComparatorFactory;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.query.QueryDatabaseComparatorFactory;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.sample.SampleComparatorFactory;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.space.SpaceComparatorFactory;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.tag.TagComparatorFactory;
@@ -63,6 +64,7 @@ public abstract class ComparatorFactory
         factories.add(new PropertyTypeComparatorFactory());
         factories.add(new PluginComparatorFactory());
         factories.add(new PropertyAssignmentComparatorFactory());
+        factories.add(new QueryDatabaseComparatorFactory());
     }
 
     public abstract boolean accepts(Class<?> sortOptionsClass);

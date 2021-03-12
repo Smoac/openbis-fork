@@ -11,8 +11,8 @@ export default class GridColumnWrapper extends BaseWrapper {
     this.sortWrapper = sortWrapper
   }
 
-  getField() {
-    return this.column.field
+  getName() {
+    return this.column.name
   }
 
   getLabel() {
@@ -36,7 +36,7 @@ export default class GridColumnWrapper extends BaseWrapper {
 
   toJSON() {
     return {
-      field: this.getField(),
+      name: this.getName(),
       label: this.getLabel().toJSON(),
       filter: this.getFilter().toJSON(),
       sort: this.getSort()

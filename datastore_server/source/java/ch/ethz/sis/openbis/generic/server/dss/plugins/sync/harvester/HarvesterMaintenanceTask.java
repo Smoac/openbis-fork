@@ -153,14 +153,22 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
         {
             for (SyncConfig config : SynchronizationConfigReader.readConfiguration(harvesterConfigFile))
             {
+                boolean dryRun = config.isDryRun();
                 Logger logger = createLogger(config);
                 try
                 {
+                    config.setDryRun(true);
                     synchronize(config, logger);
+                    if (dryRun == false)
+                    {
+                        config.setDryRun(false);
+                        synchronize(config, logger);
+                    }
                 } catch (Exception e)
                 {
-                    logger.error("Sync failed: ", e);
-                    sendErrorEmail(config, "Synchronization failed");
+                    String dryRunNote = config.isDryRun() ? "(dry run) " : "";
+                    logger.error("Sync " + dryRunNote + "failed: ", e);
+                    sendErrorEmail(config, "Synchronization " + dryRunNote + "failed");
                 }
                 logger.removeAllAppenders();
             }
@@ -174,11 +182,12 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
 
     private void synchronize(SyncConfig config, Logger logger) throws IOException, ParseException, Exception
     {
-        logger.info("====================== " + (config.isDryRun() ? "Dry " : "")
+        logger.info("====================== "
                 + "Running synchronization from data source: " + config.getDataSourceOpenbisURL()
                 + " for user " + config.getUser());
+        logger.info((config.isDryRun() ? "DRY RUN" : "SYNC") + " Mode");
         checkAlias(config);
-        logger.info("verbose =  " + config.isVerbose());
+        logger.info("verbose = " + config.isVerbose());
 
         String fileName = config.getLastSyncTimestampFileName();
         File lastSyncTimestampFile = new File(fileName);
@@ -236,13 +245,13 @@ public class HarvesterMaintenanceTask<T extends DataSetInformation> implements I
             newLastFullSyncTimestamp = newCutOffTimestamp;
         }
 
-        if (config.isDryRun() == false)
+        if (config.isDryRun())
+        {
+            logger.info("Dry run finished");
+        } else
         {
             logger.info("Saving the timestamp of sync start to file");
             saveSyncTimestamp(lastSyncTimestampFile, newLastIncSyncTimestamp, newLastFullSyncTimestamp);
-        } else
-        {
-            logger.info("Dry run finished");
         }
     }
 

@@ -16,7 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.tag;
 
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.planner.ILocalSearchManager;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.search.planner.TagSearchManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -48,6 +50,9 @@ public class SearchTagsOperationExecutor extends SearchObjectsPEOperationExecuto
     @Autowired
     private ITagTranslator translator;
 
+    @Autowired
+    private TagSearchManager tagSearchManager;
+
     @Override
     protected Class<? extends SearchObjectsOperation<TagSearchCriteria, TagFetchOptions>> getOperationClass()
     {
@@ -73,8 +78,16 @@ public class SearchTagsOperationExecutor extends SearchObjectsPEOperationExecuto
     }
 
     @Override
-    protected ILocalSearchManager<TagSearchCriteria, Tag, Long> getSearchManager() {
-        throw new RuntimeException("This method is not implemented yet.");
+    protected SearchObjectsOperationResult<Tag> doExecute(final IOperationContext context,
+            final SearchObjectsOperation<TagSearchCriteria, TagFetchOptions> operation)
+    {
+        return executeDirectSQLSearch(context, operation);
+    }
+
+    @Override
+    protected ILocalSearchManager<TagSearchCriteria, Tag, Long> getSearchManager()
+    {
+        return tagSearchManager;
     }
 
 }

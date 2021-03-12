@@ -20,18 +20,6 @@ export default class TypeFormFacade {
     })
   }
 
-  async loadUsages(object) {
-    return Promise.all([
-      this._loadTypeUsages(object),
-      this._loadPropertyLocalUsages(object),
-      this._loadPropertyGlobalUsages(object)
-    ]).then(([type, propertyLocal, propertyGlobal]) => ({
-      type,
-      propertyLocal,
-      propertyGlobal
-    }))
-  }
-
   async loadAssignments(object) {
     return Promise.all([
       this.loadLocalPropertyTypes(object),
@@ -58,6 +46,65 @@ export default class TypeFormFacade {
 
         return map
       })
+    })
+  }
+
+  async loadTypeUsages(object) {
+    const strategy = this._getStrategy(object.type)
+
+    if (object.type === strategy.getNewObjectType()) {
+      return Promise.resolve(0)
+    }
+
+    const criteria = strategy.createEntitySearchCriteria()
+    criteria.withType().withCode().thatEquals(object.id)
+
+    const fo = strategy.createEntityFetchOptions()
+    fo.from(0)
+    fo.count(0)
+
+    const operation = strategy.createEntitySearchOperation(criteria, fo)
+    const options = new openbis.SynchronousOperationExecutionOptions()
+
+    return openbis.executeOperations([operation], options).then(result => {
+      const operationResult = result.getResults()[0]
+      return operationResult.getSearchResult().getTotalCount()
+    })
+  }
+
+  async loadPropertyUsages(object, propertyTypeCodes) {
+    const strategy = this._getStrategy(object.type)
+
+    if (object.type === strategy.getNewObjectType()) {
+      return Promise.resolve({})
+    }
+
+    function createOperation(propertyTypeCode) {
+      const criteria = strategy.createEntitySearchCriteria()
+      criteria.withType().withCode().thatEquals(object.id)
+      criteria.withProperty(propertyTypeCode)
+
+      const fo = strategy.createEntityFetchOptions()
+      fo.from(0)
+      fo.count(0)
+
+      return strategy.createEntitySearchOperation(criteria, fo)
+    }
+
+    const operations = propertyTypeCodes.map(propertyTypeCode =>
+      createOperation(propertyTypeCode)
+    )
+    const options = new openbis.SynchronousOperationExecutionOptions()
+
+    return openbis.executeOperations(operations, options).then(result => {
+      const usagesMap = {}
+      propertyTypeCodes.forEach((propertyTypeCode, index) => {
+        const operationResult = result.getResults()[index]
+        usagesMap[
+          propertyTypeCode
+        ] = operationResult.getSearchResult().getTotalCount()
+      })
+      return usagesMap
     })
   }
 
@@ -184,158 +231,6 @@ export default class TypeFormFacade {
     return openbis.searchPlugins(criteria, fo).then(results => {
       return results.getObjects().filter(plugin => {
         return plugin.getEntityKinds().includes(strategy.getEntityKind())
-      })
-    })
-  }
-
-  _loadTypeUsages(object) {
-    const strategy = this._getStrategy(object.type)
-
-    if (object.type === strategy.getNewObjectType()) {
-      return Promise.resolve(0)
-    }
-
-    function createTypeUsedOperation(typeCode) {
-      const criteria = strategy.createEntitySearchCriteria()
-      criteria.withType().withCode().thatEquals(typeCode)
-
-      const fo = strategy.createEntityFetchOptions()
-      fo.from(0)
-      fo.count(0)
-
-      return strategy.createEntitySearchOperation(criteria, fo)
-    }
-
-    const id = new openbis.EntityTypePermId(object.id)
-    const fo = strategy.createTypeFetchOptions()
-
-    return strategy.getTypes([id], fo).then(map => {
-      const type = map[object.id]
-
-      if (type) {
-        const operations = [createTypeUsedOperation(type.getCode())]
-        const options = new openbis.SynchronousOperationExecutionOptions()
-
-        return openbis.executeOperations(operations, options).then(result => {
-          const results = result.getResults()
-          return results[0].getSearchResult().getTotalCount()
-        })
-      } else {
-        return 0
-      }
-    })
-  }
-
-  async _loadPropertyLocalUsages(object) {
-    const strategy = this._getStrategy(object.type)
-
-    if (object.type === strategy.getNewObjectType()) {
-      return Promise.resolve({})
-    }
-
-    function createPropertyUsedOperation(typeCode, propertyTypeCode) {
-      const criteria = strategy.createEntitySearchCriteria()
-      criteria.withType().withCode().thatEquals(typeCode)
-      criteria.withProperty(propertyTypeCode)
-
-      const fo = strategy.createEntityFetchOptions()
-      fo.from(0)
-      fo.count(0)
-
-      return strategy.createEntitySearchOperation(criteria, fo)
-    }
-
-    const id = new openbis.EntityTypePermId(object.id)
-    const fo = strategy.createTypeFetchOptions()
-    fo.withPropertyAssignments().withPropertyType()
-
-    return strategy.getTypes([id], fo).then(map => {
-      const type = map[object.id]
-
-      if (type) {
-        const operations = []
-
-        type.getPropertyAssignments().forEach(assignment => {
-          operations.push(
-            createPropertyUsedOperation(
-              type.getCode(),
-              assignment.getPropertyType().getCode()
-            )
-          )
-        })
-
-        const options = new openbis.SynchronousOperationExecutionOptions()
-        options.setExecuteInOrder(true)
-
-        return openbis.executeOperations(operations, options).then(result => {
-          const results = result.getResults()
-          const map = {}
-
-          type.getPropertyAssignments().forEach((assignment, index) => {
-            map[assignment.getPropertyType().getCode()] = results[index]
-              .getSearchResult()
-              .getTotalCount()
-          })
-
-          return map
-        })
-      } else {
-        return {}
-      }
-    })
-  }
-
-  async _loadPropertyGlobalUsages(object) {
-    const strategies = [
-      new ObjectTypeStrategy(),
-      new CollectionTypeStrategy(),
-      new DataSetTypeStrategy(),
-      new MaterialTypeStrategy()
-    ]
-
-    function createPropertyUsedOperation(strategy, propertyTypeCode) {
-      const criteria = strategy.createEntitySearchCriteria()
-      criteria.withProperty(propertyTypeCode)
-
-      const fo = strategy.createEntityFetchOptions()
-      fo.from(0)
-      fo.count(0)
-
-      return strategy.createEntitySearchOperation(criteria, fo)
-    }
-
-    return Promise.all([
-      this.loadLocalPropertyTypes(object),
-      this.loadGlobalPropertyTypes()
-    ]).then(([localPropertyTypes, globalPropertyTypes]) => {
-      const propertyTypes = [...localPropertyTypes, ...globalPropertyTypes]
-      const operations = []
-
-      propertyTypes.forEach(globalPropertyType => {
-        strategies.forEach(strategy => {
-          operations.push(
-            createPropertyUsedOperation(strategy, globalPropertyType.getCode())
-          )
-        })
-      })
-
-      const options = new openbis.SynchronousOperationExecutionOptions()
-      options.setExecuteInOrder(true)
-
-      return openbis.executeOperations(operations, options).then(result => {
-        const results = result.getResults()
-        const map = {}
-
-        propertyTypes.forEach((globalPropertyType, i) => {
-          let usages = 0
-          strategies.forEach((strategy, j) => {
-            const index = i * strategies.length + j
-            usages += results[index].getSearchResult().getTotalCount()
-          })
-          map[globalPropertyType.getCode()] = usages
-        })
-
-        return map
       })
     })
   }

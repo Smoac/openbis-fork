@@ -5,8 +5,9 @@ import Header from '@src/js/components/common/form/Header.jsx'
 import CheckboxField from '@src/js/components/common/form/CheckboxField.jsx'
 import TextField from '@src/js/components/common/form/TextField.jsx'
 import SelectField from '@src/js/components/common/form/SelectField.jsx'
-import Message from '@src/js/components/common/form/Message.jsx'
 import TypeFormSelectionType from '@src/js/components/types/form/TypeFormSelectionType.js'
+import objectTypes from '@src/js/common/consts/objectType.js'
+import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -90,7 +91,6 @@ class TypeFormParametersType extends React.PureComponent {
     return (
       <Container>
         {this.renderHeader(type)}
-        {this.renderMessageUsage(type)}
         {this.renderCode(type)}
         {this.renderDescription(type)}
         {this.renderValidationPlugin(type)}
@@ -108,32 +108,19 @@ class TypeFormParametersType extends React.PureComponent {
     )
   }
 
-  renderHeader() {
-    return <Header>Type</Header>
-  }
-
-  renderMessageUsage(type) {
-    const { classes } = this.props
-
-    function entities(number) {
-      return number === 0 || number > 1
-        ? `${number} entities`
-        : `${number} entity`
+  renderHeader(type) {
+    const map = {
+      [objectTypes.OBJECT_TYPE]: messages.OBJECT_TYPE,
+      [objectTypes.COLLECTION_TYPE]: messages.COLLECTION_TYPE,
+      [objectTypes.DATA_SET_TYPE]: messages.DATA_SET_TYPE,
+      [objectTypes.MATERIAL_TYPE]: messages.MATERIAL_TYPE,
+      [objectTypes.NEW_OBJECT_TYPE]: messages.NEW_OBJECT_TYPE,
+      [objectTypes.NEW_COLLECTION_TYPE]: messages.NEW_COLLECTION_TYPE,
+      [objectTypes.NEW_DATA_SET_TYPE]: messages.NEW_DATA_SET_TYPE,
+      [objectTypes.NEW_MATERIAL_TYPE]: messages.NEW_MATERIAL_TYPE
     }
 
-    function message(type) {
-      return `This type is already used by ${entities(type.usages)}.`
-    }
-
-    if (type.usages !== 0) {
-      return (
-        <div className={classes.field}>
-          <Message type='info'>{message(type)}</Message>
-        </div>
-      )
-    } else {
-      return null
-    }
+    return <Header>{messages.get(map[type.objectType.value])}</Header>
   }
 
   renderCode(type) {
@@ -148,7 +135,7 @@ class TypeFormParametersType extends React.PureComponent {
       <div className={classes.field}>
         <TextField
           reference={this.references.code}
-          label='Code'
+          label={messages.get(messages.CODE)}
           name='code'
           mandatory={true}
           error={error}
@@ -175,7 +162,7 @@ class TypeFormParametersType extends React.PureComponent {
       <div className={classes.field}>
         <TextField
           reference={this.references.description}
-          label='Description'
+          label={messages.get(messages.DESCRIPTION)}
           name='description'
           error={error}
           disabled={!enabled}
@@ -214,7 +201,7 @@ class TypeFormParametersType extends React.PureComponent {
       <div className={classes.field}>
         <SelectField
           reference={this.references.validationPlugin}
-          label='Validation Plugin'
+          label={messages.get(messages.ENTITY_VALIDATION_PLUGIN)}
           name='validationPlugin'
           error={error}
           disabled={!enabled}
@@ -242,7 +229,7 @@ class TypeFormParametersType extends React.PureComponent {
       <div className={classes.field}>
         <CheckboxField
           reference={this.references.listable}
-          label='Listable'
+          label={messages.get(messages.LISTABLE)}
           name='listable'
           error={error}
           disabled={!enabled}
@@ -268,7 +255,7 @@ class TypeFormParametersType extends React.PureComponent {
       <div className={classes.field}>
         <CheckboxField
           reference={this.references.showContainer}
-          label='Show Container'
+          label={messages.get(messages.SHOW_CONTAINER)}
           name='showContainer'
           error={error}
           disabled={!enabled}
@@ -294,7 +281,7 @@ class TypeFormParametersType extends React.PureComponent {
       <div className={classes.field}>
         <CheckboxField
           reference={this.references.showParents}
-          label='Show Parents'
+          label={messages.get(messages.SHOW_PARENTS)}
           name='showParents'
           error={error}
           disabled={!enabled}
@@ -320,7 +307,7 @@ class TypeFormParametersType extends React.PureComponent {
       <div className={classes.field}>
         <CheckboxField
           reference={this.references.showParentMetadata}
-          label='Show Parent Metadata'
+          label={messages.get(messages.SHOW_PARENT_METADATA)}
           name='showParentMetadata'
           error={error}
           disabled={!enabled}
@@ -346,7 +333,7 @@ class TypeFormParametersType extends React.PureComponent {
       <div className={classes.field}>
         <TextField
           reference={this.references.generatedCodePrefix}
-          label='Generated code prefix'
+          label={messages.get(messages.GENERATED_CODE_PREFIX)}
           name='generatedCodePrefix'
           mandatory={true}
           error={error}
@@ -373,7 +360,7 @@ class TypeFormParametersType extends React.PureComponent {
       <div className={classes.field}>
         <CheckboxField
           reference={this.references.autoGeneratedCode}
-          label='Generate Codes'
+          label={messages.get(messages.GENERATE_CODES)}
           name='autoGeneratedCode'
           error={error}
           disabled={!enabled}
@@ -399,7 +386,7 @@ class TypeFormParametersType extends React.PureComponent {
       <div className={classes.field}>
         <CheckboxField
           reference={this.references.subcodeUnique}
-          label='Unique Subcodes'
+          label={messages.get(messages.SUBCODES_UNIQUE)}
           name='subcodeUnique'
           error={error}
           disabled={!enabled}
@@ -425,7 +412,7 @@ class TypeFormParametersType extends React.PureComponent {
       <div className={classes.field}>
         <CheckboxField
           reference={this.references.disallowDeletion}
-          label='Disallow Deletion'
+          label={messages.get(messages.DISALLOW_DELETION)}
           name='disallowDeletion'
           error={error}
           disabled={!enabled}
@@ -451,7 +438,7 @@ class TypeFormParametersType extends React.PureComponent {
       <div className={classes.field}>
         <TextField
           reference={this.references.mainDataSetPattern}
-          label='Main Data Set Pattern'
+          label={messages.get(messages.MAIN_DATA_SET_PATTERN)}
           name='mainDataSetPattern'
           error={error}
           disabled={!enabled}
@@ -477,7 +464,7 @@ class TypeFormParametersType extends React.PureComponent {
       <div className={classes.field}>
         <TextField
           reference={this.references.mainDataSetPath}
-          label='Main Data Set Path'
+          label={messages.get(messages.MAIN_DATA_SET_PATH)}
           name='mainDataSetPath'
           error={error}
           disabled={!enabled}

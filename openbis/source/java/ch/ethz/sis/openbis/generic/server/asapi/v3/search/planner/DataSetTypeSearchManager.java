@@ -45,6 +45,12 @@ public class DataSetTypeSearchManager extends AbstractLocalSearchManager<DataSet
     }
 
     @Override
+    protected AbstractCompositeSearchCriteria createEmptyCriteria()
+    {
+        return new DataSetTypeSearchCriteria();
+    }
+
+    @Override
     protected Set<Long> doFilterIDsByUserRights(final Set<Long> ids, final AuthorisationInformation authorisationInformation)
     {
         // No filtering of dataSet types is needed.

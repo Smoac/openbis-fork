@@ -5,8 +5,6 @@ import { connect } from 'react-redux'
 import { withStyles } from '@material-ui/core/styles'
 import ComponentContext from '@src/js/components/common/ComponentContext.js'
 import PageWithTwoPanels from '@src/js/components/common/page/PageWithTwoPanels.jsx'
-import Header from '@src/js/components/common/form/Header.jsx'
-import Grid from '@src/js/components/common/grid/Grid.jsx'
 import GridContainer from '@src/js/components/common/grid/GridContainer.jsx'
 import UserFormController from '@src/js/components/users/form/UserFormController.js'
 import UserFormFacade from '@src/js/components/users/form/UserFormFacade.js'
@@ -14,47 +12,12 @@ import UserFormSelectionType from '@src/js/components/users/form/UserFormSelecti
 import UserFormParametersUser from '@src/js/components/users/form/UserFormParametersUser.jsx'
 import UserFormParametersGroup from '@src/js/components/users/form/UserFormParametersGroup.jsx'
 import UserFormParametersRole from '@src/js/components/users/form/UserFormParametersRole.jsx'
+import UserFormGridGroups from '@src/js/components/users/form/UserFormGridGroups.jsx'
+import UserFormGridRoles from '@src/js/components/users/form/UserFormGridRoles.jsx'
 import UserFormButtons from '@src/js/components/users/form/UserFormButtons.jsx'
-import ids from '@src/js/common/consts/ids.js'
 import logger from '@src/js/common/logger.js'
 
 const styles = () => ({})
-
-const USER_GROUPS_GRID_COLUMNS = [
-  {
-    field: 'code.value',
-    label: 'Code',
-    sort: 'asc'
-  },
-  {
-    field: 'description.value',
-    label: 'Description'
-  }
-]
-
-const USER_ROLES_GRID_COLUMNS = [
-  {
-    field: 'inheritedFrom.value',
-    label: 'Inherited From',
-    sort: 'asc'
-  },
-  {
-    field: 'role.value',
-    label: 'Role'
-  },
-  {
-    field: 'level.value',
-    label: 'Level'
-  },
-  {
-    field: 'space.value',
-    label: 'Space'
-  },
-  {
-    field: 'project.value',
-    label: 'Project'
-  }
-]
 
 class UserForm extends React.PureComponent {
   constructor(props) {
@@ -128,11 +91,8 @@ class UserForm extends React.PureComponent {
 
     return (
       <GridContainer onClick={this.handleClickContainer}>
-        <Header>Groups</Header>
-        <Grid
-          id={ids.USER_GROUPS_GRID_ID}
+        <UserFormGridGroups
           controllerRef={this.handleGroupsGridControllerRef}
-          columns={USER_GROUPS_GRID_COLUMNS}
           rows={groups}
           selectedRowId={
             selection && selection.type === UserFormSelectionType.GROUP
@@ -141,11 +101,8 @@ class UserForm extends React.PureComponent {
           }
           onSelectedRowChange={this.handleSelectedGroupRowChange}
         />
-        <Header>Roles</Header>
-        <Grid
-          id={ids.USER_ROLES_GRID_ID}
+        <UserFormGridRoles
           controllerRef={this.handleRolesGridControllerRef}
-          columns={USER_ROLES_GRID_COLUMNS}
           rows={roles}
           selectedRowId={
             selection && selection.type === UserFormSelectionType.ROLE
@@ -207,7 +164,7 @@ class UserForm extends React.PureComponent {
 
   renderButtons() {
     const { controller } = this
-    const { user, selection, changed, mode } = this.state
+    const { user, roles, selection, changed, mode } = this.state
 
     return (
       <UserFormButtons
@@ -218,6 +175,7 @@ class UserForm extends React.PureComponent {
         onAddRole={controller.handleAddRole}
         onRemove={controller.handleRemove}
         user={user}
+        roles={roles}
         selection={selection}
         changed={changed}
         mode={mode}

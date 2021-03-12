@@ -35,4 +35,6 @@ public interface IPersonAuthorizationExecutor extends IObjectAuthorizationExecut
     void canActivate(IOperationContext context);
     
     void canUpdateHomeSpace(IOperationContext context, SpacePE newHomeSpace);
+
+    void canDelete(IOperationContext context);
 }

@@ -799,7 +799,7 @@ var FormUtil = new function() {
 	this.getFieldForPropertyType = function(propertyType, timestampValue) {
 		var $component = null;
 		if (propertyType.dataType === "BOOLEAN") {
-			$component = this._getBooleanField(propertyType.code, propertyType.description);
+			$component = this._getBooleanField(propertyType.code, propertyType.description, undefined, propertyType.mandatory);
 		} else if (propertyType.dataType === "CONTROLLEDVOCABULARY") {
 			var vocabulary = profile.getVocabularyByCode(propertyType.vocabulary.code);
 			$component = this._getDropDownFieldForVocabulary(propertyType.code, vocabulary.terms, propertyType.description, propertyType.mandatory);
@@ -861,7 +861,7 @@ var FormUtil = new function() {
 	//
 	// Form Fields
 	//
-	this._getBooleanField = function(id, alt, checked) {
+	this._getBooleanField = function(id, alt, checked, isRequired) {
 		var attr = {'type' : 'checkbox', 'alt' : alt, 'placeholder' : alt };
 		if(checked) {
 			attr['checked'] = '';
@@ -869,7 +869,14 @@ var FormUtil = new function() {
 		if (id) {
             attr['id'] = this.prepareId(id);
         }
-		return $('<div>', {'class' : 'checkbox'}).append($('<label>').append($('<input>', attr)));
+
+		var $container = $('<div>', {'class' : 'checkbox'}).append($('<label>').append($('<input>', attr)));
+
+		if (isRequired) {
+            $container.attr('required', '');
+        }
+
+        return $container;
 	}
 	
 	this.getDropDownForTerms = function(id, terms, alt, isRequired) {
@@ -957,6 +964,7 @@ var FormUtil = new function() {
 			'data-format' : isDateOnly ? 'yyyy-MM-dd' : 'yyyy-MM-dd HH:mm:ss'});
 		if (isRequired) {
 			$input.attr('required', '');
+			$component.attr('required', '');
 		}
 		var $spanAddOn = $('<span>', {'class' : 'input-group-addon'})
 							.append($('<span>', {'class' : 'glyphicon glyphicon-calendar' }));
@@ -1091,7 +1099,11 @@ var FormUtil = new function() {
         if(profile.isForcedMonospaceFont(propertyType)) {
             $component.css("font-family", "Consolas, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace");
         }
-		
+
+		if (propertyType && propertyType.mandatory) {
+			$component.attr('required', '');
+		}
+
 		return $component;
 	}
 	

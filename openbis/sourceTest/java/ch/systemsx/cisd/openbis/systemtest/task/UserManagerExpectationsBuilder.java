@@ -32,10 +32,12 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.AuthorizationGroup;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.fetchoptions.AuthorizationGroupFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.id.AuthorizationGroupPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.search.AuthorizationGroupSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
@@ -44,7 +46,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.fetchoptions.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.IPersonId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.PersonSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.Role;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.RoleAssignment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.fetchoptions.RoleAssignmentFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.search.RoleAssignmentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
@@ -61,6 +67,7 @@ import ch.systemsx.cisd.openbis.generic.server.task.UserManager;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.util.ServerUtils;
 
 class UserManagerExpectationsBuilder
 {
@@ -91,10 +98,12 @@ class UserManagerExpectationsBuilder
     private Map<String, List<String>> sampleIdentifiersByType = new TreeMap<>();
 
     private Map<String, List<String>> experimentIdentifiersByType = new TreeMap<>();
-    
+
     private Map<String, Map<AuthorizationLevel, Set<String>>> usersByLevelBySpace = new TreeMap<>();
 
     private boolean deactivation = true;
+
+    private boolean useEmailAsUserId;
 
     UserManagerExpectationsBuilder(IApplicationServerInternalApi v3api, UserManagerTestService testService,
             IOpenBisSessionManager sessionManager, Map<Role, List<String>> commonSpaces)
@@ -112,7 +121,13 @@ class UserManagerExpectationsBuilder
         this.testService = testService;
         this.sessionManager = sessionManager;
     }
-    
+
+    public UserManagerExpectationsBuilder useEmailAsUserId()
+    {
+        useEmailAsUserId = true;
+        return this;
+    }
+
     public UserManagerExpectationsBuilder noDeactivation()
     {
         deactivation = false;
@@ -158,7 +173,7 @@ class UserManagerExpectationsBuilder
     {
         return addIdentifiers(experimentIdentifiersByType, type, experimentIdentifiers);
     }
-    
+
     private UserManagerExpectationsBuilder addIdentifiers(Map<String, List<String>> identifiersByType, String type, String... identifiers)
     {
         List<String> list = identifiersByType.get(type);
@@ -185,12 +200,12 @@ class UserManagerExpectationsBuilder
         {
             fail("Authorization expectations for space " + spaceCode + " already specified.");
         }
-        return new UserManagerAuthorizationExpectationsBuilder(usersByLevel, this);
+        return new UserManagerAuthorizationExpectationsBuilder(usersByLevel, this, useEmailAsUserId);
     }
 
     UserManagerExpectationsBuilder homeSpace(Principal user, String homeSpace)
     {
-        homeSpacesByUserId.put(user.getUserId(), homeSpace);
+        homeSpacesByUserId.put(getUserIds(user).get(0), homeSpace);
         return this;
     }
 
@@ -253,7 +268,7 @@ class UserManagerExpectationsBuilder
             }
         }
     }
-    
+
     private void assertExperiments(String sessionToken)
     {
         if (experimentIdentifiersByType.isEmpty() == false)
@@ -523,7 +538,20 @@ class UserManagerExpectationsBuilder
 
     private List<String> getUserIds(Principal... users)
     {
-        return Arrays.asList(users).stream().map(Principal::getUserId).collect(Collectors.toList());
+        return getUserIds(useEmailAsUserId, users);
+    }
+
+    static List<String> getUserIds(boolean useEmailAsUserId, Principal... users)
+    {
+        Stream<String> stream;
+        if (useEmailAsUserId)
+        {
+            stream = Arrays.asList(users).stream().map(Principal::getEmail).map(em -> ServerUtils.escapeEmail(em));
+        } else
+        {
+            stream = Arrays.asList(users).stream().map(Principal::getUserId);
+        }
+        return stream.collect(Collectors.toList());
     }
 
     private static String createCommonSpaceCode(String groupCode, String spaceCode)
@@ -556,11 +584,14 @@ class UserManagerExpectationsBuilder
 
         private UserManagerExpectationsBuilder userManagerExpectationsBuilder;
 
+        private boolean useEmailAsUserId;
+
         public UserManagerAuthorizationExpectationsBuilder(Map<AuthorizationLevel, Set<String>> usersByLevel,
-                UserManagerExpectationsBuilder userManagerExpectationsBuilder)
+                UserManagerExpectationsBuilder userManagerExpectationsBuilder, boolean useEmailAsUserId)
         {
             this.usersByLevel = usersByLevel;
             this.userManagerExpectationsBuilder = userManagerExpectationsBuilder;
+            this.useEmailAsUserId = useEmailAsUserId;
         }
 
         UserManagerAuthorizationExpectationsBuilder non(Principal... users)
@@ -597,7 +628,7 @@ class UserManagerExpectationsBuilder
             }
             for (Principal user : users)
             {
-                set.add(user.getUserId());
+                set.add(getUserIds(useEmailAsUserId, user).get(0));
             }
         }
 

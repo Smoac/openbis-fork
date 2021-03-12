@@ -27,7 +27,6 @@ export default class TypeFormComponentTest extends ComponentTest {
     this.controller = new TypeFormController(this.facade)
 
     this.facade.loadType.mockReturnValue(Promise.resolve({}))
-    this.facade.loadUsages.mockReturnValue(Promise.resolve({}))
     this.facade.loadDynamicPlugins.mockReturnValue(Promise.resolve([]))
     this.facade.loadValidationPlugins.mockReturnValue(Promise.resolve([]))
     this.facade.loadMaterials.mockReturnValue(Promise.resolve([]))

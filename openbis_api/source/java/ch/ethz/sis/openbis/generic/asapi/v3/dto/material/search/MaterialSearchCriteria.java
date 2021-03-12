@@ -19,6 +19,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractEntitySearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchCriteriaToStringBuilder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchOperator;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.TextAttributeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.IMaterialId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -48,6 +49,16 @@ public class MaterialSearchCriteria extends AbstractEntitySearchCriteria<IMateri
     public MaterialSearchCriteria withAndOperator()
     {
         return (MaterialSearchCriteria) withOperator(SearchOperator.AND);
+    }
+
+    public TextAttributeSearchCriteria withTextAttribute()
+    {
+        return with(new TextAttributeSearchCriteria());
+    }
+
+    public MaterialSearchCriteria withSubcriteria()
+    {
+        return with(new MaterialSearchCriteria());
     }
 
     @Override

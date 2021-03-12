@@ -1,40 +1,58 @@
 import _ from 'lodash'
 import React from 'react'
 import ConfirmationDialog from '@src/js/components/common/dialog/ConfirmationDialog.jsx'
+import TypeFormSelectionType from '@src/js/components/types/form/TypeFormSelectionType.js'
+import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
 class TypeFormDialogRemoveSection extends React.Component {
   render() {
     logger.log(logger.DEBUG, 'TypeFormDialogRemoveSection.render')
 
-    const { open, onConfirm, onCancel } = this.props
+    const { open, object, onConfirm, onCancel } = this.props
 
-    return (
-      <ConfirmationDialog
-        open={open}
-        onConfirm={onConfirm}
-        onCancel={onCancel}
-        title={this.getTitle()}
-        content='This section contains properties which are already used by some entities of this type. Removing the section and the contained property assignments is going to remove the existing property values as well - data will be lost! Are you sure you want to proceed?'
-      />
-    )
+    const section = this.getSection()
+
+    if (section) {
+      return (
+        <ConfirmationDialog
+          open={open}
+          onConfirm={onConfirm}
+          onCancel={onCancel}
+          title={this.getTitle(section)}
+          content={this.getContent(object, section)}
+          type={section.usages > 0 ? 'warning' : 'info'}
+        />
+      )
+    } else {
+      return null
+    }
   }
 
-  getTitle() {
+  getTitle(section) {
+    if (section.name.value) {
+      return messages.get(messages.CONFIRMATION_REMOVE, section.name.value)
+    } else {
+      return messages.get(messages.CONFIRMATION_REMOVE_IT)
+    }
+  }
+
+  getContent(object, section) {
+    if (section.usages > 0) {
+      return messages.get(messages.SECTION_IS_USED, object.id, section.usages)
+    } else {
+      return messages.get(messages.SECTION_IS_NOT_USED, object.id)
+    }
+  }
+
+  getSection() {
     const { selection, sections } = this.props
 
-    if (selection && sections) {
-      const section = _.find(sections, ['id', selection.params.id])
-      if (section) {
-        if (section.name.value) {
-          return `Do you want to remove "${section.name.value}" section? Some data will be lost!`
-        } else {
-          return 'Do you want to remove the section? Some data will be lost!'
-        }
-      }
+    if (selection && selection.type === TypeFormSelectionType.SECTION) {
+      return _.find(sections, ['id', selection.params.id])
+    } else {
+      return null
     }
-
-    return null
   }
 }
 

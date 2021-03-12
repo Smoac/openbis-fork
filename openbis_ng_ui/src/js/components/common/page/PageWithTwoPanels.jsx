@@ -6,6 +6,7 @@ import { Resizable } from 're-resizable'
 import Container from '@src/js/components/common/form/Container.jsx'
 import Loading from '@src/js/components/common/loading/Loading.jsx'
 import Message from '@src/js/components/common/form/Message.jsx'
+import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -107,7 +108,9 @@ class PageWithTwoPanels extends React.PureComponent {
   doRenderNonExistent() {
     return (
       <Container>
-        <Message type='info'>Object does not exist.</Message>
+        <Message type='info'>
+          {messages.get(messages.OBJECT_DOES_NOT_EXIST)}
+        </Message>
       </Container>
     )
   }

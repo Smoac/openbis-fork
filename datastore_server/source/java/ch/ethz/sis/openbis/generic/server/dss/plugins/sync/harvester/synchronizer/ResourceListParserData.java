@@ -27,6 +27,7 @@ import java.util.Set;
 import org.apache.commons.collections4.map.MultiKeyMap;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.translator.INameTranslator;
 
 /**
  * @author Ganime Betul Akin
@@ -39,7 +40,7 @@ public class ResourceListParserData
 
     private Set<String> harvesterSpaceList = new HashSet<>();
 
-    private MasterData masterData = new MasterData();
+    private MasterData masterData;
 
     private List<IncomingSpace> spacesToProcess = new ArrayList<>();
 
@@ -54,6 +55,11 @@ public class ResourceListParserData
     private MultiKeyMap<String, IncomingMaterial> materialsToProcess = new MultiKeyMap<String, IncomingMaterial>();
     
     private Map<String, byte[]> filesToProcess = new HashMap<>();
+
+    public ResourceListParserData(INameTranslator nameTranslator)
+    {
+        masterData = new MasterData(nameTranslator);
+    }
 
     public MasterData getMasterData()
     {

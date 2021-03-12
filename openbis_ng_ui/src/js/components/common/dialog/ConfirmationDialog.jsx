@@ -3,6 +3,7 @@ import { withStyles } from '@material-ui/core/styles'
 import Button from '@src/js/components/common/form/Button.jsx'
 import Message from '@src/js/components/common/form/Message.jsx'
 import Dialog from '@src/js/components/common/dialog/Dialog.jsx'
+import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -33,8 +34,8 @@ class ConfirmationDialog extends React.Component {
       <Dialog
         open={open}
         onClose={this.handleClose}
-        title={title || 'Confirmation'}
-        content={<Message type='warning'>{content}</Message>}
+        title={title || messages.get(messages.CONFIRMATION)}
+        content={<Message type={this.getMessageType()}>{content}</Message>}
         actions={this.renderButtons()}
       />
     )
@@ -45,18 +46,48 @@ class ConfirmationDialog extends React.Component {
     return (
       <div>
         <Button
-          label='Confirm'
-          type='risky'
+          name='confirm'
+          label={messages.get(messages.CONFIRM)}
+          type={this.getButtonType()}
           styles={{ root: classes.button }}
           onClick={onConfirm}
         />
         <Button
-          label='Cancel'
+          name='cancel'
+          label={messages.get(messages.CANCEL)}
           styles={{ root: classes.button }}
           onClick={onCancel}
         />
       </div>
     )
+  }
+
+  getMessageType() {
+    const type = this.getType()
+
+    if (type === 'warning') {
+      return 'warning'
+    } else if (type === 'info') {
+      return 'info'
+    } else {
+      throw new Error('Unsupported type: ' + type)
+    }
+  }
+
+  getButtonType() {
+    const type = this.getType()
+
+    if (type === 'warning') {
+      return 'risky'
+    } else if (type === 'info') {
+      return null
+    } else {
+      throw new Error('Unsupported type: ' + type)
+    }
+  }
+
+  getType() {
+    return this.props.type || 'warning'
   }
 }
 

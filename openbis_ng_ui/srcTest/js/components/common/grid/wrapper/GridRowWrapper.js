@@ -8,7 +8,7 @@ export default class GridRowWrapper extends BaseWrapper {
 
     this.findComponent(TableCell).forEach((cell, index) => {
       const column = columns[index]
-      values[column.field] = this.getStringValue(cell.text().trim())
+      values[column.name] = this.getStringValue(cell.text().trim())
     })
 
     return values

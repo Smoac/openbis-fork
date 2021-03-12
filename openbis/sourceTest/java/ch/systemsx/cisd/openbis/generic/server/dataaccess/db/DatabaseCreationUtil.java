@@ -30,9 +30,11 @@ import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.dbmigration.ISqlScriptProvider;
 import ch.systemsx.cisd.dbmigration.postgresql.DumpPreparator;
 
+import static ch.systemsx.cisd.dbmigration.DBMigrationEngine.FULL_TEXT_SEARCH_DOCUMENT_VERSION_FILE_PATH;
+
 /**
  * Utility methods around database creation.
- * 
+ *
  * @author Franz-Josef Elmer
  */
 public final class DatabaseCreationUtil
@@ -65,20 +67,23 @@ public final class DatabaseCreationUtil
      * Creates all files in <code>sourceTest/sql/postgresql</code> necessary to set up a database of the current version by dumping a database
      * migrated from the specified version.
      */
-    private final static void createFilesFromADumpOfAMigratedDatabase(final String databaseVersion)
+    private static void createFilesFromADumpOfAMigratedDatabase(final String databaseVersion,
+            final String fullTextSearchDocumentVersion)
             throws Exception
     {
         final String databaseKind = "migration_dump";
         final DatabaseConfigurationContext context =
                 createDatabaseConfigurationContext(databaseKind);
         context.setCreateFromScratch(true);
+        new File(FULL_TEXT_SEARCH_DOCUMENT_VERSION_FILE_PATH).delete();
         final ISqlScriptProvider scriptProvider =
                 DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(context,
-                        databaseVersion);
+                        databaseVersion, fullTextSearchDocumentVersion);
         context.setCreateFromScratch(false);
         context.setScriptFolder("source/sql");
+        new File(FULL_TEXT_SEARCH_DOCUMENT_VERSION_FILE_PATH).delete();
         DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(context,
-                DatabaseVersionHolder.getDatabaseVersion());
+                DatabaseVersionHolder.getDatabaseVersion(), fullTextSearchDocumentVersion);
         createDumpForJava(databaseKind,
                 scriptProvider.getDumpFolder(DatabaseVersionHolder.getDatabaseVersion()));
         scriptProvider.markAsDumpRestorable(DatabaseVersionHolder.getDatabaseVersion());
@@ -107,8 +112,7 @@ public final class DatabaseCreationUtil
             final String databaseKind)
     {
         final BeanFactory factory = getBeanFactory();
-        final DatabaseConfigurationContext configurationContext =
-                (DatabaseConfigurationContext) factory.getBean("db-configuration-context");
+        final DatabaseConfigurationContext configurationContext = (DatabaseConfigurationContext) factory.getBean("db-configuration-context");
         configurationContext.setDatabaseKind(databaseKind);
         configurationContext.setScriptFolder("sourceTest/sql");
         return configurationContext;
@@ -123,7 +127,7 @@ public final class DatabaseCreationUtil
         String sourceDbVersion;
         if (args.length == 0)
         {
-            sourceDbVersion = getPreviousDatabaseVersion();
+            sourceDbVersion = getPreviousVersion(DatabaseVersionHolder.getDatabaseVersion());
             System.out.println("Migrating from the previous database version " + sourceDbVersion);
         } else if (args.length == 1)
         {
@@ -135,18 +139,12 @@ public final class DatabaseCreationUtil
             System.exit(1);
             return; // never executed
         }
-        createFilesFromADumpOfAMigratedDatabase(sourceDbVersion);
+        createFilesFromADumpOfAMigratedDatabase(sourceDbVersion,
+                DatabaseVersionHolder.getDatabaseFullTextSearchDocumentVersion());
     }
 
-    private static String getPreviousDatabaseVersion()
+    private static String getPreviousVersion(final String currentVersion)
     {
-        String curDbVer = DatabaseVersionHolder.getDatabaseVersion();
-        Integer ver = new Integer(curDbVer);
-        String prevVer = "" + (ver - 1);
-        while (prevVer.length() != 3)
-        {
-            prevVer = "0" + prevVer;
-        }
-        return prevVer;
+        return String.format("%03d", Integer.parseInt(currentVersion) - 1);
     }
 }

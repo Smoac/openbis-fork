@@ -24,6 +24,7 @@ import java.util.Properties;
 
 import javax.annotation.Resource;
 
+import ch.systemsx.cisd.openbis.generic.server.task.StatisticsCollectionMaintenanceTask;
 import org.apache.log4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
@@ -46,7 +47,7 @@ import ch.systemsx.cisd.openbis.generic.server.task.SessionWorkspaceCleanUpMaint
 
 /**
  * Configures and starts maintenance tasks.
- * 
+ *
  * @author Piotr Buczek
  */
 public class MaintenanceTaskStarter implements ApplicationContextAware, InitializingBean,
@@ -109,6 +110,15 @@ public class MaintenanceTaskStarter implements ApplicationContextAware, Initiali
                     SessionWorkspaceCleanUpMaintenanceTask.DEFAULT_MAINTENANCE_TASK_NAME,
                     false,
                     SessionWorkspaceCleanUpMaintenanceTask.DEFAULT_MAINTENANCE_TASK_INTERVAL);
+        }
+
+        if (false == isTaskConfigured(tasks, StatisticsCollectionMaintenanceTask.class))
+        {
+            tasks = addTask(tasks,
+                    StatisticsCollectionMaintenanceTask.class,
+                    StatisticsCollectionMaintenanceTask.DEFAULT_MAINTENANCE_TASK_NAME,
+                    false,
+                    StatisticsCollectionMaintenanceTask.DEFAULT_MAINTENANCE_TASK_INTERVAL);
         }
 
         plugins = MaintenanceTaskUtils.startupMaintenancePlugins(tasks);

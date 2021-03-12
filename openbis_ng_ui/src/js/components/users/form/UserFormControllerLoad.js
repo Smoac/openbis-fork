@@ -1,8 +1,8 @@
 import _ from 'lodash'
 import PageControllerLoad from '@src/js/components/common/page/PageControllerLoad.js'
+import RoleControllerLoad from '@src/js/components/users/form/common/RoleControllerLoad.js'
 import UserFormSelectionType from '@src/js/components/users/form/UserFormSelectionType.js'
 import FormUtil from '@src/js/components/common/form/FormUtil.js'
-import openbis from '@src/js/services/openbis.js'
 
 export default class UserFormControllerLoad extends PageControllerLoad {
   async load(object, isNew) {
@@ -47,11 +47,11 @@ export default class UserFormControllerLoad extends PageControllerLoad {
     const groups = []
     const roles = []
 
-    if (loadedUser) {
-      loadedUser.getRoleAssignments().forEach(loadedRole => {
-        const role = this._createRole(loadedRole)
-        roles.push(role)
-      })
+    if (loadedUser && loadedUser.roleAssignments) {
+      const userRoles = new RoleControllerLoad(this.controller).createRoles(
+        loadedUser.roleAssignments
+      )
+      roles.push(...userRoles)
     }
 
     if (loadedGroups) {
@@ -59,11 +59,11 @@ export default class UserFormControllerLoad extends PageControllerLoad {
         const group = this._createGroup(loadedGroup)
         groups.push(group)
 
-        if (loadedGroup.getRoleAssignments()) {
-          loadedGroup.getRoleAssignments().forEach(loadedRole => {
-            const role = this._createRole(loadedRole)
-            roles.push(role)
-          })
+        if (loadedGroup.roleAssignments) {
+          const groupRoles = new RoleControllerLoad(
+            this.controller
+          ).createRoles(loadedGroup.roleAssignments)
+          roles.push(...groupRoles)
         }
       })
     }
@@ -119,51 +119,6 @@ export default class UserFormControllerLoad extends PageControllerLoad {
     return user
   }
 
-  _createRole(loadedRole) {
-    const inheritedFrom = _.get(loadedRole, 'authorizationGroup.code', null)
-    const level = _.get(loadedRole, 'roleLevel', null)
-
-    let space = null
-    let project = null
-
-    if (level === openbis.RoleLevel.SPACE) {
-      space = _.get(loadedRole, 'space.code')
-    } else if (level === openbis.RoleLevel.PROJECT) {
-      space = _.get(loadedRole, 'project.space.code')
-      project = _.get(loadedRole, 'project.code')
-    }
-
-    const role = {
-      id: _.uniqueId('role-'),
-      techId: FormUtil.createField({
-        value: _.get(loadedRole, 'id.techId', null)
-      }),
-      inheritedFrom: FormUtil.createField({
-        value: inheritedFrom
-      }),
-      level: FormUtil.createField({
-        value: level,
-        enabled: inheritedFrom === null
-      }),
-      space: FormUtil.createField({
-        value: space,
-        visible: space !== null,
-        enabled: inheritedFrom === null
-      }),
-      project: FormUtil.createField({
-        value: project,
-        visible: project !== null,
-        enabled: inheritedFrom === null
-      }),
-      role: FormUtil.createField({
-        value: _.get(loadedRole, UserFormSelectionType.ROLE, null),
-        enabled: inheritedFrom === null
-      })
-    }
-    role.original = _.cloneDeep(role)
-    return role
-  }
-
   _createGroup(loadedGroup) {
     const group = {
       id: _.uniqueId('group-'),
@@ -181,8 +136,7 @@ export default class UserFormControllerLoad extends PageControllerLoad {
   _createSelection(newGroups, newRoles) {
     const {
       selection: oldSelection,
-      groups: oldGroups,
-      roles: oldRoles
+      groups: oldGroups
     } = this.context.getState()
 
     if (!oldSelection) {
@@ -206,27 +160,7 @@ export default class UserFormControllerLoad extends PageControllerLoad {
         }
       }
     } else if (oldSelection.type === UserFormSelectionType.ROLE) {
-      const oldRole = _.find(
-        oldRoles,
-        oldRole => oldRole.id === oldSelection.params.id
-      )
-      const newRole = _.find(
-        newRoles,
-        newRole =>
-          newRole.inheritedFrom.value === oldRole.inheritedFrom.value &&
-          newRole.space.value === oldRole.space.value &&
-          newRole.project.value === oldRole.project.value &&
-          newRole.role.value === oldRole.role.value
-      )
-
-      if (newRole) {
-        return {
-          type: UserFormSelectionType.ROLE,
-          params: {
-            id: newRole.id
-          }
-        }
-      }
+      return new RoleControllerLoad(this.controller).createSelection(newRoles)
     } else {
       return null
     }

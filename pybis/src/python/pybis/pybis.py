@@ -30,7 +30,7 @@ from tabulate import tabulate
 
 from . import data_set as pbds
 from .utils import parse_jackson, check_datatype, split_identifier, format_timestamp, is_identifier, is_permid, nvl, VERBOSE
-from .utils import extract_attr, extract_permid, extract_code,extract_deletion,extract_identifier,extract_nested_identifier,extract_nested_permid, extract_nested_permids, extract_property_assignments,extract_role_assignments,extract_person, extract_person_details,extract_id,extract_userId
+from .utils import extract_attr, extract_permid, extract_code,extract_deletion,extract_identifier,extract_nested_identifier,extract_nested_permid, extract_nested_permids, extract_identifiers,extract_property_assignments,extract_role_assignments,extract_person, extract_person_details,extract_id,extract_userId, is_number
 from .entity_type import EntityType, SampleType, DataSetType, MaterialType, ExperimentType
 from .vocabulary import Vocabulary, VocabularyTerm
 from .openbis_object import OpenBisObject, Transaction
@@ -97,7 +97,6 @@ def get_search_type_for_entity(entity, operator=None):
         "authorizationGroup": "as.dto.authorizationgroup.search.AuthorizationGroupSearchCriteria",
         "person": "as.dto.person.search.PersonSearchCriteria",
         "code": "as.dto.common.search.CodeSearchCriteria",
-        "sample_type": "as.dto.sample.search.SampleTypeSearchCriteria",
         "global": "as.dto.global.GlobalSearchObject",
         "plugin": "as.dto.plugin.search.PluginSearchCriteria",
         "propertyType": "as.dto.property.search.PropertyTypeSearchCriteria",
@@ -415,35 +414,176 @@ def _subcriteria_for_is_finished(is_finished):
     }
 
 
-def _subcriteria_for_properties(prop, value):
+def _subcriteria_for_properties(prop, value, entity):
+    """This internal method creates the JSON RPC criterias for searching
+    in properties. It distinguishes between numbers, dates and strings
+    and uses the comparative operator (< > >= <=), if available.
+    creationDate and modificationDate attributes can be searched as well.
+    To search in the properties of parents, children, etc. the user has to
+    prefix the propery accordingly:
 
-    str_type=  "as.dto.common.search.StringPropertySearchCriteria"
-    eq_type = "as.dto.common.search.StringEqualToValue"
+    - parent_propertyName
+    - child_propertyName
+    - container_propertyName
+    """
+
+    search_types = {
+        'sample': {
+            'parent'    : "as.dto.sample.search.SampleParentsSearchCriteria",
+            'parents'   : "as.dto.sample.search.SampleParentsSearchCriteria",
+            'child'     : "as.dto.sample.search.SampleChildrenSearchCriteria",
+            'children'  : "as.dto.sample.search.SampleChildrenSearchCriteria",
+            'container' : "as.dto.sample.search.SampleContainerSearchCriteria",
+        },
+        'dataset': {
+            'parent'    : "as.dto.dataset.search.DataSetParentsSearchCriteria",
+            'parents'   : "as.dto.dataset.search.DataSetParentsSearchCriteria",
+            'child'     : "as.dto.dataset.search.DataSetChildrenSearchCriteria",
+            'children'  : "as.dto.dataset.search.DataSetChildrenSearchCriteria",
+            'container' : "as.dto.dataset.search.DataSetContainerSearchCriteria",
+        }
+    }
+
+    # default values of fieldType, str_type and eq_type
     fieldType = "PROPERTY"
+    eq_type = "as.dto.common.search.StringEqualToValue"
+    str_type=  "as.dto.common.search.StringPropertySearchCriteria"
 
-    if 'date' in prop.lower() and re.search(r'\d+\-\d+\-\d+', value):
-        
-        if prop.lower() =='registrationdate':
+    is_date = False
+    if 'date' in prop.lower() and re.search(r'\d{4}\-\d{2}\-\d{2}', value):
+        is_date = True
+        eq_type = "as.dto.common.search.DateEqualToValue"
+        if prop.lower().endswith('registrationdate'):
             str_type = "as.dto.common.search.RegistrationDateSearchCriteria"
             fieldType = "ATTRIBUTE"
-        elif prop.lower() =='modificationdate':
+        elif prop.lower().endswith('modificationdate'):
             str_type = "as.dto.common.search.ModificationDateSearchCriteria"
             fieldType = "ATTRIBUTE"
         else:
             str_type = "as.dto.common.search.DatePropertySearchCriteria"
 
-        if value.startswith('>'):
-            value = value[1:]
-            eq_type = "as.dto.common.search.DateLaterThanOrEqualToValue"
-        elif value.startswith('<'):
-            value = value[1:]
-            eq_type = "as.dto.common.search.DateEarlierThanOrEqualToValue"
-        else:
-            eq_type = "as.dto.common.search.DateEqualToValue"
 
+    if any(str(value).startswith(operator) for operator in ['>','<','=']):
+        match = re.search(r"""
+            ^
+            (?P<comp_operator>\>\=|\>|\<\=|\<|\=\=|\=)  # extract the comparative operator
+            \s*
+            (?P<value>.*)                           # extract the value
+            """,
+            value,
+            flags=re.X
+        )
+        if match:
+            comp_operator = match.groupdict()['comp_operator']
+            value = match.groupdict()['value']
+
+            # date comparison
+            if is_date:
+                if comp_operator == '>':
+                    eq_type = "as.dto.common.search.DateLaterThanOrEqualToValue"
+                elif comp_operator == '>=':
+                    eq_type = "as.dto.common.search.DateLaterThanOrEqualToValue"
+                elif comp_operator == '<':
+                    eq_type = "as.dto.common.search.DateEarlierThanOrEqualToValue"
+                elif comp_operator == '<=':
+                    eq_type = "as.dto.common.search.DateEarlierThanOrEqualToValue"
+                else:
+                    eq_type = "as.dto.common.search.DateEqualToValue"
+
+            # numeric comparison
+            elif is_number(value):
+                str_type = "as.dto.common.search.NumberPropertySearchCriteria"
+                if comp_operator == '>':
+                    eq_type = "as.dto.common.search.NumberGreaterThanValue"
+                elif comp_operator == '>=':
+                    eq_type = "as.dto.common.search.NumberGreaterThanOrEqualToValue"
+                elif comp_operator == '<':
+                    eq_type = "as.dto.common.search.NumberLessThanValue"
+                elif comp_operator == '<=':
+                    eq_type = "as.dto.common.search.NumberLessThanOrEqualToValue"
+                else:
+                    eq_type = "as.dto.common.search.NumberEqualToValue"
+
+            # string comparison
+            else:
+                if comp_operator == '>':
+                    eq_type = "as.dto.common.search.StringGreaterThanValue"
+                elif comp_operator == '>=':
+                    eq_type = "as.dto.common.search.StringGreaterThanOrEqualToValue"
+                elif comp_operator == '<':
+                    eq_type = "as.dto.common.search.StringLessThanValue"
+                elif comp_operator == '<=':
+                    eq_type = "as.dto.common.search.StringLessThanOrEqualToValue"
+                #elif comp_operator == '=':
+                #    eq_type = "as.dto.common.search.StringEqualToValue"
+                else:
+                    eq_type = "as.dto.common.search.StringEqualToValue"
+
+
+    # searching for parent/child/container identifier
+    if any(relation == prop.lower() for relation in ['parent','child','container','parents','children','containers']):
+        relation=prop.lower()
+        if is_identifier(value):
+            identifier_search_type = "as.dto.common.search.IdentifierSearchCriteria"
+        # find any parent, child, container
+        elif value == '*':
+            return {
+                "@type": search_types[entity][relation],
+                "criteria": [
+                    {
+                        "@type": "as.dto.common.search.AnyFieldSearchCriteria",
+                        "fieldValue": {
+                            "@type": "as.dto.common.search.AnyStringValue",
+                        }
+                    }
+                ]
+            }
+        elif is_permid(value):
+            identifier_search_type = "as.dto.common.search.PermIdSearchCriteria"
+        else: 
+            identifier_search_type = "as.dto.common.search.CodeSearchCriteria"
+        return {
+            "@type": search_types[entity][relation],
+            "criteria": [
+                {
+                    "@type": identifier_search_type,
+                    "fieldType": "ATTRIBUTE",
+                    "fieldValue": {
+                        "@type": "as.dto.common.search.StringEqualToValue",
+                        "value": value,
+                    }
+                }
+            ]
+        }
+
+    # searching for parent/child/container property: 
+    elif any(prop.lower().startswith(relation) for relation in ['parent_','child_','container_']):
+        match = re.search(r'^(\w+?)_(.*)', prop.lower())
+        if match:
+            relation, property_name = match.groups()
+            return {
+                "@type": search_types[entity][relation],
+                "criteria": [
+                    {
+                        "@type": str_type,
+                        "fieldName": property_name.upper(),
+                        "fieldType": fieldType,
+                        "fieldValue": {
+                            "@type": eq_type,
+                            "value": value,
+                        }
+                    }
+                ]
+            }
+
+    # searching for properties
+    if prop.startswith('_'):
+        fieldName = '$'+prop[1:]
+    else:
+        fieldName = prop
     return {
         "@type": str_type,
-        "fieldName": prop.upper(),
+        "fieldName": fieldName.upper(),
         "fieldType": fieldType,
         "fieldValue": {
             "value": value,
@@ -534,7 +674,6 @@ def _subcriteria_for_identifier(ids, entity, parents_or_children='', operator='A
         **search_type,
         "operator": operator
     }
-    return criteria
 
 
 def _subcriteria_for_permid(permids, entity, parents_or_children='', operator='AND'):
@@ -645,7 +784,10 @@ class Openbis:
     """
 
     def __init__(self, url=None, verify_certificates=True, token=None,
-    allow_http_but_do_not_use_this_in_production_and_only_within_safe_networks=False):
+        use_cache=True,
+        allow_http_but_do_not_use_this_in_production_and_only_within_safe_networks=False,
+        token_path=None
+    ):
         """Initialize a new connection to an openBIS server.
 
         Examples:
@@ -656,23 +798,23 @@ class Openbis:
             url (str): https://openbis.example.com
             verify_certificates (bool): set to False when you use self-signed certificates
             token (str): a valid openBIS token. If not set, pybis will try to read a valid token from ~/.pybis
+            token_path: a path to a file which contains an openBIS token
+            use_cache: make openBIS to store spaces, projects, sample types, vocabulary terms and oder more-or-less static objects to optimise speed
             allow_http_but_do_not_use_this_in_production_and_only_within_safe_networks (bool): False
         """
 
+        self.as_v3 = '/openbis/openbis/rmi-application-server-v3.json'
+        self.as_v1 = '/openbis/openbis/rmi-general-information-v1.json'
+        self.reg_v1 = '/openbis/openbis/rmi-query-v1.json'
+        self.verify_certificates = verify_certificates
+
         if url is None:
-            try:
-                url = os.environ["OPENBIS_URL"]
-                token = os.environ["OPENBIS_TOKEN"] if "OPENBIS_TOKEN" in os.environ else None
-            except KeyError:
+            url = os.environ.get("OPENBIS_URL") or os.environ.get('OPENBIS_HOST')
+            if url is None:
                 raise ValueError("please provide a URL you want to connect to.")
 
-        else:
-            # url has been provided. If the environment variable OPENBIS_URL points to the same URL,
-            # use the OPENBIS_TOKEN as well.
-            if 'OPENBIS_URL' in os.environ:
-                if url == os.environ["OPENBIS_URL"]:
-                    token = os.environ["OPENBIS_TOKEN"] if "OPENBIS_TOKEN" in os.environ else None
-
+        if not url.startswith('http'):
+            url = 'https://'+url
 
         url_obj = urlparse(url)
         if url_obj.netloc is None or url_obj.netloc == '':
@@ -680,34 +822,23 @@ class Openbis:
         if url_obj.hostname is None:
             raise ValueError("hostname is missing")
         if url_obj.scheme == 'http' and not allow_http_but_do_not_use_this_in_production_and_only_within_safe_networks:
-
             raise ValueError("always use https!")
             
-        
         self.url = url_obj.geturl()
         self.port = url_obj.port
         self.hostname = url_obj.hostname
         self.download_prefix = os.path.join('data', self.hostname)
-        self.as_v3 = '/openbis/openbis/rmi-application-server-v3.json'
-        self.as_v1 = '/openbis/openbis/rmi-general-information-v1.json'
-        self.reg_v1 = '/openbis/openbis/rmi-query-v1.json'
-        self.verify_certificates = verify_certificates
-        self.token = token
-
+        self.use_cache = use_cache
+        self.cache = {}
         self.server_information = None
-        self.dataset_types = None
-        self.sample_types = None
-        #self.files_in_wsp = []
-        self.token_path = None
 
-        # use an existing token, if available
-        if self.token is None:
-            self.token = self._get_cached_token()
-        elif self.is_token_valid(token):
+        self.token_path = token_path or self.gen_token_path()
+        self.token = token or os.environ.get("OPENBIS_TOKEN") or self._get_saved_token()
+        if self.is_token_valid(self.token):
             pass
         else:
-            print("Session is no longer valid. Please log in again.")
-
+            token_path = self._delete_saved_token()
+            if token_path and VERBOSE: print("Session is no longer valid. Please log in again.")
 
     def _get_username(self):
         if self.token:
@@ -726,6 +857,8 @@ class Openbis:
             'is_token_valid()',
             "mount()",
             "unmount()",
+            "use_cache",
+            "clear_cache()",
             "download_prefix",
             "get_mountpoint()",
             "get_server_information()",
@@ -835,26 +968,6 @@ class Openbis:
     def projects(self):
         return self.get_projects()
 
-    def _get_cached_token(self):
-        """Read the token from the cache, and set the token ivar to it, if there, otherwise None.
-        If the token is not valid anymore, delete it. 
-        """
-        token_path = self.gen_token_path()
-        if not os.path.exists(token_path):
-            return None
-        try:
-            with open(token_path) as f:
-                token = f.read()
-                if token == "":
-                    return None
-                if not self.is_token_valid(token):
-                    os.remove(token_path)
-                    return None
-                else:
-                    return token
-        except FileNotFoundError:
-            return None
-
     def gen_token_path(self, parent_folder=None):
         """generates a path to the token file.
         The token is usually saved in a file called
@@ -869,13 +982,13 @@ class Openbis:
         path = os.path.join(parent_folder, self.hostname + '.token')
         return path
 
-    def save_token(self, token=None, parent_folder=None):
+    def _save_token(self, token=None, parent_folder=None):
         """ saves the session token to the disk, usually here: ~/.pybis/hostname.token. When a new Openbis instance is created, it tries to read this saved token by default.
         """
         if token is None:
             token = self.token
 
-        token_path = None;
+        token_path = None
         if parent_folder is None:
             token_path = self.gen_token_path()
         else:
@@ -886,13 +999,33 @@ class Openbis:
         with open(token_path, 'w') as f:
             f.write(token)
             self.token_path = token_path
+        # prevent other users to be able to read the token
+        os.chmod(token_path, 0o600)
 
-    def delete_token(self, token_path=None):
-        """ deletes a stored session token.
+    def _get_saved_token(self):
+        """Read the token from the .pybis 
+        If the token is not valid anymore, delete it. 
         """
-        if token_path is None:
-            token_path = self.token_path
-        os.remove(token_path)
+        token_path = self.token_path or self.gen_token_path()
+        if not os.path.exists(token_path):
+            return None
+        try:
+            with open(token_path) as f:
+                token = f.read()
+                if token == "":
+                    return None
+                else:
+                    return token
+        except FileNotFoundError:
+            return None
+
+    def _delete_saved_token(self):
+        if self.token_path:
+            try:
+                os.remove(self.token_path)
+                return self.token_path
+            except FileNotFoundError:
+                return None
 
     def _post_request(self, resource, request):
         """ internal method, used to handle all post requests and serializing / deserializing
@@ -912,6 +1045,7 @@ class Openbis:
             raise ValueError("Your session expired, please log in again")
 
         if DEBUG_LEVEL >=LOG_DEBUG: print(json.dumps(request))
+
         resp = requests.post(
             full_url,
             json.dumps(request),
@@ -921,7 +1055,8 @@ class Openbis:
         if resp.ok:
             resp = resp.json()
             if 'error' in resp:
-                print(json.dumps(request))
+                #print(full_url)
+                #print(json.dumps(request))
                 raise ValueError(resp['error']['message'])
             elif 'result' in resp:
                 return resp['result']
@@ -968,7 +1103,7 @@ class Openbis:
             self.token = result
 
             if save_token:
-                self.save_token()
+                self._save_token()
                 self._password(password)
             # update the OPENBIS_TOKEN environment variable, if OPENBIS_URL is identical to self.url
             if os.environ.get('OPENBIS_URL') == self.url:
@@ -1296,27 +1431,29 @@ class Openbis:
         }
         try:
             return self._post_request(self.as_v3, request)
-        except Exception as e:
-            raise ValueError("Could not generate a code for {}: {}".format(entity, e))
+        except Exception as exc:
+            raise ValueError("Could not generate a code: {}".format(exc))
             
 
     def new_person(self, userId, space=None):
-        """ creates an openBIS person
+        """ creates an openBIS person or returns the existing person
         """
         try:
             person = self.get_person(userId=userId)
+            return person
         except Exception:
             return Person(self, userId=userId, space=space) 
 
-        raise ValueError(
-            "There already exists a user with userId={}".format(userId)
-        )
-
 
     def new_group(self, code, description=None, userIds=None):
-        """ creates an openBIS person
+        """ creates an openBIS group or returns an existing one.
         """
-        return Group(self, code=code, description=description, userIds=userIds)
+        try:
+            group = self.get_group(code=code)
+            group.description = description
+            return group
+        except Exception:
+            return Group(self, code=code, description=description, userIds=userIds)
 
 
     def get_group(self, code, only_data=False):
@@ -1467,8 +1604,8 @@ class Openbis:
         if len(resp) == 0:
             raise ValueError("No assigned role found for techId={}".format(techId))
         
-        for id in resp:
-            data = resp[id]
+        for permid in resp:
+            data = resp[permid]
             parse_jackson(data)
 
             if only_data:
@@ -1731,6 +1868,10 @@ class Openbis:
         """
 
         code = str(code).upper()
+        space = not only_data and self._object_cache(entity='space',code=code)
+        if space:
+            return space
+
         fetchopts = {"@type": "as.dto.space.fetchoptions.SpaceFetchOptions"}
         for option in ['registrator']:
             fetchopts[option] = fetch_option[option]
@@ -1756,36 +1897,44 @@ class Openbis:
             if only_data:
                 return resp[permid]
             else:
-                return Space(self, data=resp[permid])
+                space = Space(self, data=resp[permid])
+                if self.use_cache:
+                    self._object_cache(entity='space',code=code,value=space)
+                return space
 
 
     def get_samples(
         self, identifier=None, code=None, permId=None,
         space=None, project=None, experiment=None, collection=None, type=None,
         start_with=None, count=None,
-        withParents=None, withChildren=None, tags=None, attrs=None, props=None, **properties
+        withParents=None, withChildren=None, tags=None, attrs=None, props=None,
+        where=None,
+        **properties
     ):
         """Returns a DataFrame of all samples for a given space/project/experiment (or any combination)
-        Filters:
-        --------
-        space        -- a space code or a space object
-        project      -- a project code or a project object
-        experiment   -- an experiment code or an experiment object
-        collection   -- same as experiment
-        tags         -- only return samples with the specified tags
-        type         -- a sampleType code
 
-        Paging:
+        Filters
         -------
+        type         -- sampleType code or object
+        space        -- space code or object
+        project      -- project code or object
+        experiment   -- experiment code or object
+        collection   -- same as above
+        tags         -- only return samples with the specified tags
+        where        -- key-value pairs of property values to search for
+
+        Paging
+        ------
         start_with   -- default=None
         count        -- number of samples that should be fetched. default=None.
 
-        Include:
-        --------
+        Include in result list
+        ----------------------
         withParents  -- the list of parent's permIds in a column 'parents'
         withChildren -- the list of children's permIds in a column 'children'
         attrs        -- list of all desired attributes. Examples:
                         space, project, experiment: just return their identifier
+                        parents, children, components: return a list of their identifiers
                         space.code, project.code, experiment.code
                         registrator.email, registrator.firstName
                         type.generatedCodePrefix
@@ -1805,7 +1954,6 @@ class Openbis:
 
         if space:
             sub_criteria.append(_subcriteria_for(space, 'space'))
-
         if project:
             sub_criteria.append(_subcriteria_for(project, 'project'))
         if experiment:
@@ -1816,9 +1964,15 @@ class Openbis:
         if withChildren:
             sub_criteria.append(_subcriteria_for(withChildren, 'sample', 'Children'))
 
+        if where:
+            if properties is None:
+                properties = where
+            else:
+                properties = {**where, **properties}
+
         if properties is not None:
             for prop in properties:
-                sub_criteria.append(_subcriteria_for_properties(prop, properties[prop]))
+                sub_criteria.append(_subcriteria_for_properties(prop, properties[prop], entity='sample'))
         if type:
             sub_criteria.append(_subcriteria_for_code(type, 'sampleType'))
         if tags:
@@ -1835,9 +1989,6 @@ class Openbis:
             "operator": "AND"
         }
 
-        #import json
-        #print(json.dumps(criteria))
-
         attrs_fetchoptions = self._get_fetchopts_for_attrs(attrs)
 
         # build the various fetch options
@@ -1845,9 +1996,12 @@ class Openbis:
         fetchopts['from'] = start_with
         fetchopts['count'] = count
 
-        default_fetchopts = ['tags', 'registrator', 'modifier']
-        for option in default_fetchopts+attrs_fetchoptions:
+        options = ['tags', 'properties', 'attachments', 'space', 'experiment', 'registrator', 'modifier']
+        if self.get_server_information().project_samples_enabled:
+            options.append('project')
+        for option in options:
             fetchopts[option] = fetch_option[option]
+
         if props is not None:
             fetchopts['properties'] = fetch_option['properties']
 
@@ -1861,6 +2015,16 @@ class Openbis:
         }
         resp = self._post_request(self.as_v3, request)
 
+        samples = []
+        parse_jackson(resp)
+        for obj in resp['objects']:
+            sample = Sample(
+                openbis_obj = self,
+                type = self.get_sample_type(obj['type']['code']),
+                data = obj
+            )
+            samples.append(sample)
+
         return self._sample_list_for_response(
             response=resp['objects'],
             attrs=attrs,
@@ -1868,6 +2032,7 @@ class Openbis:
             start_with=start_with,
             count=count,
             totalCount=resp['totalCount'],
+            objects=samples
         )
 
     get_objects = get_samples # Alias
@@ -1892,7 +2057,7 @@ class Openbis:
     def get_experiments(
         self, code=None, permId=None, type=None, space=None, project=None,
         start_with=None, count=None,
-        tags=None, is_finished=None, attrs=None, props=None, **properties
+        tags=None, is_finished=None, attrs=None, props=None, where=None, **properties
     ):
         """Returns a DataFrame of all samples for a given space/project (or any combination)
 
@@ -1902,6 +2067,7 @@ class Openbis:
         project      -- a project code or a project object
         tags         -- only experiments with the specified tags
         type         -- a experimentType code
+        where        -- key-value pairs of property values to search for
 
         Paging:
         -------
@@ -1947,9 +2113,14 @@ class Openbis:
             sub_criteria.append(_subcriteria_for_tags(tags))
         if is_finished is not None:
             sub_criteria.append(_subcriteria_for_is_finished(is_finished))
+        if where:
+            if properties is None:
+                properties = where
+            else:
+                properties = {**where, **properties}
         if properties is not None:
             for prop in properties:
-                sub_criteria.append(_subcriteria_for_properties(prop, properties[prop]))
+                sub_criteria.append(_subcriteria_for_properties(prop, properties[prop], entity='experiment'))
 
         search_criteria = get_search_type_for_entity('experiment')
         search_criteria['criteria'] = sub_criteria
@@ -2051,25 +2222,29 @@ class Openbis:
         self, code=None, type=None, withParents=None, withChildren=None,
         start_with=None, count=None, kind=None,
         status=None, sample=None, experiment=None, collection=None, project=None,
-        tags=None, attrs=None, props=None, **properties
+        tags=None, attrs=None, props=None, 
+        where=None,
+        **properties
     ):
         """Returns a DataFrame of all dataSets for a given project/experiment/sample (or any combination)
-        Filters:
-        --------
+
+        Filters
+        -------
         project      -- a project code or a project object
         experiment   -- an experiment code or an experiment object
         sample       -- a sample code/permId or a sample/object
         collection   -- same as experiment
         tags         -- only return dataSets with the specified tags
         type         -- a dataSetType code
+        where        -- key-value pairs of property values to search for
 
-        Paging:
-        -------
+        Paging
+        ------
         start_with   -- default=None
         count        -- number of dataSets that should be fetched. default=None.
 
-        Include:
-        --------
+        Include in result list
+        ----------------------
         withParents  -- the list of parent's permIds in a column 'parents'
         withChildren -- the list of children's permIds in a column 'children'
         attrs        -- list of all desired attributes. Examples:
@@ -2103,6 +2278,7 @@ class Openbis:
             sub_criteria.append(_subcriteria_for(sample, 'sample'))
         if experiment:
             sub_criteria.append(_subcriteria_for(experiment, 'experiment'))
+        if attrs is None: attrs = []
 
         if project:
             exp_crit = _subcriteria_for(experiment, 'experiment')
@@ -2113,9 +2289,16 @@ class Openbis:
             sub_criteria.append(_subcriteria_for_tags(tags))
         if status:
             sub_criteria.append(_subcriteria_for_status(status))
+
+        if where:
+            if properties is None:
+                properties = where
+            else:
+                properties = {**where, **properties}
+
         if properties is not None:
             for prop in properties:
-                sub_criteria.append(_subcriteria_for_properties(prop, properties[prop]))
+                sub_criteria.append(_subcriteria_for_properties(prop, properties[prop], entity='dataset'))
 
         search_criteria = get_search_type_for_entity('dataset')
         search_criteria['criteria'] = sub_criteria
@@ -2125,25 +2308,32 @@ class Openbis:
         fetchopts['from'] = start_with
         fetchopts['count'] = count
 
+        for option in [
+            'tags', 'properties', 'dataStore', 'physicalData', 'linkedData',
+            'experiment', 'sample', 'registrator', 'modifier'
+        ]:
+            fetchopts[option] = fetch_option[option]
+
+        fetchopts['experiment']['project'] = fetch_option['project']
+
+       # else:
+       #     # get fetch options for projects and spaces
+       #     # via experiment, if requested
+       #     for attr in attrs:
+       #         if any([entity in attr for entity in ['space','project']]):
+       #             fetchopts['experiment'] = fetch_option['experiment']
+       #             fetchopts['experiment']['project'] = fetch_option['project']
+
+       #     options = self._get_fetchopts_for_attrs(attrs)
+       #     for option in ['tags', 'properties', 'physicalData']+options:
+       #         fetchopts[option] = fetch_option[option]
+
         if kind:
             kind = kind.upper()
             if kind not in ['PHYSICAL_DATA', 'CONTAINER', 'LINK']:
                 raise ValueError("unknown dataSet kind: {}. It should be one of the following: PHYSICAL_DATA, CONTAINER or LINK".format(kind))
             fetchopts['kind'] = kind
             raise NotImplementedError('you cannot search for dataSet kinds yet')
-
-        if attrs is None: attrs = []
-        options = self._get_fetchopts_for_attrs(attrs)
-        for option in ['tags', 'properties', 'physicalData']+options:
-            fetchopts[option] = fetch_option[option]
-
-        # get fetch options for projects and spaces
-        # via experiment, if requested
-        for attr in attrs:
-            if any([entity in attr for entity in ['space','project']]):
-                fetchopts['experiment'] = fetch_option['experiment']
-                fetchopts['experiment']['project'] = fetch_option['project']
-
         
         request = {
             "method": "searchDataSets",
@@ -2154,6 +2344,16 @@ class Openbis:
         }
         resp = self._post_request(self.as_v3, request)
 
+        parse_jackson(resp)
+        datasets = []
+        for obj in resp['objects']:
+            dataset = DataSet(
+                openbis_obj = self,
+                type = self.get_dataset_type(obj['type']['code']),
+                data = obj
+            )
+            datasets.append(dataset)
+
         return self._dataset_list_for_response(
             response=resp['objects'],
             attrs=attrs,
@@ -2161,6 +2361,7 @@ class Openbis:
             start_with=start_with,
             count=count,
             totalCount=resp['totalCount'],
+            objects=datasets,
         )
 
 
@@ -2191,14 +2392,14 @@ class Openbis:
             raise ValueError(f"No such experiment: {code}")
 
         parse_jackson(resp)
-        for id in resp:
+        for permid in resp:
             if only_data:
-                return resp[id]
+                return resp[permid]
             else:
                 return Experiment(
                     openbis_obj = self,
                     type = self.get_experiment_type(resp[code]["type"]["code"]),
-                    data = resp[id]
+                    data = resp[permid]
                 )
     get_collection = get_experiment  # Alias
 
@@ -2340,7 +2541,7 @@ class Openbis:
                 delete_options
             ]
         }
-        resp = self._post_request(self.as_v3, request)
+        self._post_request(self.as_v3, request)
         return
 
 
@@ -2386,6 +2587,13 @@ class Openbis:
         return fo
 
     def get_project(self, projectId, only_data=False):
+        """Returns a Project object for a given identifier, code or permId.
+        """
+
+        project = not only_data and self._object_cache(entity='project',code=projectId)
+        if project:
+            return project
+
         options = ['space', 'registrator', 'modifier', 'attachments']
         if is_identifier(projectId) or is_permid(projectId):
             request = self._create_get_request(
@@ -2396,11 +2604,14 @@ class Openbis:
             if only_data:
                 return resp[projectId]
 
-            return Project(
+            project = Project(
                 openbis_obj=self, 
                 type=None,
                 data=resp[projectId]
             )
+            if self.use_cache:
+                self._object_cache(entity='project', code=projectId, value=project)
+            return project
 
         else:
             search_criteria = _gen_search_criteria({
@@ -2419,11 +2630,14 @@ class Openbis:
             if only_data:
                 return resp['objects'][0]
 
-            return Project(
+            project = Project(
                 openbis_obj=self, 
                 type=None,
                 data=resp['objects'][0]
             )
+            if self.use_cache:
+                self._object_cache(entity='project', code=projectId, value=project)
+            return project
 
     def get_projects(
         self, space=None, code=None,
@@ -2522,10 +2736,39 @@ class Openbis:
         }
         return request
 
+    def clear_cache(self, entity=None):
+        """Empty the internal object cache
+        If you do not specify any entity, the complete cache is cleared.
+        As entity, you can specify either:
+        space, project, vocabulary, term, sampleType, experimentType, dataSetType
+        """
+        if entity:
+            self.cache[entity] = {}
+        else:
+            self.cache = {}
+
+    def _object_cache(self, entity=None, code=None, value=None):
+
+        # return the value, if no value provided
+        if value is None:
+            if entity in self.cache:
+                return self.cache[entity].get(code)
+        else:
+            if entity not in self.cache:
+                self.cache[entity] = {}
+
+            self.cache[entity][code] = value
+
+
     def get_terms(self, vocabulary=None, start_with=None, count=None):
         """ Returns information about existing vocabulary terms. 
         If a vocabulary code is provided, it only returns the terms of that vocabulary.
         """
+
+        if self.use_cache and vocabulary is not None and start_with is None and count is None:
+            voc = self._object_cache(entity='term',code=vocabulary)
+            if voc:
+                return voc
 
         search_request = {}
         if vocabulary is not None:
@@ -2560,7 +2803,7 @@ class Openbis:
             terms['registrationDate'] = terms['registrationDate'].map(format_timestamp)
             terms['modificationDate'] = terms['modificationDate'].map(format_timestamp)
 
-        return Things(
+        things = Things(
             openbis_obj = self,
             entity = 'term',
             df = terms[attrs],
@@ -2570,6 +2813,10 @@ class Openbis:
             count = count,
             totalCount = resp.get('totalCount'),
         )
+        if self.use_cache and vocabulary is not None and start_with is None and count is None:
+            self._object_cache(entity='term',code=vocabulary,value=things)
+
+        return things
         
 
     def new_term(self, code, vocabularyCode, label=None, description=None):
@@ -2581,7 +2828,6 @@ class Openbis:
 
 
     def get_term(self, code, vocabularyCode, only_data=False):
-        entity_def = get_definition_for_entity('vocabularyTerm')
         search_request = {
             "code": code,
             "vocabularyCode": vocabularyCode,
@@ -2665,6 +2911,11 @@ class Openbis:
         """ Returns the details of a given vocabulary (including vocabulary terms)
         """
 
+        code = str(code).upper()
+        voc = not only_data and self._object_cache(entity='vocabulary',code=code)
+        if voc:
+            return voc
+
         entity = 'vocabulary'
         method_name = get_method_for_entity(entity, 'get')
         objectIds = _type_for_id(code.upper(), entity)
@@ -2685,13 +2936,13 @@ class Openbis:
         else:
             parse_jackson(resp)
             for ident in resp:
+                data = resp[ident]
                 if only_data:
-                    return resp[ident]
-                else:
-                    return Vocabulary(
-                        openbis_obj=self, 
-                        data=resp[ident]
-                    )
+                    return data
+                vocabulary = Vocabulary( openbis_obj=self, data=data)
+                if self.use_cache:
+                    self._object_cache(entity='vocabulary', code=code, value=vocabulary)
+                return vocabulary
 
 
     def new_tag(self, code, description=None):
@@ -2739,6 +2990,9 @@ class Openbis:
             for ident in permId:
                 identifiers.append(_type_for_id(ident, 'tag'))
         else:
+            tag = not only_data and self._object_cache(entity='tag',code=permId)
+            if tag:
+                return tag
             identifiers.append(_type_for_id(permId, 'tag'))
 
         fetchopts = fetch_option['tag']
@@ -2764,7 +3018,10 @@ class Openbis:
                 if only_data:
                     return resp[permId]
                 else:
-                    return Tag(self, data=resp[permId])
+                    tag = Tag(self, data=resp[permId])
+                    if self.use_cache:
+                        self._object_cache(entity='tag',code=permId,value=tag)
+                    return tag
         else:
             return self._tag_list_for_response( response=list(resp.values()) )
 
@@ -2886,16 +3143,16 @@ class Openbis:
             objects = resp['objects']
             parse_jackson(objects)
             
-            for object in objects:
-                object['permId'] = object['permId']['permId']
-                if object.get('entityType') is not None:
-                    object['entityType'] = object['entityType']['code']
-                elif object.get('propertyType') is not None:
-                    object['propertyType'] = object['propertyType']['code']
-                elif object.get('propertyAssignment') is not None:
-                    object['entityType'] = object['propertyAssignment']['entityType']['code']
-                    object['propertyType'] = object['propertyAssignment']['propertyType']['code']
-                object['creationDate'] = format_timestamp(object['creationDate'])
+            for obj in objects:
+                obj['permId'] = obj['permId']['permId']
+                if obj.get('entityType') is not None:
+                    obj['entityType'] = obj['entityType']['code']
+                elif obj.get('propertyType') is not None:
+                    obj['propertyType'] = obj['propertyType']['code']
+                elif obj.get('propertyAssignment') is not None:
+                    obj['entityType'] = obj['propertyAssignment']['entityType']['code']
+                    obj['propertyType'] = obj['propertyAssignment']['propertyType']['code']
+                obj['creationDate'] = format_timestamp(obj['creationDate'])
                 
             return objects
 
@@ -2923,11 +3180,11 @@ class Openbis:
         objects = self.search_semantic_annotations(permId=permId, only_data=True)
         if len(objects) == 0:
             raise ValueError("Semantic annotation with permId " + permId +  " not found.")
-        object = objects[0]
+        obj = objects[0]
         if only_data:
-            return object
+            return obj
         else:
-            return SemanticAnnotation(self, isNew=False, **object)
+            return SemanticAnnotation(self, isNew=False, **obj)
 
     def get_plugins(self, start_with=None, count=None):
 
@@ -3069,6 +3326,16 @@ class Openbis:
         )
 
     def get_property_type(self, code, only_data=False, start_with=None, count=None):
+
+        if not isinstance(code, list) and start_with is None and count is None:
+            code = str(code).upper()
+            pt = self.use_cache and self._object_cache(entity='property_type',code=code)
+            if pt:
+                if only_data:
+                    return pt.data
+                else:
+                    return pt
+
         identifiers = []
         only_one = False
         if not isinstance(code, list):
@@ -3105,10 +3372,14 @@ class Openbis:
                 if only_data:
                     return resp[ident]
                 else:
-                    return PropertyType(
+                    pt = PropertyType(
                         openbis_obj = self,
                         data=resp[ident]
                     )
+                    if self.use_cache:
+                        self._object_cache(entity='property_type',code=code[0], value=pt)
+                    return pt
+
         # return a list of objects
         else:
             return self._property_type_things(
@@ -3299,6 +3570,11 @@ class Openbis:
         )
 
     def get_entity_type(self, entity, identifier, cls, only_data=False, with_vocabulary=False):
+
+        et = not only_data and not isinstance(identifier, list) and self._object_cache(entity=entity, code=identifier)
+        if et:
+            return et
+
         method_name = get_method_for_entity(entity, 'get')
         fetch_options = get_fetchoption_for_entity(entity)
         if with_vocabulary:
@@ -3336,10 +3612,14 @@ class Openbis:
             if only_data:
                 return resp[ident]
             else:
-                return cls(
+                obj = cls(
                     openbis_obj = self,
                     data = resp[ident]
                 )
+                if self.use_cache:
+                    self._object_cache(entity=entity, code=ident, value=obj)
+                return obj
+
 
     def _get_types_of(
         self, method_name, entity, type_name=None,
@@ -3444,7 +3724,7 @@ class Openbis:
         }
         try:
             resp = self._post_request(self.as_v1, request)
-        except Exception as e:
+        except Exception:
             return False
 
         return resp
@@ -3513,7 +3793,8 @@ class Openbis:
 
     def _dataset_list_for_response(
         self, response, attrs=None, props=None, 
-        start_with=None, count=None, totalCount=0
+        start_with=None, count=None, totalCount=0,
+        objects=None
     ):
         """returns a Things object, containing a DataFrame plus some additional information
         """
@@ -3585,10 +3866,13 @@ class Openbis:
 
             datasets['registrationDate'] = datasets['registrationDate'].map(format_timestamp)
             datasets['modificationDate'] = datasets['modificationDate'].map(format_timestamp)
-            #datasets['experiment'] = datasets['experiment'].map(extract_nested_identifier)
-            #datasets['sample'] = datasets['sample'].map(extract_nested_identifier)
+            datasets['experiment'] = datasets['experiment'].map(extract_nested_identifier)
+            datasets['sample'] = datasets['sample'].map(extract_nested_identifier)
             datasets['type'] = datasets['type'].map(extract_code)
             datasets['permId'] = datasets['code']
+            for column in ['parents','children','components','containers']:
+                if column in datasets:
+                    datasets[column] = datasets[column].map(extract_identifiers)
             datasets['size'] = datasets['physicalData'].map(lambda x: x.get('size') if x else '')
             datasets['status'] = datasets['physicalData'].map(lambda x: x.get('status') if x else '')
             datasets['presentInArchive'] = datasets['physicalData'].map(lambda x: x.get('presentInArchive') if x else '')
@@ -3622,6 +3906,7 @@ class Openbis:
             start_with=start_with,
             count=count,
             totalCount=totalCount,
+            objects=objects,
         )
 
 
@@ -3645,8 +3930,7 @@ class Openbis:
                 _type_for_id(sample_ident, 'sample')
             )
 
-        fetchopts = {"type": {"@type": "as.dto.sample.fetchoptions.SampleTypeFetchOptions"}}
-
+        fetchopts = fetch_option['sample']
         options = ['tags', 'properties', 'attachments', 'space', 'experiment', 'registrator', 'modifier', 'dataSets']
         if self.get_server_information().project_samples_enabled:
             options.append('project')
@@ -3721,8 +4005,7 @@ class Openbis:
         return params
 
 
-    @staticmethod
-    def decode_property(entity, property):
+    def _decode_property(self, entity, property):
         # match something like: property_name.term.label AS label_alias
         regex = re.compile(
             r"""^
@@ -3745,7 +4028,7 @@ class Openbis:
         match = re.search(regex, property)
         if not match:
             try:
-                params = decode_attribute(entity, property)
+                params = self.decode_attribute(entity, property)
                 return params
             except ValueError:
                 raise ValueError(f"unable to parse property: {property}")
@@ -3757,7 +4040,8 @@ class Openbis:
 
     def _sample_list_for_response(
         self, response, attrs=None, props=None,
-        start_with=None, count=None, totalCount=0
+        start_with=None, count=None, totalCount=0,
+        objects=None
     ):
         """returns a Things object, containing a DataFrame plus additional information
         """
@@ -3767,23 +4051,10 @@ class Openbis:
                 return obj.get(attribute_to_extract,'')
             return return_attribute
 
-        sample_types = {}
-        def collect_sample_types(permId):
-            if not isinstance(permId, dict):
-                permId = str(permId)
-            else:
-                permId = permId['permId']
-
-            if permId in sample_types:
-                return permId
-            else:
-                st = self.get_sample_type(permId)
-
         parse_jackson(response)
 
         if attrs is None: attrs = []
-        default_attrs = ['identifier', 'permId', 'type',
-                 'registrator', 'registrationDate', 'modifier', 'modificationDate']
+        default_attrs = ['identifier', 'permId', 'type', 'registrator', 'registrationDate', 'modifier', 'modificationDate']
         display_attrs = default_attrs + attrs
 
         if props is None:
@@ -3803,6 +4074,7 @@ class Openbis:
                 if '.' in attr:
                     entity, attribute_to_extract = attr.split('.')
                     samples[attr] = samples[entity].map(extract_attribute(attribute_to_extract))
+
             for attr in attrs:
                 # if no dot supplied, just display the code of the space, project or experiment
                 if attr in ['project', 'experiment']:
@@ -3815,6 +4087,10 @@ class Openbis:
             samples['registrator'] = samples['registrator'].map(extract_person)
             samples['modifier'] = samples['modifier'].map(extract_person)
             samples['identifier'] = samples['identifier'].map(extract_identifier)
+            samples['container'] = samples['container'].map(extract_nested_identifier)
+            for column in ['parents','children','components']:
+                if column in samples:
+                    samples[column] = samples[column].map(extract_identifiers)
             samples['permId'] = samples['permId'].map(extract_permid)
             samples['type'] = samples['type'].map(extract_nested_permid)
 
@@ -3846,6 +4122,7 @@ class Openbis:
             start_with=start_with,
             count=count,
             totalCount=totalCount,
+            objects=objects,
         )
 
     get_object = get_sample # Alias
@@ -3978,12 +4255,12 @@ class Openbis:
     @staticmethod
     def sample_to_sample_id(sample):
         """Take sample which may be a string or object and return an identifier for it."""
-        return Openbis._object_to_object_id(sample, "as.dto.sample.id.SampleIdentifier", "as.dto.sample.id.SamplePermId");
+        return Openbis._object_to_object_id(sample, "as.dto.sample.id.SampleIdentifier", "as.dto.sample.id.SamplePermId")
 
     @staticmethod
     def experiment_to_experiment_id(experiment):
         """Take experiment which may be a string or object and return an identifier for it."""
-        return Openbis._object_to_object_id(experiment, "as.dto.experiment.id.ExperimentIdentifier", "as.dto.experiment.id.SamplePermId");
+        return Openbis._object_to_object_id(experiment, "as.dto.experiment.id.ExperimentIdentifier", "as.dto.experiment.id.SamplePermId")
 
     @staticmethod
     def _object_to_object_id(obj, identifierType, permIdType):
@@ -4032,6 +4309,13 @@ class Openbis:
 
     def new_sample(self, type, project=None, props=None, **kwargs):
         """ Creates a new sample of a given sample type.
+        type         -- sampleType code or object: mandatory
+        code         -- name/code for the sample, if not generated automatically
+        space        -- space code or object
+        project      -- project code or object
+        experiment   -- experiment code or object
+        collection   -- same as above
+        props        -- a dictionary containing the properties
         """
         if 'collection' in kwargs:
             kwargs['experiment'] = kwargs['collection']
@@ -4124,12 +4408,28 @@ class Openbis:
             validationPlugin=validationPlugin,
         )
 
-    def new_dataset(self, type=None, kind='PHYSICAL_DATA', files=None, props=None, folder=None, **kwargs):
+    def new_dataset(self, type=None, kind='PHYSICAL_DATA', files=None, file=None, props=None, folder=None, **kwargs):
         """ Creates a new dataset of a given type.
+
+        type         -- sampleType code or object: mandatory
+        sample       -- sample code or object
+        experiment   -- experiment code or object
+        collection   -- same as above
+        file         -- path to a single file or a directory
+        files        -- list of paths to files. Instead of a file, a directory (or many directories)
+                        can be provided, the structure is kept intact in openBIS
+        zipfile      -- path to a zipfile, which is unzipped in openBIS
+        kind         -- if set to CONTAINER, no files should be provided.
+                        Instead, the dataset acts as a container for other datasets.
+
+        props        -- a dictionary containing the properties
         """
 
         if type is None:
             raise ValueError("Please provide a dataSet type")
+
+        if file:
+            files = [file]
 
         if isinstance(type, str):
             type_obj = self.get_dataset_type(type.upper())
@@ -4222,16 +4522,16 @@ class ServerInformation():
         return self._info.get(name.replace('_', '-'))
     
     def get_major_version(self):
-        return int(self._info["api-version"].split(".")[0]);
+        return int(self._info["api-version"].split(".")[0])
     
     def get_minor_version(self):
-        return int(self._info["api-version"].split(".")[1]);
+        return int(self._info["api-version"].split(".")[1])
     
     def is_openbis_1605(self):
-        return (self.get_major_version() == 3) and (self.get_minor_version() <= 2);
+        return (self.get_major_version() == 3) and (self.get_minor_version() <= 2)
     
     def is_openbis_1806(self):
-        return (self.get_major_version() == 3) and (self.get_minor_version() >= 5);
+        return (self.get_major_version() == 3) and (self.get_minor_version() >= 5)
 
     def _repr_html_(self):
         html = """

@@ -1,0 +1,15 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+repositories {
+    ivy {
+        ivyPattern "http://svnsis.ethz.ch/repos/cisd/ivy-repository/trunk/[organisation]/[module]/[revision]/ivy.xml"
+        artifactPattern "http://svnsis.ethz.ch/repos/cisd/ivy-repository/trunk/[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
+    }
+}
+
+dependencies {
+    compile 'openbis:openbis-v3-api-batteries-included:20.10.0'
+}
+
+mainClassName = "ch.ethz.sis.monitor.Monitor"

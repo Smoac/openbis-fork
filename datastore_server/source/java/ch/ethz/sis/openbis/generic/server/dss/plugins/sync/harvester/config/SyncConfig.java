@@ -210,15 +210,15 @@ public class SyncConfig
 
     private String dataSourceAlias;
 
-    private Boolean translateUsingDataSourceAlias = false;
+    private boolean translateUsingDataSourceAlias;
 
-    private Boolean fullSyncEnabled = false;
+    private boolean fullSyncEnabled;;
 
     private Integer fullSyncInterval;
 
-    private Boolean dryRun = false;
+    private boolean dryRun;
 
-    private Boolean verbose = false;
+    private boolean verbose;
 
     private boolean masterDataUpdateAllowed;
 
@@ -300,22 +300,22 @@ public class SyncConfig
         return this.authCredentials.getPassword();
     }
 
-    public Boolean isTranslateUsingDataSourceAlias()
+    public boolean isTranslateUsingDataSourceAlias()
     {
         return translateUsingDataSourceAlias;
     }
 
-    public void setTranslateUsingDataSourceAlias(Boolean translateUsingDataSourceAlias)
+    public void setTranslateUsingDataSourceAlias(boolean translateUsingDataSourceAlias)
     {
         this.translateUsingDataSourceAlias = translateUsingDataSourceAlias;
     }
 
-    public Boolean isFullSyncEnabled()
+    public boolean isFullSyncEnabled()
     {
         return fullSyncEnabled;
     }
 
-    public void setFullSyncEnabled(Boolean fullSync)
+    public void setFullSyncEnabled(boolean fullSync)
     {
         this.fullSyncEnabled = fullSync;
     }
@@ -330,22 +330,22 @@ public class SyncConfig
         this.fullSyncInterval = fullSyncInterval;
     }
 
-    public Boolean isDryRun()
+    public boolean isDryRun()
     {
         return dryRun;
     }
 
-    public void setDryRun(Boolean dryRun)
+    public void setDryRun(boolean dryRun)
     {
         this.dryRun = dryRun;
     }
 
-    public Boolean isVerbose()
+    public boolean isVerbose()
     {
         return verbose;
     }
 
-    public void setVerbose(Boolean verbose)
+    public void setVerbose(boolean verbose)
     {
         this.verbose = verbose;
     }

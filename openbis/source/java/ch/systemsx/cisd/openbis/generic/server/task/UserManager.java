@@ -16,30 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.task;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
-import org.apache.commons.collections4.map.LinkedMap;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.AuthorizationGroup;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.create.AuthorizationGroupCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.create.CreateAuthorizationGroupsOperation;
@@ -96,6 +72,19 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.util.ServerUtils;
+
+import org.apache.commons.collections4.map.LinkedMap;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * @author Franz-Josef Elmer
@@ -118,7 +107,7 @@ public class UserManager
 
     private final Map<String, Map<String, Principal>> usersByGroupCode = new LinkedHashMap<>();
 
-    private final List<String> groupCodes = new ArrayList<>();
+    private final Map<String, UserGroup> groupsByCode = new LinkedHashMap<>();
 
     private List<String> globalSpaces = new ArrayList<>();
 
@@ -196,14 +185,14 @@ public class UserManager
     {
         String groupCode = group.getKey().toUpperCase();
         usersByGroupCode.put(groupCode, group.isEnabled() ? principalsByUserId : new HashMap<>());
-        groupCodes.add(groupCode);
+        groupsByCode.put(groupCode, group);
         mappingAttributesList.add(new MappingAttributes(groupCode, group.getShareIds()));
         Set<String> admins = asSet(group.getAdmins());
         if (group.isEnabled())
         {
             for (Principal principal : principalsByUserId.values())
             {
-                String userId = principal.getUserId();
+                String userId = getUserId(principal, group.isUseEmailAsUserId());
                 UserInfo userInfo = userInfosByUserId.get(userId);
                 if (userInfo == null)
                 {
@@ -418,16 +407,22 @@ public class UserManager
             service.updatePersons(sessionToken, updates);
         }
     }
-    
+
     private boolean isKnownUser(Set<String> knownUsers, Person person)
     {
-        if (knownUsers.contains(person.getUserId()))
+        String userId = person.getUserId();
+        if (knownUsers.contains(userId))
         {
             return true;
         }
         try
         {
-            authenticationService.getPrincipal(person.getUserId());
+            UserInfo userInfo = userInfosByUserId.get(userId);
+            if (userInfo != null)
+            {
+                userId = userInfo.principal.getUserId();
+            }
+            authenticationService.getPrincipal(userId);
             return true;
         } catch (IllegalArgumentException e)
         {
@@ -612,20 +607,31 @@ public class UserManager
 
     private void manageUsers(Context context, String groupCode, Map<String, Principal> groupUsers)
     {
+        UserGroup group = groupsByCode.get(groupCode);
         Map<String, Person> currentUsersOfGroup = context.currentState.getCurrentUsersOfGroup(groupCode);
         Set<String> usersToBeRemoved = new TreeSet<>(currentUsersOfGroup.keySet());
         AuthorizationGroup globalGroup = context.currentState.getGlobalGroup();
         String adminGroupCode = createAdminGroupCode(groupCode);
         AuthorizationGroupPermId adminGroupId = new AuthorizationGroupPermId(adminGroupCode);
+        boolean createUserSpace = group == null || group.isCreateUserSpace();
+        boolean useEmailAsUserId = group != null && group.isUseEmailAsUserId();
+
         for (Principal user : groupUsers.values())
         {
-            String userId = user.getUserId();
+            String userId = getUserId(user, useEmailAsUserId);
             usersToBeRemoved.remove(userId);
             PersonPermId personId = new PersonPermId(userId);
             if (currentUsersOfGroup.containsKey(userId) == false)
             {
-                SpacePermId userSpaceId = createUserSpace(context, groupCode, userId);
+                SpacePermId userSpaceId = null;
+
+                if (createUserSpace)
+                {
+                    userSpaceId = createUserSpace(context, groupCode, userId);
+                }
+
                 Person knownUser = context.getCurrentState().getUser(userId);
+
                 if (context.getCurrentState().userExists(userId) == false)
                 {
                     PersonCreation personCreation = new PersonCreation();
@@ -642,13 +648,17 @@ public class UserManager
 
                     context.getReport().reuseUser(userId);
                 }
-                getHomeSpaceRequest(userId).setHomeSpace(userSpaceId);
-                RoleAssignmentCreation roleCreation = new RoleAssignmentCreation();
-                roleCreation.setUserId(personId);
-                roleCreation.setRole(Role.ADMIN);
-                roleCreation.setSpaceId(userSpaceId);
-                context.add(roleCreation);
-                createRoleAssignment(context, adminGroupId, Role.ADMIN, userSpaceId);
+
+                if (createUserSpace)
+                {
+                    getHomeSpaceRequest(userId).setHomeSpace(userSpaceId);
+                    RoleAssignmentCreation roleCreation = new RoleAssignmentCreation();
+                    roleCreation.setUserId(personId);
+                    roleCreation.setRole(Role.ADMIN);
+                    roleCreation.setSpaceId(userSpaceId);
+                    context.add(roleCreation);
+                    createRoleAssignment(context, adminGroupId, Role.ADMIN, userSpaceId);
+                }
             }
             addPersonToAuthorizationGroup(context, groupCode, userId);
             if (globalGroup != null)
@@ -663,10 +673,11 @@ public class UserManager
                 removePersonFromAuthorizationGroup(context, adminGroupCode, userId);
             }
         }
-        removeUsersFromGroup(context, groupCode, usersToBeRemoved);
+        removeUsersFromGroup(context, groupCode, usersToBeRemoved, useEmailAsUserId);
     }
 
-    private void removeUsersFromGroup(Context context, String groupCode, Set<String> usersToBeRemoved)
+    private void removeUsersFromGroup(Context context, String groupCode, Set<String> usersToBeRemoved,
+            boolean useEmailAsUserId)
     {
         String adminGroupCode = createAdminGroupCode(groupCode);
         for (String userId : usersToBeRemoved)
@@ -683,7 +694,8 @@ public class UserManager
             for (RoleAssignment roleAssignment : user.getRoleAssignments())
             {
                 Space space = roleAssignment.getSpace();
-                if (space != null && space.getCode().startsWith(createCommonSpaceCode(groupCode, userId.toUpperCase())))
+                String userSpace = createCommonSpaceCode(groupCode, userId.toUpperCase());
+                if (space != null && space.getCode().startsWith(userSpace))
                 {
                     context.delete(roleAssignment.getId());
                     context.report.unassignRoleFrom(userId, roleAssignment.getRole(), space.getPermId());
@@ -694,6 +706,15 @@ public class UserManager
                 }
             }
         }
+    }
+
+    private String getUserId(Principal user, boolean useEmailAsUserId)
+    {
+        if (useEmailAsUserId && StringUtils.isNotBlank(user.getEmail()))
+        {
+            return  ServerUtils.escapeEmail(user.getEmail());
+        }
+        return user.getUserId();
     }
 
     private SpacePermId createUserSpace(Context context, String groupCode, String userId)

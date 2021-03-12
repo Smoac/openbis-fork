@@ -16,10 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractEntitySearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.IdentifierSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchCriteriaToStringBuilder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchOperator;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.*;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.search.ProjectSearchCriteria;
 import ch.systemsx.cisd.base.annotation.JsonObject;
@@ -60,6 +57,16 @@ public class ExperimentSearchCriteria extends AbstractEntitySearchCriteria<IExpe
     public ExperimentSearchCriteria withAndOperator()
     {
         return (ExperimentSearchCriteria) withOperator(SearchOperator.AND);
+    }
+
+    public ExperimentSearchCriteria withSubcriteria()
+    {
+        return with(new ExperimentSearchCriteria());
+    }
+
+    public TextAttributeSearchCriteria withTextAttribute()
+    {
+        return with(new TextAttributeSearchCriteria());
     }
 
     @Override

@@ -1339,7 +1339,7 @@ test("createMetaproject(), addToMetaproject(), removeFromMetaproject()", functio
 
 				var assignmentsIds = {
 					"@type" : "MetaprojectAssignmentsIds",
-					"samples" : [ createSampleIdentifierId("/PLATONIC/PLATE-1") ]
+					"samples" : [ createSampleIdentifierId("/PLATONIC/SCREENING-EXAMPLES/PLATE-1") ]
 				};
 
 				facade.addToMetaproject(metaprojectId, assignmentsIds, function(response) {
@@ -1388,7 +1388,7 @@ test("listAttachmentsForExperiment()", function() {
 
 test("listAttachmentsForSample()", function() {
 	createFacadeAndLogin(function(facade) {
-		var sampleId = createSampleIdentifierId("/TEST/TEST-SAMPLE-2");
+		var sampleId = createSampleIdentifierId("/TEST/TEST-PROJECT/TEST-SAMPLE-2");
 
 		facade.listAttachmentsForSample(sampleId, false, function(response) {
 			assertObjectsCount(response.result, 1);

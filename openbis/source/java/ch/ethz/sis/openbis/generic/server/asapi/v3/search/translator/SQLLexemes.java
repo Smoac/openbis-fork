@@ -19,6 +19,8 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator;
 public class SQLLexemes
 {
 
+    public static final String ARRAY = "ARRAY";
+
     public static final String UNNEST = "UNNEST";
 
     public static final String COALESCE = "COALESCE";
@@ -30,6 +32,14 @@ public class SQLLexemes
     public static final String UPPER = "UPPER";
 
     public static final String GREATEST = "GREATEST";
+
+    public static final String SUM = "SUM";
+
+    public static final String COUNT = "COUNT";
+
+    public static final String OVER = "OVER";
+
+    public static final String ARRAY_POSITION = "array_position";
 
     public static final String DATE_TRUNC = "date_trunc";
 
@@ -47,6 +57,14 @@ public class SQLLexemes
 
     public static final String PLAINTO_TSQUERY = "plainto_tsquery";
 
+    public static final String SUBSTR = "substr";
+
+    public static final String STRPOS = "strpos";
+
+    public static final String REVERSE = "reverse";
+
+    public static final String LENGTH = "length";
+
     public static final String AT_TIME_ZONE = "AT TIME ZONE";
 
     public static final String SELECT = "SELECT";
@@ -62,6 +80,8 @@ public class SQLLexemes
     public static final String INTO = "INTO";
 
     public static final String WHERE = "WHERE";
+
+    public static final String HAVING = "HAVING";
 
     public static final String CASE = "CASE";
 
@@ -115,13 +135,23 @@ public class SQLLexemes
 
     public static final String IS_NULL = IS + SP + NULL;
 
+    public static final String GROUP_BY = "GROUP BY";
+
     public static final String ORDER_BY = "ORDER BY";
+
+    public static final String LIMIT = "LIMIT";
+
+    public static final String OFFSET = "OFFSET";
 
     public static final String INTERSECT = "INTERSECT";
 
     public static final String UNION = "UNION";
 
     public static final String UNION_ALL = "UNION ALL";
+
+    public static final String ASC = "ASC";
+
+    public static final String DESC = "DESC";
 
     public static final String NL = "\n";
 
@@ -157,6 +187,10 @@ public class SQLLexemes
 
     public static final String RP = ")";
 
+    public static final String LB = "[";
+
+    public static final String RB = "]";
+
     public static final String SQ = "'";
 
     public static final String DQ = "\"";
@@ -168,6 +202,8 @@ public class SQLLexemes
     public static final String TILDA = "~";
 
     public static final String PLUS = "+";
+
+    public static final String MINUS = "-";
 
     public static final String SELECT_UNNEST = LP + SELECT + SP + UNNEST + LP + QU + RP + RP;
 

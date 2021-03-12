@@ -1,8 +1,8 @@
 import TextField from '@src/js/components/common/form/TextField.jsx'
 import TextFieldWrapper from '@srcTest/js/components/common/form/wrapper/TextFieldWrapper.js'
-import VocabularyFormParametersCommonWrapper from './VocabularyFormParametersCommonWrapper.js'
+import PageParametersPanelWrapper from '@srcTest/js/components/common/page/wrapper/PageParametersPanelWrapper'
 
-export default class VocabularyFormParametersVocabularyWrapper extends VocabularyFormParametersCommonWrapper {
+export default class VocabularyFormParametersVocabularyWrapper extends PageParametersPanelWrapper {
   getCode() {
     return new TextFieldWrapper(
       this.findComponent(TextField).filter({ name: 'code' })

@@ -1,7 +1,7 @@
 from .property import PropertyHolder
 from .attribute import AttrHolder
 from .utils import VERBOSE
-from .definitions import get_definition_for_entity
+from .definitions import get_definition_for_entity, get_type_for_entity, get_method_for_entity
 from collections import defaultdict
 
 class OpenBisObject():
@@ -132,6 +132,14 @@ class OpenBisObject():
         """
         return self.a.__repr__()
 
+    def mark_to_be_deleted(self):
+        self.__dict__['mark_to_be_deleted'] = True
+
+    def unmark_to_be_deleted(self):
+        self.__dict__['mark_to_be_deleted'] = False
+
+    def is_marked_to_be_deleted(self):
+        return self.__dict__.get('mark_to_be_deleted', False)
 
     def delete(self, reason):
         """Delete this openbis entity.
@@ -201,12 +209,14 @@ class OpenBisObject():
             if VERBOSE: print("{} successfully updated.".format(self.entity))
             new_entity_data = get_single_item(self.permId, only_data=True)
             self._set_data(new_entity_data)
+            return self
 
 
 class Transaction:
     def __init__(self, *entities):
 
         self.entities = {}
+        self.reason = 'no reason'
 
         if not entities:
             return
@@ -235,7 +245,14 @@ class Transaction:
         if not entity_obj.entity in self.entities:
             self.entities[entity_obj.entity] = defaultdict(list)
 
-        mode = "create" if entity_obj.is_new else "update"
+        mode = 'update'
+        if entity_obj.is_new:
+            mode = 'create'
+        elif entity_obj.is_marked_to_be_deleted():
+            mode = 'delete'
+        else:
+            mode  = 'update'
+
         self.entities[entity_obj.entity][mode].append(entity_obj)
 
 
@@ -251,6 +268,22 @@ class Transaction:
 
                 request_coll = []
                 for entity in self.entities[entity_type][mode]:
+                    if mode == "delete":
+                        delete_options = get_type_for_entity(entity_type, 'delete')
+                        delete_options['reason'] = self.reason
+                        method = get_method_for_entity(entity_type, 'delete')
+                        request = {
+                            "method": method,
+                            "params": [
+                                entity.openbis.token,
+                                [
+                                    entity.data['permId']
+                                ],
+                                delete_options
+                            ]
+                        }
+                        request_coll.append(request)
+                        continue
                     props = None
                     if entity.props:
                         for prop_name, prop in entity.props._property_names.items():
@@ -272,10 +305,13 @@ class Transaction:
 
                     else:
                         raise ValueError(f"Unkown mode: {mode}")
+
                     request_coll.append(request)
 
                 if request_coll:
+                    # copy the first item of all requests
                     batch_request = copy.deepcopy(request_coll[0])
+                    # merge all requests into one
                     for i, request in enumerate(request_coll):
                         if i == 0: continue
                         batch_request['params'][1].append(
@@ -289,9 +325,11 @@ class Transaction:
                         # mark every sample as not being new anymore
                         # and add the permId attribute received by the response
                         # we assume the response permIds are the same order as we sent them
-                        for i, resp_item in enumerate(resp):
-                            self.entities[entity_type][mode][i].a.__dict__['_is_new'] = False
-                            self.entities[entity_type][mode][i].a.__dict__['_permId'] = resp_item
+                        if resp:
+                            for i, resp_item in enumerate(resp):
+                                if mode == 'delete': continue
+                                self.entities[entity_type][mode][i].a.__dict__['_is_new'] = False
+                                self.entities[entity_type][mode][i].a.__dict__['_permId'] = resp_item
 
 
                     except ValueError as err:

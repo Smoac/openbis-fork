@@ -45,29 +45,38 @@ function AdvancedSearchController(mainController, forceSearch) {
 		}
 		var numberOfGeneralRules = 0;
 		var numberOfRules = 0;
-		
+		var numberOfWords = 0;
+
 		for(ruleKey in criteria.rules) {
 			var rule = criteria.rules[ruleKey];
 			numberOfRules++;
 			if(rule.value === null || rule.value === undefined || ("" + rule.value).trim() === "" || ("" + rule.value).trim() === "*") {
 				numberOfGeneralRules++;
+			} else {
+				numberOfWords += rule.value.trim().split(/\s+/).length;
 			}
 		}
-		
-		
+
 		var _this = this;
 		var trueSearch = function() {
 			_this._advancedSearchView.renderResults(criteria);
 		}
-		
-		if(numberOfRules === numberOfGeneralRules) {
-			var warning = "This search query is too broad. This might take a long time and might lead to a very large number of search results. \n Do you want to submit the query anyway?";
-			Util.showWarning(warning, trueSearch);
+
+		if (numberOfRules === numberOfGeneralRules && criteria.entityKind !== 'ALL') {
+			var warning1 = "This search query is too broad. This might take a long time and might lead to a very large number of search results. \n Do you want to submit the query anyway?";
+			Util.showWarning(warning1, trueSearch);
+		} else if (criteria.entityKind === 'ALL_PARTIAL') {
+			if (numberOfWords > 3) {
+				var warning2 = "This search query contains too many words/rules. This might take a long time and might lead to long waiting time. \n Do you want to submit the query anyway?";
+				Util.showWarning(warning2, trueSearch);
+			} else {
+				trueSearch();
+			}
 		} else {
 			trueSearch();
 		}
 	}
-	
+
 	this.searchWithPagination = function(criteria, isGlobalSearch) {
 		var _this = this;
 		return function(callback, options) {
@@ -75,12 +84,12 @@ function AdvancedSearchController(mainController, forceSearch) {
 				var dataList = [];
 				for(var rIdx = 0; rIdx < results.objects.length; rIdx++) {
 					var entity = results.objects[rIdx];
-					
+
 					var rowData = {};
 					if(isGlobalSearch) {
 						rowData.matched = entity.match;
 						rowData.score = entity.score;
-						
+
 						switch(entity.objectKind) {
 							case "SAMPLE":
 								entity = entity.sample;
@@ -96,23 +105,23 @@ function AdvancedSearchController(mainController, forceSearch) {
 							break;
 						}
 					}
-					
+
 					if(!entity) {
 						continue;
 					}
-					
+
 					//properties
 					if(entity["@type"]) {
 						rowData.entityKind = entity["@type"].substring(entity["@type"].lastIndexOf(".") + 1, entity["@type"].length);
 					}
-					
+
 					if(entity.experiment) {
 						rowData.experiment = entity.experiment.code;
 					}
 					if (entity.sample) {
 						rowData.sample = entity.sample.code;
 					}
-					
+
 					rowData.entityType = (entity.type)?entity.type.code:"";
 					rowData.code =  entity.code;
 					rowData.permId = (entity.permId)?entity.permId.permId:"";
@@ -121,19 +130,19 @@ function AdvancedSearchController(mainController, forceSearch) {
 					rowData.modifier = (entity.modifier)?entity.modifier.userId:null;
 					rowData.modificationDate = (entity.modificationDate)?Util.getFormatedDate(new Date(entity.modificationDate)):null;
 					rowData.entityObject = entity;
-					
+
 					if(entity.identifier) {
 						rowData.identifier = entity.identifier.identifier;
 					}
-					
+
 					for(var propertyCode in entity.properties) {
 						rowData[propertyCode] = entity.properties[propertyCode];
 					}
-					
+
 					//Add the row data
 					dataList.push(rowData);
 				}
-				
+
 				_this.enrichResultsFunction(dataList, function(enrichedDataList) {
 					callback({
 						objects : enrichedDataList,
@@ -142,9 +151,9 @@ function AdvancedSearchController(mainController, forceSearch) {
 				});
 				$("#search").removeClass("search-query-searching");
 			}
-			
+
 			var fetchOptions = {};
-			
+
 			var optionsSearch = null;
 			if(options) {
 				fetchOptions.count = options.pageSize;
@@ -158,7 +167,7 @@ function AdvancedSearchController(mainController, forceSearch) {
 				// TODO : Unused on the UI, should be added for DataSets
 				// fetchOptions.withSample = true;
 			}
-			
+
 			if(!criteria.cached || (criteria.cachedSearch !== optionsSearch)) {
 				fetchOptions.cache = "RELOAD_AND_CACHE";
 				criteria.cachedSearch = optionsSearch;
@@ -166,9 +175,9 @@ function AdvancedSearchController(mainController, forceSearch) {
 			} else {
 				fetchOptions.cache = "CACHE";
 			}
-				
+
 			var criteriaToSend = $.extend(true, {}, criteria);
-			
+
 			if(options && options.search) {
 				var filter = options.search.toLowerCase().split(/[ ,]+/); //Split by regular space or comma
 				for(var fIdx = 0; fIdx < filter.length; fIdx++) {
@@ -176,9 +185,9 @@ function AdvancedSearchController(mainController, forceSearch) {
 					criteriaToSend.rules[Util.guid()] = { type : "All", name : "", value : fKeyword };
 				}
 			}
-			
+
 			if(options && options.sortProperty && options.sortDirection) {
-				fetchOptions.sort = { 
+				fetchOptions.sort = {
 						type : null,
 						name : null,
 						direction : options.sortDirection
@@ -199,7 +208,7 @@ function AdvancedSearchController(mainController, forceSearch) {
 					case "registrationDate":
 						fetchOptions.sort.type = "Attribute";
 						fetchOptions.sort.name = "registrationDate"
-						
+
 						break;
 					case "modificationDate":
 						fetchOptions.sort.type = "Attribute";
@@ -218,11 +227,11 @@ function AdvancedSearchController(mainController, forceSearch) {
 						break;
 				}
 			}
-			
+
 			_this.additionalRules.forEach(rule => criteriaToSend.rules[Util.guid()] = rule);
-			
+
 			$(".repeater-search").remove();
-			
+
 			switch(criteriaToSend.entityKind) {
 				case "ALL":
 					var freeText = "";
@@ -231,7 +240,16 @@ function AdvancedSearchController(mainController, forceSearch) {
 							freeText += " " +  criteriaToSend.rules[ruleId].value;
 						}
 					}
-					mainController.serverFacade.searchGlobally(freeText, fetchOptions, callbackForSearch);
+					mainController.serverFacade.searchGlobally(freeText, false, fetchOptions, callbackForSearch);
+					break;
+				case "ALL_PARTIAL":
+					var freeText = "";
+					for(var ruleId in criteriaToSend.rules) {
+						if(criteriaToSend.rules[ruleId].value) {
+							freeText += " " +  criteriaToSend.rules[ruleId].value;
+						}
+					}
+					mainController.serverFacade.searchGlobally(freeText, true, fetchOptions, callbackForSearch);
 					break;
 				case "SAMPLE":
 					mainController.serverFacade.searchForSamplesAdvanced(criteriaToSend, fetchOptions, callbackForSearch);
@@ -258,7 +276,18 @@ function AdvancedSearchController(mainController, forceSearch) {
 						freeText += " " +  criteriaToSend.rules[ruleId].value;
 					}
 				}
-				mainController.serverFacade.getSearchCriteriaAndFetchOptionsForGlobalSearch(freeText, {}, callback);
+				mainController.serverFacade.getSearchCriteriaAndFetchOptionsForGlobalSearch(freeText, false, {},
+					callback);
+				break;
+			case "ALL_PARTIAL":
+				var freeText = "";
+				for(var ruleId in criteriaToSend.rules) {
+					if(criteriaToSend.rules[ruleId].value) {
+						freeText += " " +  criteriaToSend.rules[ruleId].value;
+					}
+				}
+				mainController.serverFacade.getSearchCriteriaAndFetchOptionsForGlobalSearch(freeText, true, {},
+					callback);
 				break;
 			case "SAMPLE":
 				mainController.serverFacade.getSearchCriteriaAndFetchOptionsForSamplesSearch(criteriaToSend, {}, callback);

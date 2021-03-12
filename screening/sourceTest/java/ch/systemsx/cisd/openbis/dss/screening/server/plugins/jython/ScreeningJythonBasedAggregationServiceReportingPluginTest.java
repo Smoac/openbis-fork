@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import ch.systemsx.cisd.common.jython.evaluator.Evaluator;
+import ch.systemsx.cisd.common.jython.evaluator.JythonEvaluatorSpringComponent;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.AfterMethod;
@@ -75,6 +77,10 @@ public class ScreeningJythonBasedAggregationServiceReportingPluginTest extends
         store = new File(workingDirectory, "store");
         store.mkdirs();
         scriptFolder = new File("resource/test-data/" + getClass().getSimpleName());
+
+        Properties properties = new Properties();
+        properties.setProperty(JythonEvaluatorSpringComponent.JYTHON_VERSION_KEY, "2.7");
+        new JythonEvaluatorSpringComponent(properties);
     }
 
     @AfterMethod

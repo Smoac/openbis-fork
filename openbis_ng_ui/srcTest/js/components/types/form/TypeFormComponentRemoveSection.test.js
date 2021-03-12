@@ -38,10 +38,35 @@ async function testRemoveSection() {
     },
     buttons: {
       message: null
-    }
+    },
+    removeSectionDialog: null
   })
 
   form.getButtons().getRemove().click()
+  await form.update()
+
+  form.expectJSON({
+    preview: {
+      sections: [
+        {
+          name: 'TEST_SECTION_1'
+        },
+        {
+          name: 'TEST_SECTION_2'
+        }
+      ]
+    },
+    buttons: {
+      message: null
+    },
+    removeSectionDialog: {
+      title: 'Are you sure you want to remove "TEST_SECTION_1"?',
+      content: `This section contains only property assignments which are not yet used by any entities of "${fixture.TEST_SAMPLE_TYPE_DTO.getCode()}" type.`,
+      type: 'info'
+    }
+  })
+
+  form.getRemoveSectionDialog().getConfirm().click()
   await form.update()
 
   form.expectJSON({
@@ -54,9 +79,10 @@ async function testRemoveSection() {
     },
     buttons: {
       message: {
-        text: 'You have unsaved changes.',
+        text: 'You have unsaved changes',
         type: 'warning'
       }
-    }
+    },
+    removeSectionDialog: null
   })
 }

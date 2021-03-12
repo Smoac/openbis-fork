@@ -47,8 +47,8 @@ public class EmailSearchConditionTranslator implements IConditionTranslator<Emai
         if (criterion.getFieldType() == ATTRIBUTE)
         {
             final AbstractStringValue value = criterion.getFieldValue();
-            TranslatorUtils.translateStringComparison(SearchCriteriaTranslator.MAIN_TABLE_ALIAS, ColumnNames.EMAIL_COLUMN, value, null,
-                    sqlBuilder, args);
+            TranslatorUtils.translateStringComparison(SearchCriteriaTranslator.MAIN_TABLE_ALIAS,
+                    ColumnNames.EMAIL_COLUMN, value, criterion.isUseWildcards(), null, sqlBuilder, args);
         } else
         {
             throw new IllegalArgumentException();

@@ -112,19 +112,18 @@ public class NumberFieldSearchConditionTranslator implements IConditionTranslato
                     throw new UserFailureException("The data type of property " + criterion.getFieldName() +
                             " has to be one of " + VALID_DATA_TYPES + " instead of " + casting + ".");
                 }
-                final boolean internalProperty = TranslatorUtils.isPropertyInternal(criterion.getFieldName());
                 translateNumberProperty(tableMapper, args, sqlBuilder, aliases, value,
-                        criterion.getFieldName(), internalProperty);
+                        criterion.getFieldName());
                 break;
             }
 
             case ANY_PROPERTY:
             {
                 final AbstractNumberValue value = criterion.getFieldValue();
-                translateNumberProperty(tableMapper, args, sqlBuilder, aliases, value, null, null);
+                translateNumberProperty(tableMapper, args, sqlBuilder, aliases, value, null);
                 break;
             }
-            
+
             case ANY_FIELD:
             {
                 throw new IllegalArgumentException();
@@ -134,7 +133,7 @@ public class NumberFieldSearchConditionTranslator implements IConditionTranslato
 
     static void translateNumberProperty(final TableMapper tableMapper, final List<Object> args,
             final StringBuilder sqlBuilder, final Map<String, JoinInformation> aliases, final AbstractNumberValue value,
-            final String fullPropertyName, final Boolean internalProperty)
+            final String fullPropertyName)
     {
         final JoinInformation attributeTypesJoinInformation = aliases.get(tableMapper.getAttributeTypesTable());
         final String entityTypesSubTableAlias = attributeTypesJoinInformation.getSubTableAlias();
@@ -148,16 +147,11 @@ public class NumberFieldSearchConditionTranslator implements IConditionTranslato
             sqlBuilder.append(CASE).append(SP).append(WHEN).append(SP);
         }
 
-        if (internalProperty != null)
-        {
-            TranslatorUtils.appendInternalExternalConstraint(sqlBuilder, args, entityTypesSubTableAlias,
-                    internalProperty);
-            sqlBuilder.append(SP).append(AND);
-        }
-
         if (fullPropertyName != null)
         {
-            sqlBuilder.append(SP).append(attributeTypesJoinInformation.getSubTableAlias())
+            TranslatorUtils.appendInternalExternalConstraint(sqlBuilder, args, entityTypesSubTableAlias,
+                    TranslatorUtils.isPropertyInternal(fullPropertyName));
+            sqlBuilder.append(SP).append(AND).append(SP).append(attributeTypesJoinInformation.getSubTableAlias())
                     .append(PERIOD).append(ColumnNames.CODE_COLUMN).append(SP).append(EQ).append(SP).append(QU);
             args.add(TranslatorUtils.normalisePropertyName(fullPropertyName));
 

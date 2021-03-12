@@ -74,11 +74,13 @@ public abstract class AbstractSearchManager<OBJECT>
                 collect(Collectors.toList());
     }
 
-    protected List<ISearchCriteria> getCriteria(
-            AbstractCompositeSearchCriteria compositeSearchCriteria, Class<? extends ISearchCriteria> clazz)
+    @SuppressWarnings("unchecked")
+    protected <T extends ISearchCriteria> List<T> getCriteria(
+            AbstractCompositeSearchCriteria compositeSearchCriteria, Class<T> clazz)
     {
         return (clazz != null)
-                ? compositeSearchCriteria.getCriteria().stream().filter(clazz::isInstance).collect(Collectors.toList())
+                ? (List<T>) compositeSearchCriteria.getCriteria().stream().filter(clazz::isInstance)
+                        .collect(Collectors.toList())
                 : Collections.emptyList();
     }
 
@@ -180,11 +182,11 @@ public abstract class AbstractSearchManager<OBJECT>
         return result;
     }
 
-    protected Set<Long> searchForIDs(final Long userId, final AuthorisationInformation authorisationInformation, final AbstractCompositeSearchCriteria criteria, final String selectColumnName,
+    protected Set<Long> searchForIDs(final Long userId, final AuthorisationInformation authorisationInformation, final AbstractCompositeSearchCriteria criteria, final String idsColumnName,
             final TableMapper tableMapper)
     {
-        final Set<Long> mainCriteriaIntermediateResults = getSearchDAO().queryDBWithNonRecursiveCriteria(userId, criteria, tableMapper,
-                selectColumnName, authorisationInformation);
+        final Set<Long> mainCriteriaIntermediateResults = getSearchDAO().queryDBForIdsAndRanksWithNonRecursiveCriteria(userId,
+                criteria, tableMapper, idsColumnName, authorisationInformation);
 
         // If we have results, we use them
         // If we don't have results and criteria are not empty, there are no results.
@@ -201,7 +203,7 @@ public abstract class AbstractSearchManager<OBJECT>
         if (!criteria.isEmpty())
         {
             final DummyCompositeSearchCriterion containerCriterion = new DummyCompositeSearchCriterion(criteria, finalSearchOperator);
-            final Set<Long> mainCriteriaNotFilteredResults = getSearchDAO().queryDBWithNonRecursiveCriteria(userId, containerCriterion, tableMapper,
+            final Set<Long> mainCriteriaNotFilteredResults = getSearchDAO().queryDBForIdsAndRanksWithNonRecursiveCriteria(userId, containerCriterion, tableMapper,
                     idsColumnName, authorisationInformation);
             return filterIDsByUserRights(userId, authorisationInformation, mainCriteriaNotFilteredResults);
         } else

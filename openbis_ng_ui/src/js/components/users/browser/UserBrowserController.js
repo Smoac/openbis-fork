@@ -4,6 +4,7 @@ import pages from '@src/js/common/consts/pages.js'
 import objectType from '@src/js/common/consts/objectType.js'
 import objectOperation from '@src/js/common/consts/objectOperation.js'
 import BrowserController from '@src/js/components/common/browser/BrowserController.js'
+import messages from '@src/js/common/messages.js'
 
 export default class UserBrowserController extends BrowserController {
   doGetPage() {
@@ -44,14 +45,16 @@ export default class UserBrowserController extends BrowserController {
       let nodes = [
         {
           id: 'users',
-          text: 'Users',
+          text: messages.get(messages.USERS),
+          object: { type: objectType.OVERVIEW, id: objectType.USER },
           children: userNodes,
           childrenType: objectType.NEW_USER,
           canAdd: true
         },
         {
           id: 'groups',
-          text: 'Groups',
+          text: messages.get(messages.GROUPS),
+          object: { type: objectType.OVERVIEW, id: objectType.USER_GROUP },
           children: groupNodes,
           childrenType: objectType.NEW_USER_GROUP,
           canAdd: true
@@ -68,6 +71,60 @@ export default class UserBrowserController extends BrowserController {
         actions.objectNew(this.getPage(), node.childrenType)
       )
     }
+  }
+
+  doNodeRemove(node) {
+    if (!node.object) {
+      return Promise.resolve()
+    }
+
+    const { type, id } = node.object
+    const reason = 'deleted via ng_ui'
+
+    return this._prepareRemoveOperations(type, id, reason)
+      .then(operations => {
+        const options = new openbis.SynchronousOperationExecutionOptions()
+        options.setExecuteInOrder(true)
+        return openbis.executeOperations(operations, options)
+      })
+      .then(() => {
+        this.context.dispatch(actions.objectDelete(this.getPage(), type, id))
+      })
+      .catch(error => {
+        this.context.dispatch(actions.errorChange(error))
+      })
+  }
+
+  _prepareRemoveOperations(type, id, reason) {
+    if (type === objectType.USER_GROUP) {
+      return this._prepareRemoveUserGroupOperations(id, reason)
+    } else if (type === objectType.USER) {
+      return this._prepareRemoveUserOperations(id, reason)
+    } else {
+      throw new Error('Unsupported type: ' + type)
+    }
+  }
+
+  _prepareRemoveUserGroupOperations(id, reason) {
+    const options = new openbis.AuthorizationGroupDeletionOptions()
+    options.setReason(reason)
+    return Promise.resolve([
+      new openbis.DeleteAuthorizationGroupsOperation(
+        [new openbis.AuthorizationGroupPermId(id)],
+        options
+      )
+    ])
+  }
+
+  _prepareRemoveUserOperations(id, reason) {
+    const options = new openbis.PersonDeletionOptions()
+    options.setReason(reason)
+    return Promise.resolve([
+      new openbis.DeletePersonsOperation(
+        [new openbis.PersonPermId(id)],
+        options
+      )
+    ])
   }
 
   doGetObservedModifications() {

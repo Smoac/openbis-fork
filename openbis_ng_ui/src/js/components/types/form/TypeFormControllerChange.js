@@ -5,7 +5,6 @@ import TypeFormSelectionType from '@src/js/components/types/form/TypeFormSelecti
 import TypeFormPropertyScope from '@src/js/components/types/form/TypeFormPropertyScope.js'
 import TypeFormUtil from '@src/js/components/types/form/TypeFormUtil.js'
 import FormUtil from '@src/js/components/common/form/FormUtil.js'
-import users from '@src/js/common/consts/users.js'
 
 export default class TypeFormControllerChange extends PageControllerChange {
   async execute(type, params) {
@@ -74,7 +73,7 @@ export default class TypeFormControllerChange extends PageControllerChange {
   }
 
   _handleChangePropertyScope(oldProperty, newProperty) {
-    const { type, assignments, usages } = this.context.getState()
+    const { type, assignments } = this.context.getState()
 
     const oldScope = oldProperty.scope.value
     const newScope = newProperty.scope.value
@@ -140,9 +139,6 @@ export default class TypeFormControllerChange extends PageControllerChange {
             },
             sampleType: {
               value: _.get(newExisting, 'sampleType.code', null)
-            },
-            registratorOfPropertyType: {
-              value: _.get(newExisting, 'registrator.userId', null)
             }
           }
 
@@ -167,81 +163,40 @@ export default class TypeFormControllerChange extends PageControllerChange {
       const propertyAssignments =
         (assignments && assignments[propertyCode]) || 0
 
-      const propertyUsagesLocal =
-        (usages &&
-          usages.propertyLocal &&
-          usages.propertyLocal[propertyCode]) ||
-        0
-      const propertyUsagesGlobal =
-        (usages &&
-          usages.propertyGlobal &&
-          usages.propertyGlobal[propertyCode]) ||
-        0
-
-      const systemInternalAssignment =
-        newProperty.internal.value &&
-        newProperty.registratorOfAssignment.value === users.SYSTEM
-
-      const systemInternalPropertyType =
-        newProperty.internal.value &&
-        newProperty.registratorOfPropertyType.value === users.SYSTEM
-
       _.assign(newProperty, {
         label: {
           ...newProperty.label,
-          enabled: !systemInternalPropertyType
+          enabled: !newProperty.internal.value
         },
         description: {
           ...newProperty.description,
-          enabled: !systemInternalPropertyType
+          enabled: !newProperty.internal.value
         },
         dataType: {
           ...newProperty.dataType,
-          enabled: !systemInternalPropertyType
+          enabled: !newProperty.internal.value
         },
         schema: {
           ...newProperty.schema,
-          enabled: !systemInternalPropertyType
+          enabled: !newProperty.internal.value
         },
         transformation: {
           ...newProperty.transformation,
-          enabled: !systemInternalPropertyType
+          enabled: !newProperty.internal.value
         },
         vocabulary: {
           ...newProperty.vocabulary,
-          enabled: !systemInternalPropertyType && !isGlobal
+          enabled: !newProperty.internal.value && !isGlobal
         },
         materialType: {
           ...newProperty.materialType,
-          enabled: !systemInternalPropertyType && !isGlobal
+          enabled: !newProperty.internal.value && !isGlobal
         },
         sampleType: {
           ...newProperty.sampleType,
-          enabled: !systemInternalPropertyType && !isGlobal
+          enabled: !newProperty.internal.value && !isGlobal
         },
-        plugin: {
-          ...newProperty.plugin,
-          enabled: !systemInternalAssignment
-        },
-        mandatory: {
-          ...newProperty.mandatory,
-          enabled: !systemInternalAssignment
-        },
-        showInEditView: {
-          ...newProperty.showInEditView,
-          enabled: !systemInternalAssignment
-        },
-        showRawValueInForms: {
-          ...newProperty.showRawValueInForms,
-          enabled: !systemInternalAssignment
-        },
-        initialValueForExistingEntities: {
-          ...newProperty.initialValueForExistingEntities,
-          enabled: !systemInternalAssignment
-        },
-        assignments: propertyAssignments,
-        usagesLocal: propertyUsagesLocal,
-        usagesGlobal: propertyUsagesGlobal
+        assignments: propertyAssignments
       })
 
       newProperty.originalGlobal = isGlobal ? _.cloneDeep(newProperty) : null
@@ -284,22 +239,50 @@ export default class TypeFormControllerChange extends PageControllerChange {
 
     if (oldMandatory !== newMandatory) {
       const { type } = this.context.getState()
-      const typeIsUsed = type.usages > 0
+
+      const typeIsNew = !type.original
       const propertyIsNew = !newProperty.original
       const propertyIsMandatory = newProperty.mandatory.value
       const propertyWasMandatory = newProperty.original
         ? newProperty.original.mandatory.value
         : false
 
-      _.assign(newProperty, {
-        initialValueForExistingEntities: {
-          ...newProperty.initialValueForExistingEntities,
-          visible:
-            typeIsUsed &&
-            propertyIsMandatory &&
-            (propertyIsNew || !propertyWasMandatory)
-        }
-      })
+      if (
+        !typeIsNew &&
+        propertyIsMandatory &&
+        (propertyIsNew || !propertyWasMandatory)
+      ) {
+        const { object, facade } = this.controller
+
+        facade.loadTypeUsages(object).then(typeUsages => {
+          this.context.setState(state => {
+            const index = state.properties.findIndex(
+              property => property.id === newProperty.id
+            )
+            if (index === -1) {
+              return {}
+            }
+            const newProperties = Array.from(state.properties)
+            newProperties[index] = {
+              ...newProperties[index],
+              initialValueForExistingEntities: {
+                ...newProperties[index].initialValueForExistingEntities,
+                visible: typeUsages > 0
+              }
+            }
+            return {
+              properties: newProperties
+            }
+          })
+        })
+      } else {
+        _.assign(newProperty, {
+          initialValueForExistingEntities: {
+            ...newProperty.initialValueForExistingEntities,
+            visible: false
+          }
+        })
+      }
     }
   }
 
@@ -382,14 +365,6 @@ export default class TypeFormControllerChange extends PageControllerChange {
       initialValueForExistingEntities: {
         ...dest.initialValueForExistingEntities,
         value: _.get(src, 'initialValueForExistingEntities.value', null)
-      },
-      registratorOfAssignment: {
-        ...dest.registratorOfAssignment,
-        value: _.get(src, 'registratorOfAssignment.value', null)
-      },
-      registratorOfPropertyType: {
-        ...dest.registratorOfPropertyType,
-        value: _.get(src, 'registratorOfPropertyType.value', null)
       }
     })
   }

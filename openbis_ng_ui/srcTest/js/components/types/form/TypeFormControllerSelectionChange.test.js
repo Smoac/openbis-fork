@@ -27,7 +27,6 @@ async function testSelectSection() {
   common.facade.loadType.mockReturnValue(
     Promise.resolve(fixture.TEST_SAMPLE_TYPE_DTO)
   )
-  common.facade.loadUsages.mockReturnValue(Promise.resolve({}))
 
   await common.controller.load()
 
@@ -59,7 +58,6 @@ async function testSelectProperty() {
   common.facade.loadType.mockReturnValue(
     Promise.resolve(fixture.TEST_SAMPLE_TYPE_DTO)
   )
-  common.facade.loadUsages.mockReturnValue(Promise.resolve({}))
 
   await common.controller.load()
 

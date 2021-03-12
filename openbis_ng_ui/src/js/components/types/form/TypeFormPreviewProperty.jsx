@@ -8,8 +8,10 @@ import CheckboxField from '@src/js/components/common/form/CheckboxField.jsx'
 import TextField from '@src/js/components/common/form/TextField.jsx'
 import SelectField from '@src/js/components/common/form/SelectField.jsx'
 import TypeFormSelectionType from '@src/js/components/types/form/TypeFormSelectionType.js'
+import DataType from '@src/js/components/common/dto/DataType.js'
 import openbis from '@src/js/services/openbis.js'
 import actions from '@src/js/store/actions/actions.js'
+import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 import util from '@src/js/common/util.js'
 
@@ -307,7 +309,7 @@ class TypeFormPreviewProperty extends React.PureComponent {
   renderPropertyNotSupported() {
     return (
       <Message type='warning'>
-        The selected data type is not supported yet.
+        {messages.get(messages.DATA_TYPE_NOT_SUPPORTED)}
       </Message>
     )
   }
@@ -315,7 +317,7 @@ class TypeFormPreviewProperty extends React.PureComponent {
   renderPropertyWithoutDataType() {
     return (
       <Message type='info'>
-        Please select a data type to display the field preview.
+        {messages.get(messages.DATA_TYPE_NOT_SELECTED_FOR_PREVIEW)}
       </Message>
     )
   }
@@ -411,7 +413,7 @@ class TypeFormPreviewProperty extends React.PureComponent {
           mandatory={this.getMandatory()}
           options={options}
           emptyOption={{
-            label: '(vocabulary terms preview)',
+            label: '(' + messages.get(messages.PREVIEW) + ')',
             selectable: false
           }}
           metadata={this.getMetadata()}
@@ -448,7 +450,7 @@ class TypeFormPreviewProperty extends React.PureComponent {
           mandatory={this.getMandatory()}
           options={options}
           emptyOption={{
-            label: '(materials preview)',
+            label: '(' + messages.get(messages.PREVIEW) + ')',
             selectable: false
           }}
           metadata={this.getMetadata()}
@@ -485,7 +487,7 @@ class TypeFormPreviewProperty extends React.PureComponent {
           mandatory={this.getMandatory()}
           options={options}
           emptyOption={{
-            label: '(samples preview)',
+            label: '(' + messages.get(messages.PREVIEW) + ')',
             selectable: false
           }}
           metadata={this.getMetadata()}
@@ -513,7 +515,7 @@ class TypeFormPreviewProperty extends React.PureComponent {
   }
 
   getDataType() {
-    return this.props.property.dataType.value || EMPTY
+    return new DataType(this.props.property.dataType.value).getLabel() || EMPTY
   }
 
   getMandatory() {
@@ -556,7 +558,7 @@ class TypeFormPreviewProperty extends React.PureComponent {
 
   getError() {
     if (this.props.property.errors > 0) {
-      return 'Property configuration is incorrect'
+      return messages.get(messages.PROPERTY_CONFIGURATION_IS_INCORRECT)
     } else {
       return null
     }

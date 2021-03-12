@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractServlet;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.util.ServerUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -151,7 +152,7 @@ public class SingleSignOnServlet extends AbstractServlet
                 return;
             }
         }
-        String userId = getHeader(request, USER_ID_KEY, DEFAULT_USER_ID_KEY).replace("@", "_AT_");
+        String userId = ServerUtils.escapeEmail(getHeader(request, USER_ID_KEY, DEFAULT_USER_ID_KEY));
         String firstName = getHeader(request, FIRST_NAME_KEY, DEFAULT_FIRST_NAME_KEY);
         String lastName = getHeader(request, LAST_NAME_KEY, DEFAULT_LAST_NAME_KEY);
         String email = getHeader(request, EMAIL_KEY, DEFAULT_EMAIL_KEY);

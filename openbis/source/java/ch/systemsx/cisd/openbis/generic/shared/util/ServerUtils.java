@@ -79,4 +79,9 @@ public class ServerUtils
         }
         return result;
     }
+
+    public static String escapeEmail(String email)
+    {
+        return email.replace("@", "_AT_");
+    }
 }

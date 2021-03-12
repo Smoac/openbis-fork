@@ -5,6 +5,7 @@ import Header from '@src/js/components/common/form/Header.jsx'
 import SelectField from '@src/js/components/common/form/SelectField.jsx'
 import Message from '@src/js/components/common/form/Message.jsx'
 import UserFormSelectionType from '@src/js/components/users/form/UserFormSelectionType.js'
+import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -18,8 +19,7 @@ class UserFormParametersGroup extends React.PureComponent {
     super(props)
     this.state = {}
     this.references = {
-      code: React.createRef(),
-      description: React.createRef()
+      code: React.createRef()
     }
     this.handleChange = this.handleChange.bind(this)
     this.handleFocus = this.handleFocus.bind(this)
@@ -83,7 +83,7 @@ class UserFormParametersGroup extends React.PureComponent {
 
     return (
       <Container>
-        <Header>Group</Header>
+        <Header>{messages.get(messages.GROUP)}</Header>
         {this.renderMessageVisible()}
         {this.renderCode(group)}
       </Container>
@@ -97,8 +97,9 @@ class UserFormParametersGroup extends React.PureComponent {
       return (
         <div className={classes.field}>
           <Message type='warning'>
-            The selected group is currently not visible in the group list due to
-            the chosen filtering and paging.
+            {messages.get(
+              messages.OBJECT_NOT_VISIBLE_DUE_TO_FILTERING_AND_PAGING
+            )}
           </Message>
         </div>
       )
@@ -132,7 +133,7 @@ class UserFormParametersGroup extends React.PureComponent {
       <div className={classes.field}>
         <SelectField
           reference={this.references.code}
-          label='Code'
+          label={messages.get(messages.CODE)}
           name='code'
           error={error}
           disabled={!enabled}

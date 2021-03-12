@@ -9,6 +9,7 @@ define([ "require", "stjs", "as/dto/common/search/AbstractFieldSearchCriteria", 
 	stjs.extend(StringFieldSearchCriteria, AbstractFieldSearchCriteria, [ AbstractFieldSearchCriteria ], function(constructor, prototype) {
 		prototype['@type'] = 'as.dto.common.search.StringFieldSearchCriteria';
 		constructor.serialVersionUID = 1;
+		prototype.useWildcards = false;
 		prototype.thatEquals = function(string) {
 			var StringEqualToValue = require("as/dto/common/search/StringEqualToValue");
 			this.setFieldValue(new StringEqualToValue(string));
@@ -41,6 +42,17 @@ define([ "require", "stjs", "as/dto/common/search/AbstractFieldSearchCriteria", 
 			var StringGreaterThanOrEqualToValue = require("as/dto/common/search/StringGreaterThanOrEqualToValue");
 			this.setFieldValue(new StringGreaterThanOrEqualToValue(string));
 		};
+		prototype.withWildcards = function() {
+			this.useWildcards = true;
+			return this;
+		}
+		prototype.withoutWildcards = function() {
+			this.useWildcards = false;
+			return this;
+		}
+		prototype.isUseWildcards = function() {
+			return this.useWildcards;
+		}
 	}, {
 		fieldType : {
 			name : "Enum",

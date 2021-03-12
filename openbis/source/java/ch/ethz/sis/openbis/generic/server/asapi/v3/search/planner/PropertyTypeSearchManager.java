@@ -45,7 +45,14 @@ public class PropertyTypeSearchManager extends AbstractLocalSearchManager<Proper
     }
 
     @Override
-    protected Set<Long> doFilterIDsByUserRights(final Set<Long> ids, final AuthorisationInformation authorisationInformation)
+    protected AbstractCompositeSearchCriteria createEmptyCriteria()
+    {
+        return new PropertyTypeSearchCriteria();
+    }
+
+    @Override
+    protected Set<Long> doFilterIDsByUserRights(final Set<Long> ids,
+            final AuthorisationInformation authorisationInformation)
     {
         return ids;
     }

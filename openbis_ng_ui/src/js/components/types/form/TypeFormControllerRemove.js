@@ -5,6 +5,8 @@ export default class TypeFormControllerRemove {
   constructor(controller) {
     this.controller = controller
     this.context = controller.context
+    this.facade = controller.facade
+    this.object = controller.object
   }
 
   executeRemove(confirmed = false) {
@@ -29,7 +31,7 @@ export default class TypeFormControllerRemove {
     }
   }
 
-  _handleRemoveSection(sectionId, confirmed) {
+  async _handleRemoveSection(sectionId, confirmed) {
     const { sections, properties } = this.context.getState()
 
     const sectionIndex = sections.findIndex(section => section.id === sectionId)
@@ -39,11 +41,55 @@ export default class TypeFormControllerRemove {
       this.context.setState({
         removeSectionDialogOpen: false
       })
-    } else if (this._isSectionUsed(section)) {
-      this.context.setState({
-        removeSectionDialogOpen: true
+    } else {
+      const existingProperties = []
+
+      section.properties.map(propertyId => {
+        const property = _.find(properties, ['id', propertyId])
+        if (property && property.original) {
+          existingProperties.push(property.code.value)
+        }
       })
-      return
+
+      if (existingProperties.length > 0) {
+        try {
+          this.context.setState({
+            loading: true
+          })
+
+          const usagesMap = await this.facade.loadPropertyUsages(
+            this.object,
+            existingProperties
+          )
+
+          const totalUsages = _.reduce(
+            usagesMap,
+            (totalUsages, propertyUsages) => {
+              return totalUsages + propertyUsages
+            },
+            0
+          )
+
+          const newSection = {
+            ...section,
+            usages: totalUsages
+          }
+
+          const newSections = Array.from(sections)
+          newSections[sectionIndex] = newSection
+
+          this.context.setState({
+            removeSectionDialogOpen: true,
+            sections: newSections
+          })
+        } finally {
+          this.context.setState({
+            loading: false
+          })
+        }
+
+        return
+      }
     }
 
     const newProperties = Array.from(properties)
@@ -65,7 +111,7 @@ export default class TypeFormControllerRemove {
     this.controller.changed(true)
   }
 
-  _handleRemoveProperty(propertyId, confirmed) {
+  async _handleRemoveProperty(propertyId, confirmed) {
     const { sections, properties } = this.context.getState()
 
     const propertyIndex = properties.findIndex(
@@ -77,10 +123,34 @@ export default class TypeFormControllerRemove {
       this.context.setState({
         removePropertyDialogOpen: false
       })
-    } else if (this._isPropertyUsed(property)) {
-      this.context.setState({
-        removePropertyDialogOpen: true
-      })
+    } else if (property.original) {
+      try {
+        this.context.setState({
+          loading: true
+        })
+
+        const usagesMap = await this.facade.loadPropertyUsages(this.object, [
+          property.code.value
+        ])
+
+        const newProperty = {
+          ...property,
+          usages: usagesMap[property.code.value]
+        }
+
+        const newProperties = Array.from(properties)
+        newProperties[propertyIndex] = newProperty
+
+        this.context.setState({
+          removePropertyDialogOpen: true,
+          properties: newProperties
+        })
+      } finally {
+        this.context.setState({
+          loading: false
+        })
+      }
+
       return
     }
 
@@ -108,23 +178,5 @@ export default class TypeFormControllerRemove {
     }))
 
     this.controller.changed(true)
-  }
-
-  _isSectionUsed(section) {
-    const { properties } = this.context.getState()
-
-    const propertiesMap = properties.reduce((map, property) => {
-      map[property.id] = property
-      return map
-    }, {})
-
-    return _.some(section.properties, propertyId => {
-      const property = propertiesMap[propertyId]
-      return this._isPropertyUsed(property)
-    })
-  }
-
-  _isPropertyUsed(property) {
-    return _.isFinite(property.usagesLocal) && property.usagesLocal !== 0
   }
 }

@@ -344,13 +344,13 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
     private Criteria createSpaceCriteria(final SpacePE space)
     {
         Criteria criteria = createFindCriteria(Restrictions.eq("space", space));
-        criteria.add(Restrictions.isNull("project"));
+        criteria.add(Restrictions.isNull("projectInternal"));
         return criteria;
     }
 
     private Criteria createProjectCriteria(final ProjectPE project)
     {
-        return createFindCriteria(Restrictions.eq("project", project));
+        return createFindCriteria(Restrictions.eq("projectInternal", project));
     }
 
     private void addSampleCodesCriterion(Criteria criteria, List<String> sampleCodes,

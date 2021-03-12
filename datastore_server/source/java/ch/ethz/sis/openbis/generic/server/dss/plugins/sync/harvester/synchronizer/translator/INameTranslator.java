@@ -23,5 +23,6 @@ package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchroniz
 public interface INameTranslator
 {
     String translate(String name);
+    String translateBack(String name);
 
 }

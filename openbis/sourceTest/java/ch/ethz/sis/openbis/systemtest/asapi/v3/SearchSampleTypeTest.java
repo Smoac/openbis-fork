@@ -213,17 +213,25 @@ public class SearchSampleTypeTest extends AbstractTest
     @Test
     public void testSearchWithCodeThatEqualsWithStarWildcard()
     {
-        SampleTypeSearchCriteria criteria = new SampleTypeSearchCriteria();
-        criteria.withCode().thatEquals("*_PLATE");
-        testSearch(criteria, "CELL_PLATE", "DILUTION_PLATE", "DYNAMIC_PLATE", "MASTER_PLATE", "REINFECT_PLATE");
+        final SampleTypeSearchCriteria criteria1 = new SampleTypeSearchCriteria();
+        criteria1.withCode().withWildcards().thatEquals("*_PLATE");
+        testSearch(criteria1, "CELL_PLATE", "DILUTION_PLATE", "DYNAMIC_PLATE", "MASTER_PLATE", "REINFECT_PLATE");
+
+        final SampleTypeSearchCriteria criteria2 = new SampleTypeSearchCriteria();
+        criteria2.withCode().withoutWildcards().thatEquals("*_PLATE");
+        testSearch(criteria2);
     }
 
     @Test
     public void testSearchWithCodeThatEqualsWithQuestionMarkWildcard()
     {
-        SampleTypeSearchCriteria criteria = new SampleTypeSearchCriteria();
-        criteria.withCode().thatEquals("????????_PLATE");
-        testSearch(criteria, "DILUTION_PLATE", "REINFECT_PLATE");
+        final SampleTypeSearchCriteria criteria1 = new SampleTypeSearchCriteria();
+        criteria1.withCode().withWildcards().thatEquals("????????_PLATE");
+        testSearch(criteria1, "DILUTION_PLATE", "REINFECT_PLATE");
+
+        final SampleTypeSearchCriteria criteria2 = new SampleTypeSearchCriteria();
+        criteria2.withCode().withoutWildcards().thatEquals("????????_PLATE");
+        testSearch(criteria2);
     }
 
     @Test
@@ -247,49 +255,73 @@ public class SearchSampleTypeTest extends AbstractTest
     @Test
     public void testSearchWithCodeThatStartsWithStarWildcard()
     {
-        SampleTypeSearchCriteria criteria = new SampleTypeSearchCriteria();
-        criteria.withCode().thatStartsWith("D*N_");
-        testSearch(criteria, "DELETION_TEST", "DILUTION_PLATE");
+        final SampleTypeSearchCriteria criteria1 = new SampleTypeSearchCriteria();
+        criteria1.withCode().withWildcards().thatStartsWith("D*N_");
+        testSearch(criteria1, "DELETION_TEST", "DILUTION_PLATE");
+
+        final SampleTypeSearchCriteria criteria2 = new SampleTypeSearchCriteria();
+        criteria2.withCode().withoutWildcards().thatStartsWith("D*N_");
+        testSearch(criteria2);
     }
 
     @Test
     public void testSearchWithCodeThatStartsWithQuestionMarkWildcard()
     {
-        SampleTypeSearchCriteria criteria = new SampleTypeSearchCriteria();
-        criteria.withCode().thatStartsWith("D??????_");
-        testSearch(criteria, "DYNAMIC_PLATE");
+        final SampleTypeSearchCriteria criteria1 = new SampleTypeSearchCriteria();
+        criteria1.withCode().withWildcards().thatStartsWith("D??????_");
+        testSearch(criteria1, "DYNAMIC_PLATE");
+
+        final SampleTypeSearchCriteria criteria2 = new SampleTypeSearchCriteria();
+        criteria2.withCode().withoutWildcards().thatStartsWith("D??????_");
+        testSearch(criteria2);
     }
 
     @Test
     public void testSearchWithCodeThatEndsWithStarWildcard()
     {
-        SampleTypeSearchCriteria criteria = new SampleTypeSearchCriteria();
-        criteria.withCode().thatEndsWith("_P*E");
-        testSearch(criteria, "CELL_PLATE", "DILUTION_PLATE", "DYNAMIC_PLATE", "MASTER_PLATE", "REINFECT_PLATE");
+        final SampleTypeSearchCriteria criteria1 = new SampleTypeSearchCriteria();
+        criteria1.withCode().withWildcards().thatEndsWith("_P*E");
+        testSearch(criteria1, "CELL_PLATE", "DILUTION_PLATE", "DYNAMIC_PLATE", "MASTER_PLATE", "REINFECT_PLATE");
+
+        final SampleTypeSearchCriteria criteria2 = new SampleTypeSearchCriteria();
+        criteria2.withCode().withoutWildcards().thatEndsWith("_P*E");
+        testSearch(criteria2);
     }
 
     @Test
     public void testSearchWithCodeThatEndsWithQuestionMarkWildcard()
     {
-        SampleTypeSearchCriteria criteria = new SampleTypeSearchCriteria();
-        criteria.withCode().thatEndsWith("_???T");
-        testSearch(criteria, "DELETION_TEST");
+        final SampleTypeSearchCriteria criteria1 = new SampleTypeSearchCriteria();
+        criteria1.withCode().withWildcards().thatEndsWith("_???T");
+        testSearch(criteria1, "DELETION_TEST");
+
+        final SampleTypeSearchCriteria criteria2 = new SampleTypeSearchCriteria();
+        criteria2.withCode().withoutWildcards().thatEndsWith("_???T");
+        testSearch(criteria2);
     }
 
     @Test
     public void testSearchWithCodeThatContainsWithStarWildcard()
     {
-        SampleTypeSearchCriteria criteria = new SampleTypeSearchCriteria();
-        criteria.withCode().thatContains("POS*BLE");
-        testSearch(criteria, "IMPOSSIBLE", "IMPOSSIBLE_TO_UPDATE");
+        final SampleTypeSearchCriteria criteria1 = new SampleTypeSearchCriteria();
+        criteria1.withCode().withWildcards().thatContains("POS*BLE");
+        testSearch(criteria1, "IMPOSSIBLE", "IMPOSSIBLE_TO_UPDATE");
+
+        final SampleTypeSearchCriteria criteria2 = new SampleTypeSearchCriteria();
+        criteria2.withCode().withoutWildcards().thatContains("POS*BLE");
+        testSearch(criteria2);
     }
 
     @Test
     public void testSearchWithCodeThatContainsWithQuestionMarkWildcard()
     {
-        SampleTypeSearchCriteria criteria = new SampleTypeSearchCriteria();
-        criteria.withCode().thatContains("R??_");
-        testSearch(criteria, "CONTROL_LAYOUT");
+        final SampleTypeSearchCriteria criteria1 = new SampleTypeSearchCriteria();
+        criteria1.withCode().withWildcards().thatContains("R??_");
+        testSearch(criteria1, "CONTROL_LAYOUT");
+
+        final SampleTypeSearchCriteria criteria2 = new SampleTypeSearchCriteria();
+        criteria2.withCode().withoutWildcards().thatContains("R??_");
+        testSearch(criteria2);
     }
 
     @Test
@@ -314,12 +346,17 @@ public class SearchSampleTypeTest extends AbstractTest
     @Test
     public void testSearchWithCodeThatStartsWithStarWildcardWithIn()
     {
-        final SampleTypeSearchCriteria criteria = new SampleTypeSearchCriteria();
-        criteria.withOrOperator();
-        criteria.withCode().thatStartsWith("D*N_");
-        criteria.withCodes().thatIn(Arrays.asList("MASTER_PLATE", "CELL_PLATE"));
+        final SampleTypeSearchCriteria criteria1 = new SampleTypeSearchCriteria();
+        criteria1.withOrOperator();
+        criteria1.withCode().withWildcards().thatStartsWith("D*N_");
+        criteria1.withCodes().thatIn(Arrays.asList("MASTER_PLATE", "CELL_PLATE"));
+        testSearch(criteria1, "CELL_PLATE", "DELETION_TEST", "DILUTION_PLATE", "MASTER_PLATE");
 
-        testSearch(criteria, "CELL_PLATE", "DELETION_TEST", "DILUTION_PLATE", "MASTER_PLATE");
+        final SampleTypeSearchCriteria criteria2 = new SampleTypeSearchCriteria();
+        criteria2.withOrOperator();
+        criteria2.withCode().withoutWildcards().thatStartsWith("D*N_");
+        criteria2.withCodes().thatIn(Arrays.asList("MASTER_PLATE", "CELL_PLATE"));
+        testSearch(criteria2, "CELL_PLATE", "MASTER_PLATE");
     }
 
     @Test

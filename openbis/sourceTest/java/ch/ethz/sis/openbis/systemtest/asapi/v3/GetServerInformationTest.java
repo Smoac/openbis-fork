@@ -17,11 +17,13 @@
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotEquals;
 
 import java.util.Map;
-import java.util.TreeMap;
 
 import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.openbis.BuildAndEnvironmentInfo;
 
 /**
  * @author Franz-Josef Elmer
@@ -38,9 +40,14 @@ public class GetServerInformationTest extends AbstractTest
         Map<String, String> result = v3api.getServerInformation(sessionToken);
 
         // Then
-        assertEquals(new TreeMap<>(result).toString(), "{api-version=3.5, archiving-configured=false, "
-                + "authentication-service=dummy-authentication-service, enabled-technologies=test-.*, "
-                + "project-samples-enabled=false}");
+        assertEquals(result.size(), 6);
+        assertEquals(result.get("api-version"), "3.5");
+        assertEquals(result.get("archiving-configured"), "false");
+        assertEquals(result.get("authentication-service"), "dummy-authentication-service");
+        assertEquals(result.get("enabled-technologies"), "test-.*");
+        assertEquals(result.get("project-samples-enabled"), "false");
+        assertEquals(result.get("openbis-version"), BuildAndEnvironmentInfo.INSTANCE.getVersion());
+
         v3api.logout(sessionToken);
     }
 }

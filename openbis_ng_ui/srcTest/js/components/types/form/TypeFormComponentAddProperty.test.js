@@ -115,7 +115,7 @@ async function testAddLocalProperty() {
           mode: 'edit'
         },
         plugin: {
-          label: 'Dynamic Plugin',
+          label: 'Dynamic Property Plugin',
           value: null,
           enabled: true,
           mode: 'edit'
@@ -152,7 +152,7 @@ async function testAddLocalProperty() {
         enabled: true
       },
       message: {
-        text: 'You have unsaved changes.',
+        text: 'You have unsaved changes',
         type: 'warning'
       }
     }
@@ -239,7 +239,7 @@ async function testAddNewGlobalProperty() {
           mode: 'edit'
         },
         plugin: {
-          label: 'Dynamic Plugin',
+          label: 'Dynamic Property Plugin',
           value: null,
           enabled: true,
           mode: 'edit'
@@ -272,7 +272,7 @@ async function testAddNewGlobalProperty() {
         enabled: true
       },
       message: {
-        text: 'You have unsaved changes.',
+        text: 'You have unsaved changes',
         type: 'warning'
       },
       edit: null,
@@ -336,7 +336,7 @@ async function testAddNewGlobalProperty() {
           mode: 'edit'
         },
         plugin: {
-          label: 'Dynamic Plugin',
+          label: 'Dynamic Property Plugin',
           value: fixture.ANOTHER_PLUGIN_DTO.getName(),
           enabled: true,
           mode: 'edit'
@@ -369,7 +369,7 @@ async function testAddNewGlobalProperty() {
         enabled: true
       },
       message: {
-        text: 'You have unsaved changes.',
+        text: 'You have unsaved changes',
         type: 'warning'
       },
       edit: null,
@@ -450,7 +450,7 @@ async function testAddExistingGlobalProperty() {
           mode: 'edit'
         },
         vocabulary: {
-          label: 'Vocabulary',
+          label: 'Vocabulary Type',
           value: EXISTING_GLOBAL_PROPERTY.vocabulary.getCode(),
           enabled: false,
           mode: 'edit'
@@ -468,7 +468,7 @@ async function testAddExistingGlobalProperty() {
           mode: 'edit'
         },
         plugin: {
-          label: 'Dynamic Plugin',
+          label: 'Dynamic Property Plugin',
           value: null,
           enabled: true,
           mode: 'edit'
@@ -501,7 +501,7 @@ async function testAddExistingGlobalProperty() {
         enabled: true
       },
       message: {
-        text: 'You have unsaved changes.',
+        text: 'You have unsaved changes',
         type: 'warning'
       },
       edit: null,
@@ -550,7 +550,7 @@ async function testAddExistingGlobalProperty() {
           mode: 'edit'
         },
         vocabulary: {
-          label: 'Vocabulary',
+          label: 'Vocabulary Type',
           value: EXISTING_GLOBAL_PROPERTY.vocabulary.getCode(),
           enabled: false,
           mode: 'edit'
@@ -568,7 +568,7 @@ async function testAddExistingGlobalProperty() {
           mode: 'edit'
         },
         plugin: {
-          label: 'Dynamic Plugin',
+          label: 'Dynamic Property Plugin',
           value: fixture.ANOTHER_PLUGIN_DTO.getName(),
           enabled: true,
           mode: 'edit'
@@ -601,7 +601,7 @@ async function testAddExistingGlobalProperty() {
         enabled: true
       },
       message: {
-        text: 'You have unsaved changes.',
+        text: 'You have unsaved changes',
         type: 'warning'
       },
       edit: null,

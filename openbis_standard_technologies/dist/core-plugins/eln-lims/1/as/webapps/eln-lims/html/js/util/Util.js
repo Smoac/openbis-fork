@@ -112,6 +112,8 @@ var Util = new function() {
 	this.showStacktraceAsError = function(stacktrace) {
 		var isUserFailureException = 	stacktrace.indexOf("ch.systemsx.cisd.common.exceptions.UserFailureException") === 0;
 		var isAuthorizationException = 	stacktrace.indexOf("ch.systemsx.cisd.common.exceptions.AuthorizationFailureException") === 0;
+		var isNestedUserFailureException = stacktrace.lastIndexOf("ch.systemsx.cisd.common.exceptions.UserFailureException") > 0;
+
 		var startIndex = null;
 		var endIndex = null;
 		if(isUserFailureException) {
@@ -120,7 +122,10 @@ var Util = new function() {
 		} else if(isAuthorizationException) {
 			startIndex = "ch.systemsx.cisd.common.exceptions.AuthorizationFailureException".length + 2;
 			endIndex = stacktrace.indexOf("at ch.systemsx");
-		} else {
+		} else if(isNestedUserFailureException) {
+            startIndex = stacktrace.lastIndexOf("ch.systemsx.cisd.common.exceptions.UserFailureException") + "ch.systemsx.cisd.common.exceptions.UserFailureException".length + 2;
+            endIndex = stacktrace.length;
+        } else {
 			startIndex = 0;
 			endIndex = stacktrace.length;
 		}

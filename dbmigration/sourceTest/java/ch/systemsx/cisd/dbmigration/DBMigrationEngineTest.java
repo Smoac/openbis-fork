@@ -46,7 +46,7 @@ import ch.systemsx.cisd.dbmigration.java.IMigrationStepExecutor;
 
 /**
  * Tests of {@link DBMigrationEngine} using mocks for database and {@link SqlScriptProvider}.
- * 
+ *
  * @author Franz-Josef Elmer
  */
 @Friend(toClasses = DBMigrationEngine.class)
@@ -179,6 +179,10 @@ public class DBMigrationEngineTest
         assertEquals("INFO  OPERATION.DBMigrationEngine - Dropping database."
                 + OSUtilities.LINE_SEPARATOR + "INFO  OPERATION.DBMigrationEngine - "
                 + "Database 'my 1. database' does not exist." + OSUtilities.LINE_SEPARATOR
+                + "INFO  OPERATION.DBMigrationEngine - Creating a new database with the version 042 "
+                + "and populating it with data." + OSUtilities.LINE_SEPARATOR
+                + "INFO  OPERATION.DBMigrationEngine - Creation and populating of the database finished."
+                + OSUtilities.LINE_SEPARATOR
                 + "INFO  OPERATION.DBMigrationEngine - "
                 + "Database 'my 2. database' version 042 has been successfully created.",
                 logRecorder.getLogContent());
@@ -228,6 +232,9 @@ public class DBMigrationEngineTest
         assertEquals("INFO  OPERATION.DBMigrationEngine - Dropping database."
                 + OSUtilities.LINE_SEPARATOR + "INFO  OPERATION.DBMigrationEngine - "
                 + "Database 'my 1. database' does not exist." + OSUtilities.LINE_SEPARATOR
+                + "INFO  OPERATION.DBMigrationEngine - Restoring from dump the database of the version 042."
+                + OSUtilities.LINE_SEPARATOR
+                + "INFO  OPERATION.DBMigrationEngine - Restoring from dump finished." + OSUtilities.LINE_SEPARATOR
                 + "INFO  OPERATION.DBMigrationEngine - "
                 + "Database 'my 2. database' version 042 has been successfully created.",
                 logRecorder.getLogContent());
@@ -328,6 +335,10 @@ public class DBMigrationEngineTest
         migrationEngine.migrateTo(version);
         assertEquals("INFO  OPERATION.DBMigrationEngine - "
                 + "Database 'my 1. database' does not exist." + OSUtilities.LINE_SEPARATOR
+                + "INFO  OPERATION.DBMigrationEngine - Creating a new database with the version 042 "
+                + "and populating it with data." + OSUtilities.LINE_SEPARATOR
+                + "INFO  OPERATION.DBMigrationEngine - Creation and populating of the database finished."
+                + OSUtilities.LINE_SEPARATOR
                 + "INFO  OPERATION.DBMigrationEngine - "
                 + "Database 'my 2. database' version 042 has been successfully created.",
                 logRecorder.getLogContent());
@@ -383,8 +394,13 @@ public class DBMigrationEngineTest
         migrationEngine.migrateTo(version);
         assertEquals("INFO  OPERATION.DBMigrationEngine - "
                 + "Database 'my 1. database' does not exist." + OSUtilities.LINE_SEPARATOR
+                + "INFO  OPERATION.DBMigrationEngine - Creating a new database with the version 042 "
+                + "and populating it with data." + OSUtilities.LINE_SEPARATOR
                 + "DEBUG OPERATION.DBMigrationEngine - No domains script found for version 042"
-                + OSUtilities.LINE_SEPARATOR + "INFO  OPERATION.DBMigrationEngine - "
+                + OSUtilities.LINE_SEPARATOR
+                + "INFO  OPERATION.DBMigrationEngine - Creation and populating of the database finished."
+                + OSUtilities.LINE_SEPARATOR
+                + "INFO  OPERATION.DBMigrationEngine - "
                 + "Database 'my 2. database' version 042 has been successfully created.",
                 logRecorder.getLogContent());
 
@@ -438,6 +454,8 @@ public class DBMigrationEngineTest
         }
         assertEquals("INFO  OPERATION.DBMigrationEngine - "
                 + "Database 'my 1. database' does not exist." + OSUtilities.LINE_SEPARATOR
+                + "INFO  OPERATION.DBMigrationEngine - Creating a new database with the version 042 "
+                + "and populating it with data." + OSUtilities.LINE_SEPARATOR
                 + "ERROR OPERATION.DBMigrationEngine - " + message, logRecorder.getLogContent());
 
         context.assertIsSatisfied();

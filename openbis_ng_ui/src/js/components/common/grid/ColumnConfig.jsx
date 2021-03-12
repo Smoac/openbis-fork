@@ -86,7 +86,7 @@ class ColumnConfig extends React.PureComponent {
                   >
                     {columns.map((column, index) => (
                       <ColumnConfigRow
-                        key={column.field}
+                        key={column.name}
                         column={column}
                         index={index}
                         onVisibleChange={onVisibleChange}

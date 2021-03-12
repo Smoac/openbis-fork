@@ -1,16 +1,15 @@
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
-import logger from '@src/js/common/logger.js'
-import pages from '@src/js/common/consts/pages.js'
-import objectType from '@src/js/common/consts/objectType.js'
-
 import Content from '@src/js/components/common/content/Content.jsx'
 import ContentTab from '@src/js/components/common/content/ContentTab.jsx'
-
 import UserBrowser from '@src/js/components/users/browser/UserBrowser.jsx'
 import UserSearch from '@src/js/components/users/search/UserSearch.jsx'
 import UserForm from '@src/js/components/users/form/UserForm.jsx'
 import UserGroupForm from '@src/js/components/users/form/UserGroupForm.jsx'
+import pages from '@src/js/common/consts/pages.js'
+import objectType from '@src/js/common/consts/objectType.js'
+import messages from '@src/js/common/messages.js'
+import logger from '@src/js/common/logger.js'
 
 const styles = () => ({
   container: {
@@ -50,22 +49,35 @@ class Users extends React.Component {
     ) {
       return <UserGroupForm object={object} />
     } else if (object.type === objectType.SEARCH) {
-      return <UserSearch objectId={object.id} />
+      return <UserSearch searchText={object.id} />
+    } else if (object.type === objectType.OVERVIEW) {
+      return <UserSearch objectType={object.id} />
     }
   }
 
   renderTab(tab) {
-    const { object } = tab
+    const { object, changed } = tab
 
-    const prefixes = {
-      [objectType.USER]: 'User: ',
-      [objectType.USER_GROUP]: 'Group: ',
-      [objectType.NEW_USER]: 'New User ',
-      [objectType.NEW_USER_GROUP]: 'New Group ',
-      [objectType.SEARCH]: 'Search: '
+    let label = null
+
+    if (object.type === objectType.OVERVIEW) {
+      const labels = {
+        [objectType.USER]: messages.get(messages.USERS),
+        [objectType.USER_GROUP]: messages.get(messages.GROUPS)
+      }
+      label = labels[object.id]
+    } else {
+      const prefixes = {
+        [objectType.USER]: messages.get(messages.USER) + ': ',
+        [objectType.USER_GROUP]: messages.get(messages.GROUP) + ': ',
+        [objectType.NEW_USER]: messages.get(messages.NEW_USER) + ' ',
+        [objectType.NEW_USER_GROUP]: messages.get(messages.NEW_GROUP) + ' ',
+        [objectType.SEARCH]: messages.get(messages.SEARCH) + ': '
+      }
+      label = prefixes[object.type] + object.id
     }
 
-    return <ContentTab prefix={prefixes[object.type]} tab={tab} />
+    return <ContentTab label={label} changed={changed} />
   }
 }
 

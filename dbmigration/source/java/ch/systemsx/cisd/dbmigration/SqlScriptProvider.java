@@ -32,7 +32,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 /**
  * Implementation of {@link ISqlScriptProvider} based on files in classpath or working directory. This provider tries first to load a resource. If
  * this isn't successful the provider tries to look for files relative to the working directory.
- * 
+ *
  * @author Franz-Josef Elmer
  */
 public class SqlScriptProvider implements ISqlScriptProvider
@@ -46,13 +46,15 @@ public class SqlScriptProvider implements ISqlScriptProvider
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, SqlScriptProvider.class);
 
+    private static final String FULL_TEXT_SEARCH_SCRIPTS_FOLDER_NAME = "full-text-search";
+
     private final List<String> schemaScriptRootFolders;
 
     private final String databaseEngineCode;
 
     /**
      * Creates an instance for the specified script folders. They are either resource folders or folders relative to the working directory.
-     * 
+     *
      * @param schemaScriptRootFolders Root folders of schema, migration and data scripts.
      * @param databaseEngineCode The code of the database engine. Used to find the db engine specific schema script folder.
      */
@@ -102,9 +104,16 @@ public class SqlScriptProvider implements ISqlScriptProvider
                 .size() - 1)), version);
     }
 
+    @Override
+    public File getFullTextSearchScriptsFolder(final String version)
+    {
+        return new File(getSpecificScriptFolder(schemaScriptRootFolders.get(schemaScriptRootFolders
+                .size() - 1)) + "/" + FULL_TEXT_SEARCH_SCRIPTS_FOLDER_NAME, version);
+    }
+
     /**
      * Returns the schema script for the specified version. The name of the script is expected to be
-     * 
+     *
      * <pre>
      * &lt;schema script folder&gt;/&lt;version&gt;/schema-&lt;version&gt;.sql
      * </pre>
@@ -117,7 +126,7 @@ public class SqlScriptProvider implements ISqlScriptProvider
 
     /**
      * Returns the script containing all functions for the specified version. The name of the script is expected to be
-     * 
+     *
      * <pre>
      * &lt;data script folder&gt;/&lt;version&gt;/function-&lt;version&gt;.sql
      * </pre>
@@ -130,7 +139,7 @@ public class SqlScriptProvider implements ISqlScriptProvider
 
     /**
      * Returns the script containing all domain definitions for the specified version. The name of the script is expected to be
-     * 
+     *
      * <pre>
      * &lt;schema script folder&gt;/&lt;version&gt;/domains-&lt;version&gt;.sql
      * </pre>
@@ -143,7 +152,7 @@ public class SqlScriptProvider implements ISqlScriptProvider
 
     /**
      * Returns the script containing all grant declarations for the specified version. The name of the script is expected to be
-     * 
+     *
      * <pre>
      * &lt;schema script folder&gt;/&lt;version&gt;/grants-&lt;version&gt;.sql
      * </pre>
@@ -156,7 +165,7 @@ public class SqlScriptProvider implements ISqlScriptProvider
 
     /**
      * Returns the data script for the specified version. The name of the script is expected to be
-     * 
+     *
      * <pre>
      * &lt;data script folder&gt;/&lt;version&gt;/data-&lt;version&gt;.sql
      * </pre>
@@ -169,7 +178,7 @@ public class SqlScriptProvider implements ISqlScriptProvider
 
     /**
      * Returns the migration script for the specified versions. The name of the script is expected to be
-     * 
+     *
      * <pre>
      * &lt;schema script folder&gt;/migration/migration-&lt;fromVersion&gt;-&lt;toVersion&gt;.sql
      * </pre>
@@ -183,11 +192,11 @@ public class SqlScriptProvider implements ISqlScriptProvider
 
     /**
      * Returns the function migration script for the specified versions. The name of the script is expected to be
-     * 
+     *
      * <pre>
      * &lt;schema script folder&gt;/migration/function_migration-&lt;fromVersion&gt;-&lt;toVersion&gt;.sql
      * </pre>
-     * 
+     *
      * The function migration will always be called <i>after</i> the regular migration script.
      */
     @Override
@@ -196,6 +205,18 @@ public class SqlScriptProvider implements ISqlScriptProvider
         final String scriptName =
                 "function_migration-" + fromVersion + "-" + toVersion + SQL_FILE_TYPE;
         return tryLoadScript(scriptName, toVersion, "migration");
+    }
+
+    @Override
+    public Script[] tryGetFullTextSearchScripts(final String version)
+    {
+        final String prefix = "full-text-search/" + version;
+        return new Script[]
+                {
+                    tryLoadScript("full-text-search-before-" + version + SQL_FILE_TYPE, version, prefix),
+                    tryLoadScript("full-text-search-" + version + SQL_FILE_TYPE, version, prefix),
+                    tryLoadScript("full-text-search-after-" + version + SQL_FILE_TYPE, version, prefix)
+                };
     }
 
     private Script tryLoadScript(final String scriptName, final String scriptVersion)

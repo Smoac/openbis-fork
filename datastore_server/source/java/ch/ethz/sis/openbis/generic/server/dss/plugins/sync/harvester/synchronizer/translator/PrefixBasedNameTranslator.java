@@ -31,14 +31,19 @@ public class PrefixBasedNameTranslator implements INameTranslator
 
     public PrefixBasedNameTranslator(String prefix)
     {
-        this.prefix = prefix;
+        this.prefix = prefix + "_";
     }
 
     private String translateInternal(String name)
     {
-        return prefix + "_" + name;
+        return prefix + name;
     }
 
+    private String translateBackInternal(String name)
+    {
+        return name.startsWith(prefix) ? name.substring(prefix.length()) : name;
+    }
+    
     /**
      * INTERNAL_NAMESPACE_PREFIX is checked because of the following cases following cases: 1. While parsing master data, for property types with dataType = CONTROLLEDVOCABULARY or
      * MATERIAL in which case the vocabulary or material attribute might start with $ (INTERNAL_NAMESPACE_PREFIX) 2. While parsing master data, for
@@ -58,5 +63,15 @@ public class PrefixBasedNameTranslator implements INameTranslator
         {
             return translateInternal(name);
         }
+    }
+
+    @Override
+    public String translateBack(String name)
+    {
+        if (name.startsWith(INTERNAL_NAMESPACE_PREFIX))
+        {
+            return INTERNAL_NAMESPACE_PREFIX + translateBackInternal(name.substring(INTERNAL_NAMESPACE_PREFIX.length()));
+        }
+        return translateBackInternal(name);
     }
 }

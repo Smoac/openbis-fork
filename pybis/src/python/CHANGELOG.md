@@ -1,3 +1,55 @@
+## Changes with pybis-1.18.5
+
+- fixed deref bug for container
+- added set and get methods for properties
+
+## Changes with pybis-1.18.4
+
+- fixed bug in returning identifiers (thanks, Fabian!)
+
+## Changes with pybis-1.18.3
+
+- prevent other users to read the saved token (chmod 600)
+- fixed various pylint issues
+- fixed «session no longer valid» message
+- fixed search issues
+
+## Changes with pybis-1.18.2
+
+- added deletion to transaction
+
+## Changes with pybis-1.18.1
+
+- fixed del_parents() bug accidentally introduced in 1.18.0
+
+## Changes with pybis-1.18.0
+
+- speed improvement when searching for samples and dataSets and then cycling through the results
+- implemented search for number comparison, date comparison, string comparison (<, >, <=, >=)
+- implemented search for parents identities and properties
+- fixed minor bugs when connecting
+
+## Changes with pybis-1.17.4
+
+- fixed another vocabularies update bug
+- extended tests
+- extended documentation
+
+## Changes with pybis-1.17.3
+
+- fixed vocabularies bug
+- fixed updating vocabularies
+
+## Changes with pybis-1.17.1
+
+- fixed datastore bug
+
+## Changes with pybis-1.17.0
+
+- added caching for often used but rarely updated openBIS objects.
+- if you need to create a lot of Samples, this will improve your speed a lot
+- by default, caching is enabled
+
 ## Changes with pybis-1.16.2
 
 - transaction.commit() now updates all added samples with their respective permIds
@@ -123,7 +175,7 @@
 ## Changes with pybis-1.10.1
 
 * fixed a nasty threading bug: open threads are now closed when downloading or uploading datasets
-* this bugfix avoids this RuntimeError: can't start new thread
+* this bugfix avoids this RuntimeError: cannot start new thread
 
 ## Changes with pybis-1.10.0
 

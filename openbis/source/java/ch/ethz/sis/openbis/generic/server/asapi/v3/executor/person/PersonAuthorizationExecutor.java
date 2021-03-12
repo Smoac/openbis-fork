@@ -69,4 +69,11 @@ public class PersonAuthorizationExecutor implements IPersonAuthorizationExecutor
     {
     }
 
+    @Override
+    @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
+    @Capability("DELETE_PERSON")
+    public void canDelete(IOperationContext context)
+    {
+    }
+
 }

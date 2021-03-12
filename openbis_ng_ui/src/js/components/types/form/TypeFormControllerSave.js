@@ -132,9 +132,7 @@ export default class TypeFormControllerSave extends PageControllerSave {
       new openbis.EntityTypePermId(type.code.value, strategy.getEntityKind())
     )
     update.getPropertyAssignments().remove([assignmentId])
-    update
-      .getPropertyAssignments()
-      .setForceRemovingAssignments(property.usagesLocal > 0)
+    update.getPropertyAssignments().setForceRemovingAssignments(true)
 
     return strategy.createTypeUpdateOperation([update])
   }

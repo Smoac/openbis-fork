@@ -150,31 +150,30 @@ public class DateFieldSearchConditionTranslator implements IConditionTranslator<
         if (fullPropertyName == null)
         {
             // Search by any date/timestamp field
-            
+
             if (value instanceof AbstractDateObjectValue)
             {
                 appendWhenForDateOrTimestampProperties(sqlBuilder, args, tableMapper, value, aliases, timeZone,
-                        null, null, entityTypesSubTableAlias, true, DataType.DATE.toString());
+                        null, entityTypesSubTableAlias, true, DataType.DATE.toString());
                 appendWhenForDateOrTimestampProperties(sqlBuilder, args, tableMapper, value, aliases, timeZone,
-                        null, null, entityTypesSubTableAlias, false, DataType.TIMESTAMP.toString());
+                        null, entityTypesSubTableAlias, false, DataType.TIMESTAMP.toString());
             } else
             {
                 if (bareDateValue)
                 {
                     appendWhenForDateOrTimestampProperties(sqlBuilder, args, tableMapper, value, aliases, timeZone,
-                            null, null, entityTypesSubTableAlias, true,
+                            null, entityTypesSubTableAlias, true,
                             DataType.DATE.toString(), DataType.TIMESTAMP.toString());
                 } else
                 {
                     appendWhenForDateOrTimestampProperties(sqlBuilder, args, tableMapper, value, aliases, timeZone,
-                            null, null, entityTypesSubTableAlias, false, DataType.TIMESTAMP.toString());
+                            null, entityTypesSubTableAlias, false, DataType.TIMESTAMP.toString());
                 }
             }
         } else
         {
             // Search by specific date/timestamp field
 
-            final boolean internalProperty = TranslatorUtils.isPropertyInternal(criterion.getFieldName());
             if (DataType.DATE.toString().equals(casting))
             {
                 if (timeZone instanceof TimeZone)
@@ -183,12 +182,12 @@ public class DateFieldSearchConditionTranslator implements IConditionTranslator<
                             "Search criteria with time zone doesn't make sense for property %s of data type %s.",
                             fullPropertyName, DataType.DATE));
                 }
-                appendWhenForDateOrTimestampProperties(sqlBuilder, args, tableMapper, value, aliases, null, fullPropertyName,
-                        internalProperty, entityTypesSubTableAlias, true, DataType.DATE.toString());
+                appendWhenForDateOrTimestampProperties(sqlBuilder, args, tableMapper, value, aliases, null,
+                        fullPropertyName, entityTypesSubTableAlias, true, DataType.DATE.toString());
             } else if (DataType.TIMESTAMP.toString().equals(casting))
             {
                 appendWhenForDateOrTimestampProperties(sqlBuilder, args, tableMapper, value, aliases, timeZone,
-                        fullPropertyName, internalProperty, entityTypesSubTableAlias, bareDateValue,
+                        fullPropertyName, entityTypesSubTableAlias, bareDateValue,
                         DataType.TIMESTAMP.toString());
             } else
             {
@@ -201,22 +200,18 @@ public class DateFieldSearchConditionTranslator implements IConditionTranslator<
 
     static void appendWhenForDateOrTimestampProperties(final StringBuilder sqlBuilder, final List<Object> args,
             final TableMapper tableMapper, final IDate value, final Map<String, JoinInformation> aliases,
-            final ITimeZone timeZone, final String fullPropertyName, final Boolean internalProperty,
+            final ITimeZone timeZone, final String fullPropertyName,
             final String entityTypesSubTableAlias, final boolean castToDate,
             final String... dataTypeStrings)
     {
         sqlBuilder.append(SP).append(WHEN).append(SP);
 
-        if (internalProperty != null)
-        {
-            TranslatorUtils.appendInternalExternalConstraint(sqlBuilder, args, entityTypesSubTableAlias,
-                    internalProperty);
-            sqlBuilder.append(SP).append(AND);
-        }
-
         if (fullPropertyName != null)
         {
-            sqlBuilder.append(SP).append(aliases.get(tableMapper.getAttributeTypesTable()).getSubTableAlias())
+            TranslatorUtils.appendInternalExternalConstraint(sqlBuilder, args, entityTypesSubTableAlias,
+                    TranslatorUtils.isPropertyInternal(fullPropertyName));
+            sqlBuilder.append(SP).append(AND).append(SP);
+            sqlBuilder.append(aliases.get(tableMapper.getAttributeTypesTable()).getSubTableAlias())
                     .append(PERIOD).append(ColumnNames.CODE_COLUMN).append(SP).append(EQ).append(SP).append(QU);
             sqlBuilder.append(SP).append(AND);
             args.add(TranslatorUtils.normalisePropertyName(fullPropertyName));

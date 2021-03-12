@@ -6,6 +6,7 @@ import Container from '@src/js/components/common/form/Container.jsx'
 import Button from '@src/js/components/common/form/Button.jsx'
 import Message from '@src/js/components/common/form/Message.jsx'
 import UnsavedChangesDialog from '@src/js/components/common/dialog/UnsavedChangesDialog.jsx'
+import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -91,11 +92,14 @@ class PageButtons extends React.PureComponent {
 
     return (
       <Container className={classes.container}>
+        <div className={classes.leftContainer}>
+          {this.renderAdditionalButtons()}
+        </div>
         <div className={classes.rightContainer}>
           {onEdit && (
             <Button
               name='edit'
-              label='Edit'
+              label={messages.get(messages.EDIT)}
               styles={{ root: classes.button }}
               onClick={onEdit}
             />
@@ -106,25 +110,19 @@ class PageButtons extends React.PureComponent {
   }
 
   renderEdit() {
-    const {
-      classes,
-      onSave,
-      onCancel,
-      changed,
-      renderAdditionalButtons
-    } = this.props
-
-    const additionalButtons = renderAdditionalButtons
-      ? renderAdditionalButtons(classes)
-      : null
+    const { classes, onSave, onCancel, changed } = this.props
 
     return (
       <Container className={classes.container}>
-        <div className={classes.leftContainer}>{additionalButtons}</div>
+        <div className={classes.leftContainer}>
+          {this.renderAdditionalButtons()}
+        </div>
         <div className={classes.rightContainer}>
           {changed && (
             <React.Fragment>
-              <Message type='warning'>You have unsaved changes.</Message>
+              <Message type='warning'>
+                {messages.get(messages.UNSAVED_CHANGES)}
+              </Message>
               <UnsavedChangesDialog
                 open={this.state.unsavedChangesDialogOpen}
                 onConfirm={this.handleCancelConfirm}
@@ -135,7 +133,7 @@ class PageButtons extends React.PureComponent {
           {onSave && (
             <Button
               name='save'
-              label='Save'
+              label={messages.get(messages.SAVE)}
               type='final'
               styles={{ root: classes.button }}
               onClick={onSave}
@@ -144,7 +142,7 @@ class PageButtons extends React.PureComponent {
           {onCancel && (
             <Button
               name='cancel'
-              label='Cancel'
+              label={messages.get(messages.CANCEL)}
               styles={{ root: classes.button }}
               onClick={this.handleCancel}
             />
@@ -152,6 +150,13 @@ class PageButtons extends React.PureComponent {
         </div>
       </Container>
     )
+  }
+
+  renderAdditionalButtons() {
+    const { renderAdditionalButtons, mode, classes } = this.props
+    return renderAdditionalButtons
+      ? renderAdditionalButtons({ mode, classes })
+      : null
   }
 }
 

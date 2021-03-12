@@ -15,6 +15,7 @@ import actions from '@src/js/store/actions/actions.js'
 import selectors from '@src/js/store/selectors/selectors.js'
 import Button from '@src/js/components/common/form/Button.jsx'
 import pages from '@src/js/common/consts/pages.js'
+import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -111,10 +112,12 @@ class Menu extends React.Component {
             onChange={this.props.currentPageChange}
             classes={{ root: classes.tabs }}
           >
-            <Tab value={pages.TYPES} label='Types' />
+            <Tab value={pages.TYPES} label={messages.get(messages.TYPES)} />
+            <Tab value={pages.USERS} label={messages.get(messages.USERS)} />
+            <Tab value={pages.TOOLS} label={messages.get(messages.TOOLS)} />
           </Tabs>
           <TextField
-            placeholder='Search...'
+            placeholder={messages.get(messages.SEARCH)}
             value={searchText}
             onChange={this.handleSearchChange}
             onKeyPress={this.handleSearchKeyPress}

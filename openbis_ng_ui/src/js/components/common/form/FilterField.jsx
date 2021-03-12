@@ -5,6 +5,7 @@ import TextField from '@material-ui/core/TextField'
 import IconButton from '@material-ui/core/IconButton'
 import FilterIcon from '@material-ui/icons/FilterList'
 import CloseIcon from '@material-ui/icons/Close'
+import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -58,7 +59,7 @@ class FilterField extends React.Component {
     return (
       <TextField
         className={classes.field}
-        placeholder='Filter'
+        placeholder={messages.get(messages.FILTER)}
         value={this.props.filter}
         onChange={this.handleFilterChange}
         InputProps={{

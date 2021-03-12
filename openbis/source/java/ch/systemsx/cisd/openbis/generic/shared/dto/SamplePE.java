@@ -57,6 +57,8 @@ import org.hibernate.annotations.GenerationTime;
 import org.hibernate.annotations.OptimisticLock;
 import org.hibernate.validator.constraints.Length;
 
+import ch.rinn.restrictions.Friend;
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collection.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
@@ -78,6 +80,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 @Entity
 @Table(name = TableNames.SAMPLES_VIEW)
+@Friend(toClasses = ProjectPE.class)
 public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Comparable<SamplePE>,
         IEntityInformationWithPropertiesHolder, IMatchingEntity, IDeletablePE,
         IEntityWithMetaprojects, IModifierAndModificationDateBean, IIdentityHolder, Serializable
@@ -590,23 +593,47 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         return children;
     }
 
-    public void setProject(ProjectPE project)
+    @ManyToOne(fetch = FetchType.EAGER) // FetchType.LAZY)
+    @JoinColumn(name = ColumnNames.PROJECT_COLUMN, updatable = true)
+    private ProjectPE getProjectInternal()
+    {
+        return project;
+    }
+
+    @Private
+    void setProjectInternal(final ProjectPE project)
     {
         if (projectSamplesEnabled)
         {
             this.project = project;
             if (project != null)
             {
-                projectFrozen = project.isFrozen() && project.isFrozenForSample();
+                projectFrozen = project.isFrozen() && project.isFrozenForExperiment();
             }
+            this.sampleIdentifier = null;
         }
     }
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = ColumnNames.PROJECT_COLUMN, updatable = true)
+    @Transient
     public ProjectPE getProject()
     {
-        return project;
+        return getProjectInternal();
+    }
+
+    public void setProject(ProjectPE project)
+    {
+        if (projectSamplesEnabled)
+        {
+            if (project != null)
+            {
+                project.addSample(this);
+//                projectFrozen = project.isFrozen() && project.isFrozenForSample();
+            } else if (this.project != null)
+            {
+                this.project.removeSample(this);
+                this.project = null;
+            }
+        }
     }
 
     @NotNull

@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.common.spring.SpringEoDSQLExceptionTranslator;
 
 /**
  * Utilities for dealing with databases in tests.
- * 
+ *
  * @author Izabela Adamczyk
  */
 @Friend(toClasses = MetabolDatabaseVersionHolder.class)
@@ -34,6 +34,6 @@ public class DBUtilsForTests
     {
         SpringEoDSQLExceptionTranslator.activate();
         DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(context,
-                MetabolDatabaseVersionHolder.DATABASE_VERSION);
+                MetabolDatabaseVersionHolder.DATABASE_VERSION, null);
     }
 }

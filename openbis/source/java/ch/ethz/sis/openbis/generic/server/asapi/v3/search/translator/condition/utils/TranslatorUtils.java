@@ -38,6 +38,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.PSQLTypes.DATE;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.PSQLTypes.TIMESTAMP_WITHOUT_TZ;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.GlobalSearchCriteriaTranslator.toTsQueryText;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.*;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SearchCriteriaTranslator.*;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.*;
@@ -61,8 +62,8 @@ public class TranslatorUtils
     }
 
     public static void translateStringComparison(final String tableAlias, final String columnName,
-            final AbstractStringValue value, final PSQLTypes casting, final StringBuilder sqlBuilder,
-            final List<Object> args)
+            final AbstractStringValue value, final boolean useWildcards, final PSQLTypes casting,
+            final StringBuilder sqlBuilder, final List<Object> args)
     {
         sqlBuilder.append(LOWER).append(LP).append(tableAlias).append(PERIOD).append(columnName).append(RP);
         if (casting != null)
@@ -70,30 +71,30 @@ public class TranslatorUtils
             sqlBuilder.append(DOUBLE_COLON).append(casting);
         }
 
-        final String strippedValue = TranslatorUtils.stripQuotationMarks(value.getValue().trim()).toLowerCase();
-        appendStringComparatorOp(value.getClass(), strippedValue, sqlBuilder, args);
+        final String strippedValue = TranslatorUtils.stripQuotationMarks(value.getValue()).toLowerCase();
+        appendStringComparatorOp(value.getClass(), strippedValue, useWildcards, sqlBuilder, args);
     }
 
-    public static void appendStringComparatorOp(final AbstractStringValue value, final StringBuilder sqlBuilder,
-            final List<Object> args)
+    public static void appendStringComparatorOp(final AbstractStringValue value, final boolean useWildcards,
+            final StringBuilder sqlBuilder, final List<Object> args)
     {
-        appendStringComparatorOp(value.getClass(), value.getValue(), sqlBuilder, args);
+        appendStringComparatorOp(value.getClass(), value.getValue(), useWildcards, sqlBuilder, args);
     }
 
     public static void appendStringComparatorOp(final Class<?> valueClass, final String finalValue,
-            final StringBuilder sqlBuilder, final List<Object> args)
+            final boolean useWildcards, final StringBuilder sqlBuilder, final List<Object> args)
     {
         sqlBuilder.append(SP);
         if (valueClass == StringEqualToValue.class)
         {
-            if (!containsWildcards(finalValue))
-            {
-                sqlBuilder.append(EQ).append(SP).append(QU);
-                args.add(finalValue);
-            } else
+            if (useWildcards && containsWildcards(finalValue))
             {
                 sqlBuilder.append(ILIKE).append(SP).append(QU);
                 args.add(toPSQLWildcards(finalValue));
+            } else
+            {
+                sqlBuilder.append(EQ).append(SP).append(QU);
+                args.add(finalValue);
             }
         } else if (valueClass == StringLessThanValue.class)
         {
@@ -114,15 +115,15 @@ public class TranslatorUtils
         } else if (valueClass == StringStartsWithValue.class)
         {
             sqlBuilder.append(ILIKE).append(SP).append(QU);
-            args.add(toPSQLWildcards(finalValue) + PERCENT);
+            args.add((useWildcards ? toPSQLWildcards(finalValue) : escapePSQLWildcards(finalValue)) + PERCENT);
         } else if (valueClass == StringEndsWithValue.class)
         {
             sqlBuilder.append(ILIKE).append(SP).append(QU);
-            args.add(PERCENT + toPSQLWildcards(finalValue));
+            args.add(PERCENT + (useWildcards ? toPSQLWildcards(finalValue) : escapePSQLWildcards(finalValue)));
         } else if (valueClass == StringContainsValue.class || valueClass == StringContainsExactlyValue.class)
         {
             sqlBuilder.append(ILIKE).append(SP).append(QU);
-            args.add(PERCENT + toPSQLWildcards(finalValue) + PERCENT);
+            args.add(PERCENT + (useWildcards ? toPSQLWildcards(finalValue) : escapePSQLWildcards(finalValue)) + PERCENT);
         } else if (valueClass == AnyStringValue.class)
         {
             sqlBuilder.append(IS_NOT_NULL);
@@ -152,28 +153,73 @@ public class TranslatorUtils
     private static String toPSQLWildcards(final String str)
     {
         final StringBuilder sb = new StringBuilder();
-        str.chars().forEach((value) ->
+        final char[] chars = str.toCharArray();
+        for (int i = 0; i < chars.length; i++)
         {
-            final char ch = (char) value;
+            final char ch = chars[i];
+            if (i > 0 && chars[i - 1] == BACKSLASH)
+            {
+                sb.append(ch);
+            } else
+            {
+                switch (ch)
+                {
+                    case UNDERSCORE:
+                        // Fall through.
+                    case PERCENT:
+                    {
+                        sb.append(BACKSLASH).append(ch);
+                        break;
+                    }
+                    case BACKSLASH:
+                    {
+                        break;
+                    }
+                    case ASTERISK:
+                    {
+                        sb.append(PERCENT);
+                        break;
+                    }
+                    case QU:
+                    {
+                        sb.append(UNDERSCORE);
+                        break;
+                    }
+                    default:
+                    {
+                        sb.append(ch);
+                        break;
+                    }
+                }
+            }
+        }
+
+        return sb.toString();
+    }
+
+    /**
+     * Escapes already existing '%', '_' and '\' characters with '\'.
+     *
+     * @param str string to be converted.
+     * @return string that corresponds to the PSQL standard.
+     */
+    private static String escapePSQLWildcards(final String str)
+    {
+        final StringBuilder sb = new StringBuilder();
+        final char[] chars = str.toCharArray();
+        for (final char ch : chars)
+        {
             switch (ch)
             {
                 case UNDERSCORE:
                     // Fall through.
                 case PERCENT:
-                    // Fall through.
-                case BACKSLASH:
                 {
                     sb.append(BACKSLASH).append(ch);
                     break;
                 }
-                case ASTERISK:
+                case BACKSLASH:
                 {
-                    sb.append(PERCENT);
-                    break;
-                }
-                case QU:
-                {
-                    sb.append(UNDERSCORE);
                     break;
                 }
                 default:
@@ -182,7 +228,8 @@ public class TranslatorUtils
                     break;
                 }
             }
-        });
+        }
+
         return sb.toString();
     }
 
@@ -622,9 +669,10 @@ public class TranslatorUtils
      * @param spacesTableAlias alias of the spaces table.
      * @param projectsTableAlias alias of the projects table.
      * @param samplesTableAlias alias of the samples table, {@code null} indicates that the table should not be included.
+     * @param useLowerCase
      */
     public static void buildFullIdentifierConcatenationString(final StringBuilder sqlBuilder, final String spacesTableAlias,
-            final String projectsTableAlias, final String samplesTableAlias)
+            final String projectsTableAlias, final String samplesTableAlias, final boolean useLowerCase)
     {
         final String slash = "/";
         final String colon = ":";
@@ -632,19 +680,26 @@ public class TranslatorUtils
 
         if (spacesTableAlias != null)
         {
-            appendCoalesce(sqlBuilder, spacesTableAlias, slash);
+            appendCoalesce(sqlBuilder, spacesTableAlias, slash, useLowerCase);
         }
         if (projectsTableAlias != null)
         {
-            appendCoalesce(sqlBuilder, projectsTableAlias, slash);
+            appendCoalesce(sqlBuilder, projectsTableAlias, slash, useLowerCase);
         }
         if (samplesTableAlias != null)
         {
-            appendCoalesce(sqlBuilder, samplesTableAlias, colon);
+            appendCoalesce(sqlBuilder, samplesTableAlias, colon, useLowerCase);
         }
 
-        sqlBuilder.append(SP).append(LOWER).append(LP).append(MAIN_TABLE_ALIAS).append(PERIOD).append(CODE_COLUMN)
-                .append(RP);
+        if (useLowerCase)
+        {
+            sqlBuilder.append(SP).append(LOWER).append(LP);
+        }
+        sqlBuilder.append(MAIN_TABLE_ALIAS).append(PERIOD).append(CODE_COLUMN);
+        if (useLowerCase)
+        {
+            sqlBuilder.append(RP);
+        }
     }
 
     /**
@@ -656,14 +711,24 @@ public class TranslatorUtils
      * @param sqlBuilder query builder.
      * @param alias alias of the table.
      * @param separator string to be appender at the end in the first parameter.
+     * @param useLowerCase whether to convert search column to lower case.
      */
-    private static void appendCoalesce(final StringBuilder sqlBuilder, final String alias, final String separator)
+    private static void appendCoalesce(final StringBuilder sqlBuilder, final String alias, final String separator,
+            final boolean useLowerCase)
     {
-        sqlBuilder.append(SP).append(COALESCE).append(LP)
-                .append(LOWER).append(LP).append(alias).append(PERIOD).append(CODE_COLUMN).append(RP).append(SP)
-                .append(BARS)
-                .append(SP).append(SQ).append(separator).append(SQ).append(COMMA).append(SP).append(SQ).append(SQ).append(RP).append(SP)
-                .append(BARS);
+        sqlBuilder.append(SP).append(COALESCE).append(LP);
+        if (useLowerCase)
+        {
+            sqlBuilder.append(LOWER).append(LP);
+        }
+        sqlBuilder.append(alias).append(PERIOD).append(CODE_COLUMN);
+        if (useLowerCase)
+        {
+            sqlBuilder.append(RP);
+        }
+        sqlBuilder.append(SP).append(BARS).append(SP)
+                .append(SQ).append(separator).append(SQ).append(COMMA).append(SP).append(SQ).append(SQ).append(RP)
+                .append(SP).append(BARS);
     }
 
     public static Map<String, JoinInformation> getIdentifierJoinInformationMap(final TableMapper tableMapper,
@@ -734,6 +799,18 @@ public class TranslatorUtils
         spacesJoinInformation.setSubTableAlias(aliasFactory.createAlias());
         spacesJoinInformation.setSubTableIdField(ID_COLUMN);
         return spacesJoinInformation;
+    }
+
+    public static void appendTsVectorMatch(final StringBuilder sqlBuilder, final AbstractStringValue stringValue, final String alias, final List<Object> args)
+    {
+        final String tsQueryValue = toTsQueryText(stringValue);
+        sqlBuilder.append(alias).append(PERIOD)
+                .append(TS_VECTOR_COLUMN).append(SP).append(DOUBLE_AT)
+                .append(SP).append(LP).append(QU).append(DOUBLE_COLON).append(TSQUERY)
+                .append(SP).append(BARS).append(SP)
+                .append(TO_TSQUERY).append(LP).append(QU).append(RP).append(RP);
+        args.add(tsQueryValue);
+        args.add(tsQueryValue);
     }
 
 }

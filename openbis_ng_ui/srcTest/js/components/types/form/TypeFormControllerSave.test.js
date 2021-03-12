@@ -121,7 +121,6 @@ async function doTestAddProperty(scope) {
   SAMPLE_TYPE.setGeneratedCodePrefix('TEST_PREFIX')
 
   common.facade.loadType.mockReturnValue(Promise.resolve(SAMPLE_TYPE))
-  common.facade.loadUsages.mockReturnValue(Promise.resolve({}))
   common.facade.loadGlobalPropertyTypes.mockReturnValue(Promise.resolve([]))
   common.facade.executeOperations.mockReturnValue(Promise.resolve({}))
 
@@ -176,7 +175,7 @@ async function doTestAddProperty(scope) {
 
 async function doTestUpdatePropertyAssignment(type, propertyType) {
   common.facade.loadType.mockReturnValue(Promise.resolve(type))
-  common.facade.loadUsages.mockReturnValue(Promise.resolve({}))
+  common.facade.loadTypeUsages.mockReturnValue(Promise.resolve(0))
   common.facade.executeOperations.mockReturnValue(Promise.resolve({}))
 
   await common.controller.load()
@@ -200,7 +199,6 @@ async function doTestUpdatePropertyTypeIfPossible(
   propertyAssignment
 ) {
   common.facade.loadType.mockReturnValue(Promise.resolve(type))
-  common.facade.loadUsages.mockReturnValue(Promise.resolve({}))
   common.facade.executeOperations.mockReturnValue(Promise.resolve({}))
 
   await common.controller.load()
@@ -225,7 +223,7 @@ async function doTestUpdatePropertyTypeIfPossible(
 
 async function doTestDeleteProperty(type, propertyType) {
   common.facade.loadType.mockReturnValue(Promise.resolve(type))
-  common.facade.loadUsages.mockReturnValue(Promise.resolve({}))
+  common.facade.loadPropertyUsages.mockReturnValue(Promise.resolve({}))
   common.facade.executeOperations.mockReturnValue(Promise.resolve({}))
 
   await common.controller.load()
@@ -234,22 +232,19 @@ async function doTestDeleteProperty(type, propertyType) {
     id: 'property-0'
   })
   common.controller.handleRemove()
+  common.controller.handleRemoveConfirm()
 
   await common.controller.handleSave()
 
   expectExecuteOperations([
-    deletePropertyAssignmentOperation(
-      type.getCode(),
-      propertyType.getCode(),
-      false
-    ),
+    deletePropertyAssignmentOperation(type.getCode(), propertyType.getCode()),
     setPropertyAssignmentOperation(type.getCode())
   ])
 }
 
 async function doTestDeletePropertyLastAssignment(type, propertyType) {
   common.facade.loadType.mockReturnValue(Promise.resolve(type))
-  common.facade.loadUsages.mockReturnValue(Promise.resolve({}))
+  common.facade.loadPropertyUsages.mockReturnValue(Promise.resolve({}))
   common.facade.loadAssignments.mockReturnValue(
     Promise.resolve({
       [propertyType.getCode()]: 1
@@ -263,15 +258,12 @@ async function doTestDeletePropertyLastAssignment(type, propertyType) {
     id: 'property-0'
   })
   common.controller.handleRemove()
+  common.controller.handleRemoveConfirm()
 
   await common.controller.handleSave()
 
   expectExecuteOperations([
-    deletePropertyAssignmentOperation(
-      type.getCode(),
-      propertyType.getCode(),
-      false
-    ),
+    deletePropertyAssignmentOperation(type.getCode(), propertyType.getCode()),
     deletePropertyTypeOperation(propertyType.getCode()),
     setPropertyAssignmentOperation(type.getCode())
   ])
@@ -331,7 +323,7 @@ function setPropertyAssignmentOperation(
   return new openbis.UpdateSampleTypesOperation([update])
 }
 
-function deletePropertyAssignmentOperation(typeCode, propertyCode, force) {
+function deletePropertyAssignmentOperation(typeCode, propertyCode) {
   const assignmentId = new openbis.PropertyAssignmentPermId(
     new openbis.EntityTypePermId(typeCode, openbis.EntityKind.SAMPLE),
     new openbis.PropertyTypePermId(propertyCode)
@@ -342,7 +334,7 @@ function deletePropertyAssignmentOperation(typeCode, propertyCode, force) {
     new openbis.EntityTypePermId(typeCode, openbis.EntityKind.SAMPLE)
   )
   update.getPropertyAssignments().remove([assignmentId])
-  update.getPropertyAssignments().setForceRemovingAssignments(force)
+  update.getPropertyAssignments().setForceRemovingAssignments(true)
 
   return new openbis.UpdateSampleTypesOperation([update])
 }

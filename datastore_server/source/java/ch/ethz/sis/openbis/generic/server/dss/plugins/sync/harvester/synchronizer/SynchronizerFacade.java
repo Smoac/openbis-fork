@@ -25,8 +25,12 @@ import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.create.ExternalDmsCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.update.ExternalDmsUpdate;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.common.ServiceFinderUtils;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.util.SummaryUtils;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -55,6 +59,8 @@ public class SynchronizerFacade implements ISynchronizerFacade
 
     private final ICommonServer commonServer;
 
+    private final IApplicationServerApi v3api;
+    
     private final Logger operationLog;
 
     private Map<String, String> fileformatTypesToUpdate = new TreeMap<String, String>();
@@ -101,6 +107,7 @@ public class SynchronizerFacade implements ISynchronizerFacade
             Logger operationLog)
     {
         this.commonServer = ServiceFinderUtils.getCommonServer(openBisServerUrl);
+        this.v3api = ServiceProvider.getV3ApplicationService();
         this.sessionToken = ServiceFinderUtils.login(commonServer, harvesterUser, harvesterPassword);
         this.dryRun = dryRun;
         this.verbose = verbose || dryRun;
@@ -340,6 +347,24 @@ public class SynchronizerFacade implements ISynchronizerFacade
         if (dryRun == false)
         {
             commonServer.addVocabularyTerms(sessionToken, techId, termsToBeAdded, null);
+        }
+    }
+
+    @Override
+    public void createExternalDataManagementSystems(List<ExternalDmsCreation> creations)
+    {
+        if (dryRun == false)
+        {
+            v3api.createExternalDataManagementSystems(sessionToken, creations);
+        }
+    }
+
+    @Override
+    public void updateExternalDataManagementSystems(List<ExternalDmsUpdate> updates)
+    {
+        if (dryRun == false)
+        {
+            v3api.updateExternalDataManagementSystems(sessionToken, updates);
         }
     }
 

@@ -9,6 +9,7 @@ import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft'
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight'
 import LastPageIcon from '@material-ui/icons/LastPage'
 import SelectField from '@src/js/components/common/form/SelectField.jsx'
+import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -91,7 +92,7 @@ class GridPaging extends React.PureComponent {
               label: classes.pageSizeLabel,
               labelPlacementStart: classes.pageSizeLabelPlacement
             }}
-            label='Rows per page: '
+            label={messages.get(messages.ROWS_PER_PAGE)}
             labelPlacement='start'
           />
         </div>
@@ -105,7 +106,7 @@ class GridPaging extends React.PureComponent {
           <IconButton
             onClick={this.handleFirstPageButtonClick}
             disabled={page === 0}
-            aria-label='First Page'
+            aria-label={messages.get(messages.FIRST_PAGE)}
             data-part='firstPage'
           >
             <FirstPageIcon fontSize='small' />
@@ -113,7 +114,7 @@ class GridPaging extends React.PureComponent {
           <IconButton
             onClick={this.handleBackButtonClick}
             disabled={page === 0}
-            aria-label='Previous Page'
+            aria-label={messages.get(messages.PREVIOUS_PAGE)}
             data-part='prevPage'
           >
             <KeyboardArrowLeft fontSize='small' />
@@ -121,7 +122,7 @@ class GridPaging extends React.PureComponent {
           <IconButton
             onClick={this.handleNextButtonClick}
             disabled={page >= Math.ceil(count / pageSize) - 1}
-            aria-label='Next Page'
+            aria-label={messages.get(messages.NEXT_PAGE)}
             data-part='nextPage'
           >
             <KeyboardArrowRight fontSize='small' />
@@ -129,7 +130,7 @@ class GridPaging extends React.PureComponent {
           <IconButton
             onClick={this.handleLastPageButtonClick}
             disabled={page >= Math.ceil(count / pageSize) - 1}
-            aria-label='Last Page'
+            aria-label={messages.get(messages.LAST_PAGE)}
             data-part='lastPage'
           >
             <LastPageIcon fontSize='small' />

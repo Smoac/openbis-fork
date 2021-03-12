@@ -30,11 +30,11 @@ async function testPage() {
   form.expectJSON({
     grid: {
       rows: [
-        { values: { 'label.value': '1' } },
-        { values: { 'label.value': '2' } },
-        { values: { 'label.value': '3' } },
-        { values: { 'label.value': '4' } },
-        { values: { 'label.value': '5' } }
+        { values: { label: '1' } },
+        { values: { label: '2' } },
+        { values: { label: '3' } },
+        { values: { label: '4' } },
+        { values: { label: '5' } }
       ],
       paging: {
         range: '1-5 of 23'
@@ -48,11 +48,11 @@ async function testPage() {
   form.expectJSON({
     grid: {
       rows: [
-        { values: { 'label.value': '6' } },
-        { values: { 'label.value': '7' } },
-        { values: { 'label.value': '8' } },
-        { values: { 'label.value': '9' } },
-        { values: { 'label.value': '10' } }
+        { values: { label: '6' } },
+        { values: { label: '7' } },
+        { values: { label: '8' } },
+        { values: { label: '9' } },
+        { values: { label: '10' } }
       ],
       paging: {
         range: '6-10 of 23'
@@ -66,9 +66,9 @@ async function testPage() {
   form.expectJSON({
     grid: {
       rows: [
-        { values: { 'label.value': '21' } },
-        { values: { 'label.value': '22' } },
-        { values: { 'label.value': '23' } }
+        { values: { label: '21' } },
+        { values: { label: '22' } },
+        { values: { label: '23' } }
       ],
       paging: {
         range: '21-23 of 23'
@@ -82,11 +82,11 @@ async function testPage() {
   form.expectJSON({
     grid: {
       rows: [
-        { values: { 'label.value': '16' } },
-        { values: { 'label.value': '17' } },
-        { values: { 'label.value': '18' } },
-        { values: { 'label.value': '19' } },
-        { values: { 'label.value': '20' } }
+        { values: { label: '16' } },
+        { values: { label: '17' } },
+        { values: { label: '18' } },
+        { values: { label: '19' } },
+        { values: { label: '20' } }
       ],
       paging: {
         range: '16-20 of 23'
@@ -100,11 +100,11 @@ async function testPage() {
   form.expectJSON({
     grid: {
       rows: [
-        { values: { 'label.value': '1' } },
-        { values: { 'label.value': '2' } },
-        { values: { 'label.value': '3' } },
-        { values: { 'label.value': '4' } },
-        { values: { 'label.value': '5' } }
+        { values: { label: '1' } },
+        { values: { label: '2' } },
+        { values: { label: '3' } },
+        { values: { label: '4' } },
+        { values: { label: '5' } }
       ],
       paging: {
         range: '1-5 of 23'

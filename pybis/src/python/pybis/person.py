@@ -85,7 +85,7 @@ class Person(OpenBisObject):
             roles = self.get_roles().df
             if len(roles) == 0:
                 if VERBOSE:
-                    print("Role has already been revoked from person {}".format(role, self.code))
+                    print(f"Role {role} has already been revoked from person {self.code}")
                 return
             techId = roles.query(querystr)['techId'].values[0]
 

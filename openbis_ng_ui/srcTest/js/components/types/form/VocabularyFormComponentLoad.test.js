@@ -22,7 +22,7 @@ async function testLoadNew() {
     },
     parameters: {
       vocabulary: {
-        title: 'Vocabulary',
+        title: 'New Vocabulary Type',
         code: {
           label: 'Code',
           value: null,
@@ -36,7 +36,7 @@ async function testLoadNew() {
           mode: 'edit'
         },
         urlTemplate: {
-          label: 'URL template',
+          label: 'URL Template',
           value: null,
           enabled: true,
           mode: 'edit'
@@ -66,7 +66,7 @@ async function testLoadExisting() {
   const gridJSON = {
     columns: [
       {
-        field: 'code.value',
+        name: 'code',
         label: 'Code',
         filter: {
           value: null
@@ -74,7 +74,7 @@ async function testLoadExisting() {
         sort: 'asc'
       },
       {
-        field: 'label.value',
+        name: 'label',
         label: 'Label',
         filter: {
           value: null
@@ -82,7 +82,7 @@ async function testLoadExisting() {
         sort: null
       },
       {
-        field: 'description.value',
+        name: 'description',
         label: 'Description',
         filter: {
           value: null
@@ -90,7 +90,7 @@ async function testLoadExisting() {
         sort: null
       },
       {
-        field: 'official.value',
+        name: 'official',
         label: 'Official',
         filter: {
           value: null
@@ -100,10 +100,10 @@ async function testLoadExisting() {
     ],
     rows: fixture.TEST_VOCABULARY_DTO.terms.map(term => ({
       values: {
-        'code.value': term.getCode(),
-        'label.value': term.getLabel(),
-        'description.value': term.getDescription(),
-        'official.value': String(term.isOfficial())
+        code: term.getCode(),
+        label: term.getLabel(),
+        description: term.getDescription(),
+        official: String(term.isOfficial())
       },
       selected: false
     }))
@@ -113,7 +113,7 @@ async function testLoadExisting() {
     grid: gridJSON,
     parameters: {
       vocabulary: {
-        title: 'Vocabulary',
+        title: 'Vocabulary Type',
         code: {
           label: 'Code',
           value: fixture.TEST_VOCABULARY_DTO.getCode(),
@@ -125,7 +125,7 @@ async function testLoadExisting() {
           mode: 'view'
         },
         urlTemplate: {
-          label: 'URL template',
+          label: 'URL Template',
           value: fixture.TEST_VOCABULARY_DTO.getUrlTemplate(),
           mode: 'view'
         }
@@ -150,7 +150,7 @@ async function testLoadExisting() {
     grid: gridJSON,
     parameters: {
       vocabulary: {
-        title: 'Vocabulary',
+        title: 'Vocabulary Type',
         code: {
           label: 'Code',
           value: fixture.TEST_VOCABULARY_DTO.getCode(),
@@ -164,7 +164,7 @@ async function testLoadExisting() {
           mode: 'edit'
         },
         urlTemplate: {
-          label: 'URL template',
+          label: 'URL Template',
           value: fixture.TEST_VOCABULARY_DTO.getUrlTemplate(),
           enabled: true,
           mode: 'edit'

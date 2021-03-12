@@ -47,6 +47,7 @@ export default class TypeFormControllerAddProperty {
       }),
       code: FormUtil.createField(),
       internal: FormUtil.createField(),
+      assignmentInternal: FormUtil.createField(),
       label: FormUtil.createField(),
       description: FormUtil.createField(),
       dataType: FormUtil.createField(),
@@ -80,8 +81,6 @@ export default class TypeFormControllerAddProperty {
       }),
       section: section.id,
       assignments: 0,
-      usagesLocal: 0,
-      usagesGlobal: 0,
       errors: 0
     }
     newProperties.push(newProperty)

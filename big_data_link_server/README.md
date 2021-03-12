@@ -1,8 +1,8 @@
-# MICROSERVICE SERVER #
+# BIG DATA LINK SERVER #
 
 ## Introduction ##
 
-This project is supposed to be used to developed Java micro services.
+This project contains the big data link server micro services.
 
 ## Configuration ##
 
@@ -19,30 +19,6 @@ The build will be found at ./build/distributions/big_data_link_server.zip
 Unzip the build and execute
 
 ./bin/big_data_link_server
-
-## Main packages ##
-
-### ch.ethz.sis.microservices.api ###
-Supposed to contain only immutable DTOs annotated with lombok's @Data.
-
-### ch.ethz.sis.microservices.server.json ###
-JSON object mapper interface and implementations.
-
-### ch.ethz.sis.microservices.server.logging ###
-Logging interface and implementation.
-
-### ch.ethz.sis.microservices.server.services ###
-Service interface and implementations.
-
-To implement a new service is sufficient to extend the class ch.ethz.sis.microservices.server.services.Service. This class extends the standard J2EE HttpServlet and is up to the implementer to decide to accept the different http methods.
-
-This class just provides a convenience method getServiceConfig() to retrieve the configuration.
-
-### ch.ethz.sis.microservices.server.startup ###
-Main class and launcher.
-
-### ch.ethz.sis.microservices.util ###
-Utility classes.
 
 ## Services description and configuration ##
 

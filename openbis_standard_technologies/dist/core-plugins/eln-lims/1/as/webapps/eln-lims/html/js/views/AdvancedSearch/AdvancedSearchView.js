@@ -35,19 +35,19 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	this.resultsTitle = "Results";
 	this.beforeRenderingHook = null;
 	this.extraOptions = null;
-	
+
 	//
 	// Main Repaint Method
 	//
-	
+
 	this.repaint = function(views) {
 		var $header = views.header;
 		var $container = views.content;
 		var _this = this;
-		
+
 		//Search Menu Panel
-		var $mainPanelHeader = $("<form>", { 
-			"class" : "form-inline", 
+		var $mainPanelHeader = $("<form>", {
+			"class" : "form-inline",
 			'role' : "form",
 			'action' : 'javascript:void(0);'
 		});
@@ -56,27 +56,27 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		$mainPanelHeader.append(this._$saveLoadContainer);
 		this._paintSaveLoadPanel(this._$saveLoadContainer);
 		$header.append($mainPanelHeader);
-		
+
 		//Search Criteria Panel
-		var $mainPanel = $("<form>", { 
-			"class" : "form-inline", 
+		var $mainPanel = $("<form>", {
+			"class" : "form-inline",
 			'role' : "form",
 			'action' : 'javascript:void(0);'
 		});
-		
+
 		//table to select field type, name, and value
 		this._$searchCriteriaPanelContainer = $("<div>");
 		this._paintCriteriaPanel(this._$searchCriteriaPanelContainer);
 		$mainPanel.append(this._$searchCriteriaPanelContainer);
-		
+
 		//Search Results Panel
 		this._$dataGridContainer = $("<div>");
 		$mainPanel.append(this._$dataGridContainer);
 		//
-		
+
 		//Triggers Layout refresh
 		$container.append($mainPanel);
-		
+
 		this._updateEntityTypeAndUsingDropdownValues();
 	}
 
@@ -84,7 +84,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		this._paintSaveLoadPanel(this._$saveLoadContainer);
 		this._paintCriteriaPanel(this._$searchCriteriaPanelContainer);
 		this._updateEntityTypeAndUsingDropdownValues();
-	}	
+	}
 
 	this._updateEntityTypeAndUsingDropdownValues = function() {
 		if(this._advancedSearchModel.forceLoadCriteria) {
@@ -149,7 +149,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	          _this._advancedSearchController.saveNewSample({
 	            name: $nameField.val(),
 	            experiment: advancedEntitySearchDropdown.getSelected()[0],
-	          }, Util.unblockUI); 
+	          }, Util.unblockUI);
 	        },
 	      });
 	    }
@@ -205,7 +205,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			var $buttonClear = FormUtil.getButtonWithIcon('glyphicon-remove', function() {
 				_this._advancedSearchController.clearSelection();
 			}, null, 'Clear selection');
-			$container.append($buttonClear);	
+			$container.append($buttonClear);
 		}
 
 		var $buttonSave = FormUtil.getButtonWithIcon('glyphicon-floppy-disk', function() {
@@ -235,24 +235,24 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		var andOrOptions = [{value : "AND", label : "AND", selected : true}, {value : "OR", label : "OR"}];
 		this._$andOrDropdownComponent = FormUtil.getDropdown(andOrOptions, "Select logical operator");
 		var _this = this;
-		
+
 		this._$andOrDropdownComponent.change(function() {
 			_this._advancedSearchModel.criteria.logicalOperator = $(this).val();
 		});
-		
+
 		$menuPanelContainer.append(FormUtil.getFieldForComponentWithLabel(this._$andOrDropdownComponent, "Using", null, true));
-		
+
 		var $submitButton = FormUtil.getButtonWithIcon('glyphicon-search', function() {
 			_this._advancedSearchController.search();
 		}, null, null, "search-btn");
-		
+
 		$submitButton.css("margin-top", "22px");
 		var $submitButtonGroup = FormUtil.getFieldForComponentWithLabel($submitButton, "", null, true);
-		
+
 		$submitButtonGroup.css("margin-left", "0px");
 		$menuPanelContainer.append($submitButtonGroup);
 	}
-	
+
 	this._paintCriteriaPanel = function($searchCriteriaPanelContainer) {
 		$searchCriteriaPanelContainer.empty();
 		$searchCriteriaPanelContainer.append($("<legend>").append("Criteria"));
@@ -278,11 +278,11 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		this._$addButton = FormUtil.getButtonWithIcon('glyphicon-plus', function() {
 			_this._paintInputRow();
 		});
-		
+
 		$table
 			.append($thead)
 			.append(this._$tbody);
-			
+
 		$thead
 			.append($("<tr>")
 						.append($("<th>").text("Field Type"))
@@ -304,7 +304,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 
 		$container.append($table);
 	}
-	
+
 	//
 	// Auxiliar Components Methods
 	//
@@ -320,14 +320,14 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			var uuidValue = Util.guid();
 			this._advancedSearchModel.criteria.rules[uuidValue] = { };
 		}
-		
+
 		var $newFieldNameContainer = $("<td>");
 		var $newFieldOperatorContainer = $("<td>");
 		var $newRow = $("<tr>", { id : uuidValue });
 		var $fieldTypeDropdown = this._getNewFieldTypeDropdownComponent($newFieldNameContainer, $newFieldOperatorContainer, this._advancedSearchModel.criteria.entityKind, uuidValue);
 		var $fieldValue = $("<input>", { class : "form-control", type: "text" });
 		$fieldValue.css({width : "100%" });
-		
+
 		$fieldValue.keyup(function() {
 			var $thisComponent = $(this);
 			//Get uuid and value and update model (type only)
@@ -335,31 +335,31 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			var selectedValue = $thisComponent.val();
 			_this._advancedSearchModel.criteria.rules[uuid].value = selectedValue; //Update model
 		});
-		
+
 		$fieldValue.keypress(function (e) {
        	 var key = e.which;
        	 if(key == 13)  // the enter key code
        	  {
        		 _this._advancedSearchController.search();
-       	    return false;  
+       	    return false;
        	  }
        });
-        
+
 		$newRow.append($("<td>").append($fieldTypeDropdown))
 					.append($newFieldNameContainer)
 					.append($("<td>").append($newFieldOperatorContainer))
 					.append($("<td>").append($fieldValue))
 					.append($("<td>").append(this._getMinusButtonComponentForRow(this._$tbody, $newRow)));
-		
+
 		this._$tbody.append($newRow);
-		
-		
+
+
 		if(this._advancedSearchModel.forceFreeTextSearch) {
 			$fieldValue.val(this._advancedSearchModel.forceFreeTextSearch);
 			this._advancedSearchModel.criteria.rules[uuidValue].value = this._advancedSearchModel.forceFreeTextSearch; //Update model
 			this._advancedSearchModel.forceFreeTextSearch = undefined;
 		}
-		
+
 		if(this._advancedSearchModel.forceLoadCriteria) {
 			var rule = this._advancedSearchModel.criteria.rules[uuidValue];
 			$fieldTypeDropdown.val(rule.type).change();
@@ -368,7 +368,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			$fieldNameDropdown.val(rule.name);
 		}
 	}
-	
+
 	//should make new objects every time. otherwise, using the same object will produce odd results!
 	//how to make an on-select event??
 	this._getNewFieldTypeDropdownComponent = function($newFieldNameContainer, $newFieldOperatorContainer, entityKind, uuid) {
@@ -381,43 +381,44 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		var fieldTypeOptions = null;
 		switch(entityKind) {
 			case "ALL":
+			case "ALL_PARTIAL":
 				fieldTypeOptions = [{value : "All", label : "All", selected : true }];
 				this._$andOrDropdownComponent.val("OR").trigger('change');
 				this._advancedSearchModel.criteria.logicalOperator = "OR";
 				this._$andOrDropdownComponent.attr("disabled", "").trigger('change');
 				break;
 			case "SAMPLE":
-				fieldTypeOptions = [{value : "All", label : "All", selected : true }, 
+				fieldTypeOptions = [{value : "All", label : "All", selected : true },
 				                    {value : "Property/Attribute", label : "Property"},
-				                    {value : "Experiment", label : ELNDictionary.getExperimentDualName() }, 
-				                    {value : "Parent", label : "Parent"}, 
+				                    {value : "Experiment", label : ELNDictionary.getExperimentDualName() },
+				                    {value : "Parent", label : "Parent"},
 				                    {value : "Children", label : "Children"}];
 				break;
 			case "EXPERIMENT":
-				fieldTypeOptions = [{value : "All", label : "All", selected : true }, 
+				fieldTypeOptions = [{value : "All", label : "All", selected : true },
 				                    {value : "Property/Attribute", label : "Property"}];
 				break;
 			case "DATASET":
-				fieldTypeOptions = [{value : "All", label : "All", selected : true }, 
+				fieldTypeOptions = [{value : "All", label : "All", selected : true },
 				                    {value : "Property/Attribute", label : "Property"},
 				                    {value : "Sample", label : "" + ELNDictionary.Sample + ""},
 				                    {value : "Experiment", label : ELNDictionary.getExperimentDualName() },
 // ELN-UI don't support this yet
-//				                    {value : "Parent", label : "Parent"}, 
+//				                    {value : "Parent", label : "Parent"},
 //				                    {value : "Children", label : "Children"}
 				                    ];
 				break;
 		}
-		
+
 		var $fieldTypeComponent = FormUtil.getDropdown(fieldTypeOptions, "Select Field Type");
 		$fieldTypeComponent.change(function() {
 			var $thisComponent = $(this);
-			
+
 			//Get uuid and value and update model (type only)
 			var uuid = $($($thisComponent.parent()).parent()).attr("id");
 			var selectedValue = $thisComponent.val();
 			_this._advancedSearchModel.criteria.rules[uuid].type = selectedValue; //Update model
-			
+
 			$newFieldNameContainer.empty();
 			var $mergedDropdown = null;
 			switch(selectedValue) {
@@ -448,15 +449,15 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					//Do Nothing
 			}
 		});
-		
+
 		if(!this._advancedSearchModel.forceLoadCriteria) {
 			this._advancedSearchModel.criteria.rules[uuid].type = "All"; //Update model with defaults
 		}
-		
-		
+
+
 		return $fieldTypeComponent;
 	}
-	
+
 	this._getNewMergedDropdown = function(entityKind, parentOrChildrenOrExperimentOrSample, $newFieldOperatorContainer) {
 		var _this = this;
 		var attributesModel = null;
@@ -481,15 +482,15 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			//Reset operator
 			$newFieldOperatorContainer.empty();
 			delete _this._advancedSearchModel.criteria.rules[uuid].operator;
-			
+
 			var dataType = null;
-			
-			if(selectedValue && 
-							(selectedValue === "ATTR.REGISTRATION_DATE" || 
+
+			if(selectedValue &&
+							(selectedValue === "ATTR.REGISTRATION_DATE" ||
 							selectedValue === "ATTR.MODIFICATION_DATE")) {
 				dataType = "TIMESTAMP";
-			} else if(selectedValue && 
-						(selectedValue === "ATTR.REGISTRATOR" || 
+			} else if(selectedValue &&
+						(selectedValue === "ATTR.REGISTRATOR" ||
 						selectedValue === "ATTR.MODIFIER")) {
 			dataType = "PERSON";
 			} else if(selectedValue && selectedValue.startsWith("PROP.")) {
@@ -497,10 +498,10 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				var propertyType = profile.getPropertyType(propertyTypeCode);
 				dataType = propertyType.dataType;
 			}
-			
+
 			if(dataType) {
 				var operatorOptions = null;
-				
+
 				if (dataType === "INTEGER" || dataType === "NUMBER") {
 					operatorOptions = [
 					                       { value : "thatEqualsNumber", 					label : "thatEquals (Number)", selected : true },
@@ -531,23 +532,23 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					                       { value : "thatEndsWithString", 					label : "thatEndsWith (String)" }
 					                       ];
 				}
-				
+
 				var comparisonDropdown = FormUtil.getDropdown(operatorOptions, "Select Comparison operator");
-				
+
 				comparisonDropdown.change(function() {
 					var $thisComponent = $(this);
 					var selectedValue = $thisComponent.val();
 					_this._advancedSearchModel.criteria.rules[uuid].operator = selectedValue; //Update model
 				});
 				comparisonDropdown.trigger("change");
-				
+
 				$newFieldOperatorContainer.append(comparisonDropdown);
 			}
 		});
-		
+
 		return $dropdown;
 	}
-	
+
 	this._getFieldNameProperties = function() {
 		var model = [];
 		var allProp = profile.getPropertyTypes();
@@ -555,14 +556,14 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			var prop = allProp[pIdx];
 			model.push({ value : "PROP." + prop.code, label : prop.label + " [" + prop.code + "]" });
 		}
-		
+
 		model.sort(function(propertyA, propertyB) {
 			return propertyA.label.localeCompare(propertyB.label);
 		});
-		
+
 		return model;
 	}
-	
+
 	this._getFieldNameAttributesByEntityKind = function(entityKind) {
 		var model = null;
 		switch(entityKind) {
@@ -607,13 +608,14 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		}
 		return model;
 	}
-	
+
 	this._getEntityTypeDropdown = function() {
 		var _this = this;
 		var model = [];
-			model.push({ value : 'ALL', label : "All", selected : true });
+			model.push({ value : 'ALL_PARTIAL', label : "All (partial match, slower)", selected : true });
+			model.push({ value : 'ALL', label : "All (full word match, faster)" });
 			model.push({ value : 'EXPERIMENT', label : ELNDictionary.getExperimentDualName() });
-			model.push({ value : 'SAMPLE', label : "" + ELNDictionary.Sample + "" });			
+			model.push({ value : 'SAMPLE', label : "" + ELNDictionary.Sample + "" });
 			model.push({ value : 'DATASET', label : "Dataset" });
 			model.push({ value : '', label : "--------------", disabled : true });
 			var sampleTypes = profile.getAllSampleTypes();
@@ -621,16 +623,16 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				var sampleType = sampleTypes[tIdx];
 				model.push({ value : 'SAMPLE$' + sampleType.code, label : Util.getDisplayNameFromCode(sampleType.code) });
 			}
-		
+
 		if(!this._advancedSearchModel.forceLoadCriteria) {
-			this._advancedSearchModel.resetModel('ALL');
+			this._advancedSearchModel.resetModel('ALL_PARTIAL');
 		}
-		
+
 		var $dropdown = FormUtil.getDropdown(model, 'Select Entity Type to search for');
-		
+
 		$dropdown.change(function() {
 			var kindAndType = $(this).val().split("$");
-			
+
 			if(_this._advancedSearchModel.isAllRules()) {
 				//1. update the entity type only in the model
 				_this._advancedSearchModel.setEntityKind(kindAndType[0]);
@@ -642,12 +644,12 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					var $newFieldTypeComponent = _this._getNewFieldTypeDropdownComponent($(tds[1]), $(tds[2]), _this._advancedSearchModel.criteria.entityKind, $row.attr("id"));
 					$(tds[0]).empty();
 					$(tds[0]).append($newFieldTypeComponent);
-				}				
+				}
 			} else {
 				_this._advancedSearchModel.resetModel(kindAndType[0]); //Restart model
 				_this._paintRulesPanel(_this._$rulesPanelContainer);
 			}
-			
+
 			if(kindAndType.length === 2) {
 				var uuidValue = Util.guid();
 				_this._advancedSearchModel.criteria.rules[uuidValue] = { };
@@ -660,10 +662,10 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				_this._advancedSearchModel.isSampleTypeForced = false;
 			}
 		});
-		
+
 		return $dropdown;
 	}
-	
+
 	this._getMinusButtonComponentForRow = function($tbody, $row) {
 		var _this = this;
 		var $minusButton = FormUtil.getButtonWithIcon('glyphicon-minus', function() {
@@ -677,19 +679,20 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		});
 		return $minusButton;
 	}
-	
+
 	this.renderResults = function(criteria) {
 		if (this.beforeRenderingHook) {
 			this.beforeRenderingHook();
 		}
-		var isGlobalSearch = this._advancedSearchModel.criteria.entityKind === "ALL";
+		var isGlobalSearch = this._advancedSearchModel.criteria.entityKind === "ALL"
+			|| this._advancedSearchModel.criteria.entityKind === "ALL_PARTIAL";
 		var dataGridController = this._getGridForResults(criteria, isGlobalSearch);
 		dataGridController.init(this._$dataGridContainer, this.extraOptions);
 	}
-	
+
 	this._getGridForResults = function(criteria, isGlobalSearch) {
 			var _this = this;
-			
+
 			var columns = _this.firstColumns.concat([ {
 				label : 'Entity Kind',
 				property : 'entityKind',
@@ -741,7 +744,8 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                				}
                		    }
                	    }
-               		return _this._getLinkOnClick(data.identifier, data, paginationInfo);
+               		return _this._getLinkOnClick(data.entityKind === 'DataSet' ? data.permId : data.identifier,
+						data, paginationInfo);
                 }
             }, {
 				label : 'Entity Type',
@@ -782,9 +786,9 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				isExportable: false,
 				sortable : false
 			}]);
-			
+
 			columns = columns.concat(_this.additionalColumns);
-			
+
 			if(isGlobalSearch) {
 				columns.push({
 					label : 'Matched',
@@ -792,22 +796,33 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					isExportable: true,
 					sortable : false
 				});
-				
+
 				columns.push({
-					label : 'Score',
-					property : 'score',
+					label : 'Rank',
+					property : 'rank',
 					isExportable: true,
-					sortable : false
+					sortable : false,
+                    render : function(data, grid) {
+                        var indexFound = null;
+                        for(var idx = 0; idx < grid.lastReceivedData.objects.length; idx++) {
+							var receivedObject = grid.lastReceivedData.objects[idx];
+							if(receivedObject.permId === data.permId && receivedObject.entityKind === data.entityKind) {
+                                indexFound = idx + (grid.lastUsedOptions.pageIndex * grid.lastUsedOptions.pageSize);
+                        		break;
+                            }
+                        }
+                        return indexFound + 1;
+					}
 				});
 			}
-			
+
 			columns.push({
 				label : '---------------',
 				property : null,
 				isExportable: false,
 				sortable : false
 			});
-			
+
 			//Add properties as columns dynamically depending on the results
 			var dynamicColumnsFunc = function(entities) {
 				//1. Get properties with actual data
@@ -827,7 +842,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 							break;
 						}
 					}
-					
+
 					if(!entity) {
 						continue;
 					}
@@ -837,7 +852,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 						}
 					}
 				}
-				
+
 				//2. Get columns
 				var propertyColumnsToSort = [];
 				for(var propertyCode in foundPropertyCodes) {
@@ -845,22 +860,22 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					if($.inArray(propertyCode, propertiesToSkip) !== -1) {
 						continue;
 					}
-					
+
 					propertyColumnsToSort.push({
 						label : profile.getPropertyType(propertyCode).label,
 						property : propertyCode,
 						sortable : !isGlobalSearch
 					});
 				}
-				
+
 				//3. Sort column properties by label
 				propertyColumnsToSort.sort(function(propertyA, propertyB) {
 					return propertyA.label.localeCompare(propertyB.label);
 				});
-				
+
 				return propertyColumnsToSort;
 			}
-			
+
 			var columnsLast = [];
 			//4. Add registration/modification date columns
 			columnsLast.push({
@@ -869,28 +884,28 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				isExportable: false,
 				sortable : false
 			});
-			
+
 			columnsLast.push({
 				label : 'Registrator',
 				property : 'registrator',
 				isExportable: true,
 				sortable : !isGlobalSearch
 			});
-			
+
 			columnsLast.push({
 				label : 'Registration Date',
 				property : 'registrationDate',
 				isExportable: true,
 				sortable : !isGlobalSearch
 			});
-			
+
 			columnsLast.push({
 				label : 'Modifier',
 				property : 'modifier',
 				isExportable: true,
 				sortable : !isGlobalSearch
 			});
-			
+
 			columnsLast.push({
 				label : 'Modification Date',
 				property : 'modificationDate',
@@ -900,11 +915,11 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			columnsLast = columnsLast.concat(_this.additionalLastColumns);
 
 			var getDataRows = this._advancedSearchController.searchWithPagination(criteria, isGlobalSearch);
-			
+
 			var dataGrid = new DataGridController(this.resultsTitle, this._filterColumns(columns), columnsLast, dynamicColumnsFunc, getDataRows, null, false, this.configKeyPrefix + this._advancedSearchModel.criteria.entityKind, false, 70);
 			return dataGrid;
 	}
-	
+
 	this._getLinkOnClick = function(code, data, paginationInfo, id) {
 		if(data.entityKind !== "Sample") {
 			paginationInfo = null;  // TODO - Only supported for samples for now
@@ -918,7 +933,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				break;
 		}
 	}
-	
+
 	this._filterColumns = function(columns) {
 		var _this = this;
 		var filteredColumns = columns.filter(column => this.suppressedColumns.includes(column.property) == false);

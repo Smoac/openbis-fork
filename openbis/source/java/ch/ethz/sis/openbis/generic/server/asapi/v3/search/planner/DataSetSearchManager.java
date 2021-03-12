@@ -94,25 +94,41 @@ public class DataSetSearchManager extends AbstractCompositeEntitySearchManager<D
         final Class<? extends ISearchCriteria> parentsSearchCriteriaClass = getParentsSearchCriteriaClass();
         final Class<? extends ISearchCriteria> containerSearchCriteriaClass = getContainerSearchCriteriaClass();
         final Class<? extends ISearchCriteria> childrenSearchCriteriaClass = getChildrenSearchCriteriaClass();
+        final List<? extends ISearchCriteria> parentsCriteria = getCriteria(criteria, parentsSearchCriteriaClass);
+        final List<? extends ISearchCriteria> containerCriteria = getCriteria(criteria, containerSearchCriteriaClass);
 
-        final Collection<ISearchCriteria> parentsAndContainerCriteria = getCriteria(criteria, parentsSearchCriteriaClass);
-        parentsAndContainerCriteria.addAll(getCriteria(criteria, containerSearchCriteriaClass));
-        final Collection<ISearchCriteria> childrenCriteria = getCriteria(criteria, childrenSearchCriteriaClass);
-        final Collection<ISearchCriteria> mainCriteria = getOtherCriteriaThan(criteria, parentsSearchCriteriaClass, childrenSearchCriteriaClass, containerSearchCriteriaClass);
+        final Collection<? extends ISearchCriteria> childrenCriteria = getCriteria(criteria,
+                childrenSearchCriteriaClass);
+        final Collection<DataSetSearchCriteria> nestedCriteria = getCriteria(criteria, DataSetSearchCriteria.class);
+        final Collection<ISearchCriteria> mainCriteria = getOtherCriteriaThan(criteria, parentsSearchCriteriaClass,
+                childrenSearchCriteriaClass, containerSearchCriteriaClass, DataSetSearchCriteria.class);
 
         // Replacing perm ID search criteria with code search criteria, because for datasets perm ID is equivalent to code
         final Collection<ISearchCriteria> newMainCriteria = mainCriteria.stream().map(searchCriterion ->
                 searchCriterion instanceof PermIdSearchCriteria
-                        ? convertToCodeSearchCriterion((PermIdSearchCriteria) searchCriterion) : searchCriterion).collect(Collectors.toList());
-        final Collection<ISearchCriteria> newParentsAndContainerCriteria = parentsAndContainerCriteria.stream().map(searchCriterion ->
-                searchCriterion instanceof PermIdSearchCriteria
-                        ? convertToCodeSearchCriterion((PermIdSearchCriteria) searchCriterion) : searchCriterion).collect(Collectors.toList());
-        final Collection<ISearchCriteria> newChildrenCriteria = childrenCriteria.stream().map(searchCriterion ->
-                searchCriterion instanceof PermIdSearchCriteria
-                        ? convertToCodeSearchCriterion((PermIdSearchCriteria) searchCriterion) : searchCriterion).collect(Collectors.toList());
+                        ? convertToCodeSearchCriterion((PermIdSearchCriteria) searchCriterion)
+                        : searchCriterion
+                ).collect(Collectors.toList());
+        final Collection<ISearchCriteria> newParentsCriteria = parentsCriteria.stream()
+                .map(searchCriterion -> searchCriterion instanceof PermIdSearchCriteria
+                        ? convertToCodeSearchCriterion((PermIdSearchCriteria) searchCriterion)
+                        : searchCriterion
+                ).collect(Collectors.toList());
+        final Collection<ISearchCriteria> newContainerCriteria = containerCriteria.stream()
+                .map(searchCriterion -> searchCriterion instanceof PermIdSearchCriteria
+                        ? convertToCodeSearchCriterion((PermIdSearchCriteria) searchCriterion)
+                        : searchCriterion
+                ).collect(Collectors.toList());
+        final Collection<ISearchCriteria> newChildrenCriteria = childrenCriteria.stream()
+                .map(searchCriterion -> searchCriterion instanceof PermIdSearchCriteria
+                        ? convertToCodeSearchCriterion((PermIdSearchCriteria) searchCriterion)
+                        : searchCriterion
+                ).collect(Collectors.toList());
 
-        return super.doSearchForIDs(userId, newParentsAndContainerCriteria, newChildrenCriteria, newMainCriteria, criteria.getOperator(),
-                idsColumnName, TableMapper.DATA_SET, authorisationInformation);
+        final CompositeEntityCriteriaVo criteriaVo = new CompositeEntityCriteriaVo(newMainCriteria, newParentsCriteria,
+                newChildrenCriteria, newContainerCriteria, nestedCriteria, criteria.getOperator());
+
+        return super.doSearchForIDs(userId, criteriaVo, idsColumnName, TableMapper.DATA_SET, authorisationInformation);
     }
 
     @Override

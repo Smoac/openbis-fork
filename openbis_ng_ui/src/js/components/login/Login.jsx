@@ -13,6 +13,7 @@ import TextField from '@src/js/components/common/form/TextField.jsx'
 import Button from '@src/js/components/common/form/Button.jsx'
 
 import actions from '@src/js/store/actions/actions.js'
+import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -95,8 +96,12 @@ class WithLogin extends React.Component {
 
   validate(autofocus) {
     const validator = new FormValidator(this.state.validate)
-    validator.validateNotEmpty(this.state, 'user', 'User')
-    validator.validateNotEmpty(this.state, 'password', 'Password')
+    validator.validateNotEmpty(this.state, 'user', messages.get(messages.USER))
+    validator.validateNotEmpty(
+      this.state,
+      'password',
+      messages.get(messages.PASSWORD)
+    )
 
     let selection = null
 
@@ -167,7 +172,7 @@ class WithLogin extends React.Component {
                     reference={this.references.user}
                     id='standard-name'
                     name='user'
-                    label='User'
+                    label={messages.get(messages.USER)}
                     value={this.state.user.value}
                     error={this.state.user.error}
                     mandatory={true}
@@ -182,7 +187,7 @@ class WithLogin extends React.Component {
                     reference={this.references.password}
                     id='standard-password-input'
                     name='password'
-                    label='Password'
+                    label={messages.get(messages.PASSWORD)}
                     type='password'
                     value={this.state.password.value}
                     error={this.state.password.error}
@@ -194,7 +199,7 @@ class WithLogin extends React.Component {
                   />
                 </div>
                 <Button
-                  label='Login'
+                  label={messages.get(messages.LOGIN)}
                   type='final'
                   styles={{ root: classes.button }}
                   onClick={this.handleLogin}

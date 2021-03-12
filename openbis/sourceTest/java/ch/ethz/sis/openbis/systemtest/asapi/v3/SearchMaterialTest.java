@@ -24,7 +24,9 @@ import java.text.DateFormat;
 import java.util.*;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.create.MaterialCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
@@ -360,6 +362,24 @@ public class SearchMaterialTest extends AbstractTest
     }
 
     @Test
+    public void testSearchWithAnyFieldMatchingRegistratorOrModifier()
+    {
+        final MaterialSearchCriteria criteria = new MaterialSearchCriteria();
+        criteria.withAnyField().thatEquals("etlserver");
+        testSearch(TEST_USER, criteria, new MaterialPermId("BACTERIUM1", "BACTERIUM"),
+                new MaterialPermId("BACTERIUM2", "BACTERIUM"));
+    }
+
+    @Test
+    public void testSearchWithAnyFieldMatchingMaterialType()
+    {
+        final MaterialSearchCriteria criteria = new MaterialSearchCriteria();
+        criteria.withAnyField().thatEquals("SELF_REF");
+        testSearch(TEST_USER, criteria, new MaterialPermId("SRM_1A", "SELF_REF"),
+                new MaterialPermId("SRM_1", "SELF_REF"));
+    }
+
+    @Test
     public void testSearchWithTagWithIdSetToPermId()
     {
         MaterialSearchCriteria criteria = new MaterialSearchCriteria();
@@ -595,7 +615,7 @@ public class SearchMaterialTest extends AbstractTest
         // VOLUME: 3.0 CODE: X-NO-DESC
         // VOLUME: 22.22 CODE: X-NO-SIZE
         // VOLUME: 2.2 CODE: XXXXX-ALL
-        
+
         // OFFSET: 123 CODE: 913_A
         // OFFSET: 321 CODE: 913_B
         // OFFSET: 111111 CODE: 913_C
@@ -1242,7 +1262,7 @@ public class SearchMaterialTest extends AbstractTest
         final PropertyTypePermId propertyTypeId = createAPropertyType(sessionToken, dataType);
         final MaterialPermId entityPermId = createMaterial(sessionToken, propertyTypeId, value);
         final MaterialSearchCriteria searchCriteria = new MaterialSearchCriteria();
-        
+
         final AbstractSearchPropertyTest.StringQueryInjector queryInjector = anyField
                 ? new AbstractSearchPropertyTest.AnyFieldQueryInjector(searchCriteria)
                 : new AbstractSearchPropertyTest.AnyPropertyQueryInjector(searchCriteria);
@@ -1748,6 +1768,78 @@ public class SearchMaterialTest extends AbstractTest
         assertEquals(containsWithPropertyResult, found);
     }
 
+    @Test
+    public void testSearchWithCodeWithAttributeFullTextSearch()
+    {
+        final MaterialSearchCriteria criteria = new MaterialSearchCriteria().withAndOperator();
+
+        criteria.withTextAttribute().thatMatches(
+                "virus1 virus2 bacterium-x bacterium-y bacterium1 bacterium2");
+        criteria.withCode().thatEndsWith("2");
+
+        testSearch(TEST_USER, criteria, new MaterialPermId("BACTERIUM2", "BACTERIUM"),
+                new MaterialPermId("VIRUS2", "VIRUS"));
+    }
+
+    @Test
+    public void testSearchWithCodeWithPropertyFullTextSearch()
+    {
+        final MaterialSearchCriteria criteria = new MaterialSearchCriteria().withAndOperator();
+
+        criteria.withProperty("DESCRIPTION").thatMatches("virus gene inhibitor");
+        criteria.withCode().thatContains("N");
+
+        testSearch(TEST_USER, criteria, new MaterialPermId("MYGENE1", "GENE"));
+    }
+
+    @Test
+    public void testSearchWithCodeWithStringPropertyFullTextSearch()
+    {
+        final MaterialSearchCriteria criteria = new MaterialSearchCriteria().withAndOperator();
+
+        criteria.withStringProperty("DESCRIPTION").thatMatches("virus gene inhibitor");
+        criteria.withCode().thatContains("N");
+
+        testSearch(TEST_USER, criteria, new MaterialPermId("MYGENE1", "GENE"));
+    }
+
+    @Test
+    public void testSearchWithCodeWithAnyPropertyFullTextSearch()
+    {
+        final MaterialSearchCriteria criteria = new MaterialSearchCriteria().withAndOperator();
+
+        criteria.withAnyProperty().thatMatches("virus gene inhibitor");
+        criteria.withCode().thatContains("i");
+
+        testSearch(TEST_USER, criteria, new MaterialPermId("VIRUS1", "VIRUS"), new MaterialPermId("VIRUS2", "VIRUS"),
+                new MaterialPermId("INHIBITOR", "CONTROL"));
+    }
+
+    @Test
+    public void testSearchWithCodeWithAnyStringPropertyFullTextSearch()
+    {
+        final MaterialSearchCriteria criteria = new MaterialSearchCriteria().withAndOperator();
+
+        criteria.withAnyStringProperty().thatMatches("virus gene inhibitor");
+        criteria.withCode().thatContains("i");
+
+        testSearch(TEST_USER, criteria, new MaterialPermId("VIRUS1", "VIRUS"), new MaterialPermId("VIRUS2", "VIRUS"),
+                new MaterialPermId("INHIBITOR", "CONTROL"));
+    }
+
+    @Test
+    public void testSearchWithCodeWithAnyFieldFullTextSearch()
+    {
+        final MaterialSearchCriteria criteria = new MaterialSearchCriteria().withAndOperator();
+
+        criteria.withAnyField().thatMatches("virus gene inhibitor neutral");
+        criteria.withCode().thatContains("r");
+
+        testSearch(TEST_USER, criteria, new MaterialPermId("VIRUS1", "VIRUS"), new MaterialPermId("VIRUS2", "VIRUS"),
+                new MaterialPermId("INHIBITOR", "CONTROL"), new MaterialPermId("NEUTRAL", "CONTROL"),
+                new MaterialPermId("HRV2", "VIRUS"), new MaterialPermId("RSV", "VIRUS"));
+    }
+
     private MaterialPermId createMaterial(final String sessionToken, final PropertyTypePermId propertyType,
             final String formattedValue)
     {
@@ -1767,7 +1859,8 @@ public class SearchMaterialTest extends AbstractTest
         return v3api.searchMaterials(sessionToken, criteria, options).getObjects();
     }
 
-    private void testSearch(String user, MaterialSearchCriteria criteria, MaterialFetchOptions options, MaterialPermId... expectedPermIds)
+    private void testSearch(String user, MaterialSearchCriteria criteria, MaterialFetchOptions options,
+            MaterialPermId... expectedPermIds)
     {
         String sessionToken = v3api.login(user, PASSWORD);
 

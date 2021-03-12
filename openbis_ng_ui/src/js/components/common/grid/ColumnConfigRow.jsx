@@ -27,7 +27,7 @@ class ColumnConfigRow extends React.PureComponent {
   }
 
   handleVisibleChange() {
-    this.props.onVisibleChange(this.props.column.field)
+    this.props.onVisibleChange(this.props.column.name)
   }
 
   render() {
@@ -36,7 +36,7 @@ class ColumnConfigRow extends React.PureComponent {
     const { classes, column, index } = this.props
 
     return (
-      <Draggable draggableId={column.field} index={index}>
+      <Draggable draggableId={column.name} index={index}>
         {provided => (
           <div
             ref={provided.innerRef}
@@ -47,7 +47,7 @@ class ColumnConfigRow extends React.PureComponent {
               <DragHandleIcon fontSize='small' />
             </div>
             <CheckboxField
-              label={column.label || column.field}
+              label={column.label || column.name}
               value={column.visible}
               onChange={this.handleVisibleChange}
             />

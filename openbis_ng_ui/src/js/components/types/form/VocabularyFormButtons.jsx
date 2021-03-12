@@ -1,8 +1,10 @@
 import React from 'react'
+import PageMode from '@src/js/components/common/page/PageMode.js'
 import PageButtons from '@src/js/components/common/page/PageButtons.jsx'
 import Button from '@src/js/components/common/form/Button.jsx'
 import VocabularyFormSelectionType from '@src/js/components/types/form/VocabularyFormSelectionType.js'
 import users from '@src/js/common/consts/users.js'
+import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
 class VocabularyFormButtons extends React.PureComponent {
@@ -22,33 +24,35 @@ class VocabularyFormButtons extends React.PureComponent {
         onEdit={onEdit}
         onSave={onSave}
         onCancel={vocabulary.id ? onCancel : null}
-        renderAdditionalButtons={classes =>
-          this.renderAdditionalButtons(classes)
-        }
+        renderAdditionalButtons={params => this.renderAdditionalButtons(params)}
       />
     )
   }
 
-  renderAdditionalButtons(classes) {
-    const { onAdd, onRemove } = this.props
+  renderAdditionalButtons({ mode, classes }) {
+    if (mode === PageMode.EDIT) {
+      const { onAdd, onRemove } = this.props
 
-    return (
-      <React.Fragment>
-        <Button
-          name='addTerm'
-          label='Add Term'
-          styles={{ root: classes.button }}
-          onClick={onAdd}
-        />
-        <Button
-          name='removeTerm'
-          label='Remove Term'
-          styles={{ root: classes.button }}
-          disabled={!this.isNonSystemInternalTermSelected()}
-          onClick={onRemove}
-        />
-      </React.Fragment>
-    )
+      return (
+        <React.Fragment>
+          <Button
+            name='addTerm'
+            label={messages.get(messages.ADD_TERM)}
+            styles={{ root: classes.button }}
+            onClick={onAdd}
+          />
+          <Button
+            name='removeTerm'
+            label={messages.get(messages.REMOVE_TERM)}
+            styles={{ root: classes.button }}
+            disabled={!this.isNonSystemInternalTermSelected()}
+            onClick={onRemove}
+          />
+        </React.Fragment>
+      )
+    } else {
+      return null
+    }
   }
 
   isNonSystemInternalTermSelected() {

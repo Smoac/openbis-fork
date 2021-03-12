@@ -47,8 +47,8 @@ public class DataSetKindSearchConditionTranslator implements IConditionTranslato
         if (criterion.getFieldType() == ATTRIBUTE)
         {
             final AbstractStringValue value = criterion.getFieldValue();
-            TranslatorUtils.translateStringComparison(SearchCriteriaTranslator.MAIN_TABLE_ALIAS, ColumnNames.DATA_SET_KIND_COLUMN, value, null,
-                    sqlBuilder, args);
+            TranslatorUtils.translateStringComparison(SearchCriteriaTranslator.MAIN_TABLE_ALIAS,
+                    ColumnNames.DATA_SET_KIND_COLUMN, value, criterion.isUseWildcards(), null, sqlBuilder, args);
         } else
         {
             throw new IllegalArgumentException();

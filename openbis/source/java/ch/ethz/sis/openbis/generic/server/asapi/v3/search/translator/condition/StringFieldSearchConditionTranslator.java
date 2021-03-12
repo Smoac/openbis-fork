@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.PSQLTypes.VARCHAR;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.*;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.utils.TranslatorUtils.appendTsVectorMatch;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.*;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.*;
 
@@ -84,11 +85,13 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
             case ATTRIBUTE:
             {
                 final String criterionFieldName = criterion.getFieldName();
-                final String columnName = AttributesMapper.getColumnName(criterionFieldName, tableMapper.getEntitiesTable(), criterionFieldName);
+                final String columnName = AttributesMapper.getColumnName(criterionFieldName,
+                        tableMapper.getEntitiesTable(), criterionFieldName);
                 final AbstractStringValue value = criterion.getFieldValue();
                 normalizeValue(value, columnName);
 
-                TranslatorUtils.translateStringComparison(SearchCriteriaTranslator.MAIN_TABLE_ALIAS, columnName, value, VARCHAR, sqlBuilder, args);
+                TranslatorUtils.translateStringComparison(SearchCriteriaTranslator.MAIN_TABLE_ALIAS, columnName, value,
+                        criterion.isUseWildcards(), VARCHAR, sqlBuilder, args);
                 break;
             }
 
@@ -107,7 +110,7 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
                         value, null);
                 break;
             }
-            
+
             case ANY_FIELD:
             {
                 throw new IllegalArgumentException();
@@ -120,7 +123,6 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
             final Map<String, JoinInformation> aliases, final Map<String, String> dataTypeByPropertyCode,
             final AbstractStringValue value, final String fullPropertyName)
     {
-        final boolean internalProperty = TranslatorUtils.isPropertyInternal(criterion.getFieldName());
         final JoinInformation joinInformation = aliases.get(tableMapper.getAttributeTypesTable());
         final String entityTypesSubTableAlias = joinInformation.getSubTableAlias();
 
@@ -154,19 +156,17 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
                 if (casting.equals(DataTypeCode.BOOLEAN.toString()))
                 {
                     BooleanFieldSearchConditionTranslator.translateBooleanProperty(tableMapper, args,
-                            sqlBuilder, aliases, convertStringValueToBooleanValue(value), fullPropertyName,
-                            internalProperty);
+                            sqlBuilder, aliases, convertStringValueToBooleanValue(value), fullPropertyName);
                     sqlBuilder.append(RP);
                     return;
                 }
 
                 // Delegating translation for number properties
-                if (casting.equals(DataTypeCode.INTEGER.toString())
-                        || casting.equals(DataTypeCode.REAL.toString()))
+                if (casting.equals(DataTypeCode.INTEGER.toString()) || casting.equals(DataTypeCode.REAL.toString()))
                 {
 
                     NumberFieldSearchConditionTranslator.translateNumberProperty(tableMapper, args, sqlBuilder,
-                            aliases, convertStringValueToNumberValue(value), fullPropertyName, internalProperty);
+                            aliases, convertStringValueToNumberValue(value), fullPropertyName);
                     sqlBuilder.append(RP);
                     return;
                 }
@@ -182,7 +182,7 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
                     sqlBuilder.append(CASE);
                     DateFieldSearchConditionTranslator.appendWhenForDateOrTimestampProperties(sqlBuilder, args,
                             tableMapper, convertStringValueToDateValue(value), aliases, null, fullPropertyName,
-                            internalProperty, entityTypesSubTableAlias, bareDateValue, dataType.toString());
+                            entityTypesSubTableAlias, bareDateValue, dataType.toString());
                     sqlBuilder.append(SP).append(END);
                     sqlBuilder.append(RP);
                     return;
@@ -192,7 +192,7 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
             sqlBuilder.append(CASE).append(SP).append(WHEN).append(SP);
 
             TranslatorUtils.appendInternalExternalConstraint(sqlBuilder, args, entityTypesSubTableAlias,
-                    internalProperty);
+                    TranslatorUtils.isPropertyInternal(criterion.getFieldName()));
 
             if (fullPropertyName != null)
             {
@@ -210,73 +210,84 @@ public class StringFieldSearchConditionTranslator implements IConditionTranslato
             args.add(TranslatorUtils.normalisePropertyName(fullPropertyName));
         }
 
+        final boolean useWildcards = criterion.isUseWildcards();
         if (value.getClass() != AnyStringValue.class)
         {
             sqlBuilder.append(SP).append(THEN).append(NL);
-            sqlBuilder.append(CASE);
-            if (fullPropertyName != null)
+
+            if (value.getClass() != StringMatchesValue.class)
             {
-                sqlBuilder.append(NL).append(WHEN).append(SP)
-                        .append(aliases.get(DATA_TYPES_TABLE).getSubTableAlias()).append(PERIOD).append(CODE_COLUMN)
-                        .append(SP).append(EQ).append(SP).append(SQ).append(DataTypeCode.CONTROLLEDVOCABULARY)
-                        .append(SQ).append(SP).append(THEN).append(SP);
-                TranslatorUtils.translateStringComparison(
-                        aliases.get(CONTROLLED_VOCABULARY_TERM_TABLE).getSubTableAlias(),
-                        CODE_COLUMN, value, null, sqlBuilder, args);
-            }
-
-            final String materialsTableAlias = aliases.get(MATERIALS_TABLE).getSubTableAlias();
-            sqlBuilder.append(NL).append(WHEN).append(SP).append(materialsTableAlias).append(PERIOD)
-                    .append(CODE_COLUMN).append(SP).append(IS_NOT_NULL).append(SP).append(THEN).append(SP);
-            TranslatorUtils.translateStringComparison(materialsTableAlias, CODE_COLUMN, value, null, sqlBuilder,
-                    args);
-
-            final JoinInformation samplesPropertyTable = aliases.get(SAMPLE_PROP_COLUMN);
-            if (samplesPropertyTable != null)
-            {
-                sqlBuilder.append(NL).append(WHEN).append(SP).append(samplesPropertyTable.getSubTableAlias())
-                        .append(PERIOD).append(CODE_COLUMN).append(SP).append(IS_NOT_NULL).append(SP)
-                        .append(THEN).append(SP);
-
-                TranslatorUtils.translateStringComparison(samplesPropertyTable.getSubTableAlias(),
-                        CODE_COLUMN, value, null, sqlBuilder, args);
-
-                sqlBuilder.append(SP).append(OR).append(SP);
-                TranslatorUtils.translateStringComparison(samplesPropertyTable.getSubTableAlias(),
-                        PERM_ID_COLUMN, value, null, sqlBuilder, args);
-
-                sqlBuilder.append(SP).append(OR).append(SP);
-                TranslatorUtils.translateStringComparison(samplesPropertyTable.getSubTableAlias(),
-                        SAMPLE_IDENTIFIER_COLUMN, value, null, sqlBuilder, args);
-            }
-
-            sqlBuilder.append(NL).append(ELSE).append(SP);
-
-            if (casting != null)
-            {
-                final boolean equalsToComparison = (value.getClass() == StringEqualToValue.class);
-                if (equalsToComparison)
+                sqlBuilder.append(CASE);
+                if (fullPropertyName != null)
                 {
-                    sqlBuilder.append(LOWER).append(LP);
-                }
-                sqlBuilder.append(aliases.get(tableMapper.getValuesTable()).getSubTableAlias()).append(PERIOD)
-                        .append(VALUE_COLUMN);
-                if (equalsToComparison)
-                {
-                    sqlBuilder.append(RP);
+                    sqlBuilder.append(NL).append(WHEN).append(SP)
+                            .append(aliases.get(DATA_TYPES_TABLE).getSubTableAlias()).append(PERIOD).append(CODE_COLUMN)
+                            .append(SP).append(EQ).append(SP).append(SQ).append(DataTypeCode.CONTROLLEDVOCABULARY)
+                            .append(SQ).append(SP).append(THEN).append(SP);
+                    TranslatorUtils.translateStringComparison(
+                            aliases.get(CONTROLLED_VOCABULARY_TERM_TABLE).getSubTableAlias(),
+                            CODE_COLUMN, value, useWildcards, null, sqlBuilder, args);
                 }
 
-                final String strippedValue = TranslatorUtils.stripQuotationMarks(value.getValue().trim())
-                        .toLowerCase();
+                final String materialsTableAlias = aliases.get(MATERIALS_TABLE).getSubTableAlias();
+                sqlBuilder.append(NL).append(WHEN).append(SP).append(materialsTableAlias).append(PERIOD)
+                        .append(CODE_COLUMN).append(SP).append(IS_NOT_NULL).append(SP).append(THEN).append(SP);
+                TranslatorUtils.translateStringComparison(materialsTableAlias, CODE_COLUMN, value, useWildcards, null,
+                        sqlBuilder, args);
 
-                TranslatorUtils.appendStringComparatorOp(value.getClass(), strippedValue, sqlBuilder, args);
+                final JoinInformation samplesPropertyTable = aliases.get(SAMPLE_PROP_COLUMN);
+                if (samplesPropertyTable != null)
+                {
+                    sqlBuilder.append(NL).append(WHEN).append(SP).append(samplesPropertyTable.getSubTableAlias())
+                            .append(PERIOD).append(CODE_COLUMN).append(SP).append(IS_NOT_NULL).append(SP)
+                            .append(THEN).append(SP);
+
+                    TranslatorUtils.translateStringComparison(samplesPropertyTable.getSubTableAlias(),
+                            CODE_COLUMN, value, useWildcards, null, sqlBuilder, args);
+
+                    sqlBuilder.append(SP).append(OR).append(SP);
+                    TranslatorUtils.translateStringComparison(samplesPropertyTable.getSubTableAlias(),
+                            PERM_ID_COLUMN, value, useWildcards, null, sqlBuilder, args);
+
+                    sqlBuilder.append(SP).append(OR).append(SP);
+                    TranslatorUtils.translateStringComparison(samplesPropertyTable.getSubTableAlias(),
+                            SAMPLE_IDENTIFIER_COLUMN, value, useWildcards, null, sqlBuilder, args);
+                }
+
+                sqlBuilder.append(NL).append(ELSE).append(SP);
+
+                if (casting != null)
+                {
+                    final boolean equalsToComparison = (value.getClass() == StringEqualToValue.class);
+                    if (equalsToComparison)
+                    {
+                        sqlBuilder.append(LOWER).append(LP);
+                    }
+                    sqlBuilder.append(aliases.get(tableMapper.getValuesTable()).getSubTableAlias()).append(PERIOD)
+                            .append(VALUE_COLUMN);
+                    if (equalsToComparison)
+                    {
+                        sqlBuilder.append(RP);
+                    }
+
+                    final String strippedValue = TranslatorUtils.stripQuotationMarks(value.getValue())
+                            .toLowerCase();
+
+                    TranslatorUtils.appendStringComparatorOp(value.getClass(), strippedValue, useWildcards,
+                            sqlBuilder, args);
+                } else
+                {
+                    TranslatorUtils.translateStringComparison(aliases.get(tableMapper.getValuesTable()).getSubTableAlias(),
+                            VALUE_COLUMN, value, useWildcards, null, sqlBuilder, args);
+                }
+
+                sqlBuilder.append(NL).append(END);
             } else
             {
-                TranslatorUtils.translateStringComparison(aliases.get(tableMapper.getValuesTable()).getSubTableAlias(),
-                        VALUE_COLUMN, value, null, sqlBuilder, args);
+                appendTsVectorMatch(sqlBuilder, criterion.getFieldValue(),
+                        aliases.get(tableMapper.getValuesTable()).getSubTableAlias(), args);
             }
 
-            sqlBuilder.append(NL).append(END);
             sqlBuilder.append(NL).append(END);
         }
         sqlBuilder.append(RP);

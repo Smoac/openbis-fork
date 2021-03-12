@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.db.ScreeningD
 
 /**
  * Utilities for dealing with databases in tests.
- * 
+ *
  * @author Piotr Buczek
  */
 @Friend(toClasses = ScreeningDAOFactory.class)
@@ -35,6 +35,6 @@ public class DBUtilsForTests
     {
         String databaseVersion = new ImagingDatabaseVersionHolder().getDatabaseVersion();
         DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(context,
-                databaseVersion);
+                databaseVersion, null);
     }
 }

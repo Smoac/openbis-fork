@@ -16,17 +16,6 @@
 
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
-import static org.junit.Assert.fail;
-import static org.testng.Assert.assertEquals;
-
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.TimeZone;
-
-import org.testng.annotations.Test;
-
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.attachment.fetchoptions.AttachmentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.DatePropertySearchCriteria;
@@ -41,12 +30,22 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSear
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagCode;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
 import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
+import org.testng.annotations.Test;
+
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.TimeZone;
+
+import static org.junit.Assert.fail;
+import static org.testng.Assert.assertEquals;
 
 /**
  * @author pkupczyk
@@ -135,53 +134,74 @@ public class SearchExperimentTest extends AbstractExperimentTest
     @Test
     public void testSearchWithIdentifierThatEquals()
     {
-        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
-        criteria.withIdentifier().thatEquals("/CISD/NEMO/EXP1");
-        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP1");
+        final ExperimentSearchCriteria criteria1 = new ExperimentSearchCriteria();
+        criteria1.withIdentifier().thatEquals("/CISD/NEMO/EXP1");
+        testSearch(TEST_USER, criteria1, "/CISD/NEMO/EXP1");
 
-        ExperimentSearchCriteria criteria2 = new ExperimentSearchCriteria();
-        criteria2.withIdentifier().thatEquals("/cisd/Nemo/Exp1*");
+        final ExperimentSearchCriteria criteria2 = new ExperimentSearchCriteria();
+        criteria2.withIdentifier().withWildcards().thatEquals("/cisd/Nemo/Exp1*");
         testSearch(TEST_USER, criteria2, "/CISD/NEMO/EXP1", "/CISD/NEMO/EXP10", "/CISD/NEMO/EXP11");
 
-        ExperimentSearchCriteria criteria3 = new ExperimentSearchCriteria();
-        criteria3.withIdentifier().thatEquals("/CISD/*/EXP-TEST-2");
-        testSearch(TEST_USER, criteria3, "/CISD/NEMO/EXP-TEST-2", "/CISD/NOE/EXP-TEST-2");
+        final ExperimentSearchCriteria criteria3 = new ExperimentSearchCriteria();
+        criteria3.withIdentifier().withoutWildcards().thatEquals("/cisd/Nemo/Exp1*");
+        testSearch(TEST_USER, criteria3);
+
+        final ExperimentSearchCriteria criteria4 = new ExperimentSearchCriteria();
+        criteria4.withIdentifier().withWildcards().thatEquals("/CISD/*/EXP-TEST-2");
+        testSearch(TEST_USER, criteria4, "/CISD/NEMO/EXP-TEST-2", "/CISD/NOE/EXP-TEST-2");
+
+        final ExperimentSearchCriteria criteria5 = new ExperimentSearchCriteria();
+        criteria5.withIdentifier().withoutWildcards().thatEquals("/CISD/*/EXP-TEST-2");
+        testSearch(TEST_USER, criteria5);
     }
 
     @Test
     public void testSearchWithIdentifierThatStartsWith()
     {
-        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
-        criteria.withIdentifier().thatStartsWith("/TEST-SPACE/TEST-PROJ");
-        testSearch(TEST_USER, criteria, "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+        final ExperimentSearchCriteria criteria1 = new ExperimentSearchCriteria();
+        criteria1.withIdentifier().thatStartsWith("/TEST-SPACE/TEST-PROJ");
+        testSearch(TEST_USER, criteria1, "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
 
-        ExperimentSearchCriteria criteria2 = new ExperimentSearchCriteria();
-        criteria2.withIdentifier().thatStartsWith("/CISD/DEFAULT/*S*");
+        final ExperimentSearchCriteria criteria2 = new ExperimentSearchCriteria();
+        criteria2.withIdentifier().withWildcards().thatStartsWith("/CISD/DEFAULT/*S*");
         testSearch(TEST_USER, criteria2, "/CISD/DEFAULT/EXP-WELLS", "/CISD/DEFAULT/EXP-REUSE");
+
+        final ExperimentSearchCriteria criteria3 = new ExperimentSearchCriteria();
+        criteria3.withIdentifier().withoutWildcards().thatStartsWith("/CISD/DEFAULT/*S*");
+        testSearch(TEST_USER, criteria3);
     }
 
     @Test
     public void testSearchWithIdentifierThatEndsWith()
     {
-        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
-        criteria.withIdentifier().thatEndsWith("-TEST-2");
-        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-2", "/CISD/NOE/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
+        final ExperimentSearchCriteria criteria1 = new ExperimentSearchCriteria();
+        criteria1.withIdentifier().thatEndsWith("-TEST-2");
+        testSearch(TEST_USER, criteria1, "/CISD/NEMO/EXP-TEST-2", "/CISD/NOE/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
 
-        ExperimentSearchCriteria criteria2 = new ExperimentSearchCriteria();
-        criteria2.withIdentifier().thatEndsWith("-TEST-*");
-        testSearch(TEST_USER, criteria2, "/CISD/NEMO/EXP-TEST-1", "/CISD/NEMO/EXP-TEST-2", "/CISD/NOE/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
+        final ExperimentSearchCriteria criteria2 = new ExperimentSearchCriteria();
+        criteria2.withIdentifier().withoutWildcards().thatEndsWith("-TEST-*");
+        testSearch(TEST_USER, criteria2);
+
+        final ExperimentSearchCriteria criteria3 = new ExperimentSearchCriteria();
+        criteria3.withIdentifier().withWildcards().thatEndsWith("-TEST-*");
+        testSearch(TEST_USER, criteria3, "/CISD/NEMO/EXP-TEST-1", "/CISD/NEMO/EXP-TEST-2", "/CISD/NOE/EXP-TEST-2",
+                "/TEST-SPACE/NOE/EXP-TEST-2");
     }
 
     @Test
     public void testSearchWithIdentifierThatContains()
     {
-        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
-        criteria.withIdentifier().thatContains("TEST-PROJECT");
-        testSearch(TEST_USER, criteria, "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+        final ExperimentSearchCriteria criteria1 = new ExperimentSearchCriteria();
+        criteria1.withIdentifier().thatContains("TEST-PROJECT");
+        testSearch(TEST_USER, criteria1, "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
 
-        ExperimentSearchCriteria criteria2 = new ExperimentSearchCriteria();
-        criteria2.withIdentifier().thatContains("TE*JECT");
+        final ExperimentSearchCriteria criteria2 = new ExperimentSearchCriteria();
+        criteria2.withIdentifier().withWildcards().thatContains("TE*JECT");
         testSearch(TEST_USER, criteria2, "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+
+        final ExperimentSearchCriteria criteria3 = new ExperimentSearchCriteria();
+        criteria3.withIdentifier().withoutWildcards().thatContains("TE*JECT");
+        testSearch(TEST_USER, criteria3);
     }
 
     @Test
@@ -752,9 +772,13 @@ public class SearchExperimentTest extends AbstractExperimentTest
     @Test
     public void testSearchWithAnyPropertyThatEqualsWithWildcards()
     {
-        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
-        criteria.withAnyProperty().thatEquals("*EMAL*");
-        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-2");
+        final ExperimentSearchCriteria criteria1 = new ExperimentSearchCriteria();
+        criteria1.withAnyProperty().withoutWildcards().thatEquals("*EMAL*");
+        testSearch(TEST_USER, criteria1);
+
+        final ExperimentSearchCriteria criteria2 = new ExperimentSearchCriteria();
+        criteria2.withAnyProperty().withWildcards().thatEquals("*EMAL*");
+        testSearch(TEST_USER, criteria2, "/CISD/NEMO/EXP-TEST-2");
     }
 
     @Test
@@ -810,19 +834,44 @@ public class SearchExperimentTest extends AbstractExperimentTest
     }
 
     @Test
+    public void testSearchWithAnyFieldMatchingRegistratorOrModifier()
+    {
+        final ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withAnyField().thatEquals("etlserver");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP11", "/CISD/NEMO/EXP-TEST-1", "/CISD/NEMO/EXP-TEST-2");
+    }
+
+    @Test
+    public void testSearchWithAnyFieldMatchingExperimentType()
+    {
+        final ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withAnyField().thatEquals("COMPOUND_HCS");
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-1", "/CISD/NOE/EXP-TEST-2");
+    }
+
+    @Test
     public void testSearchWithAnyFieldMatchingIdentifier()
     {
-        ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
-        criteria.withAnyField().thatEquals("/CISD/NEMO/EXP-TEST-*");
-        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-1", "/CISD/NEMO/EXP-TEST-2");
+        final ExperimentSearchCriteria criteria1 = new ExperimentSearchCriteria();
+        criteria1.withAnyField().withWildcards().thatEquals("/CISD/NEMO/EXP-TEST-*");
+        testSearch(TEST_USER, criteria1, "/CISD/NEMO/EXP-TEST-1", "/CISD/NEMO/EXP-TEST-2");
 
-        ExperimentSearchCriteria criteria2 = new ExperimentSearchCriteria();
-        criteria2.withAnyField().thatStartsWith("/CISD/NEMO/EXP1");
-        testSearch(TEST_USER, criteria2, "/CISD/NEMO/EXP1", "/CISD/NEMO/EXP10", "/CISD/NEMO/EXP11");
+        final ExperimentSearchCriteria criteria2 = new ExperimentSearchCriteria();
+        criteria2.withAnyField().withoutWildcards().thatEquals("/CISD/NEMO/EXP-TEST-*");
+        testSearch(TEST_USER, criteria2);
 
-        ExperimentSearchCriteria criteria3 = new ExperimentSearchCriteria();
-        criteria3.withAnyField().thatEndsWith("TEST-?");
-        testSearch(TEST_USER, criteria3, "/CISD/NEMO/EXP-TEST-1", "/CISD/NEMO/EXP-TEST-2", "/CISD/NOE/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
+        final ExperimentSearchCriteria criteria3 = new ExperimentSearchCriteria();
+        criteria3.withAnyField().thatStartsWith("/CISD/NEMO/EXP1");
+        testSearch(TEST_USER, criteria3, "/CISD/NEMO/EXP1", "/CISD/NEMO/EXP10", "/CISD/NEMO/EXP11");
+
+        final ExperimentSearchCriteria criteria4 = new ExperimentSearchCriteria();
+        criteria4.withAnyField().withWildcards().thatEndsWith("TEST-?");
+        testSearch(TEST_USER, criteria4, "/CISD/NEMO/EXP-TEST-1", "/CISD/NEMO/EXP-TEST-2", "/CISD/NOE/EXP-TEST-2",
+                "/TEST-SPACE/NOE/EXP-TEST-2");
+
+        final ExperimentSearchCriteria criteria5 = new ExperimentSearchCriteria();
+        criteria5.withAnyField().withoutWildcards().thatEndsWith("TEST-?");
+        testSearch(TEST_USER, criteria5);
     }
 
     @Test
@@ -1350,7 +1399,7 @@ public class SearchExperimentTest extends AbstractExperimentTest
                 experimentCreation3));
 
         final ExperimentFetchOptions emptyFetchOptions = new ExperimentFetchOptions();
-        
+
         // Greater or Equal - Integer
         final ExperimentSearchCriteria criteriaGE = new ExperimentSearchCriteria();
         criteriaGE.withNumberProperty("INT_NUMBER").thatIsGreaterThanOrEqualTo(2);
@@ -1535,6 +1584,105 @@ public class SearchExperimentTest extends AbstractExperimentTest
                 Void -> searchExperiments(sessionToken, criteriaWithDateProperty, new ExperimentFetchOptions()),
                 String.format("Criterion of type %s cannot be applied to the data type %s.",
                         "DatePropertySearchCriteria", "VARCHAR"));
+    }
+
+    @Test
+    public void testNestedLogicalOperators()
+    {
+        final ExperimentSearchCriteria criteria = new ExperimentSearchCriteria().withAndOperator();
+
+        final ExperimentSearchCriteria subCriteria1 = criteria.withSubcriteria().withOrOperator();
+        subCriteria1.withCode().thatStartsWith("EXP-");
+        subCriteria1.withCode().thatStartsWith("EXP1");
+
+        final ExperimentSearchCriteria subCriteria2 = criteria.withSubcriteria().withOrOperator();
+        subCriteria2.withCode().thatEndsWith("E");
+        subCriteria2.withCode().thatEndsWith("1");
+
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP1", "/CISD/DEFAULT/EXP-REUSE", "/CISD/NEMO/EXP-TEST-1",
+                "/CISD/NEMO/EXP11");
+    }
+
+    @Test
+    public void testNestedLogicalOperatorsMultipleNesting()
+    {
+        final ExperimentSearchCriteria criteria = new ExperimentSearchCriteria().withAndOperator();
+
+        final ExperimentSearchCriteria subCriteria1 = criteria.withSubcriteria().withOrOperator();
+        subCriteria1.withSubcriteria().withSubcriteria().withCode().thatStartsWith("EXP-");
+        subCriteria1.withSubcriteria().withSubcriteria().withSubcriteria().withSubcriteria().withCode().thatStartsWith("EXP1");
+
+        final ExperimentSearchCriteria subCriteria2 = criteria.withSubcriteria().withOrOperator();
+        subCriteria2.withSubcriteria().withCode().thatEndsWith("E");
+        subCriteria2.withSubcriteria().withSubcriteria().withCode().thatEndsWith("1");
+
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP1", "/CISD/DEFAULT/EXP-REUSE", "/CISD/NEMO/EXP-TEST-1",
+                "/CISD/NEMO/EXP11");
+    }
+
+    @Test
+    public void testSearchWithPermIdWithAttributeFullTextSearch()
+    {
+        final ExperimentSearchCriteria criteria = new ExperimentSearchCriteria().withAndOperator();
+
+        criteria.withTextAttribute().thatMatches("exp-test-1 exp-test-2 experiment-to-delete");
+        criteria.withPermId().thatContains("8-");
+
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2",
+                "/TEST-SPACE/NOE/EXPERIMENT-TO-DELETE");
+    }
+
+    @Test
+    public void testSearchWithPermIdWithPropertyFullTextSearch()
+    {
+        final ExperimentSearchCriteria criteria = new ExperimentSearchCriteria().withOrOperator();
+        criteria.withProperty("DESCRIPTION").thatMatches("desc1");
+        criteria.withCode().thatEquals("EXP1");
+
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-1", "/CISD/NEMO/EXP1");
+    }
+
+    @Test
+    public void testSearchWithPermIdWithStringPropertyFullTextSearch()
+    {
+        final ExperimentSearchCriteria criteria = new ExperimentSearchCriteria().withOrOperator();
+        criteria.withStringProperty("DESCRIPTION").thatMatches("desc1");
+        criteria.withCode().thatEquals("EXP1");
+
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP-TEST-1", "/CISD/NEMO/EXP1");
+    }
+
+    @Test
+    public void testSearchWithPermIdWithAnyPropertyFullTextSearch()
+    {
+        final ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withAnyProperty().thatMatches("experiment");
+        criteria.withPermId().thatStartsWith("2008");
+
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP10", "/CISD/NEMO/EXP1", "/CISD/DEFAULT/EXP-REUSE",
+                "/CISD/NEMO/EXP11");
+    }
+
+    @Test
+    public void testSearchWithPermIdWithAnyStringPropertyFullTextSearch()
+    {
+        final ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withAnyStringProperty().thatMatches("experiment");
+        criteria.withPermId().thatStartsWith("2008");
+
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP10", "/CISD/NEMO/EXP1", "/CISD/DEFAULT/EXP-REUSE",
+                "/CISD/NEMO/EXP11");
+    }
+
+    @Test
+    public void testSearchWithPermIdWithAnyFieldFullTextSearch()
+    {
+        final ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
+        criteria.withAnyField().thatMatches("experiment exp-x exp-y exp-wells");
+        criteria.withPermId().thatStartsWith("2008");
+
+        testSearch(TEST_USER, criteria, "/CISD/NEMO/EXP10", "/CISD/NEMO/EXP1", "/CISD/DEFAULT/EXP-REUSE",
+                "/CISD/NEMO/EXP11", "/CISD/DEFAULT/EXP-WELLS");
     }
 
     public ExperimentCreation getExperimentCreation(final EntityTypePermId experimentType, final int intValue,

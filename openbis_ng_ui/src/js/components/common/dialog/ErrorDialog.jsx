@@ -3,6 +3,7 @@ import { withStyles } from '@material-ui/core/styles'
 import Message from '@src/js/components/common/form/Message.jsx'
 import Button from '@src/js/components/common/form/Button.jsx'
 import Dialog from '@src/js/components/common/dialog/Dialog.jsx'
+import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -28,7 +29,7 @@ class ErrorDialog extends React.Component {
       <Dialog
         open={!!error}
         onClose={onClose}
-        title={'Error'}
+        title={messages.get(messages.ERROR)}
         content={this.renderContent()}
         actions={this.renderButtons()}
       />
@@ -56,7 +57,7 @@ class ErrorDialog extends React.Component {
     return (
       <div>
         <Button
-          label='Close'
+          label={messages.get(messages.CLOSE)}
           styles={{ root: classes.button }}
           onClick={onClose}
         />

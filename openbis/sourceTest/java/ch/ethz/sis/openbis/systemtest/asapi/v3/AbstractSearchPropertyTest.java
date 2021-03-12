@@ -585,10 +585,10 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
                 { DataType.VARCHAR, "abcd3", "contains bcd and endsWith d34", false },
                 { DataType.VARCHAR, "abd34", "contains bcd and endsWith d34", false },
                 { DataType.VARCHAR, "abcd34", "contains bcd and endsWith d34", true },
-                { DataType.MULTILINE_VARCHAR, "acd3", "contains bcd or endsWith cd4", false },
-                { DataType.MULTILINE_VARCHAR, "abcd3", "contains bcd or endsWith cd4", true },
-                { DataType.MULTILINE_VARCHAR, "abd4", "contains bcd or endsWith bd4", true },
-                { DataType.MULTILINE_VARCHAR, "abcd4", "contains bcd or endsWith cd4", true },
+                { DataType.MULTILINE_VARCHAR, "acd3", "contains abcd or endsWith acd4", false },
+                { DataType.MULTILINE_VARCHAR, "abcd3", "contains abcd or endsWith bcd4", true },
+                { DataType.MULTILINE_VARCHAR, "abd4", "contains abcd or endsWith abd4", true },
+                { DataType.MULTILINE_VARCHAR, "abcd4", "contains abcd or endsWith bcd4", true },
                 { DataType.MULTILINE_VARCHAR, "12", "> 100 and <= 13", true },
                 { DataType.BOOLEAN, "true", "== true", true },
                 { DataType.BOOLEAN, "true", "== false", false },
@@ -622,11 +622,11 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
                 { DataType.INTEGER, "12345", "startsWith 123 or endsWith 355", true },
                 { DataType.INTEGER, "12345", "startsWith 113 or endsWith 355", false },
                 { DataType.INTEGER, "12345", "contains 234", true },
-                { DataType.INTEGER, "12345", "contains 437", false },
+                { DataType.INTEGER, "12345", "contains 4375", false },
                 { DataType.REAL, "12.345", "startsWith 12. and endsWith 45", true },
                 { DataType.REAL, "12.345", "startsWith 12. or endsWith 45", true },
                 { DataType.REAL, "12.345", "contains .34", true },
-                { DataType.REAL, "12.345", "contains 9876", false },
+                { DataType.REAL, "12.345", "contains 98763", false },
 
                 { DataType.DATE, formattedDate, "== 2020-02-15", true },
                 { DataType.DATE, formattedDate, "== 2020-02-14", false },
@@ -1380,7 +1380,7 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
         {
             super(searchCriteria, propertyTypeId);
         }
-        
+
         @Override
         protected void injectQuery(Operator operator, String operand)
         {

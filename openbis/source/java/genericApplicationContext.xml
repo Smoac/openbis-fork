@@ -10,7 +10,7 @@
 			http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
             http://www.springframework.org/schema/context
             http://www.springframework.org/schema/context/spring-context-2.5.xsd
-            http://www.springframework.org/schema/aop 
+            http://www.springframework.org/schema/aop
             http://www.springframework.org/schema/aop/spring-aop.xsd">
 
 	<import resource="hibernateContext.xml" />
@@ -96,9 +96,12 @@
 		factory-method="createOrMigrateDatabaseAndGetScriptProvider">
 		<constructor-arg ref="db-configuration-context" />
 		<constructor-arg>
-			<bean
-				class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DatabaseVersionHolder"
+			<bean class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DatabaseVersionHolder"
 				factory-method="getDatabaseVersion" />
+		</constructor-arg>
+		<constructor-arg>
+			<bean class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DatabaseVersionHolder"
+				factory-method="getDatabaseFullTextSearchDocumentVersion" />
 		</constructor-arg>
 	</bean>
 
@@ -138,7 +141,7 @@
 				<constructor-arg ref="request-context-provider" />
 			</bean>
 		</constructor-arg>
-		<!-- The time after which an inactive session is expired by the service 
+		<!-- The time after which an inactive session is expired by the service
 			(in minutes). -->
 		<constructor-arg value="${session-timeout}" />
 		<constructor-arg value="${session-timeout-no-login}" />
@@ -158,7 +161,7 @@
 		<constructor-arg value="${accepted-remote-hosts-for-identity-change}" />
 	</bean>
 
-        
+
     <bean id="entity-history-creator"
         class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator">
         <property name="enabled" value="${entity-history.enabled}"/>
@@ -460,9 +463,9 @@
 	</bean>
 
   <bean id="jython-evaluator" class="ch.systemsx.cisd.common.jython.evaluator.JythonEvaluatorSpringComponent" >
-      <constructor-arg ref="propertyConfigurer" /> 
+      <constructor-arg ref="propertyConfigurer" />
   </bean>
-  
+
 	<bean id="etl-entity-operation-checker"
 		class="ch.systemsx.cisd.openbis.generic.server.ETLEntityOperationChecker" />
 
@@ -477,8 +480,8 @@
 
 	<!-- // Transaction -->
 
-	<!-- bean class="org.springframework.transaction.interceptor.TransactionAttributeSourceAdvisor"> 
-		<property name="transactionInterceptor" ref="transaction-interceptor" /> 
+	<!-- bean class="org.springframework.transaction.interceptor.TransactionAttributeSourceAdvisor">
+		<property name="transactionInterceptor" ref="transaction-interceptor" />
 		</bean -->
 
 	<bean id="transaction-interceptor"
@@ -490,7 +493,7 @@
 		</property>
 	</bean>
 
-	<!-- // Database Last Modification Monitor // This advice will auto-magically 
+	<!-- // Database Last Modification Monitor // This advice will auto-magically
 		used as an interceptor for server methods (e.g. ICommonServer) -->
 
 	<bean
@@ -613,7 +616,7 @@
 
 
 	<!-- Caching -->
-	
+
 	<bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager">
 		<property name="cacheManager" ref="ehcache" />
 	</bean>
@@ -621,5 +624,5 @@
 		class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
 		<property name="configLocation" value="classpath:ehcache.xml" />
 	</bean>
-  
+
 </beans>

@@ -5,6 +5,7 @@ import PageMode from '@src/js/components/common/page/PageMode.js'
 import Header from '@src/js/components/common/form/Header.jsx'
 import TextField from '@src/js/components/common/form/TextField.jsx'
 import TypeFormSelectionType from '@src/js/components/types/form/TypeFormSelectionType.js'
+import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -40,7 +41,7 @@ class TypeFormPreviewHeader extends React.PureComponent {
   }
 
   renderTitle() {
-    return <Header>Form Preview</Header>
+    return <Header>{messages.get(messages.FORM_PREVIEW)}</Header>
   }
 
   renderCode() {
@@ -59,7 +60,7 @@ class TypeFormPreviewHeader extends React.PureComponent {
       <div className={classes.field}>
         <TextField
           name='code'
-          label='Code'
+          label={messages.get(messages.CODE)}
           value={value}
           disabled={disabled}
           mode={PageMode.EDIT}
@@ -77,7 +78,7 @@ class TypeFormPreviewHeader extends React.PureComponent {
         <div className={classes.field}>
           <TextField
             name='parents'
-            label='Parents'
+            label={messages.get(messages.PARENTS)}
             value={_.get(preview, 'parents.value')}
             disabled={mode !== PageMode.EDIT}
             mode={PageMode.EDIT}
@@ -98,7 +99,7 @@ class TypeFormPreviewHeader extends React.PureComponent {
         <div className={classes.field}>
           <TextField
             name='container'
-            label='Container'
+            label={messages.get(messages.CONTAINER)}
             value={_.get(preview, 'container.value')}
             disabled={mode !== PageMode.EDIT}
             mode={PageMode.EDIT}

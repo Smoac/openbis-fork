@@ -1,6 +1,7 @@
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
+import messages from '@src/js/common/messages.js'
 
 const styles = theme => ({
   container: {
@@ -32,7 +33,7 @@ class ErrorBoundary extends React.Component {
       return (
         <section className={classes.container}>
           <Typography variant='h4' className={classes.header}>
-            Something went wrong :(
+            {messages.get(messages.CRASH)}
           </Typography>
           {this.renderError(error)}
           {this.renderErrorInfo(errorInfo)}

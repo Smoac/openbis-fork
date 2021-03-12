@@ -22,6 +22,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstant
 import java.util.HashMap;
 import java.util.Map;
 
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper.*;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.*;
 
 public class AttributesMapper
@@ -30,7 +31,9 @@ public class AttributesMapper
 
     private static final Map<String, String> ATTRIBUTE_ID_TO_COLUMN_NAME = new HashMap<>();
 
-    /** Defines which columns of which entities should be treated as perm_id. It can be PERM_ID_COLUMN or CODE_COLUMN. */
+    /**
+     * Defines which columns of which entities should be treated as perm_id. It can be PERM_ID_COLUMN or CODE_COLUMN.
+     */
     private static final Map<String, String> ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME = new HashMap<>();
 
     static
@@ -39,8 +42,10 @@ public class AttributesMapper
         ATTRIBUTE_ID_TO_COLUMN_NAME.put("codes", ColumnNames.CODE_COLUMN);
         ATTRIBUTE_ID_TO_COLUMN_NAME.put(SearchFieldConstants.ID, ColumnNames.ID_COLUMN);
         ATTRIBUTE_ID_TO_COLUMN_NAME.put(SearchFieldConstants.FILE_DESCRIPTION, ColumnNames.DESCRIPTION_COLUMN);
-        ATTRIBUTE_ID_TO_COLUMN_NAME.put(SearchFieldConstants.MODIFICATION_DATE, ColumnNames.MODIFICATION_TIMESTAMP_COLUMN);
-        ATTRIBUTE_ID_TO_COLUMN_NAME.put(SearchFieldConstants.REGISTRATION_DATE, ColumnNames.REGISTRATION_TIMESTAMP_COLUMN);
+        ATTRIBUTE_ID_TO_COLUMN_NAME.put(SearchFieldConstants.MODIFICATION_DATE,
+                ColumnNames.MODIFICATION_TIMESTAMP_COLUMN);
+        ATTRIBUTE_ID_TO_COLUMN_NAME.put(SearchFieldConstants.REGISTRATION_DATE,
+                ColumnNames.REGISTRATION_TIMESTAMP_COLUMN);
         ATTRIBUTE_ID_TO_COLUMN_NAME.put("userIds", ColumnNames.USER_COLUMN);
         ATTRIBUTE_ID_TO_COLUMN_NAME.put("externalCode", ColumnNames.EXTERNAL_CODE_COLUMN);
         ATTRIBUTE_ID_TO_COLUMN_NAME.put("archivingRequested", ColumnNames.ARCHIVING_REQUESTED);
@@ -51,11 +56,12 @@ public class AttributesMapper
         ATTRIBUTE_ID_TO_COLUMN_NAME.put("gitCommitHash", ColumnNames.GIT_COMMIT_HASH_COLUMN);
         ATTRIBUTE_ID_TO_COLUMN_NAME.put("gitRepositoryId", ColumnNames.GIT_REPOSITORY_ID_COLUMN);
 
+        ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(AUTHORIZATION_GROUPS_TABLE, ColumnNames.CODE_COLUMN);
         ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(CONTROLLED_VOCABULARY_TABLE, ColumnNames.CODE_COLUMN);
         ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(CONTROLLED_VOCABULARY_TERM_TABLE, ColumnNames.CODE_COLUMN);
         ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(DATA_SET_TYPES_TABLE, ColumnNames.CODE_COLUMN);
         ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(DATA_STORES_TABLE, ColumnNames.CODE_COLUMN);
-        ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(TableMapper.DATA_SET.getEntitiesTable(), ColumnNames.CODE_COLUMN);
+        ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(DATA_SET.getEntitiesTable(), ColumnNames.CODE_COLUMN);
         ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(DATA_TYPES_TABLE, ColumnNames.CODE_COLUMN);
         ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(GRID_CUSTOM_COLUMNS_TABLE, ColumnNames.CODE_COLUMN);
         ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(EXPERIMENT_TYPES_TABLE, ColumnNames.CODE_COLUMN);
@@ -64,15 +70,14 @@ public class AttributesMapper
         ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(LOCATOR_TYPES_TABLE, ColumnNames.CODE_COLUMN);
         ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(MATERIAL_TYPES_TABLE, ColumnNames.CODE_COLUMN);
         ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(MATERIALS_TABLE, ColumnNames.CODE_COLUMN);
+        ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(OPERATION_EXECUTIONS_TABLE, ColumnNames.CODE_COLUMN);
         ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(PROPERTY_TYPES_TABLE, ColumnNames.CODE_COLUMN);
         ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(SAMPLE_TYPES_TABLE, ColumnNames.CODE_COLUMN);
         ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(RELATIONSHIP_TYPES_TABLE, ColumnNames.CODE_COLUMN);
-        ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(AUTHORIZATION_GROUPS_TABLE, ColumnNames.CODE_COLUMN);
-        ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(OPERATION_EXECUTIONS_TABLE, ColumnNames.CODE_COLUMN);
 
-        ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(TableMapper.EXPERIMENT.getEntitiesTable(), ColumnNames.PERM_ID_COLUMN);
+        ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(EXPERIMENT.getEntitiesTable(), ColumnNames.PERM_ID_COLUMN);
         ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(PROJECTS_TABLE, ColumnNames.PERM_ID_COLUMN);
-        ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(TableMapper.SAMPLE.getEntitiesTable(), ColumnNames.PERM_ID_COLUMN);
+        ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(SAMPLE.getEntitiesTable(), ColumnNames.PERM_ID_COLUMN);
         ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.put(SEMANTIC_ANNOTATIONS_TABLE, ColumnNames.PERM_ID_COLUMN);
     }
 
@@ -83,9 +88,15 @@ public class AttributesMapper
 
     public static String getColumnName(final String attributeId, final String tableName, final String defaultValue)
     {
-        return PERM_ID_ATTRIBUTE.equals(attributeId) || "ids".equals(attributeId) ?
-                ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.getOrDefault(tableName, defaultValue) :
-                ATTRIBUTE_ID_TO_COLUMN_NAME.getOrDefault(attributeId, defaultValue);
+        if (METAPROJECTS_TABLE.equals(tableName) && "codes".equals(attributeId))
+        {
+            return ColumnNames.NAME_COLUMN;
+        } else
+        {
+            return PERM_ID_ATTRIBUTE.equals(attributeId) || "ids".equals(attributeId) ?
+                    ENTITIES_TABLE_TO_PERM_ID_COLUMN_NAME.getOrDefault(tableName, defaultValue) :
+                    ATTRIBUTE_ID_TO_COLUMN_NAME.getOrDefault(attributeId, defaultValue);
+        }
     }
 
 }

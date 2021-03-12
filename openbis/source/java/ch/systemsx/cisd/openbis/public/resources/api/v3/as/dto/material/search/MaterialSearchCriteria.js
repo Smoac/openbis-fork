@@ -2,7 +2,8 @@
  * @author pkupczyk
  */
 define([ "stjs", "as/dto/common/search/AbstractEntitySearchCriteria", "as/dto/common/search/SearchOperator",
-         "as/dto/material/search/MaterialTypeSearchCriteria" ], function(stjs, AbstractEntitySearchCriteria, SearchOperator) {
+         "as/dto/material/search/MaterialTypeSearchCriteria", "as/dto/common/search/TextAttributeSearchCriteria" ],
+	function(stjs, AbstractEntitySearchCriteria, SearchOperator) {
 	var MaterialSearchCriteria = function() {
 		AbstractEntitySearchCriteria.call(this);
 	};
@@ -18,6 +19,13 @@ define([ "stjs", "as/dto/common/search/AbstractEntitySearchCriteria", "as/dto/co
 		};
 		prototype.withAndOperator = function() {
 			return this.withOperator(SearchOperator.AND);
+		};
+		prototype.withSubcriteria = function() {
+			return this.addCriteria(new MaterialSearchCriteria());
+		};
+		prototype.withTextAttribute = function() {
+			var TextAttributeSearchCriteria = require("as/dto/common/search/TextAttributeSearchCriteria");
+			return this.addCriteria(new TextAttributeSearchCriteria());
 		};
 	}, {
 		operator : {

@@ -6,7 +6,8 @@ const styles = theme => ({
     padding: theme.spacing(2),
     paddingTop: theme.spacing(1),
     paddingBottom: 0,
-    height: '100%'
+    height: '100%',
+    boxSizing: 'border-box'
   }
 })
 

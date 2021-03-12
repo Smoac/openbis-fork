@@ -19,9 +19,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.search.planner;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractCompositeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleChildrenSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleContainerSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleParentsSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.auth.AuthorisationInformation;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.auth.ISQLAuthorisationInformationProviderDAO;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.dao.ISQLSearchDAO;
@@ -34,7 +32,7 @@ import java.util.Set;
 
 /**
  * Manages detailed search with sample container search criteria.
- * 
+ *
  * @author Viktor Kovtun
  */
 public class SampleContainerSearchManager extends AbstractLocalSearchManager<SampleContainerSearchCriteria, Sample,
@@ -46,6 +44,12 @@ public class SampleContainerSearchManager extends AbstractLocalSearchManager<Sam
             final IID2PEMapper<Long, Long> idsMapper)
     {
         super(searchDAO, authProvider, idsMapper);
+    }
+
+    @Override
+    protected AbstractCompositeSearchCriteria createEmptyCriteria()
+    {
+        return new SampleContainerSearchCriteria();
     }
 
     public Set<Long> searchForIDs(final Long userId, final AuthorisationInformation authorisationInformation,
@@ -64,6 +68,16 @@ public class SampleContainerSearchManager extends AbstractLocalSearchManager<Sam
     protected Set<Long> doFilterIDsByUserRights(final Set<Long> ids, final AuthorisationInformation authorisationInformation)
     {
         return getAuthProvider().getAuthorisedSamples(ids, authorisationInformation);
+    }
+
+    @Override
+    protected Set<Long> getAllIds(final Long userId, final AuthorisationInformation authorisationInformation,
+            final String idsColumnName, final TableMapper tableMapper,
+            final AbstractCompositeSearchCriteria containerCriterion)
+    {
+        // Container criterion should not return all results
+        return getSearchDAO().queryDBForIdsAndRanksWithNonRecursiveCriteria(
+                userId, containerCriterion, tableMapper, idsColumnName, authorisationInformation);
     }
 
 }

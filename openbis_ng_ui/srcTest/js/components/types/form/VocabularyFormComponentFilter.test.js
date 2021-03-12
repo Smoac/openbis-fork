@@ -36,15 +36,15 @@ async function testFilter() {
   form.expectJSON({
     grid: {
       columns: [
-        { field: 'code.value', filter: { value: null } },
-        { field: 'label.value', filter: { value: 'some' } },
-        { field: 'description.value', filter: { value: null } },
-        { field: 'official.value', filter: { value: null } }
+        { name: 'code', filter: { value: null } },
+        { name: 'label', filter: { value: 'some' } },
+        { name: 'description', filter: { value: null } },
+        { name: 'official', filter: { value: null } }
       ],
       rows: [
-        { values: { 'label.value': 'some 1' } },
-        { values: { 'label.value': 'SOME 2' } },
-        { values: { 'label.value': 'Some 3' } }
+        { values: { label: 'some 1' } },
+        { values: { label: 'SOME 2' } },
+        { values: { label: 'Some 3' } }
       ],
       paging: {
         range: '1-3 of 3'
@@ -58,14 +58,14 @@ async function testFilter() {
   form.expectJSON({
     grid: {
       columns: [
-        { field: 'code.value', filter: { value: null } },
-        { field: 'label.value', filter: { value: '1' } },
-        { field: 'description.value', filter: { value: null } },
-        { field: 'official.value', filter: { value: null } }
+        { name: 'code', filter: { value: null } },
+        { name: 'label', filter: { value: '1' } },
+        { name: 'description', filter: { value: null } },
+        { name: 'official', filter: { value: null } }
       ],
       rows: [
-        { values: { 'label.value': 'some 1' } },
-        { values: { 'label.value': 'another 1' } }
+        { values: { label: 'some 1' } },
+        { values: { label: 'another 1' } }
       ],
       paging: {
         range: '1-2 of 2'

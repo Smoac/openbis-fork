@@ -55,10 +55,7 @@ export default class TypeFormControllerLoad extends PageControllerLoad {
       }
     }
 
-    let [loadedUsages, loadedAssignments] = await Promise.all([
-      this.facade.loadUsages(object),
-      this.facade.loadAssignments(object)
-    ])
+    const loadedAssignments = await this.facade.loadAssignments(object)
 
     const sections = []
     const properties = []
@@ -73,7 +70,6 @@ export default class TypeFormControllerLoad extends PageControllerLoad {
           'property-' + propertiesCounter++,
           loadedType,
           loadedAssignment,
-          loadedUsages,
           loadedAssignments
         )
         properties.push(property)
@@ -95,7 +91,7 @@ export default class TypeFormControllerLoad extends PageControllerLoad {
       })
     }
 
-    const type = this._createType(loadedType, loadedUsages)
+    const type = this._createType(loadedType)
 
     if (loadedType) {
       type.original = _.cloneDeep({
@@ -114,14 +110,13 @@ export default class TypeFormControllerLoad extends PageControllerLoad {
       sectionsCounter,
       preview: {},
       selection: selection,
-      usages: loadedUsages,
       assignments: loadedAssignments,
       removeSectionDialogOpen: false,
       removePropertyDialogOpen: false
     }))
   }
 
-  _createType(loadedType, loadedUsages) {
+  _createType(loadedType) {
     const strategy = this._getStrategy()
     const type = {
       code: FormUtil.createField({
@@ -137,10 +132,9 @@ export default class TypeFormControllerLoad extends PageControllerLoad {
       validationPlugin: FormUtil.createField({
         value: _.get(loadedType, 'validationPlugin.name', null)
       }),
-      usages: (loadedUsages && loadedUsages.type) || 0,
       errors: 0
     }
-    strategy.setTypeAttributes(type, loadedType, loadedUsages)
+    strategy.setTypeAttributes(type, loadedType)
     return type
   }
 
@@ -154,13 +148,7 @@ export default class TypeFormControllerLoad extends PageControllerLoad {
     }
   }
 
-  _createProperty(
-    id,
-    loadedType,
-    loadedAssignment,
-    loadedUsages,
-    loadedAssignments
-  ) {
+  _createProperty(id, loadedType, loadedAssignment, loadedAssignments) {
     const propertyType = loadedAssignment.propertyType
 
     const code = _.get(propertyType, 'code', null)
@@ -172,35 +160,17 @@ export default class TypeFormControllerLoad extends PageControllerLoad {
       ? TypeFormPropertyScope.LOCAL
       : TypeFormPropertyScope.GLOBAL
 
-    const registratorOfAssignment = _.get(
+    const assignments =
+      (loadedAssignments && loadedAssignments[propertyType.code]) || 0
+
+    const assignmentRegistrator = _.get(
       loadedAssignment,
       'registrator.userId',
       null
     )
-    const registratorOfPropertyType = _.get(
-      propertyType,
-      'registrator.userId',
-      null
-    )
 
-    const assignments =
-      (loadedAssignments && loadedAssignments[propertyType.code]) || 0
-
-    const usagesLocal =
-      (loadedUsages &&
-        loadedUsages.propertyLocal &&
-        loadedUsages.propertyLocal[propertyType.code]) ||
-      0
-    const usagesGlobal =
-      (loadedUsages &&
-        loadedUsages.propertyGlobal &&
-        loadedUsages.propertyGlobal[propertyType.code]) ||
-      0
-
-    const systemInternalAssignment =
-      internal && registratorOfAssignment === users.SYSTEM
-    const systemInternalPropertyType =
-      internal && registratorOfPropertyType === users.SYSTEM
+    const assignmentInternal =
+      internal && assignmentRegistrator === users.SYSTEM
 
     return {
       id: id,
@@ -217,27 +187,32 @@ export default class TypeFormControllerLoad extends PageControllerLoad {
         visible: false,
         enabled: false
       }),
+      assignmentInternal: FormUtil.createField({
+        value: assignmentInternal,
+        visible: false,
+        enabled: false
+      }),
       label: FormUtil.createField({
         value: _.get(propertyType, 'label', null),
-        enabled: !systemInternalPropertyType
+        enabled: !internal
       }),
       description: FormUtil.createField({
         value: _.get(propertyType, 'description', null),
-        enabled: !systemInternalPropertyType
+        enabled: !internal
       }),
       dataType: FormUtil.createField({
         value: dataType,
-        enabled: !systemInternalPropertyType
+        enabled: !internal
       }),
       schema: FormUtil.createField({
         value: _.get(propertyType, 'schema', null),
         visible: dataType === openbis.DataType.XML,
-        enabled: !systemInternalPropertyType
+        enabled: !internal
       }),
       transformation: FormUtil.createField({
         value: _.get(propertyType, 'transformation', null),
         visible: dataType === openbis.DataType.XML,
-        enabled: !systemInternalPropertyType
+        enabled: !internal
       }),
       vocabulary: FormUtil.createField({
         value: _.get(propertyType, 'vocabulary.code', null),
@@ -256,37 +231,25 @@ export default class TypeFormControllerLoad extends PageControllerLoad {
       }),
       plugin: FormUtil.createField({
         value: plugin,
-        enabled: plugin && !systemInternalAssignment
+        enabled: plugin && !assignmentInternal
       }),
       mandatory: FormUtil.createField({
         value: _.get(loadedAssignment, 'mandatory', false),
-        enabled: !systemInternalAssignment
+        enabled: !assignmentInternal
       }),
       showInEditView: FormUtil.createField({
         value: _.get(loadedAssignment, 'showInEditView', true),
-        enabled: !systemInternalAssignment
+        enabled: !assignmentInternal
       }),
       showRawValueInForms: FormUtil.createField({
         value: _.get(loadedAssignment, 'showRawValueInForms', false),
-        enabled: !systemInternalAssignment
+        enabled: !assignmentInternal
       }),
       initialValueForExistingEntities: FormUtil.createField({
         visible: false,
-        enabled: !systemInternalAssignment
-      }),
-      registratorOfAssignment: FormUtil.createField({
-        value: registratorOfAssignment,
-        visible: false,
-        enabled: false
-      }),
-      registratorOfPropertyType: FormUtil.createField({
-        value: registratorOfPropertyType,
-        visible: false,
-        enabled: false
+        enabled: !assignmentInternal
       }),
       assignments,
-      usagesLocal,
-      usagesGlobal,
       errors: 0
     }
   }

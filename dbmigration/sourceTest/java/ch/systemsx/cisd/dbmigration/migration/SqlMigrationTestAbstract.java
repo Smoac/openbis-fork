@@ -37,9 +37,11 @@ import ch.systemsx.cisd.dbmigration.postgresql.DumpPreparator;
 import cz.startnet.utils.pgdiff.PgDiff;
 import cz.startnet.utils.pgdiff.PgDiffArguments;
 
+import static ch.systemsx.cisd.dbmigration.DBMigrationEngine.FULL_TEXT_SEARCH_DOCUMENT_VERSION_FILE_PATH;
+
 /**
  * Test cases for database migration.
- * 
+ *
  * @author Piotr Kupczyk
  */
 public abstract class SqlMigrationTestAbstract
@@ -78,8 +80,10 @@ public abstract class SqlMigrationTestAbstract
         }
     }
 
-    public void testMigration(String newestVersionString) throws Exception
+    public void testMigration(final String newestVersionString, final String newestFullTextSearchVersionString)
     {
+        new File(FULL_TEXT_SEARCH_DOCUMENT_VERSION_FILE_PATH).delete();
+
         SqlMigrationVersion newestVersion = new SqlMigrationVersion(newestVersionString);
         SqlMigrationVersion firstVersion =
                 new SqlMigrationVersion(Math.max(1, newestVersion.getVersionInt() - CHECK_NUMBER_OF_MIGRATIONS));
@@ -92,18 +96,18 @@ public abstract class SqlMigrationTestAbstract
             // create first version of the migration database
             migrationContext = createMigrationDatabaseContext(true);
             DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(migrationContext,
-                    firstVersion.getVersionString());
+                    firstVersion.getVersionString(), newestFullTextSearchVersionString);
 
             // migrate the migration database to the newest version
             migrationContext.setCreateFromScratch(false);
             DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(migrationContext,
-                    newestVersion.getVersionString());
+                    newestVersion.getVersionString(), newestFullTextSearchVersionString);
             dumpDatabaseSchema(migrationContext, getMigratedDatabaseSchemaFile());
 
             // create the scratch database with the newest version
             scratchContext = createScratchDatabaseContext();
             DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(scratchContext,
-                    newestVersion.getVersionString());
+                    newestVersion.getVersionString(), newestFullTextSearchVersionString);
             dumpDatabaseSchema(scratchContext, getScratchDatabaseSchemaFile());
 
             // check migration and scratch databases are equal

@@ -100,7 +100,7 @@ public class SearchProjectTest extends AbstractTest
         criteria.withCodes().thatIn(Arrays.asList("TEST-PROJECT", "TESTPROJ"));
         testSearch(TEST_USER, criteria, "/TESTGROUP/TESTPROJ", "/TEST-SPACE/TEST-PROJECT");
     }
-    
+
     @Test
     public void testSearchWithCodeThatContains()
     {
@@ -214,6 +214,35 @@ public class SearchProjectTest extends AbstractTest
         fo.sortBy().code().desc();
         List<Project> projects2 = v3api.searchProjects(sessionToken, criteria, fo).getObjects();
         assertProjectIdentifiers(projects2, "/TEST-SPACE/PROJECT-TO-DELETE", "/TEST-SPACE/NOE", "/CISD/NOE");
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test()
+    public void testSearchWithSortingByModificationDate()
+    {
+        final ProjectSearchCriteria criteria = new ProjectSearchCriteria();
+        criteria.withOrOperator();
+        criteria.withId().thatEquals(new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT"));
+        criteria.withId().thatEquals(new ProjectIdentifier("/TESTGROUP/TESTPROJ"));
+
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final ProjectFetchOptions fo1 = new ProjectFetchOptions();
+        fo1.from(1).count(1);
+        fo1.sortBy().modificationDate().asc();
+
+        final SearchResult<Project> result1 = v3api.searchProjects(sessionToken, criteria, fo1);
+        final Project project1 = result1.getObjects().get(0);
+        assertEquals(project1.getCode(), "TESTPROJ");
+
+        final ProjectFetchOptions fo2 = new ProjectFetchOptions();
+        fo2.from(1).count(1);
+        fo2.sortBy().modificationDate().desc();
+
+        final SearchResult<Project> result2 = v3api.searchProjects(sessionToken, criteria, fo2);
+        final Project project2 = result2.getObjects().get(0);
+        assertEquals(project2.getCode(), "TEST-PROJECT");
 
         v3api.logout(sessionToken);
     }

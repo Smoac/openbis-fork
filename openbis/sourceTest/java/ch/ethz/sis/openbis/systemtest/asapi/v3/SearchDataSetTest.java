@@ -23,6 +23,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.DatePropertySearchCriteria;
@@ -52,9 +55,9 @@ public class SearchDataSetTest extends AbstractDataSetTest
     @Test
     public void testSearchWithEmptyCriteria()
     {
-        testSearch(TEST_SPACE_USER, new DataSetSearchCriteria(), "20120619092259000-22", "20120628092259000-24", "20120628092259000-25",
-                "20120628092259000-41", "VALIDATIONS_CNTNR-26", "VALIDATIONS_IMPOS-27", "VALIDATIONS_PARENT-28", "DATASET-TO-DELETE",
-                "COMPONENT_3AX");
+        testSearch(TEST_SPACE_USER, new DataSetSearchCriteria(), "20120619092259000-22", "20120628092259000-24",
+                "20120628092259000-25", "20120628092259000-41", "VALIDATIONS_CNTNR-26", "VALIDATIONS_IMPOS-27",
+                "VALIDATIONS_PARENT-28", "DATASET-TO-DELETE", "COMPONENT_3AX");
     }
 
     @Test
@@ -82,13 +85,21 @@ public class SearchDataSetTest extends AbstractDataSetTest
     }
 
     @Test
+    public void testSearchWithCodeForNonAdminUserWhereDataSetIsOwnedBySpaceSample()
+    {
+        DataSetSearchCriteria criteria = new DataSetSearchCriteria();
+        criteria.withCode().thatEquals("20120628092259000-23");
+        testSearch(TEST_ROLE_V3, criteria, "20120628092259000-23");
+    }
+
+    @Test
     public void testSearchWithCodes()
     {
         DataSetSearchCriteria criteria = new DataSetSearchCriteria();
         criteria.withCodes().thatIn(Arrays.asList("20081105092259000-18", "20081105092259000-19"));
         testSearch(TEST_USER, criteria, "20081105092259000-18", "20081105092259000-19");
     }
-    
+
     @Test
     public void testSearchTwoDataSetsWithCodeAndId()
     {
@@ -324,6 +335,23 @@ public class SearchDataSetTest extends AbstractDataSetTest
         DataSetSearchCriteria criteria = new DataSetSearchCriteria();
         criteria.withAnyField().thatEquals("20110509092359990-11");
         testSearch(TEST_USER, criteria, "20110509092359990-11");
+    }
+
+    @Test
+    public void testSearchWithAnyFieldMatchingRegistratorOrModifier()
+    {
+        final DataSetSearchCriteria criteria = new DataSetSearchCriteria();
+        criteria.withAnyField().thatEquals("etlserver");
+        testSearch(TEST_USER, criteria, "20081105092259900-1", "20081105092359990-2", "20110509092359990-11",
+                "20110509092359990-12");
+    }
+
+    @Test
+    public void testSearchWithAnyFieldMatchingDataSetType()
+    {
+        final DataSetSearchCriteria criteria = new DataSetSearchCriteria();
+        criteria.withAnyField().thatEquals("UNKNOWN");
+        testSearch(TEST_USER, criteria, "DATASET-TO-DELETE");
     }
 
     @Test
@@ -831,7 +859,8 @@ public class SearchDataSetTest extends AbstractDataSetTest
     {
         DataSetSearchCriteria criteria = new DataSetSearchCriteria();
         criteria.withRegistrationDate().thatEquals("2009-02-09");
-        testSearch(TEST_USER, criteria, "20081105092159111-1", "20081105092159222-2", "20081105092159333-3", "20110805092359990-17");
+        testSearch(TEST_USER, criteria, "20081105092159111-1", "20081105092159222-2", "20081105092159333-3",
+                "20110805092359990-17");
     }
 
     @Test
@@ -1590,6 +1619,80 @@ public class SearchDataSetTest extends AbstractDataSetTest
     }
 
     @Test
+    public void testNestedLogicalOperators()
+    {
+        final DataSetSearchCriteria criteria = new DataSetSearchCriteria().withAndOperator();
+
+        final DataSetSearchCriteria subCriteria1 = criteria.withSubcriteria().withOrOperator();
+        subCriteria1.withCode().thatStartsWith("2008");
+        subCriteria1.withCode().thatStartsWith("CON");
+
+        final DataSetSearchCriteria subCriteria2 = criteria.withSubcriteria().withOrOperator();
+        subCriteria2.withCode().thatEndsWith("1");
+        subCriteria2.withCode().thatEndsWith("A");
+
+        testSearch(TEST_USER, criteria, "CONTAINER_1", "20081105092259000-21", "20081105092159111-1", "CONTAINER_3A",
+                "20081105092259900-1");
+    }
+
+    @Test
+    public void testNestedLogicalOperatorsMultipleNesting()
+    {
+        final DataSetSearchCriteria criteria = new DataSetSearchCriteria().withAndOperator();
+
+        final DataSetSearchCriteria subCriteria1 = criteria.withSubcriteria().withOrOperator();
+        subCriteria1.withSubcriteria().withCode().thatStartsWith("2008");
+        subCriteria1.withSubcriteria().withSubcriteria().withCode().thatStartsWith("CON");
+
+        final DataSetSearchCriteria subCriteria2 = criteria.withSubcriteria().withOrOperator();
+        subCriteria2.withSubcriteria().withSubcriteria().withSubcriteria().withCode().thatEndsWith("1");
+        subCriteria2.withSubcriteria().withSubcriteria().withSubcriteria().withSubcriteria().withCode()
+                .thatEndsWith("A");
+
+        testSearch(TEST_USER, criteria, "CONTAINER_1", "20081105092259000-21", "20081105092159111-1", "CONTAINER_3A",
+                "20081105092259900-1");
+    }
+
+    @Test
+    public void testNestedLogicalOperatorsWithParentsAndChildren()
+    {
+        final DataSetSearchCriteria criteria = new DataSetSearchCriteria().withAndOperator();
+
+        final DataSetSearchCriteria subcriteria1 = criteria.withSubcriteria().withOrOperator();
+        subcriteria1.withParents().withCode().thatStartsWith("20081105092259000-");
+        subcriteria1.withParents().withCode().thatStartsWith("20081105092259900-");
+        subcriteria1.withParents().withCode().thatStartsWith("20110509092359990-");
+        subcriteria1.withParents().withCode().thatStartsWith("20081105092159");
+
+        final DataSetSearchCriteria subcriteria2 = criteria.withSubcriteria().withOrOperator();
+        subcriteria2.withChildren().withCode().thatEndsWith("2");
+        subcriteria2.withChildren().withCode().thatEndsWith("AB");
+
+        testSearch(TEST_INSTANCE_ETLSERVER, criteria, "20081105092259900-0", "20081105092259900-1");
+    }
+
+    @Test
+    public void testNestedLogicalOperatorsWithParentsAndChildrenMultipleNesting()
+    {
+        final DataSetSearchCriteria criteria = new DataSetSearchCriteria().withAndOperator();
+
+        final DataSetSearchCriteria subcriteria1 = criteria.withSubcriteria().withOrOperator();
+        subcriteria1.withSubcriteria().withParents().withCode().thatStartsWith("20081105092259000-");
+        subcriteria1.withSubcriteria().withSubcriteria().withParents().withCode().thatStartsWith("20081105092259900-");
+        subcriteria1.withSubcriteria().withSubcriteria().withSubcriteria().withParents().withCode()
+                .thatStartsWith("20110509092359990-");
+        subcriteria1.withSubcriteria().withSubcriteria().withSubcriteria().withSubcriteria().withParents().withCode()
+                .thatStartsWith("20081105092159");
+
+        final DataSetSearchCriteria subcriteria2 = criteria.withSubcriteria().withOrOperator();
+        subcriteria2.withSubcriteria().withSubcriteria().withSubcriteria().withSubcriteria().withSubcriteria()
+                .withChildren().withCode().thatEndsWith("2");
+        subcriteria2.withSubcriteria().withSubcriteria().withSubcriteria().withChildren().withCode().thatEndsWith("AB");
+
+        testSearch(TEST_INSTANCE_ETLSERVER, criteria, "20081105092259900-0", "20081105092259900-1");
+    }
+
+    @Test
     public void testLogging()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -1603,8 +1706,75 @@ public class SearchDataSetTest extends AbstractDataSetTest
 
         v3api.searchDataSets(sessionToken, c, fo);
 
-        assertAccessLog(
-                "search-data-sets  SEARCH_CRITERIA:\n'DATASET\n    with attribute 'code' equal to '20081105092259000-18'\n'\nFETCH_OPTIONS:\n'DataSet\n    with Experiment\n    with Sample\n'");
+        assertAccessLog("search-data-sets  SEARCH_CRITERIA:\n'DATASET\n    with attribute 'code' equal to " +
+                "'20081105092259000-18'\n'\nFETCH_OPTIONS:\n'DataSet\n    with Experiment\n    with Sample\n'");
+    }
+
+    @Test
+    public void testSearchWithPermIdWithAttributeFullTextSearch()
+    {
+        final DataSetSearchCriteria criteria = new DataSetSearchCriteria().withAndOperator();
+
+        criteria.withTextAttribute().thatMatches(
+                "component_1a component_1b component_2a component_2b container_1 container_2");
+        criteria.withPermId().thatStartsWith("COMPONENT");
+
+        testSearch(TEST_USER, criteria, "COMPONENT_1A", "COMPONENT_1B", "COMPONENT_2A");
+    }
+
+    @Test
+    public void testSearchWithPermIdWithPropertyFullTextSearch()
+    {
+        final DataSetSearchCriteria criteria = new DataSetSearchCriteria().withAndOperator();
+
+        criteria.withProperty("COMMENT").thatMatches("virtual female bacterium1");
+        criteria.withPermId().thatEndsWith("1");
+
+        testSearch(TEST_USER, criteria, "20110509092359990-11");
+    }
+
+    @Test
+    public void testSearchWithPermIdWithStringPropertyFullTextSearch()
+    {
+        final DataSetSearchCriteria criteria = new DataSetSearchCriteria().withAndOperator();
+
+        criteria.withStringProperty("COMMENT").thatMatches("virtual female bacterium1");
+        criteria.withPermId().thatEndsWith("1");
+
+        testSearch(TEST_USER, criteria, "20110509092359990-11");
+    }
+
+    @Test
+    public void testSearchWithPermIdWithAnyPropertyFullTextSearch()
+    {
+        final DataSetSearchCriteria criteria = new DataSetSearchCriteria().withAndOperator();
+
+        criteria.withAnyProperty().thatMatches("virtual female bacterium1");
+        criteria.withPermId().thatEndsWith("1");
+
+        testSearch(TEST_USER, criteria, "20110509092359990-11", "20081105092159111-1");
+    }
+
+    @Test
+    public void testSearchWithPermIdWithAnyStringPropertyFullTextSearch()
+    {
+        final DataSetSearchCriteria criteria = new DataSetSearchCriteria().withAndOperator();
+
+        criteria.withAnyStringProperty().thatMatches("virtual female bacterium1");
+        criteria.withPermId().thatEndsWith("1");
+
+        testSearch(TEST_USER, criteria, "20110509092359990-11");
+    }
+
+    @Test
+    public void testSearchWithPermIdWithAnyFieldFullTextSearch()
+    {
+        final DataSetSearchCriteria criteria = new DataSetSearchCriteria().withAndOperator();
+
+        criteria.withAnyField().thatMatches("virtual female bacterium1 20081105092259900-1 20081105092259900-2");
+        criteria.withPermId().thatEndsWith("1");
+
+        testSearch(TEST_USER, criteria, "20110509092359990-11", "20081105092159111-1", "20081105092259900-1");
     }
 
     private List<DataSet> search(final String sessionToken, final DataSetSearchCriteria criteria,

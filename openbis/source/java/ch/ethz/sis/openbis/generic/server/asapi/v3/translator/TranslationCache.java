@@ -29,11 +29,11 @@ public class TranslationCache
     {
         private String translatorId;
 
-        private Long objectId;
+        private Object objectId;
 
         private FetchOptions<?> fetchOptions;
 
-        public CacheKey(String translatorId, Long objectId, FetchOptions<?> fetchOptions)
+        public CacheKey(String translatorId, Object objectId, FetchOptions<?> fetchOptions)
         {
             this.translatorId = translatorId;
             this.objectId = objectId;

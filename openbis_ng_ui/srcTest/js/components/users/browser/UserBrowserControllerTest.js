@@ -26,4 +26,10 @@ export default class UserBrowserControllerTest {
       actions.objectOpen(pages.USERS, objectType.USER_GROUP, groupId)
     )
   }
+
+  expectOpenUsersOverviewAction() {
+    this.context.expectAction(
+      actions.objectOpen(pages.USERS, objectType.OVERVIEW, objectType.USER)
+    )
+  }
 }

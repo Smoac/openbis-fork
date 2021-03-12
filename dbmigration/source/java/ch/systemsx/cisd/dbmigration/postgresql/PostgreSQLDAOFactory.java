@@ -83,7 +83,12 @@ public class PostgreSQLDAOFactory implements IDAOFactory
                                 .getReadWriteGroup(),
                         context.getDatabaseName(), context
                                 .getDatabaseURL());
-//        assertValidVersion(databaseDAO.getDatabaseServerVersion(), context.getValidVersions());
+
+        if (System.getenv().containsKey("FORCE_OPENBIS_POSTGRES_VALID_VERSIONS")) {
+            assertValidVersion(databaseDAO.getDatabaseServerVersion(), System.getenv().get("FORCE_OPENBIS_POSTGRES_VALID_VERSIONS"));
+        } else {
+            assertValidVersion(databaseDAO.getDatabaseServerVersion(), context.getValidVersions());
+        }
     }
 
     private void assertValidVersion(String databaseServerVersion, String validVersions)

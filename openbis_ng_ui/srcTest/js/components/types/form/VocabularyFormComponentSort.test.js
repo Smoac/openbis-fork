@@ -38,20 +38,20 @@ async function testSort() {
   form.expectJSON({
     grid: {
       columns: [
-        { field: 'code.value', sort: null },
-        { field: 'label.value', sort: 'asc' },
-        { field: 'description.value', sort: null },
-        { field: 'official.value', sort: null }
+        { name: 'code', sort: null },
+        { name: 'label', sort: 'asc' },
+        { name: 'description', sort: null },
+        { name: 'official', sort: null }
       ],
       rows: [
-        { values: { 'label.value': 'Term 1' } },
-        { values: { 'label.value': 'Term 2' } },
-        { values: { 'label.value': 'term 11' } },
-        { values: { 'label.value': 'TERM A' } },
-        { values: { 'label.value': 'Term A1' } },
-        { values: { 'label.value': 'term A2' } },
-        { values: { 'label.value': 'tErM A11' } },
-        { values: { 'label.value': 'term B' } }
+        { values: { label: 'Term 1' } },
+        { values: { label: 'Term 2' } },
+        { values: { label: 'term 11' } },
+        { values: { label: 'TERM A' } },
+        { values: { label: 'Term A1' } },
+        { values: { label: 'term A2' } },
+        { values: { label: 'tErM A11' } },
+        { values: { label: 'term B' } }
       ]
     }
   })
@@ -62,20 +62,20 @@ async function testSort() {
   form.expectJSON({
     grid: {
       columns: [
-        { field: 'code.value', sort: null },
-        { field: 'label.value', sort: 'desc' },
-        { field: 'description.value', sort: null },
-        { field: 'official.value', sort: null }
+        { name: 'code', sort: null },
+        { name: 'label', sort: 'desc' },
+        { name: 'description', sort: null },
+        { name: 'official', sort: null }
       ],
       rows: [
-        { values: { 'label.value': 'term B' } },
-        { values: { 'label.value': 'tErM A11' } },
-        { values: { 'label.value': 'term A2' } },
-        { values: { 'label.value': 'Term A1' } },
-        { values: { 'label.value': 'TERM A' } },
-        { values: { 'label.value': 'term 11' } },
-        { values: { 'label.value': 'Term 2' } },
-        { values: { 'label.value': 'Term 1' } }
+        { values: { label: 'term B' } },
+        { values: { label: 'tErM A11' } },
+        { values: { label: 'term A2' } },
+        { values: { label: 'Term A1' } },
+        { values: { label: 'TERM A' } },
+        { values: { label: 'term 11' } },
+        { values: { label: 'Term 2' } },
+        { values: { label: 'Term 1' } }
       ]
     }
   })

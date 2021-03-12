@@ -94,7 +94,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyTy
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyAssignmentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.QueryType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.fetchoptions.QueryDatabaseFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.fetchoptions.QueryFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.id.QueryDatabaseName;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.Role;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.RoleLevel;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
@@ -823,6 +827,22 @@ public class Generator extends AbstractGenerator
         return gen;
     }
 
+    private static DtoGenerator createQueryDatabase()
+    {
+        DtoGenerator gen = new DtoGenerator("query", "QueryDatabase", QueryDatabaseFetchOptions.class);
+
+        addPermId(gen, QueryDatabaseName.class);
+        gen.addSimpleField(String.class, "name");
+        gen.addSimpleField(String.class, "label");
+        addSpace(gen);
+        gen.addSimpleField(Role.class, "creatorMinimalRole");
+        gen.addSimpleField(RoleLevel.class, "creatorMinimalRoleLevel");
+
+        gen.setToStringMethod("\"QueryDatabase \" + name");
+
+        return gen;
+    }
+
     public static void main(String[] args) throws FileNotFoundException
     {
         List<DtoGenerator> list = new LinkedList<DtoGenerator>();
@@ -860,6 +880,7 @@ public class Generator extends AbstractGenerator
         list.add(createOperationExecutionDetails());
         list.add(createSemanticAnnotation());
         list.add(createQuery());
+        list.add(createQueryDatabase());
 
         for (DtoGenerator gen : list)
         {

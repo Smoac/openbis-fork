@@ -719,6 +719,29 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
 		});
 
+		QUnit.test("getQueryDatabases()", function(assert) {
+			var c = new common(assert, openbis);
+			var fo = new c.QueryDatabaseFetchOptions();
+			var fechOptionsTestConfig = getConfigForFetchOptions(fo);
+
+			var fCreate = function(facade) {
+				var dfd = $.Deferred();
+				dfd.resolve([ new c.QueryDatabaseName("openbisDB"), new c.QueryDatabaseName("test-query-database") ]);
+				return dfd.promise();
+			}
+
+			var fGet = function(facade, techIds) {
+				testFetchOptionsAssignation(c, fo, fechOptionsTestConfig);
+				return facade.getQueryDatabases(techIds, fo);
+			}
+
+			var fGetEmptyFetchOptions = function(facade, techIds) {
+				return facade.getQueryDatabases(techIds, new c.QueryDatabaseFetchOptions());
+			}
+
+			testGet(c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig);
+		});
+
 		QUnit.test("getExperimentTypes()", function(assert) {
 			var c = new common(assert, openbis);
 			var fo = new c.ExperimentTypeFetchOptions();
@@ -813,7 +836,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 		QUnit.test("getRights()", function(assert) {
 			var c = new common(assert);
-			var sampleId = new c.SampleIdentifier("/PLATONIC/PLATE-2");
+			var sampleId = new c.SampleIdentifier("/PLATONIC/SCREENING-EXAMPLES/PLATE-2");
 			c.start();
 			
 			c.createFacadeAndLogin().then(function(facade) {
@@ -835,7 +858,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 				return facade.getServerInformation().then(function(serverInformation) {
 					c.assertTrue(serverInformation != null);
 					c.assertEqual(serverInformation["api-version"], "3.5", "api-version");
-					c.assertEqual(serverInformation["project-samples-enabled"], "false", "project-samples-enabled");
+					c.assertEqual(serverInformation["project-samples-enabled"], "true", "project-samples-enabled");
 					c.finish();
 				});
 			}).fail(function(error) {

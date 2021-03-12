@@ -47,6 +47,12 @@ public class StorageFormatSearchManager extends AbstractLocalSearchManager<Stora
     }
 
     @Override
+    protected AbstractCompositeSearchCriteria createEmptyCriteria()
+    {
+        return new StorageFormatSearchCriteria();
+    }
+
+    @Override
     protected Set<Long> doFilterIDsByUserRights(final Set<Long> ids,
             final AuthorisationInformation authorisationInformation)
     {

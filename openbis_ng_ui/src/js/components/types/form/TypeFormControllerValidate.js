@@ -1,6 +1,7 @@
 import PageControllerValidate from '@src/js/components/common/page/PageConrollerValidate.js'
 import TypeFormControllerStrategies from '@src/js/components/types/form/TypeFormControllerStrategies.js'
 import TypeFormSelectionType from '@src/js/components/types/form/TypeFormSelectionType.js'
+import messages from '@src/js/common/messages.js'
 
 export default class TypeFormControllerValidate extends PageControllerValidate {
   validate(validator) {
@@ -38,8 +39,8 @@ export default class TypeFormControllerValidate extends PageControllerValidate {
 
   _validateType(validator, type) {
     const strategy = this._getStrategy()
-    validator.validateNotEmpty(type, 'code', 'Code')
-    validator.validateCode(type, 'code', 'Code')
+    validator.validateNotEmpty(type, 'code', messages.get(messages.CODE))
+    validator.validateCode(type, 'code', messages.get(messages.CODE))
     strategy.validateTypeAttributes(validator, type)
     return validator.withErrors(type)
   }
@@ -52,26 +53,42 @@ export default class TypeFormControllerValidate extends PageControllerValidate {
   }
 
   _validateProperty(validator, property) {
-    validator.validateNotEmpty(property, 'code', 'Code')
+    validator.validateNotEmpty(property, 'code', messages.get(messages.CODE))
 
     if (property.internal.value) {
-      validator.validateInternalCode(property, 'code', 'Code')
+      validator.validateInternalCode(
+        property,
+        'code',
+        messages.get(messages.CODE)
+      )
     } else {
-      validator.validateCode(property, 'code', 'Code')
+      validator.validateCode(property, 'code', messages.get(messages.CODE))
     }
 
-    validator.validateNotEmpty(property, 'label', 'Label')
-    validator.validateNotEmpty(property, 'description', 'Description')
-    validator.validateNotEmpty(property, 'dataType', 'Data Type')
+    validator.validateNotEmpty(property, 'label', messages.get(messages.LABEL))
+    validator.validateNotEmpty(
+      property,
+      'description',
+      messages.get(messages.DESCRIPTION)
+    )
+    validator.validateNotEmpty(
+      property,
+      'dataType',
+      messages.get(messages.DATA_TYPE)
+    )
 
     if (property.vocabulary.visible) {
-      validator.validateNotEmpty(property, 'vocabulary', 'Vocabulary')
+      validator.validateNotEmpty(
+        property,
+        'vocabulary',
+        messages.get(messages.VOCABULARY_TYPE)
+      )
     }
     if (property.initialValueForExistingEntities.visible) {
       validator.validateNotEmpty(
         property,
         'initialValueForExistingEntities',
-        'Initial Value'
+        messages.get(messages.INITIAL_VALUE)
       )
     }
   }
@@ -91,7 +108,7 @@ class ObjectTypeStrategy {
     validator.validateNotEmpty(
       type,
       'generatedCodePrefix',
-      'Generated code prefix'
+      messages.get(messages.GENERATED_CODE_PREFIX)
     )
   }
 }

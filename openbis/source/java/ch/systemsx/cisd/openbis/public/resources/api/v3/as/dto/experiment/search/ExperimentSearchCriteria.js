@@ -2,7 +2,9 @@
  * @author pkupczyk
  */
 define([ "require", "stjs", "as/dto/common/search/AbstractEntitySearchCriteria", "as/dto/common/search/SearchOperator", "as/dto/project/search/ProjectSearchCriteria",
-		"as/dto/experiment/search/ExperimentTypeSearchCriteria", "as/dto/common/search/IdentifierSearchCriteria" ], function(require, stjs, AbstractEntitySearchCriteria, SearchOperator) {
+		"as/dto/experiment/search/ExperimentTypeSearchCriteria", "as/dto/common/search/IdentifierSearchCriteria",
+		"as/dto/common/search/TextAttributeSearchCriteria"],
+	function(require, stjs, AbstractEntitySearchCriteria, SearchOperator) {
 	var ExperimentSearchCriteria = function() {
 		AbstractEntitySearchCriteria.call(this);
 	};
@@ -20,6 +22,13 @@ define([ "require", "stjs", "as/dto/common/search/AbstractEntitySearchCriteria",
 		prototype.withProject = function() {
 			var ProjectSearchCriteria = require("as/dto/project/search/ProjectSearchCriteria");
 			return this.addCriteria(new ProjectSearchCriteria());
+		};
+		prototype.withSubcriteria = function() {
+			return this.addCriteria(new ExperimentSearchCriteria());
+		};
+		prototype.withTextAttribute = function() {
+			var TextAttributeSearchCriteria = require("as/dto/common/search/TextAttributeSearchCriteria");
+			return this.addCriteria(new TextAttributeSearchCriteria());
 		};
 		prototype.withOrOperator = function() {
 			return this.withOperator(SearchOperator.OR);

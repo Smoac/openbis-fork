@@ -26,7 +26,8 @@ class Things():
         self, openbis_obj, entity, df,
         identifier_name='code', additional_identifier=None, 
         start_with=None, count=None, totalCount=None,
-        single_item_method=None
+        single_item_method=None,
+        objects=None
     ):
         self.openbis = openbis_obj
         self.entity = entity
@@ -37,6 +38,7 @@ class Things():
         self.count = count
         self.totalCount=totalCount
         self.single_item_method=single_item_method
+        self.objects=objects
 
     def __repr__(self):
         return tabulate(self.df, headers=list(self.df))
@@ -136,8 +138,11 @@ class Things():
         if self.df is not None and len(self.df) > 0:
             row = None
             if isinstance(key, int):
-                # get thing by rowid
-                row = self.df.loc[[key]]
+                if self.objects:
+                    return self.objects[key]
+                else:
+                    # get thing by rowid
+                    row = self.df.loc[[key]]
             elif isinstance(key, list):
                 # treat it as a normal dataframe
                 return self.df[key]
@@ -161,13 +166,17 @@ class Things():
                     )
 
     def __iter__(self):
-        if self.single_item_method:
-            get_item = self.single_item_method
+        if self.objects:
+            for obj in self.objects:
+                yield obj
         else:
-            get_item = getattr(self.openbis, 'get_' + self.entity)
-        for item in self.df[[self.identifier_name]][self.identifier_name].iteritems():
-            yield get_item(item[1])
-            #yield getattr(self.openbis, 'get_' + self.entity)(item[1])
+            if self.single_item_method:
+                get_item = self.single_item_method
+            else:
+                get_item = getattr(self.openbis, 'get_' + self.entity)
+            for item in self.df[[self.identifier_name]][self.identifier_name].iteritems():
+                yield get_item(item[1])
+                #yield getattr(self.openbis, 'get_' + self.entity)(item[1])
 
-            # return self.df[[self.identifier_name]].to_dict()[self.identifier_name]
+                # return self.df[[self.identifier_name]].to_dict()[self.identifier_name]
 

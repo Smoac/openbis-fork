@@ -3,27 +3,18 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.GlobalSearchCriteriaTranslator.IDENTIFIER_ALIAS;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.PERSON_REGISTERER_COLUMN;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.*;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.fetchoptions.GlobalSearchObjectFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.search.TagSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.query.NativeQuery;
 import org.springframework.dao.DataAccessException;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractEntitySearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.BooleanFieldSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.DateFieldSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.NumberFieldSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.NumberPropertySearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringFieldSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.ArchivingStatus;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.Complete;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.AbstractDataSetSearchCriteria;
@@ -39,7 +30,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.MaterialSearchCr
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.AbstractSampleSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.auth.AuthorisationInformation;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.planner.DataSetSearchManager;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.planner.ExperimentSearchManager;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.planner.GlobalSearchManager;
@@ -52,16 +42,6 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationConfig;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CompareType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetAttributeSearchFieldKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentAttributeSearchFieldKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialAttributeSearchFieldKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -128,11 +108,20 @@ public class HibernateSearchDAOV3Adaptor implements IHibernateSearchDAO {
 
         // Obtain entity id results from search manager
 
-        Set<Map<String, Object>> newResults = getGlobalSearchManager().searchForIDs(personPE.getId(),
+        final GlobalSearchObjectFetchOptions fetchOptions = new GlobalSearchObjectFetchOptions();
+        fetchOptions.withMatch();
+        final Collection<Map<String, Object>> newShortResults = getGlobalSearchManager().searchForIDs(personPE.getId(),
                 getAuthorisationInformation(personPE),
                 globalSearchCriteria,
                 ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.ID_COLUMN,
-                getTableMapper(searchableEntity), true);
+                Collections.singleton(getObjectKind(searchableEntity)), fetchOptions, false);
+
+        final Collection<Map<String, Object>> newResults = getGlobalSearchManager().searchForDetails(newShortResults,
+                personPE.getId(),
+                getAuthorisationInformation(personPE),
+                globalSearchCriteria,
+                ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.ID_COLUMN,
+                Collections.singleton(getObjectKind(searchableEntity)), fetchOptions);
 
         Collection<MatchingEntity> matchingEntities = getGlobalSearchManager().map(newResults, true);
 
@@ -200,23 +189,35 @@ public class HibernateSearchDAOV3Adaptor implements IHibernateSearchDAO {
         return globalSearchCriteria;
     }
 
-    private TableMapper getTableMapper(SearchableEntity entityKind) {
-        TableMapper tableMapper = null;
+    private GlobalSearchObjectKind getObjectKind(final SearchableEntity entityKind) {
+        final GlobalSearchObjectKind objectKind;
         switch (entityKind) {
             case MATERIAL:
-                tableMapper = TableMapper.MATERIAL;
+            {
+                objectKind = GlobalSearchObjectKind.MATERIAL;
                 break;
+            }
             case EXPERIMENT:
-                tableMapper = TableMapper.EXPERIMENT;
+            {
+                objectKind = GlobalSearchObjectKind.EXPERIMENT;
                 break;
+            }
             case SAMPLE:
-                tableMapper = TableMapper.SAMPLE;
+            {
+                objectKind = GlobalSearchObjectKind.SAMPLE;
                 break;
+            }
             case DATA_SET:
-                tableMapper = TableMapper.DATA_SET;
+            {
+                objectKind = GlobalSearchObjectKind.DATA_SET;
                 break;
+            }
+            default:
+            {
+                throw new IllegalArgumentException();
+            }
         }
-        return tableMapper;
+        return objectKind;
     }
 
     @Override
@@ -530,8 +531,9 @@ public class HibernateSearchDAOV3Adaptor implements IHibernateSearchDAO {
         }
 
         for (String value:v1Criterion.getValues()) {
-            ISearchCriteria criterionV3Criteria = null;
-            switch (v1Criterion.getField().getKind()) {
+            final ISearchCriteria criterionV3Criteria;
+            final DetailedSearchFieldKind searchFieldKind = v1Criterion.getField().getKind();
+            switch (searchFieldKind) {
                 case ANY_FIELD:
                     criterionV3Criteria = v3Criteria.withAnyField();
                     break;
@@ -570,32 +572,32 @@ public class HibernateSearchDAOV3Adaptor implements IHibernateSearchDAO {
                         case DATA_SET:
                             criterionV3Criteria = withAttribute((AbstractDataSetSearchCriteria) v3Criteria, v1Criterion.getField().getAttributeCode());
                             break;
+                        default:
+                        {
+                            throwIllegalArgumentException(String.format("Unexpected entityKind. entityKind=%s.",
+                                    entityKind));
+                            return;
+                        }
                     }
 
                     break;
                 case REGISTRATOR:
                     criterionV3Criteria = v3Criteria.withRegistrator().withUserId();
                     break;
+
+                default:
+                {
+                    throwIllegalArgumentException(String.format("Unexpected searchFieldKind. searchFieldKind=%s.",
+                            searchFieldKind));
+                    return;
+                }
             }
 
             CompareType comparisonOperator = v1Criterion.getType();
 
             if (criterionV3Criteria instanceof StringFieldSearchCriteria) {
-                StringFieldSearchCriteria stringFieldSearchCriteria = (StringFieldSearchCriteria) criterionV3Criteria;
-                if (    comparisonOperator == null ||
-                        comparisonOperator == CompareType.EQUALS) {
-                    if (v1Criteria.isUseWildcardSearchMode()) {
-                        // TODO: V3 doesn't support with or without wildcards, instead if a * or ? is found, they are used as wildcards
-                    }
-                    // Old Lucene behaviour was always word match, real equals should be even more restrictive/correct
-                    if (value.startsWith("\"") && value.endsWith("\"")) {
-                        stringFieldSearchCriteria.thatEquals(value.substring(1, value.length() - 1));
-                    } else {
-                        stringFieldSearchCriteria.thatEquals(value);
-                    }
-                } else {
-                    throwIllegalArgumentException(comparisonOperator + " compare type for StringFieldSearchCriteria");
-                }
+                adaptStringFieldCriterion(v1Criteria, value, (StringFieldSearchCriteria) criterionV3Criteria,
+                        comparisonOperator);
             } else if(criterionV3Criteria instanceof NumberPropertySearchCriteria) {
                 NumberFieldSearchCriteria numberFieldSearchCriteria = (NumberFieldSearchCriteria) criterionV3Criteria;
                 Number number = getNumber(value);
@@ -660,11 +662,64 @@ public class HibernateSearchDAOV3Adaptor implements IHibernateSearchDAO {
             } else if(criterionV3Criteria instanceof ExternalDmsTypeSearchCriteria) {
                 ExternalDmsTypeSearchCriteria enumFieldSearchCriteria = (ExternalDmsTypeSearchCriteria) criterionV3Criteria;
                 enumFieldSearchCriteria.thatEquals(ExternalDmsAddressType.valueOf(value));
+            } else if (criterionV3Criteria instanceof AbstractCompositeSearchCriteria)
+            {
+                final Collection<ISearchCriteria> subcriteria = ((AbstractCompositeSearchCriteria) criterionV3Criteria)
+                        .getCriteria();
+                subcriteria.forEach(subcriterion ->
+                {
+                    if (subcriterion instanceof AbstractCompositeSearchCriteria)
+                    {
+                        final Collection<ISearchCriteria> subsubcriteria =
+                                ((AbstractCompositeSearchCriteria) subcriterion).getCriteria();
+                        subsubcriteria.forEach(subsubcriterion ->
+                        {
+                            if (subsubcriterion instanceof TagSearchCriteria)
+                            {
+                                final Collection<ISearchCriteria> subsubsubcriteria =
+                                        ((AbstractCompositeSearchCriteria) subsubcriterion).getCriteria();
+                                subsubsubcriteria.forEach(subsubsubcriterion ->
+                                {
+                                    if (subsubsubcriterion instanceof PermIdSearchCriteria
+                                            || subsubsubcriterion instanceof CodeSearchCriteria)
+                                    {
+                                        adaptStringFieldCriterion(v1Criteria, value,
+                                                ((StringFieldSearchCriteria) subsubsubcriterion), comparisonOperator);
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
             }
             // Default
-            else {
+            else
+            {
                 throwUnsupportedOperationException("TargetV3Criteria: " + v3Criteria.getClass().getSimpleName() + " For V1 Criterion: " + v1Criterion);
             }
+        }
+    }
+
+    private static void adaptStringFieldCriterion(final DetailedSearchCriteria v1Criteria, final String value,
+            final StringFieldSearchCriteria criterionV3Criteria, final CompareType comparisonOperator)
+    {
+        StringFieldSearchCriteria stringFieldSearchCriteria = criterionV3Criteria;
+        if (    comparisonOperator == null ||
+                comparisonOperator == CompareType.EQUALS) {
+            if (v1Criteria.isUseWildcardSearchMode()) {
+                stringFieldSearchCriteria.withWildcards();
+            } else
+            {
+                stringFieldSearchCriteria.withoutWildcards();
+            }
+            // Old Lucene behaviour was always word match, real equals should be even more restrictive/correct
+            if (value.startsWith("\"") && value.endsWith("\"")) {
+                stringFieldSearchCriteria.thatEquals(value.substring(1, value.length() - 1));
+            } else {
+                stringFieldSearchCriteria.thatEquals(value);
+            }
+        } else {
+            throwIllegalArgumentException(comparisonOperator + " compare type for StringFieldSearchCriteria");
         }
     }
 
@@ -682,7 +737,17 @@ public class HibernateSearchDAOV3Adaptor implements IHibernateSearchDAO {
                 criterionV3Criteria = v3Criteria.withType().withCode();
                 break;
             case METAPROJECT:
-                criterionV3Criteria = v3Criteria.withTag().withCode();
+                criterionV3Criteria = v3Criteria;
+
+                if (v3Criteria instanceof DataSetSearchCriteria)
+                {
+                    final DataSetSearchCriteria subcriteria = ((DataSetSearchCriteria) v3Criteria).withSubcriteria();
+                    subcriteria.withOrOperator();
+                    final TagSearchCriteria tagSearchCriteria1 = subcriteria.withTag();
+                    final TagSearchCriteria tagSearchCriteria2 = subcriteria.withTag();
+                    tagSearchCriteria1.withPermId();
+                    tagSearchCriteria2.withCode();
+                }
                 break;
             case REGISTRATION_DATE:
                 criterionV3Criteria = v3Criteria.withRegistrationDate();
@@ -822,7 +887,14 @@ public class HibernateSearchDAOV3Adaptor implements IHibernateSearchDAO {
                 criterionV3Criteria = v3Criteria.withProject().withSpace().withCode();
                 break;
             case METAPROJECT:
-                criterionV3Criteria = v3Criteria.withTag().withCode();
+                criterionV3Criteria = v3Criteria;
+                if (v3Criteria instanceof SampleSearchCriteria)
+                {
+                    final SampleSearchCriteria subcriteria = ((SampleSearchCriteria) v3Criteria).withSubcriteria()
+                            .withOrOperator();
+                    subcriteria.withTag().withPermId();
+                    subcriteria.withTag().withCode();
+                }
                 break;
             case REGISTRATION_DATE:
                 criterionV3Criteria = v3Criteria.withRegistrationDate();
@@ -899,7 +971,10 @@ public class HibernateSearchDAOV3Adaptor implements IHibernateSearchDAO {
                 criterionV3Criteria = v3Criteria.withProject().withSpace().withCode();
                 break;
             case METAPROJECT:
-                criterionV3Criteria = v3Criteria.withTag().withCode();
+                criterionV3Criteria = v3Criteria;
+                final ExperimentSearchCriteria subcriteria = v3Criteria.withSubcriteria().withOrOperator();
+                subcriteria.withTag().withPermId();
+                subcriteria.withTag().withCode();
                 break;
             case REGISTRATION_DATE:
                 criterionV3Criteria = v3Criteria.withRegistrationDate();
@@ -967,7 +1042,10 @@ public class HibernateSearchDAOV3Adaptor implements IHibernateSearchDAO {
                 criterionV3Criteria = v3Criteria.withType().withCode();
                 break;
             case METAPROJECT:
-                criterionV3Criteria = v3Criteria.withTag().withCode();
+                criterionV3Criteria = v3Criteria;
+                final MaterialSearchCriteria subcriteria = v3Criteria.withSubcriteria().withOrOperator();
+                subcriteria.withTag().withCode();
+                subcriteria.withTag().withPermId();
                 break;
             case REGISTRATION_DATE:
                 criterionV3Criteria = v3Criteria.withRegistrationDate();
@@ -1235,7 +1313,7 @@ public class HibernateSearchDAOV3Adaptor implements IHibernateSearchDAO {
         throw new RuntimeException(new UnsupportedOperationException("HibernateSearchDAOV3Replacement - Feature not supported: " + feature));
     }
 
-    private void throwIllegalArgumentException(String feature) throws RuntimeException {
+    private static void throwIllegalArgumentException(String feature) throws RuntimeException {
         throw new IllegalArgumentException("HibernateSearchDAOV3Replacement - Illegal argument: " + feature);
     }
 

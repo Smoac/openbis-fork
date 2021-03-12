@@ -1,19 +1,3 @@
-/*
- * Copyright 2016 ETH Zuerich, CISD
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 DROP FUNCTION IF EXISTS escape_tsvector_string(VARCHAR) RESTRICT;
 
 CREATE FUNCTION escape_tsvector_string(value VARCHAR) RETURNS VARCHAR AS $$
@@ -54,11 +38,6 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
--- ALTER TABLE sample_properties
---     ALTER COLUMN tsvector_document DROP NOT NULL;
---
--- UPDATE sample_properties SET tsvector_document = NULL;
-
 CREATE TRIGGER sample_properties_tsvector_document BEFORE INSERT OR UPDATE
     ON sample_properties FOR EACH ROW EXECUTE PROCEDURE
     properties_tsvector_document_trigger();
@@ -68,9 +47,6 @@ UPDATE sample_properties SET value = value;
 CREATE TRIGGER SAMPLE_FROZEN_CHECK_ON_CHANGE_PROPERTY BEFORE UPDATE ON SAMPLE_PROPERTIES
     FOR EACH ROW WHEN (OLD.SAMP_FROZEN AND NEW.SAMP_FROZEN)
     EXECUTE PROCEDURE RAISE_EXCEPTION_FROZEN_SAMPLE('PROPERTY');
-
--- ALTER TABLE sample_properties
---     ALTER COLUMN tsvector_document SET NOT NULL;
 
 CREATE TRIGGER experiment_properties_tsvector_document BEFORE INSERT OR UPDATE
     ON experiment_properties FOR EACH ROW EXECUTE PROCEDURE

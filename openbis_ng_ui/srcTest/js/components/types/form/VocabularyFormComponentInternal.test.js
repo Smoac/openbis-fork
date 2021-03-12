@@ -66,7 +66,7 @@ async function doTestInternal(
   form.expectJSON({
     parameters: {
       vocabulary: {
-        title: 'Vocabulary',
+        title: 'Vocabulary Type',
         messages: isSystemInternalVocabulary
           ? [
               {

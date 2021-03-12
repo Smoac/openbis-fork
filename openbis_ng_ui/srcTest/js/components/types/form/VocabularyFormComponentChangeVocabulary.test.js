@@ -21,7 +21,7 @@ async function testChangeVocabulary() {
   form.expectJSON({
     parameters: {
       vocabulary: {
-        title: 'Vocabulary',
+        title: 'Vocabulary Type',
         description: {
           label: 'Description',
           value: fixture.TEST_VOCABULARY_DTO.getDescription(),
@@ -45,7 +45,7 @@ async function testChangeVocabulary() {
   form.expectJSON({
     parameters: {
       vocabulary: {
-        title: 'Vocabulary',
+        title: 'Vocabulary Type',
         description: {
           label: 'Description',
           value: 'New Description',
@@ -56,7 +56,7 @@ async function testChangeVocabulary() {
     },
     buttons: {
       message: {
-        text: 'You have unsaved changes.',
+        text: 'You have unsaved changes',
         type: 'warning'
       }
     }

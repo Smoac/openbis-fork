@@ -44,6 +44,8 @@ ALTER TABLE ONLY data_all
     ADD CONSTRAINT data_idfrz_uk UNIQUE (id, frozen);
 ALTER TABLE ONLY data_all
     ADD CONSTRAINT data_pk PRIMARY KEY (id);
+ALTER TABLE ONLY data_set_type_property_types
+    ADD CONSTRAINT data_set_type_property_types_unique UNIQUE (id, is_unique);
 ALTER TABLE ONLY data_set_relationships_history
     ADD CONSTRAINT datarelh_pk PRIMARY KEY (id);
 ALTER TABLE ONLY data_types
@@ -108,6 +110,8 @@ ALTER TABLE ONLY experiments_all
     ADD CONSTRAINT expe_pi_uk UNIQUE (perm_id);
 ALTER TABLE ONLY experiments_all
     ADD CONSTRAINT expe_pk PRIMARY KEY (id);
+ALTER TABLE ONLY experiment_type_property_types
+    ADD CONSTRAINT experiment_type_property_types_unique UNIQUE (id, is_unique);
 ALTER TABLE ONLY experiment_properties
     ADD CONSTRAINT expr_bk_uk UNIQUE (expe_id, etpt_id);
 ALTER TABLE ONLY experiment_properties
@@ -150,6 +154,8 @@ ALTER TABLE ONLY materials
     ADD CONSTRAINT mate_bk_uk UNIQUE (code, maty_id);
 ALTER TABLE ONLY materials
     ADD CONSTRAINT mate_pk PRIMARY KEY (id);
+ALTER TABLE ONLY material_type_property_types
+    ADD CONSTRAINT material_type_property_types_unique UNIQUE (id, is_unique);
 ALTER TABLE ONLY material_types
     ADD CONSTRAINT maty_bk_uk UNIQUE (code);
 ALTER TABLE ONLY material_types
@@ -228,6 +234,8 @@ ALTER TABLE ONLY samples_all
     ADD CONSTRAINT samp_pk PRIMARY KEY (id);
 ALTER TABLE ONLY samples_all
     ADD CONSTRAINT samp_subcode_unique_check_uk UNIQUE (subcode_unique_check);
+ALTER TABLE ONLY sample_type_property_types
+    ADD CONSTRAINT sample_type_property_types_unique UNIQUE (id, is_unique);
 ALTER TABLE ONLY sample_relationships_history
     ADD CONSTRAINT samprelh_pk PRIMARY KEY (id);
 ALTER TABLE ONLY sample_properties
@@ -266,10 +274,6 @@ ALTER TABLE ONLY sample_type_property_types
     ADD CONSTRAINT stpt_bk_uk UNIQUE (saty_id, prty_id);
 ALTER TABLE ONLY sample_type_property_types
     ADD CONSTRAINT stpt_pk PRIMARY KEY (id);
-ALTER TABLE SAMPLE_TYPE_PROPERTY_TYPES ADD CONSTRAINT SAMPLE_TYPE_PROPERTY_TYPES_UNIQUE UNIQUE (ID, IS_UNIQUE);
-ALTER TABLE EXPERIMENT_TYPE_PROPERTY_TYPES ADD CONSTRAINT EXPERIMENT_TYPE_PROPERTY_TYPES_UNIQUE UNIQUE (ID, IS_UNIQUE);
-ALTER TABLE DATA_SET_TYPE_PROPERTY_TYPES ADD CONSTRAINT DATA_SET_TYPE_PROPERTY_TYPES_UNIQUE UNIQUE (ID, IS_UNIQUE);
-ALTER TABLE MATERIAL_TYPE_PROPERTY_TYPES ADD CONSTRAINT MATERIAL_TYPE_PROPERTY_TYPES_UNIQUE UNIQUE (ID, IS_UNIQUE);
 CREATE INDEX atta_exac_fk_i ON attachments USING btree (exac_id);
 CREATE INDEX atta_expe_fk_i ON attachments USING btree (expe_id);
 CREATE INDEX atta_pers_fk_i ON attachments USING btree (pers_id_registerer);
@@ -288,6 +292,10 @@ CREATE INDEX data_idfrz_p_pk_i ON data_all USING btree (id, frozen_for_parents);
 CREATE INDEX data_idfrz_pk_i ON data_all USING btree (id, frozen);
 CREATE INDEX data_samp_fk_i ON data_all USING btree (samp_id);
 CREATE INDEX data_set_properties_search_index ON data_set_properties USING gin (tsvector_document);
+CREATE UNIQUE INDEX data_set_properties_unique_cvte ON data_set_properties USING btree (dstpt_id, cvte_id) WHERE (is_unique AND (cvte_id IS NOT NULL));
+CREATE UNIQUE INDEX data_set_properties_unique_mate ON data_set_properties USING btree (dstpt_id, mate_prop_id) WHERE (is_unique AND (mate_prop_id IS NOT NULL));
+CREATE UNIQUE INDEX data_set_properties_unique_samp ON data_set_properties USING btree (dstpt_id, samp_prop_id) WHERE (is_unique AND (samp_prop_id IS NOT NULL));
+CREATE UNIQUE INDEX data_set_properties_unique_value ON data_set_properties USING btree (dstpt_id, value) WHERE (is_unique AND (value IS NOT NULL));
 CREATE INDEX datarelh_data_fk_i ON data_set_relationships_history USING btree (data_id);
 CREATE INDEX datarelh_main_data_fk_data_fk_i ON data_set_relationships_history USING btree (main_data_id, data_id);
 CREATE INDEX datarelh_main_data_fk_expe_fk_i ON data_set_relationships_history USING btree (main_data_id, expe_id);
@@ -331,6 +339,10 @@ CREATE INDEX expe_idfrz_s_pk_i ON experiments_all USING btree (id, frozen_for_sa
 CREATE INDEX expe_pers_fk_i ON experiments_all USING btree (pers_id_registerer);
 CREATE INDEX expe_proj_fk_i ON experiments_all USING btree (proj_id);
 CREATE INDEX experiment_properties_search_index ON experiment_properties USING gin (tsvector_document);
+CREATE UNIQUE INDEX experiment_properties_unique_cvte ON experiment_properties USING btree (etpt_id, cvte_id) WHERE (is_unique AND (cvte_id IS NOT NULL));
+CREATE UNIQUE INDEX experiment_properties_unique_mate ON experiment_properties USING btree (etpt_id, mate_prop_id) WHERE (is_unique AND (mate_prop_id IS NOT NULL));
+CREATE UNIQUE INDEX experiment_properties_unique_samp ON experiment_properties USING btree (etpt_id, samp_prop_id) WHERE (is_unique AND (samp_prop_id IS NOT NULL));
+CREATE UNIQUE INDEX experiment_properties_unique_value ON experiment_properties USING btree (etpt_id, value) WHERE (is_unique AND (value IS NOT NULL));
 CREATE INDEX expr_cvte_fk_i ON experiment_properties USING btree (cvte_id);
 CREATE INDEX expr_etpt_fk_i ON experiment_properties USING btree (etpt_id);
 CREATE INDEX expr_expe_fk_i ON experiment_properties USING btree (expe_id);
@@ -360,6 +372,9 @@ CREATE INDEX maprh_vuts_fk_i ON material_properties_history USING btree (valid_u
 CREATE INDEX mate_maty_fk_i ON materials USING btree (maty_id);
 CREATE INDEX mate_pers_fk_i ON materials USING btree (pers_id_registerer);
 CREATE INDEX material_properties_search_index ON material_properties USING gin (tsvector_document);
+CREATE UNIQUE INDEX material_properties_unique_cvte ON material_properties USING btree (mtpt_id, cvte_id) WHERE (is_unique AND (cvte_id IS NOT NULL));
+CREATE UNIQUE INDEX material_properties_unique_mate ON material_properties USING btree (mtpt_id, mate_prop_id) WHERE (is_unique AND (mate_prop_id IS NOT NULL));
+CREATE UNIQUE INDEX material_properties_unique_value ON material_properties USING btree (mtpt_id, value) WHERE (is_unique AND (value IS NOT NULL));
 CREATE INDEX metaproject_assignments_all_data_fk_i ON metaproject_assignments_all USING btree (data_id);
 CREATE INDEX metaproject_assignments_all_del_fk_i ON metaproject_assignments_all USING btree (del_id);
 CREATE INDEX metaproject_assignments_all_expe_fk_i ON metaproject_assignments_all USING btree (expe_id);
@@ -412,6 +427,10 @@ CREATE INDEX samp_proj_fk_i ON samples_all USING btree (proj_id);
 CREATE INDEX samp_samp_fk_i_part_of ON samples_all USING btree (samp_id_part_of);
 CREATE INDEX samp_saty_fk_i ON samples_all USING btree (saty_id);
 CREATE INDEX sample_properties_search_index ON sample_properties USING gin (tsvector_document);
+CREATE UNIQUE INDEX sample_properties_unique_cvte ON sample_properties USING btree (stpt_id, cvte_id) WHERE (is_unique AND (cvte_id IS NOT NULL));
+CREATE UNIQUE INDEX sample_properties_unique_mate ON sample_properties USING btree (stpt_id, mate_prop_id) WHERE (is_unique AND (mate_prop_id IS NOT NULL));
+CREATE UNIQUE INDEX sample_properties_unique_samp ON sample_properties USING btree (stpt_id, samp_prop_id) WHERE (is_unique AND (samp_prop_id IS NOT NULL));
+CREATE UNIQUE INDEX sample_properties_unique_value ON sample_properties USING btree (stpt_id, value) WHERE (is_unique AND (value IS NOT NULL));
 CREATE INDEX samprelh_data_id_fk_i ON sample_relationships_history USING btree (data_id);
 CREATE INDEX samprelh_main_samp_fk_data_fk_i ON sample_relationships_history USING btree (main_samp_id, data_id);
 CREATE INDEX samprelh_main_samp_fk_expe_fk_i ON sample_relationships_history USING btree (main_samp_id, expe_id);
@@ -444,26 +463,6 @@ CREATE INDEX space_pers_registered_by_fk_i ON spaces USING btree (pers_id_regist
 CREATE INDEX stpt_pers_fk_i ON sample_type_property_types USING btree (pers_id_registerer);
 CREATE INDEX stpt_prty_fk_i ON sample_type_property_types USING btree (prty_id);
 CREATE INDEX stpt_saty_fk_i ON sample_type_property_types USING btree (saty_id);
-
-CREATE UNIQUE INDEX SAMPLE_PROPERTIES_UNIQUE_VALUE ON SAMPLE_PROPERTIES (STPT_ID, VALUE) WHERE IS_UNIQUE AND VALUE IS NOT NULL;
-CREATE UNIQUE INDEX SAMPLE_PROPERTIES_UNIQUE_CVTE ON SAMPLE_PROPERTIES (STPT_ID, CVTE_ID) WHERE IS_UNIQUE AND CVTE_ID IS NOT NULL;
-CREATE UNIQUE INDEX SAMPLE_PROPERTIES_UNIQUE_MATE ON SAMPLE_PROPERTIES (STPT_ID, MATE_PROP_ID) WHERE IS_UNIQUE AND MATE_PROP_ID IS NOT NULL;
-CREATE UNIQUE INDEX SAMPLE_PROPERTIES_UNIQUE_SAMP ON SAMPLE_PROPERTIES (STPT_ID, SAMP_PROP_ID) WHERE IS_UNIQUE AND SAMP_PROP_ID IS NOT NULL;
-
-CREATE UNIQUE INDEX EXPERIMENT_PROPERTIES_UNIQUE_VALUE ON EXPERIMENT_PROPERTIES (ETPT_ID, VALUE) WHERE IS_UNIQUE AND VALUE IS NOT NULL;
-CREATE UNIQUE INDEX EXPERIMENT_PROPERTIES_UNIQUE_CVTE ON EXPERIMENT_PROPERTIES (ETPT_ID, CVTE_ID) WHERE IS_UNIQUE AND CVTE_ID IS NOT NULL;
-CREATE UNIQUE INDEX EXPERIMENT_PROPERTIES_UNIQUE_MATE ON EXPERIMENT_PROPERTIES (ETPT_ID, MATE_PROP_ID) WHERE IS_UNIQUE AND MATE_PROP_ID IS NOT NULL;
-CREATE UNIQUE INDEX EXPERIMENT_PROPERTIES_UNIQUE_SAMP ON EXPERIMENT_PROPERTIES (ETPT_ID, SAMP_PROP_ID) WHERE IS_UNIQUE AND SAMP_PROP_ID IS NOT NULL;
-
-CREATE UNIQUE INDEX DATA_SET_PROPERTIES_UNIQUE_VALUE ON DATA_SET_PROPERTIES (DSTPT_ID, VALUE) WHERE IS_UNIQUE AND VALUE IS NOT NULL;
-CREATE UNIQUE INDEX DATA_SET_PROPERTIES_UNIQUE_CVTE ON DATA_SET_PROPERTIES (DSTPT_ID, CVTE_ID) WHERE IS_UNIQUE AND CVTE_ID IS NOT NULL;
-CREATE UNIQUE INDEX DATA_SET_PROPERTIES_UNIQUE_MATE ON DATA_SET_PROPERTIES (DSTPT_ID, MATE_PROP_ID) WHERE IS_UNIQUE AND MATE_PROP_ID IS NOT NULL;
-CREATE UNIQUE INDEX DATA_SET_PROPERTIES_UNIQUE_SAMP ON DATA_SET_PROPERTIES (DSTPT_ID, SAMP_PROP_ID) WHERE IS_UNIQUE AND SAMP_PROP_ID IS NOT NULL;
-
-CREATE UNIQUE INDEX MATERIAL_PROPERTIES_UNIQUE_VALUE ON MATERIAL_PROPERTIES (MTPT_ID, VALUE) WHERE IS_UNIQUE AND VALUE IS NOT NULL;
-CREATE UNIQUE INDEX MATERIAL_PROPERTIES_UNIQUE_CVTE ON MATERIAL_PROPERTIES (MTPT_ID, CVTE_ID) WHERE IS_UNIQUE AND CVTE_ID IS NOT NULL;
-CREATE UNIQUE INDEX MATERIAL_PROPERTIES_UNIQUE_MATE ON MATERIAL_PROPERTIES (MTPT_ID, MATE_PROP_ID) WHERE IS_UNIQUE AND MATE_PROP_ID IS NOT NULL;
-
 CREATE RULE content_copies_history_delete AS
     ON DELETE TO content_copies DO  UPDATE data_set_copies_history SET valid_until_timestamp = now()
   WHERE ((data_set_copies_history.cc_id)::bigint = (old.id)::bigint);
@@ -1022,6 +1021,7 @@ CREATE TRIGGER experiment_frozen_check_on_update_attachment BEFORE UPDATE ON att
 CREATE TRIGGER experiment_project_relationship_frozen_check BEFORE UPDATE ON experiments_all FOR EACH ROW WHEN ((((new.proj_id)::bigint <> (old.proj_id)::bigint) AND (new.proj_frozen OR old.proj_frozen))) EXECUTE PROCEDURE raise_exception_frozen_project_relationship('experiment');
 CREATE TRIGGER experiment_properties_tsvector_document BEFORE INSERT OR UPDATE ON experiment_properties FOR EACH ROW EXECUTE PROCEDURE properties_tsvector_document_trigger();
 CREATE TRIGGER experiment_property_with_material_data_type_check BEFORE INSERT OR UPDATE ON experiment_properties FOR EACH ROW EXECUTE PROCEDURE experiment_property_with_material_data_type_check();
+CREATE TRIGGER experiments_all_in_project_tsvector_document AFTER UPDATE ON projects FOR EACH ROW EXECUTE PROCEDURE experiments_all_in_project_tsvector_document_trigger();
 CREATE TRIGGER experiments_all_tsvector_document BEFORE INSERT OR UPDATE ON experiments_all FOR EACH ROW EXECUTE PROCEDURE experiments_all_tsvector_document_trigger();
 CREATE TRIGGER external_data_storage_format_check BEFORE INSERT OR UPDATE ON external_data FOR EACH ROW EXECUTE PROCEDURE external_data_storage_format_check();
 CREATE TRIGGER material_properties_tsvector_document BEFORE INSERT OR UPDATE ON material_properties FOR EACH ROW EXECUTE PROCEDURE properties_tsvector_document_trigger();
@@ -1115,6 +1115,8 @@ ALTER TABLE ONLY data_all
     ADD CONSTRAINT data_pers_fk_mod FOREIGN KEY (pers_id_modifier) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY data_all
     ADD CONSTRAINT data_samp_fk FOREIGN KEY (samp_id, samp_frozen) REFERENCES samples_all(id, frozen_for_data) ON UPDATE CASCADE;
+ALTER TABLE ONLY data_set_properties
+    ADD CONSTRAINT data_set_properties_unique_fk FOREIGN KEY (dstpt_id, is_unique) REFERENCES data_set_type_property_types(id, is_unique);
 ALTER TABLE ONLY data_set_relationships_all
     ADD CONSTRAINT data_set_relationships_pers_fk FOREIGN KEY (pers_id_author) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY data_set_relationships_history
@@ -1202,6 +1204,8 @@ ALTER TABLE ONLY experiments_all
 ALTER TABLE ONLY experiments_all
     ADD CONSTRAINT expe_proj_fk FOREIGN KEY (proj_id, proj_frozen) REFERENCES projects(id, frozen_for_exp) ON UPDATE CASCADE;
 ALTER TABLE ONLY experiment_properties
+    ADD CONSTRAINT experiment_properties_unique_fk FOREIGN KEY (etpt_id, is_unique) REFERENCES experiment_type_property_types(id, is_unique);
+ALTER TABLE ONLY experiment_properties
     ADD CONSTRAINT expr_cvte_fk FOREIGN KEY (cvte_id) REFERENCES controlled_vocabulary_terms(id);
 ALTER TABLE ONLY experiment_properties
     ADD CONSTRAINT expr_etpt_fk FOREIGN KEY (etpt_id) REFERENCES experiment_type_property_types(id) ON DELETE CASCADE;
@@ -1249,6 +1253,8 @@ ALTER TABLE ONLY materials
     ADD CONSTRAINT mate_maty_fk FOREIGN KEY (maty_id) REFERENCES material_types(id);
 ALTER TABLE ONLY materials
     ADD CONSTRAINT mate_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
+ALTER TABLE ONLY material_properties
+    ADD CONSTRAINT material_properties_unique_fk FOREIGN KEY (mtpt_id, is_unique) REFERENCES material_type_property_types(id, is_unique);
 ALTER TABLE ONLY material_types
     ADD CONSTRAINT maty_script_fk FOREIGN KEY (validation_script_id) REFERENCES scripts(id);
 ALTER TABLE ONLY metaproject_assignments_all
@@ -1333,6 +1339,8 @@ ALTER TABLE ONLY samples_all
     ADD CONSTRAINT samp_saty_fk FOREIGN KEY (saty_id) REFERENCES sample_types(id);
 ALTER TABLE ONLY samples_all
     ADD CONSTRAINT samp_space_fk FOREIGN KEY (space_id, space_frozen) REFERENCES spaces(id, frozen_for_samp) ON UPDATE CASCADE;
+ALTER TABLE ONLY sample_properties
+    ADD CONSTRAINT sample_properties_unique_fk FOREIGN KEY (stpt_id, is_unique) REFERENCES sample_type_property_types(id, is_unique);
 ALTER TABLE ONLY sample_relationships_all
     ADD CONSTRAINT sample_relationships_pers_fk FOREIGN KEY (pers_id_author) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY sample_relationships_history
@@ -1389,11 +1397,6 @@ ALTER TABLE ONLY sample_type_property_types
     ADD CONSTRAINT stpt_saty_fk FOREIGN KEY (saty_id) REFERENCES sample_types(id) ON DELETE CASCADE;
 ALTER TABLE ONLY sample_type_property_types
     ADD CONSTRAINT stpt_script_fk FOREIGN KEY (script_id) REFERENCES scripts(id);
-ALTER TABLE SAMPLE_PROPERTIES ADD CONSTRAINT SAMPLE_PROPERTIES_UNIQUE_FK FOREIGN KEY (STPT_ID, IS_UNIQUE) REFERENCES SAMPLE_TYPE_PROPERTY_TYPES(ID, IS_UNIQUE);
-ALTER TABLE EXPERIMENT_PROPERTIES ADD CONSTRAINT EXPERIMENT_PROPERTIES_UNIQUE_FK FOREIGN KEY (ETPT_ID, IS_UNIQUE) REFERENCES EXPERIMENT_TYPE_PROPERTY_TYPES(ID, IS_UNIQUE);
-ALTER TABLE DATA_SET_PROPERTIES ADD CONSTRAINT DATA_SET_PROPERTIES_UNIQUE_FK FOREIGN KEY (DSTPT_ID, IS_UNIQUE) REFERENCES DATA_SET_TYPE_PROPERTY_TYPES(ID, IS_UNIQUE);
-ALTER TABLE MATERIAL_PROPERTIES ADD CONSTRAINT MATERIAL_PROPERTIES_UNIQUE_FK FOREIGN KEY (MTPT_ID, IS_UNIQUE) REFERENCES MATERIAL_TYPE_PROPERTY_TYPES(ID, IS_UNIQUE);
-
 GRANT SELECT ON TABLE operation_executions TO openbis_readonly;
 REVOKE ALL ON SCHEMA public FROM postgres;
 GRANT ALL ON SCHEMA public TO postgres;

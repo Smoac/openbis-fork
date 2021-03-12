@@ -24,12 +24,12 @@ async function testChangeTerm() {
   form.expectJSON({
     grid: {
       rows: [
-        { values: { 'label.value': fixture.TEST_TERM_1_DTO.getLabel() } },
-        { values: { 'label.value': fixture.TEST_TERM_2_DTO.getLabel() } },
-        { values: { 'label.value': fixture.TEST_TERM_3_DTO.getLabel() } },
-        { values: { 'label.value': fixture.TEST_TERM_4_DTO.getLabel() } },
-        { values: { 'label.value': fixture.TEST_TERM_5_DTO.getLabel() } },
-        { values: { 'label.value': fixture.TEST_TERM_6_DTO.getLabel() } }
+        { values: { label: fixture.TEST_TERM_1_DTO.getLabel() } },
+        { values: { label: fixture.TEST_TERM_2_DTO.getLabel() } },
+        { values: { label: fixture.TEST_TERM_3_DTO.getLabel() } },
+        { values: { label: fixture.TEST_TERM_4_DTO.getLabel() } },
+        { values: { label: fixture.TEST_TERM_5_DTO.getLabel() } },
+        { values: { label: fixture.TEST_TERM_6_DTO.getLabel() } }
       ]
     },
     parameters: {
@@ -54,12 +54,12 @@ async function testChangeTerm() {
   form.expectJSON({
     grid: {
       rows: [
-        { values: { 'label.value': fixture.TEST_TERM_1_DTO.getLabel() } },
-        { values: { 'label.value': 'New Label' } },
-        { values: { 'label.value': fixture.TEST_TERM_3_DTO.getLabel() } },
-        { values: { 'label.value': fixture.TEST_TERM_4_DTO.getLabel() } },
-        { values: { 'label.value': fixture.TEST_TERM_5_DTO.getLabel() } },
-        { values: { 'label.value': fixture.TEST_TERM_6_DTO.getLabel() } }
+        { values: { label: fixture.TEST_TERM_1_DTO.getLabel() } },
+        { values: { label: 'New Label' } },
+        { values: { label: fixture.TEST_TERM_3_DTO.getLabel() } },
+        { values: { label: fixture.TEST_TERM_4_DTO.getLabel() } },
+        { values: { label: fixture.TEST_TERM_5_DTO.getLabel() } },
+        { values: { label: fixture.TEST_TERM_6_DTO.getLabel() } }
       ]
     },
     parameters: {
@@ -75,7 +75,7 @@ async function testChangeTerm() {
     },
     buttons: {
       message: {
-        text: 'You have unsaved changes.',
+        text: 'You have unsaved changes',
         type: 'warning'
       }
     }

@@ -17,6 +17,8 @@ package ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchroniz
 
 import java.util.List;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.create.ExternalDmsCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.update.ExternalDmsUpdate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -80,6 +82,10 @@ public interface ISynchronizerFacade
     public void updateMaterialType(EntityType incomingEntityType, String diff);
 
     public void addVocabularyTerms(String code, TechId techId, List<VocabularyTerm> termsToBeAdded);
+
+    public void createExternalDataManagementSystems(List<ExternalDmsCreation> creations);
+
+    public void updateExternalDataManagementSystems(List<ExternalDmsUpdate> updates);
 
     public void printSummary();
 }

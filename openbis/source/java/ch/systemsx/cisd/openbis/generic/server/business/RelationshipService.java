@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -114,6 +115,11 @@ public class RelationshipService implements IRelationshipService, ApplicationCon
         for (ExperimentPE experiment : project.getExperiments())
         {
             SampleUtils.setSamplesSpace(experiment, space);
+        }
+        List<SamplePE> samples = project.getSamples();
+        for (SamplePE sample : samples)
+        {
+            sample.setSpace(space);
         }
     }
 

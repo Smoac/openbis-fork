@@ -18,11 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
-import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.TableRowLayout;
 import com.google.gwt.user.client.History;
@@ -31,13 +28,11 @@ import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.GlobalSearchLocatorResolver;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SearchableEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EnterKeyListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ButtonWithLoadingMask;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Type;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 
@@ -76,8 +71,6 @@ public final class SearchWidget extends LayoutContainer
 
     private final EnterKeyListener enterKeyListener;
 
-    private final CheckBox useWildcardsCheckBox;
-
     public SearchWidget(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         final TableRowLayout tableRowLayout = createLayout();
@@ -99,10 +92,8 @@ public final class SearchWidget extends LayoutContainer
             };
         textField = createTextField();
         entityChooser = createEntityChooser();
-        useWildcardsCheckBox = createCheckBox();
         add(entityChooser);
         add(textField);
-        add(useWildcardsCheckBox);
         add(searchButton);
 
         Dispatcher.get().addListener(AppEvents.GLOBAL_SEARCH_STARTED_EVENT, new Listener<BaseEvent>()
@@ -133,18 +124,6 @@ public final class SearchWidget extends LayoutContainer
         comboBox.setStyleAttribute("marginRight", "3px");
         comboBox.setId(ENTITY_CHOOSER_ID);
         comboBox.setWidth(150);
-        comboBox.addSelectionChangedListener(new SelectionChangedListener<SearchableEntityModel>()
-            {
-                
-                @Override
-                public void selectionChanged(SelectionChangedEvent<SearchableEntityModel> se)
-                {
-                    SearchableEntity searchableEntity = se.getSelectedItem().getSearchableEntity();
-                    Type type = searchableEntity.getType();
-                    useWildcardsCheckBox.setEnabled(Type.SEARCH_DOMAIN.equals(type) == false ||
-                        searchableEntity.getPossibleSearchOptionsKey() != null); 
-                }
-            });
         return comboBox;
     }
 
@@ -155,16 +134,6 @@ public final class SearchWidget extends LayoutContainer
         tableRowLayout.setCellPadding(0);
         tableRowLayout.setCellSpacing(0);
         return tableRowLayout;
-    }
-
-    private final CheckBox createCheckBox()
-    {
-        final CheckBox field = new CheckBox();
-        field.setId(CHECKBOX_FIELD_ID);
-        field.setBoxLabel(viewContext.getMessage(Dict.USE_WILDCARD_CHECKBOX_TEXT));
-        field.setTitle(viewContext.getMessage(Dict.USE_WILDCARD_CHECKBOX_TOOLTIP));
-        field.setStyleAttribute("marginRight", "3px");
-        return field;
     }
 
     private final TextField<String> createTextField()
@@ -193,18 +162,16 @@ public final class SearchWidget extends LayoutContainer
 
         SearchableEntity selectedEntity = entityChooser.getSelectedSearchableEntity();
 
-        Boolean useWildcards = useWildcardsCheckBox.getValue();
-
         if (viewContext.isSimpleOrEmbeddedMode())
         {
             // redirect to another URL
             String entityDescription = (selectedEntity != null) ? selectedEntity.getName() : null;
-            String url = createGlobalSearchLink(entityDescription, queryText, useWildcards);
+            String url = createGlobalSearchLink(entityDescription, queryText, false);
             History.newItem(url);
         } else
         {
             GlobalSearchTabItemFactory.openTabIfEntitiesFound(viewContext, selectedEntity,
-                    queryText, useWildcards);
+                    queryText, false);
         }
     }
 

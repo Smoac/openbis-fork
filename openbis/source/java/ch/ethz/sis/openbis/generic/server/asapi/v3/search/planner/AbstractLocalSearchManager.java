@@ -17,10 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.search.planner;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractCompositeSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractFieldSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ISearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchOperator;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.*;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.auth.AuthorisationInformation;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.auth.ISQLAuthorisationInformationProviderDAO;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.dao.ISQLSearchDAO;
@@ -35,7 +32,8 @@ import java.util.stream.Collectors;
  *
  * @author Viktor Kovtun
  */
-public abstract class AbstractLocalSearchManager<CRITERIA extends ISearchCriteria, OBJECT, OBJECT_PE> extends AbstractSearchManager<OBJECT>
+public abstract class AbstractLocalSearchManager<CRITERIA extends ISearchCriteria, OBJECT, OBJECT_PE>
+        extends AbstractSearchManager<OBJECT>
         implements ILocalSearchManager<CRITERIA, OBJECT, OBJECT_PE>
 {
 
@@ -56,29 +54,17 @@ public abstract class AbstractLocalSearchManager<CRITERIA extends ISearchCriteri
                 collect(Collectors.toList());
     }
 
-    protected List<ISearchCriteria> getCriteria(
-            AbstractCompositeSearchCriteria compositeSearchCriteria, Class<? extends ISearchCriteria> clazz)
-    {
-        if (clazz != null)
-        {
-            return compositeSearchCriteria.getCriteria().stream().filter(clazz::isInstance)
-                    .collect(Collectors.toList());
-        } else
-        {
-            return Collections.emptyList();
-        }
-    }
-
     protected static <E> Set<E> mergeResults(final SearchOperator operator,
             final Collection<Set<E>>... intermediateResultsToMerge)
     {
-        final Collection<Set<E>> intermediateResults = Arrays.stream(intermediateResultsToMerge).reduce(new ArrayList<>(), (sets, sets2) ->
+        final Collection<Set<E>> intermediateResults = Arrays.stream(intermediateResultsToMerge).reduce(
+                new ArrayList<>(), (sets1, sets2) ->
                 {
                     if (sets2 != null)
                     {
-                        sets.addAll(sets2);
+                        sets1.addAll(sets2);
                     }
-                    return sets;
+                    return sets1;
                 });
 
         switch (operator)
@@ -127,11 +113,6 @@ public abstract class AbstractLocalSearchManager<CRITERIA extends ISearchCriteri
         return idsTranslator.map(ids);
     }
 
-    protected List<Long> doSortIDs(final Collection<Long> filteredIDs, final SortOptions<OBJECT> sortOptions, final TableMapper tableMapper)
-    {
-        return getSearchDAO().sortIDs(tableMapper, filteredIDs, sortOptions);
-    }
-
     protected <T, C extends AbstractFieldSearchCriteria<T>> C convertToOtherCriterion(final AbstractFieldSearchCriteria<T> criterion,
             IFieldSearchCriterionFactory<C> factory)
     {
@@ -140,33 +121,99 @@ public abstract class AbstractLocalSearchManager<CRITERIA extends ISearchCriteri
         return result;
     }
 
-    protected Set<Long> searchForIDs(final Long userId, final AuthorisationInformation authorisationInformation, final AbstractCompositeSearchCriteria criteria, final String selectColumnName,
-            final TableMapper tableMapper)
+    protected Set<Long> searchForIDs(final Long userId, final AuthorisationInformation authorisationInformation,
+            final AbstractCompositeSearchCriteria criteria, final String idsColumnName, final TableMapper tableMapper)
     {
-        final Set<Long> mainCriteriaIntermediateResults = getSearchDAO().queryDBWithNonRecursiveCriteria(userId, criteria, tableMapper,
-                selectColumnName, authorisationInformation);
+        final AbstractCompositeSearchCriteria emptyCriteria = createEmptyCriteria();
+        final List<CRITERIA> nestedCriteria = (List<CRITERIA>) getCriteria(criteria, emptyCriteria.getClass());
+        final List<ISearchCriteria> mainCriteria = getOtherCriteriaThan(criteria, emptyCriteria.getClass());
 
-        // If we have results, we use them
-        // If we don't have results and criteria are not empty, there are no results.
-        final Set<Long> resultBeforeFiltering =
-                containsValues(mainCriteriaIntermediateResults) ? mainCriteriaIntermediateResults : Collections.emptySet();
+        final AbstractCompositeSearchCriteria containerCriterion = createEmptyCriteria();
+        containerCriterion.withOperator(criteria.getOperator());
+        containerCriterion.setCriteria(mainCriteria);
+
+        final Set<Long> mainCriteriaIntermediateResults;
+        if (!mainCriteria.isEmpty())
+        {
+            mainCriteriaIntermediateResults = getSearchDAO().queryDBForIdsAndRanksWithNonRecursiveCriteria(
+                    userId, containerCriterion, tableMapper, idsColumnName, authorisationInformation);
+        } else
+        {
+            mainCriteriaIntermediateResults = null;
+        }
+
+        final Collection<Set<Long>> nestedCriteriaIntermediateResults;
+        if (!nestedCriteria.isEmpty())
+        {
+            nestedCriteriaIntermediateResults = nestedCriteria.stream().map(nestedCriterion ->
+                    searchForIDs(userId, authorisationInformation, nestedCriterion, null, idsColumnName))
+                    .collect(Collectors.toList());
+        } else
+        {
+            nestedCriteriaIntermediateResults = Collections.emptyList();
+        }
+
+        final Set<Long> resultBeforeFiltering;
+        if (containsValues(mainCriteriaIntermediateResults) || containsValues(nestedCriteriaIntermediateResults))
+        {
+            // If we have results, we merge them
+            resultBeforeFiltering = mergeResults(criteria.getOperator(),
+                    mainCriteriaIntermediateResults != null
+                            ? Collections.singleton(mainCriteriaIntermediateResults) : Collections.emptySet(),
+                    nestedCriteriaIntermediateResults);
+        } else if (mainCriteria.isEmpty() && nestedCriteria.isEmpty())
+        {
+            // If we don't have results and criteria are empty, return all.
+            resultBeforeFiltering = getAllIds(userId, authorisationInformation, idsColumnName, tableMapper,
+                    containerCriterion);
+        } else
+        {
+            // If we don't have results and criteria are not empty, there are no results.
+            resultBeforeFiltering = Collections.emptySet();
+        }
 
         return filterIDsByUserRights(userId, authorisationInformation, resultBeforeFiltering);
     }
 
-    protected Set<Long> searchForIDsByCriteriaCollection(final Long userId, final AuthorisationInformation authorisationInformation, final Collection<ISearchCriteria> criteria, final SearchOperator finalSearchOperator, final TableMapper tableMapper,
+    protected Set<Long> searchForIDsByCriteriaCollection(final Long userId,
+            final AuthorisationInformation authorisationInformation, final Collection<ISearchCriteria> criteria,
+            final SearchOperator finalSearchOperator, final TableMapper tableMapper,
             final String idsColumnName)
     {
         if (!criteria.isEmpty())
         {
-            final DummyCompositeSearchCriterion containerCriterion = new DummyCompositeSearchCriterion(criteria, finalSearchOperator);
-            final Set<Long> mainCriteriaNotFilteredResults = getSearchDAO().queryDBWithNonRecursiveCriteria(userId, containerCriterion, tableMapper,
-                    idsColumnName, authorisationInformation);
+            final DummyCompositeSearchCriterion containerCriterion =
+                    new DummyCompositeSearchCriterion(criteria, finalSearchOperator);
+            final Set<Long> mainCriteriaNotFilteredResults = getSearchDAO().queryDBForIdsAndRanksWithNonRecursiveCriteria(userId,
+                    containerCriterion, tableMapper, idsColumnName, authorisationInformation);
             return filterIDsByUserRights(userId, authorisationInformation, mainCriteriaNotFilteredResults);
         } else
         {
             return Collections.emptySet();
         }
+    }
+
+    protected abstract AbstractCompositeSearchCriteria createEmptyCriteria();
+
+    /**
+     * Queries the DB to return all entity IDs.
+     *
+     * @return set of IDs of all entities.
+     * @param userId requesting user ID.
+     * @param authorisationInformation user authorisation information.
+     * @param idsColumnName the name of the column, whose values to be returned.
+     * @param tableMapper the table mapper to be used during translation.
+     * @param containerCriterion container criterion which can be ignored or reused in overridden methods.
+     */
+    protected Set<Long> getAllIds(final Long userId, final AuthorisationInformation authorisationInformation,
+            final String idsColumnName, final TableMapper tableMapper,
+            final AbstractCompositeSearchCriteria containerCriterion)
+    {
+        final AbstractCompositeSearchCriteria emptyCriteria = createEmptyCriteria();
+        final AbstractCompositeSearchCriteria emptyContainerCriterion = createEmptyCriteria();
+        emptyContainerCriterion.setCriteria(Collections.singletonList(emptyCriteria));
+        return getSearchDAO().queryDBForIdsAndRanksWithNonRecursiveCriteria(userId, emptyContainerCriterion,
+                tableMapper, idsColumnName, authorisationInformation);
     }
 
 }

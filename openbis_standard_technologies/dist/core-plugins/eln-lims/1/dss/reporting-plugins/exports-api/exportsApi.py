@@ -72,7 +72,6 @@ from ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download import DataS
 from ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download import DataSetFileDownloadReader
 
 #JSON
-from ch.ethz.sis.openbis.generic.server.sharedapi.v3.json import GenericObjectMapper;
 from com.fasterxml.jackson.databind import SerializationFeature
 
 #Session Workspace
@@ -267,8 +266,7 @@ def generateFilesInZip(zos, entities, includeRoot, sessionToken, tempDirPath, de
     v3 = ServiceProvider.getV3ApplicationService();
     v3d = ServiceProvider.getApplicationContext().getBean(V3_DSS_BEAN);
     objectCache = {};
-    objectMapper = GenericObjectMapper();
-    objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+    objectMapper = ServiceProvider.getObjectMapperV3()
     # To avoid empty directories on the zip file, it makes the first found entity the base directory
     baseDirToCut = None;
     fileMetadata = []
@@ -380,7 +378,7 @@ def generateFilesInZip(zos, entities, includeRoot, sessionToken, tempDirPath, de
             entityFilePath) + " before files.");
         if entityObj is not None and entityFilePath is not None:
             # JSON
-            entityJson = String(objectMapper.writeValueAsString(entityObj));
+            entityJson = String(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(entityObj));
             fileMetadatum = addFile(tempDirPath, entityFilePath, "json", entityJson.getBytes(), zos, deflated=deflated);
             fileMetadata.append(fileMetadatum)
             emptyZip = False

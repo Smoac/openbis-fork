@@ -1,14 +1,14 @@
 import React from 'react'
 import logger from '@src/js/common/logger.js'
 
-class ContentObjectTab extends React.Component {
+class ContentTab extends React.Component {
   render() {
-    logger.log(logger.DEBUG, 'ContentObjectTab.render')
+    logger.log(logger.DEBUG, 'ContentTab.render')
 
-    const { prefix, tab } = this.props
+    const { label, changed } = this.props
 
-    return (prefix || '') + tab.object.id + (tab.changed ? '*' : '')
+    return label + (changed ? '*' : '')
   }
 }
 
-export default ContentObjectTab
+export default ContentTab

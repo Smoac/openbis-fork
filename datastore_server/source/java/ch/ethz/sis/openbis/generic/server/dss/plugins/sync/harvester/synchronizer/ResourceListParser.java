@@ -97,7 +97,7 @@ public class ResourceListParser
 
     private ResourceListParser(INameTranslator nameTranslator, String dataStoreCode)
     {
-        this.data = new ResourceListParserData();
+        this.data = new ResourceListParserData(nameTranslator);
         this.nameTranslator = nameTranslator;
         this.dataStoreCode = dataStoreCode;
     }
@@ -124,6 +124,14 @@ public class ResourceListParser
 
         monitor.log();
         NodeList nodes = doc.getDocumentElement().getChildNodes();
+        parseMasterData(doc, xpath, nodes);
+        parseData(nodes, monitor);
+
+        return data;
+    }
+
+    private void parseMasterData(Document doc, XPath xpath, NodeList nodes) throws XPathExpressionException
+    {
         for (int i = 0; i < nodes.getLength(); i++)
         {
             Node node = nodes.item(i);
@@ -139,6 +147,10 @@ public class ResourceListParser
                 parseMasterData(doc, xpath, uri);
             }
         }
+    }
+
+    private void parseData(NodeList nodes, Monitor monitor) throws XPathExpressionException
+    {
         for (int i = 0, n = nodes.getLength(); i < n; i++)
         {
             Node node = nodes.item(i);
@@ -176,8 +188,6 @@ public class ResourceListParser
                 }
             }
         }
-
-        return data;
     }
 
     private XPath createXPath()
@@ -244,6 +254,8 @@ public class ResourceListParser
         masterData.setMaterialTypesToProcess(mdParser.getMaterialTypes());
         masterData.setPropertyAssignmentsToProcess(mdParser.getEntityPropertyAssignments());
         masterData.setExternalDataManagementSystemsToProcess(mdParser.getExternalDataManagementSystems());
+        masterData.setVocabularyNameMapper(mdParser.getVocabularyNameMapper());
+        masterData.setPropertyTypeNameMapper(mdParser.getPropertyTypeNameMapper());
     }
 
     private void parseMetaData(String uri, Date lastModificationDate, Node xdNode) throws XPathExpressionException
@@ -430,7 +442,7 @@ public class ResourceListParser
         String attribute = contentCopyElement.getAttribute(name);
         return StringUtils.isBlank(attribute) ? null : attribute;
     }
-    
+
     private boolean extractBooleanAttribute(Node xdNode, String attrName)
     {
         return "true".equals(extractAttribute(xdNode, attrName, true));
@@ -504,7 +516,7 @@ public class ResourceListParser
         byte[] content = Base64.getDecoder().decode(base64EncodedFileContent);
         data.getFileToProcess().put(path, content);
     }
-    
+
     private void parseSpaceMetaData(Node xdNode, Date lastModificationDate)
     {
         String code = nameTranslator.translate(extractCode(xdNode));
@@ -515,7 +527,7 @@ public class ResourceListParser
         data.getSpacesToProcess().add(incomingSpace);
         setTimestampsAndUsers(xdNode, incomingSpace);
     }
-    
+
     private void parseProjectMetaData(String permId, Node xdNode, Date lastModificationDate)
     {
         FrozenFlags frozenFlags = extractFrozenFlags(permId, xdNode, FrozenForType.EXPERIMENTS, FrozenForType.SAMPLES);
@@ -531,8 +543,8 @@ public class ResourceListParser
         incomingProject.setHasAttachments(hasAttachments(xdNode));
         setTimestampsAndUsers(xdNode, incomingProject);
     }
-    
-    private FrozenFlags extractFrozenFlags(String permId, Node xdNode, FrozenForType...frozenForTypes)
+
+    private FrozenFlags extractFrozenFlags(String permId, Node xdNode, FrozenForType... frozenForTypes)
     {
         FrozenFlags frozenFlags = new FrozenFlags(permId, extractBooleanAttribute(xdNode, "frozen"));
         for (FrozenForType type : frozenForTypes)
@@ -654,7 +666,8 @@ public class ResourceListParser
         EntityProperty property = new EntityProperty();
         PropertyType propertyType = new PropertyType();
         String translatedCode = nameTranslator.translate(code);
-        PropertyType pt = data.getMasterData().getPropertyTypesToProcess().get(translatedCode);
+        MasterData masterData = data.getMasterData();
+        PropertyType pt = masterData.getPropertyTypesToProcess().get(translatedCode);
         if (pt.getDataType().getCode().equals(DataTypeCode.MATERIAL))
         {
             if (val != null)
@@ -662,9 +675,8 @@ public class ResourceListParser
                 val = nameTranslator.translate(val);
                 val = translateMaterialIdentifier(val);
             }
-
         }
-        propertyType.setCode(translatedCode);
+        propertyType.setCode(masterData.getPropertyTypeNameMapper().getHarvesterName(code));
         property.setPropertyType(propertyType);
         property.setValue(val);
         return property;
@@ -711,7 +723,7 @@ public class ResourceListParser
 
     private void parseSampleMetaData(String permId, Node xdNode, Date lastModificationDate)
     {
-        FrozenFlags frozenFlags = extractFrozenFlags(permId, xdNode, FrozenForType.COMPONENTS, FrozenForType.CHILDREN, 
+        FrozenFlags frozenFlags = extractFrozenFlags(permId, xdNode, FrozenForType.COMPONENTS, FrozenForType.CHILDREN,
                 FrozenForType.PARENTS, FrozenForType.DATA_SETS);
         String code = extractCode(xdNode);
         String type = extractType(xdNode);

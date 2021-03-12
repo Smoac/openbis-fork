@@ -7,6 +7,10 @@ const deleteExperimentTypes = jest.fn()
 const deleteMaterialTypes = jest.fn()
 const deleteSampleTypes = jest.fn()
 const executeOperations = jest.fn()
+const executeQuery = jest.fn()
+const executeSql = jest.fn()
+const evaluatePlugin = jest.fn()
+const getAuthorizationGroups = jest.fn()
 const getDataSetTypes = jest.fn()
 const getExperimentTypes = jest.fn()
 const getMaterialTypes = jest.fn()
@@ -14,6 +18,8 @@ const getPersons = jest.fn()
 const getPropertyTypes = jest.fn()
 const getSampleTypes = jest.fn()
 const getVocabularies = jest.fn()
+const getPlugins = jest.fn()
+const getQueries = jest.fn()
 const searchAuthorizationGroups = jest.fn()
 const searchDataSetTypes = jest.fn()
 const searchExperimentTypes = jest.fn()
@@ -21,6 +27,8 @@ const searchMaterialTypes = jest.fn()
 const searchMaterials = jest.fn()
 const searchPersons = jest.fn()
 const searchPlugins = jest.fn()
+const searchQueries = jest.fn()
+const searchQueryDatabases = jest.fn()
 const searchProjects = jest.fn()
 const searchPropertyAssignments = jest.fn()
 const searchPropertyTypes = jest.fn()
@@ -84,6 +92,24 @@ const mockSearchVocabularies = vocabularies => {
   searchVocabularies.mockReturnValue(Promise.resolve(searchResult))
 }
 
+const mockSearchPlugins = plugins => {
+  const searchResult = new dto.SearchResult()
+  searchResult.setObjects(plugins)
+  searchPlugins.mockReturnValue(Promise.resolve(searchResult))
+}
+
+const mockSearchQueries = queries => {
+  const searchResult = new dto.SearchResult()
+  searchResult.setObjects(queries)
+  searchQueries.mockReturnValue(Promise.resolve(searchResult))
+}
+
+const mockSearchQueryDatabases = databases => {
+  const searchResult = new dto.SearchResult()
+  searchResult.setObjects(databases)
+  searchQueries.mockReturnValue(Promise.resolve(searchResult))
+}
+
 export default {
   login,
   logout,
@@ -92,6 +118,10 @@ export default {
   deleteMaterialTypes,
   deleteSampleTypes,
   executeOperations,
+  executeQuery,
+  executeSql,
+  evaluatePlugin,
+  getAuthorizationGroups,
   getDataSetTypes,
   getExperimentTypes,
   getMaterialTypes,
@@ -99,6 +129,8 @@ export default {
   getPropertyTypes,
   getSampleTypes,
   getVocabularies,
+  getPlugins,
+  getQueries,
   searchAuthorizationGroups,
   searchDataSetTypes,
   searchExperimentTypes,
@@ -106,6 +138,8 @@ export default {
   searchMaterials,
   searchPersons,
   searchPlugins,
+  searchQueries,
+  searchQueryDatabases,
   searchProjects,
   searchPropertyAssignments,
   searchPropertyTypes,
@@ -125,5 +159,8 @@ export default {
   mockSearchPersons,
   mockSearchSampleTypes,
   mockSearchPropertyTypes,
-  mockSearchVocabularies
+  mockSearchVocabularies,
+  mockSearchPlugins,
+  mockSearchQueries,
+  mockSearchQueryDatabases
 }

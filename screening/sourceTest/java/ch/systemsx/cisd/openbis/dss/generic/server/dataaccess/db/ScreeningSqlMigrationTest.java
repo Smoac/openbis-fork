@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.dss.etl.ImagingDatabaseVersionHolder;
 
 /**
  * Test cases for screening database migration.
- * 
+ *
  * @author Piotr Kupczyk
  */
 public class ScreeningSqlMigrationTest extends SqlMigrationTestAbstract
@@ -36,7 +36,7 @@ public class ScreeningSqlMigrationTest extends SqlMigrationTestAbstract
     public void test_migration()
             throws Exception
     {
-        testMigration(new ImagingDatabaseVersionHolder().getDatabaseVersion());
+        testMigration(new ImagingDatabaseVersionHolder().getDatabaseVersion(), null);
     }
 
     @Override

@@ -62,6 +62,19 @@ export default class UserFormControllerRecalculateInheritedRoles {
             enabled: false
           })
         }
+
+        if (
+          _.some(newRoles, {
+            inheritedFrom: { value: newRole.inheritedFrom.value },
+            level: { value: newRole.level.value },
+            space: { value: newRole.space.value },
+            project: { value: newRole.project.value },
+            role: { value: newRole.role.value }
+          })
+        ) {
+          return
+        }
+
         newRole.original = _.cloneDeep(newRole)
         newRoles.push(newRole)
       })

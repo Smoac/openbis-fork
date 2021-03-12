@@ -5,9 +5,11 @@ import TextField from '@material-ui/core/TextField'
 import InputAdornment from '@material-ui/core/InputAdornment'
 import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp'
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown'
+import CircularProgress from '@material-ui/core/CircularProgress'
 import FormFieldContainer from '@src/js/components/common/form/FormFieldContainer.jsx'
 import FormFieldLabel from '@src/js/components/common/form/FormFieldLabel.jsx'
 import FormFieldView from '@src/js/components/common/form/FormFieldView.jsx'
+import compare from '@src/js/common/compare.js'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -37,6 +39,7 @@ const styles = theme => ({
 
 class AutocompleterFormField extends React.PureComponent {
   static defaultProps = {
+    freeSolo: false,
     mode: 'edit',
     variant: 'filled'
   }
@@ -45,13 +48,16 @@ class AutocompleterFormField extends React.PureComponent {
     super(props)
 
     this.state = {
-      open: false
+      open: false,
+      focused: false,
+      inputValue: ''
     }
 
     this.reference = React.createRef()
     this.handleClick = this.handleClick.bind(this)
     this.handleKeyDown = this.handleKeyDown.bind(this)
     this.handleChange = this.handleChange.bind(this)
+    this.handleInputChange = this.handleInputChange.bind(this)
     this.handleFocus = this.handleFocus.bind(this)
     this.handleBlur = this.handleBlur.bind(this)
   }
@@ -90,30 +96,53 @@ class AutocompleterFormField extends React.PureComponent {
   }
 
   handleChange(event, value) {
-    this.setState({
-      open: true
-    })
-
     this.handleEvent(event, value, this.props.onChange)
   }
 
+  handleInputChange(event, value) {
+    this.setState({
+      inputValue: value
+    })
+    this.handleEvent(event, value, this.props.onInputChange)
+  }
+
   handleFocus(event) {
-    this.handleEvent(event, null, this.props.onFocus)
+    this.setState({
+      focused: true
+    })
+    this.handleEvent(event, event.target.value, this.props.onFocus)
   }
 
   handleBlur(event) {
     this.setState({
+      focused: false,
       open: false
     })
 
-    if (event.target.value !== this.props.value) {
-      this.handleEvent(event, event.target.value, this.props.onChange)
-    }
-
     event.persist()
 
+    const { freeSolo, getOptionLabel } = this.props
+    const { inputValue } = this.state
+
+    const value = getOptionLabel
+      ? getOptionLabel(this.props.value)
+      : this.props.value
+
+    const valueTrimmed = value ? value.trim() : ''
+    const inputValueTrimmed = inputValue ? inputValue.trim() : ''
+
+    if (inputValueTrimmed.length === 0 && valueTrimmed.length !== 0) {
+      this.handleChange(event, null)
+    } else if (inputValueTrimmed !== valueTrimmed) {
+      if (freeSolo) {
+        this.handleChange(event, inputValue)
+      } else {
+        this.handleInputChange(event, value)
+      }
+    }
+
     setTimeout(() => {
-      this.handleEvent(event, null, this.props.onBlur)
+      this.handleEvent(event, this.state.value, this.props.onBlur)
     }, 0)
   }
 
@@ -154,7 +183,6 @@ class AutocompleterFormField extends React.PureComponent {
   renderEdit() {
     const {
       name,
-      options,
       description,
       value,
       disabled,
@@ -162,10 +190,15 @@ class AutocompleterFormField extends React.PureComponent {
       metadata,
       styles,
       classes,
-      variant
+      variant,
+      renderOption,
+      filterOptions,
+      getOptionLabel,
+      getOptionSelected,
+      getOptionDisabled
     } = this.props
 
-    const { open } = this.state
+    const { open, inputValue, focused } = this.state
 
     return (
       <FormFieldContainer
@@ -176,14 +209,21 @@ class AutocompleterFormField extends React.PureComponent {
         onClick={this.handleClick}
       >
         <Autocomplete
-          freeSolo
           disableClearable
+          freeSolo={true}
           name={name}
           disabled={disabled}
-          options={options}
+          options={this.getOptions()}
+          renderOption={renderOption}
+          filterOptions={filterOptions}
+          getOptionLabel={getOptionLabel}
+          getOptionSelected={getOptionSelected}
+          getOptionDisabled={getOptionDisabled}
           value={value}
+          inputValue={inputValue}
           open={open}
           onChange={this.handleChange}
+          onInputChange={this.handleInputChange}
           onFocus={this.handleFocus}
           onBlur={this.handleBlur}
           onKeyDown={this.handleKeyDown}
@@ -203,6 +243,9 @@ class AutocompleterFormField extends React.PureComponent {
                   input: classes.input,
                   disabled: classes.disabled
                 }
+              }}
+              InputLabelProps={{
+                shrink: !!value || focused
               }}
               label={this.renderLabel()}
               error={!!error}
@@ -234,12 +277,39 @@ class AutocompleterFormField extends React.PureComponent {
 
   renderAdornment() {
     const { open } = this.state
-    const { classes } = this.props
+    const { loading, classes } = this.props
+
     return (
-      <InputAdornment position='end' classes={{ root: classes.adornment }}>
+      <InputAdornment
+        position='end'
+        classes={{
+          root: classes.adornment
+        }}
+      >
+        {loading ? <CircularProgress color='inherit' size={20} /> : null}
         {open ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
       </InputAdornment>
     )
+  }
+
+  getOptions() {
+    const { options, getOptionLabel, sort = true } = this.props
+
+    if (options) {
+      let result = Array.from(options)
+
+      if (sort) {
+        result.sort((option1, option2) => {
+          let label1 = getOptionLabel ? getOptionLabel(option1) : option1
+          let label2 = getOptionLabel ? getOptionLabel(option2) : option2
+          return compare(label1, label2)
+        })
+      }
+
+      return result
+    } else {
+      return []
+    }
   }
 
   getReference() {

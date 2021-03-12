@@ -31,7 +31,7 @@ public class SamplePermIdStringPredicate extends DelegatedPredicate<PermId, Stri
 
     public SamplePermIdStringPredicate(boolean isReadAccess)
     {
-        super(new SamplePermIdPredicate(isReadAccess));
+        super(new SamplePermIdPredicate(isReadAccess, false));
     }
 
     @Override

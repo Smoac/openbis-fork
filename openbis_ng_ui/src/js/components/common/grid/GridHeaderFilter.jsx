@@ -20,7 +20,7 @@ class GridHeaderFilter extends React.PureComponent {
   handleFilterChange(filter) {
     const { column, onFilterChange } = this.props
     if (onFilterChange) {
-      onFilterChange(column.field, filter)
+      onFilterChange(column.name, filter)
     }
   }
 

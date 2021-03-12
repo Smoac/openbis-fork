@@ -22,7 +22,7 @@ async function testValidateType() {
   form.expectJSON({
     parameters: {
       type: {
-        title: 'Type',
+        title: 'New Object Type',
         code: {
           error: 'Code cannot be empty',
           focused: true
@@ -61,7 +61,7 @@ async function testValidateType() {
     },
     buttons: {
       message: {
-        text: 'You have unsaved changes.',
+        text: 'You have unsaved changes',
         type: 'warning'
       }
     }
@@ -106,7 +106,7 @@ async function testValidateProperty() {
     },
     buttons: {
       message: {
-        text: 'You have unsaved changes.',
+        text: 'You have unsaved changes',
         type: 'warning'
       }
     }
@@ -142,7 +142,7 @@ async function testValidateTypeAndProperty() {
   form.expectJSON({
     parameters: {
       type: {
-        title: 'Type',
+        title: 'New Object Type',
         code: {
           error: 'Code cannot be empty'
         },
@@ -159,7 +159,7 @@ async function testValidateTypeAndProperty() {
     },
     buttons: {
       message: {
-        text: 'You have unsaved changes.',
+        text: 'You have unsaved changes',
         type: 'warning'
       }
     }

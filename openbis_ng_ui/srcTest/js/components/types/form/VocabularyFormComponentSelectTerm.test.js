@@ -109,11 +109,11 @@ async function testFollowSelectedTerm() {
   form.expectJSON({
     grid: {
       rows: [
-        { values: { 'label.value': 'Term 10' }, selected: false },
-        { values: { 'label.value': 'Term 20' }, selected: false },
-        { values: { 'label.value': 'Term 30' }, selected: false },
-        { values: { 'label.value': 'Term 40' }, selected: false },
-        { values: { 'label.value': 'Term 50' }, selected: false }
+        { values: { label: 'Term 10' }, selected: false },
+        { values: { label: 'Term 20' }, selected: false },
+        { values: { label: 'Term 30' }, selected: false },
+        { values: { label: 'Term 40' }, selected: false },
+        { values: { label: 'Term 50' }, selected: false }
       ],
       paging: {
         range: '1-5 of 6'
@@ -128,7 +128,7 @@ async function testFollowSelectedTerm() {
           {
             type: 'warning',
             text:
-              'The selected term is currently not visible in the term list due to the chosen filtering and paging.'
+              'The selected object is currently not visible in the list due to the chosen filtering and paging.'
           }
         ]
       }
@@ -144,11 +144,11 @@ async function testFollowSelectedTerm() {
   form.expectJSON({
     grid: {
       rows: [
-        { values: { 'label.value': 'Term 20' }, selected: false },
-        { values: { 'label.value': 'Term 25' }, selected: true },
-        { values: { 'label.value': 'Term 30' }, selected: false },
-        { values: { 'label.value': 'Term 40' }, selected: false },
-        { values: { 'label.value': 'Term 50' }, selected: false }
+        { values: { label: 'Term 20' }, selected: false },
+        { values: { label: 'Term 25' }, selected: true },
+        { values: { label: 'Term 30' }, selected: false },
+        { values: { label: 'Term 40' }, selected: false },
+        { values: { label: 'Term 50' }, selected: false }
       ],
       paging: {
         range: '1-5 of 6'
@@ -169,7 +169,7 @@ async function testFollowSelectedTerm() {
 
   form.expectJSON({
     grid: {
-      rows: [{ values: { 'label.value': 'Term 65' }, selected: true }],
+      rows: [{ values: { label: 'Term 65' }, selected: true }],
       paging: {
         range: '6-6 of 6'
       }
@@ -190,11 +190,11 @@ async function testFollowSelectedTerm() {
   form.expectJSON({
     grid: {
       rows: [
-        { values: { 'label.value': 'Term 20' }, selected: false },
-        { values: { 'label.value': 'Term 30' }, selected: false },
-        { values: { 'label.value': 'Term 40' }, selected: false },
-        { values: { 'label.value': 'Term 50' }, selected: false },
-        { values: { 'label.value': 'Term 60' }, selected: false }
+        { values: { label: 'Term 20' }, selected: false },
+        { values: { label: 'Term 30' }, selected: false },
+        { values: { label: 'Term 40' }, selected: false },
+        { values: { label: 'Term 50' }, selected: false },
+        { values: { label: 'Term 60' }, selected: false }
       ],
       paging: {
         range: '1-5 of 6'
@@ -209,7 +209,7 @@ async function testFollowSelectedTerm() {
           {
             type: 'warning',
             text:
-              'The selected term is currently not visible in the term list due to the chosen filtering and paging.'
+              'The selected object is currently not visible in the list due to the chosen filtering and paging.'
           }
         ]
       }

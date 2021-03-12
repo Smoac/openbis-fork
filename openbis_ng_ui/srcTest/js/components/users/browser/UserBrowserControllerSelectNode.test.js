@@ -174,5 +174,5 @@ async function testSelectVirtualNode() {
     }
   ])
 
-  common.context.expectNoActions()
+  common.expectOpenUsersOverviewAction()
 }

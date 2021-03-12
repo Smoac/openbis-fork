@@ -35,13 +35,20 @@ import java.util.Set;
  *
  * @author Viktor Kovtun
  */
-public class ExperimentTypeSearchManager extends AbstractLocalSearchManager<ExperimentTypeSearchCriteria, ExperimentType, Long>
+public class ExperimentTypeSearchManager extends AbstractLocalSearchManager<ExperimentTypeSearchCriteria,
+        ExperimentType, Long>
 {
 
     public ExperimentTypeSearchManager(final ISQLSearchDAO searchDAO, final ISQLAuthorisationInformationProviderDAO authProvider,
             final IID2PEMapper<Long, Long> idsMapper)
     {
         super(searchDAO, authProvider, idsMapper);
+    }
+
+    @Override
+    protected AbstractCompositeSearchCriteria createEmptyCriteria()
+    {
+        return new ExperimentTypeSearchCriteria();
     }
 
     @Override

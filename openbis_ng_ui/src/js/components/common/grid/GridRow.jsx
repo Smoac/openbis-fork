@@ -53,7 +53,7 @@ class GridRow extends React.PureComponent {
     if (column.visible) {
       let rendered = column.render(row)
       return (
-        <TableCell key={column.field} classes={{ root: classes.cell }}>
+        <TableCell key={column.name} classes={{ root: classes.cell }}>
           {rendered ? rendered : <span>&nbsp;</span>}
         </TableCell>
       )

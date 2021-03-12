@@ -45,6 +45,12 @@ public class SampleTypeSearchManager extends AbstractLocalSearchManager<SampleTy
     }
 
     @Override
+    protected AbstractCompositeSearchCriteria createEmptyCriteria()
+    {
+        return new SampleTypeSearchCriteria();
+    }
+
+    @Override
     protected Set<Long> doFilterIDsByUserRights(final Set<Long> ids, final AuthorisationInformation authorisationInformation)
     {
         // No filtering of sample types is needed.

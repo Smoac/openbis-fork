@@ -18,10 +18,10 @@ async function testAddTerm() {
   form.expectJSON({
     grid: {
       columns: [
-        { field: 'code.value', sort: 'asc' },
-        { field: 'label.value', sort: null },
-        { field: 'description.value', sort: null },
-        { field: 'official.value', sort: null }
+        { name: 'code', sort: 'asc' },
+        { name: 'label', sort: null },
+        { name: 'description', sort: null },
+        { name: 'official', sort: null }
       ],
       rows: [
         fixture.TEST_TERM_1_DTO,
@@ -32,7 +32,7 @@ async function testAddTerm() {
         fixture.TEST_TERM_6_DTO
       ].map(term => ({
         values: {
-          'code.value': term.getCode()
+          code: term.getCode()
         },
         selected: false
       })),
@@ -60,18 +60,18 @@ async function testAddTerm() {
   form.expectJSON({
     grid: {
       columns: [
-        { field: 'code.value', sort: 'desc' },
-        { field: 'label.value', sort: null },
-        { field: 'description.value', sort: null },
-        { field: 'official.value', sort: null }
+        { name: 'code', sort: 'desc' },
+        { name: 'label', sort: null },
+        { name: 'description', sort: null },
+        { name: 'official', sort: null }
       ],
       rows: [
         {
-          values: { 'code.value': fixture.TEST_TERM_1_DTO.getCode() },
+          values: { code: fixture.TEST_TERM_1_DTO.getCode() },
           selected: false
         },
         {
-          values: { 'code.value': null },
+          values: { code: null },
           selected: true
         }
       ],
@@ -126,7 +126,7 @@ async function testAddTerm() {
       },
       edit: null,
       message: {
-        text: 'You have unsaved changes.',
+        text: 'You have unsaved changes',
         type: 'warning'
       }
     }

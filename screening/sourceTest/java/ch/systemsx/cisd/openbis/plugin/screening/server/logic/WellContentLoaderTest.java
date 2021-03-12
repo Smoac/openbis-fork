@@ -64,7 +64,7 @@ public class WellContentLoaderTest extends AbstractScreeningDAOTest
         WellSearchCriteria searchCriteria =
                 new WellSearchCriteria(ExperimentSearchCriteria.createAllExperiments(),
                         MaterialSearchCriteria.createCodesCriteria(materialCodes,
-                                materialTypeCodes, false),
+                                materialTypeCodes, true),
                         AnalysisProcedureCriteria.createAllProcedures());
 
         Session session = createSession(getSystemPerson());

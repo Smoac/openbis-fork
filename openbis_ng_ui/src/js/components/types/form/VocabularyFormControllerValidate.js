@@ -1,5 +1,6 @@
 import PageControllerValidate from '@src/js/components/common/page/PageConrollerValidate.js'
 import VocabularyFormSelectionType from '@src/js/components/types/form/VocabularyFormSelectionType.js'
+import messages from '@src/js/common/messages.js'
 
 export default class VocabularyFormControllerValidate extends PageControllerValidate {
   validate(validator) {
@@ -40,12 +41,16 @@ export default class VocabularyFormControllerValidate extends PageControllerVali
   }
 
   _validateVocabulary(validator, vocabulary) {
-    validator.validateNotEmpty(vocabulary, 'code', 'Code')
+    validator.validateNotEmpty(vocabulary, 'code', messages.get(messages.CODE))
 
     if (vocabulary.internal.value) {
-      validator.validateInternalCode(vocabulary, 'code', 'Code')
+      validator.validateInternalCode(
+        vocabulary,
+        'code',
+        messages.get(messages.CODE)
+      )
     } else {
-      validator.validateCode(vocabulary, 'code', 'Code')
+      validator.validateCode(vocabulary, 'code', messages.get(messages.CODE))
     }
 
     return validator.withErrors(vocabulary)
@@ -59,7 +64,7 @@ export default class VocabularyFormControllerValidate extends PageControllerVali
   }
 
   _validateTerm(validator, term) {
-    validator.validateNotEmpty(term, 'code', 'Code')
-    validator.validateTermCode(term, 'code', 'Code')
+    validator.validateNotEmpty(term, 'code', messages.get(messages.CODE))
+    validator.validateTermCode(term, 'code', messages.get(messages.CODE))
   }
 }

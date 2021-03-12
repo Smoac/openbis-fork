@@ -22,7 +22,7 @@ import ch.systemsx.cisd.common.db.Script;
 
 /**
  * Provider of SQL scripts for creation and migration of database.
- * 
+ *
  * @author Franz-Josef Elmer
  */
 public interface ISqlScriptProvider
@@ -42,8 +42,13 @@ public interface ISqlScriptProvider
     public File getDumpFolder(String version);
 
     /**
+     * Returns the folder where all scripts with the given version for full text search are located.
+     */
+    File getFullTextSearchScriptsFolder(String version);
+
+    /**
      * Returns the script to create database schemas.
-     * 
+     *
      * @param version Version of the database.
      * @return <code>null</code> if there isn't such a script.
      */
@@ -51,7 +56,7 @@ public interface ISqlScriptProvider
 
     /**
      * Returns the script to create the database functions.
-     * 
+     *
      * @param version Version of the database.
      * @return <code>null</code> if there isn't such a script.
      */
@@ -59,7 +64,7 @@ public interface ISqlScriptProvider
 
     /**
      * Returns the script containing all domain definitions for the specified version. The name of the script is expected to be
-     * 
+     *
      * <pre>
      * &lt;schema script folder&gt;/&lt;version&gt;/domains-&lt;version&gt;.sql
      * </pre>
@@ -68,7 +73,7 @@ public interface ISqlScriptProvider
 
     /**
      * Returns the script containing all grant declarations for the specified version. The name of the script is expected to be
-     * 
+     *
      * <pre>
      * &lt;schema script folder&gt;/&lt;version&gt;/grants-&lt;version&gt;.sql
      * </pre>
@@ -77,7 +82,7 @@ public interface ISqlScriptProvider
 
     /**
      * Returns the script to create initial data.
-     * 
+     *
      * @param version Version of the database.
      * @return <code>null</code> if there isn't such a script.
      */
@@ -85,7 +90,7 @@ public interface ISqlScriptProvider
 
     /**
      * Returns the migration script for migrating a database.
-     * 
+     *
      * @param fromVersion The version of the current database.
      * @param toVersion The version of the database after migration.
      * @return <code>null</code> if there isn't such a migration script.
@@ -95,11 +100,19 @@ public interface ISqlScriptProvider
     /**
      * Returns the function migration script for migrating a database. The function migration will always be called <i>after</i> the regular migration
      * script.
-     * 
+     *
      * @param fromVersion The version of the current database.
      * @param toVersion The version of the database after migration.
      * @return <code>null</code> if there isn't such a migration script.
      */
     public Script tryGetFunctionMigrationScript(String fromVersion, String toVersion);
+
+    /**
+     * Returns the triple of scripts for full text search.
+     *
+     * @param version full text search script version.
+     * @return array with 3 scripts to be called in sequence.
+     */
+    Script[] tryGetFullTextSearchScripts(String version);
 
 }

@@ -27,6 +27,13 @@ function CreateUserController(authenticationService) {
 		this._createUserView.disableAccept();
 		
 			var createUser = function() {
+			    if(_this._createUserModel.userId.indexOf("_at_") > -1 || _this._createUserModel.userId.indexOf("_AT_") > -1) {
+			        Util.showUserError("Please use @ instead of _at_ for emails.", function() {
+                	    _this._createUserView.enableAccept();
+                    }, true);
+                    return;
+			    }
+
 				mainController.serverFacade.createELNUser(_this._createUserModel.userId, function(isRegistered, message) {
 					if(isRegistered) {
 						Util.showSuccess(message, function() {

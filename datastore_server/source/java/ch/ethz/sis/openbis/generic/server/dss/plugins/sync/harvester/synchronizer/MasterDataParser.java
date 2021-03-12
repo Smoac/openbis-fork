@@ -52,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -97,6 +98,10 @@ public class MasterDataParser
 
     MultiKeyMap<String, List<NewETPTAssignment>> entityPropertyAssignments = new MultiKeyMap<String, List<NewETPTAssignment>>();
 
+    private NameMapper vocabularyNameMapper;
+
+    private NameMapper propertyTypeNameMapper;
+
     private MasterDataParser(INameTranslator nameTranslator)
     {
         this.nameTranslator = nameTranslator;
@@ -132,9 +137,9 @@ public class MasterDataParser
     {
         parseFileFormatTypes(docElement.getElementsByTagName("xmd:fileFormatTypes"));
         parseValidationPlugins(docElement.getElementsByTagName("xmd:validationPlugins"));
-        parseVocabularies(docElement.getElementsByTagName("xmd:controlledVocabularies"));
+        vocabularyNameMapper = parseVocabularies(docElement.getElementsByTagName("xmd:controlledVocabularies"));
+        propertyTypeNameMapper = parsePropertyTypes(docElement.getElementsByTagName("xmd:propertyTypes"));
         parseMaterialTypes(docElement.getElementsByTagName("xmd:materialTypes"));
-        parsePropertyTypes(docElement.getElementsByTagName("xmd:propertyTypes"));
         parseSampleTypes(docElement.getElementsByTagName("xmd:objectTypes"));
         parseDataSetTypes(docElement.getElementsByTagName("xmd:dataSetTypes"));
         parseExperimentTypes(docElement.getElementsByTagName("xmd:collectionTypes"));
@@ -189,6 +194,16 @@ public class MasterDataParser
     public Map<String, ExternalDms> getExternalDataManagementSystems()
     {
         return externalDataManagementSystems;
+    }
+
+    public NameMapper getVocabularyNameMapper()
+    {
+        return vocabularyNameMapper;
+    }
+
+    public NameMapper getPropertyTypeNameMapper()
+    {
+        return propertyTypeNameMapper;
     }
 
     private void parseValidationPlugins(NodeList validationPluginsNode) throws XPathExpressionException
@@ -284,11 +299,12 @@ public class MasterDataParser
         }
     }
 
-    private void parseVocabularies(NodeList vocabulariesNode) throws XPathExpressionException
+    private NameMapper parseVocabularies(NodeList vocabulariesNode) throws XPathExpressionException
     {
+        NameMapper nameMapper = new NameMapper(nameTranslator);
         if (vocabulariesNode.getLength() == 0)
         {
-            return;
+            return nameMapper;
         }
         validateElementNode(vocabulariesNode, "controlledVocabularies");
 
@@ -298,19 +314,26 @@ public class MasterDataParser
         for (int i = 0; i < vocabNodes.getLength(); i++)
         {
             Element vocabElement = (Element) vocabNodes.item(i);
-            String code = nameTranslator.translate(getAttribute(vocabElement, "code"));
+            Boolean managedInternally = Boolean.valueOf(getAttribute(vocabElement, "managedInternally"));
+            String registratorId = getAttribute(vocabElement, "registrator");
+            String code = nameTranslator.translate(
+                    nameMapper.registerName(getAttribute(vocabElement, "code"), managedInternally, registratorId));
             NewVocabulary newVocabulary = new NewVocabulary();
             newVocabulary.setCode(code);
             newVocabulary.setDescription(getAttribute(vocabElement, "description"));
             newVocabulary.setURLTemplate(getAttribute(vocabElement, "urlTemplate"));
-            newVocabulary.setManagedInternally(Boolean.valueOf(getAttribute(vocabElement, "managedInternally")));
+            newVocabulary.setManagedInternally(managedInternally);
             newVocabulary.setChosenFromList(Boolean.valueOf(getAttribute(vocabElement, "chosenFromList")));
             newVocabulary.setRegistrationDate(DSPropertyUtils.convertFromW3CDate(getAttribute(vocabElement, "registration-timestamp")));
+            Person registrator = new Person();
+            registrator.setUserId(registratorId);
+            newVocabulary.setRegistrator(registrator);
             newVocabulary.setModificationDate(DSPropertyUtils.convertFromW3CDate(getAttribute(vocabElement, "modification-timestamp")));
 
             vocabularies.put(CodeConverter.tryToBusinessLayer(newVocabulary.getCode(), newVocabulary.isManagedInternally()), newVocabulary);
             parseVocabularyTerms(vocabElement, newVocabulary);
         }
+        return nameMapper;
     }
 
     private void parseVocabularyTerms(Element vocabElement, NewVocabulary newVocabulary)
@@ -356,7 +379,7 @@ public class MasterDataParser
             materialType.setModificationDate(DSPropertyUtils.convertFromW3CDate(getAttribute(materialTypeElement, "modification-timestamp")));
             materialTypes.put(materialType.getCode(), materialType);
 
-            parsePropertyAssignments(EntityKind.MATERIAL, materialType, materialTypeElement);
+            parsePropertyAssignments(EntityKind.MATERIAL, materialType, materialTypeElement, propertyTypeNameMapper);
         }
     }
 
@@ -380,7 +403,7 @@ public class MasterDataParser
             expType.setValidationScript(getValidationPlugin(expTypeElement));
             experimentTypes.put(expType.getCode(), expType);
 
-            parsePropertyAssignments(EntityKind.EXPERIMENT, expType, expTypeElement);
+            parsePropertyAssignments(EntityKind.EXPERIMENT, expType, expTypeElement, propertyTypeNameMapper);
         }
     }
 
@@ -411,7 +434,7 @@ public class MasterDataParser
             sampleType.setValidationScript(getValidationPlugin(sampleTypeElement));
             sampleTypes.put(sampleType.getCode(), sampleType);
 
-            parsePropertyAssignments(EntityKind.SAMPLE, sampleType, sampleTypeElement);
+            parsePropertyAssignments(EntityKind.SAMPLE, sampleType, sampleTypeElement, propertyTypeNameMapper);
         }
     }
 
@@ -446,7 +469,7 @@ public class MasterDataParser
             dataSetType.setValidationScript(getValidationPlugin(dataSetTypeElement));
             dataSetTypes.put(dataSetType.getCode(), dataSetType);
 
-            parsePropertyAssignments(EntityKind.DATA_SET, dataSetType, dataSetTypeElement);
+            parsePropertyAssignments(EntityKind.DATA_SET, dataSetType, dataSetTypeElement, propertyTypeNameMapper);
         }
     }
 
@@ -460,8 +483,8 @@ public class MasterDataParser
         return validationPlugins.get(nameTranslator.translate(name));
     }
 
-    private void parsePropertyAssignments(EntityKind entityKind, EntityType entityType, Element entityTypeElement)
-            throws XPathExpressionException
+    private void parsePropertyAssignments(EntityKind entityKind, EntityType entityType, Element entityTypeElement,
+            NameMapper propertyTypeNameMapper) throws XPathExpressionException
     {
         NodeList propertyAssignmentsNode = entityTypeElement.getElementsByTagName("xmd:propertyAssignments");
         if (propertyAssignmentsNode.getLength() == 0)
@@ -478,9 +501,8 @@ public class MasterDataParser
         {
             Element propertyAssignmentElement = (Element) propertyAssignmentNodes.item(i);
             String propertyTypeCode = getAttribute(propertyAssignmentElement, "propertyTypeCode");
-            propertyTypeCode = nameTranslator.translate(propertyTypeCode);
             NewETPTAssignment assignment = new NewETPTAssignment();
-            assignment.setPropertyTypeCode(propertyTypeCode);
+            assignment.setPropertyTypeCode(propertyTypeNameMapper.getHarvesterName(propertyTypeCode));
             assignment.setEntityKind(entityType.getEntityKind());
             assignment.setEntityTypeCode(entityType.getCode());
             assignment.setMandatory(Boolean.valueOf(getAttribute(propertyAssignmentElement, "mandatory")));
@@ -505,11 +527,12 @@ public class MasterDataParser
         entityPropertyAssignments.put(entityType.getEntityKind().name(), entityType.getCode(), list);
     }
 
-    private void parsePropertyTypes(NodeList propertyTypesNode) throws XPathExpressionException
+    private NameMapper parsePropertyTypes(NodeList propertyTypesNode) throws XPathExpressionException
     {
+        NameMapper nameMapper = new NameMapper(nameTranslator);
         if (propertyTypesNode.getLength() == 0)
         {
-            return;
+            return nameMapper;
         }
         validateElementNode(propertyTypesNode, "propertyTypes");
 
@@ -521,20 +544,28 @@ public class MasterDataParser
 
             PropertyType newPropertyType = new PropertyType();
             Boolean managedInternally = Boolean.valueOf(getAttribute(propertyTypeElement, "managedInternally"));
-            String code = nameTranslator.translate(getAttribute(propertyTypeElement, "code"));
-            newPropertyType.setCode(CodeConverter.tryToBusinessLayer(code, managedInternally));
+            String registratorId = getAttribute(propertyTypeElement, "registrator");
+            String code = nameTranslator.translate(
+                    nameMapper.registerName(getAttribute(propertyTypeElement, "code"), managedInternally, registratorId));
+            newPropertyType.setCode(code);
             newPropertyType.setLabel(getAttribute(propertyTypeElement, "label"));
             DataTypeCode dataTypeCode = DataTypeCode.valueOf(getAttribute(propertyTypeElement, "dataType"));
             newPropertyType.setDataType(new DataType(dataTypeCode));
             newPropertyType.setDescription(getAttribute(propertyTypeElement, "description"));
             newPropertyType.setManagedInternally(managedInternally);
+            Person registrator = new Person();
+            registrator.setUserId(registratorId);
+            newPropertyType.setRegistrator(registrator);
             newPropertyType.setModificationDate(DSPropertyUtils.convertFromW3CDate(getAttribute(propertyTypeElement, "registration-timestamp")));
 
-            propertyTypes.put(newPropertyType.getCode(), newPropertyType);
+            propertyTypes.put(CodeConverter.tryToBusinessLayer(newPropertyType.getCode(), managedInternally), newPropertyType);
             if (dataTypeCode.equals(DataTypeCode.CONTROLLEDVOCABULARY))
             {
-                String vocabularyCode = nameTranslator.translate((getAttribute(propertyTypeElement, "vocabulary")));
-                newPropertyType.setVocabulary(vocabularies.get(vocabularyCode));
+                String vocabularyCode = vocabularyNameMapper.getHarvesterName(getAttribute(propertyTypeElement, "vocabulary"));
+                NewVocabulary vocabulary = new NewVocabulary();
+                vocabulary.setInternalNamespace(CodeConverter.isInternalNamespace(vocabularyCode));
+                vocabulary.setCode(CodeConverter.tryToDatabase(vocabularyCode));
+                newPropertyType.setVocabulary(vocabulary);
             } else if (dataTypeCode.equals(DataTypeCode.MATERIAL))
             {
                 String materialCode = getAttribute(propertyTypeElement, "material");
@@ -543,9 +574,12 @@ public class MasterDataParser
                     newPropertyType.setMaterialType(null); // material of any type
                 } else
                 {
-                    newPropertyType.setMaterialType(materialTypes.get(nameTranslator.translate(materialCode)));
+                    MaterialType materialType = new MaterialType();
+                    materialType.setCode(nameTranslator.translate(materialCode));
+                    newPropertyType.setMaterialType(materialType);
                 }
             }
         }
+        return nameMapper;
     }
 }

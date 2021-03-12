@@ -80,27 +80,41 @@ public class CollectionFieldSearchConditionTranslator implements IConditionTrans
         {
             case ATTRIBUTE:
             {
-                final Object fieldName = AttributesMapper.getColumnName(criterion.getFieldName(), tableMapper.getEntitiesTable(), criterion.getFieldName());
+                final Object fieldName = AttributesMapper.getColumnName(criterion.getFieldName(),
+                        tableMapper.getEntitiesTable(), criterion.getFieldName());
                 final Collection<?> initialFieldValue = criterion.getFieldValue();
 
                 if (initialFieldValue != null)
                 {
                     final Collection<?> fieldValue;
-                    if (!initialFieldValue.isEmpty() && initialFieldValue.stream().anyMatch((o) -> o instanceof EntityTypePermId))
+                    if (!initialFieldValue.isEmpty() && initialFieldValue.stream().anyMatch(
+                            (o) -> o instanceof EntityTypePermId))
                     {
-                        fieldValue = initialFieldValue.stream().map((o) -> ((EntityTypePermId) o).getPermId()).collect(Collectors.toList());
+                        fieldValue = initialFieldValue.stream().map(
+                                (o) -> ((EntityTypePermId) o).getPermId()).collect(Collectors.toList());
                     } else
                     {
                         fieldValue = initialFieldValue;
                     }
 
-                    sqlBuilder.append(SearchCriteriaTranslator.MAIN_TABLE_ALIAS).append(PERIOD).append(fieldName).append(SP).append(IN).append(SP).append(LP).
-                            append(SELECT).append(SP).append(UNNEST).append(LP).append(QU).append(RP).
-                            append(RP);
-                    args.add(fieldValue.toArray(ARRAY_CASTING.get(criterion.getClass())));
+                    if (tableMapper == TableMapper.SAMPLE)
+                    {
+                        CodeSearchConditionTranslator.buildCodeQueryForSamples(sqlBuilder, () -> {
+                            sqlBuilder.append(SP).append(IN).append(SP).append(SELECT_UNNEST);
+                            args.add(fieldValue.toArray(ARRAY_CASTING.get(criterion.getClass())));
+                        });
+                    } else
+                    {
+                        sqlBuilder.append(SearchCriteriaTranslator.MAIN_TABLE_ALIAS).append(PERIOD).append(fieldName).
+                                append(SP).append(IN).append(SP).append(LP).
+                                append(SELECT).append(SP).append(UNNEST).append(LP).append(QU).append(RP).
+                                append(RP);
+                        args.add(fieldValue.toArray(ARRAY_CASTING.get(criterion.getClass())));
+                    }
                 } else
                 {
-                    sqlBuilder.append(SearchCriteriaTranslator.MAIN_TABLE_ALIAS).append(PERIOD).append(fieldName).append(SP).append(IS_NOT_NULL);
+                    sqlBuilder.append(SearchCriteriaTranslator.MAIN_TABLE_ALIAS).append(PERIOD).append(fieldName).
+                            append(SP).append(IS_NOT_NULL);
                 }
                 break;
             }

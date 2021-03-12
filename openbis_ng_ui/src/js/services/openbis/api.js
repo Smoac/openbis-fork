@@ -31,8 +31,20 @@ class Facade {
     return this.promise(this.v3.logout())
   }
 
+  getPlugins(ids, fo) {
+    return this.promise(this.v3.getPlugins(ids, fo))
+  }
+
+  getQueries(ids, fo) {
+    return this.promise(this.v3.getQueries(ids, fo))
+  }
+
   getPropertyTypes(ids, fo) {
     return this.promise(this.v3.getPropertyTypes(ids, fo))
+  }
+
+  getAuthorizationGroups(ids, fo) {
+    return this.promise(this.v3.getAuthorizationGroups(ids, fo))
   }
 
   getPersons(ids, fo) {
@@ -59,12 +71,28 @@ class Facade {
     return this.promise(this.v3.searchPlugins(criteria, fo))
   }
 
+  searchQueries(criteria, fo) {
+    return this.promise(this.v3.searchQueries(criteria, fo))
+  }
+
+  searchQueryDatabases(criteria, fo) {
+    return this.promise(this.v3.searchQueryDatabases(criteria, fo))
+  }
+
   searchMaterials(criteria, fo) {
     return this.promise(this.v3.searchMaterials(criteria, fo))
   }
 
   searchSamples(criteria, fo) {
     return this.promise(this.v3.searchSamples(criteria, fo))
+  }
+
+  searchExperiments(criteria, fo) {
+    return this.promise(this.v3.searchExperiments(criteria, fo))
+  }
+
+  searchDataSets(criteria, fo) {
+    return this.promise(this.v3.searchDataSets(criteria, fo))
   }
 
   searchVocabularies(criteria, fo) {
@@ -155,10 +183,22 @@ class Facade {
     return this.promise(this.v3.deleteMaterialTypes(ids, options))
   }
 
+  evaluatePlugin(options) {
+    return this.promise(this.v3.evaluatePlugin(options))
+  }
+
   executeService() {
     let id = new dto.CustomASServiceCode('openbis-ng-ui-service')
     let options = new dto.CustomASServiceExecutionOptions()
     return this.promise(this.v3.executeCustomASService(id, options))
+  }
+
+  executeQuery(id, options) {
+    return this.promise(this.v3.executeQuery(id, options))
+  }
+
+  executeSql(sql, options) {
+    return this.promise(this.v3.executeSql(sql, options))
   }
 
   executeOperations(operations, options) {

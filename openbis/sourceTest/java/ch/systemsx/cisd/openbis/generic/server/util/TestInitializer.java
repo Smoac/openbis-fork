@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.util;
 
+import ch.systemsx.cisd.dbmigration.DBMigrationEngine;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -70,6 +71,8 @@ public class TestInitializer
         System.setProperty("database.create-from-scratch", String.valueOf(getCreateDBFromScratch()));
         System.setProperty("database.kind", getDBKind());
         System.setProperty("script-folder", scriptFolder);
+
+        DBMigrationEngine.deleteFullTextSearchDocumentVersionFile();
     }
 
     public static boolean getCreateDBFromScratch()

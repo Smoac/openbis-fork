@@ -5,8 +5,8 @@ pyBIS is a Python module for interacting with openBIS. pyBIS is designed to be m
 ## Dependencies and Requirements
 - pyBIS relies the openBIS API v3
 - openBIS version 16.05.2 or newer is required
-- 18.06.2 or later is recommended
-- pyBIS uses Python 3.5 or newer and the Pandas module
+- 19.06.5 or later is recommended
+- pyBIS uses Python 3.6 or newer and the Pandas module
 
 ## Installation
 
@@ -66,7 +66,8 @@ In an **interactive session** e.g. inside a Jupyter notebook, you can use `getpa
 
 ```
 from pybis import Openbis
-o = Openbis('https://example.com', verify_certificates=False)
+o = Openbis('https://example.com')
+o = Openbis('example.com')          # https:// is assumed
 
 import getpass
 password = getpass.getpass()
@@ -78,19 +79,43 @@ In a **script** you would rather use two **environment variables** to provide us
 
 ```
 from pybis import Openbis
-o = Openbis(os.environ['OPENBIS_HOST'], verify_certificates=False)
+o = Openbis(os.environ['OPENBIS_HOST'])
 
 o.login(os.environ['OPENBIS_USERNAME'], os.environ['OPENBIS_PASSWORD'])
 ```
 
+### Verify certificate
 
-Check whether the **session token** is still valid and log out:
+By default, your SSL-Certification is being verified. If you have a test-instance with a self-signed certificate, you'll need to turn off this verification explicitly:
 
+```python
+from pybis import Openbis
+o = Openbis('https://test-openbis-instance.com', verify_certificates=False)
 ```
-o.token
-o.is_session_active()
+
+### Check session token, logout()
+
+Check whether your session, i.e. the **session token** is still valid and log out:
+
+```python
+print(f"Session is active: {o.is_session_active()} and token is {o.token}")
 o.logout()
+print(f"Session is active: {o.is_session_active()"}
 ```
+
+### Caching
+
+With `pyBIS 1.17.0`, a lot of caching has been introduced to improve the speed of object lookups that do not change often. If you encounter any problems, you can turn it off like this:
+
+```python
+o = Openbis('https://example.com', use_cache=False)
+
+# or later in the script
+o.use_cache = False
+o.clear_cache()
+o.clear_cache('sampleType')
+```
+
 
 ## Mount openBIS dataStore server
 
@@ -284,7 +309,7 @@ dataset_type.revoke_property('property_name')
 dataset_type.get_property_assignments()
 ```
 
-## create a experiment / collection type
+## create an experiment type / collection type
 
 The second step (after creating a **property type**, see above) is to create the **experiment type**.
 
@@ -337,6 +362,13 @@ pl.save()
 
 ## Users, Groups and RoleAssignments
 
+Users can only login into the openBIS system when:
+* they are present in the authentication system (e.g. LDAP)
+* the username/password is correct
+* the user's mail address needs is present
+* the user is already added to the openBIS user list (see below)
+* the user is assigned a role which allows a login, either directly assigned or indirectly assigned via a group membership
+
 ```
 o.get_groups()
 group = o.new_group(code='group_name', description='...')
@@ -372,6 +404,14 @@ ra.delete()
 
 ## Spaces
 
+Spaces are fundamental way in openBIS to divide access between groups. Within a space, data can be easily shared. Between spaces, people need to be given specific access rights (see section above). The structure in openBIS is as follows:
+
+* space
+    * project
+        * experiment / collection
+            * sample / object
+                * dataset
+
 ```
 space = o.new_space(code='space_name', description='')
 space.save()
@@ -400,6 +440,15 @@ space.delete('reason for deletion')
 ```
 
 ## Projects
+
+Projects live within spaces and usually contain experiments (aka collections):
+
+* space
+    * project
+        * experiment / collection
+            * sample / object
+                * dataset
+
 ```
 project = o.new_project(
     space       = space, 
@@ -440,7 +489,118 @@ project.freezeForExperiments = True
 project.freezeForSamples = True
 ```
 
+## Experiments / Collections
+
+Experiments live within projects:
+
+* space
+    * project
+        * experiment / collection
+            * sample / object
+                * dataset
+          
+The new name for **experiment** is **collection**. You can use boths names interchangeably:
+
+* `get_experiment()`  = `get_collection()`
+* `new_experiment()`  = `new_collection()`
+* `get_experiments()` = `get_collections()`
+
+### create a new experiment
+
+```
+exp = o.new_experiment
+    type='DEFAULT_EXPERIMENT',
+    space='MY_SPACE',
+    project='YEASTS'
+)
+exp.save()
+```
+
+### search for experiments
+
+```
+experiments = o.get_experiments(
+    project       = 'YEASTS',
+    space         = 'MY_SPACE', 
+    type          = 'DEFAULT_EXPERIMENT',
+    tags          = '*', 
+    finished_flag = False,
+    props         = ['name', 'finished_flag']
+)
+experiments = project.get_experiments()
+experiment = experiments[0]        # get first experiment of result list
+experiment = experiment
+for experiment in experiments:     # iterate over search results
+    print(experiment.props.all())
+dataframe = experiments.df         # get Pandas DataFrame of result list
+    
+exp = o.get_experiment('/MY_SPACE/MY_PROJECT/MY_EXPERIMENT')
+```
+
+### Experiment attributes
+
+```
+exp.attrs.all()                    # returns all attributes as a dict
+
+exp.attrs.tags = ['some', 'tags']
+exp.tags = ['some', 'tags']        # same thing
+exp.save()
+
+exp.code
+exp.description
+exp.registrator
+...
+
+exp.project = 'my_project'
+exp.space   = 'my_space'
+exp.freeze = True
+exp.freezeForDataSets = True
+exp.freezeForSamples = True
+
+exp.save()                         # needed to save/update the changed attributes and properties
+```
+
+### Experiment properties
+
+**Getting properties**
+
+```
+experiment.props == ds.p                  # you can use either .props or .p to access the properties
+experiment.p                              # in Jupyter: show all properties in a nice table
+experiment.p()                            # get all properties as a dict
+experiment.props.all()                    # get all properties as a dict
+experiment.p('prop1','prop2')             # get some properties as a dict
+experiment.p.get('$name')                 # get the value of a property
+experiment.p['property']                  # get the value of a property
+```
+
+**Setting properties**
+
+```
+experiment.experiment = 'first_exp'       # assign sample to an experiment
+experiment.project = 'my_project'         # assign sample to a project
+
+experiment.p. + TAB                       # in Jupyter/IPython: show list of available properties
+experiment.p.my_property_ + TAB           # in Jupyter/IPython: show datatype or controlled vocabulary 
+experiment.p['my_property']= "value"      # set the value of a property
+experiment.p.set('my_property, 'value')   # set the value of a property
+experiment.p.my_property = "some value"   # set the value of a property
+experiment.p.set({'my_property':'value'}) # set the values of some properties
+experiment.set_props({ key: value })      # set the values of some properties
+
+experiment.save()                         # needed to save/update the changed attributes and properties
+```
+
+
 ## Samples / Objects
+
+Samples usually live within experiments/collections:
+
+* space
+    * project
+        * experiment / collection
+            * sample / object
+                * dataset
 
 The new name for **sample** is **object**. You can use boths names interchangeably:
 
@@ -448,7 +608,7 @@ The new name for **sample** is **object**. You can use boths names interchangeab
 * `new_sample()`  = `new_object()`
 * `get_samples()` = `get_objects()`
 
-etc.
+etc. 
 
 ```
 sample = o.new_sample(
@@ -464,6 +624,7 @@ sample.save()
 
 sample = o.get_sample('/MY_SPACE/MY_SAMPLE_CODE')
 sample = o.get_sample('20170518112808649-52')
+samples= o.get_samples(type='UNKNOWN')    # search for samples, see below
 
 # get individual attributes
 sample.space
@@ -495,25 +656,45 @@ sample.add_attachment('testfile.xls')
 sample.delete('deleted for some reason')
 ```
 
-## create many samples in a transaction
+## create/update/delete many samples in a transaction
 
-Creating a sample takes some time. If you need to create many samples, you might want to create them in one transaction. This will transfer all your sample data at once. The Upside of this is the **gain in speed**. The downside: this is a **all-or-nothing** operation, which means, either all samples will be registered or none (if any error occurs).
+Creating a single sample takes some time. If you need to create many samples, you might want to create them in one transaction. This will transfer all your sample data at once. The Upside of this is the **gain in speed**. The downside: this is a **all-or-nothing** operation, which means, either all samples will be registered or none (if any error occurs).
 
-You can mix creation or update of existing samples within the transaction.
-
+**create many samples in one transaction**
 
 ```
-sample1 = o.new_sample(...)
-sample2 = o.new_sample(...)
-sample3 = o.new_sample(...)
-
 trans = o.new_transaction()
-trans.add(sample1)
-trans.add(sample2)
-trans.add(sample3)
+for i in range (0, 100):
+    sample = o.new_sample(...)
+    trans.add(sample)
 
 trans.commit()
 ```
+
+**update many samples in one transaction**
+
+```
+trans = o.new_transaction()
+for sample in o.get_samples(count=100):
+    sample.prop.some_property = 'different value'
+    trans.add(sample)
+
+trans.commit()
+```
+
+**delete many samples in one transaction**
+
+```
+trans = o.new_transaction()
+for sample in o.get_samples(count=100):
+    sample.mark_to_be_deleted()
+    trans.add(sample)
+
+trans.reason('go what has to go')
+trans.commit()
+```
+**Note:** You can use the `mark_to_be_deleted()`, `unmark_to_be_deleted()` and `is_marked_to_be_deleted()` methods to set and read the internal flag.
+
 
 ### parents, children, components and container
 
@@ -553,20 +734,40 @@ sample.add_tags(['tag2','tag3'])
 sample.del_tags('tag1')
 ```
 
+### Sample attributes and properties
 
-### useful tricks when dealing with properties, using Jupyter or IPython
+**Getting properties**
 
 ```
-sample.p + TAB                        # in IPython or Jupyter: show list of available properties
-sample.p.my_property_ + TAB           # in IPython or Jupyter: show datatype or controlled vocabulary
-sample.p['my-weird.property-name']    # accessing properties containing a dash or a dot
+sample.attrs.all()                    # returns all attributes as a dict
+sample.attribute_name                 # return the attribute value
 
-sample.set_props({ ... })             # set properties by providing a dict
-sample.p                              # same thing as .props
+sample.props == ds.p                  # you can use either .props or .p to access the properties
+sample.p                              # in Jupyter: show all properties in a nice table
+sample.p()                            # get all properties as a dict
+sample.props.all()                    # get all properties as a dict
+sample.p('prop1','prop2')             # get some properties as a dict
+sample.p.get('$name')                 # get the value of a property
+sample.p['property']                  # get the value of a property
+```
+
+**Setting properties**
+
+```
+sample.experiment = 'first_exp'       # assign sample to an experiment
+sample.project = 'my_project'         # assign sample to a project
+
+sample.p. + TAB                       # in Jupyter/IPython: show list of available properties
+sample.p.my_property_ + TAB           # in Jupyter/IPython: show datatype or controlled vocabulary 
+sample.p['my_property']= "value"      # set the value of a property
+sample.p.set('my_property, 'value')   # set the value of a property
 sample.p.my_property = "some value"   # set the value of a property
-                                      # value is checked (type/vocabulary)
-sample.save()                         # update the sample in openBIS
+sample.p.set({'my_property':'value'}) # set the values of some properties
+sample.set_props({ key: value })      # set the values of some properties
+
+sample.save()                         # needed to save/update the attributes and properties
 ```
+
 
 ### search for samples / objects
 
@@ -580,10 +781,10 @@ samples = o.get_samples(
     tags       =['*'],                # only sample with existing tags
     start_with = 0,                   # start_with and count
     count      = 10,                  # enable paging
-    NAME       = 'some name',         # properties are always uppercase 
-                                      # to distinguish them from attributes
-    **{ "SOME.WEIRD:PROP": "value"}   # property name contains a dot or a
-                                      # colon: cannot be passed as an argument
+    where = {
+        "$SOME.WEIRD-PROP": "hello"   # only receive samples where properties match
+    }
+    
     registrationDate = "2020-01-01",  # date format: YYYY-MM-DD
     modificationDate = "<2020-12-31", # use > or < to search for specified date and later / earlier
     attrs=[                           # show these attributes in the dataFrame
@@ -591,8 +792,24 @@ samples = o.get_samples(
         'registrator.email',
         'type.generatedCodePrefix'
     ],
+    parent_property = 'value',        # search in a parent's property
+    child_property  = 'value',        # search in a child's property
+    container_property = 'value'      # search in a container's property
+    parent = '/MY_SPACE/PARENT_SAMPLE', # sample has this as its parent
+    parent = '*',                     # sample has at least one parent
+    child  = '/MY_SPACE/CHILD_SAMPLE',
+    child  = '*',                     # sample has at least one child
+    container = 'MY_SPACE/CONTAINER',
+    container = '*'                   # sample lives in a container
     props=['$NAME', 'MATING_TYPE']    # show these properties in the result
 )
+
+sample = samples[9]                   # get the 10th sample
+                                      # of the search results
+sample = samples['/SPACE/AABC']       # same, fetched by identifier
+for sample in samples:                # iterate over the
+   print(sample.code)                 # search results
+
 
 samples.df                            # returns a Pandas DataFrame object
 
@@ -609,66 +826,27 @@ sample.freezeForParents = True
 sample.freezeForDataSets = True
 ```
 
-## Experiments / Collections
-
-The new name for **experiment** is **collection**. You can use boths names interchangeably:
-
-* `get_experiment()`  = `get_collection()`
-* `new_experiment()`  = `new_collection()`
-* `get_experiments()` = `get_collections()`
-
-```
-exp = o.new_experiment
-    type='DEFAULT_EXPERIMENT',
-    space='MY_SPACE',
-    project='YEASTS'
-)
-exp.save()
-
-o.get_experiments(
-    project='YEASTS',
-    space='MY_SPACE', 
-    type='DEFAULT_EXPERIMENT',
-    tags='*', 
-    finished_flag=False,
-    props=['name', 'finished_flag']
-)
-project.get_experiments()
-exp = o.get_experiment('/MY_SPACE/MY_PROJECT/MY_EXPERIMENT')
-
-exp.set_props({ key: value})
-exp.props
-exp.p                              # same thing as .props
-exp.p.finished_flag=True
-exp.p.my_property = "some value"   # set the value of a property (value is checked)
-exp.p + TAB                        # in IPython or Jupyter: show list of available properties
-exp.p.my_property_ + TAB           # in IPython or Jupyter: show datatype or controlled vocabulary
-exp.p['my-weird.property-name']    # accessing properties containing a dash or a dot
-
-exp.attrs.all()                    # returns all attributes as a dict
-exp.props.all()                    # returns all properties as a dict
-
-exp.attrs.tags = ['some', 'tags']
-exp.tags = ['some', 'tags']        # same thing
-exp.save()
-
-exp.code
-exp.description
-exp.registrator
-exp.registrationDate
-exp.modifier
-exp.modificationDate
-
-exp.freeze = True
-exp.freezeForDataSets = True
-exp.freezeForSamples = True
-```
-
 ## Datasets
+
+Datasets are by all means the most important openBIS entity. The actual files are stored as datasets; all other openBIS entities mainly are necessary to annotate and to structure the data:
+
+* space
+    * project
+        * experiment / collection
+            * sample / object
+                * dataset
 
 ### working with existing dataSets
 ```
-sample.get_datasets()
+# search for datasets, see more search examples below
+datasets = sample.get_datasets(type='SCANS', start_with=0, count=10)
+
+for dataset in datasets:
+    print(dataset.props.all())
+    print(dataset.file_list)
+    dataset.download()
+dataset = datasets[0]
+
 ds = o.get_dataset('20160719143426517-259')
 ds.get_parents()
 ds.get_children()
@@ -726,36 +904,59 @@ ds.is_symlink()
 
 ### dataSet attributes and properties
 
-```
-ds.set_props({ key: value})
-ds.props
-ds.p                              # same thing as .props
-ds.p.my_property = "some value"   # set the value of a property
-ds.p + TAB                        # show list of available properties
-ds.p.my_property_ + TAB           # show datatype or controlled vocabulary
-ds.p['my-weird.property-name']    # accessing properties containing a dash or a dot
+**Getting properties**
 
+```
 ds.attrs.all()                    # returns all attributes as a dict
-ds.props.all()                    # returns all properties as a dict
+ds.attribute_name                 # return the attribute value
+
+ds.props == ds.p                  # you can use either .props or .p to access the properties
+ds.p                              # in Jupyter: show all properties in a nice table
+ds.p()                            # get all properties as a dict
+ds.props.all()                    # get all properties as a dict
+ds.p('prop1','prop2')             # get some properties as a dict
+ds.p.get('$name')                 # get the value of a property
+ds.p['property']                  # get the value of a property
+```
+
+**Setting properties**
+
+```
+ds.experiment = 'first_exp'       # assign dataset to an experiment
+ds.sample = 'my_sample'           # assign dataset to a sample
+
+ds.p. + TAB                       # in Jupyter/IPython: show list of available properties
+ds.p.my_property_ + TAB           # in Jupyter/IPython: show datatype or controlled vocabulary 
+ds.p['my_property']= "value"      # set the value of a property
+ds.p.set('my_property, 'value')   # set the value of a property
+ds.p.my_property = "some value"   # set the value of a property
+ds.p.set({'my_property':'value'}) # set the values of some properties
+ds.set_props({ key: value })      # set the values of some properties
 ```
 
 ### search for dataSets
 
 * The result of a search is always list, even when no items are found
 * The `.df` attribute returns the Pandas dataFrame of the results
-* properties must be in UPPERCASE to distinguish them from attributes
 
 ```
-dataSets = o.get_dataSets(
+datasets = o.get_datasets(
     type  ='MY_DATASET_TYPE',
-    NAME  = 'some name',              # properties are always uppercase 
-                                      # to distinguish them from attributes
     **{ "SOME.WEIRD:PROP": "value"},  # property name contains a dot or a
                                       # colon: cannot be passed as an argument 
     start_with = 0,                   # start_with and count
     count      = 10,                  # enable paging
     registrationDate = "2020-01-01",  # date format: YYYY-MM-DD
     modificationDate = "<2020-12-31", # use > or < to search for specified date and later / earlier
+    parent_property = 'value',        # search in a parent's property
+    child_property  = 'value',        # search in a child's property
+    container_property = 'value'      # search in a container's property
+    parent = '/MY_SPACE/PARENT_DS',   # has this dataset as its parent
+    parent = '*',                     # has at least one parent dataset
+    child  = '/MY_SPACE/CHILD_DS',
+    child  = '*',                     # has at least one child dataset
+    container = 'MY_SPACE/CONTAINER_DS',
+    container = '*',                  # belongs to a container dataset
     attrs=[                           # show these attributes in the dataFrame
         'sample.code',
         'registrator.email',
@@ -763,10 +964,11 @@ dataSets = o.get_dataSets(
     ],
     props=['$NAME', 'MATING_TYPE']    # show these properties in the result
 )
-
-df = dataSets.df                      # returns the Pandas dataFrame object
-
-dataSets = o.get_dataSets(props="*")  # retrieve all properties of all dataSets
+datasets = o.get_datasets(props="*")  # retrieve all properties of all dataSets
+dataset = datasets[0]                 # get the first dataset in the search result
+for dataset in datasets:              # iterate over the datasets
+    ...
+df = datasets.df                      # returns a Pandas dataFrame object of the search results
 ```
 
 In some cases, you might want to retrieve precisely certain datasets. This can be achieved by
@@ -1034,6 +1236,10 @@ voc = o.new_vocabulary(
     ]   
 )
 voc.save()
+
+voc.vocabulary = 'description of vocabulary BBB'
+voc.chosenFromList = True
+voc.save() # update
 ```
 
 **create additional VocabularyTerms**

@@ -39,7 +39,7 @@ abstract class AbstractSamplePredicate<T> extends AbstractPredicate<T>
     {
         this.sampleTechIdPredicate = new SampleTechIdPredicate(isReadAccess);
         this.spacePredicate = new SpaceIdentifierPredicate();
-        this.samplePermIdPredicate = new SamplePermIdPredicate(isReadAccess);
+        this.samplePermIdPredicate = new SamplePermIdPredicate(isReadAccess, false);
         this.sampleIdentifierPredicate = new SampleIdentifierPredicate(isReadAccess);
         this.sampleAugmentedCodePredicate = new SampleAugmentedCodePredicate(isReadAccess);
     }

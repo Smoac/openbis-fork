@@ -2420,4 +2420,45 @@ withAnyNumberProperty
 withAnyStringProperty
 withBooleanProperty
 withStringProperty
+withOperator
+withSubcriteria
 activate
+Dynamic Property Plugin Evaluation Options
+Dynamic Property Plugin Evaluation Result
+Entity Validation Plugin Evaluation Options
+Entity Validation Plugin Evaluation Result
+evaluate Plugin
+Evaluate Plugin Operation
+Evaluate Plugin Operation Result
+get Plugin Script
+get Requested Validations
+is New
+Plugin Evaluation Options
+Plugin Evaluation Result
+set New
+set Plugin Script
+get Creator Minimal Role
+get Creator Minimal Role Level
+get Query Databases
+Get Query Databases Operation
+Get Query Databases Operation Result
+Query Database
+Query Database Fetch Options
+Query Database Search Criteria
+Query Database Sort Options
+search Query Databases
+Search Query Databases Operation
+Search Query Databases Operation Result
+set Creator Minimal Role
+set Creator Minimal Role Level
+delete Persons
+Delete Persons Operation
+Delete Persons Operation Result
+Person Deletion Options
+isUseWildcards
+withWildcards
+withoutWildcards
+StringMatchesValue
+TextAttributeSearchCriteria
+thatMatches
+withTextAttribute

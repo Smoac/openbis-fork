@@ -107,7 +107,7 @@ class Group(
             roles = self.get_roles().df
             if len(roles) == 0:
                 if VERBOSE:
-                    print("Role has already been revoked from group {}".format(role, self.code))
+                    print(f"Role {role} has already been revoked from group {self.code}")
                 return
             techId = roles.query(querystr)['techId'].values[0]
 
@@ -115,9 +115,7 @@ class Group(
         ra = self.openbis.get_role_assignment(techId)
         ra.delete(reason)
         if VERBOSE:
-            print(
-                "Role {} successfully revoked from group {}".format(role, self.code)
-            ) 
+            print(f"Role {role} successfully revoked from group {self.code}") 
         return
 
     def save(self):

@@ -45,6 +45,12 @@ public class PersonSearchManager extends AbstractLocalSearchManager<PersonSearch
     }
 
     @Override
+    protected AbstractCompositeSearchCriteria createEmptyCriteria()
+    {
+        return new PersonSearchCriteria();
+    }
+
+    @Override
     protected Set<Long> doFilterIDsByUserRights(final Set<Long> ids, final AuthorisationInformation authorisationInformation)
     {
         // No filtering of persons is needed.

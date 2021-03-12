@@ -16,10 +16,9 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.dbbackup;
 
+import ch.systemsx.cisd.dbmigration.DatabaseEngine;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
-
-import ch.systemsx.cisd.openbis.dss.generic.server.dbbackup.BackupDatabaseDescriptionGenerator;
 
 /**
  * @author Kaloyan Enimanev
@@ -31,18 +30,24 @@ public class BackupDatabaseDescriptionGeneratorTest extends AssertJUnit
     {
         BackupDatabaseDescriptionGenerator generator = new BackupDatabaseDescriptionGenerator();
         generator.process(new String[]
-        { getResourceFileName("openBIS-server/jetty/etc/service.properties"),
-                getResourceFileName("datastore_server/etc/service.properties") });
+                { getResourceFileName("openBIS-server/jetty/etc/service.properties"),
+                        getResourceFileName("datastore_server/etc/service.properties") });
 
         String username = System.getProperty("user.name");
         String resultTemplate =
                 "database=imaging_barkind;username=%s;password=\n"
                         + "database=internal_db;username=%s;password=\n"
                         + "database=openbis_fookind;username=%s;password=";
-        String expectedResult = String.format(resultTemplate, username, username, username);
+
+        String databaseHost = DatabaseEngine.getTestEnvironmentHostOrConfigured(null);
+        if (databaseHost != null)
+        {
+            resultTemplate += ";host=" + databaseHost;
+        }
+
+        String expectedResult = String.format(resultTemplate, username, username, username, databaseHost);
 
         assertEquals(expectedResult, generator.getResult());
-
     }
 
     private String getResourceFileName(String fileName)

@@ -47,6 +47,12 @@ public class MaterialTypeSearchManager extends AbstractLocalSearchManager<Materi
     }
 
     @Override
+    protected AbstractCompositeSearchCriteria createEmptyCriteria()
+    {
+        return new MaterialTypeSearchCriteria();
+    }
+
+    @Override
     protected Set<Long> doFilterIDsByUserRights(final Set<Long> ids, final AuthorisationInformation authorisationInformation)
     {
         return ids;

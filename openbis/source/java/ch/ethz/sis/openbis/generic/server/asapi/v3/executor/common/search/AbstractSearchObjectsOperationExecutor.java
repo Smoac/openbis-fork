@@ -23,9 +23,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.*;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.auth.AuthorisationInformation;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.planner.ILocalSearchManager;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationConfig;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -80,15 +78,15 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
 
         if (criteria == null)
         {
-            throw new IllegalArgumentException("Criteria cannot be null.");
+            throwIllegalArgumentException("Criteria cannot be null.");
         }
         if (fetchOptions == null)
         {
-            throw new IllegalArgumentException("Fetch options cannot be null.");
+            throwIllegalArgumentException("Fetch options cannot be null.");
         }
 
         Collection<OBJECT> allResults = searchAndTranslate(context, criteria, fetchOptions);
-        List<OBJECT> sortedAndPaged = sortAndPage(context, allResults, criteria, fetchOptions);
+        List<OBJECT> sortedAndPaged = sortAndPage(allResults, criteria, fetchOptions);
 
         SearchResult<OBJECT> searchResult = new SearchResult<OBJECT>(sortedAndPaged, allResults.size());
         return getOperationResult(searchResult);
@@ -130,7 +128,7 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
         return objects;
     }
 
-    private List<OBJECT> sortAndPage(IOperationContext context, Collection<OBJECT> results,  CRITERIA criteria, FETCH_OPTIONS fetchOptions)
+    private List<OBJECT> sortAndPage(Collection<OBJECT> results, CRITERIA criteria, FETCH_OPTIONS fetchOptions)
     {
         if (results == null || results.isEmpty())
         {
@@ -291,7 +289,8 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
 
             for (Sorting sorting : sortingToRemove) {
                 sortOptions.getSortings().remove(sorting);
-                operationLog.warn("[SQL Query Engine - backwards compatibility warning - stop using this feature] SORTING ORDER IGNORED!: " + sorting.getField());
+                operationLog.warn("[SQL Query Engine - backwards compatibility warning - stop using this feature] " +
+                        "SORTING ORDER IGNORED!: " + sorting.getField());
             }
 
             if (sortOptions.getSortings().isEmpty()) {
@@ -299,19 +298,43 @@ public abstract class AbstractSearchObjectsOperationExecutor<OBJECT, OBJECT_PE, 
             }
         }
 
-        final List<Long> toPage = (sortOptions != null) ? getSearchManager().sortIDs(ids, sortOptions)
+        final List<Long> sortedIds = (sortOptions != null) ? getSearchManager().sortIDs(ids, sortOptions)
                 : new ArrayList<>(ids);
-        final Integer fromRecord = fetchOptions.getFrom();
-        final Integer recordsCount = fetchOptions.getCount();
-        final boolean hasPaging = fromRecord != null && recordsCount != null;
+
+        final List<Long> toPage;
+        if (sortedIds.size() < ids.size())
+        {
+            if (sortOptions != null && sortOptions.getSortings().size() > 1)
+            {
+                throwIllegalArgumentException("Sorting by multiple fields when one or more properties are missing " +
+                        "in the result set entities is not supported.");
+            }
+
+            final Set<Long> combiningSet = new LinkedHashSet<>(sortedIds);
+            combiningSet.addAll(ids);
+            toPage = new ArrayList<>(combiningSet);
+        } else
+        {
+            toPage = sortedIds;
+        }
+
+        final Integer foFromRecord = fetchOptions.getFrom();
+        final Integer foRecordsCount = fetchOptions.getCount();
+        final boolean hasPaging = foFromRecord != null || foRecordsCount != null;
         if (hasPaging)
         {
-            final int toRecord = Math.min(fromRecord + recordsCount, toPage.size());
+            final int fromRecord = foFromRecord != null ? foFromRecord : 0;
+            final int toRecord = foRecordsCount != null ? Math.min(fromRecord + foRecordsCount, toPage.size())
+                    : toPage.size();
             return fromRecord <= toRecord ? toPage.subList(fromRecord, toRecord) : Collections.emptyList();
         } else
         {
             return toPage;
         }
+    }
+
+    private static void throwIllegalArgumentException(final String message) throws RuntimeException {
+        throw new IllegalArgumentException(message);
     }
 
 }

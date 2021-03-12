@@ -57,7 +57,7 @@ public abstract class AbstractCompositeSearchCriteria extends AbstractSearchCrit
         return criterion;
     }
 
-    protected AbstractCompositeSearchCriteria withOperator(SearchOperator anOperator)
+    public AbstractCompositeSearchCriteria withOperator(SearchOperator anOperator)
     {
         this.operator = anOperator;
         return this;

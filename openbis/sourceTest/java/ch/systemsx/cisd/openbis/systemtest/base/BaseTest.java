@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import ch.systemsx.cisd.dbmigration.DBMigrationEngine;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -156,6 +157,7 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
     @BeforeSuite(groups = "system-cleandb")
     public void initializeLog() throws Exception
     {
+        DBMigrationEngine.deleteFullTextSearchDocumentVersionFile();
         LogInitializer.init();
         initializeProperties();
         setContext();

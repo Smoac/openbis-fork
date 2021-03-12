@@ -2,6 +2,7 @@ import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import Container from '@src/js/components/common/form/Container.jsx'
 import Button from '@src/js/components/common/form/Button.jsx'
+import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
@@ -26,14 +27,14 @@ class BrowserButtons extends React.Component {
     return (
       <Container className={classes.container}>
         <Button
-          label='Add'
+          label={messages.get(messages.ADD)}
           name='add'
           styles={{ root: classes.button }}
           onClick={controller.nodeAdd}
           disabled={!addEnabled}
         />
         <Button
-          label='Remove'
+          label={messages.get(messages.REMOVE)}
           name='remove'
           styles={{ root: classes.button }}
           onClick={controller.nodeRemove}

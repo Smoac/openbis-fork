@@ -33,7 +33,7 @@ public class WellIdentifierPredicate extends DelegatedPredicate<PermId, WellIden
 
     public WellIdentifierPredicate()
     {
-        super(new SamplePermIdPredicate(false));
+        super(new SamplePermIdPredicate(false, false));
     }
 
     @Override

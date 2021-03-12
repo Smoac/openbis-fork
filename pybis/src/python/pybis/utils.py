@@ -16,8 +16,9 @@ def parse_jackson(input_json):
        Any further findings only carry this reference id.
        This function is used to dereference the output.
     """
-    interesting=['tags', 'registrator', 'modifier', 'owner', 'type', 'parents', 
-        'children', 'containers', 'container', 'properties', 'experiment', 'sample',
+    interesting=['tags', 'registrator', 'modifier', 'owner', 'type', 
+        'parents', 'children', 'containers', # 'container', 
+        'properties', 'experiment', 'sample',
         'project', 'space', 'propertyType', 'entityType', 'propertyType', 'propertyAssignment',
         'externalDms', 'roleAssignments', 'user', 'users', 'authorizationGroup', 'vocabulary',
         'validationPlugin', 'dataSetPermId', 'dataStore'
@@ -183,6 +184,18 @@ def extract_identifier(ident):
         return str(ident)
     return ident['identifier']
 
+def extract_identifiers(items):
+    if not items:
+        return []
+    try:
+        return [
+            data['identifier']['identifier'] 
+            if 'identifier' in data 
+            else data['permId']['permId'] 
+            for data in items
+        ]
+    except TypeError:
+        return []
 
 def extract_nested_identifier(ident):
     if not isinstance(ident, dict):
@@ -255,3 +268,14 @@ def extract_userId(user):
         return user['userId']
     else:
         return str(user)
+
+def is_number(value):
+   """detects whether a given value
+   is either an integer or a floating point number
+   1, 2, 3,  etc.
+   1.0, 2.1, etc.
+   .5, .6    etc.
+   """
+   number_regex = re.compile(r'^(?=.)([+-]?([0-9]*)(\.([0-9]+))?)$')
+   return number_regex.search(value)
+

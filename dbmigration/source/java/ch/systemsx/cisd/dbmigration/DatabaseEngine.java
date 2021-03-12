@@ -38,13 +38,28 @@ import ch.systemsx.cisd.dbmigration.postgresql.PostgreSQLDAOFactory;
  */
 public enum DatabaseEngine
 {
+
+    // FORCE_OPENBIS_POSTGRES_HOST is used for servers that don't have the Postgres installation locally and require no change on config files (test servers)
     POSTGRESQL("postgresql", "org.postgresql.Driver", PostgreSQLDAOFactory.class,
             new DefaultLobHandler(), new PostgreSQLSequencerHandler(), "jdbc:postgresql://{0}/",
-            "jdbc:postgresql://{0}/{1}", "localhost", "postgres", "SELECT 1"),
+            "jdbc:postgresql://{0}/{1}", getTestEnvironmentHostOrConfigured("localhost"), "postgres", "SELECT 1"),
 
     H2("h2", "org.h2.Driver", H2DAOFactory.class, new DefaultLobHandler(),
             new PostgreSQLSequencerHandler(), "jdbc:h2:{0}{1};DB_CLOSE_DELAY=-1",
             "jdbc:h2:{0}{1};DB_CLOSE_DELAY=-1", "file:db/", "sa", null);
+
+    public static String getTestEnvironmentHostOrConfigured(String configured) {
+        return System.getenv().getOrDefault("FORCE_OPENBIS_POSTGRES_HOST", configured);
+    }
+
+    public static String getTestEnvironmentURLOrConfigured(String configured) {
+        if (System.getenv().containsKey("FORCE_OPENBIS_POSTGRES_HOST")) {
+            int dbNameStart = configured.lastIndexOf("/");
+            String dbName = configured.substring(dbNameStart + 1);
+            configured = "jdbc:postgresql://" + System.getenv().get("FORCE_OPENBIS_POSTGRES_HOST") + "/" + dbName;
+        }
+        return configured;
+    }
 
     private static Map<String, DatabaseEngine> engines = initEngineMap();
 

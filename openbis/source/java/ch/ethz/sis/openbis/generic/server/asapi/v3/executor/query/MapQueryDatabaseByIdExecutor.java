@@ -38,11 +38,16 @@ public class MapQueryDatabaseByIdExecutor implements IMapQueryDatabaseByIdExecut
 {
 
     @Autowired
+    private IQueryDatabaseAuthorizationExecutor authorizationExecutor;
+
+    @Autowired
     private IQueryDatabaseDefinitionProviderAutoInitialized databaseProvider;
 
     @Override
     public Map<IQueryDatabaseId, DatabaseDefinition> map(IOperationContext context, Collection<? extends IQueryDatabaseId> ids)
     {
+        authorizationExecutor.canGet(context);
+
         Map<IQueryDatabaseId, DatabaseDefinition> result = new LinkedHashMap<IQueryDatabaseId, DatabaseDefinition>();
 
         for (IQueryDatabaseId id : ids)

@@ -1,6 +1,7 @@
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id import CreationId
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create import DataSetTypeCreation
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id import EntityTypePermId
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype import EntityKind
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create import ExperimentTypeCreation, ExperimentCreation
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin import PluginType
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.create import PluginCreation
@@ -77,7 +78,14 @@ class PropertyTypeDefinitionToCreationParser(object):
             property_type_creation.code = code
             property_type_creation.label = prop.get(u'property label')
             property_type_creation.description = prop.get(u'description')
-            property_type_creation.dataType = DataType.valueOf(prop.get(u'data type'))
+
+            data_type = prop.get(u'data type')
+            if data_type.startswith('SAMPLE:'):
+                property_type_creation.dataType = DataType.valueOf('SAMPLE')
+                #property_type_creation.setSampleTypeId(EntityTypePermId(data_type[7:], EntityKind.SAMPLE))
+            else:
+                property_type_creation.dataType = DataType.valueOf(data_type)
+
             property_type_creation.managedInternally = is_internal_namespace(upper_case_code(prop.get(u'code')))
             property_type_creation.vocabularyId = VocabularyPermId(prop.get(u'vocabulary code')) if prop.get(
                 u'vocabulary code') is not None else None

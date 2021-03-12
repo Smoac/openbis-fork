@@ -19,19 +19,33 @@ afterEach(() => {
 })
 
 describe(TypeFormControllerTest.SUITE, () => {
-  test('remove section not used', testRemoveSectionNotUsed)
-  test('remove section used and confirmed', testRemoveSectionUsedAndConfirmed)
-  test('remove section used and cancelled', testRemoveSectionUsedAndCancelled)
-  test('remove property not used', testRemovePropertyNotUsed)
-  test('remove property used and confirmed', testRemovePropertyUsedAndConfirmed)
-  test('remove property used and cancelled', testRemovePropertyUsedAndCancelled)
+  test('remove section confirmed', async () => {
+    await testRemoveSectionConfirmed(0)
+    await testRemoveSectionConfirmed(10)
+  })
+  test('remove section cancelled', async () => {
+    await testRemoveSectionCancelled(0)
+    await testRemoveSectionCancelled(10)
+  })
+  test('remove property confirmed', async () => {
+    await testRemovePropertyConfirmed(0)
+    await testRemovePropertyConfirmed(10)
+  })
+  test('remove property cancelled', async () => {
+    await testRemovePropertyCancelled(0)
+    await testRemovePropertyCancelled(10)
+  })
 })
 
-async function testRemoveSectionNotUsed() {
+async function testRemoveSectionConfirmed(usages) {
   common.facade.loadType.mockReturnValue(
     Promise.resolve(fixture.TEST_SAMPLE_TYPE_DTO)
   )
-  common.facade.loadUsages.mockReturnValue(Promise.resolve({}))
+  common.facade.loadPropertyUsages.mockReturnValue(
+    Promise.resolve({
+      [fixture.TEST_PROPERTY_TYPE_1_DTO.getCode()]: usages
+    })
+  )
 
   await common.controller.load()
   common.controller.handleSelectionChange(TypeFormSelectionType.SECTION, {
@@ -73,88 +87,7 @@ async function testRemoveSectionNotUsed() {
     ]
   })
 
-  common.controller.handleRemove()
-
-  expect(common.context.getState()).toMatchObject({
-    selection: null,
-    properties: [
-      {
-        id: 'property-1',
-        code: { value: fixture.TEST_PROPERTY_TYPE_2_DTO.getCode() }
-      },
-      {
-        id: 'property-2',
-        code: { value: fixture.TEST_PROPERTY_TYPE_3_DTO.getCode() }
-      }
-    ],
-    sections: [
-      {
-        id: 'section-1',
-        name: { value: 'TEST_SECTION_2' },
-        properties: ['property-1', 'property-2']
-      }
-    ]
-  })
-}
-
-async function testRemoveSectionUsedAndConfirmed() {
-  common.facade.loadType.mockReturnValue(
-    Promise.resolve(fixture.TEST_SAMPLE_TYPE_DTO)
-  )
-  common.facade.loadUsages.mockReturnValue(
-    Promise.resolve({
-      propertyLocal: {
-        [fixture.TEST_PROPERTY_TYPE_1_DTO.getCode()]: 1
-      },
-      propertyGlobal: {
-        [fixture.TEST_PROPERTY_TYPE_1_DTO.getCode()]: 10
-      }
-    })
-  )
-
-  await common.controller.load()
-  common.controller.handleSelectionChange(TypeFormSelectionType.SECTION, {
-    id: 'section-0'
-  })
-
-  expect(common.context.getState()).toMatchObject({
-    selection: {
-      type: TypeFormSelectionType.SECTION,
-      params: {
-        id: 'section-0'
-      }
-    },
-    properties: [
-      {
-        id: 'property-0',
-        code: { value: fixture.TEST_PROPERTY_TYPE_1_DTO.getCode() },
-        usagesLocal: 1,
-        usagesGlobal: 10
-      },
-      {
-        id: 'property-1',
-        code: { value: fixture.TEST_PROPERTY_TYPE_2_DTO.getCode() }
-      },
-      {
-        id: 'property-2',
-        code: { value: fixture.TEST_PROPERTY_TYPE_3_DTO.getCode() }
-      }
-    ],
-    sections: [
-      {
-        id: 'section-0',
-        name: { value: 'TEST_SECTION_1' },
-        properties: ['property-0']
-      },
-      {
-        id: 'section-1',
-        name: { value: 'TEST_SECTION_2' },
-        properties: ['property-1', 'property-2']
-      }
-    ]
-  })
-
-  common.controller.handleRemove()
+  await common.controller.handleRemove()
 
   expect(common.context.getState()).toMatchObject({
     removeSectionDialogOpen: true,
@@ -167,9 +100,7 @@ async function testRemoveSectionUsedAndConfirmed() {
     properties: [
       {
         id: 'property-0',
-        code: { value: fixture.TEST_PROPERTY_TYPE_1_DTO.getCode() },
-        usagesLocal: 1,
-        usagesGlobal: 10
+        code: { value: fixture.TEST_PROPERTY_TYPE_1_DTO.getCode() }
       },
       {
         id: 'property-1',
@@ -184,7 +115,8 @@ async function testRemoveSectionUsedAndConfirmed() {
       {
         id: 'section-0',
         name: { value: 'TEST_SECTION_1' },
-        properties: ['property-0']
+        properties: ['property-0'],
+        usages: usages
       },
       {
         id: 'section-1',
@@ -219,18 +151,13 @@ async function testRemoveSectionUsedAndConfirmed() {
   })
 }
 
-async function testRemoveSectionUsedAndCancelled() {
+async function testRemoveSectionCancelled(usages) {
   common.facade.loadType.mockReturnValue(
     Promise.resolve(fixture.TEST_SAMPLE_TYPE_DTO)
   )
-  common.facade.loadUsages.mockReturnValue(
+  common.facade.loadPropertyUsages.mockReturnValue(
     Promise.resolve({
-      propertyLocal: {
-        [fixture.TEST_PROPERTY_TYPE_1_DTO.getCode()]: 1
-      },
-      propertyGlobal: {
-        [fixture.TEST_PROPERTY_TYPE_1_DTO.getCode()]: 10
-      }
+      [fixture.TEST_PROPERTY_TYPE_1_DTO.getCode()]: usages
     })
   )
 
@@ -249,9 +176,7 @@ async function testRemoveSectionUsedAndCancelled() {
     properties: [
       {
         id: 'property-0',
-        code: { value: fixture.TEST_PROPERTY_TYPE_1_DTO.getCode() },
-        usagesLocal: 1,
-        usagesGlobal: 10
+        code: { value: fixture.TEST_PROPERTY_TYPE_1_DTO.getCode() }
       },
       {
         id: 'property-1',
@@ -276,7 +201,7 @@ async function testRemoveSectionUsedAndCancelled() {
     ]
   })
 
-  common.controller.handleRemove()
+  await common.controller.handleRemove()
 
   expect(common.context.getState()).toMatchObject({
     removeSectionDialogOpen: true,
@@ -289,9 +214,7 @@ async function testRemoveSectionUsedAndCancelled() {
     properties: [
       {
         id: 'property-0',
-        code: { value: fixture.TEST_PROPERTY_TYPE_1_DTO.getCode() },
-        usagesLocal: 1,
-        usagesGlobal: 10
+        code: { value: fixture.TEST_PROPERTY_TYPE_1_DTO.getCode() }
       },
       {
         id: 'property-1',
@@ -306,7 +229,8 @@ async function testRemoveSectionUsedAndCancelled() {
       {
         id: 'section-0',
         name: { value: 'TEST_SECTION_1' },
-        properties: ['property-0']
+        properties: ['property-0'],
+        usages: usages
       },
       {
         id: 'section-1',
@@ -329,55 +253,6 @@ async function testRemoveSectionUsedAndCancelled() {
     properties: [
       {
         id: 'property-0',
-        code: { value: fixture.TEST_PROPERTY_TYPE_1_DTO.getCode() },
-        usagesLocal: 1,
-        usagesGlobal: 10
-      },
-      {
-        id: 'property-1',
-        code: { value: fixture.TEST_PROPERTY_TYPE_2_DTO.getCode() }
-      },
-      {
-        id: 'property-2',
-        code: { value: fixture.TEST_PROPERTY_TYPE_3_DTO.getCode() }
-      }
-    ],
-    sections: [
-      {
-        id: 'section-0',
-        name: { value: 'TEST_SECTION_1' },
-        properties: ['property-0']
-      },
-      {
-        id: 'section-1',
-        name: { value: 'TEST_SECTION_2' },
-        properties: ['property-1', 'property-2']
-      }
-    ]
-  })
-}
-
-async function testRemovePropertyNotUsed() {
-  common.facade.loadType.mockReturnValue(
-    Promise.resolve(fixture.TEST_SAMPLE_TYPE_DTO)
-  )
-  common.facade.loadUsages.mockReturnValue(Promise.resolve({}))
-
-  await common.controller.load()
-  common.controller.handleSelectionChange(TypeFormSelectionType.PROPERTY, {
-    id: 'property-1'
-  })
-
-  expect(common.context.getState()).toMatchObject({
-    selection: {
-      type: TypeFormSelectionType.PROPERTY,
-      params: {
-        id: 'property-1'
-      }
-    },
-    properties: [
-      {
-        id: 'property-0',
         code: { value: fixture.TEST_PROPERTY_TYPE_1_DTO.getCode() }
       },
       {
@@ -393,7 +268,8 @@ async function testRemovePropertyNotUsed() {
       {
         id: 'section-0',
         name: { value: 'TEST_SECTION_1' },
-        properties: ['property-0']
+        properties: ['property-0'],
+        usages: usages
       },
       {
         id: 'section-1',
@@ -402,48 +278,15 @@ async function testRemovePropertyNotUsed() {
       }
     ]
   })
-
-  common.controller.handleRemove()
-
-  expect(common.context.getState()).toMatchObject({
-    selection: null,
-    properties: [
-      {
-        id: 'property-0',
-        code: { value: fixture.TEST_PROPERTY_TYPE_1_DTO.getCode() }
-      },
-      {
-        id: 'property-2',
-        code: { value: fixture.TEST_PROPERTY_TYPE_3_DTO.getCode() }
-      }
-    ],
-    sections: [
-      {
-        id: 'section-0',
-        name: { value: 'TEST_SECTION_1' },
-        properties: ['property-0']
-      },
-      {
-        id: 'section-1',
-        name: { value: 'TEST_SECTION_2' },
-        properties: ['property-2']
-      }
-    ]
-  })
 }
 
-async function testRemovePropertyUsedAndConfirmed() {
+async function testRemovePropertyConfirmed(usages) {
   common.facade.loadType.mockReturnValue(
     Promise.resolve(fixture.TEST_SAMPLE_TYPE_DTO)
   )
-  common.facade.loadUsages.mockReturnValue(
+  common.facade.loadPropertyUsages.mockReturnValue(
     Promise.resolve({
-      propertyLocal: {
-        [fixture.TEST_PROPERTY_TYPE_2_DTO.getCode()]: 1
-      },
-      propertyGlobal: {
-        [fixture.TEST_PROPERTY_TYPE_2_DTO.getCode()]: 10
-      }
+      [fixture.TEST_PROPERTY_TYPE_2_DTO.getCode()]: usages
     })
   )
 
@@ -466,9 +309,7 @@ async function testRemovePropertyUsedAndConfirmed() {
       },
       {
         id: 'property-1',
-        code: { value: fixture.TEST_PROPERTY_TYPE_2_DTO.getCode() },
-        usagesLocal: 1,
-        usagesGlobal: 10
+        code: { value: fixture.TEST_PROPERTY_TYPE_2_DTO.getCode() }
       },
       {
         id: 'property-2',
@@ -489,7 +330,7 @@ async function testRemovePropertyUsedAndConfirmed() {
     ]
   })
 
-  common.controller.handleRemove()
+  await common.controller.handleRemove()
 
   expect(common.context.getState()).toMatchObject({
     removePropertyDialogOpen: true,
@@ -507,8 +348,7 @@ async function testRemovePropertyUsedAndConfirmed() {
       {
         id: 'property-1',
         code: { value: fixture.TEST_PROPERTY_TYPE_2_DTO.getCode() },
-        usagesLocal: 1,
-        usagesGlobal: 10
+        usages: usages
       },
       {
         id: 'property-2',
@@ -559,18 +399,13 @@ async function testRemovePropertyUsedAndConfirmed() {
   })
 }
 
-async function testRemovePropertyUsedAndCancelled() {
+async function testRemovePropertyCancelled(usages) {
   common.facade.loadType.mockReturnValue(
     Promise.resolve(fixture.TEST_SAMPLE_TYPE_DTO)
   )
-  common.facade.loadUsages.mockReturnValue(
+  common.facade.loadPropertyUsages.mockReturnValue(
     Promise.resolve({
-      propertyLocal: {
-        [fixture.TEST_PROPERTY_TYPE_2_DTO.getCode()]: 1
-      },
-      propertyGlobal: {
-        [fixture.TEST_PROPERTY_TYPE_2_DTO.getCode()]: 10
-      }
+      [fixture.TEST_PROPERTY_TYPE_2_DTO.getCode()]: usages
     })
   )
 
@@ -593,9 +428,7 @@ async function testRemovePropertyUsedAndCancelled() {
       },
       {
         id: 'property-1',
-        code: { value: fixture.TEST_PROPERTY_TYPE_2_DTO.getCode() },
-        usagesLocal: 1,
-        usagesGlobal: 10
+        code: { value: fixture.TEST_PROPERTY_TYPE_2_DTO.getCode() }
       },
       {
         id: 'property-2',
@@ -616,7 +449,7 @@ async function testRemovePropertyUsedAndCancelled() {
     ]
   })
 
-  common.controller.handleRemove()
+  await common.controller.handleRemove()
 
   expect(common.context.getState()).toMatchObject({
     removePropertyDialogOpen: true,
@@ -634,8 +467,7 @@ async function testRemovePropertyUsedAndCancelled() {
       {
         id: 'property-1',
         code: { value: fixture.TEST_PROPERTY_TYPE_2_DTO.getCode() },
-        usagesLocal: 1,
-        usagesGlobal: 10
+        usages: usages
       },
       {
         id: 'property-2',
@@ -674,8 +506,7 @@ async function testRemovePropertyUsedAndCancelled() {
       {
         id: 'property-1',
         code: { value: fixture.TEST_PROPERTY_TYPE_2_DTO.getCode() },
-        usagesLocal: 1,
-        usagesGlobal: 10
+        usages: usages
       },
       {
         id: 'property-2',

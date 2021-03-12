@@ -238,11 +238,31 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 					Util.showUserError("There is more than " + maxProducts + " product.");
 					return;
 				}
-				if(minProducts && (sampleParentsFinal.length + newSampleParents.length) < minProducts) {
-					Util.showUserError("There is less than " + maxProducts + " product.");
-					return;
-				}
-			}
+                if (minProducts && (sampleParentsFinal.length + newSampleParents.length) < minProducts) {
+                    Util.showUserError("There is less than " + minProducts + " product.");
+                    return;
+                }
+                if (sample.parents) {
+                    annotations = _this._sampleFormModel.sampleLinksParents.getAnnotations()
+                    if (!annotations) {
+                        Util.showUserError("Products do not have quantities specified.");
+                        return;
+                    }
+                    for (var idx = 0; idx < sample.parents.length; idx++) {
+                        parent = sample.parents[idx]
+                        parentAnnotations = annotations[parent.permId]
+                        if (!parentAnnotations || !parentAnnotations["ANNOTATION.REQUEST.QUANTITY_OF_ITEMS"]) {
+                            Util.showUserError("Product " + parent.code + " does not have a quantity specified.");
+                            return;
+                        }
+                    }
+                }
+            } else if (sample.sampleTypeCode === "ORDER") {
+                if (!sample.properties["$ORDERING.ORDER_STATUS"]) {
+                    Util.showUserError("Order status is undefined.");
+                    return;
+                }
+            }
 			
 			//
 			//Identification Info

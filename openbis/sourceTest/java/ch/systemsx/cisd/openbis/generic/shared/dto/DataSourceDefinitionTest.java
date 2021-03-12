@@ -16,12 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-import java.util.List;
-
+import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
+import java.util.List;
 
 /**
  * @author Franz-Josef Elmer
@@ -87,7 +86,7 @@ public class DataSourceDefinitionTest extends AssertJUnit
         context.setPassword("Einstein");
         DataSourceDefinition definition = DataSourceDefinition.createFromContext(context);
 
-        assertEquals("driverClassName=org.postgresql.Driver\thostPart=my-db:4711\t"
-                + "sid=openbis_dev\tusername=albert\tpassword=Einstein\t", definition.toString());
+        assertEquals(String.format("driverClassName=org.postgresql.Driver\thostPart=%s\t"
+                + "sid=openbis_dev\tusername=albert\tpassword=Einstein\t", context.getUrlHostPart()), definition.toString());
     }
 }

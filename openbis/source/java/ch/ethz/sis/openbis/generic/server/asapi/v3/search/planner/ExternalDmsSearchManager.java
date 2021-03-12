@@ -46,6 +46,12 @@ public class ExternalDmsSearchManager extends AbstractLocalSearchManager<Externa
     }
 
     @Override
+    protected AbstractCompositeSearchCriteria createEmptyCriteria()
+    {
+        return new ExternalDmsSearchCriteria();
+    }
+
+    @Override
     protected Set<Long> doFilterIDsByUserRights(final Set<Long> ids, final AuthorisationInformation authorisationInformation)
     {
         return ids;

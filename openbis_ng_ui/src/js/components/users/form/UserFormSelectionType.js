@@ -1,6 +1,8 @@
+import RoleSelectionType from '@src/js/components/users/form/common/RoleSelectionType.js'
+
 const USER = 'user'
 const GROUP = 'group'
-const ROLE = 'role'
+const ROLE = RoleSelectionType.ROLE
 
 export default {
   USER,

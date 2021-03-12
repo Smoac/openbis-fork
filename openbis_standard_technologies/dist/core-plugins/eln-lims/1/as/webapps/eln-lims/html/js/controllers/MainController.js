@@ -374,7 +374,7 @@ function MainController(profile) {
 		//
 		//
 		//
-		
+		var refreshPageMessage = "The item is no longer available, refresh the page, if the problem persists tell your admin."
 		try {
 			switch (newViewChange) {
 			    case "showBarcodesGeneratorPage":
@@ -636,7 +636,7 @@ function MainController(profile) {
 					}
 					this.serverFacade.searchWithUniqueId(permId, function(data) {
 						if(!data[0]) {
-							window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
+							window.alert(refreshPageMessage);
 						} else {
 							document.title = "" + Util.getDisplayNameFromCode(data[0].sampleTypeCode) + " " + data[0].code;
 							var isELNSubExperiment = $.inArray(data[0].spaceCode, _this.profile.inventorySpaces) === -1 && _this.profile.inventorySpaces.length > 0;
@@ -658,7 +658,7 @@ function MainController(profile) {
 					}
 					this.serverFacade.searchWithUniqueId(permId, function(data) {
 						if(!data[0]) {
-							window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
+							window.alert(refreshPageMessage);
 						} else {
 							document.title = "" + Util.getDisplayNameFromCode(data[0].sampleTypeCode) + " " + data[0].code;
 							var isELNSubExperiment = $.inArray(data[0].spaceCode, _this.profile.inventorySpaces) === -1 && _this.profile.inventorySpaces.length > 0;
@@ -680,7 +680,7 @@ function MainController(profile) {
 					}
 					this.serverFacade.searchWithIdentifiers([identifier], function(data) {
 						if(!data[0]) {
-							window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
+							window.alert(refreshPageMessage);
 						} else {
 							document.title = "" + Util.getDisplayNameFromCode(data[0].sampleTypeCode) + " " + data[0].code;
 							var isELNSubExperiment = $.inArray(data[0].spaceCode, _this.profile.inventorySpaces) === -1&& _this.profile.inventorySpaces.length > 0;
@@ -693,7 +693,7 @@ function MainController(profile) {
 					var _this = this;
 					this.serverFacade.searchWithUniqueId(arg, function(data) {
 						if(!data[0]) {
-							window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
+							window.alert(refreshPageMessage);
 						} else {
 							document.title = "Create Data Set for " + data[0].code;
 							_this._showCreateDataSetPage(data[0]);
@@ -718,7 +718,7 @@ function MainController(profile) {
 						}
 						_this.serverFacade.searchDataSetWithUniqueId(arg, function(dataSetData) {
 							if(!dataSetData.result || !dataSetData.result[0]) {
-								window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
+								window.alert(refreshPageMessage);
 							} else {
 								dataSetData.result[0].parentCodes = datasetParentCodes;
 								if(dataSetData.result[0].sampleIdentifierOrNull) {
@@ -760,7 +760,7 @@ function MainController(profile) {
 						}
 						_this.serverFacade.searchDataSetWithUniqueId(arg, function(dataSetData) {
 							if(!dataSetData.result || !dataSetData.result[0]) {
-								window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
+								window.alert(refreshPageMessage);
 							} else {
 								dataSetData.result[0].parentCodes = datasetParentCodes;
 								if(dataSetData.result[0].sampleIdentifierOrNull) {

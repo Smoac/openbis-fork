@@ -2,7 +2,7 @@ from ch.systemsx.cisd.openbis.dss.generic.server import DataStoreServer
 from ch.systemsx.cisd.openbis.generic.shared.api.v1 import IGeneralInformationService;
 from ch.systemsx.cisd.common.exceptions import UserFailureException
 from ch.ethz.sis import PersistentKeyValueStore
-from ch.ethz.sis.openbis.generic.server.sharedapi.v3.json import GenericObjectMapper;
+from ch.systemsx.cisd.openbis.dss.generic.shared import ServiceProvider
 from ch.systemsx.cisd.openbis.common.api.client import ServiceFinder;
 from ch.systemsx.cisd.common.mail import EMailAddress;
 from java.lang import String
@@ -70,8 +70,7 @@ def sendMail(tr, email, subject, body):
     tr.getGlobalState().getMailClient().sendEmailMessage(subject, body, replyTo, fromAddress, recipient1);
 
 def getJsonForData(data):
-    objectMapper = GenericObjectMapper();
-    jsonValue = objectMapper.writeValueAsString(data);
+    jsonValue = ServiceProvider.getObjectMapperV3().writeValueAsString(data);
     return jsonValue;
 
 def tokenIsValid(tr, userId, token):

@@ -218,9 +218,9 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 				function(infoData) {
 					var finalCallback = function(data) {
 						if(data.error) {
-							Util.showError(data.error.message, function() {Util.unblockUI();});
+							Util.showStacktraceAsError(data.error.message);
 						} else if(data.result) {
-							Util.showSuccess(data.result, function() {
+							Util.showSuccess(data.result.replace("sample", ELNDictionary.sample), function() {
 								Util.unblockUI();
 								mainController.changeView('showSamplesPage', experimentIdentifier);
 							});
@@ -268,9 +268,9 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 			Util.blockUI();
 			var finalCallback = function(data) {
 				if(data.error) {
-					Util.showError(data.error.message, function() {Util.unblockUI();});
+					Util.showStacktraceAsError(data.error.message);
 				} else if(data.result) {
-					Util.showSuccess(data.result, function() {
+					Util.showSuccess(data.result.replace("sample", ELNDictionary.sample), function() {
 						Util.unblockUI();
 						mainController.changeView('showSamplesPage', experimentIdentifier);
 					});

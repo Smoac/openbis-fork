@@ -66,12 +66,12 @@ function ServerFacade(openbisServer) {
 				Util.showError(response.error + "openBIS or DSS cannot be reached. Please try again or contact your admin.", null, true, false, true);
 			}
 		}
-		
+
 		if(action && !isError){
 			action(response);
 		}
 	}
-	
+
 	this.openbisServer.setResponseInterceptor(responseInterceptor);
 
 	//
@@ -162,7 +162,7 @@ function ServerFacade(openbisServer) {
 				mainController.openbisV3.getPersons([ new Me() ], mefo).done(function(persons) {
 					var person = persons[new Me()];
 					var settings = person.getWebAppSettings("ELN-LIMS");
-					
+
 					var keySettings = settings.getSetting(key);
 					var value = null;
 					if(keySettings) {
@@ -174,7 +174,7 @@ function ServerFacade(openbisServer) {
             });
         });
 	}
-	
+
 	this.setSetting = function(key, value) {
 		// console.log("Write key: " + key + " value: " + value);
 		require([ "jquery", "openbis", "as/dto/person/update/PersonUpdate", "as/dto/person/id/Me", "as/dto/webapp/create/WebAppSettingCreation", "as/dto/person/fetchoptions/PersonFetchOptions" ],
@@ -233,7 +233,7 @@ function ServerFacade(openbisServer) {
             });
         });
 	}
-	
+
 	//
 	// Login Related Functions
 	//
@@ -242,7 +242,7 @@ function ServerFacade(openbisServer) {
 		var userId = sessionId.substring(0, sessionId.lastIndexOf("-"));
 		return userId;
 	}
-	
+
 	this.login = function(username, pass, callbackFunction) {
 		this.openbisServer.login(username, pass, callbackFunction);
 	}
@@ -257,7 +257,7 @@ function ServerFacade(openbisServer) {
 			location.reload();
 		});
 	}
-	
+
 	//
 	// User Related Functions
 	//
@@ -267,11 +267,11 @@ function ServerFacade(openbisServer) {
 			"userId" : this.getUserId(),
 		}, callbackFunction, "eln-lims-api");
 	}
-	
+
 	this.listPersons = function(callbackFunction) {
 		this.openbisServer.listPersons(callbackFunction);
 	};
-	
+
 	this.updateUserInformation = function(userId, userInformation, callbackFunction) {
 		this.createReportFromAggregationService(profile.getDefaultDataStoreCode(),
 			{
@@ -377,7 +377,7 @@ function ServerFacade(openbisServer) {
             });
 		});
 	}
-	
+
 	//
 	//
 	//
@@ -523,19 +523,19 @@ function ServerFacade(openbisServer) {
 	this.listSampleTypes = function(callbackFunction) {
 		this.openbisServer.listSampleTypes(callbackFunction);
 	}
-	
+
 	this.listExperimentTypes = function(callbackFunction) {
 		this.openbisServer.listExperimentTypes(callbackFunction);
 	}
-	
+
 	this.listVocabularies = function(callbackFunction) {
 		this.openbisServer.listVocabularies(callbackFunction);
 	}
-	
+
 	this.listDataSetTypes = function(callbackFunction) {
 		this.openbisServer.listDataSetTypes(callbackFunction);
 	}
-	
+
 	this.listSpaces = function(callbackFunction) {
 		var spaceRules = { entityKind : "SPACE", logicalOperator : "AND", rules : { } };
 		mainController.serverFacade.searchForSpacesAdvanced(spaceRules, null, function(spacesSearchResult) {
@@ -547,11 +547,11 @@ function ServerFacade(openbisServer) {
 			callbackFunction(spaces);
 		});
 	}
-	
+
 	this.listSpacesWithProjectsAndRoleAssignments = function(somethingOrNull, callbackFunction) {
 		this.openbisServer.listSpacesWithProjectsAndRoleAssignments(somethingOrNull, callbackFunction);
 	}
-	
+
 	this.getSpaceFromCode = function(spaceCode, callbackFunction) {
 		this.listSpaces(function(spaces) {
 			spaces.forEach(function(space){
@@ -561,7 +561,7 @@ function ServerFacade(openbisServer) {
 			});
 		});
 	}
-	
+
 	this.listExperiments = function(projects, callbackFunction) {
 		if(projects && projects.length > 0) {
 			this.openbisServer.listExperiments(projects, null, callbackFunction);
@@ -569,7 +569,7 @@ function ServerFacade(openbisServer) {
 			callbackFunction({});
 		}
 	}
-	
+
 	this.getProjectFromIdentifier = function(identifier, callbackFunction) {
 		this.openbisServer.listProjects(function(data) {
 			data.result.forEach(function(project){
@@ -581,7 +581,7 @@ function ServerFacade(openbisServer) {
 			});
 		});
 	}
-	
+
 	this.getProjectFromPermId = function(permId, callbackFunction) {
 		this.openbisServer.listProjects(function(data) {
 			data.result.forEach(function(project){
@@ -592,53 +592,53 @@ function ServerFacade(openbisServer) {
 			});
 		});
 	}
-	
+
 	this.listExperimentsForIdentifiers = function(experimentsIdentifiers, callbackFunction) {
 		this.openbisServer.listExperimentsForIdentifiers(experimentsIdentifiers, callbackFunction);
 	}
-	
+
 	this.listSamplesForExperiments = function(experiments, callbackFunction) {
 		var experimentsMatchClauses = []
-		
+
 		experiments.forEach(function(experiment){
 			experimentsMatchClauses.push({
 				"@type":"AttributeMatchClause",
-				fieldType : "ATTRIBUTE",			
+				fieldType : "ATTRIBUTE",
 				attribute : "PERM_ID",
 				desiredValue : experiment.permId
 			});
 		});
-		
+
 		var experimentCriteria = {
 				matchClauses : experimentsMatchClauses,
 				operator : "MATCH_ANY_CLAUSES"
 		}
-		
+
 		var experimentSubCriteria = {
 				"@type" : "SearchSubCriteria",
-				"targetEntityKind" : "EXPERIMENT",	
+				"targetEntityKind" : "EXPERIMENT",
 				"criteria" : experimentCriteria
 		}
 
-		var sampleCriteria = 
+		var sampleCriteria =
 		{
 			subCriterias : [ experimentSubCriteria ],
 			operator : "MATCH_ALL_CLAUSES"
 		};
-		
+
 		if(experiments.length === 0) {
 			callbackFunction({});
 		} else {
 			this.openbisServer.searchForSamples(sampleCriteria, callbackFunction);
 		}
 	}
-	
+
 	this.listPropertyTypes = function(callbackFunction) {
 		if(this.openbisServer.listPropertyTypes) { //If not present will not break, but annotations should not be used.
 			this.openbisServer.listPropertyTypes(false, callbackFunction);
 		}
 	}
-	
+
 
 	this.generateCode = function(sampleType, action) {
 		var parameters = {
@@ -649,14 +649,14 @@ function ServerFacade(openbisServer) {
 			action(sampleType.codePrefix + nextInSequence);
 		});
 	}
-		
+
 	this.deleteDataSets = function(datasetIds, reason, callback) {
 		this.openbisServer.deleteDataSets(datasetIds, reason, "TRASH", callback);
 	}
-	
-	
+
+
 	this.deleteSamples = function(samplePermIds, reason, callback, confirmDeletions) {
-		require(["as/dto/sample/id/SamplePermId", "as/dto/sample/delete/SampleDeletionOptions" ], 
+		require(["as/dto/sample/id/SamplePermId", "as/dto/sample/delete/SampleDeletionOptions" ],
 			function(SamplePermId, SampleDeletionOptions) {
 				var samplePermIdsObj = samplePermIds.map(function(permId) { return new SamplePermId(permId)});
 				var deletionOptions = new SampleDeletionOptions();
@@ -678,9 +678,9 @@ function ServerFacade(openbisServer) {
 				});
 		});
 	}
-	
+
 	this.cachedServiceProperties = {};
-	
+
 	this.getServiceProperty = function(propertyKey, defaultValue, callback) {
 		var _this = this;
 		if (propertyKey in this.cachedServiceProperties) {
@@ -704,27 +704,27 @@ function ServerFacade(openbisServer) {
 	        reason : reason
 	    }, callback);
 	}
-	
+
 	this.deleteExperiments = function(experimentIds, reason, callback) {
 		this.openbisServer.deleteExperiments(experimentIds, reason, "TRASH", callback);
 	}
-	
+
 	this.deleteProjects = function(projectIds, reason, callback) {
 		this.openbisServer.deleteProjects(projectIds, reason, callback);
 	}
-	
+
 	this.listDeletions = function(callback) {
 		this.openbisServer.listDeletions(["ALL_ENTITIES"], callback);
 	}
-	
+
 	this.deletePermanently = function(deletionIds, callback) {
 		this.openbisServer.deletePermanently(deletionIds, callback);
 	}
-	
+
 	this.revertDeletions = function(deletionIds, callback) {
 		this.openbisServer.revertDeletions(deletionIds, callback);
 	}
-	
+
 	//
 	// Data Set Related Functions
 	//
@@ -732,7 +732,7 @@ function ServerFacade(openbisServer) {
 		//Should be a V1 Experiment
 		this.openbisServer.listDataSetsForExperiments([experimentToSend], [ 'PARENTS' ], callbackFunction);
 	}
-	
+
 	this.listDataSetsForSample = function(sampleToSend, trueOrFalse, callbackFunction) {
 		var _this = this;
 		var listDataSetsForV1Sample = function(v1Sample) {
@@ -741,7 +741,7 @@ function ServerFacade(openbisServer) {
 			delete cleanSample.children;
 			_this.openbisServer.listDataSetsForSample(cleanSample, trueOrFalse, callbackFunction);
 		}
-		
+
 		if(sampleToSend.id !== -1) { //Is V1 Sample
 			listDataSetsForV1Sample(sampleToSend);
 		} else { //Ask for a V1 Sample
@@ -774,7 +774,7 @@ function ServerFacade(openbisServer) {
 	this.updateSamplesWithSilentOverrides = function(sampleTypeCode, spaceIdentifier, experimentIdentifier, fileKeyAtHTTPSession, somethingOrNull, callbackFunction) {
 		this.openbisServer.updateSamplesWithSilentOverrides(sampleTypeCode, spaceIdentifier, experimentIdentifier, fileKeyAtHTTPSession, somethingOrNull, callbackFunction);
 	}
-	
+
 	this.fileUpload = function(file, callbackFunction) {
 		//Building Form Data Object for Multipart File Upload
 		var formData = new FormData();
@@ -782,7 +782,7 @@ function ServerFacade(openbisServer) {
 		formData.append("sessionKey_0", "sample-file-upload");
 		formData.append("sample-file-upload", file);
 		formData.append("sessionID", this.openbisServer.getSession());
-		
+
 		$.ajax({
 			type: "POST",
 			url: "/openbis/openbis/upload",
@@ -794,7 +794,7 @@ function ServerFacade(openbisServer) {
 			}
 		});
 	}
-	
+
 	this.getTemplateLink = function(entityType, operationKind) {
 		var GET = '/openbis/openbis/template-download?entityKind=SAMPLE';
 			GET += '&entityType=' + entityType;
@@ -810,7 +810,7 @@ function ServerFacade(openbisServer) {
 	this.getDirectLinkURL = function(callbackFunction) {
 		this.customELNApi({ "method" : "getDirectLinkURL"}, callbackFunction);
 	}
-	
+
 	//
 	// Sample Others functions
 	//
@@ -833,7 +833,7 @@ function ServerFacade(openbisServer) {
 	//
 	// Data Set Import Related Functions
 	//
-	
+
 	this.fileUploadToWorkspace = function(dataStoreURL, fileFieldId, fileSessionKey, callbackHandler) {
 		//File
 		var file = document.getElementById(fileFieldId).files[0];
@@ -841,7 +841,7 @@ function ServerFacade(openbisServer) {
 		var id = 0;
 		var startByte = 0;
 		var endByte = file.size;
-		
+
 		$.ajax({
 			type: "POST",
 			url: dataStoreURL + "/session_workspace_file_upload?sessionID=" + sessionID + "&filename=" + fileSessionKey + "&id=" + id + "&startByte=" + startByte + "&endByte=" + endByte,
@@ -856,7 +856,7 @@ function ServerFacade(openbisServer) {
 			}
 		});
 	}
-	
+
 	//
 	// ELN Custom API
  	//
@@ -876,7 +876,7 @@ function ServerFacade(openbisServer) {
                 userId : userId,
                 token : token
             };
-        this._callPasswordResetService(parameters, callbackFunction);        
+        this._callPasswordResetService(parameters, callbackFunction);
     }
 
     this.doIfFileAuthenticationService = function(callbackFunction) {
@@ -907,7 +907,7 @@ function ServerFacade(openbisServer) {
                         if (error) {
                             Util.showError(error);
                         } else {
-                            callbackFunction(result);                            
+                            callbackFunction(result);
                         }
                     }, "password-reset-api");
                 });
@@ -924,12 +924,12 @@ function ServerFacade(openbisServer) {
  		if(!service) {
  			service = "eln-lims-api";
  		}
- 		
+
  		if(!parameters) {
  			parameters = {};
  		}
  		parameters["sessionToken"] = this.openbisServer.getSession();
- 		
+
  		var dataStoreCode = profile.getDefaultDataStoreCode();
  		this.openbisServer.createReportFromAggregationService(dataStoreCode, service, parameters, function(data) {
 			_this.customELNApiCallbackHandler(data, callbackFunction);
@@ -967,10 +967,10 @@ function ServerFacade(openbisServer) {
  			parameters = {};
  		}
  		parameters["sessionToken"] = this.openbisServer.getSession();
- 		
+
 		this.openbisServer.createReportFromAggregationService(dataStoreCode, service, parameters, callbackFunction);
 	}
-	
+
 	//
 	// Configuration Related Functions
 	//
@@ -991,7 +991,7 @@ function ServerFacade(openbisServer) {
 	//
 	// Search Related Functions
 	//
-	
+
 	this._createMaterialIdentifier = function(identifierString) {
 		var parts = identifierString.split("/");
 
@@ -1004,7 +1004,7 @@ function ServerFacade(openbisServer) {
 			"materialCode" : parts[2]
 		};
 	}
-	
+
 	this.getMaterialsForIdentifiers = function(materialIdentifiers, callback) {
 		var materialIdentifierObjects = [];
 		for(var i = 0; i < materialIdentifiers.length; i++) {
@@ -1012,74 +1012,74 @@ function ServerFacade(openbisServer) {
 		}
 		this.openbisServer.getMaterialByCodes(materialIdentifierObjects, callback);
 	}
-	
+
 	//
 	// Search DataSet
 	//
-	
+
 	this.searchDataSetWithUniqueId = function(dataSetPermId, callbackFunction) {
 		var dataSetMatchClauses = [{
     			"@type":"AttributeMatchClause",
-    			fieldType : "ATTRIBUTE",			
+    			fieldType : "ATTRIBUTE",
     			attribute : "PERM_ID",
     			desiredValue : dataSetPermId
 		}]
-		
-		var dataSetCriteria = 
+
+		var dataSetCriteria =
 		{
 			matchClauses : dataSetMatchClauses,
 			operator : "MATCH_ALL_CLAUSES"
 		};
-		
+
 		this.openbisServer.searchForDataSets(dataSetCriteria, callbackFunction)
 	}
-	
+
 	this.searchDataSetsWithTypeForSamples = function(dataSetTypeCode, samplesPermIds, callbackFunction)
 	{
 		var sampleMatchClauses = []
-		
+
 		samplesPermIds.forEach(function(samplesPermId){
 			sampleMatchClauses.push({
 				"@type":"AttributeMatchClause",
-				fieldType : "ATTRIBUTE",			
+				fieldType : "ATTRIBUTE",
 				attribute : "PERM_ID",
 				desiredValue : samplesPermId
 			});
 		});
-		
+
 		var sampleCriteria = {
 				matchClauses : sampleMatchClauses,
 				operator : "MATCH_ANY_CLAUSES"
 		}
-		
+
 		var sampleSubCriteria = {
 				"@type" : "SearchSubCriteria",
-				"targetEntityKind" : "SAMPLE",	
+				"targetEntityKind" : "SAMPLE",
 				"criteria" : sampleCriteria
 		}
-		
+
 		var dataSetMatchClauses = [{
     			"@type":"AttributeMatchClause",
-    			fieldType : "ATTRIBUTE",			
+    			fieldType : "ATTRIBUTE",
     			attribute : "TYPE",
     			desiredValue : dataSetTypeCode
 		}]
 
-		var dataSetCriteria = 
+		var dataSetCriteria =
 		{
 			matchClauses : dataSetMatchClauses,
 			subCriterias : [ sampleSubCriteria ],
 			operator : "MATCH_ALL_CLAUSES"
 		};
-		
+
 		this.openbisServer.searchForDataSets(dataSetCriteria, callbackFunction)
 	}
-	
+
 	// Used for blast search datasets
 	this.getSamplesForDataSets = function(dataSetCodes, callback) {
 		this.openbisServer.getDataSetMetaDataWithFetchOptions(dataSetCodes, [ 'SAMPLE' ], callback);
 	}
-	
+
 	//
 	// New Advanced Search
 	//
@@ -1091,6 +1091,11 @@ function ServerFacade(openbisServer) {
    * This is a Javascript version of the Java method found at org.apache.lucene.queryparser.classic.QueryParserBase.escape
    */
     this.queryParserEscape = function(s) {
+
+        if(!profile.enableLuceneQueryEngine) { // This patch is to avoid escapes in openBIS 20.10
+            return s;
+        }
+
         var sb = "";
         for (var i = 0; i < s.length; i++) {
           var c = s.charAt(i);
@@ -1143,14 +1148,14 @@ function ServerFacade(openbisServer) {
 		var searchMethodName = 'searchSamples';
 		this.searchForEntityAdvanced(advancedSearchCriteria, advancedFetchOptions, callback, criteriaClass, fetchOptionsClass, searchMethodName);
 	}
-	
+
 	this.searchForSpacesAdvanced = function(advancedSearchCriteria, advancedFetchOptions, callback) {
 		var criteriaClass = 'as/dto/space/search/SpaceSearchCriteria';
 		var fetchOptionsClass = 'as/dto/space/fetchoptions/SpaceFetchOptions';
 		var searchMethodName = 'searchSpaces';
 		this.searchForEntityAdvanced(advancedSearchCriteria, advancedFetchOptions, callback, criteriaClass, fetchOptionsClass, searchMethodName);
 	}
-	
+
 	this.searchForProjectsAdvanced = function(advancedSearchCriteria, advancedFetchOptions, callback) {
 		var criteriaClass = 'as/dto/project/search/ProjectSearchCriteria';
 		var fetchOptionsClass = 'as/dto/project/fetchoptions/ProjectFetchOptions';
@@ -1202,7 +1207,7 @@ function ServerFacade(openbisServer) {
 					if(fetchOptions.withProperties && !forceDisableWithProperties) {
 						fetchOptions.withProperties();
 					}
-					
+
 					if(fetchOptions.withProject) {
 						fetchOptions.withProject();
 					}
@@ -1261,7 +1266,7 @@ function ServerFacade(openbisServer) {
 					if(fetchOptions.withProperties) {
 						fetchOptions.withProperties();
 					}
-					
+
 					if(advancedFetchOptions.withExperiment && fetchOptions.withExperiment) {
 						fetchOptions.withExperiment();
 					}
@@ -1291,7 +1296,7 @@ function ServerFacade(openbisServer) {
 							fetchOptions.withExperiment().withProperties();
 						}
 					}
-					
+
 					if(advancedFetchOptions.withProperties) {
 						fetchOptions.withProperties();
 					}
@@ -1330,20 +1335,20 @@ function ServerFacade(openbisServer) {
 						ancestorsFetchOptions.withParentsUsing(ancestorsFetchOptions);
 					}
 				}
-				
+
 				if(advancedFetchOptions && advancedFetchOptions.cache) {
 					fetchOptions.cacheMode(advancedFetchOptions.cache);
 				}
-				
-				if(advancedFetchOptions && 
+
+				if(advancedFetchOptions &&
 						advancedFetchOptions.count != null &&
-						advancedFetchOptions.count != undefined && 
+						advancedFetchOptions.count != undefined &&
 						advancedFetchOptions.from != null &&
 						advancedFetchOptions.from != undefined) {
 					fetchOptions.from(advancedFetchOptions.from);
 					fetchOptions.count(advancedFetchOptions.count);
 				}
-				
+
 				if(advancedFetchOptions && advancedFetchOptions.sort) {
 					switch(advancedFetchOptions.sort.type) {
 						case "Attribute":
@@ -1356,7 +1361,7 @@ function ServerFacade(openbisServer) {
 							break;
 					}
 				}
-				
+
 				var setOperator = function(criteria, operator) {
 					//Operator
 					if (!operator) {
@@ -1365,291 +1370,305 @@ function ServerFacade(openbisServer) {
 					criteria.withOperator(operator);
 					return criteria;
 				}
-				
-				searchCriteria = setOperator(searchCriteria, advancedSearchCriteria.logicalOperator);
-			
-				//Rules
-				var ruleKeys = Object.keys(advancedSearchCriteria.rules);
-				for (var idx = 0; idx < ruleKeys.length; idx++)
-				{
-					var fieldType = advancedSearchCriteria.rules[ruleKeys[idx]].type;
-					var fieldName = advancedSearchCriteria.rules[ruleKeys[idx]].name;
-					var fieldNameType = null;
-					var fieldValue = advancedSearchCriteria.rules[ruleKeys[idx]].value;
-					var fieldOperator = advancedSearchCriteria.rules[ruleKeys[idx]].operator;
-					
-					if(fieldName) {
-						var firstDotIndex = fieldName.indexOf(".");
-						fieldNameType = fieldName.substring(0, firstDotIndex);
-						fieldName = fieldName.substring(firstDotIndex + 1, fieldName.length);
-					}
-				
-					if(!fieldValue) {
-						fieldValue = "*";
-					} else if(escapeWildcards &&
-					            (
-					            !fieldOperator ||
-					            (fieldOperator == "thatEqualsString") ||
-					            (fieldOperator == "thatContainsString") ||
-					            (fieldOperator == "thatStartsWithString") ||
-					            (fieldOperator == "thatEndsWithString")
-					            )
-					    ) {
-                        var fieldValueUnEscape = fieldValue;
-                        fieldValue = queryParserEscape(fieldValueUnEscape);
-                        escapeToUnEscapeMap[fieldValue] = fieldValueUnEscape;
+
+			    var setCriteriaRules = function(searchCriteria, advancedSearchCriteria) {
+                    //Rules
+                    var ruleKeys = Object.keys(advancedSearchCriteria.rules);
+                    for (var idx = 0; idx < ruleKeys.length; idx++)
+                    {
+                        var fieldType = advancedSearchCriteria.rules[ruleKeys[idx]].type;
+                        var fieldName = advancedSearchCriteria.rules[ruleKeys[idx]].name;
+                        var fieldNameType = null;
+                        var fieldValue = advancedSearchCriteria.rules[ruleKeys[idx]].value;
+                        var fieldOperator = advancedSearchCriteria.rules[ruleKeys[idx]].operator;
+
+                        if(fieldName) {
+                            var firstDotIndex = fieldName.indexOf(".");
+                            fieldNameType = fieldName.substring(0, firstDotIndex);
+                            fieldName = fieldName.substring(firstDotIndex + 1, fieldName.length);
+                        }
+
+                        if(!fieldValue) {
+                            fieldValue = "*";
+                        } else if(escapeWildcards &&
+                                    (
+                                    !fieldOperator ||
+                                    (fieldOperator == "thatEqualsString") ||
+                                    (fieldOperator == "thatContainsString") ||
+                                    (fieldOperator == "thatStartsWithString") ||
+                                    (fieldOperator == "thatEndsWithString")
+                                    )
+                            ) {
+                            var fieldValueUnEscape = fieldValue;
+                            fieldValue = queryParserEscape(fieldValueUnEscape);
+                            escapeToUnEscapeMap[fieldValue] = fieldValueUnEscape;
+                        }
+
+                        var setPropertyCriteria = function(criteria, propertyName, propertyValue, comparisonOperator) {
+                            if(comparisonOperator) {
+                                try {
+                                    switch(comparisonOperator) {
+                                        case "thatEqualsString":
+                                            criteria.withProperty(propertyName).thatEquals(propertyValue);
+                                            break;
+                                        case "thatEqualsNumber":
+                                            criteria.withNumberProperty(propertyName).thatEquals(parseFloat(propertyValue));
+                                            break;
+                                        case "thatEqualsDate":
+                                            criteria.withDateProperty(propertyName).thatEquals(propertyValue);
+                                            break;
+                                        case "thatContainsString":
+                                            criteria.withProperty(propertyName).thatContains(propertyValue);
+                                            break;
+                                        case "thatStartsWithString":
+                                            criteria.withProperty(propertyName).thatStartsWith(propertyValue);
+                                            break;
+                                        case "thatEndsWithString":
+                                            criteria.withProperty(propertyName).thatEndsWith(propertyValue);
+                                            break;
+                                        case "thatIsLessThanNumber":
+                                            criteria.withNumberProperty(propertyName).thatIsLessThan(parseFloat(propertyValue));
+                                            break;
+                                        case "thatIsLessThanOrEqualToNumber":
+                                            criteria.withNumberProperty(propertyName).thatIsLessThanOrEqualTo(parseFloat(propertyValue));
+                                            break;
+                                        case "thatIsGreaterThanNumber":
+                                            criteria.withNumberProperty(propertyName).thatIsGreaterThan(parseFloat(propertyValue));
+                                            break;
+                                        case "thatIsGreaterThanOrEqualToNumber":
+                                            criteria.withNumberProperty(propertyName).thatIsGreaterThanOrEqualTo(parseFloat(propertyValue));
+                                            break;
+                                        case "thatIsLaterThanDate":
+                                            criteria.withDateProperty(propertyName).thatIsLaterThan(propertyValue);
+                                            break;
+                                        case "thatIsLaterThanOrEqualToDate":
+                                            criteria.withDateProperty(propertyName).thatIsLaterThanOrEqualTo(propertyValue);
+                                            break;
+                                        case "thatIsEarlierThanDate":
+                                            criteria.withDateProperty(propertyName).thatIsEarlierThan(propertyValue);
+                                            break;
+                                        case "thatIsEarlierThanOrEqualToDate":
+                                            criteria.withDateProperty(propertyName).thatIsEarlierThanOrEqualTo(propertyValue);
+                                            break;
+                                    }
+                                } catch(error) {
+                                    Util.showError("Error parsing criteria: " + error.message);
+                                    return;
+                                }
+                            } else {
+                                criteria.withProperty(propertyName).thatContains(propertyValue);
+                            }
+                        }
+
+                        var setAttributeCriteria = function(criteria, attributeName, attributeValue, comparisonOperator) {
+                            switch(attributeName) {
+                                //Used by all entities
+                                case "CODE":
+                                    if(!comparisonOperator) {
+                                        comparisonOperator = "thatEquals";
+                                    }
+                                    switch(comparisonOperator) {
+                                        case "thatEquals":
+                                                criteria.withCode().thatEquals(attributeValue);
+                                                break;
+                                        case "thatContains":
+                                                criteria.withCode().thatContains(attributeValue);
+                                                break;
+                                    }
+                                    break;
+                                case "PERM_ID":
+                                    criteria.withPermId().thatEquals(attributeValue);
+                                    break;
+                                case "METAPROJECT":
+                                    criteria.withTag().withCode().thatEquals(attributeValue); //TO-DO To Test, currently not supported by ELN UI
+                                    break;
+                                case "REGISTRATOR":
+                                    if(comparisonOperator) {
+                                        switch(comparisonOperator) {
+                                            case "thatEqualsUserId":
+                                                criteria.withRegistrator().withUserId().thatEquals(attributeValue);
+                                                break;
+                                            case "thatContainsFirstName":
+                                                criteria.withRegistrator().withFirstName().thatContains(attributeValue);
+                                                break;
+                                            case "thatContainsLastName":
+                                                criteria.withRegistrator().withLastName().thatContains(attributeValue);
+                                                break;
+                                        }
+                                    }
+                                    break;
+                                case "REGISTRATION_DATE": //Must be a string object with format 2009-08-18
+                                    if(comparisonOperator) {
+                                        switch(comparisonOperator) {
+                                            case "thatEqualsDate":
+                                                criteria.withRegistrationDate().thatEquals(attributeValue);
+                                                break;
+                                            case "thatIsLaterThanDate":
+                                                criteria.withRegistrationDate().thatIsLaterThan(attributeValue);
+                                                break;
+                                            case "thatIsLaterThanOrEqualToDate":
+                                                criteria.withRegistrationDate().thatIsLaterThanOrEqualTo(attributeValue);
+                                                break;
+                                            case "thatIsEarlierThanDate":
+                                                criteria.withRegistrationDate().thatIsEarlierThan(attributeValue);
+                                                break;
+                                            case "thatIsEarlierThanOrEqualToDate":
+                                                criteria.withRegistrationDate().thatIsEarlierThanOrEqualTo(attributeValue);
+                                                break;
+                                        }
+                                    } else {
+                                        criteria.withRegistrationDate().thatEquals(attributeValue);
+                                    }
+                                    break;
+                                case "MODIFIER":
+                                    if(comparisonOperator) {
+                                        switch(comparisonOperator) {
+                                            case "thatEqualsUserId":
+                                                criteria.withModifier().withUserId().thatEquals(attributeValue);
+                                                break;
+                                            case "thatContainsFirstName":
+                                                criteria.withModifier().withFirstName().thatContains(attributeValue);
+                                                break;
+                                            case "thatContainsLastName":
+                                                criteria.withModifier().withLastName().thatContains(attributeValue);
+                                                break;
+                                        }
+                                    }
+                                    break;
+                                case "MODIFICATION_DATE": //Must be a string object with format 2009-08-18
+                                    if(comparisonOperator) {
+                                        switch(comparisonOperator) {
+                                            case "thatEqualsDate":
+                                                criteria.withModificationDate().thatEquals(attributeValue);
+                                                break;
+                                            case "thatIsLaterThanDate":
+                                                criteria.withModificationDate().thatIsLaterThan(attributeValue);
+                                                break;
+                                            case "thatIsLaterThanOrEqualToDate":
+                                                criteria.withModificationDate().thatIsLaterThanOrEqualTo(attributeValue);
+                                                break;
+                                            case "thatIsEarlierThan":
+                                                criteria.withModificationDate().thatIsEarlierThan(attributeValue);
+                                                break;
+                                            case "thatIsEarlierThanOrEqualToDate":
+                                                criteria.withModificationDate().thatIsEarlierThanOrEqualTo(attributeValue);
+                                                break;
+                                        }
+                                    } else {
+                                        criteria.withModificationDate().thatEquals(attributeValue);
+                                    }
+                                    break;
+                                case "SAMPLE_TYPE":
+                                case "EXPERIMENT_TYPE":
+                                case "DATA_SET_TYPE":
+                                    criteria.withType().withCode().thatEquals(attributeValue);
+                                    break;
+                                //Only Sample
+                                case "SPACE":
+                                    criteria.withSpace().withCode().thatEquals(attributeValue);
+                                    break;
+                                //Only Experiment
+                                case "PROJECT":
+                                    criteria.withProject().withCode().thatEquals(attributeValue);
+                                    break;
+                                case "PROJECT_PERM_ID":
+                                    criteria.withProject().withPermId().thatEquals(attributeValue);
+                                    break;
+                                case "PROJECT_SPACE":
+                                    criteria.withProject().withSpace().withCode().thatEquals(attributeValue);
+                                    break;
+                                case "PHYSICAL_STATUS":
+                                    criteria.withPhysicalData().withStatus().thatEquals(attributeValue);
+                                    break;
+                            }
+                        }
+
+                        switch(fieldType) {
+                            case "All":
+                                if(fieldValue !== "*") {
+                                    searchCriteria.withAnyField().thatContains(fieldValue);
+                                }
+                                break;
+                            case "Property":
+                                setPropertyCriteria(setOperator(searchCriteria, advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
+                                break;
+                            case "Attribute":
+                                setAttributeCriteria(setOperator(searchCriteria, advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
+                                break;
+                            case "Property/Attribute":
+                                switch(fieldNameType) {
+                                    case "PROP":
+                                        setPropertyCriteria(setOperator(searchCriteria, advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
+                                        break;
+                                    case "ATTR":
+                                        setAttributeCriteria(setOperator(searchCriteria, advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
+                                        break;
+                                }
+                                break;
+                            case "Sample":
+                                switch(fieldNameType) {
+                                    case "PROP":
+                                        setPropertyCriteria(setOperator(searchCriteria.withSample(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
+                                        break;
+                                    case "ATTR":
+                                        setAttributeCriteria(setOperator(searchCriteria.withSample(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
+                                        break;
+                                    case "NULL":
+                                        searchCriteria.withoutSample();
+                                        break;
+                                }
+                                break;
+                            case "Experiment":
+                                switch(fieldNameType) {
+                                    case "PROP":
+                                        setPropertyCriteria(setOperator(searchCriteria.withExperiment(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
+                                        break;
+                                    case "ATTR":
+                                        setAttributeCriteria(setOperator(searchCriteria.withExperiment(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
+                                        break;
+                                    case "NULL":
+                                        searchCriteria.withoutExperiment();
+                                        break;
+                                }
+                                break;
+                            case "Parent":
+                                switch(fieldNameType) {
+                                    case "PROP":
+                                        setPropertyCriteria(setOperator(searchCriteria.withParents(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
+                                        break;
+                                    case "ATTR":
+                                        setAttributeCriteria(setOperator(searchCriteria.withParents(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
+                                        break;
+                                }
+                                break;
+                            case "Children":
+                                switch(fieldNameType) {
+                                    case "PROP":
+                                        setPropertyCriteria(setOperator(searchCriteria.withChildren(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
+                                        break;
+                                    case "ATTR":
+                                        setAttributeCriteria(setOperator(searchCriteria.withChildren(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
+                                        break;
+                                }
+                                break;
+                        }
                     }
-				
-					var setPropertyCriteria = function(criteria, propertyName, propertyValue, comparisonOperator) {
-						if(comparisonOperator) {
-							try {
-								switch(comparisonOperator) {
-									case "thatEqualsString":
-										criteria.withProperty(propertyName).thatEquals(propertyValue);
-										break;
-									case "thatEqualsNumber":
-										criteria.withNumberProperty(propertyName).thatEquals(parseFloat(propertyValue));
-										break;
-									case "thatEqualsDate":
-										criteria.withDateProperty(propertyName).thatEquals(propertyValue);
-										break;
-									case "thatContainsString":
-										criteria.withProperty(propertyName).thatContains(propertyValue);
-										break;
-									case "thatStartsWithString":
-										criteria.withProperty(propertyName).thatStartsWith(propertyValue);
-										break;
-									case "thatEndsWithString":
-										criteria.withProperty(propertyName).thatEndsWith(propertyValue);
-										break;
-									case "thatIsLessThanNumber":
-										criteria.withNumberProperty(propertyName).thatIsLessThan(parseFloat(propertyValue));
-										break;
-									case "thatIsLessThanOrEqualToNumber":
-										criteria.withNumberProperty(propertyName).thatIsLessThanOrEqualTo(parseFloat(propertyValue));
-										break;
-									case "thatIsGreaterThanNumber":
-										criteria.withNumberProperty(propertyName).thatIsGreaterThan(parseFloat(propertyValue));
-										break;
-									case "thatIsGreaterThanOrEqualToNumber":
-										criteria.withNumberProperty(propertyName).thatIsGreaterThanOrEqualTo(parseFloat(propertyValue));
-										break;
-									case "thatIsLaterThanDate":
-										criteria.withDateProperty(propertyName).thatIsLaterThan(propertyValue);
-										break;
-									case "thatIsLaterThanOrEqualToDate":
-										criteria.withDateProperty(propertyName).thatIsLaterThanOrEqualTo(propertyValue);
-										break;
-									case "thatIsEarlierThanDate":
-										criteria.withDateProperty(propertyName).thatIsEarlierThan(propertyValue);
-										break;
-									case "thatIsEarlierThanOrEqualToDate":
-										criteria.withDateProperty(propertyName).thatIsEarlierThanOrEqualTo(propertyValue);
-										break;
-								}
-							} catch(error) {
-								Util.showError("Error parsing criteria: " + error.message);
-								return;
-							}
-						} else {
-							criteria.withProperty(propertyName).thatContains(propertyValue);
-						}
-					}
-				
-					var setAttributeCriteria = function(criteria, attributeName, attributeValue, comparisonOperator) {
-						switch(attributeName) {
-							//Used by all entities
-							case "CODE":
-								if(!comparisonOperator) {
-									comparisonOperator = "thatEquals";
-								}
-								switch(comparisonOperator) {
-									case "thatEquals":
-											criteria.withCode().thatEquals(attributeValue);
-											break;
-									case "thatContains":
-											criteria.withCode().thatContains(attributeValue);
-											break;
-								}
-								break;
-							case "PERM_ID":
-								criteria.withPermId().thatEquals(attributeValue);
-								break;
-							case "METAPROJECT":
-								criteria.withTag().withCode().thatEquals(attributeValue); //TO-DO To Test, currently not supported by ELN UI
-								break;
-							case "REGISTRATOR":
-								if(comparisonOperator) {
-									switch(comparisonOperator) {
-										case "thatEqualsUserId":
-											criteria.withRegistrator().withUserId().thatEquals(attributeValue);
-											break;
-										case "thatContainsFirstName":
-											criteria.withRegistrator().withFirstName().thatContains(attributeValue);
-											break;
-										case "thatContainsLastName":
-											criteria.withRegistrator().withLastName().thatContains(attributeValue);
-											break;
-									}
-								}
-								break;
-							case "REGISTRATION_DATE": //Must be a string object with format 2009-08-18
-								if(comparisonOperator) {
-									switch(comparisonOperator) {
-										case "thatEqualsDate":
-											criteria.withRegistrationDate().thatEquals(attributeValue);
-											break;
-										case "thatIsLaterThanDate":
-											criteria.withRegistrationDate().thatIsLaterThan(attributeValue);
-											break;
-										case "thatIsLaterThanOrEqualToDate":
-											criteria.withRegistrationDate().thatIsLaterThanOrEqualTo(attributeValue);
-											break;
-										case "thatIsEarlierThanDate":
-											criteria.withRegistrationDate().thatIsEarlierThan(attributeValue);
-											break;
-										case "thatIsEarlierThanOrEqualToDate":
-											criteria.withRegistrationDate().thatIsEarlierThanOrEqualTo(attributeValue);
-											break;
-									}
-								} else {
-									criteria.withRegistrationDate().thatEquals(attributeValue);
-								}
-								break;
-							case "MODIFIER":
-								if(comparisonOperator) {
-									switch(comparisonOperator) {
-										case "thatEqualsUserId":
-											criteria.withModifier().withUserId().thatEquals(attributeValue);
-											break;
-										case "thatContainsFirstName":
-											criteria.withModifier().withFirstName().thatContains(attributeValue);
-											break;
-										case "thatContainsLastName":
-											criteria.withModifier().withLastName().thatContains(attributeValue);
-											break;
-									}
-								}
-								break;
-							case "MODIFICATION_DATE": //Must be a string object with format 2009-08-18
-								if(comparisonOperator) {
-									switch(comparisonOperator) {
-										case "thatEqualsDate":
-											criteria.withModificationDate().thatEquals(attributeValue);
-											break;
-										case "thatIsLaterThanDate":
-											criteria.withModificationDate().thatIsLaterThan(attributeValue);
-											break;
-										case "thatIsLaterThanOrEqualToDate":
-											criteria.withModificationDate().thatIsLaterThanOrEqualTo(attributeValue);
-											break;
-										case "thatIsEarlierThan":
-											criteria.withModificationDate().thatIsEarlierThan(attributeValue);
-											break;
-										case "thatIsEarlierThanOrEqualToDate":
-											criteria.withModificationDate().thatIsEarlierThanOrEqualTo(attributeValue);
-											break;
-									}
-								} else {
-									criteria.withModificationDate().thatEquals(attributeValue);
-								}
-								break;
-							case "SAMPLE_TYPE":
-							case "EXPERIMENT_TYPE":
-							case "DATA_SET_TYPE":
-								criteria.withType().withCode().thatEquals(attributeValue);
-								break;
-							//Only Sample
-							case "SPACE":
-								criteria.withSpace().withCode().thatEquals(attributeValue);
-								break;
-							//Only Experiment
-							case "PROJECT":
-								criteria.withProject().withCode().thatEquals(attributeValue);
-								break;
-							case "PROJECT_PERM_ID":
-								criteria.withProject().withPermId().thatEquals(attributeValue);
-								break;
-							case "PROJECT_SPACE":
-								criteria.withProject().withSpace().withCode().thatEquals(attributeValue);
-								break;
-							case "PHYSICAL_STATUS":
-								criteria.withPhysicalData().withStatus().thatEquals(attributeValue);
-								break;
-						}
-					}
-				
-					switch(fieldType) {
-						case "All":
-							if(fieldValue !== "*") {
-								searchCriteria.withAnyField().thatContains(fieldValue);
-							}
-							break;
-						case "Property":
-							setPropertyCriteria(setOperator(searchCriteria, advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
-							break;
-						case "Attribute":
-							setAttributeCriteria(setOperator(searchCriteria, advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
-							break;
-						case "Property/Attribute":
-							switch(fieldNameType) {
-								case "PROP":
-									setPropertyCriteria(setOperator(searchCriteria, advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
-									break;
-								case "ATTR":
-									setAttributeCriteria(setOperator(searchCriteria, advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
-									break;
-							}
-							break;
-						case "Sample":
-							switch(fieldNameType) {
-								case "PROP":
-									setPropertyCriteria(setOperator(searchCriteria.withSample(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
-									break;
-								case "ATTR":
-									setAttributeCriteria(setOperator(searchCriteria.withSample(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
-									break;
-								case "NULL":
-									searchCriteria.withoutSample();
-									break;
-							}
-							break;
-						case "Experiment":
-							switch(fieldNameType) {
-								case "PROP":
-									setPropertyCriteria(setOperator(searchCriteria.withExperiment(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
-									break;
-								case "ATTR":
-									setAttributeCriteria(setOperator(searchCriteria.withExperiment(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
-									break;
-								case "NULL":
-									searchCriteria.withoutExperiment();
-									break;
-							}
-							break;
-						case "Parent":
-							switch(fieldNameType) {
-								case "PROP":
-									setPropertyCriteria(setOperator(searchCriteria.withParents(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
-									break;
-								case "ATTR":
-									setAttributeCriteria(setOperator(searchCriteria.withParents(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
-									break;
-							}
-							break;
-						case "Children":
-							switch(fieldNameType) {
-								case "PROP":
-									setPropertyCriteria(setOperator(searchCriteria.withChildren(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
-									break;
-								case "ATTR":
-									setAttributeCriteria(setOperator(searchCriteria.withChildren(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
-									break;
-							}
-							break;
-					}
-				}
-			
+			    }
+
+			    searchCriteria = setOperator(searchCriteria, advancedSearchCriteria.logicalOperator);
+                setCriteriaRules(searchCriteria, advancedSearchCriteria);
+
+                // Sub Criteria - ONLY! first level support for the UI Tables OR
+                if(advancedSearchCriteria.subCriteria !== undefined) {
+                    var subCriteriaKeys = Object.keys(advancedSearchCriteria.subCriteria);
+                    for (var scdx = 0; scdx < subCriteriaKeys.length; scdx++) {
+                        var advancedSearchSubCriteria = advancedSearchCriteria.subCriteria[subCriteriaKeys[scdx]];
+                        var subCriteria = searchCriteria.withSubcriteria();
+                        subCriteria = setOperator(subCriteria, advancedSearchSubCriteria.logicalOperator);
+                        setCriteriaRules(subCriteria, advancedSearchSubCriteria);
+                    }
+                }
+
 				//
 				// Fix For broken equals PART 1
 				// Currently the back-end matches whole words instead doing a standard EQUALS
@@ -1671,7 +1690,7 @@ function ServerFacade(openbisServer) {
 
                         }
 
-						if(searchCriteria.criteria[cIdx].fieldType === "PROPERTY" && 
+						if(searchCriteria.criteria[cIdx].fieldType === "PROPERTY" &&
 								searchCriteria.criteria[cIdx].fieldValue.__proto__["@type"] === "as.dto.common.search.StringEqualToValue") {
 							hackFixForBrokenEquals.push({
 								propertyCode : searchCriteria.criteria[cIdx].fieldName,
@@ -1780,7 +1799,7 @@ function ServerFacade(openbisServer) {
 	//
 	// Search Samples
 	//
-	
+
 	this.getV3SamplesAsV1 = function(v3Samples, alreadyConverted) {
 		if(!alreadyConverted) {
 			alreadyConverted = {};
@@ -1796,16 +1815,16 @@ function ServerFacade(openbisServer) {
 		}
 		return v1Samples;
 	}
-	
+
 	this.getV3SampleAsV1 = function(v3Sample, alreadyConverted) {
 		if(!alreadyConverted) {
 			alreadyConverted = {};
 		}
-		
+
 		var CONST_UNSUPPORTED_NUMBER = -1;
 		var CONST_UNSUPPORTED_OBJ = null;
 		var CONST_UNSUPPORTED_BOOL = false;
-		
+
 		var v1Sample = {};
 		v1Sample["@type"] = "Sample";
 		v1Sample["@id"] = CONST_UNSUPPORTED_NUMBER;
@@ -1817,7 +1836,7 @@ function ServerFacade(openbisServer) {
 		v1Sample["experimentIdentifierOrNull"] = (v3Sample.experiment)?v3Sample.experiment.identifier.identifier:null;
 		v1Sample["sampleTypeCode"] = (v3Sample.type)?v3Sample.type.code:null;
 		v1Sample["properties"] = v3Sample.properties;
-		
+
 		v1Sample["registrationDetails"] = {};
 		v1Sample["registrationDetails"]["@type"] = "EntityRegistrationDetails";
 		v1Sample["registrationDetails"]["@id"] = CONST_UNSUPPORTED_NUMBER;
@@ -1832,9 +1851,9 @@ function ServerFacade(openbisServer) {
 		v1Sample["registrationDetails"]["registrationDate"] = v3Sample.registrationDate;
 		v1Sample["registrationDetails"]["modificationDate"] = v3Sample.modificationDate;
 		v1Sample["registrationDetails"]["accessTimestamp"] = CONST_UNSUPPORTED_OBJ;
-		
+
 		alreadyConverted[v1Sample["permId"]] = v1Sample;
-		
+
 		v1Sample["parents"] = null;
 		if(v3Sample.parents) {
 			v1Sample["parents"] = this.getV3SamplesAsV1(v3Sample.parents, alreadyConverted);
@@ -1842,16 +1861,16 @@ function ServerFacade(openbisServer) {
 		v1Sample["children"] = null;
 		if(v3Sample.children) {
 			v1Sample["children"] = this.getV3SamplesAsV1(v3Sample.children, alreadyConverted);
-		} 
-		
+		}
+
 		v1Sample["stub"] = CONST_UNSUPPORTED_BOOL;
 		v1Sample["metaprojects"] = CONST_UNSUPPORTED_OBJ;
 		v1Sample["sampleTypeId"] = CONST_UNSUPPORTED_NUMBER;
 		v1Sample["id"] = CONST_UNSUPPORTED_NUMBER;
-		
+
 		return v1Sample;
 	}
-	
+
 	this.searchSamplesV3DSS = function(fechOptions, callbackFunction)
 	{
 		var localReference = this;
@@ -1875,12 +1894,12 @@ function ServerFacade(openbisServer) {
 			}
 		});
 	}
-	
+
 	this.searchSamplesV1 = function(fechOptions, callbackFunction)
-	{	
+	{
 		//Text Search
 		var anyFieldContains = fechOptions["anyFieldContains"];
-		
+
 		//Attributes
 		var samplePermId = fechOptions["samplePermId"];
 		var withExperimentWithProjectPermId = fechOptions["withExperimentWithProjectPermId"];
@@ -1889,23 +1908,23 @@ function ServerFacade(openbisServer) {
 		var sampleTypeCode = fechOptions["sampleTypeCode"];
 		var registrationDate = fechOptions["registrationDate"];
 		var modificationDate = fechOptions["modificationDate"];
-		
+
 		//Properties
 		var properyKeyValueList = fechOptions["properyKeyValueList"];
-		
+
 		//Sub Queries
 		var sampleExperimentIdentifier = fechOptions["sampleExperimentIdentifier"];
 		var sampleContainerPermId = fechOptions["sampleContainerPermId"];
-		
+
 		//Hierarchy Options
 		var withProperties = fechOptions["withProperties"];
 		var withParents = fechOptions["withParents"];
 		var withChildren = fechOptions["withChildren"];
 		var withAncestors = fechOptions["withAncestors"];
 		var withDescendants = fechOptions["withDescendants"];
-		
+
 		var matchClauses = [];
-		
+
 		// Free Text
 		if(anyFieldContains) {
 			var words = anyFieldContains.split(" ");
@@ -1920,39 +1939,39 @@ function ServerFacade(openbisServer) {
 				}
 			}
 		}
-		
+
 		// Attributes
 		if(sampleIdentifier) {
 			throw "Unexpected operation exception : v1 search by sampleIdentifier and samplePermId removed";
 		}
-		
+
 		if(samplePermId) {
 			matchClauses.push({
 				"@type":"AttributeMatchClause",
-				fieldType : "ATTRIBUTE",			
+				fieldType : "ATTRIBUTE",
 				attribute : "PERM_ID",
-				desiredValue : samplePermId 
+				desiredValue : samplePermId
 			});
 		}
-		
+
 		if(sampleCode) {
 			matchClauses.push({
 			  	"@type":"AttributeMatchClause",
-				fieldType : "ATTRIBUTE",			
+				fieldType : "ATTRIBUTE",
 				attribute : "CODE",
-				desiredValue : sampleCode 
+				desiredValue : sampleCode
 			});
 		}
-		
+
 		if(sampleTypeCode) {
 			matchClauses.push({
 				"@type":"AttributeMatchClause",
-				fieldType : "ATTRIBUTE",			
+				fieldType : "ATTRIBUTE",
 				attribute : "TYPE",
 				desiredValue : sampleTypeCode
 			});
 		}
-		
+
 		if(registrationDate) {
 			matchClauses.push({
 				"@type":"TimeAttributeMatchClause",
@@ -1964,7 +1983,7 @@ function ServerFacade(openbisServer) {
 				attribute : "REGISTRATION_DATE"
 			});
 		}
-		
+
 		if(modificationDate) {
 			matchClauses.push({
 				"@type":"TimeAttributeMatchClause",
@@ -1976,14 +1995,14 @@ function ServerFacade(openbisServer) {
 				attribute : "MODIFICATION_DATE"
 			});
 		}
-		
+
 		//Properties
 		if(properyKeyValueList) {
 			for(var kvIdx = 0; kvIdx < properyKeyValueList.length; kvIdx++) {
 				var properyKeyValue = properyKeyValueList[kvIdx];
 				for(properyTypeCode in properyKeyValue) {
 					matchClauses.push(
-							{	
+							{
 								"@type":"PropertyMatchClause",
 								fieldType : "PROPERTY",
 								//fieldCode : properyTypeCode,
@@ -1995,18 +2014,18 @@ function ServerFacade(openbisServer) {
 				}
 			}
 		}
-		
+
 		//Sub Queries
 		var subCriterias = [];
-		
+
 		if(withExperimentWithProjectPermId) {
 			subCriterias.push({
 				"@type" : "SearchSubCriteria",
-				"targetEntityKind" : "EXPERIMENT",	
+				"targetEntityKind" : "EXPERIMENT",
 				"criteria" : {
 					matchClauses : [{
 							"@type":"AttributeMatchClause",
-							fieldType : "ATTRIBUTE",			
+							fieldType : "ATTRIBUTE",
 							attribute : "PROJECT_PERM_ID",
 							desiredValue : withExperimentWithProjectPermId
 					}],
@@ -2014,25 +2033,25 @@ function ServerFacade(openbisServer) {
 				}
 			});
 		}
-		
+
 		if(sampleExperimentIdentifier) {
 			subCriterias.push({
 					"@type" : "SearchSubCriteria",
-					"targetEntityKind" : "EXPERIMENT",	
+					"targetEntityKind" : "EXPERIMENT",
 					"criteria" : {
 						matchClauses : [{
 								"@type":"AttributeMatchClause",
-								fieldType : "ATTRIBUTE",			
+								fieldType : "ATTRIBUTE",
 								attribute : "SPACE",
 								desiredValue : IdentifierUtil.getSpaceCodeFromIdentifier(sampleExperimentIdentifier)
 							},{
 								"@type":"AttributeMatchClause",
-								fieldType : "ATTRIBUTE",			
+								fieldType : "ATTRIBUTE",
 								attribute : "PROJECT",
 								desiredValue : IdentifierUtil.getProjectCodeFromExperimentIdentifier(sampleExperimentIdentifier)
 							}, {
 								"@type":"AttributeMatchClause",
-								fieldType : "ATTRIBUTE",			
+								fieldType : "ATTRIBUTE",
 								attribute : "CODE",
 								desiredValue : IdentifierUtil.getCodeFromIdentifier(sampleExperimentIdentifier)
 							}],
@@ -2040,7 +2059,7 @@ function ServerFacade(openbisServer) {
 				}
 			});
 		}
-		
+
 		if(sampleContainerPermId) {
 			subCriterias.push({
 				"@type" : "SearchSubCriteria",
@@ -2048,7 +2067,7 @@ function ServerFacade(openbisServer) {
 				"criteria" : {
 					matchClauses : [{
 							"@type":"AttributeMatchClause",
-							fieldType : "ATTRIBUTE",			
+							fieldType : "ATTRIBUTE",
 							attribute : "PERM_ID",
 							desiredValue : sampleContainerPermId
 						}],
@@ -2056,38 +2075,38 @@ function ServerFacade(openbisServer) {
 				}
 			});
 		}
-		
+
 		var sampleCriteria = {
 			matchClauses : matchClauses,
 			subCriterias : subCriterias,
 			operator : "MATCH_ALL_CLAUSES"
 		};
-		
+
 		//Hierarchy Options
 		var options = [];
-		
+
 		if(withProperties) {
 			options.push("PROPERTIES");
 		}
-		
+
 		if(withAncestors) {
 			options.push("ANCESTORS");
 		}
-		
+
 		if(withDescendants) {
 			options.push("DESCENDANTS");
 		}
-		
+
 		if(withParents) {
 			options.push("PARENTS");
 		}
-		
+
 		if(withChildren) {
 			options.push("CHILDREN");
 		}
-		
+
 		var localReference = this;
-		
+
 		//
 		// Collection Rules for broken equals Fix
 		// Currently the back-end matches whole words instead doing a standard EQUALS
@@ -2123,7 +2142,7 @@ function ServerFacade(openbisServer) {
 			callbackFunction(results);
 		});
 	}
-	
+
 	this.searchSamples = function(fechOptions, callbackFunction)
 	{
 		if(profile.searchSamplesUsingV3OnDropbox) {
@@ -2134,7 +2153,7 @@ function ServerFacade(openbisServer) {
 			this.searchSamplesV1(fechOptions, callbackFunction);
 		}
 	}
-	
+
 	this.searchSamplesV1replacement = function(fechOptions, callbackFunction)
 	{
 		var _this = this;
@@ -2153,14 +2172,14 @@ function ServerFacade(openbisServer) {
             if(fechOptions["withProperties"]) {
             		fetchOptions.withProperties();
             }
-            
-            
+
+
             //
             // Parents/Children Block
             //
             var parentfetchOptions = jQuery.extend(true, {}, fetchOptions);
 			var childrenfetchOptions = jQuery.extend(true, {}, fetchOptions);
-			
+
             if(fechOptions["withAncestors"]) {
              	fechOptions["withParents"] = true;
             }
@@ -2179,7 +2198,7 @@ function ServerFacade(openbisServer) {
             if(fechOptions["withDescendants"]) {
             		childrenfetchOptions.withChildrenUsing(childrenfetchOptions);
             }
-            
+
             var id = null;
             if(fechOptions["samplePermId"]) {
             		id = new SamplePermId(fechOptions["samplePermId"]);
@@ -2187,7 +2206,7 @@ function ServerFacade(openbisServer) {
             if(fechOptions["sampleIdentifier"]) {
             		id = new SampleIdentifier(fechOptions["sampleIdentifier"]);
             }
-            
+
             mainController.openbisV3.getSamples([id], fetchOptions).done(function(map) {
                 var samples = Util.mapValuesToList(map);
                 callbackFunction(_this.getV3SamplesAsV1(samples));
@@ -2197,9 +2216,9 @@ function ServerFacade(openbisServer) {
 			});
         });
 	}
-	
+
 	this.searchWithUniqueId = function(samplePermId, callbackFunction)
-	{	
+	{
 		this.searchSamples({
 			"samplePermId" : samplePermId,
 			"withProperties" : true,
@@ -2207,9 +2226,9 @@ function ServerFacade(openbisServer) {
 			"withChildren" : true
 		}, callbackFunction);
 	}
-	
+
 	this.searchWithUniqueIdCompleteTree = function(samplePermId, callbackFunction)
-	{	
+	{
 		this.searchSamples({
 			"samplePermId" : samplePermId,
 			"withProperties" : true,
@@ -2217,7 +2236,7 @@ function ServerFacade(openbisServer) {
 			"withDescendants" : true
 		}, callbackFunction);
 	}
-	
+
 	this.searchByType = function(sampleType, callbackFunction)
 	{
 		this.searchSamples({
@@ -2225,7 +2244,7 @@ function ServerFacade(openbisServer) {
 			"withProperties" : true
 		}, callbackFunction);
 	}
-	
+
 	this.searchByTypeWithParents = function(sampleType, callbackFunction)
 	{
 		this.searchSamples({
@@ -2234,7 +2253,7 @@ function ServerFacade(openbisServer) {
 			"withParents" : true,
 		}, callbackFunction);
 	}
-	
+
 	this.searchWithType = function(sampleType, sampleCode, includeAncestorsAndDescendants, callbackFunction)
 	{
 		this.searchSamples({
@@ -2245,9 +2264,9 @@ function ServerFacade(openbisServer) {
 			"withDescendants" : includeAncestorsAndDescendants
 		}, callbackFunction);
 	}
-	
+
 	this.searchWithExperiment = function(experimentIdentifier, projectPermId, properyKeyValueList, callbackFunction)
-	{	
+	{
 		this.searchSamples({
 			"sampleExperimentIdentifier" : experimentIdentifier,
 			"withExperimentWithProjectPermId" : projectPermId,
@@ -2261,7 +2280,7 @@ function ServerFacade(openbisServer) {
 	{
 		var advancedSearchCriteria = { rules : {} };
 		for(var i = 0; i < propertyTypeCodes.length ;i++) {
-			var propertyTypeCode = propertyTypeCodes[i];			
+			var propertyTypeCode = propertyTypeCodes[i];
 			var propertyTypeValue = propertyValues[i];
 			advancedSearchCriteria.rules[Util.guid()] = { type : "Property", name : "PROP." + propertyTypeCode, value : propertyTypeValue, operator : "thatEqualsString" }
 		}
@@ -2273,19 +2292,19 @@ function ServerFacade(openbisServer) {
 			"withParents" : withParents,
 			"withChildren" : false
 		}
-		
+
 		var _this = this;
 		this.searchForSamplesAdvanced(advancedSearchCriteria, advancedFetchOptions, function(results) {
 			callbackFunction(_this.getV3SamplesAsV1(results.objects));
 		});
 	}
-	
+
 	this.searchWithIdentifiers = function(sampleIdentifiers, callbackFunction)
 	{
 		var _this = this;
 		var searchResults = [];
 		var searchForIdentifiers = jQuery.extend(true, [], sampleIdentifiers);
-		
+
 		var searchNext = function() {
 			if(searchForIdentifiers.length === 0) {
 				callbackFunction(searchResults);
@@ -2294,7 +2313,7 @@ function ServerFacade(openbisServer) {
 				searchFunction(next);
 			}
 		}
-		
+
 		var searchFunction = function(sampleIdentifier) {
 			_this.searchSamples({
 				"withProperties" : true,
@@ -2308,10 +2327,10 @@ function ServerFacade(openbisServer) {
 				searchNext();
 			});
 		}
-		
+
 		searchNext();
 	}
-	
+
 	this.searchContained = function(permId, callbackFunction) {
 		this.searchSamples({
 			"sampleContainerPermId" : permId,
@@ -2320,18 +2339,18 @@ function ServerFacade(openbisServer) {
 			"withChildren" : true
 		}, callbackFunction);
 	}
-	
+
 	this.getInitializedSamples = function(result) {
-		
+
 		//
-		// Fill Map that uses as key the sample @id and value the sample object 
+		// Fill Map that uses as key the sample @id and value the sample object
 		//
 		var samplesById = {};
-		
+
 		function storeSamplesById(originalSample)
 		{
 			var stack = [originalSample];
-			
+
 			var referredSample = null;
 			while (referredSample = stack.pop()) {
 				if (isNaN(referredSample)) {
@@ -2346,15 +2365,15 @@ function ServerFacade(openbisServer) {
 							stack.push(referredSample.children[i]);
 						}
 					}
-				}					
+				}
 			}
 		}
-		
+
 		for(var i = 0; i < result.length; i++) {
 			var sampleOrId = result[i];
 			storeSamplesById(sampleOrId);
 		}
-		
+
 		//
 		// Fix Result List
 		//
@@ -2364,13 +2383,13 @@ function ServerFacade(openbisServer) {
 			for(var i = 0; i < result.length; i++)
 			{
 				var sampleOrId = result[i];
-				
+
 				if (isNaN(sampleOrId))
 				{
 					sampleOrId = samplesById[sampleOrId["@id"]];
 				} else
 				{
-					sampleOrId = samplesById[sampleOrId]; 
+					sampleOrId = samplesById[sampleOrId];
 				}
 				result[i] = sampleOrId;
 				if(visitedSamples[sampleOrId.permId]) {
@@ -2378,7 +2397,7 @@ function ServerFacade(openbisServer) {
 				} else {
 					visitedSamples[sampleOrId.permId] = true;
 				}
-				
+
 				//Fill Parents
 				if(sampleOrId.parents) {
 					for(var j = 0; j < sampleOrId.parents.length; j++) {
@@ -2389,7 +2408,7 @@ function ServerFacade(openbisServer) {
 					}
 					fixSamples(sampleOrId.parents);
 				}
-				
+
 				//Fill Children
 				if(sampleOrId.children) {
 					for(var j = 0; j < sampleOrId.children.length; j++) {
@@ -2402,26 +2421,32 @@ function ServerFacade(openbisServer) {
 				}
 			}
 		}
-		
+
 		fixSamples(result);
-		
+
 		return result;
 	}
-	
+
 	//
 	// Global Search
 	//
 
-	this.getSearchCriteriaAndFetchOptionsForGlobalSearch = function(freeText, advancedFetchOptions, callbackFunction) {
-		require(['as/dto/global/search/GlobalSearchCriteria', 
-		         'as/dto/global/fetchoptions/GlobalSearchObjectFetchOptions'], 
+	this.getSearchCriteriaAndFetchOptionsForGlobalSearch = function(freeText, containsSearch,
+		    advancedFetchOptions, callbackFunction) {
+		require(['as/dto/global/search/GlobalSearchCriteria',
+		         'as/dto/global/fetchoptions/GlobalSearchObjectFetchOptions'],
 		         function(GlobalSearchCriteria, GlobalSearchObjectFetchOptions){
 			var searchCriteria = new GlobalSearchCriteria();
-			searchCriteria.withText().thatContains(freeText.toLowerCase().trim());
+			if (containsSearch) {
+				searchCriteria.withText().thatContains(freeText.toLowerCase().trim());
+			} else {
+				searchCriteria.withText().thatMatches(freeText.toLowerCase().trim());
+			}
 			searchCriteria.withOperator("AND");
 
 			var fetchOptions = new GlobalSearchObjectFetchOptions();
 			fetchOptions.withMatch();
+			fetchOptions.sortBy().score().desc();
 			var sampleFetchOptions = fetchOptions.withSample();
 			sampleFetchOptions.withSpace();
 			sampleFetchOptions.withType();
@@ -2429,26 +2454,26 @@ function ServerFacade(openbisServer) {
 			sampleFetchOptions.withModifier();
 			sampleFetchOptions.withExperiment();
 			sampleFetchOptions.withProperties();
-			
+
 			var experimentFetchOptions = fetchOptions.withExperiment();
 			experimentFetchOptions.withType();
 			experimentFetchOptions.withRegistrator();
 			experimentFetchOptions.withModifier();
 			experimentFetchOptions.withProperties();
-			
+
 			var dataSetFetchOptions = fetchOptions.withDataSet();
 			dataSetFetchOptions.withType();
 			dataSetFetchOptions.withRegistrator();
 			dataSetFetchOptions.withModifier();
 			dataSetFetchOptions.withProperties();
-			
+
 			if(advancedFetchOptions && advancedFetchOptions.cache) {
 				fetchOptions.cacheMode(advancedFetchOptions.cache);
 			}
-			
-			if(advancedFetchOptions && 
+
+			if(advancedFetchOptions &&
 					advancedFetchOptions.count != null &&
-					advancedFetchOptions.count != undefined && 
+					advancedFetchOptions.count != undefined &&
 					advancedFetchOptions.from != null &&
 					advancedFetchOptions.from != undefined) {
 				fetchOptions.from(advancedFetchOptions.from);
@@ -2459,19 +2484,19 @@ function ServerFacade(openbisServer) {
 		});
 	}
 
-	this.searchGlobally = function(freeText, advancedFetchOptions, callbackFunction)
+	this.searchGlobally = function(freeText, containsSearch, advancedFetchOptions, callbackFunction)
 	{
-		this.getSearchCriteriaAndFetchOptionsForGlobalSearch(freeText, advancedFetchOptions, function(searchCriteria, fetchOptions)
-		{
-			mainController.openbisV3.searchGlobally(searchCriteria, fetchOptions).done(function(results) {
-				callbackFunction(results);
-			}).fail(function(error) {
-				Util.showError("Call failed to server: " + JSON.stringify(error));
-				Util.unblockUI();
+		this.getSearchCriteriaAndFetchOptionsForGlobalSearch(freeText, containsSearch, advancedFetchOptions,
+			function(searchCriteria, fetchOptions) {
+				mainController.openbisV3.searchGlobally(searchCriteria, fetchOptions).done(function(results) {
+					callbackFunction(results);
+				}).fail(function(error) {
+					Util.showError("Call failed to server: " + JSON.stringify(error));
+					Util.unblockUI();
+				});
 			});
-		});
 	}
-	
+
 	//
 	// Legacy Global Search
 	//
@@ -2480,7 +2505,7 @@ function ServerFacade(openbisServer) {
 		var _this = this;
 		var regEx = /\d{4}-\d{2}-\d{2}/g;
 		var match = freeText.match(regEx);
-		
+
 		if(match && match.length === 1) { //Search With Date Mode, we merge results with dates found on registration and modification fields what is slow for large number of entities
 			this.searchSamples(this._getCriteriaWithDate(freeText, true, false), function(samples1) {
 				_this.searchSamples(_this._getCriteriaWithDate(freeText, false, true), function(samples2) {
@@ -2500,7 +2525,7 @@ function ServerFacade(openbisServer) {
 			callbackFunction([]);
 		}
 	}
-	
+
 	this._getCriteriaWithDate = function(freeText, isRegistrationDate, isModificationDate) {
 		//Find dates on string and delete them to use them differently on the search
 		var regEx = /\d{4}-\d{2}-\d{2}/g;
@@ -2511,31 +2536,31 @@ function ServerFacade(openbisServer) {
 				freeText += " " + match[mIdx].replace(/-/g, "");
 			}
 		}
-		
+
 		//Build Search
 		var sampleCriteria = {
 			"withProperties" : true
 		};
-		
+
 		if(freeText) {
 			sampleCriteria["anyFieldContains"] = freeText;
 		}
-		
+
 		if(match && match.length > 0) {
 			for(var mIdx = 0; mIdx < match.length; mIdx++) {
 				if(isRegistrationDate) {
 					sampleCriteria["registrationDate"] = match[mIdx];
 				}
-				
+
 				if(isModificationDate) {
 					sampleCriteria["modificationDate"] = match[mIdx];
 				}
 			}
 		}
-		
+
 		return sampleCriteria;
 	}
-	
+
 	//
 	// Search Domains
 	//
@@ -2546,9 +2571,9 @@ function ServerFacade(openbisServer) {
 			callbackFunction();
 		}
 	}
-	
+
 	this.searchOnSearchDomain = function(preferredSearchDomainOrNull, searchText, callbackFunction) {
-		
+
 		//TO-DO: For testing please put codes that exist in your database and you can access, the rest leave it as it is, when done just pass null to the function.
 		var optionalParametersOrNull = {
 				"SEQ-1" : JSON.stringify({
@@ -2566,7 +2591,7 @@ function ServerFacade(openbisServer) {
 					"positionInSequence" : "2"
 				})
 		}
-		
+
 		this.openbisServer.searchOnSearchDomain(preferredSearchDomainOrNull, searchText, null, callbackFunction);
 	}
 
@@ -2584,7 +2609,7 @@ function ServerFacade(openbisServer) {
     }
 
 	this.getSpace = function(spaceIdentifier, callbackFunction) {
-		require(["as/dto/space/id/SpacePermId", "as/dto/space/fetchoptions/SpaceFetchOptions"], 
+		require(["as/dto/space/id/SpacePermId", "as/dto/space/fetchoptions/SpaceFetchOptions"],
 			function(SpacePermId, SpaceFetchOptions) {
 				mainController.openbisV3.getSpaces([new SpacePermId(spaceIdentifier)], new SpaceFetchOptions()).done(function(result) {
 					callbackFunction(result);
@@ -2651,8 +2676,8 @@ function ServerFacade(openbisServer) {
 	}
 
 	this.createSample = function(sampleType, experiment, properties, callbackFunction) {
-		require(["as/dto/sample/create/SampleCreation", "as/dto/entitytype/id/EntityTypePermId", 
-			"as/dto/experiment/id/ExperimentPermId", "as/dto/space/id/SpacePermId"], 
+		require(["as/dto/sample/create/SampleCreation", "as/dto/entitytype/id/EntityTypePermId",
+			"as/dto/experiment/id/ExperimentPermId", "as/dto/space/id/SpacePermId"],
 				function(SampleCreation, EntityTypePermId, ExperimentPermId, SpacePermId) {
 			var experimentPermId = experiment.permId.permId;
 			var space = experiment.project.space.code;
@@ -2675,11 +2700,11 @@ function ServerFacade(openbisServer) {
 				callbackFunction(false);
 			});
 		});
-		
+
 	}
 
 	this.createProject = function(space, code, description, callbackFunction) {
-		require(["as/dto/project/create/ProjectCreation", "as/dto/space/id/SpacePermId"], 
+		require(["as/dto/project/create/ProjectCreation", "as/dto/space/id/SpacePermId"],
 			function(ProjectCreation, SpacePermId) {
 				var projectCreation = new ProjectCreation();
 				projectCreation.setSpaceId(new SpacePermId(space));
@@ -2771,7 +2796,7 @@ function ServerFacade(openbisServer) {
 	}
 
 	this.updateSample = function(sampleV1, callbackFunction) {
-		require([ "as/dto/sample/update/SampleUpdate", "as/dto/sample/id/SamplePermId"], 
+		require([ "as/dto/sample/update/SampleUpdate", "as/dto/sample/id/SamplePermId"],
 			function(SampleUpdate, SamplePermId) {
 				var sampleUpdate = new SampleUpdate();
 				sampleUpdate.setSampleId(new SamplePermId(sampleV1.permId));
@@ -2790,7 +2815,7 @@ function ServerFacade(openbisServer) {
 	}
 
 	this.updateDataSet = function(dataSetPermId, newPhysicalData, callbackFunction) {
-		require([ "as/dto/dataset/id/DataSetPermId", "as/dto/dataset/update/DataSetUpdate", 
+		require([ "as/dto/dataset/id/DataSetPermId", "as/dto/dataset/update/DataSetUpdate",
 			"as/dto/dataset/update/PhysicalDataUpdate", "as/dto/common/update/FieldUpdateValue"],
 				function(DataSetPermId, DataSetUpdate, PhysicalDataUpdate, FieldUpdateValue) {
 
@@ -2807,7 +2832,7 @@ function ServerFacade(openbisServer) {
 						}
 					}
 				}
-				update.setPhysicalData(physicalDataUpdate);	
+				update.setPhysicalData(physicalDataUpdate);
 			}
 
 			mainController.openbisV3.updateDataSets([update]).done(function(result) {
@@ -2820,7 +2845,7 @@ function ServerFacade(openbisServer) {
 	}
 
 	this.unarchiveDataSets = function(dataSetPermIds, callbackFunction) {
-		require(["as/dto/dataset/id/DataSetPermId", "as/dto/dataset/unarchive/DataSetUnarchiveOptions"], 
+		require(["as/dto/dataset/id/DataSetPermId", "as/dto/dataset/unarchive/DataSetUnarchiveOptions"],
 			function(DataSetPermId, DataSetUnarchiveOptions) {
 				var ids = dataSetPermIds.map(function(dataSetPermId) {
 					return new DataSetPermId(dataSetPermId);
@@ -2834,9 +2859,9 @@ function ServerFacade(openbisServer) {
 				});
 			});
 	}
-	
+
 	this.lockDataSet = function(dataSetPermId, lock, callbackFunction) {
-		require(["as/dto/dataset/id/DataSetPermId", "as/dto/dataset/lock/DataSetLockOptions", "as/dto/dataset/unlock/DataSetUnlockOptions"], 
+		require(["as/dto/dataset/id/DataSetPermId", "as/dto/dataset/lock/DataSetLockOptions", "as/dto/dataset/unlock/DataSetUnlockOptions"],
 				function(DataSetPermId, DataSetLockOptions, DataSetUnlockOptions) {
 			var ids = [new DataSetPermId(dataSetPermId)];
 			if (lock) {
@@ -2859,7 +2884,7 @@ function ServerFacade(openbisServer) {
 
 	// errorHandler: optional. if present, it is called instead of showing the error and the callbackFunction is not called
 	this.searchRoleAssignments = function(criteriaParams, callbackFunction, errorHandler) {
-		require(["as/dto/roleassignment/search/RoleAssignmentSearchCriteria", "as/dto/roleassignment/fetchoptions/RoleAssignmentFetchOptions"], 
+		require(["as/dto/roleassignment/search/RoleAssignmentSearchCriteria", "as/dto/roleassignment/fetchoptions/RoleAssignmentFetchOptions"],
 			function(RoleAssignmentSearchCriteria, RoleAssignmentFetchOptions) {
 				var criteria = new RoleAssignmentSearchCriteria();
 
@@ -2896,7 +2921,7 @@ function ServerFacade(openbisServer) {
 
 	this.deleteRoleAssignment = function(roleAssignmentTechId, callbackFunction) {
 		var userId = this.getUserId()
-		require(["as/dto/roleassignment/delete/RoleAssignmentDeletionOptions"], 
+		require(["as/dto/roleassignment/delete/RoleAssignmentDeletionOptions"],
 			function(RoleAssignmentDeletionOptions) {
 
 				var deleteOptions = new RoleAssignmentDeletionOptions();
@@ -2915,7 +2940,7 @@ function ServerFacade(openbisServer) {
 	}
 
 	this.createRoleAssignment = function(creationParams, callbackFunction) {
-		require(["as/dto/roleassignment/create/RoleAssignmentCreation", "as/dto/roleassignment/Role", 
+		require(["as/dto/roleassignment/create/RoleAssignmentCreation", "as/dto/roleassignment/Role",
 				"as/dto/space/id/SpacePermId", "as/dto/project/id/ProjectPermId", "as/dto/person/id/PersonPermId",
 				"as/dto/authorizationgroup/id/AuthorizationGroupPermId"],
 			function(RoleAssignmentCreation, Role, SpacePermId, ProjectPermId, PersonPermId, AuthorizationGroupPermId) {
@@ -2988,13 +3013,13 @@ function ServerFacade(openbisServer) {
 			   function(CustomASServiceCode, CustomASServiceExecutionOptions) {
 				   var id = new CustomASServiceCode(serviceCode);
 				   var options = new CustomASServiceExecutionOptions();
-				   
+
 				   if(parameters) {
 					   for(key in parameters) {
 						   options.withParameter(key, parameters[key]);
 					   }
 				   }
-				   
+
 				   mainController.openbisV3.executeCustomASService(id, options).done(function(result) {
 					   callbackFunction(result);
 				   }).fail(function(result) {

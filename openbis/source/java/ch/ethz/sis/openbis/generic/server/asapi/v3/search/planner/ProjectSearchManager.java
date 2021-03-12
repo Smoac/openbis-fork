@@ -45,6 +45,12 @@ public class ProjectSearchManager extends AbstractLocalSearchManager<ProjectSear
     }
 
     @Override
+    protected AbstractCompositeSearchCriteria createEmptyCriteria()
+    {
+        return new ProjectSearchCriteria();
+    }
+
+    @Override
     protected Set<Long> doFilterIDsByUserRights(final Set<Long> ids, final AuthorisationInformation authorisationInformation)
     {
         return getAuthProvider().getAuthorisedProjects(ids, authorisationInformation);

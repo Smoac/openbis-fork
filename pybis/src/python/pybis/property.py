@@ -7,22 +7,24 @@ class PropertyHolder():
     def __init__(self, openbis_obj, type=None):
         self.__dict__['_openbis'] = openbis_obj
         self.__dict__['_property_names'] = {}
-        if type is not None:
-            self.__dict__['_type'] = type
-            if 'propertyAssignments' in type.data \
-               and type.data['propertyAssignments'] is not None:
-                for prop in type.data['propertyAssignments']:
-                    property_name = prop['propertyType']['code'].lower()
-                    self._property_names[property_name]=prop['propertyType']
-                    self._property_names[property_name]['mandatory'] = prop['mandatory']
-                    self._property_names[property_name]['showInEditView'] = prop['showInEditView']
-                    if prop['propertyType']['dataType'] == 'CONTROLLEDVOCABULARY':
-                        pt = self._openbis.get_property_type(prop['propertyType']['code'])
-                        # get the vocabulary of a property type.
-                        # In some cases, the «code» of an assigned property is not identical to the «vocabulary» attribute
-                        voc = self._openbis.get_vocabulary(pt.vocabulary)
-                        terms = voc.get_terms()
-                        self._property_names[property_name]['terms'] = terms
+        if type is None:
+            return
+
+        self.__dict__['_type'] = type
+        if 'propertyAssignments' in type.data \
+        and type.data['propertyAssignments'] is not None:
+            for prop in type.data['propertyAssignments']:
+                property_name = prop['propertyType']['code'].lower()
+                self._property_names[property_name]=prop['propertyType']
+                self._property_names[property_name]['mandatory'] = prop['mandatory']
+                self._property_names[property_name]['showInEditView'] = prop['showInEditView']
+                if prop['propertyType']['dataType'] == 'CONTROLLEDVOCABULARY':
+                    pt = self._openbis.get_property_type(prop['propertyType']['code'])
+                    # get the vocabulary of a property type.
+                    # In some cases, the «code» of an assigned property is not identical to the «vocabulary» attribute
+                    voc = self._openbis.get_vocabulary(pt.vocabulary)
+                    terms = voc.get_terms()
+                    self._property_names[property_name]['terms'] = terms
 
     def _all_props(self):
         props = {}
@@ -48,10 +50,40 @@ class PropertyHolder():
                 props[code] = value
         return props
 
+    def __call__(self, *args):
+        if len(args) == 0:
+            return self.all()
+        elif len(args) == 1:
+            return getattr(self, args[0])
+        elif len(args) == 2:
+            return setattr(self, args[0], args[1])
+        else:
+            raise ValueError('called properties with more than 2 arguments')
+
+
+    def get(self, *args):
+        if len(args) == 0:
+            return self.all()
+        elif len(args) == 1 and not isinstance(args[0], list):
+            return getattr(self, args[0])
+        else:
+            if isinstance(args[0], list):
+                args = args[0]
+            return {arg: getattr(self, arg, None) for arg in args}
+
+
+    def set(self, *args):
+        if len(args) == 2:
+            setattr(self, args[0], args[1])
+        elif len(args) == 1 and isinstance(args[0], dict):
+            for key in args[0]:
+                setattr(self, key, args[0][key])
+
     def __getitem__(self, key):
         """For properties that contain either a dot or a dash or any other non-valid method character,
         a user can use a key-lookup instead, e.g. sample.props['my-weird.property-name']
         """
+
         return getattr(self, key)
 
     def __getattr__(self, name):

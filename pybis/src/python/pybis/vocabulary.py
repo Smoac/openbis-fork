@@ -94,7 +94,7 @@ class Vocabulary(
         
 
     def save(self):
-        terms = self._terms
+        terms = self._terms or []
         for term in terms:
             term["@type"]= "as.dto.vocabulary.create.VocabularyTermCreation"
 
@@ -112,14 +112,19 @@ class Vocabulary(
         else:
             request = self._up_attrs('updateVocabularies')
             request['params'][1][0]['vocabularyId'] = {
-                "@type": "as.dto.vocabulary.id.IVocabularyId",
-                "vocabularyId" : self.code
+                "@type": "as.dto.vocabulary.id.VocabularyPermId",
+                "permId" : self.code
+            }
+            request['params'][1][0]['chosenFromList'] = {
+                "value": self.chosenFromList,
+                "isModified": True,
+                "@type": "as.dto.common.update.FieldUpdateValue"
             }
             if terms:
                 request['params'][1][0]['terms'] = terms 
             self.openbis._post_request(self.openbis.as_v3, request)
             if VERBOSE: print("Vocabulary successfully updated.")
-            data = self.openbis.get_vocabulary(self.permId, only_data=True)
+            data = self.openbis.get_vocabulary(self.code, only_data=True)
             self._set_data(data)
 
 

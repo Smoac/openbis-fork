@@ -16,11 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractFieldSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractStringValue;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchFieldType;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringContainsExactlyValue;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringContainsValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.*;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
@@ -37,14 +33,35 @@ public class GlobalSearchTextCriteria extends AbstractFieldSearchCriteria<Abstra
         super("anything", SearchFieldType.ANY_FIELD);
     }
 
+    /**
+     * Set the value to this criterion which is interpreted as a 'contains' match of any of the words in the phrase.
+     * The result should contain any of the specified words.
+     *
+     * @param string the phrase to be matched.
+     */
     public void thatContains(String string)
     {
         setFieldValue(new StringContainsValue(string));
     }
 
+    /**
+     * Set the value to this criterion which is interpreted as a 'contains' match of the whole phrase phrase.
+     *
+     * @param string the phrase to be matched.
+     */
     public void thatContainsExactly(String string)
     {
         setFieldValue(new StringContainsExactlyValue(string));
+    }
+
+    /**
+     * Set the value to this criterion which is interpreted as a lexical match.
+     *
+     * @param string the phrase to be matched.
+     */
+    public void thatMatches(final String string)
+    {
+        setFieldValue(new StringMatchesValue(string));
     }
 
 }

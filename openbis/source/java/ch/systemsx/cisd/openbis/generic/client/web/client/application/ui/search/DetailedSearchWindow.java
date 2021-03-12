@@ -83,6 +83,7 @@ public class DetailedSearchWindow extends Dialog
         setResizable(false);
         criteriaWidget = new DetailedSearchMainCriteriaWidget(viewContext, entityKind);
         useWildcardSearchModeCheckBox = createWildcardSearchModeCheckBoxCheckBox(viewContext);
+        useWildcardSearchModeCheckBox.setValue(true);
 
         add(useWildcardSearchModeCheckBox);
 

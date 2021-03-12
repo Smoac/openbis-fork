@@ -7,4 +7,5 @@ def test_locate_command():
     assert result.output == "/bin/bash"
 
     result = utils.locate_command("this_is_not_a_real_command")
-    assert result.returncode == 1
+    # Bash returns 127 if a command is not found
+    assert ((result.returncode == 1) or (result.returncode == 127))

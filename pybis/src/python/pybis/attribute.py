@@ -15,8 +15,6 @@ class AttrHolder():
     - experiment (sample)
     - samples (experiment)
     - dataset
-    - parents (sample, dataset)
-    - children (sample, dataset)
     - tags
     """
 
@@ -59,7 +57,7 @@ class AttrHolder():
                 self.__dict__['_' + attr] = data.get(attr, None)
                 # remove the @id attribute
                 if isinstance(self.__dict__['_' + attr], dict):
-                    self.__dict__['_' + attr].pop('@id')
+                    self.__dict__['_' + attr].pop('@id', None)
 
             elif attr in ['vocabularyCode']:
                 self.__dict__['_'+attr] = data.get('permId', {}).get(attr, None)
@@ -86,10 +84,14 @@ class AttrHolder():
                 self.__dict__['_' + attr] = []
                 if data[attr] is not None:
                     for item in data[attr]:
-                        if 'identifier' in item:
-                            self.__dict__['_' + attr].append(item['identifier'])
-                        elif 'permId' in item:
-                            self.__dict__['_' + attr].append(item['permId'])
+                        try:
+                            if 'identifier' in item:
+                                self.__dict__['_' + attr].append(item['identifier'])
+                            elif 'permId' in item:
+                                self.__dict__['_' + attr].append(item['permId'])
+                        except Exception:
+                            # TODO: under certain circumstances, openBIS only delivers an integer
+                            pass
 
             elif attr in ["tags"]:
                 self.add_tags(data[attr])
@@ -457,7 +459,7 @@ class AttrHolder():
                     return
                     
                 # remove any existing @id keys to prevent jackson parser errors
-                if '@id' in id: id.pop('@id')
+                id.pop('@id', None)
                     
                 permids.append(id)
 
@@ -596,7 +598,7 @@ class AttrHolder():
         elif getattr(obj, '_permId'):
             ident = obj._permId
 
-        if '@id' in ident: ident.pop('@id')
+        ident.pop('@id', None)
         return ident
 
     def get_container(self, **kwargs):
@@ -633,9 +635,9 @@ class AttrHolder():
             ident = self._ident_for_whatever(component)
             for i, item in enumerate(self.__dict__['_containers']):
                 if 'identifier' in ident and 'identifier' in item and ident['identifier'] == item['identifier']:
-                    self.__dict__['_containers'].pop(i)
+                    self.__dict__['_containers'].pop(i, None)
                 elif 'permId' in ident and 'permId' in item and ident['permId'] == item['permId']:
-                    self.__dict__['_containers'].pop(i)
+                    self.__dict__['_containers'].pop(i, None)
 
     def get_components(self, **kwargs):
         '''Samples and DataSets may contain other DataSets and Samples. This function returns the
@@ -677,9 +679,9 @@ class AttrHolder():
             ident = self._ident_for_whatever(component)
             for i, item in enumerate(self.__dict__['_components']):
                 if 'identifier' in ident and 'identifier' in item and ident['identifier'] == item['identifier']:
-                    self.__dict__['_components'].pop(i)
+                    self.__dict__['_components'].pop(i, None)
                 elif 'permId' in ident and 'permId' in item and ident['permId'] == item['permId']:
-                    self.__dict__['_components'].pop(i)
+                    self.__dict__['_components'].pop(i, None)
 
     del_contained = del_components  # Alias
 
@@ -752,9 +754,9 @@ class AttrHolder():
             ident = self._ident_for_whatever(child)
             for i, item in enumerate(self.__dict__['_children']):
                 if 'identifier' in ident and 'identifier' in item and ident['identifier'] == item['identifier']:
-                    self.__dict__['_children'].pop(i)
+                    self.__dict__['_children'].pop(i, None)
                 elif 'permId' in ident and 'permId' in item and ident['permId'] == item['permId']:
-                    self.__dict__['_children'].pop(i)
+                    self.__dict__['_children'].pop(i, None)
 
     @property
     def tags(self):
@@ -803,9 +805,9 @@ class AttrHolder():
 
         for tag in tags:
             for i, tag_dict in enumerate(self.__dict__['_tags']):
-                if tag in self.__dict__['_tags'][i]['code'] or \
-                   tag in self.__dict__['_tags'][i]['permId']:
-                    self.__dict__['_tags'].pop(i)
+                if tag in tag_dict[i]['code'] or \
+                   tag in tag_dict[i]['permId']:
+                    tag_dict.pop(i, None)
 
     def set_users(self, userIds):
         if userIds is None:
@@ -815,7 +817,6 @@ class AttrHolder():
         if not isinstance(userIds, list):
             userIds = [userIds]
         for userId in userIds:
-            person = self.openbis.get_person(userId=user, only_data=True)
             self.__dict__['_userIds'].append({
                 "permId": userId,
                 "@type": "as.dto.person.id.PersonPermId"
@@ -943,7 +944,7 @@ class AttrHolder():
         return html
 
     def __repr__(self):
-        """ When using iPython, this method displays a nice table
+        """ When using IPython, this method displays a nice table
         of all attributes and their values when the object is printed.
         """
 

@@ -8,10 +8,10 @@
 import os
 from random import randrange
 
+import settings
 import systemtest.testcase
 import systemtest.util as util
 
-import settings
 
 
 class TestCase(systemtest.testcase.TestCase):
@@ -120,14 +120,9 @@ class TestCase(systemtest.testcase.TestCase):
 
     def _test_persons(self, openbis):
         util.printWhoAmI()
-        # should throw error when person exists
-        try:
-            error = False
-            openbis.new_person("admin")
-        except ValueError as e:
-            error = True
-            self.assertIn('error', str(e), "There already exists a user")
-        self.assertTrue('found expected error', error)
+        # should return a person if person already exists
+        person = openbis.new_person("admin")
+        self.assertEquals('person.permId', 'admin', person.permId)
         # should create new person
         person = openbis.new_person(self.USER_ID)
         self.assertEquals('person.userId', self.USER_ID, person.userId)

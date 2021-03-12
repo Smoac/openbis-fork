@@ -47,6 +47,12 @@ public class LocatorTypeSearchManager extends AbstractLocalSearchManager<Locator
     }
 
     @Override
+    protected AbstractCompositeSearchCriteria createEmptyCriteria()
+    {
+        return new LocatorTypeSearchCriteria();
+    }
+
+    @Override
     protected Set<Long> doFilterIDsByUserRights(final Set<Long> ids, final AuthorisationInformation authorisationInformation)
     {
         return ids;

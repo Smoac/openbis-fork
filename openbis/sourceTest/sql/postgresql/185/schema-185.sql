@@ -67,23 +67,23 @@ BEGIN
   -- check sample
   IF (NEW.samp_id IS NOT NULL) THEN
     SELECT del_id, code INTO owner_del_id, owner_code
-      FROM samples 
+      FROM samples
       WHERE id = NEW.samp_id;
-    IF (owner_del_id IS NOT NULL) THEN 
-      RAISE EXCEPTION 'Data Set (Code: %) cannot be connected to a Sample (Code: %) %.', 
+    IF (owner_del_id IS NOT NULL) THEN
+      RAISE EXCEPTION 'Data Set (Code: %) cannot be connected to a Sample (Code: %) %.',
                       NEW.code, owner_code, deletion_description(owner_del_id);
     END IF;
   END IF;
   -- check experiment
   IF (NEW.expe_id IS NOT NULL) THEN
     SELECT del_id, code INTO owner_del_id, owner_code
-      FROM experiments 
+      FROM experiments
       WHERE id = NEW.expe_id;
-    IF (owner_del_id IS NOT NULL) THEN 
-      RAISE EXCEPTION 'Data Set (Code: %) cannot be connected to an Experiment (Code: %) %.', 
+    IF (owner_del_id IS NOT NULL) THEN
+      RAISE EXCEPTION 'Data Set (Code: %) cannot be connected to an Experiment (Code: %) %.',
                       NEW.code, owner_code, deletion_description(owner_del_id);
-    END IF; 
-  END IF; 
+    END IF;
+  END IF;
   RETURN NEW;
 END;
 $$;
@@ -100,10 +100,10 @@ BEGIN
   -- check experiment (can't be deleted)
   IF (NEW.expe_id IS NOT NULL) THEN
   	SELECT del_id, code INTO owner_del_id, owner_code
-  	  FROM experiments 
+  	  FROM experiments
   	  WHERE id = NEW.expe_id;
-  	IF (owner_del_id IS NOT NULL) THEN 
-			RAISE EXCEPTION 'Sample (Code: %) cannot be connected to an Experiment (Code: %) %.', 
+  	IF (owner_del_id IS NOT NULL) THEN
+			RAISE EXCEPTION 'Sample (Code: %) cannot be connected to an Experiment (Code: %) %.',
    		                NEW.code, owner_code, deletion_description(owner_del_id);
 		END IF;
 	END IF;
@@ -117,10 +117,10 @@ DECLARE
     kind DATA_SET_KIND;
 BEGIN
     SELECT data_set_kind INTO kind
-        FROM data_all 
+        FROM data_all
         WHERE id = NEW.id;
-        IF (kind <> 'LINK') THEN 
-            RAISE EXCEPTION 'Link data (Data Set Code: %) must reference a data set of kind LINK (is %).', 
+        IF (kind <> 'LINK') THEN
+            RAISE EXCEPTION 'Link data (Data Set Code: %) must reference a data set of kind LINK (is %).',
                             NEW.id, kind;
         END IF;
     RETURN NEW;
@@ -133,10 +133,10 @@ DECLARE
     kind DATA_SET_KIND;
 BEGIN
     SELECT data_set_kind INTO kind
-        FROM data_all 
+        FROM data_all
         WHERE id = NEW.id;
-        IF (kind <> 'PHYSICAL') THEN 
-            RAISE EXCEPTION 'External data (Data Set Code: %) must reference a data set of kind PHYSICAL (is %).', 
+        IF (kind <> 'PHYSICAL') THEN
+            RAISE EXCEPTION 'External data (Data Set Code: %) must reference a data set of kind PHYSICAL (is %).',
                             NEW.id, kind;
         END IF;
     RETURN NEW;
@@ -151,17 +151,17 @@ BEGIN
 	IF (OLD.del_id IS NOT NULL OR NEW.del_id IS NULL) THEN
 		RETURN NEW;
 	END IF;
-	
+
   -- check datasets
-	SELECT count(*) INTO counter 
+	SELECT count(*) INTO counter
 	  FROM data
 	  WHERE data.expe_id = NEW.id AND data.del_id IS NULL;
 	IF (counter > 0) THEN
 	  RAISE EXCEPTION 'Experiment (Code: %) deletion failed because at least one of its data sets was not deleted.', NEW.code;
 	END IF;
 	-- check samples
-	SELECT count(*) INTO counter 
-	  FROM samples 
+	SELECT count(*) INTO counter
+	  FROM samples
 	  WHERE samples.expe_id = NEW.id AND samples.del_id IS NULL;
 	IF (counter > 0) THEN
 	  RAISE EXCEPTION 'Experiment (Code: %) deletion failed because at least one of its samples was not deleted.', NEW.code;
@@ -180,15 +180,15 @@ BEGIN
 	END IF;
   -- all directly connected data sets need to be deleted
   -- check datasets
-	SELECT count(*) INTO counter 
+	SELECT count(*) INTO counter
 	  FROM data
 	  WHERE data.samp_id = NEW.id AND data.del_id IS NULL;
 	IF (counter > 0) THEN
 	  RAISE EXCEPTION 'Sample (Code: %) deletion failed because at least one of its data sets was not deleted.', NEW.code;
 	END IF;
   -- all components need to be deleted
-	SELECT count(*) INTO counter 
-	  FROM samples 
+	SELECT count(*) INTO counter
+	  FROM samples
 	  WHERE samples.samp_id_part_of = NEW.id AND samples.del_id IS NULL;
 	IF (counter > 0) THEN
 	  RAISE EXCEPTION 'Sample (Code: %) deletion failed because at least one of its component samples was not deleted.', NEW.code;
@@ -217,9 +217,9 @@ CREATE FUNCTION content_copies_uniqueness_check() RETURNS trigger
 BEGIN
   NEW.location_unique_check = NEW.data_id || ',' ||
                               NEW.edms_id || ',' ||
-                              coalesce(NEW.path, '') || ',' || 
-                              coalesce(NEW.git_commit_hash, '') || ',' || 
-                              coalesce(NEW.git_repository_id, '') || ',' || 
+                              coalesce(NEW.path, '') || ',' ||
+                              coalesce(NEW.git_commit_hash, '') || ',' ||
+                              coalesce(NEW.git_repository_id, '') || ',' ||
                               coalesce(NEW.external_code, '');
   RETURN NEW;
 END;
@@ -244,9 +244,8 @@ CREATE FUNCTION data_all_tsvector_document_trigger() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 BEGIN
-    NEW.tsvector_document := (escape_tsvector_string(NEW.data_set_kind) || ':1')::tsvector ||
-        (escape_tsvector_string(NEW.code) || ':1')::tsvector ||
-        ('/' || escape_tsvector_string(NEW.code) || ':1')::tsvector;
+    NEW.tsvector_document := setweight(('/' || escape_tsvector_string(NEW.code) || ':1')::tsvector, 'A') ||
+            setweight((escape_tsvector_string(NEW.code) || ':1')::tsvector, 'B');
     RETURN NEW;
 END
 $$;
@@ -278,18 +277,18 @@ DECLARE
    v_type_id_prop  CODE;
 BEGIN
    if NEW.mate_prop_id IS NOT NULL then
-			-- find material type id of the property type 
-			select pt.maty_prop_id into v_type_id_prop 
-			  from data_set_type_property_types dstpt, property_types pt 
+			-- find material type id of the property type
+			select pt.maty_prop_id into v_type_id_prop
+			  from data_set_type_property_types dstpt, property_types pt
 			 where NEW.dstpt_id = dstpt.id AND dstpt.prty_id = pt.id;
-		
+
 			if v_type_id_prop IS NOT NULL then
 				-- find material type id of the material which consists the entity's property value
-				select entity.maty_id into v_type_id 
+				select entity.maty_id into v_type_id
 				  from materials entity
 				 where NEW.mate_prop_id = entity.id;
 				if v_type_id != v_type_id_prop then
-					RAISE EXCEPTION 'Insert/Update of property value referencing material (id: %) failed, as referenced material type is different than expected (id %, expected id: %).', 
+					RAISE EXCEPTION 'Insert/Update of property value referencing material (id: %) failed, as referenced material type is different than expected (id %, expected id: %).',
 												 NEW.mate_prop_id, v_type_id, v_type_id_prop;
 				end if;
 			end if;
@@ -305,9 +304,9 @@ DECLARE
   del_date VARCHAR;
   del_reason VARCHAR;
 BEGIN
-  SELECT p.last_name || ' ' || p.first_name || ' (' || p.email || ')', 
-         to_char(d.registration_timestamp, 'YYYY-MM-DD HH:MM:SS'), d.reason 
-    INTO del_person, del_date, del_reason FROM deletions d, persons p 
+  SELECT p.last_name || ' ' || p.first_name || ' (' || p.email || ')',
+         to_char(d.registration_timestamp, 'YYYY-MM-DD HH:MM:SS'), d.reason
+    INTO del_person, del_date, del_reason FROM deletions d, persons p
     WHERE d.pers_id_registerer = p.id AND d.id = del_id;
   RETURN 'deleted by ' || del_person || ' on ' || del_date || ' with reason: "' || del_reason || '"';
 END;
@@ -319,7 +318,7 @@ BEGIN
     IF (NEW.proj_id IS NOT NULL) THEN
     RAISE EXCEPTION 'Project level samples are disabled';
   END IF;
-  
+
   RETURN NEW;
 END;
 $$;
@@ -354,24 +353,53 @@ DECLARE
    v_type_id_prop  CODE;
 BEGIN
    if NEW.mate_prop_id IS NOT NULL then
-			-- find material type id of the property type 
-			select pt.maty_prop_id into v_type_id_prop 
-			  from experiment_type_property_types etpt, property_types pt 
+			-- find material type id of the property type
+			select pt.maty_prop_id into v_type_id_prop
+			  from experiment_type_property_types etpt, property_types pt
 			 where NEW.etpt_id = etpt.id AND etpt.prty_id = pt.id;
-		
+
 			if v_type_id_prop IS NOT NULL then
 				-- find material type id of the material which consists the entity's property value
-				select entity.maty_id into v_type_id 
+				select entity.maty_id into v_type_id
 				  from materials entity
 				 where NEW.mate_prop_id = entity.id;
 				if v_type_id != v_type_id_prop then
-					RAISE EXCEPTION 'Insert/Update of property value referencing material (id: %) failed, as referenced material type is different than expected (id %, expected id: %).', 
+					RAISE EXCEPTION 'Insert/Update of property value referencing material (id: %) failed, as referenced material type is different than expected (id %, expected id: %).',
 												 NEW.mate_prop_id, v_type_id, v_type_id_prop;
 				end if;
 			end if;
    end if;
    RETURN NEW;
 END;
+$$;
+CREATE FUNCTION experiments_all_in_project_tsvector_document_trigger() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE new_space_code VARCHAR;
+        tsv tsvector;
+        exp RECORD;
+BEGIN
+    IF TG_OP = 'UPDATE' AND NEW.space_id IS DISTINCT FROM OLD.space_id THEN
+        SELECT code
+        INTO new_space_code
+        FROM spaces
+        WHERE id = NEW.space_id;
+        FOR exp IN
+            SELECT id, code, perm_id
+            FROM experiments_all
+            WHERE proj_id = NEW.id
+            LOOP
+                tsv := setweight((escape_tsvector_string(exp.perm_id) || ':1')::tsvector, 'A') ||
+                       setweight((escape_tsvector_string('/' || new_space_code || '/' || NEW.code || '/' || exp.code)
+                           || ':1')::tsvector, 'A') ||
+                       setweight((escape_tsvector_string(exp.code) || ':1')::tsvector, 'B');
+                UPDATE experiments_all
+                SET tsvector_document = tsv
+                WHERE id = exp.id;
+            END LOOP;
+    END IF;
+    RETURN NEW;
+END
 $$;
 CREATE FUNCTION experiments_all_tsvector_document_trigger() RETURNS trigger
     LANGUAGE plpgsql
@@ -380,10 +408,11 @@ DECLARE proj_code VARCHAR;
         space_code VARCHAR;
 BEGIN
     SELECT p.code, s.code INTO STRICT proj_code, space_code FROM projects p
-        INNER JOIN spaces s ON p.space_id = s.id WHERE p.id = NEW.proj_id;
-    NEW.tsvector_document := (escape_tsvector_string(NEW.perm_id) || ':1')::tsvector ||
-            (escape_tsvector_string(NEW.code) || ':1')::tsvector ||
-            (escape_tsvector_string('/' || space_code || '/' || proj_code || '/' || NEW.code) || ':1')::tsvector;
+            INNER JOIN spaces s ON p.space_id = s.id WHERE p.id = NEW.proj_id;
+    NEW.tsvector_document := setweight((escape_tsvector_string(NEW.perm_id) || ':1')::tsvector, 'A') ||
+            setweight((escape_tsvector_string('/' || space_code || '/' || proj_code || '/' || NEW.code)
+                    || ':1')::tsvector, 'A') ||
+            setweight((escape_tsvector_string(NEW.code) || ':1')::tsvector, 'B');
     RETURN NEW;
 END
 $$;
@@ -395,11 +424,11 @@ DECLARE
    data_code CODE;
 BEGIN
    select code into v_covo_code from controlled_vocabularies
-      where is_managed_internally = true and 
+      where is_managed_internally = true and
          id = (select covo_id from controlled_vocabulary_terms where id = NEW.cvte_id_stor_fmt);
    -- Check if the data storage format is a term of the controlled vocabulary "STORAGE_FORMAT"
    if v_covo_code != 'STORAGE_FORMAT' then
-      select code into data_code from data_all where id = NEW.id; 
+      select code into data_code from data_all where id = NEW.id;
       RAISE EXCEPTION 'Insert/Update of Data (Code: %) failed, as its Storage Format is %, but is required to be STORAGE_FORMAT.', data_code, v_covo_code;
    end if;
    RETURN NEW;
@@ -413,18 +442,18 @@ DECLARE
    v_type_id_prop  CODE;
 BEGIN
    if NEW.mate_prop_id IS NOT NULL then
-			-- find material type id of the property type 
-			select pt.maty_prop_id into v_type_id_prop 
-			  from material_type_property_types etpt, property_types pt 
+			-- find material type id of the property type
+			select pt.maty_prop_id into v_type_id_prop
+			  from material_type_property_types etpt, property_types pt
 			 where NEW.mtpt_id = etpt.id AND etpt.prty_id = pt.id;
-		
+
 			if v_type_id_prop IS NOT NULL then
 				-- find material type id of the material which consists the entity's property value
-				select entity.maty_id into v_type_id 
+				select entity.maty_id into v_type_id
 				  from materials entity
 				 where NEW.mate_prop_id = entity.id;
 				if v_type_id != v_type_id_prop then
-					RAISE EXCEPTION 'Insert/Update of property value referencing material (id: %) failed, as referenced material type is different than expected (id %, expected id: %).', 
+					RAISE EXCEPTION 'Insert/Update of property value referencing material (id: %) failed, as referenced material type is different than expected (id %, expected id: %).',
 							 NEW.mate_prop_id, v_type_id, v_type_id_prop;
 				end if;
 			end if;
@@ -438,8 +467,9 @@ CREATE FUNCTION materials_tsvector_document_trigger() RETURNS trigger
 DECLARE material_type_code VARCHAR;
 BEGIN
     SELECT code INTO STRICT material_type_code FROM material_types WHERE id = NEW.maty_id;
-    NEW.tsvector_document := (escape_tsvector_string(NEW.code) || ':1')::tsvector ||
-            (escape_tsvector_string(NEW.code || ' (' || material_type_code || ')') || ':1')::tsvector;
+    NEW.tsvector_document := setweight((escape_tsvector_string(
+            NEW.code || ' (' || material_type_code || ')') || ':1')::tsvector, 'A') ||
+            setweight((escape_tsvector_string(NEW.code) || ':1')::tsvector, 'B');
     RETURN NEW;
 END
 $$;
@@ -543,10 +573,11 @@ DECLARE cvt RECORD;
 BEGIN
     IF NEW.cvte_id IS NOT NULL THEN
         SELECT code, label INTO STRICT cvt FROM controlled_vocabulary_terms WHERE id = NEW.cvte_id;
-        NEW.tsvector_document := to_tsvector('english', LOWER(cvt.code)) ||
-                                 to_tsvector('english', coalesce(LOWER(cvt.label), ''));
+        NEW.tsvector_document := setweight(to_tsvector('english', escape_tsvector_string(cvt.code)), 'C') ||
+                setweight(to_tsvector('english', escape_tsvector_string(coalesce(cvt.label, ''))), 'C');
     ELSE
-        NEW.tsvector_document := to_tsvector('english', coalesce(LOWER(NEW.value), ''));
+        NEW.tsvector_document := setweight(
+                to_tsvector('english', escape_tsvector_string(coalesce(NEW.value, ''))), 'D');
     END IF;
     RETURN NEW;
 END
@@ -566,7 +597,7 @@ BEGIN
     ELSEIF (TG_ARGV[0] = 'DATA SET CONTAINER') THEN
         data_id = old.data_id_child;
     END IF;
-    RAISE EXCEPTION 'Operation DELETE % is not allowed because data set % is frozen.', TG_ARGV[0], 
+    RAISE EXCEPTION 'Operation DELETE % is not allowed because data set % is frozen.', TG_ARGV[0],
         (select code from data_all where id = data_id);
 END;
 $$;
@@ -574,7 +605,7 @@ CREATE FUNCTION raise_delete_from_experiment_exception() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 BEGIN
-    RAISE EXCEPTION 'Operation DELETE % is not allowed because experiment % is frozen.', TG_ARGV[0], 
+    RAISE EXCEPTION 'Operation DELETE % is not allowed because experiment % is frozen.', TG_ARGV[0],
         (select code from experiments_all where id = old.expe_id);
 END;
 $$;
@@ -582,7 +613,7 @@ CREATE FUNCTION raise_delete_from_project_exception() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 BEGIN
-    RAISE EXCEPTION 'Operation DELETE % is not allowed because project % is frozen.', TG_ARGV[0], 
+    RAISE EXCEPTION 'Operation DELETE % is not allowed because project % is frozen.', TG_ARGV[0],
         (select code from projects where id = old.proj_id);
 END;
 $$;
@@ -601,7 +632,7 @@ BEGIN
     ELSE
         samp_id = old.samp_id;
     END IF;
-    RAISE EXCEPTION 'Operation DELETE % is not allowed because sample % is frozen.', TG_ARGV[0], 
+    RAISE EXCEPTION 'Operation DELETE % is not allowed because sample % is frozen.', TG_ARGV[0],
         (select code from samples_all where id = samp_id);
 END;
 $$;
@@ -609,7 +640,7 @@ CREATE FUNCTION raise_delete_from_space_exception() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 BEGIN
-    RAISE EXCEPTION 'Operation DELETE % is not allowed because space % is frozen.', TG_ARGV[0], 
+    RAISE EXCEPTION 'Operation DELETE % is not allowed because space % is frozen.', TG_ARGV[0],
         (select code from spaces where id = old.space_id);
 END;
 $$;
@@ -803,7 +834,7 @@ BEGIN
         parent_id = NEW.sample_id_parent;
         child_id = NEW.sample_id_child;
     END IF;
-    RAISE EXCEPTION 'Operation % is not allowed because sample % or % is frozen.', TG_OP, 
+    RAISE EXCEPTION 'Operation % is not allowed because sample % or % is frozen.', TG_OP,
         (select code from samples_all where id = parent_id),
         (select code from samples_all where id = child_id);
 END;
@@ -853,13 +884,13 @@ DECLARE
     unique_subcode  BOOLEAN_CHAR;
 BEGIN
     SELECT is_subcode_unique into unique_subcode FROM sample_types WHERE id = NEW.saty_id;
-    
+
     IF (unique_subcode) THEN
     NEW.subcode_unique_check = NEW.code || ',' || coalesce(NEW.saty_id, -1) || ',' || coalesce(NEW.proj_id, -1) || ',' || coalesce(NEW.space_id, -1);
     ELSE
     NEW.subcode_unique_check = NULL;
   END IF;
-  
+
   RETURN NEW;
 END;
 $$;
@@ -871,18 +902,18 @@ DECLARE
    v_type_id_prop  CODE;
 BEGIN
    if NEW.mate_prop_id IS NOT NULL then
-			-- find material type id of the property type 
-			select pt.maty_prop_id into v_type_id_prop 
-			  from sample_type_property_types etpt, property_types pt 
+			-- find material type id of the property type
+			select pt.maty_prop_id into v_type_id_prop
+			  from sample_type_property_types etpt, property_types pt
 			 where NEW.stpt_id = etpt.id AND etpt.prty_id = pt.id;
-		
+
 			if v_type_id_prop IS NOT NULL then
 				-- find material type id of the material which consists the entity's property value
-				select entity.maty_id into v_type_id 
+				select entity.maty_id into v_type_id
 				  from materials entity
 				 where NEW.mate_prop_id = entity.id;
 				if v_type_id != v_type_id_prop then
-					RAISE EXCEPTION 'Insert/Update of property value referencing material (id: %) failed, as referenced material type is different than expected (id %, expected id: %).', 
+					RAISE EXCEPTION 'Insert/Update of property value referencing material (id: %) failed, as referenced material type is different than expected (id %, expected id: %).',
 												 NEW.mate_prop_id, v_type_id, v_type_id_prop;
 				end if;
 			end if;
@@ -904,34 +935,38 @@ CREATE FUNCTION samples_all_tsvector_document_trigger() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 DECLARE proj_code VARCHAR;
-    space_code VARCHAR;
-    container_code VARCHAR;
-    identifier VARCHAR := '/';
+        space_code VARCHAR;
+        container_code VARCHAR;
+        sample_code VARCHAR;
+        identifier VARCHAR := '/';
 BEGIN
-    IF NEW.space_id IS NOT NULL THEN
-        SELECT code INTO STRICT space_code FROM spaces WHERE id = NEW.space_id;
-        identifier := identifier || space_code || '/';
-    END IF;
-    IF NEW.proj_id IS NOT NULL THEN
+    IF TG_OP != 'DELETE' THEN
         IF NEW.space_id IS NOT NULL THEN
-            SELECT code INTO STRICT proj_code FROM projects WHERE id = NEW.proj_id;
-        ELSE
-            SELECT p.code, s.code INTO STRICT proj_code, space_code FROM projects p
-                INNER JOIN spaces s ON p.space_id = s.id WHERE id = NEW.proj_id;
+            SELECT code INTO STRICT space_code FROM spaces WHERE id = NEW.space_id;
             identifier := identifier || space_code || '/';
         END IF;
-        identifier := identifier || proj_code || '/';
+        IF NEW.proj_id IS NOT NULL THEN
+            SELECT code INTO STRICT proj_code FROM projects WHERE id = NEW.proj_id;
+            identifier := identifier || proj_code || '/';
+        END IF;
+        IF NEW.samp_id_part_of IS NOT NULL THEN
+            SELECT code INTO STRICT container_code FROM samples_all WHERE id = NEW.samp_id_part_of;
+            sample_code := container_code || ':' || NEW.code;
+            NEW.sample_identifier := identifier || sample_code;
+            NEW.tsvector_document := setweight((escape_tsvector_string(NEW.perm_id) || ':1')::tsvector, 'A') ||
+                                     setweight((escape_tsvector_string(NEW.sample_identifier) || ':1')::tsvector,
+                                         'A') ||
+                                     setweight((escape_tsvector_string(sample_code) || ':1')::tsvector, 'B') ||
+                                     setweight((escape_tsvector_string(container_code) || ':1')::tsvector, 'B') ||
+                                     setweight((escape_tsvector_string(NEW.code) || ':1')::tsvector, 'B');
+        ELSE
+            NEW.sample_identifier := identifier || NEW.code;
+            NEW.tsvector_document := setweight((escape_tsvector_string(NEW.perm_id) || ':1')::tsvector, 'A') ||
+                                     setweight((escape_tsvector_string(NEW.sample_identifier) || ':1')::tsvector,
+                                         'A') ||
+                                     setweight((escape_tsvector_string(NEW.code) || ':1')::tsvector, 'B');
+        END IF;
     END IF;
-    IF NEW.samp_id_part_of IS NOT NULL THEN
-        SELECT code INTO STRICT container_code FROM samples_all WHERE id = NEW.samp_id_part_of;
-        identifier := identifier || container_code || ':' || NEW.code;
-    ELSE
-        identifier := identifier || NEW.code;
-    END IF;
-    NEW.sample_identifier := identifier;
-    NEW.tsvector_document := (escape_tsvector_string(NEW.perm_id) || ':1')::tsvector ||
-            (escape_tsvector_string(NEW.code) || ':1')::tsvector ||
-            (escape_tsvector_string(identifier) || ':1')::tsvector;
     RETURN NEW;
 END
 $$;

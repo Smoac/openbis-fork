@@ -26,7 +26,6 @@ async function testValidate() {
   const SAMPLE_TYPE = new openbis.SampleType()
 
   common.facade.loadType.mockReturnValue(Promise.resolve(SAMPLE_TYPE))
-  common.facade.loadUsages.mockReturnValue(Promise.resolve({}))
 
   await common.controller.load()
   common.controller.handleAddSection()

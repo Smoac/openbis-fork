@@ -47,7 +47,14 @@ public class EntityTypeSearchManager extends AbstractLocalSearchManager<EntityTy
     }
 
     @Override
-    protected Set<Long> doFilterIDsByUserRights(final Set<Long> ids, final AuthorisationInformation authorisationInformation)
+    protected AbstractCompositeSearchCriteria createEmptyCriteria()
+    {
+        return new EntityTypeSearchCriteria();
+    }
+
+    @Override
+    protected Set<Long> doFilterIDsByUserRights(final Set<Long> ids,
+            final AuthorisationInformation authorisationInformation)
     {
         return ids;
     }

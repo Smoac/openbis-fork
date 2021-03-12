@@ -21,6 +21,7 @@ import java.util.TreeMap;
 
 import javax.annotation.Resource;
 
+import ch.systemsx.cisd.openbis.BuildAndEnvironmentInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -67,6 +68,8 @@ public class GetServerInformationOperationExecutor
         info.put("archiving-configured", Boolean.toString(basicServer.isArchivingConfigured(null)));
         info.put("enabled-technologies", configurer.getResolvedProps().getProperty(Constants.ENABLED_MODULES_KEY));
         info.put("authentication-service", configurer.getResolvedProps().getProperty(ComponentNames.AUTHENTICATION_SERVICE));
+        info.put("openbis-version", BuildAndEnvironmentInfo.INSTANCE.getVersion());
+
         // String disabledText = server.tryGetDisabledText();
         // if (disabledText != null)
         // {

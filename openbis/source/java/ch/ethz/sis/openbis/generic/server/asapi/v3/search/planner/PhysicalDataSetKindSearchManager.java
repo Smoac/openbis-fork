@@ -49,6 +49,12 @@ public class PhysicalDataSetKindSearchManager extends AbstractLocalSearchManager
     }
 
     @Override
+    protected AbstractCompositeSearchCriteria createEmptyCriteria()
+    {
+        return new PhysicalDataSearchCriteria();
+    }
+
+    @Override
     protected Set<Long> doFilterIDsByUserRights(final Set<Long> ids, final AuthorisationInformation authorisationInformation)
     {
         return ids;
@@ -86,7 +92,7 @@ public class PhysicalDataSetKindSearchManager extends AbstractLocalSearchManager
         final DummyCompositeSearchCriterion compositeSearchCriterion = new DummyCompositeSearchCriterion();
         compositeSearchCriterion.setCriteria(Collections.singletonList(dataSetKindSearchCriteria));
 
-        final Set<Long> mainCriteriaIntermediateResults = getSearchDAO().queryDBWithNonRecursiveCriteria(userId, compositeSearchCriterion, DATA_SET, idsColumnName, authorisationInformation);
+        final Set<Long> mainCriteriaIntermediateResults = getSearchDAO().queryDBForIdsAndRanksWithNonRecursiveCriteria(userId, compositeSearchCriterion, DATA_SET, idsColumnName, authorisationInformation);
 
         // If we have results, we use them
         // If we don't have results and criteria are not empty, there are no results.

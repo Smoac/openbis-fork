@@ -28,7 +28,6 @@ async function testAddWithNothingSelected() {
   common.facade.loadType.mockReturnValue(
     Promise.resolve(fixture.TEST_SAMPLE_TYPE_DTO)
   )
-  common.facade.loadUsages.mockReturnValue(Promise.resolve({}))
 
   await common.controller.load()
 
@@ -81,7 +80,6 @@ async function testAddWithPropertySelected() {
   common.facade.loadType.mockReturnValue(
     Promise.resolve(fixture.TEST_SAMPLE_TYPE_DTO)
   )
-  common.facade.loadUsages.mockReturnValue(Promise.resolve({}))
 
   await common.controller.load()
   common.controller.handleSelectionChange(TypeFormSelectionType.PROPERTY, {
@@ -142,7 +140,6 @@ async function testAddWithSectionSelected() {
   common.facade.loadType.mockReturnValue(
     Promise.resolve(fixture.TEST_SAMPLE_TYPE_DTO)
   )
-  common.facade.loadUsages.mockReturnValue(Promise.resolve({}))
 
   await common.controller.load()
   common.controller.handleSelectionChange(TypeFormSelectionType.SECTION, {

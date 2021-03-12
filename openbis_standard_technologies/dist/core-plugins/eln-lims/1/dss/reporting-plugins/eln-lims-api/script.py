@@ -60,7 +60,7 @@ from ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search import SearchResult;
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id import SampleIdentifier;
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id import SamplePermId
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id import ExperimentIdentifier;
-from ch.ethz.sis.openbis.generic.server.sharedapi.v3.json import GenericObjectMapper;
+from ch.systemsx.cisd.openbis.dss.generic.shared import ServiceProvider
 from ch.systemsx.cisd.openbis.dss.generic.server import DataStoreServer
 from ch.systemsx.cisd.common.shared.basic.string import StringUtils 
 #from ch.systemsx.cisd.common.ssl import SslCertificateHelper;
@@ -309,8 +309,7 @@ def listFeatureVectorDatasets(sessionToken, samplePlatePermId):
 	return featureVectorDatasets;
 
 def getJsonForData(data):
-	objectMapper = GenericObjectMapper();
-	jsonValue = objectMapper.writeValueAsString(data);
+	jsonValue = ServiceProvider.getObjectMapperV3().writeValueAsString(data);
 	return jsonValue;
 
 def listFeatureVectorDatasetsPermIds(tr, parameters, tableBuilder):
@@ -1013,8 +1012,7 @@ def searchSamples(tr, v3, parameters, tableBuilder, sessionId):
 	###
 	### Json Conversion
 	###
-	objectMapper = GenericObjectMapper();
-	resultAsString = objectMapper.writeValueAsString(result);
+	resultAsString = ServiceProvider.getObjectMapperV3().writeValueAsString(result);
 	return resultAsString;
 
 def searchSamplesCustom(tr, parameters, tableBuilder, v3, criterion, fetchOptions):

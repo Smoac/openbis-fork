@@ -23,6 +23,7 @@ import java.util.Map;
 import org.apache.commons.collections4.map.MultiKeyMap;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDms;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.synchronizer.translator.INameTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
@@ -35,6 +36,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 
 class MasterData
 {
+    private final INameTranslator nameTranslator;
+
     private Map<String, FileFormatType> fileFormatTypesToProcess = new HashMap<String, FileFormatType>();
 
     private Map<String, ExternalDms> externalDataManagementSystemsToProcess = new HashMap<>();
@@ -54,6 +57,20 @@ class MasterData
     private Map<String, MaterialType> materialTypesToProcess = new HashMap<String, MaterialType>();
 
     private MultiKeyMap<String, List<NewETPTAssignment>> propertyAssignmentsToProcess = new MultiKeyMap<String, List<NewETPTAssignment>>();
+
+    private NameMapper vocabularyNameMapper;
+
+    private NameMapper propertyTypeNameMapper;
+
+    public MasterData(INameTranslator nameTranslator)
+    {
+        this.nameTranslator = nameTranslator;
+    }
+
+    public INameTranslator getNameTranslator()
+    {
+        return nameTranslator;
+    }
 
     public MultiKeyMap<String, List<NewETPTAssignment>> getPropertyAssignmentsToProcess()
     {
@@ -105,6 +122,16 @@ class MasterData
         return fileFormatTypesToProcess;
     }
 
+    public NameMapper getVocabularyNameMapper()
+    {
+        return vocabularyNameMapper;
+    }
+
+    public NameMapper getPropertyTypeNameMapper()
+    {
+        return propertyTypeNameMapper;
+    }
+
     public void setFileFormatTypesToProcess(Map<String, FileFormatType> fileFormatTypesToProcess)
     {
         this.fileFormatTypesToProcess = fileFormatTypesToProcess;
@@ -153,5 +180,15 @@ class MasterData
     public void setPropertyAssignmentsToProcess(MultiKeyMap<String, List<NewETPTAssignment>> propertyAssignmentsToProcess)
     {
         this.propertyAssignmentsToProcess = propertyAssignmentsToProcess;
+    }
+
+    public void setVocabularyNameMapper(NameMapper vocabularyNameMapper)
+    {
+        this.vocabularyNameMapper = vocabularyNameMapper;
+    }
+
+    public void setPropertyTypeNameMapper(NameMapper propertyTypeNameMapper)
+    {
+        this.propertyTypeNameMapper = propertyTypeNameMapper;
     }
 }

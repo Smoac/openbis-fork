@@ -58,7 +58,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentityHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
-import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
@@ -71,7 +70,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 @Entity
 @Table(name = TableNames.PROJECTS_TABLE, uniqueConstraints = {
         @UniqueConstraint(columnNames = { ColumnNames.CODE_COLUMN, ColumnNames.SPACE_COLUMN }) })
-@Friend(toClasses = ExperimentPE.class)
+@Friend(toClasses = { ExperimentPE.class, SamplePE.class })
 public final class ProjectPE extends AttachmentHolderPE implements Comparable<ProjectPE>,
         IIdAndCodeHolder, IModifierAndModificationDateBean, IIdentityHolder, Serializable
 {
@@ -94,6 +93,8 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
     private boolean spaceFrozen;
 
     private List<ExperimentPE> experiments = new ArrayList<ExperimentPE>();
+
+    private List<SamplePE> samples = new ArrayList<>();
 
     private String code;
 
@@ -194,6 +195,60 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
     public void setSpaceFrozen(boolean spaceFrozen)
     {
         this.spaceFrozen = spaceFrozen;
+    }
+
+    @OptimisticLock(excluded = true)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "projectInternal")
+    private List<SamplePE> getSamplesInternal()
+    {
+        return samples;
+    }
+
+    // hibernate only
+    @SuppressWarnings("unused")
+    private void setSamplesInternal(List<SamplePE> samples)
+    {
+        if (SamplePE.projectSamplesEnabled)
+        {
+            this.samples = samples;
+        }
+    }
+
+    @Transient
+    /* Note: modifications of the returned collection will result in an exception. */
+    public List<SamplePE> getSamples()
+    {
+        return new UnmodifiableListDecorator<SamplePE>(getSamplesInternal());
+    }
+
+    public void setSamples(List<SamplePE> samples)
+    {
+        if (SamplePE.projectSamplesEnabled)
+        {
+            getSamplesInternal().clear();
+            for (SamplePE sample : samples)
+            {
+                addSample(sample);
+            }
+        }
+    }
+
+    @Private
+    void addSample(SamplePE sample)
+    {
+        removeSample(sample);
+        sample.setProjectInternal(this);
+        getSamplesInternal().add(sample);
+    }
+
+    @Private
+    void removeSample(SamplePE sample)
+    {
+        ProjectPE project = sample.getProject();
+        if (project != null)
+        {
+            project.getSamplesInternal().remove(sample);
+        }
     }
 
     @OptimisticLock(excluded = true)

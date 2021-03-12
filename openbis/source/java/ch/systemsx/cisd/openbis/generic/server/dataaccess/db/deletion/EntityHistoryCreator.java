@@ -47,12 +47,12 @@ public class EntityHistoryCreator
 
     public void setEnabled(String s)
     {
-        if (s != null && s.length() > 0 && s.equalsIgnoreCase("true"))
-        {
-            enabled = true;
-        } else
+        if (s != null && s.length() > 0 && s.equalsIgnoreCase("false"))
         {
             enabled = false;
+        } else
+        {
+            enabled = true;
         }
     }
 

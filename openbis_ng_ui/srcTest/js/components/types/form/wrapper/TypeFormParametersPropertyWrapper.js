@@ -2,23 +2,13 @@ import AutocompleterField from '@src/js/components/common/form/AutocompleterFiel
 import SelectField from '@src/js/components/common/form/SelectField.jsx'
 import TextField from '@src/js/components/common/form/TextField.jsx'
 import CheckboxField from '@src/js/components/common/form/CheckboxField.jsx'
-import Message from '@src/js/components/common/form/Message.jsx'
 import TextFieldWrapper from '@srcTest/js/components/common/form/wrapper/TextFieldWrapper.js'
 import SelectFieldWrapper from '@srcTest/js/components/common/form/wrapper/SelectFieldWrapper.js'
 import CheckboxFieldWrapper from '@srcTest/js/components/common/form/wrapper/CheckboxFieldWrapper.js'
 import AutocompleterFieldWrapper from '@srcTest/js/components/common/form/wrapper/AutocompleterFieldWrapper.js'
-import MessageWrapper from '@srcTest/js/components/common/form/wrapper/MessageWrapper.js'
-import TypeFormParametersCommonWrapper from './TypeFormParametersCommonWrapper.js'
+import PageParametersPanelWrapper from '@srcTest/js/components/common/page/wrapper/PageParametersPanelWrapper'
 
-export default class TypeFormParametersPropertyWrapper extends TypeFormParametersCommonWrapper {
-  getMessages() {
-    const messages = []
-    this.findComponent(Message).forEach(message => {
-      messages.push(new MessageWrapper(message))
-    })
-    return messages
-  }
-
+export default class TypeFormParametersPropertyWrapper extends PageParametersPanelWrapper {
   getScope() {
     return new SelectFieldWrapper(
       this.findComponent(SelectField).filter({ name: 'scope' })

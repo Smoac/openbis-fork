@@ -22,7 +22,7 @@ async function testLoadNew() {
     },
     parameters: {
       type: {
-        title: 'Type',
+        title: 'New Object Type',
         code: {
           label: 'Code',
           value: null,
@@ -36,7 +36,7 @@ async function testLoadNew() {
           mode: 'edit'
         },
         validationPlugin: {
-          label: 'Validation Plugin',
+          label: 'Entity Validation Plugin',
           value: null,
           enabled: true,
           mode: 'edit'
@@ -88,7 +88,7 @@ async function testLoadExisting() {
     },
     parameters: {
       type: {
-        title: 'Type',
+        title: 'Object Type',
         code: {
           label: 'Code',
           value: fixture.TEST_SAMPLE_TYPE_DTO.getCode(),
@@ -100,7 +100,7 @@ async function testLoadExisting() {
           mode: 'view'
         },
         validationPlugin: {
-          label: 'Validation Plugin',
+          label: 'Entity Validation Plugin',
           value: fixture.TEST_SAMPLE_TYPE_DTO.validationPlugin.name,
           mode: 'view'
         }
@@ -140,7 +140,7 @@ async function testLoadExisting() {
     },
     parameters: {
       type: {
-        title: 'Type',
+        title: 'Object Type',
         code: {
           label: 'Code',
           value: fixture.TEST_SAMPLE_TYPE_DTO.getCode(),
@@ -154,7 +154,7 @@ async function testLoadExisting() {
           mode: 'edit'
         },
         validationPlugin: {
-          label: 'Validation Plugin',
+          label: 'Entity Validation Plugin',
           value: fixture.TEST_SAMPLE_TYPE_DTO.validationPlugin.name,
           enabled: true,
           mode: 'edit'

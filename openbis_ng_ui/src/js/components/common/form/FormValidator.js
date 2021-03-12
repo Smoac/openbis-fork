@@ -1,8 +1,10 @@
 import _ from 'lodash'
+import messages from '@src/js/common/messages.js'
 
 const CODE_PATTERN = /^[A-Z0-9_\-.]+$/i
 const INTERNAL_CODE_PATTERN = /^\$[A-Z0-9_\-.]+$/i
 const TERM_CODE_PATTERN = /^[A-Z0-9_\-.:]+$/i
+const USER_CODE_PATTERN = /^[A-Z0-9_\-.@]+$/i
 
 class FormValidator {
   static MODE_BASIC = 'basic'
@@ -25,7 +27,11 @@ class FormValidator {
       field.value === undefined ||
       field.value.trim() === ''
     ) {
-      this.addError(object, name, label + ' cannot be empty')
+      this.addError(
+        object,
+        name,
+        messages.get(messages.VALIDATION_CANNOT_BE_EMPTY, label)
+      )
     }
   }
 
@@ -49,7 +55,7 @@ class FormValidator {
     this.validatePattern(
       object,
       name,
-      label + ' can only contain A-Z, a-z, 0-9 and _, -, .',
+      messages.get(messages.VALIDATION_CODE_PATTERN, label),
       CODE_PATTERN
     )
   }
@@ -58,8 +64,7 @@ class FormValidator {
     this.validatePattern(
       object,
       name,
-      label +
-        ' has to start with $ and can only contain A-Z, a-z, 0-9 and _, -, .',
+      messages.get(messages.VALIDATION_INTERNAL_CODE_PATTERN, label),
       INTERNAL_CODE_PATTERN
     )
   }
@@ -68,8 +73,17 @@ class FormValidator {
     this.validatePattern(
       object,
       name,
-      label + ' can only contain A-Z, a-z, 0-9 and _, -, ., :',
+      messages.get(messages.VALIDATION_TERM_CODE_PATTERN, label),
       TERM_CODE_PATTERN
+    )
+  }
+
+  validateUserCode(object, name, label) {
+    this.validatePattern(
+      object,
+      name,
+      messages.get(messages.VALIDATION_USER_CODE_PATTERN, label),
+      USER_CODE_PATTERN
     )
   }
 

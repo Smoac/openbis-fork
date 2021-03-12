@@ -1,0 +1,24 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+repositories {
+    ivy {
+        ivyPattern "http://svnsis.ethz.ch/repos/cisd/ivy-repository/trunk/[organisation]/[module]/[revision]/ivy.xml"
+        artifactPattern "http://svnsis.ethz.ch/repos/cisd/ivy-repository/trunk/[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
+    }
+}
+
+dependencies {
+    compile 'eclipse:jetty-all:9.4.30.v20200611',
+            'lombok:lombok:1.18.12',
+            'log4j:log4j-api:2.10.0',
+            'log4j:log4j-core:2.10.0',
+            'fasterxml:jackson-annotations:2.9.10',
+            'fasterxml:jackson-core:2.9.10',
+            'fasterxml:jackson-databind:2.9.10',
+            'slf4j:slf4j-log4j12:1.7.30'
+
+    annotationProcessor 'lombok:lombok:1.18.12'
+}
+
+mainClassName = "ch.ethz.sis.microservices.download.server.startup.Main"

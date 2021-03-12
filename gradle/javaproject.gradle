@@ -173,13 +173,25 @@ def calculateBuildInfo() {
     version = "${project.ext.versionNumber}-r${project.ext.revisionNumber}"
     project.ext.revisionForPublication = project.ext.versionNumber.startsWith('SNAPSHOT') ? "r${project.ext.revisionNumber}" : project.ext.versionNumber
     project.ext.cleanFlag = calculateCleanFlag()
+
     def buildInfo = "${project.ext.versionNumber}:${project.ext.revisionNumber}:${project.ext.cleanFlag}"
+    def buildInfoDev = "${project.ext.versionNumber}-dev:${project.ext.revisionNumber}:${project.ext.cleanFlag}"
+
     println "BUILD INFO for $project: $buildInfo"
-    def targetsDist = 'targets/dist'
-    def distFolder = new File("${project.projectDir}/$targetsDist")
-    distFolder.deleteDir()
-    distFolder.mkdirs()
-    file("${project.projectDir}/$targetsDist/BUILD-${project.name}.INFO") << buildInfo
+
+    def targetsDistFolder = new File("${project.projectDir}/targets/dist")
+    targetsDistFolder.deleteDir()
+    targetsDistFolder.mkdirs()
+
+    def targetDistBuildInfo = new File(targetsDistFolder, "BUILD-${project.name}.INFO")
+    targetDistBuildInfo << buildInfo
+
+    def mainClassesFolder = new File("${project.projectDir}/targets/gradle/classes/java/main")
+    mainClassesFolder.mkdirs()
+
+    def mainClassesBuildInfo = new File(mainClassesFolder, "BUILD-${project.name}.INFO")
+    mainClassesBuildInfo.delete()
+    mainClassesBuildInfo << buildInfoDev
 }
 
 calculateBuildInfo()

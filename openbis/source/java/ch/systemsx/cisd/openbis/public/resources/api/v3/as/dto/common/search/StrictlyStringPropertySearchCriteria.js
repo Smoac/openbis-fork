@@ -21,6 +21,11 @@ define([ "stjs", "as/dto/common/search/StringFieldSearchCriteria", "as/dto/commo
 	stjs.extend(StrictlyStringPropertySearchCriteria, StringFieldSearchCriteria, [ StringFieldSearchCriteria ], function(constructor, prototype) {
 		prototype['@type'] = 'as.dto.common.search.StrictlyStringPropertySearchCriteria';
 		constructor.serialVersionUID = 1;
+
+		prototype.thatMatches = function (text) {
+			var StringMatchesValue = require("as/dto/common/search/StringMatchesValue");
+			this.setFieldValue(new StringMatchesValue(text));
+		}
 	}, {
 		fieldType : {
 			name : "Enum",

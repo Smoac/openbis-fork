@@ -17,12 +17,13 @@
 package ch.systemsx.cisd.etlserver.path;
 
 import java.util.Date;
+import java.util.Objects;
 
 import net.lemnik.eodsql.ResultColumn;
 
 /**
  * A DTO for path entries which are files.
- * 
+ *
  * @author Bernd Rinn
  */
 public class PathEntryDTO
@@ -50,7 +51,7 @@ public class PathEntryDTO
 
     @ResultColumn("checksum")
     private String checksum;
-    
+
     @ResultColumn("is_directory")
     private Boolean directory;
 
@@ -108,7 +109,7 @@ public class PathEntryDTO
         if (getClass() != obj.getClass())
             return false;
         PathEntryDTO other = (PathEntryDTO) obj;
-        if (dataSetId != other.dataSetId)
+        if (!Objects.equals(dataSetId, other.dataSetId))
             return false;
         if (fileName == null)
         {
@@ -165,13 +166,13 @@ public class PathEntryDTO
     {
         return s1OrNull == null ? s1OrNull == s2OrNull : s1OrNull.equals(s2OrNull);
     }
-    
+
     @Override
     public String toString()
     {
         return "PathEntryDTO [dataSetId=" + dataSetId + ", parentId=" + parentId
                 + ", relativePath=" + relativePath + ", fileName=" + fileName + ", sizeInBytes="
-                + sizeInBytes + ", checksumCRC32=" + checksumCRC32 + ", checksum=" + checksum 
+                + sizeInBytes + ", checksumCRC32=" + checksumCRC32 + ", checksum=" + checksum
                 + ", lastModifiedDate=" + lastModifiedDate + ", isDirectory=" + directory + "]";
     }
 
