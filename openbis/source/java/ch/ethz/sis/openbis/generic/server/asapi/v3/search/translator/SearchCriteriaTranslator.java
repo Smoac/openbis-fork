@@ -16,23 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator;
 
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.DISTINCT;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.EQ;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.FALSE;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.FROM;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.IN;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.LEFT_JOIN;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.LP;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.NL;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.ON;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.PERIOD;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.QU;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.RP;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.SELECT;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.SP;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.TRUE;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.UNNEST;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.WHERE;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.*;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.ID_COLUMN;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.METAPROJECT_ID_COLUMN;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.METAPROJECTS_TABLE;
@@ -77,7 +61,7 @@ public class SearchCriteriaTranslator
 
     public static final DateFormat DATE_FORMAT = new SimpleDateFormat(new ShortDateFormat().getFormat());
 
-    public static final String MAIN_TABLE_ALIAS = getAlias(new AtomicInteger(0));
+    public static final String MAIN_TABLE_ALIAS = TranslatorUtils.getAlias(new AtomicInteger(0));
 
     private SearchCriteriaTranslator()
     {
@@ -95,17 +79,17 @@ public class SearchCriteriaTranslator
         final String where = buildWhere(translationContext);
         final String select = buildSelect(translationContext);
 
-        return new SelectQuery(select  + NL + from + NL + where, translationContext.getArgs());
+        final String mainQuery = select + NL + from + NL + where;
+        return new SelectQuery(translationContext.getParentCriterion().isNegated()
+                ? select + NL + from + NL + WHERE + SP + MAIN_TABLE_ALIAS + PERIOD +
+                        translationContext.getIdColumnName() + SP + NOT + SP + IN + SP + LP + NL + mainQuery + NL + RP
+                : mainQuery, translationContext.getArgs());
     }
 
     private static String buildSelect(final TranslationContext translationContext)
     {
-        return SELECT + SP + DISTINCT + SP + MAIN_TABLE_ALIAS + PERIOD + translationContext.getIdColumnName();
-    }
-
-    private static String getAlias(final AtomicInteger num)
-    {
-        return "t" + num.getAndIncrement();
+        return SELECT + SP + (translationContext.getParentCriterion().isNegated() ? "" : DISTINCT) + SP +
+                MAIN_TABLE_ALIAS + PERIOD + translationContext.getIdColumnName();
     }
 
     private static String buildFrom(final TranslationContext translationContext)
@@ -126,7 +110,7 @@ public class SearchCriteriaTranslator
                 {
                     @SuppressWarnings("unchecked")
                     final Map<String, JoinInformation> joinInformationMap = conditionTranslator.getJoinInformationMap(criterion,
-                            tableMapper, () -> getAlias(indexCounter));
+                            tableMapper, () -> TranslatorUtils.getAlias(indexCounter));
 
                     if (joinInformationMap != null)
                     {
@@ -149,6 +133,13 @@ public class SearchCriteriaTranslator
         if (isSearchAllCriteria(criteria))
         {
             return WHERE + SP + TRUE;
+        } else if (isSearchAnyPropertyCriteria(criteria))
+        {
+            final StringBuilder resultSqlBuilder = new StringBuilder(WHERE + SP);
+            TranslatorUtils.appendPropertyValueCoalesce(resultSqlBuilder, translationContext.getTableMapper(),
+                    translationContext.getAliases().get(translationContext.getCriteria().iterator().next()));
+            resultSqlBuilder.append(SP).append(IS_NOT_NULL);
+            return resultSqlBuilder.toString();
         } else
         {
             final String logicalOperator = translationContext.getOperator().toString();
@@ -159,13 +150,16 @@ public class SearchCriteriaTranslator
                     (sqlBuilder, criterion) ->
                     {
                         sqlBuilder.append(separator).append(LP);
-                        appendCriterionCondition(translationContext, translationContext.getAuthorisationInformation(), sqlBuilder, criterion);
+                        appendCriterionCondition(translationContext, translationContext.getAuthorisationInformation(),
+                                sqlBuilder, criterion);
                         sqlBuilder.append(RP);
                     },
                     StringBuilder::append
             );
 
-            return WHERE + SP + resultSqlBuilder.substring(separator.length());
+
+            final String condition = resultSqlBuilder.substring(separator.length());
+            return WHERE + SP + condition;
         }
     }
 
@@ -425,6 +419,12 @@ public class SearchCriteriaTranslator
                 return false;
             }
         }
+    }
+
+    private static boolean isSearchAnyPropertyCriteria(final Collection<ISearchCriteria> criteria)
+    {
+        return criteria.stream().allMatch(criterion -> criterion instanceof AnyPropertySearchCriteria &&
+                ((AnyPropertySearchCriteria) criterion).getFieldValue() instanceof AnyStringValue);
     }
 
 }

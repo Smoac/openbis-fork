@@ -208,19 +208,20 @@ o.get_tags()
 The first step in creating a new entity type is to create a so called **property type**:
 
 ```
-pt = o.new_property_type(
+pt_text = o.new_property_type(
     code        = 'MY_NEW_PROPERTY_TYPE', 
     label       = 'yet another property type', 
     description = 'my first property',
     dataType    = 'VARCHAR',
 )
+pt_text.save()
 
 pt_int = o.new_property_type(
-    code        = '$DEFAULT_OBJECT_TYPE', 
-    label       = 'default object type for ELN-LIMS', 
-    dataType    = 'VARCHAR',
-    managedInternally = True,
+    code        = 'MY_NUMBER', 
+    label       = 'property contains a number', 
+    dataType    = 'INTEGER',
 )
+pt_int.save()
 
 pt_voc = o.new_property_type(
     code        = 'MY_CONTROLLED_VOCABULARY', 
@@ -229,6 +230,25 @@ pt_voc = o.new_property_type(
     dataType    = 'CONTROLLEDVOCABULARY',
     vocabulary  = 'STORAGE',
 )
+pt_voc.save()
+
+pt_richtext = o.new_property_type(
+    code        = 'MY_RICHTEXT_PROPERTY', 
+    label       = 'richtext data', 
+    description = 'property contains rich text',
+    dataType    = 'MULTILINE_VARCHAR',
+    metaData    = {'custom_widget' : 'Word Processor'}
+)
+pt_richtext.save()
+
+pt_spread = o.new_property_type(
+    code        = 'MY_TABULAR_DATA', 
+    label       = 'data in a table', 
+    description = 'property contains a spreadsheet',
+    dataType    = 'XML',
+    metaData    = {'custom_widget': 'Spreadsheet'}
+)
+pt_spread.save()
 ```
 
 The `dataType` attribute can contain any of these values:
@@ -244,7 +264,13 @@ The `dataType` attribute can contain any of these values:
 * `CONTROLLEDVOCABULARY`
 * `MATERIAL`
 
-When choosing `CONTROLLEDVOCABULARY`, you must specify a `vocabulary` attribute (see example). Likewise, when choosing `MATERIAL`, a `materialType` attribute must be provided. PropertyTypes that start with a \$ are by definition `managedInternally` and therefore this attribute must be set to True.
+When choosing `CONTROLLEDVOCABULARY`, you must specify a `vocabulary` attribute (see example). Likewise, when choosing `MATERIAL`, a `materialType` attribute must be provided.
+
+To create a **richtext property**, use `MULTILINE_VARCHAR` as `dataType` and set `metaData` to `{'custom_widget' : 'Word Processor'}` as shown in the example above.
+
+To create a **tabular, spreadsheet-like property**, use `XML` as `dataType` and set `metaData` to `{'custom_widget' : 'Spreadhseet'}`as shown in the example above.
+
+**Note**: PropertyTypes that start with a \$ are by definition `managedInternally` and therefore this attribute must be set to True.
 
 
 ## create sample types / object types
@@ -268,9 +294,6 @@ sample_type = o.new_sample_type(
 )
 sample_type.save()
 ```
-
-
-
 
 ## assign and revoke properties to sample type / object type
 
@@ -470,9 +493,15 @@ o.get_projects(space='MY_SPACE')
 space.get_projects()
 
 project.get_experiments()
-project.get_attachments()
-p.add_attachment(fileName='testfile', description= 'another file', title= 'one more attachment')
-project.download_attachments()
+
+project.get_attachments()             # deprecated, as attachments are not compatible with ELN-LIMS.
+                                      # Attachments are an old concept and should not be used anymore.
+p.add_attachment(                     # deprecated, see above
+    fileName='testfile',
+     description= 'another file',
+     title= 'one more attachment'
+)
+project.download_attachments()        # deprecated, see above
 
 # get individual attributes
 project.code
@@ -509,6 +538,7 @@ The new name for **experiment** is **collection**. You can use boths names inter
 
 ```
 exp = o.new_experiment
+    code='MY_NEW_EXPERIMENT',
     type='DEFAULT_EXPERIMENT',
     space='MY_SPACE',
     project='YEASTS'
@@ -649,9 +679,10 @@ sample.tags = ['guten_tag', 'zahl_tag' ]
 sample.attrs.all()                    # returns all attributes as a dict
 sample.props.all()                    # returns all properties as a dict
 
-sample.get_attachments()
-sample.download_attachments()
-sample.add_attachment('testfile.xls')
+sample.get_attachments()              # deprecated, as attachments are not compatible with ELN-LIMS.
+                                      # Attachments are an old concept and should not be used anymore.
+sample.download_attachments()         # deprecated, see above
+sample.add_attachment('testfile.xls') # deprecated, see above
 
 sample.delete('deleted for some reason')
 ```
@@ -717,6 +748,7 @@ sample.container = '/MY_SPACE/CONTAINER_SAMPLE_NAME'   # watch out, this will ch
 sample.container = ''                                  # this will remove the container. 
 
 # A Sample may contain other Samples, in order to act like a container (see above)
+# caveat: containers are NOT compatible with ELN-LIMS
 # The Sample-objects inside that Sample are called «components» or «contained Samples»
 # You may also use the xxx_contained() functions, which are just aliases.
 sample.get_components()
@@ -837,34 +869,52 @@ Datasets are by all means the most important openBIS entity. The actual files ar
                 * dataset
 
 ### working with existing dataSets
-```
-# search for datasets, see more search examples below
-datasets = sample.get_datasets(type='SCANS', start_with=0, count=10)
 
+
+**search for datasets**
+
+This example does the following
+
+* search for all datasets of type `SCANS`, retrieve the first 10 entries
+* print out all properties
+* print the list of all files in this dataset
+* download the dataset
+
+```
+datasets = sample.get_datasets(type='SCANS', start_with=0, count=10)
 for dataset in datasets:
-    print(dataset.props.all())
+    print(dataset.props())
     print(dataset.file_list)
     dataset.download()
 dataset = datasets[0]
+```
 
+**More dataset functions:**
+
+```
 ds = o.get_dataset('20160719143426517-259')
 ds.get_parents()
 ds.get_children()
 ds.sample
 ds.experiment
 ds.physicalData
-ds.status                         # AVAILABLE LOCKED ARCHIVED 
-                                  # ARCHIVE_PENDING UNARCHIVE_PENDING
+ds.status                         # AVAILABLE   LOCKED   ARCHIVED 
+                                  # ARCHIVE_PENDING   UNARCHIVE_PENDING
                                   # BACKUP_PENDING
-ds.archive()
-ds.unarchive()
+ds.archive()                      # archives a dataset, i.e. moves it to a slower but cheaper diskspace (tape).
+                                  # archived datasets cannot be downloaded, they need to be unarchived first.
+                                  # This is an asynchronous process,
+                                  # check ds.status regularly until the dataset becomes 'ARCHIVED'
+ds.unarchive()                    # this starts an asynchronous process which gets the dataset from the tape.
+                                  # Check ds.status regularly until it becomes 'AVAILABLE'
 
 ds.attrs.all()                    # returns all attributes as a dict
 ds.props.all()                    # returns all properties as a dict
 
-ds.add_attachment()               # attachments usually contain meta-data
+ds.add_attachment()               # Deprecated. Attachments usually contain meta-data
 ds.get_attachments()              # about the dataSet, not the data itself.
-ds.download_attachments()
+ds.download_attachments()         # Deprecated, as attachments are not compatible with ELN-LIMS.
+                                  # Attachments are an old concept and should not be used anymore.
 ```
 
 ### download dataSets
@@ -874,15 +924,17 @@ o.download_prefix                  # used for download() and symlink() method.
                                    # Is set to data/hostname by default, but can be changed.
 ds.get_files(start_folder="/")     # get file list as Pandas dataFrame
 ds.file_list                       # get file list as array
+ds.file_links                      # file list as a dict containing direct https links
 
-ds.download()                      # simply download all files to data/hostnae/permId/
+ds.download()                      # simply download all files to data/hostname/permId/
 ds.download(
 	destination = 'my_data',        # download files to folder my_data/
 	create_default_folders = False, # ignore the /original/DEFAULT folders made by openBIS
 	wait_until_finished = False,    # download in background, continue immediately
 	workers = 10                    # 10 downloads parallel (default)
 )
-ds.is_physical()                   # TRUE if dataset has been physically downloaded
+ds.download_path                   # returns the relative path (destination) of the files after a ds.download()
+ds.is_physical()                   # TRUE if dataset is physically 
 ```
 
 ### link dataSets
@@ -1046,7 +1098,7 @@ ds_new.save()
 * relative path will be shortened to its basename. For example:
 
 | local                      | openBIS    |
-|----------------------------|------------|
+| -------------------------- | ---------- |
 | `../../myData/`            | `myData/`  |
 | `some/experiment/results/` | `results/` |
 
@@ -1096,6 +1148,7 @@ dataset.del_children(['20170115220259155-412'])
 
 * A DataSet may belong to other DataSets, which must be of kind=CONTAINER
 * As opposed to Samples, DataSets may belong (contained) to more than one DataSet-container
+* caveat: containers are NOT compatible with ELN-LIMS
 
 ```
 dataset.get_containers()
@@ -1107,6 +1160,7 @@ dataset.del_containers(['20170115220259155-412'])
 * a DataSet of kind=CONTAINER may contain other DataSets, to act like a folder (see above)
 * the DataSet-objects inside that DataSet are called components or contained DataSets
 * you may also use the xxx_contained() functions, which are just aliases.
+* caveat: components are NOT compatible with ELN-LIMS
 
 ```
 dataset.get_components()
@@ -1268,3 +1322,89 @@ term.move_after_term('-40')
 term.save()
 term.delete()
 ```
+
+## Change ELN Settings via pyBIS
+
+### Main Menu
+
+The ELN settings are stored as a **JSON string** in the `$eln_settings` property of the `GENERAL_ELN_SETTINGS` sample. You can show the **Main Menu settings** like this:
+
+```python
+import json
+settings_sample = o.get_sample("/ELN_SETTINGS/GENERAL_ELN_SETTINGS")
+settings = json.loads(settings_sample.props["$eln_settings"])
+print(settings["mainMenu"])
+{'showLabNotebook': True,
+ 'showInventory': True,
+ 'showStock': True,
+ 'showObjectBrowser': True,
+ 'showExports': True,
+ 'showStorageManager': True,
+ 'showAdvancedSearch': True,
+ 'showUnarchivingHelper': True,
+ 'showTrashcan': False,
+ 'showVocabularyViewer': True,
+ 'showUserManager': True,
+ 'showUserProfile': True,
+ 'showZenodoExportBuilder': False,
+ 'showBarcodes': False,
+ 'showDatasets': True}
+ ```
+
+To modify the **Main Menu settings**, you have to change the settings dictionary, convert it back to json and save the sample:
+
+```python
+settings['mainMenu']['showTrashcan'] = False
+settings_sample.props['$eln_settings'] = json.dumps(settings)
+settings_sample.save()
+```
+
+### Storages
+
+The **ELN storages settings** can be found in the samples of project `/ELN_SETTINGS/STORAGES`
+
+```python
+o.get_samples(project='/ELN_SETTINGS/STORAGES')
+```
+To change the settings, just change the sample's properties and save the sample:
+
+```python
+sto = o.get_sample('/ELN_SETTINGS/STORAGES/BENCH')
+sto.props()
+{'$name': 'Bench',
+ '$storage.row_num': '1',
+ '$storage.column_num': '1',
+ '$storage.box_num': '9999',
+ '$storage.storage_space_warning': '80',
+ '$storage.box_space_warning': '80',
+ '$storage.storage_validation_level': 'BOX_POSITION',
+ '$xmlcomments': None,
+ '$annotations_state': None}
+ sto.props['$storage.box_space_warning']= '80'
+ sto.save()
+ ```
+ 
+### Templates
+
+The **ELN templates settings** can be found in the samples of project `/ELN_SETTINGS/TEMPLATES`
+
+```python
+o.get_samples(project='/ELN_SETTINGS/TEMPLATES')
+```
+
+To change the settings, use the same technique as shown above with the storages settings. 
+
+### Custom Widgets
+
+To change the **Custom Widgets settings**, get the `property_type` and set the `metaData` attribute:
+
+
+```python
+pt = o.get_property_type('YEAST.SOURCE')
+pt.metaData = {'custom_widget': 'Spreadsheet'}
+pt.save()
+```
+
+Currently, the value of the `custom_widget` key can be set to either 
+- `Spreadsheet` (for tabular, Excel-like data) 
+- `Word Processor` (for rich text data)

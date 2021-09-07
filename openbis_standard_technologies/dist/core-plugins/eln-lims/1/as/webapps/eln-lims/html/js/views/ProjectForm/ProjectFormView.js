@@ -58,7 +58,7 @@ function ProjectFormView(projectFormController, projectFormModel) {
 			var experimentKindName = ELNDictionary.getExperimentKindName(projectIdentifier);
 			if (_this._allowedToCreateExperiments()) {
 				//Create Experiment
-				var experimentTypes = mainController.profile.allExperimentTypes;
+				var experimentTypes = mainController.profile.getExperimentTypes();
 				FormUtil.addCreationDropdown(toolbarModel, experimentTypes, ["DEFAULT_EXPERIMENT", "COLLECTION"], function(typeCode) {
 					return function() {
 						Util.blockUI();
@@ -348,6 +348,6 @@ function ProjectFormView(projectFormController, projectFormModel) {
 	
 	this._allowedToDelete = function() {
 		var project = this._projectFormModel.v3_project;
-		return project.frozen == false && project.space.frozenForProjects == false;
+		return (project.frozen == false && project.space.frozenForProjects == false) && this._allowedToMove();
 	};
 }

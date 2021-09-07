@@ -100,7 +100,22 @@ public class GlobalSearchTest extends AbstractTest
         assertEquals(result.getObjects().size(), 1);
 
         GlobalSearchObject object = result.getObjects().get(0);
-        assertSample(object, "200902091219327-1025", "/CISD/CP-TEST-1", "Perm ID: 200902091219327-1025", true);
+        assertSample(object, "200902091219327-1025", "/CISD/NEMO/CP-TEST-1", "Perm ID: 200902091219327-1025", true);
+    }
+
+    @Test
+    public void testSearchWithContainsAuthorized()
+    {
+        final GlobalSearchCriteria criteria = new GlobalSearchCriteria();
+        criteria.withText().thatContains("200902091219327-1025");
+
+        final GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
+        fo.withMatch();
+        SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, fo);
+        assertEquals(result.getObjects().size(), 1);
+
+        final GlobalSearchObject object = result.getObjects().get(0);
+        assertSample(object, "200902091219327-1025", "/CISD/NEMO/CP-TEST-1", "Perm ID: 200902091219327-1025", false);
     }
 
     @Test
@@ -108,6 +123,17 @@ public class GlobalSearchTest extends AbstractTest
     {
         GlobalSearchCriteria criteria = new GlobalSearchCriteria();
         criteria.withText().thatMatches("200902091219327-1025");
+
+        SearchResult<GlobalSearchObject> result = search(TEST_SPACE_USER, criteria,
+                new GlobalSearchObjectFetchOptions());
+        assertEquals(result.getObjects().size(), 0);
+    }
+
+    @Test
+    public void testSearchSamplesWithContainsUnauthorized()
+    {
+        GlobalSearchCriteria criteria = new GlobalSearchCriteria();
+        criteria.withText().thatContains("200902091219327-1025");
 
         SearchResult<GlobalSearchObject> result = search(TEST_SPACE_USER, criteria,
                 new GlobalSearchObjectFetchOptions());
@@ -160,10 +186,24 @@ public class GlobalSearchTest extends AbstractTest
     }
 
     @Test
-    public void testSearchWithOneContainsOneWord()
+    public void testSearchWithOneStartsWithOneWord()
     {
         final GlobalSearchCriteria criteria = new GlobalSearchCriteria();
-        criteria.withText().thatContains("stuff");
+        criteria.withText().thatStartsWith("stu");
+
+        final GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
+        fo.withMatch();
+        final SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, fo);
+
+        assertStuff(result);
+    }
+
+    @Test
+    public void testSearchWithOneStartsWithOneWordMatchingDifferentWords()
+    {
+        final GlobalSearchCriteria criteria = new GlobalSearchCriteria();
+        criteria.withObjectKind().thatIn(GlobalSearchObjectKind.SAMPLE);
+        criteria.withText().thatStartsWith("co");
 
         final GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
         fo.withMatch();
@@ -171,6 +211,30 @@ public class GlobalSearchTest extends AbstractTest
 
         List<GlobalSearchObject> objects = result.getObjects();
         assertEquals(objects.size(), 3);
+        final GlobalSearchObject obj1 = findObjectByPermId(objects, "200811050919915-8");
+        final GlobalSearchObject obj2 = findObjectByPermId(objects, "200811050946559-981");
+        final GlobalSearchObject obj3 = findObjectByPermId(objects, "201206191219327-1055");
+
+        assertSample(obj1, "200811050919915-8", "/CISD/CL1", "Property 'Description': test control layout", true);
+        assertSample(obj2, "200811050946559-981", "/CISD/3VCP7", "Property 'Comment': test comment", true);
+        assertSample(obj3, "201206191219327-1055", "/TEST-SPACE/TEST-PROJECT/EV-TEST", "Property 'Comment': test comment", true);
+    }
+
+    @Test
+    public void testSearchWithOneContainsOneWord()
+    {
+        final GlobalSearchCriteria criteria = new GlobalSearchCriteria();
+        final String searchTerm = "stuff";
+        criteria.withText().thatContains(searchTerm);
+
+        final GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
+        fo.withMatch();
+        final SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, fo);
+
+        final List<GlobalSearchObject> objects = result.getObjects();
+        assertEquals(objects.size(), 3);
+
+        objects.forEach(globalSearchObject -> assertNotNull(globalSearchObject.getMatch()));
 
         final Set<String> permIds = objects.stream().map(object -> object.getObjectPermId().toString())
                 .collect(Collectors.toSet());
@@ -197,6 +261,7 @@ public class GlobalSearchTest extends AbstractTest
     public void testSearchWithOneContainsMultipleWords()
     {
         final GlobalSearchCriteria criteria = new GlobalSearchCriteria();
+        criteria.withOperator(SearchOperator.OR);
         criteria.withText().thatContains("simple stuff");
 
         final GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
@@ -317,15 +382,16 @@ public class GlobalSearchTest extends AbstractTest
         fo.withMatch();
         final SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, fo);
 
-        List<GlobalSearchObject> objects = result.getObjects();
+        final List<GlobalSearchObject> objects = result.getObjects();
         assertEquals(objects.size(), 1);
-        Iterator<GlobalSearchObject> iter = objects.iterator();
+        final Iterator<GlobalSearchObject> iter = objects.iterator();
 
-        assertSample(iter.next(), "200902091250077-1026", "/CISD/CP-TEST-2", "", false);
+        assertSample(iter.next(), "200902091250077-1026", "/CISD/NOE/CP-TEST-2",
+                "Property 'Comment': extremely simple stuff", false);
     }
 
     @Test
-    public void testSearchWithMatchWithAndOperator()
+    public void testSearchWithMatchWithAndOperatorMatchingSameProperty()
     {
         final GlobalSearchCriteria criteria = new GlobalSearchCriteria();
         criteria.withOperator(SearchOperator.AND);
@@ -337,6 +403,30 @@ public class GlobalSearchTest extends AbstractTest
         final SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, fo);
 
         assertSimpleStuff(result);
+    }
+
+    @Test
+    public void testSearchWithContainsWithAndOperatorMatchingDifferentProperties()
+    {
+        final GlobalSearchCriteria criteria = new GlobalSearchCriteria();
+        criteria.withOperator(SearchOperator.AND);
+        criteria.withText().thatContains("human");
+        criteria.withText().thatContains("stuff");
+
+        final GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
+        fo.withMatch();
+        final SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, fo);
+
+        final List<GlobalSearchObject> objects = result.getObjects();
+        assertEquals(result.getTotalCount(), 1);
+        assertEquals(objects.size(), 1);
+
+        final GlobalSearchObject object = objects.iterator().next();
+        assertNotNull(object);
+        assertNotNull(object.getMatch());
+        assertEquals(object.getObjectKind(), GlobalSearchObjectKind.SAMPLE);
+        assertEquals(object.getObjectPermId(), new SamplePermId("200902091219327-1025"));
+        assertEquals(object.getObjectIdentifier(), new SampleIdentifier("/CISD/NEMO/CP-TEST-1"));
     }
 
     @Test
@@ -355,36 +445,149 @@ public class GlobalSearchTest extends AbstractTest
     }
 
     @Test
-    public void testSearchWithObjectKindsSpecified()
+    public void testSearchWithStartsWithWithOrOperator()
+    {
+        final GlobalSearchCriteria criteria = new GlobalSearchCriteria();
+        criteria.withOperator(SearchOperator.OR);
+        criteria.withText().thatMatches("simple");
+        criteria.withText().thatStartsWith("stu");
+
+        final GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
+        fo.withMatch();
+        final SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, fo);
+
+        assertSimpleOrStuff(result);
+    }
+
+    @Test
+    public void testSearchWithContainsWithOrOperator()
+    {
+        final GlobalSearchCriteria criteria = new GlobalSearchCriteria();
+        criteria.withOperator(SearchOperator.OR);
+        criteria.withText().thatContains("simple stuff");
+
+        final GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
+        fo.withMatch();
+        final SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, fo);
+
+        final List<GlobalSearchObject> objects = result.getObjects();
+        assertEquals(objects.size(), 8);
+
+        objects.forEach(globalSearchObject -> assertNotNull(globalSearchObject.getMatch()));
+
+        final GlobalSearchObject[] searchObjects = new GlobalSearchObject[] {
+                findObjectByPermId(objects, "200902091219327-1025"),
+                findObjectByPermId(objects, "200902091250077-1026"),
+                findObjectByPermId(objects, "200902091225616-1027"),
+                findObjectByPermId(objects, "200811050951882-1028"),
+                findObjectByPermId(objects, "200811050952663-1029"),
+                findObjectByPermId(objects, "200811050952663-1030"),
+                findObjectByPermId(objects, "201108050937246-1031"),
+                findObjectByPermId(objects, "HSV1 (VIRUS)"),
+        };
+
+        assertEquals(searchObjects[0].getObjectKind(), GlobalSearchObjectKind.SAMPLE);
+        assertEquals(searchObjects[0].getObjectPermId(), new SamplePermId("200902091219327-1025"));
+        assertEquals(searchObjects[0].getObjectIdentifier(), new SampleIdentifier("/CISD/NEMO/CP-TEST-1"));
+
+        assertEquals(searchObjects[1].getObjectKind(), GlobalSearchObjectKind.SAMPLE);
+        assertEquals(searchObjects[1].getObjectPermId(), new SamplePermId("200902091250077-1026"));
+        assertEquals(searchObjects[1].getObjectIdentifier(), new SampleIdentifier("/CISD/NOE/CP-TEST-2"));
+
+        assertEquals(searchObjects[2].getObjectKind(), GlobalSearchObjectKind.SAMPLE);
+        assertEquals(searchObjects[2].getObjectPermId(), new SamplePermId("200902091225616-1027"));
+        assertEquals(searchObjects[2].getObjectIdentifier(), new SampleIdentifier("/CISD/NEMO/CP-TEST-3"));
+
+        assertEquals(searchObjects[3].getObjectKind(), GlobalSearchObjectKind.EXPERIMENT);
+        assertEquals(searchObjects[3].getObjectPermId(), new ExperimentPermId("200811050951882-1028"));
+        assertEquals(searchObjects[3].getObjectIdentifier(), new ExperimentIdentifier("/CISD/NEMO/EXP1"));
+
+        assertEquals(searchObjects[4].getObjectKind(), GlobalSearchObjectKind.EXPERIMENT);
+        assertEquals(searchObjects[4].getObjectPermId(), new ExperimentPermId("200811050952663-1029"));
+        assertEquals(searchObjects[4].getObjectIdentifier(), new ExperimentIdentifier("/CISD/NEMO/EXP10"));
+
+        assertEquals(searchObjects[5].getObjectKind(), GlobalSearchObjectKind.EXPERIMENT);
+        assertEquals(searchObjects[5].getObjectPermId(), new ExperimentPermId("200811050952663-1030"));
+        assertEquals(searchObjects[5].getObjectIdentifier(), new ExperimentIdentifier("/CISD/NEMO/EXP11"));
+
+        assertEquals(searchObjects[6].getObjectKind(), GlobalSearchObjectKind.EXPERIMENT);
+        assertEquals(searchObjects[6].getObjectPermId(), new ExperimentPermId("201108050937246-1031"));
+        assertEquals(searchObjects[6].getObjectIdentifier(), new ExperimentIdentifier("/CISD/DEFAULT/EXP-Y"));
+
+        assertEquals(searchObjects[7].getObjectKind(), GlobalSearchObjectKind.MATERIAL);
+        assertEquals(searchObjects[7].getObjectPermId(), new MaterialPermId("HSV1", "VIRUS"));
+        assertEquals(searchObjects[7].getObjectIdentifier(), new MaterialPermId("HSV1", "VIRUS"));
+    }
+
+    @Test
+    public void testSearchWithMatchesWithObjectKindsSpecified()
     {
         GlobalSearchObject object;
 
         // experiment
-        object = searchAndAssertOneOrNone("200811050951882-1028", true, GlobalSearchObjectKind.EXPERIMENT);
+        object = searchAndAssertOneOrNone("200811050951882-1028", MatchType.MATCHES, GlobalSearchObjectKind.EXPERIMENT);
         assertExperiment(object, "200811050951882-1028", "/CISD/NEMO/EXP1", "Perm ID: 200811050951882-1028", true);
 
-        object = searchAndAssertOneOrNone("200811050951882-1028", true, GlobalSearchObjectKind.SAMPLE);
+        object = searchAndAssertOneOrNone("200811050951882-1028", MatchType.MATCHES, GlobalSearchObjectKind.SAMPLE);
         assertNull(object);
 
         // sample
-        object = searchAndAssertOneOrNone("200902091219327-1025", true, GlobalSearchObjectKind.SAMPLE);
-        assertSample(object, "200902091219327-1025", "/CISD/CP-TEST-1", "Perm ID: 200902091219327-1025", true);
+        object = searchAndAssertOneOrNone("200902091219327-1025", MatchType.MATCHES, GlobalSearchObjectKind.SAMPLE);
+        assertSample(object, "200902091219327-1025", "/CISD/NEMO/CP-TEST-1", "Perm ID: 200902091219327-1025", true);
 
-        object = searchAndAssertOneOrNone("200902091219327-1025", true, GlobalSearchObjectKind.DATA_SET);
+        object = searchAndAssertOneOrNone("200902091219327-1025", MatchType.MATCHES, GlobalSearchObjectKind.DATA_SET);
         assertNull(object);
 
         // data set
-        object = searchAndAssertOneOrNone("20081105092159111-1", true, GlobalSearchObjectKind.DATA_SET);
+        object = searchAndAssertOneOrNone("20081105092159111-1", MatchType.MATCHES, GlobalSearchObjectKind.DATA_SET);
         assertDataSet(object, "20081105092159111-1", "Perm ID: 20081105092159111-1", DataSetKind.PHYSICAL, true);
 
-        object = searchAndAssertOneOrNone("20081105092159111-1", true, GlobalSearchObjectKind.MATERIAL);
+        object = searchAndAssertOneOrNone("20081105092159111-1", MatchType.MATCHES, GlobalSearchObjectKind.MATERIAL);
         assertNull(object);
 
         // material
-        object = searchAndAssertOneOrNone("HSV1", true, GlobalSearchObjectKind.MATERIAL);
+        object = searchAndAssertOneOrNone("HSV1", MatchType.MATCHES, GlobalSearchObjectKind.MATERIAL);
         assertMaterial(object, "HSV1", "VIRUS", "Identifier: HSV1 (VIRUS)", true);
 
-        object = searchAndAssertOneOrNone("HSV1", true, GlobalSearchObjectKind.EXPERIMENT);
+        object = searchAndAssertOneOrNone("HSV1", MatchType.MATCHES, GlobalSearchObjectKind.EXPERIMENT);
+        assertNull(object);
+    }
+
+    @Test
+    public void testSearchWithStartsWithWithObjectKindsSpecified()
+    {
+        GlobalSearchObject object;
+
+        // experiment
+        object = searchAndAssertOneOrNone("200811050951882-1028", MatchType.STARTS_WITH,
+                GlobalSearchObjectKind.EXPERIMENT);
+        assertExperiment(object, "200811050951882-1028", "/CISD/NEMO/EXP1", "Perm ID: 200811050951882-1028", true);
+
+        object = searchAndAssertOneOrNone("200811050951882-1028", MatchType.STARTS_WITH, GlobalSearchObjectKind.SAMPLE);
+        assertNull(object);
+
+        // sample
+        object = searchAndAssertOneOrNone("200902091219327-1025", MatchType.STARTS_WITH, GlobalSearchObjectKind.SAMPLE);
+        assertSample(object, "200902091219327-1025", "/CISD/NEMO/CP-TEST-1", "Perm ID: 200902091219327-1025", true);
+
+        object = searchAndAssertOneOrNone("200902091219327-1025", MatchType.STARTS_WITH,
+                GlobalSearchObjectKind.DATA_SET);
+        assertNull(object);
+
+        // data set
+        object = searchAndAssertOneOrNone("20081105092159111-1", MatchType.STARTS_WITH,
+                GlobalSearchObjectKind.DATA_SET);
+        assertDataSet(object, "20081105092159111-1", "Perm ID: 20081105092159111-1", DataSetKind.PHYSICAL, true);
+
+        object = searchAndAssertOneOrNone("20081105092159111-1", MatchType.STARTS_WITH,
+                GlobalSearchObjectKind.MATERIAL);
+        assertNull(object);
+
+        // material
+        object = searchAndAssertOneOrNone("HSV1", MatchType.STARTS_WITH, GlobalSearchObjectKind.MATERIAL);
+        assertMaterial(object, "HSV1", "VIRUS", "Identifier: HSV1 (VIRUS)", true);
+
+        object = searchAndAssertOneOrNone("HSV1", MatchType.STARTS_WITH, GlobalSearchObjectKind.EXPERIMENT);
         assertNull(object);
     }
 
@@ -394,53 +597,76 @@ public class GlobalSearchTest extends AbstractTest
         GlobalSearchObject object;
 
         // experiment
-        object = searchAndAssertOneOrNone("200811050951882-1028", false, GlobalSearchObjectKind.EXPERIMENT);
+        object = searchAndAssertOneOrNone("200811050951882-1028", MatchType.CONTAINS,
+                GlobalSearchObjectKind.EXPERIMENT);
         assertExperiment(object, "200811050951882-1028", "/CISD/NEMO/EXP1", null, false);
 
-        object = searchAndAssertOneOrNone("200811050951882-1028", false, GlobalSearchObjectKind.SAMPLE);
+        object = searchAndAssertOneOrNone("200811050951882-1028", MatchType.CONTAINS, GlobalSearchObjectKind.SAMPLE);
         assertNull(object);
 
         // sample
-        object = searchAndAssertOneOrNone("200902091219327-1025", false, GlobalSearchObjectKind.SAMPLE);
-        assertSample(object, "200902091219327-1025", "/CISD/CP-TEST-1", null, false);
+        object = searchAndAssertOneOrNone("200902091219327-1025", MatchType.CONTAINS, GlobalSearchObjectKind.SAMPLE);
+        assertSample(object, "200902091219327-1025", "/CISD/NEMO/CP-TEST-1", "Perm ID: 200902091219327-1025", false);
 
-        object = searchAndAssertOneOrNone("200902091219327-1025", false, GlobalSearchObjectKind.DATA_SET);
+        object = searchAndAssertOneOrNone("200902091219327-1025", MatchType.CONTAINS, GlobalSearchObjectKind.DATA_SET);
         assertNull(object);
 
         // data set
-        object = searchAndAssertOneOrNone("20081105092159111-1", false, GlobalSearchObjectKind.DATA_SET);
+        object = searchAndAssertOneOrNone("20081105092159111-1", MatchType.CONTAINS, GlobalSearchObjectKind.DATA_SET);
         assertDataSet(object, "20081105092159111-1", null, DataSetKind.PHYSICAL, false);
 
-        object = searchAndAssertOneOrNone("20081105092159111-1", false, GlobalSearchObjectKind.MATERIAL);
+        object = searchAndAssertOneOrNone("20081105092159111-1", MatchType.CONTAINS, GlobalSearchObjectKind.MATERIAL);
         assertNull(object);
 
         // material
-        object = searchAndAssertOneOrNone("HSV1", false, GlobalSearchObjectKind.MATERIAL);
+        object = searchAndAssertOneOrNone("HSV1", MatchType.CONTAINS, GlobalSearchObjectKind.MATERIAL);
         assertMaterial(object, "HSV1", "VIRUS", null, false);
 
-        object = searchAndAssertOneOrNone("HSV1", false, GlobalSearchObjectKind.EXPERIMENT);
+        object = searchAndAssertOneOrNone("HSV1", MatchType.CONTAINS, GlobalSearchObjectKind.EXPERIMENT);
         assertNull(object);
     }
 
     @Test
-    public void testSearchWithObjectKindsNotSpecified()
+    public void testSearchWithMatchWithObjectKindsNotSpecified()
     {
         GlobalSearchObject object;
 
         // experiment
-        object = searchAndAssertOneOrNone("200811050951882-1028", true);
+        object = searchAndAssertOneOrNone("200811050951882-1028", MatchType.MATCHES);
         assertExperiment(object, "200811050951882-1028", "/CISD/NEMO/EXP1", "Perm ID: 200811050951882-1028", true);
 
         // sample
-        object = searchAndAssertOneOrNone("200902091219327-1025", true);
-        assertSample(object, "200902091219327-1025", "/CISD/CP-TEST-1", "Perm ID: 200902091219327-1025", true);
+        object = searchAndAssertOneOrNone("200902091219327-1025", MatchType.MATCHES);
+        assertSample(object, "200902091219327-1025", "/CISD/NEMO/CP-TEST-1", "Perm ID: 200902091219327-1025", true);
 
         // data set
-        object = searchAndAssertOneOrNone("20081105092159111-1", true);
+        object = searchAndAssertOneOrNone("20081105092159111-1", MatchType.MATCHES);
         assertDataSet(object, "20081105092159111-1", "Perm ID: 20081105092159111-1", DataSetKind.PHYSICAL, true);
 
         // material
-        object = searchAndAssertOneOrNone("HSV1", true);
+        object = searchAndAssertOneOrNone("HSV1", MatchType.MATCHES);
+        assertMaterial(object, "HSV1", "VIRUS", "Identifier: HSV1 (VIRUS)", true);
+    }
+
+    @Test
+    public void testSearchWithStartsWithWithObjectKindsNotSpecified()
+    {
+        GlobalSearchObject object;
+
+        // experiment
+        object = searchAndAssertOneOrNone("200811050951882-1028", MatchType.STARTS_WITH);
+        assertExperiment(object, "200811050951882-1028", "/CISD/NEMO/EXP1", "Perm ID: 200811050951882-1028", true);
+
+        // sample
+        object = searchAndAssertOneOrNone("200902091219327-1025", MatchType.STARTS_WITH);
+        assertSample(object, "200902091219327-1025", "/CISD/NEMO/CP-TEST-1", "Perm ID: 200902091219327-1025", true);
+
+        // data set
+        object = searchAndAssertOneOrNone("20081105092159111-1", MatchType.STARTS_WITH);
+        assertDataSet(object, "20081105092159111-1", "Perm ID: 20081105092159111-1", DataSetKind.PHYSICAL, true);
+
+        // material
+        object = searchAndAssertOneOrNone("HSV1", MatchType.STARTS_WITH);
         assertMaterial(object, "HSV1", "VIRUS", "Identifier: HSV1 (VIRUS)", true);
     }
 
@@ -450,19 +676,19 @@ public class GlobalSearchTest extends AbstractTest
         GlobalSearchObject object;
 
         // experiment
-        object = searchAndAssertOneOrNone("200811050951882-1028", false);
+        object = searchAndAssertOneOrNone("200811050951882-1028", MatchType.CONTAINS);
         assertExperiment(object, "200811050951882-1028", "/CISD/NEMO/EXP1", null, false);
 
         // sample
-        object = searchAndAssertOneOrNone("200902091219327-1025", false);
-        assertSample(object, "200902091219327-1025", "/CISD/CP-TEST-1", null, false);
+        object = searchAndAssertOneOrNone("200902091219327-1025", MatchType.CONTAINS);
+        assertSample(object, "200902091219327-1025", "/CISD/NEMO/CP-TEST-1", "Perm ID: 200902091219327-1025", false);
 
         // data set
-        object = searchAndAssertOneOrNone("20081105092159111-1", false);
+        object = searchAndAssertOneOrNone("20081105092159111-1", MatchType.CONTAINS);
         assertDataSet(object, "20081105092159111-1", null, DataSetKind.PHYSICAL, false);
 
         // material
-        object = searchAndAssertOneOrNone("HSV1", false);
+        object = searchAndAssertOneOrNone("HSV1", MatchType.CONTAINS);
         assertMaterial(object, "HSV1", "VIRUS", null, false);
     }
 
@@ -473,9 +699,17 @@ public class GlobalSearchTest extends AbstractTest
         criteria.withText().thatContains("stuf*");
         criteria.withWildCards();
 
-        SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, new GlobalSearchObjectFetchOptions());
+        final GlobalSearchObjectFetchOptions fetchOptions = new GlobalSearchObjectFetchOptions();
+        fetchOptions.withMatch();
+
+        SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, fetchOptions);
         List<GlobalSearchObject> objects = result.getObjects();
         assertEquals(objects.size(), 3);
+
+        objects.forEach(globalSearchObject -> {
+            assertNotNull(globalSearchObject.getMatch());
+            assertFalse(globalSearchObject.getMatch().isEmpty());
+        });
 
         final Set<String> objectPermIds = objects.stream().map(object -> object.getObjectPermId().toString())
                 .collect(Collectors.toSet());
@@ -511,12 +745,16 @@ public class GlobalSearchTest extends AbstractTest
         criteria.withText().thatContainsExactly("simple stuf*");
         criteria.withWildCards();
 
-        SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, new GlobalSearchObjectFetchOptions());
+        final GlobalSearchObjectFetchOptions fetchOptions = new GlobalSearchObjectFetchOptions();
+        fetchOptions.withMatch();
+
+        SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, fetchOptions);
         List<GlobalSearchObject> objects = result.getObjects();
         assertEquals(objects.size(), 1);
-
+        assertNotNull(objects.get(0).getMatch());
+        assertFalse(objects.get(0).getMatch().isEmpty());
         assertEquals(objects.get(0).getObjectPermId().toString(), "200902091250077-1026");
-        assertEquals(objects.get(0).getObjectIdentifier().toString(), "/CISD/CP-TEST-2");
+        assertEquals(objects.get(0).getObjectIdentifier().toString(), "/CISD/NOE/CP-TEST-2");
     }
 
     @Test
@@ -649,8 +887,7 @@ public class GlobalSearchTest extends AbstractTest
         assertSorted(objects, globalSearchObject -> globalSearchObject.getObjectPermId().toString(), false);
     }
 
-    // Sorting is not implemented yet.
-    @Test(enabled = false)
+    @Test
     public void testSearchContainsWithSortingByObjectPermIdAsc()
     {
         GlobalSearchCriteria criteria = new GlobalSearchCriteria();
@@ -665,8 +902,7 @@ public class GlobalSearchTest extends AbstractTest
         assertSorted(objects, globalSearchObject -> globalSearchObject.getObjectPermId().toString(), true);
     }
 
-    // Sorting is not implemented yet.
-    @Test(enabled = false)
+    @Test
     public void testSearchContainsWithSortingByObjectPermIdDesc()
     {
         GlobalSearchCriteria criteria = new GlobalSearchCriteria();
@@ -711,8 +947,7 @@ public class GlobalSearchTest extends AbstractTest
         assertSorted(objects, globalSearchObject -> globalSearchObject.getObjectIdentifier().toString(), false);
     }
 
-    // Sorting is not implemented yet.
-    @Test(enabled = false)
+    @Test
     public void testSearchContainsWithSortingByObjectIdentifierAsc()
     {
         final GlobalSearchCriteria criteria = new GlobalSearchCriteria();
@@ -727,8 +962,7 @@ public class GlobalSearchTest extends AbstractTest
         assertSorted(objects, globalSearchObject -> globalSearchObject.getObjectIdentifier().toString(), true);
     }
 
-    // Sorting is not implemented yet.
-    @Test(enabled = false)
+    @Test
     public void testSearchContainsWithSortingByObjectIdentifierDesc()
     {
         final GlobalSearchCriteria criteria = new GlobalSearchCriteria();
@@ -824,17 +1058,19 @@ public class GlobalSearchTest extends AbstractTest
         assertEquals(result.getTotalCount(), 7);
         assertEquals(objects.size(), 2);
 
-        assertExperiment(objects.get(0), "201108050937246-1031", "/CISD/DEFAULT/EXP-Y", "Property 'Description': A simple experiment", true);
-        assertExperiment(objects.get(1), "200811050951882-1028", "/CISD/NEMO/EXP1", "Property 'Description': A simple experiment", true);
+        assertExperiment(objects.get(0), "200811050951882-1028", "/CISD/NEMO/EXP1",
+                "Property 'Description': A simple experiment", true);
+        assertExperiment(objects.get(1), "200811050952663-1029", "/CISD/NEMO/EXP10",
+                "Property 'Description': A simple experiment", true);
     }
 
     @Test
-    public void testSearchThatContainsExactlyWithPagingSameProperty()
+    public void testSearchThatStartsWithWithPagingSameProperty()
     {
         final GlobalSearchCriteria criteria = new GlobalSearchCriteria();
         criteria.withOperator(SearchOperator.OR);
-        criteria.withText().thatContainsExactly("simple");
-        criteria.withText().thatContainsExactly("stuff");
+        criteria.withText().thatStartsWith("simple");
+        criteria.withText().thatStartsWith("stuff");
 
         final SearchResult<GlobalSearchObject> fullResult = search(TEST_USER, criteria,
                 new GlobalSearchObjectFetchOptions());
@@ -850,8 +1086,39 @@ public class GlobalSearchTest extends AbstractTest
         assertEquals(pagedResult.getTotalCount(), fullResult.getObjects().size());
         assertEquals(pagedObjects.size(), 2);
 
+        assertExperiment(pagedObjects.get(0), "200811050951882-1028", "/CISD/NEMO/EXP1",
+                "Property 'Description': A simple experiment", true);
+        assertExperiment(pagedObjects.get(1), "200811050952663-1029", "/CISD/NEMO/EXP10",
+                "Property 'Description': A simple experiment", true);
+    }
+
+    @Test
+    public void testSearchThatContainsExactlyWithPagingSameProperty()
+    {
+        final GlobalSearchCriteria criteria = new GlobalSearchCriteria();
+        criteria.withOperator(SearchOperator.OR);
+        criteria.withText().thatContainsExactly("simple");
+        criteria.withText().thatContainsExactly("stuff");
+
+        final GlobalSearchObjectFetchOptions fullResultFo = new GlobalSearchObjectFetchOptions();
+        fullResultFo.sortBy().objectIdentifier().asc();
+        final SearchResult<GlobalSearchObject> fullResult = search(TEST_USER, criteria, fullResultFo);
+
+        final GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
+        fo.sortBy().objectIdentifier().asc();
+        fo.from(3).count(2);
+        fo.withMatch();
+
+        final SearchResult<GlobalSearchObject> pagedResult = search(TEST_USER, criteria, fo);
+        final List<GlobalSearchObject> pagedObjects = pagedResult.getObjects();
+
+        assertEquals(pagedResult.getTotalCount(), fullResult.getObjects().size());
+        assertEquals(pagedObjects.size(), 2);
+
         for (int i = 0; i <= 1; i++)
         {
+            assertNotNull(pagedObjects.get(i).getMatch());
+            assertFalse(pagedObjects.get(i).getMatch().isEmpty());
             assertEquals(pagedObjects.get(i).getObjectPermId().toString(),
                     fullResult.getObjects().get(3 + i).getObjectPermId().toString());
             assertEquals(pagedObjects.get(i).getObjectIdentifier().toString(),
@@ -973,27 +1240,31 @@ public class GlobalSearchTest extends AbstractTest
         assertEquals(objectIdentifiers, new HashSet<>(Arrays.asList("/CISD/B1B3:B01", "/CISD/B1B3:B03", "/CISD/B1B3")));
     }
 
-    @Test(enabled = false)
+    @Test
     public void testSearchWithSampleCodeThatContains()
     {
         final GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
         fo.withMatch();
 
         final GlobalSearchCriteria criteria = new GlobalSearchCriteria();
-        criteria.withText().thatMatches("B1B3:B01");
+        criteria.withText().thatContains("1B3:B0");
 
         final SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, fo);
-        assertEquals(result.getObjects().size(), 3);
+        assertEquals(result.getObjects().size(), 2);
 
-        final GlobalSearchObject object = result.getObjects().get(0);
+        final GlobalSearchObject object1 = result.getObjects().stream()
+                .filter(object -> object.getObjectPermId().toString().equals("200811050924274-995")).findFirst().get();
+        final GlobalSearchObject object2 = result.getObjects().stream()
+                .filter(object -> object.getObjectPermId().toString().equals("200811050924274-996")).findFirst().get();
 
-        assertSample(object, "200811050924274-995", "/CISD/B1B3:B01", "Code: B1B3:B01", true);
-        assertNotNull(result.getObjects().get(1).getMatch());
-        assertNotNull(result.getObjects().get(2).getMatch());
+        assertSample(object1, "200811050924274-995", "/CISD/B1B3:B01", "Identifier: /CISD/B1B3:B01\nCode: B1B3:B01",
+                false);
+        assertSample(object2, "200811050924274-996", "/CISD/B1B3:B03", "Identifier: /CISD/B1B3:B03\nCode: B1B3:B03",
+                false);
     }
 
     @Test
-    public void testSearchWithSampleCodeOfContainer()
+    public void testSearchWithSampleCodeOfContainerFullMatch()
     {
         final GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
         fo.withMatch();
@@ -1018,7 +1289,36 @@ public class GlobalSearchTest extends AbstractTest
 
         final Set<String> matches = resultObjects.stream().map(GlobalSearchObject::getMatch)
                 .collect(Collectors.toSet());
-        assertEquals(matches, Collections.singleton("Code: B1B3"));
+        assertEquals(matches, new HashSet<>(Arrays.asList("Code: B1B3", "Code: B1B3:B01", "Code: B1B3:B03")));
+    }
+
+    @Test
+    public void testSearchWithSampleCodeOfContainerPrefixMatch()
+    {
+        final GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
+        fo.withMatch();
+
+        final GlobalSearchCriteria criteria = new GlobalSearchCriteria();
+        criteria.withText().thatStartsWith("B1B");
+
+        final SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, fo);
+        assertTrue(result.getTotalCount() >= 2);
+
+        final List<GlobalSearchObject> resultObjects = result.getObjects();
+        assertTrue(resultObjects.size() >= 2);
+
+        final Set<String> permIds = resultObjects.stream().map(object -> object.getObjectPermId().toString())
+                .collect(Collectors.toSet());
+        assertTrue(permIds.containsAll(Arrays.asList("200811050924274-994", "200811050924274-995",
+                "200811050924274-996")));
+
+        final Set<String> identifiers = resultObjects.stream().map(object -> object.getObjectIdentifier().toString())
+                .collect(Collectors.toSet());
+        assertTrue(identifiers.containsAll(Arrays.asList("/CISD/B1B3", "/CISD/B1B3:B01", "/CISD/B1B3:B03")));
+
+        final Set<String> matches = resultObjects.stream().map(GlobalSearchObject::getMatch)
+                .collect(Collectors.toSet());
+        assertEquals(matches, new HashSet<>(Arrays.asList("Code: B1B3", "Code: B1B3:B01", "Code: B1B3:B03")));
     }
 
     @Test
@@ -1035,10 +1335,34 @@ public class GlobalSearchTest extends AbstractTest
         final SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, fo);
         assertEquals(result.getObjects().size(), 4);
 
-        assertSample(result.getObjects().get(0), "200811050919915-9", "/CISD/CL1:A01", "Code: A01", true);
-        assertSample(result.getObjects().get(1), "200811050927630-1004", "/CISD/MP1-MIXED:A01", "Code: A01", true);
-        assertSample(result.getObjects().get(2), "200811050928301-1009", "/CISD/MP2-NO-CL:A01", "Code: A01", true);
-        assertSample(result.getObjects().get(3), "200811050944030-974", "/CISD/CL-3V:A01", "Code: A01", true);
+        assertSample(result.getObjects().get(0), "200811050919915-9", "/CISD/CL1:A01",
+                "Identifier: /CISD/CL1:A01\nCode: CL1:A01", true);
+        assertSample(result.getObjects().get(1), "200811050927630-1004", "/CISD/MP1-MIXED:A01",
+                "Identifier: /CISD/MP1-MIXED:A01\nCode: MP1-MIXED:A01", true);
+        assertSample(result.getObjects().get(2), "200811050928301-1009", "/CISD/MP2-NO-CL:A01",
+                "Identifier: /CISD/MP2-NO-CL:A01\nCode: MP2-NO-CL:A01", true);
+        assertSample(result.getObjects().get(3), "200811050944030-974", "/CISD/CL-3V:A01",
+                "Identifier: /CISD/CL-3V:A01\nCode: CL-3V:A01", true);
+    }
+
+    @Test
+    public void testSearchWithPrefixMatchOfSampleCode()
+    {
+        final GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
+        fo.withMatch();
+        fo.sortBy().objectPermId().asc();
+        fo.withMatch();
+
+        final GlobalSearchCriteria criteria = new GlobalSearchCriteria();
+        criteria.withText().thatStartsWith("A0");
+
+        final SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, fo);
+        assertEquals(result.getObjects().size(), 24);
+
+        result.getObjects().forEach(globalSearchObject -> {
+            assertNotNull(globalSearchObject.getMatch());
+            assertFalse(globalSearchObject.getMatch().isEmpty());
+        });
     }
 
     @Test
@@ -1049,7 +1373,7 @@ public class GlobalSearchTest extends AbstractTest
 
         GlobalSearchObject object = searchAndAssertOne("200902091219327-1025", fo);
 
-        assertSample(object, "200902091219327-1025", "/CISD/CP-TEST-1", "Perm ID: 200902091219327-1025", true);
+        assertSample(object, "200902091219327-1025", "/CISD/NEMO/CP-TEST-1", "Perm ID: 200902091219327-1025", true);
         assertExperimentNotFetched(object);
         assertSampleNotFetched(object);
         assertDataSetNotFetched(object);
@@ -1065,7 +1389,7 @@ public class GlobalSearchTest extends AbstractTest
 
         GlobalSearchObject object = searchAndAssertOne("200902091219327-1025", fo);
 
-        assertSample(object, "200902091219327-1025", "/CISD/CP-TEST-1", "Perm ID: 200902091219327-1025", true);
+        assertSample(object, "200902091219327-1025", "/CISD/NEMO/CP-TEST-1", "Perm ID: 200902091219327-1025", true);
         assertEquals(object.getSample().getCode(), "CP-TEST-1");
         assertExperimentNotFetched(object);
         assertDataSetNotFetched(object);
@@ -1081,7 +1405,29 @@ public class GlobalSearchTest extends AbstractTest
 
         GlobalSearchObject object = searchAndAssertOne("200902091219327-1025", fo);
 
-        assertSample(object, "200902091219327-1025", "/CISD/CP-TEST-1", "Perm ID: 200902091219327-1025", true);
+        assertSample(object, "200902091219327-1025", "/CISD/NEMO/CP-TEST-1", "Perm ID: 200902091219327-1025", true);
+        assertNull(object.getExperiment());
+        assertSampleNotFetched(object);
+        assertDataSetNotFetched(object);
+        assertMaterialNotFetched(object);
+    }
+
+    @Test
+    public void testSearchWithSamplePermIdPrefixMatchAndNonSampleFetched()
+    {
+        GlobalSearchObjectFetchOptions fo = new GlobalSearchObjectFetchOptions();
+        fo.withExperiment();
+        fo.withMatch();
+
+        GlobalSearchCriteria criteria = new GlobalSearchCriteria();
+        criteria.withText().thatStartsWith("200902091219327-102");
+
+        SearchResult<GlobalSearchObject> result = search(TEST_USER, criteria, fo);
+        assertEquals(result.getObjects().size(), 1);
+
+        GlobalSearchObject object = result.getObjects().get(0);
+
+        assertSample(object, "200902091219327-1025", "/CISD/NEMO/CP-TEST-1", "Perm ID: 200902091219327-1025", true);
         assertNull(object.getExperiment());
         assertSampleNotFetched(object);
         assertDataSetNotFetched(object);
@@ -1096,7 +1442,7 @@ public class GlobalSearchTest extends AbstractTest
 
         GlobalSearchObject object = searchAndAssertOne("200902091219327-1025", fo);
 
-        assertSample(object, "200902091219327-1025", "/CISD/CP-TEST-1", "", true);
+        assertSample(object, "200902091219327-1025", "/CISD/NEMO/CP-TEST-1", "", true);
         assertNull(object.getExperiment());
         assertSampleNotFetched(object);
         assertDataSetNotFetched(object);
@@ -1202,7 +1548,7 @@ public class GlobalSearchTest extends AbstractTest
         GlobalSearchObject object = result.getObjects().get(0);
 
         assertMaterial(object, "HSV1", "VIRUS",
-                "Identifier: HSV1 (VIRUS)\nProperty 'Description': Herpes Simplex Virus 1", true);
+                "Identifier: HSV1 (VIRUS)\nEntity type: VIRUS\nProperty 'Description': Herpes Simplex Virus 1", true);
         assertExperimentNotFetched(object);
         assertSampleNotFetched(object);
         assertDataSetNotFetched(object);
@@ -1225,7 +1571,7 @@ public class GlobalSearchTest extends AbstractTest
         GlobalSearchObject object = result.getObjects().get(0);
 
         assertMaterial(object, "HSV1", "VIRUS",
-                "Identifier: HSV1 (VIRUS)\nProperty 'Description': Herpes Simplex Virus 1", true);
+                "Identifier: HSV1 (VIRUS)\nEntity type: VIRUS\nProperty 'Description': Herpes Simplex Virus 1", true);
         assertEquals(object.getMaterial().getPermId().toString(), "HSV1 (VIRUS)");
         assertExperimentNotFetched(object);
         assertSampleNotFetched(object);
@@ -1248,7 +1594,7 @@ public class GlobalSearchTest extends AbstractTest
         GlobalSearchObject object = result.getObjects().get(0);
 
         assertMaterial(object, "HSV1", "VIRUS",
-                "Identifier: HSV1 (VIRUS)\nProperty 'Description': Herpes Simplex Virus 1", true);
+                "Identifier: HSV1 (VIRUS)\nEntity type: VIRUS\nProperty 'Description': Herpes Simplex Virus 1", true);
         assertNull(object.getExperiment());
         assertSampleNotFetched(object);
         assertDataSetNotFetched(object);
@@ -1374,8 +1720,7 @@ public class GlobalSearchTest extends AbstractTest
         final List<GlobalSearchObject> results = search(TEST_USER, c, fo).getObjects();
         assertEquals(results.size(), 4);
 
-        results.forEach(result ->
-        {
+        results.forEach(result -> {
             switch (result.getObjectKind())
             {
                 case DATA_SET:
@@ -1506,7 +1851,8 @@ public class GlobalSearchTest extends AbstractTest
     }
 
     @Test
-    public void testComplexScoreSortingForSamples() {
+    public void testComplexScoreSortingForSamples()
+    {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         /* Setup */
@@ -1537,7 +1883,8 @@ public class GlobalSearchTest extends AbstractTest
     }
 
     @Test
-    public void testComplexScoreSortingForExperiments() {
+    public void testComplexScoreSortingForExperiments()
+    {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         /* Setup */
@@ -1568,7 +1915,8 @@ public class GlobalSearchTest extends AbstractTest
     }
 
     @Test
-    public void testComplexScoreSortingForDataSets() {
+    public void testComplexScoreSortingForDataSets()
+    {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         /* Setup */
@@ -1671,8 +2019,8 @@ public class GlobalSearchTest extends AbstractTest
         assertEquals(result.getTotalCount(), 4);
         assertEquals(objects.size(), 4);
 
-        assertSample(objects.get(0), "200902091250077-1026", "/CISD/CP-TEST-2", "Property 'bacterium': BACTERIUM-Y", true);
-        assertSample(objects.get(1), "200902091250077-1051", "/CISD/PLATE_WELLSEARCH:WELL-A01",
+        assertSample(objects.get(0), "200902091250077-1026", "/CISD/NOE/CP-TEST-2", "Property 'bacterium': BACTERIUM-Y", true);
+        assertSample(objects.get(1), "200902091250077-1051", "/CISD/DEFAULT/PLATE_WELLSEARCH:WELL-A01",
                 "Property 'bacterium': BACTERIUM-Y", true);
         assertExperiment(objects.get(2), "201108050937246-1031", "/CISD/DEFAULT/EXP-Y",
                 "Property 'any_material': BACTERIUM-Y", true);
@@ -1705,8 +2053,7 @@ public class GlobalSearchTest extends AbstractTest
         assertSample(objects.get(1), null, "/CISD/" + sampleCode, "Property 'label': " + propertyTypeValue, true);
     }
 
-    @Test(expectedExceptions = RuntimeException.class,
-            expectedExceptionsMessageRegExp = "Cannot combine matches and contains criteria in global search.*")
+    @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = "Cannot combine matches and contains criteria in global search.*")
     public void testCriteriaMixing()
     {
         final GlobalSearchCriteria criteria = new GlobalSearchCriteria();
@@ -1734,17 +2081,18 @@ public class GlobalSearchTest extends AbstractTest
     private List<GlobalSearchObject> filterSearchResults(final List<GlobalSearchObject> results,
             final boolean withDataset, final boolean withSample, final boolean withExperiment)
     {
-        return results.stream().filter(globalSearchObject ->
-                        withDataset && globalSearchObject.getDataSet() != null &&
-                                globalSearchObject.getDataSet().getCode().startsWith(TERM) ||
-                        withSample && globalSearchObject.getSample() != null &&
-                                globalSearchObject.getSample().getCode().startsWith(TERM) ||
-                        withExperiment && globalSearchObject.getExperiment() != null &&
-                                globalSearchObject.getExperiment().getCode().startsWith(TERM)
-                ).collect(Collectors.toList());
+        return results.stream().filter(globalSearchObject -> withDataset && globalSearchObject.getDataSet() != null &&
+                globalSearchObject.getDataSet().getCode().startsWith(TERM) ||
+                withSample && globalSearchObject.getSample() != null &&
+                        globalSearchObject.getSample().getCode().startsWith(TERM)
+                ||
+                withExperiment && globalSearchObject.getExperiment() != null &&
+                        globalSearchObject.getExperiment().getCode().startsWith(TERM))
+                .collect(Collectors.toList());
     }
 
-    private static DataSetCreation getDataSetCreationForTest(String code, String description, String organism) {
+    private static DataSetCreation getDataSetCreationForTest(String code, String description, String organism)
+    {
         DataSetCreation creation = new DataSetCreation();
         creation.setExperimentId(new ExperimentIdentifier("/CISD/DEFAULT/EXP-REUSE"));
         creation.setCode(code);
@@ -1753,16 +2101,19 @@ public class GlobalSearchTest extends AbstractTest
         creation.setDataSetKind(DataSetKind.CONTAINER);
         creation.setDataStoreId(new DataStorePermId("STANDARD"));
 
-        if (description != null) {
+        if (description != null)
+        {
             creation.setProperty("DESCRIPTION", description);
         }
-        if (organism != null) {
+        if (organism != null)
+        {
             creation.setProperty("ORGANISM", organism);
         }
         return creation;
     }
 
-    private static List<DataSetCreation> getDataSetsCreationsForTest(String term) {
+    private static List<DataSetCreation> getDataSetsCreationsForTest(String term)
+    {
         List<DataSetCreation> creations = new ArrayList<>();
 
         // Score 1000 + 100 + 1 = 1101
@@ -1777,28 +2128,33 @@ public class GlobalSearchTest extends AbstractTest
         return creations;
     }
 
-    private static void cleanupDataSetsForTest(IApplicationServerInternalApi v3api, String sessionToken, List<? extends IDataSetId> identifiers) {
+    private static void cleanupDataSetsForTest(IApplicationServerInternalApi v3api, String sessionToken, List<? extends IDataSetId> identifiers)
+    {
         DataSetDeletionOptions deletionOptions = new DataSetDeletionOptions();
         deletionOptions.setReason("Test Cleanup");
         IDeletionId deletionId = v3api.deleteDataSets(sessionToken, identifiers, deletionOptions);
         v3api.confirmDeletions(sessionToken, Arrays.asList(deletionId));
     }
 
-    private static ExperimentCreation getExperimentCreationForTest(String code, String description, String organism) {
+    private static ExperimentCreation getExperimentCreationForTest(String code, String description, String organism)
+    {
         ExperimentCreation creation = new ExperimentCreation();
         creation.setProjectId(new ProjectIdentifier("/CISD/DEFAULT"));
         creation.setCode(code);
         creation.setTypeId(new EntityTypePermId("DELETION_TEST"));
-        if (description != null) {
+        if (description != null)
+        {
             creation.setProperty("DESCRIPTION", description);
         }
-        if (organism != null) {
+        if (organism != null)
+        {
             creation.setProperty("ORGANISM", organism);
         }
         return creation;
     }
 
-    private static List<ExperimentCreation> getExperimentCreationsForTest(String term) {
+    private static List<ExperimentCreation> getExperimentCreationsForTest(String term)
+    {
         List<ExperimentCreation> creations = new ArrayList<>();
 
         // Score 1000 + 100 + 1 = 1101
@@ -1813,14 +2169,17 @@ public class GlobalSearchTest extends AbstractTest
         return creations;
     }
 
-    private static void cleanupExperinmentsForTest(IApplicationServerInternalApi v3api, String sessionToken, List<? extends IExperimentId> identifiers) {
+    private static void cleanupExperinmentsForTest(IApplicationServerInternalApi v3api, String sessionToken,
+            List<? extends IExperimentId> identifiers)
+    {
         ExperimentDeletionOptions deletionOptions = new ExperimentDeletionOptions();
         deletionOptions.setReason("Test Cleanup");
         IDeletionId deletionId = v3api.deleteExperiments(sessionToken, identifiers, deletionOptions);
         v3api.confirmDeletions(sessionToken, Arrays.asList(deletionId));
     }
 
-    private static List<SampleCreation> getSampleCreationsForTest(String term) {
+    private static List<SampleCreation> getSampleCreationsForTest(String term)
+    {
         List<SampleCreation> creations = new ArrayList<>();
 
         // Score 1000 + 100 + 1 = 1101
@@ -1835,21 +2194,25 @@ public class GlobalSearchTest extends AbstractTest
         return creations;
     }
 
-    private static SampleCreation getSampleCreationForTest(String code, String comment, String organism) {
+    private static SampleCreation getSampleCreationForTest(String code, String comment, String organism)
+    {
         SampleCreation creation = new SampleCreation();
         creation.setSpaceId(new SpacePermId("CISD"));
         creation.setCode(code);
         creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
-        if (comment != null) {
+        if (comment != null)
+        {
             creation.setProperty("COMMENT", comment);
         }
-        if (organism != null) {
+        if (organism != null)
+        {
             creation.setProperty("ORGANISM", organism);
         }
         return creation;
     }
 
-    private static void cleanupSamplesForTest(IApplicationServerInternalApi v3api, String sessionToken, List<? extends ISampleId> identifiers) {
+    private static void cleanupSamplesForTest(IApplicationServerInternalApi v3api, String sessionToken, List<? extends ISampleId> identifiers)
+    {
         SampleDeletionOptions deletionOptions = new SampleDeletionOptions();
         deletionOptions.setReason("Test Cleanup");
         IDeletionId deletionId = v3api.deleteSamples(sessionToken, identifiers, deletionOptions);
@@ -1875,16 +2238,27 @@ public class GlobalSearchTest extends AbstractTest
         return result.getObjects().get(0);
     }
 
-    private GlobalSearchObject searchAndAssertOneOrNone(final String permId, final boolean useThatMatches,
+    private GlobalSearchObject searchAndAssertOneOrNone(final String permId, final MatchType matchType,
             final GlobalSearchObjectKind... objectKinds)
     {
         GlobalSearchCriteria criteria = new GlobalSearchCriteria();
-        if (useThatMatches)
+        switch (matchType)
         {
-            criteria.withText().thatMatches(permId);
-        } else
-        {
-            criteria.withText().thatContainsExactly(permId);
+            case MATCHES:
+            {
+                criteria.withText().thatMatches(permId);
+                break;
+            }
+            case STARTS_WITH:
+            {
+                criteria.withText().thatStartsWith(permId);
+                break;
+            }
+            case CONTAINS:
+            {
+                criteria.withText().thatContainsExactly(permId);
+                break;
+            }
         }
         criteria.withObjectKind().thatIn(objectKinds);
 
@@ -1906,9 +2280,9 @@ public class GlobalSearchTest extends AbstractTest
         final GlobalSearchObject obj2 = findObjectByPermId(objects, "200902091250077-1026");
         final GlobalSearchObject obj3 = findObjectByPermId(objects, "200902091225616-1027");
 
-        assertSample(obj1, "200902091219327-1025", "/CISD/CP-TEST-1", "Property 'Comment': very advanced stuff", true);
-        assertSample(obj2, "200902091250077-1026", "/CISD/CP-TEST-2", "Property 'Comment': extremely simple stuff", true);
-        assertSample(obj3, "200902091225616-1027", "/CISD/CP-TEST-3", "Property 'Comment': stuff like others", true);
+        assertSample(obj1, "200902091219327-1025", "/CISD/NEMO/CP-TEST-1", "Property 'Comment': very advanced stuff", true);
+        assertSample(obj2, "200902091250077-1026", "/CISD/NOE/CP-TEST-2", "Property 'Comment': extremely simple stuff", true);
+        assertSample(obj3, "200902091225616-1027", "/CISD/NEMO/CP-TEST-3", "Property 'Comment': stuff like others", true);
     }
 
     private void assertStuffForContains(SearchResult<GlobalSearchObject> result)
@@ -1916,7 +2290,11 @@ public class GlobalSearchTest extends AbstractTest
         List<GlobalSearchObject> objects = result.getObjects();
         assertEquals(objects.size(), 3);
 
-        objects.forEach(object -> assertEquals(object.getObjectKind(), GlobalSearchObjectKind.SAMPLE));
+        objects.forEach(object -> {
+            assertNotNull(object.getMatch());
+            assertFalse(object.getMatch().isEmpty());
+            assertEquals(object.getObjectKind(), GlobalSearchObjectKind.SAMPLE);
+        });
 
         final Set<String> permIds = objects.stream().map(object -> object.getObjectPermId().toString())
                 .collect(Collectors.toSet());
@@ -1924,8 +2302,8 @@ public class GlobalSearchTest extends AbstractTest
                 "200902091225616-1027")));
         final Set<String> identifiers = objects.stream().map(object -> object.getObjectIdentifier().toString())
                 .collect(Collectors.toSet());
-        assertEquals(identifiers, new HashSet<>(Arrays.asList("/CISD/CP-TEST-1", "/CISD/CP-TEST-2",
-                "/CISD/CP-TEST-3")));
+        assertEquals(identifiers, new HashSet<>(Arrays.asList("/CISD/NEMO/CP-TEST-1", "/CISD/NEMO/CP-TEST-3",
+                "/CISD/NOE/CP-TEST-2")));
     }
 
     private void assertSimpleStuff(SearchResult<GlobalSearchObject> result)
@@ -1935,7 +2313,7 @@ public class GlobalSearchTest extends AbstractTest
         assertEquals(objects.size(), 1);
         Iterator<GlobalSearchObject> iter = objects.iterator();
 
-        assertSample(iter.next(), "200902091250077-1026", "/CISD/CP-TEST-2", "Property 'Comment': extremely simple stuff", true);
+        assertSample(iter.next(), "200902091250077-1026", "/CISD/NOE/CP-TEST-2", "Property 'Comment': extremely simple stuff", true);
     }
 
     private void assertSimpleStuffForContains(SearchResult<GlobalSearchObject> result)
@@ -1946,9 +2324,11 @@ public class GlobalSearchTest extends AbstractTest
 
         GlobalSearchObject object = iter.next();
         assertNotNull(object);
+        assertNotNull(object.getMatch());
+        assertFalse(object.getMatch().isEmpty());
         assertEquals(object.getObjectKind(), GlobalSearchObjectKind.SAMPLE);
         assertEquals(object.getObjectPermId(), new SamplePermId("200902091250077-1026"));
-        assertEquals(object.getObjectIdentifier(), new SampleIdentifier("/CISD/CP-TEST-2"));
+        assertEquals(object.getObjectIdentifier(), new SampleIdentifier("/CISD/NOE/CP-TEST-2"));
     }
 
     private void assertSimpleOrStuff(final SearchResult<GlobalSearchObject> result)
@@ -1967,11 +2347,11 @@ public class GlobalSearchTest extends AbstractTest
                 findObjectByPermId(objects, "200811050952663-1030"),
         };
 
-        assertSample(searchObjects[0], "200902091219327-1025", "/CISD/CP-TEST-1",
+        assertSample(searchObjects[0], "200902091219327-1025", "/CISD/NEMO/CP-TEST-1",
                 "Property 'Comment': very advanced stuff", true);
-        assertSample(searchObjects[1], "200902091250077-1026", "/CISD/CP-TEST-2",
+        assertSample(searchObjects[1], "200902091250077-1026", "/CISD/NOE/CP-TEST-2",
                 "Property 'Comment': extremely simple stuff", true);
-        assertSample(searchObjects[2], "200902091225616-1027", "/CISD/CP-TEST-3",
+        assertSample(searchObjects[2], "200902091225616-1027", "/CISD/NEMO/CP-TEST-3",
                 "Property 'Comment': stuff like others", true);
         assertExperiment(searchObjects[3], "201108050937246-1031", "/CISD/DEFAULT/EXP-Y",
                 "Property 'Description': A simple experiment", true);
@@ -1988,6 +2368,11 @@ public class GlobalSearchTest extends AbstractTest
         final List<GlobalSearchObject> objects = result.getObjects();
         assertEquals(objects.size(), 8);
 
+        objects.forEach(globalSearchObject -> {
+            assertNotNull(globalSearchObject.getMatch());
+            assertFalse(globalSearchObject.getMatch().isEmpty());
+        });
+
         final Set<String> objectPermIds = objects.stream().map(object -> object.getObjectPermId().toString())
                 .collect(Collectors.toSet());
         assertEquals(objectPermIds, new HashSet<>(Arrays.asList("200902091219327-1025", "200902091250077-1026",
@@ -1996,13 +2381,14 @@ public class GlobalSearchTest extends AbstractTest
 
         final Set<String> objectIdentifiers = objects.stream().map(object -> object.getObjectIdentifier().toString())
                 .collect(Collectors.toSet());
-        assertEquals(objectIdentifiers, new HashSet<>(Arrays.asList("/CISD/CP-TEST-1", "/CISD/CP-TEST-2",
-                "/CISD/CP-TEST-3", "/CISD/DEFAULT/EXP-Y", "/CISD/NEMO/EXP1", "/CISD/NEMO/EXP10",
+        assertEquals(objectIdentifiers, new HashSet<>(Arrays.asList("/CISD/NEMO/CP-TEST-1", "/CISD/NOE/CP-TEST-2",
+                "/CISD/NEMO/CP-TEST-3", "/CISD/DEFAULT/EXP-Y", "/CISD/NEMO/EXP1", "/CISD/NEMO/EXP10",
                 "/CISD/NEMO/EXP11", "HSV1 (VIRUS)")));
     }
 
     /**
      * Searches for an object with specified perm ID.
+     * 
      * @param objects collection of objects to search in.
      * @param permId perm ID to search by.
      * @return the first found object with the perm ID or {@code null} if none is found.
@@ -2029,7 +2415,7 @@ public class GlobalSearchTest extends AbstractTest
     }
 
     private void assertSample(final GlobalSearchObject object, final String permId, final String identifier,
-            final String match, final boolean checkMatchAndScore)
+            final String match, final boolean checkScore)
     {
         assertNotNull(object);
         assertEquals(object.getObjectKind(), GlobalSearchObjectKind.SAMPLE);
@@ -2041,9 +2427,10 @@ public class GlobalSearchTest extends AbstractTest
 
         assertEquals(object.getObjectIdentifier(), new SampleIdentifier(identifier));
 
-        if (checkMatchAndScore)
+        assertEquals(object.getMatch(), match);
+
+        if (checkScore)
         {
-            assertEquals(object.getMatch(), match);
             assertTrue(object.getScore() > 0);
         }
     }
@@ -2129,6 +2516,11 @@ public class GlobalSearchTest extends AbstractTest
                     object.getMaterial();
                 }
             });
+    }
+
+    private enum MatchType
+    {
+        MATCHES, STARTS_WITH, CONTAINS
     }
 
 }

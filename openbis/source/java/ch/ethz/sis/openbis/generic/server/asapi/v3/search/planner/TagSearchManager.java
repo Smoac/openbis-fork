@@ -47,7 +47,7 @@ public class TagSearchManager extends AbstractLocalSearchManager<TagSearchCriter
     }
 
     @Override
-    protected AbstractCompositeSearchCriteria createEmptyCriteria()
+    protected AbstractCompositeSearchCriteria createEmptyCriteria(final boolean negated)
     {
         return new TagSearchCriteria();
     }
@@ -88,7 +88,7 @@ public class TagSearchManager extends AbstractLocalSearchManager<TagSearchCriter
             }
         }).collect(Collectors.toList());
 
-        final Set<Long> mainCriteriaIntermediateResults = getSearchDAO().queryDBForIdsAndRanksWithNonRecursiveCriteria(userId,
+        final Set<Long> mainCriteriaIntermediateResults = getSearchDAO().queryDBForIdsWithGlobalSearchMatchCriteria(userId,
                 new DummyCompositeSearchCriterion(newCriteria, criteria.getOperator()), TableMapper.TAG, idsColumnName, authorisationInformation);
 
         if (!containsValues(mainCriteriaIntermediateResults))

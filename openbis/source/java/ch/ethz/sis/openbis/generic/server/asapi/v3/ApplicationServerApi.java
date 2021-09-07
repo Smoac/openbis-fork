@@ -16,9 +16,11 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import javax.annotation.Resource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -44,6 +46,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.update.Update
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.TableModel;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.get.GetServerInformationOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.get.GetServerInformationOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.get.GetServerPublicInformationOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.get.GetServerPublicInformationOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
@@ -107,6 +111,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.entity.create.CreatePermIdsOpera
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.Event;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.fetchoptions.EventFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.search.EventSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.search.SearchEventsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.search.SearchEventsOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.CreateExperimentTypesOperation;
@@ -490,11 +499,13 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyUpda
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation.IExecuteOperationExecutor;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
+import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
+import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
@@ -509,6 +520,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
      * Name of this service for which it is registered as Spring bean
      */
     public static final String INTERNAL_SERVICE_NAME = "application-server_INTERNAL";
+
+    @Resource(name = ComponentNames.SESSION_MANAGER)
+    private IOpenBisSessionManager sessionManager;
 
     @Autowired
     private IExecuteOperationExecutor executeOperationsExecutor;
@@ -1412,6 +1426,13 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
         return result.getSearchResult();
     }
 
+    @Override public SearchResult<Event> searchEvents(final String sessionToken, final EventSearchCriteria searchCriteria,
+            final EventFetchOptions fetchOptions)
+    {
+        SearchEventsOperationResult result = executeOperation(sessionToken, new SearchEventsOperation(searchCriteria, fetchOptions));
+        return result.getSearchResult();
+    }
+
     @Override
     @Transactional
     public void revertDeletions(String sessionToken, List<? extends IDeletionId> deletionIds)
@@ -1596,7 +1617,8 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public IOperationExecutionResults executeOperations(String sessionToken, List<? extends IOperation> operations,
             IOperationExecutionOptions options)
     {
-        return executeOperationsExecutor.execute(sessionToken, operations, options);
+        Session session = sessionManager.getSession(sessionToken);
+        return executeOperationsExecutor.execute(session, operations, options);
     }
 
     @Override
@@ -1623,9 +1645,17 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @SuppressWarnings("unchecked")
     private <T extends IOperationResult> T executeOperation(String sessionToken, IOperation operation)
     {
-        SynchronousOperationExecutionResults results =
-                (SynchronousOperationExecutionResults) executeOperations(sessionToken, Arrays.asList(operation),
-                        new SynchronousOperationExecutionOptions());
+        Session session = sessionManager.getSession(sessionToken);
+        SynchronousOperationExecutionResults results = (SynchronousOperationExecutionResults) executeOperationsExecutor
+                .execute(session, Collections.singletonList(operation), new SynchronousOperationExecutionOptions());
+        return (T) results.getResults().get(0);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T extends IOperationResult> T executeOperation(IOperation operation)
+    {
+        SynchronousOperationExecutionResults results = (SynchronousOperationExecutionResults) executeOperationsExecutor
+                .execute(null, Collections.singletonList(operation), new SynchronousOperationExecutionOptions());
         return (T) results.getResults().get(0);
     }
 
@@ -1681,6 +1711,13 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public Map<String, String> getServerInformation(String sessionToken)
     {
         GetServerInformationOperationResult result = executeOperation(sessionToken, new GetServerInformationOperation());
+        return result.getServerInformation();
+    }
+
+    @Override
+    public Map<String, String> getServerPublicInformation()
+    {
+        GetServerPublicInformationOperationResult result = executeOperation(new GetServerPublicInformationOperation());
         return result.getServerInformation();
     }
 

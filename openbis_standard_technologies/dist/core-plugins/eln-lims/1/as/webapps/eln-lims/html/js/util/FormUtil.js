@@ -17,6 +17,8 @@ var FormUtil = new function() {
 	this.controlColumnClass = 'col-md-9';
 	this.controlColumnClassBig = 'col-md-9';
 
+    this.warningColor = '#e71616'
+
 	//
 	// Sample Relationship Annotations 19.X & 20.X
 	//
@@ -324,11 +326,7 @@ var FormUtil = new function() {
 				continue;
 			}
 			
-			var label = Util.getDisplayNameFromCode(sampleType.code);
-			var description = Util.getEmptyIfNull(sampleType.description);
-			if(description !== "") {
-				label += " (" + description + ")";
-			}
+			var label = Util.getDisplayLabelFromCodeAndDescription(sampleType);
 			
 			$component.append($("<option>").attr('value',sampleType.code).text(label));
 		}
@@ -727,17 +725,24 @@ var FormUtil = new function() {
 	}
 	
 	this.createPropertyField = function(propertyType, propertyValue) {
+	    var isLink = propertyType.dataType === "HYPERLINK";
+	    var hyperlinkLabel = null;
 		if (propertyType.dataType === "CONTROLLEDVOCABULARY") {
 			propertyValue = this.getVocabularyLabelForTermCode(propertyType, propertyValue);
+			if(propertyType.vocabulary.urlTemplate) {
+			    hyperlinkLabel = propertyValue;
+			    propertyValue = propertyType.vocabulary.urlTemplate.replace('${term}', propertyValue);
+			    isLink = true;
+			}
 		}
-		return this._createField(propertyType.dataType === "HYPERLINK", propertyType.label, propertyValue, propertyType.code);
+		return this._createField(isLink, propertyType.label, propertyValue, propertyType.code, null, null, hyperlinkLabel);
 	}
 	
 	this.getFieldForLabelWithText = function(label, text, id, postComponent, cssForText) {
 		return this._createField(false, label, text, id, postComponent, cssForText);
 	}
 	
-	this._createField = function(hyperlink, label, text, id, postComponent, cssForText) {
+	this._createField = function(hyperlink, label, text, id, postComponent, cssForText, hyperlinkLabel) {
 		var $fieldset = $('<div>');
 		
 		var $controlGroup = $('<div>', {class : 'form-group'});
@@ -767,7 +772,7 @@ var FormUtil = new function() {
 		}
 		//text = html.sanitize(text);
 		text = DOMPurify.sanitize(text);
-		$component.html(hyperlink ? this.asHyperlink(text) : text);
+		$component.html(hyperlink ? this.asHyperlink(text, hyperlinkLabel) : text);
 		
 		if(id) {
 			$component.attr('id', this.prepareId(id));
@@ -777,8 +782,8 @@ var FormUtil = new function() {
 		return $fieldset;
 	}
 	
-	this.asHyperlink = function(text) {
-		return $("<a>", { "href" : text, "target" : "_blank"}).append(text);
+	this.asHyperlink = function(text, label) {
+		return $("<a>", { "href" : text, "target" : "_blank"}).append((label ? label : text));
 	}
 
 	//
@@ -960,7 +965,7 @@ var FormUtil = new function() {
 	this._getDatePickerField = function(id, alt, isRequired, isDateOnly, value) {
 		var $component = $('<div>', {'class' : 'form-group', 'style' : 'margin-left: 0px;', 'placeholder' : alt });
 		var $subComponent = $('<div>', {'class' : 'input-group date', 'id' : 'datetimepicker_' + id });
-		var $input = $('<input>', {'class' : 'form-control', 'type' : 'text', 'id' : id, 
+		var $input = $('<input>', {'class' : 'form-control', 'type' : 'text', 'id' : id, 'placeholder' : (isDateOnly ? 'yyyy-MM-dd (YEAR-MONTH-DAY)' : 'yyyy-MM-dd HH:mm:ss (YEAR-MONTH-DAY : HOUR-MINUTE-SECOND)'),
 			'data-format' : isDateOnly ? 'yyyy-MM-dd' : 'yyyy-MM-dd HH:mm:ss'});
 		if (isRequired) {
 			$input.attr('required', '');
@@ -1057,16 +1062,26 @@ var FormUtil = new function() {
                          }
                     })
                     .then( editor => {
+                        editor.acceptedData = ""; // Is used to undo paste events containing images coming from a different domain
                         if (value) {
                             value = this.prepareCkeditorData(value);
                             editor.setData(value);
+                            editor.acceptedData = editor.getData();
                         }
 
                         editor.isReadOnly = isReadOnly;
-
-                        editor.model.document.on('change:data', function (event) {
-                            var value = editor.getData();
-                            componentOnChange(event, value);
+                        editor.model.document.on('change:data', function (event, data) {
+                            var newData = editor.getData();
+                            if(newData !== editor.acceptedData) {
+                                var isDataValid = CKEditorManager.isDataValid(newData);
+                                if(isDataValid) {
+                                    editor.acceptedData = newData;
+                                    componentOnChange(event, newData); // Store changes on original model
+                                } else {
+                                    editor.setData(editor.acceptedData);
+                                    Util.showUserError("It is not possible to copy an image directly from a website.");
+                                }
+                            }
                         });
 
                         if(toolbarContainer) {
@@ -1074,6 +1089,11 @@ var FormUtil = new function() {
                         }
 
                         CKEditorManager.addEditor($component.attr('id'), editor);
+
+//                        $component.on('paste', function(evt) {
+//                            evt.stop(); // we don't let editor to paste data;
+//                            alert('paste');
+//                        });
                     })
                     .catch(error => {
                         Util.showError(error);

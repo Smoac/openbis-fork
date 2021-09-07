@@ -64,6 +64,7 @@ $.extend(DefaultProfile.prototype, {
 				showExports : true,
 				showStorageManager : true,
 				showAdvancedSearch : true,
+				showArchivingHelper : true,
 				showUnarchivingHelper : true,
 				showTrashcan : true,
 				showSettings : true,
@@ -236,7 +237,13 @@ $.extend(DefaultProfile.prototype, {
 //		Jupyter integration config
 //		this.jupyterIntegrationServerEndpoint = "https://bs-openbis-sis-dev.ethz.ch:8002";
 //		this.jupyterEndpoint = "https://bs-openbis-sis-dev.ethz.ch:8000/";
-		
+
+		this.settingsObjects = [];
+
+		this.isMultiGroup = function() {
+			return this.settingsObjects.length > 1;
+		}
+
 		this.systemProperties = ["$ANNOTATIONS_STATE", "FREEFORM_TABLE_STATE"];
 		this.forcedDisableRTF = [];
 		this.forceMonospaceFont = [];
@@ -339,6 +346,14 @@ $.extend(DefaultProfile.prototype, {
 				}
 			});
 		}
+
+        this.showDataset = function(datasetTypeCode) {
+            return !profile.dataSetTypeDefinitionsExtension[datasetTypeCode] || profile.dataSetTypeDefinitionsExtension[datasetTypeCode]["SHOW"] === true;
+        }
+
+        this.showDatasetOnNav = function(datasetTypeCode) {
+            return !profile.dataSetTypeDefinitionsExtension[datasetTypeCode] || profile.dataSetTypeDefinitionsExtension[datasetTypeCode]["SHOW_ON_NAV"] === true;
+        }
 
 		this.showOnNav = function(sampleTypeCode) {
 		    var sampleTypeOnNav = true;
@@ -452,16 +467,15 @@ $.extend(DefaultProfile.prototype, {
 			return $.inArray(spaceCode, this.hideSpaces) !== -1;
 		}
 		
-		this.isInventorySpace = function(spaceCode) {
-			var inventorySpacesPostFixes = this.inventorySpaces.concat(this.inventorySpacesReadOnly);
-			for(var iIdx = 0; iIdx < inventorySpacesPostFixes.length; iIdx++) {
-				if(spaceCode.endsWith(inventorySpacesPostFixes[iIdx])) {
-					return true;
-				}
-			}
-			
-			return false;
-		}
+        this.isInventorySpace = function(spaceCode) {
+            return Util.elementEndsWithArrayElement(spaceCode, this.inventorySpaces.concat(this.inventorySpacesReadOnly));
+        }
+        
+        this.getSpaceEndingsForInventory = function() {
+            return this.inventorySpaces.concat(this.inventorySpacesReadOnly).filter(function (space) {
+                return !space.endsWith("STOCK_CATALOG") && !space.endsWith("STOCK_ORDERS") && !space.endsWith("ELN_SETTINGS");
+            });
+        }
 		
 		this.isFileAuthenticationService = false;
 		this.isFileAuthenticationUser = false;
@@ -477,7 +491,7 @@ $.extend(DefaultProfile.prototype, {
 		}
 		this.hideTypes = {
 				"sampleTypeCodes" : [],
-				"experimentTypeCodes" : []
+				"experimentTypeCodes" : ["UNKNOWN"]
 		}
 		
 		this._deleteSampleConnectionsByTypeIfNotVisited = function(sample, visited) {
@@ -834,7 +848,15 @@ $.extend(DefaultProfile.prototype, {
 		this.getPropertyTypes = function() {
 			return this.allPropertyTypes;
 		}
-		
+
+		this.fixV1PropertyTypeVocabulary = function(propertyType) {
+		    var initialisedProperty = this.getPropertyType(propertyType.code);
+		    if(initialisedProperty.dataType === "CONTROLLEDVOCABULARY") {
+		        propertyType.terms = initialisedProperty.terms;
+		        propertyType.vocabulary = initialisedProperty.vocabulary;
+		    }
+		}
+
 		this.getPropertyTypeFromSampleType = function(sampleType, propertyTypeCode) {
 			for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
 				var propertyTypeGroup = sampleType.propertyTypeGroups[i];
@@ -878,7 +900,17 @@ $.extend(DefaultProfile.prototype, {
 			}
 			return null;
 		}
-		
+
+        this.getExperimentTypes = function() {
+            var types = [];
+			for(var i = 0; i < this.allExperimentTypes.length; i++) {
+				if(!this.isExperimentTypeHidden(this.allExperimentTypes[i].code)) {
+					types.push(this.allExperimentTypes[i]);
+				}
+			}
+			return types;
+		}
+
 		this.getExperimentTypeForExperimentTypeCode = function(typeCode) {
 			for(var i = 0; i < this.allExperimentTypes.length; i++) {
 				if(this.allExperimentTypes[i].code === typeCode) {
@@ -1241,6 +1273,7 @@ $.extend(DefaultProfile.prototype, {
 				openbisV3.getServerInformation().done(function(serverInformation) {
 	                var authSystem = serverInformation["authentication-service"];
 	                IdentifierUtil.isProjectSamplesEnabled = (serverInformation["project-samples-enabled"] === "true");
+	                IdentifierUtil.createContinuousSampleCodes = (serverInformation["create-continuous-sample-codes"] === "true");
 	                if (authSystem && authSystem.indexOf("file") !== -1) {
 	                		_this.isFileAuthenticationService = true;
 	                }

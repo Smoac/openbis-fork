@@ -51,8 +51,8 @@ function ServerFacade(openbisServer) {
 	var responseInterceptor = function(response, action){
 		var isError = false;
 		if(response && response.error) {
-			if(response.error.message === "Session no longer available. Please login again."
-					|| response.error.message.endsWith("is invalid: user is not logged in.")) {
+			if(response.error.message && (response.error.message === "Session no longer available. Please login again."
+					|| response.error.message.endsWith("is invalid: user is not logged in."))) {
 				isError = true;
 				Util.showError(response.error.message, function() {
 					location.reload(true);
@@ -532,9 +532,14 @@ function ServerFacade(openbisServer) {
 		this.openbisServer.listVocabularies(callbackFunction);
 	}
 
-	this.listDataSetTypes = function(callbackFunction) {
-		this.openbisServer.listDataSetTypes(callbackFunction);
-	}
+    this.listDataSetTypes = function(callbackFunction) {
+        this.openbisServer.listDataSetTypes(function(data) {
+            data.result = data.result.filter(function(dataSetType) {
+                return profile.showDataset(dataSetType.code);
+            });
+            callbackFunction(data);
+        });
+    }
 
 	this.listSpaces = function(callbackFunction) {
 		var spaceRules = { entityKind : "SPACE", logicalOperator : "AND", rules : { } };
@@ -641,14 +646,30 @@ function ServerFacade(openbisServer) {
 
 
 	this.generateCode = function(sampleType, action) {
-		var parameters = {
-			"method" : "getNextSequenceForType",
-			"sampleTypeCode" : sampleType.code
+	    if(IdentifierUtil.createContinuousSampleCodes) {
+            var parameters = {
+                "method" : "getNextSequenceForType",
+                "sampleTypeCode" : sampleType.code
+            }
+            this.customELNASAPI(parameters, function(nextInSequence) {
+                action(sampleType.codePrefix.toUpperCase() + nextInSequence);
+            });
+		} else {
+		    mainController.openbisV3.createCodes(sampleType.codePrefix, "SAMPLE", 1).done(function(codes) {
+                action(codes[0].toUpperCase());
+		    });
 		}
-		this.customELNASAPI(parameters, function(nextInSequence) {
-			action(sampleType.codePrefix + nextInSequence);
-		});
 	}
+
+    this.generateExperimentCode = function(projectId, action) {
+        var parameters = {
+            "method" : "getNextExperimentCode",
+            "projectId" : projectId
+        }
+        this.customELNASAPI(parameters, function(generatedCode) {
+            action(generatedCode);
+        });
+    }
 
 	this.deleteDataSets = function(datasetIds, reason, callback) {
 		this.openbisServer.deleteDataSets(datasetIds, reason, "TRASH", callback);
@@ -1283,6 +1304,9 @@ function ServerFacade(openbisServer) {
 							childrenFetchOptions.withProperties();
 						}
 					}
+                    if (advancedFetchOptions.withPhysicalData && fetchOptions.withPhysicalData) {
+                        fetchOptions.withPhysicalData();
+                    }
 				} else if(advancedFetchOptions.only) {
 					if(advancedFetchOptions.withSample) {
 						fetchOptions.withSample();
@@ -1579,6 +1603,9 @@ function ServerFacade(openbisServer) {
                                     break;
                                 case "PHYSICAL_STATUS":
                                     criteria.withPhysicalData().withStatus().thatEquals(attributeValue);
+                                    break;
+                                case "ARCHIVING_REQUESTED":
+                                    criteria.withPhysicalData().withArchivingRequested().thatEquals(attributeValue);
                                     break;
                             }
                         }
@@ -2431,18 +2458,30 @@ function ServerFacade(openbisServer) {
 	// Global Search
 	//
 
-	this.getSearchCriteriaAndFetchOptionsForGlobalSearch = function(freeText, containsSearch,
+	this.getSearchCriteriaAndFetchOptionsForGlobalSearch = function(freeText, searchKind,
 		    advancedFetchOptions, callbackFunction) {
 		require(['as/dto/global/search/GlobalSearchCriteria',
 		         'as/dto/global/fetchoptions/GlobalSearchObjectFetchOptions'],
 		         function(GlobalSearchCriteria, GlobalSearchObjectFetchOptions){
 			var searchCriteria = new GlobalSearchCriteria();
-			if (containsSearch) {
-				searchCriteria.withText().thatContains(freeText.toLowerCase().trim());
-			} else {
-				searchCriteria.withText().thatMatches(freeText.toLowerCase().trim());
+			switch (searchKind) {
+				case "ALL": {
+					searchCriteria.withText().thatMatches(freeText.toLowerCase().trim());
+					break;
+				}
+
+				case "ALL_PARTIAL": {
+					searchCriteria.withText().thatContains(freeText.toLowerCase().trim());
+					break;
+				}
+
+				case "ALL_PREFIX": {
+					searchCriteria.withText().thatStartsWith(freeText.toLowerCase().trim());
+					break;
+				}
 			}
-			searchCriteria.withOperator("AND");
+
+			searchCriteria.withOperator("OR");
 
 			var fetchOptions = new GlobalSearchObjectFetchOptions();
 			fetchOptions.withMatch();
@@ -2484,9 +2523,9 @@ function ServerFacade(openbisServer) {
 		});
 	}
 
-	this.searchGlobally = function(freeText, containsSearch, advancedFetchOptions, callbackFunction)
+	this.searchGlobally = function(freeText, searchKind, advancedFetchOptions, callbackFunction)
 	{
-		this.getSearchCriteriaAndFetchOptionsForGlobalSearch(freeText, containsSearch, advancedFetchOptions,
+		this.getSearchCriteriaAndFetchOptionsForGlobalSearch(freeText, searchKind, advancedFetchOptions,
 			function(searchCriteria, fetchOptions) {
 				mainController.openbisV3.searchGlobally(searchCriteria, fetchOptions).done(function(results) {
 					callbackFunction(results);
@@ -2989,6 +3028,17 @@ function ServerFacade(openbisServer) {
 			Util.showFailedServerCallError(result);
 			callbackFunction(false);
 		});
+	}
+
+	this.getServerPublicInformation = function(callbackFunction) {
+		this.getOpenbisV3(function(openbisV3){
+			openbisV3.getServerPublicInformation().done(function(serverInfo) {
+				callbackFunction(serverInfo);
+			}).fail(function(result) {
+				Util.showFailedServerCallError(result);
+				callbackFunction(false);
+			});
+		})
 	}
 
 	this.searchCustomASServices = function(code, callbackFunction) {

@@ -60,6 +60,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.search.DeletionSearchCr
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.Event;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.fetchoptions.EventFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.event.search.EventSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCreation;
@@ -1031,6 +1034,13 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
         return null;
     }
 
+    @Override public SearchResult<Event> searchEvents(final String sessionToken, final EventSearchCriteria searchCriteria,
+            final EventFetchOptions fetchOptions)
+    {
+        logAccess(sessionToken, "search-events", "SEARCH_CRITERIA:\n%s\nFETCH_OPTIONS:\n%s\n", searchCriteria, fetchOptions);
+        return null;
+    }
+
     @Override
     public void revertDeletions(String sessionToken, List<? extends IDeletionId> deletionIds)
     {
@@ -1236,6 +1246,13 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     public Map<String, String> getServerInformation(String sessionToken)
     {
         logAccess(sessionToken, "server-info");
+        return null;
+    }
+
+    @Override
+    public Map<String, String> getServerPublicInformation()
+    {
+        logAccess(null, "server-public-info");
         return null;
     }
 

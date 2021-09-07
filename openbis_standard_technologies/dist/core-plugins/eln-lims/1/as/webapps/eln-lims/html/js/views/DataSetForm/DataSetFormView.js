@@ -676,9 +676,10 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			var propertyGroupPropertiesOnForm = 0;
 			for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 				var propertyType = propertyTypeGroup.propertyTypes[j];
+				profile.fixV1PropertyTypeVocabulary(propertyType);
 				FormUtil.fixStringPropertiesForForm(propertyType, this._dataSetFormModel.dataSet);
 				
-				if(!propertyType.showInEditViews && this._dataSetFormController.mode === FormMode.EDIT && propertyType.code !== "$XMLCOMMENTS") { //Skip
+				if(!propertyType.showInEditViews && (this._dataSetFormController.mode === FormMode.EDIT || this._dataSetFormController.mode === FormMode.CREATE) && propertyType.code !== "$XMLCOMMENTS") { //Skip
 					continue;
 				} else if(propertyType.dinamic && this._dataSetFormController.mode === FormMode.CREATE) { //Skip
 					continue;
@@ -764,7 +765,12 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 									_this._dataSetFormModel.dataSet.properties[propertyTypeCode] = $(field.children()[0]).children()[0].checked;
 								} else if (propertyType.dataType === "TIMESTAMP" || propertyType.dataType === "DATE") {
 									var timeValue = $($(field.children()[0]).children()[0]).val();
-									_this._dataSetFormModel.dataSet.properties[propertyTypeCode] = timeValue;
+                                    var isValidValue = Util.isDateValid(timeValue, propertyType.dataType === "DATE");
+                                    if(!isValidValue.isValid) {
+                                        Util.showUserError(isValidValue.error);
+                                    } else {
+                                        _this._dataSetFormModel.dataSet.properties[propertyTypeCode] = timeValue;
+                                    }
 								} else {
 									if(newValue !== undefined && newValue !== null) {
 										_this._dataSetFormModel.dataSet.properties[propertyTypeCode] = Util.getEmptyIfNull(newValue);
@@ -850,7 +856,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		
 		var $requestButton = $('<div>', {'class' : 'btn btn-default', 'text' : 'Request archiving', 'id' : 'request_archiving'});
 		$requestButton.click(function() {
-			_this.requestArchiving();
+			Util.requestArchiving([_this._dataSetFormModel.dataSetV3], Util.unblockUI);
 		});
 		var $lockButton = $('<div>', {'class' : 'btn btn-default', 'text' : 'Disallow archiving', 'id' : 'lock_archiving'});
 		$lockButton.click(function() {
@@ -873,43 +879,6 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		Util.blockUI($window, css);
 	}
 
-	this.requestArchiving = function() {
-		var _this = this;
-
-		var $window = $('<form>', { 'action' : 'javascript:void(0);' });
-		$window.submit(function() {
-		    _this._dataSetFormController.setArchivingRequested(true);
-		    Util.unblockUI();
-		});
-
-		$window.append($('<legend>').append('Request archiving'));
-
-		var warning = "Your dataset will be queued for archiving and will only be archived when the minimum size" +
-				" is reached from other archiving requests.";
-		var $warning = $('<p>').text(warning);
-		$window.append($warning);
-
-		var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' });
-		var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
-		$btnCancel.click(function() {
-		    Util.unblockUI();
-		});
-
-		$window.append($btnAccept).append('&nbsp;').append($btnCancel);
-
-		var css = {
-		        'text-align' : 'left',
-		        'top' : '15%',
-		        'width' : '70%',
-		        'left' : '15%',
-		        'right' : '20%',
-		        'overflow' : 'hidden',
-				'background' : '#ffffbf'
-		};
-
-		Util.blockUI($window, css);
-	}
-	
 	this.lockArchiving = function() {
 		var _this = this;
 

@@ -37,6 +37,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.authorizationgroup.I
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.authorizationgroup.ISearchAuthorizationGroupsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.authorizationgroup.IUpdateAuthorizationGroupsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.get.IGetServerInformationOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.get.IGetServerPublicInformationOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.IArchiveDataSetsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.ICreateDataSetTypesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.ICreateDataSetsOperationExecutor;
@@ -58,6 +59,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.deletion.IRevertDele
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.deletion.ISearchDeletionsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.ICreateCodesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.ICreatePermIdsOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.event.ISearchEventsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.ICreateExperimentTypesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.ICreateExperimentsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.IDeleteExperimentTypesOperationExecutor;
@@ -477,6 +479,9 @@ public class OperationsExecutor implements IOperationsExecutor
     private IGetServerInformationOperationExecutor getServerInformationExecutor;
 
     @Autowired
+    private IGetServerPublicInformationOperationExecutor getServerPublicInformationExecutor;
+
+    @Autowired
     private ISearchSpacesOperationExecutor searchSpacesExecutor;
 
     @Autowired
@@ -547,6 +552,9 @@ public class OperationsExecutor implements IOperationsExecutor
 
     @Autowired
     private ISearchDeletionsOperationExecutor searchDeletionsExecutor;
+
+    @Autowired
+    private ISearchEventsOperationExecutor searchEventsExecutor;
 
     @Autowired
     private ISearchGloballyOperationExecutor searchGloballyExecutor;
@@ -723,6 +731,7 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(searchProcessingServicesExecutor.execute(context, operations));
         resultMap.putAll(searchSearchDomainServicesExecutor.execute(context, operations));
         resultMap.putAll(searchDeletionsExecutor.execute(context, operations));
+        resultMap.putAll(searchEventsExecutor.execute(context, operations));
         resultMap.putAll(searchGloballyExecutor.execute(context, operations));
         resultMap.putAll(searchObjectKindModificationsExecutor.execute(context, operations));
         resultMap.putAll(searchOperationExecutionsExecutor.execute(context, operations));
@@ -762,6 +771,7 @@ public class OperationsExecutor implements IOperationsExecutor
         resultMap.putAll(getQueriesExecutor.execute(context, operations));
         resultMap.putAll(getQueryDatabasesExecutor.execute(context, operations));
         resultMap.putAll(getServerInformationExecutor.execute(context, operations));
+        resultMap.putAll(getServerPublicInformationExecutor.execute(context, operations));
     }
 
     private void verify(List<? extends IOperation> operations,

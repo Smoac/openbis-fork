@@ -157,8 +157,8 @@ var Util = new function() {
 		});
 	}
 	
-	this.showUserError = function(withHTML, andCallback, noBlock) {
-		this.showError(withHTML, andCallback, noBlock, true, false, true);
+	this.showUserError = function(message, andCallback, noBlock) {
+		this.showError(message, andCallback, noBlock, true, false, true);
 	}
 	
 	this.showFailedServerCallError = function(error) {
@@ -166,43 +166,25 @@ var Util = new function() {
 		this.showError("Call failed to server: " + (msg ? msg : JSON.stringify(error)));
 	}
 	
-	this.showError = function(withHTML, andCallback, noBlock, isUserError, isEnvironmentError, disableReport) {
-	    disableReport = true; // Report permanently disabled
+	this.showError = function(message, andCallback, noBlock, isUserError, isEnvironmentError, disableReport) {
 		var userErrorWarning = "";
 		if(isUserError) {
 			userErrorWarning = "<b>This error looks like a user error:</b>" + "<br>";
 		}
-		
-		var warning = "<b>Please send an error report if you wish SIS to review it:</b>" +  "<br>" +
-			          "This report contains information about the user and the action it was performing when it happened, including its data!: <br>" +
-				      "Pressing the 'Send error report' button will open your default mail application and gives you the opportunity to delete any sensitive information before sending.";
-					 
-		var report = "agent: " + navigator.userAgent + "%0D%0A" +
-					 "domain: " + location.hostname + "%0D%0A" +
-					 "session: " + mainController.serverFacade.openbisServer.getSession() + "%0D%0A" +
-					 "timestamp: " + new Date() + "%0D%0A" +
-					 "isUserError: " + isUserError + "%0D%0A" +
-					 "isEnvironmentError: " + isEnvironmentError + "%0D%0A" +
-					 "href: " + location.href.replace(new RegExp("&", 'g'), " - ") + "%0D%0A" +
-					 "error: " + withHTML;
-		
-		var withHTMLToShow = "<div style=\"width:100%;\">";
-		if(disableReport) {
-			withHTMLToShow += "<textarea style=\"background: transparent; border: none; width:100%;\" rows=\"1\">" + withHTML + "</textarea><br>";
-			withHTMLToShow += "<a id='jNotifyDismiss' class='btn btn-default'>Dismiss</a>";
-		} else {
-			withHTMLToShow += userErrorWarning + "<br><br><textarea style=\"background: transparent; width:100%;\" rows=\"8\">" + withHTML + "</textarea>" + "<br><br>" + warning + "<br><br>";
-			withHTMLToShow += "<a id='jNotifyDismiss' class='btn btn-default'>Dismiss</a>" + "<a class='btn btn-default' href='mailto:" + profile.devEmail + "?subject=ELN Error Report [" + location.hostname +"] ["+ mainController.serverFacade.openbisServer.getSession() + "]&body=" + report +"'>Send error report</a>";
-		}
-		withHTMLToShow += "</div>";
-		
+
+		var $dismissButton = $("<a>", { id : 'jNotifyDismiss', class : 'btn btn-default'}).append('Dismiss');
+        var $withHTMLToShow = $("<div>", {style : 'width:100%;'})
+                                    .append($("<textarea>", { style : 'background: transparent; border: none; width:100%;', rows : '1'}).append(DOMPurify.sanitize(message)))
+                                    .append($("<br>"))
+                                    .append($dismissButton);
+
 		if(!noBlock) {
 			this.blockUINoMessage();
 		}
 		
 		var localReference = this;
 		var popUp = jError(
-				withHTMLToShow,
+				$withHTMLToShow,
 				{
 				  autoHide : false,
 				  clickOverlay : false,
@@ -220,15 +202,15 @@ var Util = new function() {
 				  onCompleted : function(){ }
 		});
 		
-		$("#jNotifyDismiss").click(function(e) {
+		$dismissButton.click(function(e) {
 			popUp._close();
 		});
 	}
 	
-	this.showSuccess = function(withHTML, andCallback, forceAutoHide) {
+	this.showSuccess = function(message, andCallback, forceAutoHide) {
 		var localReference = this;
 		jSuccess(
-				withHTML,
+				DOMPurify.sanitize(message),
 				{
 				  autoHide : true,
 				  clickOverlay : true,
@@ -247,18 +229,21 @@ var Util = new function() {
 		});
 	}
 	
-	this.showInfo = function(withHTML, andCallback, noBlock, buttonLabel) {
+	this.showInfo = function(message, andCallback, noBlock, buttonLabel) {
 		
 		if(!noBlock) {
 			this.blockUINoMessage();
 		}
 		if (!buttonLabel) {
-			buttonLabel = "Dismiss";
+			var buttonLabel = "Dismiss";
 		}
-		
+
+		var $dismissButton = $("<a>", { id : 'jNotifyDismiss', class : 'btn btn-default'}).append(buttonLabel);
+		var $withHTMLToShow = $("<span>").append(DOMPurify.sanitize(message)).append($("<br>")).append($dismissButton);
+
 		var localReference = this;
 		var popUp = jNotify(
-				withHTML + "<br>" + "<a id='jNotifyDismiss' class='btn btn-default'>" + buttonLabel + "</a>",
+				$withHTMLToShow,
 				{
 				  autoHide : false,
 				  clickOverlay : false,
@@ -276,7 +261,7 @@ var Util = new function() {
 				  onCompleted : function(){ }
 		});
 		
-		$("#jNotifyDismiss").click(function(e) {
+		$dismissButton.click(function(e) {
 			popUp._close();
 		});
 	}
@@ -495,6 +480,22 @@ var Util = new function() {
 		}
 		return null;
 	}
+
+	this.isDateValid = function(dateAsString, isDateOnly) {
+	        var timeValueObject = Util.parseDate(dateAsString);
+
+            if(timeValueObject.getFullYear() !== parseInt(dateAsString.substring(0,4))) {
+                isValid = false;
+    			error = "Incorrect Date Format. Please follow the format " + (isDateOnly ? 'yyyy-MM-dd (YEAR-MONTH-DAY)' : 'yyyy-MM-dd HH:mm:ss (YEAR-MONTH-DAY : HOUR-MINUTE-SECOND)') + ".";
+    	    } else {
+    		    isValid = true;
+    	    }
+
+    	    return {
+    	        isValid : isValid,
+    	        error : error
+    	    };
+	}
 	
 	this.getFormatedDate = function(date) {
 		var day = date.getDate();
@@ -644,6 +645,15 @@ var Util = new function() {
 		return text;
 	}
 	
+    this.getDisplayLabelFromCodeAndDescription = function(codeAndDescription) {
+        var label = Util.getDisplayNameFromCode(codeAndDescription.code);
+        var description = Util.getEmptyIfNull(codeAndDescription.description);
+        if (description !== "") {
+            label += " (" + description + ")";
+        }
+        return label;
+    }
+	
 	this.getDisplayNameFromCode = function(openBISCode) {
 		var normalizedCodeParts = openBISCode.toLowerCase().split('_');
 		var displayName = "";
@@ -787,7 +797,8 @@ var Util = new function() {
     
     this.elementEndsWithArrayElement = function(element, elementsToEndWith) {
     		for(var aIdx = 0; aIdx < elementsToEndWith.length; aIdx++) {
-    			if(element.endsWith(elementsToEndWith[aIdx])) {
+    		    var elementToEndWith = elementsToEndWith[aIdx];
+    			if((typeof elementToEndWith === 'string' || elementToEndWith instanceof String) && element.endsWith(elementToEndWith)) {
     				return true;
     			}
     		}
@@ -809,6 +820,82 @@ var Util = new function() {
 
         setTimeout(_polling, 50);
     };
+
+    this.isMapEmpty = function(map) {
+        return Object.entries(map).length === 0 && map.constructor === Object;
+    }
+    
+    this.requestArchiving = function(dataSets, callback) {
+        if (dataSets.length === 0) {
+            Util.showInfo("No datasets selected, nothing will be done.", callback);
+            return;
+        }
+
+        var archivingRequested = false;
+        for(var aIdx = 0; aIdx < dataSets.length; aIdx++) {
+            var dataSet = dataSets[aIdx];
+            archivingRequested = archivingRequested || dataSet.archivingRequested || (dataSet.physicalData && dataSet.physicalData.archivingRequested);
+        }
+
+        if(archivingRequested) {
+            Util.showInfo("Some selected datasets are already queued for archiving, please unselect them before making the request, nothing will be done now.", callback);
+            return;
+        }
+
+        var $window = $('<form>', { 'action' : 'javascript:void(0);' });
+        $window.submit(function() {
+            require([ "as/dto/dataset/update/DataSetUpdate", "as/dto/dataset/id/DataSetPermId", "as/dto/dataset/update/PhysicalDataUpdate"],
+                    function(DataSetUpdate, DataSetPermId, PhysicalDataUpdate) {
+                        var updates = dataSets.map(function(dataSet) {
+                            var update = new DataSetUpdate();
+                            var permId = dataSet.permId.permId ? dataSet.permId.permId : dataSet.permId;
+                            update.setDataSetId(new DataSetPermId(permId));
+                            var physicalDataUpdate = new PhysicalDataUpdate();
+                            physicalDataUpdate.setArchivingRequested(true);
+                            update.setPhysicalData(physicalDataUpdate);
+                            return update;
+                        });
+                        Util.blockUI();
+                        mainController.openbisV3.updateDataSets(updates).done(function(result) {
+                            Util.unblockUI();
+                            Util.showSuccess("Archiving requested successfully", callback);
+                        }).fail(function(result) {
+                            Util.unblockUI();
+                            Util.showFailedServerCallError(result);
+                            callback();
+                        });
+                    });
+            });
+
+        $window.append($('<legend>').append('Request archiving'));
+
+        var description = dataSets.length === 1 ? "data set" : dataSets.length + " data sets";
+        var warning = "Your " + description + " will be queued for archiving " +
+                "and will only be archived when the minimum size" +
+                " is reached from this or other archiving requests.";
+        var $warning = $('<p>').text(warning);
+        $window.append($warning);
+
+        var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' });
+        var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
+        $btnCancel.click(function() {
+            Util.unblockUI();
+        });
+
+        $window.append($btnAccept).append('&nbsp;').append($btnCancel);
+
+        var css = {
+                'text-align' : 'left',
+                'top' : '15%',
+                'width' : '70%',
+                'left' : '15%',
+                'right' : '20%',
+                'overflow' : 'hidden',
+                'background' : '#ffffbf'
+        };
+
+        Util.blockUI($window, css);
+    }
 }
 
 
@@ -831,6 +918,18 @@ Array.prototype.uniqueOBISEntity = function() {
     for(var i=0; i<a.length; ++i) {
         for(var j=i+1; j<a.length; ++j) {
             if(a[i].identifier === a[j].identifier)
+                a.splice(j--, 1);
+        }
+    }
+
+    return a;
+};
+
+Array.prototype.unique = function() {
+    var a = this.concat();
+    for(var i=0; i<a.length; ++i) {
+        for(var j=i+1; j<a.length; ++j) {
+            if(a[i] === a[j])
                 a.splice(j--, 1);
         }
     }

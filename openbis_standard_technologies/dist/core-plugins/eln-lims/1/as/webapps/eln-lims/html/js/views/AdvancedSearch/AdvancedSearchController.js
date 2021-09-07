@@ -27,14 +27,19 @@ function AdvancedSearchController(mainController, forceSearch) {
 	this.init = function(views) {
 		var _this = this;
 		_this._searchStoreAvailable(function(searchStoreAvailable) {
-			_this._advancedSearchModel.searchStoreAvailable = searchStoreAvailable;
-			if (searchStoreAvailable) {
-				_this._loadSavedSearches(function() {
-					_this._advancedSearchView.repaint(views);
-				});
-			} else {
-				_this._advancedSearchView.repaint(views);
-			}
+            _this._mainController.serverFacade.getSetting("GLOBAL_SEARCH_DEFAULT", function(globalSearchDefault) {
+                if (globalSearchDefault) {
+                    _this._advancedSearchModel.globalSearchDefault = globalSearchDefault;
+                }
+                _this._advancedSearchModel.searchStoreAvailable = searchStoreAvailable;
+                if (searchStoreAvailable) {
+                    _this._loadSavedSearches(function() {
+                        _this._advancedSearchView.repaint(views);
+                    });
+                } else {
+                    _this._advancedSearchView.repaint(views);
+                }
+            });
 		});
 	}
 
@@ -50,14 +55,14 @@ function AdvancedSearchController(mainController, forceSearch) {
 		for(ruleKey in criteria.rules) {
 			var rule = criteria.rules[ruleKey];
 			numberOfRules++;
-			if(rule.value === null || rule.value === undefined || ("" + rule.value).trim() === "" || ("" + rule.value).trim() === "*") {
+			if(rule.value === null || rule.value === undefined || rule.value.toString().trim() === "" || rule.value.toString().trim() === "*") {
 				numberOfGeneralRules++;
 			} else {
-				numberOfWords += rule.value.trim().split(/\s+/).length;
+				numberOfWords += rule.value.toString().trim().split(/\s+/).length;
 			}
 		}
-
-		var _this = this;
+		
+        var _this = this;
 		var trueSearch = function() {
 			_this._advancedSearchView.renderResults(criteria);
 		}
@@ -129,11 +134,16 @@ function AdvancedSearchController(mainController, forceSearch) {
 					rowData.registrationDate = (entity.registrationDate)?Util.getFormatedDate(new Date(entity.registrationDate)):null;
 					rowData.modifier = (entity.modifier)?entity.modifier.userId:null;
 					rowData.modificationDate = (entity.modificationDate)?Util.getFormatedDate(new Date(entity.modificationDate)):null;
-					rowData.entityObject = entity;
+					rowData.$object = entity;
 
 					if(entity.identifier) {
 						rowData.identifier = entity.identifier.identifier;
 					}
+                    if (entity.physicalData) {
+                        rowData.size = entity.physicalData.size ? entity.physicalData.size : "";
+                        rowData.status = entity.physicalData.status;
+                        rowData.archivingRequested = entity.physicalData.archivingRequested;
+                    }
 
 					for(var propertyCode in entity.properties) {
 						rowData[propertyCode] = entity.properties[propertyCode];
@@ -234,22 +244,16 @@ function AdvancedSearchController(mainController, forceSearch) {
 
 			switch(criteriaToSend.entityKind) {
 				case "ALL":
-					var freeText = "";
-					for(var ruleId in criteriaToSend.rules) {
-						if(criteriaToSend.rules[ruleId].value) {
-							freeText += " " +  criteriaToSend.rules[ruleId].value;
-						}
-					}
-					mainController.serverFacade.searchGlobally(freeText, false, fetchOptions, callbackForSearch);
-					break;
 				case "ALL_PARTIAL":
+				case "ALL_PREFIX":
 					var freeText = "";
 					for(var ruleId in criteriaToSend.rules) {
 						if(criteriaToSend.rules[ruleId].value) {
 							freeText += " " +  criteriaToSend.rules[ruleId].value;
 						}
 					}
-					mainController.serverFacade.searchGlobally(freeText, true, fetchOptions, callbackForSearch);
+					mainController.serverFacade.searchGlobally(freeText, criteriaToSend.entityKind, fetchOptions,
+							callbackForSearch);
 					break;
 				case "SAMPLE":
 					mainController.serverFacade.searchForSamplesAdvanced(criteriaToSend, fetchOptions, callbackForSearch);
@@ -258,7 +262,8 @@ function AdvancedSearchController(mainController, forceSearch) {
 					mainController.serverFacade.searchForExperimentsAdvanced(criteriaToSend, fetchOptions, callbackForSearch);
 					break;
 				case "DATASET":
-					mainController.serverFacade.searchForDataSetsAdvanced(criteriaToSend, fetchOptions, callbackForSearch);
+                    fetchOptions["withPhysicalData"] = true;
+                    mainController.serverFacade.searchForDataSetsAdvanced(criteriaToSend, fetchOptions, callbackForSearch);
 					break;
 			}
 		}
@@ -270,14 +275,16 @@ function AdvancedSearchController(mainController, forceSearch) {
 
 		switch(criteriaToSend.entityKind) {
 			case "ALL":
+			case "ALL_PARTIAL":
+			case "ALL_PREFIX":
 				var freeText = "";
 				for(var ruleId in criteriaToSend.rules) {
 					if(criteriaToSend.rules[ruleId].value) {
 						freeText += " " +  criteriaToSend.rules[ruleId].value;
 					}
 				}
-				mainController.serverFacade.getSearchCriteriaAndFetchOptionsForGlobalSearch(freeText, false, {},
-					callback);
+				mainController.serverFacade.getSearchCriteriaAndFetchOptionsForGlobalSearch(freeText,
+					criteriaToSend.entityKind, {}, callback);
 				break;
 			case "ALL_PARTIAL":
 				var freeText = "";

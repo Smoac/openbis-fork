@@ -23,9 +23,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.DatePropertySearchCriteria;
@@ -974,6 +971,84 @@ public class SearchDataSetTest extends AbstractDataSetTest
         v3api.logout(sessionToken);
     }
 
+    /**
+     * Sorting is done first by PROP1 then by PROP2 then by PROP3. The following order is expected.
+     * Code  | PROP1            | PROP2 | PROP3
+     * DS-4 | Simple test      | T1    | P2
+     * DS-2 | Simple test      | T1    | P3
+     * DS-7 | Simple test      | T2    | P4
+     * DS-1 | Simple test      | T2    | -
+     * DS-5 | Simple test      | -     | P2
+     * DS-6 | Simple test      | -     | P3
+     * DS-8 | Simple test      | -     | -
+     * DS-3 | Very simple test | T1    | P2
+     */
+    @Test
+    public void testSearchWithSortingByMultiplePropertiesWithMissingProperties()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final PropertyTypePermId propertyType1 = createAVarcharPropertyType(sessionToken, "PROP1");
+        final PropertyTypePermId propertyType2 = createAVarcharPropertyType(sessionToken, "PROP2");
+        final PropertyTypePermId propertyType3 = createAVarcharPropertyType(sessionToken, "PROP3");
+        final EntityTypePermId dataSetType = createADataSetType(sessionToken, false, propertyType1,
+                propertyType2, propertyType3);
+
+        final DataSetCreation dataSetCreation1 = createDataSet("DS-1", dataSetType,
+                propertyType1, propertyType2, propertyType3, "Simple test", "T2", null);
+        final DataSetCreation dataSetCreation2 = createDataSet("DS-2", dataSetType,
+                propertyType1, propertyType2, propertyType3, "Simple test", "T1", "P3");
+        final DataSetCreation dataSetCreation3 = createDataSet("DS-3", dataSetType,
+                propertyType1, propertyType2, propertyType3, "Very simple test", "T1", "P2");
+        final DataSetCreation dataSetCreation4 = createDataSet("DS-4", dataSetType,
+                propertyType1, propertyType2, propertyType3, "Simple test", "T1", "P2");
+        final DataSetCreation dataSetCreation5 = createDataSet("DS-5", dataSetType,
+                propertyType1, propertyType2, propertyType3, "Simple test", null, "P2");
+        final DataSetCreation dataSetCreation6 = createDataSet("DS-6", dataSetType,
+                propertyType1, propertyType2, propertyType3, "Simple test", null, "P3");
+        final DataSetCreation dataSetCreation7 = createDataSet("DS-7", dataSetType,
+                propertyType1, propertyType2, propertyType3, "Simple test", "T2", "P4");
+        final DataSetCreation dataSetCreation8 = createDataSet("DS-8", dataSetType,
+                propertyType1, propertyType2, propertyType3, "Simple test", null, null);
+
+        v3api.createDataSets(sessionToken, Arrays.asList(dataSetCreation1, dataSetCreation2,
+                dataSetCreation3, dataSetCreation4, dataSetCreation5, dataSetCreation6, dataSetCreation7,
+                dataSetCreation8));
+
+        final DataSetSearchCriteria criteria = new DataSetSearchCriteria();
+        criteria.withStringProperty("PROP1");
+
+        final DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
+        fetchOptions.sortBy().property("PROP1").asc();
+        fetchOptions.sortBy().property("PROP2").asc();
+        fetchOptions.sortBy().property("PROP3").asc();
+
+        final List<DataSet> dataSets = searchDataSets(sessionToken, criteria, fetchOptions);
+        assertEquals(dataSets.get(0).getCode(), "DS-4");
+        assertEquals(dataSets.get(1).getCode(), "DS-2");
+        assertEquals(dataSets.get(2).getCode(), "DS-7");
+        assertEquals(dataSets.get(3).getCode(), "DS-1");
+        assertEquals(dataSets.get(4).getCode(), "DS-5");
+        assertEquals(dataSets.get(5).getCode(), "DS-6");
+        assertEquals(dataSets.get(6).getCode(), "DS-8");
+        assertEquals(dataSets.get(7).getCode(), "DS-3");
+    }
+
+    private DataSetCreation createDataSet(final String code, final EntityTypePermId experimentType,
+            final PropertyTypePermId propertyType1, final PropertyTypePermId propertyType2,
+            final PropertyTypePermId propertyType3, final String propertyValue1, final String propertyValue2,
+            final String propertyValue3)
+    {
+        final DataSetCreation creation = physicalDataSetCreation();
+        creation.setCode(code);
+        creation.setTypeId(experimentType);
+        creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
+        creation.setProperty(propertyType1.getPermId(), propertyValue1);
+        creation.setProperty(propertyType2.getPermId(), propertyValue2);
+        creation.setProperty(propertyType3.getPermId(), propertyValue3);
+        return creation;
+    }
+
     @Test
     public void testSearchWithSortingByCode()
     {
@@ -1775,6 +1850,30 @@ public class SearchDataSetTest extends AbstractDataSetTest
         criteria.withPermId().thatEndsWith("1");
 
         testSearch(TEST_USER, criteria, "20110509092359990-11", "20081105092159111-1", "20081105092259900-1");
+    }
+
+    @Test
+    public void testSearchWithAttributeNegation()
+    {
+        final DataSetSearchCriteria criteria = new DataSetSearchCriteria().withAndOperator();
+        criteria.withContainer();
+
+        final DataSetSearchCriteria subcriteria = criteria.withSubcriteria().negate().withOrOperator();
+        subcriteria.withCode().thatContains("-");
+        subcriteria.withCode().thatStartsWith("COMPONENT_3A");
+        subcriteria.withCode().thatEquals("COMPONENT_1B");
+
+        testSearch(TEST_USER, criteria, "CONTAINER_1", "CONTAINER_2", "COMPONENT_1A", "COMPONENT_2A");
+    }
+
+    @Test
+    public void testSearchWithAnyPropertyWithNegation()
+    {
+        DataSetSearchCriteria criteria = new DataSetSearchCriteria().withAndOperator();
+        criteria.withAnyProperty().thatEndsWith("comment");
+        criteria.withSubcriteria().negate().withAnyProperty().thatStartsWith("co ");
+        criteria.withSubcriteria().negate().withAnyProperty().thatStartsWith("no ");
+        testSearch(TEST_USER, criteria, "20110509092359990-11", "20110509092359990-12");
     }
 
     private List<DataSet> search(final String sessionToken, final DataSetSearchCriteria criteria,

@@ -182,10 +182,11 @@ public abstract class AbstractSearchManager<OBJECT>
         return result;
     }
 
-    protected Set<Long> searchForIDs(final Long userId, final AuthorisationInformation authorisationInformation, final AbstractCompositeSearchCriteria criteria, final String idsColumnName,
+    protected Set<Long> searchForIDs(final Long userId, final AuthorisationInformation authorisationInformation,
+            final AbstractCompositeSearchCriteria criteria, final String idsColumnName,
             final TableMapper tableMapper)
     {
-        final Set<Long> mainCriteriaIntermediateResults = getSearchDAO().queryDBForIdsAndRanksWithNonRecursiveCriteria(userId,
+        final Set<Long> mainCriteriaIntermediateResults = getSearchDAO().queryDBForIdsWithGlobalSearchMatchCriteria(userId,
                 criteria, tableMapper, idsColumnName, authorisationInformation);
 
         // If we have results, we use them
@@ -203,7 +204,7 @@ public abstract class AbstractSearchManager<OBJECT>
         if (!criteria.isEmpty())
         {
             final DummyCompositeSearchCriterion containerCriterion = new DummyCompositeSearchCriterion(criteria, finalSearchOperator);
-            final Set<Long> mainCriteriaNotFilteredResults = getSearchDAO().queryDBForIdsAndRanksWithNonRecursiveCriteria(userId, containerCriterion, tableMapper,
+            final Set<Long> mainCriteriaNotFilteredResults = getSearchDAO().queryDBForIdsWithGlobalSearchMatchCriteria(userId, containerCriterion, tableMapper,
                     idsColumnName, authorisationInformation);
             return filterIDsByUserRights(userId, authorisationInformation, mainCriteriaNotFilteredResults);
         } else

@@ -1,3 +1,50 @@
+## Changes with pybis-1.20.0
+
+- metadata for property_types can now be changed to:
+    - {'custom_widget' : 'Word Processor'}
+    - {'custom_widget' : 'Spreadsheet'}
+- added documentation how to change the ELN settings
+- removed deprecated update_sample()
+- removed deprecated update_experiment()
+
+## Changes with pybis-1.19.1
+
+- add set_token() method to set a token and also store it locally
+## Changes with pybis-1.19.0
+
+- added caching for get_experiment
+- included OR when providing codes/permIds for samples and datasets
+- improved documentation
+- fixed property assigning problem with newly created entity types
+
+## Changes with pybis-1.18.12
+
+- fixed rel_file_links, prepended /
+## Changes with pybis-1.18.11
+
+- added rel_file_links to datasets for embedding in ELN-LIMS
+## Changes with pybis-1.18.10
+
+- added deprecation warnings for components/containers and attachments
+- added download_path and file_links to datasets
+
+## Changes with pybis-1.18.9
+
+- fixed problem when searching for experiments
+
+## Changes with pybis-1.18.8
+
+- fixed problem with 20.10 releases where samples could not be found using the permId
+
+## Changes with pybis-1.18.7
+
+- fixed entity_type caching problem
+
+## Changes with pybis-1.18.6
+
+- fixed create samples bug
+- fixed zip upload bug
+
 ## Changes with pybis-1.18.5
 
 - fixed deref bug for container

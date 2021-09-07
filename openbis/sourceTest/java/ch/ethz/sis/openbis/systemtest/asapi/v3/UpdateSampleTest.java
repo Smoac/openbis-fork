@@ -51,6 +51,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.history.PropertyHistoryEntry;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.ProjectCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.Role;
@@ -63,6 +65,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.ITagId;
@@ -204,7 +207,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, sampleId, patternContains("checking access (1/1)", toDblQuotes("'identifier' : '/CISD/CP-TEST-1'")));
+            }, sampleId, patternContains("checking access (1/1)", toDblQuotes("'identifier' : '/CISD/NEMO/CP-TEST-1'")));
     }
 
     @Test
@@ -254,7 +257,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, spaceId, patternContains("updating relation sample-space (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/CP-TEST-4'")));
+            }, spaceId, patternContains("updating relation sample-space (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/NOE/CP-TEST-4'")));
     }
 
     @Test
@@ -274,7 +277,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, spaceId, patternContains("updating relation sample-space (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/CP-TEST-4'")));
+            }, spaceId, patternContains("updating relation sample-space (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/NOE/CP-TEST-4'")));
     }
 
     @Test
@@ -293,6 +296,7 @@ public class UpdateSampleTest extends AbstractSampleTest
         SampleUpdate update = new SampleUpdate();
         update.setSampleId(ids.get(0));
         update.setSpaceId(null);
+        update.setProjectId(null);
         update.setExperimentId(null);
 
         v3api.updateSamples(sessionToken, Arrays.asList(update));
@@ -329,6 +333,7 @@ public class UpdateSampleTest extends AbstractSampleTest
         final SampleUpdate update = new SampleUpdate();
         update.setSampleId(ids.get(0));
         update.setSpaceId(null);
+        update.setProjectId(null);
         update.setExperimentId(null);
 
         assertAuthorizationFailureException(new IDelegatedAction()
@@ -338,7 +343,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, patternContains("updating relation sample-space (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/SAMPLE'")));
+            }, patternContains("updating relation sample-space (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/TEST-PROJECT/SAMPLE'")));
     }
 
     @Test
@@ -347,8 +352,10 @@ public class UpdateSampleTest extends AbstractSampleTest
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         final SampleUpdate update = new SampleUpdate();
-        update.setSampleId(new SampleIdentifier("/CISD/CP-TEST-1"));
+        update.setSampleId(new SampleIdentifier("/CISD/NEMO/CP-TEST-1"));
         update.setSpaceId(null);
+        update.setProjectId(null);
+        update.setExperimentId(null);
 
         assertUserFailureException(new IDelegatedAction()
             {
@@ -392,7 +399,7 @@ public class UpdateSampleTest extends AbstractSampleTest
         Sample sample = samples.get(0);
         assertEquals(sample.getSpace().getCode(), "TEST-SPACE");
         assertEquals(sample.getExperiment().getIdentifier().getIdentifier(), "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
-        assertSampleIdentifier(sample, "/TEST-SPACE/SAMPLE");
+        assertSampleIdentifier(sample, "/TEST-SPACE/TEST-PROJECT/SAMPLE");
     }
 
     @Test
@@ -550,6 +557,7 @@ public class UpdateSampleTest extends AbstractSampleTest
 
         SampleUpdate update = new SampleUpdate();
         update.setSampleId(ids.get(0));
+        update.setProjectId(null);
         update.setExperimentId(null);
 
         assertAuthorizationFailureException(new IDelegatedAction()
@@ -567,7 +575,7 @@ public class UpdateSampleTest extends AbstractSampleTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        ISampleId sampleId = new SampleIdentifier("/CISD/CP-TEST-1");
+        ISampleId sampleId = new SampleIdentifier("/CISD/NEMO/CP-TEST-1");
         final SampleUpdate update = new SampleUpdate();
         update.setSampleId(sampleId);
         update.setExperimentId(null);
@@ -607,7 +615,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, experimentId, patternContains("updating relation sample-experiment (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/CP-TEST-4'")));
+            }, experimentId, patternContains("updating relation sample-experiment (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/NOE/CP-TEST-4'")));
     }
 
     @Test
@@ -627,7 +635,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, experimentId, patternContains("updating relation sample-experiment (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/CP-TEST-4'")));
+            }, experimentId, patternContains("updating relation sample-experiment (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/NOE/CP-TEST-4'")));
     }
 
     @Test
@@ -1011,7 +1019,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, containerId, patternContains("updating relation sample-containers (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/CP-TEST-4'")));
+            }, containerId, patternContains("updating relation sample-containers (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/NOE/CP-TEST-4'")));
     }
 
     @Test
@@ -1031,7 +1039,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, containerId, patternContains("updating relation sample-containers (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/CP-TEST-4'")));
+            }, containerId, patternContains("updating relation sample-containers (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/NOE/CP-TEST-4'")));
     }
 
     @Test
@@ -1186,7 +1194,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, componentId, patternContains("updating relation sample-components (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/CP-TEST-4'")));
+            }, componentId, patternContains("updating relation sample-components (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/NOE/CP-TEST-4'")));
     }
 
     @Test
@@ -1206,7 +1214,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, componentId, patternContains("updating relation sample-components (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/CP-TEST-4'")));
+            }, componentId, patternContains("updating relation sample-components (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/NOE/CP-TEST-4'")));
     }
 
     @Test
@@ -1435,7 +1443,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, parentId, patternContains("updating relation sample-parents (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/CP-TEST-4'")));
+            }, parentId, patternContains("updating relation sample-parents (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/NOE/CP-TEST-4'")));
     }
 
     @Test
@@ -1455,7 +1463,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, parentId, patternContains("updating relation sample-parents (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/CP-TEST-4'")));
+            }, parentId, patternContains("updating relation sample-parents (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/NOE/CP-TEST-4'")));
     }
 
     @Test
@@ -1586,7 +1594,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, childId, patternContains("updating relation sample-children (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/CP-TEST-4'")));
+            }, childId, patternContains("updating relation sample-children (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/NOE/CP-TEST-4'")));
     }
 
     @Test
@@ -1606,7 +1614,7 @@ public class UpdateSampleTest extends AbstractSampleTest
                 {
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
-            }, childId, patternContains("updating relation sample-children (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/CP-TEST-4'")));
+            }, childId, patternContains("updating relation sample-children (1/1)", toDblQuotes("'identifier' : '/TEST-SPACE/NOE/CP-TEST-4'")));
     }
 
     @Test
@@ -1646,6 +1654,73 @@ public class UpdateSampleTest extends AbstractSampleTest
                 }
             }, "Sample '/CISD/3V-125' can not be a space sample because of a child database instance sample '/MP'",
                 patternContains("verifying (1/1)", toDblQuotes("'identifier' : '/CISD/3V-125'")));
+    }
+
+    @Test
+    public void testMoveSampleToSpaceWithSampleHavingSameCode()
+    {
+        // Given
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        SpaceCreation space1 = new SpaceCreation();
+        space1.setCode("TEST-SPACE-A");
+        SpaceCreation space2 = new SpaceCreation();
+        space2.setCode("TEST-SPACE-B");
+        List<SpacePermId> spaceIds = v3api.createSpaces(sessionToken, Arrays.asList(space1, space2));
+
+        SampleCreation s1 = new SampleCreation();
+        s1.setCode("SAMPLE");
+        s1.setTypeId(new EntityTypePermId("NORMAL", EntityKind.SAMPLE));
+        s1.setSpaceId(spaceIds.get(0));
+        SampleCreation s2 = new SampleCreation();
+        s2.setCode("SAMPLE");
+        s2.setTypeId(new EntityTypePermId("NORMAL", EntityKind.SAMPLE));
+        s2.setSpaceId(spaceIds.get(1));
+        List<SamplePermId> sampleIds = v3api.createSamples(sessionToken, Arrays.asList(s1, s2));
+
+        SampleUpdate sampleUpdate = new SampleUpdate();
+        sampleUpdate.setSampleId(sampleIds.get(0));
+        sampleUpdate.setSpaceId(spaceIds.get(1));
+
+        // When
+        assertUserFailureException(Void -> v3api.updateSamples(sessionToken, Arrays.asList(sampleUpdate)), 
+                // Then
+                "Insert/Update of sample (code: SAMPLE) failed because sample with the same code already exists.");
+    }
+
+    @Test
+    public void testMoveSampleToProjectWithSampleHavingSameCode()
+    {
+        // Given
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        SpacePermId spaceId = new SpacePermId("TEST-SPACE");
+        ProjectCreation p1 = new ProjectCreation();
+        p1.setCode("TEST-A");
+        p1.setSpaceId(spaceId);
+        ProjectCreation p2 = new ProjectCreation();
+        p2.setCode("TEST-B");
+        p2.setSpaceId(spaceId);
+        List<ProjectPermId> projectIds = v3api.createProjects(sessionToken, Arrays.asList(p1, p2));
+
+        SampleCreation s1 = new SampleCreation();
+        s1.setCode("SAMPLE");
+        s1.setTypeId(new EntityTypePermId("NORMAL", EntityKind.SAMPLE));
+        s1.setSpaceId(spaceId);
+        s1.setProjectId(projectIds.get(0));
+        SampleCreation s2 = new SampleCreation();
+        s2.setCode("SAMPLE");
+        s2.setTypeId(new EntityTypePermId("NORMAL", EntityKind.SAMPLE));
+        s2.setSpaceId(spaceId);
+        s2.setProjectId(projectIds.get(1));
+
+        List<SamplePermId> sampleIds = v3api.createSamples(sessionToken, Arrays.asList(s1, s2));
+        SampleUpdate sampleUpdate = new SampleUpdate();
+        sampleUpdate.setSampleId(sampleIds.get(0));
+        sampleUpdate.setProjectId(projectIds.get(1));
+
+        // When
+        assertUserFailureException(Void -> v3api.updateSamples(sessionToken, Arrays.asList(sampleUpdate)), 
+                // Then
+                "Insert/Update of sample (code: SAMPLE) failed because sample with the same code already exists.");
     }
 
     @Test
@@ -1814,7 +1889,7 @@ public class UpdateSampleTest extends AbstractSampleTest
         String sessionToken = v3api.login(user.getUserId(), PASSWORD);
 
         SampleUpdate update = new SampleUpdate();
-        update.setSampleId(new SampleIdentifier("/TEST-SPACE/EV-TEST"));
+        update.setSampleId(new SampleIdentifier("/TEST-SPACE/TEST-PROJECT/EV-TEST"));
         update.setExperimentId(new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST"));
         update.setProperty("COMMENT", "test comment");
 
@@ -1855,7 +1930,7 @@ public class UpdateSampleTest extends AbstractSampleTest
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleUpdate update = new SampleUpdate();
-        update.setSampleId(new SampleIdentifier("/CISD/CP-TEST-1"));
+        update.setSampleId(new SampleIdentifier("/CISD/NEMO/CP-TEST-1"));
 
         SampleUpdate update2 = new SampleUpdate();
         update2.setSampleId(new SamplePermId("201206191219327-1055"));
@@ -1863,7 +1938,7 @@ public class UpdateSampleTest extends AbstractSampleTest
         v3api.updateSamples(sessionToken, Arrays.asList(update, update2));
 
         assertAccessLog(
-                "update-samples  SAMPLE_UPDATES('[SampleUpdate[sampleId=/CISD/CP-TEST-1], SampleUpdate[sampleId=201206191219327-1055]]')");
+                "update-samples  SAMPLE_UPDATES('[SampleUpdate[sampleId=/CISD/NEMO/CP-TEST-1], SampleUpdate[sampleId=201206191219327-1055]]')");
     }
 
     @Test

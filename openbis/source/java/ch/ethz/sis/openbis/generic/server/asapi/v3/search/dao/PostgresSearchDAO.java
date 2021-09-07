@@ -35,7 +35,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.GlobalSearchCriteriaTranslator.*;
@@ -54,6 +53,10 @@ public class PostgresSearchDAO implements ISQLSearchDAO
             DataType.XML)
             .stream().map(DataType::toString).collect(Collectors.toList()).toArray(new String[0]);
 
+    private static final String PROPERTY_CODE_ALIAS = "property_code";
+
+    private static final String TYPE_CODE_ALIAS = "type_code";
+
     private ISQLExecutor sqlExecutor;
 
     public PostgresSearchDAO(final ISQLExecutor sqlExecutor)
@@ -61,7 +64,7 @@ public class PostgresSearchDAO implements ISQLSearchDAO
         this.sqlExecutor = sqlExecutor;
     }
 
-    public Set<Long> queryDBForIdsAndRanksWithNonRecursiveCriteria(final Long userId, final AbstractCompositeSearchCriteria criterion,
+    public Set<Long> queryDBForIdsWithGlobalSearchMatchCriteria(final Long userId, final AbstractCompositeSearchCriteria criterion,
             final TableMapper tableMapper, final String idsColumnName, final AuthorisationInformation authorisationInformation)
     {
         final Collection<ISearchCriteria> criteria = criterion.getCriteria();
@@ -169,7 +172,7 @@ public class PostgresSearchDAO implements ISQLSearchDAO
     }
 
     @Override
-    public List<Map<String, Object>> queryDBForIdsAndRanksWithNonRecursiveCriteria(final Long userId,
+    public List<Map<String, Object>> queryDBForIdsWithGlobalSearchMatchCriteria(final Long userId,
             final GlobalSearchCriteria criterion, final String idsColumnName,
             final AuthorisationInformation authorisationInformation, final Set<GlobalSearchObjectKind> objectKinds,
             final GlobalSearchObjectFetchOptions fetchOptions, final boolean onlyTotalCount)
@@ -179,6 +182,21 @@ public class PostgresSearchDAO implements ISQLSearchDAO
 
         // Short query to narrow down the result set and calculate ranks.
         final SelectQuery selectQuery = GlobalSearchCriteriaTranslator.translateToShortQuery(translationContext,
+                onlyTotalCount);
+        return sqlExecutor.execute(selectQuery.getQuery(), selectQuery.getArgs());
+    }
+
+    @Override
+    public List<Map<String, Object>> queryDBForIdsWithGlobalSearchContainsCriteria(final Long userId,
+            final GlobalSearchCriteria criterion, final String idsColumnName,
+            final AuthorisationInformation authorisationInformation, final Set<GlobalSearchObjectKind> objectKinds,
+            final GlobalSearchObjectFetchOptions fetchOptions, final boolean onlyTotalCount)
+    {
+        final TranslationContext translationContext = buildTranslationContext(userId, criterion,
+                idsColumnName, authorisationInformation, objectKinds, fetchOptions);
+
+        // Short query to narrow down the result set and calculate ranks.
+        final SelectQuery selectQuery = GlobalSearchCriteriaTranslator.translateToShortContainsQuery(translationContext,
                 onlyTotalCount);
         return sqlExecutor.execute(selectQuery.getQuery(), selectQuery.getArgs());
     }
@@ -347,7 +365,7 @@ public class PostgresSearchDAO implements ISQLSearchDAO
         translationContext.setSortOptions(sortOptions);
 
         final boolean containsProperties = sortOptions.getSortings().stream().anyMatch(
-                (sorting) -> TranslatorUtils.isPropertySearchFieldName(sorting.getField()));
+                (sorting) -> TranslatorUtils.isPropertySortingFieldName(sorting.getField()));
 
         updateWithDataTypes(translationContext, containsProperties);
 
@@ -365,18 +383,33 @@ public class PostgresSearchDAO implements ISQLSearchDAO
         if (containsProperties)
         {
             // Making property types query only when it is needed.
-            final SelectQuery dataTypesQuery = OrderTranslator.translateToSearchTypeQuery(translationContext);
+            final SelectQuery dataTypesQuery = translateToSearchTypeQuery(translationContext);
             final List<Map<String, Object>> dataTypesQueryResultList = sqlExecutor.execute(dataTypesQuery.getQuery(),
                     dataTypesQuery.getArgs());
             typeByPropertyName = dataTypesQueryResultList.stream().collect(Collectors.toMap(
-                    (valueByColumnName) -> (String) valueByColumnName.get(OrderTranslator.PROPERTY_CODE_ALIAS),
-                    (valueByColumnName) -> (String) valueByColumnName.get(OrderTranslator.TYPE_CODE_ALIAS)));
+                    (valueByColumnName) -> (String) valueByColumnName.get(PROPERTY_CODE_ALIAS),
+                    (valueByColumnName) -> (String) valueByColumnName.get(TYPE_CODE_ALIAS)));
         } else
         {
             typeByPropertyName = Collections.emptyMap();
         }
 
         translationContext.setDataTypeByPropertyName(typeByPropertyName);
+    }
+
+    private static SelectQuery translateToSearchTypeQuery(final TranslationContext translationContext)
+    {
+        final TableMapper tableMapper = translationContext.getTableMapper();
+        final String queryString = SELECT + SP + DISTINCT + SP + "o3" + PERIOD + CODE_COLUMN + SP +
+                PROPERTY_CODE_ALIAS + COMMA + SP +
+                "o4" + PERIOD + CODE_COLUMN + SP + TYPE_CODE_ALIAS + NL +
+                FROM + SP + tableMapper.getAttributeTypesTable() + SP + "o3" + SP + NL +
+                INNER_JOIN + SP + DATA_TYPES_TABLE + SP + "o4" + SP +
+                ON + SP + "o3" + PERIOD + tableMapper.getAttributeTypesTableDataTypeIdField() + SP + EQ + SP + "o4" +
+                PERIOD + ID_COLUMN + NL +
+                WHERE + SP + "o4" + PERIOD + CODE_COLUMN + SP + IN + SP + LP + SELECT + SP + UNNEST + LP + QU + RP + RP;
+
+        return new SelectQuery(queryString, Collections.singletonList(translationContext.getTypesToFilter()));
     }
 
     @Autowired

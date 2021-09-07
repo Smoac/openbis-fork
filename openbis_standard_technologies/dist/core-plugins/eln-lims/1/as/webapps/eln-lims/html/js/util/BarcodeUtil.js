@@ -1,5 +1,4 @@
 var BarcodeUtil = new function() {
-    var MIN_BARCODE_LENGTH = 15;
     var barcodeTimeout = false;
     var barcodeReader = "";
     var barcodePattern = /^[-0-9]+$/;
@@ -9,7 +8,7 @@ var BarcodeUtil = new function() {
         // permID Format 23 char, 1 hyphen: 20170912112249208-38888
         // UUID Format 36 char, 4 hyphens: 123e4567-e89b-12d3-a456-426655440000
 
-        if(barcodeReader.length >= MIN_BARCODE_LENGTH && barcodePattern.test(barcodeReader)) {
+        if(barcodeReader.length >= profile.minBarcodeLength && barcodePattern.test(barcodeReader)) {
             var rules = {};
             rules["UUIDv4-1"] = { type: "Property/Attribute", 	name: "PROP.$BARCODE", operator : "thatEqualsString", value: barcodeReader };
             rules["UUIDv4-2"] = { type: "Property/Attribute", 	name: "ATTR.PERM_ID",  operator : "thatEqualsString", value: barcodeReader };
@@ -169,7 +168,7 @@ var BarcodeUtil = new function() {
                 format = {
                     orientation: ((layout === 'split')?'l':'p'),
                     unit: 'mm',
-                    format: [width, height * ((layout === 'split')?1:value) + ((layout === 'split')?0:2*value)],
+                    format: [width, height * ((layout === 'split')?1:barcodes.length) + ((layout === 'split')?0:2*barcodes.length)],
                     putOnlyUsedFonts:true
                 };
 
@@ -320,15 +319,16 @@ var BarcodeUtil = new function() {
         for(var eIdx = 0; eIdx < entities.length; eIdx++) {
             var $barcodeReader = $('<input>', { 'type': 'text', 'placeholder': 'barcode', 'style' : 'min-width: 50%;' });
             $barcodeReaders.push($barcodeReader);
-            if(entities[eIdx].properties["$BARCODE"]) {
+            if (entities[eIdx].properties && entities[eIdx].properties["$BARCODE"]) {
                 $barcodeReader.val(entities[eIdx].properties["$BARCODE"]);
+                $barcodeReader.select();
             }
         }
 
         $btnAccept.click(function(event) {
             var errors = [];
             for(var eIdx = 0; eIdx < entities.length; eIdx++) {
-                if($barcodeReaders[eIdx].val().length >= MIN_BARCODE_LENGTH ||
+                if($barcodeReaders[eIdx].val().length >= profile.minBarcodeLength ||
                    $barcodeReaders[eIdx].val().length === 0) {
                    // OK
                 } else {
@@ -402,7 +402,7 @@ var BarcodeUtil = new function() {
 
         $window.append($('<legend>').append("Update Custom Barcode"));
         $window.append($('<br>'));
-        $window.append(FormUtil.getInfoText("A valid barcode need to have " + MIN_BARCODE_LENGTH + " or more characters."));
+        $window.append(FormUtil.getInfoText("A valid barcode need to have " + profile.minBarcodeLength + " or more characters."));
         $window.append(FormUtil.getInfoText("If a custom barcode is not given the permId is always used as default barcode."));
         $window.append(FormUtil.getWarningText("Empty the custom barcode to delete the current custom barcode."));
 

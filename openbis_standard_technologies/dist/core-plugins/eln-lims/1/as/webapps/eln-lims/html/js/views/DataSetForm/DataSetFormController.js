@@ -23,7 +23,14 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini, 
 		var _this = this;
 		
 		mainController.serverFacade.listDataSetTypes(function(data) {
-					_this._dataSetFormModel.dataSetTypes = data.result;
+					_this._dataSetFormModel.dataSetTypes = [];
+                    for (var i = 0; i < data.result.length; i++) {
+                        var datasetType = data.result[i];
+                        var datasetTypeCode = datasetType.code;
+                        if(profile.showDataset(datasetTypeCode)) {
+                            _this._dataSetFormModel.dataSetTypes.push(datasetType);
+                        }
+                    }
 					mainController.serverFacade.getSetting("DataSetFormModel.isAutoUpload", function(value) {
 						_this._dataSetFormModel.isAutoUpload = (value === "true");
 						
@@ -194,7 +201,7 @@ function DataSetFormController(parentController, mode, entity, dataSet, isMini, 
 				"experimentIdentifier" : experimentIdentifier, //Use for creation
 				"dataSetParents" : dataSetParents,
 				"dataSetType" : dataSetTypeCode,
-				"filenames" : _this._dataSetFormModel.files,
+				"filenames" : _this._dataSetFormModel.files.map(filename => filename.trim()),
 				"folderName" : folderName,
 				"isZipDirectoryUpload" : isZipDirectoryUpload,
 				//Metadata

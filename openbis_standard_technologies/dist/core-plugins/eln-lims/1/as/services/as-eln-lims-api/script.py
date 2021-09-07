@@ -32,6 +32,8 @@ def process(context, parameters):
         result = getServiceProperty(context, parameters);
     elif method == "getNextSequenceForType":
         result = getNextSequenceForType(context, parameters);
+    elif method == "getNextExperimentCode":
+        result = getNextExperimentCode(context, parameters);
     elif method == "doSpacesBelongToDisabledUsers":
         result = doSpacesBelongToDisabledUsers(context, parameters);
     elif method == "trashStorageSamplesWithoutParents":
@@ -46,18 +48,26 @@ def setCustomWidgetSettings(context, parameters):
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.property.update import PropertyTypeUpdate
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id import PropertyTypePermId
     from ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue import ListUpdateActionAdd
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search import PropertyTypeSearchCriteria
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions import PropertyTypeFetchOptions
 
-    widgetSettings = parameters.get("widgetSettings");
+    widgetSettingsById = {PropertyTypePermId(ws["Property Type"]):ws for ws in parameters.get("widgetSettings")}
+    sessionToken = context.applicationService.loginAsSystem();
+    searchCriteria = PropertyTypeSearchCriteria()
+    fetchOptions = PropertyTypeFetchOptions()
     ptus = [];
-    for widgetSetting in widgetSettings:
+    propertyTypes = context.applicationService.searchPropertyTypes(sessionToken, searchCriteria, fetchOptions)
+    for propertyType in propertyTypes.getObjects():
+        id = propertyType.getPermId()
         ptu = PropertyTypeUpdate();
-        ptu.setTypeId(PropertyTypePermId(widgetSetting["Property Type"]));
-        luaa = ListUpdateActionAdd();
-        luaa.setItems([{"custom_widget" : widgetSetting["Widget"] }])
-        ptu.setMetaDataActions([luaa]);
+        ptu.setTypeId(id);
+        metaData = ptu.getMetaData()
+        if id in widgetSettingsById:
+            metaData.add([{"custom_widget" : widgetSettingsById[id]["Widget"] }])
+        else:
+            metaData.remove(["custom_widget"])
         ptus.append(ptu);
 
-    sessionToken = context.applicationService.loginAsSystem();
     context.applicationService.updatePropertyTypes(sessionToken, ptus);
     return True
 
@@ -96,7 +106,7 @@ def isValidStoragePositionToInsertUpdate(context, parameters):
         storage = sampleSearchResults.get(0);
         storageValidationLevel = storage.getProperty("$STORAGE.STORAGE_VALIDATION_LEVEL");
     else:
-        raise UserFailureException("Found: " + sampleSearchResults.size() + " storages for storage code: " + storageCode);
+        raise UserFailureException("Found: " + str(sampleSearchResults.size()) + " storages for storage code: " + storageCode);
 
     # 2. Check that the state of the sample is valid for the Storage Validation Level
     if storageRackRow is None or storageRackColumn is None:
@@ -207,7 +217,7 @@ def getNextSequenceForType(context, parameters):
 
     querySampleTypePrefix = currentSession.createSQLQuery("SELECT generated_code_prefix from sample_types WHERE code = :sampleTypeCode");
     querySampleTypePrefix.setParameter("sampleTypeCode", sampleTypeCode);
-    sampleTypePrefix = querySampleTypePrefix.uniqueResult();
+    sampleTypePrefix = querySampleTypePrefix.uniqueResult().upper();
     sampleTypePrefixLengthPlusOneAsString = str((len(sampleTypePrefix) + 1));
     querySampleCount = currentSession.createSQLQuery("SELECT COALESCE(MAX(CAST(substring(code, " + sampleTypePrefixLengthPlusOneAsString + ") as int)), 0) FROM samples_all WHERE saty_id = :sampleTypeId AND code ~ :codePattern");
     querySampleCount.setParameter("sampleTypeId", sampleTypeId);
@@ -215,6 +225,26 @@ def getNextSequenceForType(context, parameters):
     sampleCount = querySampleCount.uniqueResult();
 
     return (sampleCount + 1)
+
+def getNextExperimentCode(context, parameters):
+    daoFactory = CommonServiceProvider.getApplicationContext().getBean(ComponentNames.DAO_FACTORY);
+    currentSession = daoFactory.getSessionFactory().getCurrentSession();
+
+    projectId = int(parameters.get("projectId"));
+
+    queryProjectCode = currentSession.createSQLQuery("SELECT code from projects WHERE id = :projectId");
+    queryProjectCode.setParameter("projectId", projectId);
+    projectCode = queryProjectCode.uniqueResult();
+
+    experimentPrefix = projectCode + '_EXP_'
+    experimentPrefixLengthPlusOneAsString = str((len(experimentPrefix) + 1));
+
+    queryExperimentCount = currentSession.createSQLQuery("SELECT COALESCE(MAX(CAST(substring(code, " + experimentPrefixLengthPlusOneAsString + ") as int)), 0) FROM experiments_all WHERE proj_id = :projectId AND code ~ :codePattern");
+    queryExperimentCount.setParameter("projectId", projectId);
+    queryExperimentCount.setParameter("codePattern", "^" + experimentPrefix + "[0-9]+$");
+
+    experimentCount = queryExperimentCount.uniqueResult();
+    return experimentPrefix + str(experimentCount + 1)
 
 def doSpacesBelongToDisabledUsers(context, parameters):
     daoFactory = CommonServiceProvider.getApplicationContext().getBean(ComponentNames.DAO_FACTORY);

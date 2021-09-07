@@ -35,9 +35,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.PSQLTypes.DATE;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.PSQLTypes.TIMESTAMP_WITHOUT_TZ;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper.DATA_SET;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper.EXPERIMENT;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper.TableMapper.SAMPLE;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.GlobalSearchCriteriaTranslator.toTsQueryText;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLLexemes.*;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SearchCriteriaTranslator.*;
@@ -47,11 +51,20 @@ import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.*;
 public class TranslatorUtils
 {
 
-    public static final DateTimeFormatter DATE_WITHOUT_TIME_FORMATTER = DateTimeFormatter.ofPattern(new ShortDateFormat().getFormat());
+    public static final String REGISTRATOR_JOIN_INFORMATION_KEY = "registrator";
 
-    public static final DateTimeFormatter DATE_WITH_SHORT_TIME_FORMATTER = DateTimeFormatter.ofPattern(new NormalDateFormat().getFormat());
+    public static final String MODIFIER_JOIN_INFORMATION_KEY = "modifier";
 
-    public static final DateTimeFormatter DATE_WITHOUT_TIMEZONE_FORMATTER = DateTimeFormatter.ofPattern(new LongDateFormat().getFormat());
+    public static final String ENTITY_TYPE_JOIN_INFORMATION_KEY = "entity_type";
+
+    public static final DateTimeFormatter DATE_WITHOUT_TIME_FORMATTER =
+            DateTimeFormatter.ofPattern(new ShortDateFormat().getFormat());
+
+    public static final DateTimeFormatter DATE_WITH_SHORT_TIME_FORMATTER =
+            DateTimeFormatter.ofPattern(new NormalDateFormat().getFormat());
+
+    public static final DateTimeFormatter DATE_WITHOUT_TIMEZONE_FORMATTER =
+            DateTimeFormatter.ofPattern(new LongDateFormat().getFormat());
 
     /** Indicator that the property is internal. */
     private static final String INTERNAL_PROPERTY_PREFIX = "$";
@@ -581,9 +594,19 @@ public class TranslatorUtils
         }
     }
 
-    public static boolean isPropertySearchFieldName(final String sortingCriteriaFieldName)
+    public static boolean isPropertySortingFieldName(final String sortingCriteriaFieldName)
     {
         return sortingCriteriaFieldName.startsWith(EntityWithPropertiesSortOptions.PROPERTY);
+    }
+
+    public static boolean isPropertyScoreSortingFieldName(final String sortingCriteriaFieldName)
+    {
+        return sortingCriteriaFieldName.startsWith(EntityWithPropertiesSortOptions.PROPERTY_SCORE);
+    }
+
+    public static boolean isAnyPropertyScoreSortingFieldName(final String sortingCriteriaFieldName)
+    {
+        return sortingCriteriaFieldName.startsWith(EntityWithPropertiesSortOptions.ANY_PROPERTY_SCORE);
     }
 
     public static Object convertStringToType(final String value, final Class<?> klass)
@@ -803,14 +826,92 @@ public class TranslatorUtils
 
     public static void appendTsVectorMatch(final StringBuilder sqlBuilder, final AbstractStringValue stringValue, final String alias, final List<Object> args)
     {
-        final String tsQueryValue = toTsQueryText(stringValue);
-        sqlBuilder.append(alias).append(PERIOD)
-                .append(TS_VECTOR_COLUMN).append(SP).append(DOUBLE_AT)
-                .append(SP).append(LP).append(QU).append(DOUBLE_COLON).append(TSQUERY)
-                .append(SP).append(BARS).append(SP)
-                .append(TO_TSQUERY).append(LP).append(QU).append(RP).append(RP);
-        args.add(tsQueryValue);
-        args.add(tsQueryValue);
+        if ("".equals(stringValue.getValue()))
+        {
+            sqlBuilder.append(true);
+        } else
+        {
+            final String tsQueryValue = toTsQueryText(stringValue);
+            sqlBuilder.append(alias).append(PERIOD)
+            .append(TS_VECTOR_COLUMN).append(SP).append(DOUBLE_AT)
+            .append(SP).append(LP).append(QU).append(DOUBLE_COLON).append(TSQUERY)
+            .append(SP).append(BARS).append(SP)
+            .append(TO_TSQUERY).append(LP).append(QU).append(RP).append(RP);
+            args.add(tsQueryValue);
+            args.add(tsQueryValue);
+        }
+    }
+
+    public static Map<String, JoinInformation> getFieldJoinInformationMap(final TableMapper tableMapper,
+            final IAliasFactory aliasFactory)
+    {
+        final Map<String, JoinInformation> result = getPropertyJoinInformationMap(tableMapper,
+                aliasFactory);
+        appendIdentifierJoinInformationMap(result, tableMapper, aliasFactory, "");
+
+        if (tableMapper.hasRegistrator())
+        {
+            final JoinInformation registratorJoinInformation = new JoinInformation();
+            registratorJoinInformation.setJoinType(JoinType.LEFT);
+            registratorJoinInformation.setMainTable(tableMapper.getEntitiesTable());
+            registratorJoinInformation.setMainTableAlias(MAIN_TABLE_ALIAS);
+            registratorJoinInformation.setMainTableIdField(PERSON_REGISTERER_COLUMN);
+            registratorJoinInformation.setSubTable(PERSONS_TABLE);
+            registratorJoinInformation.setSubTableAlias(aliasFactory.createAlias());
+            registratorJoinInformation.setSubTableIdField(ID_COLUMN);
+            result.put(REGISTRATOR_JOIN_INFORMATION_KEY, registratorJoinInformation);
+        }
+
+        if (tableMapper.hasModifier())
+        {
+            final JoinInformation registratorJoinInformation = new JoinInformation();
+            registratorJoinInformation.setJoinType(JoinType.LEFT);
+            registratorJoinInformation.setMainTable(tableMapper.getEntitiesTable());
+            registratorJoinInformation.setMainTableAlias(MAIN_TABLE_ALIAS);
+            registratorJoinInformation.setMainTableIdField(PERSON_MODIFIER_COLUMN);
+            registratorJoinInformation.setSubTable(PERSONS_TABLE);
+            registratorJoinInformation.setSubTableAlias(aliasFactory.createAlias());
+            registratorJoinInformation.setSubTableIdField(ID_COLUMN);
+            result.put(MODIFIER_JOIN_INFORMATION_KEY, registratorJoinInformation);
+        }
+
+        final JoinInformation typeJoinInformation = new JoinInformation();
+        typeJoinInformation.setJoinType(JoinType.LEFT);
+        typeJoinInformation.setMainTable(tableMapper.getEntitiesTable());
+        typeJoinInformation.setMainTableAlias(MAIN_TABLE_ALIAS);
+        typeJoinInformation.setMainTableIdField(tableMapper.getEntitiesTableEntityTypeIdField());
+        typeJoinInformation.setSubTable(tableMapper.getEntityTypesTable());
+        typeJoinInformation.setSubTableAlias(aliasFactory.createAlias());
+        typeJoinInformation.setSubTableIdField(ID_COLUMN);
+        result.put(ENTITY_TYPE_JOIN_INFORMATION_KEY, typeJoinInformation);
+
+        return result;
+    }
+
+    public static String getAlias(final AtomicInteger num)
+    {
+        return "t" + num.getAndIncrement();
+    }
+
+    public static void appendPropertyValueCoalesce(final StringBuilder sqlBuilder, final TableMapper tableMapper,
+            final Map<String, JoinInformation> joinInformationMap)
+    {
+        sqlBuilder.append(COALESCE).append(LP);
+        sqlBuilder.append(joinInformationMap.get(tableMapper.getValuesTable()).getSubTableAlias()).append(PERIOD)
+                .append(VALUE_COLUMN);
+        sqlBuilder.append(COMMA).append(SP);
+        sqlBuilder.append(joinInformationMap.get(CONTROLLED_VOCABULARY_TERM_TABLE).getSubTableAlias()).append(PERIOD)
+                .append(CODE_COLUMN);
+        sqlBuilder.append(COMMA).append(SP);
+        sqlBuilder.append(joinInformationMap.get(MATERIALS_TABLE).getSubTableAlias()).append(PERIOD)
+                .append(CODE_COLUMN);
+        if (tableMapper == SAMPLE || tableMapper == EXPERIMENT || tableMapper == DATA_SET)
+        {
+            sqlBuilder.append(COMMA).append(SP);
+            sqlBuilder.append(joinInformationMap.get(SAMPLE_PROP_COLUMN).getSubTableAlias()).append(PERIOD)
+                    .append(CODE_COLUMN);
+        }
+        sqlBuilder.append(RP);
     }
 
 }

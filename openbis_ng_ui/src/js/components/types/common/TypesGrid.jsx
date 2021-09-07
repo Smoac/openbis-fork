@@ -62,7 +62,10 @@ class TypesGrid extends React.PureComponent {
     columns.push({
       name: 'description',
       label: messages.get(messages.DESCRIPTION),
-      getValue: ({ row }) => row.description
+      getValue: ({ row }) => row.description,
+      renderValue: ({ value, classes }) => (
+        <span className={classes.wrap}>{value}</span>
+      )
     })
 
     columns.push({
@@ -96,30 +99,6 @@ class TypesGrid extends React.PureComponent {
         name: 'subcodeUnique',
         label: messages.get(messages.SUBCODES_UNIQUE),
         getValue: ({ row }) => row.subcodeUnique
-      })
-
-      columns.push({
-        name: 'showParents',
-        label: messages.get(messages.SHOW_PARENTS),
-        getValue: ({ row }) => row.showParents
-      })
-
-      columns.push({
-        name: 'showContainer',
-        label: messages.get(messages.SHOW_CONTAINER),
-        getValue: ({ row }) => row.showContainer
-      })
-
-      columns.push({
-        name: 'showParentMetadata',
-        label: messages.get(messages.SHOW_PARENT_METADATA),
-        getValue: ({ row }) => row.showParentMetadata
-      })
-
-      columns.push({
-        name: 'listable',
-        label: messages.get(messages.LISTABLE),
-        getValue: ({ row }) => row.listable
       })
     }
 

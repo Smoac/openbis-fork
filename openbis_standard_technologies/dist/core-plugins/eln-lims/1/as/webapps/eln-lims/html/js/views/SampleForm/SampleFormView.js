@@ -161,55 +161,53 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			}
 			if (_this._allowedToDelete()) {
 				//Delete
-				var warningText = null;
-				if(this._sampleFormModel.sample.children.length > 0 || this._sampleFormModel.datasets.length > 0) {
-					warningText = ""
-						var childrenThatAreNotPositions = 0;
-					for(var idx = 0; idx < this._sampleFormModel.sample.children.length; idx++) {
-						var child = this._sampleFormModel.sample.children[idx];
-						if(child.sampleTypeCode !== "STORAGE_POSITION") {
-							childrenThatAreNotPositions++;
-						}
-					}
-					
-					if(this._sampleFormModel.sample.children.length > 0) {
-						warningText += "The sample has " + childrenThatAreNotPositions + " children samples, these relationships will be broken but the children will remain:\n";
-						var numChildrenToShow = childrenThatAreNotPositions;
-						if(numChildrenToShow > 10) {
-							numChildrenToShow = 10;
-						}
-						for(var cIdx = 0 ; cIdx < numChildrenToShow; cIdx++) {
-							var child = this._sampleFormModel.sample.children[cIdx];
-							if(child.sampleTypeCode !== "STORAGE_POSITION") {
-								warningText += "\n\t" + child.code;
-							}
-						}
-						if(numChildrenToShow > 10) {
-							warningText += "\n\t...";
-						}
-					}
-					if(this._sampleFormModel.datasets.length > 0) {
-						warningText += "\n\nThe " + ELNDictionary.sample + " has " + this._sampleFormModel.datasets.length + " datasets, these will be deleted with the " + ELNDictionary.sample + ":\n";
-						var numDatasetsToShow = this._sampleFormModel.datasets.length;
-						if(numDatasetsToShow > 10) {
-							numDatasetsToShow = 10;
-						}
-						for(var cIdx = 0 ; cIdx < numDatasetsToShow; cIdx++) {
-							warningText += "\n\t" + this._sampleFormModel.datasets[cIdx].code;
-						}
-						if(numDatasetsToShow > 10) {
-							warningText += "\n\t...";
-						}
-					}
-				}
-
-				if(toolbarConfig.DELETE) {
-			        dropdownOptionsModel.push({
+                var maxNumToShow = 10
+                var $component = $("<div>");
+                var childSamples = this._sampleFormModel.sample.children.filter(c => c.sampleTypeCode !== "STORAGE_POSITION");
+                if (childSamples.length > 0) {
+                    var warningText = "The " + ELNDictionary.sample + " has " + childSamples.length 
+                            + " children " + ELNDictionary.sample + "s, these relationships will be broken "
+                            + " but the children will remain:";
+                    for (var cIdx = 0; cIdx < Math.min(maxNumToShow, childSamples.length); cIdx++) {
+                        warningText += "<br>&nbsp;&nbsp;" + Util.getDisplayNameForEntity(childSamples[cIdx]);
+                    }
+                    if (maxNumToShow < childSamples.length) {
+                        warningText += "<br>&nbsp;&nbsp;...";
+                    }
+                    var $warning = FormUtil.getFieldForLabelWithText(null, warningText);
+                    $warning.css('color', FormUtil.warningColor);
+                    $component.append($warning);
+                    var $ddf = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("delete descendants"), 
+                            "Delete also all descendant " + ELNDictionary.sample 
+                            + "s (i.e. children, grand children etc.) including their data sets", null, true);
+                    $component.append($ddf);
+                }
+                if (this._sampleFormModel.datasets.length > 0) {
+                    var warningText = "The " + ELNDictionary.sample + " has " 
+                            + this._sampleFormModel.datasets.length + " datasets, these will be deleted with the " 
+                            + ELNDictionary.sample + ":";
+                    for (var cIdx = 0; cIdx < Math.min(maxNumToShow, this._sampleFormModel.datasets.length); cIdx++) {
+                        warningText += "<br>&nbsp;&nbsp;" + Util.getDisplayNameForEntity(this._sampleFormModel.datasets[cIdx]);
+                    }
+                    if (maxNumToShow < childSamples.length) {
+                        warningText += "<br>&nbsp;&nbsp;...";
+                    }
+                    var $warning = FormUtil.getFieldForLabelWithText(null, warningText);
+                    $warning.css('color', FormUtil.warningColor);
+                    $component.append($warning);
+                }
+                if(toolbarConfig.DELETE) {
+                    dropdownOptionsModel.push({
                         label : "Delete",
                         action : function() {
                             var modalView = new DeleteEntityController(function(reason) {
-                                _this._sampleFormController.deleteSample(reason);
-                            }, true, warningText);
+                                var deleteDescendants = false;
+                                var inputs = $component.find("input");
+                                if (inputs.length > 0) {
+                                    deleteDescendants = inputs[0].checked;
+                                }
+                                _this._sampleFormController.deleteSample(reason, deleteDescendants);
+                            }, true, null, $component);
                             modalView.init();
                         }
                     });
@@ -712,7 +710,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 			var propertyType = propertyTypeGroup.propertyTypes[j];
 			FormUtil.fixStringPropertiesForForm(propertyType, this._sampleFormModel.sample);
-			if(!propertyType.showInEditViews && this._sampleFormModel.mode === FormMode.EDIT && propertyType.code !== "$XMLCOMMENTS") { //Skip
+			if(!propertyType.showInEditViews && (this._sampleFormModel.mode === FormMode.EDIT || this._sampleFormModel.mode === FormMode.CREATE) && propertyType.code !== "$XMLCOMMENTS") { //Skip
 				continue;
 			} else if(propertyType.dinamic && this._sampleFormModel.mode === FormMode.CREATE) { //Skip
 				continue;
@@ -790,7 +788,12 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 								_this._sampleFormModel.sample.properties[propertyTypeCode] = $(field.children()[0]).children()[0].checked;
 							} else if (propertyType.dataType === "TIMESTAMP" || propertyType.dataType === "DATE") {
 								var timeValue = $($(field.children()[0]).children()[0]).val();
-								_this._sampleFormModel.sample.properties[propertyTypeCode] = timeValue;
+								var isValidValue = Util.isDateValid(timeValue, propertyType.dataType === "DATE");
+								if(!isValidValue.isValid) {
+								    Util.showUserError(isValidValue.error);
+								} else {
+								    _this._sampleFormModel.sample.properties[propertyTypeCode] = timeValue;
+								}
 							} else {
 								if(newValue !== undefined && newValue !== null) {
 									_this._sampleFormModel.sample.properties[propertyTypeCode] = Util.getEmptyIfNull(newValue);
@@ -872,8 +875,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 
         if (this._sampleFormModel.mode !== FormMode.CREATE) {
             $fieldset.append(FormUtil.getFieldForLabelWithText("PermId", this._sampleFormModel.sample.permId));
-		}
-		if(this._sampleFormModel.mode !== FormMode.CREATE) {
+            $fieldset.append(FormUtil.getFieldForLabelWithText("Identifier", this._sampleFormModel.sample.identifier));
 			$fieldset.append(FormUtil.getFieldForComponentWithLabel(entityPath, "Path"));
 		}
 		$fieldset.append(FormUtil.getFieldForLabelWithText("Type", this._sampleFormModel.sample.sampleTypeCode));
@@ -897,13 +899,14 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				_this._sampleFormModel.isFormDirty = true;
 			});
 			$codeField = FormUtil.getFieldForComponentWithLabel($textField, "Code");
-			
-			mainController.serverFacade.generateCode(sampleType, function(autoGeneratedCode) {
-				$textField.val(autoGeneratedCode);
-				_this._sampleFormModel.sample.code = autoGeneratedCode;
-				_this._sampleFormModel.isFormDirty = true;
-			});
-			
+
+			if(sampleType.automaticCodeGeneration) {
+                mainController.serverFacade.generateCode(sampleType, function(autoGeneratedCode) {
+                    $textField.val(autoGeneratedCode);
+                    _this._sampleFormModel.sample.code = autoGeneratedCode;
+                    _this._sampleFormModel.isFormDirty = true;
+                });
+			}
 		} else {
 			$codeField = FormUtil.getFieldForLabelWithText("Code", this._sampleFormModel.sample.code);
 		}
@@ -971,21 +974,27 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 																			parentsAnyTypeDisabled,
 																			sampleTypeCode,
 																			annotations);
-		if (!sampleTypeDefinitionsExtension || !sampleTypeDefinitionsExtension["SAMPLE_PARENTS_DISABLED"]) {
+		var sampleType = mainController.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
+
+		if (
+		    // If there is no extension of the sample type information, the global option to show parents takes preference
+		    ((sampleTypeDefinitionsExtension === undefined || sampleTypeDefinitionsExtension["SAMPLE_PARENTS_DISABLED"] === undefined) && sampleType.showParents)
+		    // If there is extension, the value from the extension is used
+		     || (sampleTypeDefinitionsExtension !== undefined && sampleTypeDefinitionsExtension["SAMPLE_PARENTS_DISABLED"] !== undefined && !sampleTypeDefinitionsExtension["SAMPLE_PARENTS_DISABLED"])
+		     ){
 			this._sampleFormModel.sampleLinksParents.init($sampleParentsWidget);
+
+            hideShowOptionsModel.push({
+                forceToShow : this._sampleFormModel.mode === FormMode.CREATE && (sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension["FORCE_TO_SHOW_PARENTS_SECTION"]),
+                label : "Parents",
+                section : "#sample-parents",
+                showByDefault : true,
+                beforeShowingAction : function() {
+                    _this._sampleFormModel.sampleLinksParents.refreshHeight();
+                }
+            });
 		}
 		$sampleParentsWidget.hide();
-		
-		hideShowOptionsModel.push({
-			forceToShow : this._sampleFormModel.mode === FormMode.CREATE && (sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension["FORCE_TO_SHOW_PARENTS_SECTION"]),
-			label : "Parents",
-			section : "#sample-parents",
-			showByDefault : true,
-			beforeShowingAction : function() {
-				_this._sampleFormModel.sampleLinksParents.refreshHeight();
-			}
-		});
-		
 		return $sampleParentsWidget;
 	}
 	
@@ -1105,6 +1114,9 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					var newSampleCodeForCopy = $("#newSampleCodeForCopy");
 					var linkParentsOnCopy = $("#linkParentsOnCopy")[0].checked;
 					var copyChildrenOnCopy = $("input[name=copyChildrenOnCopy]:checked").val();
+					if(copyChildrenOnCopy === 'None') {
+					    copyChildrenOnCopy = false;
+					}
 					var copyCommentsLogOnCopy = $("#copyCommentsLogOnCopy")[0].checked;
 					var isValid = newSampleCodeForCopy[0].checkValidity();
 					if(isValid) {
@@ -1434,12 +1446,12 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 	
 	this._allowedToDelete = function() {
 		var sample = this._sampleFormModel.v3_sample;
-		return sample.frozen == false && (!sample.experiment || sample.experiment.frozenForSamples == false);
+		return (sample.frozen == false && (!sample.experiment || sample.experiment.frozenForSamples == false)) && this._allowedToMove();
 	}
 	
 	this._allowedToCopy = function() {
 		var sample = this._sampleFormModel.v3_sample;
-		return !sample.experiment || sample.experiment.frozenForSamples == false;
+		return (!sample.experiment || sample.experiment.frozenForSamples == false) && this._sampleFormModel.sampleRights.rights.indexOf("CREATE") >= 0;
 	}
 	
 	this._allowedToRegisterDataSet = function() {
