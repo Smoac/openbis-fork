@@ -107,6 +107,52 @@ function ServerFacade(openbisServer) {
         });
     }
 
+    //
+    // User Management 
+    
+    this.getUserManagementMaintenanceTaskConfig = function(callback) {
+        this.customELNASAPI({
+            "method" : "getUserManagementMaintenanceTaskConfig"
+        }, function(result) {
+            callback(result)
+        });
+    }
+
+    this.saveUserManagementMaintenanceTaskConfig = function(config, callback) {
+        this.customELNASAPI({
+            "method" : "saveUserManagementMaintenanceTaskConfig",
+            "config" : config
+        }, function(result) {
+            callback(result)
+        });
+    }
+
+    this.executeUserManagementMaintenanceTask = function(callback) {
+        this.customELNASAPI({
+            "method" : "executeUserManagementMaintenanceTask"
+        }, function(result) {
+            callback(result)
+        });
+    }
+
+    this.getUserManagementMaintenanceTaskReport = function(executionId, callback) {
+        this.customELNASAPI({
+            "method" : "getUserManagementMaintenanceTaskReport",
+            "id" : executionId
+        }, function(result) {
+            callback(result)
+        });
+    }
+
+    this.removeUserManagementMaintenanceTaskReport = function(executionId, callback) {
+        this.customELNASAPI({
+            "method" : "removeUserManagementMaintenanceTaskReport",
+            "id" : executionId
+        }, function(result) {
+            callback(result)
+        });
+    }
+
 	//
 	// Display Settings
 	//
@@ -533,12 +579,7 @@ function ServerFacade(openbisServer) {
 	}
 
     this.listDataSetTypes = function(callbackFunction) {
-        this.openbisServer.listDataSetTypes(function(data) {
-            data.result = data.result.filter(function(dataSetType) {
-                return profile.showDataset(dataSetType.code);
-            });
-            callbackFunction(data);
-        });
+        this.openbisServer.listDataSetTypes(callbackFunction);
     }
 
 	this.listSpaces = function(callbackFunction) {
@@ -1314,7 +1355,11 @@ function ServerFacade(openbisServer) {
 						fetchOptions.withSample();
 					}
 					if(fetchOptions.withParents && !(advancedFetchOptions.withParents === false)) {
-						fetchOptions.withParents();
+                        var parentFetchOptions = fetchOptions.withParents();
+                        if (advancedFetchOptions.withParentInfo) {
+                            parentFetchOptions.withType();
+                            parentFetchOptions.withProperties();
+                        }
 					}
 					if(fetchOptions.withChildren && !(advancedFetchOptions.withChildren === false)) {
 						var childrenFetchOptions = fetchOptions.withChildren();
@@ -1522,6 +1567,9 @@ function ServerFacade(openbisServer) {
                                 case "PERM_ID":
                                     criteria.withPermId().thatEquals(attributeValue);
                                     break;
+                                case "IDENTIFIER":
+                                    criteria.withIdentifier().thatEquals(attributeValue);
+                                    break;
                                 case "METAPROJECT":
                                     criteria.withTag().withCode().thatEquals(attributeValue); //TO-DO To Test, currently not supported by ELN UI
                                     break;
@@ -1609,6 +1657,9 @@ function ServerFacade(openbisServer) {
                                 //Only Sample
                                 case "SPACE":
                                     criteria.withSpace().withCode().thatEquals(attributeValue);
+                                    break;
+                                case "SPACE_PREFIX":
+                                    criteria.withSpace().withCode().thatStartsWith(attributeValue);
                                     break;
                                 //Only Experiment
                                 case "PROJECT":
@@ -1790,7 +1841,7 @@ function ServerFacade(openbisServer) {
                                         result.properties[hackFixForBrokenEquals[fIdx].propertyCode] === hackFixForBrokenEquals[fIdx].value;
 
                     var permIdFound = hackFixForBrokenEquals[fIdx].permId && result &&
-                                        result.permId && result.permId.permId
+                                        result.permId && result.permId.permId &&
                                         result.permId.permId === hackFixForBrokenEquals[fIdx].value;
         		    if(propertyFound || permIdFound) {
         			    switch(operator) {
@@ -1831,7 +1882,11 @@ function ServerFacade(openbisServer) {
 		var searchFunction = function(searchCriteria, fetchOptions, hackFixForBrokenEquals) {
 			mainController.openbisV3[searchMethodName](searchCriteria, fetchOptions)
 			.done(function(apiResults) {
-				apiResults.objects = _this.getResultsWithBrokenEqualsFix(hackFixForBrokenEquals, apiResults.objects, advancedSearchCriteria.logicalOperator);
+				var majorVersion =  profile.openbisVersion.split('.', 1);
+				if (!isNaN(majorVersion) && majorVersion <= 19) {
+					apiResults.objects = _this.getResultsWithBrokenEqualsFix(hackFixForBrokenEquals, apiResults.objects,
+						advancedSearchCriteria.logicalOperator);
+				}
 				callback(apiResults);
 			})
 			.fail(function(result) {
@@ -2184,7 +2239,10 @@ function ServerFacade(openbisServer) {
 		var _this = this;
 		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, options, function(data) {
 			var results = localReference.getInitializedSamples(data.result);
-			results = _this.getResultsWithBrokenEqualsFix(hackFixForBrokenEquals, results, "AND");
+			var majorVersion =  profile.openbisVersion.split('.', 1);
+			if (!isNaN(majorVersion) && majorVersion <= 19) {
+				results = _this.getResultsWithBrokenEqualsFix(hackFixForBrokenEquals, results, "AND");
+			}
 			callbackFunction(results);
 		});
 	}

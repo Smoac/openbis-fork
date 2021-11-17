@@ -16,5 +16,7 @@ $.extend(InstanceProfile.prototype, StandardProfile.prototype, {
 // END ANSIBLE MANAGED BLOCK (sso)
 		this.hideSectionsByDefault = true;
         this.minBarcodeLength = 15;
+        this.docuBaseUrl = "https://unlimited.ethz.ch/display/openBISDoc2010";
+        this.showUserManagementConfig = false;
 }
 })	

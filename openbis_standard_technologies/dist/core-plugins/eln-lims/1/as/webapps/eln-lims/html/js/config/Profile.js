@@ -152,6 +152,7 @@ $.extend(DefaultProfile.prototype, {
 		}
 
 		this.isAdmin = false;
+        this.userManagementMaintenanceTaskConfig = null;
 		this.devEmail = "sis.eln.servicedesk@id.ethz.ch";
 
 //		BigDataLink EDMs config
@@ -239,9 +240,19 @@ $.extend(DefaultProfile.prototype, {
 //		this.jupyterEndpoint = "https://bs-openbis-sis-dev.ethz.ch:8000/";
 
 		this.settingsObjects = [];
-
 		this.isMultiGroup = function() {
 			return this.settingsObjects.length > 1;
+		}
+
+		this.getGroupCodes = function() {
+		    var groupCodes = [];
+		    for(var sOIdx = 0; sOIdx < this.settingsObjects.length; sOIdx++) {
+                var identifier = this.settingsObjects[sOIdx].identifier;
+                var spaceCode = identifier.split("/")[1];
+                var prefix = spaceCode.substring(0, spaceCode.length - this.settingsSpacesPostFix.length);
+                groupCodes.push(prefix);
+		    }
+		    return groupCodes;
 		}
 
 		this.systemProperties = ["$ANNOTATIONS_STATE", "FREEFORM_TABLE_STATE"];
@@ -292,7 +303,7 @@ $.extend(DefaultProfile.prototype, {
 		this.storageSpacesPostFixes = ["STORAGE"];
 		this.storageSpaces = [];
 		//Ending in "ELN_SETTINGS"
-		this.settingsSpacesPostFixes = ["ELN_SETTINGS"];
+		this.settingsSpacesPostFix = "ELN_SETTINGS";
 		this.settingsSpaces = [];
 		//Ending in "ELN_SETTINGS", "STORAGE"
 		this.hideSpacesPostFixes = ["ELN_SETTINGS", "STORAGE"];
@@ -314,7 +325,7 @@ $.extend(DefaultProfile.prototype, {
 					if(Util.elementEndsWithArrayElement(space.code, _this.storageSpacesPostFixes)) {
 						_this.storageSpaces.push(space.code);
 					}
-					if(Util.elementEndsWithArrayElement(space.code, _this.settingsSpacesPostFixes)) {
+					if(Util.elementEndsWithArrayElement(space.code, [_this.settingsSpacesPostFix])) {
 						_this.settingsSpaces.push(space.code);
 					}
 					if(Util.elementEndsWithArrayElement(space.code, _this.hideSpacesPostFixes)) {
@@ -355,6 +366,13 @@ $.extend(DefaultProfile.prototype, {
             return !profile.dataSetTypeDefinitionsExtension[datasetTypeCode] || profile.dataSetTypeDefinitionsExtension[datasetTypeCode]["SHOW_ON_NAV"] === true;
         }
 
+        this.filterDataSetTypesForDropdowns = function(dataSetTypes) {
+            var _this = this;
+            return dataSetTypes.filter(function(dataSetType) {
+                return _this.showDataset(dataSetType.code);
+            });
+        }
+
 		this.showOnNav = function(sampleTypeCode) {
 		    var sampleTypeOnNav = true;
 
@@ -376,7 +394,7 @@ $.extend(DefaultProfile.prototype, {
 			var spaceCode = sample.spaceCode;
 			for(var ssIdx = 0; ssIdx < this.settingsSpaces.length; ssIdx++) {
 				var settingsSpaceCode = this.settingsSpaces[ssIdx];
-				var spacePrefixIndexOf = settingsSpaceCode.indexOf(this.settingsSpacesPostFixes[0]);
+				var spacePrefixIndexOf = settingsSpaceCode.indexOf(this.settingsSpacesPostFix);
 				if(spacePrefixIndexOf !== -1) {
 					var spacePrefix = settingsSpaceCode.substring(0, spacePrefixIndexOf);
 					if(spaceCode.startsWith(spacePrefix) && (prefix === null || (spacePrefix.length > prefix.length))) {
@@ -391,6 +409,11 @@ $.extend(DefaultProfile.prototype, {
 		this.getStorageConfigCollectionForConfigSample = function(sample) {
 			var prefix = this.getSampleConfigSpacePrefix(sample);
 			return IdentifierUtil.getExperimentIdentifier(prefix + "ELN_SETTINGS", prefix + "STORAGES", prefix + "STORAGES_COLLECTION");
+		}
+
+		this.getTemplateConfigCollectionForConfigSample = function(sample) {
+			var prefix = this.getSampleConfigSpacePrefix(sample);
+			return IdentifierUtil.getExperimentIdentifier(prefix + "ELN_SETTINGS", prefix + "TEMPLATES", prefix + "TEMPLATES_COLLECTION");
 		}
 
 		this.getStorageSpaceForSample = function(sample) {
@@ -482,6 +505,7 @@ $.extend(DefaultProfile.prototype, {
 		this.directLinkEnabled = true;
 		//To be set during initialization using info retrieved from the DSS configuration by the reporting plugin
 		this.sftpFileServer = null;
+		this.openbisVersion = "UNKNOWN";
 
 		this.copyPastePlainText = false;
 		this.hideCodes = true;
@@ -658,6 +682,7 @@ $.extend(DefaultProfile.prototype, {
 				propertyReplacingCodeNoDolar = propertyReplacingCodeNoDolar.substring(1);
 			}
 			return {
+				spaceCode : sample.spaceCode,
 				code : sample.code,
 				label : sample.properties[propertyReplacingCodeNoDolar],
 				validationLevel : ValidationLevel[sample.properties["STORAGE.STORAGE_VALIDATION_LEVEL"]],
@@ -1198,6 +1223,13 @@ $.extend(DefaultProfile.prototype, {
 			});
 		}
 
+        this.initUserManagementMaintenanceTaskConfig = function(callback) {
+            var _this = this;
+            this.serverFacade.getUserManagementMaintenanceTaskConfig(function(config) {
+                _this.userManagementMaintenanceTaskConfig = config;
+                callback();
+            });
+        }
 		this.initDatasetTypeCodes = function(callback) {
 			var _this = this;
 			this.serverFacade.listDataSetTypes(function(data) {
@@ -1271,6 +1303,7 @@ $.extend(DefaultProfile.prototype, {
 			this.serverFacade.getOpenbisV3(function(openbisV3) {
 				openbisV3._private.sessionToken = mainController.serverFacade.getSession();
 				openbisV3.getServerInformation().done(function(serverInformation) {
+					_this.openbisVersion = serverInformation["openbis-version"];
 	                var authSystem = serverInformation["authentication-service"];
 	                IdentifierUtil.isProjectSamplesEnabled = (serverInformation["project-samples-enabled"] === "true");
 	                IdentifierUtil.createContinuousSampleCodes = (serverInformation["create-continuous-sample-codes"] === "true");
@@ -1300,25 +1333,27 @@ $.extend(DefaultProfile.prototype, {
 					_this.initSearchDomains(function() {
 						_this.initDirectLinkURL(function() {
 							_this.initIsAdmin(function() {
-								_this.initDatasetTypeCodes(function() {
-									_this.initServerInfo(function() {
-										_this.isFileAuthUser(function() {
-											_this.initSpaces(function() {
-											    _this.initCustomWidgetSettings(function() {
-                                                    _this.initSettings(function() {
-                                                        //Check if the new storage system can be enabled
-                                                        var storageRack = _this.getSampleTypeForSampleTypeCode("STORAGE");
-                                                        var storagePositionType = _this.getSampleTypeForSampleTypeCode("STORAGE_POSITION");
-                                                        _this.storagesConfiguration = {
-                                                                "isEnabled" : storageRack && storagePositionType
-                                                        };
-                                                        callbackWhenDone();
+                                _this.initUserManagementMaintenanceTaskConfig(function() {
+                                    _this.initDatasetTypeCodes(function() {
+                                        _this.initServerInfo(function() {
+                                            _this.isFileAuthUser(function() {
+                                                _this.initSpaces(function() {
+                                                    _this.initCustomWidgetSettings(function() {
+                                                        _this.initSettings(function() {
+                                                            //Check if the new storage system can be enabled
+                                                            var storageRack = _this.getSampleTypeForSampleTypeCode("STORAGE");
+                                                            var storagePositionType = _this.getSampleTypeForSampleTypeCode("STORAGE_POSITION");
+                                                            _this.storagesConfiguration = {
+                                                                    "isEnabled" : storageRack && storagePositionType
+                                                            };
+                                                            callbackWhenDone();
+                                                        });
                                                     });
-												});
-											});
-										});
-									});
-								});
+                                                });
+                                            });
+                                        });
+                                    });
+                                });
 							});
 						});
 					});

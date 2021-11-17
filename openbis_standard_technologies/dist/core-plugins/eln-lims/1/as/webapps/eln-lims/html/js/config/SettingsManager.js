@@ -29,7 +29,15 @@ function SettingsManager(serverFacade) {
 				    		return 1;
 				    }
 				});
-				callback(settingsObjects);
+				// This avoids injection of user created settings objects
+				var validSettingObjects = [];
+				for(var sOIdx = 0; sOIdx < settingsObjects.length; sOIdx++) {
+				    if(settingsObjects[sOIdx].identifier.split("/")[1].endsWith(profile.settingsSpacesPostFix)) {
+				        validSettingObjects.push(settingsObjects[sOIdx]);
+				    }
+				}
+				//
+				callback(validSettingObjects);
 			} else {
 				callback();
 			}
@@ -138,7 +146,12 @@ function SettingsManager(serverFacade) {
              }
 
 
-
+            if(!targetProfile["inventorySpaces"]) {
+                targetProfile["inventorySpaces"] = [];
+            }
+            if(!targetProfile["inventorySpacesReadOnly"]) {
+                targetProfile["inventorySpacesReadOnly"] = [];
+            }
              // Inventory Spaces
              if(isMergeGroup) { // Merge found values
                 targetProfile["inventorySpaces"] = targetProfile["inventorySpaces"].concat(settings["inventorySpaces"]).unique();
