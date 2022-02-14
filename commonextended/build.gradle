@@ -8,7 +8,7 @@ dependencies {
 			'cisd:cisd-args4j:+',
 			'python:jython:+',
 			'python:jython27:+',
-			'javax:activation:+',
+			'javax.activation:activation:+',
 			'apache:poi:+',
 			'twmacinta:fast-md5:+',
 			'google:gwt-servlet:+',

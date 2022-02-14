@@ -10,7 +10,7 @@ dependencies {
     libJars 'sis:sis-base:18.09.0',
         'cisd:cisd-args4j:9.11.2',
         'apache:log4j:1.2.15',
-        'javax:activation:1.1.1',
+        'javax.activation:activation:1.1.1',
         'javax:mail:1.4.3'
         
     testCompile project(path: ':common', configuration: 'tests')
