@@ -26,8 +26,6 @@ public class HistoryRelationshipRecord extends HistoryRecord
 
     public String relationType;
 
-    public String entityKind;
-
     public String relatedObjectId;
 
     public String getRelationType()

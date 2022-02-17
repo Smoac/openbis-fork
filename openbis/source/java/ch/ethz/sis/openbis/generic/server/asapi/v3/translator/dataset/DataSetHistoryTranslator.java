@@ -156,15 +156,15 @@ public class DataSetHistoryTranslator extends HistoryTranslator implements IData
 
         DataSetRelationshipRecord dataSetRecord = (DataSetRelationshipRecord) record;
 
-        if (isExperiment(dataSetRecord))
+        if (dataSetRecord.experimentId != null)
         {
             entry.setRelationType(DataSetRelationType.EXPERIMENT);
             entry.setRelatedObjectId(new ExperimentPermId(dataSetRecord.relatedObjectId));
-        } else if (isSample(dataSetRecord))
+        } else if (dataSetRecord.sampleId != null)
         {
             entry.setRelationType(DataSetRelationType.SAMPLE);
             entry.setRelatedObjectId(new SamplePermId(dataSetRecord.relatedObjectId));
-        } else if (isDataSet(dataSetRecord))
+        } else if (dataSetRecord.dataSetId != null)
         {
             RelationType relationType = RelationType.valueOf(dataSetRecord.relationType);
 

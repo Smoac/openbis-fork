@@ -107,8 +107,7 @@ public interface SampleQuery extends ObjectQuery
                     + "where ph.samp_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<HistoryPropertyRecord> getPropertiesHistory(LongSet sampleIds);
 
-    @Select(sql = "select srh.id as id, srh.main_samp_id as objectId, srh.pers_id_author as authorId, srh.relation_type as relationType, "
-            + "srh.entity_kind as entityKind, "
+    @Select(sql = "select srh.main_samp_id as objectId, srh.pers_id_author as authorId, srh.relation_type as relationType, "
             + "srh.entity_perm_id as relatedObjectId, srh.valid_from_timestamp as validFrom, srh.valid_until_timestamp as validTo, "
             + "srh.space_id as spaceId, srh.proj_id as projectId, srh.expe_id as experimentId, srh.samp_id as sampleId, srh.data_id as dataSetId "
             + "from sample_relationships_history srh where srh.main_samp_id = any(?{1})", parameterBindings = {

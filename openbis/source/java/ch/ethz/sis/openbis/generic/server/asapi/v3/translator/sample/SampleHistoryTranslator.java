@@ -182,19 +182,19 @@ public class SampleHistoryTranslator extends HistoryTranslator implements ISampl
 
         SampleRelationshipRecord sampleRecord = (SampleRelationshipRecord) record;
 
-        if (isSpace(sampleRecord))
+        if (sampleRecord.spaceId != null)
         {
             entry.setRelationType(SampleRelationType.SPACE);
             entry.setRelatedObjectId(new SpacePermId(sampleRecord.relatedObjectId));
-        } else if (isProject(sampleRecord))
+        } else if (sampleRecord.projectId != null)
         {
             entry.setRelationType(SampleRelationType.PROJECT);
             entry.setRelatedObjectId(new ProjectPermId(sampleRecord.relatedObjectId));
-        } else if (isExperiment(sampleRecord))
+        } else if (sampleRecord.experimentId != null)
         {
             entry.setRelationType(SampleRelationType.EXPERIMENT);
             entry.setRelatedObjectId(new ExperimentPermId(sampleRecord.relatedObjectId));
-        } else if (isSample(sampleRecord))
+        } else if (sampleRecord.sampleId != null)
         {
             RelationType relationType = RelationType.valueOf(sampleRecord.relationType);
 
@@ -217,11 +217,11 @@ public class SampleHistoryTranslator extends HistoryTranslator implements ISampl
                     throw new IllegalArgumentException("Unsupported relation type: " + relationType);
             }
             entry.setRelatedObjectId(new SamplePermId(sampleRecord.relatedObjectId));
-        } else if (isDataSet(sampleRecord))
+        } else if (sampleRecord.dataSetId != null)
         {
             entry.setRelationType(SampleRelationType.DATA_SET);
             entry.setRelatedObjectId(new DataSetPermId(sampleRecord.relatedObjectId));
-        } else if (sampleRecord.relatedObjectId != null)
+        } else
         {
             entry.setRelatedObjectId(new UnknownRelatedObjectId(sampleRecord.relatedObjectId, sampleRecord.relationType));
         }

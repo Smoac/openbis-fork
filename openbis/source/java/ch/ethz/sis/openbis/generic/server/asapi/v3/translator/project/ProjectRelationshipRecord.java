@@ -28,6 +28,4 @@ public class ProjectRelationshipRecord extends HistoryRelationshipRecord
 
     public Long experimentId;
 
-    public Long sampleId;
-
 }

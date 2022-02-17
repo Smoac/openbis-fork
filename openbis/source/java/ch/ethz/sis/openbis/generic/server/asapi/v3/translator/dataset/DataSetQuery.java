@@ -140,8 +140,7 @@ public interface DataSetQuery extends ObjectQuery
                     + "where ph.ds_id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<HistoryPropertyRecord> getPropertiesHistory(LongSet dataSetIds);
 
-    @Select(sql = "select drh.id as id, drh.main_data_id as objectId, drh.pers_id_author as authorId, drh.relation_type as relationType, "
-            + "drh.entity_kind as entityKind, "
+    @Select(sql = "select drh.main_data_id as objectId, drh.pers_id_author as authorId, drh.relation_type as relationType, "
             + "drh.entity_perm_id as relatedObjectId, drh.valid_from_timestamp as validFrom, drh.valid_until_timestamp as validTo, "
             + "drh.expe_id as experimentId, drh.samp_id as sampleId, drh.data_id as dataSetId "
             + "from data_set_relationships_history drh where drh.main_data_id = any(?{1})", parameterBindings = {
