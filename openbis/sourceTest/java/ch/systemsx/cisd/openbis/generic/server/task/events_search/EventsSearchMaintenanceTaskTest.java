@@ -84,6 +84,7 @@ public class EventsSearchMaintenanceTaskTest
         mockery.checking(new Expectations()
         {
             {
+                one(dataSource).open();
                 allowing(dataSource).executeInNewTransaction(with(any(TransactionCallback.class)));
                 will(new CustomAction("execute callback")
                 {
@@ -93,6 +94,7 @@ public class EventsSearchMaintenanceTaskTest
                         return new Statistics();
                     }
                 });
+                one(dataSource).close();
             }
         });
     }
@@ -198,8 +200,8 @@ public class EventsSearchMaintenanceTaskTest
             expectCreateEvents(events);
         }
 
-        EventsSearchMaintenanceTask task = new EventsSearchMaintenanceTask(dataSource);
-        task.execute();
+        EventsSearchMaintenanceTask task = new EventsSearchMaintenanceTask();
+        task.execute(dataSource);
 
         assertEquals(events.size(), 3);
 
@@ -337,8 +339,8 @@ public class EventsSearchMaintenanceTaskTest
             expectCreateEvents(events);
         }
 
-        EventsSearchMaintenanceTask task = new EventsSearchMaintenanceTask(dataSource);
-        task.execute();
+        EventsSearchMaintenanceTask task = new EventsSearchMaintenanceTask();
+        task.execute(dataSource);
 
         assertEquals(events.size(), 4);
 
@@ -519,8 +521,8 @@ public class EventsSearchMaintenanceTaskTest
             expectCreateEvents(events);
         }
 
-        EventsSearchMaintenanceTask task = new EventsSearchMaintenanceTask(dataSource);
-        task.execute();
+        EventsSearchMaintenanceTask task = new EventsSearchMaintenanceTask();
+        task.execute(dataSource);
 
         assertEquals(events.size(), 5);
 
@@ -685,8 +687,8 @@ public class EventsSearchMaintenanceTaskTest
             expectCreateEvents(events);
         }
 
-        EventsSearchMaintenanceTask task = new EventsSearchMaintenanceTask(dataSource);
-        task.execute();
+        EventsSearchMaintenanceTask task = new EventsSearchMaintenanceTask();
+        task.execute(dataSource);
 
         assertEquals(events.size(), 3);
 
@@ -912,8 +914,8 @@ public class EventsSearchMaintenanceTaskTest
             expectCreateEvents(events);
         }
 
-        EventsSearchMaintenanceTask task = new EventsSearchMaintenanceTask(dataSource);
-        task.execute();
+        EventsSearchMaintenanceTask task = new EventsSearchMaintenanceTask();
+        task.execute(dataSource);
 
         assertEquals(events.size(), 5);
 
@@ -1136,8 +1138,8 @@ public class EventsSearchMaintenanceTaskTest
             expectCreateEvents(events);
         }
 
-        EventsSearchMaintenanceTask task = new EventsSearchMaintenanceTask(dataSource);
-        task.execute();
+        EventsSearchMaintenanceTask task = new EventsSearchMaintenanceTask();
+        task.execute(dataSource);
 
         EventsSearchPE deletionProjectAExpected = createExpectedEvent(deletionProjectA);
         deletionProjectAExpected.setEntitySpace("SPACE_A");
@@ -1324,8 +1326,8 @@ public class EventsSearchMaintenanceTaskTest
             expectCreateEvents(events);
         }
 
-        EventsSearchMaintenanceTask task = new EventsSearchMaintenanceTask(dataSource);
-        task.execute();
+        EventsSearchMaintenanceTask task = new EventsSearchMaintenanceTask();
+        task.execute(dataSource);
 
         EventsSearchPE deletionSpaceAExpected = createExpectedEvent(deletionSpaceA);
         deletionSpaceAExpected.setEntitySpace("SPACE_A");
@@ -1585,8 +1587,8 @@ public class EventsSearchMaintenanceTaskTest
             expectCreateEvents(events);
         }
 
-        EventsSearchMaintenanceTask task = new EventsSearchMaintenanceTask(dataSource);
-        task.execute();
+        EventsSearchMaintenanceTask task = new EventsSearchMaintenanceTask();
+        task.execute(dataSource);
 
         assertEquals(events.size(), 5);
 
@@ -1804,8 +1806,8 @@ public class EventsSearchMaintenanceTaskTest
             expectCreateEvents(events);
         }
 
-        EventsSearchMaintenanceTask task = new EventsSearchMaintenanceTask(dataSource);
-        task.execute();
+        EventsSearchMaintenanceTask task = new EventsSearchMaintenanceTask();
+        task.execute(dataSource);
 
         EventsSearchPE deletionProjectAExpected = createExpectedEvent(deletionProjectA);
         deletionProjectAExpected.setEntitySpace("SPACE_A");
@@ -1988,8 +1990,8 @@ public class EventsSearchMaintenanceTaskTest
             expectCreateEvents(events);
         }
 
-        EventsSearchMaintenanceTask task = new EventsSearchMaintenanceTask(dataSource);
-        task.execute();
+        EventsSearchMaintenanceTask task = new EventsSearchMaintenanceTask();
+        task.execute(dataSource);
 
         EventsSearchPE deletionSpaceAExpected = createExpectedEvent(deletionSpaceA);
         deletionSpaceAExpected.setEntitySpace("SPACE_A");
@@ -2247,8 +2249,8 @@ public class EventsSearchMaintenanceTaskTest
             expectCreateEvents(events);
         }
 
-        EventsSearchMaintenanceTask task = new EventsSearchMaintenanceTask(dataSource);
-        task.execute();
+        EventsSearchMaintenanceTask task = new EventsSearchMaintenanceTask();
+        task.execute(dataSource);
 
         assertEquals(events.size(), 12);
 
@@ -2490,8 +2492,8 @@ public class EventsSearchMaintenanceTaskTest
             expectCreateEvents(events);
         }
 
-        EventsSearchMaintenanceTask task = new EventsSearchMaintenanceTask(dataSource);
-        task.execute();
+        EventsSearchMaintenanceTask task = new EventsSearchMaintenanceTask();
+        task.execute(dataSource);
 
         assertEquals(events.size(), 3);
 
@@ -2610,8 +2612,8 @@ public class EventsSearchMaintenanceTaskTest
             expectCreateEvents(events);
         }
 
-        EventsSearchMaintenanceTask task = new EventsSearchMaintenanceTask(dataSource);
-        task.execute();
+        EventsSearchMaintenanceTask task = new EventsSearchMaintenanceTask();
+        task.execute(dataSource);
 
         assertEquals(events.size(), 4);
 
