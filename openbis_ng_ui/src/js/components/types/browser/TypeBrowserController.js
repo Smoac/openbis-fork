@@ -1,11 +1,10 @@
 import _ from 'lodash'
 import openbis from '@src/js/services/openbis.js'
-import actions from '@src/js/store/actions/actions.js'
 import pages from '@src/js/common/consts/pages.js'
 import objectType from '@src/js/common/consts/objectType.js'
 import objectOperation from '@src/js/common/consts/objectOperation.js'
 import BrowserController from '@src/js/components/common/browser/BrowserController.js'
-import users from '@src/js/common/consts/users'
+import AppController from '@src/js/components/AppController.js'
 import messages from '@src/js/common/messages.js'
 
 export default class TypeBrowserController extends BrowserController {
@@ -79,7 +78,9 @@ export default class TypeBrowserController extends BrowserController {
           vocabularyTypes.getObjects(),
           objectType.VOCABULARY_TYPE,
           (type, node) => {
-            node.canRemove = !type.managedInternally || this.isSystemUser()
+            node.canRemove =
+              !type.managedInternally ||
+              AppController.getInstance().isSystemUser()
           }
         )
 
@@ -147,9 +148,7 @@ export default class TypeBrowserController extends BrowserController {
 
   doNodeAdd(node) {
     if (node && node.childrenType) {
-      this.context.dispatch(
-        actions.objectNew(this.getPage(), node.childrenType)
-      )
+      AppController.getInstance().objectNew(this.getPage(), node.childrenType)
     }
   }
 
@@ -166,9 +165,9 @@ export default class TypeBrowserController extends BrowserController {
       const options = new openbis.SynchronousOperationExecutionOptions()
       options.setExecuteInOrder(true)
       await openbis.executeOperations(operations, options)
-      this.context.dispatch(actions.objectDelete(this.getPage(), type, id))
+      AppController.getInstance().objectDelete(this.getPage(), type, id)
     } catch (error) {
-      this.context.dispatch(actions.errorChange(error))
+      AppController.getInstance().errorChange(error)
     }
   }
 
@@ -335,12 +334,5 @@ export default class TypeBrowserController extends BrowserController {
     } else if (type === objectType.MATERIAL_TYPE) {
       return openbis.EntityKind.MATERIAL
     }
-  }
-
-  isSystemUser() {
-    return (
-      this.context.getProps().session &&
-      this.context.getProps().session.userName === users.SYSTEM
-    )
   }
 }

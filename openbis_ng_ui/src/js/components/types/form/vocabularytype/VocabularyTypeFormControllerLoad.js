@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import AppController from '@src/js/components/AppController.js'
 import PageControllerLoad from '@src/js/components/common/page/PageControllerLoad.js'
 import VocabularyTypeFormSelectionType from '@src/js/components/types/form/vocabularytype/VocabularyTypeFormSelectionType.js'
 import FormUtil from '@src/js/components/common/form/FormUtil.js'
@@ -52,16 +53,18 @@ export default class VocabularyTypeFormControllerLoad extends PageControllerLoad
       }),
       description: FormUtil.createField({
         value: _.get(loadedVocabulary, 'description', null),
-        enabled: !internal || this.isSystemUser()
+        enabled: !internal || AppController.getInstance().isSystemUser()
       }),
       urlTemplate: FormUtil.createField({
         value: _.get(loadedVocabulary, 'urlTemplate', null),
-        enabled: !internal || this.isSystemUser()
+        enabled: !internal || AppController.getInstance().isSystemUser()
       }),
       internal: FormUtil.createField({
         value: internal,
-        visible: this.isSystemUser(),
-        enabled: loadedVocabulary === null && this.isSystemUser()
+        visible: AppController.getInstance().isSystemUser(),
+        enabled:
+          loadedVocabulary === null &&
+          AppController.getInstance().isSystemUser()
       }),
       registrator: FormUtil.createField({
         value: registrator,
@@ -93,15 +96,17 @@ export default class VocabularyTypeFormControllerLoad extends PageControllerLoad
       }),
       label: FormUtil.createField({
         value: _.get(loadedTerm, 'label', null),
-        enabled: !internalTerm || this.isSystemUser()
+        enabled: !internalTerm || AppController.getInstance().isSystemUser()
       }),
       description: FormUtil.createField({
         value: _.get(loadedTerm, 'description', null),
-        enabled: !internalTerm || this.isSystemUser()
+        enabled: !internalTerm || AppController.getInstance().isSystemUser()
       }),
       official: FormUtil.createField({
         value: official,
-        enabled: !official && (!internalTerm || this.isSystemUser())
+        enabled:
+          !official &&
+          (!internalTerm || AppController.getInstance().isSystemUser())
       }),
       registrator: FormUtil.createField({
         value: registrator,
@@ -144,12 +149,5 @@ export default class VocabularyTypeFormControllerLoad extends PageControllerLoad
     } else {
       return null
     }
-  }
-
-  isSystemUser() {
-    return (
-      this.context.getProps().session &&
-      this.context.getProps().session.userName === users.SYSTEM
-    )
   }
 }

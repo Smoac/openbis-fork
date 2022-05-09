@@ -1,9 +1,9 @@
 import _ from 'lodash'
 import openbis from '@src/js/services/openbis.js'
+import AppController from '@src/js/components/AppController.js'
 import PageControllerChange from '@src/js/components/common/page/PageControllerChange.js'
 import EntityTypeFormSelectionType from '@src/js/components/types/form/entitytype/EntityTypeFormSelectionType.js'
 import FormUtil from '@src/js/components/common/form/FormUtil.js'
-import users from '@src/js/common/consts/users.js'
 
 export default class EntityTypeFormControllerChange extends PageControllerChange {
   async execute(type, params) {
@@ -140,28 +140,38 @@ export default class EntityTypeFormControllerChange extends PageControllerChange
       _.assign(newProperty, {
         internal: {
           ...newProperty.internal,
-          visible: this.isSystemUser(),
-          enabled: this.isSystemUser() && !newExisting
+          visible: AppController.getInstance().isSystemUser(),
+          enabled: AppController.getInstance().isSystemUser() && !newExisting
         },
         label: {
           ...newProperty.label,
-          enabled: !newProperty.internal.value || this.isSystemUser()
+          enabled:
+            !newProperty.internal.value ||
+            AppController.getInstance().isSystemUser()
         },
         description: {
           ...newProperty.description,
-          enabled: !newProperty.internal.value || this.isSystemUser()
+          enabled:
+            !newProperty.internal.value ||
+            AppController.getInstance().isSystemUser()
         },
         dataType: {
           ...newProperty.dataType,
-          enabled: !newProperty.internal.value || this.isSystemUser()
+          enabled:
+            !newProperty.internal.value ||
+            AppController.getInstance().isSystemUser()
         },
         schema: {
           ...newProperty.schema,
-          enabled: !newProperty.internal.value || this.isSystemUser()
+          enabled:
+            !newProperty.internal.value ||
+            AppController.getInstance().isSystemUser()
         },
         transformation: {
           ...newProperty.transformation,
-          enabled: !newProperty.internal.value || this.isSystemUser()
+          enabled:
+            !newProperty.internal.value ||
+            AppController.getInstance().isSystemUser()
         },
         vocabulary: {
           ...newProperty.vocabulary,
@@ -342,12 +352,5 @@ export default class EntityTypeFormControllerChange extends PageControllerChange
         value: _.get(src, 'initialValueForExistingEntities.value', null)
       }
     })
-  }
-
-  isSystemUser() {
-    return (
-      this.context.getProps().session &&
-      this.context.getProps().session.userName === users.SYSTEM
-    )
   }
 }
