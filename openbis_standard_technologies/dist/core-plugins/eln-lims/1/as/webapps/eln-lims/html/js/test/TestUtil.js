@@ -4,7 +4,7 @@ var TestUtil = new function() {
 
 	this.login = function(username, password) {
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
+            var e = new EventExecutor();
             testChain = Promise.resolve();
             testChain.then(() => e.waitForId("login-service-selector"))
                      .then(() => e.changeSelect2("login-service-selector", "Default Login Service"))
@@ -17,50 +17,71 @@ var TestUtil = new function() {
         });
     }
 
+    this.getElnFrame = function() {
+        var iframe = $("iframe");
+        return iframe ? $("#eln-frame", iframe.contents()) : $("#eln-frame");
+    }
+
+    this.log = function(msg, attributes) {
+        console.log(msg, attributes);
+        var testLog = $("#test-log", TestUtil.getElnFrame().contents());
+        console.log(testLog);
+        if (testLog) {
+            console.log("test log element:"+testLog.text());
+            testLog.text(msg);
+        }
+    }
+
     this.reportToJenkins = function(id, msg) {
         if ($.cookie("report-to-jenkins") == "true") {
             var testName = "test" + id + "event";
             var event = jQuery.Event(testName);
             event.msg = msg;
-            window.parent.$("#eln-frame").trigger(event);
+            TestUtil.getElnFrame().trigger(event);
         }
     }
 
-    this.sendEventToJenkins = function(i, id, msg) {
+    this.sendEventToJenkins = function(e, i, msg) {
+        var id = e.testId;
         var event = jQuery.Event("test" + i + "event");
         if (i == id) {
             event.msg = msg;
         } else {
-            event.msg = "Test " + id + " failed.";
+            event.msg = "Test " + id + " failed:";
+            e.events.forEach(function(ev) {
+                event.msg += "\n{" + ev + "}, ";
+            });
+            TestUtil.log(event.msg);
         }
-        console.log("Test " + i + " failed.");
-        window.parent.$("#eln-frame").trigger(event);
+        TestUtil.log("Test " + i + " failed.");
+        TestUtil.getElnFrame().trigger(event);
     }
 
-    this.reportErrorToJenkins = function(id, msg) {
+    this.reportErrorToJenkins = function(e, msg) {
         if ($.cookie("report-to-jenkins") == "true") {
             // If one test is broken, then all tests must be failed.
             // If you need to add a new test, make sure that it will fail.
 
             chain = Promise.resolve();
-            for(let i = id; i < TestProtocol.getTestCount(); i++) {
-                chain = chain.then(() => TestUtil.sendEventToJenkins(i, id, error))
+            for(let i = e.testId; i <= TestProtocol.getTestCount(); i++) {
+                chain = chain.then(() => TestUtil.sendEventToJenkins(e, i, error))
                              .then(() => EventUtil.sleep(1000));
             }
-            chain.catch(error => { console.log(error) });
+            chain.catch(error => { TestUtil.log(error) });
         }
     }
 
-    this.reportError = function(id, error, reject) {
-        TestUtil.reportErrorToJenkins(id, error);
+    this.reportError = function(e, error, reject) {
+        TestUtil.reportErrorToJenkins(e, error);
         reject(error);
     }
 
-    this.testPassed = function(id) {
+    this.testPassed = function(e) {
+        var id = e.testId;
         return new Promise(function executor(resolve, reject) {
-            var msg = "Test " + id +" passed";
+            var msg = "Test " + id + " passed";
             TestUtil.reportToJenkins(id, msg);
-            console.log("%c" + msg, "color: green");
+            TestUtil.log("%c" + msg, "color: green");
             resolve();
         });
     }
@@ -69,7 +90,7 @@ var TestUtil = new function() {
         return new Promise(function executor(resolve, reject) {
             var msg = "Test " + id +" is not exist";
             TestUtil.reportToJenkins(id, msg);
-            console.log("%c" + msg, "color: grey");
+            TestUtil.log("%c" + msg, "color: grey");
             resolve();
         });
     }
@@ -78,7 +99,7 @@ var TestUtil = new function() {
         return new Promise(function executor(resolve, reject) {
             var msg = "Test " + id + " should be tested locally";
             TestUtil.reportToJenkins(id, msg);
-            console.log("%c" + msg, "color: blue");
+            TestUtil.log("%c" + msg, "color: blue");
             resolve();
         });
     }
@@ -106,15 +127,13 @@ var TestUtil = new function() {
         });
     }
 
-    this.verifyInventory  = function(testId, ids) {
+    this.verifyInventory  = function(e, ids) {
         return new Promise(function executor(resolve, reject) {
-            var e = EventUtil;
-
             chain = Promise.resolve();
             for (let i = 0; i < ids.length; i++) {
                 chain = chain.then(() => e.waitForId(ids[i]));
             }
-            chain.then(() => resolve()).catch(error => TestUtil.reportError(testId, error, reject));
+            chain.then(() => resolve()).catch(error => TestUtil.reportError(e, error, reject));
         });
     }
 

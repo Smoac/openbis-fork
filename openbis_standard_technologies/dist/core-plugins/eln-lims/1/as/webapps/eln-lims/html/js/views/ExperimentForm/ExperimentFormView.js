@@ -65,7 +65,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		    var toolbarConfig = profile.getExperimentTypeToolbarConfiguration(_this._experimentFormModel.experiment.experimentTypeCode);
 			if (_this._allowedToCreateSample() && toolbarConfig.CREATE) {
 				//Create Experiment Step
-				var sampleTypes = profile.getAllSampleTypes(true);
+				var sampleTypes = FormUtil.getSampleTypesOnDropdowns(IdentifierUtil.getSpaceCodeFromIdentifier(_this._experimentFormModel.experiment.identifier));
 				FormUtil.addCreationDropdown(toolbarModel, sampleTypes, ["ENTRY", "EXPERIMENTAL_STEP"], function(typeCode) {
 					return function() {
 						Util.blockUI();
@@ -107,10 +107,10 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
                     var warningText = "The " + experimentKindName + " has " + samples.length + " " 
                             + ELNDictionary.sample + "s, which will also be deleted:";
                     for (var cIdx = 0; cIdx < Math.min(maxNumToShow, samples.length); cIdx++) {
-                        warningText += "<br>&nbsp;&nbsp;" + Util.getDisplayNameForEntity(samples[cIdx]);
+                        warningText += "\n  " + Util.getDisplayNameForEntity(samples[cIdx]);
                     }
                     if (maxNumToShow < samples.length) {
-                        warningText += "<br>&nbsp;&nbsp;...";
+                        warningText += "\n  ...";
                     }
                     var $warning = FormUtil.getFieldForLabelWithText(null, warningText);
                     $warning.css('color', FormUtil.warningColor);
@@ -121,10 +121,10 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
                     var warningText = "The " + experimentKindName + " has " + dataSets.length + " data sets " 
                             + "which will also be deleted:";
                     for (var cIdx = 0; cIdx < Math.min(maxNumToShow, dataSets.length); cIdx++) {
-                        warningText += "<br>&nbsp;&nbsp;" + Util.getDisplayNameForEntity(dataSets[cIdx]);
+                        warningText += "\n  " + Util.getDisplayNameForEntity(dataSets[cIdx]);
                     }
                     if (maxNumToShow < dataSets.length) {
-                        warningText += "<br>&nbsp;&nbsp;...";
+                        warningText += "\n  ...";
                     }
                     var $warning = FormUtil.getFieldForLabelWithText(null, warningText);
                     $warning.css('color', FormUtil.warningColor);
@@ -145,7 +145,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
                     //Create Dataset
                     var $uploadBtn = FormUtil.getButtonWithIcon("glyphicon-upload", function () {
                         mainController.changeView('showCreateDataSetPageFromExpPermId',_this._experimentFormModel.experiment.permId);
-                    }, "Upload");
+                    }, "Upload", null, "upload-btn");
                     toolbarModel.push({ component : $uploadBtn });
 	            }
 
@@ -565,7 +565,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 				} else {
 					var $component = null;
 					if(propertyType.code === "$DEFAULT_OBJECT_TYPE") {
-						$component = FormUtil.getSampleTypeDropdown(propertyType.code, false);
+						$component = FormUtil.getSampleTypeDropdown(propertyType.code, false, null, null, IdentifierUtil.getSpaceCodeFromIdentifier(this._experimentFormModel.experiment.identifier));
 					} else {
 						$component = FormUtil.getFieldForPropertyType(propertyType, value);
 					}

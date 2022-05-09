@@ -97,7 +97,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		if(this._sampleFormModel.mode === FormMode.VIEW) {
 			// New
 			if(_this._allowedToCreateChild() && this._sampleFormModel.isELNSample && toolbarConfig.CREATE) {
-				var sampleTypes = profile.getAllSampleTypes(true);
+				var sampleTypes = FormUtil.getSampleTypesOnDropdowns(IdentifierUtil.getSpaceCodeFromIdentifier(_this._sampleFormModel.sample.identifier));
 				var priorityTypes = ["ENTRY", "EXPERIMENTAL_STEP"];
 				FormUtil.addCreationDropdown(toolbarModel, sampleTypes, priorityTypes, function(typeCode) {
 					return function() {
@@ -476,7 +476,6 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		// Form Defined Properties from General Section
 		//
-		if(sampleTypeCode !== "ENTRY") {
             for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
                 var propertyTypeGroup = sampleType.propertyTypeGroups[i];
                 var isGeneralSection = propertyTypeGroup.name && (propertyTypeGroup.name.toLowerCase() === "general" || propertyTypeGroup.name.toLowerCase() === "general info");
@@ -484,7 +483,6 @@ function SampleFormView(sampleFormController, sampleFormModel) {
                     this._paintPropertiesForSection($formColumn, propertyTypeGroup, i, loadFromTemplate);
                 }
             }
-		}
 
 		//
 		//
@@ -560,7 +558,6 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		// Form Defined Properties from non General Section
 		//
-		if(sampleTypeCode !== "ENTRY") {
             for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
                 var propertyTypeGroup = sampleType.propertyTypeGroups[i];
                 var isGeneralSection = propertyTypeGroup.name && (propertyTypeGroup.name.toLowerCase() === "general" || propertyTypeGroup.name.toLowerCase() === "general info");
@@ -568,19 +565,6 @@ function SampleFormView(sampleFormController, sampleFormModel) {
                     this._paintPropertiesForSection($formColumn, propertyTypeGroup, i, loadFromTemplate);
                 }
             }
-		}
-
-		//
-		// Plate View
-		//
-		if(this._sampleFormModel.sample.sampleTypeCode === "PLATE" && this._sampleFormModel.mode !== FormMode.CREATE) {
-			var plateContainer = $("<div>", { 'id' : 'sample-form-plate-view' });
-			$formColumn.append($("<legend>").append("Plate"));
-			var plateController = new PlateController(this._sampleFormModel.sample, this._sampleFormModel.mode !== FormMode.EDIT);
-			plateController.init(plateContainer);
-			$formColumn.append(plateContainer);
-			this._sampleFormController._plateController = plateController;
-		}
 
 		//
 		// Storage
@@ -726,7 +710,9 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				continue;
 			}
 
-			if(propertyType.code === "$ANNOTATIONS_STATE" || propertyType.code === "FREEFORM_TABLE_STATE" || propertyType.code === "$ORDER.ORDER_STATE" || propertyType.code === "$BARCODE" ) {
+            if(sampleTypeCode === "ENTRY" && (propertyType.code === "$NAME" || propertyType.code === "$DOCUMENT" || propertyType.code === "$ANNOTATIONS_STATE")) {
+                continue;
+            } else if(propertyType.code === "$ANNOTATIONS_STATE" || propertyType.code === "FREEFORM_TABLE_STATE" || propertyType.code === "$ORDER.ORDER_STATE" || propertyType.code === "$BARCODE" ) {
 				continue;
 			} else if(propertyType.code === "$XMLCOMMENTS") {
 				var $commentsContainer = $("<div>");
@@ -983,7 +969,8 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 																			this._sampleFormModel.mode === FormMode.CREATE || this._sampleFormModel.mode === FormMode.EDIT,
 																			parentsAnyTypeDisabled,
 																			sampleTypeCode,
-																			annotations);
+																			annotations,
+																			IdentifierUtil.getSpaceCodeFromIdentifier(this._sampleFormModel.sample.experimentIdentifierOrNull));
 		var sampleType = mainController.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
 
 		if (
@@ -1043,7 +1030,8 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 															this._sampleFormModel.mode === FormMode.CREATE || this._sampleFormModel.mode === FormMode.EDIT,
 															childrenAnyTypeDisabled,
 															sampleTypeCode,
-															annotations);
+															annotations,
+															IdentifierUtil.getSpaceCodeFromIdentifier(this._sampleFormModel.sample.experimentIdentifierOrNull));
 		if(!sampleTypeDefinitionsExtension || !sampleTypeDefinitionsExtension["SAMPLE_CHILDREN_DISABLED"]) {
 			this._sampleFormModel.sampleLinksChildren.init($sampleChildrenWidget);
 		}
@@ -1396,7 +1384,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		var $childrenComponent = $("<div>");
 		$childrenComponent.append($("<legend>").text("Children"))
 
-		var $childrenTypeDropdown = FormUtil.getSampleTypeDropdown('childrenTypeSelector', true);
+		var $childrenTypeDropdown = FormUtil.getSampleTypeDropdown('childrenTypeSelector', true, null, null, IdentifierUtil.getSpaceCodeFromIdentifier(_this._sampleFormModel.sample.identifier));
 		var $childrenTypeDropdownWithLabel = FormUtil.getFieldForComponentWithLabel($childrenTypeDropdown, 'Type');
 		$childrenComponent.append($childrenTypeDropdownWithLabel);
 
