@@ -69,20 +69,20 @@ task queryApiJavaDocZip(type: Zip, dependsOn: queryApiJavaDoc) {
 configurations.create('queryApiDependencies')
 dependencies {
 	queryApiDependencies 'sis:sis-base:18.09.0',
-                        'apache:httpclient:4.3.6',
-                        'apache:httpcore:4.3.3',
-                        'apache:log4j:1.2.15',
-                        'springframework:spring-aop:5.0.1.RELEASE',
-                        'springframework:spring-beans:5.0.1.RELEASE',
-                        'springframework:spring-context:5.0.1.RELEASE',
-                        'springframework:spring-core:5.0.1.RELEASE',
-                        'springframework:spring-web:5.0.1.RELEASE',
-                        'springframework:spring-webmvc:5.0.1.RELEASE',
-                        'springframework:spring-expression:5.0.1.RELEASE',
-                        'apache:commons-logging:1.2',
-                        'apache:commons-lang3:3.11',
-                        'marathon:marathon-spring-util:1.2.5',
-                        'aopalliance:aopalliance:1.0'
+            'apache:httpclient:4.3.6',
+            'apache:httpcore:4.3.3',
+            'apache:log4j:1.2.15',
+            'springframework:spring-aop:5.3.19',
+            'springframework:spring-beans:5.3.19',
+            'springframework:spring-context:5.3.19',
+            'springframework:spring-core:5.3.19',
+            'springframework:spring-web:5.3.19',
+            'springframework:spring-webmvc:5.3.19',
+            'springframework:spring-expression:5.3.19',
+            'apache:commons-logging:1.2',
+            'apache:commons-lang3:3.11',
+            'marathon:marathon-spring-util:1.2.5',
+            'aopalliance:aopalliance:1.0'
 }
 
 task queryApiZip(type: Zip, dependsOn: [queryApiJar, queryApiSources, queryApiJavaDocZip]) {
@@ -125,12 +125,12 @@ task apiV3Jar(type: Jar) {
 configurations.create('apiV3Dependencies')
 dependencies {
   apiV3Dependencies 'sis:sis-base:18.09.0',
-                    'sis:sis-file-transfer:19.03.1',
-                    'apache:httpclient:4.3.6',
-                    'apache:commons-lang3:3.11',
-                    'eclipse:jetty-client:9.4.44.v20210927',
-                    'springframework:spring-web:5.0.1.RELEASE',
-                    'marathon:marathon-spring-util:1.2.5'
+          'sis:sis-file-transfer:19.03.1',
+          'apache:httpclient:4.3.6',
+          'apache:commons-lang3:3.11',
+          'eclipse:jetty-client:9.4.44.v20210927',
+          'springframework:spring-web:5.3.19',
+          'marathon:marathon-spring-util:1.2.5'
 }
 
 apply plugin: 'ivy-publish'

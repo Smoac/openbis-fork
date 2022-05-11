@@ -22,16 +22,16 @@ dependencies {
     devRuntime project(path: ':openbis', configuration: 'devRuntime')
     
     testImplementation project(path: ':commonbase', configuration: 'tests'),
-                       project(path: ':common', configuration: 'tests'),
-                       project(path: ':dbmigration', configuration: 'tests'),
-                       project(path: ':authentication', configuration: 'tests'),
-                       project(path: ':openbis_api', configuration: 'tests'),
-                       project(path: ':openbis-common', configuration: 'tests'),
-                       project(path: ':datastore_server', configuration: 'tests'),
-                       'fjelmer:classycle:1.4.2',
-                       'testng:testng:6.8-CISD',
-                       'springframework:spring-test:5.0.17.RELEASE',
-                       'startnet:apgdiff:2.3'
+            project(path: ':common', configuration: 'tests'),
+            project(path: ':dbmigration', configuration: 'tests'),
+            project(path: ':authentication', configuration: 'tests'),
+            project(path: ':openbis_api', configuration: 'tests'),
+            project(path: ':openbis-common', configuration: 'tests'),
+            project(path: ':datastore_server', configuration: 'tests'),
+            'fjelmer:classycle:1.4.2',
+            'testng:testng:6.8-CISD',
+            'springframework:spring-test:5.3.19',
+            'startnet:apgdiff:2.3'
     testImplementation (project(path: ':openbis', configuration: 'tests')) {
         exclude group: 'google', module: 'gwt-user'
     }

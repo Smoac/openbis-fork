@@ -34,21 +34,21 @@ dependencies {
                        'testng:testng:6.8-CISD'
 
     trackingClient 'sis:sis-base:18.09.0',
-                    'javax:mail:1.4.3',
-                    'apache:log4j:1.2.15',
-                    'springframework:spring-aop:5.0.1.RELEASE',
-                    'springframework:spring-beans:5.0.1.RELEASE',
-                    'springframework:spring-context:5.0.1.RELEASE',
-                    'springframework:spring-core:5.0.1.RELEASE',
-                    'springframework:spring-web:5.0.1.RELEASE',
-                    'springframework:spring-webmvc:5.0.1.RELEASE',
-                    'springframework:spring-expression:5.0.1.RELEASE',
-                    'marathon:marathon-spring-util:1.2.5',
-                    'apache:httpclient:4.3.6',
-                    'apache:httpcore:4.3.3',
-                    'apache:commons-logging:1.2',
-                    'aopalliance:aopalliance:1.0',
-                    'apache:commons-cli:1.2'
+            'javax:mail:1.4.3',
+            'apache:log4j:1.2.15',
+            'springframework:spring-aop:5.3.19',
+            'springframework:spring-beans:5.3.19',
+            'springframework:spring-context:5.3.19',
+            'springframework:spring-core:5.3.19',
+            'springframework:spring-web:5.3.19',
+            'springframework:spring-webmvc:5.3.19',
+            'springframework:spring-expression:5.3.19',
+            'marathon:marathon-spring-util:1.2.5',
+            'apache:httpclient:4.3.6',
+            'apache:httpcore:4.3.3',
+            'apache:commons-logging:1.2',
+            'aopalliance:aopalliance:1.0',
+            'apache:commons-cli:1.2'
 
     trackingClientPartial 'google:gwt-user:2.4'
 }

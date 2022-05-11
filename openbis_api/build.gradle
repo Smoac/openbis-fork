@@ -7,7 +7,8 @@ dependencies {
 	api project(':common'),
 			'sis:sis-file-transfer:19.03.1',
 			'fasterxml:jackson-core:2.9.10',
-			'fasterxml:jackson-annotations:2.9.10'
+			'fasterxml:jackson-annotations:2.9.10',
+			'fasterxml:jackson-databind:2.9.10.8'
 
     testImplementation project(path: ':commonbase', configuration: 'tests'),
                        project(path: ':common', configuration: 'tests'),
