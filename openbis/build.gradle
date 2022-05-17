@@ -34,7 +34,6 @@ dependencies {
 			'springframework:spring-security-config:5.6.3',
 			'springframework:spring-security-core:5.6.3',
 			'springframework:spring-security-web:5.6.3',
-			'springframework:spring-security-oauth2-jose:5.6.3',
 			'springframework:spring-security-oauth2-authorization-server:0.2.3',
 			'aspectj:aspectjweaver:1.8.12',
 			'ehcache:ehcache:2.10.0',
