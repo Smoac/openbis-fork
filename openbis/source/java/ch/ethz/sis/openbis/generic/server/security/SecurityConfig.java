@@ -34,6 +34,8 @@ public class SecurityConfig
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception
     {
         http.formLogin(withDefaults());
+        http.headers().disable();
+        http.csrf().disable();
         return http.build();
     }
 
