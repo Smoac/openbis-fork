@@ -6,15 +6,15 @@ apply from: '../gradle/javaproject.gradle'
 
 dependencies {
 	api project(':common'),
-		project(':dbmigration'),
-		'googlecode:jsonrpc4j:1.5.3',
-        'fasterxml:jackson-databind:2.9.10.8',
-		'reflections:reflections:0.9.10',
-		'sis:sis-jhdf5:19.04.0',
-		'lemnik:eodsql:2.2-CISD',
-		'springframework:spring-jdbc:5.0.1.RELEASE',
-		'apache:commons-collections4:4.1',
-		'truezip:truezip:6.8.1'
+			project(':dbmigration'),
+			'googlecode:jsonrpc4j:1.5.3',
+			'fasterxml:jackson-databind:2.12.6',
+			'reflections:reflections:0.9.10',
+			'sis:sis-jhdf5:19.04.0',
+			'lemnik:eodsql:2.2-CISD',
+			'springframework:spring-jdbc:5.0.1.RELEASE',
+			'apache:commons-collections4:4.1',
+			'truezip:truezip:6.8.1'
 
     testImplementation project(path: ':commonbase', configuration: 'tests'),
                        project(path: ':common', configuration: 'tests'),

@@ -51,7 +51,7 @@ public class DeletionPE extends HibernateAbstractRegistrationHolder implements I
 
     private String reason;
 
-    public final void setId(final Long id)
+    public void setId(final Long id)
     {
         this.id = id;
     }
@@ -60,7 +60,7 @@ public class DeletionPE extends HibernateAbstractRegistrationHolder implements I
     @Id
     @SequenceGenerator(name = SequenceNames.DELETION_SEQUENCE, sequenceName = SequenceNames.DELETION_SEQUENCE, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.DELETION_SEQUENCE)
-    public final Long getId()
+    public Long getId()
     {
         return id;
     }

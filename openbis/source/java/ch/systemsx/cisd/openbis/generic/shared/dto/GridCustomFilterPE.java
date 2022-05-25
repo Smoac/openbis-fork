@@ -48,7 +48,7 @@ public class GridCustomFilterPE extends AbstractGridExpressionPE<GridCustomFilte
     @SequenceGenerator(name = SequenceNames.FILTER_SEQUENCE, sequenceName = SequenceNames.FILTER_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.FILTER_SEQUENCE)
-    public final Long getId()
+    public Long getId()
     {
         return id;
     }

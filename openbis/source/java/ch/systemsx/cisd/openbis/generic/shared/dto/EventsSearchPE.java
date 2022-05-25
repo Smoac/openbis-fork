@@ -72,7 +72,7 @@ public class EventsSearchPE implements IIdHolder, Serializable
 
     private Date registrationTimestamp;
 
-    public final void setId(final Long id)
+    public void setId(final Long id)
     {
         this.id = id;
     }
@@ -81,7 +81,7 @@ public class EventsSearchPE implements IIdHolder, Serializable
     @Id
     @SequenceGenerator(name = SequenceNames.EVENTS_SEARCH_SEQUENCE, sequenceName = SequenceNames.EVENTS_SEARCH_SEQUENCE, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.EVENTS_SEARCH_SEQUENCE)
-    public final Long getId()
+    public Long getId()
     {
         return id;
     }

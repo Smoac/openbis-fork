@@ -205,7 +205,7 @@ public class VocabularyPE extends HibernateAbstractRegistrationHolder implements
     @SequenceGenerator(name = SequenceNames.CONTROLLED_VOCABULARY_SEQUENCE, sequenceName = SequenceNames.CONTROLLED_VOCABULARY_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.CONTROLLED_VOCABULARY_SEQUENCE)
-    public final Long getId()
+    public Long getId()
     {
         return id;
     }

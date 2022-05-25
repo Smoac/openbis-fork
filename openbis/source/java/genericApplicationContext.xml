@@ -592,18 +592,16 @@
 	<bean
 		class="ch.systemsx.cisd.openbis.common.spring.AnnotationBeanPostProcessorIgnoringMissingBeans" />
 
-	<plugins:component-scan base-package="ch.systemsx.cisd.openbis"
-		annotation-config="false">
+	<plugins:component-scan base-package="ch.systemsx.cisd.openbis">
 		<plugins:exclude-filter type="annotation"
-			expression="org.springframework.stereotype.Controller" />
+								expression="org.springframework.stereotype.Controller"/>
 	</plugins:component-scan>
 
-	<plugins:component-scan base-package="ch.ethz.sis.openbis"
-		annotation-config="false">
+	<plugins:component-scan base-package="ch.ethz.sis.openbis">
 		<plugins:exclude-filter type="regex"
-			expression="ch\.ethz\.sis\.openbis\.generic\.server\.dssapi\..*" />
+								expression="ch\.ethz\.sis\.openbis\.generic\.server\.dssapi\..*"/>
 		<plugins:exclude-filter type="annotation"
-			expression="org.springframework.stereotype.Controller" />
+								expression="org.springframework.stereotype.Controller"/>
 	</plugins:component-scan>
 
 

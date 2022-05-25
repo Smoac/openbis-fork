@@ -159,9 +159,9 @@ public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implemen
         assert userId != null : "Unspecified user id";
 
         final List<PersonPE> persons =
-                cast(getHibernateTemplate().find(
-                        String.format("from %s p where lower(p.userId) = ? ", TABLE_NAME),
-                        toArray(userId.toLowerCase())));
+                cast(getHibernateTemplate().findByNamedParam(
+                        String.format("from %s p where lower(p.userId) = :userId", TABLE_NAME),
+                        "userId", userId.toLowerCase()));
         final PersonPE person = tryFindPerson(persons, userId);
         if (operationLog.isDebugEnabled())
         {
@@ -210,11 +210,11 @@ public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implemen
         // Can't limit the number of results directly in the query because we are using a shared
         // hibernate template
         final List<PersonPE> persons =
-                cast(getHibernateTemplate().find(
+                cast(getHibernateTemplate().findByNamedParam(
                         String.format(
-                                "from %s p where p.email = ?",
+                                "from %s p where p.email = :email",
                                 TABLE_NAME),
-                        toArray(emailAddress)));
+                        "email", emailAddress));
         int numberOfResults = persons.size();
         final PersonPE person;
         // Take the first result

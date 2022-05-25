@@ -99,7 +99,7 @@ public abstract class AbstractExpressionPE<T> extends HibernateAbstractRegistrat
         this.modificationDate = versionDate;
     }
 
-    public final void setId(final Long id)
+    public void setId(final Long id)
     {
         this.id = id;
     }

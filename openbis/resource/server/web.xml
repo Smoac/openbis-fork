@@ -14,6 +14,25 @@
         <load-on-startup>1</load-on-startup>
     </servlet>
 
+    <servlet>
+        <servlet-name>keycloak</servlet-name>
+        <servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServlet30Dispatcher</servlet-class>
+        <load-on-startup>1</load-on-startup>
+        <async-supported>true</async-supported>
+        <init-param>
+            <param-name>javax.ws.rs.Application</param-name>
+            <param-value>ch.systemsx.cisd.openbis.generic.server.security.EmbeddedKeycloakApplication</param-value>
+        </init-param>
+        <init-param>
+            <param-name>resteasy.servlet.mapping.prefix</param-name>
+            <param-value>/auth</param-value>
+        </init-param>
+        <init-param>
+            <param-name>resteasy.use.container.form.params</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </servlet>
+
     <context-param>
         <param-name>contextConfigLocation</param-name>
         <param-value>classpath:applicationContext.xml</param-value>
@@ -85,6 +104,15 @@
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
+    <filter>
+        <filter-name>KeycloakSessionManagement</filter-name>
+        <filter-class>ch.systemsx.cisd.openbis.generic.server.security.EmbeddedKeycloakRequestFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>KeycloakSessionManagement</filter-name>
+        <url-pattern>/auth/*</url-pattern>
+    </filter-mapping>
+
     <init-param>
         <param-name>gzip</param-name>
         <param-value>true</param-value>
@@ -94,5 +122,10 @@
     <servlet-mapping>
         <servlet-name>spring</servlet-name>
         <url-pattern>/openbis/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>keycloak</servlet-name>
+        <url-pattern>/auth/*</url-pattern>
     </servlet-mapping>
 </web-app>

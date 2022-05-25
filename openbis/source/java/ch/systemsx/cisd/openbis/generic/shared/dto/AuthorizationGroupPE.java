@@ -82,12 +82,12 @@ public class AuthorizationGroupPE extends HibernateAbstractRegistrationHolder im
     @SequenceGenerator(name = SequenceNames.AUTHORIZATION_GROUP_ID_SEQUENCE, sequenceName = SequenceNames.AUTHORIZATION_GROUP_ID_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.AUTHORIZATION_GROUP_ID_SEQUENCE)
-    public final Long getId()
+    public Long getId()
     {
         return id;
     }
 
-    public final void setId(final Long id)
+    public void setId(final Long id)
     {
         this.id = id;
     }

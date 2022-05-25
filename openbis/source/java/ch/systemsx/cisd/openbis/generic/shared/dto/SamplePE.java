@@ -389,7 +389,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         this.code = code;
     }
 
-    public final void setId(final Long id)
+    public void setId(final Long id)
     {
         this.id = id;
     }
@@ -752,7 +752,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     @SequenceGenerator(name = SequenceNames.SAMPLE_SEQUENCE, sequenceName = SequenceNames.SAMPLE_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.SAMPLE_SEQUENCE)
-    public final Long getId()
+    public Long getId()
     {
         return id;
     }

@@ -13,9 +13,9 @@ dependencies {
             'lombok:lombok:1.18.22',
             'log4j:log4j-api:2.17.1',
             'log4j:log4j-core:2.17.1',
-            'fasterxml:jackson-annotations:2.9.10',
-            'fasterxml:jackson-core:2.9.10',
-            'fasterxml:jackson-databind:2.9.10.8',
+            'fasterxml:jackson-annotations:2.12.6',
+            'fasterxml:jackson-core:2.12.6',
+            'fasterxml:jackson-databind:2.12.6',
             'slf4j:slf4j-log4j12:1.7.30'
 
     annotationProcessor 'lombok:lombok:1.18.22'

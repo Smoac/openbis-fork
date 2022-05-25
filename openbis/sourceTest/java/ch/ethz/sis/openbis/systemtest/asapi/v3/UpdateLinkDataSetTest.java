@@ -8,8 +8,8 @@ import static org.hamcrest.Matchers.lessThan;
 import java.util.Date;
 import java.util.List;
 
+import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
-import org.junit.internal.matchers.IsCollectionContaining;
 import org.springframework.test.context.transaction.TestTransaction;
 import org.testng.annotations.Test;
 
@@ -118,11 +118,11 @@ public class UpdateLinkDataSetTest extends AbstractLinkDataSetTest
         List<ContentCopy> copies = get(id).getLinkedData().getContentCopies();
 
         assertThat(copies.size(), is(2));
-        assertThat(copies, IsCollectionContaining.<ContentCopy> hasItems(
-                both(Matchers.<ContentCopy> hasProperty("externalDms", isSimilarTo(get(dms3)))).and(
-                        Matchers.<ContentCopy> hasProperty("externalCode", is(code3))),
-                both(Matchers.<ContentCopy> hasProperty("externalDms", isSimilarTo(get(dms4)))).and(
-                        Matchers.<ContentCopy> hasProperty("externalCode", is(code4)))));
+        assertThat(copies, CoreMatchers.hasItems(
+                both(Matchers.<ContentCopy>hasProperty("externalDms", isSimilarTo(get(dms3)))).and(
+                        Matchers.<ContentCopy>hasProperty("externalCode", is(code3))),
+                both(Matchers.<ContentCopy>hasProperty("externalDms", isSimilarTo(get(dms4)))).and(
+                        Matchers.<ContentCopy>hasProperty("externalCode", is(code4)))));
 
     }
 

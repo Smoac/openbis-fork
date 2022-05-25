@@ -108,7 +108,7 @@ public class ScriptPE extends HibernateAbstractRegistrationHolder implements IId
         this.description = description;
     }
 
-    public final void setId(final Long id)
+    public void setId(final Long id)
     {
         this.id = id;
     }
@@ -117,7 +117,7 @@ public class ScriptPE extends HibernateAbstractRegistrationHolder implements IId
     @SequenceGenerator(name = SequenceNames.SCRIPT_SEQUENCE, sequenceName = SequenceNames.SCRIPT_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.SCRIPT_SEQUENCE)
-    public final Long getId()
+    public Long getId()
     {
         return id;
     }

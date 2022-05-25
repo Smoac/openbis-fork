@@ -86,7 +86,7 @@ public class EventPE extends HibernateAbstractRegistrationHolder implements IIdH
 
     private AttachmentContentPE attachmentContent;
 
-    public final void setId(final Long id)
+    public void setId(final Long id)
     {
         this.id = id;
     }
@@ -95,7 +95,7 @@ public class EventPE extends HibernateAbstractRegistrationHolder implements IIdH
     @Id
     @SequenceGenerator(name = SequenceNames.EVENT_SEQUENCE, sequenceName = SequenceNames.EVENT_SEQUENCE, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.EVENT_SEQUENCE)
-    public final Long getId()
+    public Long getId()
     {
         return id;
     }

@@ -59,7 +59,7 @@ public class QueryPE extends AbstractExpressionPE<QueryPE> implements IIdentityH
     @SequenceGenerator(name = SequenceNames.QUERY_SEQUENCE, sequenceName = SequenceNames.QUERY_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.QUERY_SEQUENCE)
-    public final Long getId()
+    public Long getId()
     {
         return id;
     }

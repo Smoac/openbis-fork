@@ -51,7 +51,7 @@ public class GridCustomColumnPE extends AbstractGridExpressionPE<GridCustomColum
     @SequenceGenerator(name = SequenceNames.GRID_CUSTOM_COLUMNS_SEQUENCE, sequenceName = SequenceNames.GRID_CUSTOM_COLUMNS_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.GRID_CUSTOM_COLUMNS_SEQUENCE)
-    public final Long getId()
+    public Long getId()
     {
         return id;
     }
