@@ -76,7 +76,6 @@ function SettingsFormController(mainController, settingsSample, mode) {
 	    var _this = this;
 	    var onSave = function() {
 	        _this._settingsManager.validateAndsave(_this._settingsFormModel.settingsSample, settings, (function() {
-                _this._mainController.changeView("showSettingsPage", _this._settingsFormModel.settingsSample.identifier);
                 alert("Application will reload to apply the new settings");
                 window.location.reload();
             }));
