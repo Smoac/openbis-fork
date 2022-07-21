@@ -308,6 +308,7 @@ def setCustomWidgetSettings(context, parameters):
         ptus.append(ptu);
 
     context.applicationService.updatePropertyTypes(sessionToken, ptus);
+    context.applicationService.logout(sessionToken);
     return True
 
 def isValidStoragePositionToInsertUpdate(context, parameters):
@@ -434,7 +435,7 @@ def isValidStoragePositionToInsertUpdate(context, parameters):
                 else:
                     # 5.2 If the given box position already exists with the same permId -> Is an update
                     pass
-
+    context.applicationService.logout(sessionToken);
     return True
 
 def getServiceProperty(context, parameters):
@@ -524,4 +525,5 @@ def trashStorageSamplesWithoutParents(context, parameters):
     deleteOptions = SampleDeletionOptions();
     deleteOptions.setReason(parameters.get("reason"));
     deletionId = context.applicationService.deleteSamples(sessionToken, permIds, deleteOptions);
+    context.applicationService.logout(sessionToken);
     return True
