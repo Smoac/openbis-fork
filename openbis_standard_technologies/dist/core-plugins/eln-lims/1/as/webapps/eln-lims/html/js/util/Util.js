@@ -21,6 +21,21 @@
  */
 var Util = new function() {
 	
+    this.reloadApplication = function(popupMessage) {
+        alert(popupMessage);
+        window.location.reload();
+    }
+
+    this.download = function(content, mimeType, isBinary, filename) {
+        var link = document.createElement('a');
+        link.href = "data:" + mimeType + ";" + (isBinary ? "base64," : ",") + content;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+    }
+
 	//
 	// Methods to block user input
 	//

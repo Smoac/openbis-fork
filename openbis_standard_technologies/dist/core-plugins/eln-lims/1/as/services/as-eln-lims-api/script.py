@@ -4,6 +4,8 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException as UserFailureExc
 import base64
 import json
 import re
+import ch.ethz.sis.openbis.generic.server.xls.importer.utils.AttributeValidator as AttributeValidator
+import ch.ethz.sis.openbis.generic.server.xls.importer.helper.SampleImportHelper as SampleImportHelper
 
 isOpenBIS2020 = True;
 enableNewSearchEngine = isOpenBIS2020;
@@ -74,7 +76,176 @@ def process(context, parameters):
         result = importSamples(context, parameters)
     elif method == "getSamplesImportTemplate":
         result = getSamplesImportTemplate(context, parameters)
-    return result;
+    elif method == "createSpace":
+        result = createSpace(context, parameters)
+    elif method == "deleteSpace":
+        result = deleteSpace(context, parameters)
+    elif method == "getCustomImportDefinitions":
+        result = getCustomImportDefinitions(context, parameters)
+    return result
+
+def getCustomImportDefinitions(context, parameters):
+    from ch.systemsx.cisd.common.spring import ExposablePropertyPlaceholderConfigurer
+    from ch.systemsx.cisd.openbis.generic.shared.util import ServerUtils
+
+    properties = CommonServiceProvider.tryToGetBean(ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME) \
+                    .getResolvedProps()
+    descriptions = ServerUtils.getCustomImportDescriptions(properties)
+    for description in descriptions:
+        description.getCode()
+        description.getProperties()
+    return descriptions
+
+def deleteSpace(context, parameters):
+    code = parameters.get("code")
+    reason = parameters.get("reason")
+    _deleteSpace(context, parameters, code, reason)
+    settingsSamples = _getAllSettingsSamples(context)
+    return _removeInventorySpace(context, settingsSamples, code)
+
+def _deleteSpace(context, parameters, code, reason):
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id import SpacePermId
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.space.delete import SpaceDeletionOptions
+
+    options = SpaceDeletionOptions()
+    options.setReason(reason)
+    context.getApplicationService().deleteSpaces(context.getSessionToken(), [SpacePermId(code)], options)
+
+def _getAllSettingsSamples(context):
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search import SampleSearchCriteria
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions import SampleFetchOptions
+
+    criteria = SampleSearchCriteria()
+    criteria.withType().withCode().thatEquals("GENERAL_ELN_SETTINGS")
+    fetchOptions = SampleFetchOptions()
+    fetchOptions.withProperties()
+    return context.getApplicationService().searchSamples(context.getSessionToken(), criteria, fetchOptions).getObjects()
+
+def _removeInventorySpace(context, settingsSamples, code):
+    settingsUpdated = False
+    for settingsSample in settingsSamples:
+        settings = settingsSample.getProperty("$ELN_SETTINGS")
+        if settings is not None:
+            settings = json.loads(settings)
+            removed = _removeFromList(settings["inventorySpaces"], code)
+            removed = removed or _removeFromList(settings["inventorySpacesReadOnly"], code)
+            if removed:
+                settingsUpdated = True
+                _updateSettings(context, settingsSample, settings)
+    return settingsUpdated
+
+def _removeFromList(list, element):
+    if list and element in list:
+        list.remove(element)
+        return True
+    return False
+    
+def createSpace(context, parameters):
+    group = parameters.get("group")
+    code = parameters.get("postfix")
+    if group is not None and len(group) > 0:
+        code = "%s_%s" % (group, code)
+    spaceIds = _createSpace(context, parameters, code)
+
+    reloadNeeded = False
+    if parameters.get("isInventory"):
+        settingsSample = _getSettingsSample(context, parameters, group)
+        settings = settingsSample.getProperty("$ELN_SETTINGS")
+        if settings is None:
+            raise UserFailureException("Settings %s not yet defined. Please, edit them first." 
+                                       % settingsSample.getIdentifier())
+        settings = json.loads(settings)
+        isReadOnly = parameters.get("isReadOnly")
+        spaces = settings["inventorySpacesReadOnly" if isReadOnly else "inventorySpaces"]
+        _addAuthorizations(context, parameters, group, code, isReadOnly, spaces)
+        if not code in spaces:
+            spaces.append(code)
+            _updateSettings(context, settingsSample, settings)
+            reloadNeeded = True
+    return {"spaceIds" : spaceIds, "reloadNeeded" : reloadNeeded}
+
+def _createSpace(context, parameters, code):
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create import SpaceCreation
+
+    spaceCreation = SpaceCreation()
+    description = parameters.get("description")
+    spaceCreation.setCode(code);
+    if description is not None:
+        spaceCreation.setDescription(description)
+    return context.getApplicationService().createSpaces(context.getSessionToken(), [spaceCreation])
+
+def _getSettingsSample(context, parameters, group):
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id import SampleIdentifier
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions import SampleFetchOptions
+
+    settingsIdentifier = "/ELN_SETTINGS/GENERAL_ELN_SETTINGS"
+    if group:
+        settingsIdentifier = "/%s_ELN_SETTINGS/%s_ELN_SETTINGS" % (group, group)
+    settingsIdentifier = SampleIdentifier(settingsIdentifier)
+    fetchOptions = SampleFetchOptions()
+    fetchOptions.withProperties()
+    sessionToken = context.getSessionToken()
+    api = context.getApplicationService()
+    settingsSample = api.getSamples(sessionToken, [settingsIdentifier], fetchOptions).get(settingsIdentifier)
+    if settingsSample is None:
+        raise UserFailureException("No settings sample for %s" % settingsIdentifier)
+    return settingsSample
+
+def _updateSettings(context, settingsSample, settings):
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update import SampleUpdate
+
+    sampleUpdate = SampleUpdate()
+    sampleUpdate.setSampleId(settingsSample.getPermId())
+    sampleUpdate.setProperty("$ELN_SETTINGS", json.dumps(settings))
+    context.getApplicationService().updateSamples(context.getSessionToken(), [sampleUpdate])
+
+def _addAuthorizations(context, parameters, group, code, isReadOnly, spaces):
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.create import RoleAssignmentCreation
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.id import AuthorizationGroupPermId
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id import PersonPermId
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment import Role
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id import SpacePermId
+
+    creations = []
+    if group:
+        creation = RoleAssignmentCreation()
+        creation.setAuthorizationGroupId(AuthorizationGroupPermId(group))
+        creation.setSpaceId(SpacePermId(code))
+        creation.setRole(Role.OBSERVER if isReadOnly else Role.USER)
+        creations.append(creation)
+        creationAdmin = RoleAssignmentCreation()
+        creationAdmin.setAuthorizationGroupId(AuthorizationGroupPermId("%s_ADMIN" % group))
+        creationAdmin.setSpaceId(SpacePermId(code))
+        creationAdmin.setRole(Role.ADMIN)
+        creations.append(creationAdmin)
+    elif spaces:
+        users = _getUsers(context, spaces)
+        for user in users:
+            creation = RoleAssignmentCreation()
+            creation.setUserId(PersonPermId(user))
+            creation.setSpaceId(SpacePermId(code))
+            creation.setRole(Role.OBSERVER if isReadOnly else Role.USER)
+            creations.append(creation)
+    if creations:
+        context.getApplicationService().createRoleAssignments(context.getSessionToken(), creations)
+
+def _getUsers(context, spaces):
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment import RoleAssignment
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.fetchoptions import RoleAssignmentFetchOptions
+    from ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.search import RoleAssignmentSearchCriteria
+
+    searchCriteria = RoleAssignmentSearchCriteria()
+    searchCriteria.withSpace().withCodes().thatIn(spaces)
+    fetchOptions = RoleAssignmentFetchOptions()
+    fetchOptions.withUser()
+    assignments = context.getApplicationService().searchRoleAssignments(
+        context.getSessionToken(), searchCriteria, fetchOptions).getObjects()
+    users = set()
+    for assignment in assignments:
+        user = assignment.getUser()
+        if user:
+            users.add(user.getUserId());
+    return users
 
 def getSamplesImportTemplate(context, parameters):
     from java.io import ByteArrayOutputStream
@@ -105,23 +276,28 @@ def getSamplesImportTemplate(context, parameters):
         row = sheet.createRow(row_index)
         _create_cell(row, 0, kind_style, "SAMPLE")
         row = sheet.createRow(row_index + 1)
-        _create_cell(row, 0, None, "Sample Type")
+        _create_cell(row, 0, None, "Sample type")
         row = sheet.createRow(row_index + 2)
         _create_cell(row, 0, type_style, sampleTypePermId)
         row = sheet.createRow(row_index + 3)
         cell_index = _create_cell(row, 0, header_style, "$")
-        cell_index = _create_cell(row, cell_index, header_style, "Code")
         if importMode == "UPDATE":
             cell_index = _create_cell(row, cell_index, header_style, "Identifier")
         if templateType == "GENERAL":
+            cell_index = _create_cell(row, cell_index, header_style, "Code")
             cell_index = _create_cell(row, cell_index, header_style, "Experiment")
             cell_index = _create_cell(row, cell_index, header_style, "Project")
             cell_index = _create_cell(row, cell_index, header_style, "Space")
         cell_index = _create_cell(row, cell_index, header_style, "Parents")
+        attributeValidator = AttributeValidator(SampleImportHelper.Attribute)
         for propertyAssignment in sampleTypes.get(sampleTypeId).getPropertyAssignments():
             plugin = propertyAssignment.getPlugin()
             if plugin is None or plugin.getPluginType() != PluginType.DYNAMIC_PROPERTY:
-                cell_index = _create_cell(row, cell_index, header_style, propertyAssignment.getPropertyType().getLabel())
+                if not attributeValidator.isHeader(propertyAssignment.getPropertyType().getLabel()):
+                    cell_index = _create_cell(row, cell_index, header_style, propertyAssignment.getPropertyType().getLabel())
+                else:
+                    cell_index = _create_cell(row, cell_index, header_style, propertyAssignment.getPropertyType().getCode())
+
         max_number_of_columns = max(max_number_of_columns, cell_index)
         row_index += 6
         for i in range(max_number_of_columns):
@@ -164,36 +340,8 @@ def importSamples(context, parameters):
     for file in uploadedFiles.iterable():
         file_name = file.getOriginalFilename()
         bytes = IOUtils.toByteArray(file.getInputStream())
-        validateSampleImport(context, bytes, file_name, allowedSampleTypes, experimentsByType, spacesByType, mode, barcodeValidationInfo)
         results.append(importData(context, bytes, file_name, experimentsByType, spacesByType, mode, False))
     return results
-
-def validateSampleImport(context, bytes, file_name, allowedSampleTypes, experimentsByType, spacesByType, mode, barcodeValidationInfo):
-    definitions = importData(context, bytes, file_name, None, None, mode, True)
-    for definition in definitions:
-        row_number = definition.row_number
-        entityType = definition.type
-        if entityType != 'SAMPLE':
-            raise UserFailureException("Error in row %s: Type %s is not allowed to import." % (row_number, entityType))
-        key = 'sample type'
-        if key not in definition.attributes:
-            raise UserFailureException("Error in row %s: First cell should contain '%s'." % (row_number + 1, key))
-        sampleType = definition.attributes[key]
-        if sampleType not in allowedSampleTypes:
-            raise UserFailureException("Error in row %s: Sample type %s is not allowed to import." % (row_number + 2, sampleType))
-        experiment = None
-        if experimentsByType is not None and sampleType in experimentsByType:
-            experiment = experimentsByType[sampleType]
-        space = None
-        if spacesByType is not None and sampleType in spacesByType:
-            space = spacesByType[sampleType]
-        row_number += 4
-        for properties in definition.properties:
-            if properties.get("$") == "$":
-                raise UserFailureException("Empty row expected before row %s" % (row_number - 2))
-            validateExperimentOrSpaceDefined(row_number, properties, mode, experiment, space)
-            validateBarcode(row_number, properties, barcodeValidationInfo)
-            row_number += 1
 
 def validateExperimentOrSpaceDefined(row_number, properties, mode, experiment, space):
     if experiment is None and space is None and not mode.startswith("UPDATE"):
@@ -441,7 +589,10 @@ def isValidStoragePositionToInsertUpdate(context, parameters, sessionToken):
             searchCriteriaStorageBoxResults = context.applicationService.searchSamples(sessionToken, searchCriteriaStorageBoxPosition, fetchOptions).getObjects();
             # 5.1 If the given box position dont exists (the list is empty), is new
             for sample in searchCriteriaStorageBoxResults:
-                if sample.getPermId().getPermId() != samplePermId and sample.getProperty("$STORAGE_POSITION.STORAGE_BOX_NAME") == storageBoxName and sample.getProperty("$STORAGE_POSITION.STORAGE_CODE") == storageCode:
+                if sample.getPermId().getPermId() != samplePermId \
+                        and storageBoxSubPosition in sample.getProperty("$STORAGE_POSITION.STORAGE_BOX_POSITION").split(" ") \
+                        and sample.getProperty("$STORAGE_POSITION.STORAGE_BOX_NAME") == storageBoxName \
+                        and sample.getProperty("$STORAGE_POSITION.STORAGE_CODE") == storageCode:
                     # 5.3 If the given box position already exists, with a different permId -> Is an error
                     raise UserFailureException("Box Position " + storageBoxSubPosition + " is already used by " + sample.getPermId().getPermId());
                 else:

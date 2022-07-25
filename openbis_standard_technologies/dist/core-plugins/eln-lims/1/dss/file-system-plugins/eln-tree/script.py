@@ -1,7 +1,11 @@
+import json
 import os
 
+from java.nio.file import NoSuchFileException
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id import SpacePermId
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search import SpaceSearchCriteria
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions import SpaceFetchOptions
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id import ProjectIdentifier
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.project.search import ProjectSearchCriteria
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions import ProjectFetchOptions
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search import ExperimentSearchCriteria
@@ -14,16 +18,26 @@ from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions import DataSe
 from ch.systemsx.cisd.openbis.dss.generic.server.ftp import Node
 
 class Acceptor(object):
-    def __init__(self):
+    def __init__(self, settings):
+        self.sections = ["Lab Notebook", "Inventory", "Stock"]
+        self.inventorySpaces = settings.inventorySpaces
+        self.mainMenues = settings.mainMenues
+        self.sampleTypeViewAttributes = settings.sampleTypeViewAttributes
         self.endingsOfHiddenSpaces = []
         self.hideSpaceEndingWith("ELN_SETTINGS")
         self.hideSpaceEndingWith("NAGIOS")
         self.hideSpaceEndingWith("STORAGE")
-        self.spaceEndingsBySection = {"Inventory": ["MATERIALS", "METHODS", "PUBLICATIONS"], 
-                                      "Stock" : ["STOCK_CATALOG", "STOCK_ORDERS"]}
         self.hiddenExperimentTypes = {}
         self.hiddenSampleTypes = {}
         self.hiddenDataSetTypes = {}
+
+    def assertValidSection(self, section):
+        if section not in self.sections:
+            raise NoSuchFileException("Invalid section '%s'." % section)
+
+    def assertValidSpace(self, space):
+        if section not in self.sections:
+            raise NoSuchFileException("Invalid section '%s'." % section)
 
     def hideSpaceEndingWith(self, spaceCodeEnding):
         self.endingsOfHiddenSpaces.append(spaceCodeEnding)
@@ -33,16 +47,33 @@ class Acceptor(object):
         for ending in self.endingsOfHiddenSpaces:
             if code.endswith(ending):
                 return False
-        if section in self.spaceEndingsBySection:
-            for ending in self.spaceEndingsBySection[section]:
-                if code.endswith(ending):
-                    return True
-            return False
-        for endings in self.spaceEndingsBySection.values():
-            for ending in endings:
-                if code.endswith(ending):
-                    return False
+        if section == "Lab Notebook":
+            return not code in self.inventorySpaces and not self._showStockSpace(code) \
+                and self._showItem(code, "LabNotebook")
+        elif section == "Inventory":
+            return code in self.inventorySpaces and not self._showStockSpace(code) \
+                and self._showItem(code, "Inventory")
+        elif section == "Stock":
+            return code in self.inventorySpaces and self._showStockSpace(code)
         return True
+
+    def _showStockSpace(self, code):
+        for ending in ["STOCK_CATALOG", "STOCK_ORDERS"]:
+            if code.endswith(ending):
+                return self._showItem(code, "Stock")
+        return False
+
+    def _showItem(self, code, item):
+        group = self._getGroupPrefix(code)
+        if group in self.mainMenues:
+            mainMenue = self.mainMenues[group]
+            showTerm = "show%s" % item
+            return mainMenue[showTerm] if showTerm in mainMenue else False
+        return False
+    
+    def _getGroupPrefix(self, code):
+        groups = filter(lambda group: code.startswith(group), self.mainMenues.keys())
+        return groups[0] if groups else "GENERAL"
 
     def hideExperimentType(self, typeCode):
         self.hiddenExperimentTypes[typeCode] = True
@@ -54,7 +85,15 @@ class Acceptor(object):
         self.hiddenSampleTypes[typeCode] = True
 
     def acceptSample(self, sample):
-        return sample.getType().getCode() not in self.hiddenSampleTypes
+        group = self._getGroupPrefix(sample.getSpace().getCode())
+        attributes = self.sampleTypeViewAttributes[group]
+        sampleTypeCode = sample.getType().getCode()
+        if sampleTypeCode in self.hiddenSampleTypes:
+            return False
+        if sampleTypeCode in attributes:
+            attr = attributes[sampleTypeCode]
+            return "SHOW_ON_NAV" in attr and attr["SHOW_ON_NAV"]
+        return False
 
     def hideDataSetType(self, typeCode):
         self.hiddenDataSetTypes[typeCode] = True
@@ -62,17 +101,29 @@ class Acceptor(object):
     def acceptDataSet(self, dataSet):
         return dataSet.getType().getCode() not in self.hiddenDataSetTypes
 
+class Settings(object):
+    def __init__(self, inventorySpaces, mainMenues, sampleTypeViewAttributes):
+        self.inventorySpaces = inventorySpaces
+        self.mainMenues = mainMenues
+        self.sampleTypeViewAttributes = sampleTypeViewAttributes
+
 def resolve(subPath, context):
-    acceptor = createAcceptor()
+    acceptor = createAcceptor(context)
     if len(subPath) == 0:
-        return listSections(context)
+        return listSections(acceptor, context)
+
     section = subPath[0]
+    acceptor.assertValidSection(section)
     if len(subPath) == 1:
         return listSpaces(section, acceptor, context)
+
     space = subPath[1]
+    assertValidSpace(space, context)
     if len(subPath) == 2:
         return listProjects(space, acceptor, context)
+
     project = subPath[2]
+    assertValidProject(space, project, context)
     if len(subPath) == 3:
         return listExperiments(section, space, project, acceptor, context)
     if len(subPath) == 4:
@@ -80,19 +131,18 @@ def resolve(subPath, context):
     if len(subPath) > 4:
         return listChildren(subPath, acceptor, context)
 
-def createAcceptor():
-    acceptor = Acceptor()
+def createAcceptor(context):
+    acceptor = Acceptor(getAllSettings(context))
     pluginsFolder = "%s/resolver-plugins" % os.path.dirname(__file__)
     for pluginFileName in os.listdir(pluginsFolder):
         file = "%s/%s" % (pluginsFolder, pluginFileName)
         execfile(file, {"acceptor":acceptor})
     return acceptor
 
-def listSections(context):
+def listSections(acceptor, context):
     response = context.createDirectoryResponse()
-    response.addDirectory("Lab Notebook")
-    response.addDirectory("Inventory")
-    response.addDirectory("Stock")
+    for section in acceptor.sections:
+        response.addDirectory(section)
     return response
 
 def listSpaces(section, acceptor, context):
@@ -103,6 +153,44 @@ def listSpaces(section, acceptor, context):
         if acceptor.acceptSpace(section, space):
             response.addDirectory(space.getCode(), space.getModificationDate())
     return response
+
+def assertValidSpace(space, context):
+    if space != space.upper():
+        raise NoSuchFileException("Space '%s' contains lower case characters." % space)
+    fetchOptions = SpaceFetchOptions()
+    id = SpacePermId(space)
+    if context.getApi().getSpaces(context.getSessionToken(), [id], fetchOptions).isEmpty():
+        raise NoSuchFileException("Unknown space '%s'." % space)
+
+def assertValidProject(space, project, context):
+    if project != project.upper():
+        raise NoSuchFileException("Project '%s' contains lower case characters." % project)
+    fetchOptions = ProjectFetchOptions()
+    id = ProjectIdentifier(space, project)
+    if context.getApi().getProjects(context.getSessionToken(), [id], fetchOptions).isEmpty():
+        raise NoSuchFileException("Unknown project '%s'." % id)
+
+def getAllSettings(context):
+    criteria = SampleSearchCriteria()
+    criteria.withType().withCode().thatEquals("GENERAL_ELN_SETTINGS")
+    fetchOptions = SampleFetchOptions()
+    fetchOptions.withProperties()
+    settingsSamples = context.getApi().searchSamples(context.getSessionToken(), criteria, fetchOptions).getObjects()
+    inventorySpaces = set()
+    mainMenues = {}
+    sampleTypeViewAttributes = {}
+    for settingsSample in settingsSamples:
+        settings = settingsSample.getProperty("$ELN_SETTINGS")
+        if settings is not None:
+            settings = json.loads(settings)
+            inventorySpaces.update(settings["inventorySpaces"])
+            inventorySpaces.update(settings["inventorySpacesReadOnly"])
+            group = settingsSample.getCode().split("_ELN_SETTINGS")[0]
+            if "mainMenu" in settings:
+                mainMenues[group] = settings["mainMenu"]
+            if "sampleTypeDefinitionsExtension" in settings:
+                sampleTypeViewAttributes[group] = settings["sampleTypeDefinitionsExtension"]
+    return Settings(inventorySpaces, mainMenues, sampleTypeViewAttributes)
 
 def listProjects(space, acceptor, context):
     searchCriteria = ProjectSearchCriteria()
@@ -164,10 +252,10 @@ def getNode(subPath, acceptor, context):
                 dataSetCode, contentNode, _ = getContentNode(parentNode.getPermId(), context)
                 addDataSetFileNodes(parentPathString, dataSetCode, contentNode, None, acceptor, context)
             else:
-                raise BaseException("Couldn't resolve '%s' because of invalid node type: %s" % (path, nodeType))
+                raise NoSuchFileException("Couldn't resolve '%s' because of invalid node type: %s" % (path, nodeType))
         node = context.getCache().getNode(path)
         if node is None:
-            raise BaseException("Couldn't resolve '%s'" % path)
+            raise NoSuchFileException("Couldn't resolve '%s'" % path)
     return node
 
 def addExperimentNodes(section, space, project, response, acceptor, context):
@@ -193,6 +281,7 @@ def addExperimentChildNodes(path, experimentPermId, response, acceptor, context)
     sampleSearchCriteria.withExperiment().withPermId().thatEquals(experimentPermId)
     fetchOptions = SampleFetchOptions()
     fetchOptions.withType()
+    fetchOptions.withSpace()
     fetchOptions.withProperties()
     fetchOptions.withParents().withExperiment()
     samples = context.getApi().searchSamples(context.getSessionToken(), sampleSearchCriteria, fetchOptions).getObjects()
@@ -209,6 +298,7 @@ def addSampleChildNodes(path, samplePermId, response, acceptor, context):
 
     fetchOptions = SampleFetchOptions()
     fetchOptions.withChildren().withType()
+    fetchOptions.withChildren().withSpace()
     fetchOptions.withChildren().withProperties()
     sampleId = SamplePermId(samplePermId)
     sample = context.getApi().getSamples(context.getSessionToken(), [sampleId], fetchOptions)[sampleId]
@@ -222,7 +312,7 @@ def addDataSetFileNodes(path, dataSetCode, contentNode, response, acceptor, cont
     for childNode in contentNode.getChildNodes():
         nodeName = childNode.getName()
         filePath = "%s/%s" % (path, nodeName)
-        filePermId = "%s:%s" % (dataSetCode, childNode.getRelativePath())
+        filePermId = "%s::%s" % (dataSetCode, childNode.getRelativePath())
         context.getCache().putNode(Node("DATASET", filePermId), filePath)
         if response is not None:
             if childNode.isDirectory():
@@ -231,7 +321,7 @@ def addDataSetFileNodes(path, dataSetCode, contentNode, response, acceptor, cont
                 response.addFile(nodeName, childNode)
 
 def getContentNode(permId, context):
-    splittedId = permId.split(":")
+    splittedId = permId.split("::")
     dataSetCode = splittedId[0]
     content = context.getContentProvider().asContent(dataSetCode)
     contentNode = content.tryGetNode(splittedId[1]) if len(splittedId) > 1 else content.getRootNode()

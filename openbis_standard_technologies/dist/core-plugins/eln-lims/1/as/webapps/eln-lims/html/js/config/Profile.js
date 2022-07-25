@@ -358,6 +358,24 @@ $.extend(DefaultProfile.prototype, {
 			});
 		}
 
+        this.initProcessingServiceInfos = function(callback) {
+            var _this = this;
+            mainController.serverFacade.searchProcessingServices(function(result) {
+                _this._processingServices = result.getObjects();
+                callback();
+            });
+        }
+
+        this.getAvailableProcessingServices = function(dataSetTypeCode) {
+            var services = [];
+            this._processingServices.forEach(function(service) {
+                if (service.getDataSetTypeCodes().includes(dataSetTypeCode)) {
+                    services.push(service);
+                }
+            });
+            return services;
+        }
+
         this.showDataset = function(datasetTypeCode) {
             return !profile.dataSetTypeDefinitionsExtension[datasetTypeCode] || profile.dataSetTypeDefinitionsExtension[datasetTypeCode]["SHOW"] === true;
         }
@@ -491,13 +509,7 @@ $.extend(DefaultProfile.prototype, {
 		}
 
         this.isInventorySpace = function(spaceCode) {
-            return Util.elementEndsWithArrayElement(spaceCode, this.inventorySpaces.concat(this.inventorySpacesReadOnly));
-        }
-
-        this.getSpaceEndingsForInventory = function() {
-            return this.inventorySpaces.concat(this.inventorySpacesReadOnly).filter(function (space) {
-                return !space.endsWith("STOCK_CATALOG") && !space.endsWith("STOCK_ORDERS") && !space.endsWith("ELN_SETTINGS");
-            });
+            return this.inventorySpaces.includes(spaceCode) || this.inventorySpacesReadOnly.includes(spaceCode)
         }
 
 		this.isFileAuthenticationService = false;
@@ -1242,14 +1254,10 @@ $.extend(DefaultProfile.prototype, {
 
         this.initUserManagementMaintenanceTaskConfig = function(callback) {
             var _this = this;
-            if (this.showUserManagementConfig) {
-                this.serverFacade.getUserManagementMaintenanceTaskConfig(function(config) {
-                    _this.userManagementMaintenanceTaskConfig = config;
-                    callback();
-                });
-            } else {
+            this.serverFacade.getUserManagementMaintenanceTaskConfig(function(config) {
+                _this.userManagementMaintenanceTaskConfig = config;
                 callback();
-            }
+            });
         }
 
 		this.initDatasetTypeCodes = function(callback) {
@@ -1314,7 +1322,10 @@ $.extend(DefaultProfile.prototype, {
 	                if (authSystem && authSystem.indexOf("file") !== -1) {
 	                		_this.isFileAuthenticationService = true;
 	                }
-	                mainController.serverFacade.getSessionInformation(callback);
+	                mainController.serverFacade.getCustomImportDefinitions(function(definitions) {
+	                    _this.customImportDefinitions = definitions;
+	                    mainController.serverFacade.getSessionInformation(callback);
+	                });
 	            });
 			});
 		}
@@ -1342,15 +1353,17 @@ $.extend(DefaultProfile.prototype, {
                                         _this.initServerInfo(function() {
                                             _this.isFileAuthUser(function() {
                                                 _this.initSpaces(function() {
-                                                    _this.initCustomWidgetSettings(function() {
-                                                        _this.initSettings(function() {
-                                                            //Check if the new storage system can be enabled
-                                                            var storageRack = _this.getSampleTypeForSampleTypeCode("STORAGE");
-                                                            var storagePositionType = _this.getSampleTypeForSampleTypeCode("STORAGE_POSITION");
-                                                            _this.storagesConfiguration = {
-                                                                    "isEnabled" : storageRack && storagePositionType
-                                                            };
-                                                            callbackWhenDone();
+                                                    _this.initProcessingServiceInfos(function() {
+                                                        _this.initCustomWidgetSettings(function() {
+                                                            _this.initSettings(function() {
+                                                                //Check if the new storage system can be enabled
+                                                                var storageRack = _this.getSampleTypeForSampleTypeCode("STORAGE");
+                                                                var storagePositionType = _this.getSampleTypeForSampleTypeCode("STORAGE_POSITION");
+                                                                _this.storagesConfiguration = {
+                                                                        "isEnabled" : storageRack && storagePositionType
+                                                                };
+                                                                callbackWhenDone();
+                                                            });
                                                         });
                                                     });
                                                 });

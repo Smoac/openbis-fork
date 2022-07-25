@@ -431,6 +431,10 @@ function MainController(profile) {
 					document.title = "Edit Settings";
 					this._showSettingsPage(FormMode.EDIT, arg);
 					break;
+                case "showCustomImportPage":
+                    document.title = "Custom Import";
+                    this._showCustomImportPage();
+                    break;
 				case "showExportTreePage":
 					document.title = "Export Builder";
 					var newExportView = new ExportTreeController(this);
@@ -1011,6 +1015,12 @@ function MainController(profile) {
 		}
 	}
 	
+    this._showCustomImportPage = function() {
+        var newView = new CustomImportController(this);
+        var views = this._getNewViewModel(true, true, false);
+        newView.init(views);
+    }
+
     this._showOtherToolsPage = function() {
         var views = this._getNewViewModel(true, true, false);
         var $header = views.header;
@@ -1034,13 +1044,8 @@ function MainController(profile) {
     this.createReport = function(reportDefinition) {
         var parameters = reportDefinition.parameters ? reportDefinition.parameters : {};
         mainController.serverFacade.customASService(parameters, function(result){
-            var link = document.createElement('a');
             var mimeType = reportDefinition.mimeType ? reportDefinition.mimeType : "text/plain";
-            link.href = "data:" + mimeType + ";" + (reportDefinition.binary ? "base64," : ",") + result;
-            link.download = reportDefinition.filename;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            Util.download(result, mimeType, reportDefinition.binary, reportDefinition.filename);
         }, reportDefinition.service);
     }
 

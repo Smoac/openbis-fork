@@ -481,6 +481,9 @@ var FormUtil = new function() {
 			if (mapVals[mIdx].selected) {
 				$option.attr('selected', '');
 			}
+            if (mapVals[mIdx].tooltip) {
+                $option.attr("title", mapVals[mIdx].tooltip);
+            }
 			$component.append($option);
 		}
 	};
@@ -2304,7 +2307,7 @@ var FormUtil = new function() {
 	}
 	
 	this._createFormFieldId = function(key) {
-		return 'freezing-form-' + key.replace("+", "-");
+		return 'freezing-form-' + key.replace("+", "-").replace(/\./g, "-");
 	}
 	
 	this.showFreezingError = function(error) {
@@ -2319,6 +2322,11 @@ var FormUtil = new function() {
 		}
 		return id;
 	}
+
+    this.renderBooleanGridValue = function(row, params, propertyType) {
+        var value = row[propertyType.code]
+        return value ? value : "false";
+    }
 
     this.renderMultilineVarcharGridValue = function(row, params, propertyType){
         return this.renderCustomWidgetGridValue(row, params, propertyType)
