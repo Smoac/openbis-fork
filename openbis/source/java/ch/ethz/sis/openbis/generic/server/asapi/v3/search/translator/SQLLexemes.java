@@ -25,6 +25,8 @@ public class SQLLexemes
 
     public static final String COALESCE = "COALESCE";
 
+    public static final String EXISTS = "EXISTS";
+
     public static final String CONCAT = "CONCAT";
 
     public static final String LOWER = "LOWER";
@@ -64,6 +66,10 @@ public class SQLLexemes
     public static final String REVERSE = "reverse";
 
     public static final String LENGTH = "length";
+
+    public static final String SAFE_DOUBLE = "safe_double";
+
+    public static final String SAFE_TIMESTAMP = "safe_timestamp";
 
     public static final String AT_TIME_ZONE = "AT TIME ZONE";
 
@@ -212,7 +218,6 @@ public class SQLLexemes
     public static final String PLUS = "+";
 
     public static final String MINUS = "-";
-
     public static final String SELECT_UNNEST = LP + SELECT + SP + UNNEST + LP + QU + RP + RP;
 
     private SQLLexemes()
