@@ -41,7 +41,7 @@ dependencies {
 	'fasterxml:jackson-databind:2.9.10.8'
 
 	testCompile project(path: ':ui-test', configuration: 'tests')
-	
+
 	testRuntimeFirst 'javax:servlet-api:3.1.0', 'reflections:reflections:0.9.10', 'apache:commons-lang3:3.11'
 	
 	testRuntimeSecond 'google:gwt-user:2.4'
@@ -57,16 +57,22 @@ task copyWar(type: Copy, dependsOn: project(':openbis_standard_technologies').wa
 	rename {filename -> 'openbis.war'}
 }
 
-task deleteXlsImportVersionInfoJson {
+task deleteXlsImportVersionInfoJson(type: Delete) {
     doFirst {
         println "DELETE xls-import-version-info.json file in $buildDir"
-        File file = file('xls-import-version-info.json')
-        file.delete();
     }
+    delete 'xls-import-version-info.json'
+}
+
+task deleteFullTextSearchDocumentVersion(type: Delete) {
+    doFirst {
+        println 'DELETE full-text-search-document-version file in servers/common/openBIS-server/etc'
+    }
+    delete 'servers/common/openBIS-server/etc/full-text-search-document-version'
 }
 
 clean.dependsOn deleteXlsImportVersionInfoJson
-
+clean.dependsOn deleteFullTextSearchDocumentVersion
 
 import org.gradle.internal.os.OperatingSystem
 
