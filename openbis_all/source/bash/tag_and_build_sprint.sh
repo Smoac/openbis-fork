@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 BIN_DIR=`dirname "$0"`
 
 usage()

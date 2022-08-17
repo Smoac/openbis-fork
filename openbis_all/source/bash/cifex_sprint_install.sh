@@ -1,4 +1,3 @@
-#!/bin/bash
 # This is a very simple version of the script which installs the cifex
 
 PREV=cifex-S72

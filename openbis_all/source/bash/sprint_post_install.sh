@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Central post install script for all openBIS servers
 
 export BIN=~/bin
