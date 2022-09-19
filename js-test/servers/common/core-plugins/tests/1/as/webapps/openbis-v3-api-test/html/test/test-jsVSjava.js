@@ -27,6 +27,7 @@ define(["jquery", "underscore", "openbis", "test/common"], function ($, _, openb
             UnauthorizedObjectAccessException: "Java class ignored: ",
             UnsupportedObjectIdException: "Java class ignored: ",
             IApplicationServerApi: "Java class ignored: ",
+            IOperationListener: "Java class ignored: ",
             DataSetCreation: "Java class ignored: ",
             DataSetFileDownloadInputStream: "Java class ignored: ",
             IDataStoreServerApi: "Java class ignored: ",
@@ -135,7 +136,15 @@ define(["jquery", "underscore", "openbis", "test/common"], function ($, _, openb
                     var jsField = jsTypeDescription[javaField.name]
                     if (jsField) {
                         var javaFieldType = getSimpleClassName(javaField.type)
-                        var jsFieldType = _.isObject(jsField) ? jsField.name : jsField
+                        var jsFieldType = null;
+
+                        if(_.isFunction(jsField)){
+                            jsFieldType = jsField();
+                        }else if(_.isObject(jsField)){
+                            jsFieldType = jsField.name
+                        }else{
+                            jsFieldType = jsField
+                        }
 
                         if (javaFieldType !== jsFieldType) {
                             var errorResult =
