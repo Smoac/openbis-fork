@@ -1,12 +1,14 @@
 evaluationDependsOn(':commonbase')
 evaluationDependsOn(':common')
 evaluationDependsOn(':dbmigration')
+evaluationDependsOn(':authentication')
 
 apply from: '../gradle/javaproject.gradle'
 
 dependencies {
 	compile project(':common'),
 		project(':dbmigration'),
+		project(':authentication'),
 		'googlecode:jsonrpc4j:1.5.3',
         'fasterxml:jackson-databind:2.9.10.8',
 		'reflections:reflections:0.9.10',
@@ -17,5 +19,6 @@ dependencies {
 		'truezip:truezip:6.8.1'
 
 	testCompile project(path: ':common', configuration: 'tests'),
+				project(path: ':authentication', configuration: 'tests'),
 				'eclipse:jetty-servlet:9.4.44.v20210927'
 }
