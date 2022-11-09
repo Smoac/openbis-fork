@@ -47,6 +47,7 @@ def parse_jackson(input_json):
         "dataSetPermId",
         "dataStore",
     ]
+    skip = ("fetchOptions",)
     found = {}
 
     def build_cache(graph):
@@ -55,6 +56,8 @@ def parse_jackson(input_json):
                 build_cache(item)
         elif isinstance(graph, dict) and len(graph) > 0:
             for key, value in graph.items():
+                if key in skip:
+                    continue
                 if key in interesting:
                     if isinstance(value, dict):
                         if "@id" in value:
@@ -85,6 +88,8 @@ def parse_jackson(input_json):
                     deref_graph(list_item)
         elif isinstance(graph, dict) and len(graph) > 0:
             for key, value in graph.items():
+                if key in skip:
+                    continue
                 if key in interesting:
                     if isinstance(value, dict):
                         deref_graph(value)
