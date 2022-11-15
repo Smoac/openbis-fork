@@ -19,7 +19,7 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 	this._sampleFormModel = new SampleFormModel(mode, sample, paginationInfo);
 	this._sampleFormView = new SampleFormView(this, this._sampleFormModel);
 //	this._storageControllers = [];
-
+	
 	this.init = function(views, loadFromTemplate) {
 		// Loading datasets
 		var _this = this;
@@ -73,7 +73,7 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 								if(!datasets.error) {
 									_this._sampleFormModel.datasets = datasets.result;
 								}
-
+								
 								//Load view
 								_this._sampleFormView.repaint(views);
 								Util.unblockUI();
@@ -102,22 +102,22 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 		}
 		});
 	}
-
+		
 	this.isDirty = function() {
 		return this._sampleFormModel.isFormDirty;
 	}
-
+	
 	this.setDirty = function() {
 		this._sampleFormModel.isFormDirty = true;
 	}
-
+	
 	this.isLoaded = function() {
 		return this._sampleFormModel.isFormLoaded;
 	}
-
+	
 	this._addCommentsWidget = function($container) {
 		var commentsController = new CommentsController(this._sampleFormModel.sample, this._sampleFormModel.mode, this._sampleFormModel);
-		if(this._sampleFormModel.mode !== FormMode.VIEW ||
+		if(this._sampleFormModel.mode !== FormMode.VIEW || 
 			this._sampleFormModel.mode === FormMode.VIEW && !commentsController.isEmpty()) {
 			commentsController.init($container);
 			return true;
@@ -125,11 +125,11 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 			return false;
 		}
 	}
-
+	
 	this.getLastStorageController = function() {
 		return this._storageControllers[this._storageControllers.length-1];
 	}
-
+	
 	this.getNextCopyCode = function(callback) {
 		var _this = this;
 		mainController.serverFacade.searchWithType(
@@ -140,62 +140,11 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 					callback(_this._sampleFormModel.sample.code + "_" + (results.length + 1));
 				});
 	}
-
-	this.deleteSample = function(reason, deleteDescendants) {
-        var _this = this;
-        var doDelete = function(samplesToDelete, reason) {
-            console.log("deleteDescendants:"+deleteDescendants+", reason:"+reason+", samples:"+samplesToDelete);
-            Util.blockUI();
-            mainController.serverFacade.deleteSamples(samplesToDelete, reason, function(response) {
-                if(response.error) {
-                    Util.showError(response.error.message);
-                } else {
-                    Util.showSuccess("" + ELNDictionary.Sample + "(s) moved to Trashcan");
-                    if(_this._sampleFormModel.isELNSample) {
-                        mainController.sideMenu.deleteNodeByEntityPermId(_this._sampleFormModel.sample.permId, true);
-                    } else {
-                        mainController.changeView('showSamplesPage',  encodeURIComponent('["' +
-                        		_this._sampleFormModel.sample.experimentIdentifierOrNull + '",false]'));
-                    }
-                    Util.unblockUI();
-                }
-            });
-        };
-
-        var sampleId = this._sampleFormModel.sample.permId;
-        if (deleteDescendants) {
-            require([ "as/dto/sample/id/SamplePermId", "as/dto/sample/fetchoptions/SampleFetchOptions" ],
-                function(SamplePermId, SampleFetchOptions) {
-                    var id = new SamplePermId(sampleId);
-                    var fetchOptions = new SampleFetchOptions();
-                    fetchOptions.withChildrenUsing(fetchOptions);
-                    mainController.openbisV3.getSamples([id], fetchOptions).done(function(map) {
-                        var samplesToDelete = [];
-                        _this.gatherAllDescendants(samplesToDelete, map[id]);
-                        doDelete(samplesToDelete, reason);
-                    });
-                });
-        } else {
-            var samplesToDelete = [sampleId];
-            for(var idx = 0; idx < this._sampleFormModel.sample.children.length; idx++) {
-                var child = this._sampleFormModel.sample.children[idx];
-                if (child.sampleTypeCode === "STORAGE_POSITION") {
-                    samplesToDelete.push(child.permId);
-                }
-            }
-            doDelete(samplesToDelete, reason);
-        }
-    }
-
-    this.gatherAllDescendants = function(samplePermIds, sample) {
-        samplePermIds.push(sample.getPermId().getPermId());
-        sample.getChildren().forEach(child => this.gatherAllDescendants(samplePermIds, child));
-    }
-
+	
 	this.createUpdateCopySample = function(isCopyWithNewCode, linkParentsOnCopy, copyChildrenOnCopy, copyCommentsLogOnCopy) {
 		Util.blockUI();
 		var _this = this;
-
+		
 		//
 		// Parents/Children Links
 		//
@@ -207,24 +156,24 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 				return;
 			}
 		}
-
+		
 		var sampleParentsFinal = _this._sampleFormModel.sampleLinksParents.getSamplesIdentifiers();
-
+		
 		var sampleParentsRemovedFinal = _this._sampleFormModel.sampleLinksParents.getSamplesRemovedIdentifiers();
 		var sampleParentsAddedFinal = _this._sampleFormModel.sampleLinksParents.getSamplesAddedIdentifiers();
-
+		
 		var sampleChildrenFinal = _this._sampleFormModel.sampleLinksChildren.getSamplesIdentifiers();
-
+		
 		var sampleChildrenRemovedFinal = _this._sampleFormModel.sampleLinksChildren.getSamplesRemovedIdentifiers();
 		var sampleChildrenAddedFinal = _this._sampleFormModel.sampleLinksChildren.getSamplesAddedIdentifiers();
-
+		
 		//
 		// Check that the same sample is not a parent and a child at the same time
 		//
 		var intersect_safe = function(a, b) {
 		  var ai=0, bi=0;
 		  var result = new Array();
-
+		  
 		  while( ai < a.length && bi < b.length )
 		  {
 		     if      (a[ai] < b[bi] ){ ai++; }
@@ -239,7 +188,7 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 
 		  return result;
 		}
-
+		
 		sampleParentsFinal.sort();
 		sampleChildrenFinal.sort();
 		var intersection = intersect_safe(sampleParentsFinal, sampleChildrenFinal);
@@ -247,7 +196,7 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 			Util.showUserError("The same entity can't be a parent and a child, please check: " + intersection);
 			return;
 		}
-
+		
 		//On Submit
 		sample.parents = _this._sampleFormModel.sampleLinksParents.getSamples();
 		var continueSampleCreation = function(sample, newSampleParents, samplesToDelete, newChangesToDo) {
@@ -256,19 +205,19 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 		        return;
 		    }
 			//
-			// TODO : Remove this hack without removing the New Producs Widget
+			// TODO : Remove this hack without removing the New Producs Widget 
 			//
 			if(sample.sampleTypeCode === "REQUEST") {
 				var maxProducts;
 				var minProducts;
-				if(profile.sampleTypeDefinitionsExtension &&
-					profile.sampleTypeDefinitionsExtension["REQUEST"] &&
-					profile.sampleTypeDefinitionsExtension["REQUEST"]["SAMPLE_PARENTS_HINT"] &&
+				if(profile.sampleTypeDefinitionsExtension && 
+					profile.sampleTypeDefinitionsExtension["REQUEST"] && 
+					profile.sampleTypeDefinitionsExtension["REQUEST"]["SAMPLE_PARENTS_HINT"] && 
 					profile.sampleTypeDefinitionsExtension["REQUEST"]["SAMPLE_PARENTS_HINT"][0]) {
 					maxProducts = profile.sampleTypeDefinitionsExtension["REQUEST"]["SAMPLE_PARENTS_HINT"][0]["MAX_COUNT"];
 					minProducts = profile.sampleTypeDefinitionsExtension["REQUEST"]["SAMPLE_PARENTS_HINT"][0]["MIN_COUNT"];
 				}
-
+				
 				if(maxProducts && (sampleParentsFinal.length + newSampleParents.length) > maxProducts) {
 					Util.showUserError("There is more than " + maxProducts + " product.");
 					return;
@@ -298,7 +247,7 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
                     return;
                 }
             }
-
+			
 			//
 			//Identification Info
 			//
@@ -307,7 +256,7 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 			var sampleExperiment = null;
 			var sampleCode = sample.code;
 			var properties = $.extend(true, {}, sample.properties); //Deep copy that can be modified before sending to the server and gets discarded in case of failure / simulates a rollback.
-
+			
 			//
 			// Annotations
 			//
@@ -349,14 +298,14 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
             }
 
 			//
-
+			
 			var experimentIdentifier = sample.experimentIdentifierOrNull;
 			if(experimentIdentifier) { //If there is a experiment detected, the sample should be attached to the experiment completely.
 				sampleSpace = IdentifierUtil.getSpaceCodeFromIdentifier(experimentIdentifier);
 				sampleProject = IdentifierUtil.getProjectCodeFromExperimentIdentifier(experimentIdentifier);
 				sampleExperiment = IdentifierUtil.getCodeFromIdentifier(experimentIdentifier);
 			}
-
+			
 			//Children to create
 			var samplesToCreate = [];
 			_this._sampleFormModel.sampleLinksChildren.getSamples().forEach(function(child) {
@@ -373,7 +322,7 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 								sampleTypeCode : "STORAGE_POSITION",
 								properties : {}
 						};
-
+						
 						var storagePropertyGroup = profile.getStoragePropertyGroup();
 						storagePosition.properties[storagePropertyGroup.nameProperty] = $("#childrenStorageSelector").val();
 						storagePosition.properties[storagePropertyGroup.rowProperty] = 1;
@@ -386,13 +335,13 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 						storagePosition.properties[storagePropertyGroup.boxProperty] = boxProperty;
 						storagePosition.properties[storagePropertyGroup.userProperty] = mainController.serverFacade.getUserId();
 						storagePosition.properties[storagePropertyGroup.positionProperty] = "A1";
-
+					
 						child.children.push(storagePosition);
 					}
 					samplesToCreate.push(child);
 				}
 			});
-
+			
 			if(_this._sampleFormModel.sample.children) {
 				_this._sampleFormModel.sample.children.forEach(function(child) {
 					if(child.newSample) {
@@ -406,7 +355,7 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 					}
 				});
 			}
-
+			
 			//Method
 			var method = "";
 			if(_this._sampleFormModel.mode === FormMode.CREATE) {
@@ -414,13 +363,13 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 			} else if(_this._sampleFormModel.mode === FormMode.EDIT) {
 				method = "updateSample";
 			}
-
+			
 			var changesToDo = [];
-
+			
             if(newChangesToDo) {
                 changesToDo = newChangesToDo;
             }
-
+			
 			var parameters = {
 					//API Method
 					"method" : method,
@@ -442,7 +391,7 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 					//Other Samples
 					"changesToDo" : changesToDo
 			};
-
+			
 			//
 			// Copy override - This part modifies what is done for a create/update and adds a couple of extra parameters needed to copy to the bench correctly
 			//
@@ -452,40 +401,40 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 				parameters["sampleCodeOrig"] = sampleCode;
 				parameters["notCopyProperties"] = [];
 				parameters["defaultBenchPropertyList"] = [];
-
+				
 				if(!copyCommentsLogOnCopy && parameters["sampleProperties"]["$XMLCOMMENTS"]) {
 					delete parameters["sampleProperties"]["$XMLCOMMENTS"];
 				}
-
+				
 				parameters["sampleParents"] = sampleParentsFinal;
 				if(!linkParentsOnCopy) {
 					parameters["sampleParents"] = [];
 				}
-
+				
 				parameters["sampleChildren"] = sampleChildrenFinal;
 				parameters["copyChildrenOnCopy"] = copyChildrenOnCopy;
 				parameters["sampleChildrenNew"] = [];
 				parameters["sampleChildrenRemoved"] = [];
 			}
-
+			
 			//
 			// Sending the request to the server
 			//
 			if(profile.getDefaultDataStoreCode()) {
-
+				
 				mainController.serverFacade.createReportFromAggregationService(profile.getDefaultDataStoreCode(), parameters, function(response) {
 					_this._createUpdateCopySampleCallback(_this, isCopyWithNewCode, response, samplesToDelete, parentsAnnotationsState, childrenAnnotationsState, parameters["copyChildrenOnCopy"]);
 				});
-
+				
 			} else {
 				Util.showError("No DSS available.", function() {Util.unblockUI();});
 			}
 		}
-
+		
 		profile.sampleFormOnSubmit(sample, continueSampleCreation);
 		return false;
 	}
-
+	
 	this._createUpdateCopySampleCallback = function(_this, isCopyWithNewCode, response, samplesToDelete, parentsAnnotationsState, childrenAnnotationsState, copyChildrenOnCopy) {
 		if(response.error) { //Error Case 1
 			Util.showError(response.error.message, function() {Util.unblockUI();});
@@ -497,13 +446,13 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 			if(response.result.columns[2].title === "RESULT" && response.result.rows[0][2].value) {
 				permId = response.result.rows[0][2].value;
 			}
-
+			
 			var sampleType = profile.getSampleTypeForSampleTypeCode(_this._sampleFormModel.sample.sampleTypeCode);
 			var sampleTypeDisplayName = sampleType.description;
 			if(!sampleTypeDisplayName) {
 				sampleTypeDisplayName = _this._sampleFormModel.sample.sampleTypeCode;
 			}
-
+			
 			var message = "";
 			if(isCopyWithNewCode) {
 				message = "" + ELNDictionary.Sample + " copied with new code: " + isCopyWithNewCode + ".";
@@ -512,7 +461,7 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 			} else if(_this._sampleFormModel.mode === FormMode.EDIT) {
 				message = "" + ELNDictionary.Sample + " Updated.";
 			}
-
+			
 			var callbackOk = function() {
 				if((isCopyWithNewCode || _this._sampleFormModel.mode === FormMode.CREATE || _this._sampleFormModel.mode === FormMode.EDIT) && _this._sampleFormModel.isELNSample) {
 					if(_this._sampleFormModel.mode === FormMode.CREATE) {
@@ -521,7 +470,7 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 						mainController.sideMenu.refreshNodeParent(_this._sampleFormModel.sample.permId);
 					}
 				}
-
+				
 				var searchUntilFound = null;
 				    searchUntilFound = function() {
 					mainController.serverFacade.searchWithUniqueId(permId, function(data) {
@@ -615,7 +564,7 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
                     _this._sampleFormModel.isFormDirty = false;
                 }
 			}
-
+			
 		} else { //This should never happen
 			Util.showError("Unknown Error.", function() {Util.unblockUI();});
 		}

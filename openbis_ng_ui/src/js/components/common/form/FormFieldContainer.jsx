@@ -7,9 +7,7 @@ import Tooltip from '@src/js/components/common/form/Tooltip.jsx'
 import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
-  container: {
-    overflow: 'hidden'
-  },
+  container: {},
   subcontainer: {
     display: 'flex',
     flexDirection: 'row',
@@ -34,7 +32,8 @@ const styles = theme => ({
     lineHeight: '0.7rem',
     '& svg': {
       color: theme.palette.hint.main
-    }
+    },
+    cursor: 'pointer'
   },
   errorDefault: {
     fontSize: theme.typography.label.fontSize,

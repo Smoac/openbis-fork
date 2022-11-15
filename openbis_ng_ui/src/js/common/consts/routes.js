@@ -52,6 +52,17 @@ class DefaultRoute {
 }
 
 const routes = {
+  DATABASE: new Route('/database', {
+    page: pages.DATABASE
+  }),
+  SPACE: new Route('/space/:id', {
+    page: pages.DATABASE,
+    type: objectTypes.SPACE
+  }),
+  PROJECT: new Route('/project/:id', {
+    page: pages.DATABASE,
+    type: objectTypes.PROJECT
+  }),
   TYPES: new Route('/types', {
     page: pages.TYPES
   }),
@@ -62,6 +73,10 @@ const routes = {
   NEW_OBJECT_TYPE: new Route('/new-object-type/:id', {
     page: pages.TYPES,
     type: objectTypes.NEW_OBJECT_TYPE
+  }),
+  OBJECT: new Route('/object/:id', {
+    page: pages.DATABASE,
+    type: objectTypes.OBJECT
   }),
   OBJECT_TYPE: new Route('/object-type/:id', {
     page: pages.TYPES,
@@ -76,6 +91,10 @@ const routes = {
     page: pages.TYPES,
     type: objectTypes.NEW_COLLECTION_TYPE
   }),
+  COLLECTION: new Route('/collection/:id', {
+    page: pages.DATABASE,
+    type: objectTypes.COLLECTION
+  }),
   COLLECTION_TYPE: new Route('/collection-type/:id', {
     page: pages.TYPES,
     type: objectTypes.COLLECTION_TYPE
@@ -88,6 +107,10 @@ const routes = {
   NEW_DATA_SET_TYPE: new Route('/new-dataset-type/:id', {
     page: pages.TYPES,
     type: objectTypes.NEW_DATA_SET_TYPE
+  }),
+  DATA_SET: new Route('/dataset/:id', {
+    page: pages.DATABASE,
+    type: objectTypes.DATA_SET
   }),
   DATA_SET_TYPE: new Route('/dataset-type/:id', {
     page: pages.TYPES,
@@ -214,6 +237,11 @@ const routes = {
     type: objectTypes.OVERVIEW,
     id: objectTypes.QUERY
   }),
+  PERSONAL_ACCESS_TOKEN_OVERVIEW: new Route('/personal-access-token-overview', {
+    page: pages.TOOLS,
+    type: objectTypes.OVERVIEW,
+    id: objectTypes.PERSONAL_ACCESS_TOKEN
+  }),
   HISTORY: new Route('/history/:id', {
     page: pages.TOOLS,
     type: objectTypes.HISTORY
@@ -221,6 +249,11 @@ const routes = {
   IMPORT: new Route('/import/:id', {
     page: pages.TOOLS,
     type: objectTypes.IMPORT
+  }),
+  ACTIVE_USERS_REPORT: new Route('/active-users-report', {
+    page: pages.TOOLS,
+    type: objectTypes.ACTIVE_USERS_REPORT,
+    id: objectTypes.ACTIVE_USERS_REPORT
   }),
   DEFAULT: new DefaultRoute()
 }

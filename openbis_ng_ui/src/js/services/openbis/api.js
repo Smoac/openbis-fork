@@ -1,4 +1,5 @@
 import autoBind from 'auto-bind'
+import dto from '@src/js/services/openbis/dto.js'
 
 class Facade {
   constructor() {
@@ -30,6 +31,10 @@ class Facade {
     return this.promise(this.v3.getSessionInformation())
   }
 
+  getServerInformation() {
+    return this.promise(this.v3.getServerInformation())
+  }
+
   getServerPublicInformation() {
     return this.promise(this.v3.getServerPublicInformation())
   }
@@ -40,6 +45,26 @@ class Facade {
 
   logout() {
     return this.promise(this.v3.logout())
+  }
+
+  getSpaces(ids, fo) {
+    return this.promise(this.v3.getSpaces(ids, fo))
+  }
+
+  getProjects(ids, fo) {
+    return this.promise(this.v3.getProjects(ids, fo))
+  }
+
+  getExperiments(ids, fo) {
+    return this.promise(this.v3.getExperiments(ids, fo))
+  }
+
+  getSamples(ids, fo) {
+    return this.promise(this.v3.getSamples(ids, fo))
+  }
+
+  getDataSets(ids, fo) {
+    return this.promise(this.v3.getDataSets(ids, fo))
   }
 
   getPlugins(ids, fo) {
@@ -80,6 +105,10 @@ class Facade {
 
   searchPlugins(criteria, fo) {
     return this.promise(this.v3.searchPlugins(criteria, fo))
+  }
+
+  searchPersonalAccessTokens(criteria, fo) {
+    return this.promise(this.v3.searchPersonalAccessTokens(criteria, fo))
   }
 
   searchQueries(criteria, fo) {
@@ -150,6 +179,10 @@ class Facade {
     return this.promise(this.v3.getVocabularies(ids, fo))
   }
 
+  getOperationExecutions(ids, fo) {
+    return this.promise(this.v3.getOperationExecutions(ids, fo))
+  }
+
   updateSampleTypes(updates) {
     return this.promise(this.v3.updateSampleTypes(updates))
   }
@@ -202,8 +235,40 @@ class Facade {
     return this.promise(this.v3.evaluatePlugin(options))
   }
 
-  executeService(id, options) {
-    return this.promise(this.v3.executeCustomASService(id, options))
+  async executeService(id, options) {
+    const scheduleResult = await this.executeOperations(
+      [new dto.ExecuteCustomASServiceOperation(id, options)],
+      new dto.AsynchronousOperationExecutionOptions()
+    )
+
+    const executionId = scheduleResult.executionId
+    const executionFetchOptions = new dto.OperationExecutionFetchOptions()
+    executionFetchOptions.withDetails().withResults()
+    executionFetchOptions.withDetails().withError()
+
+    for (;;) {
+      const executions = await this.getOperationExecutions(
+        [executionId],
+        executionFetchOptions
+      )
+
+      const execution = executions[executionId]
+
+      if (!execution) {
+        throw new Error('Execution id: ' + executionId + ' not found.')
+      } else if (execution.details.error !== null) {
+        throw new Error(execution.details.error.message)
+      } else if (
+        execution.details.results !== null &&
+        execution.details.results.length > 0
+      ) {
+        return execution.details.results[0].result
+      } else {
+        await new Promise(resolve => {
+          setTimeout(resolve, 1000)
+        })
+      }
+    }
   }
 
   executeQuery(id, options) {

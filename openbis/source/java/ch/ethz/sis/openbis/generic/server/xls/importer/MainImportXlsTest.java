@@ -1,5 +1,13 @@
 package ch.ethz.sis.openbis.generic.server.xls.importer;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
+
+import org.apache.log4j.Logger;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportModes;
@@ -8,13 +16,6 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegistrationHelper;
-import org.apache.log4j.Logger;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
 
 public class MainImportXlsTest
 {

@@ -87,9 +87,13 @@ public class SampleImportHelper extends BasicImportHelper
         try
         {
             Map<String, Integer> header = parseHeader(page.get(lineIndex), false);
+            AttributeValidator.validateHeader(SAMPLE_TYPE_FIELD, header);
             lineIndex++;
 
             sampleType = new EntityTypePermId(getValueByColumnName(header, page.get(lineIndex), SAMPLE_TYPE_FIELD));
+            if(sampleType.getPermId() == null || sampleType.getPermId().isEmpty()) {
+                throw new UserFailureException("Mandatory field missing or empty: " + SAMPLE_TYPE_FIELD);
+            }
 
             // first check that sample type exist.
             SampleTypeFetchOptions fetchTypeOptions = new SampleTypeFetchOptions();
@@ -97,14 +101,14 @@ public class SampleImportHelper extends BasicImportHelper
             SampleType type = delayedExecutor.getSampleType(sampleType, fetchTypeOptions);
             if (type == null)
             {
-                throw new UserFailureException("Sample type " + sampleType + " is not exist.");
+                throw new UserFailureException("Sample type " + sampleType + " not found.");
             }
             this.propertyTypeSearcher = new PropertyTypeSearcher(type.getPropertyAssignments());
 
             lineIndex++;
         } catch (Exception e)
         {
-            throw new UserFailureException("Exception at page " + pageIndex + " and line " + lineIndex + " with message: " + e.getMessage());
+            throw new UserFailureException("sheet: " + (pageIndex + 1) + " line: " + (lineIndex + 1) + " message: " + e.getMessage());
         }
 
         // and then import samples

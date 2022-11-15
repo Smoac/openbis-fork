@@ -38,6 +38,7 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         Version("Version", true),
         Code("Code", true),
         Mandatory("Mandatory", false),
+        DefaultValue("Default Value", false),  // Ignored, only used by PropertyAssignmentImportHelper
         ShowInEditViews("Show in edit views", false),
         Section("Section", false),
         PropertyLabel("Property label", true),
@@ -45,7 +46,10 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         VocabularyCode("Vocabulary code", true),
         Description("Description", true),
         Metadata("Metadata", false),
-        DynamicScript("Dynamic script", false);
+        DynamicScript("Dynamic script", false),
+        OntologyId("Ontology Id", false),
+        OntologyVersion("Ontology Version", false),
+        OntologyAnnotationId("Ontology Annotation Id", false);
 
         private final String headerName;
 

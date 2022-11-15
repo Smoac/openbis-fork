@@ -1,4 +1,9 @@
+// app
 const WEB_APP_ID = 'openbis_ng_ui'
+const WEB_APP_SERVICE = 'openbis-ng-ui-service'
+const EXPORT_SERVICE = 'xls-export'
+
+// grids
 const OBJECT_TYPES_GRID_ID = 'object_types_grid'
 const COLLECTION_TYPES_GRID_ID = 'collection_types_grid'
 const DATA_SET_TYPES_GRID_ID = 'data_set_types_grid'
@@ -17,11 +22,23 @@ const VOCABULARY_TERMS_GRID_ID = 'vocabulary_terms_grid'
 const DYNAMIC_PROPERTY_PLUGINS_GRID_ID = 'dynamic_property_plugins_grid'
 const ENTITY_VALIDATION_PLUGINS_GRID_ID = 'entity_validation_plugins_grid'
 const QUERIES_GRID_ID = 'queries_grid'
+const QUERY_RESULTS_GRID_ID = 'query_results_grid'
 const HISTORY_OF_DELETION_GRID_ID = 'history_of_deletion_grid'
 const HISTORY_OF_FREEZING_GRID_ID = 'history_of_freezing_grid'
+const PERSONAL_ACCESS_TOKEN_GRID_ID = 'personal_access_token_grid'
+
+// browsers
+const DATABASE_BROWSER_ID = 'database_browser'
 
 export default {
+  // app
   WEB_APP_ID,
+
+  // service,
+  WEB_APP_SERVICE,
+  EXPORT_SERVICE,
+
+  // grids
   OBJECT_TYPES_GRID_ID,
   COLLECTION_TYPES_GRID_ID,
   DATA_SET_TYPES_GRID_ID,
@@ -40,6 +57,11 @@ export default {
   DYNAMIC_PROPERTY_PLUGINS_GRID_ID,
   ENTITY_VALIDATION_PLUGINS_GRID_ID,
   QUERIES_GRID_ID,
+  QUERY_RESULTS_GRID_ID,
   HISTORY_OF_DELETION_GRID_ID,
-  HISTORY_OF_FREEZING_GRID_ID
+  HISTORY_OF_FREEZING_GRID_ID,
+  PERSONAL_ACCESS_TOKEN_GRID_ID,
+
+  // browsers
+  DATABASE_BROWSER_ID
 }

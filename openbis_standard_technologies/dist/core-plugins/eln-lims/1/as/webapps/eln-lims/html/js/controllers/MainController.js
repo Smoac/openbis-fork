@@ -1053,7 +1053,10 @@ function MainController(profile) {
 	this._selectSettings = function() {
 		this.serverFacade.searchSamples({ 	"sampleTypeCode" : "GENERAL_ELN_SETTINGS",
 											"withProperties" : false }, (function(settingsObjects) {
-			if(settingsObjects && settingsObjects.length > 0) {
+			if(settingsObjects && settingsObjects.length === 1 && settingsObjects[0].identifier === "/ELN_SETTINGS/GENERAL_ELN_SETTINGS") {
+                Util.unblockUI();
+                mainController.changeView("showSettingsPage", settingsObjects[0].identifier);
+			} else if(settingsObjects && settingsObjects.length > 0) {
 				settingsObjects.sort(function(a, b) {
 				    if(a.identifier === "/ELN_SETTINGS/GENERAL_ELN_SETTINGS") { // Global settings are first on the list
 				    		return 1;
@@ -1064,12 +1067,16 @@ function MainController(profile) {
 				
 				var settingsForDropdown = [];
 				for(var sIdx = 0; sIdx < settingsObjects.length; sIdx++) {
-					settingsForDropdown.push({ label: settingsObjects[sIdx].identifier, value: settingsObjects[sIdx].identifier})
+				    var groupName = Util.getDisplayNameFromCode(SettingsManagerUtils.getSpaceGroupPrefix(settingsObjects[sIdx].spaceCode));
+				    if(settingsObjects[sIdx].identifier === "/ELN_SETTINGS/GENERAL_ELN_SETTINGS") {
+				        groupName = "(no group)";
+				    }
+				    settingsForDropdown.push({ label: groupName, value: settingsObjects[sIdx].identifier})
 				}
 				
-				var $dropdown = FormUtil.getDropdown(settingsForDropdown, "Select settings");
+				var $dropdown = FormUtil.getDropdown(settingsForDropdown, "Select Group Settings");
 				$dropdown.attr("id", "settingsDropdown");
-				Util.showDropdownAndBlockUI("settingsDropdown", $dropdown);
+				Util.showDropdownAndBlockUI("settingsDropdown", $dropdown, "Group settings only apply to group spaces.");
 				
 				$("#settingsDropdown").on("change", function(event) {
 					var sampleIdentifier = $("#settingsDropdown")[0].value;
@@ -1542,7 +1549,10 @@ function MainController(profile) {
 									}
 								}
 								
-								var dataGrid = new DataGridController(searchDomainLabel + " Search Results", columns, [], null, getDataList, rowClick, true, "SEARCH_" + searchDomainLabel, false, 90);
+								var dataGrid = new DataGridController(searchDomainLabel + " Search Results", columns, [], null, getDataList, rowClick, true, "SEARCH_" + searchDomainLabel, false, {
+									fileFormat: 'TSV',
+									filePrefix: 'search-' + searchDomainLabel
+								}, 90);
 								localReference.currentView = dataGrid;
 								var content = localReference._getBackwardsCompatibleMainContainer();
 								dataGrid.init(content);
@@ -1670,7 +1680,10 @@ function MainController(profile) {
 										}
 									}
 									
-									var dataGrid = new DataGridController(searchDomainLabel + " Search Results", columns, [], null, getDataList, rowClick, true, "SEARCH_" + searchDomainLabel, false, 90);
+									var dataGrid = new DataGridController(searchDomainLabel + " Search Results", columns, [], null, getDataList, rowClick, true, "SEARCH_" + searchDomainLabel, false, {
+										fileFormat: 'TSV',
+										filePrefix: 'search-' + searchDomainLabel
+									}, 90);
 									localReference.currentView = dataGrid;
 									var content = localReference._getBackwardsCompatibleMainContainer();
 									dataGrid.init(content);
@@ -1843,7 +1856,10 @@ function MainController(profile) {
 				mainController.changeView('showViewSamplePageFromPermId', e.data.permId);
 			}
 			
-			var dataGrid = new DataGridController("Search Results", columns, [], null, getDataList, rowClick, true, "SEARCH_OPENBIS", false, 90);
+			var dataGrid = new DataGridController("Search Results", columns, [], null, getDataList, rowClick, true, "SEARCH_OPENBIS", false, {
+				fileFormat: 'TSV',
+				filePrefix: 'search'
+			}, 90);
 			localReference.currentView = dataGrid;
 			var content = localReference._getBackwardsCompatibleMainContainer();
 			dataGrid.init(content);

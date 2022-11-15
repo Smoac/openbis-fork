@@ -108,8 +108,8 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 				});
 				$list.append($removeOption);
 				
-                var $removeIncludedOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Remove Permanently (including dependent deletions)'})
-                            .append("Delete Permanently<br>&nbsp;&nbsp;(including dependent deletions)"));
+                var $removeIncludedOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Remove Permanently (including dependent entries in trashcan)'})
+                            .append("Delete Permanently<br>&nbsp;&nbsp;(including dependent entries in trashcan)"));
                 $removeIncludedOption.click(function(e) {
                     Util.showWarning(deleteMessageOne, function() {
                         _this._trashManagerController.deletePermanently([data.entity.id], true);
@@ -209,7 +209,10 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 		}
 		
 		var dataGridContainer = $("<div>").css("margin-top", "-10px").css("margin-left", "-10px");
-		var dataGrid = new DataGridController(null, columns, [], null, getDataList, null, true, "TRASHCAN_TABLE", false, 90);
+		var dataGrid = new DataGridController(null, columns, [], null, getDataList, null, true, "TRASHCAN_TABLE", false, {
+			fileFormat: 'TSV',
+			filePrefix: 'trashcan'
+		}, 90);
 		dataGrid.init(dataGridContainer);
 		$containerColumn.append(dataGridContainer);
 	}

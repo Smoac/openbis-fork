@@ -9,8 +9,13 @@ const NEW_DYNAMIC_PROPERTY_PLUGIN = 'newDynamicPropertyPlugin'
 const NEW_ENTITY_VALIDATION_PLUGIN = 'newEntityValidationPlugin'
 const NEW_QUERY = 'newQuery'
 
+const SPACE = 'space'
+const PROJECT = 'project'
+const OBJECT = 'object'
 const OBJECT_TYPE = 'objectType'
+const COLLECTION = 'collection'
 const COLLECTION_TYPE = 'collectionType'
+const DATA_SET = 'dataSet'
 const DATA_SET_TYPE = 'dataSetType'
 const MATERIAL_TYPE = 'materialType'
 const VOCABULARY_TYPE = 'vocabularyType'
@@ -19,9 +24,11 @@ const USER = 'user'
 const USER_GROUP = 'userGroup'
 const DYNAMIC_PROPERTY_PLUGIN = 'dynamicPropertyPlugin'
 const ENTITY_VALIDATION_PLUGIN = 'entityValidationPlugin'
+const PERSONAL_ACCESS_TOKEN = 'personalAccessToken'
 const QUERY = 'query'
 const HISTORY = 'history'
 const IMPORT = 'import'
+const ACTIVE_USERS_REPORT = 'activeUsersReport'
 
 const SEARCH = 'search'
 const OVERVIEW = 'overview'
@@ -37,8 +44,13 @@ export default {
   NEW_DYNAMIC_PROPERTY_PLUGIN,
   NEW_ENTITY_VALIDATION_PLUGIN,
   NEW_QUERY,
+  SPACE,
+  PROJECT,
+  OBJECT,
   OBJECT_TYPE,
+  COLLECTION,
   COLLECTION_TYPE,
+  DATA_SET,
   DATA_SET_TYPE,
   MATERIAL_TYPE,
   VOCABULARY_TYPE,
@@ -47,9 +59,11 @@ export default {
   USER_GROUP,
   DYNAMIC_PROPERTY_PLUGIN,
   ENTITY_VALIDATION_PLUGIN,
+  PERSONAL_ACCESS_TOKEN,
   QUERY,
   HISTORY,
   IMPORT,
   SEARCH,
-  OVERVIEW
+  OVERVIEW,
+  ACTIVE_USERS_REPORT
 }

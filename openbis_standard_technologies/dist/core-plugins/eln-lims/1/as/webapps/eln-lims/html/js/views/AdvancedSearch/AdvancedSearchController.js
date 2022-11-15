@@ -116,8 +116,17 @@ function AdvancedSearchController(mainController, forceSearch) {
 					}
 
 					//properties
+					var entityExportableKind = null;
 					if(entity["@type"]) {
 						rowData.entityKind = entity["@type"].substring(entity["@type"].lastIndexOf(".") + 1, entity["@type"].length);
+
+						if(rowData.entityKind === "Sample"){
+							entityExportableKind = "SAMPLE"
+						}else if(rowData.entityKind === "Experiment"){
+							entityExportableKind = "EXPERIMENT"
+						}else if(rowData.entityKind === "DataSet"){
+							entityExportableKind = "DATASET"
+						}
 					}
 
 					if(entity.experiment) {
@@ -137,12 +146,22 @@ function AdvancedSearchController(mainController, forceSearch) {
 					rowData.$object = entity;
 					rowData.id = rowData.permId
 
+					if(entityExportableKind && entity.permId){
+						rowData.exportableId = {
+							exportable_kind: entityExportableKind,
+							perm_id: entity.permId.permId,
+							type_perm_id: entity.type ? entity.type.code : null
+						}
+					}
+
 					if(entity.identifier) {
 						rowData.identifier = entity.identifier.identifier;
 					}
                     if (entity.physicalData) {
                         rowData.size = entity.physicalData.size ? entity.physicalData.size : "";
                         rowData.status = entity.physicalData.status;
+                        rowData.presentInArchive = entity.physicalData.presentInArchive;
+                        rowData.storageConfirmation = entity.physicalData.storageConfirmation;
                         rowData.archivingRequested = entity.physicalData.archivingRequested;
                     }
 
@@ -253,7 +272,13 @@ function AdvancedSearchController(mainController, forceSearch) {
                             if(search.to && search.to.value){
                                 gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "MODIFICATION_DATE", value : search.to.valueString, operator: "thatIsEarlierThanOrEqualToDate" };
                             }
-                        }else{
+                        } else if (field === "status") {
+                            gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "PHYSICAL_STATUS", value : search };
+                        } else if(field === "presentInArchive") {
+                            gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "PRESENT_IN_ARCHIVE", value : search };
+                        } else if(field === "storageConfirmation") {
+                            gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "STORAGE_CONFIRMATION", value : search };
+                        } else {
                             var column = options.columnMap[field]
                             var dataType = null
 

@@ -80,9 +80,13 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			$header.append(FormUtil.getToolbar(toolbarModel));
 
 			var texts = ELNDictionary.settingsView.sections;
+            var isNoGroup = this._settingsFormModel.settingsSample.code === "GENERAL_ELN_SETTINGS";
 
-            if(this._settingsFormModel.settingsSample.code === "GENERAL_ELN_SETTINGS") {
+            if(isNoGroup) {
                 $formColumn.append($("<h2>").append("Instance Settings"));
+                if(profile.isMultiGroup()) {
+                    $formColumn.append(FormUtil.getWarningText("These Settings apply to the whole openBIS instance and affect all groups. "));
+                }
 	            this._paintCustomWidgetsSection($formColumn, texts.customWidgets);
 	            this._paintForcedMonospaceSection($formColumn, texts.forceMonospaceFont);
 	            this._paintDataSetTypesForFileNamesSection($formColumn, texts.dataSetTypeForFileName);
@@ -90,8 +94,10 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 
             $formColumn.append($("<h2>").append("Group Settings"));
 
-            if(profile.isMultiGroup()) {
-                $formColumn.append(FormUtil.getWarningText("Storages and Templates shown are the ones belonging to the group settings selected."));
+            if(isNoGroup && profile.isMultiGroup()) {
+                $formColumn.append(FormUtil.getWarningText("These Settings apply to all Spaces that do not belong to any of the groups defined in the user management config file. "));
+            } else if(profile.isMultiGroup()) {
+                $formColumn.append(FormUtil.getWarningText("These Settings apply to all Spaces that belong to the group. "));
             }
 
             this._paintStoragesSection($formColumn, texts.storages);
@@ -167,13 +173,14 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		var experimentIdentifier = profile.getStorageConfigCollectionForConfigSample(this._settingsFormModel.settingsSample); //"/ELN_SETTINGS/STORAGES/STORAGES_COLLECTION";
 
 		var $addBtn = FormUtil.getButtonWithIcon("glyphicon-plus", function() {
-			var argsMap = {
-					"sampleTypeCode" : "STORAGE",
-					"experimentIdentifier" : experimentIdentifier
-			}
-			var argsMapStr = JSON.stringify(argsMap);
-			Util.unblockUI();
-			mainController.changeView("showCreateSubExperimentPage", argsMapStr);
+            Util.blockUI();
+            setTimeout(function() {
+                var argsMap = {
+                    "sampleTypeCode" : "STORAGE",
+                    "experimentIdentifier" : experimentIdentifier
+                };
+                mainController.changeView("showCreateSubExperimentPage", JSON.stringify(argsMap));
+            }, 100);
 		}, "New Storage");
 
 		$fieldset.append($("<p>").append($addBtn));
@@ -256,10 +263,27 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 	this._paintInventorySpacesSection = function($container, text) {
 		var $fieldset = this._getFieldset($container, text.title, "settings-section-inventory-spaces", true);
 		$fieldset.append(FormUtil.getInfoText(text.info));
+        var settingsSpaceCode = this._settingsFormModel.settingsSample.spaceCode;
+        var canRemoveFunctionSpace = function(rowData) {
+            if(!settingsSpaceCode) {
+                return false;
+            } else {
+                var spaceCode = rowData['Space'][0].value;
+                return !profile.isSystemSpace(settingsSpaceCode, spaceCode);
+            }
+        }
+        var canRemoveFunctionSpaceReadOnly = function(rowData) {
+            if(!settingsSpaceCode) {
+                return false;
+            } else {
+                var spaceCode = rowData['Space Read only'][0].value;
+                return !profile.isSystemSpace(settingsSpaceCode, spaceCode);
+            }
+        }
 		this._inventorySpacesTableModel = this._getInventorySpacesTableModel();
-		$fieldset.append(this._getTable(this._inventorySpacesTableModel));
+		$fieldset.append(this._getTable(this._inventorySpacesTableModel, canRemoveFunctionSpace));
 		this._inventorySpacesReadOnlyTableModel = this._getInventorySpacesReadOnlyTableModel();
-        $fieldset.append(this._getTable(this._inventorySpacesReadOnlyTableModel));
+        $fieldset.append(this._getTable(this._inventorySpacesReadOnlyTableModel, canRemoveFunctionSpaceReadOnly));
 	}
 
 	this._getMainMenuItemsTableModel = function() {
@@ -591,7 +615,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			    showOnNav = false;
 			}
 			tableModel.addRow({
-                name : "Show in main menu",
+                name : "Show in lab notebook main menu",
                 enabled : showOnNav
             });
 		} else { // default values
@@ -608,7 +632,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
                 enabled : false
             });
             tableModel.addRow({
-                name : "Show in main menu",
+                name : "Show in lab notebook main menu",
                 enabled : false
             });
 		}
@@ -622,7 +646,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 					settings["ENABLE_STORAGE"] = rowValues["enabled"];
 				} else if (rowValues["Options"] === "Show in drop downs") {
 					settings["SHOW"] = rowValues["enabled"];
-				} else if (rowValues["Options"] === "Show in main menu") {
+				} else if (rowValues["Options"] === "Show in lab notebook main menu") {
                     settings["SHOW_ON_NAV"] = rowValues["enabled"];
                 }
 			}
@@ -936,7 +960,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 		}
 	}
 
-	this._getTable = function(tableModel) {
+	this._getTable = function(tableModel, canRemoveFunction) {
 		var $table = $("<table>", { class : "table borderless table-compact" });
 		if (tableModel.fullWidth != true) {
 			$table.css("width", "initial");
@@ -983,19 +1007,20 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			if (tableModel.rowExtraBuilder) {
 				// add extra as row after actual row
 				var $extra = tableModel.rowExtras[i];
-				this._addRow($tbody, tableModel, row, $extra);
+				this._addRow($tbody, tableModel, row, $extra, canRemoveFunction);
 			} else {
-				this._addRow($tbody, tableModel, row);				
+				this._addRow($tbody, tableModel, row, null, canRemoveFunction);
 			}
 		}
 		$table.append($tbody);
 		return $table
 	}
 
-	this._addRow = function($tbody, tableModel, tableModelRow, $extra) {
+	this._addRow = function($tbody, tableModel, tableModelRow, $extra, canRemoveFunction) {
 		var $tr = $("<tr>");
 		$tbody.append($tr);
 		var $extraRow = null;
+        var rowIndex = tableModel.rows.indexOf(tableModelRow);
 
 		// add expand / collapse for extra
 		if ($extra) {
@@ -1029,7 +1054,7 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			var $widget = tableModelRow[column.label];
 			$td.append($widget);
 			// disbale widget if in view mode
-			if (this._settingsFormModel.mode === FormMode.VIEW) {
+			if (this._settingsFormModel.mode === FormMode.VIEW || (canRemoveFunction && !canRemoveFunction(tableModel.rows[rowIndex]))) {
 				$widget.prop("disabled", true);
 			}
 		}
@@ -1040,17 +1065,21 @@ function SettingsFormView(settingsFormController, settingsFormModel) {
 			if (this._settingsFormModel.mode === FormMode.VIEW) {
 				$removeButton.addClass("disabled");
 			} else {
-				$removeButton.on("click", function() {
-					$tr.remove();
-					if ($extraRow) {
-						$extraRow.remove();
-					}
-					var rowIndex = tableModel.rows.indexOf(tableModelRow);
-					tableModel.rows.splice(rowIndex, 1);
-					if (tableModel.rowExtraModels) {
-						tableModel.rowExtraModels.splice(rowIndex, 1);
-					}
-				});
+			    if(!canRemoveFunction || canRemoveFunction(tableModel.rows[rowIndex])) {
+                    $removeButton.on("click", function() {
+                        $tr.remove();
+                        if ($extraRow) {
+                            $extraRow.remove();
+                        }
+                        var rowIndex = tableModel.rows.indexOf(tableModelRow);
+                        tableModel.rows.splice(rowIndex, 1);
+                        if (tableModel.rowExtraModels) {
+                            tableModel.rowExtraModels.splice(rowIndex, 1);
+                        }
+                    });
+			    } else {
+			        $removeButton.addClass("disabled");
+			    }
 			}
 			$tr.append($("<td>").append($removeButton));
 		}
