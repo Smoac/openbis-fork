@@ -31,15 +31,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.servlet.HttpServletRequestUtils;
-import ch.systemsx.cisd.openbis.generic.shared.ISessionWorkspaceProvider;
-import ch.systemsx.cisd.openbis.generic.shared.pat.IPersonalAccessTokenConverter;
+import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 
 /**
  * Servlet that handles the download of files from the session workspace. The content type of the response is guessed from the downloaded file name.
@@ -60,15 +57,6 @@ public class DownloadServiceServlet extends HttpServlet
 
     private static final String FILE_PATH_PARAM = "filePath";
 
-    @Autowired
-    private ISessionWorkspaceProvider sessionWorkspaceProvider;
-
-    @Autowired
-    private IApplicationServerApi applicationServerApi;
-
-    @Autowired
-    private IPersonalAccessTokenConverter personalAccessTokenConverter;
-
     @Override
     @RequestMapping({ "/download", "/openbis/download" })
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -78,14 +66,14 @@ public class DownloadServiceServlet extends HttpServlet
 
         downloadRequest.validate();
 
-        File sessionWorkspace = sessionWorkspaceProvider.getSessionWorkspace(downloadRequest.getSessionId());
+        File sessionWorkspace = CommonServiceProvider.getSessionWorkspaceProvider().getSessionWorkspace(downloadRequest.getSessionId());
         File file = new File(sessionWorkspace, downloadRequest.getFilePath());
 
         DownloadResponse downloadResponse = new DownloadResponse(response);
         downloadResponse.writeFile(downloadRequest.getFilePath(), new BufferedInputStream(new FileInputStream(file)));
     }
 
-    private class DownloadRequest
+    private static class DownloadRequest
     {
 
         private final HttpServletRequest request;
@@ -98,7 +86,7 @@ public class DownloadServiceServlet extends HttpServlet
         public String getSessionId()
         {
             String sessionId = HttpServletRequestUtils.getStringParameter(request, SESSION_ID_PARAM);
-            sessionId = personalAccessTokenConverter.convert(sessionId);
+            sessionId = CommonServiceProvider.getPersonalAccessTokenConverter().convert(sessionId);
             return sessionId;
         }
 
@@ -115,7 +103,7 @@ public class DownloadServiceServlet extends HttpServlet
                         + " parameter cannot be null");
             }
 
-            if (!applicationServerApi.isSessionActive(getSessionId()))
+            if (!CommonServiceProvider.getApplicationServerApi().isSessionActive(getSessionId()))
             {
                 throw new IllegalArgumentException(SESSION_ID_PARAM + " parameter contains an invalid session token");
             }
