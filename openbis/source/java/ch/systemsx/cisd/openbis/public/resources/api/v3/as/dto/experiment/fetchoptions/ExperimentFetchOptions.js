@@ -16,11 +16,6 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", 'as/dto/e
 		prototype.dataSets = null;
 		prototype.samples = null;
 		prototype.history = null;
-        prototype.propertiesHistory = null;
-        prototype.projectHistory = null;
-        prototype.samplesHistory = null;
-        prototype.dataSetsHistory = null;
-        prototype.unknownHistory = null;
 		prototype.properties = null;
 		prototype.materialProperties = null;
 		prototype.sampleProperties = null;
@@ -94,77 +89,6 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", 'as/dto/e
 		prototype.hasHistory = function() {
 			return this.history != null;
 		};
-
-		prototype.withPropertiesHistory = function() {
-			if (this.propertiesHistory == null) {
-				var HistoryEntryFetchOptions = require("as/dto/history/fetchoptions/HistoryEntryFetchOptions");
-				this.propertiesHistory = new HistoryEntryFetchOptions();
-			}
-			return this.propertiesHistory;
-		};
-		prototype.withPropertiesHistoryUsing = function(fetchOptions) {
-			return this.propertiesHistory = fetchOptions;
-		};
-		prototype.hasPropertiesHistory = function() {
-			return this.propertiesHistory != null;
-		};
-
-		prototype.withProjectHistory = function() {
-			if (this.projectHistory == null) {
-				var HistoryEntryFetchOptions = require("as/dto/history/fetchoptions/HistoryEntryFetchOptions");
-				this.projectHistory = new HistoryEntryFetchOptions();
-			}
-			return this.projectHistory;
-		};
-		prototype.withProjectHistoryUsing = function(fetchOptions) {
-			return this.projectHistory = fetchOptions;
-		};
-		prototype.hasProjectHistory = function() {
-			return this.projectHistory != null;
-		};
-
-		prototype.withSamplesHistory = function() {
-			if (this.samplesHistory == null) {
-				var HistoryEntryFetchOptions = require("as/dto/history/fetchoptions/HistoryEntryFetchOptions");
-				this.samplesHistory = new HistoryEntryFetchOptions();
-			}
-			return this.samplesHistory;
-		};
-		prototype.withSamplesHistoryUsing = function(fetchOptions) {
-			return this.samplesHistory = fetchOptions;
-		};
-		prototype.hasSamplesHistory = function() {
-			return this.samplesHistory != null;
-		};
-
-		prototype.withDataSetsHistory = function() {
-			if (this.dataSetsHistory == null) {
-				var HistoryEntryFetchOptions = require("as/dto/history/fetchoptions/HistoryEntryFetchOptions");
-				this.dataSetsHistory = new HistoryEntryFetchOptions();
-			}
-			return this.dataSetsHistory;
-		};
-		prototype.withDataSetsHistoryUsing = function(fetchOptions) {
-			return this.dataSetsHistory = fetchOptions;
-		};
-		prototype.hasDataSetsHistory = function() {
-			return this.dataSetsHistory != null;
-		};
-
-		prototype.withUnknownHistory = function() {
-			if (this.unknownHistory == null) {
-				var HistoryEntryFetchOptions = require("as/dto/history/fetchoptions/HistoryEntryFetchOptions");
-				this.unknownHistory = new HistoryEntryFetchOptions();
-			}
-			return this.unknownHistory;
-		};
-		prototype.withUnknownHistoryUsing = function(fetchOptions) {
-			return this.unknownHistory = fetchOptions;
-		};
-		prototype.hasUnknownHistory = function() {
-			return this.unknownHistory != null;
-		};
-
 		prototype.withProperties = function() {
 			if (this.properties == null) {
 				var PropertyFetchOptions = require("as/dto/property/fetchoptions/PropertyFetchOptions");
@@ -272,11 +196,6 @@ define([ "require", "stjs", "as/dto/common/fetchoptions/FetchOptions", 'as/dto/e
 		dataSets : "DataSetFetchOptions",
 		samples : "SampleFetchOptions",
 		history : "HistoryEntryFetchOptions",
-		propertiesHistory : "HistoryEntryFetchOptions",
-		projectHistory : "HistoryEntryFetchOptions",
-		samplesHistory : "HistoryEntryFetchOptions",
-		dataSetsHistory : "HistoryEntryFetchOptions",
-		unknownHistory : "HistoryEntryFetchOptions",
 		properties : "PropertyFetchOptions",
 		materialProperties : "MaterialFetchOptions",
 		sampleProperties : "SampleFetchOptions",
