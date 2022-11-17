@@ -4662,13 +4662,12 @@ class Openbis:
             "properties",
             "attachments",
             "space",
+            "project",
             "experiment",
             "registrator",
             "modifier",
             "dataSets",
         ]
-        if self.get_server_information().project_samples_enabled:
-            options.append("project")
         for option in options:
             fetchopts[option] = get_fetchoption_for_entity(option)
 
@@ -4683,18 +4682,28 @@ class Openbis:
         if children or parents:
             fetchopts["type"]["@id"] = 1
             fetchopts["properties"]["@id"] = 5
+            fetchopts["space"]["@id"] = 2
+            fetchopts["project"]["@id"] = 6
+            fetchopts["experiment"]["@id"] = 7
+            fetchopts["experiment"]["project"] = 6
 
         if children:
             fetchopts["children"]["@id"] = 10
             fetchopts["children"]["children"] = 10
             fetchopts["children"]["type"] = 1
             fetchopts["children"]["properties"] = 5
+            fetchopts["children"]["space"] = 2
+            fetchopts["children"]["project"] = 6
+            fetchopts["children"]["experiment"] = 7
 
         if parents:
             fetchopts["parents"]["@id"] = 11
             fetchopts["parents"]["parents"] = 11
             fetchopts["parents"]["type"] = 1
             fetchopts["parents"]["properties"] = 5
+            fetchopts["parents"]["space"] = 2
+            fetchopts["parents"]["project"] = 6
+            fetchopts["parents"]["experiment"] = 7
 
         request = {
             "method": "getSamples",
