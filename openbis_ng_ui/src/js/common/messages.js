@@ -298,7 +298,7 @@ const messages_en = {
   [keys.AUTHENTICATION_SERVICE]: 'Authentication Service',
   [keys.AUTHENTICATION_SERVICE_OPENBIS]: 'Default Login Service',
   [keys.AUTHENTICATION_SERVICE_SWITCH_AAI]: 'SWITCHaai Single Sign On Login Service',
-  [keys.AUTO_SHOW_SELECTED]: 'Automatically Show Selected',
+  [keys.AUTO_SHOW_SELECTED]: 'Scroll to selected node',
   [keys.CANCEL]: 'Cancel',
   [keys.CHANGE_SORTING]: 'Change Sorting',
   [keys.CHOOSE_FILE]: 'Choose File',
