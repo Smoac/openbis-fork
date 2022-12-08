@@ -1,4 +1,4 @@
-from pandas import DataFrame, Series
+from pandas import DataFrame
 from tabulate import tabulate
 from .definitions import (
     openbis_definitions,
@@ -7,18 +7,12 @@ from .definitions import (
     get_type_for_entity,
 )
 from .utils import (
-    parse_jackson,
-    check_datatype,
-    split_identifier,
     format_timestamp,
-    is_identifier,
-    is_permid,
     nvl,
     extract_person,
 )
 from .attachment import Attachment
 
-import copy
 import base64
 import os
 import pathlib
@@ -42,9 +36,6 @@ class AttrHolder:
             self.__dict__["_type"] = type.data
 
         self.__dict__["_defs"] = openbis_definitions(entity)
-        # self.__dict__['_allowed_attrs'] = openbis_definitions(entity)['attrs']
-        # self.__dict__['_allowed_attrs_new'] = openbis_definitions(entity)['attrs_new']
-        # self.__dict__['_allowed_attrs_up'] = openbis_definitions(entity)['attrs_up']
         self.__dict__["_identifier"] = None
         self.__dict__["_is_new"] = True
         self.__dict__["_tags"] = []
