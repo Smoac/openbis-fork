@@ -52,6 +52,19 @@ class DataSet(
 ):
     """DataSet are openBIS objects that contain the actual files."""
 
+    default_attrs = [
+        "permId",
+        "type",
+        "experiment",
+        "sample",
+        "registrationDate",
+        "modificationDate",
+        "location",
+        "status",
+        "presentInArchive",
+        "size",
+    ]
+
     def __init__(
         self,
         openbis_obj,

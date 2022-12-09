@@ -10,6 +10,18 @@ class Experiment(
 ):
     """Handling experiment (collection) entities in openBIS"""
 
+    default_attrs = [
+        "code",
+        "permId",
+        "identifier",
+        "type",
+        "project",
+        "registrator",
+        "registrationDate",
+        "modifier",
+        "modificationDate",
+    ]
+
     def _set_data(self, data):
         # assign the attribute data to self.a by calling it
         # (invoking the AttrHolder.__call__ function)

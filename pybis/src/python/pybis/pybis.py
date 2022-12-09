@@ -96,6 +96,37 @@ def now():
     return time.time()
 
 
+def add_fetchops_for_ancestors(
+    fetchopts, all_children: bool = False, all_parents: bool = False
+):
+    if all_children or all_parents:
+        only_one = False
+        fetchopts["type"]["@id"] = 1
+        fetchopts["properties"]["@id"] = 5
+        fetchopts["space"]["@id"] = 2
+        fetchopts["project"]["@id"] = 6
+        fetchopts["experiment"]["@id"] = 7
+        fetchopts["experiment"]["project"] = 6
+
+    if all_children:
+        fetchopts["children"]["type"] = 1
+        fetchopts["children"]["space"] = 2
+        fetchopts["children"]["project"] = 6
+        fetchopts["children"]["experiment"] = 7
+        fetchopts["children"]["properties"] = 5
+        fetchopts["children"]["@id"] = 10
+        fetchopts["children"]["children"] = 10
+
+    if all_parents:
+        fetchopts["parents"]["type"] = 1
+        fetchopts["parents"]["space"] = 2
+        fetchopts["parents"]["project"] = 6
+        fetchopts["parents"]["experiment"] = 7
+        fetchopts["parents"]["properties"] = 5
+        fetchopts["parents"]["@id"] = 11
+        fetchopts["parents"]["parents"] = 11
+
+
 def get_search_type_for_entity(entity, operator=None):
     """Returns a dictionary containing the correct search criteria type
     for a given entity.
@@ -2647,17 +2678,7 @@ class Openbis:
             response = response["objects"]
             parse_jackson(response)
 
-            default_attrs = [
-                "identifier",
-                "permId",
-                "type",
-                "registrator",
-                "registrationDate",
-                "modifier",
-                "modificationDate",
-            ]
-
-            display_attrs = default_attrs + attrs
+            display_attrs = Experiment.default_attrs + attrs
 
             if props is None:
                 props = []
@@ -4518,19 +4539,7 @@ class Openbis:
             return extract_attr
 
         def create_data_frame(attrs, props, response):
-            default_attrs = [
-                "permId",
-                "type",
-                "experiment",
-                "sample",
-                "registrationDate",
-                "modificationDate",
-                "location",
-                "status",
-                "presentInArchive",
-                "size",
-            ]
-            display_attrs = default_attrs + attrs
+            display_attrs = DataSet.default_attrs + attrs
 
             if props is None:
                 props = []
@@ -4637,8 +4646,8 @@ class Openbis:
         only_data: bool = False,
         withAttachments: bool = False,
         props=None,
-        parents: bool = False,
-        children: bool = False,
+        all_parents: bool = False,
+        all_children: bool = False,
         **kvals,
     ):
         """Retrieve metadata for the sample.
@@ -4679,31 +4688,9 @@ class Openbis:
         for key in ["parents", "children", "container", "components"]:
             fetchopts[key] = {"@type": "as.dto.sample.fetchoptions.SampleFetchOptions"}
 
-        if children or parents:
-            fetchopts["type"]["@id"] = 1
-            fetchopts["properties"]["@id"] = 5
-            fetchopts["space"]["@id"] = 2
-            fetchopts["project"]["@id"] = 6
-            fetchopts["experiment"]["@id"] = 7
-            fetchopts["experiment"]["project"] = 6
-
-        if children:
-            fetchopts["children"]["@id"] = 10
-            fetchopts["children"]["children"] = 10
-            fetchopts["children"]["type"] = 1
-            fetchopts["children"]["properties"] = 5
-            fetchopts["children"]["space"] = 2
-            fetchopts["children"]["project"] = 6
-            fetchopts["children"]["experiment"] = 7
-
-        if parents:
-            fetchopts["parents"]["@id"] = 11
-            fetchopts["parents"]["parents"] = 11
-            fetchopts["parents"]["type"] = 1
-            fetchopts["parents"]["properties"] = 5
-            fetchopts["parents"]["space"] = 2
-            fetchopts["parents"]["project"] = 6
-            fetchopts["parents"]["experiment"] = 7
+        add_fetchops_for_ancestors(
+            fetchopts=fetchopts, all_children=all_children, all_parents=all_parents
+        )
 
         request = {
             "method": "getSamples",
@@ -4726,10 +4713,27 @@ class Openbis:
                         type=self.get_sample_type(resp[sample_ident]["type"]["code"]),
                         data=resp[sample_ident],
                     )
+        elif all_parents or all_children:
+            response = []
+            parse_jackson(response)
+            if all_children:
+                self._all_children_of_children(
+                    response=list(resp.values()), props=props
+                )
+
+            if all_parents:
+                self._all_parents_of_parents(response=list(resp.values()), props=props)
         else:
             return self._sample_list_for_response(
                 response=list(resp.values()), props=props, parsed=False
             )
+
+    def _all_children_of_children(self, response, props=None):
+        if not parsed:
+            parse_jackson(response)
+            parsed = True
+        for child in response.get("children", []):
+            pass
 
     def _sample_list_for_response(
         self,
@@ -4757,16 +4761,7 @@ class Openbis:
 
             if attrs is None:
                 attrs = []
-            default_attrs = [
-                "identifier",
-                "permId",
-                "type",
-                "registrator",
-                "registrationDate",
-                "modifier",
-                "modificationDate",
-            ]
-            display_attrs = default_attrs + attrs
+            display_attrs = Sample.default_attrs + attrs
             if props is None:
                 props = []
             else:
@@ -4793,6 +4788,9 @@ class Openbis:
                     elif attr in ["space"]:
                         samples[attr] = samples[attr].map(extract_code)
 
+                samples["space"] = samples["space"].map(extract_code)
+                samples["project"] = samples["project"].map(extract_code)
+                samples["experiment"] = samples["experiment"].map(extract_code)
                 samples["registrationDate"] = samples["registrationDate"].map(
                     format_timestamp
                 )

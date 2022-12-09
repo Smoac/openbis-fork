@@ -1,5 +1,4 @@
 from .attribute import AttrHolder
-from .definitions import openbis_definitions
 from .openbis_object import OpenBisObject
 from .property import PropertyHolder
 from .utils import VERBOSE
@@ -7,6 +6,20 @@ from .utils import VERBOSE
 
 class Sample(OpenBisObject, entity="sample", single_item_method_name="get_sample"):
     """A Sample (new: Object) is one of the most commonly used entities in openBIS."""
+
+    default_attrs = [
+        "identifier",
+        "permId",
+        "code",
+        "type",
+        "space",
+        "project",
+        "experiment",
+        "registrator",
+        "registrationDate",
+        "modifier",
+        "modificationDate",
+    ]
 
     def __init__(
         self, openbis_obj, type, project=None, data=None, props=None, **kwargs
