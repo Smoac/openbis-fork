@@ -66,13 +66,13 @@ from .utils import (
     extract_permid,
     extract_person,
     extract_userId,
-    extract_username_from_token,
     format_timestamp,
     is_identifier,
     is_number,
     is_permid,
     parse_jackson,
     split_identifier,
+    extract_data_in_dataframe,
 )
 from .vocabulary import Vocabulary, VocabularyTerm
 
@@ -4646,8 +4646,9 @@ class Openbis:
         only_data: bool = False,
         withAttachments: bool = False,
         props=None,
-        all_parents: bool = False,
-        all_children: bool = False,
+        including_all_parents: bool = False,
+        including_all_children: bool = False,
+        include_parent_in_list=True,
         **kvals,
     ):
         """Retrieve metadata for the sample.
@@ -4688,9 +4689,13 @@ class Openbis:
         for key in ["parents", "children", "container", "components"]:
             fetchopts[key] = {"@type": "as.dto.sample.fetchoptions.SampleFetchOptions"}
 
-        add_fetchops_for_ancestors(
-            fetchopts=fetchopts, all_children=all_children, all_parents=all_parents
-        )
+        if including_all_children or including_all_parents:
+            add_fetchops_for_ancestors(
+                fetchopts=fetchopts,
+                all_children=including_all_children,
+                all_parents=including_all_parents,
+            )
+            only_one = False
 
         request = {
             "method": "getSamples",
@@ -4713,27 +4718,67 @@ class Openbis:
                         type=self.get_sample_type(resp[sample_ident]["type"]["code"]),
                         data=resp[sample_ident],
                     )
-        elif all_parents or all_children:
-            response = []
-            parse_jackson(response)
-            if all_children:
-                self._all_children_of_children(
-                    response=list(resp.values()), props=props
-                )
+        elif including_all_parents or including_all_children:
+            data = resp[sample_ident]
+            parse_jackson(data)
+            direction = "children" if including_all_children else "parents"
+            new_data = self._list_for_all_ancestors(
+                data=data,
+                include_parent_in_list=include_parent_in_list,
+                direction=direction,
+                attrs=Sample.default_attrs,
+                props=props,
+            )
+            df = DataFrame(new_data)
+            extract_data_in_dataframe(df)
+            return Things(
+                openbis_obj=self,
+                entity="sample",
+                identifier_name="identifier",
+                totalCount=len(new_data),
+                df=df,
+            )
 
-            if all_parents:
-                self._all_parents_of_parents(response=list(resp.values()), props=props)
         else:
             return self._sample_list_for_response(
                 response=list(resp.values()), props=props, parsed=False
             )
 
-    def _all_children_of_children(self, response, props=None):
-        if not parsed:
-            parse_jackson(response)
-            parsed = True
-        for child in response.get("children", []):
-            pass
+    def _list_for_all_ancestors(
+        self,
+        data: dict,
+        include_parent_in_list=True,
+        direction: str = "children",
+        parent: str = "",
+        attrs=None,
+        props=None,
+    ):
+        elements = []
+
+        if include_parent_in_list:
+            item = {}
+            for attr, val in data.items():
+                # only include the important attributes
+                if not attr in attrs:
+                    continue
+
+                item[attr] = val
+            for prop, val in data.get("properties", {}).items():
+                item[prop.upper()] = val
+            item["parent"] = parent
+
+            elements.append(item)
+
+        if data.get(direction):
+            for member in data.get(direction, []):
+                elements += self._list_for_all_ancestors(
+                    member,
+                    attrs=attrs,
+                    parent=data["identifier"]["identifier"],
+                    direction=direction,
+                )
+            return elements
+        return elements
 
     def _sample_list_for_response(
         self,

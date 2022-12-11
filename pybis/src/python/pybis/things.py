@@ -35,13 +35,14 @@ class Things:
         single_item_method=None,
         response=None,
         df_initializer=None,
+        df=None,
         objects_initializer=None,
         attrs=None,
         props=None,
     ):
         self.openbis = openbis_obj
         self.entity = entity
-        self.__df = None
+        self.__df = df
         self.identifier_name = identifier_name
         self.additional_identifier = additional_identifier
         self.start_with = start_with
