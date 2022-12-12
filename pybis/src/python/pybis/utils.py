@@ -1,6 +1,6 @@
-from datetime import datetime
-from pathlib import Path
 import re
+from pandas import DataFrame
+from datetime import datetime
 
 # display messages when in a interactive context (IPython or Jupyter)
 try:
@@ -329,3 +329,26 @@ def extract_username_from_token(token: str) -> str:
         match = re.search(r"(?P<username>.*?)-.*", token)
     if match:
         return match.groupdict().get("username")
+
+
+def extract_data_in_dataframe(df: DataFrame):
+
+    for attr in ["identifier"]:
+        if attr in df:
+            df[attr] = df[attr].map(extract_identifier)
+
+    for attr in ["permId"]:
+        if attr in df:
+            df[attr] = df[attr].map(extract_permid)
+
+    for attr in ["space", "project", "experiment", "type"]:
+        if attr in df:
+            df[attr] = df[attr].map(extract_code)
+
+    for attr in ["registrator", "modifier"]:
+        if attr in df:
+            df[attr] = df[attr].map(extract_person)
+
+    for attr in ["registrationDate", "modificationDate"]:
+        if attr in df:
+            df[attr] = df[attr].map(format_timestamp)
