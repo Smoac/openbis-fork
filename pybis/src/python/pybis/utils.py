@@ -240,7 +240,7 @@ def extract_identifiers(items):
 
 def extract_nested_identifier(ident):
     if not isinstance(ident, dict):
-        return str(ident)
+        return "" if ident is None else str(ident)
     return ident["identifier"]["identifier"]
 
 
@@ -341,7 +341,11 @@ def extract_data_in_dataframe(df: DataFrame):
         if attr in df:
             df[attr] = df[attr].map(extract_permid)
 
-    for attr in ["space", "project", "experiment", "type"]:
+    for attr in ["experiment", "sample"]:
+        if attr in df:
+            df[attr] = df[attr].map(extract_nested_identifier)
+
+    for attr in ["space", "project", "type"]:
         if attr in df:
             df[attr] = df[attr].map(extract_code)
 
