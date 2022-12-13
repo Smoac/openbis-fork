@@ -727,7 +727,7 @@ class AttrHolder:
             self.parents, **kwargs
         )
 
-    def get_all_parents(self):
+    def get_all_parents(self, depth: int = None):
         """get all parents and parents-of-parents etc. from this entity
         and return a list (Things/DataFram)
         """
@@ -736,11 +736,14 @@ class AttrHolder:
                 self.permId,
                 including_all_parents=True,
                 include_parent_in_list=False,
+                depth=depth,
             )
         except (AttributeError, TypeError):
             raise AttributeError(
                 f"Entity {self._entity} has no method 'get_all_parents'"
             )
+
+    all_parents = get_all_parents
 
     def set_parents(self, parents_to_set):
         """set the new _parents list"""
@@ -784,7 +787,7 @@ class AttrHolder:
             self.children, **kwargs
         )
 
-    def get_all_children(self):
+    def get_all_children(self, depth: int = None):
         """get all children and children-of-children etc. from this entity
         and return a list (Things/DataFram)
         """
@@ -793,11 +796,14 @@ class AttrHolder:
                 self.permId,
                 including_all_children=True,
                 include_parent_in_list=False,
+                depth=depth,
             )
         except (AttributeError, TypeError):
             raise AttributeError(
                 f"Entity {self._entity} has no method 'get_all_children'"
             )
+
+    all_children = get_all_children
 
     def set_children(self, children_to_set):
         """set the new _children list"""
