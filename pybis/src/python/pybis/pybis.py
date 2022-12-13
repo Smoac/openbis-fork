@@ -103,10 +103,13 @@ def add_fetchops_for_ancestors(
         only_one = False
         fetchopts["type"]["@id"] = 1
         fetchopts["properties"]["@id"] = 5
-        fetchopts["space"]["@id"] = 2
-        fetchopts["project"]["@id"] = 6
-        fetchopts["experiment"]["@id"] = 7
-        fetchopts["experiment"]["project"] = 6
+        if "space" in fetchopts:
+            fetchopts["space"]["@id"] = 2
+        if "project" in fetchopts:
+            fetchopts["project"]["@id"] = 6
+        if "experiment" in fetchopts:
+            fetchopts["experiment"]["@id"] = 7
+            fetchopts["experiment"]["project"] = 6
 
     if all_children:
         fetchopts["children"]["type"] = 1
@@ -4416,7 +4419,17 @@ class Openbis:
         if save_token:
             self._save_token_to_disk()
 
-    def get_dataset(self, permIds, only_data=False, props=None, **kvals):
+    def get_dataset(
+        self,
+        permIds,
+        only_data=False,
+        props=None,
+        including_all_parents: bool = False,
+        including_all_children: bool = False,
+        include_parent_in_list=True,
+        depth=None,
+        **kvals,
+    ):
         """fetch a dataset and some metadata attached to it:
         - properties
         - sample
@@ -4429,10 +4442,10 @@ class Openbis:
         :return: a DataSet object
         """
 
-        just_one = True
+        only_one = True
         identifiers = []
         if isinstance(permIds, list):
-            just_one = False
+            only_one = False
             for permId in permIds:
                 identifiers.append(_type_for_id(permId, "dataset"))
         else:
@@ -4453,6 +4466,14 @@ class Openbis:
         ]:
             fetchopts[option] = get_fetchoption_for_entity(option)
 
+        if including_all_children or including_all_parents:
+            add_fetchops_for_ancestors(
+                fetchopts=fetchopts,
+                all_children=including_all_children,
+                all_parents=including_all_parents,
+            )
+            only_one = False
+
         request = {
             "method": "getDataSets",
             "params": [
@@ -4463,7 +4484,7 @@ class Openbis:
         }
 
         resp = self._post_request(self.as_v3, request)
-        if just_one:
+        if only_one:
             if len(resp) == 0:
                 raise ValueError(f"no such dataset found: {permIds}")
 
@@ -4478,6 +4499,29 @@ class Openbis:
                         type=self.get_dataset_type(resp[permId]["type"]["code"]),
                         data=resp[permId],
                     )
+        elif including_all_parents or including_all_children:
+            parse_jackson(resp)
+            direction = "children" if including_all_children else "parents"
+            all_data = []
+
+            for permId in resp:
+                item_data = resp[permId]
+                parse_jackson(item_data)
+                all_data += self._list_for_all_ancestors(
+                    data=item_data,
+                    include_parent_in_list=include_parent_in_list,
+                    direction=direction,
+                    attrs=DataSet.default_attrs,
+                )
+            df = DataFrame(all_data)
+            extract_data_in_dataframe(df)
+            return Things(
+                openbis_obj=self,
+                entity="dataset",
+                identifier_name="permId",
+                totalCount=len(all_data),
+                df=df,
+            )
         else:
             return self._dataset_list_for_response(
                 response=list(resp.values()), props=props, parsed=False
@@ -4649,6 +4693,7 @@ class Openbis:
         including_all_parents: bool = False,
         including_all_children: bool = False,
         include_parent_in_list=True,
+        depth=None,
         **kvals,
     ):
         """Retrieve metadata for the sample.
@@ -4686,8 +4731,10 @@ class Openbis:
                 "attachmentsWithContent"
             )
 
-        for key in ["parents", "children", "container", "components"]:
-            fetchopts[key] = {"@type": "as.dto.sample.fetchoptions.SampleFetchOptions"}
+        for option in ["parents", "children", "container", "components"]:
+            fetchopts[option] = {
+                "@type": "as.dto.sample.fetchoptions.SampleFetchOptions"
+            }
 
         if including_all_children or including_all_parents:
             add_fetchops_for_ancestors(
@@ -4719,23 +4766,30 @@ class Openbis:
                         data=resp[sample_ident],
                     )
         elif including_all_parents or including_all_children:
-            data = resp[sample_ident]
-            parse_jackson(data)
+            parse_jackson(resp)
             direction = "children" if including_all_children else "parents"
-            new_data = self._list_for_all_ancestors(
-                data=data,
-                include_parent_in_list=include_parent_in_list,
-                direction=direction,
-                attrs=Sample.default_attrs,
-                props=props,
-            )
-            df = DataFrame(new_data)
+
+            all_data = []
+            for ident in resp:
+                item_data = resp[ident]
+                all_data += self._list_for_all_ancestors(
+                    data=item_data,
+                    include_parent_in_list=include_parent_in_list,
+                    direction=direction,
+                    depth=depth,
+                    attrs=Sample.default_attrs,
+                )
+
+            if all_data:
+                df = DataFrame(all_data)
+            else:
+                df = DataFrame(columns=Sample.default_attrs)
             extract_data_in_dataframe(df)
             return Things(
                 openbis_obj=self,
                 entity="sample",
                 identifier_name="identifier",
-                totalCount=len(new_data),
+                totalCount=len(all_data),
                 df=df,
             )
 
@@ -4751,31 +4805,46 @@ class Openbis:
         direction: str = "children",
         parent: str = "",
         attrs=None,
-        props=None,
+        depth=None,
     ):
         elements = []
 
         if include_parent_in_list:
             item = {}
-            for attr, val in data.items():
-                # only include the important attributes
-                if not attr in attrs:
+            for attr in attrs:
+                if not attr in data:
+                    item[attr] = ""
                     continue
+                item[attr] = data[attr]
 
-                item[attr] = val
             for prop, val in data.get("properties", {}).items():
                 item[prop.upper()] = val
-            item["parent"] = parent
+
+            # the column «parent» contains the child's parent-identifier.
+            # If we search for all parents instead, the column is named «child».
+            if direction == "children":
+                item["parent"] = parent
+            else:
+                item["child"] = parent
 
             elements.append(item)
 
+        # we reached the max depth
+        if depth is not None and depth == 0:
+            return elements
+
         if data.get(direction):
             for member in data.get(direction, []):
+                if "identifier" in data:
+                    parent = data["identifier"]["identifier"]
+                else:
+                    parent = data["permId"]["permId"]
                 elements += self._list_for_all_ancestors(
                     member,
                     attrs=attrs,
-                    parent=data["identifier"]["identifier"],
+                    parent=parent,
                     direction=direction,
+                    depth=depth - 1 if depth is not None else None,
                 )
             return elements
         return elements

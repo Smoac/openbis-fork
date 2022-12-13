@@ -1,5 +1,5 @@
 from tabulate import tabulate
-from pandas import DataFrame, Series
+from pandas import DataFrame
 import pandas as pd
 
 
