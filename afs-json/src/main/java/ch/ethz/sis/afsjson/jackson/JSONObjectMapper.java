@@ -1,4 +1,4 @@
-package ch.ethz.sis.shared.json.jackson;
+package ch.ethz.sis.afsjson.jackson;
 
 import java.io.InputStream;
 import java.nio.charset.Charset;

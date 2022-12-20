@@ -27,7 +27,7 @@ import ch.ethz.sis.afsserver.worker.ConnectionFactory;
 import ch.ethz.sis.afsserver.worker.WorkerFactory;
 import ch.ethz.sis.afsserver.worker.providers.impl.DummyAuthenticationInfoProvider;
 import ch.ethz.sis.afsserver.worker.providers.impl.DummyAuthorizationInfoProvider;
-import ch.ethz.sis.shared.json.jackson.JacksonObjectMapper;
+import ch.ethz.sis.afsjson.jackson.JacksonObjectMapper;
 import ch.ethz.sis.shared.log.log4j2.Log4J2LogFactory;
 import ch.ethz.sis.shared.startup.Configuration;
 

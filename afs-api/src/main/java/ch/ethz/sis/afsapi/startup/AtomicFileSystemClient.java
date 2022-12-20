@@ -18,8 +18,8 @@ package ch.ethz.sis.afsapi.startup;
 
 import ch.ethz.sis.afsapi.api.PublicAPI;
 import ch.ethz.sis.afsapi.api.dto.File;
-import ch.ethz.sis.shared.json.JSONObjectMapper;
-import ch.ethz.sis.shared.json.jackson.JacksonObjectMapper;
+import ch.ethz.sis.afsjson.JSONObjectMapper;
+import ch.ethz.sis.afsjson.jackson.JacksonObjectMapper;
 import lombok.NonNull;
 
 import java.net.URI;

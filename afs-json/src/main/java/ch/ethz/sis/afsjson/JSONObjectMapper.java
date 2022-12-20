@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.shared.json;
+package ch.ethz.sis.afsjson;
 
 import java.io.InputStream;
 

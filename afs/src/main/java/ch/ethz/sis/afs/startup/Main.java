@@ -17,7 +17,7 @@
 package ch.ethz.sis.afs.startup;
 
 import ch.ethz.sis.afs.manager.TransactionManager;
-import ch.ethz.sis.shared.json.JSONObjectMapper;
+import ch.ethz.sis.afsjson.JSONObjectMapper;
 import ch.ethz.sis.shared.log.LogFactory;
 import ch.ethz.sis.shared.log.LogFactoryFactory;
 import ch.ethz.sis.shared.log.LogManager;

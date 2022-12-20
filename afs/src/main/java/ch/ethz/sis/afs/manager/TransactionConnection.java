@@ -23,7 +23,7 @@ import ch.ethz.sis.afs.exception.AFSExceptions;
 import ch.ethz.sis.afs.api.dto.File;
 import ch.ethz.sis.afs.manager.operation.*;
 import ch.ethz.sis.shared.io.IOUtils;
-import ch.ethz.sis.shared.json.JSONObjectMapper;
+import ch.ethz.sis.afsjson.JSONObjectMapper;
 import ch.ethz.sis.afs.dto.Lock;
 import ch.ethz.sis.afs.dto.LockType;
 

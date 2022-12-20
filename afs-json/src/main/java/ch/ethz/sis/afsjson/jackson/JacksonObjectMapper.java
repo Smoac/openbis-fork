@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.shared.json.jackson;
+package ch.ethz.sis.afsjson.jackson;
 
-import ch.ethz.sis.shared.json.JSONObjectMapper;
+import ch.ethz.sis.afsjson.JSONObjectMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
