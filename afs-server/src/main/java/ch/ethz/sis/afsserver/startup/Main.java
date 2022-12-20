@@ -25,7 +25,7 @@ import java.util.List;
 
 public class Main {
 
-    public static List getParameterClasses() {
+    public static List<Class<AtomicFileSystemServerParameter>> getParameterClasses() {
         return List.of(AtomicFileSystemServerParameter.class);
     }
 
@@ -33,7 +33,7 @@ public class Main {
         System.out.println("Current Working Directory: " + (new File("")).getCanonicalPath());
         Configuration configuration = new Configuration(getParameterClasses(), "../afs-server/src/main/resources/afs-server-config.properties");
         DummyServerObserver dummyServerObserver = new DummyServerObserver();
-        Server server = new Server(configuration, dummyServerObserver, dummyServerObserver);
+        new Server<>(configuration, dummyServerObserver, dummyServerObserver);
         Thread.currentThread().join();
     }
 }
