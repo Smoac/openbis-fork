@@ -17,7 +17,7 @@ dependencies {
             'fasterxml:jackson-core:2.9.10',
             'fasterxml:jackson-databind:2.9.10.8',
             'fasterxml:jackson-datatype-jsr310:2.9.10'
-    testImplementation 'junit:junit:4.10'
+    testImplementation 'junit:junit:4.13.2'
     testRuntimeOnly 'hamcrest:hamcrest-core:1.3'
 }
 

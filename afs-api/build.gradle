@@ -17,11 +17,11 @@ dependencies {
     implementation project(':afs'),
             project(':afs-json'),
             'lombok:lombok:1.18.22';
-    testImplementation 'junit:junit:4.10'
+    testImplementation 'junit:junit:4.13.2'
     testRuntimeOnly 'hamcrest:hamcrest-core:1.3'
 }
 
-task AFSServerDevelopmentEnvironmentStart(type: JavaExec) {
+tasks.register('AFSServerDevelopmentEnvironmentStart') {
     main = 'ch.ethz.sis.afsclient.startup.Main'
     classpath = sourceSets.main.runtimeClasspath
     jvmArgs(['-Xmx256M'])
