@@ -18,7 +18,7 @@ dependencies {
             'lombok:lombok:1.18.22',
             'log4j:log4j-api:2.10.0',
             'log4j:log4j-core:2.10.0'
-    testImplementation 'junit:junit:4.10'
+    testImplementation 'junit:junit:4.13.2'
     testRuntimeOnly 'hamcrest:hamcrest-core:1.3'
 }
 
