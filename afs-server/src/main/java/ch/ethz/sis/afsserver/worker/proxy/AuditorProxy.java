@@ -1,6 +1,6 @@
 package ch.ethz.sis.afsserver.worker.proxy;
 
-import ch.ethz.sis.afs.api.dto.File;
+import ch.ethz.sis.afsapi.api.dto.File;
 import ch.ethz.sis.afsserver.worker.AbstractProxy;
 import ch.ethz.sis.afsserver.server.performance.Event;
 import lombok.NonNull;
@@ -66,37 +66,37 @@ public class AuditorProxy extends AbstractProxy {
     }
 
     @Override
-    public List<File> list(@NonNull String owner, @NonNull String source, @NonNull Boolean recursively) throws Exception {
+    public @NonNull List<File> list(@NonNull String owner, @NonNull String source, @NonNull Boolean recursively) throws Exception {
         auditBefore();
         return auditAfter(nextProxy.list(owner, source, recursively));
     }
 
     @Override
-    public byte[] read(@NonNull String owner, @NonNull String source, @NonNull Long offset, @NonNull Integer limit) throws Exception {
+    public byte @NonNull [] read(@NonNull String owner, @NonNull String source, @NonNull Long offset, @NonNull Integer limit) throws Exception {
         auditBefore();
         return auditAfter(nextProxy.read(owner, source, offset, limit));
     }
 
     @Override
-    public Boolean write(@NonNull String owner, @NonNull String source, @NonNull Long offset, @NonNull byte[] data, @NonNull byte[] md5Hash) throws Exception {
+    public @NonNull Boolean write(@NonNull String owner, @NonNull String source, @NonNull Long offset, @NonNull byte[] data, @NonNull byte[] md5Hash) throws Exception {
         auditBefore();
         return auditAfter(nextProxy.write(owner, source, offset, data, md5Hash));
     }
 
     @Override
-    public Boolean delete(@NonNull String owner, @NonNull String source) throws Exception {
+    public @NonNull Boolean delete(@NonNull String owner, @NonNull String source) throws Exception {
         auditBefore();
         return auditAfter(nextProxy.delete(owner, source));
     }
 
     @Override
-    public Boolean copy(@NonNull String sourceOwner, @NonNull String source, @NonNull String targetOwner, @NonNull String target) throws Exception {
+    public @NonNull Boolean copy(@NonNull String sourceOwner, @NonNull String source, @NonNull String targetOwner, @NonNull String target) throws Exception {
         auditBefore();
         return auditAfter(nextProxy.copy(sourceOwner, source, targetOwner, target));
     }
 
     @Override
-    public Boolean move(@NonNull String sourceOwner, @NonNull String source, @NonNull String targetOwner, @NonNull String target) throws Exception {
+    public @NonNull Boolean move(@NonNull String sourceOwner, @NonNull String source, @NonNull String targetOwner, @NonNull String target) throws Exception {
         auditBefore();
         return auditAfter(nextProxy.move(sourceOwner, source, targetOwner, target));
     }

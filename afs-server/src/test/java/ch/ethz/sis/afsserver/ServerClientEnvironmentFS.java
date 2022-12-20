@@ -16,7 +16,7 @@
 
 package ch.ethz.sis.afsserver;
 
-import ch.ethz.sis.afsserver.api.PublicAPI;
+import ch.ethz.sis.afsapi.api.PublicAPI;
 import ch.ethz.sis.afsserver.http.impl.NettyHttpServer;
 import ch.ethz.sis.afsserver.server.Server;
 import ch.ethz.sis.afsserver.server.observer.APIServerObserver;

@@ -1,7 +1,7 @@
 package ch.ethz.sis.afsserver.core;
 
 import ch.ethz.sis.afs.api.dto.File;
-import ch.ethz.sis.afsserver.api.PublicAPI;
+import ch.ethz.sis.afsapi.api.PublicAPI;
 import lombok.NonNull;
 
 import java.util.List;
@@ -13,7 +13,7 @@ public abstract class AbstractPublicAPIWrapper implements PublicAPI {
     public abstract <E> E process(String method, Map<String, Object> methodParameters);
 
     @Override
-    public List<File> list(@NonNull String owner, @NonNull String source, @NonNull Boolean recursively) throws Exception {
+    public @NonNull List<File> list(@NonNull String owner, @NonNull String source, @NonNull Boolean recursively) throws Exception {
         Map<String, Object> args = Map.of(
                 "owner", owner,
                 "source", source,
@@ -22,7 +22,7 @@ public abstract class AbstractPublicAPIWrapper implements PublicAPI {
     }
 
     @Override
-    public byte[] read(@NonNull String owner, @NonNull String source, @NonNull Long offset, @NonNull Integer limit) throws Exception {
+    public byte @NonNull [] read(@NonNull String owner, @NonNull String source, @NonNull Long offset, @NonNull Integer limit) throws Exception {
         Map<String, Object> args = Map.of(
                 "owner", owner,
                 "source", source,
@@ -32,7 +32,7 @@ public abstract class AbstractPublicAPIWrapper implements PublicAPI {
     }
 
     @Override
-    public Boolean write(@NonNull String owner, @NonNull String source, @NonNull Long offset, @NonNull byte[] data, @NonNull byte[] md5Hash) throws Exception {
+    public @NonNull Boolean write(@NonNull String owner, @NonNull String source, @NonNull Long offset, @NonNull byte[] data, @NonNull byte[] md5Hash) throws Exception {
         Map<String, Object> args = Map.of(
                 "owner", owner,
                 "source", source,
@@ -43,7 +43,7 @@ public abstract class AbstractPublicAPIWrapper implements PublicAPI {
     }
 
     @Override
-    public Boolean delete(@NonNull String owner, @NonNull String source) throws Exception {
+    public @NonNull Boolean delete(@NonNull String owner, @NonNull String source) throws Exception {
         Map<String, Object> args = Map.of(
                 "owner", owner,
                 "source", source);
@@ -51,7 +51,7 @@ public abstract class AbstractPublicAPIWrapper implements PublicAPI {
     }
 
     @Override
-    public Boolean copy(@NonNull String sourceOwner, @NonNull String source, @NonNull String targetOwner, @NonNull String target) throws Exception {
+    public @NonNull Boolean copy(@NonNull String sourceOwner, @NonNull String source, @NonNull String targetOwner, @NonNull String target) throws Exception {
         Map<String, Object> args = Map.of(
                 "sourceOwner", sourceOwner,
                 "source", source,
@@ -61,7 +61,7 @@ public abstract class AbstractPublicAPIWrapper implements PublicAPI {
     }
 
     @Override
-    public Boolean move(@NonNull String sourceOwner, @NonNull String source, @NonNull String targetOwner, @NonNull String target) throws Exception {
+    public @NonNull Boolean move(@NonNull String sourceOwner, @NonNull String source, @NonNull String targetOwner, @NonNull String target) throws Exception {
         Map<String, Object> args = Map.of(
                 "sourceOwner", sourceOwner,
                 "source", source,

@@ -15,6 +15,7 @@ repositories {
 dependencies {
     annotationProcessor 'lombok:lombok:1.18.22'
     implementation project(':afs'),
+            project(':afs-api'),
             project(':afs-json'),
             'lombok:lombok:1.18.22',
             'io.netty:netty-all:4.1.68.Final',

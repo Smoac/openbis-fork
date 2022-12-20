@@ -28,13 +28,12 @@ public interface OperationsAPI
     List<File> list(@NonNull String owner, @NonNull String source, @NonNull Boolean recursively)
             throws Exception;
 
-    @NonNull
-    byte[] read(@NonNull String owner, @NonNull String source, @NonNull Long offset,
+    byte @NonNull [] read(@NonNull String owner, @NonNull String source, @NonNull Long offset,
             @NonNull Integer limit) throws Exception;
 
     @NonNull
     Boolean write(@NonNull String owner, @NonNull String source, @NonNull Long offset,
-            @NonNull byte[] data, @NonNull byte[] md5Hash) throws Exception;
+            byte @NonNull [] data, byte @NonNull [] md5Hash) throws Exception;
 
     @NonNull
     Boolean delete(@NonNull String owner, @NonNull String source) throws Exception;

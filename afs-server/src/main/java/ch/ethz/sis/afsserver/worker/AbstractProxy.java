@@ -1,7 +1,7 @@
 package ch.ethz.sis.afsserver.worker;
 
 import ch.ethz.sis.afs.api.TransactionalFileSystem;
-import ch.ethz.sis.afs.api.dto.File;
+import ch.ethz.sis.afsapi.api.dto.File;
 import ch.ethz.sis.afsserver.server.Worker;
 import ch.ethz.sis.afsserver.server.performance.PerformanceAuditor;
 import lombok.NonNull;
@@ -119,32 +119,42 @@ public abstract class AbstractProxy implements Worker<TransactionalFileSystem> {
     }
 
     @Override
-    public List<File> list(@NonNull String sourceOwner, @NonNull String source, @NonNull Boolean recursively) throws Exception {
+    @NonNull
+    public List<File> list(@NonNull String sourceOwner, @NonNull String source, @NonNull Boolean recursively)
+            throws Exception {
         return nextProxy.list(sourceOwner, source, recursively);
     }
 
     @Override
-    public byte[] read(@NonNull String sourceOwner, @NonNull String source, @NonNull Long offset, @NonNull Integer limit) throws Exception {
+    public byte @NonNull [] read(@NonNull String sourceOwner, @NonNull String source, @NonNull Long offset,
+            @NonNull Integer limit) throws Exception {
         return nextProxy.read(sourceOwner, source, offset, limit);
     }
 
     @Override
-    public Boolean write(@NonNull String sourceOwner, @NonNull String source, @NonNull Long offset, @NonNull byte[] data, @NonNull byte[] md5Hash) throws Exception {
+    @NonNull
+    public Boolean write(@NonNull String sourceOwner, @NonNull String source, @NonNull Long offset,
+            byte @NonNull [] data, byte @NonNull [] md5Hash) throws Exception {
         return nextProxy.write(sourceOwner, source, offset, data, md5Hash);
     }
 
     @Override
+    @NonNull
     public Boolean delete(@NonNull String sourceOwner, @NonNull String source) throws Exception {
         return nextProxy.delete(sourceOwner, source);
     }
 
     @Override
-    public Boolean copy(@NonNull String sourceOwner, @NonNull String source, @NonNull String targetOwner, @NonNull String target) throws Exception {
+    @NonNull
+    public Boolean copy(@NonNull String sourceOwner, @NonNull String source, @NonNull String targetOwner,
+            @NonNull String target) throws Exception {
         return nextProxy.copy(sourceOwner, source, targetOwner, target);
     }
 
     @Override
-    public Boolean move(@NonNull String sourceOwner, @NonNull String source, @NonNull String targetOwner, @NonNull String target) throws Exception {
+    @NonNull
+    public Boolean move(@NonNull String sourceOwner, @NonNull String source, @NonNull String targetOwner,
+            @NonNull String target) throws Exception {
         return nextProxy.move(sourceOwner, source, targetOwner, target);
     }
 

@@ -1,7 +1,7 @@
 package ch.ethz.sis.afsserver.impl;
 
 import ch.ethz.sis.afsserver.ServerClientEnvironmentFS;
-import ch.ethz.sis.afsserver.api.PublicAPI;
+import ch.ethz.sis.afsapi.api.PublicAPI;
 import ch.ethz.sis.afsserver.server.APIServer;
 import ch.ethz.sis.afsserver.server.impl.ApiServerAdapter;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;

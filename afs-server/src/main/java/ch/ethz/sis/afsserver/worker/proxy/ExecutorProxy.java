@@ -1,11 +1,13 @@
 package ch.ethz.sis.afsserver.worker.proxy;
 
-import ch.ethz.sis.afs.api.dto.File;
+import ch.ethz.sis.afsapi.api.dto.File;
 import ch.ethz.sis.afsserver.worker.AbstractProxy;
 import ch.ethz.sis.shared.io.IOUtils;
+import lombok.NonNull;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class ExecutorProxy extends AbstractProxy {
 
@@ -52,32 +54,46 @@ public class ExecutorProxy extends AbstractProxy {
     }
 
     @Override
-    public List<File> list(String owner, String source, Boolean recursively) throws Exception {
-        return workerContext.getConnection().list(getPath(owner, source), recursively);
+    public @NonNull List<File> list(@NonNull final String owner, @NonNull final String source,
+            @NonNull final Boolean recursively)
+            throws Exception {
+        return workerContext.getConnection().list(getPath(owner, source), recursively).stream()
+                .map(file -> new File(file.getPath(), file.getName(), file.getDirectory(), file.getSize(),
+                        file.getLastModifiedTime(), file.getCreationTime(), file.getLastAccessTime()))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public byte[] read(String owner, String source, Long offset, Integer limit) throws Exception {
+    @NonNull
+    public byte[] read(@NonNull final String owner, @NonNull final String source, @NonNull final Long offset,
+            @NonNull final Integer limit) throws Exception {
         return workerContext.getConnection().read(getPath(owner, source), offset, limit);
     }
 
     @Override
-    public Boolean write(String owner, String source, Long offset, byte[] data, byte[] md5Hash) throws Exception {
+    @NonNull
+    public Boolean write(@NonNull final String owner, @NonNull final String source, @NonNull final Long offset,
+            final byte @NonNull [] data, final byte @NonNull [] md5Hash) throws Exception {
         return workerContext.getConnection().write(getPath(owner, source), offset, data, md5Hash);
     }
 
     @Override
-    public Boolean delete(String owner, String source) throws Exception {
+    @NonNull
+    public Boolean delete(@NonNull final String owner, @NonNull final String source) throws Exception {
         return workerContext.getConnection().delete(getPath(owner, source));
     }
 
     @Override
-    public Boolean copy(String sourceOwner, String source, String targetOwner, String target) throws Exception {
+    @NonNull
+    public Boolean copy(@NonNull final String sourceOwner, @NonNull final String source,
+            @NonNull final String targetOwner, @NonNull final String target) throws Exception {
         return workerContext.getConnection().copy(getPath(sourceOwner, source), getPath(targetOwner, target));
     }
 
     @Override
-    public Boolean move(String sourceOwner, String source, String targetOwner, String target) throws Exception {
+    @NonNull
+    public Boolean move(@NonNull final String sourceOwner, @NonNull final String source,
+            @NonNull final String targetOwner, @NonNull final String target) throws Exception {
         return workerContext.getConnection().move(getPath(sourceOwner, source), getPath(targetOwner, target));
     }
 
