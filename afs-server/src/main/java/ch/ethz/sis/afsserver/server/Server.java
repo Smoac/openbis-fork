@@ -17,19 +17,21 @@ import lombok.NonNull;
 
 public final class Server<CONNECTION, API> {
 
-    private Logger logger;
-    private Pool<Configuration, CONNECTION> connectionsPool;
-    private Pool<Configuration, Worker<CONNECTION>> workersPool;
-    private APIServer apiServer;
-    private JacksonObjectMapper jsonObjectMapper;
-    private ApiServerAdapter<CONNECTION, API> apiServerAdapter;
-    private HttpServer httpServer;
+    private final Logger logger;
+
+    private final Pool<Configuration, CONNECTION> connectionsPool;
+
+    private final APIServer<CONNECTION, Request, Response, API> apiServer;
+
+    private final HttpServer httpServer;
+
+    private final ServerObserver<CONNECTION> observer;
+
     private boolean shutdown;
-    private ServerObserver<CONNECTION> observer;
 
     public Server(Configuration configuration,
                   @NonNull ServerObserver<CONNECTION> serverObserver,
-                  @NonNull APIServerObserver apiServerObserver) throws Exception {
+                  @NonNull APIServerObserver<CONNECTION> apiServerObserver) throws Exception {
         //1. Load logging plugin, Initializing LogManager
         shutdown = false;
         observer = serverObserver;
@@ -57,23 +59,25 @@ public final class Server<CONNECTION, API> {
 
 
         connectionsPool = new Pool<>(poolSize, configuration, connectionFactory);
-        workersPool = new Pool<>(poolSize, configuration, workerFactory);
+        Pool<Configuration, Worker<CONNECTION>> workersPool = new Pool<>(poolSize, configuration, workerFactory);
 
         // 2.3 Init API Server observer
         apiServerObserver.init(configuration);
 
         // 2.4 Creating API Server
         logger.info("Creating API server");
-        Class<?> publicApiInterface = configuration.getInterfaceClass(AtomicFileSystemServerParameter.publicApiInterface);
+        @SuppressWarnings("unchecked")
+        Class<API> publicApiInterface = (Class<API>) configuration.getInterfaceClass(
+                AtomicFileSystemServerParameter.publicApiInterface);
         String interactiveSessionKey = configuration.getStringProperty(AtomicFileSystemServerParameter.apiServerInteractiveSessionKey);
         String transactionManagerKey = configuration.getStringProperty(AtomicFileSystemServerParameter.apiServerTransactionManagerKey);
         int apiServerWorkerTimeout = configuration.getIntegerProperty(AtomicFileSystemServerParameter.apiServerWorkerTimeout);
-        apiServer = new APIServer(connectionsPool, workersPool, publicApiInterface, interactiveSessionKey, transactionManagerKey, apiServerWorkerTimeout, apiServerObserver);
+        apiServer = new APIServer<>(connectionsPool, workersPool, publicApiInterface, interactiveSessionKey, transactionManagerKey, apiServerWorkerTimeout, apiServerObserver);
 
         // 2.5 Creating JSON RPC Service
         logger.info("Creating API Server adaptor");
-        jsonObjectMapper = configuration.getSharableInstance(AtomicFileSystemServerParameter.jsonObjectMapperClass);
-        apiServerAdapter = new ApiServerAdapter(apiServer, jsonObjectMapper);
+        JacksonObjectMapper jsonObjectMapper = configuration.getSharableInstance(AtomicFileSystemServerParameter.jsonObjectMapperClass);
+        ApiServerAdapter<CONNECTION, API> apiServerAdapter = new ApiServerAdapter<>(apiServer, jsonObjectMapper);
 
         // 2.6 Creating HTTP Service
         int httpServerPort = configuration.getIntegerProperty(AtomicFileSystemServerParameter.httpServerPort);
