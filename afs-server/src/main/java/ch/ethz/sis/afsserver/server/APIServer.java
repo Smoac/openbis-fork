@@ -44,7 +44,7 @@ public class APIServer<CONNECTION, INPUT extends Request, OUTPUT extends Respons
 
     private Timer idleWorkerCleanupTask;
     private boolean shutdown;
-    private APIServerObserver<CONNECTION> observer;
+    private final APIServerObserver<CONNECTION> observer;
 
     public APIServer(
             @NonNull Pool<Configuration, CONNECTION> connectionsPool,
@@ -53,7 +53,7 @@ public class APIServer<CONNECTION, INPUT extends Request, OUTPUT extends Respons
             @NonNull String interactiveSessionKey,
             @NonNull String transactionManagerKey,
             int apiServerWorkerTimeout,
-            @NonNull APIServerObserver observer) {
+            @NonNull APIServerObserver<CONNECTION> observer) {
         this.shutdown = false;
         this.connectionsPool = connectionsPool;
         this.workersPool = workersPool;
@@ -72,6 +72,7 @@ public class APIServer<CONNECTION, INPUT extends Request, OUTPUT extends Respons
     }
 
     public void shutdown() {
+        idleWorkerCleanupTask.cancel();
         shutdown = true;
     }
 

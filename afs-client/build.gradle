@@ -13,7 +13,12 @@ repositories {
 }
 
 dependencies {
-    testImplementation 'junit:junit:4.13.2'
+    annotationProcessor 'lombok:lombok:1.18.22'
+    implementation project(':afs'),
+            project(':afs-api'),
+            'lombok:lombok:1.18.22'
+    testImplementation project(':afs-server'),
+            'junit:junit:4.13.2'
     testRuntimeOnly 'hamcrest:hamcrest-core:1.3'
 }
 

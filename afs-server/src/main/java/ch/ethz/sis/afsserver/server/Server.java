@@ -32,7 +32,7 @@ public final class Server<CONNECTION, API> {
     public Server(Configuration configuration,
                   @NonNull ServerObserver<CONNECTION> serverObserver,
                   @NonNull APIServerObserver<CONNECTION> apiServerObserver) throws Exception {
-        //1. Load logging plugin, Initializing LogManager
+        // 1. Load logging plugin, Initializing LogManager
         shutdown = false;
         observer = serverObserver;
         LogFactoryFactory logFactoryFactory = new LogFactoryFactory();
@@ -82,9 +82,10 @@ public final class Server<CONNECTION, API> {
         // 2.6 Creating HTTP Service
         int httpServerPort = configuration.getIntegerProperty(AtomicFileSystemServerParameter.httpServerPort);
         int maxContentLength = configuration.getIntegerProperty(AtomicFileSystemServerParameter.httpMaxContentLength);
-        logger.info("Starting HTTP Service on port " + httpServerPort + " with maxContentLength " + maxContentLength);
-        httpServer = configuration.getSharableInstance(AtomicFileSystemServerParameter.httpServerClass);
         String httpServerUri = configuration.getStringProperty(AtomicFileSystemServerParameter.httpServerUri);
+        logger.info(String.format("Starting HTTP Service on port %d with URI %s with maxContentLength %d",
+                httpServerPort, httpServerUri, maxContentLength));
+        httpServer = configuration.getSharableInstance(AtomicFileSystemServerParameter.httpServerClass);
         httpServer.start(httpServerPort, maxContentLength, httpServerUri, apiServerAdapter);
 
         // 2.7 Init observer
@@ -93,15 +94,13 @@ public final class Server<CONNECTION, API> {
 
         // 3 Startup
         logger.info("=== Server ready ===");
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            public void run() {
-                try {
-                    shutdown(true);
-                } catch (Exception e) {
-                    logger.catching(e);
-                }
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                shutdown(true);
+            } catch (Exception e) {
+                logger.catching(e);
             }
-        });
+        }));
     }
 
     public void shutdown(boolean gracefully) throws Exception {

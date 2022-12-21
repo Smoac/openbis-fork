@@ -20,10 +20,13 @@ public class NettyHttpServer implements HttpServer {
 
     private static final Logger logger = LogManager.getLogger(NettyHttpServer.class);
 
+    private static final int MAX_QUEUE_LENGTH_FOR_INCOMING_CONNECTIONS = 128;
+
     private final EventLoopGroup masterGroup;
+
     private final EventLoopGroup slaveGroup;
 
-    private ChannelFuture channel;
+    private ChannelFuture channelFuture;
 
     public NettyHttpServer() {
         masterGroup = new NioEventLoopGroup();
@@ -31,14 +34,7 @@ public class NettyHttpServer implements HttpServer {
     }
 
     public void start(int port, int maxContentLength, String uri, HttpServerHandler httpServerHandler) {
-        Integer maxQueueLengthForIncomingConnections = 128;
-
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                shutdown(true);
-            }
-        });
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> shutdown(true)));
 
         try {
             final ServerBootstrap bootstrap = new ServerBootstrap()
@@ -52,18 +48,21 @@ public class NettyHttpServer implements HttpServer {
                             ch.pipeline().addLast("request", new NettyHttpHandler(uri, httpServerHandler));
                         }
                     })
-                    .option(ChannelOption.SO_BACKLOG, maxQueueLengthForIncomingConnections)
+                    .option(ChannelOption.SO_BACKLOG, MAX_QUEUE_LENGTH_FOR_INCOMING_CONNECTIONS)
                     .option(ChannelOption.SO_REUSEADDR, Boolean.TRUE)
                     .childOption(ChannelOption.SO_KEEPALIVE, Boolean.TRUE);
-            channel = bootstrap.bind(port).sync();
+            channelFuture = bootstrap.bind(port).sync();
         } catch (final Exception ex) {
             logger.catching(ex);
+        } finally {
+            masterGroup.shutdownGracefully();
+            slaveGroup.shutdownGracefully();
         }
     }
 
     public void shutdown(boolean gracefully) {
         try {
-            channel.channel().close();
+            channelFuture.channel().close();
         } catch (Exception ex) {
             logger.catching(ex);
         }

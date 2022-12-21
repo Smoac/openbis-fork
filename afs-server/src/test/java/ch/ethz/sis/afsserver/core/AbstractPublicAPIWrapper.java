@@ -1,6 +1,6 @@
 package ch.ethz.sis.afsserver.core;
 
-import ch.ethz.sis.afs.api.dto.File;
+import ch.ethz.sis.afsapi.api.dto.File;
 import ch.ethz.sis.afsapi.api.PublicAPI;
 import lombok.NonNull;
 

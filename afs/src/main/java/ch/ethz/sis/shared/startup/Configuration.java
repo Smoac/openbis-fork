@@ -23,7 +23,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Configuration {
 
-    private final Map<Enum, Object> sharables = new ConcurrentHashMap<>();
+    private final Map<Enum<?>, Object> sharables = new ConcurrentHashMap<>();
+
     private final Properties properties = new Properties();
 
     public <E extends Enum<E>> Configuration(List<Class<E>> mandatoryParametersClasses, String pathToConfigurationFile) {
@@ -46,8 +47,8 @@ public class Configuration {
         }
     }
 
-    public Configuration(Map<Enum, String> values) {
-        for (Enum key:values.keySet()) {
+    public Configuration(Map<Enum<?>, String> values) {
+        for (Enum<?> key:values.keySet()) {
             properties.setProperty(key.name(), values.get(key));
         }
     }
@@ -68,6 +69,7 @@ public class Configuration {
         return Integer.parseInt(getProperty(parameter));
     }
 
+    @SuppressWarnings("unchecked")
     public <E extends Enum<E>, I> I getSharableInstance(E parameter)
             throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         I sharable = (I) sharables.get(parameter);
@@ -81,6 +83,7 @@ public class Configuration {
         return sharable;
     }
 
+    @SuppressWarnings("unchecked")
     public <E extends Enum<E>, I> I getInstance(E parameter) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         String value = getProperty(parameter);
         if (value != null) {

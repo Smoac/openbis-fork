@@ -36,4 +36,5 @@ public class Main {
         new Server<>(configuration, dummyServerObserver, dummyServerObserver);
         Thread.currentThread().join();
     }
+
 }
