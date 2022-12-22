@@ -2,7 +2,8 @@ package ch.ethz.sis.afsapi.api;
 
 import lombok.NonNull;
 
-public interface AuthenticationAPI {
+public interface AuthenticationApi
+{
 
     @NonNull
     String login(@NonNull String userId, @NonNull String password) throws Exception;

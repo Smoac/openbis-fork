@@ -4,13 +4,13 @@ import lombok.NonNull;
 import lombok.Value;
 
 @Value
-public class APIServerException extends Exception {
+public class ApiServerException extends Exception {
 
     private String id;
-    private APIServerErrorType type;
+    private ApiServerErrorType type;
     private Object data;
 
-    public APIServerException(String id, APIServerErrorType type, @NonNull Object data) {
+    public ApiServerException(String id, ApiServerErrorType type, @NonNull Object data) {
         super(data.toString());
         this.id = id;
         this.type = type;

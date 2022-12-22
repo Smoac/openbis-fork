@@ -1,12 +1,12 @@
 package ch.ethz.sis.afsserver.server.impl;
 
-import ch.ethz.sis.afsserver.exception.HTTPExceptions;
+import ch.ethz.sis.afsserver.exception.HttpExceptions;
 import ch.ethz.sis.afsserver.http.*;
 import ch.ethz.sis.afsserver.server.*;
 import ch.ethz.sis.afsserver.server.performance.Event;
 import ch.ethz.sis.afsserver.server.performance.PerformanceAuditor;
 import ch.ethz.sis.shared.io.IOUtils;
-import ch.ethz.sis.afsjson.JSONObjectMapper;
+import ch.ethz.sis.afsjson.JsonObjectMapper;
 import ch.ethz.sis.shared.log.LogManager;
 import ch.ethz.sis.shared.log.Logger;
 import io.netty.handler.codec.http.HttpMethod;
@@ -20,14 +20,14 @@ public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler {
 
     private static final Logger logger = LogManager.getLogger(ApiServerAdapter.class);
 
-    private final APIServer<CONNECTION, Request, Response, API> server;
-    private final JSONObjectMapper jsonObjectMapper;
+    private final ApiServer<CONNECTION, Request, Response, API> server;
+    private final JsonObjectMapper jsonObjectMapper;
     private final ApiResponseBuilder apiResponseBuilder;
 
 
     public ApiServerAdapter(
-            APIServer<CONNECTION, Request, Response, API> server,
-            JSONObjectMapper jsonObjectMapper) {
+            ApiServer<CONNECTION, Request, Response, API> server,
+            JsonObjectMapper jsonObjectMapper) {
         this.server = server;
         this.jsonObjectMapper = jsonObjectMapper;
         this.apiResponseBuilder = new ApiResponseBuilder();
@@ -69,7 +69,7 @@ public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler {
                     if (entry.getValue().size() == 1) {
                         value = entry.getValue().get(0);
                     } else if (entry.getValue().size() > 1) {
-                        return getHTTPResponse(new ApiResponse("1", null, HTTPExceptions.INVALID_PARAMETERS.getCause()));
+                        return getHTTPResponse(new ApiResponse("1", null, HttpExceptions.INVALID_PARAMETERS.getCause()));
                     }
                 }
 
@@ -78,7 +78,7 @@ public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler {
                         case "method":
                             method = value;
                             if (!isValidMethod(httpMethod, method)) {
-                                return getHTTPResponse(new ApiResponse("1", null, HTTPExceptions.INVALID_HTTP_METHOD.getCause()));
+                                return getHTTPResponse(new ApiResponse("1", null, HttpExceptions.INVALID_HTTP_METHOD.getCause()));
                             }
                             break;
                         case "sessionToken":
@@ -111,7 +111,7 @@ public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler {
                     }
                 } catch (Exception e) {
                     logger.catching(e);
-                    return getHTTPResponse(new ApiResponse("1", null, HTTPExceptions.INVALID_PARAMETERS.getCause(e.getClass().getSimpleName(), e.getMessage())));
+                    return getHTTPResponse(new ApiResponse("1", null, HttpExceptions.INVALID_PARAMETERS.getCause(e.getClass().getSimpleName(), e.getMessage())));
                 }
             }
 
@@ -128,7 +128,7 @@ public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler {
             logger.traceExit(performanceAuditor);
             logger.traceExit(httpResponse);
             return httpResponse;
-        } catch (APIServerException e) {
+        } catch (ApiServerException e) {
             logger.catching(e);
             switch (e.getType()) {
                 case MethodNotFound:
@@ -143,7 +143,7 @@ public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler {
         } catch (Exception e) {
             logger.catching(e);
             try {
-                return getHTTPResponse(new ApiResponse("1", null, HTTPExceptions.UNKNOWN.getCause(e.getClass().getSimpleName(), e.getMessage())));
+                return getHTTPResponse(new ApiResponse("1", null, HttpExceptions.UNKNOWN.getCause(e.getClass().getSimpleName(), e.getMessage())));
             } catch (Exception ex) {
                 logger.catching(ex);
             }

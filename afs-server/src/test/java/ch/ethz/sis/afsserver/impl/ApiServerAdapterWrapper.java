@@ -1,33 +1,31 @@
 package ch.ethz.sis.afsserver.impl;
 
 
-import ch.ethz.sis.afsserver.core.AbstractPublicAPIWrapper;
+import ch.ethz.sis.afsserver.core.AbstractPublicApiWrapper;
 import ch.ethz.sis.afsserver.http.HttpResponse;
-import ch.ethz.sis.afsserver.server.impl.ApiRequest;
 import ch.ethz.sis.afsserver.server.impl.ApiResponse;
 import ch.ethz.sis.afsserver.server.impl.ApiServerAdapter;
-import ch.ethz.sis.afsserver.server.performance.PerformanceAuditor;
 import ch.ethz.sis.shared.io.IOUtils;
-import ch.ethz.sis.afsjson.JSONObjectMapper;
+import ch.ethz.sis.afsjson.JsonObjectMapper;
 import ch.ethz.sis.shared.log.LogManager;
 import ch.ethz.sis.shared.log.Logger;
 import io.netty.handler.codec.http.HttpMethod;
 
 import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static ch.ethz.sis.afsserver.http.HttpResponse.CONTENT_TYPE_BINARY_DATA;
 import static ch.ethz.sis.afsserver.http.HttpResponse.CONTENT_TYPE_JSON;
 
-public class APIServerAdapterWrapper extends AbstractPublicAPIWrapper {
+public class ApiServerAdapterWrapper extends AbstractPublicApiWrapper
+{
 
-    private static final Logger logger = LogManager.getLogger(APIServerAdapterWrapper.class);
+    private static final Logger logger = LogManager.getLogger(ApiServerAdapterWrapper.class);
 
     private ApiServerAdapter apiServerAdapter;
-    private JSONObjectMapper jsonObjectMapper;
+    private JsonObjectMapper jsonObjectMapper;
 
-    public APIServerAdapterWrapper(ApiServerAdapter apiServerAdapter, JSONObjectMapper jsonObjectMapper) {
+    public ApiServerAdapterWrapper(ApiServerAdapter apiServerAdapter, JsonObjectMapper jsonObjectMapper) {
         this.apiServerAdapter = apiServerAdapter;
         this.jsonObjectMapper = jsonObjectMapper;
     }

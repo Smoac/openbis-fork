@@ -1,9 +1,10 @@
 package ch.ethz.sis.afsserver.server;
 
-import ch.ethz.sis.afsapi.api.PublicAPI;
+import ch.ethz.sis.afsapi.api.PublicApi;
 import ch.ethz.sis.afsserver.server.performance.PerformanceAuditor;
 
-public interface Worker<CONNECTION> extends PublicAPI {
+public interface Worker<CONNECTION> extends PublicApi
+{
     void createContext(PerformanceAuditor performanceAuditor);
 
     void cleanContext();

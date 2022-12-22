@@ -11,7 +11,7 @@ import java.util.List;
 import static ch.ethz.sis.afs.api.dto.ExceptionType.ClientDeveloperCodingError;
 import static ch.ethz.sis.afs.api.dto.ExceptionType.RecoverableSystemStateError;
 
-public enum FSExceptions implements ExceptionTemplateHolder {
+public enum FsExceptions implements ExceptionTemplateHolder {
     // DefaultAuthenticator
     USER_NO_ACL_RIGHTS(                                    RuntimeException.class,         List.of(ClientDeveloperCodingError),40001, "Session %s don't have rights %s over %s %s to perform the operation %s"),
     // AuthenticationProxy
@@ -24,7 +24,7 @@ public enum FSExceptions implements ExceptionTemplateHolder {
 
     private RuntimeExceptionTemplate template;
 
-    FSExceptions(Class clazz, List<ExceptionType> types, int code, String messageTemplate) {
+    FsExceptions(Class clazz, List<ExceptionType> types, int code, String messageTemplate) {
         this.template = new RuntimeExceptionTemplate(4, clazz, types, code, messageTemplate);
     }
 
@@ -36,7 +36,7 @@ public enum FSExceptions implements ExceptionTemplateHolder {
         return template.getCheckedInstance(args);
     }
 
-    public static void throwInstance(FSExceptions exception, Object... args) {
+    public static void throwInstance(FsExceptions exception, Object... args) {
         throw exception.getInstance(args);
     }
 

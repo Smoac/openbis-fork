@@ -12,8 +12,8 @@ import static ch.ethz.sis.afs.api.dto.ExceptionType.ClientDeveloperCodingError;
 import static ch.ethz.sis.afs.api.dto.ExceptionType.RecoverableSystemStateError;
 import static ch.ethz.sis.afs.api.dto.ExceptionType.UnknownError;
 
-public enum APIExceptions implements ExceptionTemplateHolder {
-    // APIServer
+public enum ApiExceptions implements ExceptionTemplateHolder {
+    // ApiServer
     UNKNOWN(                                    RuntimeException.class,                         List.of(UnknownError),                             30001, "Unknown error of type %s, please contact support, this error comes with message: %s"),
     SHUTTING_DOWN(                              RuntimeException.class,                         List.of(RecoverableSystemStateError),              30002, "Shutting down error"),
     NON_INTERACTIVE_WITH_TRANSACTION_CONTROL(   IllegalArgumentException.class,                 List.of(ClientDeveloperCodingError),               30004, "Non interactiveSession request list with incorrect transaction control requests"),
@@ -25,7 +25,7 @@ public enum APIExceptions implements ExceptionTemplateHolder {
 
     private RuntimeExceptionTemplate template;
 
-    APIExceptions(Class clazz, List<ExceptionType> types, int code, String messageTemplate) {
+    ApiExceptions(Class clazz, List<ExceptionType> types, int code, String messageTemplate) {
         this.template = new RuntimeExceptionTemplate(1, clazz, types, code, messageTemplate);
     }
 

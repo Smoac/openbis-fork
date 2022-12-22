@@ -18,7 +18,8 @@ package ch.ethz.sis.afsjson;
 
 import java.io.InputStream;
 
-public interface JSONObjectMapper {
+public interface JsonObjectMapper
+{
     <T> T readValue(InputStream src, Class<T> valueType) throws Exception;
 
     byte[] writeValue(Object value) throws Exception;

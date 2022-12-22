@@ -16,14 +16,14 @@
 
 package ch.ethz.sis.afsjson.jackson;
 
-import ch.ethz.sis.afsjson.JSONObjectMapper;
+import ch.ethz.sis.afsjson.JsonObjectMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.io.InputStream;
 
-public class JacksonObjectMapper implements JSONObjectMapper
+public class JacksonObjectMapper implements JsonObjectMapper
 {
     //
     // Singleton
@@ -35,7 +35,7 @@ public class JacksonObjectMapper implements JSONObjectMapper
         jacksonObjectMapper = new JacksonObjectMapper();
     }
 
-    public static JSONObjectMapper getInstance()
+    public static JsonObjectMapper getInstance()
     {
         return jacksonObjectMapper;
     }

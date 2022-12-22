@@ -21,7 +21,7 @@ import java.util.List;
 import ch.ethz.sis.afsapi.api.dto.File;
 import lombok.NonNull;
 
-public interface OperationsAPI
+public interface OperationsApi
 {
 
     @NonNull

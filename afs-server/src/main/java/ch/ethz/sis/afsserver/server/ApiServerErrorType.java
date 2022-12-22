@@ -1,5 +1,6 @@
 package ch.ethz.sis.afsserver.server;
 
-public enum APIServerErrorType {
+public enum ApiServerErrorType
+{
     MethodNotFound, IncorrectParameters, InternalError
 }

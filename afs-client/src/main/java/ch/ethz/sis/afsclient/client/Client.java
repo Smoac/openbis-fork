@@ -14,16 +14,17 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import ch.ethz.sis.afsapi.api.PublicAPI;
+import ch.ethz.sis.afsapi.api.PublicApi;
 import ch.ethz.sis.afsapi.api.dto.ApiResponse;
 import ch.ethz.sis.afsapi.api.dto.File;
 import ch.ethz.sis.afsclient.client.exception.ClientExceptions;
-import ch.ethz.sis.afsjson.JSONObjectMapper;
+import ch.ethz.sis.afsjson.JsonObjectMapper;
 import ch.ethz.sis.afsjson.jackson.JacksonObjectMapper;
 import lombok.NonNull;
 
 // TODO: Rename to AtomicFileSystemClient
-public final class Client implements PublicAPI {
+public final class Client implements PublicApi
+{
 
     private static final int DEFAULT_PACKAGE_SIZE_IN_BYTES = 1024;
 
@@ -37,7 +38,7 @@ public final class Client implements PublicAPI {
 
     private final URI serverUri;
 
-    private final JSONObjectMapper jsonObjectMapper;
+    private final JsonObjectMapper jsonObjectMapper;
 
     public Client(final URI serverUri) {
         this(serverUri, DEFAULT_PACKAGE_SIZE_IN_BYTES, DEFAULT_TIMEOUT_IN_MILLIS);

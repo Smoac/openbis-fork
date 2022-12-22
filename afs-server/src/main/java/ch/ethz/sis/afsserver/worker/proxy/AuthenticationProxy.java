@@ -1,7 +1,7 @@
 package ch.ethz.sis.afsserver.worker.proxy;
 
 import ch.ethz.sis.afsapi.api.dto.File;
-import ch.ethz.sis.afsserver.exception.FSExceptions;
+import ch.ethz.sis.afsserver.exception.FsExceptions;
 import ch.ethz.sis.afsserver.worker.AbstractProxy;
 import ch.ethz.sis.afsserver.worker.providers.AuthenticationInfoProvider;
 import lombok.NonNull;
@@ -35,7 +35,7 @@ public class AuthenticationProxy extends AbstractProxy {
         if (workerContext.isTransactionManagerMode()) {
             validateSessionAvailable();
         } else {
-            throw FSExceptions.PREPARE_REQUIRES_TM.getInstance();
+            throw FsExceptions.PREPARE_REQUIRES_TM.getInstance();
         }
         return nextProxy.prepare();
     }
@@ -59,7 +59,7 @@ public class AuthenticationProxy extends AbstractProxy {
     @Override
     public List<UUID> recover() throws Exception {
         if (!workerContext.isTransactionManagerMode()) {
-            throw FSExceptions.RECOVER_REQUIRES_TM.getInstance();
+            throw FsExceptions.RECOVER_REQUIRES_TM.getInstance();
         }
         return nextProxy.recover();
     }
@@ -134,7 +134,7 @@ public class AuthenticationProxy extends AbstractProxy {
             workerContext.setSessionExists(doSessionExists);
         }
         if (!workerContext.getSessionExists()) {
-            throw FSExceptions.SESSION_NOT_FOUND.getInstance(workerContext.getSessionToken());
+            throw FsExceptions.SESSION_NOT_FOUND.getInstance(workerContext.getSessionToken());
         }
     }
 

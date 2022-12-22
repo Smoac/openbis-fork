@@ -1,10 +1,10 @@
 package ch.ethz.sis.afsserver.impl;
 
 import ch.ethz.sis.afs.manager.TransactionConnection;
-import ch.ethz.sis.afsserver.ServerClientEnvironmentFS;
-import ch.ethz.sis.afsapi.api.PublicAPI;
+import ch.ethz.sis.afsserver.ServerClientEnvironmentFs;
+import ch.ethz.sis.afsapi.api.PublicApi;
 import ch.ethz.sis.afsserver.core.PublicApiTest;
-import ch.ethz.sis.afsserver.server.APIServer;
+import ch.ethz.sis.afsserver.server.ApiServer;
 import ch.ethz.sis.afsserver.server.Worker;
 import ch.ethz.sis.afsserver.server.observer.impl.DummyServerObserver;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
@@ -15,8 +15,8 @@ import ch.ethz.sis.shared.startup.Configuration;
 
 public class ApiServerTest extends PublicApiTest {
 
-    protected APIServer getAPIServer() throws Exception {
-        Configuration configuration = ServerClientEnvironmentFS.getInstance().getDefaultServerConfiguration();
+    protected ApiServer getAPIServer() throws Exception {
+        Configuration configuration = ServerClientEnvironmentFs.getInstance().getDefaultServerConfiguration();
 
         ConnectionFactory connectionFactory = new ConnectionFactory();
         connectionFactory.init(configuration);
@@ -32,13 +32,13 @@ public class ApiServerTest extends PublicApiTest {
         int apiServerWorkerTimeout = configuration.getIntegerProperty(AtomicFileSystemServerParameter.apiServerWorkerTimeout);
         DummyServerObserver observer = new DummyServerObserver();
         observer.init(configuration);
-        APIServer apiServer = new APIServer(connectionsPool, workersPool, PublicAPI.class, interactiveSessionKey, transactionManagerKey, apiServerWorkerTimeout, observer);
+        ApiServer apiServer = new ApiServer(connectionsPool, workersPool, PublicApi.class, interactiveSessionKey, transactionManagerKey, apiServerWorkerTimeout, observer);
         observer.init(apiServer, configuration);
         return apiServer;
     }
 
     @Override
-    public PublicAPI getPublicAPI() throws Exception {
-        return new APIServerWrapper(getAPIServer());
+    public PublicApi getPublicAPI() throws Exception {
+        return new ApiServerWrapper(getAPIServer());
     }
 }

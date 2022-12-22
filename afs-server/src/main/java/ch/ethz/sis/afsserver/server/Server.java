@@ -2,7 +2,7 @@ package ch.ethz.sis.afsserver.server;
 
 import ch.ethz.sis.afsserver.http.HttpServer;
 import ch.ethz.sis.afsserver.server.impl.ApiServerAdapter;
-import ch.ethz.sis.afsserver.server.observer.APIServerObserver;
+import ch.ethz.sis.afsserver.server.observer.ApiServerObserver;
 import ch.ethz.sis.afsserver.server.observer.ServerObserver;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
 import ch.ethz.sis.afsjson.jackson.JacksonObjectMapper;
@@ -22,7 +22,7 @@ public final class Server<CONNECTION, API> {
 
     private final Pool<Configuration, CONNECTION> connectionsPool;
 
-    private final APIServer<CONNECTION, Request, Response, API> apiServer;
+    private final ApiServer<CONNECTION, Request, Response, API> apiServer;
 
     private final HttpServer httpServer;
 
@@ -32,7 +32,7 @@ public final class Server<CONNECTION, API> {
 
     public Server(Configuration configuration,
                   @NonNull ServerObserver<CONNECTION> serverObserver,
-                  @NonNull APIServerObserver<CONNECTION> apiServerObserver) throws Exception {
+                  @NonNull ApiServerObserver<CONNECTION> apiServerObserver) throws Exception {
         // 1. Load logging plugin, Initializing LogManager
         shutdown = false;
         observer = serverObserver;
@@ -73,7 +73,7 @@ public final class Server<CONNECTION, API> {
         String interactiveSessionKey = configuration.getStringProperty(AtomicFileSystemServerParameter.apiServerInteractiveSessionKey);
         String transactionManagerKey = configuration.getStringProperty(AtomicFileSystemServerParameter.apiServerTransactionManagerKey);
         int apiServerWorkerTimeout = configuration.getIntegerProperty(AtomicFileSystemServerParameter.apiServerWorkerTimeout);
-        apiServer = new APIServer<>(connectionsPool, workersPool, publicApiInterface, interactiveSessionKey, transactionManagerKey, apiServerWorkerTimeout, apiServerObserver);
+        apiServer = new ApiServer<>(connectionsPool, workersPool, publicApiInterface, interactiveSessionKey, transactionManagerKey, apiServerWorkerTimeout, apiServerObserver);
 
         // 2.5 Creating JSON RPC Service
         logger.info("Creating API Server adaptor");

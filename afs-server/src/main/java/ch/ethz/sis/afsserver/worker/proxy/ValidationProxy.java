@@ -1,7 +1,7 @@
 package ch.ethz.sis.afsserver.worker.proxy;
 
 import ch.ethz.sis.afsapi.api.dto.File;
-import ch.ethz.sis.afsserver.exception.FSExceptions;
+import ch.ethz.sis.afsserver.exception.FsExceptions;
 import ch.ethz.sis.afsserver.worker.AbstractProxy;
 import lombok.NonNull;
 
@@ -50,7 +50,7 @@ public class ValidationProxy extends AbstractProxy {
 
     private void validateReadSize(String source, Integer limit) {
         if (limit > maxReadSizeInBytes) {
-            throw FSExceptions.MAX_READ_SIZE_EXCEEDED.getInstance(workerContext.getSessionToken(), limit, source, maxReadSizeInBytes);
+            throw FsExceptions.MAX_READ_SIZE_EXCEEDED.getInstance(workerContext.getSessionToken(), limit, source, maxReadSizeInBytes);
         }
     }
 }

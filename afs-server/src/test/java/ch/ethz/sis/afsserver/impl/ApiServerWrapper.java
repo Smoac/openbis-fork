@@ -1,8 +1,8 @@
 package ch.ethz.sis.afsserver.impl;
 
 
-import ch.ethz.sis.afsserver.core.AbstractPublicAPIWrapper;
-import ch.ethz.sis.afsserver.server.APIServer;
+import ch.ethz.sis.afsserver.core.AbstractPublicApiWrapper;
+import ch.ethz.sis.afsserver.server.ApiServer;
 import ch.ethz.sis.afsserver.server.Response;
 import ch.ethz.sis.afsserver.server.impl.ApiRequest;
 import ch.ethz.sis.afsserver.server.impl.ApiResponseBuilder;
@@ -13,14 +13,15 @@ import ch.ethz.sis.shared.log.Logger;
 import java.util.Map;
 import java.util.UUID;
 
-public class APIServerWrapper extends AbstractPublicAPIWrapper {
+public class ApiServerWrapper extends AbstractPublicApiWrapper
+{
 
-    private static final Logger logger = LogManager.getLogger(APIServerWrapper.class);
+    private static final Logger logger = LogManager.getLogger(ApiServerWrapper.class);
 
-    private APIServer apiServer;
+    private ApiServer apiServer;
     private final ApiResponseBuilder apiResponseBuilder;
 
-    public APIServerWrapper(APIServer apiServer) {
+    public ApiServerWrapper(ApiServer apiServer) {
         this.apiServer = apiServer;
         this.apiResponseBuilder = new ApiResponseBuilder();
     }

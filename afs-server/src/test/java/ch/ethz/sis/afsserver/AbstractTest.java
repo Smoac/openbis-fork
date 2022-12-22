@@ -21,7 +21,7 @@ public class AbstractTest {
         System.out.println("Current Working Directory: " + (new File("")).getCanonicalPath());
         // Initializing LogManager
         LogFactoryFactory logFactoryFactory = new LogFactoryFactory();
-        LogFactory logFactory = logFactoryFactory.create(ServerClientEnvironmentFS.getInstance().getDefaultServerConfiguration().getStringProperty(AtomicFileSystemServerParameter.logFactoryClass));
+        LogFactory logFactory = logFactoryFactory.create(ServerClientEnvironmentFs.getInstance().getDefaultServerConfiguration().getStringProperty(AtomicFileSystemServerParameter.logFactoryClass));
         LogManager.setLogFactory(logFactory);
     }
 }

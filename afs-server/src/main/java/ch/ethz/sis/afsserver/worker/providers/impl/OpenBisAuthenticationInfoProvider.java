@@ -6,7 +6,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.shared.startup.Configuration;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 
-public class OpenBISAuthenticationInfoProvider implements AuthenticationInfoProvider {
+public class OpenBisAuthenticationInfoProvider implements AuthenticationInfoProvider {
 
     private IApplicationServerApi v3 = null;
 

@@ -2,8 +2,8 @@ package ch.ethz.sis.afsserver.server;
 
 import ch.ethz.sis.afs.api.TwoPhaseTransactionAPI;
 import ch.ethz.sis.afs.api.dto.ExceptionReason;
-import ch.ethz.sis.afsserver.exception.APIExceptions;
-import ch.ethz.sis.afsserver.server.observer.APIServerObserver;
+import ch.ethz.sis.afsserver.exception.ApiExceptions;
+import ch.ethz.sis.afsserver.server.observer.ApiServerObserver;
 import ch.ethz.sis.afsserver.server.performance.PerformanceAuditor;
 import ch.ethz.sis.shared.exception.ThrowableReason;
 import ch.ethz.sis.shared.log.LogManager;
@@ -19,15 +19,15 @@ import java.lang.reflect.Parameter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static ch.ethz.sis.afsserver.server.APIServerErrorType.IncorrectParameters;
-import static ch.ethz.sis.afsserver.server.APIServerErrorType.MethodNotFound;
+import static ch.ethz.sis.afsserver.server.ApiServerErrorType.IncorrectParameters;
+import static ch.ethz.sis.afsserver.server.ApiServerErrorType.MethodNotFound;
 
 /*
  * This class should be used as delegate by specific server transport classes
  */
-public class APIServer<CONNECTION, INPUT extends Request, OUTPUT extends Response, API> {
+public class ApiServer<CONNECTION, INPUT extends Request, OUTPUT extends Response, API> {
 
-    private static final Logger logger = LogManager.getLogger(APIServer.class);
+    private static final Logger logger = LogManager.getLogger(ApiServer.class);
     private static final long IDLE_WORKER_TIMEOUT_CHECK_INTERVAL_IN_MILLIS = 1000;
     private final Pool<Configuration, CONNECTION> connectionsPool;
     private final Pool<Configuration, Worker<CONNECTION>> workersPool;
@@ -44,16 +44,16 @@ public class APIServer<CONNECTION, INPUT extends Request, OUTPUT extends Respons
 
     private Timer idleWorkerCleanupTask;
     private boolean shutdown;
-    private final APIServerObserver<CONNECTION> observer;
+    private final ApiServerObserver<CONNECTION> observer;
 
-    public APIServer(
+    public ApiServer(
             @NonNull Pool<Configuration, CONNECTION> connectionsPool,
             @NonNull Pool<Configuration, Worker<CONNECTION>> workersPool,
             @NonNull Class<API> apiClassDefinition,
             @NonNull String interactiveSessionKey,
             @NonNull String transactionManagerKey,
             int apiServerWorkerTimeout,
-            @NonNull APIServerObserver<CONNECTION> observer) {
+            @NonNull ApiServerObserver<CONNECTION> observer) {
         this.shutdown = false;
         this.connectionsPool = connectionsPool;
         this.workersPool = workersPool;
@@ -135,12 +135,14 @@ public class APIServer<CONNECTION, INPUT extends Request, OUTPUT extends Respons
         return true;
     }
 
-    public OUTPUT processOperation(INPUT request, ResponseBuilder<OUTPUT> responseBuilder, PerformanceAuditor performanceAuditor) throws APIServerException {
+    public OUTPUT processOperation(INPUT request, ResponseBuilder<OUTPUT> responseBuilder, PerformanceAuditor performanceAuditor) throws
+            ApiServerException
+    {
         logger.traceAccess(null, request);
 
         // Shutting down?
         if (shutdown) {
-            throw new APIServerException(null, APIServerErrorType.InternalError, APIExceptions.SHUTTING_DOWN.getCause());
+            throw new ApiServerException(null, ApiServerErrorType.InternalError, ApiExceptions.SHUTTING_DOWN.getCause());
         }
 
         // Requests validation
@@ -161,7 +163,7 @@ public class APIServer<CONNECTION, INPUT extends Request, OUTPUT extends Respons
         }
 
         if (!isValidInteractiveSession && !isValidNonInteractiveSession) {
-            throw new APIServerException(null, IncorrectParameters, APIExceptions.NON_INTERACTIVE_WITH_TRANSACTION_CONTROL.getCause());
+            throw new ApiServerException(null, IncorrectParameters, ApiExceptions.NON_INTERACTIVE_WITH_TRANSACTION_CONTROL.getCause());
         }
 
         // Process requests separately
@@ -186,12 +188,12 @@ public class APIServer<CONNECTION, INPUT extends Request, OUTPUT extends Respons
         } catch (Exception exception) {
             errorFound = true;
             logger.catching(exception);
-            APIServerException apiException;
-            if (exception instanceof APIServerException) {
-                apiException = (APIServerException) exception;
+            ApiServerException apiException;
+            if (exception instanceof ApiServerException) {
+                apiException = (ApiServerException) exception;
             } else if(exception.getCause() != null && (exception.getCause() instanceof ThrowableReason)) {
                 ThrowableReason throwableReason = (ThrowableReason) exception.getCause();
-                apiException = new APIServerException(currentRequestId, APIServerErrorType.InternalError, throwableReason.getReason());
+                apiException = new ApiServerException(currentRequestId, ApiServerErrorType.InternalError, throwableReason.getReason());
             } else if (exception instanceof InvocationTargetException) { // When calling methods using reflection the real cause is wrapped
                 Throwable originalException = exception.getCause();
                 ExceptionReason reason;
@@ -199,14 +201,14 @@ public class APIServer<CONNECTION, INPUT extends Request, OUTPUT extends Respons
                     ThrowableReason throwableReason = (ThrowableReason) originalException.getCause();
                     reason = (ExceptionReason) throwableReason.getReason();
                 } else if(originalException != null) {
-                    reason = APIExceptions.UNKNOWN.getCause(originalException.getClass().getSimpleName(), originalException.getMessage());
+                    reason = ApiExceptions.UNKNOWN.getCause(originalException.getClass().getSimpleName(), originalException.getMessage());
                 } else { // This error branch has never been hit during testing
-                    reason = APIExceptions.UNKNOWN.getCause(exception.getClass().getSimpleName(), exception.getMessage());
+                    reason = ApiExceptions.UNKNOWN.getCause(exception.getClass().getSimpleName(), exception.getMessage());
                 }
-                apiException = new APIServerException(currentRequestId, APIServerErrorType.InternalError, reason);
+                apiException = new ApiServerException(currentRequestId, ApiServerErrorType.InternalError, reason);
             } else { // This error branch has never been hit during testing
-                ExceptionReason cause = APIExceptions.UNKNOWN.getCause(exception.getClass().getSimpleName(), exception.getMessage());
-                apiException = new APIServerException(currentRequestId, APIServerErrorType.InternalError, cause);
+                ExceptionReason cause = ApiExceptions.UNKNOWN.getCause(exception.getClass().getSimpleName(), exception.getMessage());
+                apiException = new ApiServerException(currentRequestId, ApiServerErrorType.InternalError, cause);
             }
             logger.throwing(apiException);
             throw apiException;
@@ -355,7 +357,7 @@ public class APIServer<CONNECTION, INPUT extends Request, OUTPUT extends Respons
             // Parameters size check
             if ((requestParams == null && apiParams.length != 0) ||
                     (requestParams != null && apiParams.length != requestParams.size())) {
-                throw new APIServerException(request.getId(), IncorrectParameters, APIExceptions.WRONG_PARAMETER_LIST_LENGTH.getCause());
+                throw new ApiServerException(request.getId(), IncorrectParameters, ApiExceptions.WRONG_PARAMETER_LIST_LENGTH.getCause());
             }
 
             // Parameters present check
@@ -366,12 +368,12 @@ public class APIServer<CONNECTION, INPUT extends Request, OUTPUT extends Respons
 
                 // Parameter present
                 if (requestParam == null) {
-                    throw new APIServerException(request.getId(), IncorrectParameters, APIExceptions.MISSING_METHOD_PARAMETER.getCause(parameter.getName(), apiMethod));
+                    throw new ApiServerException(request.getId(), IncorrectParameters, ApiExceptions.MISSING_METHOD_PARAMETER.getCause(parameter.getName(), apiMethod));
                 }
 
                 // Parameter of the expected type
                 if (!parameter.getType().isInstance(requestParam)) {
-                    throw new APIServerException(request.getId(), IncorrectParameters, APIExceptions.METHOD_PARAMETER_WRONG_TYPE.getCause(parameter.getName(), apiMethod));
+                    throw new ApiServerException(request.getId(), IncorrectParameters, ApiExceptions.METHOD_PARAMETER_WRONG_TYPE.getCause(parameter.getName(), apiMethod));
                 }
 
                 requestParamsForApiMethod[pIdx] = requestParam;
@@ -383,12 +385,12 @@ public class APIServer<CONNECTION, INPUT extends Request, OUTPUT extends Respons
 
             return responseBuilder.build(request.getId(), result);
         } else {
-            throw new APIServerException(request.getId(), MethodNotFound, APIExceptions.METHOD_NOT_FOUND.getCause(request.getMethod()));
+            throw new ApiServerException(request.getId(), MethodNotFound, ApiExceptions.METHOD_NOT_FOUND.getCause(request.getMethod()));
         }
     }
 
     //
-    // Public API to request workers to the APIServer by extensions
+    // Public API to request workers to the ApiServer by extensions
     //
 
     public Worker<CONNECTION> checkOut() throws Exception {

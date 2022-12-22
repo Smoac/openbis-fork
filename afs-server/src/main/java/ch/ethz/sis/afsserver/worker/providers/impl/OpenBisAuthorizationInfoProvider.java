@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvider {
+public class OpenBisAuthorizationInfoProvider implements AuthorizationInfoProvider {
 
     private IApplicationServerApi v3 = null;
 

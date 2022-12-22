@@ -5,7 +5,7 @@ import ch.ethz.sis.shared.startup.Configuration;
 
 import java.util.Map;
 
-public interface APIServerObserver<CONNECTION> {
+public interface ApiServerObserver<CONNECTION> {
 
     public void init(Configuration configuration) throws Exception;
 

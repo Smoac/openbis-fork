@@ -16,10 +16,10 @@
 
 package ch.ethz.sis.afsserver;
 
-import ch.ethz.sis.afsapi.api.PublicAPI;
+import ch.ethz.sis.afsapi.api.PublicApi;
 import ch.ethz.sis.afsserver.http.impl.NettyHttpServer;
 import ch.ethz.sis.afsserver.server.Server;
-import ch.ethz.sis.afsserver.server.observer.APIServerObserver;
+import ch.ethz.sis.afsserver.server.observer.ApiServerObserver;
 import ch.ethz.sis.afsserver.server.observer.ServerObserver;
 import ch.ethz.sis.afsserver.server.observer.impl.DummyServerObserver;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
@@ -34,20 +34,20 @@ import ch.ethz.sis.shared.startup.Configuration;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ServerClientEnvironmentFS {
+public class ServerClientEnvironmentFs {
 
-    private static ServerClientEnvironmentFS instance;
+    private static ServerClientEnvironmentFs instance;
 
-    public static ServerClientEnvironmentFS getInstance() {
+    public static ServerClientEnvironmentFs getInstance() {
         if (instance == null) {
-            synchronized (ServerClientEnvironmentFS.class) {
-                instance = new ServerClientEnvironmentFS();
+            synchronized (ServerClientEnvironmentFs.class) {
+                instance = new ServerClientEnvironmentFs();
             }
         }
         return instance;
     }
 
-    private ServerClientEnvironmentFS() {
+    private ServerClientEnvironmentFs() {
 
     }
 
@@ -56,7 +56,7 @@ public class ServerClientEnvironmentFS {
         return new Server(getDefaultServerConfiguration(), observer, observer);
     }
 
-    public <E extends ServerObserver & APIServerObserver> Server start(Configuration configuration, E serverObserver) throws Exception {
+    public <E extends ServerObserver & ApiServerObserver> Server start(Configuration configuration, E serverObserver) throws Exception {
         return new Server(configuration, serverObserver, serverObserver);
     }
 
@@ -85,7 +85,7 @@ public class ServerClientEnvironmentFS {
         configuration.put(AtomicFileSystemServerParameter.poolSize, "50");
         configuration.put(AtomicFileSystemServerParameter.connectionFactoryClass, ConnectionFactory.class.getName());
         configuration.put(AtomicFileSystemServerParameter.workerFactoryClass, WorkerFactory.class.getName());
-        configuration.put(AtomicFileSystemServerParameter.publicApiInterface, PublicAPI.class.getName());
+        configuration.put(AtomicFileSystemServerParameter.publicApiInterface, PublicApi.class.getName());
         configuration.put(AtomicFileSystemServerParameter.apiServerInteractiveSessionKey, "1234");
         configuration.put(AtomicFileSystemServerParameter.apiServerTransactionManagerKey, "5678");
         configuration.put(AtomicFileSystemServerParameter.apiServerWorkerTimeout, "30000");

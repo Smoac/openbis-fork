@@ -2,7 +2,7 @@ package ch.ethz.sis.afsserver.worker.proxy;
 
 import ch.ethz.sis.afsapi.api.dto.File;
 import ch.ethz.sis.afs.dto.operation.OperationName;
-import ch.ethz.sis.afsserver.exception.FSExceptions;
+import ch.ethz.sis.afsserver.exception.FsExceptions;
 import ch.ethz.sis.afsserver.worker.AbstractProxy;
 import ch.ethz.sis.afsserver.worker.providers.AuthorizationInfoProvider;
 import ch.ethz.sis.shared.io.FilePermission;
@@ -27,7 +27,7 @@ public class AuthorizationProxy extends AbstractProxy {
                 owner,
                 permissions);
         if (!doesSessionHaveRights) {
-            throw FSExceptions.USER_NO_ACL_RIGHTS.getInstance(workerContext.getSessionToken(), permissions, owner, source, operationName);
+            throw FsExceptions.USER_NO_ACL_RIGHTS.getInstance(workerContext.getSessionToken(), permissions, owner, source, operationName);
         }
     }
 

@@ -1,14 +1,15 @@
 package ch.ethz.sis.afsserver.core;
 
 import ch.ethz.sis.afsapi.api.dto.File;
-import ch.ethz.sis.afsapi.api.PublicAPI;
+import ch.ethz.sis.afsapi.api.PublicApi;
 import lombok.NonNull;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public abstract class AbstractPublicAPIWrapper implements PublicAPI {
+public abstract class AbstractPublicApiWrapper implements PublicApi
+{
 
     public abstract <E> E process(String method, Map<String, Object> methodParameters);
 

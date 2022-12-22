@@ -1,9 +1,9 @@
 package ch.ethz.sis.afsserver.core;
 
 import ch.ethz.sis.afsapi.api.dto.File;
-import ch.ethz.sis.afsapi.api.PublicAPI;
+import ch.ethz.sis.afsapi.api.PublicApi;
 import ch.ethz.sis.afsserver.AbstractTest;
-import ch.ethz.sis.afsserver.ServerClientEnvironmentFS;
+import ch.ethz.sis.afsserver.ServerClientEnvironmentFs;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
 import ch.ethz.sis.shared.io.IOUtils;
 import org.junit.After;
@@ -20,7 +20,7 @@ import static org.junit.Assert.assertTrue;
 
 public abstract class PublicApiTest extends AbstractTest {
 
-    public abstract PublicAPI getPublicAPI() throws Exception;
+    public abstract PublicApi getPublicAPI() throws Exception;
 
     public static final String ROOT = IOUtils.PATH_SEPARATOR_AS_STRING;
 //    public static final String DIR_A = "A";
@@ -37,7 +37,7 @@ public abstract class PublicApiTest extends AbstractTest {
 
     @Before
     public void createTestData() throws IOException {
-        String storageRoot = ServerClientEnvironmentFS.getInstance()
+        String storageRoot = ServerClientEnvironmentFs.getInstance()
                 .getDefaultServerConfiguration().getStringProperty(AtomicFileSystemServerParameter.storageRoot);
         String testDataRoot = IOUtils.getPath(storageRoot, owner.toString());
         IOUtils.createDirectories(testDataRoot);
@@ -48,10 +48,10 @@ public abstract class PublicApiTest extends AbstractTest {
 
     @After
     public void deleteTestData() throws IOException {
-        String storageRoot = ServerClientEnvironmentFS.getInstance()
+        String storageRoot = ServerClientEnvironmentFs.getInstance()
                 .getDefaultServerConfiguration().getStringProperty(AtomicFileSystemServerParameter.storageRoot);
         IOUtils.delete(storageRoot);
-        String writeAheadLogRoot = ServerClientEnvironmentFS.getInstance()
+        String writeAheadLogRoot = ServerClientEnvironmentFs.getInstance()
                 .getDefaultServerConfiguration().getStringProperty(AtomicFileSystemServerParameter.writeAheadLogRoot);
         IOUtils.delete(writeAheadLogRoot);
     }
