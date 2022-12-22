@@ -1,62 +1,87 @@
 package ch.ethz.sis.afsclient.client;
 
+import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import ch.ethz.sis.afsapi.api.PublicAPI;
+import ch.ethz.sis.afsapi.api.dto.ApiResponse;
 import ch.ethz.sis.afsapi.api.dto.File;
+import ch.ethz.sis.afsclient.client.exception.ClientExceptions;
+import ch.ethz.sis.afsjson.JSONObjectMapper;
+import ch.ethz.sis.afsjson.jackson.JacksonObjectMapper;
 import lombok.NonNull;
 
+// TODO: Rename to AtomicFileSystemClient
 public final class Client implements PublicAPI {
 
-    private final String serverUrl;
+    private static final int DEFAULT_PACKAGE_SIZE_IN_BYTES = 1024;
 
-    public Client(final String serverUrl) {
-        this.serverUrl = serverUrl;
+    private static final int DEFAULT_TIMEOUT_IN_MILLIS = 30000;
+
+    private final int maxReadSizeInBytes;
+
+    private final int timeout;
+
+    private String sessionToken;
+
+    private final URI serverUri;
+
+    private final JSONObjectMapper jsonObjectMapper;
+
+    public Client(final URI serverUri) {
+        this(serverUri, DEFAULT_PACKAGE_SIZE_IN_BYTES, DEFAULT_TIMEOUT_IN_MILLIS);
     }
 
-    private byte[] doAction(@NonNull final Map<String, String> parameters,
-            @NonNull final String method, final byte @NonNull [] body) throws Exception {
-        final HttpClient client = HttpClient.newHttpClient();
-        
-        final String query = parameters.entrySet().stream()
-                .map(entry -> urlEncode(entry.getKey()) + "=" + urlEncode(entry.getValue()))
-                .reduce((s1, s2) -> s1 + "&" + s2).orElse(null);
-
-        final HttpRequest.Builder builder = HttpRequest.newBuilder()
-                .uri(URI.create(serverUrl + (query != null ? "?" + query : "")))
-                .method(method, HttpRequest.BodyPublishers.ofByteArray(body))
-                .header("Accept", "application/json");
-
-        final HttpRequest request = builder.build();
-
-        final HttpResponse<byte[]> response = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
-        return response.body();
+    public Client(final URI serverUri, final int maxReadSizeInBytes, final int timeout) {
+        this.maxReadSizeInBytes = maxReadSizeInBytes;
+        this.timeout = timeout;
+        this.serverUri = serverUri;
+        this.jsonObjectMapper = new JacksonObjectMapper();
     }
-    
+
+    public URI getServerUri() {
+        return serverUri;
+    }
+
+    public int getMaxReadSizeInBytes() {
+        return maxReadSizeInBytes;
+    }
+
+    public String getSessionToken() {
+        return sessionToken;
+    }
+
+    public void setSessionToken(final String sessionToken) {
+        this.sessionToken = sessionToken;
+    }
+
     private static String urlEncode(final String s) {
         return URLEncoder.encode(s, StandardCharsets.UTF_8);
     }
 
     @Override
-    public String login(@NonNull final String userId, @NonNull final String password) throws Exception {
+    public @NonNull String login(@NonNull final String userId, @NonNull final String password) throws Exception {
+        return request("POST", "login", Map.of("userId", "admin", "password", "changeit"));
+    }
+
+    @Override
+    public @NonNull Boolean isSessionValid() throws Exception {
         return null;
     }
 
     @Override
-    public Boolean isSessionValid() throws Exception {
-        return null;
-    }
-
-    @Override
-    public Boolean logout() throws Exception {
+    public @NonNull Boolean logout() throws Exception {
         return null;
     }
 
@@ -124,6 +149,57 @@ public final class Client implements PublicAPI {
     @Override
     public List<UUID> recover() throws Exception {
         return null;
+    }
+
+    private <T> T request(@NonNull final String httpMethod, @NonNull final String apiMethod,
+            @NonNull final Map<String, String> parameters) throws Exception {
+        return request(httpMethod, apiMethod, parameters, new byte[0]);
+    }
+
+    @SuppressWarnings({ "OptionalGetWithoutIsPresent", "unchecked" })
+    private <T> T request(@NonNull final String httpMethod, @NonNull final String apiMethod,
+            @NonNull final Map<String, String> parameters, final byte @NonNull [] body) throws Exception {
+        HttpClient client = HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_1_1)
+                .followRedirects(HttpClient.Redirect.NORMAL)
+                .connectTimeout(Duration.ofMillis(timeout))
+                .build();
+
+        final String query = Stream.concat(Stream.of(new AbstractMap.SimpleImmutableEntry<>("method", apiMethod)),
+                        parameters.entrySet().stream())
+                .map(entry -> urlEncode(entry.getKey()) + "=" + urlEncode(entry.getValue()))
+                .reduce((s1, s2) -> s1 + "&" + s2).get();
+
+        final URI uri = new URI(serverUri.getScheme(), null, serverUri.getHost(), serverUri.getPort(),
+                serverUri.getPath(), query, null);
+
+        final HttpRequest.Builder builder = HttpRequest.newBuilder()
+                .uri(uri)
+                .version(HttpClient.Version.HTTP_1_1)
+                .timeout(Duration.ofMillis(timeout))
+                .method(httpMethod, HttpRequest.BodyPublishers.ofByteArray(body));
+
+        final HttpRequest request = builder.build();
+
+        final HttpResponse<byte[]> httpResponse = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
+
+        final int statusCode = httpResponse.statusCode();
+        if (statusCode >= 200 && statusCode < 300) {
+            final ApiResponse response = jsonObjectMapper.readValue(new ByteArrayInputStream(httpResponse.body()),
+                    ApiResponse.class);
+
+            if (response.getError() != null) {
+                throw ClientExceptions.API_ERROR.getInstance(response.getError());
+            } else {
+                return (T) response.getResult();
+            }
+        } else if (statusCode >= 400 && statusCode < 500) {
+            throw ClientExceptions.CLIENT_ERROR.getInstance(statusCode);
+        } else if (statusCode >= 500 && statusCode < 600) {
+            throw ClientExceptions.SERVER_ERROR.getInstance(statusCode);
+        } else {
+            throw ClientExceptions.OTHER_ERROR.getInstance(statusCode);
+        }
     }
 
 }

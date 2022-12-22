@@ -1,1 +1,1 @@
-includeFlat 'afs', 'afs-api'
+includeFlat 'afs', 'afs-api', 'afs-json'

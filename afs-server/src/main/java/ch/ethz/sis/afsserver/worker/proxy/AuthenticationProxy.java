@@ -69,17 +69,17 @@ public class AuthenticationProxy extends AbstractProxy {
     //
 
     @Override
-    public String login(@NonNull String userId, @NonNull String password) throws Exception {
+    public @NonNull String login(@NonNull String userId, @NonNull String password) throws Exception {
         return authenticationInfoProvider.login(userId, password);
     }
 
     @Override
-    public Boolean isSessionValid() throws Exception {
+    public @NonNull Boolean isSessionValid() throws Exception {
         return authenticationInfoProvider.isSessionValid(getSessionToken());
     }
 
     @Override
-    public Boolean logout() throws Exception {
+    public @NonNull Boolean logout() throws Exception {
         return authenticationInfoProvider.logout(getSessionToken());
     }
 

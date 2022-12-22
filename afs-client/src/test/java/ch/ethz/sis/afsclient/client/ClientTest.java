@@ -2,12 +2,14 @@ package ch.ethz.sis.afsclient.client;
 
 import static org.junit.Assert.*;
 
+import java.net.URI;
 import java.util.List;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import ch.ethz.sis.afs.manager.TransactionConnection;
 import ch.ethz.sis.afsserver.server.Server;
 import ch.ethz.sis.afsserver.server.observer.impl.DummyServerObserver;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
@@ -16,7 +18,9 @@ import ch.ethz.sis.shared.startup.Configuration;
 public class ClientTest
 {
     
-    private static Server afsServer;
+    private static Server<TransactionConnection, ?> afsServer;
+
+    private static Client client;
 
     @BeforeClass
     public static void classSetUp() throws Exception {
@@ -24,6 +28,10 @@ public class ClientTest
                 "src/test/resources/afs-server-config.properties");
         final DummyServerObserver dummyServerObserver = new DummyServerObserver();
         afsServer = new Server<>(configuration, dummyServerObserver, dummyServerObserver);
+
+        final int httpServerPort = configuration.getIntegerProperty(AtomicFileSystemServerParameter.httpServerPort);
+        final String httpServerPath = configuration.getStringProperty(AtomicFileSystemServerParameter.httpServerPath);
+        client = new Client(new URI("http", null, "localhost", httpServerPort, httpServerPath, null, null));
     }
 
     @AfterClass
@@ -32,7 +40,9 @@ public class ClientTest
     }
 
     @Test
-    public void testLogin() {
+    public void testLogin() throws Exception {
+        final String token = client.login("test", "test");
+        assertNotNull(token);
     }
 
     @Test

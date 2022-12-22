@@ -34,23 +34,18 @@ public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler {
     }
 
     public static HttpMethod getHttpMethod(String apiMethod) {
-        HttpMethod httpMethod = null;
-        switch (apiMethod){
+        switch (apiMethod) {
             case "delete":
-                httpMethod = HttpMethod.DELETE;
-                break;
+                return HttpMethod.DELETE;
             case "write":
-                httpMethod = HttpMethod.PUT;
-                break;
+                return HttpMethod.PUT;
             case "list":
             case "read":
             case "isSessionValid":
-                httpMethod = HttpMethod.GET;
-                break;
+                return HttpMethod.GET;
             default:
-                httpMethod = HttpMethod.POST;
+                return HttpMethod.POST;
         }
-        return httpMethod;
     }
 
     public boolean isValidMethod(HttpMethod givenMethod, String apiMethod) {
@@ -68,7 +63,7 @@ public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler {
             String interactiveSessionKey = null;
             String transactionManagerKey = null;
             Map<String, Object> methodParameters = new HashMap<>();
-            for (Map.Entry<String, List<String>> entry:uriParameters.entrySet()) {
+            for (Map.Entry<String, List<String>> entry : uriParameters.entrySet()) {
                 String value = null;
                 if (entry.getValue() != null) {
                     if (entry.getValue().size() == 1) {
@@ -119,6 +114,8 @@ public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler {
                     return getHTTPResponse(new ApiResponse("1", null, HTTPExceptions.INVALID_PARAMETERS.getCause(e.getClass().getSimpleName(), e.getMessage())));
                 }
             }
+
+            Objects.requireNonNull(method);
 
             if (method.equals("write")) {
                 methodParameters.put("data", requestBody);

@@ -5,6 +5,10 @@ compileJava {
     options.compilerArgs << '-parameters'
 }
 
+compileTestJava {
+    options.compilerArgs << '-parameters'
+}
+
 repositories {
     ivy {
         ivyPattern "https://sissource.ethz.ch/openbis/openbis-public/openbis-ivy/-/raw/main/[organisation]/[module]/[revision]/ivy.xml"
@@ -16,6 +20,7 @@ dependencies {
     annotationProcessor 'lombok:lombok:1.18.22'
     implementation project(':afs'),
             project(':afs-api'),
+            project(':afs-json'),
             'lombok:lombok:1.18.22'
     testImplementation project(':afs-server'),
             'junit:junit:4.13.2'

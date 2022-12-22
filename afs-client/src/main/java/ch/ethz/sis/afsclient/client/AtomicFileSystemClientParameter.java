@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.afsapi.startup;
+package ch.ethz.sis.afsclient.client;
 
 public enum AtomicFileSystemClientParameter {
     //
     // Parameters from the AFS Library
     //
     jsonObjectMapperClass,
+
     //
     // Parameters for the HTTP server
     //
-    httpServerUri,
+    httpServerPath,
+
     httpServerPort,
+
     //
     // Parameters for the API server
     //

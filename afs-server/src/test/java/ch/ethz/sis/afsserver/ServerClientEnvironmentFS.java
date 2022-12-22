@@ -65,16 +65,16 @@ public class ServerClientEnvironmentFS {
     }
 
     public static Configuration getDefaultServerConfiguration() {
-        Map<Enum, String> configuration = new HashMap<>();
+        Map<Enum<?>, String> configuration = new HashMap<>();
         configuration.put(AtomicFileSystemServerParameter.logFactoryClass,  Log4J2LogFactory.class.getName());
-//        configuration.put(AtomicFileSystemServerParameter.logConfigFile,  "objectfs-afs-config-log4j2.xml");
+        configuration.put(AtomicFileSystemServerParameter.logConfigFile,  "objectfs-afs-config-log4j2.xml");
 
         configuration.put(AtomicFileSystemServerParameter.jsonObjectMapperClass, JacksonObjectMapper.class.getName());
         configuration.put(AtomicFileSystemServerParameter.writeAheadLogRoot, "./target/tests/transactions");
         configuration.put(AtomicFileSystemServerParameter.storageRoot, "./target/tests/storage");
 
         configuration.put(AtomicFileSystemServerParameter.httpServerClass, NettyHttpServer.class.getName());
-        configuration.put(AtomicFileSystemServerParameter.httpServerUri, "/fileserver");
+        configuration.put(AtomicFileSystemServerParameter.httpServerPath, "/fileserver");
         configuration.put(AtomicFileSystemServerParameter.httpServerPort, "1010");
         configuration.put(AtomicFileSystemServerParameter.httpMaxContentLength, "1024");
 

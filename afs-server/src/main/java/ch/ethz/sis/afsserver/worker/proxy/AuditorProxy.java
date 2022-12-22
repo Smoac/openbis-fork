@@ -48,19 +48,19 @@ public class AuditorProxy extends AbstractProxy {
     }
 
     @Override
-    public String login(@NonNull String userId, @NonNull String password) throws Exception {
+    public @NonNull String login(@NonNull String userId, @NonNull String password) throws Exception {
         auditBefore();
         return auditAfter(nextProxy.login(userId, password));
     }
 
     @Override
-    public Boolean isSessionValid() throws Exception {
+    public @NonNull Boolean isSessionValid() throws Exception {
         auditBefore();
         return auditAfter(nextProxy.isSessionValid());
     }
 
     @Override
-    public Boolean logout() throws Exception {
+    public @NonNull Boolean logout() throws Exception {
         auditBefore();
         return auditAfter(nextProxy.logout());
     }

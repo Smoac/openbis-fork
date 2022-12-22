@@ -98,19 +98,19 @@ public abstract class AbstractPublicAPIWrapper implements PublicAPI {
     }
 
     @Override
-    public String login(String userId, String password) throws Exception {
+    public @NonNull String login(@NonNull String userId, @NonNull String password) throws Exception {
         //TODO: Unused
         return null;
     }
 
     @Override
-    public Boolean isSessionValid() throws Exception {
+    public @NonNull Boolean isSessionValid() throws Exception {
         //TODO: Unused
         return null;
     }
 
     @Override
-    public Boolean logout() throws Exception {
+    public @NonNull Boolean logout() throws Exception {
         //TODO: Unused
         return null;
     }

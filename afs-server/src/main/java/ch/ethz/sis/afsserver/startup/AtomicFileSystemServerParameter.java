@@ -32,7 +32,7 @@ public enum AtomicFileSystemServerParameter {
     // Parameters for the HTTP server
     //
     httpServerClass,
-    httpServerUri,
+    httpServerPath,
     httpServerPort,
     httpMaxContentLength, // This is a low level package size used by the netty layer, helps to avoid DOS attacks discarding packages
     //

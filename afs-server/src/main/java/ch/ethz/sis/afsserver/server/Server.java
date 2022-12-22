@@ -15,6 +15,7 @@ import ch.ethz.sis.shared.pool.Pool;
 import ch.ethz.sis.shared.startup.Configuration;
 import lombok.NonNull;
 
+// TODO: Rename to AtomicFileSystemServer
 public final class Server<CONNECTION, API> {
 
     private final Logger logger;
@@ -82,11 +83,11 @@ public final class Server<CONNECTION, API> {
         // 2.6 Creating HTTP Service
         int httpServerPort = configuration.getIntegerProperty(AtomicFileSystemServerParameter.httpServerPort);
         int maxContentLength = configuration.getIntegerProperty(AtomicFileSystemServerParameter.httpMaxContentLength);
-        String httpServerUri = configuration.getStringProperty(AtomicFileSystemServerParameter.httpServerUri);
+        String httpServerPath = configuration.getStringProperty(AtomicFileSystemServerParameter.httpServerPath);
         logger.info(String.format("Starting HTTP Service on port %d with URI %s with maxContentLength %d",
-                httpServerPort, httpServerUri, maxContentLength));
+                httpServerPort, httpServerPath, maxContentLength));
         httpServer = configuration.getSharableInstance(AtomicFileSystemServerParameter.httpServerClass);
-        httpServer.start(httpServerPort, maxContentLength, httpServerUri, apiServerAdapter);
+        httpServer.start(httpServerPort, maxContentLength, httpServerPath, apiServerAdapter);
 
         // 2.7 Init observer
         observer.init(apiServer, configuration);

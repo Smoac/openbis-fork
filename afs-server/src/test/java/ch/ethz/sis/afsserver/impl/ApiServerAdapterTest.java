@@ -5,7 +5,7 @@ import ch.ethz.sis.afsapi.api.PublicAPI;
 import ch.ethz.sis.afsserver.server.APIServer;
 import ch.ethz.sis.afsserver.server.impl.ApiServerAdapter;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
-import ch.ethz.sis.shared.json.JSONObjectMapper;
+import ch.ethz.sis.afsjson.JSONObjectMapper;
 import ch.ethz.sis.shared.startup.Configuration;
 
 public class ApiServerAdapterTest extends ApiServerTest {

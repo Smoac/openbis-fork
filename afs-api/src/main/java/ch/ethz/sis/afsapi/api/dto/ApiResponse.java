@@ -9,7 +9,11 @@ import lombok.Value;
 @Builder(toBuilder = true)
 @AllArgsConstructor(access = AccessLevel.PUBLIC)
 public class ApiResponse {
-    private final String id;
-    private final Object result;
-    private final Object error;
+
+    String id;
+
+    Object result;
+
+    Object error;
+
 }

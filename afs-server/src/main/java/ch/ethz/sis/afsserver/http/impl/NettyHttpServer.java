@@ -54,7 +54,6 @@ public class NettyHttpServer implements HttpServer {
             channelFuture = bootstrap.bind(port).sync();
         } catch (final Exception ex) {
             logger.catching(ex);
-        } finally {
             masterGroup.shutdownGracefully();
             slaveGroup.shutdownGracefully();
         }
@@ -69,7 +68,7 @@ public class NettyHttpServer implements HttpServer {
 
         try {
             if (gracefully) {
-                Future slaveShutdown = slaveGroup.shutdownGracefully();
+                final Future<?> slaveShutdown = slaveGroup.shutdownGracefully();
                 slaveShutdown.await();
             } else {
                 slaveGroup.shutdown();
@@ -80,7 +79,7 @@ public class NettyHttpServer implements HttpServer {
 
         try {
             if (gracefully) {
-                Future masterShutdown = masterGroup.shutdownGracefully();
+                final Future<?> masterShutdown = masterGroup.shutdownGracefully();
                 masterShutdown.await();
             } else {
                 masterGroup.shutdown();
