@@ -18,7 +18,7 @@ package ch.ethz.sis.afsserver;
 
 import ch.ethz.sis.afsapi.api.PublicApi;
 import ch.ethz.sis.afsserver.http.impl.NettyHttpServer;
-import ch.ethz.sis.afsserver.server.Server;
+import ch.ethz.sis.afsserver.server.AfsServer;
 import ch.ethz.sis.afsserver.server.observer.ApiServerObserver;
 import ch.ethz.sis.afsserver.server.observer.ServerObserver;
 import ch.ethz.sis.afsserver.server.observer.impl.DummyServerObserver;
@@ -51,17 +51,17 @@ public class ServerClientEnvironmentFs {
 
     }
 
-    public Server start() throws Exception {
+    public AfsServer start() throws Exception {
         DummyServerObserver observer = new DummyServerObserver();
-        return new Server(getDefaultServerConfiguration(), observer, observer);
+        return new AfsServer(getDefaultServerConfiguration(), observer, observer);
     }
 
-    public <E extends ServerObserver & ApiServerObserver> Server start(Configuration configuration, E serverObserver) throws Exception {
-        return new Server(configuration, serverObserver, serverObserver);
+    public <E extends ServerObserver & ApiServerObserver> AfsServer start(Configuration configuration, E serverObserver) throws Exception {
+        return new AfsServer(configuration, serverObserver, serverObserver);
     }
 
-    public void stop(Server server, boolean gracefully) throws Exception {
-        server.shutdown(gracefully);
+    public void stop(AfsServer afsServer, boolean gracefully) throws Exception {
+        afsServer.shutdown(gracefully);
     }
 
     public static Configuration getDefaultServerConfiguration() {

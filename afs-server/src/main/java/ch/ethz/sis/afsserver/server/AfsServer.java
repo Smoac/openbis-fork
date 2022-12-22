@@ -15,8 +15,7 @@ import ch.ethz.sis.shared.pool.Pool;
 import ch.ethz.sis.shared.startup.Configuration;
 import lombok.NonNull;
 
-// TODO: Rename to AtomicFileSystemServer
-public final class Server<CONNECTION, API> {
+public final class AfsServer<CONNECTION, API> {
 
     private final Logger logger;
 
@@ -30,7 +29,7 @@ public final class Server<CONNECTION, API> {
 
     private boolean shutdown;
 
-    public Server(Configuration configuration,
+    public AfsServer(Configuration configuration,
                   @NonNull ServerObserver<CONNECTION> serverObserver,
                   @NonNull ApiServerObserver<CONNECTION> apiServerObserver) throws Exception {
         // 1. Load logging plugin, Initializing LogManager
@@ -40,7 +39,7 @@ public final class Server<CONNECTION, API> {
         LogFactory logFactory = logFactoryFactory.create(configuration.getStringProperty(AtomicFileSystemServerParameter.logFactoryClass));
         logFactory.configure(configuration.getStringProperty(AtomicFileSystemServerParameter.logConfigFile));
         LogManager.setLogFactory(logFactory);
-        logger = LogManager.getLogger(Server.class);
+        logger = LogManager.getLogger(AfsServer.class);
 
         logger.info("=== Server Bootstrap ===");
         logger.info("Running with java.version: " + System.getProperty("java.version"));

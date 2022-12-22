@@ -22,8 +22,7 @@ import ch.ethz.sis.afsjson.JsonObjectMapper;
 import ch.ethz.sis.afsjson.jackson.JacksonObjectMapper;
 import lombok.NonNull;
 
-// TODO: Rename to AtomicFileSystemClient
-public final class Client implements PublicApi
+public final class AfsClient implements PublicApi
 {
 
     private static final int DEFAULT_PACKAGE_SIZE_IN_BYTES = 1024;
@@ -40,11 +39,11 @@ public final class Client implements PublicApi
 
     private final JsonObjectMapper jsonObjectMapper;
 
-    public Client(final URI serverUri) {
+    public AfsClient(final URI serverUri) {
         this(serverUri, DEFAULT_PACKAGE_SIZE_IN_BYTES, DEFAULT_TIMEOUT_IN_MILLIS);
     }
 
-    public Client(final URI serverUri, final int maxReadSizeInBytes, final int timeout) {
+    public AfsClient(final URI serverUri, final int maxReadSizeInBytes, final int timeout) {
         this.maxReadSizeInBytes = maxReadSizeInBytes;
         this.timeout = timeout;
         this.serverUri = serverUri;

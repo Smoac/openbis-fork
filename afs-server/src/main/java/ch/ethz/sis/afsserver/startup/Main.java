@@ -16,7 +16,7 @@
 
 package ch.ethz.sis.afsserver.startup;
 
-import ch.ethz.sis.afsserver.server.Server;
+import ch.ethz.sis.afsserver.server.AfsServer;
 import ch.ethz.sis.afsserver.server.observer.impl.DummyServerObserver;
 import ch.ethz.sis.shared.startup.Configuration;
 
@@ -33,7 +33,7 @@ public class Main {
         System.out.println("Current Working Directory: " + (new File("")).getCanonicalPath());
         Configuration configuration = new Configuration(getParameterClasses(), "../afs-server/src/main/resources/afs-server-config.properties");
         DummyServerObserver dummyServerObserver = new DummyServerObserver();
-        new Server<>(configuration, dummyServerObserver, dummyServerObserver);
+        new AfsServer<>(configuration, dummyServerObserver, dummyServerObserver);
         Thread.currentThread().join();
     }
 
