@@ -236,10 +236,5 @@ class Things:
                 get_item = self.single_item_method
             else:
                 get_item = getattr(self.openbis, "get_" + self.entity)
-            for item in self.df[[self.identifier_name]][
-                self.identifier_name
-            ].iteritems():
+            for item in self.df[[self.identifier_name]][self.identifier_name].items():
                 yield get_item(item[1])
-                # yield getattr(self.openbis, 'get_' + self.entity)(item[1])
-
-                # return self.df[[self.identifier_name]].to_dict()[self.identifier_name]
