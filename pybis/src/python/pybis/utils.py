@@ -148,7 +148,7 @@ def format_timestamp(ts):
     return datetime.fromtimestamp(round(ts / 1000)).strftime("%Y-%m-%d %H:%M:%S")
 
 
-def is_identifier(ident):
+def is_identifier(ident) -> bool:
     # assume we got a sample identifier e.g. /TEST/TEST-SAMPLE
     match = re.search("/", ident)
     if match:
@@ -157,12 +157,18 @@ def is_identifier(ident):
         return False
 
 
-def is_permid(ident):
+def is_permid(ident) -> bool:
     match = re.match("^\d+\-\d+$", ident)
     if match:
         return True
     else:
         return False
+
+
+def is_code(ident) -> bool:
+    if not (is_identifier) and not is_permid(ident):
+        return True
+    return False
 
 
 def nvl(val, string=""):
