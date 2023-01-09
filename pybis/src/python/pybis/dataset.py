@@ -418,8 +418,9 @@ class DataSet(
                 fetchopts,
             ],
         }
-        full_url = urljoin(self._get_download_url(), dss_endpoint)
-        resp = self.openbis._post_request_full_url(full_url, request)
+        result = self.openbis._post_request_full_url(
+            urljoin(self._get_download_url(), dss_endpoint), request
+        )
 
         def create_data_frame(attrs, props, response):
             objects = response["objects"]
@@ -463,8 +464,8 @@ class DataSet(
             identifier_name="dataSetPermId",
             start_with=start_with,
             count=count,
-            totalCount=resp.get("totalCount"),
-            response=resp,
+            totalCount=result.get("totalCount"),
+            response=result,
             df_initializer=create_data_frame,
         )
 
