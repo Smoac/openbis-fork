@@ -1309,28 +1309,15 @@ class Openbis:
         except FileNotFoundError:
             return None
 
-    def _post_request(self, resource, request):
+    def _post_request(self, resource, request, dump_request_on_error=True):
         """internal method, used to handle all post requests and serializing / deserializing
         data
         """
-        return self._post_request_full_url(urljoin(self.url, resource), request)
+        return self._post_request_full_url(
+            urljoin(self.url, resource), request, dump_request_on_error
+        )
 
-    def _recover_session(self, full_url, request):
-        """Current token seems to be expired,
-        try to use other means to connect.
-        """
-        if is_session_token(self.token):
-            for session_token in get_saved_tokens(hostname=self.hostname):
-                pass
-
-        else:
-            for token in get_saved_pats(hostname=self.hostname):
-                if self.is_token_valid(token=token):
-                    return requests.post(
-                        full_url, json.dumps(request), verify=self.verify_certificates
-                    )
-
-    def _post_request_full_url(self, full_url, request):
+    def _post_request_full_url(self, full_url, request, dump_request_on_error=True):
         """internal method, used to handle all post requests and serializing / deserializing
         data
         """
@@ -1360,7 +1347,8 @@ class Openbis:
             resp = resp.json()
             if "error" in resp:
                 # print(full_url)
-                print(json.dumps(request))
+                if dump_request_on_error:
+                    print(json.dumps(request))
                 raise ValueError(resp["error"]["message"])
             elif "result" in resp:
                 return resp["result"]
@@ -1399,9 +1387,13 @@ class Openbis:
             "method": "login",
             "params": [username, password],
         }
-        self.token = self._post_request(self.as_v3, login_request)
-        if self.token is None:
+        result = self._post_request(
+            self.as_v3, login_request, dump_request_on_error=False
+        )
+        if result is None:
             raise ValueError("login to openBIS failed")
+        else:
+            self.token = result
         if save_token:
             self._save_token_to_disk()
             self._password(password)
@@ -2062,7 +2054,7 @@ class Openbis:
         server_info = self.get_server_information()
         session_token = self.token
         if not is_session_token(session_token):
-            session_token = self.session_token
+            session_token = getattr(self, "session_token", None)
         if not session_token:
             session_token = get_token_for_hostname(
                 self.hostname, session_token_needed=True
@@ -2070,7 +2062,7 @@ class Openbis:
 
         if not self.is_token_valid(session_token):
             raise ValueError(
-                "You you need a session token to create a new personal access token."
+                "You you need a valid session token to create a new personal access token."
             )
 
         for existing_pat in self.get_personal_access_tokens(sessionName=sessionName):
