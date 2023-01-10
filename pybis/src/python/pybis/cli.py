@@ -14,6 +14,7 @@ syslog.openlog("pyBIS")
 def openbis_conn_options(func):
     options = [
         click.option("-h", "--hostname", help="Hostname OPENBIS_HOSTNAME"),
+        click.option("-t", "--token", help="Hostname OPENBIS_TOKEN"),
         click.option("-u", "--username", help="Username OPENBIS_USERNAME"),
         click.option("-p", "--password", help="Password OPENBIS_PASSWORD"),
         click.option(
@@ -47,17 +48,19 @@ def login_options(func):
 
 def get_openbis(
     hostname=None,
+    token=None,
     username=None,
     password=None,
     ignore_certificate=False,
     session_token_needed=False,
 ):
     """Order of priorities:
-    1. direct specification via --hostname https://openbis.domain
-    2. Environment variable: OPENBIS_HOST=https://openbis.domain
-    3. local pybis configuration (hostname.pybis.json)
-    4. global pybis configuration (~/.pybis/hostname.pybis.json)
-    5. prompt for hostname
+    1. direct specification via option, eg. --hostname https://openbis.domain
+    2. Environment variable, eg. OPENBIS_HOST=https://openbis.domain
+    3. local pybis configuration (.pybis.json)
+    4. global pybis configuration (~/.pybis/.pybis.json)
+    5. global pybis storage
+    6. input prompt
     """
 
     config_local = pybis.get_local_config()
@@ -72,17 +75,31 @@ def get_openbis(
     if not hostname:
         hostname = click.prompt("openBIS hostname")
 
-    token = os.getenv("OPENBIS_TOKEN")
+    if not token:
+        token = os.getenv("OPENBIS_TOKEN")
     if not token:
         token = config_local.get("token", config_global.get("token"))
+    if session_token_needed and not pybis.is_session_token(token):
+        token = None
     if not token:
         token = pybis.get_token_for_hostname(
             hostname, session_token_needed=session_token_needed
         )
-    openbis = pybis.Openbis(
-        url=hostname,
-        verify_certificates=not ignore_certificate,
-    )
+    try:
+        openbis = pybis.Openbis(
+            url=hostname,
+            verify_certificates=not ignore_certificate,
+        )
+    except Exception as exc:
+        raise click.ClickException(exc)
+
+    if username and token:
+        # Username is provided, make sure the token is from the same user
+        # otherwise discard it
+        if token.startswith(username) or token.startswith("$pat-" + username):
+            pass
+        else:
+            token = None
     if token:
         try:
             openbis.set_token(token)
@@ -93,12 +110,12 @@ def get_openbis(
     if not username:
         username = os.getenv("OPENBIS_USERNAME")
     if not username:
-        username = click.prompt("Username")
+        username = click.prompt(f"Username for {hostname}")
 
     if not password:
         password = os.getenv("OPENBIS_PASSWORD")
     if not password:
-        password = click.prompt("Password", hide_input=True)
+        password = click.prompt(f"Password for {username}", hide_input=True)
     try:
         openbis.login(
             username=username,
@@ -107,7 +124,7 @@ def get_openbis(
         )
         return openbis
     except ValueError as exc:
-        click.echo(f"Failed to login to {hostname}")
+        raise click.ClickException(f"Failed to login to {hostname}: {exc}")
 
 
 @click.group()
@@ -302,17 +319,24 @@ def get_samples(identifier, **kwargs):
     """list all samples of a given space, project or collection"""
     openbis = get_openbis(**kwargs)
     try:
-        entity = openbis.get_space(identifier)
+        entities = openbis.get_samples(identifier)
+        if not entities:
+            raise ValueError()
+        click.echo(entities.__repr__())
+        return
     except ValueError as exc:
         try:
-            entity = openbis.get_project(identifier)
+            entity = openbis.get_collection(identifier)
         except ValueError as exc:
             try:
-                entity = openbis.get_collection(identifier)
+                entity = openbis.get_project(identifier)
             except ValueError as exc:
-                raise click.ClickException(
-                    f"could not find any space, project or collection for {identifier}"
-                )
+                try:
+                    entity = openbis.get_space(identifier)
+                except ValueError as exc:
+                    raise click.ClickException(
+                        f"could not find any space, project, collection or sample for {identifier}"
+                    )
     samples = entity.get_samples()
     click.echo(samples.__repr__(sort_by="modificationDate"))
 
@@ -454,7 +478,7 @@ def download_dataset(permid, destination, fileno, **kwargs):
 
 
 @cli.group(invoke_without_command=True)
-@click.pass_obj
+@click.pass_context
 def config(ctx):
     """manage openBIS configurations"""
     config_local = pybis.get_local_config()
@@ -463,52 +487,34 @@ def config(ctx):
     config_global = pybis.get_global_config()
     if not config_global:
         config_global = {}
-    click.echo(
-        tabulate(
-            [
+
+    if ctx.invoked_subcommand is None:
+        click.echo(
+            tabulate(
                 [
-                    config_local.get("hostname", ""),
-                    config_local.get("token", ""),
-                    "local",
-                    config_local.get("location", ""),
+                    [
+                        config_local.get("hostname", ""),
+                        "'" + config_local.get("token", "") + "'",
+                        "local",
+                        config_local.get("location", ""),
+                    ],
+                    [
+                        config_global.get("hostname", ""),
+                        "'" + config_global.get("token", "") + "'",
+                        "global",
+                        config_global.get("location", ""),
+                    ],
                 ],
-                [
-                    config_global.get("hostname", ""),
-                    config_global.get("token", ""),
-                    "global",
-                    config_global.get("location", ""),
-                ],
-            ],
-            headers=["openBIS hostname", "token", "location", "filepath"],
+                headers=["openBIS hostname", "token", "location", "filepath"],
+            )
         )
-    )
 
 
-@config.group("local")
-@click.pass_obj
-def local_config(ctx):
-    """get or set local openBIS configurations"""
-    pass
-
-
-@local_config.command("get")
-@click.pass_obj
-def get_local_config(ctx):
-    config = pybis.get_local_config()
-    if config is None:
-        raise click.ClickException("No local configuration found.")
-    click.echo(
-        tabulate(
-            [[config.get("hostname", ""), config.get("token", "")]],
-            headers=["openBIS hostname", "token"],
-        )
-    )
-
-
-@local_config.command("set")
+@config.command("local")
 @click.argument("hostname")
-@click.argument("token", required=False, type=click.UNPROCESSED)
+@click.argument("token")
 def set_local_config(hostname, token):
+    """set local openBIS configuration"""
     try:
         o = pybis.Openbis(url=hostname, token=token)
     except Exception as exc:
@@ -516,30 +522,11 @@ def set_local_config(hostname, token):
     pybis.set_local_config(hostname=hostname, token=token)
 
 
-@config.group("global")
-@click.pass_obj
-def global_config(ctx):
-    """get or set global openBIS configurations"""
-    pass
-
-
-@global_config.command("get")
-def get_global_config():
-    config = pybis.get_global_config()
-    if config is None:
-        raise click.ClickException("No global configuration found.")
-    click.echo(
-        tabulate(
-            [[config.get("hostname", ""), config.get("token", "")]],
-            headers=["openBIS hostname", "token"],
-        )
-    )
-
-
-@global_config.command("set")
+@config.command("global")
 @click.argument("hostname")
-@click.argument("token", required=False, type=click.UNPROCESSED)
+@click.argument("token")
 def set_global_config(hostname, token):
+    """set global openBIS configuration"""
     try:
         o = pybis.Openbis(url=hostname, token=token)
     except Exception as exc:
@@ -547,67 +534,76 @@ def set_global_config(hostname, token):
     pybis.set_global_config(hostname=hostname, token=token)
 
 
-@cli.group()
-@click.pass_obj
+@cli.group(invoke_without_command=True)
+@click.pass_context
 def token(ctx):
     """manage openBIS tokens"""
-    pass
-
-
-@token.group("session")
-@click.pass_obj
-def session_token(ctx):
-    """manage openBIS Session Tokens"""
-    pass
-
-
-@session_token.command("list")
-@click.pass_obj
-def get_tokens(ctx, **kwargs):
-    """list stored openBIS Session Tokens"""
+    if ctx.invoked_subcommand:
+        return
     tokens = pybis.get_saved_tokens()
-    token_list = [[key, tokens[key]] for key in tokens]
-    click.echo(tabulate(token_list, headers=["openBIS hostname", "session token"]))
+    token_list = [[key, tokens[key], "", "", "session"] for key in tokens]
 
-
-@token.group("pat")
-@click.pass_obj
-def pat_token(ctx):
-    """manage openBIS Personal Access Tokens (PAT)"""
-    pass
-
-
-@pat_token.command("list")
-@click.argument("hostname", required=False)
-@click.argument("session-name", required=False)
-@click.pass_obj
-def get_pats(ctx, hostname, session_name=None):
-    """list stored openBIS Personal Access Tokens (PAT)"""
-    tokens = pybis.get_saved_pats(hostname=hostname, sessionName=session_name)
+    pats = pybis.get_saved_pats()
     headers = ["hostname", "permId", "sessionName", "validToDate"]
-    token_list = [[token[key] for key in headers] for token in tokens]
+    token_list += [
+        ["'" + token[key] + "'" if key == "permId" else token[key] for key in headers]
+        + ["pat"]
+        for token in pats
+    ]
     click.echo(
         tabulate(
             token_list,
             headers=[
                 "openBIS hostname",
-                "personal access token",
+                "token",
                 "sessionName",
                 "valid until",
+                "type",
             ],
         )
     )
 
 
-@pat_token.command("new")
-@login_options
+@token.command("session")
+@click.argument("hostname")
+@openbis_conn_options
+@click.pass_context
+def session_token(ctx, hostname, **kwargs):
+    """create new openBIS Session Token"""
+    o = get_openbis(hostname=hostname, session_token_needed=True, **kwargs)
+    click.echo(
+        tabulate(
+            [
+                [
+                    o.hostname,
+                    f"'{o.token}'",
+                    "",
+                    "",
+                    "session",
+                ]
+            ],
+            headers=[
+                "openBIS hostname",
+                "token",
+                "sessionName",
+                "valid until",
+                "type",
+            ],
+        )
+    )
+
+
+@token.command("pat")
+@click.argument("hostname")
 @click.argument("session-name")
 @click.option("--validity-days", help="Number of days the token is valid")
 @click.option("--validity-weeks", help="Number of weeks the token is valid")
 @click.option("--validity-months", help="Number of months the token is valid")
-@click.pass_obj
-def new_pat(ctx, hostname, session_name, **kwargs):
-    """create new openBIS Personal Access Token"""
+@openbis_conn_options
+@click.pass_context
+def pat_token(ctx, hostname, session_name, **kwargs):
+    """create or renew openBIS Personal Access Tokens (PAT)"""
+
     validTo = datetime.now()
     if kwargs.get("validity_months"):
         validTo += relativedelta(months=int(kwargs.get("validity_months")))
@@ -617,6 +613,7 @@ def new_pat(ctx, hostname, session_name, **kwargs):
         validTo += relativedelta(days=int(kwargs.get("validity_days")))
     else:
         validTo += relativedelta(years=1)
+
     o = get_openbis(hostname=hostname, session_token_needed=True)
     try:
         new_pat = o.get_or_create_personal_access_token(
@@ -626,8 +623,26 @@ def new_pat(ctx, hostname, session_name, **kwargs):
         raise click.ClickException(
             f"Creation of new personal access token failed: {exc}"
         )
-    click.echo(new_pat)
-    o.get_personal_access_tokens(save_to_disk=True)
+    click.echo(
+        tabulate(
+            [
+                [
+                    o.hostname,
+                    new_pat.permId,
+                    new_pat.sessionName,
+                    new_pat.validToDate,
+                    "pat",
+                ]
+            ],
+            headers=[
+                "openBIS hostname",
+                "token",
+                "sessionName",
+                "valid until",
+                "type",
+            ],
+        )
+    )
 
 
 if __name__ == "__main__":
