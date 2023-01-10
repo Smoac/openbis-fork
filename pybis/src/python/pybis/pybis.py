@@ -70,6 +70,7 @@ from .utils import (
     is_identifier,
     is_number,
     is_permid,
+    is_code,
     parse_jackson,
     split_identifier,
     extract_data_in_dataframe,
@@ -340,6 +341,9 @@ def _type_for_id(ident, entity):
             "identifier": ident.upper(),
             "@type": f"as.dto.{entity.lower()}.id.{entity_capitalize}Identifier",
         }
+    elif is_code(ident):
+        search_request = {"code": ident.upper(), "@type": f"as_dto.{entity.lower()}"}
+
     else:
         search_request = {
             "permId": ident,
