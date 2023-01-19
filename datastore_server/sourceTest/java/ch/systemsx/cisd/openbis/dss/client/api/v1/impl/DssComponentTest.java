@@ -644,11 +644,6 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         }
 
         @Override
-        public File putDirToSessionWorkspace(String sessionToken, String filePath, boolean isEmptyDirectory) throws IOExceptionUnchecked {
-            return null;
-        }
-
-        @Override
         public long putFileSliceToSessionWorkspace(String sessionToken, String filePath,
                 long slicePosition, InputStream sliceInputStream) throws IOExceptionUnchecked
         {
