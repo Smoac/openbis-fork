@@ -1,5 +1,6 @@
 import os
 from functools import partialmethod
+from dataclasses import dataclass
 from pathlib import Path
 from threading import Thread
 from queue import Queue
@@ -33,6 +34,29 @@ import time
 PYBIS_PLUGIN = "dataset-uploader-api"
 dataset_definitions = openbis_definitions("dataSet")
 dss_endpoint = "/datastore_server/rmi-data-store-server-v3.json"
+
+
+@dataclass
+class StreamId:
+    stream_id: str
+
+
+@dataclass
+class DataSetFile:
+    permId: str
+    filepath: str
+
+
+@dataclass
+class FastDownloadSession:
+    session_token: str
+    download_session_id: str
+    ranges: dict
+    download_url: str
+    file_transfer_user_session_id: str
+    number_of_streams: int
+    download_items: list[DataSetFile]
+    stream_ids: list[StreamId]
 
 
 def signed_to_unsigned(sig_int):
@@ -1029,6 +1053,106 @@ class DataSet(
 
             # return files with full path in session workspace
             return self.files_in_wsp
+
+    def _create_fast_download_session(self, file_path: str, number_of_streams: int = 5):
+        """Initial DSS API request to get information about the download session,
+        e.g. the download URL
+        """
+        if not self.permId:
+            raise ValueError("cannot download, dataset is not saved (no permId)")
+        request = {
+            "method": "createFastDownloadSession",
+            "params": [
+                self.openbis.token,
+                [
+                    {
+                        "dataSetId": {
+                            "@type": "as.dto.dataset.id.DataSetPermId",
+                            "permId": self.permId,
+                        },
+                        "filePath": file_path,
+                        "@type": "dss.dto.datasetfile.id.DataSetFilePermId",
+                    }
+                ],
+                {
+                    "wishedNumberOfStreams": number_of_streams,
+                    "@type": "dss.dto.datasetfile.fastdownload.FastDownloadSessionOptions",
+                },
+            ],
+        }
+        full_endpoint = urljoin(self._get_download_url(), dss_endpoint)
+        result = self.openbis._post_request_full_url(full_endpoint, request)
+        files = [
+            DataSetFile(permId=file["dataSetId"]["permId"], filepath=file["filePath"])
+            for file in result["files"]
+        ]
+        download_session = FastDownloadSession(
+            session_token=self.openbis.token,
+            download_url=result["downloadUrl"],
+            file_transfer_user_session_id=result["fileTransferUserSessionId"],
+            number_of_streams=result["options"]["wishedNumberOfStreams"],
+            download_items=files,
+        )
+        return download_session
+
+    def _start_download_session(self, download_session: FastDownloadSession):
+        """Initialises a download session. Returns more detailed information, e.g.
+        - downloadSessionId
+        - streamsIds
+        - ranges for every download item
+        """
+        base_url = download_session.download_url
+        params = dict()
+        params["method"] = "startDownloadSession"
+        params["userSessionId"] = download_session.session_token
+        params["wishedNumberOfStreams"] = download_session.number_of_streams
+        params["downloadItemIds"] = ",".join(
+            f"{download_item.permId}/{download_item.filepath}"
+            for download_item in download_session.download_items
+        )
+
+        resp = requests.get(base_url, params=params)
+
+        download_session.download_session_id = resp["downloadSessionId"]
+        download_session.ranges = resp["ranges"]
+        download_session.stream_ids = resp["streamIds"]
+
+    def _queue(self, download_session: FastDownloadSession, ranges: str):
+        """add (post) a download session ID and a range to the
+        download queue of the server, so the download can start."""
+        base_url = download_session.download_url
+        params = dict()
+        params["method"] = "queue"
+        params["downloadSessionId"] = download_session.download_session_id
+        params["ranges"] = ranges
+
+        resp = requests.post(base_url, params=params)
+        if not resp.ok:
+            raise RuntimeError(f"Error {resp.status_code}: {resp.content()}")
+
+    def _fast_download(
+        self,
+        download_session: FastDownloadSession,
+        download_stream_id: str,
+        ranges: str,
+    ):
+        base_url = download_session.download_url
+        params = dict()
+        params["method"] = "download"
+        params["downloadSessionId"] = download_session.download_session_id
+        params["downloadStreamId"] = download_stream_id
+        params["ranges"] = ranges
+
+        resp = requests.get(base_url, params=params)
+
+    def _finish_download_session(self, download_session: FastDownloadSession):
+        base_url = download_session.download_url
+        params = dict()
+        params["method"] = "finishDownloadSession"
+        params["userSessionId"] = download_session.session_token
+        params["downloadSessionId"] = download_session.download_session_id
+
+        resp = requests.get(base_url, params=params)
 
 
 class DataSetUploadQueue:

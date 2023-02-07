@@ -13,10 +13,10 @@ syslog.openlog("pyBIS")
 
 def openbis_conn_options(func):
     options = [
-        click.option("-h", "--hostname", help="Hostname OPENBIS_HOSTNAME"),
-        click.option("-t", "--token", help="Hostname OPENBIS_TOKEN"),
-        click.option("-u", "--username", help="Username OPENBIS_USERNAME"),
-        click.option("-p", "--password", help="Password OPENBIS_PASSWORD"),
+        click.option("-h", "--hostname", help="Hostname env: OPENBIS_HOSTNAME"),
+        click.option("-t", "--token", help="Token env: OPENBIS_TOKEN"),
+        click.option("-u", "--username", help="Username env: OPENBIS_USERNAME"),
+        click.option("-p", "--password", help="Password env: OPENBIS_PASSWORD"),
         click.option(
             "--ignore-certificate",
             is_flag=True,
@@ -25,6 +25,25 @@ def openbis_conn_options(func):
         ),
     ]
     # we use reversed(options) to keep the options order in --help
+    for option in reversed(options):
+        func = option(func)
+    return func
+
+
+def search_attributes(func):
+    options = [
+        click.option("--registrationDate", help="registrationDate"),
+        click.option("--modificationDate", help="modificationDate"),
+    ]
+    for option in reversed(options):
+        func = option(func)
+    return func
+
+
+def search_properties(func):
+    options = [
+        click.option("-p", "--property", multiple=True, help="property"),
+    ]
     for option in reversed(options):
         func = option(func)
     return func
@@ -155,6 +174,7 @@ def get_space(identifier, **kwargs):
 
 @space.command("list")
 @openbis_conn_options
+@search_attributes
 def get_spaces(**kwargs):
     """get all spaces in an openBIS instance"""
     openbis = get_openbis(**kwargs)
@@ -187,12 +207,21 @@ def get_project(identifier, **kwargs):
 
 @project.command("list")
 @openbis_conn_options
+@search_attributes
 @click.argument("space", required=True)
 def get_projects(space, **kwargs):
     """get all projects of a given space"""
-    openbis = get_openbis(**kwargs)
+    conn_options = ["hostname", "username", "password", "token", "ignore_certificate"]
+    openbis = get_openbis(**{key: kwargs[key] for key in conn_options})
+    print(kwargs)
+    attribute = {
+        "registrationdate": "registrationDate",
+        "modificationdate": "modificationDate",
+    }
+    attrs = {attribute[key]: kwargs[key] for key in attribute.keys()}
+    print(attrs)
     try:
-        projects = openbis.get_projects(space=space)
+        projects = openbis.get_projects(space=space, **attrs)
     except ValueError as exc:
         raise click.ClickException(exc)
     click.echo(projects.__repr__(sort_by="modificationDate"))
@@ -207,6 +236,7 @@ def collection(ctx):
 
 @collection.command("get")
 @openbis_conn_options
+@search_attributes
 @click.argument("identifier", required=True)
 def get_collection(identifier, **kwargs):
     """get collection by its identifier or permId"""
@@ -314,6 +344,7 @@ def get_sample(identifier, **kwargs):
 
 @sample.command("list")
 @openbis_conn_options
+@search_attributes
 @click.argument("identifier", required=True)
 def get_samples(identifier, **kwargs):
     """list all samples of a given space, project or collection"""
@@ -394,6 +425,7 @@ def dataset(ctx):
 
 @dataset.command("list")
 @openbis_conn_options
+@search_attributes
 @click.argument("identifier", required=True)
 def get_datasets(identifier, **kwargs):
     """list all datasets of a given project, collection or sample"""

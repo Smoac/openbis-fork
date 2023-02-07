@@ -1309,7 +1309,7 @@ class Openbis:
         except FileNotFoundError:
             return None
 
-    def _post_request(self, resource, request, dump_request_on_error=True):
+    def _post_request(self, resource, request, dump_request_on_error=False):
         """internal method, used to handle all post requests and serializing / deserializing
         data
         """
@@ -1317,7 +1317,7 @@ class Openbis:
             urljoin(self.url, resource), request, dump_request_on_error
         )
 
-    def _post_request_full_url(self, full_url, request, dump_request_on_error=True):
+    def _post_request_full_url(self, full_url, request, dump_request_on_error=False):
         """internal method, used to handle all post requests and serializing / deserializing
         data
         """
@@ -2983,7 +2983,11 @@ class Openbis:
         )
 
     def get_experiment(
-        self, code, withAttachments=False, only_data=False, use_cache=True
+        self,
+        code: str,
+        withAttachments: bool = False,
+        only_data: bool = False,
+        use_cache: bool = True,
     ):
         """Returns an experiment object for a given identifier (code)."""
 
@@ -2994,6 +2998,10 @@ class Openbis:
         )
         if experiment:
             return experiment
+
+        # code is an identifier but does not start with /
+        if "/" in code and not code.startswith("/"):
+            code = "/" + code
 
         fetchopts = get_fetchoption_for_entity("experiment")
 
@@ -3164,6 +3172,10 @@ class Openbis:
         if project:
             return project
 
+        # projectId is an identifier but does not start with /
+        if "/" in projectId and not projectId.startswith("/"):
+            projectId = "/" + projectId
+
         options = ["space", "registrator", "modifier", "attachments"]
         if is_identifier(projectId) or is_permid(projectId):
             request = self._create_get_request(
@@ -3211,6 +3223,7 @@ class Openbis:
         code=None,
         start_with=None,
         count=None,
+        **kwargs,
     ):
         """Get a list of all available projects (DataFrame object)."""
 

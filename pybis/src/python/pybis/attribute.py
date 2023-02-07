@@ -88,8 +88,9 @@ class AttrHolder:
                 self.__dict__["_" + attr] = d
 
             elif attr in ["parents", "children", "samples", "components", "containers"]:
-                self.__dict__["_" + attr] = []
+                self.__dict__["_" + attr] = None
                 if data[attr] is not None:
+                    self.__dict__["_" + attr] = []
                     for item in data[attr]:
                         try:
                             if "identifier" in item:
@@ -320,6 +321,8 @@ class AttrHolder:
         return request
 
     def __getattr__(self, name):
+        if name == "parents":
+            return None
         """handles all attribute requests dynamically.
         Values are returned in a sensible way, for example:
             the identifiers of parents, children and components are returned as an
@@ -451,7 +454,6 @@ class AttrHolder:
                 )
 
         if name in ["parents", "children", "components"]:
-
             if not isinstance(value, list):
                 value = [value]
             objs = []
