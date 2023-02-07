@@ -1,5 +1,5 @@
 from tabulate import tabulate
-from pandas import DataFrame, Series
+from pandas import DataFrame
 import pandas as pd
 
 
@@ -35,13 +35,14 @@ class Things:
         single_item_method=None,
         response=None,
         df_initializer=None,
+        df=None,
         objects_initializer=None,
         attrs=None,
         props=None,
     ):
         self.openbis = openbis_obj
         self.entity = entity
-        self.__df = None
+        self.__df = df
         self.identifier_name = identifier_name
         self.additional_identifier = additional_identifier
         self.start_with = start_with
@@ -235,10 +236,5 @@ class Things:
                 get_item = self.single_item_method
             else:
                 get_item = getattr(self.openbis, "get_" + self.entity)
-            for item in self.df[[self.identifier_name]][
-                self.identifier_name
-            ].iteritems():
+            for item in self.df[[self.identifier_name]][self.identifier_name].items():
                 yield get_item(item[1])
-                # yield getattr(self.openbis, 'get_' + self.entity)(item[1])
-
-                # return self.df[[self.identifier_name]].to_dict()[self.identifier_name]

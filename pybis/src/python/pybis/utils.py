@@ -1,6 +1,6 @@
-from datetime import datetime
-from pathlib import Path
 import re
+from pandas import DataFrame
+from datetime import datetime
 
 # display messages when in a interactive context (IPython or Jupyter)
 try:
@@ -47,6 +47,7 @@ def parse_jackson(input_json):
         "dataSetPermId",
         "dataStore",
     ]
+    skip = ("fetchOptions",)
     found = {}
 
     def build_cache(graph):
@@ -55,6 +56,8 @@ def parse_jackson(input_json):
                 build_cache(item)
         elif isinstance(graph, dict) and len(graph) > 0:
             for key, value in graph.items():
+                if key in skip:
+                    continue
                 if key in interesting:
                     if isinstance(value, dict):
                         if "@id" in value:
@@ -85,6 +88,8 @@ def parse_jackson(input_json):
                     deref_graph(list_item)
         elif isinstance(graph, dict) and len(graph) > 0:
             for key, value in graph.items():
+                if key in skip:
+                    continue
                 if key in interesting:
                     if isinstance(value, dict):
                         deref_graph(value)
@@ -143,7 +148,7 @@ def format_timestamp(ts):
     return datetime.fromtimestamp(round(ts / 1000)).strftime("%Y-%m-%d %H:%M:%S")
 
 
-def is_identifier(ident):
+def is_identifier(ident) -> bool:
     # assume we got a sample identifier e.g. /TEST/TEST-SAMPLE
     match = re.search("/", ident)
     if match:
@@ -152,12 +157,18 @@ def is_identifier(ident):
         return False
 
 
-def is_permid(ident):
+def is_permid(ident) -> bool:
     match = re.match("^\d+\-\d+$", ident)
     if match:
         return True
     else:
         return False
+
+
+def is_code(ident) -> bool:
+    if not (is_identifier) and not is_permid(ident):
+        return True
+    return False
 
 
 def nvl(val, string=""):
@@ -235,7 +246,7 @@ def extract_identifiers(items):
 
 def extract_nested_identifier(ident):
     if not isinstance(ident, dict):
-        return str(ident)
+        return "" if ident is None else str(ident)
     return ident["identifier"]["identifier"]
 
 
@@ -324,3 +335,30 @@ def extract_username_from_token(token: str) -> str:
         match = re.search(r"(?P<username>.*?)-.*", token)
     if match:
         return match.groupdict().get("username")
+
+
+def extract_data_in_dataframe(df: DataFrame):
+
+    for attr in ["identifier"]:
+        if attr in df:
+            df[attr] = df[attr].map(extract_identifier)
+
+    for attr in ["permId"]:
+        if attr in df:
+            df[attr] = df[attr].map(extract_permid)
+
+    for attr in ["experiment", "sample"]:
+        if attr in df:
+            df[attr] = df[attr].map(extract_nested_identifier)
+
+    for attr in ["space", "project", "type"]:
+        if attr in df:
+            df[attr] = df[attr].map(extract_code)
+
+    for attr in ["registrator", "modifier"]:
+        if attr in df:
+            df[attr] = df[attr].map(extract_person)
+
+    for attr in ["registrationDate", "modificationDate"]:
+        if attr in df:
+            df[attr] = df[attr].map(format_timestamp)

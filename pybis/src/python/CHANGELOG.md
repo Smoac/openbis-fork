@@ -1,8 +1,14 @@
+## Changes with pybis-1.36.0
+
+- bugfix: when using transactions, children and parents can get accidentally deleted
+
 ## Changes with pybis-1.35.0
 
-- removal of deprecated 'cli'
-- removal of 'click' dependency
 - update of contact information
+- fix python-dateutil requirement
+- support of PAT when downloading datasets
+- support for experimental recursive children-of-children search
+- show local and global pybis configurations
 
 ## Changes with pybis-1.34.6
 
@@ -117,8 +123,8 @@
 ## Changes with pybis-1.20.0
 
 - metadata for property_types can now be changed to:
-    - {'custom_widget' : 'Word Processor'}
-    - {'custom_widget' : 'Spreadsheet'}
+  - {'custom_widget' : 'Word Processor'}
+  - {'custom_widget' : 'Spreadsheet'}
 - added documentation how to change the ELN settings
 - removed deprecated update_sample()
 - removed deprecated update_experiment()

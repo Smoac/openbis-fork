@@ -1,4 +1,4 @@
-from pandas import DataFrame, Series
+from pandas import DataFrame
 from tabulate import tabulate
 from .definitions import (
     openbis_definitions,
@@ -7,18 +7,12 @@ from .definitions import (
     get_type_for_entity,
 )
 from .utils import (
-    parse_jackson,
-    check_datatype,
-    split_identifier,
     format_timestamp,
-    is_identifier,
-    is_permid,
     nvl,
     extract_person,
 )
 from .attachment import Attachment
 
-import copy
 import base64
 import os
 import pathlib
@@ -42,9 +36,6 @@ class AttrHolder:
             self.__dict__["_type"] = type.data
 
         self.__dict__["_defs"] = openbis_definitions(entity)
-        # self.__dict__['_allowed_attrs'] = openbis_definitions(entity)['attrs']
-        # self.__dict__['_allowed_attrs_new'] = openbis_definitions(entity)['attrs_new']
-        # self.__dict__['_allowed_attrs_up'] = openbis_definitions(entity)['attrs_up']
         self.__dict__["_identifier"] = None
         self.__dict__["_is_new"] = True
         self.__dict__["_tags"] = []
@@ -97,8 +88,9 @@ class AttrHolder:
                 self.__dict__["_" + attr] = d
 
             elif attr in ["parents", "children", "samples", "components", "containers"]:
-                self.__dict__["_" + attr] = []
+                self.__dict__["_" + attr] = None
                 if data[attr] is not None:
+                    self.__dict__["_" + attr] = []
                     for item in data[attr]:
                         try:
                             if "identifier" in item:
@@ -330,6 +322,8 @@ class AttrHolder:
         return request
 
     def __getattr__(self, name):
+        if name == "parents":
+            return None
         """handles all attribute requests dynamically.
         Values are returned in a sensible way, for example:
             the identifiers of parents, children and components are returned as an
@@ -461,7 +455,6 @@ class AttrHolder:
                 )
 
         if name in ["parents", "children", "components"]:
-
             if not isinstance(value, list):
                 value = [value]
             objs = []
@@ -737,6 +730,24 @@ class AttrHolder:
             self.parents, **kwargs
         )
 
+    def get_all_parents(self, depth: int = None):
+        """get all parents and parents-of-parents etc. from this entity
+        and return a list (Things/DataFram)
+        """
+        try:
+            return getattr(self._openbis, "get_" + self._entity.lower())(
+                self.permId,
+                including_all_parents=True,
+                include_parent_in_list=False,
+                depth=depth,
+            )
+        except (AttributeError, TypeError):
+            raise AttributeError(
+                f"Entity {self._entity} has no method 'get_all_parents'"
+            )
+
+    all_parents = get_all_parents
+
     def set_parents(self, parents_to_set):
         """set the new _parents list"""
         self.__dict__["_parents"] = []
@@ -782,6 +793,24 @@ class AttrHolder:
         return getattr(self._openbis, "get_" + self._entity.lower())(
             self.children, **kwargs
         )
+
+    def get_all_children(self, depth: int = None):
+        """get all children and children-of-children etc. from this entity
+        and return a list (Things/DataFram)
+        """
+        try:
+            return getattr(self._openbis, "get_" + self._entity.lower())(
+                self.permId,
+                including_all_children=True,
+                include_parent_in_list=False,
+                depth=depth,
+            )
+        except (AttributeError, TypeError):
+            raise AttributeError(
+                f"Entity {self._entity} has no method 'get_all_children'"
+            )
+
+    all_children = get_all_children
 
     def set_children(self, children_to_set):
         """set the new _children list"""

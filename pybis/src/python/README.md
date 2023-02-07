@@ -794,11 +794,13 @@ trans.commit()
 
 ```
 sample.get_parents()
+sample.get_all_parents(depth=3)  # get parents of parents with the (optional) depth of 3
 sample.set_parents(['/MY_SPACE/PARENT_SAMPLE_NAME')
 sample.add_parents('/MY_SPACE/PARENT_SAMPLE_NAME')
 sample.del_parents('/MY_SPACE/PARENT_SAMPLE_NAME')
 
 sample.get_children()
+sample.get_all_children()  # get all children of children
 sample.set_children('/MY_SPACE/CHILD_SAMPLE_NAME')
 sample.add_children('/MY_SPACE/CHILD_SAMPLE_NAME')
 sample.del_children('/MY_SPACE/CHILD_SAMPLE_NAME')
@@ -955,7 +957,9 @@ dataset = datasets[0]
 ```
 ds = o.get_dataset('20160719143426517-259')
 ds.get_parents()
+ds.get_all_parents(depth=3)       # get parents of parents with a (optional) depth of 3
 ds.get_children()
+ds.get_all_children(depth=2)      # get children of children with a (optional) depth of 2
 ds.sample
 ds.experiment
 ds.physicalData
