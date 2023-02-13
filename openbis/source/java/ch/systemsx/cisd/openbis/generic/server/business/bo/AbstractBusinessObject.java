@@ -113,6 +113,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ISampleRelationshipDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
@@ -410,6 +411,10 @@ abstract class AbstractBusinessObject implements IDAOFactory
     public final ISampleDAO getSampleDAO()
     {
         return daoFactory.getSampleDAO();
+    }
+
+    public final ISampleRelationshipDAO getSampleRelationshipDAO() {
+        return daoFactory.getSampleRelationshipDAO();
     }
 
     @Override
