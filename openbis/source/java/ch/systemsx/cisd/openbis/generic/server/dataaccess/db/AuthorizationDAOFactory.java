@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.ISampleRelationshipDAO;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
@@ -64,6 +65,8 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
 
     private final ISampleDAO sampleDAO;
 
+    private final ISampleRelationshipDAO sampleRelationshipDAO;
+
     private final IGridCustomFilterDAO gridCustomFilterDAO;
 
     private final IGridCustomColumnDAO gridCustomColumnDAO;
@@ -94,6 +97,7 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
         experimentDAO = new ExperimentDAO(persistencyResources, historyCreator);
         projectDAO = new ProjectDAO(sessionFactory, historyCreator);
         sampleDAO = new SampleDAO(persistencyResources, historyCreator);
+        sampleRelationshipDAO = new SampleRelationshipDAO(sessionFactory, historyCreator);
         gridCustomFilterDAO = new GridCustomFilterDAO(sessionFactory, historyCreator);
         gridCustomColumnDAO = new GridCustomColumnDAO(sessionFactory, historyCreator);
         queryDAO = new QueryDAO(sessionFactory, historyCreator);
@@ -157,6 +161,11 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
     }
 
     @Override
+    public ISampleRelationshipDAO getSampleRelationshipDAO() {
+        return sampleRelationshipDAO;
+    }
+
+    @Override
     public IGridCustomFilterDAO getGridCustomFilterDAO()
     {
         return gridCustomFilterDAO;
@@ -200,7 +209,7 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
 
     /**
      * Configures current session settings for batch update mode.
-     * 
+     *
      * @see HibernateUtils#setBatchUpdateMode(org.hibernate.Session, boolean)
      */
     @Override
