@@ -66,7 +66,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
 
 /**
  * Test cases for corresponding {@link SampleBO} class.
- * 
+ *
  * @author Franz-Josef Elmer
  */
 public final class SampleBOTest extends AbstractBOTest
@@ -774,7 +774,7 @@ public final class SampleBOTest extends AbstractBOTest
         try
         {
             SampleUpdatesDTO updates =
-                    new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, null, 
+                    new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, null,
                             Collections.<NewAttachment> emptyList(), VERSION, null, null, null);
             createSampleBO().update(updates);
         } catch (UserFailureException e)
@@ -885,6 +885,9 @@ public final class SampleBOTest extends AbstractBOTest
                     one(sampleTypeDAO).tryFindSampleTypeByCode(DILUTION_PLATE);
                     will(returnValue(new SampleTypePE()));
 
+                    one(permIdDAO).createPermId();
+                    will(returnValue("2023010112341234-10"));
+
                     one(propertiesConverter).convertProperties(IEntityProperty.EMPTY_ARRAY, null,
                             EXAMPLE_PERSON);
 
@@ -920,6 +923,9 @@ public final class SampleBOTest extends AbstractBOTest
 
                     one(sampleTypeDAO).tryFindSampleTypeByCode(DILUTION_PLATE);
                     will(returnValue(new SampleTypePE()));
+
+                    one(permIdDAO).createPermId();
+                    will(returnValue("2023010112341234-10"));
 
                     one(propertiesConverter).convertProperties(IEntityProperty.EMPTY_ARRAY, null,
                             EXAMPLE_PERSON);
