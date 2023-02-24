@@ -61,7 +61,6 @@ configurations.create('javadoc_compilation')
 configurations.create('openbisCommonJavadoc')
 configurations.create('datastoreServerJavadoc')
 configurations.create('openbisJavadoc')
-configurations.create('screeningJavadoc')
 
 def jettyVersion = '9.4.44'
 def jettyDistributionVersion = '9.4.44.v20210927'
@@ -116,7 +115,6 @@ dependencies {
     openbisCommonJavadoc project(':openbis-common')
     datastoreServerJavadoc project(':datastore_server')
     openbisJavadoc project(':openbis')
-    screeningJavadoc project(':screening')
 }
 
 sourceSets {
@@ -508,20 +506,8 @@ task openbisJavadocZip(type: Zip, dependsOn: openbisJavadoc) {
     from openbisJavadoc.destinationDir
 }
 
-task screeningJavadoc(type: Javadoc) {
-    source project(':screening').files('source/java').getAsFileTree().matching {
-        include "**/ch/systemsx/cisd/openbis/plugin/screening/client/api/v1/**/*.java"
-    }
-    classpath = configurations.screeningJavadoc
-}
-
-task screeningJavadocZip(type: Zip, dependsOn: screeningJavadoc) {
-    archiveName 'javadoc-screening.zip'
-    from screeningJavadoc.destinationDir
-}
-
 task clientsAndApis(type: Zip, dependsOn: [dssClientZip, queryApiZip, apiV3Zip, screeningApiZip, pybisZip, obisZip, dropboxJavaDocZip, dynamicApiJavadocZip,
-                                           openbisCommonJavadocZip, dataStoreServerJavadocZip, openbisJavadocZip, screeningJavadocZip]) {
+                                           openbisCommonJavadocZip, dataStoreServerJavadocZip, openbisJavadocZip]) {
   baseName 'openBIS-clients-and-APIs'
   from dssClientZip.archivePath
   from queryApiZip.archivePath
@@ -534,7 +520,6 @@ task clientsAndApis(type: Zip, dependsOn: [dssClientZip, queryApiZip, apiV3Zip, 
   from openbisCommonJavadocZip.archivePath
   from dataStoreServerJavadocZip.archivePath
   from openbisJavadocZip.archivePath
-  from screeningJavadocZip.archivePath
   from ('dist/client/readme.txt')
   rename { filename ->
     if (filename.startsWith('pybis-')) {
