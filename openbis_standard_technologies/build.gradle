@@ -58,6 +58,9 @@ configurations.create('zipping')
 configurations.create('datastore_server')
 configurations.create('javadoc_sources')
 configurations.create('javadoc_compilation')
+configurations.create('openbisCommonJavadoc')
+configurations.create('datastoreServerJavadoc')
+configurations.create('openbisJavadoc')
 
 def jettyVersion = '9.4.14'
 
@@ -113,6 +116,9 @@ dependencies {
          exclude group: 'google', module: 'gwt-user'
     }
 
+	openbisCommonJavadoc project(':openbis-common')
+	datastoreServerJavadoc project(':datastore_server')
+	openbisJavadoc project(':openbis')
 }
 
 sourceSets {
@@ -439,7 +445,46 @@ task obisZip(type: Zip) {
   from '../obis/'
 }
 
-task clientsAndApis(type: Zip, dependsOn: [dssClientZip, queryApiZip, apiV3Zip, proteomicsApiZip, screeningApiZip, pybisZip, obisZip]) {
+task openbisCommonJavadoc(type: Javadoc) {
+	source project(':openbis-common').files('source/java').getAsFileTree().matching {
+		include "**/ch/ethz/sis/openbis/common/io/hierarchical_content/api/**/*.java"
+	}
+	classpath = configurations.openbisCommonJavadoc
+}
+
+task openbisCommonJavadocZip(type: Zip, dependsOn: openbisCommonJavadoc) {
+	archiveName 'javadoc-openbis-common.zip'
+	from openbisCommonJavadoc.destinationDir
+}
+
+task datastoreServerJavadoc(type: Javadoc) {
+	source project(':datastore_server').files('source/java').getAsFileTree().matching {
+		include "**/ch/systemsx/cisd/openbis/dss/generic/server/plugins/jython/api/**/*.java"
+		include "**/ch/systemsx/cisd/openbis/dss/generic/shared/api/internal/**/*.java"
+	}
+	classpath = configurations.datastoreServerJavadoc
+}
+
+task dataStoreServerJavadocZip(type: Zip, dependsOn: datastoreServerJavadoc) {
+	archiveName 'javadoc-datastore-server.zip'
+	from datastoreServerJavadoc.destinationDir
+}
+
+task openbisJavadoc(type: Javadoc) {
+	source project(':openbis').files('source/java').getAsFileTree().matching {
+		include "**/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/**/*.java"
+	}
+	classpath = configurations.openbisJavadoc
+}
+
+task openbisJavadocZip(type: Zip, dependsOn: openbisJavadoc) {
+	archiveName 'javadoc-openbis.zip'
+	from openbisJavadoc.destinationDir
+}
+
+task clientsAndApis(type: Zip, dependsOn: [dssClientZip, queryApiZip, apiV3Zip, proteomicsApiZip, screeningApiZip,
+										   pybisZip, obisZip, openbisCommonJavadocZip, dataStoreServerJavadocZip,
+										   openbisJavadocZip]) {
   baseName 'openBIS-clients-and-APIs'
   from dssClientZip.archivePath
   from queryApiZip.archivePath
@@ -448,6 +493,9 @@ task clientsAndApis(type: Zip, dependsOn: [dssClientZip, queryApiZip, apiV3Zip, 
   from screeningApiZip.archivePath
   from pybisZip.archivePath
   from obisZip.archivePath
+  from openbisCommonJavadocZip.archivePath
+  from dataStoreServerJavadocZip.archivePath
+  from openbisJavadocZip.archivePath
   from ('dist/client/readme.txt')
   rename { filename -> 
     if (filename.startsWith('pybis-')) {
@@ -476,12 +524,12 @@ task generateJavadoc(type: Javadoc) {
 		include "**/ch/ethz/sis/openbis/generic/asapi/**/*.java"
 		include "**/ch/ethz/sis/openbis/generic/dssapi/**/*.java"
 		include "**/ch/systemsx/cisd/**/api/**/*.java"
-		include "**/ch/systemsx/cisd/common/annotation/*.java"
-		include "**/ch/systemsx/cisd/base/**/*.java"		
-		include "**/OpenBISScreeningML.java"
 		include "**/ch/systemsx/cisd/**/etlserver/TopLevelDataSetRegistratorGlobalState.java"
 		include "**/ch/systemsx/cisd/**/etlserver/registrator/*.java"
+		include "**/ch/systemsx/cisd/base/**/*.java"
+		include "**/ch/systemsx/cisd/common/annotation/*.java"
 		include "**/ch/systemsx/cisd/common/mail/*.java"
+		include "**/OpenBISScreeningML.java"
 	}}
 	classpath = configurations.javadoc_compilation
 	maxMemory = "1024m"
