@@ -471,7 +471,7 @@ task obisZip(type: Zip) {
 
 task openbisCommonJavadoc(type: Javadoc) {
     source project(':openbis-common').files('source/java').getAsFileTree().matching {
-        include "**/ch/ethz/sis/openbis/common/io/hierarchical_content/api/**/*.java"
+        include "**/ch/systemsx/cisd/openbis/common/io/hierarchical_content/api/**/*.java"
     }
     classpath = configurations.openbisCommonJavadoc
 }
