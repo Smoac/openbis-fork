@@ -496,6 +496,7 @@ task dataStoreServerJavadocZip(type: Zip, dependsOn: datastoreServerJavadoc) {
 
 task openbisJavadoc(type: Javadoc) {
     source project(':openbis').files('source/java').getAsFileTree().matching {
+		include "**/ch/systemsx/cisd/openbis/generic/server/jython/api/v1/**/*.java"
         include "**/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/**/*.java"
     }
     classpath = configurations.openbisJavadoc
