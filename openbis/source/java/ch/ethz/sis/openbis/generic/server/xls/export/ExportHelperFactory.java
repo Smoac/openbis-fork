@@ -1,7 +1,23 @@
+/*
+ * Copyright ETH 2022 - 2023 Zürich, Scientific IT Services
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package ch.ethz.sis.openbis.generic.server.xls.export;
 
 import org.apache.poi.ss.usermodel.Workbook;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.IXLSExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSDataSetExportHelper;
 import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSDataSetTypeExportHelper;
@@ -51,7 +67,7 @@ public class ExportHelperFactory
         dataSetExportHelper = new XLSDataSetExportHelper(wb);
     }
 
-    IXLSExportHelper getHelper(final ExportableKind exportableKind)
+    IXLSExportHelper<? extends IEntityType> getHelper(final ExportableKind exportableKind)
     {
         switch (exportableKind)
         {
@@ -67,7 +83,7 @@ public class ExportHelperFactory
             {
                 return dataSetTypeExportHelper;
             }
-            case VOCABULARY:
+            case VOCABULARY_TYPE:
             {
                 return vocabularyExportHelper;
             }

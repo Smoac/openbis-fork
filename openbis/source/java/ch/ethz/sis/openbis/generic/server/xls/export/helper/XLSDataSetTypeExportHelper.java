@@ -1,7 +1,29 @@
+/*
+ * Copyright ETH 2022 - 2023 Zürich, Scientific IT Services
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.CODE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.DESCRIPTION;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.DISALLOW_DELETION;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MAIN_DATA_SET_PATH;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MAIN_DATA_SET_PATTERN;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MODIFICATION_DATE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.VALIDATION_SCRIPT;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.VERSION;
+
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
@@ -9,7 +31,6 @@ import java.util.Map;
 import org.apache.poi.ss.usermodel.Workbook;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
@@ -17,10 +38,12 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
+import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
-import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
+import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportTypes;
+import ch.ethz.sis.openbis.generic.server.xls.importer.utils.VersionUtils;
 
-public class XLSDataSetTypeExportHelper extends AbstractXLSExportHelper
+public class XLSDataSetTypeExportHelper extends AbstractXLSEntityTypeExportHelper<DataSetType>
 {
 
     public XLSDataSetTypeExportHelper(final Workbook wb)
@@ -29,42 +52,8 @@ public class XLSDataSetTypeExportHelper extends AbstractXLSExportHelper
     }
 
     @Override
-    public AdditionResult add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
-            final Collection<String> permIds, int rowNumber,
-            final Map<String, Collection<String>> entityTypeExportPropertiesMap,
-            final XLSExport.TextFormatting textFormatting)
-    {
-        assert permIds.size() == 1;
-        final DataSetType dataSetType = getDataSetType(api, sessionToken, permIds.iterator().next());
-        final Collection<String> warnings = new ArrayList<>();
-
-        if (dataSetType != null)
-        {
-            final String permId = dataSetType.getPermId().getPermId();
-            warnings.addAll(addRow(rowNumber++, true, ExportableKind.DATASET_TYPE, permId, "DATASET_TYPE"));
-            warnings.addAll(addRow(rowNumber++, true, ExportableKind.DATASET_TYPE, permId, "Version", "Code",
-                    "Description", "Validation script"));
-
-            final Plugin validationPlugin = dataSetType.getValidationPlugin();
-            final String script = validationPlugin != null
-                    ? (validationPlugin.getName() != null ? validationPlugin.getName() + ".py" : "") : "";
-
-            warnings.addAll(addRow(rowNumber++, false, ExportableKind.DATASET_TYPE, permId, "1",
-                    dataSetType.getCode(), dataSetType.getDescription(), script));
-
-            final AdditionResult additionResult = addEntityTypePropertyAssignments(rowNumber,
-                    dataSetType.getPropertyAssignments(), ExportableKind.DATASET_TYPE, permId);
-            warnings.addAll(additionResult.getWarnings());
-
-            rowNumber = additionResult.getRowNumber();
-            return new AdditionResult(rowNumber + 1, warnings);
-        } else
-        {
-            return new AdditionResult(rowNumber, warnings);
-        }
-    }
-
-    private DataSetType getDataSetType(final IApplicationServerApi api, final String sessionToken, final String permId)
+    public DataSetType getEntityType(final IApplicationServerApi api, final String sessionToken,
+            final String permId)
     {
         final DataSetTypeFetchOptions fetchOptions = new DataSetTypeFetchOptions();
         fetchOptions.withValidationPlugin().withScript();
@@ -83,10 +72,62 @@ public class XLSDataSetTypeExportHelper extends AbstractXLSExportHelper
     }
 
     @Override
-    public IEntityType getEntityType(final IApplicationServerApi api, final String sessionToken,
-            final String permId)
+    protected Attribute[] getAttributes(final DataSetType entityType)
     {
-        return getDataSetType(api, sessionToken, permId);
+        return new Attribute[] { VERSION, CODE, DESCRIPTION, VALIDATION_SCRIPT, MAIN_DATA_SET_PATTERN, MAIN_DATA_SET_PATH, DISALLOW_DELETION,
+                MODIFICATION_DATE };
+    }
+
+    @Override
+    protected String getAttributeValue(final DataSetType dataSetType, final Attribute attribute)
+    {
+        switch (attribute)
+        {
+            case VERSION:
+            {
+                return String.valueOf(VersionUtils.getStoredVersion(allVersions, ImportTypes.DATASET_TYPE, null, dataSetType.getCode()));
+            }
+            case CODE:
+            {
+                return dataSetType.getCode();
+            }
+            case DESCRIPTION:
+            {
+                return dataSetType.getDescription();
+            }
+            case VALIDATION_SCRIPT:
+            {
+                final Plugin validationPlugin = dataSetType.getValidationPlugin();
+                return validationPlugin != null ? (validationPlugin.getName() != null ? validationPlugin.getName() + ".py" : "") : "";
+
+            }
+            case MAIN_DATA_SET_PATTERN:
+            {
+                return dataSetType.getMainDataSetPattern();
+            }
+            case MAIN_DATA_SET_PATH:
+            {
+                return dataSetType.getMainDataSetPath();
+            }
+            case DISALLOW_DELETION:
+            {
+                return dataSetType.isDisallowDeletion().toString().toUpperCase();
+            }
+            case MODIFICATION_DATE:
+            {
+                return DATE_FORMAT.format(dataSetType.getModificationDate());
+            }
+            default:
+            {
+                return null;
+            }
+        }
+    }
+
+    @Override
+    protected ExportableKind getExportableKind()
+    {
+        return ExportableKind.DATASET_TYPE;
     }
 
 }

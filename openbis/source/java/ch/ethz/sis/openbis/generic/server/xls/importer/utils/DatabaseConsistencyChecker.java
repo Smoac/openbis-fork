@@ -1,3 +1,18 @@
+/*
+ * Copyright ETH 2022 - 2023 Zürich, Scientific IT Services
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package ch.ethz.sis.openbis.generic.server.xls.importer.utils;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
@@ -43,7 +58,8 @@ public class DatabaseConsistencyChecker
         {
             numberOfTypesInJSON++;
 
-            String code = version.split("-")[1];
+            int indexOfSeparator = version.indexOf('-');
+            String code = version.substring(indexOfSeparator + 1);
 
             if (version.startsWith(ImportTypes.DATASET_TYPE.getType()))
             {
@@ -79,14 +95,35 @@ public class DatabaseConsistencyChecker
                 }
             } else if (version.startsWith(ImportTypes.VOCABULARY_TERM.getType()))
             {
-                String vocabularyCode = version.split("-")[1];
-                String termCode = version.split("-")[2];
-                VocabularyTermPermId termId = new VocabularyTermPermId(termCode, vocabularyCode);
-
+                /*
+                 *  The "-" is a valid code character and also the separator between vocabulary and term code.
+                 *  This lead to situations where is not possible to know where the vocabulary and term code starts/ends
+                 *  The only backwards compatible solution is to search for all possible permutations
+                 */
+                String[] codeParts = code.split("-");
+                List<VocabularyTermPermId> possiblePermIds = new ArrayList<>();
+                for (int idx = 0; idx < codeParts.length; idx++) {
+                    StringBuilder vocabularyCode = new StringBuilder();
+                    for (int idx2 = 0; idx2 <= idx; idx2++) {
+                        if (vocabularyCode.length() > 0) {
+                            vocabularyCode.append("-");
+                        }
+                        vocabularyCode.append(codeParts[idx2]);
+                    }
+                    StringBuilder termCode = new StringBuilder();
+                    for (int idx2 = idx + 1; idx2 < codeParts.length; idx2++) {
+                        if (termCode.length() > 0) {
+                            termCode.append("-");
+                        }
+                        termCode.append(codeParts[idx2]);
+                    }
+                    if (vocabularyCode.length() > 0 && termCode.length() > 0) {
+                        possiblePermIds.add(new VocabularyTermPermId(termCode.toString(), vocabularyCode.toString()));
+                    }
+                }
                 VocabularyTermFetchOptions fetchOptions = new VocabularyTermFetchOptions();
                 fetchOptions.withVocabulary();
-
-                if (api.getVocabularyTerms(sessionToken, Arrays.asList(termId), fetchOptions).isEmpty())
+                if (api.getVocabularyTerms(sessionToken, possiblePermIds, fetchOptions).isEmpty())
                 {
                     missing.add(version);
                 }

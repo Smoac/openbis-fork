@@ -1,27 +1,55 @@
+/*
+ * Copyright ETH 2022 - 2023 Zürich, Scientific IT Services
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
-import java.util.ArrayList;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.ARCHIVING_STATUS;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.CHILDREN;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.CODE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.EXPERIMENT;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MODIFICATION_DATE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MODIFIER;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.PARENTS;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.PERM_ID;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.PRESENT_IN_ARCHIVE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.REGISTRATION_DATE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.REGISTRATOR;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.SAMPLE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.STORAGE_CONFIRMATION;
+
 import java.util.Collection;
-import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Predicate;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.poi.ss.usermodel.Workbook;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IIdentifierHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
+import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 
-public class XLSDataSetExportHelper extends AbstractXLSExportHelper
+public class XLSDataSetExportHelper extends AbstractXLSEntityExportHelper<DataSet, DataSetType>
 {
 
     public XLSDataSetExportHelper(final Workbook wb)
@@ -31,69 +59,15 @@ public class XLSDataSetExportHelper extends AbstractXLSExportHelper
 
     @Override
     public AdditionResult add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
-            final Collection<String> permIds, int rowNumber,
-            final Map<String, Collection<String>> entityTypeExportPropertiesMap,
-            final XLSExport.TextFormatting textFormatting)
+            final List<String> permIds, final int rowNumber, final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap,
+            final XLSExport.TextFormatting textFormatting, final boolean compatibleWithImport)
     {
-        final Collection<DataSet> dataSets = getDataSets(api, sessionToken, permIds);
-        final Collection<String> warnings = new ArrayList<>();
-
-        // Sorting after grouping is needed only to make sure that the tests pass, because entrySet() can have elements
-        // in arbitrary order.
-        final Collection<Map.Entry<DataSetType, List<DataSet>>> groupedDataSets =
-                dataSets.stream().collect(Collectors.groupingBy(DataSet::getType)).entrySet().stream()
-                        .sorted(Comparator.comparing(e -> e.getKey().getPermId().getPermId()))
-                        .collect(Collectors.toList());
-
-        for (final Map.Entry<DataSetType, List<DataSet>> entry : groupedDataSets)
-        {
-            final String typePermId = entry.getKey().getPermId().getPermId();
-            final Collection<String> propertiesToInclude = entityTypeExportPropertiesMap == null
-                    ? null
-                    : entityTypeExportPropertiesMap.get(typePermId);
-            final Predicate<PropertyType> propertiesFilterFunction = getPropertiesFilterFunction(propertiesToInclude);
-
-            warnings.addAll(addRow(rowNumber++, true, ExportableKind.DATASET_TYPE, typePermId, "DATASET"));
-            warnings.addAll(addRow(rowNumber++, true, ExportableKind.DATASET_TYPE, typePermId, "Dataset type"));
-            warnings.addAll(addRow(rowNumber++, false, ExportableKind.DATASET_TYPE, typePermId, typePermId));
-
-            final List<String> headers = new ArrayList<>(List.of("Code",
-                    entry.getValue().get(0).getSample() != null ? "Sample" : "Experiment"));
-            final List<PropertyType> propertyTypes = entry.getKey().getPropertyAssignments().stream()
-                    .map(PropertyAssignment::getPropertyType).collect(Collectors.toList());
-            final List<String> propertyNames = propertyTypes.stream().filter(propertiesFilterFunction)
-                    .map(PropertyType::getLabel).collect(Collectors.toList());
-
-            headers.addAll(propertyNames);
-
-            warnings.addAll(addRow(rowNumber++, true, ExportableKind.DATASET_TYPE, typePermId,
-                    headers.toArray(String[]::new)));
-
-            for (final DataSet dataSet : entry.getValue())
-            {
-                final IIdentifierHolder identifierHolder = dataSet.getSample() != null
-                        ? dataSet.getSample()
-                        : dataSet.getExperiment();
-                final List<String> dataSetValues = new ArrayList<>(
-                        List.of(dataSet.getCode(), identifierHolder.getIdentifier().getIdentifier()));
-
-                final Map<String, String> properties = dataSet.getProperties();
-                dataSetValues.addAll(propertyTypes.stream()
-                        .filter(propertiesFilterFunction)
-                        .map(getPropertiesMappingFunction(textFormatting, properties))
-                        .collect(Collectors.toList()));
-                
-                warnings.addAll(addRow(rowNumber++, false, ExportableKind.DATASET, dataSet.getPermId().getPermId(),
-                        dataSetValues.toArray(String[]::new)));
-            }
-
-            rowNumber++;
-        }
-
-        return new AdditionResult(rowNumber, warnings);
+        return compatibleWithImport ? new AdditionResult(0, List.of())
+                : super.add(api, sessionToken, wb, permIds, rowNumber, entityTypeExportFieldsMap, textFormatting, false);
     }
 
-    private Collection<DataSet> getDataSets(final IApplicationServerApi api, final String sessionToken,
+    @Override
+    protected Collection<DataSet> getEntities(final IApplicationServerApi api, final String sessionToken,
             final Collection<String> permIds)
     {
         final List<DataSetPermId> dataSetPermIds = permIds.stream().map(DataSetPermId::new)
@@ -103,7 +77,127 @@ public class XLSDataSetExportHelper extends AbstractXLSExportHelper
         fetchOptions.withExperiment();
         fetchOptions.withType().withPropertyAssignments().withPropertyType();
         fetchOptions.withProperties();
+        fetchOptions.withRegistrator();
+        fetchOptions.withModifier();
+        fetchOptions.withPhysicalData();
+        fetchOptions.withParents();
+        fetchOptions.withChildren();
         return api.getDataSets(sessionToken, dataSetPermIds, fetchOptions).values();
+    }
+
+    @Override
+    protected ExportableKind getExportableKind()
+    {
+        return ExportableKind.DATASET;
+    }
+
+    @Override
+    protected ExportableKind getTypeExportableKind()
+    {
+        return ExportableKind.DATASET_TYPE;
+    }
+
+    @Override
+    protected String getEntityTypeName()
+    {
+        return "Dataset type";
+    }
+
+    @Override
+    protected String getIdentifier(final DataSet entity)
+    {
+        return entity.getPermId().getPermId();
+    }
+
+    @Override
+    protected Function<DataSet, DataSetType> getTypeFunction()
+    {
+        return DataSet::getType;
+    }
+
+    @Override
+    protected Attribute[] getAttributes(final DataSet dataSet)
+    {
+        return new Attribute[] { PERM_ID, CODE, ARCHIVING_STATUS, PRESENT_IN_ARCHIVE, STORAGE_CONFIRMATION,
+                dataSet.getSample() != null ? SAMPLE : EXPERIMENT, PARENTS, CHILDREN, REGISTRATOR, REGISTRATION_DATE, MODIFIER, MODIFICATION_DATE };
+    }
+
+    @Override
+    protected String getAttributeValue(final DataSet dataSet, final Attribute attribute)
+    {
+        switch (attribute)
+        {
+            case PERM_ID:
+            {
+                return dataSet.getPermId().getPermId();
+            }
+            case ARCHIVING_STATUS:
+            {
+                return dataSet.getPhysicalData().getStatus().toString();
+            }
+            case PRESENT_IN_ARCHIVE:
+            {
+                return dataSet.getPhysicalData().isPresentInArchive().toString().toUpperCase();
+            }
+            case STORAGE_CONFIRMATION:
+            {
+                return dataSet.getPhysicalData().isStorageConfirmation().toString().toUpperCase();
+            }
+            case CODE:
+            {
+                return dataSet.getCode();
+            }
+            case SAMPLE:
+            {
+                return dataSet.getSample().getIdentifier().getIdentifier();
+            }
+            case EXPERIMENT:
+            {
+                return dataSet.getExperiment().getIdentifier().getIdentifier();
+            }
+            case REGISTRATOR:
+            {
+                final Person registrator = dataSet.getRegistrator();
+                return registrator != null ? registrator.getUserId() : null;
+            }
+            case REGISTRATION_DATE:
+            {
+                final Date registrationDate = dataSet.getRegistrationDate();
+                return registrationDate != null ? DATE_FORMAT.format(registrationDate) : null;
+            }
+            case MODIFIER:
+            {
+                final Person modifier = dataSet.getModifier();
+                return modifier != null ? modifier.getUserId() : null;
+            }
+            case MODIFICATION_DATE:
+            {
+                final Date modificationDate = dataSet.getModificationDate();
+                return modificationDate != null ? DATE_FORMAT.format(modificationDate) : null;
+            }
+            case PARENTS:
+            {
+                return dataSet.getParents() == null ? "" : dataSet.getParents().stream()
+                        .map(DataSet::getCode)
+                        .collect(Collectors.joining("\n"));
+            }
+            case CHILDREN:
+            {
+                return dataSet.getChildren() == null ? "" : dataSet.getChildren().stream()
+                        .map(DataSet::getCode)
+                        .collect(Collectors.joining("\n"));
+            }
+            default:
+            {
+                return null;
+            }
+        }
+    }
+
+    @Override
+    protected String typePermIdToString(final DataSetType dataSetType)
+    {
+        return dataSetType.getPermId().getPermId();
     }
 
 }

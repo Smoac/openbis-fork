@@ -1,3 +1,18 @@
+/*
+ * Copyright ETH 2022 - 2023 Zürich, Scientific IT Services
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package ch.ethz.sis.openbis.generic.server.xls.export;
 
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.DATASET;
@@ -9,7 +24,7 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.PROJE
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.SAMPLE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.SAMPLE_TYPE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.SPACE;
-import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.VOCABULARY;
+import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.VOCABULARY_TYPE;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
@@ -37,19 +52,15 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
+import ch.ethz.sis.openbis.generic.server.xls.export.helper.AbstractXLSEntityTypeExportHelper;
+import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSVocabularyExportHelper;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 public class XLSExportTest
@@ -57,39 +68,7 @@ public class XLSExportTest
 
     static final String SESSION_TOKEN = "test-token";
 
-    static final String TEST_SCRIPT_CONTENT =
-            "def getRenderedProperty(entity, property):\n" +
-            "    entity.property(property).renderedValue()";
-
-    static final String DATE_RANGE_VALIDATION_SCRIPT_CONTENT =
-            "def validate(entity, isNew):\n" +
-            "    start_date = getRenderedProperty(entity, \"START_DATE\")\n" +
-            "    end_date = getRenderedProperty(entity, \"END_DATE\")\n" +
-            "    if start_date is not None and end_date is not None and start_date > end_date:\n" +
-            "        return \"End date cannot be before start date!\"";
-
     private static final String XLS_EXPORT_DATA_PROVIDER = "xlsExportData";
-    public static final Map<String, Map<String, List<String>>> EXPORT_PROPERTIES =
-            Map.of(
-                    DATASET.toString(), Map.of(
-                        "ATTACHMENT", List.of("$ATTACHMENT"),
-                        "RAW_DATA", List.of("$NAME", "NOTES")
-                    ),
-                    EXPERIMENT.toString(), Map.of(
-                        "COLLECTION", List.of("$DEFAULT_OBJECT_TYPE"),
-                        "DEFAULT_EXPERIMENT", List.of("FINISHED_FLAG")
-                    ),
-                    SAMPLE.toString(), Map.of(
-                        "DEFAULT", List.of(),
-                        "STORAGE", List.of("$STORAGE.BOX_NUM")
-                    )
-            );
-
-    private static final List<String> EXPERIMENT_IMPORT_WARNINGS = List.of(
-            "Line: 6 Kind: /TEST/TEST/TEST ID: 'COLLECTION' - "
-                    + "Value exceeds the maximum size supported by Excel: 32767.",
-            "Line: 5 Kind: /ELN_SETTINGS/STORAGES/STORAGES_COLLECTION ID: 'COLLECTION' - "
-                    + "Value exceeds the maximum size supported by Excel: 32767.");
 
     private Mockery mockery;
 
@@ -98,411 +77,14 @@ public class XLSExportTest
     @DataProvider
     protected Object[][] xlsExportData()
     {
-        return new Object[][] {
-                {
-                        "export-vocabulary.xlsx",
-                        Map.of(),
-                        VocabularyExpectations.class,
-                        Collections.singletonList(new ExportablePermId(VOCABULARY,
-                                new VocabularyPermId("ANTIBODY.DETECTION"))),
-                        true,
-                        null,
-                        XLSExport.TextFormatting.PLAIN,
-                        List.of()
-                },
-                {
-                        "export-sample-type.xlsx",
-                        Map.of(
-                                "test", TEST_SCRIPT_CONTENT,
-                                "test-dynamic", TEST_SCRIPT_CONTENT
-                        ),
-                        SampleTypeExpectations.class,
-                        Collections.singletonList(new ExportablePermId(SAMPLE_TYPE,
-                                new EntityTypePermId("ENTRY", EntityKind.SAMPLE))),
-                        true,
-                        null,
-                        XLSExport.TextFormatting.PLAIN,
-                        List.of()
-                },
-                {
-                        "export-experiment-type.xlsx",
-                        Map.of("test", TEST_SCRIPT_CONTENT),
-                        ExperimentTypeExpectations.class,
-                        Collections.singletonList(new ExportablePermId(EXPERIMENT_TYPE,
-                                new EntityTypePermId("DEFAULT_EXPERIMENT", EntityKind.EXPERIMENT))),
-                        true,
-                        null,
-                        XLSExport.TextFormatting.PLAIN,
-                        List.of()
-                },
-                {
-                        "export-data-set-type.xlsx",
-                        Map.of(),
-                        DataSetTypeExpectations.class,
-                        Collections.singletonList(new ExportablePermId(DATASET_TYPE,
-                                new EntityTypePermId("ATTACHMENT", EntityKind.DATA_SET))),
-                        true,
-                        null,
-                        XLSExport.TextFormatting.PLAIN,
-                        List.of()
-                },
-                {
-                        "export-sample-type-with-vocabulary-property.xlsx",
-                        Map.of(),
-                        SampleTypeWithVocabularyPropertyExpectations.class,
-                        List.of(
-                                new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("ANTIBODY", EntityKind.SAMPLE)),
-                                new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("VIRUS", EntityKind.SAMPLE))),
-                        true,
-                        null,
-                        XLSExport.TextFormatting.PLAIN,
-                        List.of()
-                },
-                {
-                        "export-sample-type-with-omitted-vocabulary-property.xlsx",
-                        Map.of(),
-                        SampleTypeWithVocabularyPropertyExpectations.class,
-                        List.of(
-                                new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("ANTIBODY", EntityKind.SAMPLE)),
-                                new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("VIRUS", EntityKind.SAMPLE))),
-                        false,
-                        null,
-                        XLSExport.TextFormatting.PLAIN,
-                        List.of()
-                },
-                {
-                        "export-sample-type-with-sample-property.xlsx",
-                        Map.of(
-                                "date_range_validation", DATE_RANGE_VALIDATION_SCRIPT_CONTENT,
-                                "test", TEST_SCRIPT_CONTENT
-                        ),
-                        SampleTypeWithSamplePropertyExpectations.class,
-                        Collections.singletonList(
-                                new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
-                        true,
-                        null,
-                        XLSExport.TextFormatting.PLAIN,
-                        List.of()
-                },
-                {
-                        "export-sample-type-with-bare-sample-property.xlsx",
-                        Map.of("date_range_validation", DATE_RANGE_VALIDATION_SCRIPT_CONTENT),
-                        SampleTypeWithBareSamplePropertyExpectations.class,
-                        Collections.singletonList(
-                                new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
-                        true,
-                        null,
-                        XLSExport.TextFormatting.PLAIN,
-                        List.of()
-                },
-                {
-                        "export-sample-type-with-omitted-sample-property.xlsx",
-                        Map.of("date_range_validation", DATE_RANGE_VALIDATION_SCRIPT_CONTENT),
-                        SampleTypeWithSamplePropertyExpectations.class,
-                        Collections.singletonList(
-                                new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
-                        false,
-                        null,
-                        XLSExport.TextFormatting.PLAIN,
-                        List.of()
-                },
-                {
-                        "export-sample-type-with-chained-sample-properties.xlsx",
-                        Map.of("date_range_validation", DATE_RANGE_VALIDATION_SCRIPT_CONTENT),
-                        SampleTypeWithChainedSamplePropertiesExpectations.class,
-                        Collections.singletonList(
-                                new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
-                        true,
-                        null,
-                        XLSExport.TextFormatting.PLAIN,
-                        List.of()
-                },
-                {
-                        "export-sample-type-with-cyclic-sample-properties.xlsx",
-                        Map.of("date_range_validation", DATE_RANGE_VALIDATION_SCRIPT_CONTENT),
-                        SampleTypeWithCyclicSamplePropertiesExpectations.class,
-                        Collections.singletonList(
-                                new ExportablePermId(SAMPLE_TYPE, new EntityTypePermId("COURSE", EntityKind.SAMPLE))),
-                        true,
-                        null,
-                        XLSExport.TextFormatting.PLAIN,
-                        List.of()
-                },
-                {
-                        "export-space.xlsx",
-                        Map.of(),
-                        SpaceExpectations.class,
-                        List.of(
-                                new ExportablePermId(SPACE, new SpacePermId("ELN_SETTINGS")),
-                                new ExportablePermId(SPACE, new SpacePermId("MATERIALS")),
-                                new ExportablePermId(SPACE, new SpacePermId("PUBLICATIONS"))
-                        ),
-                        true,
-                        null,
-                        XLSExport.TextFormatting.PLAIN,
-                        List.of()
-                },
-                {
-                        "export-project.xlsx",
-                        Map.of(),
-                        ProjectExpectations.class,
-                        List.of(
-                                new ExportablePermId(PROJECT, new ProjectPermId("200001010000000-0001")),
-                                new ExportablePermId(PROJECT, new ProjectPermId("200001010000000-0002"))
-                        ),
-                        true,
-                        null,
-                        XLSExport.TextFormatting.PLAIN,
-                        List.of()
-                },
-                {
-                        "export-experiment.xlsx",
-                        Map.of(),
-                        ExperimentExpectations.class,
-                        List.of(
-                                new ExportablePermId(EXPERIMENT, new ExperimentPermId("200001010000000-0001")),
-                                new ExportablePermId(EXPERIMENT, new ExperimentPermId("200001010000000-0002")),
-                                new ExportablePermId(EXPERIMENT, new ExperimentPermId("200001010000000-0003"))
-                        ),
-                        true,
-                        null,
-                        XLSExport.TextFormatting.PLAIN,
-                        EXPERIMENT_IMPORT_WARNINGS
-                },
-                {
-                        "export-experiment.xlsx",
-                        Map.of(),
-                        ExperimentExpectations.class,
-                        List.of(
-                                new ExportablePermId(EXPERIMENT, new ExperimentPermId("200001010000000-0001")),
-                                new ExportablePermId(EXPERIMENT, new ExperimentPermId("200001010000000-0002")),
-                                new ExportablePermId(EXPERIMENT, new ExperimentPermId("200001010000000-0003"))
-                        ),
-                        true,
-                        Map.of(
-                                DATASET.toString(), Map.of(
-                                    "ATTACHMENT", List.of("$ATTACHMENT"),
-                                    "RAW_DATA", List.of("$NAME", "NOTES")
-                                ),
-                                EXPERIMENT.toString(), Map.of(),
-                                SAMPLE.toString(), Map.of(
-                                    "DEFAULT", List.of(),
-                                    "STORAGE", List.of("$STORAGE.BOX_NUM")
-                                )
-                        ),
-                        XLSExport.TextFormatting.PLAIN,
-                        EXPERIMENT_IMPORT_WARNINGS
-                },
-                {
-                        "export-experiment.xlsx",
-                        Map.of(),
-                        ExperimentExpectations.class,
-                        List.of(
-                                new ExportablePermId(EXPERIMENT, new ExperimentPermId("200001010000000-0001")),
-                                new ExportablePermId(EXPERIMENT, new ExperimentPermId("200001010000000-0002")),
-                                new ExportablePermId(EXPERIMENT, new ExperimentPermId("200001010000000-0003"))
-                        ),
-                        true,
-                        Map.of(
-                                DATASET.toString(), Map.of(
-                                    "ATTACHMENT", List.of("$ATTACHMENT"),
-                                    "RAW_DATA", List.of("$NAME", "NOTES")
-                                ),
-                                SAMPLE.toString(), Map.of(
-                                    "DEFAULT", List.of(),
-                                    "STORAGE", List.of("$STORAGE.BOX_NUM")
-                                )
-                        ),
-                        XLSExport.TextFormatting.PLAIN,
-                        EXPERIMENT_IMPORT_WARNINGS
-                },
-                {
-                        "export-experiment-filtered-properties.xlsx",
-                        Map.of(),
-                        ExperimentExpectations.class,
-                        List.of(
-                                new ExportablePermId(EXPERIMENT, new ExperimentPermId("200001010000000-0001")),
-                                new ExportablePermId(EXPERIMENT, new ExperimentPermId("200001010000000-0002")),
-                                new ExportablePermId(EXPERIMENT, new ExperimentPermId("200001010000000-0003"))
-                        ),
-                        true,
-                        EXPORT_PROPERTIES,
-                        XLSExport.TextFormatting.PLAIN,
-                        List.of()
-                },
-                {
-                        "export-sample.xlsx",
-                        Map.of(),
-                        SampleExpectations.class,
-                        List.of(
-                                new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0001")),
-                                new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0002")),
-                                new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0003")),
-                                new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0004")),
-                                new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0005"))
-                        ),
-                        true,
-                        null,
-                        XLSExport.TextFormatting.PLAIN,
-                        List.of()
-                },
-                {
-                        "export-sample.xlsx",
-                        Map.of(),
-                        SampleExpectations.class,
-                        List.of(
-                                new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0001")),
-                                new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0002")),
-                                new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0003")),
-                                new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0004")),
-                                new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0005"))
-                        ),
-                        true,
-                        Map.of(
-                                DATASET.toString(), Map.of(
-                                    "ATTACHMENT", List.of("$ATTACHMENT"),
-                                    "RAW_DATA", List.of("$NAME", "NOTES")
-                                ),
-                                EXPERIMENT.toString(), Map.of(
-                                    "COLLECTION", List.of("$DEFAULT_OBJECT_TYPE"),
-                                    "DEFAULT_EXPERIMENT", List.of("FINISHED_FLAG")
-                                ),
-                                SAMPLE.toString(), Map.of()
-                        ),
-                        XLSExport.TextFormatting.PLAIN,
-                        List.of()
-                },
-                {
-                        "export-sample.xlsx",
-                        Map.of(),
-                        SampleExpectations.class,
-                        List.of(
-                                new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0001")),
-                                new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0002")),
-                                new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0003")),
-                                new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0004")),
-                                new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0005"))
-                        ),
-                        true,
-                        Map.of(
-                                DATASET.toString(), Map.of(
-                                    "ATTACHMENT", List.of("$ATTACHMENT"),
-                                    "RAW_DATA", List.of("$NAME", "NOTES")
-                                ),
-                                EXPERIMENT.toString(), Map.of(
-                                        "COLLECTION", List.of("$DEFAULT_OBJECT_TYPE"),
-                                        "DEFAULT_EXPERIMENT", List.of("FINISHED_FLAG")
-                                )
-                        ),
-                        XLSExport.TextFormatting.PLAIN,
-                        List.of()
-                },
-                {
-                        "export-sample-filtered-properties.xlsx",
-                        Map.of(),
-                        SampleExpectations.class,
-                        List.of(
-                                new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0001")),
-                                new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0002")),
-                                new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0003")),
-                                new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0004")),
-                                new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0005"))
-                        ),
-                        true,
-                        EXPORT_PROPERTIES,
-                        XLSExport.TextFormatting.PLAIN,
-                        List.of()
-                },
-                {
-                        "export-data-set-rich-text.xlsx",
-                        Map.of(),
-                        DataSetExpectations.class,
-                        List.of(
-                                new ExportablePermId(DATASET, new DataSetPermId("200001010000000-0001")),
-                                new ExportablePermId(DATASET, new DataSetPermId("200001010000000-0002")),
-                                new ExportablePermId(DATASET, new DataSetPermId("200001010000000-0003"))
-                        ),
-                        true,
-                        null,
-                        XLSExport.TextFormatting.RICH,
-                        List.of()
-                },
-                {
-                        "export-data-set-plain-text.xlsx",
-                        Map.of(),
-                        DataSetExpectations.class,
-                        List.of(
-                                new ExportablePermId(DATASET, new DataSetPermId("200001010000000-0001")),
-                                new ExportablePermId(DATASET, new DataSetPermId("200001010000000-0002")),
-                                new ExportablePermId(DATASET, new DataSetPermId("200001010000000-0003"))
-                        ),
-                        true,
-                        null,
-                        XLSExport.TextFormatting.PLAIN,
-                        List.of()
-                },
-                {
-                        "export-data-set-plain-text.xlsx",
-                        Map.of(),
-                        DataSetExpectations.class,
-                        List.of(
-                                new ExportablePermId(DATASET, new DataSetPermId("200001010000000-0001")),
-                                new ExportablePermId(DATASET, new DataSetPermId("200001010000000-0002")),
-                                new ExportablePermId(DATASET, new DataSetPermId("200001010000000-0003"))
-                        ),
-                        true,
-                        Map.of(
-                                DATASET.toString(), Map.of(),
-                                EXPERIMENT.toString(), Map.of(
-                                        "COLLECTION", List.of("$DEFAULT_OBJECT_TYPE"),
-                                        "DEFAULT_EXPERIMENT", List.of("FINISHED_FLAG")
-                                ),
-                                SAMPLE.toString(), Map.of(
-                                        "DEFAULT", List.of(),
-                                        "STORAGE", List.of("$STORAGE.BOX_NUM")
-                                )
-                        ),
-                        XLSExport.TextFormatting.PLAIN,
-                        List.of()
-                },
-                {
-                        "export-data-set-plain-text.xlsx",
-                        Map.of(),
-                        DataSetExpectations.class,
-                        List.of(
-                                new ExportablePermId(DATASET, new DataSetPermId("200001010000000-0001")),
-                                new ExportablePermId(DATASET, new DataSetPermId("200001010000000-0002")),
-                                new ExportablePermId(DATASET, new DataSetPermId("200001010000000-0003"))
-                        ),
-                        true,
-                        Map.of(
-                                EXPERIMENT.toString(), Map.of(
-                                        "COLLECTION", List.of("$DEFAULT_OBJECT_TYPE"),
-                                        "DEFAULT_EXPERIMENT", List.of("FINISHED_FLAG")
-                                ),
-                                SAMPLE.toString(), Map.of(
-                                        "DEFAULT", List.of(),
-                                        "STORAGE", List.of("$STORAGE.BOX_NUM")
-                                )
-                        ),
-                        XLSExport.TextFormatting.PLAIN,
-                        List.of()
-                },
-                {
-                        "export-data-set-filtered-properties.xlsx",
-                        Map.of(),
-                        DataSetExpectations.class,
-                        List.of(
-                                new ExportablePermId(DATASET, new DataSetPermId("200001010000000-0001")),
-                                new ExportablePermId(DATASET, new DataSetPermId("200001010000000-0002")),
-                                new ExportablePermId(DATASET, new DataSetPermId("200001010000000-0003"))
-                        ),
-                        true,
-                        EXPORT_PROPERTIES,
-                        XLSExport.TextFormatting.PLAIN,
-                        List.of()
-                },
-        };
+        return XLSExportData.EXPORT_DATA;
+    }
+
+    @BeforeClass
+    public static void beforeClass()
+    {
+        AbstractXLSEntityTypeExportHelper.setAllVersions(XLSExportData.VERSIONS);
+        XLSVocabularyExportHelper.setAllVersions(XLSExportData.VERSIONS);
     }
 
     @BeforeMethod
@@ -538,14 +120,14 @@ public class XLSExportTest
                         new ExportablePermId(DATASET_TYPE, new ObjectPermId("DT3"))
                 ),
                 List.of(
-                        new ExportablePermId(VOCABULARY, new ObjectPermId("V1")),
-                        new ExportablePermId(VOCABULARY, new ObjectPermId("V2")),
-                        new ExportablePermId(VOCABULARY, new ObjectPermId("V3"))
+                        new ExportablePermId(VOCABULARY_TYPE, new ObjectPermId("V1")),
+                        new ExportablePermId(VOCABULARY_TYPE, new ObjectPermId("V2")),
+                        new ExportablePermId(VOCABULARY_TYPE, new ObjectPermId("V3"))
                 ),
                 List.of(
-                        new ExportablePermId(VOCABULARY, new ObjectPermId("V4")),
-                        new ExportablePermId(VOCABULARY, new ObjectPermId("V5")),
-                        new ExportablePermId(VOCABULARY, new ObjectPermId("V6"))
+                        new ExportablePermId(VOCABULARY_TYPE, new ObjectPermId("V4")),
+                        new ExportablePermId(VOCABULARY_TYPE, new ObjectPermId("V5")),
+                        new ExportablePermId(VOCABULARY_TYPE, new ObjectPermId("V6"))
                 ),
                 List.of(
                         new ExportablePermId(SPACE, new ObjectPermId("SP1")),
@@ -583,7 +165,7 @@ public class XLSExportTest
 
         for (final Collection<ExportablePermId> group : reorderedPermIds)
         {
-            if (group.iterator().next().getExportableKind() == VOCABULARY)
+            if (group.iterator().next().getExportableKind() == VOCABULARY_TYPE)
             {
                 assertFalse(nonVocabularyFound, "All vocabularies should be at the beginning.");
             } else
@@ -606,9 +188,9 @@ public class XLSExportTest
                 new ExportablePermId(DATASET_TYPE, new ObjectPermId("DT1")),
                 new ExportablePermId(DATASET_TYPE, new ObjectPermId("DT2")),
                 new ExportablePermId(DATASET_TYPE, new ObjectPermId("DT3")),
-                new ExportablePermId(VOCABULARY, new ObjectPermId("V1")),
-                new ExportablePermId(VOCABULARY, new ObjectPermId("V2")),
-                new ExportablePermId(VOCABULARY, new ObjectPermId("V3")),
+                new ExportablePermId(VOCABULARY_TYPE, new ObjectPermId("V1")),
+                new ExportablePermId(VOCABULARY_TYPE, new ObjectPermId("V2")),
+                new ExportablePermId(VOCABULARY_TYPE, new ObjectPermId("V3")),
                 new ExportablePermId(SPACE, new ObjectPermId("SP1")),
                 new ExportablePermId(SPACE, new ObjectPermId("SP2")),
                 new ExportablePermId(SPACE, new ObjectPermId("SP3")),
@@ -672,9 +254,10 @@ public class XLSExportTest
      */
     @Test(dataProvider = XLS_EXPORT_DATA_PROVIDER)
     public void testXlsExport(final String expectedResultFileName, final Map<String, String> expectedScripts,
-            final Class<IApplicationServerApi> expectationsClass, final Collection<ExportablePermId> exportablePermIds,
-            final boolean exportReferred, final Map<String, Map<String, Collection<String>>> exportProperties,
-            final XLSExport.TextFormatting textFormatting, final Collection<String> expectedWarnings) throws Exception
+            final Class<IApplicationServerApi> expectationsClass, final List<ExportablePermId> exportablePermIds,
+            final boolean exportReferred, final Map<String, Map<String, List<Map<String, String>>>> exportFields,
+            final XLSExport.TextFormatting textFormatting, final List<String> expectedWarnings,
+            final boolean compatibleWithImport) throws Exception
     {
         final Expectations expectations = (Expectations) expectationsClass.getConstructor(IApplicationServerApi.class,
                 boolean.class).newInstance(api, exportReferred);
@@ -683,8 +266,8 @@ public class XLSExportTest
         try
         {
             final XLSExport.PrepareWorkbookResult actualResult = XLSExport.prepareWorkbook(
-                    api, SESSION_TOKEN, exportablePermIds, exportReferred, exportProperties,
-                    textFormatting);
+                    api, SESSION_TOKEN, exportablePermIds, exportReferred, exportFields,
+                    textFormatting, compatibleWithImport);
             assertEquals(actualResult.getScripts(), expectedScripts);
             assertEquals(new HashSet<>(actualResult.getWarnings()), new HashSet<>(expectedWarnings));
 

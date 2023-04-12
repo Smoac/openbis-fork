@@ -1,26 +1,53 @@
+/*
+ * Copyright ETH 2022 - 2023 Zürich, Scientific IT Services
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
-import java.util.ArrayList;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.$;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.AUTO_GENERATE_CODE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.CHILDREN;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.CODE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.EXPERIMENT;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.IDENTIFIER;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MODIFICATION_DATE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MODIFIER;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.PARENTS;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.PERM_ID;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.PROJECT;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.REGISTRATION_DATE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.REGISTRATOR;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.SPACE;
+
 import java.util.Collection;
-import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Predicate;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Workbook;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
+import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
-import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 
-public class XLSSampleExportHelper extends AbstractXLSExportHelper
+public class XLSSampleExportHelper extends AbstractXLSEntityExportHelper<Sample, SampleType>
 {
 
     public XLSSampleExportHelper(final Workbook wb)
@@ -29,78 +56,44 @@ public class XLSSampleExportHelper extends AbstractXLSExportHelper
     }
 
     @Override
-    public AdditionResult add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
-            final Collection<String> permIds, int rowNumber,
-            final Map<String, Collection<String>> entityTypeExportPropertiesMap,
-            final XLSExport.TextFormatting textFormatting)
+    protected ExportableKind getExportableKind()
     {
-        final Collection<Sample> samples = getSamples(api, sessionToken, permIds);
-        final Collection<String> warnings = new ArrayList<>();
-
-        // Sorting after grouping is needed only to make sure that the tests pass, because entrySet() can have elements
-        // in arbitrary order.
-        final Collection<Map.Entry<SampleType, List<Sample>>> groupedSamples =
-                samples.stream().collect(Collectors.groupingBy(Sample::getType)).entrySet().stream()
-                        .sorted(Comparator.comparing(e -> e.getKey().getPermId().getPermId()))
-                        .collect(Collectors.toList());
-
-        for (final Map.Entry<SampleType, List<Sample>> entry : groupedSamples)
-        {
-            final String typePermId = entry.getKey().getPermId().getPermId();
-            final Collection<String> propertiesToInclude = entityTypeExportPropertiesMap == null
-                    ? null
-                    : entityTypeExportPropertiesMap.get(typePermId);
-            final Predicate<PropertyType> propertiesFilterFunction = getPropertiesFilterFunction(propertiesToInclude);
-
-            warnings.addAll(addRow(rowNumber++, true, ExportableKind.SAMPLE_TYPE, typePermId, "SAMPLE"));
-            warnings.addAll(addRow(rowNumber++, true, ExportableKind.SAMPLE_TYPE, typePermId, "Sample type"));
-            warnings.addAll(addRow(rowNumber++, false, ExportableKind.SAMPLE_TYPE, typePermId, typePermId));
-
-            final List<String> headers = new ArrayList<>(List.of("$", "Identifier", "Code", "Space", "Project",
-                    "Experiment", "Auto generate code", "Parents", "Children"));
-            final List<PropertyType> propertyTypes = entry.getKey().getPropertyAssignments().stream()
-                    .map(PropertyAssignment::getPropertyType).collect(Collectors.toList());
-            final List<String> propertyNames = propertyTypes.stream().filter(propertiesFilterFunction)
-                    .map(PropertyType::getLabel).collect(Collectors.toList());
-
-            headers.addAll(propertyNames);
-
-            warnings.addAll(addRow(rowNumber++, true, ExportableKind.SAMPLE_TYPE, typePermId,
-                    headers.toArray(String[]::new)));
-
-            for (final Sample sample : entry.getValue())
-            {
-                final String parents = sample.getParents() == null ? "" : sample.getParents().stream()
-                        .map(parent -> parent.getIdentifier().getIdentifier())
-                        .collect(Collectors.joining("\n"));
-                final String children = sample.getChildren() == null ? "" : sample.getChildren().stream()
-                        .map(child -> child.getIdentifier().getIdentifier())
-                        .collect(Collectors.joining("\n"));
-                final List<String> sampleValues = new ArrayList<>(
-                        List.of("", sample.getIdentifier().getIdentifier(), sample.getCode(),
-                                sample.getSpace() != null ? sample.getSpace().getPermId().getPermId() : "",
-                                sample.getProject() != null ? sample.getProject().getIdentifier().getIdentifier() : "",
-                                sample.getExperiment() != null ? sample.getExperiment().getIdentifier().getIdentifier()
-                                        : "",
-                                "FALSE", parents, children));
-
-                final Map<String, String> properties = sample.getProperties();
-                sampleValues.addAll(propertyTypes.stream()
-                        .filter(propertiesFilterFunction)
-                        .map(getPropertiesMappingFunction(textFormatting, properties))
-                        .collect(Collectors.toList()));
-                
-                warnings.addAll(addRow(rowNumber++, false, ExportableKind.SAMPLE, sample.getIdentifier().getIdentifier(),
-                        sampleValues.toArray(String[]::new)));
-            }
-
-            rowNumber++;
-        }
-
-        return new AdditionResult(rowNumber, warnings);
+        return ExportableKind.SAMPLE;
     }
 
-    private Collection<Sample> getSamples(final IApplicationServerApi api, final String sessionToken,
+    @Override
+    protected ExportableKind getTypeExportableKind()
+    {
+        return ExportableKind.SAMPLE_TYPE;
+    }
+
+    @Override
+    protected String getEntityTypeName()
+    {
+        return "Sample type";
+    }
+
+    @Override
+    protected String getIdentifier(final Sample sample)
+    {
+        return sample.getIdentifier().getIdentifier();
+    }
+
+    @Override
+    protected Function<Sample, SampleType> getTypeFunction()
+    {
+        return Sample::getType;
+    }
+
+    @Override
+    protected Attribute[] getAttributes(final Sample entity)
+    {
+        return new Attribute[] { $, AUTO_GENERATE_CODE, PERM_ID, IDENTIFIER, CODE, SPACE, PROJECT, EXPERIMENT, PARENTS, CHILDREN,
+                REGISTRATOR, REGISTRATION_DATE, MODIFIER, MODIFICATION_DATE };
+    }
+
+    @Override
+    protected Collection<Sample> getEntities(final IApplicationServerApi api, final String sessionToken,
             final Collection<String> permIds)
     {
         final List<SamplePermId> samplePermIds = permIds.stream().map(SamplePermId::new)
@@ -113,7 +106,90 @@ public class XLSSampleExportHelper extends AbstractXLSExportHelper
         fetchOptions.withChildren();
         fetchOptions.withType().withPropertyAssignments().withPropertyType();
         fetchOptions.withProperties();
+        fetchOptions.withRegistrator();
+        fetchOptions.withModifier();
         return api.getSamples(sessionToken, samplePermIds, fetchOptions).values();
+    }
+
+    protected String getAttributeValue(final Sample sample, final Attribute attribute)
+    {
+        switch (attribute)
+        {
+            case PERM_ID:
+            {
+                return sample.getPermId().getPermId();
+            }
+            case IDENTIFIER:
+            {
+                return sample.getIdentifier().getIdentifier();
+            }
+            case CODE:
+            {
+                return sample.getCode();
+            }
+            case SPACE:
+            {
+                return sample.getSpace() != null ? sample.getSpace().getPermId().getPermId() : "";
+            }
+            case PROJECT:
+            {
+                return sample.getProject() != null ? sample.getProject().getIdentifier().getIdentifier() : "";
+            }
+            case EXPERIMENT:
+            {
+                return sample.getExperiment() != null ? sample.getExperiment().getIdentifier().getIdentifier() : "";
+            }
+            case PARENTS:
+            {
+                return sample.getParents() == null ? "" : sample.getParents().stream()
+                        .map(parent -> parent.getIdentifier().getIdentifier())
+                        .collect(Collectors.joining("\n"));
+            }
+            case CHILDREN:
+            {
+                return sample.getChildren() == null ? "" : sample.getChildren().stream()
+                        .map(child -> child.getIdentifier().getIdentifier())
+                        .collect(Collectors.joining("\n"));
+            }
+            case REGISTRATOR:
+            {
+                final Person registrator = sample.getRegistrator();
+                return registrator != null ? registrator.getUserId() : null;
+            }
+            case REGISTRATION_DATE:
+            {
+                final Date registrationDate = sample.getRegistrationDate();
+                return registrationDate != null ?DATE_FORMAT.format(registrationDate) : null;
+            }
+            case MODIFIER:
+            {
+                final Person modifier = sample.getModifier();
+                return modifier != null ? modifier.getUserId() : null;
+            }
+            case MODIFICATION_DATE:
+            {
+                final Date modificationDate = sample.getModificationDate();
+                return modificationDate != null ? DATE_FORMAT.format(modificationDate) : null;
+            }
+            case $:
+            {
+                return "";
+            }
+            case AUTO_GENERATE_CODE:
+            {
+                return "FALSE";
+            }
+            default:
+            {
+                return null;
+            }
+        }
+    }
+
+    @Override
+    protected String typePermIdToString(final SampleType sampleType)
+    {
+        return sampleType.getPermId().getPermId();
     }
 
 }

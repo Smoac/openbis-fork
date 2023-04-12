@@ -1,3 +1,18 @@
+/*
+ * Copyright ETH 2022 - 2023 Zürich, Scientific IT Services
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package ch.ethz.sis.openbis.generic.server.xls.importer;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
@@ -28,6 +43,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -43,9 +59,9 @@ public class XLSImport
 
     private final ImportOptions options;
 
-    private final String xlsName;
+    private final Map<String, Integer> beforeVersions;
 
-    private final Map<String, Integer> versions;
+    private final Map<String, Integer> afterVersions;
 
     private final VocabularyImportHelper vocabularyHelper;
 
@@ -75,28 +91,27 @@ public class XLSImport
 
     private final DatabaseConsistencyChecker dbChecker;
 
-    public XLSImport(String sessionToken, IApplicationServerApi api, Map<String, String> scripts, ImportModes mode, ImportOptions options,
-            String xlsName)
+    public XLSImport(String sessionToken, IApplicationServerApi api, Map<String, String> scripts, ImportModes mode, ImportOptions options, String ignoredXLSName)
     {
         this.sessionToken = sessionToken;
         this.api = api;
         this.options = options;
-        this.xlsName = xlsName;
-        this.versions = VersionInfoHandler.loadVersions(options, xlsName);
-        this.dbChecker = new DatabaseConsistencyChecker(this.sessionToken, this.api, this.versions);
+        this.beforeVersions = Collections.unmodifiableMap(VersionInfoHandler.loadAllVersions(options));
+        this.afterVersions = VersionInfoHandler.loadAllVersions(options);
+        this.dbChecker = new DatabaseConsistencyChecker(this.sessionToken, this.api, this.afterVersions);
         this.delayedExecutor = new DelayedExecutionDecorator(this.sessionToken, this.api);
 
-        this.vocabularyHelper = new VocabularyImportHelper(this.delayedExecutor, mode, options, versions);
-        this.vocabularyTermHelper = new VocabularyTermImportHelper(this.delayedExecutor, mode, options, versions);
-        this.sampleTypeHelper = new SampleTypeImportHelper(this.delayedExecutor, mode, options, versions);
-        this.experimentTypeHelper = new ExperimentTypeImportHelper(this.delayedExecutor, mode, options, versions);
-        this.datasetTypeHelper = new DatasetTypeImportHelper(this.delayedExecutor, mode, options, versions);
+        this.vocabularyHelper = new VocabularyImportHelper(this.delayedExecutor, mode, options, afterVersions);
+        this.vocabularyTermHelper = new VocabularyTermImportHelper(this.delayedExecutor, mode, options, afterVersions);
+        this.sampleTypeHelper = new SampleTypeImportHelper(this.delayedExecutor, mode, options, afterVersions);
+        this.experimentTypeHelper = new ExperimentTypeImportHelper(this.delayedExecutor, mode, options, afterVersions);
+        this.datasetTypeHelper = new DatasetTypeImportHelper(this.delayedExecutor, mode, options, afterVersions);
         this.spaceHelper = new SpaceImportHelper(this.delayedExecutor, mode, options);
         this.projectHelper = new ProjectImportHelper(this.delayedExecutor, mode, options);
         this.experimentHelper = new ExperimentImportHelper(this.delayedExecutor, mode, options);
         this.sampleHelper = new SampleImportHelper(this.delayedExecutor, mode, options);
-        this.propertyHelper = new PropertyTypeImportHelper(this.delayedExecutor, mode, options, versions);
-        this.propertyAssignmentHelper = new PropertyAssignmentImportHelper(this.delayedExecutor, mode, options);
+        this.propertyHelper = new PropertyTypeImportHelper(this.delayedExecutor, mode, options, afterVersions);
+        this.propertyAssignmentHelper = new PropertyAssignmentImportHelper(this.delayedExecutor, mode, options, beforeVersions);
         this.scriptHelper = new ScriptImportHelper(this.delayedExecutor, mode, options, scripts);
         this.semanticAnnotationImportHelper = new SemanticAnnotationImportHelper(this.delayedExecutor, mode, options);
     }
@@ -141,11 +156,10 @@ public class XLSImport
                         // parse and create scripts
                         scriptHelper.importBlock(page, pageNumber, lineNumber, lineNumber + 2, ScriptTypes.VALIDATION_SCRIPT);
                         // parse and create sample type
-                        boolean sTisNewVersion = sampleTypeHelper.isNewVersion(page, pageNumber, lineNumber, lineNumber + 2);
                         sampleTypeHelper.importBlock(page, pageNumber, lineNumber, lineNumber + 2);
                         semanticAnnotationImportHelper.importBlockForEntityType(page, pageNumber, lineNumber, lineNumber + 2, ImportTypes.SAMPLE_TYPE);
                         // parse and assignment properties
-                        if (sTisNewVersion && lineNumber + 2 != blockEnd)
+                        if (lineNumber + 2 != blockEnd)
                         {
                             scriptHelper.importBlock(page, pageNumber, lineNumber + 2, blockEnd, ScriptTypes.DYNAMIC_SCRIPT);
                             propertyHelper.importBlock(page, pageNumber, lineNumber + 2, blockEnd);
@@ -157,11 +171,10 @@ public class XLSImport
                         // parse and create scripts
                         scriptHelper.importBlock(page, pageNumber, lineNumber, lineNumber + 2, ScriptTypes.VALIDATION_SCRIPT);
                         // parse and create experiment type
-                        boolean eTisNewVersion = experimentTypeHelper.isNewVersion(page, pageNumber, lineNumber, lineNumber + 2);
                         experimentTypeHelper.importBlock(page, pageNumber, lineNumber, lineNumber + 2);
                         semanticAnnotationImportHelper.importBlockForEntityType(page, pageNumber, lineNumber, lineNumber + 2, ImportTypes.EXPERIMENT_TYPE);
                         // parse and assignment properties
-                        if (eTisNewVersion && lineNumber + 2 != blockEnd)
+                        if (lineNumber + 2 != blockEnd)
                         {
                             scriptHelper.importBlock(page, pageNumber, lineNumber + 2, blockEnd, ScriptTypes.DYNAMIC_SCRIPT);
                             propertyHelper.importBlock(page, pageNumber, lineNumber + 2, blockEnd);
@@ -173,11 +186,10 @@ public class XLSImport
                         // parse and create scripts
                         scriptHelper.importBlock(page, pageNumber, lineNumber, lineNumber + 2, ScriptTypes.VALIDATION_SCRIPT);
                         // parse and create dataset type
-                        boolean dTisNewVersion = datasetTypeHelper.isNewVersion(page, pageNumber, lineNumber, lineNumber + 2);
                         datasetTypeHelper.importBlock(page, pageNumber, lineNumber, lineNumber + 2);
                         semanticAnnotationImportHelper.importBlockForEntityType(page, pageNumber, lineNumber, lineNumber + 2, ImportTypes.DATASET_TYPE);
                         // parse and assignment properties
-                        if (dTisNewVersion && lineNumber + 2 != blockEnd)
+                        if (lineNumber + 2 != blockEnd)
                         {
                             scriptHelper.importBlock(page, pageNumber, lineNumber + 2, blockEnd, ScriptTypes.DYNAMIC_SCRIPT);
                             propertyHelper.importBlock(page, pageNumber, lineNumber + 2, blockEnd);
@@ -211,7 +223,7 @@ public class XLSImport
 
         this.delayedExecutor.hasFinished();
 
-        VersionInfoHandler.writeVersions(options, xlsName, versions);
+        VersionInfoHandler.writeAllVersions(options, afterVersions);
         return new ArrayList<>(this.delayedExecutor.getIds());
     }
 

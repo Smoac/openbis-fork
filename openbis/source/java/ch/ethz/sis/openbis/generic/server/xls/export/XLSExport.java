@@ -1,15 +1,31 @@
+/*
+ * Copyright ETH 2022 - 2023 Zürich, Scientific IT Services
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package ch.ethz.sis.openbis.generic.server.xls.export;
 
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind.DATA_SET;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind.EXPERIMENT;
 import static ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind.SAMPLE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.MASTER_DATA_EXPORTABLE_KINDS;
-import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.VOCABULARY;
+import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.PROJECT;
+import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.SPACE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.VOCABULARY_TYPE;
 
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,7 +34,6 @@ import java.util.Date;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -53,14 +68,16 @@ public class XLSExport
 
     private static final String ZIP_EXTENSION = ".zip";
 
+    private static final String TYPE_KEY = "TYPE";
+
     public static ExportResult export(final String filePrefix, final IApplicationServerApi api,
-            final String sessionToken, final Collection<ExportablePermId> exportablePermIds,
+            final String sessionToken, final List<ExportablePermId> exportablePermIds,
             final boolean exportReferredMasterData,
-            final Map<String, Map<String, Collection<String>>> exportProperties,
-            final TextFormatting textFormatting) throws IOException
+            final Map<String, Map<String, List<Map<String, String>>>> exportFields,
+            final TextFormatting textFormatting, final boolean compatibleWithImport) throws IOException
     {
         final PrepareWorkbookResult exportResult = prepareWorkbook(api, sessionToken, exportablePermIds,
-                exportReferredMasterData, exportProperties, textFormatting);
+                exportReferredMasterData, exportFields, textFormatting, compatibleWithImport);
         final Map<String, String> scripts = exportResult.getScripts();
         final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
 
@@ -110,8 +127,9 @@ public class XLSExport
     }
 
     static PrepareWorkbookResult prepareWorkbook(final IApplicationServerApi api, final String sessionToken,
-            Collection<ExportablePermId> exportablePermIds, final boolean exportReferredMasterData,
-            final Map<String, Map<String, Collection<String>>> exportProperties, final TextFormatting textFormatting)
+            List<ExportablePermId> exportablePermIds, final boolean exportReferredMasterData,
+            final Map<String, Map<String, List<Map<String, String>>>> exportFields,
+            final TextFormatting textFormatting, final boolean compatibleWithImport)
     {
         if (!isValid(exportablePermIds))
         {
@@ -138,21 +156,24 @@ public class XLSExport
         for (final Collection<ExportablePermId> exportablePermIdGroup : groupedExportablePermIds)
         {
             final ExportablePermId exportablePermId = exportablePermIdGroup.iterator().next();
-            final IXLSExportHelper helper = exportHelperFactory.getHelper(exportablePermId.getExportableKind());
+            final ExportableKind exportableKind = exportablePermId.getExportableKind();
+            final IXLSExportHelper<? extends IEntityType> helper = exportHelperFactory.getHelper(exportableKind);
             final List<String> permIds = exportablePermIdGroup.stream()
                     .map(permId -> permId.getPermId().getPermId()).collect(Collectors.toList());
-            final Map<String, Collection<String>> entityTypeExportPropertiesMap = exportProperties == null
+
+            final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap = exportFields == null
                     ? null
-                    : exportProperties.get(exportablePermId.getExportableKind().toString());
+                    : exportFields.get(MASTER_DATA_EXPORTABLE_KINDS.contains(exportableKind) || exportableKind == SPACE || exportableKind == PROJECT
+                            ? TYPE_KEY : exportableKind.toString());
             final IXLSExportHelper.AdditionResult additionResult = helper.add(api, sessionToken, wb, permIds, rowNumber,
-                    entityTypeExportPropertiesMap, textFormatting);
+                    entityTypeExportFieldsMap, textFormatting, compatibleWithImport);
             rowNumber = additionResult.getRowNumber();
             warnings.addAll(additionResult.getWarnings());
 
             final IEntityType entityType = helper.getEntityType(api, sessionToken,
                     exportablePermId.getPermId().getPermId());
 
-            if (entityType != null)
+            if (exportReferredMasterData && entityType != null)
             {
                 final Plugin validationPlugin = entityType.getValidationPlugin();
                 if (validationPlugin != null && validationPlugin.getScript() != null)
@@ -173,8 +194,8 @@ public class XLSExport
         return new PrepareWorkbookResult(wb, scripts, warnings);
     }
 
-    private static Collection<ExportablePermId> expandReference(final IApplicationServerApi api,
-            final String sessionToken, final Collection<ExportablePermId> exportablePermIds,
+    private static List<ExportablePermId> expandReference(final IApplicationServerApi api,
+            final String sessionToken, final List<ExportablePermId> exportablePermIds,
             final ExportHelperFactory exportHelperFactory)
     {
         return exportablePermIds.stream().flatMap(exportablePermId ->
@@ -182,7 +203,7 @@ public class XLSExport
             final Stream<ExportablePermId> expandedExportablePermIds = getExpandedExportablePermIds(api, sessionToken,
                     exportablePermId, new HashSet<>(Collections.singletonList(exportablePermId)), exportHelperFactory);
             return Stream.concat(expandedExportablePermIds, Stream.of(exportablePermId));
-        }).collect(Collectors.toCollection(LinkedHashSet::new));
+        }).distinct().collect(Collectors.toList());
     }
 
     private static Stream<ExportablePermId> getExpandedExportablePermIds(final IApplicationServerApi api,
@@ -204,7 +225,7 @@ public class XLSExport
                             {
                                 case CONTROLLEDVOCABULARY:
                                 {
-                                    return Stream.of(new ExportablePermId(ExportableKind.VOCABULARY,
+                                    return Stream.of(new ExportablePermId(ExportableKind.VOCABULARY_TYPE,
                                             propertyType.getVocabulary().getPermId()));
                                 }
                                 case SAMPLE:
@@ -298,7 +319,7 @@ public class XLSExport
         // Adding vocabularies first
         for (final Collection<ExportablePermId> group : exportablePermIds)
         {
-            if (group.iterator().next().getExportableKind() == VOCABULARY)
+            if (group.iterator().next().getExportableKind() == VOCABULARY_TYPE)
             {
                 result.add(group);
             }
@@ -307,7 +328,7 @@ public class XLSExport
         // Adding other items
         for (final Collection<ExportablePermId> group : exportablePermIds)
         {
-            if (group.iterator().next().getExportableKind() != VOCABULARY)
+            if (group.iterator().next().getExportableKind() != VOCABULARY_TYPE)
             {
                 result.add(group);
             }
@@ -341,7 +362,7 @@ public class XLSExport
                             ((EntityTypePermId) exportablePermId.getPermId()).getEntityKind() == DATA_SET;
                     break;
                 }
-                case VOCABULARY:
+                case VOCABULARY_TYPE:
                 {
                     isValid = exportablePermId.getPermId() instanceof VocabularyPermId;
                     break;

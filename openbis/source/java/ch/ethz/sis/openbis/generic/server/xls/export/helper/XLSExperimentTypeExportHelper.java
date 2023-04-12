@@ -1,7 +1,26 @@
+/*
+ * Copyright ETH 2022 - 2023 Zürich, Scientific IT Services
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.CODE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.DESCRIPTION;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MODIFICATION_DATE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.VALIDATION_SCRIPT;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.VERSION;
+
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
@@ -9,7 +28,6 @@ import java.util.Map;
 import org.apache.poi.ss.usermodel.Workbook;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
@@ -17,10 +35,12 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
+import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
-import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
+import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportTypes;
+import ch.ethz.sis.openbis.generic.server.xls.importer.utils.VersionUtils;
 
-public class XLSExperimentTypeExportHelper extends AbstractXLSExportHelper
+public class XLSExperimentTypeExportHelper extends AbstractXLSEntityTypeExportHelper<ExperimentType>
 {
 
     public XLSExperimentTypeExportHelper(final Workbook wb)
@@ -29,42 +49,48 @@ public class XLSExperimentTypeExportHelper extends AbstractXLSExportHelper
     }
 
     @Override
-    public AdditionResult add(final IApplicationServerApi api, final String sessionToken, final Workbook wb,
-            final Collection<String> permIds, int rowNumber,
-            final Map<String, Collection<String>> entityTypeExportPropertiesMap,
-            final XLSExport.TextFormatting textFormatting)
+    protected Attribute[] getAttributes(final ExperimentType entityType)
     {
-        assert permIds.size() == 1;
-        final ExperimentType experimentType = getExperimentType(api, sessionToken, permIds.iterator().next());
-        final Collection<String> warnings = new ArrayList<>();
+        return new Attribute[] { VERSION, CODE, DESCRIPTION, VALIDATION_SCRIPT, MODIFICATION_DATE };
+    }
 
-        if (experimentType != null)
+    @Override
+    protected String getAttributeValue(final ExperimentType experimentType, final Attribute attribute)
+    {
+        switch (attribute)
         {
-            final String permId = experimentType.getPermId().getPermId();
-            warnings.addAll(addRow(rowNumber++, true, ExportableKind.EXPERIMENT_TYPE, permId, "EXPERIMENT_TYPE"));
-            warnings.addAll(addRow(rowNumber++, true, ExportableKind.EXPERIMENT_TYPE, permId, "Version", "Code",
-                    "Description", "Validation script"));
+            case CODE:
+            {
+                return experimentType.getCode();
+            }
+            case DESCRIPTION:
+            {
+                return experimentType.getDescription();
+            }
+            case VALIDATION_SCRIPT:
+            {
+                final Plugin validationPlugin = experimentType.getValidationPlugin();
+                return validationPlugin != null
+                        ? (validationPlugin.getName() != null ? validationPlugin.getName() + ".py" : "") : "";
 
-            final Plugin validationPlugin = experimentType.getValidationPlugin();
-            final String script = validationPlugin != null
-                    ? (validationPlugin.getName() != null ? validationPlugin.getName() + ".py" : "") : "";
-
-            warnings.addAll(addRow(rowNumber++, false, ExportableKind.EXPERIMENT_TYPE, permId, "1",
-                    experimentType.getCode(), experimentType.getDescription(), script));
-
-            final AdditionResult additionResult = addEntityTypePropertyAssignments(rowNumber,
-                    experimentType.getPropertyAssignments(), ExportableKind.EXPERIMENT_TYPE, permId);
-            warnings.addAll(additionResult.getWarnings());
-            rowNumber = additionResult.getRowNumber();
-
-            return new AdditionResult(rowNumber + 1, warnings);
-        } else
-        {
-            return new AdditionResult(rowNumber, warnings);
+            }
+            case VERSION:
+            {
+                return String.valueOf(VersionUtils.getStoredVersion(allVersions, ImportTypes.EXPERIMENT_TYPE, null, experimentType.getCode()));
+            }
+            case MODIFICATION_DATE:
+            {
+                return DATE_FORMAT.format(experimentType.getModificationDate());
+            }
+            default:
+            {
+                return null;
+            }
         }
     }
 
-    private ExperimentType getExperimentType(final IApplicationServerApi api, final String sessionToken,
+    @Override
+    public ExperimentType getEntityType(final IApplicationServerApi api, final String sessionToken,
             final String permId)
     {
         final ExperimentTypeFetchOptions fetchOptions = new ExperimentTypeFetchOptions();
@@ -84,10 +110,8 @@ public class XLSExperimentTypeExportHelper extends AbstractXLSExportHelper
     }
 
     @Override
-    public IEntityType getEntityType(final IApplicationServerApi api, final String sessionToken,
-            final String permId)
+    protected ExportableKind getExportableKind()
     {
-        return getExperimentType(api, sessionToken, permId);
+        return ExportableKind.EXPERIMENT_TYPE;
     }
-
 }
