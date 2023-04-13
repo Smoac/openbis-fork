@@ -22,6 +22,7 @@ configure(allprojects) {
 
 node {
     download = true
+    distBaseUrl = 'https://direct.nodejs.org/dist'
     version = '18.12.1'
     workDir = file("${projectDir}/node/nodejs")
     nodeModulesDir = file("${projectDir}")
