@@ -15,14 +15,28 @@ from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search import SampleSearchC
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions import SampleFetchOptions
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search import DataSetSearchCriteria
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions import DataSetFetchOptions
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id import DataSetPermId
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset import DataSetKind
+from ch.systemsx.cisd.openbis.generic.shared.basic.dto import PhysicalDataSet
+from ch.systemsx.cisd.openbis.generic.shared.basic.dto import DataStore
 from ch.systemsx.cisd.openbis.dss.generic.server.ftp import Node
 
+class NodeWithEntityType(Node):
+    def __init__(self, type, permId, entityType):
+        super(NodeWithEntityType, self).__init__(type, permId)
+        self.entityType = entityType
+        self.permIds = set()
+        self.addPermId(permId)
+
+    def getEntityType(self):
+        return self.entityType
+
+    def addPermId(self, permId):
+        self.permIds.add(permId)
+
 class Acceptor(object):
-    def __init__(self, settings):
+    def __init__(self):
         self.sections = ["Lab Notebook", "Inventory", "Stock"]
-        self.inventorySpaces = settings.inventorySpaces
-        self.mainMenues = settings.mainMenues
-        self.sampleTypeViewAttributes = settings.sampleTypeViewAttributes
         self.endingsOfHiddenSpaces = []
         self.hideSpaceEndingWith("ELN_SETTINGS")
         self.hideSpaceEndingWith("NAGIOS")
@@ -30,6 +44,12 @@ class Acceptor(object):
         self.hiddenExperimentTypes = {}
         self.hiddenSampleTypes = {}
         self.hiddenDataSetTypes = {}
+        self.sampleChildrenHandlers = {}
+
+    def configure(self, settings):
+        self.inventorySpaces = settings.inventorySpaces
+        self.mainMenues = settings.mainMenues
+        self.sampleTypeViewAttributes = settings.sampleTypeViewAttributes
 
     def assertValidSection(self, section):
         if section not in self.sections:
@@ -70,7 +90,7 @@ class Acceptor(object):
             showTerm = "show%s" % item
             return mainMenue[showTerm] if showTerm in mainMenue else False
         return False
-    
+
     def _getGroupPrefix(self, code):
         groups = filter(lambda group: code.startswith(group), self.mainMenues.keys())
         return groups[0] if groups else "GENERAL"
@@ -85,15 +105,7 @@ class Acceptor(object):
         self.hiddenSampleTypes[typeCode] = True
 
     def acceptSample(self, sample):
-        group = self._getGroupPrefix(sample.getSpace().getCode())
-        attributes = self.sampleTypeViewAttributes[group]
-        sampleTypeCode = sample.getType().getCode()
-        if sampleTypeCode in self.hiddenSampleTypes:
-            return False
-        if sampleTypeCode in attributes:
-            attr = attributes[sampleTypeCode]
-            return "SHOW_ON_NAV" in attr and attr["SHOW_ON_NAV"]
-        return False
+        return sample.getType().getCode() not in self.hiddenSampleTypes
 
     def hideDataSetType(self, typeCode):
         self.hiddenDataSetTypes[typeCode] = True
@@ -101,14 +113,24 @@ class Acceptor(object):
     def acceptDataSet(self, dataSet):
         return dataSet.getType().getCode() not in self.hiddenDataSetTypes
 
+    def extendDataSetSearchCriteria(self, dataSetSearchCriteria, samplePermId):
+        for extender in self.dataSetSearchCriteriaExtender:
+            extender(dataSetSearchCriteria, samplePermId)
+
 class Settings(object):
     def __init__(self, inventorySpaces, mainMenues, sampleTypeViewAttributes):
         self.inventorySpaces = inventorySpaces
         self.mainMenues = mainMenues
         self.sampleTypeViewAttributes = sampleTypeViewAttributes
 
+acceptor = Acceptor()
+pluginsFolder = "%s/resolver-plugins" % os.path.dirname(__file__)
+for pluginFileName in os.listdir(pluginsFolder):
+    file = "%s/%s" % (pluginsFolder, pluginFileName)
+    execfile(file, {"acceptor":acceptor})
+
 def resolve(subPath, context):
-    acceptor = createAcceptor(context)
+    acceptor.configure(getAllSettings(context))
     if len(subPath) == 0:
         return listSections(acceptor, context)
 
@@ -130,14 +152,6 @@ def resolve(subPath, context):
         return listExperimentContent(subPath, acceptor, context)
     if len(subPath) > 4:
         return listChildren(subPath, acceptor, context)
-
-def createAcceptor(context):
-    acceptor = Acceptor(getAllSettings(context))
-    pluginsFolder = "%s/resolver-plugins" % os.path.dirname(__file__)
-    for pluginFileName in os.listdir(pluginsFolder):
-        file = "%s/%s" % (pluginsFolder, pluginFileName)
-        execfile(file, {"acceptor":acceptor})
-    return acceptor
 
 def listSections(acceptor, context):
     response = context.createDirectoryResponse()
@@ -212,7 +226,8 @@ def listExperimentContent(subPath, acceptor, context):
     node = getNode(subPath, acceptor, context)
     response = context.createDirectoryResponse()
     experimentPermId = node.getPermId()
-    addExperimentChildNodes(path, experimentPermId, response, acceptor, context)
+    experimentType = node.getEntityType()
+    addExperimentChildNodes(path, experimentPermId, experimentType, response, acceptor, context)
     return response
 
 def listChildren(subPath, acceptor, context):
@@ -221,16 +236,19 @@ def listChildren(subPath, acceptor, context):
     nodeType = node.getType()
     permId = node.getPermId()
     if nodeType == "DATASET":
-        dataSetCode, contentNode, content = getContentNode(permId, context)
-        if contentNode.isDirectory():
-            response = context.createDirectoryResponse()
-            addDataSetFileNodes(path, dataSetCode, contentNode, response, acceptor, context)
-            return response
-        else:
-            return context.createFileResponse(contentNode, content)
+        response = None
+        contentNodes = getContentNodes(node.permIds, context)
+        for dataSetCode, contentNode, content in contentNodes:
+            if contentNode.isDirectory():
+                if response is None:
+                    response = context.createDirectoryResponse()
+                addDataSetFileNodes(path, dataSetCode, contentNode, response, acceptor, context)
+            else:
+                response = context.createFileResponse(contentNode, content)
+        return response
     elif nodeType == "SAMPLE":
         response = context.createDirectoryResponse()
-        addSampleChildNodes(path, permId, response, acceptor, context)
+        addSampleChildNodes(path, permId, node.getEntityType(), response, acceptor, context)
         return response
 
 def getNode(subPath, acceptor, context):
@@ -244,10 +262,12 @@ def getNode(subPath, acceptor, context):
             parentNode = getNode(parentPath, acceptor, context)
             parentPathString = "/".join(parentPath)
             nodeType = parentNode.getType()
+            entityType = parentNode.getEntityType()
+            permId = parentNode.getPermId()
             if nodeType == "EXPERIMENT":
-                addExperimentChildNodes(parentPathString, parentNode.getPermId(), None, acceptor, context)
+                addExperimentChildNodes(parentPathString, permId, entityType, None, acceptor, context)
             elif nodeType == "SAMPLE":
-                addSampleChildNodes(parentPathString, parentNode.getPermId(), None, acceptor, context)
+                addSampleChildNodes(parentPathString, permId, entityType, None, acceptor, context)
             elif nodeType == "DATASET":
                 dataSetCode, contentNode, _ = getContentNode(parentNode.getPermId(), context)
                 addDataSetFileNodes(parentPathString, dataSetCode, contentNode, None, acceptor, context)
@@ -272,7 +292,7 @@ def addExperimentNodes(section, space, project, response, acceptor, context):
             gatherEntity(entitiesByName, experiment)
     addNodes("EXPERIMENT", entitiesByName, "%s/%s/%s" % (section, space, project), response, context)
 
-def addExperimentChildNodes(path, experimentPermId, response, acceptor, context):
+def addExperimentChildNodes(path, experimentPermId, experimentType, response, acceptor, context):
     dataSetSearchCriteria = DataSetSearchCriteria()
     dataSetSearchCriteria.withExperiment().withPermId().thatEquals(experimentPermId)
     listDataSets(path, dataSetSearchCriteria, False, response, acceptor, context)
@@ -291,34 +311,93 @@ def addExperimentChildNodes(path, experimentPermId, response, acceptor, context)
             gatherEntity(entitiesByName, sample)
     addNodes("SAMPLE", entitiesByName, path, response, context)
 
-def addSampleChildNodes(path, samplePermId, response, acceptor, context):
+def addSampleChildNodes(path, samplePermId, sampleType, response, acceptor, context):
+    if sampleType in acceptor.sampleChildrenHandlers:
+        acceptor.sampleChildrenHandlers[sampleType](path, samplePermId, sampleType, response, acceptor, context)
+        return
     dataSetSearchCriteria = DataSetSearchCriteria()
     dataSetSearchCriteria.withSample().withPermId().thatEquals(samplePermId)
-    listDataSets(path, dataSetSearchCriteria, True, response, acceptor, context)
 
+    listDataSets(path, dataSetSearchCriteria, True, response, acceptor, context)
+    addSampleSampleChildNodes(path, samplePermId, response, acceptor, context)
+
+def addSampleSampleChildNodes(path, samplePermId, response, acceptor, context):
     fetchOptions = SampleFetchOptions()
+    fetchOptions.withExperiment()
     fetchOptions.withChildren().withType()
     fetchOptions.withChildren().withSpace()
     fetchOptions.withChildren().withProperties()
+    fetchOptions.withChildren().withExperiment()
     sampleId = SamplePermId(samplePermId)
     sample = context.getApi().getSamples(context.getSessionToken(), [sampleId], fetchOptions)[sampleId]
+    experiment = sample.getExperiment()
     entitiesByName = {}
     for child in sample.getChildren():
-        if acceptor.acceptSample(child):
+        if acceptor.acceptSample(child) and child.getExperiment() == experiment:
             gatherEntity(entitiesByName, child)
     addNodes("SAMPLE", entitiesByName, path, response, context)
 
 def addDataSetFileNodes(path, dataSetCode, contentNode, response, acceptor, context):
-    for childNode in contentNode.getChildNodes():
+    childNodes = contentNode.getChildNodes()
+    if len(childNodes) == 1 and childNodes[0].getRelativePath() == 'original':
+        childNodes = childNodes[0].getChildNodes()
+    for childNode in childNodes:
         nodeName = childNode.getName()
         filePath = "%s/%s" % (path, nodeName)
         filePermId = "%s::%s" % (dataSetCode, childNode.getRelativePath())
-        context.getCache().putNode(Node("DATASET", filePermId), filePath)
-        if response is not None:
-            if childNode.isDirectory():
-                response.addDirectory(nodeName, childNode.getLastModified())
-            else:
-                response.addFile(nodeName, childNode)
+        cachedNode = context.getCache().getNode(filePath)
+        if cachedNode is not None and filePermId not in cachedNode.permIds:
+            cachedNode.addPermId(filePermId)
+        else:
+            context.getCache().putNode(NodeWithEntityType("DATASET", filePermId, None), filePath)
+            if response is not None:
+                if childNode.isDirectory():
+                    response.addDirectory(nodeName, childNode.getLastModified())
+                else:
+                    response.addFile(nodeName, childNode)
+
+def addDataSetFileNodesFor(path, dataSets, response, acceptor, context):
+    contentNodes = asContentNodes(dataSets, context)
+    for dataSetCode, contentNode, _ in contentNodes:
+        addDataSetFileNodes(path, dataSetCode, contentNode, response, acceptor, context)
+
+def getContentNodes(permIds, context):
+    ids = []
+    paths = []
+    for permId in permIds:
+        splittedId = permId.split("::")
+        ids.append(DataSetPermId(splittedId[0]))
+        paths.append(splittedId[1] if len(splittedId) > 1 else None)
+
+    fetchOptions = DataSetFetchOptions()
+    fetchOptions.withDataStore()
+    fetchOptions.withPhysicalData()
+    dataSets = context.getApi().getDataSets(context.getSessionToken(), ids, fetchOptions).values()
+    return asContentNodes(dataSets, context, paths)
+
+def asContentNodes(dataSets, context, paths=None):
+    result = []
+    contentProvider = context.getContentProvider()
+    for i in range(len(dataSets)):
+        dataSet = dataSets[i]
+        dataSetCode = dataSet.getCode()
+        dataStore = DataStore()
+        dataStore.setCode(dataSet.getDataStore().getCode())
+        dataStore.setHostUrl(dataSet.getDataStore().getDownloadUrl())
+        kind = dataSet.getKind()
+        if kind == DataSetKind.PHYSICAL:
+            physicalData = dataSet.getPhysicalData()
+            physicalDataSet = PhysicalDataSet()
+            physicalDataSet.setCode(dataSetCode)
+            physicalDataSet.setLocation(physicalData.getLocation())
+            physicalDataSet.setDataStore(dataStore)
+            physicalDataSet.setShareId(physicalData.getShareId())
+            content = contentProvider.asContentWithoutModifyingAccessTimestamp(physicalDataSet)
+            contentNode = content.getRootNode() if paths is None or paths[i] is None else content.tryGetNode(paths[i])
+            result.append((dataSetCode, contentNode, content))
+        else:
+            raise Exception("Not supported data set kind: %s" % kind)
+    return result
 
 def getContentNode(permId, context):
     splittedId = permId.split("::")
@@ -326,6 +405,20 @@ def getContentNode(permId, context):
     content = context.getContentProvider().asContent(dataSetCode)
     contentNode = content.tryGetNode(splittedId[1]) if len(splittedId) > 1 else content.getRootNode()
     return dataSetCode, contentNode, content
+
+def getDataSetsOfSampleAndItsChildren(samplePermId, context):
+    dataSetSearchCriteria = DataSetSearchCriteria()
+    dataSetSearchCriteria.withOrOperator()
+    dataSetSearchCriteria.withSample().withPermId().thatEquals(samplePermId)
+    parentsSearchCriteria = dataSetSearchCriteria.withSample().withParents()
+    parentsSearchCriteria.withPermId().thatEquals(samplePermId)
+    fetchOptions = DataSetFetchOptions()
+    fetchOptions.withDataStore()
+    fetchOptions.withPhysicalData()
+    fetchOptions.withType()
+    fetchOptions.withProperties()
+    fetchOptions.withSample().withType()
+    return context.getApi().searchDataSets(context.getSessionToken(), dataSetSearchCriteria, fetchOptions).getObjects()
 
 def listDataSets(path, dataSetSearchCriteria, assignedToSample, response, acceptor, context):
     fetchOptions = DataSetFetchOptions()
@@ -361,7 +454,9 @@ def addNodes(nodeType, entitiesByName, parentPath, response, context):
         for entity in entities:
             nodeName = name if len(entities) == 1 else "%s [%s]" % (name, entity.getCode())
             path = "%s/%s" % (parentPath, nodeName)
-            context.getCache().putNode(Node(nodeType, entity.getPermId().getPermId()), path)
+            entityTypeCode = entity.getType().getCode()
+            entityPermId = entity.getPermId().getPermId()
+            context.getCache().putNode(NodeWithEntityType(nodeType, entityPermId, entityTypeCode), path)
             if response is not None:
                 response.addDirectory(nodeName, entity.getModificationDate())
 

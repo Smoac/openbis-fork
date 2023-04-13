@@ -20,6 +20,7 @@ function ProjectFormView(projectFormController, projectFormModel) {
 	
 	this.repaint = function(views) {
 		var $container = views.content;
+        mainController.profile.beforeViewPaint(ViewType.PROJECT_FORM, this._projectFormModel, $container);
 		var _this = this;
 		var projectIdentifier = IdentifierUtil.getProjectIdentifier(_this._projectFormModel.project.spaceCode, _this._projectFormModel.project.code);
 		var $form = $("<div>");
@@ -55,7 +56,6 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		var toolbarModel = [];
 		var dropdownOptionsModel = [];
 		if(this._projectFormModel.mode === FormMode.VIEW) {
-			var experimentKindName = ELNDictionary.getExperimentKindName(projectIdentifier);
 			if (_this._allowedToCreateExperiments()) {
 				//Create Experiment
 				var experimentTypes = mainController.profile.getExperimentTypes();
@@ -185,6 +185,7 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		$header.append(FormUtil.getToolbar(toolbarModel));
 
 		$container.append($form);
+        mainController.profile.afterViewPaint(ViewType.PROJECT_FORM, this._projectFormModel, $container);
 	};
 	
 	this._createIdentificationInfoSection = function(hideShowOptionsModel) {
@@ -200,6 +201,7 @@ function ProjectFormView(projectFormController, projectFormModel) {
         $identificationInfo.append($("<legend>").append("Identification Info"));
         if (this._projectFormModel.mode !== FormMode.CREATE) {
             $identificationInfo.append(FormUtil.getFieldForLabelWithText("PermId", this._projectFormModel.project.permId));
+            $identificationInfo.append(FormUtil.getFieldForLabelWithText("Identifier", this._projectFormModel.v3_project.identifier.identifier));
 		}
 
 		var spaceCode = this._projectFormModel.project.spaceCode;
@@ -284,7 +286,7 @@ function ProjectFormView(projectFormController, projectFormModel) {
 	}
 	
 	this._createExperimentsSection = function(projectIdentifier, hideShowOptionsModel) {
-		var entityKindName = ELNDictionary.getExperimentKindName(projectIdentifier, true);
+		var entityKindName = ELNDictionary.getExperimentsDualName();
 		var $experiments = $("<div>", { id : "project-experiments" });
 		var $experimentsContainer = $("<div>");
 		$experiments.append($("<legend>").append(entityKindName));

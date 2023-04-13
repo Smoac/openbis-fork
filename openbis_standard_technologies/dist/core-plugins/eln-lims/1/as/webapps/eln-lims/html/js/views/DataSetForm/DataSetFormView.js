@@ -20,6 +20,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 	
 	this.repaint = function(views) {
 		var $container = views.content;
+        mainController.profile.beforeViewPaint(ViewType.DATASET_FORM, this._dataSetFormModel, $container);
 		var _this = this;
 		var dataSetTypeDefinitionsExtension = profile.dataSetTypeDefinitionsExtension[_this._dataSetFormModel.dataSet.dataSetTypeCode];
 
@@ -377,6 +378,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			var dataSetViewer = new DataSetViewerController("filesViewer", profile, this._dataSetFormModel.entity, mainController.serverFacade, profile.getDefaultDataStoreURL(), [this._dataSetFormModel.dataSet], false, true);
 			dataSetViewer.init();
 		}
+        mainController.profile.afterViewPaint(ViewType.DATASET_FORM, this._dataSetFormModel, $container);
 	}
 	
 	this._addArchivingButton = function(toolbarModel, toolbarConfig) {
@@ -826,7 +828,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 								_this._dataSetFormModel.isFormDirty = true;
 								var field = $(this);
 								if(propertyType.dataType === "BOOLEAN") {
-									_this._dataSetFormModel.dataSet.properties[propertyTypeCode] = $(field.children()[0]).children()[0].checked;
+									_this._dataSetFormModel.dataSet.properties[propertyTypeCode] = FormUtil.getBooleanValue(field);
 								} else if (propertyType.dataType === "TIMESTAMP" || propertyType.dataType === "DATE") {
 									var timeValue = $($(field.children()[0]).children()[0]).val();
                                     var isValidValue = Util.isDateValid(timeValue, propertyType.dataType === "DATE");
@@ -848,7 +850,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 						//Update values if is into edit mode
 						if(this._dataSetFormModel.mode === FormMode.EDIT) {
 							if(propertyType.dataType === "BOOLEAN") {
-								$($($component.children()[0]).children()[0]).prop('checked', value === "true");
+							    FormUtil.setFieldValue(propertyType, $component, value);
 							} else if(propertyType.dataType === "TIMESTAMP" || propertyType.dataType === "DATE") {
 							} else {
 								$component.val(value);

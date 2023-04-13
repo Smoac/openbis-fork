@@ -30,6 +30,7 @@ function ExperimentFormController(mainController, mode, experiment) {
 					var id = new ExperimentPermId(experiment.permId);
 					var fetchOptions = new ExperimentFetchOptions();
 					fetchOptions.withProject().withSpace();
+                    fetchOptions.withType();
                     fetchOptions.withSamples().withProperties();
                     fetchOptions.withDataSets().withType();
                     fetchOptions.withDataSets().withProperties();
@@ -73,13 +74,14 @@ function ExperimentFormController(mainController, mode, experiment) {
 		
 		mainController.serverFacade.listSamplesForExperiments([this._experimentFormModel.experiment], function(dataSamples) {
 			mainController.serverFacade.deleteExperiments([_this._experimentFormModel.experiment.id], reason, function(dataExperiment) {
+				Util.unblockUI()
 				if(dataExperiment.error) {
 					Util.showError(dataExperiment.error.message);
 				} else {
-					Util.showSuccess("" + ELNDictionary.getExperimentKindName(_this._experimentFormModel.experiment.identifier) + " moved to Trashcan");
+                    Util.showSuccess("" + ELNDictionary.getExperimentKindName(_this._experimentFormModel.experiment.experimentTypeCode) + " moved to Trashcan");
 					
 					//Delete experiment from UI
-					mainController.sideMenu.deleteNodeByEntityPermId(_this._experimentFormModel.experiment.permId, true);
+					mainController.sideMenu.deleteNodeByEntityPermId("EXPERIMENT", _this._experimentFormModel.experiment.permId, true);
 				}
 			});
 		});
@@ -130,10 +132,11 @@ function ExperimentFormController(mainController, mode, experiment) {
 					}
 					
 					var message = "";
+                    var prefix = ELNDictionary.getExperimentKindName(_this._experimentFormModel.experiment.experimentTypeCode);
 					if(_this._experimentFormModel.mode === FormMode.CREATE) {
-						message = "" + ELNDictionary.getExperimentKindName(experimentIdentifier) + " Created.";
+                        message = prefix + " Created.";
 					} else if(_this._experimentFormModel.mode === FormMode.EDIT) {
-						message = "" + ELNDictionary.getExperimentKindName(experimentIdentifier) + " Updated.";
+                        message = prefix + " Updated.";
 					}
 					
 					var callbackOk = function() {
@@ -142,7 +145,7 @@ function ExperimentFormController(mainController, mode, experiment) {
 						if(_this._experimentFormModel.mode === FormMode.CREATE) {
 							_this._mainController.sideMenu.refreshCurrentNode(); //Project
 						} else if(_this._experimentFormModel.mode === FormMode.EDIT) {
-							_this._mainController.sideMenu.refreshNodeParent(_this._experimentFormModel.experiment.permId);
+							_this._mainController.sideMenu.refreshNodeParentByPermId("EXPERIMENT", _this._experimentFormModel.experiment.permId);
 						}
 						
 						var isInventory = profile.isInventorySpace(experimentSpace);

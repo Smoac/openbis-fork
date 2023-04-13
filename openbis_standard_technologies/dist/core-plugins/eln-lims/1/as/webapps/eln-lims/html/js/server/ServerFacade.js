@@ -1134,6 +1134,49 @@ function ServerFacade(openbisServer) {
         });
     }
 
+    this.isDropboxMonitorUsageAuthorized = function(callback) {
+        this._dropboxApi({"checkAuthorization": true}, callback);
+    }
+
+    this.getDropboxMonitorOverview = function(callback) {
+        this._dropboxApi({}, callback);
+    }
+    
+    this.getDropboxMonitorLogs = function(dropboxName, maxNumberOfLogs, callback) {
+        var parameters = {"dropboxName": dropboxName, "logN": maxNumberOfLogs};
+        this._dropboxApi(parameters, callback);
+    }
+
+    this._dropboxApi = function(parameters, callback) {
+        var _this = this;
+        var dataStoreCode = profile.getDefaultDataStoreCode();
+        this.createReportFromAggregationService(dataStoreCode, parameters, function(data) {
+            if (data.error) {
+                Util.showError(data.error.message, Util.unblockUI);
+            } else if (data && data.result && data.result.columns) {
+                var rows = data.result.rows;
+                if (data.result.columns.length > 1 && data.result.columns[1].title === "Error") {
+                    Util.showStacktraceAsError(rows[0][1].value);
+                } else {
+                    callback(rows);
+                }
+            } else {
+                Util.showError("Unknown Error.", Util.unblockUI);
+            }
+        }, "dropbox-monitor-api");
+    }
+
+    this.handleReportFromAggregationService = function(data, callback) {
+        if (data.error) {
+            Util.showError(data.error.message, Util.unblockUI);
+        } else if (data.result.columns[1].title === "Error") {
+            var stacktrace = data.result.rows[0][1].value;
+            Util.showStacktraceAsError(stacktrace);
+        } else {
+            callback(data);
+        }
+    }
+
  	this.customELNApi = function(parameters, callbackFunction, service) {
 		var _this = this;
  		if(!service) {
@@ -1508,17 +1551,74 @@ function ServerFacade(openbisServer) {
 				} else if(advancedFetchOptions.only) {
 					if(advancedFetchOptions.withSample) {
 						fetchOptions.withSample();
+						if(advancedFetchOptions.withSampleType) {
+							fetchOptions.withSample().withType();
+						}
 						if(advancedFetchOptions.withSampleProperties) {
 							fetchOptions.withSample().withProperties();
 						}
-					}
-					if(advancedFetchOptions.withExperiment) {
-						fetchOptions.withExperiment();
-						if(advancedFetchOptions.withExperimentProperties) {
-							fetchOptions.withExperiment().withProperties();
+						if(advancedFetchOptions.withSampleExperiment) {
+							fetchOptions.withSample().withExperiment();
+							if(advancedFetchOptions.withSampleExperimentType) {
+								fetchOptions.withSample().withExperiment().withType()
+							}
+							if(advancedFetchOptions.withSampleExperimentProperties) {
+								fetchOptions.withSample().withExperiment().withProperties()
+							}
+							if(advancedFetchOptions.withSampleExperimentProject) {
+								fetchOptions.withSample().withExperiment().withProject()
+								if(advancedFetchOptions.withSampleExperimentProjectSpace) {
+									fetchOptions.withSample().withExperiment().withProject().withSpace()
+								}
+							}
+						}
+						if(advancedFetchOptions.withSampleParents) {
+							fetchOptions.withSample().withParents()
+							if(advancedFetchOptions.withSampleParentsType) {
+								fetchOptions.withSample().withParents().withType()
+							}
+							if(advancedFetchOptions.withSampleParentsProperties) {
+								fetchOptions.withSample().withParents().withProperties()
+							}
+							if(advancedFetchOptions.withSampleParentsExperiment) {
+								fetchOptions.withSample().withParents().withExperiment()
+								if(advancedFetchOptions.withSampleParentsExperimentType) {
+									fetchOptions.withSample().withParents().withExperiment().withType()
+								}
+								if(advancedFetchOptions.withSampleParentsExperimentProperties) {
+									fetchOptions.withSample().withParents().withExperiment().withProperties()
+								}
+								if(advancedFetchOptions.withSampleParentsExperimentProject) {
+									fetchOptions.withSample().withParents().withExperiment().withProject()
+									if(advancedFetchOptions.withSampleParentsExperimentProjectSpace) {
+										fetchOptions.withSample().withParents().withExperiment().withProject().withSpace()
+									}
+								}
+							}
+							if(advancedFetchOptions.withSampleParentsParents) {
+								fetchOptions.withSample().withParents().withParents()
+								if(advancedFetchOptions.withSampleParentsParentsExperiment) {
+									fetchOptions.withSample().withParents().withParents().withExperiment()
+								}
+							}
 						}
 					}
 
+					if(advancedFetchOptions.withExperiment) {
+						fetchOptions.withExperiment();
+						if(advancedFetchOptions.withExperimentType) {
+							fetchOptions.withExperiment().withType();
+						}
+						if(advancedFetchOptions.withExperimentProperties) {
+							fetchOptions.withExperiment().withProperties();
+						}
+						if(advancedFetchOptions.withExperimentProject) {
+							fetchOptions.withExperiment().withProject();
+							if(advancedFetchOptions.withExperimentProjectSpace) {
+								fetchOptions.withExperiment().withProject().withSpace();
+							}
+						}
+					}
 					if(advancedFetchOptions.withProperties) {
 						fetchOptions.withProperties();
 					}
@@ -1528,16 +1628,43 @@ function ServerFacade(openbisServer) {
 							fetchOptions.withType().withPropertyAssignments().withPropertyType()
 						}
 					}
-					if(advancedFetchOptions.withExperiment) {
-						fetchOptions.withExperiment();
+					if(advancedFetchOptions.withSpace) {
+						fetchOptions.withSpace();
+					}
+					if(advancedFetchOptions.withProject) {
+						fetchOptions.withProject();
+						if(advancedFetchOptions.withProjectSpace) {
+							fetchOptions.withProject().withSpace();
+						}
 					}
 					if(advancedFetchOptions.withParents) {
 						var parentFetchOptions = fetchOptions.withParents();
 						if(advancedFetchOptions.withParentsType) {
 							parentFetchOptions.withType();
 						}
+						if(advancedFetchOptions.withParentsProperties) {
+							parentFetchOptions.withProperties();
+						}
 						if (advancedFetchOptions.withParentsExperiment) {
 							parentFetchOptions.withExperiment();
+							if (advancedFetchOptions.withParentsExperimentType) {
+								parentFetchOptions.withExperiment().withType();
+							}
+							if (advancedFetchOptions.withParentsExperimentProperties) {
+								parentFetchOptions.withExperiment().withProperties();
+							}
+							if (advancedFetchOptions.withParentsExperimentProject) {
+								parentFetchOptions.withExperiment().withProject();
+								if (advancedFetchOptions.withParentsExperimentProjectSpace) {
+									parentFetchOptions.withExperiment().withProject().withSpace();
+								}
+							}
+						}
+						if(advancedFetchOptions.withParentsParents) {
+							parentFetchOptions.withParents();
+							if(advancedFetchOptions.withParentsParentsExperiment) {
+								parentFetchOptions.withParents().withExperiment();
+							}
 						}
 					}
 					if(advancedFetchOptions.withChildren) {
@@ -1604,7 +1731,14 @@ function ServerFacade(openbisServer) {
 					return criteria;
 				}
 
-			    var setCriteriaRules = function(searchCriteria, advancedSearchCriteria) {
+				var setNegate = function(criteria, negate) {
+					if (negate) {
+						criteria.negate()
+					}
+					return criteria;
+				}
+
+                var setCriteriaRules = function(searchCriteria, advancedSearchCriteria) {
                     //Rules
                     var ruleKeys = Object.keys(advancedSearchCriteria.rules);
                     for (var idx = 0; idx < ruleKeys.length; idx++)
@@ -1651,15 +1785,12 @@ function ServerFacade(openbisServer) {
                                             }
                                             break;
                                         case "thatEqualsBoolean":
-                                            var validBoolean = getValidBoolean(propertyValue)
-                                            if(validBoolean !== null){
-                                                if (validBoolean) {
+                                            if(propertyValue === "(empty)"){
+                                                criteria.withSubcriteria().negate().withBooleanProperty(propertyName);
+                                            }else{
+                                                var validBoolean = getValidBoolean(propertyValue)
+                                                if(validBoolean !== null){
                                                     criteria.withBooleanProperty(propertyName).thatEquals(validBoolean);
-                                                } else {
-                                                    var propertyCriteria = criteria.withSubcriteria();
-                                                    propertyCriteria.withOrOperator();
-                                                    propertyCriteria.withBooleanProperty(propertyName).thatEquals(false);
-                                                    propertyCriteria.withSubcriteria().negate().withBooleanProperty(propertyName);
                                                 }
                                             }
                                             break;
@@ -1770,6 +1901,9 @@ function ServerFacade(openbisServer) {
                                                 break;
                                         case "thatContains":
                                                 criteria.withCode().thatContains(attributeValue);
+                                                break;
+                                        case "thatStartsWith":
+                                                criteria.withCode().thatStartsWith(attributeValue);
                                                 break;
                                         case "thatEndsWith":
                                                 criteria.withCode().thatEndsWith(attributeValue);
@@ -1967,16 +2101,35 @@ function ServerFacade(openbisServer) {
                                 case "ARCHIVING_REQUESTED":
                                     criteria.withPhysicalData().withArchivingRequested().thatEquals(attributeValue);
                                     break;
+                                case "SIZE":
+                                    switch(comparisonOperator) {
+                                        case "thatEqualsNumber":
+                                                criteria.withPhysicalData().withSize().thatEquals(giattributeValue);
+                                                break;
+                                        case "thatIsLessThanNumber":
+                                                criteria.withPhysicalData().withSize().thatIsLessThan(attributeValue);
+                                                break;
+                                        case "thatIsLessThanOrEqualToNumber":
+                                                criteria.withPhysicalData().withSize().thatIsLessThanOrEqualTo(attributeValue);
+                                                break;
+                                        case "thatIsGreaterThanNumber":
+                                                criteria.withPhysicalData().withSize().thatIsGreaterThan(attributeValue);
+                                                break;
+                                        case "thatIsGreaterThanOrEqualToNumber":
+                                                criteria.withPhysicalData().withSize().thatIsGreaterThanOrEqualTo(attributeValue);
+                                                break;
+                                    }
+                                    break;
                                 case "PARENTS":
                                     var parentsCriteria = criteria.withParents();
                                     parentsCriteria.withOrOperator();
-                                    parentsCriteria.withCode().thatContains(attributeValue);
+                                    parentsCriteria.withIdentifier().thatContains(attributeValue);
                                     parentsCriteria.withProperty(profile.propertyReplacingCode).thatContains(attributeValue);
                                     break;
                                 case "CHILDREN":
                                     var childrenCriteria = criteria.withChildren();
                                     childrenCriteria.withOrOperator();
-                                    childrenCriteria.withCode().thatContains(attributeValue);
+                                    childrenCriteria.withIdentifier().thatContains(attributeValue);
                                     childrenCriteria.withProperty(profile.propertyReplacingCode).thatContains(attributeValue);
                                     break;
                             }
@@ -2027,6 +2180,8 @@ function ServerFacade(openbisServer) {
                                         break;
                                     case "NULL":
                                         searchCriteria.withoutExperiment();
+                                    case "NOT_NULL":
+                                        searchCriteria.withExperiment();
                                         break;
                                 }
                                 break;
@@ -2068,6 +2223,7 @@ function ServerFacade(openbisServer) {
 			    }
 
 			    searchCriteria = setOperator(searchCriteria, advancedSearchCriteria.logicalOperator);
+                searchCriteria = setNegate(searchCriteria, advancedSearchCriteria.negate);
                 setCriteriaRules(searchCriteria, advancedSearchCriteria);
 
                 // Sub Criteria - ONLY! first level support for the UI Tables OR
@@ -2077,6 +2233,7 @@ function ServerFacade(openbisServer) {
                         var advancedSearchSubCriteria = advancedSearchCriteria.subCriteria[subCriteriaKeys[scdx]];
                         var subCriteria = searchCriteria.withSubcriteria();
                         subCriteria = setOperator(subCriteria, advancedSearchSubCriteria.logicalOperator);
+                        subCriteria = setNegate(subCriteria, advancedSearchSubCriteria.negate);
                         setCriteriaRules(subCriteria, advancedSearchSubCriteria);
                     }
                 }
@@ -2250,7 +2407,9 @@ function ServerFacade(openbisServer) {
 		v1Sample["identifier"] = (v3Sample.identifier)?v3Sample.identifier.identifier:null;
 		v1Sample["projectCode"] = (v3Sample.project) ? v3Sample.project.code : null;
 		v1Sample["experimentIdentifierOrNull"] = (v3Sample.experiment)?v3Sample.experiment.identifier.identifier:null;
+        v1Sample["experimentTypeCode"] = v3Sample.experiment && v3Sample.experiment.type ? v3Sample.experiment.type.code : null;
 		v1Sample["sampleTypeCode"] = (v3Sample.type)?v3Sample.type.code:null;
+        v1Sample["semanticAnnotations"] = (v3Sample.type)?v3Sample.type.semanticAnnotations:null;
 		v1Sample["properties"] = v3Sample.properties;
 
 		v1Sample["registrationDetails"] = {};
@@ -2583,11 +2742,11 @@ function ServerFacade(openbisServer) {
             //
             var fetchOptions = new SampleFetchOptions();
             fetchOptions.withSpace();
-            fetchOptions.withType();
+            fetchOptions.withType().withSemanticAnnotations();
             fetchOptions.withRegistrator();
             fetchOptions.withModifier();
             fetchOptions.withProject();
-            fetchOptions.withExperiment();
+            fetchOptions.withExperiment().withType();
             if(fechOptions["withProperties"]) {
             		fetchOptions.withProperties();
             }

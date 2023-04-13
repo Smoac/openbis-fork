@@ -20,6 +20,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 
 	this.repaint = function(views) {
 		var $container = views.content;
+		mainController.profile.beforeViewPaint(ViewType.EXPERIMENT_FORM, this._experimentFormModel, $container);
 		var _this = this;
 	    var experimentTypeDefinitionsExtension = profile.experimentTypeDefinitionsExtension[_this._experimentFormModel.experiment.experimentTypeCode];
 
@@ -82,8 +83,10 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 			if (_this._allowedToEdit() && toolbarConfig.EDIT) {
 				//Edit
 				var $editBtn = FormUtil.getButtonWithIcon("glyphicon-edit", function () {
-				    Util.blockUI();
-					mainController.changeView("showEditExperimentPageFromIdentifier", _this._experimentFormModel.experiment.identifier);
+                    Util.blockUI();
+                    var exp = _this._experimentFormModel.experiment;
+                    var args = encodeURIComponent('["' + exp.identifier + '","' + exp.experimentTypeCode + '"]');
+                    mainController.changeView("showEditExperimentPageFromIdentifier", args);
 				}, "Edit", null, "edit-btn");
 				toolbarModel.push({ component : $editBtn });
 			}
@@ -102,7 +105,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
                 var maxNumToShow = 10;
                 var $component = $("<div>");
                 var experiment = this._experimentFormModel.v3_experiment;
-                var experimentKindName = ELNDictionary.getExperimentKindName(experiment.identifier.identifier).toLowerCase();
+                var experimentKindName = ELNDictionary.getExperimentKindName(experiment.getType().getCode()).toLowerCase();
                 var samples = experiment.samples;
                 if (samples.length > 0) {
                     var warningText = "The " + experimentKindName + " has " + samples.length + " " 
@@ -360,6 +363,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		$header.append(FormUtil.getToolbar(toolbarModel));
 		$container.append($form);
 
+        mainController.profile.afterViewPaint(ViewType.EXPERIMENT_FORM, this._experimentFormModel, $container);
 		Util.unblockUI();
 	}
 
@@ -375,6 +379,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		$identificationInfo.append($('<legend>').text("Identification Info"));
         if (this._experimentFormModel.mode !== FormMode.CREATE) {
             $identificationInfo.append(FormUtil.getFieldForLabelWithText("PermId", this._experimentFormModel.experiment.permId));
+            $identificationInfo.append(FormUtil.getFieldForLabelWithText("Identifier", this._experimentFormModel.experiment.identifier));
 		}
 		if (this._experimentFormModel.mode !== FormMode.CREATE) {
 			var spaceCode = IdentifierUtil.getSpaceCodeFromIdentifier(this._experimentFormModel.experiment.identifier);
@@ -574,7 +579,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 
 					if(this._experimentFormModel.mode === FormMode.EDIT) {
 						if(propertyType.dataType === "BOOLEAN") {
-							$($($component.children()[0]).children()[0]).prop('checked', value === "true");
+							FormUtil.setFieldValue(propertyType, $component, value);
 						} else if(propertyType.dataType === "TIMESTAMP" || propertyType.dataType === "DATE") {
 						} else {
 							$component.val(value);
@@ -590,7 +595,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 							_this._experimentFormModel.isFormDirty = true;
 							var field = $(this);
 							if(propertyType.dataType === "BOOLEAN") {
-								_this._experimentFormModel.experiment.properties[propertyTypeCode] = $(field.children()[0]).children()[0].checked;
+								_this._experimentFormModel.experiment.properties[propertyTypeCode] = FormUtil.getBooleanValue(field);
 							} else if (propertyType.dataType === "TIMESTAMP" || propertyType.dataType === "DATE") {
 								var timeValue = $($(field.children()[0]).children()[0]).val();
 								var isValidValue = Util.isDateValid(timeValue, propertyType.dataType === "DATE");

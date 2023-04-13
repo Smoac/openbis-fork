@@ -4,19 +4,22 @@ var ELNDictionary = {
 	sample : "object",
 	samples : "objects",
 	ExperimentELN : "Experiment",
-	ExperimentInventory : "Collection",
+	ExperimentCollection : "Collection",
 	ExperimentsELN : "Experiments",
-	ExperimentsInventory : "Collections"
+	ExperimentsCollection : "Collections"
 }
 
 ELNDictionary.getExperimentDualName = function() {
-	return ELNDictionary.ExperimentELN + "/" + ELNDictionary.ExperimentInventory;
+    return ELNDictionary.ExperimentELN + "/" + ELNDictionary.ExperimentCollection;
 }
 
-ELNDictionary.getExperimentKindName = function(identifier, isPlural) {
-	var space = IdentifierUtil.getSpaceCodeFromIdentifier(identifier);
-	if(profile.isInventorySpace(space)) {
-		return (isPlural)?ELNDictionary.ExperimentsInventory:ELNDictionary.ExperimentInventory;
+ELNDictionary.getExperimentsDualName = function() {
+    return ELNDictionary.ExperimentsELN + "/" + ELNDictionary.ExperimentsCollection;
+}
+
+ELNDictionary.getExperimentKindName = function(entityType, isPlural) {
+    if (entityType === "COLLECTION") {
+        return (isPlural) ? ELNDictionary.ExperimentsCollection : ELNDictionary.ExperimentCollection;
 	} else {
 		return (isPlural)?ELNDictionary.ExperimentsELN:ELNDictionary.ExperimentELN;
 	}

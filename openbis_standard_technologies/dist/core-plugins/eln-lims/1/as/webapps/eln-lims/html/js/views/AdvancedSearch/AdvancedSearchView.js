@@ -107,52 +107,52 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		var _this = this;
 		profile.getHomeSpace(function(HOME_SPACE) {
 
-	    var $nameField = FormUtil.getTextInputField('Name', 'Name', true);
+	    var $nameField = FormUtil.getTextInputField('Name', 'Name', true);
 
-	    var $searchDropdownContainer = $('<div>');
-	    var advancedEntitySearchDropdown = new AdvancedEntitySearchDropdown(false, true, "search entity to store query",
+	    var $searchDropdownContainer = $('<div>');
+	    var advancedEntitySearchDropdown = new AdvancedEntitySearchDropdown(false, true, "search entity to store query",
 				true, false, false, false, false);
-	    advancedEntitySearchDropdown.init($searchDropdownContainer);
+	    advancedEntitySearchDropdown.init($searchDropdownContainer);
 			if (HOME_SPACE) {
-		    advancedEntitySearchDropdown.addSelected({
-		      defaultDummyExperiment: true,
+		    advancedEntitySearchDropdown.addSelected({
+		      defaultDummyExperiment: true,
 					space: HOME_SPACE,
 					code: 'QUERIES_COLLECTION',
 					projectCode: 'QUERIES',
 					projectIdentifier: IdentifierUtil.getProjectIdentifier(HOME_SPACE, 'QUERIES'),
-		      identifier: { identifier: IdentifierUtil.getExperimentIdentifier(HOME_SPACE, 'QUERIES', 'QUERIES_COLLECTION') },
-		      permId: { permId: 'permId' },
-		    });
+		      identifier: { identifier: IdentifierUtil.getExperimentIdentifier(HOME_SPACE, 'QUERIES', 'QUERIES_COLLECTION') },
+		      permId: { permId: 'permId' },
+		    });
 			}
 
-	    var $btnSave = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Save', 'id' : 'search-query-save-btn' });
-	    var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
-	    $btnCancel.click(function() {
-	      Util.unblockUI();
-	    });
+	    var $btnSave = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Save', 'id' : 'search-query-save-btn' });
+	    var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
+	    $btnCancel.click(function() {
+	      Util.unblockUI();
+	    });
 
-	    // update existing sample or save new one
-	    if (_this._advancedSearchModel.selcetedSavedSearchIndex > -1) {
-	      Util.blockUI();
-	      _this._advancedSearchController.updateSelectedSample(function() {
-	        Util.unblockUI();
-	      });
-	    } else {
-	      FormUtil.showDialog({
-	        css: {'text-align': 'left'},
-	        title: 'Save search query',
-	        components: [$nameField, $searchDropdownContainer],
-	        buttons: [$btnSave, $btnCancel],
-	        callback: function() {
-	          Util.unblockUI();
-	          Util.blockUI();
-	          _this._advancedSearchController.saveNewSample({
-	            name: $nameField.val(),
-	            experiment: advancedEntitySearchDropdown.getSelected()[0],
-	          }, Util.unblockUI);
-	        },
-	      });
-	    }
+	    // update existing sample or save new one
+	    if (_this._advancedSearchModel.selcetedSavedSearchIndex > -1) {
+	      Util.blockUI();
+	      _this._advancedSearchController.updateSelectedSample(function() {
+	        Util.unblockUI();
+	      });
+	    } else {
+	      FormUtil.showDialog({
+	        css: {'text-align': 'left'},
+	        title: 'Save search query',
+	        components: [$nameField, $searchDropdownContainer],
+	        buttons: [$btnSave, $btnCancel],
+	        callback: function() {
+	          Util.unblockUI();
+	          Util.blockUI();
+	          _this._advancedSearchController.saveNewSample({
+	            name: $nameField.val(),
+	            experiment: advancedEntitySearchDropdown.getSelected()[0],
+	          }, Util.unblockUI);
+	        },
+	      });
+	    }
 
 		});
 	}
@@ -730,6 +730,9 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
         if (ruleName === "ATTR.PRESENT_IN_ARCHIVE" || ruleName === "ATTR.STORAGE_CONFIRMATION") {
             return "BOOLEAN";
         }
+        if (ruleName === "ATTR.SIZE") {
+            return "INTEGER";
+        }
         if (ruleName === "ATTR.STATUS") {
             return "ARCHIVING_STATUS";
         }
@@ -818,6 +821,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				         { value : "ATTR.STATUS", label : "Archiving status [ATTR.STATUS]" },
 				         { value : "ATTR.PRESENT_IN_ARCHIVE", label : "Present in archive [ATTR.PRESENT_IN_ARCHIVE]" },
 				         { value : "ATTR.STORAGE_CONFIRMATION", label : "Storage confirmation [ATTR.STORAGE_CONFIRMATION]" },
+				         { value : "ATTR.SIZE", label : "Size (bytes) [ATTR.SIZE]" },
 //				         { value : "ATTR.METAPROJECT", label : "Tag [ATTR.METAPROJECT]" }, TO-DO Not supported by ELN yet
 				         { value : "ATTR.REGISTRATOR", label : "Registrator [ATTR.REGISTRATOR]" },
 				         { value : "ATTR.REGISTRATION_DATE", label : "Registration Date [ATTR.REGISTRATION_DATE]" },
@@ -960,7 +964,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					if(data.entityKind === "Sample") {
 						return ELNDictionary.Sample;
 					} else if(data.entityKind === "Experiment") {
-						return ELNDictionary.getExperimentKindName(data.identifier);
+                        return ELNDictionary.getExperimentKindName(data.entityType);
 					} else {
 						return data.entityKind;
 					}
@@ -968,6 +972,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			}, {
                 label : 'Name',
                 property : '$NAME',
+                exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.PROPERTY("$NAME"),
                 filterable: !isGlobalSearch,
                 sortable : !isGlobalSearch,
                 render : function(data) {
@@ -980,6 +985,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
             }, {
                 label : 'Identifier',
                 property : 'identifier',
+                exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.IDENTIFIER,
                 filterable: !isGlobalSearch,
                 sortable : !isGlobalSearch,
                 render : function(data, grid) {
@@ -1013,6 +1019,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			}, {
 				label : 'Code',
 				property : 'code',
+				exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.CODE,
 				filterable: !isGlobalSearch,
 				sortable : !isGlobalSearch,
 				render : function(data, grid) {
@@ -1041,6 +1048,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			}, {
 				label : ELNDictionary.getExperimentDualName(),
 				property : 'experiment',
+				exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.EXPERIMENT,
 				filterable: !isGlobalSearch,
 				sortable : false
 			}]);
@@ -1049,6 +1057,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                 columns.push({
                     label : 'Archiving status',
                     property : 'status',
+                    exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.ARCHIVING_STATUS,
                     filterable: !isGlobalSearch,
                     sortable : false,
                     renderFilter : function(params) {
@@ -1058,6 +1067,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                 columns.push({
                     label : 'Present in archive',
                     property : 'presentInArchive',
+                    exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.PRESENT_IN_ARCHIVE,
                     filterable: !isGlobalSearch,
                     sortable : false,
                     renderFilter : function(params) {
@@ -1070,6 +1080,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                 columns.push({
                     label : 'Storage confirmation',
                     property : 'storageConfirmation',
+                    exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.STORAGE_CONFIRMATION,
                     filterable: !isGlobalSearch,
                     sortable : false,
                     renderFilter : function(params) {
@@ -1077,6 +1088,27 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                     },
                     render : function(data) {
                         return data.storageConfirmation == true ? "true" : "false"
+                    }
+                });
+                columns.push({
+                    label : 'Storage confirmation',
+                    property : 'storageConfirmation',
+                    filterable: !isGlobalSearch,
+                    sortable : false,
+                    renderFilter : function(params) {
+                        return FormUtil.renderBooleanGridFilter(params);
+                    },
+                    render : function(data) {
+                        return data.storageConfirmation == true ? "true" : "false"
+                    }
+                });
+                columns.push({
+                    label : "Size (bytes)",
+                    property : "size",
+                    isExportable : false,
+                    sortable : false,
+                    render : function(data, grid) {
+                        return data.size;
                     }
                 });
             }
@@ -1168,11 +1200,9 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                         renderFilter = function(params){
                             return FormUtil.renderBooleanGridFilter(params);
                         };
-                        renderValue = (function(propertyType){
-                            return function(row, params){
-                                return FormUtil.renderBooleanGridValue(row, params, propertyType)
-                            }
-                        })(propertyType);
+                        renderValue = function(row, params){
+                            return FormUtil.renderBooleanGridValue(params)
+                        };
                         getValue = (function(propertyType) {
                             return function(params) {
                                 return SampleDataGridUtil.getBooleanValue(params, propertyType);
@@ -1207,7 +1237,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 					propertyColumnsToSort.push({
 						label : propertyType.label,
 						property : propertyCode,
-						exportableProperty : propertyCode,
+						exportableProperty : DataGridExportOptions.EXPORTABLE_FIELD.PROPERTY(propertyCode),
 						filterable : !isGlobalSearch,
 						render: renderValue,
 						renderFilter: renderFilter,
@@ -1242,6 +1272,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			columnsLast.push({
 				label : 'Registrator',
 				property : 'registrator',
+				exportableProperty : DataGridExportOptions.EXPORTABLE_FIELD.REGISTRATOR,
 				filterable : !isGlobalSearch,
 				sortable : false
 			});
@@ -1249,6 +1280,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			columnsLast.push({
 				label : 'Registration Date',
 				property : 'registrationDate',
+				exportableProperty : DataGridExportOptions.EXPORTABLE_FIELD.REGISTRATION_DATE,
 				filterable : !isGlobalSearch,
 				sortable : !isGlobalSearch,
 				renderFilter : function(params) {
@@ -1259,6 +1291,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			columnsLast.push({
 				label : 'Modifier',
 				property : 'modifier',
+				exportableProperty : DataGridExportOptions.EXPORTABLE_FIELD.MODIFIER,
 				filterable : !isGlobalSearch,
 				sortable : false
 			});
@@ -1266,6 +1299,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 			columnsLast.push({
 				label : 'Modification Date',
 				property : 'modificationDate',
+				exportableProperty : DataGridExportOptions.EXPORTABLE_FIELD.MODIFICATION_DATE,
 				filterable : !isGlobalSearch,
 				sortable : !isGlobalSearch,
 				renderFilter : function(params) {
@@ -1277,9 +1311,9 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
             var filterModes = isGlobalSearch ? [] : null
 			var getDataRows = this._advancedSearchController.searchWithPagination(criteria, isGlobalSearch);
 			var dataGrid = new DataGridController(this.resultsTitle, this._filterColumns(columns), columnsLast, dynamicColumnsFunc, getDataRows, null, false, this.configKeyPrefix + this._advancedSearchModel.criteria.entityKind, isMultiselectable, {
-				fileFormat: 'XLS',
+				fileFormat: DataGridExportOptions.FILE_FORMAT.XLS,
 				filePrefix: 'advanced-search',
-				fileContent: 'ENTITIES',
+				fileContent: DataGridExportOptions.FILE_CONTENT.ENTITIES,
 			}, 70, filterModes);
 			return dataGrid;
 	}

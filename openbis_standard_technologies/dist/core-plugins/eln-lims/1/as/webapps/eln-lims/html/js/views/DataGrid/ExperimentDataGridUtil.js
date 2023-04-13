@@ -6,6 +6,7 @@ var ExperimentDataGridUtil = new function() {
 		columns.push({
 			label : 'Code',
 			property : 'code',
+			exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.CODE,
 			sortable : true,
 			render : function(data, grid) {
 				return FormUtil.getFormLink(data.code, "Experiment", data.identifier);
@@ -23,6 +24,7 @@ var ExperimentDataGridUtil = new function() {
         columns.push({
             label : 'Name',
             property : '$NAME',
+            exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.PROPERTY("$NAME"),
             sortable : true,
             render : function(data) {
                 var nameToUse = "";
@@ -36,6 +38,7 @@ var ExperimentDataGridUtil = new function() {
 		columns.push({
 			label : 'Identifier',
 			property : 'identifier',
+			exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.IDENTIFIER,
 			sortable : true,
 			render : function(data) {
 				return FormUtil.getFormLink(data.identifier, "Experiment", data.identifier);
@@ -50,7 +53,24 @@ var ExperimentDataGridUtil = new function() {
 				return sortDirection * naturalSort(value1, value2);
 			}
 		});
-
+		columns.push({
+			label : 'PermId',
+			property : 'permId',
+			exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.PERM_ID,
+			sortable : true,
+			render : function(data) {
+				return FormUtil.getFormLink(data.permId, "Experiment", data.permId);
+			},
+			filter : function(data, filter) {
+				return data.identifier.toLowerCase().indexOf(filter) !== -1;
+			},
+			sort : function(data1, data2, asc) {
+				var value1 = data1.identifier;
+				var value2 = data2.identifier;
+				var sortDirection = (asc)? 1 : -1;
+				return sortDirection * naturalSort(value1, value2);
+			}
+		});
         columns.push({
             label : 'Type',
             property : 'type',
@@ -60,12 +80,14 @@ var ExperimentDataGridUtil = new function() {
 		columns.push({
 			label : 'Registrator',
 			property : 'registrator',
+			exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.REGISTRATOR,
 			sortable : true
 		});
 		
 		columns.push({
 			label : 'Registration Date',
 			property : 'registrationDate',
+			exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.REGISTRATION_DATE,
 			sortable : true,
 			renderFilter : function(params) {
 				return FormUtil.renderDateRangeGridFilter(params, "TIMESTAMP");
@@ -78,12 +100,14 @@ var ExperimentDataGridUtil = new function() {
 		columns.push({
 			label : 'Modifier',
 			property : 'modifier',
+			exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.MODIFIER,
 			sortable : true
 		});
 
 		columns.push({
 			label : 'Modification Date',
 			property : 'modificationDate',
+			exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.MODIFICATION_DATE,
 			sortable : true,
 			renderFilter : function(params) {
 				return FormUtil.renderDateRangeGridFilter(params, "TIMESTAMP");
@@ -101,7 +125,7 @@ var ExperimentDataGridUtil = new function() {
 				var model = {		
 									'id' : entity.permId,
 									'exportableId' : {
-										exportable_kind: 'EXPERIMENT',
+										exportable_kind: DataGridExportOptions.EXPORTABLE_KIND.EXPERIMENT,
 										perm_id: entity.permId,
 										type_perm_id: entity.experimentTypeCode
 									},
@@ -151,9 +175,9 @@ var ExperimentDataGridUtil = new function() {
 		//Create and return a data grid controller
         var configKey = "EXPERIMENT_TABLE";
         var dataGridController = new DataGridController(null, columns, [], dynamicColumnsFunc, getDataList, rowClick, false, configKey, null, {
-            fileFormat: 'XLS',
+            fileFormat: DataGridExportOptions.FILE_FORMAT.XLS,
             filePrefix: 'collections',
-            fileContent: 'ENTITIES'
+            fileContent: DataGridExportOptions.FILE_CONTENT.ENTITIES
         }, heightPercentage);
 		dataGridController.setId("experiment-grid")
 		return dataGridController;

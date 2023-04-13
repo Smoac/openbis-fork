@@ -888,7 +888,8 @@ var FormUtil = new function() {
 		var vocabulary = propertyType.vocabulary;
 		if(vocabulary) {
 			for(var tIdx = 0; tIdx < vocabulary.terms.length; tIdx++) {
-				if(vocabulary.terms[tIdx].code === termCode) {
+				if(vocabulary.terms[tIdx].code === termCode &&
+				    vocabulary.terms[tIdx].label) {
 					return vocabulary.terms[tIdx].label;
 				}
 			}
@@ -899,7 +900,7 @@ var FormUtil = new function() {
 	this.getFieldForPropertyType = function(propertyType, timestampValue) {
 		var $component = null;
 		if (propertyType.dataType === "BOOLEAN") {
-			$component = this._getBooleanField(propertyType.code, propertyType.description, undefined, propertyType.mandatory);
+			$component = this._getBoolean2Field(propertyType.code, propertyType.description, propertyType.mandatory);
 		} else if (propertyType.dataType === "CONTROLLEDVOCABULARY") {
 			var vocabulary = profile.getVocabularyByCode(propertyType.vocabulary.code);
 			$component = this._getDropDownFieldForVocabulary(propertyType.code, vocabulary.terms, propertyType.description, propertyType.mandatory);
@@ -943,18 +944,37 @@ var FormUtil = new function() {
 	//
 	this.setFieldValue = function(propertyType, $field, value) {
 		if(propertyType.dataType === "BOOLEAN") {
-			$($($field.children()[0]).children()[0]).prop('checked', value === "true");
+		    if(value === 'true') {
+		        value = 'true';
+		    } else if (value === 'false') {
+		        value = 'false';
+		    } else {
+		        value = '';
+		    }
+			$field.val(value);
 		} else if(propertyType.dataType === "TIMESTAMP" || propertyType.dataType === "DATE") {
 			$($($field.children()[0]).children()[0]).val(value);
 		} else {
 			$field.val(value);
 		}
 	}
-	
+
+	this.getBooleanValue = function($field) {
+	    var value = null;
+	    if($field.val() === 'true') {
+            value = true;
+        } else if ($field.val() === 'false') {
+            value = false;
+        } else {
+            value = null;
+        }
+        return value;
+	}
+
 	this.getFieldValue = function(propertyType, $field) {
 		var propertyTypeValue;
 		if (propertyType.dataType === "BOOLEAN") {
-			propertyTypeValue = $field.children().is(":checked");
+		    propertyTypeValue = this.getBooleanValue($field);
 		} else {
 			propertyTypeValue = $field.val();
 		}
@@ -964,6 +984,14 @@ var FormUtil = new function() {
 	//
 	// Form Fields
 	//
+	this._getBoolean2Field = function(id, alt, isRequired) {
+		var $dropdown = this.getDropDownForTerms(id, [
+		    { code : "true", label : "true" },
+		    { code : "false", label : "false" }
+		], alt, isRequired);
+		return $dropdown;
+	}
+
 	this._getBooleanField = function(id, alt, checked, isRequired) {
 		var attr = {'type' : 'checkbox', 'alt' : alt, 'placeholder' : alt };
 		if(checked) {
@@ -998,10 +1026,12 @@ var FormUtil = new function() {
 		
 		$component.append($("<option>").attr('value', '').attr('selected', '').attr('disabled', '').text(alt));
 		$component.append($("<option>").attr('value', '').text('(empty)'));
-
+        var $options = [];
 		for(var i = 0; i < terms.length; i++) {
-			$component.append($("<option>").attr('value',terms[i].code).text(terms[i].label));
+		    var $option = $("<option>", { value : terms[i].code }).text(terms[i].label);
+			$options.push($option);
 		}
+		$component.append($options);
 		Select2Manager.add($component);
 		return $component;
 	}
@@ -1543,8 +1573,7 @@ var FormUtil = new function() {
 								.append("<center><b>Screenshot example showing the eln-lims dropbox network folder and how the results will be visualized in the ELN after upload</b></center>")
 								.append("The eln-lims dropbox requires a root folder with a specific name. This name contains information on where the data should be uploaded.").append("<br>")
 								.append("1. Generate the name of the root folder with this helper tool using the form below.").append("<br>")
-								.append("2. The root folder should contain another folder, with a name of your choice, with the data to upload. This can have as many layers as needed.").append("<br>")
-								.append("3. The upload will be triggered automatically and the data will become visible in the object/experiment to which it was uploaded.").append("<br>");
+								.append("2. The upload will be triggered automatically and the data will become visible in the object/experiment to which it was uploaded.").append("<br>");
 								
 
 			// dataset type dropdown
@@ -2329,9 +2358,12 @@ var FormUtil = new function() {
 		return id;
 	}
 
-    this.renderBooleanGridValue = function(row, params, propertyType) {
-        var value = row[propertyType.code]
-        return value ? value : "false";
+    this.renderBooleanGridValue = function(params) {
+        if(params.value === null){
+            return "(empty)"
+        }else{
+            return String(params.value)
+        }
     }
 
     this.renderMultilineVarcharGridValue = function(row, params, propertyType){
@@ -2410,18 +2442,18 @@ var FormUtil = new function() {
     }
 
     this.renderBooleanGridFilter = function(params){
-        return React.createElement(window.NgUiGrid.default.SelectField, {
+        return React.createElement(window.NgComponents.default.SelectField, {
             label: 'Filter',
             variant: 'standard',
             value: params.value,
             emptyOption: {},
-            options: [{value: "true"}, {value: "false"}],
+            options: [{value: "(empty)"}, {value: "true"}, {value: "false"}],
             onChange: params.onChange
         })
     }
 
     this.renderArchivingStatusGridFilter = function(params) {
-        return React.createElement(window.NgUiGrid.default.SelectField, {
+        return React.createElement(window.NgComponents.default.SelectField, {
             label: 'Filter',
             variant: 'standard',
             value: params.value,
@@ -2450,7 +2482,7 @@ var FormUtil = new function() {
             })
         }
 
-        return React.createElement(window.NgUiGrid.default.SelectField, {
+        return React.createElement(window.NgComponents.default.SelectField, {
             label: 'Filter',
             variant: 'standard',
             value: params.value,
@@ -2461,7 +2493,7 @@ var FormUtil = new function() {
     }
 
     this.renderDateRangeGridFilter = function(params, dataType){
-        return React.createElement(window.NgUiGrid.default.DateRangeField, {
+        return React.createElement(window.NgComponents.default.DateRangeField, {
             variant: "standard",
             value: params.value,
             onChange: params.onChange,
@@ -2481,17 +2513,17 @@ var FormUtil = new function() {
                 }
             }
         }else if(_.isObject(filter)){
-            var filterFrom = filter.from ? filter.from.value : null
-            var filterTo = filter.to ? filter.to.value : null
-            if(filterFrom === null && filterTo === null){
+            var filterFrom = filter.from ? filter.from.dateObject : null
+            var filterTo = filter.to ? filter.to.dateObject : null
+            if((filterFrom === null || filterFrom === undefined) && (filterTo === null || filterTo === undefined)){
                 return true
             }else{
                 var matches = true
                 if(filterFrom){
-                    matches = matches && value >= filter.from.valueString
+                    matches = matches && value >= filter.from.dateString
                 }
                 if(filterTo){
-                    matches = matches && value <= filter.to.valueString
+                    matches = matches && value <= filter.to.dateString
                 }
                 return matches
             }
@@ -2596,13 +2628,14 @@ var FormUtil = new function() {
             var doDelete = function(samplesPermIdsToDelete, sampleStoragesCodesToDelete, samplesList, reason) {
                 var toDeleteFinal = function(samplesPermIdsToDelete, reason) {
                     mainController.serverFacade.deleteSamples(samplesPermIdsToDelete, reason, function(response) {
+                        Util.unblockUI()
                         if(response.error) {
                             Util.showError(response.error.message);
                         } else {
                             Util.showSuccess("" + ELNDictionary.Sample + "(s) moved to Trashcan");
                             if(updateTree) {
                                 for(var sIdx = 0; sIdx < samplesPermIdsToDelete.length; sIdx++) {
-                                    mainController.sideMenu.deleteNodeByEntityPermId(samplesPermIdsToDelete[sIdx], true);
+                                    mainController.sideMenu.deleteNodeByEntityPermId("SAMPLE", samplesPermIdsToDelete[sIdx], true);
                                 }
                             }
                             callbackToNextViewOnSuccess();

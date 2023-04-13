@@ -20,6 +20,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 
 	this.repaint = function(views, loadFromTemplate) {
 		var $container = views.content;
+		mainController.profile.beforeViewPaint(ViewType.SAMPLE_FORM, this._sampleFormModel, $container);
 		var _this = this;
         var sampleTypeDefinitionsExtension = profile.sampleTypeDefinitionsExtension[_this._sampleFormModel.sample.sampleTypeCode];
 
@@ -652,6 +653,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		}
 
 		this._sampleFormModel.isFormLoaded = true;
+		mainController.profile.afterViewPaint(ViewType.SAMPLE_FORM, this._sampleFormModel, $container);
 	}
 
 	this._paintPropertiesForSection = function($formColumn, propertyTypeGroup, i, loadFromTemplate) {
@@ -739,7 +741,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					//Update values if is into edit mode
 					if(this._sampleFormModel.mode === FormMode.EDIT || loadFromTemplate) {
 						if(propertyType.dataType === "BOOLEAN") {
-							$($($component.children()[0]).children()[0]).prop('checked', value === "true");
+						    FormUtil.setFieldValue(propertyType, $component, value);
 						} else if(propertyType.dataType === "TIMESTAMP" || propertyType.dataType === "DATE") {
 						} else {
 							$component.val(value);
@@ -755,7 +757,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 							_this._sampleFormModel.isFormDirty = true;
 							var field = $(this);
 							if(propertyType.dataType === "BOOLEAN") {
-								_this._sampleFormModel.sample.properties[propertyTypeCode] = $(field.children()[0]).children()[0].checked;
+								_this._sampleFormModel.sample.properties[propertyTypeCode] = FormUtil.getBooleanValue(field);
 							} else if (propertyType.dataType === "TIMESTAMP" || propertyType.dataType === "DATE") {
 								var timeValue = $($(field.children()[0]).children()[0]).val();
 								var isValidValue = Util.isDateValid(timeValue, propertyType.dataType === "DATE");
@@ -849,8 +851,9 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			$fieldset.append(FormUtil.getFieldForComponentWithLabel(entityPath, "Path"));
 		}
 		$fieldset.append(FormUtil.getFieldForLabelWithText("Type", this._sampleFormModel.sample.sampleTypeCode));
+        this._appendSemanticAnnotions($fieldset);
 		if(this._sampleFormModel.sample.experimentIdentifierOrNull) {
-			$fieldset.append(FormUtil.getFieldForLabelWithText(ELNDictionary.getExperimentKindName(this._sampleFormModel.sample.experimentIdentifierOrNull), this._sampleFormModel.sample.experimentIdentifierOrNull));
+            $fieldset.append(FormUtil.getFieldForLabelWithText(ELNDictionary.getExperimentKindName(this._sampleFormModel.sample.experimentTypeCode), this._sampleFormModel.sample.experimentIdentifierOrNull));
 		}
 
 		//
@@ -917,7 +920,32 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		return $identificationInfo;
 	}
 
-	this._createParentsSection = function(hideShowOptionsModel, sampleTypeDefinitionsExtension, sampleTypeCode, loadFromTemplate) {
+    this._appendSemanticAnnotions = function($fieldset) {
+        if (this._sampleFormModel.sample.semanticAnnotations && this._sampleFormModel.sample.semanticAnnotations.length > 0) {
+            var $group = $("<div>", {class : "form-group"});
+            $group.append($("<label>", {class : "control-label"}).text("Semantic Annotations:"));
+            var $controls = $("<div>", {class : "controls" });
+            var _this = this;
+            this._sampleFormModel.sample.semanticAnnotations.forEach(function(annotation) {
+                var $line = $("<div>");
+                $line.append(_this.asHyperLinkOrText(annotation.getDescriptorAccessionId()));
+                $line.append(" (Ontology: ");
+                $line.append(_this.asHyperLinkOrText(annotation.getDescriptorOntologyId()));
+                $line.append(", Version: ");
+                $line.append(_this.asHyperLinkOrText(annotation.getDescriptorOntologyVersion()));
+                $line.append(")");
+                $controls.append($line);
+            });
+            $group.append($controls);
+            $fieldset.append($("<div>").append($group));
+        }
+    }
+
+    this.asHyperLinkOrText = function(text) {
+        return text.startsWith("http") ? FormUtil.asHyperlink(text) : text;
+    }
+
+    this._createParentsSection = function(hideShowOptionsModel, sampleTypeDefinitionsExtension, sampleTypeCode, loadFromTemplate) {
 		var _this = this;
 		var requiredParents = [];
 		if (sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension["SAMPLE_PARENTS_HINT"]) {

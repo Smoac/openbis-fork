@@ -21,14 +21,15 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 	
 	this.repaint = function(views) {
 		var $container = views.content;
+        mainController.profile.beforeViewPaint(ViewType.SAMPLE_TABLE, this._sampleTableModel, $container);
 		var _this = this;
 		
 		var $title = $("<div>");
 		if(this._sampleTableModel.title && this._sampleTableModel.experimentIdentifier) {
-			
-			var title = "" + ELNDictionary.getExperimentKindName(this._sampleTableModel.experimentIdentifier) + ": " + IdentifierUtil.getCodeFromIdentifier(this._sampleTableModel.experimentIdentifier);
+            var titlePrefix = Util.getDisplayNameFromCode(this._sampleTableModel.experiment.experimentTypeCode) + ": ";
+            var title = titlePrefix + IdentifierUtil.getCodeFromIdentifier(this._sampleTableModel.experimentIdentifier);
 			if(this._sampleTableModel.experiment && this._sampleTableModel.experiment.properties[profile.propertyReplacingCode]) {
-				title = "" + ELNDictionary.getExperimentKindName(this._sampleTableModel.experimentIdentifier) + ": " + this._sampleTableModel.experiment.properties[profile.propertyReplacingCode];
+                title = titlePrefix + this._sampleTableModel.experiment.properties[profile.propertyReplacingCode];
 			}
 			
 			var spaceCode = IdentifierUtil.getSpaceCodeFromIdentifier(this._sampleTableModel.experimentIdentifier);
@@ -47,30 +48,15 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		if(this._sampleTableModel.experimentIdentifier) {
 			var experimentSpace = IdentifierUtil.getSpaceCodeFromIdentifier(this._sampleTableModel.experimentIdentifier);
 			var experimentCode = IdentifierUtil.getCodeFromIdentifier(this._sampleTableModel.experimentIdentifier);
-			var allSampleTypes = FormUtil.getSampleTypesOnDropdowns(experimentSpace);
-			var sampleTypeCodesFound = [];
-			for(var aIdx = 0; aIdx < allSampleTypes.length; aIdx++) {
-				var auxSampleTypeCode = allSampleTypes[aIdx].code;
-				if(experimentCode.indexOf(auxSampleTypeCode) !== -1) {
-					sampleTypeCodesFound.push(auxSampleTypeCode);
-				}
-			}
-			
-			var sampleTypeCode = null;
-			if(sampleTypeCodesFound.length === 1 && profile.isInventorySpace(experimentSpace)) {
-				sampleTypeCode = sampleTypeCodesFound[0];
-			}
-			
+
 			//
-			var mandatorySampleTypeCode = null;
 			if(this._sampleTableModel.experiment && 
 					this._sampleTableModel.experiment.properties &&
 					this._sampleTableModel.experiment.properties["$DEFAULT_OBJECT_TYPE"]) {
-				mandatorySampleTypeCode = this._sampleTableModel.experiment.properties["$DEFAULT_OBJECT_TYPE"];
+				this._sampleTableModel.sampleTypeCodeToUse = this._sampleTableModel.experiment.properties["$DEFAULT_OBJECT_TYPE"];
 			}
 			
-			var sampleTypeCodeToUse = (mandatorySampleTypeCode)?mandatorySampleTypeCode:sampleTypeCode;
-			this._sampleTableModel.sampleTypeCodeToUse = sampleTypeCodeToUse;
+			var sampleTypeCodeToUse = this._sampleTableModel.sampleTypeCodeToUse;
 			
 			//Add Sample Type
 			if(sampleTypeCodeToUse !== null & _this._sampleTableModel.sampleRights.rights.indexOf("CREATE") >= 0) {
@@ -113,6 +99,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		}
 		
 		$container.append(this._tableContainer);
+        mainController.profile.afterViewPaint(ViewType.SAMPLE_TABLE, this._sampleTableModel, $container);
 	}
 	
 	this.getTableContainer = function() {
@@ -168,7 +155,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		$list.append($batchUpdateOption);
 		
 		if(_this._sampleTableModel.experimentIdentifier) {
-			var expKindName = ELNDictionary.getExperimentKindName(_this._sampleTableModel.experimentIdentifier, false);
+            var expKindName = ELNDictionary.getExperimentKindName(_this._sampleTableModel.experiment.experimentTypeCode, false);
 			var $searchCollectionOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Search in ' + expKindName, 'id' : 'search-' + ELNDictionary.Sample.toLowerCase() + '-btn'}).append('Search in ' + expKindName));
 			$searchCollectionOption.click(function() {
 				

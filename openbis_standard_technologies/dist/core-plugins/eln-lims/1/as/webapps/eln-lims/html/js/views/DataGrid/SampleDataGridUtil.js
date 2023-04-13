@@ -11,6 +11,7 @@ var SampleDataGridUtil = new function() {
 		columnsFirst.push({
 			label : 'Code',
 			property : 'code',
+			exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.CODE,
 			filterable: true,
 			sortable : true,
 			render : function(data, grid) {
@@ -50,6 +51,7 @@ var SampleDataGridUtil = new function() {
 		columnsFirst.push({
 			label : 'Name',
 			property : '$NAME',
+			exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.PROPERTY("$NAME"),
 			filterable: true,
 			sortable : true,
 			render : function(data) {
@@ -62,9 +64,56 @@ var SampleDataGridUtil = new function() {
 			}
 		});
 
+        if(profile.mainMenu.showBarcodes || true) {
+            var permIdLabel = "PermId";
+            if(profile.mainMenu.showBarcodes) {
+                permIdLabel += " / Default Barcode";
+            }
+            columnsFirst.push({
+                label : permIdLabel,
+                property : 'permId',
+                exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.PERM_ID,
+                filterable: true,
+                sortable : true,
+                render : function(data, grid) {
+                    var paginationInfo = null;
+                    if(isDynamic) {
+                        var indexFound = null;
+                        for(var idx = 0; idx < grid.lastReceivedData.objects.length; idx++) {
+                            if(grid.lastReceivedData.objects[idx].permId === data.permId) {
+                                indexFound = idx + (grid.lastUsedOptions.pageIndex * grid.lastUsedOptions.pageSize);
+                                break;
+                            }
+                        }
+
+                        if(indexFound !== null) {
+                            paginationInfo = {
+                                    pagFunction : _this.getDataListDynamic(samplesOrCriteria, false),
+                                    pagOptions : grid.lastUsedOptions,
+                                    currentIndex : indexFound,
+                                    totalCount : grid.lastReceivedData.totalCount
+                            }
+                        }
+                    }
+                    var codeId = data.permId.toLowerCase() + "-column-id";
+                    return (isLinksDisabled)?data.code:FormUtil.getFormLink(data.permId, "Sample", data.permId, paginationInfo, codeId);
+                },
+                filter : function(data, filter) {
+                    return data.permId.toLowerCase().indexOf(filter) !== -1;
+                },
+                sort : function(data1, data2, asc) {
+                    var value1 = data1.permId;
+                    var value2 = data2.permId;
+                    var sortDirection = (asc)? 1 : -1;
+                    return sortDirection * naturalSort(value1, value2);
+                }
+            });
+        }
+
 		columnsFirst.push({
 			label : 'Identifier',
 			property : 'identifier',
+			exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.IDENTIFIER,
 			filterable : true,
 			sortable : true,
 			render : function(data, grid) {
@@ -154,6 +203,7 @@ var SampleDataGridUtil = new function() {
 		columnsLast.push({
 			label : 'Space',
 			property : 'default_space',
+			exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.SPACE,
 			filterable: true,
 			sortable : true
 		});
@@ -162,6 +212,7 @@ var SampleDataGridUtil = new function() {
 			columnsLast.push({
 				label : ELNDictionary.getExperimentDualName(),
 				property : 'experiment',
+				exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.EXPERIMENT,
 				filterable: true,
 				sortable : false
 			});
@@ -171,6 +222,7 @@ var SampleDataGridUtil = new function() {
             columnsLast.push({
                 label : 'Parents',
                 property : 'parents',
+                exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.PARENTS,
                 filterable: true,
                 sortable : false,
                 truncate: true,
@@ -188,6 +240,7 @@ var SampleDataGridUtil = new function() {
             columnsLast.push({
                 label : 'Children',
                 property : 'children',
+                exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.CHILDREN,
                 filterable: true,
                 sortable : false,
                 truncate: true,
@@ -273,6 +326,7 @@ var SampleDataGridUtil = new function() {
 		columnsLast.push({
 			label : 'Registrator',
 			property : 'registrator',
+			exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.REGISTRATOR,
 			filterable: true,
 			sortable : false
 		});
@@ -280,6 +334,7 @@ var SampleDataGridUtil = new function() {
 		columnsLast.push({
 			label : 'Registration Date',
 			property : 'registrationDate',
+			exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.REGISTRATION_DATE,
 			filterable: true,
 			sortable : true,
 			renderFilter : function(params) {
@@ -290,6 +345,7 @@ var SampleDataGridUtil = new function() {
 		columnsLast.push({
 			label : 'Modifier',
 			property : 'modifier',
+			exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.MODIFIER,
 			filterable: true,
 			sortable : false,
 		});
@@ -297,6 +353,7 @@ var SampleDataGridUtil = new function() {
 		columnsLast.push({
 			label : 'Modification Date',
 			property : 'modificationDate',
+			exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.MODIFICATION_DATE,
 			filterable: true,
 			sortable : true,
 			renderFilter : function(params) {
@@ -325,9 +382,9 @@ var SampleDataGridUtil = new function() {
 		}
 		
 		var dataGridController = new DataGridController(null, columnsFirst, columnsLast, dynamicColumnsFunc, getDataList, rowClick, false, configKey, isMultiselectable, {
-			fileFormat: 'XLS',
+			fileFormat: DataGridExportOptions.FILE_FORMAT.XLS,
 			filePrefix: 'objects',
-			fileContent: 'ENTITIES'
+			fileContent: DataGridExportOptions.FILE_CONTENT.ENTITIES
 		}, heightPercentage);
 		dataGridController.setId("sample-grid")
 		return dataGridController;
@@ -405,7 +462,7 @@ var SampleDataGridUtil = new function() {
 					var sampleModel = {
 										'id' : sample.permId,
 										'exportableId' : {
-											exportable_kind: 'SAMPLE',
+											exportable_kind: DataGridExportOptions.EXPORTABLE_KIND.SAMPLE,
 											perm_id: sample.permId,
 											type_perm_id: sample.sampleTypeCode
 										},
@@ -514,6 +571,8 @@ var SampleDataGridUtil = new function() {
                             gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "SPACE", value : search, operator: "thatContains" };
                         } else if(field === "experiment") {
                             gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "EXPERIMENT_IDENTIFIER", value : search, operator: "thatContains" };
+                        } else if (field === "permId") {
+                            gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "PERM_ID", value : search, operator: "thatContains" };
                         } else if (field === "code") {
                             gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "CODE", value : search, operator: "thatContains" };
                         } else if (field === "identifier") {
@@ -521,20 +580,20 @@ var SampleDataGridUtil = new function() {
                         } else if (field === "registrator") {
                             gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "REGISTRATOR", value : search, operator: "thatContainsUserId" };
                         } else if (field === "registrationDate") {
-                            if (search.from && search.from.value) {
-                                gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "REGISTRATION_DATE", value : search.from.valueString, operator: "thatIsLaterThanOrEqualToDate" };
+                            if (search.from && search.from.dateObject) {
+                                gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "REGISTRATION_DATE", value : search.from.dateString, operator: "thatIsLaterThanOrEqualToDate" };
                             }
-                            if (search.to && search.to.value) {
-                                gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "REGISTRATION_DATE", value : search.to.valueString, operator: "thatIsEarlierThanOrEqualToDate" };
+                            if (search.to && search.to.dateObject) {
+                                gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "REGISTRATION_DATE", value : search.to.dateString, operator: "thatIsEarlierThanOrEqualToDate" };
                             }
                         } else if (field === "modifier") {
                             gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "MODIFIER", value : search, operator: "thatContainsUserId" };
                         } else if (field === "modificationDate") {
-                            if (search.from && search.from.value) {
-                                gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "MODIFICATION_DATE", value : search.from.valueString, operator: "thatIsLaterThanOrEqualToDate" };
+                            if (search.from && search.from.dateObject) {
+                                gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "MODIFICATION_DATE", value : search.from.dateString, operator: "thatIsLaterThanOrEqualToDate" };
                             }
-                            if (search.to && search.to.value) {
-                                gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "MODIFICATION_DATE", value : search.to.valueString, operator: "thatIsEarlierThanOrEqualToDate" };
+                            if (search.to && search.to.dateObject) {
+                                gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "MODIFICATION_DATE", value : search.to.dateString, operator: "thatIsEarlierThanOrEqualToDate" };
                             }
                         } else if (field === "parents") {
                             gridSubcriteria.rules[Util.guid()] = { type : "Attribute", name : "PARENTS", value : search, operator: "thatContains" };
@@ -549,11 +608,11 @@ var SampleDataGridUtil = new function() {
                             }
 
                             if (dataType === "DATE" || dataType === "TIMESTAMP") {
-                                if (search.from && search.from.value) {
-                                    gridSubcriteria.rules[Util.guid()] = { type : "Property", name : "PROP." + field, value : search.from.valueString, operator: "thatIsLaterThanOrEqualToDate" };
+                                if (search.from && search.from.dateObject) {
+                                    gridSubcriteria.rules[Util.guid()] = { type : "Property", name : "PROP." + field, value : search.from.dateString, operator: "thatIsLaterThanOrEqualToDate" };
                                 }
-                                if (search.to && search.to.value) {
-                                    gridSubcriteria.rules[Util.guid()] = { type : "Property", name : "PROP." + field, value : search.to.valueString, operator: "thatIsEarlierThanOrEqualToDate" };
+                                if (search.to && search.to.dateObject) {
+                                    gridSubcriteria.rules[Util.guid()] = { type : "Property", name : "PROP." + field, value : search.to.dateString, operator: "thatIsEarlierThanOrEqualToDate" };
                                 }
                             } else {
                                 var operator = null
@@ -582,6 +641,10 @@ var SampleDataGridUtil = new function() {
                         direction: optionsSorting.sortDirection
                     }
                     switch(optionsSorting.columnName) {
+                        case "permId":
+                            sorting.type = "Attribute";
+                            sorting.name = "permId";
+                            break;
                         case "code":
                             sorting.type = "Attribute";
                             sorting.name = "code";
@@ -651,7 +714,7 @@ var SampleDataGridUtil = new function() {
 				var sampleModel = {
 									'id' : sample.permId,
 									'exportableId' : {
-										exportable_kind: 'SAMPLE',
+										exportable_kind: DataGridExportOptions.EXPORTABLE_KIND.SAMPLE,
 										perm_id: sample.permId,
 										type_perm_id: sample.sampleTypeCode
 									},
@@ -780,7 +843,7 @@ var SampleDataGridUtil = new function() {
                     return {
                         label : propertyType.label,
                         property : propertyType.code,
-                        exportableProperty: propertyType.code,
+                        exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.PROPERTY(propertyType.code),
                         filterable : true,
                         sortable : false,
                         metadata: {
@@ -794,11 +857,9 @@ var SampleDataGridUtil = new function() {
                         renderFilter : function(params) {
                             return FormUtil.renderBooleanGridFilter(params);
                         },
-                        render : (function(propertyType){
-                            return function(row, params){
-                                return FormUtil.renderBooleanGridValue(row, params, propertyType)
-                            }
-                        })(propertyType)
+                        render : function(row, params){
+                            return FormUtil.renderBooleanGridValue(params)
+                        }
                     };
                 }
                 propertyColumnsToSort.push(getBooleanColumn(propertyType));
@@ -808,7 +869,7 @@ var SampleDataGridUtil = new function() {
                         return {
                             label : propertyType.label,
                             property : propertyType.code,
-                            exportableProperty: propertyType.code,
+                            exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.PROPERTY(propertyType.code),
                             filterable: true,
                             sortable : true,
                             metadata: {
@@ -852,7 +913,7 @@ var SampleDataGridUtil = new function() {
                     return {
                         label : propertyType.label,
                         property : propertyType.code,
-                        exportableProperty: propertyType.code,
+                        exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.PROPERTY(propertyType.code),
                         filterable : true,
                         sortable : true,
                         metadata: {
@@ -869,7 +930,7 @@ var SampleDataGridUtil = new function() {
                     return {
                         label : propertyType.label,
                         property : propertyType.code,
-                        exportableProperty: propertyType.code,
+                        exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.PROPERTY(propertyType.code),
                         filterable : true,
                         sortable : true,
                         metadata: {
@@ -877,6 +938,9 @@ var SampleDataGridUtil = new function() {
                         },
                         renderFilter : function(params) {
                             return FormUtil.renderDateRangeGridFilter(params, propertyType.dataType)
+                        },
+                        filter : function(data, filter){
+                            return FormUtil.filterDateRangeGridColumn(data[propertyType.code], filter)
                         }
                     }
                 }
@@ -901,7 +965,7 @@ var SampleDataGridUtil = new function() {
                 propertyColumnsToSort.push({
                     label : propertyType.label,
                     property : propertyType.code,
-                    exportableProperty: propertyType.code,
+                    exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.PROPERTY(propertyType.code),
                     filterable : true,
                     sortable : propertyType.dataType !== "XML",
                     truncate: true,
@@ -917,16 +981,16 @@ var SampleDataGridUtil = new function() {
 
     this.getBooleanValue = function(params, propertyType) {
         var value = params.row[propertyType.code]
-        if (params.operation === 'export') {
-            if (params.exportOptions.values === 'PLAIN_TEXT' && value !== "true") {
-                value = "false"
-            }
-        } else if (!value) {
-            value = "false";
+
+        if(value === null || value === undefined || (_.isString(value) && value.trim() === "")){
+            return null
+        } else if (value === "true") {
+            return true
+        } else {
+            return false
         }
-        return value;
     }
-    
+
     this.getTerm = function(params, propertyType) {
         var value = params.row[propertyType.code]
         return value ? value : "";
