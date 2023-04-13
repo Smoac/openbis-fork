@@ -4,13 +4,11 @@ import autoBind from 'auto-bind'
 import GridWithOpenbis from '@src/js/components/common/grid/GridWithOpenbis.jsx'
 import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.js'
 import GridFilterOptions from '@src/js/components/common/grid/GridFilterOptions.js'
-import UserLink from '@src/js/components/common/link/UserLink.jsx'
+import GridUtil from '@src/js/components/common/grid/GridUtil.js'
 import SelectField from '@src/js/components/common/form/SelectField.jsx'
-import DateRangeField from '@src/js/components/common/form/DateRangeField.jsx'
 import FormUtil from '@src/js/components/common/form/FormUtil.js'
 import EntityType from '@src/js/components/common/dto/EntityType.js'
 import HistoryGridContentCell from '@src/js/components/tools/common/HistoryGridContentCell.jsx'
-import AppController from '@src/js/components/AppController.js'
 import openbis from '@src/js/services/openbis.js'
 import messages from '@src/js/common/messages.js'
 import date from '@src/js/common/date.js'
@@ -24,11 +22,7 @@ class HistoryGrid extends React.PureComponent {
   }
 
   async load(params) {
-    try {
-      return await this.loadHistory(this.props.eventType, params)
-    } catch (error) {
-      AppController.getInstance().errorChange(error)
-    }
+    return await this.loadHistory(this.props.eventType, params)
   }
 
   async loadHistory(eventType, { filters, page, pageSize, sortings }) {
@@ -167,28 +161,18 @@ class HistoryGrid extends React.PureComponent {
             sortable: false,
             getValue: ({ row }) => row.entityProject.value
           },
-          {
+          GridUtil.userColumn({
             name: 'entityRegistrator',
             label: messages.get(messages.ENTITY_REGISTRATOR),
-            sortable: false,
-            getValue: ({ row }) => row.entityRegistrator.value
-          },
-          {
+            path: 'entityRegistrator.value',
+            sortable: false
+          }),
+          GridUtil.dateColumn({
             name: 'entityRegistrationDate',
             label: messages.get(messages.ENTITY_REGISTRATION_DATE),
-            sortable: false,
-            getValue: ({ row }) =>
-              date.format(row.entityRegistrationDate.value),
-            renderFilter: ({ value, onChange }) => {
-              return (
-                <DateRangeField
-                  value={value}
-                  variant='standard'
-                  onChange={onChange}
-                />
-              )
-            }
-          },
+            path: 'entityRegistrationDate.value',
+            sortable: false
+          }),
           {
             name: 'reason',
             label: messages.get(messages.REASON),
@@ -211,30 +195,11 @@ class HistoryGrid extends React.PureComponent {
               return <HistoryGridContentCell value={value} />
             }
           },
-          {
-            name: 'registrator',
-            label: messages.get(messages.USER),
-            sortable: false,
-            getValue: ({ row }) => row.registrator.value,
-            renderValue: ({ value }) => {
-              return <UserLink userId={value} />
-            }
-          },
-          {
-            name: 'registrationDate',
-            label: messages.get(messages.DATE),
-            sortable: true,
-            getValue: ({ row }) => date.format(row.registrationDate.value),
-            renderFilter: ({ value, onChange }) => {
-              return (
-                <DateRangeField
-                  value={value}
-                  variant='standard'
-                  onChange={onChange}
-                />
-              )
-            }
-          }
+          GridUtil.registratorColumn({
+            path: 'registrator.value',
+            sortable: false
+          }),
+          GridUtil.registrationDateColumn({ path: 'registrationDate.value' })
         ]}
         loadRows={this.load}
         sort='registrationDate'
@@ -260,12 +225,12 @@ class HistoryGrid extends React.PureComponent {
 
     if (eventType === openbis.EventType.DELETION) {
       return {
-        fileFormat: GridExportOptions.TSV_FILE_FORMAT,
+        fileFormat: GridExportOptions.FILE_FORMAT.TSV,
         filePrefix: 'deletion-history'
       }
     } else if (eventType === openbis.EventType.FREEZING) {
       return {
-        fileFormat: GridExportOptions.TSV_FILE_FORMAT,
+        fileFormat: GridExportOptions.FILE_FORMAT.TSV,
         filePrefix: 'freezing-history'
       }
     }

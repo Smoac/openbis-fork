@@ -1,6 +1,6 @@
 // app
-const WEB_APP_ID = 'openbis_ng_ui'
-const WEB_APP_SERVICE = 'openbis-ng-ui-service'
+const WEB_APP_ID = 'admin'
+const WEB_APP_SERVICE = 'admin-service'
 const EXPORT_SERVICE = 'xls-export'
 
 // grids
@@ -29,6 +29,19 @@ const PERSONAL_ACCESS_TOKEN_GRID_ID = 'personal_access_token_grid'
 
 // browsers
 const DATABASE_BROWSER_ID = 'database_browser'
+const TYPE_BROWSER_ID = 'type_browser'
+const USER_BROWSER_ID = 'user_browser'
+const TOOL_BROWSER_ID = 'tool_browser'
+
+// form
+const ENTITY_TYPE_FORM_ID = 'entity_type_form'
+const VOCABULARY_TYPE_FORM_ID = 'vocabulary_type_form'
+const USER_FORM_ID = 'user_form'
+const USER_GROUP_FORM_ID = 'user_group_form'
+const PLUGIN_FORM_ID = 'plugin_form'
+const QUERY_FORM_ID = 'query_form'
+const IMPORT_ALL_FORM_ID = 'import_all_form'
+const PERSONAL_ACCESS_TOKEN_FORM_ID = 'personal_access_token_form'
 
 export default {
   // app
@@ -63,5 +76,18 @@ export default {
   PERSONAL_ACCESS_TOKEN_GRID_ID,
 
   // browsers
-  DATABASE_BROWSER_ID
+  DATABASE_BROWSER_ID,
+  TYPE_BROWSER_ID,
+  USER_BROWSER_ID,
+  TOOL_BROWSER_ID,
+
+  // forms
+  ENTITY_TYPE_FORM_ID,
+  VOCABULARY_TYPE_FORM_ID,
+  USER_FORM_ID,
+  USER_GROUP_FORM_ID,
+  PLUGIN_FORM_ID,
+  QUERY_FORM_ID,
+  IMPORT_ALL_FORM_ID,
+  PERSONAL_ACCESS_TOKEN_FORM_ID
 }

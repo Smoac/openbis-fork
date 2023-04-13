@@ -5,6 +5,7 @@ import PageWithTwoPanels from '@src/js/components/common/page/PageWithTwoPanels.
 import GridWithOpenbis from '@src/js/components/common/grid/GridWithOpenbis.jsx'
 import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.js'
 import GridContainer from '@src/js/components/common/grid/GridContainer.jsx'
+import GridUtil from '@src/js/components/common/grid/GridUtil.js'
 import VocabularyTypeFormSelectionType from '@src/js/components/types/form/vocabularytype/VocabularyTypeFormSelectionType.js'
 import VocabularyTypeFormController from '@src/js/components/types/form/vocabularytype/VocabularyTypeFormController.js'
 import VocabularyTypeFormFacade from '@src/js/components/types/form/vocabularytype/VocabularyTypeFormFacade.js'
@@ -34,7 +35,9 @@ const columns = [
     name: 'official',
     label: messages.get(messages.OFFICIAL),
     getValue: ({ row }) => row.official.value
-  }
+  },
+  GridUtil.registratorColumn({ path: 'registrator.value' }),
+  GridUtil.registrationDateColumn({ path: 'registrationDate.value' })
 ]
 
 class VocabularyTypeForm extends React.PureComponent {
@@ -85,6 +88,7 @@ class VocabularyTypeForm extends React.PureComponent {
 
     return (
       <PageWithTwoPanels
+        id={ids.VOCABULARY_TYPE_FORM_ID}
         key={loadId}
         loading={loading}
         loaded={loaded}
@@ -112,7 +116,7 @@ class VocabularyTypeForm extends React.PureComponent {
           rows={terms}
           sort='code'
           exportable={{
-            fileFormat: GridExportOptions.TSV_FILE_FORMAT,
+            fileFormat: GridExportOptions.FILE_FORMAT.TSV,
             filePrefix: 'vocabulary-terms'
           }}
           selectable={true}

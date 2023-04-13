@@ -1,6 +1,7 @@
 import React from 'react'
 import GridWithOpenbis from '@src/js/components/common/grid/GridWithOpenbis.jsx'
 import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.js'
+import GridUtil from '@src/js/components/common/grid/GridUtil.js'
 import EntityTypeLink from '@src/js/components/common/link/EntityTypeLink.jsx'
 import VocabularyTypeLink from '@src/js/components/common/link/VocabularyTypeLink.jsx'
 import PropertyTypesGridUsagesCell from '@src/js/components/types/common/PropertyTypesGridUsagesCell.jsx'
@@ -102,12 +103,14 @@ class PropertyTypesGrid extends React.PureComponent {
             renderValue: ({ row }) => {
               return <PropertyTypesGridUsagesCell value={row.usages} />
             }
-          }
+          },
+          GridUtil.registratorColumn({ path: 'registrator' }),
+          GridUtil.registrationDateColumn({ path: 'registrationDate' })
         ]}
         rows={rows}
         sort='code'
         exportable={{
-          fileFormat: GridExportOptions.TSV_FILE_FORMAT,
+          fileFormat: GridExportOptions.FILE_FORMAT.TSV,
           filePrefix: 'property-types'
         }}
         selectable={true}

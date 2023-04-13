@@ -18,7 +18,9 @@ const getMaterialTypes = jest.fn()
 const getPersons = jest.fn()
 const getPropertyTypes = jest.fn()
 const getSampleTypes = jest.fn()
+const getServerInformation = jest.fn()
 const getServerPublicInformation = jest.fn()
+const getSessionInformation = jest.fn()
 const getVocabularies = jest.fn()
 const getPlugins = jest.fn()
 const getQueries = jest.fn()
@@ -116,9 +118,25 @@ const mockSearchVocabularies = vocabularies => {
 }
 
 const mockSearchPlugins = plugins => {
-  const searchResult = new dto.SearchResult()
-  searchResult.setObjects(plugins)
-  searchPlugins.mockReturnValue(Promise.resolve(searchResult))
+  searchPlugins.mockImplementation(criteria => {
+    const pluginTypeCriteria = criteria.criteria.find(
+      c => c.fieldName === 'script type' && c.fieldValue
+    )
+
+    let filteredPlugins = null
+
+    if (pluginTypeCriteria) {
+      filteredPlugins = plugins.filter(
+        plugin => plugin.pluginType === pluginTypeCriteria.fieldValue
+      )
+    } else {
+      filteredPlugins = plugins
+    }
+
+    const searchResult = new dto.SearchResult()
+    searchResult.setObjects(filteredPlugins)
+    return Promise.resolve(searchResult)
+  })
 }
 
 const mockSearchQueries = queries => {
@@ -170,7 +188,9 @@ export default {
   getPersons,
   getPropertyTypes,
   getSampleTypes,
+  getServerInformation,
   getServerPublicInformation,
+  getSessionInformation,
   getVocabularies,
   getPlugins,
   getQueries,

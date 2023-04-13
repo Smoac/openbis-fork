@@ -4,6 +4,7 @@ import autoBind from 'auto-bind'
 import { withStyles } from '@material-ui/core/styles'
 import GridWithOpenbis from '@src/js/components/common/grid/GridWithOpenbis.jsx'
 import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.js'
+import GridUtil from '@src/js/components/common/grid/GridUtil.js'
 import UserLink from '@src/js/components/common/link/UserLink.jsx'
 import UserGroupLink from '@src/js/components/common/link/UserGroupLink.jsx'
 import openbis from '@src/js/services/openbis.js'
@@ -44,6 +45,8 @@ class RolesGrid extends React.PureComponent {
     } else {
       throw 'Unsupported id: ' + id
     }
+
+    columnNames.push('registrator', 'registrationDate')
 
     const columns = this.getColumns().filter(
       column => columnNames.indexOf(column.name) !== -1
@@ -100,22 +103,22 @@ class RolesGrid extends React.PureComponent {
 
     if (id === ids.ROLES_OF_USERS_GRID_ID) {
       return {
-        fileFormat: GridExportOptions.TSV_FILE_FORMAT,
+        fileFormat: GridExportOptions.FILE_FORMAT.TSV,
         filePrefix: 'users-roles'
       }
     } else if (id === ids.ROLES_OF_GROUPS_GRID_ID) {
       return {
-        fileFormat: GridExportOptions.TSV_FILE_FORMAT,
+        fileFormat: GridExportOptions.FILE_FORMAT.TSV,
         filePrefix: 'groups-roles'
       }
     } else if (id === ids.ROLES_OF_USER_GRID_ID) {
       return {
-        fileFormat: GridExportOptions.TSV_FILE_FORMAT,
+        fileFormat: GridExportOptions.FILE_FORMAT.TSV,
         filePrefix: 'user-roles'
       }
     } else if (id === ids.ROLES_OF_GROUP_GRID_ID) {
       return {
-        fileFormat: GridExportOptions.TSV_FILE_FORMAT,
+        fileFormat: GridExportOptions.FILE_FORMAT.TSV,
         filePrefix: 'group-roles'
       }
     }
@@ -236,7 +239,9 @@ class RolesGrid extends React.PureComponent {
                 this.compareProjectValue(params))
           )
         }
-      }
+      },
+      GridUtil.registratorColumn({ path: 'registrator.value' }),
+      GridUtil.registrationDateColumn({ path: 'registrationDate.value' })
     ]
   }
 

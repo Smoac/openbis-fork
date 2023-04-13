@@ -1,18 +1,67 @@
+import _ from 'lodash'
 import React from 'react'
-import Browser from '@src/js/components/common/browser/Browser.jsx'
+import autoBind from 'auto-bind'
+import BrowserWithOpenbis from '@src/js/components/common/browser/BrowserWithOpenbis.jsx'
+import BrowserButtonsAddRemove from '@src/js/components/common/browser/BrowserButtonsAddRemove.jsx'
 import UserBrowserController from '@src/js/components/users/browser/UserBrowserController.js'
+import AppController from '@src/js/components/AppController.js'
+import pages from '@src/js/common/consts/pages.js'
 import logger from '@src/js/common/logger.js'
 
-class UserBrowser extends React.Component {
+export class UserBrowser extends React.Component {
   constructor(props) {
     super(props)
+    autoBind(this)
     this.controller = this.props.controller || new UserBrowserController()
+  }
+
+  componentDidMount() {
+    this.componentDidUpdate({})
+  }
+
+  componentDidUpdate(prevProps) {
+    if (!_.isEqual(this.props.selectedObject, prevProps.selectedObject)) {
+      this.controller.selectObject(this.props.selectedObject)
+    }
+
+    if (
+      !_.isEqual(
+        this.props.lastObjectModifications,
+        prevProps.lastObjectModifications
+      )
+    ) {
+      this.controller.reload(this.props.lastObjectModifications)
+    }
   }
 
   render() {
     logger.log(logger.DEBUG, 'UserBrowser.render')
-    return <Browser controller={this.controller} />
+
+    return (
+      <BrowserWithOpenbis
+        controller={this.controller}
+        renderFooter={this.renderFooter}
+      />
+    )
+  }
+
+  renderFooter() {
+    return (
+      <div>
+        <BrowserButtonsAddRemove
+          selectedObject={this.controller.getSelectedObject()}
+          addEnabled={this.controller.canAddNode()}
+          removeEnabled={this.controller.canRemoveNode()}
+          onAdd={this.controller.addNode}
+          onRemove={this.controller.removeNode}
+        />
+      </div>
+    )
   }
 }
 
-export default UserBrowser
+export default AppController.getInstance().withState(() => ({
+  selectedObject: AppController.getInstance().getSelectedObject(pages.USERS),
+  lastObjectModifications:
+    AppController.getInstance().getLastObjectModifications()
+}))(UserBrowser)

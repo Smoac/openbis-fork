@@ -12,15 +12,8 @@ module.exports = {
 
   devServer: {
     host: '0.0.0.0',
-    port: 8124,
-    inline: true,
-    contentBase: './src/js',
+    port: 9999,
     https: false,
-    watchOptions: {
-      aggregateTimeout: 300,
-      poll: 1000
-    },
-    publicPath: '/ng-ui-path/',
     proxy: {
       '/openbis': {
         target: 'http://localhost:8888',
@@ -28,6 +21,12 @@ module.exports = {
         changeOrigin: true,
         secure: false
       }
+    },
+    devMiddleware: {
+      publicPath: '/admin/'
+    },
+    static: {
+      directory: './src/js'
     }
   },
 
@@ -47,6 +46,10 @@ module.exports = {
         use: ['style-loader', 'css-loader']
       },
       {
+        test: /\.(png|svg|jpg|jpeg|gif|ico)$/i,
+        type: 'asset',
+      },
+      {
         test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
         loader: 'url-loader',
         options: {
@@ -61,6 +64,10 @@ module.exports = {
       '@src': path.resolve(__dirname, 'src/'),
       '@srcTest': path.resolve(__dirname, 'srcTest/'),
       '@srcV3': path.resolve(__dirname, 'srcV3/')
+    },
+    fallback: {
+      stream: require.resolve('stream-browserify'),
+      buffer: require.resolve('buffer')
     }
   },
 
@@ -70,10 +77,14 @@ module.exports = {
       filename: './index.html',
       template: './index.html'
     }),
-    //    new Webpack.WatchIgnorePlugin(['/home/vagrant/openbis/openbis_ng_ui/react/node_modules/', '/home/vagrant/openbis/openbis_ng_ui/react/node/'])
-    new Webpack.WatchIgnorePlugin([
-      new RegExp('/node_modules/'),
-      new RegExp('/node/')
-    ])
+    new Webpack.WatchIgnorePlugin({
+      paths: [new RegExp('/node_modules/'), new RegExp('/node/')]
+    }),
+    new Webpack.ProvidePlugin({
+      Buffer: ['buffer', 'Buffer']
+    }),
+    new Webpack.ProvidePlugin({
+      process: 'process/browser'
+    })
   ]
 }

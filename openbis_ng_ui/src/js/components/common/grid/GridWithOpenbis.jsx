@@ -28,6 +28,7 @@ export default class GridWithOpenbis extends React.PureComponent {
         {...this.props}
         loadSettings={this.loadSettings}
         onSettingsChange={this.onSettingsChange}
+        onError={this.onError}
         exportXLS={this.exportXLS}
       />
     )
@@ -44,25 +45,7 @@ export default class GridWithOpenbis extends React.PureComponent {
       return null
     }
 
-    const id = new openbis.Me()
-    const fo = new openbis.PersonFetchOptions()
-    fo.withWebAppSettings(ids.WEB_APP_ID).withAllSettings()
-
-    return openbis.getPersons([id], fo).then(map => {
-      const person = map[id]
-      const webAppSettings = person.webAppSettings[ids.WEB_APP_ID]
-      if (webAppSettings && webAppSettings.settings) {
-        let gridSettings = webAppSettings.settings[settingsId]
-        if (gridSettings) {
-          let settings = JSON.parse(gridSettings.value)
-          if (settings) {
-            return settings
-          } else {
-            return null
-          }
-        }
-      }
-    })
+    return await AppController.getInstance().getSetting(settingsId)
   }
 
   async onSettingsChange(settings) {
@@ -72,23 +55,20 @@ export default class GridWithOpenbis extends React.PureComponent {
       return
     }
 
-    const gridSettings = new openbis.WebAppSettingCreation()
-    gridSettings.setName(settingsId)
-    gridSettings.setValue(JSON.stringify(settings))
+    await AppController.getInstance().setSetting(settingsId, settings)
+  }
 
-    const update = new openbis.PersonUpdate()
-    update.setUserId(new openbis.Me())
-    update.getWebAppSettings(ids.WEB_APP_ID).add(gridSettings)
-
-    await openbis.updatePersons([update])
+  async onError(error) {
+    await AppController.getInstance().errorChange(error)
   }
 
   async exportXLS({
     exportedFilePrefix,
     exportedIds,
-    exportedProperties,
+    exportedFields,
     exportedValues,
-    exportedReferredMasterData
+    exportedReferredMasterData,
+    exportedImportCompatible
   }) {
     const serviceId = new openbis.CustomASServiceCode(ids.EXPORT_SERVICE)
 
@@ -100,8 +80,9 @@ export default class GridWithOpenbis extends React.PureComponent {
       'export_referred_master_data',
       exportedReferredMasterData
     )
-    serviceOptions.withParameter('export_properties', exportedProperties)
+    serviceOptions.withParameter('export_fields', exportedFields)
     serviceOptions.withParameter('text_formatting', exportedValues)
+    serviceOptions.withParameter('compatible_with_import', exportedImportCompatible)
 
     const sessionToken = AppController.getInstance().getSessionToken()
     const exportResult = await openbis.executeService(serviceId, serviceOptions)
