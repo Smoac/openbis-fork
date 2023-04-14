@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 ETH Zuerich, CISD
+ * Copyright ETH 2010 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.openbis.dss.generic.server.api.v1;
 
 import java.io.File;
@@ -83,7 +82,7 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.translator.QueryTableModelTr
 
 /**
  * Implementation of the generic RPC interface.
- * 
+ *
  * @author Chandrasekhar Ramakrishnan
  */
 public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGenericInternal>
@@ -307,8 +306,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
     }
 
     @Override
-    public long putFileSliceToSessionWorkspace(String sessionToken, String filePath,
-            long slicePosition, InputStream sliceInputStream) throws IOExceptionUnchecked
+    public File putDirToSessionWorkspace(String sessionToken, String filePath, boolean isEmptyDirectory) throws IOExceptionUnchecked
     {
         getOpenBISService().checkSession(sessionToken);
         if (filePath.contains("../"))
@@ -323,7 +321,17 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         final File dir = new File(workspaceDir, subDir);
         dir.mkdirs();
         final File file = new File(dir, filename);
+        if (isEmptyDirectory) {
+            file.mkdirs();
+        }
+        return file;
+    }
 
+    @Override
+    public long putFileSliceToSessionWorkspace(String sessionToken, String filePath,
+            long slicePosition, InputStream sliceInputStream) throws IOExceptionUnchecked
+    {
+        final File file = putDirToSessionWorkspace(sessionToken, filePath, false);
         return FileUtilities.writeToFile(file, slicePosition, sliceInputStream);
     }
 
@@ -379,7 +387,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
 
     /**
      * Append file info for the requested node of a file or file hierarchy. Assumes that the parameters have been verified already.
-     * 
+     *
      * @param requestedFile A file known to be accessible by the user
      * @param dataSetRoot The root of the file hierarchy; used to determine the absolute path of the file
      * @param listingRootNode The node which is a root of the list hierarchy; used to determine the relative path of the file

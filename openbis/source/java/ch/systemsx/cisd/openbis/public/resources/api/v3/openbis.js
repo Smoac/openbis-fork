@@ -1,4 +1,5 @@
-define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria', 'as/dto/datastore/fetchoptions/DataStoreFetchOptions', 'as/dto/common/search/SearchResult' ], function(jquery,
+define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria', 'as/dto/datastore/fetchoptions/DataStoreFetchOptions',
+	'as/dto/common/search/SearchResult'], function(jquery,
 		stjsUtil, DataStoreSearchCriteria, DataStoreFetchOptions, SearchResult) {
 	jquery.noConflict();
 
@@ -128,11 +129,11 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			}
 		}
 
-		this._createUrlWithParameters = function(dataStore, servlet, parameters) {
+		function createUrlWithParameters(dataStore, servlet, parameters) {
 			return dataStore.downloadUrl + "/datastore_server/" + servlet + parameters;
 		}
 
-		this._createUrl = function(dataStore) {
+		function createUrl(dataStore) {
 			return dataStore.downloadUrl + "/datastore_server/rmi-data-store-server-v3.json";
 		}
 
@@ -141,7 +142,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			return this._getDataStores().then(function(dataStores) {
 				var promises = dataStores.map(function(dataStore) {
 					return facade._private.ajaxRequest({
-						url : thisFacade._createUrl(dataStore),
+						url : createUrl(dataStore),
 						data : {
 							"method" : "searchFiles",
 							"params" : [ facade._private.sessionToken, criteria, fetchOptions ]
@@ -192,7 +193,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 					var dsCode = dataStore.getCode();
 					if (dsCode in creationsByStore) {
 						promises.push(facade._private.ajaxRequest({
-							url : thisFacade._createUrl(dataStore),
+							url : createUrl(dataStore),
 							data : {
 								"method" : "createDataSets",
 								"params" : [ facade._private.sessionToken, creationsByStore[dsCode] ]
@@ -269,60 +270,147 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 		}
 
 		this.createUploadedDataSet = function(creation) {
-			var thisFacade = this;
-			return this._getDataStores().then(function(dataStores) {
-				if (dataStores.length > 1) {
-					var dfd = jquery.Deferred();
+			var dfd = jquery.Deferred();
+			this._getDataStores().done(function(dataStores) {
+				if (dataStores.length === 1) {
+					facade._private.ajaxRequest({
+						url: createUrl(dataStores[0]),
+						data: {
+							"method": "createUploadedDataSet",
+							"params": [facade._private.sessionToken, creation]
+						},
+						returnType: {
+							name: "DataSetPermId"
+						}
+					}).done(function (response) {
+						dfd.resolve(response);
+					}).fail(function (error) {
+						dfd.reject(error);
+					});
+				} else {
 					dfd.reject("Please specify exactly one data store");
-					return dfd.promise();
 				}
+			});
+			return dfd.promise();
+		}
 
-				return facade._private.ajaxRequest({
-					url : thisFacade._createUrl(dataStores[0]),
-					data : {
-						"method" : "createUploadedDataSet",
-						"params" : [ facade._private.sessionToken, creation ]
-					},
-					returnType : {
-						name : "DataSetPermId"
+		function getUUID() {
+			return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+				(c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+			);
+		}
+
+	    this.uploadFilesWorkspaceDSS = function(files) {
+			var thisFacade = this;
+			var uploadId = getUUID();
+			var dfd = jquery.Deferred();
+
+			this._uploadFileWorkspaceDSSEmptyDir(uploadId).then(function() {
+				thisFacade._uploadFilesWorkspaceDSS(files, uploadId).then(function(result) {
+					dfd.resolve(result);
+				}).catch(function(error) {
+					dfd.reject(error);
+				});
+			}).catch(function(error) {
+				dfd.reject(error);
+			});
+
+			return dfd;
+    	}
+
+		this._uploadFilesWorkspaceDSS = async function(files, parentId) {
+			var createdDirectories = new Set();
+			var filesCount = files.length;
+			for (var i = 0; i < filesCount; i++) {
+				var relativePath = files[i].webkitRelativePath;
+				var directoryRelativePath = relativePath.substring(0, relativePath.lastIndexOf("/") + 1);
+				if (directoryRelativePath && !createdDirectories.has(directoryRelativePath)) {
+					await this._uploadFileWorkspaceDSSEmptyDir(parentId + "/" + directoryRelativePath);
+					createdDirectories.add(directoryRelativePath);
+				}
+				await this._uploadFileWorkspaceDSSFile(files[i], parentId);
+			}
+			return parentId;
+		}
+
+		this._uploadFileWorkspaceDSSEmptyDir = function(pathToDir) {
+			var thisFacade = this;
+			var sessionID = facade._private.sessionToken;
+			var filename = encodeURIComponent(pathToDir);
+			return new Promise(function(resolve, reject) {
+				thisFacade._getDataStores().done(function(dataStores) {
+					if (dataStores.length === 1) {
+						fetch(createUrlWithParameters(dataStores[0], "session_workspace_file_upload",
+							"?sessionID=" + sessionID +
+							"&filename=" + filename +
+							"&id=1&startByte=0&endByte=0&size=0&emptyFolder=true"), {
+							method: "POST",
+							headers: {
+								"Content-Type": "multipart/form-data"
+							}
+						}).then(function (response) {
+							resolve(response);
+						}).catch(function (error) {
+							reject(error);
+						});
+					} else {
+						reject("Please specify exactly one data store");
 					}
+				}).fail(function(error) {
+					reject(error);
 				});
 			});
 		}
 
-    this.createFileUpload = function(file) {
-    			var thisFacade = this;
+		this._uploadFileWorkspaceDSSFile = function(file, parentId) {
+			var thisFacade = this;
+			return new Promise(function(resolve, reject) {
+				thisFacade._getDataStores().done(function(dataStores) {
+					uploadBlob(dataStores[0], parentId, facade._private.sessionToken, file, 0, 1048576)
+						.then(function (value) {
+							resolve(value);
+						})
+						.catch(function (reason) {
+							reject(reason);
+						});
+				}).fail(function(error) {
+					reject(error);
+				});
+			});
+		}
 
-                var getUUID = function() {
-                return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
-                      (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
-                    );
-                };
+		async function uploadBlob(dataStore, parentId, sessionID, file, startByte, chunkSize) {
+			var fileSize = file.size;
+			for (var byte = startByte; byte < fileSize; byte += chunkSize) {
+				await fetch(createUrlWithParameters(dataStore, "session_workspace_file_upload",
+					"?sessionID=" + sessionID +
+					"&filename=" + encodeURIComponent(parentId + "/" +
+						(file.webkitRelativePath ? file.webkitRelativePath : file.name)) +
+					"&id=1&startByte=" + byte +
+					"&endByte=" + (byte + chunkSize) +
+					"&size=" + fileSize +
+					"&emptyFolder=false"), {
+					method: "POST",
+					headers: {
+						"Content-Type": "multipart/form-data"
+					},
+					body: makeChunk(file, byte, Math.min(byte + chunkSize, fileSize))
+				});
+			}
+		}
 
-                //File
-                var sessionID = facade._private.sessionToken
-                var id = 0;
-                var filename = file.name;
-                var startByte = 0;
-                var endByte = file.size;
-
-    			return this._getDataStores().then(function(dataStores) {
-    				if (dataStores.length > 1) {
-    					var dfd = jquery.Deferred();
-    					dfd.reject("Please specify exactly one data store");
-    					return dfd.promise();
-    				}
-
-                    var parameters = "?sessionID=" + sessionID + "&filename=" + encodeURIComponent(filename) + "&id=" + id + "&startByte=" + startByte + "&endByte=" + endByte;
-    				return facade._private.ajaxRequest({
-    					url : thisFacade._createUrlWithParameters(dataStores[0], "session_workspace_file_upload", parameters),
-                        contentType: "multipart/form-data",
-                        data: file
-    				});
-    			});
-    }
-
-}
+		function makeChunk(file, startByte, endByte) {
+			var blob = undefined;
+			if (file.slice) {
+				blob = file.slice(startByte, endByte);
+			} else if (file.webkitSlice) {
+				blob = file.webkitSlice(startByte, endByte);
+			} else if (file.mozSlice) {
+				blob = file.mozSlice(startByte, endByte);
+			}
+			return blob;
+		}
+	}
 
 	var facade = function(openbisUrl) {
 

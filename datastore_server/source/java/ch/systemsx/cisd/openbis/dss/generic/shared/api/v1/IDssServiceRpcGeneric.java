@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 ETH Zuerich, CISD
+ * Copyright ETH 2008 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.openbis.dss.generic.shared.api.v1;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription
 
 /**
  * Generic functionality for interacting with the DSS.
- * 
+ *
  * @author Chandrasekhar Ramakrishnan
  */
 public interface IDssServiceRpcGeneric extends IRpcService
@@ -44,7 +44,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
 
     /**
      * Get an array of FileInfoDss objects that describe the file-system structure of the data set.
-     * 
+     *
      * @param sessionToken The session token
      * @param fileOrFolder The file or folder to get information on
      * @throws IOExceptionUnchecked Thrown if an IOException occurs when listing the files
@@ -58,7 +58,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
 
     /**
      * Get an array of FileInfoDss objects that describe the file-system structure of the data set.
-     * 
+     *
      * @param sessionToken The session token
      * @param fileOrFolder The file or folder to retrieve
      * @throws IOExceptionUnchecked Thrown if an IOException occurs when listing the files
@@ -74,7 +74,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
 
     /**
      * Returns an URL from which the requested file. The URL is valid only for a short time.
-     * 
+     *
      * @param sessionToken The session token
      * @param fileOrFolder The file or folder to retrieve
      * @throws IOExceptionUnchecked Thrown if an IOException occurs when listing the files
@@ -89,7 +89,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
 
     /**
      * Returns an URL from which the requested file. The URL is valid for a caller-specified amount of time.
-     * 
+     *
      * @param sessionToken The session token
      * @param fileOrFolder The file or folder to retrieve
      * @param validityDurationInSeconds The number of seconds for which the download URL should be valid. The validity is clipped to the durations
@@ -107,7 +107,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
 
     /**
      * Get an array of FileInfoDss objects that describe the file-system structure of the data set.
-     * 
+     *
      * @param sessionToken The session token
      * @param dataSetCode The data set to retrieve file information about
      * @param path The path within the data set to retrieve file information about
@@ -122,7 +122,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
 
     /**
      * Get an array of FileInfoDss objects that describe the file-system structure of the data set.
-     * 
+     *
      * @param sessionToken The session token
      * @param dataSetCode The data set to retrieve file from
      * @param path The path within the data set to retrieve file information about
@@ -138,7 +138,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
 
     /**
      * Returns an URL from which the requested file of the specified data set can be downloaded. The URL is valid only for a short time.
-     * 
+     *
      * @param sessionToken The session token
      * @param dataSetCode The data set to retrieve file from
      * @param path The path within the data set to retrieve file information about
@@ -154,7 +154,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
     /**
      * Returns an URL from which the requested file of the specified data set can be downloaded. The URL is valid for a caller-specified amount of
      * time.
-     * 
+     *
      * @param sessionToken The session token
      * @param dataSetCode The data set to retrieve file from
      * @param path The path within the data set to retrieve file information about
@@ -171,7 +171,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
 
     /**
      * Upload a new data set to the DSS.
-     * 
+     *
      * @param sessionToken The session token
      * @param newDataset The new data set that should be registered
      * @param inputStream An input stream on the file or folder to register
@@ -188,7 +188,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
 
     /**
      * Upload a new file to the user's session workspace.
-     * 
+     *
      * @param sessionToken The session token.
      * @param filePath The file path (including the sub-directory) to upload the file to.
      * @param inputStream An input stream on the file to upload.
@@ -200,7 +200,19 @@ public interface IDssServiceRpcGeneric extends IRpcService
 
     /**
      * Upload a file slice to the user's session workspace. If the file does not exist then it will created.
-     * 
+     *
+     * @param sessionToken The session token.
+     * @param filePath The file path (including the sub-directory) to upload the slice to.
+     * @param isEmptyDirectory Creates the file as an empty directory if true,
+     *                         returns the File object without creating it if false.
+     * @return File object representing the given path
+     * @throws IOExceptionUnchecked Thrown if IOException occurs.
+     */
+    public File putDirToSessionWorkspace(String sessionToken, String filePath, boolean isEmptyDirectory) throws IOExceptionUnchecked;
+
+    /**
+     * Upload a file slice to the user's session workspace. If the file does not exist then it will created.
+     *
      * @param sessionToken The session token.
      * @param filePath The file path (including the sub-directory) to upload the slice to.
      * @param slicePosition The position the slice should be inserted at.
@@ -213,7 +225,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
 
     /**
      * Download a file from the user's session workspace.
-     * 
+     *
      * @param sessionToken The session token.
      * @param filePath The file path (including the sub-directory) to download the file from.
      * @return The input stream containing the file content.
@@ -224,7 +236,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
 
     /**
      * Delete a file or directory in the session workspace.
-     * 
+     *
      * @return <code>true</code> if the <var>path</var> doesn't exist anymore.
      */
     public boolean deleteSessionWorkspaceFile(String sessionToken, String path);
@@ -234,7 +246,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
      * <p>
      * NOTE: This method shouldn't be called for a container data set. No file would exist with the returned path.
      * </p>
-     * 
+     *
      * @param sessionToken The session token
      * @param dataSetCode The data set to retrieve file from
      * @param overrideStoreRootPathOrNull The path to replace the store path (see return comment).
@@ -256,7 +268,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
      * <p>
      * NOTE: This method returns null for a container data set.
      * </p>
-     * 
+     *
      * @param sessionToken The session token
      * @param dataSetCode The data set to retrieve file from
      * @param overrideStoreRootPathOrNull The path to replace the store path (see return comment).
@@ -273,7 +285,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
 
     /**
      * Lists all shares.
-     * 
+     *
      * @since 1.7
      */
     @DataSetAccessGuard(privilegeLevel = PrivilegeLevel.INSTANCE_ADMIN)
@@ -281,7 +293,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
 
     /**
      * Moves specified data set to specified share.
-     * 
+     *
      * @throws IllegalArgumentException if data set does not exit or is a container data set or share does not exist.
      * @since 1.7
      */
@@ -291,7 +303,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
 
     /**
      * Get the validation script for the specified data set type.
-     * 
+     *
      * @param sessionToken The session token
      * @param dataSetTypeOrNull The data set type the script should validate, or null to request the generic validation script.
      * @return The string of the python (jython) script for the validation or null if there is no applicable validation script.
@@ -304,7 +316,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
 
     /**
      * Returns metadata for all aggregation services. See {@link IQueryApiServer#listAggregationServices(String)}
-     * 
+     *
      * @since 1.6
      */
     public List<AggregationServiceDescription> listAggregationServices(String sessionToken);
@@ -312,7 +324,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
     /**
      * Create the report from the specified aggregation service. See
      * {@link IQueryApiServer#createReportFromAggregationService(String, String, String, Map)}
-     * 
+     *
      * @since 1.6
      */
     public QueryTableModel createReportFromAggregationService(String sessionToken,
@@ -320,14 +332,14 @@ public interface IDssServiceRpcGeneric extends IRpcService
 
     /**
      * Returns meta data for all reporting plugins which deliver a table. See {@link IQueryApiServer#listTableReportDescriptions(String)}
-     * 
+     *
      * @since 1.6
      */
     public List<ReportDescription> listTableReportDescriptions(String sessionToken);
 
     /**
      * Creates for the specified data sets a report. See {@link IQueryApiServer#createReportFromDataSets(String, String, String, List)}
-     * 
+     *
      * @since 1.6
      */
     public QueryTableModel createReportFromDataSets(String sessionToken, String serviceKey,

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 ETH Zuerich, CISD
+ * Copyright ETH 2012 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
  * (String required)</li>
  * <li>HTTP request body: file slice to be uploaded</li>
  * </ul>
- * 
+ *
  * @author pkupczyk
  */
 public class SessionWorkspaceFileUploadServlet extends HttpServlet
@@ -62,6 +62,8 @@ public class SessionWorkspaceFileUploadServlet extends HttpServlet
     private static final String SIZE_PARAM = "size";
 
     private static final String STATUS_PARAM = "status";
+
+    private static final String IS_EMPTY_FOLDER = "emptyFolder"; // If present, is just an empty folder, not a file upload
 
     private IDssServiceRpcGeneric service;
 
@@ -84,18 +86,29 @@ public class SessionWorkspaceFileUploadServlet extends HttpServlet
 
         uploadRequest.validate();
 
-        long bytes =
-                service.putFileSliceToSessionWorkspace(uploadRequest.getSessionId(),
-                        uploadRequest.getFileName(), uploadRequest.getStartByte(),
-                        uploadRequest.getFile());
+        long bytes = -1;
+        boolean isOk = false;
+        if (uploadRequest.isEmptyFolder())
+        {
+            File folder = service.putDirToSessionWorkspace(uploadRequest.getSessionId(),
+                    uploadRequest.getFileName(), true);
+            isOk = folder.exists();
+        } else
+        {
+            bytes = service.putFileSliceToSessionWorkspace(uploadRequest.getSessionId(),
+                    uploadRequest.getFileName(), uploadRequest.getStartByte(),
+                    uploadRequest.getFile());
+            isOk = bytes >= 0;
+        }
 
         Map<String, Object> resultMap = new HashMap<String, Object>();
         resultMap.put(ID_PARAM, uploadRequest.getId());
         resultMap.put(START_BYTE_PARAM, uploadRequest.getStartByte());
         resultMap.put(END_BYTE_PARAM, uploadRequest.getEndByte());
         resultMap.put(FILE_NAME_PARAM, uploadRequest.getFileName());
+        resultMap.put(IS_EMPTY_FOLDER, uploadRequest.isEmptyFolder());
         resultMap.put(SIZE_PARAM, bytes);
-        resultMap.put(STATUS_PARAM, "ok");
+        resultMap.put(STATUS_PARAM, (isOk)?"ok":"error");
 
         SessionWorkspaceFileUploadResponse uploadResponse =
                 new SessionWorkspaceFileUploadResponse(response);
@@ -138,6 +151,11 @@ public class SessionWorkspaceFileUploadServlet extends HttpServlet
         public String getFileName()
         {
             return HttpServletRequestUtils.getStringParameter(request, FILE_NAME_PARAM);
+        }
+
+        public Boolean isEmptyFolder()
+        {
+            return HttpServletRequestUtils.getBooleanParameter(request, IS_EMPTY_FOLDER);
         }
 
         public InputStream getFile() throws IOException
