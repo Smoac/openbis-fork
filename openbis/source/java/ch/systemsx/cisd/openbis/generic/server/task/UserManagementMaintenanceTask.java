@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ETH Zuerich, SIS
+ * Copyright ETH 2018 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.openbis.generic.server.task;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -154,14 +154,20 @@ public class UserManagementMaintenanceTask extends AbstractGroupMaintenanceTask
         for (UserGroup group : config.getGroups())
         {
             addGroup(userManager, group);
-            if (group.getUsers() != null)
-            {
-                knownUsers.addAll(group.getUsers());
-            }
+            addAllTo(knownUsers, group.getUsers());
+            addAllTo(knownUsers, config.getInstanceAdmins());
         }
         userManager.manage(knownUsers);
         handleReport(report);
         operationLog.info("finished");
+    }
+
+    private static void addAllTo(Collection<String> set, Collection<String> setToBeAddedOrNull)
+    {
+        if (setToBeAddedOrNull != null)
+        {
+            set.addAll(setToBeAddedOrNull);
+        }
     }
 
     private void addGroup(UserManager userManager, UserGroup group)
@@ -262,6 +268,7 @@ public class UserManagementMaintenanceTask extends AbstractGroupMaintenanceTask
     {
         UserManager userManager = createUserManager(logger, report);
         userManager.setGlobalSpaces(config.getGlobalSpaces());
+        userManager.setInstanceAdmins(config.getInstanceAdmins());
         try
         {
             userManager.setCommon(config.getCommonSpaces(), config.getCommonSamples(), config.getCommonExperiments());

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ETH Zuerich, SIS
+ * Copyright ETH 2018 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.openbis.generic.server.task;
 
 import java.text.MessageFormat;
@@ -133,7 +132,8 @@ public class UserManagerReport implements IChangedHandler
 
     void assignRoleTo(String userId, Role role, ISpaceId spaceId)
     {
-        log("ASSIGN-ROLE-TO-USER", "user: " + userId + ", role: SPACE_" + role + " for " + spaceId);
+        log("ASSIGN-ROLE-TO-USER", "user: " + userId + ", role: " 
+                + (spaceId == null ? "INSTANCE_" + role : "SPACE" + "_" + role + " for " + spaceId));
     }
 
     void assignRoleTo(AuthorizationGroupPermId groupId, Role role, Space space)

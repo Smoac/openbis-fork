@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ETH Zuerich, SIS
+ * Copyright ETH 2018 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.openbis.generic.server.task;
 
 import java.io.File;
@@ -137,6 +136,8 @@ public class UserManager
 
     private List<Map<String, String>> commonExperiments;
 
+    private List<String> instanceAdmins;
+
     private Map<String, HomeSpaceRequest> requestedHomeSpaceByUserId = new TreeMap<>();
 
     private File shareIdsMappingFileOrNull;
@@ -158,6 +159,11 @@ public class UserManager
     public void setGlobalSpaces(List<String> globalSpaces)
     {
         this.globalSpaces = globalSpaces;
+    }
+
+    public void setInstanceAdmins(List<String> instanceAdmins)
+    {
+        this.instanceAdmins = instanceAdmins;
     }
 
     public void setCommon(Map<Role, List<String>> commonSpacesByRole, Map<String, String> commonSamples,
@@ -258,6 +264,7 @@ public class UserManager
                 revokeUnknownUsers(sessionToken, knownUsers, report);
             }
             CurrentState currentState = loadCurrentState(sessionToken, service);
+            manageInstanceAdmins(sessionToken, currentState, report);
             removeGroups(sessionToken, currentState, groupsToBeRemoved, report);
             for (Entry<String, Map<String, Principal>> entry : usersByGroupCode.entrySet())
             {
@@ -417,6 +424,46 @@ public class UserManager
         personUpdate.setSpaceId(spacePermId);
         report.assignHomeSpace(userId, spacePermId);
         return personUpdate;
+    }
+
+    private void manageInstanceAdmins(String sessionToken, CurrentState currentState, UserManagerReport report)
+    {
+        if (instanceAdmins != null)
+        {
+            Context context = new Context(sessionToken, service, currentState, report);
+            for (String instanceAdmin : instanceAdmins)
+            {
+                if (context.getCurrentState().userExists(instanceAdmin) == false)
+                {
+                    createUser(context, instanceAdmin);
+                }
+                PersonPermId userId = new PersonPermId(instanceAdmin);
+                if (isInstanceAdmin(sessionToken, userId) == false)
+                {
+                    RoleAssignmentCreation roleCreation = new RoleAssignmentCreation();
+                    roleCreation.setRole(Role.ADMIN);
+                    roleCreation.setUserId(userId);
+                    context.add(roleCreation);
+                    context.getReport().assignRoleTo(instanceAdmin, Role.ADMIN, null);
+                }
+            }
+            context.executeOperations();
+        }
+    }
+
+    private boolean isInstanceAdmin(String sessionToken, PersonPermId userId)
+    {
+        PersonFetchOptions fetchOptions = new PersonFetchOptions();
+        fetchOptions.withRoleAssignments().withSpace();
+        Person user = service.getPersons(sessionToken, Arrays.asList(userId), fetchOptions).get(userId);
+        if (user == null)
+        {
+            return false;
+        }
+        List<RoleAssignment> instanceAdminRole = user.getRoleAssignments().stream().filter(
+                ra -> ra.getRoleLevel() == RoleLevel.INSTANCE && ra.getSpace() == null)
+                .collect(Collectors.toList());
+        return instanceAdminRole.isEmpty() == false;
     }
 
     private void manageGlobalSpaces(String sessionToken, UserManagerReport report)
@@ -881,11 +928,7 @@ public class UserManager
 
         if (context.getCurrentState().userExists(userId) == false)
         {
-            PersonCreation personCreation = new PersonCreation();
-            personCreation.setUserId(userId);
-            context.add(personCreation);
-            context.getCurrentState().addNewUser(userId);
-            context.getReport().addUser(userId);
+            createUser(context, userId);
         } else if (knownUser != null && knownUser.isActive() == false)
         {
             PersonUpdate personUpdate = new PersonUpdate();
@@ -914,6 +957,15 @@ public class UserManager
                 createRoleAssignment(context, new AuthorizationGroupPermId(groupCode), userSpaceRole, userSpaceId);
             }
         }
+    }
+
+    private void createUser(Context context, String userId)
+    {
+        PersonCreation personCreation = new PersonCreation();
+        personCreation.setUserId(userId);
+        context.add(personCreation);
+        context.getCurrentState().addNewUser(userId);
+        context.getReport().addUser(userId);
     }
 
     private void removeUsersFromGroup(Context context, String groupCode, Set<String> usersToBeRemoved)

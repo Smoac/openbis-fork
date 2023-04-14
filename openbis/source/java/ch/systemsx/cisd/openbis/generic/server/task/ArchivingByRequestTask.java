@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ETH Zuerich, SIS
+ * Copyright ETH 2018 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.openbis.generic.server.task;
 
 import java.util.ArrayList;
@@ -248,7 +247,23 @@ public class ArchivingByRequestTask extends AbstractGroupMaintenanceTask
         Map<String, List<DataSet>> dataSetsByGroups = new TreeMap<>();
         for (DataSet dataSet : dataSets)
         {
-            String spaceCode = dataSet.getExperiment().getProject().getSpace().getCode();
+            String spaceCode = null;
+
+            if (dataSet.getExperiment() != null)
+            {
+                spaceCode = dataSet.getExperiment().getProject().getSpace().getCode();
+            } else if (dataSet.getSample() != null && dataSet.getSample().getSpace() != null)
+            {
+                // all space, project and experiment samples have space set
+                spaceCode = dataSet.getSample().getSpace().getCode();
+            }
+
+            if (spaceCode == null)
+            {
+                operationLog.warn("Data set: " + dataSet.getCode() + " does not belong to a space. It will not be archived.");
+                continue;
+            }
+
             String[] prefixAndCode = StringUtils.split(spaceCode, "_", 2);
             String groupKey = "";
             if (prefixAndCode.length == 2)

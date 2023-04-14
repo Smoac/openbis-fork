@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ETH Zuerich, SIS
+ * Copyright ETH 2018 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.openbis.systemtest.task;
 
 import static org.testng.Assert.assertEquals;
@@ -375,6 +374,10 @@ class UserManagerExpectationsBuilder
 
     private void assertUnknownUsers(String sessionToken)
     {
+        if (unknownUsers.isEmpty())
+        {
+            return;
+        }
         Map<String, Set<String>> usersByGroupId = getAllUsersOfGroups(sessionToken);
         assertEquals(usersByGroupId.isEmpty(), false);
         List<PersonPermId> personIds = unknownUsers.stream().map(p -> new PersonPermId(p.getUserId())).collect(Collectors.toList());
@@ -617,6 +620,12 @@ class UserManagerExpectationsBuilder
             return this;
         }
 
+        UserManagerAuthorizationExpectationsBuilder instanceAdmin(Principal... users)
+        {
+            addUsers(AuthorizationLevel.INSTANCE_ADMIN, users);
+            return this;
+        }
+        
         private void addUsers(AuthorizationLevel level, Principal... users)
         {
             Set<String> set = usersByLevel.get(level);
