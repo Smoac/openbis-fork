@@ -1,3 +1,18 @@
+/*
+ * Copyright ETH 2020 - 2023 Zürich, Scientific IT Services
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.GlobalSearchCriteriaTranslator.IDENTIFIER_ALIAS;
@@ -98,10 +113,11 @@ public class HibernateSearchDAOV3Adaptor implements IHibernateSearchDAO {
         // Obtain global criteria
 
         GlobalSearchCriteria globalSearchCriteria = getCriteria(searchableEntity);
+
         if (searchTerm.startsWith("\"") && searchTerm.endsWith("\"")) {
-            globalSearchCriteria.withText().thatContainsExactly(searchTerm.substring(1, searchTerm.length() - 1));
+            globalSearchCriteria.withText().thatMatches(searchTerm.substring(1, searchTerm.length() - 1));
         } else {
-            globalSearchCriteria.withText().thatContains(searchTerm);
+            globalSearchCriteria.withText().thatMatches(searchTerm);
         }
 
         operationLog.info("ADAPTED [FULL TEXT SEARCH] : " + searchableEntity + " [" + searchTerm + "] " + useWildcardSearchMode);
@@ -147,11 +163,20 @@ public class HibernateSearchDAOV3Adaptor implements IHibernateSearchDAO {
             Long registratorId =registratorIdByRecordIdentifierMap.get(matchingEntity.getIdentifier());
             PersonPE registratorPersonPE = registratorsById.get(registratorId);
             Person registrator = new Person();
-            registrator.setFirstName(registratorPersonPE.getFirstName());
-            registrator.setLastName(registratorPersonPE.getLastName());
-            registrator.setUserId(registratorPersonPE.getUserId());
-            registrator.setEmail(registratorPersonPE.getEmail());
-            registrator.setActive(registratorPersonPE.isActive());
+            if (registratorPersonPE == null)
+            {
+                registrator.setFirstName("Missing");
+                registrator.setLastName("Missing");
+                registrator.setUserId("system");
+                registrator.setEmail("");
+                registrator.setActive(false);
+            } else {
+                registrator.setFirstName(registratorPersonPE.getFirstName());
+                registrator.setLastName(registratorPersonPE.getLastName());
+                registrator.setUserId(registratorPersonPE.getUserId());
+                registrator.setEmail(registratorPersonPE.getEmail());
+                registrator.setActive(registratorPersonPE.isActive());
+            }
             matchingEntity.setRegistrator(registrator);
         }
 
