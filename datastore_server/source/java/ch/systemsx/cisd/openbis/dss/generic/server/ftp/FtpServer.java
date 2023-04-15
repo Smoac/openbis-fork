@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 ETH Zuerich, CISD
+ * Copyright ETH 2011 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.openbis.dss.generic.server.ftp;
 
 import java.io.File;
@@ -30,6 +29,7 @@ import java.nio.file.DirectoryStream.Filter;
 import java.nio.file.FileStore;
 import java.nio.file.FileSystem;
 import java.nio.file.LinkOption;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.ProviderMismatchException;
@@ -119,7 +119,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService
 
 /**
  * Controls the lifecycle of an FTP server built into DSS.
- * 
+ *
  * @author Kaloyan Enimanev
  */
 public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file.FileSystemFactory
@@ -205,25 +205,25 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file
             factory.setImplicitSsl(config.isImplicitSSL());
             serverFactory.setFtplets(Collections.<String, Ftplet> singletonMap("",
                     new DefaultFtplet()
+                    {
+                        @Override
+                        public FtpletResult beforeCommand(FtpSession session, FtpRequest request)
+                                throws FtpException, IOException
                         {
-                            @Override
-                            public FtpletResult beforeCommand(FtpSession session, FtpRequest request)
-                                    throws FtpException, IOException
+                            String cmd = request.getCommand().toUpperCase();
+                            if ("USER".equals(cmd))
                             {
-                                String cmd = request.getCommand().toUpperCase();
-                                if ("USER".equals(cmd))
+                                if (session.isSecure() == false)
                                 {
-                                    if (session.isSecure() == false)
-                                    {
-                                        session.write(new DefaultFtpReply(500,
-                                                "Control channel is not secure. "
-                                                        + "Please, issue AUTH command first."));
-                                        return FtpletResult.SKIP;
-                                    }
+                                    session.write(new DefaultFtpReply(500,
+                                            "Control channel is not secure. "
+                                                    + "Please, issue AUTH command first."));
+                                    return FtpletResult.SKIP;
                                 }
-                                return super.beforeCommand(session, request);
                             }
-                        }));
+                            return super.beforeCommand(session, request);
+                        }
+                    }));
         }
 
         DataConnectionConfigurationFactory dccFactory = new DataConnectionConfigurationFactory();
@@ -256,33 +256,33 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file
         s.setSubsystemFactories(creatSubsystemFactories());
         s.setFileSystemFactory(this);
         s.setPasswordAuthenticator(new PasswordAuthenticator()
+        {
+            @Override
+            public boolean authenticate(String username, String password, ServerSession session)
+                    throws PasswordChangeRequiredException, AsyncAuthException
             {
-                @Override
-                public boolean authenticate(String username, String password, ServerSession session)
-                        throws PasswordChangeRequiredException, AsyncAuthException
+                try
                 {
-                    try
-                    {
-                        UsernamePasswordAuthentication authentication =
-                                new UsernamePasswordAuthentication(username, password);
-                        User user = userManager.authenticate(authentication);
-                        session.setAttribute(USER_KEY, user);
-                        operationLog.info("User " + user + " authenticated. Session: " + session);
-                        return true;
-                    } catch (AuthenticationFailedException ex)
-                    {
-                        return false;
-                    }
+                    UsernamePasswordAuthentication authentication =
+                            new UsernamePasswordAuthentication(username, password);
+                    User user = userManager.authenticate(authentication);
+                    session.setAttribute(USER_KEY, user);
+                    operationLog.info("User " + user + " authenticated. Session: " + session);
+                    return true;
+                } catch (AuthenticationFailedException ex)
+                {
+                    return false;
                 }
-            });
+            }
+        });
         s.addSessionListener(new SessionListener()
+        {
+            @Override
+            public void sessionException(Session session, Throwable t)
             {
-                @Override
-                public void sessionException(Session session, Throwable t)
-                {
-                    operationLog.error("Session exception", t);
-                }
-            });
+                operationLog.error("Session exception", t);
+            }
+        });
         return s;
     }
 
@@ -290,29 +290,34 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file
     {
         SftpSubsystemFactory factory = new SftpSubsystemFactory.Builder().build();
         factory.setErrorStatusDataHandler(new SftpErrorStatusDataHandler()
-            {
-                private Set<Integer> subStatiForErrorLogging = new HashSet<>(Arrays.asList(
-                        SftpConstants.SSH_FX_FAILURE, SftpConstants.SSH_FX_OP_UNSUPPORTED));
+        {
+            private Set<Integer> subStatiForErrorLogging = new HashSet<>(Arrays.asList(
+                    SftpConstants.SSH_FX_FAILURE, SftpConstants.SSH_FX_OP_UNSUPPORTED));
+            private Set<Integer> subStatiForDebugLogging = new HashSet<>(Arrays.asList(
+                    SftpConstants.SSH_FX_EOF));
 
-                @Override
-                public String resolveErrorMessage(SftpSubsystemEnvironment sftpSubsystem, int id,
-                        Throwable e, int subStatus, int cmd, Object... args)
+            @Override
+            public String resolveErrorMessage(SftpSubsystemEnvironment sftpSubsystem, int id,
+                    Throwable e, int subStatus, int cmd, Object... args)
+            {
+                String message = SftpErrorStatusDataHandler.super.resolveErrorMessage(sftpSubsystem, id, e, subStatus, cmd, args);
+                User user = sftpSubsystem.getSessionContext().getAttribute(USER_KEY);
+                String logMessage = "user: " + user + ", id=" + id + ", substatus=" + subStatus
+                        + " (" + message + "), cmd=" + cmd + " (" + SftpConstants.getCommandMessageName(cmd)
+                        + "), args=" + Arrays.asList(args);
+                if (subStatiForErrorLogging.contains(subStatus))
                 {
-                    String message = SftpErrorStatusDataHandler.super.resolveErrorMessage(sftpSubsystem, id, e, subStatus, cmd, args);
-                    User user = sftpSubsystem.getSessionContext().getAttribute(USER_KEY);
-                    String logMessage = "user: " + user + ", id=" + id + ", substatus=" + subStatus
-                            + " (" + message + "), cmd=" + cmd + " (" + SftpConstants.getCommandMessageName(cmd)
-                            + "), args=" + Arrays.asList(args);
-                    if (subStatiForErrorLogging.contains(subStatus))
-                    {
-                        operationLog.error(logMessage, e);
-                    } else
-                    {
-                        operationLog.warn(logMessage + ": " + e);
-                    }
-                    return message;
+                    operationLog.error(logMessage, e);
+                } else if (subStatiForDebugLogging.contains(subStatus))
+                {
+                    operationLog.debug(logMessage + ": " + e);
+                } else
+                {
+                    operationLog.warn(logMessage + ": " + e);
                 }
-            });
+                return message;
+            }
+        });
         return Arrays.<SubsystemFactory> asList(factory);
     }
 
@@ -486,6 +491,12 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file
         }
 
         @Override
+        public Path readSymbolicLink(Path link) throws IOException
+        {
+            throw new NoSuchFileException("Symbolic links are not supported: " + link);
+        }
+
+        @Override
         public String getScheme()
         {
             return "openbis";
@@ -525,18 +536,18 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.common.file
                 children.add(dir.getFileSystem().getPath(file.getAbsolutePath()));
             }
             return new DirectoryStream<Path>()
+            {
+                @Override
+                public void close() throws IOException
                 {
-                    @Override
-                    public void close() throws IOException
-                    {
-                    }
+                }
 
-                    @Override
-                    public Iterator<Path> iterator()
-                    {
-                        return children.iterator();
-                    }
-                };
+                @Override
+                public Iterator<Path> iterator()
+                {
+                    return children.iterator();
+                }
+            };
         }
 
         @Override

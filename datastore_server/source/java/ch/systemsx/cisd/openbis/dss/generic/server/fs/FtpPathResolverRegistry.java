@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 ETH Zuerich, CISD
+ * Copyright ETH 2016 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.openbis.dss.generic.server.fs;
 
 import java.io.File;
@@ -62,7 +61,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 
 /**
  * A entry point for the file system resolvers. It delegates resolution to plugin or default resolver.
- * 
+ *
  * @author Jakub Straszewski
  */
 public class FtpPathResolverRegistry implements IFtpPathResolverRegistry
@@ -73,7 +72,7 @@ public class FtpPathResolverRegistry implements IFtpPathResolverRegistry
         private final FtpPathResolverRegistry ftpPathResolverRegistry;
         private final FtpPathResolverContext resolverContext;
 
-        NodeBasedFtpFile(FileNode fileNode, FtpPathResolverRegistry ftpPathResolverRegistry, 
+        NodeBasedFtpFile(FileNode fileNode, FtpPathResolverRegistry ftpPathResolverRegistry,
                 FtpPathResolverContext resolverContext)
         {
             super(fileNode.getFullPath());
@@ -137,7 +136,7 @@ public class FtpPathResolverRegistry implements IFtpPathResolverRegistry
         private FtpPathResolverRegistry ftpPathResolverRegistry;
         private FtpPathResolverContext resolverContext;
 
-        NodeBasedFtpFolder(String parentAbsolutePath, Node node, 
+        NodeBasedFtpFolder(String parentAbsolutePath, Node node,
                 FtpPathResolverRegistry ftpPathResolverRegistry, FtpPathResolverContext resolverContext)
         {
             super(concatenatePathElements(parentAbsolutePath, node.getFullPath()));
@@ -159,7 +158,7 @@ public class FtpPathResolverRegistry implements IFtpPathResolverRegistry
         String normalizedChild = child.startsWith("/") ? child.substring(1) : child;
         return normalizedParent + normalizedChild;
     }
-    
+
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             FtpPathResolverRegistry.class);
 
@@ -218,34 +217,34 @@ public class FtpPathResolverRegistry implements IFtpPathResolverRegistry
     private FtpFile convert(final DirectoryResponse dir, final FtpPathResolverContext resolverContext)
     {
         AbstractFtpFolder abstractFtpFolder = new AbstractFtpFolder(dir.getFullPath())
+        {
+            @Override
+            public List<FtpFile> unsafeListFiles() throws RuntimeException
             {
-                @Override
-                public List<FtpFile> unsafeListFiles() throws RuntimeException
+                List<FtpFile> result = new LinkedList<FtpFile>();
+                for (Node entry : dir.getFiles())
                 {
-                    List<FtpFile> result = new LinkedList<FtpFile>();
-                    for (Node entry : dir.getFiles())
+                    FtpFile file = null;
+                    if (entry instanceof DirectoryNode)
                     {
-                        FtpFile file = null;
-                        if (entry instanceof DirectoryNode)
-                        {
-                            file = new NodeBasedFtpFolder(this.absolutePath, entry, 
-                                    FtpPathResolverRegistry.this, resolverContext);
-                        } else if (entry instanceof FileNode)
-                        {
-                            file = new NodeBasedFtpFile((FileNode) entry, 
-                                    FtpPathResolverRegistry.this, resolverContext);
-                        }
-                        if (file != null)
-                        {
-                            file.setLastModified(entry.getLastModified());
-                            String key = createKey(file.getAbsolutePath(), resolverContext);
-                            resolverContext.getCache().putResponse(key, file);
-                            result.add(file);
-                        }
+                        file = new NodeBasedFtpFolder(this.absolutePath, entry,
+                                FtpPathResolverRegistry.this, resolverContext);
+                    } else if (entry instanceof FileNode)
+                    {
+                        file = new NodeBasedFtpFile((FileNode) entry,
+                                FtpPathResolverRegistry.this, resolverContext);
                     }
-                    return result;
+                    if (file != null)
+                    {
+                        file.setLastModified(entry.getLastModified());
+                        String key = createKey(file.getAbsolutePath(), resolverContext);
+                        resolverContext.getCache().putResponse(key, file);
+                        result.add(file);
+                    }
                 }
-            };
+                return result;
+            }
+        };
         String key = createKey(abstractFtpFolder.getAbsolutePath(), resolverContext);
         FtpFile response = resolverContext.getCache().getResponse(key);
         if (response != null)
@@ -258,79 +257,79 @@ public class FtpPathResolverRegistry implements IFtpPathResolverRegistry
     private FtpFile convert(final FileResponse file)
     {
         AbstractFtpFileWithContent fileWithContent = new AbstractFtpFileWithContent(file.getFullPath())
+        {
+            @Override
+            public InputStream createInputStream(long offset) throws IOException
             {
-                @Override
-                public InputStream createInputStream(long offset) throws IOException
+                IHierarchicalContent content = file.getContent();
+                try
                 {
-                    IHierarchicalContent content = file.getContent();
-                    try
+                    IHierarchicalContentNode node = file.getNode();
+                    InputStream result =
+                            HierarchicalContentUtils.getInputStreamAutoClosingContent(node, content);
+                    if (offset > 0)
                     {
-                        IHierarchicalContentNode node = file.getNode();
-                        InputStream result =
-                                HierarchicalContentUtils.getInputStreamAutoClosingContent(node, content);
-                        if (offset > 0)
-                        {
-                            result.skip(offset);
-                        }
-                        return result;
-                    } catch (IOException ioex)
-                    {
-                        content.close();
-                        operationLog.error("Error while reading content at " + offset + " from " 
-                                + absolutePath, ioex);
-                        throw ioex;
-                    } catch (RuntimeException re)
-                    {
-                        content.close();
-                        operationLog.error("Error while reading content at " + offset + " from " 
-                                + absolutePath, re);
-                        throw re;
+                        result.skip(offset);
                     }
-                }
-
-                @Override
-                public FileChannel getFileChannel()
+                    return result;
+                } catch (IOException ioex)
                 {
-                    File f = file.getNode().tryGetFile();
-                    if (f == null)
-                    {
-                        throw new UnsupportedOperationException("Only real files are supported.");
-                    }
-                    Path path = f.toPath();
-                    Set<? extends OpenOption> options = EnumSet.<StandardOpenOption>of(StandardOpenOption.READ);
-                    try
-                    {
-                        return path.getFileSystem().provider().newFileChannel(path, options);
-                    } catch (IOException e)
-                    {
-                        throw CheckedExceptionTunnel.wrapIfNecessary(e);
-                    }
-                }
-
-                @Override
-                public boolean isFile()
+                    content.close();
+                    operationLog.error("Error while reading content at " + offset + " from "
+                            + absolutePath, ioex);
+                    throw ioex;
+                } catch (RuntimeException re)
                 {
-                    return true;
+                    content.close();
+                    operationLog.error("Error while reading content at " + offset + " from "
+                            + absolutePath, re);
+                    throw re;
                 }
+            }
 
-                @Override
-                public boolean isDirectory()
+            @Override
+            public FileChannel getFileChannel()
+            {
+                File f = file.getNode().tryGetFile();
+                if (f == null)
                 {
-                    return false;
+                    throw new UnsupportedOperationException("Only real files are supported.");
                 }
+                Path path = f.toPath();
+                Set<? extends OpenOption> options = EnumSet.<StandardOpenOption>of(StandardOpenOption.READ);
+                try
+                {
+                    return path.getFileSystem().provider().newFileChannel(path, options);
+                } catch (IOException e)
+                {
+                    throw CheckedExceptionTunnel.wrapIfNecessary(e);
+                }
+            }
 
-                @Override
-                public List<FtpFile> unsafeListFiles() throws RuntimeException
-                {
-                    throw new IllegalStateException("Don't expect to ask for file listing of file");
-                }
+            @Override
+            public boolean isFile()
+            {
+                return true;
+            }
 
-                @Override
-                public IRandomAccessFile getFileContent()
-                {
-                    return file.getNode().getFileContent();
-                }
-            };
+            @Override
+            public boolean isDirectory()
+            {
+                return false;
+            }
+
+            @Override
+            public List<FtpFile> unsafeListFiles() throws RuntimeException
+            {
+                throw new IllegalStateException("Don't expect to ask for file listing of file");
+            }
+
+            @Override
+            public IRandomAccessFile getFileContent()
+            {
+                return file.getNode().getFileContent();
+            }
+        };
         fileWithContent.setLastModified(file.getNode().getLastModified());
         fileWithContent.setSize(file.getNode().getFileLength());
         return fileWithContent;
@@ -349,7 +348,7 @@ public class FtpPathResolverRegistry implements IFtpPathResolverRegistry
         FtpFile response = cache.getResponse(responseCacheKey);
         if (response != null)
         {
-            operationLog.info("Path " + path + " requested (found in cache).");
+            operationLog.debug("Path " + path + " requested (found in cache).");
             return response;
         }
 
@@ -375,7 +374,7 @@ public class FtpPathResolverRegistry implements IFtpPathResolverRegistry
             }
         } catch (Exception e)
         {
-            operationLog.warn("Resolving " + path + " failed", e);
+            operationLog.warn("Resolving " + path + " failed: " + e);
             response = resolverContext.getResolverContext().createNonExistingFileResponse("Error when retrieving path");
         }
         return convert(response, resolverContext);
