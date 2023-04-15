@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 ETH Zuerich, CISD
+ * Copyright ETH 2012 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.etlserver.registrator;
 
 import java.io.File;
@@ -370,7 +369,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
     {
         assertDataSetNotStoredProcess(DATA_SET_CODE);
 
-        assertNoOriginalMarkerFileExists();
+        assertOriginalMarkerFileExists();
         assertNoRecoveryMarkerFile();
 
         JythonHookTestTool.assertMessagesInWorkingDirectory(workingDirectory,
@@ -720,10 +719,10 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
     public Object[][] retryCounters()
     {
         return new Object[][]
-        {
-                { 1 },
-                { 5 },
-                { 15 } };
+                {
+                        { 1 },
+                        { 5 },
+                        { 15 } };
     }
 
     /**
@@ -814,11 +813,11 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
     public Object[][] retrySuccessDP()
     {
         return new Object[][]
-        {
-                { 1, RetrySuccessMethod.OPERATIONS_SUCCEDED },
-                { 1, RetrySuccessMethod.CHECK_SUCCEEDED },
-                { 5, RetrySuccessMethod.OPERATIONS_SUCCEDED },
-                { 15, RetrySuccessMethod.CHECK_SUCCEEDED } };
+                {
+                        { 1, RetrySuccessMethod.OPERATIONS_SUCCEDED },
+                        { 1, RetrySuccessMethod.CHECK_SUCCEEDED },
+                        { 5, RetrySuccessMethod.OPERATIONS_SUCCEDED },
+                        { 15, RetrySuccessMethod.CHECK_SUCCEEDED } };
     }
 
     @Test(dataProvider = "retrySuccessDP")
@@ -918,12 +917,12 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
                         testCase.overrideProperties);
 
         properties.setProperty(ThreadParameters.PROCESS_MAX_RETRY_COUNT, "100"); // we dont want it
-                                                                                 // to fail at all
-                                                                                 // in this testcase
+        // to fail at all
+        // in this testcase
         properties.setProperty(ThreadParameters.PROCESS_RETRY_PAUSE_IN_SEC, "0"); // continue
-                                                                                  // immediately to
-                                                                                  // not stop the
-                                                                                  // tests
+        // immediately to
+        // not stop the
+        // tests
 
         createHandler(properties, true, false);
 
@@ -987,12 +986,12 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
                         testCase.overrideProperties);
 
         properties.setProperty(ThreadParameters.PROCESS_MAX_RETRY_COUNT, "10"); // we dont want it
-                                                                                // to fail at all in
-                                                                                // this testcase
+        // to fail at all in
+        // this testcase
         properties.setProperty(ThreadParameters.PROCESS_RETRY_PAUSE_IN_SEC, "0"); // continue
-                                                                                  // immediately to
-                                                                                  // not stop the
-                                                                                  // tests
+        // immediately to
+        // not stop the
+        // tests
 
         createHandler(properties, true, false);
 
@@ -1006,8 +1005,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
 
         assertDataSetNotStoredProcess(DATA_SET_CODE);
 
-        // no recovery is triggered - files are moved to the faulty paths/marker file is deleted
-        assertNoOriginalMarkerFileExists();
+        assertOriginalMarkerFileExists();
         assertNoRecoveryMarkerFile();
 
         assertDirEmpty(precommitDirectory);
@@ -1044,9 +1042,9 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
     public Object[][] multipleCheckpointsData()
     {
         return new Object[][]
-        {
-                { "v2-simple-testcase.py", false },
-                { "v2-container-testcase.py", true } };
+                {
+                        { "v2-simple-testcase.py", false },
+                        { "v2-container-testcase.py", true } };
     }
 
     /**
@@ -1216,27 +1214,27 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         protected CustomAction makeFileSystemUnavailableAction()
         {
             return new CustomAction("makeSystemUnavailable")
+            {
+                @Override
+                public Object invoke(Invocation invocation) throws Throwable
                 {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable
-                    {
-                        makeFileSystemUnavailable(workingDirectory);
-                        return null;
-                    }
-                };
+                    makeFileSystemUnavailable(workingDirectory);
+                    return null;
+                }
+            };
         }
 
         protected CustomAction makeFileSystemAvailableAction()
         {
             return new CustomAction("makeSystemAvailable")
+            {
+                @Override
+                public Object invoke(Invocation invocation) throws Throwable
                 {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable
-                    {
-                        makeFileSystemAvailable(workingDirectory);
-                        return null;
-                    }
-                };
+                    makeFileSystemAvailable(workingDirectory);
+                    return null;
+                }
+            };
         }
 
         /**
@@ -1304,7 +1302,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         protected void drawUniqueId()
         {
             one(openBisService).drawANewUniqueID();
-            will(returnValue(new Long(1)));
+            will(returnValue(Long.valueOf(1)));
         }
 
         protected void registerDataSetsAndMakeFileSystemUnavailable()
