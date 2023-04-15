@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 ETH Zuerich, CISD
+ * Copyright ETH 2011 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.etlserver.api.v1;
 
 import java.io.File;
@@ -118,15 +117,15 @@ public class PutDataSetTopLevelDataSetHandlerTest extends AbstractFileSystemTest
         incomingDir.mkdirs();
 
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(service).getHomeDatabaseInstance();
-                    will(returnValue(databaseInstance));
+                one(service).getHomeDatabaseInstance();
+                will(returnValue(databaseInstance));
 
-                    allowing(registrator).getGlobalState();
-                    will(returnValue(createGlobalState(incomingDir)));
-                }
-            });
+                allowing(registrator).getGlobalState();
+                will(returnValue(createGlobalState(incomingDir)));
+            }
+        });
 
         putDataSetService =
                 new PutDataSetService(service, logger, storeDir,
@@ -156,14 +155,14 @@ public class PutDataSetTopLevelDataSetHandlerTest extends AbstractFileSystemTest
         final ExperimentIdentifier experimentIdentifier =
                 ExperimentIdentifierFactory.parse(dataSetOwner.getIdentifier());
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(service).createPermId();
-                    will(returnValue(DATA_SET_CODE));
+                one(service).createPermId();
+                will(returnValue(DATA_SET_CODE));
 
-                    one(service).checkExperimentAccess(SESSION_TOKEN, experimentIdentifier.toString());
-                }
-            });
+                one(service).checkExperimentAccess(SESSION_TOKEN, experimentIdentifier.toString());
+            }
+        });
         RecordingMatcher<DataSetInformation> dataSetInfoMatcher =
                 new RecordingMatcher<DataSetInformation>();
         FileInfoDssDTO f1 = new FileInfoDssDTO("hello.txt", "hello", false, 12);
@@ -203,14 +202,14 @@ public class PutDataSetTopLevelDataSetHandlerTest extends AbstractFileSystemTest
         final SampleIdentifier sampleIdentifier =
                 SampleIdentifierFactory.parse(dataSetOwner.getIdentifier());
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(service).createPermId();
-                    will(returnValue(DATA_SET_CODE));
+                one(service).createPermId();
+                will(returnValue(DATA_SET_CODE));
 
-                    one(service).checkSampleAccess(SESSION_TOKEN, sampleIdentifier.toString());
-                }
-            });
+                one(service).checkSampleAccess(SESSION_TOKEN, sampleIdentifier.toString());
+            }
+        });
         RecordingMatcher<DataSetInformation> dataSetInfoMatcher =
                 new RecordingMatcher<DataSetInformation>();
         FileInfoDssDTO f1 = new FileInfoDssDTO("hello.txt", "hello", false, 12);
@@ -246,37 +245,37 @@ public class PutDataSetTopLevelDataSetHandlerTest extends AbstractFileSystemTest
             final RecordingMatcher<DataSetInformation> dataSetInfoMatcher)
     {
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(service).tryGetSession(SESSION_TOKEN);
-                    SessionContextDTO sessionContext = new SessionContextDTO();
-                    sessionContext.setUserName(TEST_USER_NAME);
-                    will(returnValue(sessionContext));
+                one(service).tryGetSession(SESSION_TOKEN);
+                SessionContextDTO sessionContext = new SessionContextDTO();
+                sessionContext.setUserName(TEST_USER_NAME);
+                will(returnValue(sessionContext));
 
-                    one(registrator).handle(with(dataSet), with(SESSION_TOKEN),
-                            with(dataSetInfoMatcher), with(new BaseMatcher<ITopLevelDataSetRegistratorDelegate>()
+                one(registrator).handle(with(dataSet), with(SESSION_TOKEN),
+                        with(dataSetInfoMatcher), with(new BaseMatcher<ITopLevelDataSetRegistratorDelegate>()
+                        {
+                            @Override
+                            public boolean matches(Object item)
+                            {
+                                // We can check file content only here because after
+                                // invocation of handle() all files are deleted.
+                                for (int i = 0; i < files.size(); i++)
                                 {
-                                    @Override
-                                    public boolean matches(Object item)
-                                    {
-                                        // We can check file content only here because after
-                                        // invocation of handle() all files are deleted.
-                                        for (int i = 0; i < files.size(); i++)
-                                        {
-                                            File file = files.get(i);
-                                            assertEquals("Content of " + file, contents.get(i),
-                                                    FileUtilities.loadToString(file).trim());
-                                        }
-                                        return true;
-                                    }
+                                    File file = files.get(i);
+                                    assertEquals("Content of " + file, contents.get(i),
+                                            FileUtilities.loadToString(file).trim());
+                                }
+                                return true;
+                            }
 
-                                    @Override
-                                    public void describeTo(Description description)
-                                    {
-                                    }
-                                }));
-                }
-            });
+                            @Override
+                            public void describeTo(Description description)
+                            {
+                            }
+                        }));
+            }
+        });
 
         List<IHierarchicalContentNode> result = new ArrayList<IHierarchicalContentNode>();
         for (int i = 0; i < files.size(); i++)
@@ -306,7 +305,8 @@ public class PutDataSetTopLevelDataSetHandlerTest extends AbstractFileSystemTest
                 new ThreadParameters(createThreadProperties(), getClass().getSimpleName()
                         + "-thread");
         return new TopLevelDataSetRegistratorGlobalState(DATA_SET_CODE, "1", this.storeDir,
-                tmpIncomingDir, workingDirectory, workingDirectory, this.service, null, null, null,
+                tmpIncomingDir, workingDirectory, workingDirectory, workingDirectory,
+                this.service, null, null, null,
                 null, true, params, new DataSetStorageRecoveryManager());
     }
 }

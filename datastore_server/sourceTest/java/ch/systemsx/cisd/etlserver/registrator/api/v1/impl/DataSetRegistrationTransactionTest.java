@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 ETH Zuerich, CISD
+ * Copyright ETH 2011 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
 import java.io.File;
@@ -139,11 +138,11 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         DssRegistrationHealthMonitor.getInstance(openBisService, workingDirectory);
 
         context.checking(new Expectations()
+        {
             {
-                {
-                    ignoring(openBisService).heartbeat();
-                }
-            });
+                ignoring(openBisService).heartbeat();
+            }
+        });
     }
 
     @Test
@@ -413,11 +412,11 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         setUpHomeDataBaseExpectations();
         createTransaction();
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(openBisService).tryGetMetaproject("ABC", "test");
-                }
-            });
+                one(openBisService).tryGetMetaproject("ABC", "test");
+            }
+        });
 
         IMetaproject metaproject = tr.getMetaproject("ABC", "test");
 
@@ -431,16 +430,16 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         setUpHomeDataBaseExpectations();
         createTransaction();
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(openBisService).tryGetMetaproject("ABC", "test");
-                    Metaproject metaproject = new Metaproject();
-                    metaproject.setId(1L);
-                    metaproject.setName("ABC");
-                    metaproject.setOwnerId("test");
-                    will(returnValue(metaproject));
-                }
-            });
+                one(openBisService).tryGetMetaproject("ABC", "test");
+                Metaproject metaproject = new Metaproject();
+                metaproject.setId(1L);
+                metaproject.setName("ABC");
+                metaproject.setOwnerId("test");
+                will(returnValue(metaproject));
+            }
+        });
 
         IMetaproject metaproject = tr.getMetaproject("ABC", "test");
 
@@ -455,16 +454,16 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         setUpHomeDataBaseExpectations();
         createTransaction();
         context.checking(new Expectations()
+        {
             {
-                {
-                    allowing(openBisService).tryGetMetaproject("ABC", "test");
-                    Metaproject metaproject = new Metaproject();
-                    metaproject.setId(1L);
-                    metaproject.setName("ABC");
-                    metaproject.setOwnerId("test");
-                    will(returnValue(metaproject));
-                }
-            });
+                allowing(openBisService).tryGetMetaproject("ABC", "test");
+                Metaproject metaproject = new Metaproject();
+                metaproject.setId(1L);
+                metaproject.setName("ABC");
+                metaproject.setOwnerId("test");
+                will(returnValue(metaproject));
+            }
+        });
 
         IMetaproject metaproject1 = tr.getMetaproject("ABC", "test");
         IMetaproject metaproject2 = tr.getMetaproject("ABC", "test");
@@ -478,16 +477,16 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
     private File[] listRollbackQueueFiles()
     {
         File[] rollbackQueueFiles = workingDirectory.listFiles(new FilenameFilter()
+        {
+            @Override
+            public boolean accept(File dir, String name)
             {
-                @Override
-                public boolean accept(File dir, String name)
-                {
-                    final String ROLLBACK_QUEUE1_FILE_NAME_SUFFIX = "rollBackQueue";
+                final String ROLLBACK_QUEUE1_FILE_NAME_SUFFIX = "rollBackQueue";
 
-                    return name.endsWith(ROLLBACK_QUEUE1_FILE_NAME_SUFFIX);
-                }
+                return name.endsWith(ROLLBACK_QUEUE1_FILE_NAME_SUFFIX);
+            }
 
-            });
+        });
         return rollbackQueueFiles;
     }
 
@@ -527,7 +526,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
                 new TopLevelDataSetRegistratorGlobalState("dss",
                         ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
                         workingDirectory, workingDirectory, workingDirectory, workingDirectory,
-                        openBisService, mailClient, dataSetValidator, null,
+                        workingDirectory, openBisService, mailClient, dataSetValidator, null,
                         new DynamicTransactionQueryFactory(), true, threadParameters,
                         new DataSetStorageRecoveryManager());
         return globalState;
@@ -536,15 +535,15 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
     private void setUpHomeDataBaseExpectations()
     {
         context.checking(new Expectations()
+        {
             {
-                {
 
-                    DatabaseInstance databaseInstance = new DatabaseInstance();
-                    databaseInstance.setUuid(DATABASE_INSTANCE_UUID);
-                    one(openBisService).getHomeDatabaseInstance();
-                    will(returnValue(databaseInstance));
-                }
-            });
+                DatabaseInstance databaseInstance = new DatabaseInstance();
+                databaseInstance.setUuid(DATABASE_INSTANCE_UUID);
+                one(openBisService).getHomeDatabaseInstance();
+                will(returnValue(databaseInstance));
+            }
+        });
     }
 
     private void setUpOpenBisExpectations(final boolean willRegister)
@@ -557,49 +556,49 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
     {
         setUpHomeDataBaseExpectations();
         context.checking(new Expectations()
+        {
             {
+                if (createDataSetCode)
                 {
-                    if (createDataSetCode)
-                    {
-                        oneOf(openBisService).createPermId();
-                        will(returnValue(DATA_SET_CODE + 1));
-                    }
-
-                    if (willRegister)
-                    {
-
-                        Experiment experiment = new Experiment();
-                        experiment.setIdentifier(EXPERIMENT_IDENTIFIER);
-                        experiment.setCode("EXP-CODE");
-                        Person registrator = new Person();
-                        registrator.setEmail("email@email.com");
-                        experiment.setRegistrator(registrator);
-
-                        Project project = new Project();
-                        project.setCode("PROJECT");
-
-                        Space space = new Space();
-                        space.setCode("SPACE");
-
-                        project.setSpace(space);
-                        experiment.setProject(project);
-
-                        exactly(1).of(openBisService).tryGetExperiment(
-                                new ExperimentIdentifierFactory(EXPERIMENT_IDENTIFIER)
-                                        .createIdentifier());
-                        will(returnValue(experiment));
-
-                        exactly(1).of(openBisService).drawANewUniqueID();
-                        will(returnValue(new Long(1)));
-
-                        exactly(1).of(openBisService).performEntityOperations(
-                                with(any(AtomicEntityOperationDetails.class)));
-                        will(returnValue(new AtomicEntityOperationResult()));
-
-                        one(openBisService).setStorageConfirmed(with(any(List.class)));
-                    }
+                    oneOf(openBisService).createPermId();
+                    will(returnValue(DATA_SET_CODE + 1));
                 }
-            });
+
+                if (willRegister)
+                {
+
+                    Experiment experiment = new Experiment();
+                    experiment.setIdentifier(EXPERIMENT_IDENTIFIER);
+                    experiment.setCode("EXP-CODE");
+                    Person registrator = new Person();
+                    registrator.setEmail("email@email.com");
+                    experiment.setRegistrator(registrator);
+
+                    Project project = new Project();
+                    project.setCode("PROJECT");
+
+                    Space space = new Space();
+                    space.setCode("SPACE");
+
+                    project.setSpace(space);
+                    experiment.setProject(project);
+
+                    exactly(1).of(openBisService).tryGetExperiment(
+                            new ExperimentIdentifierFactory(EXPERIMENT_IDENTIFIER)
+                                    .createIdentifier());
+                    will(returnValue(experiment));
+
+                    exactly(1).of(openBisService).drawANewUniqueID();
+                    will(returnValue(Long.valueOf(1)));
+
+                    exactly(1).of(openBisService).performEntityOperations(
+                            with(any(AtomicEntityOperationDetails.class)));
+                    will(returnValue(new AtomicEntityOperationResult()));
+
+                    one(openBisService).setStorageConfirmed(with(any(List.class)));
+                }
+            }
+        });
     }
 
     private void setUpDataSetValidatorExpectations()
@@ -613,23 +612,23 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         File dataSetDir = new File(stagingDirectory, dataSetCode.toUpperCase());
         final File dataSetFile = new File(dataSetDir, srcFile.getName());
         context.checking(new Expectations()
+        {
             {
-                {
-                    oneOf(dataSetValidator).assertValidDataSet(with(DATA_SET_TYPE),
-                            with(dataSetFile));
-                }
-            });
+                oneOf(dataSetValidator).assertValidDataSet(with(DATA_SET_TYPE),
+                        with(dataSetFile));
+            }
+        });
     }
 
     private void setUpDataSetValidatorExpectationsForNullFiles()
     {
         context.checking(new Expectations()
+        {
             {
-                {
-                    oneOf(dataSetValidator).assertValidDataSet(with(DATA_SET_TYPE),
-                            with(new IsNull<File>()));
-                }
-            });
+                oneOf(dataSetValidator).assertValidDataSet(with(DATA_SET_TYPE),
+                        with(new IsNull<File>()));
+            }
+        });
     }
 
     public static final class MockStorageProcessor implements IStorageProcessorTransactional,
@@ -687,63 +686,63 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
             dataSetInfoString = parameters.getDataSetInformation().toString();
 
             return new IStorageProcessorTransaction()
+            {
+                private static final long serialVersionUID = 1L;
+
+                private File storedFolder;
+
+                @Override
+                public void storeData(ITypeExtractor typeExtractor, IMailClient mailClient,
+                        File incomingDataSetDirectory)
                 {
-                    private static final long serialVersionUID = 1L;
-
-                    private File storedFolder;
-
-                    @Override
-                    public void storeData(ITypeExtractor typeExtractor, IMailClient mailClient,
-                            File incomingDataSetDirectory)
+                    calledStoreDataCount++;
+                    try
                     {
-                        calledStoreDataCount++;
-                        try
+                        if (incomingDataSetDirectory.isDirectory())
                         {
-                            if (incomingDataSetDirectory.isDirectory())
-                            {
-                                FileUtils.copyDirectory(incomingDataSetDirectory, rootDir);
-                            } else
-                            {
-                                FileUtils.copyFileToDirectory(incomingDataSetDirectory, rootDir);
-                            }
-                        } catch (IOException ex)
+                            FileUtils.copyDirectory(incomingDataSetDirectory, rootDir);
+                        } else
                         {
-                            ex.printStackTrace();
-                            throw new IOExceptionUnchecked(ex);
+                            FileUtils.copyFileToDirectory(incomingDataSetDirectory, rootDir);
                         }
-                        storedFolder = rootDir;
-                    }
-
-                    @Override
-                    public UnstoreDataAction rollback(Throwable exception)
+                    } catch (IOException ex)
                     {
-                        return null;
+                        ex.printStackTrace();
+                        throw new IOExceptionUnchecked(ex);
                     }
+                    storedFolder = rootDir;
+                }
 
-                    @Override
-                    public File getStoredDataDirectory()
-                    {
-                        return storedFolder;
-                    }
+                @Override
+                public UnstoreDataAction rollback(Throwable exception)
+                {
+                    return null;
+                }
 
-                    @Override
-                    public void setStoredDataDirectory(File folder)
-                    {
-                        storedFolder = folder;
-                    }
+                @Override
+                public File getStoredDataDirectory()
+                {
+                    return storedFolder;
+                }
 
-                    @Override
-                    public void commit()
-                    {
-                        calledCommitCount++;
-                    }
+                @Override
+                public void setStoredDataDirectory(File folder)
+                {
+                    storedFolder = folder;
+                }
 
-                    @Override
-                    public File tryGetProprietaryData()
-                    {
-                        return null;
-                    }
-                };
+                @Override
+                public void commit()
+                {
+                    calledCommitCount++;
+                }
+
+                @Override
+                public File tryGetProprietaryData()
+                {
+                    return null;
+                }
+            };
         }
     }
 

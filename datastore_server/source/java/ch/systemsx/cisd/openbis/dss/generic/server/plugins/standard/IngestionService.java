@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 ETH Zuerich, CISD
+ * Copyright ETH 2012 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
 import java.io.File;
@@ -72,7 +71,9 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
         implements IOmniscientEntityRegistrator<T>
 {
 
-    private static final String AGGREGATION_SERVICE_SCRATCH_DIR_NAME = "aggregation-service";
+    public static final String INCOMING_DIR = "incoming";
+
+    public static final String AGGREGATION_SERVICE_SCRATCH_DIR_NAME = "aggregation-service";
 
     private static final String AGGREGATION_SERVICE_SHARE_ID = "share-id";
 
@@ -95,13 +96,15 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
 
     private final File dssRecoveryStateDir;
 
+    private final File dssRecoveryMarkerDir;
+
     private final String dssCode;
 
     private final IMailClient mailClient;
 
     /**
      * Constructor for the AbstractDbModifyingAggegation service. This constructor is used by the ReportingPluginTaskFactory.
-     * 
+     *
      * @param properties
      * @param storeRoot
      */
@@ -112,7 +115,7 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
 
     /**
      * Internal constructor that uses the full DSS properties.
-     * 
+     *
      * @param dssProperties
      * @param instanceProperties
      * @param storeRoot
@@ -127,7 +130,7 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
 
     /**
      * Internal constructor that allows explicit configuration of all services. Used in testing.
-     * 
+     *
      * @param dssProperties
      * @param instanceProperties
      * @param storeRoot
@@ -146,6 +149,7 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
         this.dssRegistrationLogDir =
                 DssPropertyParametersUtil.getDssRegistrationLogDir(dssProperties);
         this.dssRecoveryStateDir = DssPropertyParametersUtil.getDssRecoveryStateDir(dssProperties);
+        this.dssRecoveryMarkerDir = DssPropertyParametersUtil.getDssRecoveryMarkerDir(dssProperties);
         this.dssCode = DssPropertyParametersUtil.getDataStoreCode(dssProperties);
     }
 
@@ -206,7 +210,7 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
 
     /**
      * Return the share that this service should use to store its data sets.
-     * 
+     *
      * @return A file that is the root of a share.
      */
     private File getShare()
@@ -228,7 +232,7 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
      */
     protected File getMockIncomingDir()
     {
-        File incomingDir = new File(getServiceScratchDir(), "incoming");
+        File incomingDir = new File(getServiceScratchDir(), INCOMING_DIR);
         if (false == incomingDir.exists())
         {
             incomingDir.mkdirs();
@@ -251,15 +255,15 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
             // Create a clean-up action
             IDelegatedActionWithResult<Boolean> cleanUpAction =
                     new AbstractDelegatedActionWithResult<Boolean>(true)
-                        {
+                    {
 
-                            @Override
-                            public Boolean execute()
-                            {
-                                mockIncomingDataSetFile.delete();
-                                return true;
-                            }
-                        };
+                        @Override
+                        public Boolean execute()
+                        {
+                            mockIncomingDataSetFile.delete();
+                            return true;
+                        }
+                    };
 
             DataSetRegistrationPreStagingBehavior preStagingUsage =
                     DataSetRegistrationPreStagingBehavior.USE_ORIGINAL;
@@ -337,14 +341,14 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
     private IDataSetOnErrorActionDecision createOnErrorActionDecision()
     {
         return new IDataSetOnErrorActionDecision()
+        {
+            @Override
+            public UnstoreDataAction computeUndoAction(ErrorType errorType,
+                    Throwable failureOrNull)
             {
-                @Override
-                public UnstoreDataAction computeUndoAction(ErrorType errorType,
-                        Throwable failureOrNull)
-                {
-                    return UnstoreDataAction.DELETE;
-                }
-            };
+                return UnstoreDataAction.DELETE;
+            }
+        };
     }
 
     /**
@@ -365,6 +369,7 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
         TopLevelDataSetRegistratorGlobalState globalState =
                 new TopLevelDataSetRegistratorGlobalState(dssCode, localShareId, storeRoot,
                         dssInternalTempDir, dssRegistrationLogDir, dssRecoveryStateDir,
+                        dssRecoveryMarkerDir,
                         getOpenBisService(), mailClient, dataSetValidator, dataSourceQueryService,
                         new DynamicTransactionQueryFactory(), shouldNotifySuccessfulRegistration(),
                         threadParameters, new DataSetStorageRecoveryManager());

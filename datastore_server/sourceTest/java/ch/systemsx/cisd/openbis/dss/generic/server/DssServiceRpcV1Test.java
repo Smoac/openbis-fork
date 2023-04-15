@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 ETH Zuerich, CISD
+ * Copyright ETH 2010 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.BufferedReader;
@@ -178,12 +177,12 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
 
         infoProvider = context.mock(IPluginTaskInfoProvider.class);
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(infoProvider).getSessionWorkspaceRootDir();
-                    will(returnValue(new File("sessionWorkspaceRoot")));
-                }
-            });
+                one(infoProvider).getSessionWorkspaceRootDir();
+                will(returnValue(new File("sessionWorkspaceRoot")));
+            }
+        });
         // test with DefaultFileBasedHierarchicalContentFactory to actually access files
         final IHierarchicalContentFactory fileBasedContentFactory =
                 new DefaultFileBasedHierarchicalContentFactory();
@@ -263,16 +262,16 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         final DatabaseInstance homeDatabaseInstance = getDatabaseInstance();
 
         context.checking(new Expectations()
+        {
             {
-                {
-                    // Expectations for getting
-                    allowing(openBisService).checkDataSetAccess(SESSION_TOKEN, DATA_SET_CODE);
-                    allowing(openBisService).checkDataSetCollectionAccess(SESSION_TOKEN,
-                            Arrays.asList(DATA_SET_CODE));
-                    allowing(openBisService).getHomeDatabaseInstance();
-                    will(returnValue(homeDatabaseInstance));
-                }
-            });
+                // Expectations for getting
+                allowing(openBisService).checkDataSetAccess(SESSION_TOKEN, DATA_SET_CODE);
+                allowing(openBisService).checkDataSetCollectionAccess(SESSION_TOKEN,
+                        Arrays.asList(DATA_SET_CODE));
+                allowing(openBisService).getHomeDatabaseInstance();
+                will(returnValue(homeDatabaseInstance));
+            }
+        });
     }
 
     private void setupPutExpectations()
@@ -305,38 +304,38 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         final RecordingMatcher<ITopLevelDataSetRegistratorDelegate> delegateMatcher =
                 new RecordingMatcher<ITopLevelDataSetRegistratorDelegate>();
         context.checking(new Expectations()
+        {
             {
+                atLeast(1).of(openBisService).checkSampleAccess(SESSION_TOKEN, NEW_DATA_SET_OWNER_ID);
+
+                one(dataSetRegistrator).handle(with(fileMatcher), with(SESSION_TOKEN),
+                        with(dataSetInfoMatcher), with(delegateMatcher));
+                will(new CustomAction("Notify the delegate")
                 {
-                    atLeast(1).of(openBisService).checkSampleAccess(SESSION_TOKEN, NEW_DATA_SET_OWNER_ID);
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable
+                    {
+                        List<DataSetInformation> dataSetInfos =
+                                dataSetInfoMatcher.getRecordedObjects();
+                        DataSetInformation dataSetInfo = dataSetInfos.get(0);
+                        dataSetInfo.setDataSetCode(NEW_DATA_SET_CODE);
+                        List<ITopLevelDataSetRegistratorDelegate> delegates =
+                                delegateMatcher.getRecordedObjects();
+                        delegates.get(0).didRegisterDataSets(dataSetInfos);
 
-                    one(dataSetRegistrator).handle(with(fileMatcher), with(SESSION_TOKEN),
-                            with(dataSetInfoMatcher), with(delegateMatcher));
-                    will(new CustomAction("Notify the delegate")
-                        {
-                            @Override
-                            public Object invoke(Invocation invocation) throws Throwable
-                            {
-                                List<DataSetInformation> dataSetInfos =
-                                        dataSetInfoMatcher.getRecordedObjects();
-                                DataSetInformation dataSetInfo = dataSetInfos.get(0);
-                                dataSetInfo.setDataSetCode(NEW_DATA_SET_CODE);
-                                List<ITopLevelDataSetRegistratorDelegate> delegates =
-                                        delegateMatcher.getRecordedObjects();
-                                delegates.get(0).didRegisterDataSets(dataSetInfos);
+                        return null;
+                    }
+                });
 
-                                return null;
-                            }
-                        });
+                one(dataSetRegistrator).getGlobalState();
+                will(returnValue(createGlobalState()));
 
-                    one(dataSetRegistrator).getGlobalState();
-                    will(returnValue(createGlobalState()));
-
-                    allowing(openBisService).tryGetSession(SESSION_TOKEN);
-                    will(returnValue(session));
-                    allowing(openBisService).createPermId();
-                    will(returnValue(NEW_DATA_SET_CODE));
-                }
-            });
+                allowing(openBisService).tryGetSession(SESSION_TOKEN);
+                will(returnValue(session));
+                allowing(openBisService).createPermId();
+                will(returnValue(NEW_DATA_SET_CODE));
+            }
+        });
     }
 
     @Test
@@ -713,48 +712,48 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
                         DATA_SET_CODE, DB_INSTANCE_UUID), "STANDARD", null);
         final DatasetLocationNode dataSet = new DatasetLocationNode(dataSetLocation);
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(openBisService).tryGetDataSetLocation(DATA_SET_CODE);
-                    will(returnValue(dataSet));
+                one(openBisService).tryGetDataSetLocation(DATA_SET_CODE);
+                will(returnValue(dataSet));
 
-                    one(openBisService).notifyDatasetAccess(DATA_SET_CODE);
-                }
-            });
+                one(openBisService).notifyDatasetAccess(DATA_SET_CODE);
+            }
+        });
     }
 
     private void prepareLockDataSet()
     {
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(shareIdManager).lock(DATA_SET_CODE);
-                }
-            });
+                one(shareIdManager).lock(DATA_SET_CODE);
+            }
+        });
     }
 
     private void prepareUnlockDataSet()
     {
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(shareIdManager).releaseLock(DATA_SET_CODE);
-                }
-            });
+                one(shareIdManager).releaseLock(DATA_SET_CODE);
+            }
+        });
     }
 
     private void prepareLockDataSetsByAdvisor(final String... dataSetCodes)
     {
         context.checking(new Expectations()
+        {
             {
+                for (String dataSetCode : dataSetCodes)
                 {
-                    for (String dataSetCode : dataSetCodes)
-                    {
-                        one(shareIdManager).lock(Arrays.asList(dataSetCode));
-                    }
-                    one(shareIdManager).releaseLocks();
+                    one(shareIdManager).lock(Arrays.asList(dataSetCode));
                 }
-            });
+                one(shareIdManager).releaseLocks();
+            }
+        });
     }
 
     private Properties createThreadProperties()
@@ -776,7 +775,8 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
                 new ThreadParameters(createThreadProperties(), getClass().getSimpleName()
                         + "-thread");
         return new TopLevelDataSetRegistratorGlobalState(DATA_SET_CODE, "1", storeDir,
-                rpcIncomingDir, workingDirectory, workingDirectory, openBisService, null, null,
+                rpcIncomingDir, workingDirectory, workingDirectory, workingDirectory,
+                openBisService, null, null,
                 null, null, true, params, new DataSetStorageRecoveryManager());
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 ETH Zuerich, CISD
+ * Copyright ETH 2011 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.etlserver;
 
 import java.io.File;
@@ -37,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 
 /**
  * Global state needed by top level data set registrators.
- * 
+ *
  * @author Chandrasekhar Ramakrishnan
  */
 public class TopLevelDataSetRegistratorGlobalState implements IReleasable
@@ -63,6 +62,8 @@ public class TopLevelDataSetRegistratorGlobalState implements IReleasable
     private final File preCommitDir;
 
     private final File recoveryStateDir;
+
+    private final File recoveryMarkerDir;
 
     private final IEncapsulatedOpenBISService openBisService;
 
@@ -95,6 +96,7 @@ public class TopLevelDataSetRegistratorGlobalState implements IReleasable
      */
     public TopLevelDataSetRegistratorGlobalState(String dssCode, String shareId, File storeRootDir,
             File dssInternalTempDir, File dssRegistrationLogDir, File dssRecoveryStateDir,
+            File dssRecoveryMarkerDir,
             IEncapsulatedOpenBISService openBisService, IMailClient mailClient,
             IDataSetValidator dataSetValidator, IDataSourceQueryService dataSourceQueryService,
             DynamicTransactionQueryFactory dynamicTransactionQueryFactory,
@@ -102,7 +104,7 @@ public class TopLevelDataSetRegistratorGlobalState implements IReleasable
             IDataSetStorageRecoveryManager storageRecoveryManager)
     {
         this(dssCode, shareId, storeRootDir, dssInternalTempDir, dssRegistrationLogDir,
-                dssRecoveryStateDir, openBisService, mailClient, dataSetValidator,
+                dssRecoveryStateDir, dssRecoveryMarkerDir, openBisService, mailClient, dataSetValidator,
                 dataSourceQueryService, dynamicTransactionQueryFactory,
                 notifySuccessfulRegistration, threadParameters, threadParameters
                         .useIsFinishedMarkerFile(), threadParameters.deleteUnidentified(),
@@ -113,6 +115,7 @@ public class TopLevelDataSetRegistratorGlobalState implements IReleasable
 
     public TopLevelDataSetRegistratorGlobalState(String dssCode, String shareId, File storeRootDir,
             File dssInternalTempDir, File dssRegistrationLogDir, File dssRecoveryStateDir,
+            File dssRecoveryMarkerDir,
             IEncapsulatedOpenBISService openBisService, IMailClient mailClient,
             IDataSetValidator dataSetValidator, IDataSourceQueryService dataSourceQueryService,
             DynamicTransactionQueryFactory dynamicTransactionQueryFactory,
@@ -146,16 +149,14 @@ public class TopLevelDataSetRegistratorGlobalState implements IReleasable
         this.validationScriptsOrNull = validationScriptsOrNull;
 
         this.recoveryStateDir = new File(dssRecoveryStateDir, threadParameters.getThreadName());
-        File recoveryMarkerFilesDirectory =
-                new File(getRecoveryMarkerDir(storeRootDir, shareId,
-                        threadParameters.getThreadProperties()), threadParameters.getThreadName());
+        this.recoveryMarkerDir = new File(dssRecoveryMarkerDir, threadParameters.getThreadName());
 
         this.recoveryStateDir.mkdirs();
-        recoveryMarkerFilesDirectory.mkdirs();
+        this.recoveryMarkerDir.mkdirs();
 
         this.storageRecoveryManager = storageRecoveryManager;
         this.storageRecoveryManager.setDropboxRecoveryStateDir(this.recoveryStateDir);
-        this.storageRecoveryManager.setRecoveryMarkerFilesDir(recoveryMarkerFilesDirectory);
+        this.storageRecoveryManager.setRecoveryMarkerFilesDir(this.recoveryMarkerDir);
         this.storageRecoveryManager
                 .setMaximumRertyCount(threadParameters.getMaximumRecoveryCount());
         this.storageRecoveryManager
@@ -315,40 +316,35 @@ public class TopLevelDataSetRegistratorGlobalState implements IReleasable
      */
     public static final String STAGING_DIR = "staging-dir";
 
+    public static final String DEFAULT_STAGING_DIR = "staging";
+
     public static final String PRE_STAGING_DIR = "pre-staging-dir";
-    
+
     public static final String DEFAULT_PRE_STAGING_DIR = "pre-staging";
 
     public static final String PRE_COMMIT_DIR = "pre-commit-dir";
 
-    public static final String RECOVERY_MARKER_DIR = "recovery-marker-dir";
+    public static final String DEFAULT_PRE_COMMIT_DIR = "pre-commit";
 
-    private static File getStagingDir(File storeRoot, String shareId, Properties threadProperties)
+    public static File getStagingDir(File storeRoot, String shareId, Properties threadProperties)
     {
-        return getShareLocalDir(storeRoot, shareId, threadProperties, STAGING_DIR, "staging");
+        return getShareLocalDir(storeRoot, shareId, threadProperties, STAGING_DIR, DEFAULT_STAGING_DIR);
     }
 
-    private static File getPreStagingDir(File storeRoot, String shareId, Properties threadProperties)
+    public static File getPreStagingDir(File storeRoot, String shareId, Properties threadProperties)
     {
         return getShareLocalDir(storeRoot, shareId, threadProperties, PRE_STAGING_DIR,
                 DEFAULT_PRE_STAGING_DIR);
     }
 
-    private static File getPreCommitDir(File storeRoot, String shareId, Properties threadProperties)
+    public static File getPreCommitDir(File storeRoot, String shareId, Properties threadProperties)
     {
-        return getShareLocalDir(storeRoot, shareId, threadProperties, PRE_COMMIT_DIR, "pre-commit");
-    }
-
-    private static File getRecoveryMarkerDir(File storeRoot, String shareId,
-            Properties threadProperties)
-    {
-        return getShareLocalDir(storeRoot, shareId, threadProperties, RECOVERY_MARKER_DIR,
-                "recovery-marker");
+        return getShareLocalDir(storeRoot, shareId, threadProperties, PRE_COMMIT_DIR, DEFAULT_PRE_COMMIT_DIR);
     }
 
     /**
      * Get a directory local to the share, respecting the user override, if one is specified, and defaulting to the defaultDirName.
-     * 
+     *
      * @param storeRoot The root of the DSS store
      * @param shareId The shareId the directory should be local to
      * @param threadProperties The properties where the the override might be specified

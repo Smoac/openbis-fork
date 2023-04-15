@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 ETH Zuerich, CISD
+ * Copyright ETH 2009 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.etlserver;
 
 import java.io.File;
@@ -35,7 +34,7 @@ import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import ch.ethz.sis.openbis.generic.server.dss.plugins.PreStagingCleanUpMaintenanceTask;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.DataSetRegistrationCleanUpTask;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.SessionWorkspaceCleanUpMaintenanceTask;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
@@ -96,7 +95,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 
 /**
  * The main class of the ETL server.
- * 
+ *
  * @author Bernd Rinn
  */
 public final class ETLDaemon
@@ -219,18 +218,6 @@ public final class ETLDaemon
             e.printStackTrace();
             exitHandler.exit(1);
         }
-        if (TimerUtilities.isOperational())
-        {
-            if (operationLog.isDebugEnabled())
-            {
-                operationLog.debug("Timer task interruption is operational.");
-            }
-        } else
-        {
-            operationLog.warn("Timer task interruption is not operational. "
-                    + "No clean up can be performed on extraordinary shutdown.");
-        }
-
     }
 
     private static void checkFullyAccesible(final File directory)
@@ -314,7 +301,7 @@ public final class ETLDaemon
             if (operationLog.isInfoEnabled())
             {
                 operationLog.info(String.format("Following instance directory '%s' has been "
-                        + "renamed to '%s' in store root directory '%s'.", instanceDir.getName(),
+                                + "renamed to '%s' in store root directory '%s'.", instanceDir.getName(),
                         newName.getName(), absolutePath));
             }
         }
@@ -369,14 +356,14 @@ public final class ETLDaemon
                 threadParameters.getThreadName() + " - Incoming Data Monitor";
         final Timer workerTimer = new Timer(timerThreadName);
         workerTimer.schedule(dataMonitorTask, 0L, parameters.getCheckIntervalMillis());
-        addShutdownHookForCleanup(workerTimer, pathHandler, parameters.getShutdownTimeOutMillis(),
+        addShutdownHookForCleanup(workerTimer, timerThreadName, pathHandler, parameters.getShutdownTimeOutMillis(),
                 threadParameters.getThreadName());
         return pathHandler;
     }
 
     /**
      * Utility class for initializing top level data set registrators.
-     * 
+     *
      * @author Chandrasekhar Ramakrishnan
      */
     private static class TopLevelDataSetRegistratorInititializationData
@@ -388,6 +375,8 @@ public final class ETLDaemon
         private final File dssRegistrationLogDir;
 
         private final File dssRecoveryStateDir;
+
+        private final File dssRecoveryMarkerDir;
 
         private final String dssCode;
 
@@ -403,6 +392,7 @@ public final class ETLDaemon
             dssInternalTempDir = DssPropertyParametersUtil.getDssInternalTempDir(properties);
             dssRegistrationLogDir = DssPropertyParametersUtil.getDssRegistrationLogDir(properties);
             dssRecoveryStateDir = DssPropertyParametersUtil.getDssRecoveryStateDir(properties);
+            dssRecoveryMarkerDir = DssPropertyParametersUtil.getDssRecoveryMarkerDir(properties);
             dssCode = DssPropertyParametersUtil.getDataStoreCode(properties);
             shareId = getShareId(threadParameters, storeRootDir);
         }
@@ -424,7 +414,8 @@ public final class ETLDaemon
                         initializationData.shareId, initializationData.storeRootDir,
                         initializationData.dssInternalTempDir,
                         initializationData.dssRegistrationLogDir,
-                        initializationData.dssRecoveryStateDir, openBISService, mailClient,
+                        initializationData.dssRecoveryStateDir,
+                        initializationData.dssRecoveryMarkerDir, openBISService, mailClient,
                         dataSetValidator, dataSourceQueryService,
                         new DynamicTransactionQueryFactory(), notifySuccessfulRegistration,
                         threadParameters, new DataSetStorageRecoveryManager());
@@ -433,7 +424,7 @@ public final class ETLDaemon
         {
             ITopLevelDataSetRegistrator registrator =
                     ClassUtils.create(ITopLevelDataSetRegistrator.class, threadParameters
-                            .getTopLevelDataSetRegistratorClass(TransferredDataSetHandler.class),
+                                    .getTopLevelDataSetRegistratorClass(TransferredDataSetHandler.class),
                             globalState);
 
             return registrator;
@@ -466,7 +457,8 @@ public final class ETLDaemon
                         initializationData.shareId, initializationData.storeRootDir,
                         initializationData.dssInternalTempDir,
                         initializationData.dssRegistrationLogDir,
-                        initializationData.dssRecoveryStateDir, openBISService, mailClient,
+                        initializationData.dssRecoveryStateDir,
+                        initializationData.dssRecoveryMarkerDir, openBISService, mailClient,
                         dataSetValidator, dataSourceQueryService,
                         new DynamicTransactionQueryFactory(), notifySuccessfulRegistration,
                         threadParameters, useIsFinishedMarkerFile, deleteUnidentified,
@@ -483,7 +475,7 @@ public final class ETLDaemon
         return registrator;
     }
 
-    private static String getShareId(final ThreadParameters threadParams, final File storeRoot)
+    public static String getShareId(final ThreadParameters threadParams, final File storeRoot)
     {
         File incomingDirectory = threadParams.getIncomingDataDirectory();
         Integer incomingShareIdOrNull = threadParams.getIncomingShareId();
@@ -513,82 +505,82 @@ public final class ETLDaemon
                 new QuietPeriodFileFilter(lastModificationChecker,
                         parameters.getQuietPeriodMillis(), ignoredErrorCountBeforeNotification);
         return new FileFilter()
+        {
+            @Override
+            public boolean accept(File pathname)
             {
-                @Override
-                public boolean accept(File pathname)
-                {
-                    assert pathname.getParentFile().getAbsolutePath()
-                            .equals(incomingDataDirectory.getAbsolutePath()) : "The file should come to the filter only from the incoming directory";
+                assert pathname.getParentFile().getAbsolutePath()
+                        .equals(incomingDataDirectory.getAbsolutePath()) : "The file should come to the filter only from the incoming directory";
 
-                    StoreItem storeItem = new StoreItem(pathname.getName());
-                    return quietPeriodFilter.accept(storeItem);
-                }
-            };
+                StoreItem storeItem = new StoreItem(pathname.getName());
+                return quietPeriodFilter.accept(storeItem);
+            }
+        };
     }
 
-    private static void addShutdownHookForCleanup(final Timer workerTimer,
+    private static void addShutdownHookForCleanup(final Timer workerTimer, String timerThreadName,
             final ITopLevelDataSetRegistrator mover, final long timeoutMillis,
             final String threadName)
     {
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable()
+        {
+            @Override
+            public void run()
             {
-                @Override
-                public void run()
+                try
                 {
+                    if (operationLog.isInfoEnabled())
+                    {
+                        operationLog.info("Requesting shutdown lock of thread '" + threadName
+                                + "'.");
+                    }
+                    final long startTimeMillis = System.currentTimeMillis();
+                    final boolean lockOK =
+                            mover.getRegistrationLock().tryLock(timeoutMillis,
+                                    TimeUnit.MILLISECONDS);
+                    final long timeoutLeftMillis =
+                            Math.max(timeoutMillis / 2,
+                                    timeoutMillis
+                                            - (System.currentTimeMillis() - startTimeMillis));
+                    if (lockOK == false)
+                    {
+                        operationLog.error("Failed to get lock for shutdown of thread '"
+                                + threadName + "'.");
+                    }
                     try
                     {
                         if (operationLog.isInfoEnabled())
                         {
-                            operationLog.info("Requesting shutdown lock of thread '" + threadName
-                                    + "'.");
+                            operationLog.info(String.format("Initiating shutdown sequence "
+                                            + "[maximal shutdown time: %ds].",
+                                    2 * timeoutLeftMillis / 1000));
                         }
-                        final long startTimeMillis = System.currentTimeMillis();
-                        final boolean lockOK =
-                                mover.getRegistrationLock().tryLock(timeoutMillis,
-                                        TimeUnit.MILLISECONDS);
-                        final long timeoutLeftMillis =
-                                Math.max(timeoutMillis / 2,
-                                        timeoutMillis
-                                                - (System.currentTimeMillis() - startTimeMillis));
-                        if (lockOK == false)
-                        {
-                            operationLog.error("Failed to get lock for shutdown of thread '"
-                                    + threadName + "'.");
-                        }
-                        try
-                        {
-                            if (operationLog.isInfoEnabled())
-                            {
-                                operationLog.info(String.format("Initiating shutdown sequence "
-                                        + "[maximal shutdown time: %ds].",
-                                        2 * timeoutLeftMillis / 1000));
-                            }
-                            final boolean shutdownOK =
-                                    TimerUtilities.tryShutdownTimer(workerTimer, timeoutLeftMillis);
-                            operationLog.log(shutdownOK ? Level.INFO : Level.ERROR,
-                                    "Worker thread shutdown, status="
-                                            + (shutdownOK ? "OK" : "FAILED"));
-                        } finally
-                        {
-                            if (lockOK)
-                            {
-                                mover.getRegistrationLock().unlock();
-                            }
-                        }
-                        operationLog.warn("Shutting down shredder(s)");
-                        QueueingPathRemoverService.stopAndWait(timeoutMillis);
-                    } catch (final InterruptedException ex)
-                    {
-                        throw new InterruptedExceptionUnchecked(ex);
+                        final boolean shutdownOK =
+                                TimerUtilities.tryShutdownTimer(workerTimer, timerThreadName, timeoutLeftMillis);
+                        operationLog.log(shutdownOK ? Level.INFO : Level.ERROR,
+                                "Worker thread shutdown, status="
+                                        + (shutdownOK ? "OK" : "FAILED"));
                     } finally
                     {
-                        if (operationLog.isInfoEnabled())
+                        if (lockOK)
                         {
-                            operationLog.info("Shutting down now.");
+                            mover.getRegistrationLock().unlock();
                         }
                     }
+                    operationLog.warn("Shutting down shredder(s)");
+                    QueueingPathRemoverService.stopAndWait(timeoutMillis);
+                } catch (final InterruptedException ex)
+                {
+                    throw new InterruptedExceptionUnchecked(ex);
+                } finally
+                {
+                    if (operationLog.isInfoEnabled())
+                    {
+                        operationLog.info("Shutting down now.");
+                    }
                 }
-            }, threadName + " - Shutdown Handler"));
+            }
+        }, threadName + " - Shutdown Handler"));
     }
 
     private final static HighwaterMarkDirectoryScanningHandler createDirectoryScanningHandler(
@@ -624,59 +616,59 @@ public final class ETLDaemon
             final long checkIntervalMillis)
     {
         return new IDirectoryScanningHandler()
+        {
+            private Map<String, Long> faultyItems = new HashMap<String, Long>();
+
+            @Override
+            public void init(IScannedStore scannedStore)
             {
-                private Map<String, Long> faultyItems = new HashMap<String, Long>();
-
-                @Override
-                public void init(IScannedStore scannedStore)
+                final long now = System.currentTimeMillis();
+                // Clean up item map to avoid accumulating trash.
+                final Iterator<Map.Entry<String, Long>> it = faultyItems.entrySet().iterator();
+                while (it.hasNext())
                 {
-                    final long now = System.currentTimeMillis();
-                    // Clean up item map to avoid accumulating trash.
-                    final Iterator<Map.Entry<String, Long>> it = faultyItems.entrySet().iterator();
-                    while (it.hasNext())
+                    final Map.Entry<String, Long> e = it.next();
+                    if (now - e.getValue() > 3 * checkIntervalMillis)
                     {
-                        final Map.Entry<String, Long> e = it.next();
-                        if (now - e.getValue() > 3 * checkIntervalMillis)
-                        {
-                            it.remove();
-                        }
+                        it.remove();
                     }
                 }
+            }
 
-                @Override
-                public void beforeHandle(IScannedStore scannedStore)
-                {
-                    // do nothing
-                }
+            @Override
+            public void beforeHandle(IScannedStore scannedStore)
+            {
+                // do nothing
+            }
 
-                @Override
-                public Status finishItemHandle(IScannedStore scannedStore, StoreItem storeItem)
+            @Override
+            public Status finishItemHandle(IScannedStore scannedStore, StoreItem storeItem)
+            {
+                if (scannedStore.existsOrError(storeItem))
                 {
-                    if (scannedStore.existsOrError(storeItem))
+                    if (faultyItems.containsKey(storeItem.getName()) == false)
                     {
-                        if (faultyItems.containsKey(storeItem.getName()) == false)
-                        {
-                            StringBuffer sb = new StringBuffer();
-                            sb.append("The thread configuration setting "
-                                    + ch.systemsx.cisd.etlserver.ThreadParameters.REPROCESS_FAULTY_DATASETS_NAME
-                                    + " = true.");
-                            sb.append(" File "
-                                    + storeItem
-                                    + " not written to faulty paths. It will be reprocessed until successfull or removed.");
-                            operationLog.info(sb.toString());
-                        }
-                        faultyItems.put(storeItem.getName(), System.currentTimeMillis());
+                        StringBuffer sb = new StringBuffer();
+                        sb.append("The thread configuration setting "
+                                + ch.systemsx.cisd.etlserver.ThreadParameters.REPROCESS_FAULTY_DATASETS_NAME
+                                + " = true.");
+                        sb.append(" File "
+                                + storeItem
+                                + " not written to faulty paths. It will be reprocessed until successfull or removed.");
+                        operationLog.info(sb.toString());
                     }
-                    return Status.OK;
+                    faultyItems.put(storeItem.getName(), System.currentTimeMillis());
                 }
+                return Status.OK;
+            }
 
-                @Override
-                public HandleInstruction mayHandle(IScannedStore scannedStore, StoreItem storeItem)
-                {
-                    return HandleInstruction.PROCESS;
-                }
+            @Override
+            public HandleInstruction mayHandle(IScannedStore scannedStore, StoreItem storeItem)
+            {
+                return HandleInstruction.PROCESS;
+            }
 
-            };
+        };
     }
 
     public final static void main(final String[] args)
@@ -700,9 +692,8 @@ public final class ETLDaemon
         TimingParameters.setDefault(parameters.getTimingParameters());
         if (QueueingPathRemoverService.isRunning() == false)
         {
-            QueueingPathRemoverService.start(
-                    DssPropertyParametersUtil.getStoreRootDir(parameters.getProperties()),
-                    shredderQueueFile);
+            File storeRootDir = DssPropertyParametersUtil.getStoreRootDir(parameters.getProperties());
+            QueueingPathRemoverService.start(storeRootDir, shredderQueueFile);
         }
         if (QueueingDataSetStatusUpdaterService.isRunning() == false)
         {
@@ -717,9 +708,9 @@ public final class ETLDaemon
         injectPostRegistrationMaintenanceTaskIfNecessary(maintenancePlugins);
         injectMaintenanceTask(maintenancePlugins, DeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTask.class,
                 300, "injected-delete-datasets-already-deleted-from-application-server-task");
-        injectMaintenanceTask(maintenancePlugins, PreStagingCleanUpMaintenanceTask.class,
-                PreStagingCleanUpMaintenanceTask.DEFAULT_MAINTENANCE_TASK_INTERVAL,
-                PreStagingCleanUpMaintenanceTask.DEFAULT_MAINTENANCE_TASK_NAME);
+        injectMaintenanceTask(maintenancePlugins, DataSetRegistrationCleanUpTask.class,
+                DataSetRegistrationCleanUpTask.DEFAULT_MAINTENANCE_TASK_INTERVAL,
+                DataSetRegistrationCleanUpTask.DEFAULT_MAINTENANCE_TASK_NAME);
         injectMaintenanceTask(maintenancePlugins, SessionWorkspaceCleanUpMaintenanceTask.class,
                 SessionWorkspaceCleanUpMaintenanceTask.DEFAULT_MAINTENANCE_TASK_INTERVAL,
                 SessionWorkspaceCleanUpMaintenanceTask.DEFAULT_MAINTENANCE_TASK_NAME);
@@ -814,13 +805,13 @@ public final class ETLDaemon
     public static void runForTesting(String[] args)
     {
         exitHandler = new IExitHandler()
+        {
+            @Override
+            public void exit(int exitCode)
             {
-                @Override
-                public void exit(int exitCode)
-                {
-                    throw new AssertionError("Unexpected exit: " + exitCode);
-                }
-            };
+                throw new AssertionError("Unexpected exit: " + exitCode);
+            }
+        };
         Parameters parameters = new Parameters(args, exitHandler);
         run(parameters);
     }

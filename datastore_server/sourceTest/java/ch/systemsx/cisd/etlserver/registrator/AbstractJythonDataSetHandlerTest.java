@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 ETH Zuerich, CISD
+ * Copyright ETH 2011 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.etlserver.registrator;
 
 import java.io.File;
@@ -68,7 +67,7 @@ import net.lemnik.eodsql.DynamicTransactionQuery;
 
 /**
  * Abstract superclass for tests that should run on jython data set handler code.
- * 
+ *
  * @author Chandrasekhar Ramakrishnan
  */
 public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSystemTestCase
@@ -197,7 +196,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
         stagingDirectory = new File(workingDirectory, "staging");
         prestagingDirectory = new File(workingDirectory, "pre-staging");
         precommitDirectory = new File(workingDirectory, "pre-commit");
-        recoveryMarkerDirectory = new File(workingDirectory, "recovery-marker");
+        recoveryMarkerDirectory = workingDirectory;
         share = new File(workingDirectory, Constants.DEFAULT_SHARE_ID);
         share.mkdirs();
 
@@ -249,19 +248,19 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                 new ThreadParameters(threadProperties, "jython-handler-test");
 
         DynamicTransactionQueryFactory myFactory = new DynamicTransactionQueryFactory()
+        {
+            @Override
+            public DynamicTransactionQuery createDynamicTransactionQuery(String dataSourceName)
             {
-                @Override
-                public DynamicTransactionQuery createDynamicTransactionQuery(String dataSourceName)
-                {
-                    return dynamicTransactionQuery;
-                }
-            };
+                return dynamicTransactionQuery;
+            }
+        };
 
         TopLevelDataSetRegistratorGlobalState globalState =
                 new TopLevelDataSetRegistratorGlobalState("dss",
                         Constants.DEFAULT_SHARE_ID,
                         workingDirectory, workingDirectory, workingDirectory, recoveryStateDir,
-                        openBisService, mailClient, dataSetValidator, dataSourceQueryService,
+                        workingDirectory, openBisService, mailClient, dataSetValidator, dataSourceQueryService,
                         myFactory, true, threadParameters, storageRecoveryManager);
         return globalState;
     }
@@ -271,29 +270,29 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
         storageRecoveryManager = context.mock(IDataSetStorageRecoveryManager.class);
 
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(storageRecoveryManager).setDropboxRecoveryStateDir(with(any(File.class)));
-                    one(storageRecoveryManager).setRecoveryMarkerFilesDir(
-                            new File(recoveryMarkerDirectory, "jython-handler-test"));
-                    one(storageRecoveryManager).setMaximumRertyCount(with(any(Integer.class)));
-                    one(storageRecoveryManager).setRetryPeriodInSeconds(with(any(Integer.class)));
+                one(storageRecoveryManager).setDropboxRecoveryStateDir(with(any(File.class)));
+                one(storageRecoveryManager).setRecoveryMarkerFilesDir(
+                        new File(recoveryMarkerDirectory, "jython-handler-test"));
+                one(storageRecoveryManager).setMaximumRertyCount(with(any(Integer.class)));
+                one(storageRecoveryManager).setRetryPeriodInSeconds(with(any(Integer.class)));
 
-                }
-            });
+            }
+        });
     }
 
     protected void setUpHomeDataBaseExpectations()
     {
         context.checking(new Expectations()
+        {
             {
-                {
-                    DatabaseInstance databaseInstance = new DatabaseInstance();
-                    databaseInstance.setUuid(DATABASE_INSTANCE_UUID);
-                    one(openBisService).getHomeDatabaseInstance();
-                    will(returnValue(databaseInstance));
-                }
-            });
+                DatabaseInstance databaseInstance = new DatabaseInstance();
+                databaseInstance.setUuid(DATABASE_INSTANCE_UUID);
+                one(openBisService).getHomeDatabaseInstance();
+                will(returnValue(databaseInstance));
+            }
+        });
     }
 
     /**
@@ -359,8 +358,6 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                 prestagingDirectory.getPath());
         threadProperties.setProperty(TopLevelDataSetRegistratorGlobalState.PRE_COMMIT_DIR,
                 precommitDirectory.getPath());
-        threadProperties.setProperty(TopLevelDataSetRegistratorGlobalState.RECOVERY_MARKER_DIR,
-                recoveryMarkerDirectory.getPath());
 
         threadProperties.setProperty(ThreadParameters.PROCESS_MAX_RETRY_COUNT, "0");
         threadProperties.setProperty(ThreadParameters.PROCESS_RETRY_PAUSE_IN_SEC, "0");
@@ -434,67 +431,67 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
             final File rootDir = parameters.getRootDir();
             dataSetInfoString = parameters.getDataSetInformation().toString();
             return new IStorageProcessorTransaction()
+            {
+
+                private static final long serialVersionUID = 1L;
+
+                private File storedFolder = rootDir;
+
+                @Override
+                public void storeData(ITypeExtractor typeExtractor, IMailClient mailClient,
+                        File incomingDataSetFile)
                 {
 
-                    private static final long serialVersionUID = 1L;
-
-                    private File storedFolder = rootDir;
-
-                    @Override
-                    public void storeData(ITypeExtractor typeExtractor, IMailClient mailClient,
-                            File incomingDataSetFile)
+                    incomingDirs.add(incomingDataSetFile);
+                    rootDirs.add(rootDir);
+                    try
                     {
-
-                        incomingDirs.add(incomingDataSetFile);
-                        rootDirs.add(rootDir);
-                        try
+                        if (incomingDataSetFile.isDirectory())
                         {
-                            if (incomingDataSetFile.isDirectory())
-                            {
-                                FileUtils.moveDirectoryToDirectory(incomingDataSetFile, rootDir,
-                                        true);
-                            } else
-                            {
-                                FileUtils.moveFileToDirectory(incomingDataSetFile, rootDir, true);
-                            }
-                        } catch (IOException ex)
+                            FileUtils.moveDirectoryToDirectory(incomingDataSetFile, rootDir,
+                                    true);
+                        } else
                         {
-                            throw new IOExceptionUnchecked(ex);
+                            FileUtils.moveFileToDirectory(incomingDataSetFile, rootDir, true);
                         }
-                        storedFolder = rootDir;
-                    }
-
-                    @Override
-                    public UnstoreDataAction rollback(Throwable exception)
+                    } catch (IOException ex)
                     {
-                        FileOperations.getInstance().deleteRecursively(storedFolder);
-                        return null;
+                        throw new IOExceptionUnchecked(ex);
                     }
+                    storedFolder = rootDir;
+                }
 
-                    @Override
-                    public File getStoredDataDirectory()
-                    {
-                        return storedFolder;
-                    }
+                @Override
+                public UnstoreDataAction rollback(Throwable exception)
+                {
+                    FileOperations.getInstance().deleteRecursively(storedFolder);
+                    return null;
+                }
 
-                    @Override
-                    public void setStoredDataDirectory(File folder)
-                    {
-                        storedFolder = folder;
-                    }
+                @Override
+                public File getStoredDataDirectory()
+                {
+                    return storedFolder;
+                }
 
-                    @Override
-                    public void commit()
-                    {
-                        calledCommitCount++;
-                    }
+                @Override
+                public void setStoredDataDirectory(File folder)
+                {
+                    storedFolder = folder;
+                }
 
-                    @Override
-                    public File tryGetProprietaryData()
-                    {
-                        return null;
-                    }
-                };
+                @Override
+                public void commit()
+                {
+                    calledCommitCount++;
+                }
+
+                @Override
+                public File tryGetProprietaryData()
+                {
+                    return null;
+                }
+            };
         }
     }
 
