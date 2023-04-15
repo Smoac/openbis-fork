@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 ETH Zuerich, CISD
+ * Copyright ETH 2011 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.etlserver.registrator.v2;
 
 import static ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.STORAGE_PROCESSOR_KEY;
 import static ch.systemsx.cisd.etlserver.ThreadParameters.ON_ERROR_DECISION_KEY;
+import static ch.systemsx.cisd.etlserver.registrator.api.v2.JythonDataSetRegistrationServiceV2.MAIL_CONTACT_ADDRESSES_KEY;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Stream;
 
 import org.apache.log4j.Logger;
 
@@ -45,6 +47,7 @@ import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.filesystem.IImmutableCopier;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.properties.ExtendedProperties;
 import ch.systemsx.cisd.common.reflection.ClassUtils;
 import ch.systemsx.cisd.etlserver.AbstractTopLevelDataSetRegistrator;
@@ -73,7 +76,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 
 /**
  * Abstract superclass for data set handlers that manage the entire data set registration process themselves.
- * 
+ *
  * @author Chandrasekhar Ramakrishnan
  */
 public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends DataSetInformation>
@@ -87,7 +90,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
 
     /**
      * Object that contains the global state available for data set handlers.
-     * 
+     *
      * @author Chandrasekhar Ramakrishnan
      */
     public static class OmniscientTopLevelDataSetRegistratorState
@@ -191,7 +194,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
      * <p>
      * If registration succeeded, the originalInboxFile is deleted. If registration failed, the hardlink copy is deleted, leaving the
      * orignalInboxFile.
-     * 
+     *
      * @author Chandrasekhar Ramakrishnan
      */
     public static class PostRegistrationCleanUpAction extends
@@ -201,12 +204,15 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
 
         private final IDelegatedActionWithResult<Boolean> wrappedAction;
 
+        private final TopLevelDataSetRegistratorGlobalState globalState;
+
         public PostRegistrationCleanUpAction(DataSetFile incoming,
-                IDelegatedActionWithResult<Boolean> wrappedAction)
+                IDelegatedActionWithResult<Boolean> wrappedAction, final TopLevelDataSetRegistratorGlobalState globalState)
         {
             super(true);
             this.incoming = incoming;
             this.wrappedAction = wrappedAction;
+            this.globalState = globalState;
         }
 
         @Override
@@ -272,7 +278,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
 
     /**
      * Constructor.
-     * 
+     *
      * @param globalState
      */
     protected AbstractOmniscientTopLevelDataSetRegistrator(
@@ -369,18 +375,18 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         if (getGlobalState().isUseIsFinishedMarkerFile())
         {
             markerFileCleanupAction = new IDelegatedActionWithResult<Boolean>()
+            {
+                @Override
+                public Boolean execute(boolean didOperationSucceed)
                 {
-                    @Override
-                    public Boolean execute(boolean didOperationSucceed)
+                    if (hasRecoveryMarkerFile(incomingDataSetFile))
                     {
-                        if (hasRecoveryMarkerFile(incomingDataSetFile))
-                        {
-                            return true;
-                        }
-                        return state.getMarkerFileUtility().deleteAndLogIsFinishedMarkerFile(
-                                incomingDataSetFileOrIsFinishedFile);
+                        return true;
                     }
-                };
+                    return didOperationSucceed ? state.getMarkerFileUtility().deleteAndLogIsFinishedMarkerFile(
+                            incomingDataSetFileOrIsFinishedFile) : true;
+                }
+            };
         } else
         {
             markerFileCleanupAction = new DoNothingDelegatedAction();
@@ -412,26 +418,30 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
 
             // For cleanup we use the postRegistrationCleanUpAction wich clears the prestaging area.
             PostRegistrationCleanUpAction cleanupAction =
-                    new PostRegistrationCleanUpAction(dsf, markerFileCleanupAction);
+                    new PostRegistrationCleanUpAction(dsf, markerFileCleanupAction, getGlobalState());
             handle(dsf, null, null,
                     new NoOpDelegate(DataSetRegistrationPreStagingBehavior.USE_PRESTAGING),
                     cleanupAction);
         }
     }
-    
+
     private void checkAccessRightsRecursively(File file)
     {
         if (file.canRead() == false)
         {
-            throw CheckedExceptionTunnel.wrapIfNecessary(new IOException(
-                    "No reading rights for data set file '" + file.getAbsolutePath() + "'."));
+            final String message = "No reading rights for data set file '" + file.getAbsolutePath() + "'.";
+            getGlobalState().getMailClient().sendEmailMessage("Dataset Registration Error",
+                    message, null, null, getEmailAddresses());
+            throw CheckedExceptionTunnel.wrapIfNecessary(new IOException(message));
         }
         if (file.isDirectory())
         {
             if (file.canWrite() == false)
             {
-                throw CheckedExceptionTunnel.wrapIfNecessary(new IOException(
-                        "No writing rights for data set folder '" + file.getAbsolutePath() + "'."));
+                final String message = "No writing rights for data set folder '" + file.getAbsolutePath() + "'.";
+                getGlobalState().getMailClient().sendEmailMessage("Dataset Registration Error",
+                        message, null, null, getEmailAddresses());
+                throw CheckedExceptionTunnel.wrapIfNecessary(new IOException(message));
             }
             File[] files = file.listFiles();
             for (File child : files)
@@ -441,9 +451,17 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         }
     }
 
+    private EMailAddress[] getEmailAddresses()
+    {
+        final Stream<String> contactAddressEmailStream = Arrays.stream(
+                getGlobalState().getThreadParameters().getThreadProperties().getProperty(MAIL_CONTACT_ADDRESSES_KEY)
+                        .split("[,;]"));
+        return contactAddressEmailStream.map(EMailAddress::new).toArray(EMailAddress[]::new);
+    }
+
     /**
      * Make a copy of the file to the prestaging directory.
-     * 
+     *
      * @return The file in the prestaging directory or null if a copy could not be made.
      */
     private File tryCopyIncomingFileToPreStaging(File incomingDataSetFile)
@@ -733,7 +751,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
 
     /**
      * Create the data set registration service.
-     * 
+     *
      * @param incomingDataSetFile
      * @param callerDataSetInformationOrNull
      */
@@ -772,7 +790,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
 
     /**
      * For subclasses to implement.
-     * 
+     *
      * @throws Throwable
      */
     protected abstract void handleDataSet(DataSetFile dataSetFile,

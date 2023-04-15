@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 ETH Zuerich, CISD
+ * Copyright ETH 2012 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.etlserver.registrator.v2;
 
 import java.io.File;
@@ -292,70 +291,70 @@ public abstract class AbstractProgrammableTopLevelDataSetHandler<T extends DataS
         logger.log("Starting recovery at checkpoint " + recoveryInfo.getRecoveryStage());
 
         IRecoveryCleanupDelegate recoveryMarkerFileCleanupAction = new IRecoveryCleanupDelegate()
+        {
+            @Override
+            public void execute(boolean shouldStopRecovery, boolean shouldIncreaseTryCount)
             {
-                @Override
-                public void execute(boolean shouldStopRecovery, boolean shouldIncreaseTryCount)
+                if (false == shouldStopRecovery
+                        && recoveryInfo.getTryCount() >= state.getGlobalState()
+                        .getStorageRecoveryManager().getMaximumRertyCount())
                 {
-                    if (false == shouldStopRecovery
-                            && recoveryInfo.getTryCount() >= state.getGlobalState()
-                                    .getStorageRecoveryManager().getMaximumRertyCount())
+                    notificationLog.error("The dataset "
+                            + recoveryState.getIncomingDataSetFile().getRealIncomingFile()
+                            + " has failed to register. Giving up.");
+                    deleteMarkerFile();
+
+                    File errorRecoveryMarkerFile =
+                            new File(recoveryMarkerFile.getParent(),
+                                    recoveryMarkerFile.getName() + ".ERROR");
+                    state.getFileOperations().move(recoveryMarkerFile, errorRecoveryMarkerFile);
+
+                    logger.info(operationLog, "Recovery failed. Giving up.");
+                    logger.registerFailure();
+
+                } else
+                {
+                    if (shouldStopRecovery)
                     {
-                        notificationLog.error("The dataset "
-                                + recoveryState.getIncomingDataSetFile().getRealIncomingFile()
-                                + " has failed to register. Giving up.");
                         deleteMarkerFile();
 
-                        File errorRecoveryMarkerFile =
-                                new File(recoveryMarkerFile.getParent(),
-                                        recoveryMarkerFile.getName() + ".ERROR");
-                        state.getFileOperations().move(recoveryMarkerFile, errorRecoveryMarkerFile);
-
-                        logger.info(operationLog, "Recovery failed. Giving up.");
-                        logger.registerFailure();
-
+                        recoveryMarkerFile.delete();
+                        recoveryFile.delete();
                     } else
                     {
-                        if (shouldStopRecovery)
+                        // this replaces the recovery file with a new one with increased
+                        // count
+                        // FIXME: is this safe operation (how to assure, that it won't
+                        // corrupt the recoveryMarkerFile?)
+                        DataSetStorageRecoveryInfo rInfo =
+                                state.getGlobalState().getStorageRecoveryManager()
+                                        .getRecoveryFileFromMarker(recoveryMarkerFile);
+                        if (shouldIncreaseTryCount)
                         {
-                            deleteMarkerFile();
-
-                            recoveryMarkerFile.delete();
-                            recoveryFile.delete();
-                        } else
-                        {
-                            // this replaces the recovery file with a new one with increased
-                            // count
-                            // FIXME: is this safe operation (how to assure, that it won't
-                            // corrupt the recoveryMarkerFile?)
-                            DataSetStorageRecoveryInfo rInfo =
-                                    state.getGlobalState().getStorageRecoveryManager()
-                                            .getRecoveryFileFromMarker(recoveryMarkerFile);
-                            if (shouldIncreaseTryCount)
-                            {
-                                rInfo.increaseTryCount();
-                            }
-                            rInfo.setLastTry(new Date());
-                            rInfo.writeToFile(recoveryMarkerFile);
+                            rInfo.increaseTryCount();
                         }
+                        rInfo.setLastTry(new Date());
+                        rInfo.writeToFile(recoveryMarkerFile);
                     }
                 }
+            }
 
-                private void deleteMarkerFile()
+            private void deleteMarkerFile()
+            {
+                File incomingMarkerFile =
+                        MarkerFileUtility.getMarkerFileFromIncoming(recoveryState
+                                .getIncomingDataSetFile().getRealIncomingFile());
+                if (incomingMarkerFile.exists())
                 {
-                    File incomingMarkerFile =
-                            MarkerFileUtility.getMarkerFileFromIncoming(recoveryState
-                                    .getIncomingDataSetFile().getRealIncomingFile());
-                    if (incomingMarkerFile.exists())
-                    {
 
-                        incomingMarkerFile.delete();
-                    }
+                    incomingMarkerFile.delete();
                 }
-            };
+            }
+        };
 
         PostRegistrationCleanUpAction cleanupAction =
                 new PostRegistrationCleanUpAction(recoveryState.getIncomingDataSetFile(),
-                        new DoNothingDelegatedAction());
+                        new DoNothingDelegatedAction(), getGlobalState());
 
         handleRecoveryState(recoveryInfo.getRecoveryStage(), recoveryState, cleanupAction,
                 recoveryMarkerFileCleanupAction);
@@ -390,22 +389,22 @@ public abstract class AbstractProgrammableTopLevelDataSetHandler<T extends DataS
         boolean shouldIncreaseTryCount = true;
 
         IRollbackDelegate<T> rollbackDelegate = new IRollbackDelegate<T>()
+        {
+            @Override
+            public void didRollbackStorageAlgorithmRunner(
+                    DataSetStorageAlgorithmRunner<T> algorithm, Throwable ex,
+                    ErrorType errorType)
             {
-                @Override
-                public void didRollbackStorageAlgorithmRunner(
-                        DataSetStorageAlgorithmRunner<T> algorithm, Throwable ex,
-                        ErrorType errorType)
-                {
-                    // do nothing. recovery takes care of everything
-                }
+                // do nothing. recovery takes care of everything
+            }
 
-                @Override
-                public void markReadyForRecovery(DataSetStorageAlgorithmRunner<T> algorithm,
-                        Throwable ex)
-                {
-                    // don't have to do nothing.
-                }
-            };
+            @Override
+            public void markReadyForRecovery(DataSetStorageAlgorithmRunner<T> algorithm,
+                    Throwable ex)
+            {
+                // don't have to do nothing.
+            }
+        };
 
         // hookAdaptor
         RecoveryHookAdaptor hookAdaptor =
@@ -414,15 +413,15 @@ public abstract class AbstractProgrammableTopLevelDataSetHandler<T extends DataS
 
         DataSetRegistrationContext.IHolder registrationContextHolder =
                 new DataSetRegistrationContext.IHolder()
-                    {
+                {
 
-                        @Override
-                        public DataSetRegistrationContext getRegistrationContext()
-                        {
-                            return new DataSetRegistrationContext(recoveryState.getPersistentMap(),
-                                    state.getGlobalState(), null);
-                        }
-                    };
+                    @Override
+                    public DataSetRegistrationContext getRegistrationContext()
+                    {
+                        return new DataSetRegistrationContext(recoveryState.getPersistentMap(),
+                                state.getGlobalState(), null);
+                    }
+                };
 
         ArrayList<DataSetStorageAlgorithm<T>> dataSetStorageAlgorithms =
                 recoveryState.getDataSetStorageAlgorithms(state);
@@ -573,13 +572,13 @@ public abstract class AbstractProgrammableTopLevelDataSetHandler<T extends DataS
     {
         return (IDataSetRegistrationDetailsFactory<T>) new ProgrammableDropboxObjectFactory<DataSetInformation>(
                 getRegistratorState(), userProvidedDataSetInformationOrNull)
+        {
+            @Override
+            protected DataSetInformation createDataSetInformation()
             {
-                @Override
-                protected DataSetInformation createDataSetInformation()
-                {
-                    return new DataSetInformation();
-                }
-            };
+                return new DataSetInformation();
+            }
+        };
     }
 
     /**
