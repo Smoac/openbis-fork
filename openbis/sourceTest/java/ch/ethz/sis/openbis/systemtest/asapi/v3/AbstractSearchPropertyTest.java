@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 ETH Zuerich, SIS
+ * Copyright ETH 2020 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,32 +13,61 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SearchCriteriaTranslator.DATE_FORMAT;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SearchCriteriaTranslator.DATE_HOURS_MINUTES_SECONDS_FORMAT;
 import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition.utils.TranslatorUtils.parseDate;
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
 
 import java.text.DateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.*;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.create.MaterialCreation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.VocabularyCreation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.VocabularyTermCreation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractEntitySearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.BooleanFieldSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.ControlledVocabularyPropertySearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.DateFieldSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.NumberFieldSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.StringFieldSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.create.MaterialCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.id.MaterialPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.PropertyAssignmentSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.search.PropertyTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.VocabularyCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.VocabularyTermCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
 import ch.ethz.sis.openbis.systemtest.asapi.v3.util.Operator;
 
 /**
@@ -46,6 +75,7 @@ import ch.ethz.sis.openbis.systemtest.asapi.v3.util.Operator;
  */
 public abstract class AbstractSearchPropertyTest extends AbstractTest
 {
+
     @DataProvider
     protected Object[][] withPropertyExamples()
     {
@@ -772,7 +802,7 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
     }
 
     @DataProvider
-    protected Object[][] withControlledVocabularyPropertyExamples()
+    protected Object[][] withControlledVocabularyAsStringPropertyExamples()
     {
         return new Object[][] {
                 { "WINTER", "== WINTER", true },
@@ -798,27 +828,14 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
         };
     }
 
-    @Test(dataProvider = "withControlledVocabularyPropertyExamples")
-    public void testWithControlledVocabularyProperty(final String value, final String queryString, final boolean found)
+    @Test(dataProvider = "withControlledVocabularyAsStringPropertyExamples")
+    public void testWithControlledVocabularyAsStringProperty(final String value, final String queryString,
+            final boolean found)
     {
         // Given
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final VocabularyTermCreation vocabularyTermCreation1 = new VocabularyTermCreation();
-        vocabularyTermCreation1.setCode("WINTER");
-        final VocabularyTermCreation vocabularyTermCreation2 = new VocabularyTermCreation();
-        vocabularyTermCreation2.setCode("SPRING");
-        final VocabularyTermCreation vocabularyTermCreation3 = new VocabularyTermCreation();
-        vocabularyTermCreation3.setCode("SUMMER");
-        final VocabularyTermCreation vocabularyTermCreation4 = new VocabularyTermCreation();
-        vocabularyTermCreation4.setCode("AUTUMN");
-
-        final VocabularyCreation vocabularyCreation = new VocabularyCreation();
-        vocabularyCreation.setCode("SEASONS");
-        vocabularyCreation.setTerms(Arrays.asList(vocabularyTermCreation1, vocabularyTermCreation2,
-                vocabularyTermCreation3, vocabularyTermCreation4));
-        final VocabularyPermId vocabularyPermId =
-                v3api.createVocabularies(sessionToken, Collections.singletonList(vocabularyCreation)).get(0);
+        final VocabularyPermId vocabularyPermId = createControlledVocabulary(sessionToken, "SEASONS");
 
         final PropertyTypePermId propertyTypeId = createAPropertyType(sessionToken, DataType.CONTROLLEDVOCABULARY,
                 vocabularyPermId);
@@ -837,6 +854,60 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
         }
     }
 
+    @DataProvider
+    protected Object[][] withControlledVocabularyPropertyExamples()
+    {
+        return new Object[][] {
+                { "WINTER", "== WINTER", true },
+                { "WINTER", "== SUMMER", false },
+        };
+    }
+
+    @Test(dataProvider = "withControlledVocabularyPropertyExamples")
+    public void testWithControlledVocabularyPropertyThatEquals(final String value, final String queryString,
+            final boolean found)
+    {
+        // Given
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        final String vocabularyCode = "SEASONS";
+        final String propertyTypeCode = "SEASONS_VOCABULARY";
+        final VocabularyPermId vocabularyPermId = createControlledVocabulary(sessionToken, vocabularyCode);
+
+        final PropertyTypePermId propertyTypeId = createAPropertyType(sessionToken, DataType.CONTROLLEDVOCABULARY,
+                vocabularyPermId, propertyTypeCode);
+        final ObjectPermId entityPermId = createEntity(sessionToken, propertyTypeId, value);
+        final AbstractEntitySearchCriteria<?> searchCriteria = createSearchCriteria();
+        new VocabularyQueryInjector(searchCriteria, propertyTypeCode).buildCriteria(queryString);
+
+        // When
+        final List<? extends IPermIdHolder> entities = search(sessionToken, searchCriteria);
+
+        // Then
+        assertEquals(entities.size(), found ? 1 : 0);
+        if (found)
+        {
+            assertEquals(entities.get(0).getPermId().toString(), entityPermId.getPermId());
+        }
+    }
+
+    private VocabularyPermId createControlledVocabulary(final String sessionToken, final String vocabularyCode)
+    {
+        final VocabularyTermCreation vocabularyTermCreation1 = new VocabularyTermCreation();
+        vocabularyTermCreation1.setCode("WINTER");
+        final VocabularyTermCreation vocabularyTermCreation2 = new VocabularyTermCreation();
+        vocabularyTermCreation2.setCode("SPRING");
+        final VocabularyTermCreation vocabularyTermCreation3 = new VocabularyTermCreation();
+        vocabularyTermCreation3.setCode("SUMMER");
+        final VocabularyTermCreation vocabularyTermCreation4 = new VocabularyTermCreation();
+        vocabularyTermCreation4.setCode("AUTUMN");
+
+        final VocabularyCreation vocabularyCreation = new VocabularyCreation();
+        vocabularyCreation.setCode(vocabularyCode);
+        vocabularyCreation.setTerms(Arrays.asList(vocabularyTermCreation1, vocabularyTermCreation2,
+                vocabularyTermCreation3, vocabularyTermCreation4));
+        return v3api.createVocabularies(sessionToken, Collections.singletonList(vocabularyCreation)).get(0);
+    }
+
     @Test
     public void testSearchWithPropertyMatchingSampleProperty()
     {
@@ -851,6 +922,160 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
 
         final List<? extends IPermIdHolder> entities = search(sessionToken, searchCriteria);
         assertEquals(entities.size(), 1);
+    }
+
+    @Test
+    public void testSearchWithSampleProperty()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final String samplePropertyCode1 = "SAMPLE1";
+        final String samplePropertyCode2 = "SAMPLE2";
+        final String samplePropertyCode3 = "SAMPLE3";
+
+        final EntityTypePermId propertySampleType1 = createASampleType(sessionToken, false);
+        final PropertyTypePermId samplePropertyType1 = createASamplePropertyType(sessionToken, propertySampleType1,
+                samplePropertyCode1);
+        final PropertyTypePermId samplePropertyType2 = createASamplePropertyType(sessionToken, propertySampleType1,
+                samplePropertyCode2);
+
+        final EntityTypePermId propertySampleType2 = createASampleType(sessionToken, false);
+        final PropertyTypePermId samplePropertyType3= createASamplePropertyType(sessionToken, propertySampleType2,
+                samplePropertyCode3);
+
+        final EntityTypePermId searchTest1EntityType = createEntityType(sessionToken, null, samplePropertyType1,
+                samplePropertyType2);
+        final SamplePermId sample1 = createSample(sessionToken, samplePropertyCode1, propertySampleType1, Map.of());
+        final SamplePermId sample2 = createSample(sessionToken, samplePropertyCode2, propertySampleType1, Map.of());
+
+        final ObjectPermId entity1 = createEntity(sessionToken, "Entity1", searchTest1EntityType,
+                new HashMap<>(Map.of(samplePropertyCode1, sample1.getPermId(),
+                        samplePropertyCode2, sample2.getPermId())));
+
+        final EntityTypePermId searchTest2EntityType = createEntityType(sessionToken, null, samplePropertyType3);
+        final SamplePermId sample3 = createSample(sessionToken, samplePropertyCode3, propertySampleType2, Map.of());
+
+        final ObjectPermId entity2 = createEntity(sessionToken, "Entity2", searchTest2EntityType,
+                new HashMap<>(Map.of(samplePropertyCode3, sample3.getPermId())));
+
+        try
+        {
+            final AbstractEntitySearchCriteria<?> searchCriteria1 = createSearchCriteria();
+            searchCriteria1.withSampleProperty(samplePropertyType1.getPermId()).thatEquals(sample1.getPermId());
+            final List<? extends IPermIdHolder> entities1 = search(sessionToken, searchCriteria1);
+            assertEquals(entities1.size(), 1);
+            assertEquals(entities1.get(0).getPermId(), entity1);
+
+            final AbstractEntitySearchCriteria<?> searchCriteria2 = createSearchCriteria();
+            searchCriteria2.withSampleProperty(samplePropertyType2.getPermId()).thatEquals(sample1.getPermId());
+            final List<? extends IPermIdHolder> entities2 = search(sessionToken, searchCriteria2);
+            assertEquals(entities2.size(), 0);
+
+            final AbstractEntitySearchCriteria<?> searchCriteria3 = createSearchCriteria();
+            searchCriteria3.withSampleProperty(samplePropertyType3.getPermId());
+            final List<? extends IPermIdHolder> entities3 = search(sessionToken, searchCriteria3);
+            assertEquals(entities3.size(), 1);
+            assertEquals(entities3.get(0).getPermId(), entity2);
+
+            final AbstractEntitySearchCriteria<?> searchCriteria4 = createSearchCriteria();
+            searchCriteria4.withSampleProperty("WHATEVER").thatEquals(sample3.getPermId());
+            final List<? extends IPermIdHolder> entities4 = search(sessionToken, searchCriteria4);
+            assertEquals(entities4.size(), 0);
+        } finally
+        {
+            final IDeletionId entitiesDeletion = deleteEntities(sessionToken, entity1, entity2);
+            final IDeletionId samplesDeletion = deleteSamples(sessionToken, sample1, sample2, sample3);
+            v3api.confirmDeletions(sessionToken, List.of(entitiesDeletion, samplesDeletion));
+            deleteEntities(sessionToken, entity1, entity2);
+
+            deleteEntityTypes(sessionToken, searchTest1EntityType, searchTest2EntityType);
+            deletePropertyTypes(sessionToken, samplePropertyType1, samplePropertyType2);
+            deleteSampleTypes(sessionToken, propertySampleType1);
+        }
+    }
+
+    protected SamplePermId createSample(final String sessionToken, final String code,
+            final EntityTypePermId entityTypeId, final Map<String, String> propertyMap)
+    {
+        final SampleCreation sampleCreation = new SampleCreation();
+        sampleCreation.setCode(code);
+        sampleCreation.setTypeId(entityTypeId);
+        sampleCreation.setSpaceId(new SpacePermId("CISD"));
+        sampleCreation.setProperties(propertyMap);
+        return v3api.createSamples(sessionToken, List.of(sampleCreation)).get(0);
+    }
+
+    protected IDeletionId deleteSamples(final String sessionToken, final ISampleId... entityIds)
+    {
+        final SampleDeletionOptions deletionOptions = new SampleDeletionOptions();
+        deletionOptions.setReason("Test");
+        return v3api.deleteSamples(sessionToken, List.of(entityIds), deletionOptions);
+    }
+
+    @Test
+    public void testSearchWithControlledVocabularyProperty()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final String term1 = "TERM1";
+        final String term2 = "TERM2";
+        final String term3 = "TERM3";
+        final VocabularyPermId vocabulary1 = createVocabulary(sessionToken, "TERMS1", term1, term2, term3);
+        final VocabularyPermId vocabulary2 = createVocabulary(sessionToken, "TERMS2", term1, term2, term3);
+
+        final EntityTypePermId propertySampleType = createASampleType(sessionToken, false);
+        final PropertyTypePermId vocabularyPropertyType1 = createAVocabularyPropertyType(sessionToken,
+                vocabulary1, "VOCABULARY1");
+        final PropertyTypePermId vocabularyPropertyType2 = createAVocabularyPropertyType(sessionToken,
+                vocabulary1, "VOCABULARY2");
+        final PropertyTypePermId vocabularyPropertyType3 = createAVocabularyPropertyType(sessionToken,
+                vocabulary2, "VOCABULARY3");
+
+        final EntityTypePermId searchTest1EntityTypeId = createEntityType(sessionToken, "ET1",
+                vocabularyPropertyType1, vocabularyPropertyType2);
+
+        final ObjectPermId entity1 = createEntity(sessionToken, "Entity1", searchTest1EntityTypeId,
+                new HashMap<>(Map.of(vocabularyPropertyType1.getPermId(), term1,
+                        vocabularyPropertyType2.getPermId(), term2)));
+
+        final EntityTypePermId searchTest2EntityTypeId = createEntityType(sessionToken, "ET2",
+                vocabularyPropertyType3);
+        final ObjectPermId entity2 = createEntity(sessionToken, "Entity2", searchTest2EntityTypeId,
+                new HashMap<>(Map.of(vocabularyPropertyType3.getPermId(), term1)));
+
+        try
+        {
+            final AbstractEntitySearchCriteria<?> searchCriteria1 = createSearchCriteria();
+            searchCriteria1.withVocabularyProperty(vocabularyPropertyType1.getPermId()).thatEquals(term1);
+
+            final List<? extends IPermIdHolder> entities1 = search(sessionToken, searchCriteria1);
+            assertEquals(entities1.size(), 1);
+            assertEquals(entities1.get(0).getPermId(), entity1);
+
+            final AbstractEntitySearchCriteria<?> searchCriteria2 = createSearchCriteria();
+            searchCriteria2.withVocabularyProperty(vocabularyPropertyType3.getPermId()).thatEquals(term2);
+            final List<? extends IPermIdHolder> entities2 = search(sessionToken, searchCriteria2);
+            assertEquals(entities2.size(), 0);
+
+            final AbstractEntitySearchCriteria<?> searchCriteria3 = createSearchCriteria();
+            searchCriteria3.withVocabularyProperty(vocabularyPropertyType3.getPermId());
+            final List<? extends IPermIdHolder> entities3 = search(sessionToken, searchCriteria3);
+            assertEquals(entities3.size(), 1);
+            assertEquals(entities3.get(0).getPermId(), entity2);
+
+            final AbstractEntitySearchCriteria<?> searchCriteria4 = createSearchCriteria();
+            searchCriteria4.withVocabularyProperty("WHATEVER").thatEquals(term1);
+
+            final List<? extends IPermIdHolder> entities4 = search(sessionToken, searchCriteria4);
+            assertEquals(entities4.size(), 0);
+        } finally
+        {
+            final IDeletionId entitiesDeletion = deleteEntities(sessionToken, entity1, entity2);
+            v3api.confirmDeletions(sessionToken, List.of(entitiesDeletion));
+            deleteEntityTypes(sessionToken, searchTest1EntityTypeId, searchTest2EntityTypeId);
+            deletePropertyTypes(sessionToken, vocabularyPropertyType1, vocabularyPropertyType2);
+            deleteSampleTypes(sessionToken, propertySampleType);
+        }
     }
 
     @Test
@@ -1094,14 +1319,21 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
 
     private ObjectPermId createEntity(String sessionToken, PropertyTypePermId propertyTypeId, String value)
     {
-        EntityTypePermId entityTypeId = createEntityType(sessionToken, propertyTypeId);
+        EntityTypePermId entityTypeId = createEntityType(sessionToken, null, propertyTypeId);
         return createEntity(sessionToken, "ENTITY_TO_BE_DELETED", entityTypeId, propertyTypeId.getPermId(), value);
     }
 
-    protected abstract EntityTypePermId createEntityType(String sessionToken, PropertyTypePermId propertyTypeId);
+    protected abstract EntityTypePermId createEntityType(String sessionToken, final String code, PropertyTypePermId... propertyTypeIds);
+
+    protected abstract void deleteEntityTypes(String sessionToken, IEntityTypeId... entityTypeIds);
+
+    protected abstract ObjectPermId createEntity(String sessionToken, String code, EntityTypePermId entityTypeId,
+            Map<String, String> propertyMap);
 
     protected abstract ObjectPermId createEntity(String sessionToken, String code, EntityTypePermId entityTypeId,
             String propertyType, String value);
+
+    protected abstract IDeletionId deleteEntities(String sessionToken, IObjectId... entityIds);
 
     protected abstract AbstractEntitySearchCriteria<?> createSearchCriteria();
 
@@ -1384,7 +1616,7 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
         @Override
         protected void injectQuery(Operator operator, String operand)
         {
-            Number number = new Double(operand);
+            Number number = Double.valueOf(operand);
             NumberFieldSearchCriteria criteria = propertyTypeId != null
                     ? searchCriteria.withNumberProperty(propertyTypeId.getPermId())
                     : searchCriteria.withAnyNumberProperty();
@@ -1435,4 +1667,32 @@ public abstract class AbstractSearchPropertyTest extends AbstractTest
             }
         }
     }
+
+    static final class VocabularyQueryInjector extends AbstractQueryInjector
+    {
+
+        private final String vocabularyCode;
+
+        VocabularyQueryInjector(final AbstractEntitySearchCriteria<?> searchCriteria,
+                final String vocabularyCode)
+        {
+            super(searchCriteria, null);
+            this.vocabularyCode = vocabularyCode;
+        }
+
+        public void injectQuery(final Operator operator, final String operand)
+        {
+            final ControlledVocabularyPropertySearchCriteria criteria =
+                    searchCriteria.withVocabularyProperty(vocabularyCode);
+            if (operator == Operator.EQUAL)
+            {
+                criteria.thatEquals(operand);
+            } else
+            {
+                throw new IllegalArgumentException("Unsupported operator " + operator);
+            }
+        }
+
+    }
+
 }

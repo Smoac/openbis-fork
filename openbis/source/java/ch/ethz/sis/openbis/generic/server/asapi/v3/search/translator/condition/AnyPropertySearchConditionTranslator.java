@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 ETH Zuerich, CISD
+ * Copyright ETH 2019 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition;
 
 import java.util.List;
@@ -39,7 +38,8 @@ public class AnyPropertySearchConditionTranslator implements IConditionTranslato
         if (criterion.getFieldType() == SearchFieldType.ANY_PROPERTY)
         {
             return TranslatorUtils.getPropertyJoinInformationMap(tableMapper, aliasFactory);
-        } else {
+        } else
+        {
             throw new IllegalArgumentException();
         }
     }

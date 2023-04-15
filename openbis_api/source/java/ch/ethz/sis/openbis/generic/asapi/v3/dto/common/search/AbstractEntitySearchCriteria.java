@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, Scientific IT Services
+ * Copyright ETH 2015 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.ModifierSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.search.RegistratorSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.search.TagSearchCriteria;
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author pkupczyk
@@ -109,6 +107,16 @@ public abstract class AbstractEntitySearchCriteria<ID extends IObjectId> extends
     public BooleanPropertySearchCriteria withBooleanProperty(final String propertyName)
     {
         return with(new BooleanPropertySearchCriteria(propertyName));
+    }
+
+    public SamplePropertySearchCriteria withSampleProperty(final String propertyName)
+    {
+        return with(new SamplePropertySearchCriteria(propertyName));
+    }
+
+    public ControlledVocabularyPropertySearchCriteria withVocabularyProperty(final String propertyName)
+    {
+        return with(new ControlledVocabularyPropertySearchCriteria(propertyName));
     }
 
     /**

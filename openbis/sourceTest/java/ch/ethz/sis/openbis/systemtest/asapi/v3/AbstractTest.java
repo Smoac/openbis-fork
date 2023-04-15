@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 ETH Zuerich, CISD
+ * Copyright ETH 2014 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,6 +79,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISemanticAnnot
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISpaceHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ITagsHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IValidationPluginHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
@@ -120,17 +121,24 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyAssignmentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyTypeCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.delete.PropertyTypeDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.query.Query;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.RoleAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleTypeCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleTypeDeletionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleTypeUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.SemanticAnnotation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.Tag;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.create.TagCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.VocabularyCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.VocabularyTermCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.IVocabularyId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyTermPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
@@ -1468,8 +1476,14 @@ public class AbstractTest extends SystemTestCase
     protected PropertyTypePermId createAPropertyType(final String sessionToken, final DataType dataType,
             final VocabularyPermId vocabularyPermId)
     {
+        return createAPropertyType(sessionToken, dataType, vocabularyPermId, "TYPE-" + System.currentTimeMillis());
+    }
+
+    protected PropertyTypePermId createAPropertyType(final String sessionToken, final DataType dataType,
+            final VocabularyPermId vocabularyPermId, final String code)
+    {
         final PropertyTypeCreation creation = new PropertyTypeCreation();
-        creation.setCode("TYPE-" + System.currentTimeMillis());
+        creation.setCode(code);
         creation.setDataType(dataType);
         creation.setLabel("label");
         creation.setDescription("description");
@@ -1480,15 +1494,40 @@ public class AbstractTest extends SystemTestCase
         return v3api.createPropertyTypes(sessionToken, Collections.singletonList(creation)).get(0);
     }
 
-    protected PropertyTypePermId createASamplePropertyType(String sessionToken, IEntityTypeId sampleTypeId)
+    protected PropertyTypePermId createASamplePropertyType(final String sessionToken, final IEntityTypeId sampleTypeId)
+    {
+        return createASamplePropertyType(sessionToken, sampleTypeId, "TYPE-" + System.currentTimeMillis());
+    }
+
+    protected PropertyTypePermId createASamplePropertyType(final String sessionToken,
+            final IEntityTypeId sampleTypeId, final String code)
     {
         PropertyTypeCreation creation = new PropertyTypeCreation();
-        creation.setCode("TYPE-" + System.currentTimeMillis());
+        creation.setCode(code);
         creation.setDataType(DataType.SAMPLE);
         creation.setSampleTypeId(sampleTypeId);
         creation.setLabel("label");
         creation.setDescription("description");
         return v3api.createPropertyTypes(sessionToken, Collections.singletonList(creation)).get(0);
+    }
+
+    protected PropertyTypePermId createAVocabularyPropertyType(final String sessionToken,
+            final IVocabularyId vocabularyId, final String code)
+    {
+        final PropertyTypeCreation creation = new PropertyTypeCreation();
+        creation.setCode(code);
+        creation.setDataType(DataType.CONTROLLEDVOCABULARY);
+        creation.setVocabularyId(vocabularyId);
+        creation.setLabel("label");
+        creation.setDescription("description");
+        return v3api.createPropertyTypes(sessionToken, Collections.singletonList(creation)).get(0);
+    }
+
+    protected void deletePropertyTypes(final String sessionToken, final IPropertyTypeId... propertyTypeIds)
+    {
+        final PropertyTypeDeletionOptions deletionOptions = new PropertyTypeDeletionOptions();
+        deletionOptions.setReason("Test");
+        v3api.deletePropertyTypes(sessionToken, List.of(propertyTypeIds), deletionOptions);
     }
 
     protected PropertyTypePermId createAMaterialPropertyType(final String sessionToken,
@@ -1503,10 +1542,17 @@ public class AbstractTest extends SystemTestCase
         return v3api.createPropertyTypes(sessionToken, Collections.singletonList(creation)).get(0);
     }
 
-    protected EntityTypePermId createASampleType(String sessionToken, boolean mandatory, PropertyTypePermId... propertyTypes)
+    protected EntityTypePermId createASampleType(String sessionToken, boolean mandatory,
+            PropertyTypePermId... propertyTypes)
+    {
+        return createASampleType(sessionToken, "SAMPLE-TYPE-" + System.currentTimeMillis(), mandatory, propertyTypes);
+    }
+
+    protected EntityTypePermId createASampleType(final String sessionToken, final String code, boolean mandatory,
+            PropertyTypePermId... propertyTypes)
     {
         SampleTypeCreation creation = new SampleTypeCreation();
-        creation.setCode("SAMPLE-TYPE-" + System.currentTimeMillis());
+        creation.setCode(code);
         List<PropertyAssignmentCreation> assignments = new ArrayList<>();
         for (PropertyTypePermId propertyType : propertyTypes)
         {
@@ -1519,10 +1565,41 @@ public class AbstractTest extends SystemTestCase
         return v3api.createSampleTypes(sessionToken, Arrays.asList(creation)).get(0);
     }
 
-    protected EntityTypePermId createAnExperimentType(String sessionToken, boolean mandatory, PropertyTypePermId... propertyTypes)
+    protected VocabularyPermId createVocabulary(final String sessionToken, final String code, final String... terms)
+    {
+        final VocabularyCreation vocabularyCreation = new VocabularyCreation();
+        vocabularyCreation.setCode(code);
+
+        final List<VocabularyTermCreation> termList = Arrays.stream(terms).map(termString ->
+        {
+            final VocabularyTermCreation creation = new VocabularyTermCreation();
+            creation.setCode(termString);
+            return creation;
+        }).collect(Collectors.toList());
+        vocabularyCreation.setTerms(termList);
+
+        return v3api.createVocabularies(sessionToken, List.of(vocabularyCreation)).get(0);
+    }
+
+    protected void deleteSampleTypes(final String sessionToken, final IEntityTypeId... entityTypeIds)
+    {
+        final SampleTypeDeletionOptions deletionOptions = new SampleTypeDeletionOptions();
+        deletionOptions.setReason("Test");
+        v3api.deleteSampleTypes(sessionToken, List.of(entityTypeIds), deletionOptions);
+    }
+
+    protected EntityTypePermId createAnExperimentType(final String sessionToken, final boolean mandatory,
+            final PropertyTypePermId... propertyTypes)
+    {
+        return createAnExperimentType(sessionToken, "EXPERIMENT-TYPE-" + System.currentTimeMillis(), mandatory,
+                propertyTypes);
+    }
+
+    protected EntityTypePermId createAnExperimentType(final String sessionToken, final String code,
+            final boolean mandatory, final PropertyTypePermId... propertyTypes)
     {
         ExperimentTypeCreation creation = new ExperimentTypeCreation();
-        creation.setCode("EXPERIMENT-TYPE-" + System.currentTimeMillis());
+        creation.setCode(code);
         List<PropertyAssignmentCreation> assignments = new ArrayList<>();
         for (PropertyTypePermId propertyType : propertyTypes)
         {
@@ -1535,10 +1612,18 @@ public class AbstractTest extends SystemTestCase
         return v3api.createExperimentTypes(sessionToken, Arrays.asList(creation)).get(0);
     }
 
-    protected EntityTypePermId createADataSetType(String sessionToken, boolean mandatory, PropertyTypePermId... propertyTypes)
+    protected EntityTypePermId createADataSetType(final String sessionToken, final boolean mandatory,
+            final PropertyTypePermId... propertyTypes)
+    {
+        return createADataSetType(sessionToken, "DATA-SET-TYPE-" + System.currentTimeMillis(), mandatory,
+                propertyTypes);
+    }
+
+    protected EntityTypePermId createADataSetType(final String sessionToken, final String code,
+            final boolean mandatory, final PropertyTypePermId... propertyTypes)
     {
         DataSetTypeCreation creation = new DataSetTypeCreation();
-        creation.setCode("DATA-SET-TYPE-" + System.currentTimeMillis());
+        creation.setCode(code);
         List<PropertyAssignmentCreation> assignments = new ArrayList<>();
         for (PropertyTypePermId propertyType : propertyTypes)
         {
