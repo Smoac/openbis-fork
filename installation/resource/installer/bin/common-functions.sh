@@ -155,16 +155,7 @@ copyIfExists()
   fi
 }
 
-#
-# overwrites a folder (second parameter) with first parameter
-#
-copyFolderIfExists() 
-{
-  if [ -e "$1" ]; then
-      rm -r "$2"
-      cp -R "$1" "$2"
-  fi
-}
+
 
 POSTGRES_BIN=`cat $BASE/postgres_bin_path.txt`
 
@@ -365,6 +356,28 @@ copyConfig()
     d="${d%/*}"
     mkdir -p "$d"
     copyIfExists $f "$d"
+  done
+}
+
+# 
+# Copy data of custom eln plugins
+# 
+copyCustomElnPlugins()
+{
+  root="$1"
+  pathPattern="$2"
+  destination="$3"
+  for f in `find $root | grep "$pathPattern"`; do
+    d="$destination${f#$root}"
+    d="${d%/*}/plugins"
+    for ff in `ls $f`; do
+      if [ ! -e "$d/$ff" ]; then
+        echo "Migrating custom plugin '""$ff""' to directory: ""$d"
+        cp -R "$f"/"$ff" "$d"/"$ff"
+        echo "$f" : "$d"
+        cp "$f"/../etc/config.js "$d"/../etc/config.js
+      fi
+    done
   done
 }
 

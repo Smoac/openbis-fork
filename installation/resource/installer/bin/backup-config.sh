@@ -46,6 +46,7 @@ if [ -d $ROOT/openBIS-server ]; then
     copyIfExists $ROOT/openBIS-server/jetty/etc/passwd $CONF/
     copyIfExists $ROOT/openBIS-server/jetty/etc/web-client.properties $CONF/
     copyConfig $ROOT/core-plugins "html/etc$" $CONF/core-plugins
+    copyConfig $ROOT/core-plugins "eln-lims/html/plugins$" $CONF/core-plugins
     cp -R $ROOT/openBIS-server/jetty/start.d $CONF/start.d
 fi
 

@@ -46,6 +46,7 @@ if [ -d $ROOT/openBIS-server ]; then
     restore $CONF/instance-id $ROOT/openBIS-server/jetty/etc instance-id
 
     copyConfig $CONF/core-plugins "html/etc$" $ROOT/core-plugins
+    copyCustomElnPlugins $CONF/core-plugins "eln-lims/html/plugins$" $ROOT/core-plugins
     copyFolderIfExists $CONF/start.d $ROOT/openBIS-server/jetty/start.d
     copyFolderIfExists $CONF/../openBIS-server/jetty/indices $ROOT/openBIS-server/jetty/indices
 fi
