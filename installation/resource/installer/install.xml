@@ -167,7 +167,13 @@
 
   <!-- The packs (packages) to be installed. -->
   <packs>
-    <pack name="openBIS Server" required="no" loose="yes">
+
+    <pack name="Administration Scripts" required="yes" loose="yes">
+      <description>Scripts to facilitate openBIS administration</description>
+      <file src="@{installer.dist.dir}/bin" targetdir="$INSTALL_PATH" />
+    </pack>
+
+    <pack name="OpenBIS Server" required="no" loose="yes">
       <description>The openBIS application server</description>
       <file src="@{installer.dist.dir}/openBIS-server" targetdir="$INSTALL_TMPEXTRACT"/>
       <parsable targetfile="$INSTALL_OPENBIS_TMPEXTRACT/service.properties" />
@@ -200,9 +206,9 @@
     </pack>
     
 
-    <pack name="Administration Scripts" required="yes" loose="yes">
-      <description>Scripts to facilitate openBIS administration</description>
-      <file src="@{installer.dist.dir}/bin" targetdir="$INSTALL_PATH" />
+    <pack name="Post-installation Scripts" required="yes" loose="yes">
+      <description>Scripts to facilitate post-installation procedures</description>
+      <file src="@{installer.dist.dir}/bin" targetdir="$INSTALL_PATH" unpack="false"/>
       
       <!--  set all *.sh files executable -->      
       <executable targetfile="${INSTALL_BIN_PATH}/finish-installation.sh" stage="postinstall" keep="true">
