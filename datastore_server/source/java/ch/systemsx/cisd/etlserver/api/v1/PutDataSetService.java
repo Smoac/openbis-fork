@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 ETH Zuerich, CISD
+ * Copyright ETH 2010 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.etlserver.api.v1;
 
 import java.io.File;
@@ -59,6 +58,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationS
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SessionWorkspaceUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImportFile;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 
@@ -95,6 +95,9 @@ public class PutDataSetService implements IPutDataSetService
     private IDataSetValidator dataSetValidator;
 
     private DatabaseInstance homeDatabaseInstance;
+
+    private File sessionWorkspace = SessionWorkspaceUtil.getSessionWorkspace(
+            DssPropertyParametersUtil.loadServiceProperties());
 
     /**
      * The designated constructor.
@@ -269,6 +272,11 @@ public class PutDataSetService implements IPutDataSetService
     public List<DataSetInformation> putDataSet(String sessionToken, NewDataSetDTO newDataSet, String uploadId)
             throws IOExceptionUnchecked, IllegalArgumentException
     {
+        if (newDataSet == null)
+        {
+            throw new UserFailureException("New data set cannot be null");
+        }
+
         if (false == isInitialized)
         {
             doInitialization();
@@ -276,12 +284,45 @@ public class PutDataSetService implements IPutDataSetService
 
         validateSessionToken(sessionToken);
         validateUploadId(uploadId);
-        if (newDataSet == null)
-        {
-            throw new UserFailureException("New data set cannot be null");
-        }
 
         ServiceProvider.getOpenBISService().checkSession(sessionToken);
+
+        File sessionWorkspaceUploadDir = new File(new File(sessionWorkspace, sessionToken), uploadId);
+
+        List<DataSetInformation> result = null;
+        if (sessionWorkspaceUploadDir.exists())
+        {
+            result = putDataSetFromSessionWorkspaceFileUpload(sessionToken, newDataSet, uploadId);
+        } else {
+            result = putDataSetFromStoreShareFileUpload(sessionToken, newDataSet, uploadId);
+        }
+        return result;
+    }
+
+    private List<DataSetInformation> putDataSetFromSessionWorkspaceFileUpload(String sessionToken, NewDataSetDTO newDataSet, String uploadId)
+            throws IOExceptionUnchecked, IllegalArgumentException {
+        String dataSetType = newDataSet.tryDataSetType();
+        ITopLevelDataSetRegistrator registrator = registratorMap.getRegistratorForType(dataSetType);
+
+        File tempIncomingDir = new File(new File(sessionWorkspace, sessionToken), uploadId);
+
+        File[] filesInIncomingDir = tempIncomingDir.listFiles();
+        if (filesInIncomingDir.length != 1) {
+            throw new UserFailureException("Unexpected state, incoming directory should contain just one file or folder but found: " + filesInIncomingDir.length);
+        }
+
+        if (registrator instanceof PutDataSetServerPluginHolder)
+        {
+            return new PutDataSetExecutor(this, ((PutDataSetServerPluginHolder) registrator).getPlugin(), sessionToken, newDataSet, tempIncomingDir,
+                    filesInIncomingDir[0]).executeWithoutWriting();
+        } else
+        {
+            return new PutDataSetTopLevelDataSetHandler(this, registrator, sessionToken, newDataSet, tempIncomingDir, filesInIncomingDir[0]).executeWithoutWriting();
+        }
+    }
+
+    private List<DataSetInformation> putDataSetFromStoreShareFileUpload(String sessionToken, NewDataSetDTO newDataSet, String uploadId)
+            throws IOExceptionUnchecked, IllegalArgumentException {
 
         String dataSetType = newDataSet.tryDataSetType();
         ITopLevelDataSetRegistrator registrator = registratorMap.getRegistratorForType(dataSetType);
