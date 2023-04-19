@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ETH Zuerich, SIS
+ * Copyright ETH 2008 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver;
 
 import java.io.File;
@@ -118,18 +117,9 @@ class MultiDataSetArchivingUtils
 
     static boolean isTFlagSet(File file, Logger operationLog, Logger machineLog)
     {
-        File shell = OSUtilities.findExecutable("sh");
+        String command = String.format("ls -l '%s' | awk '{printf substr($1,10,1)}'", file.getAbsolutePath());
 
-        if (shell == null)
-        {
-            throw new RuntimeException("Could not check if T flag is set on file '" + file.getAbsolutePath()
-                    + "' because 'sh' command needed for the check could not be found in the following locations: " + OSUtilities.getSafeOSPath());
-        }
-
-        List<String> command =
-                Arrays.asList(shell.getAbsolutePath(), "-c", String.format("ls -l '%s' | awk '{printf substr($1,10,1)}'", file.getAbsolutePath()));
-
-        ProcessResult result = ProcessExecutionHelper.run(command, operationLog, machineLog);
+        ProcessResult result = executeShellCommand(command, operationLog, machineLog);
 
         if (result.isOK())
         {
@@ -150,6 +140,21 @@ class MultiDataSetArchivingUtils
             operationLog.warn("Could not check if T flag is set on file '" + file.getAbsolutePath() + "'", exception);
             return false;
         }
+    }
+
+    static ProcessResult executeShellCommand(String command, Logger operationLog, Logger machineLog)
+    {
+        File shell = OSUtilities.findExecutable("sh");
+
+        if (shell == null)
+        {
+            throw new RuntimeException(
+                    "Could not execute shell command '" + command + "' because 'sh' command could not be found in the following locations: "
+                            + OSUtilities.getSafeOSPath());
+        }
+
+        List<String> fullCommand = Arrays.asList(shell.getAbsolutePath(), "-c", command);
+        return ProcessExecutionHelper.run(fullCommand, operationLog, machineLog);
     }
 
 }

@@ -15,6 +15,25 @@
  */
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.log4j.Logger;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider;
@@ -38,19 +57,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PathInfoDataSourceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import net.lemnik.eodsql.QueryTool;
-import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.log4j.Logger;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.stream.Collectors;
 
 public class MultiDataSetArchiveSanityCheckMaintenanceTask implements IMaintenanceTask
 {
@@ -280,7 +287,7 @@ public class MultiDataSetArchiveSanityCheckMaintenanceTask implements IMaintenan
         {
             try
             {
-                CheckStatuses statuses = mapper.readValue(file, CheckStatuses.class);
+                CheckStatuses statuses = mapper.readValue(file, MultiDataSetArchiveSanityCheckMaintenanceTask.CheckStatuses.class);
                 operationLog.info("Check statuses successfully loaded. File path: " + file.getAbsolutePath());
                 return statuses;
             } catch (Exception e)
