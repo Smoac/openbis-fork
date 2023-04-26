@@ -92,12 +92,12 @@ def process(transaction):
             else:
                 raise UserFailureException(INVALID_FORMAT_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE);
 
-            if hasFolderHiddenFiles(incoming):
-                reportIssue(transaction, HIDDEN_FILES_ERROR_MESSAGE + ":"
-                            + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE, emailAddress);
-            if hasFolderIllegalFiles(incoming):
-                reportIssue(transaction, ILLEGAL_FILES_ERROR_MESSAGE + ":"
-                            + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE, emailAddress);
+#             if hasFolderHiddenFiles(incoming):
+#                 reportIssue(transaction, HIDDEN_FILES_ERROR_MESSAGE + ":"
+#                             + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE, emailAddress);
+#             if hasFolderIllegalFiles(incoming):
+#                 reportIssue(transaction, ILLEGAL_FILES_ERROR_MESSAGE + ":"
+#                             + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE, emailAddress);
             if hasFolderIllegalCharacters(incoming):
                 reportIssue(transaction, ILLEGAL_CHARACTERS_IN_FILE_NAMES_ERROR_MESSAGE + ":"
                             + FAILED_TO_PARSE_SAMPLE_ERROR_MESSAGE, emailAddress);
@@ -128,12 +128,12 @@ def process(transaction):
             else:
                 raise UserFailureException(INVALID_FORMAT_ERROR_MESSAGE + ":" + FAILED_TO_PARSE_EXPERIMENT_ERROR_MESSAGE);
 
-            if hasFolderHiddenFiles(incoming):
-                reportIssue(transaction, HIDDEN_FILES_ERROR_MESSAGE + ":"
-                            + FAILED_TO_PARSE_EXPERIMENT_ERROR_MESSAGE, emailAddress);
-            if hasFolderIllegalFiles(incoming):
-                reportIssue(transaction, ILLEGAL_FILES_ERROR_MESSAGE + ":"
-                            + FAILED_TO_PARSE_EXPERIMENT_ERROR_MESSAGE, emailAddress);
+#             if hasFolderHiddenFiles(incoming):
+#                 reportIssue(transaction, HIDDEN_FILES_ERROR_MESSAGE + ":"
+#                             + FAILED_TO_PARSE_EXPERIMENT_ERROR_MESSAGE, emailAddress);
+#             if hasFolderIllegalFiles(incoming):
+#                 reportIssue(transaction, ILLEGAL_FILES_ERROR_MESSAGE + ":"
+#                             + FAILED_TO_PARSE_EXPERIMENT_ERROR_MESSAGE, emailAddress);
             if hasFolderIllegalCharacters(incoming):
                 reportIssue(transaction, ILLEGAL_CHARACTERS_IN_FILE_NAMES_ERROR_MESSAGE + ":"
                             + FAILED_TO_PARSE_EXPERIMENT_ERROR_MESSAGE, emailAddress);
