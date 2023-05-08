@@ -15,9 +15,11 @@
  */
 package ch.systemsx.cisd.common.spring;
 
+import org.springframework.remoting.support.RemoteInvocationFactory;
+
 public interface IRemoteSpringBeanProvider
 {
     public <T> T create(final Class<T> serviceInterface, final String serviceURL,
-            final long serverTimeoutInMillis);
+            final long serverTimeoutInMillis, RemoteInvocationFactory factory);
 
 }

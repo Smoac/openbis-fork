@@ -16,13 +16,22 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.jmock.api.Invocation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.remoting.support.RemoteInvocation;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
@@ -34,8 +43,14 @@ import ch.systemsx.cisd.openbis.common.api.server.AbstractApiServiceExporter;
 @Controller
 public class ApplicationServerApiServer extends AbstractApiServiceExporter
 {
+
     @Resource(name = ApplicationServerApi.INTERNAL_SERVICE_NAME)
     private IApplicationServerApi service;
+
+    @Autowired
+    private PlatformTransactionManager transactionManager;
+
+    private final Map<String, TransactionThread> threadMap = new HashMap<>();
 
     @Override
     public void afterPropertiesSet()
@@ -46,11 +61,231 @@ public class ApplicationServerApiServer extends AbstractApiServiceExporter
     }
 
     @RequestMapping(
-    { IApplicationServerApi.SERVICE_URL, "/openbis" + IApplicationServerApi.SERVICE_URL, "/openbis/openbis" + IApplicationServerApi.SERVICE_URL })
+            { IApplicationServerApi.SERVICE_URL, "/openbis" + IApplicationServerApi.SERVICE_URL,
+                    "/openbis/openbis" + IApplicationServerApi.SERVICE_URL })
     @Override
     public void handleRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException
     {
         super.handleRequest(request, response);
     }
+
+    @Override protected Object invoke(final RemoteInvocation invocation, final Object targetObject)
+            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
+    {
+        String transactionId = (String) invocation.getAttribute(TwoPhaseTransactionConst.TRANSACTION_ID_ATTRIBUTE);
+
+        if (transactionId != null)
+        {
+            TransactionThread thread = null;
+
+            synchronized (this)
+            {
+                logger.info("Two phase transaction id: " + transactionId);
+
+                thread = threadMap.get(transactionId);
+
+                if (thread == null)
+                {
+                    if (threadMap.size() >= TwoPhaseTransactionConst.THREAD_COUNT_LIMIT)
+                    {
+                        throw new RuntimeException("Too many two phase transaction threads running");
+                    }
+
+                    logger.info("Creating two phase transaction thread");
+
+                    thread = new TransactionThread(transactionId);
+                    threadMap.put(transactionId, thread);
+                    thread.start();
+                } else
+                {
+                    logger.info("Found existing two phase transaction thread");
+                }
+            }
+
+            try
+            {
+                return thread.execute(invocation);
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | RuntimeException e)
+            {
+                throw e;
+            } catch (Exception e)
+            {
+                throw new RuntimeException(e);
+            } finally
+            {
+                synchronized (this)
+                {
+                    if (!thread.isAlive())
+                    {
+                        logger.info("Two phase transaction " + transactionId + " finished. Removing its thread.");
+                        threadMap.remove(transactionId);
+                    }
+                }
+            }
+        } else
+        {
+            return super.invoke(invocation, targetObject);
+        }
+    }
+
+    class TransactionThread
+    {
+
+        private final Object lock = new Object();
+
+        private final Thread thread;
+
+        private final String transactionId;
+
+        private TransactionStatus transaction;
+
+        private RemoteInvocation invocation;
+
+        private Object result;
+
+        private Exception exception;
+
+        public TransactionThread(String transactionId)
+        {
+            this.transactionId = transactionId;
+            this.thread = new Thread(new Runnable()
+            {
+                @Override public void run()
+                {
+                    synchronized (lock)
+                    {
+                        while (true)
+                        {
+                            try
+                            {
+                                if (invocation != null)
+                                {
+                                    if (TwoPhaseTransactionConst.BEGIN_TRANSACTION_METHOD.equals(invocation.getMethodName()))
+                                    {
+                                        if (transaction != null)
+                                        {
+                                            throw new IllegalStateException(
+                                                    "Two phase transaction " + transactionId + " has been already started.");
+                                        }
+                                        transaction = transactionManager.getTransaction(new DefaultTransactionDefinition());
+                                    } else if (TwoPhaseTransactionConst.COMMIT_TRANSACTION_METHOD.equals(invocation.getMethodName()))
+                                    {
+                                        if (transaction == null)
+                                        {
+                                            throw new IllegalStateException("Two phase transaction " + transactionId + " hasn't been started yet.");
+                                        }
+                                        transactionManager.commit(transaction);
+                                    } else if (TwoPhaseTransactionConst.ROLLBACK_TRANSACTION_METHOD.equals(invocation.getMethodName()))
+                                    {
+                                        if (transaction == null)
+                                        {
+                                            throw new IllegalStateException("Two phase transaction " + transactionId + " hasn't been started yet.");
+                                        }
+                                        transactionManager.rollback(transaction);
+                                    } else
+                                    {
+                                        if (transaction == null)
+                                        {
+                                            throw new IllegalStateException("Two phase transaction " + transactionId + " hasn't been started yet.");
+                                        }
+                                        result = invocation.invoke(service);
+                                    }
+
+                                    logger.info("Two phase transaction " + transactionId + " method " + invocation.getMethodName()
+                                            + " executed.");
+
+                                    exception = null;
+                                    invocation = null;
+                                    lock.notifyAll();
+
+                                    if (transaction.isCompleted())
+                                    {
+                                        return;
+                                    }
+                                } else
+                                {
+                                    logger.info("Two phase transaction " + transactionId + " thread waiting for the next call.");
+                                    lock.wait();
+                                }
+
+                            } catch (Exception e)
+                            {
+                                logger.error(
+                                        "Two phase transaction " + transactionId + " method " + (invocation != null ? invocation.getMethodName() : "")
+                                                + " failed or got interrupted.",
+                                        e);
+
+                                if (transaction != null)
+                                {
+                                    transactionManager.rollback(transaction);
+                                }
+
+                                exception = e;
+                                result = null;
+                                invocation = null;
+                                lock.notifyAll();
+
+                                return;
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        public void start()
+        {
+            thread.start();
+        }
+
+        public boolean isAlive()
+        {
+            return thread.isAlive();
+        }
+
+        public Object execute(RemoteInvocation newInvocation) throws Exception
+        {
+            synchronized (lock)
+            {
+                try
+                {
+                    if (invocation != null)
+                    {
+                        throw new IllegalStateException(
+                                "Cannot schedule another two phase transaction " + transactionId + " call as the previous execution for method "
+                                        + invocation.getMethodName()
+                                        + " hasn't finished yet.");
+                    }
+
+                    invocation = newInvocation;
+                    result = null;
+                    lock.notifyAll();
+
+                    logger.info("Two phase transaction " + transactionId + " method " + newInvocation.getMethodName() + " call scheduled.");
+
+                    while (invocation != null)
+                    {
+                        lock.wait();
+                    }
+
+                } catch (Exception e)
+                {
+                    logger.error(
+                            "Scheduling of the next two phase transaction method " + invocation.getMethodName() + " call failed or got interrupted.",
+                            e);
+                    throw e;
+                }
+
+                if (exception != null)
+                {
+                    throw exception;
+                } else
+                {
+                    return result;
+                }
+            }
+        }
+    }
+
 }

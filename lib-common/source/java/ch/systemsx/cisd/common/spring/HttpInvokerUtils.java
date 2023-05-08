@@ -21,6 +21,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
+import org.aopalliance.intercept.MethodInvocation;
 import org.apache.http.HttpHost;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
@@ -34,6 +35,8 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.springframework.remoting.httpinvoker.HttpComponentsHttpInvokerRequestExecutor;
 import org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean;
+import org.springframework.remoting.support.RemoteInvocation;
+import org.springframework.remoting.support.RemoteInvocationFactory;
 
 import com.marathon.util.spring.StreamSupportingHttpInvokerProxyFactoryBean;
 import com.marathon.util.spring.StreamSupportingHttpInvokerRequestExecutor;
@@ -77,9 +80,19 @@ public class HttpInvokerUtils
     {
         if (checkAndInitializeJettyProvider())
         {
-            return provider.create(serviceInterface, serviceURL, serverTimeoutInMillis);
+            return provider.create(serviceInterface, serviceURL, serverTimeoutInMillis, null);
         }
-        return createApacheServiceStub(serviceInterface, serviceURL, serverTimeoutInMillis);
+        return createApacheServiceStub(serviceInterface, serviceURL, serverTimeoutInMillis, null);
+    }
+
+    public static <T> T createServiceStub(final Class<T> serviceInterface, final String serviceURL,
+            final long serverTimeoutInMillis, RemoteInvocationFactory factory)
+    {
+        if (checkAndInitializeJettyProvider())
+        {
+            return provider.create(serviceInterface, serviceURL, serverTimeoutInMillis, factory);
+        }
+        return createApacheServiceStub(serviceInterface, serviceURL, serverTimeoutInMillis, factory);
     }
 
     public static <T> T createStreamSupportingServiceStub(final Class<T> serviceInterface,
@@ -87,7 +100,7 @@ public class HttpInvokerUtils
     {
         if (checkAndInitializeJettyProvider())
         {
-            return provider.create(serviceInterface, serviceURL, serverTimeoutInMillis);
+            return provider.create(serviceInterface, serviceURL, serverTimeoutInMillis, null);
         }
         return createStreamSupportingApacheServiceStub(serviceInterface, serviceURL, serverTimeoutInMillis);
     }
@@ -111,11 +124,12 @@ public class HttpInvokerUtils
         }
     }
 
-    private static <T> T createApacheServiceStub(final Class<T> serviceInterface, final String serviceURL, final long serverTimeoutInMillis)
+    private static <T> T createApacheServiceStub(final Class<T> serviceInterface, final String serviceURL, final long serverTimeoutInMillis,
+            final RemoteInvocationFactory factory)
     {
         final HttpInvokerProxyFactoryBean httpInvokerProxy = new HttpInvokerProxyFactoryBean();
 
-        Registry<ConnectionSocketFactory> schemeRegistry = RegistryBuilder.<ConnectionSocketFactory> create()
+        Registry<ConnectionSocketFactory> schemeRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
                 .register("http", PlainConnectionSocketFactory.getSocketFactory())
                 .register("https", sf)
                 .build();
@@ -133,6 +147,7 @@ public class HttpInvokerUtils
         httpInvokerProxy.setBeanClassLoader(serviceInterface.getClassLoader());
         httpInvokerProxy.setServiceUrl(serviceURL);
         httpInvokerProxy.setServiceInterface(serviceInterface);
+        httpInvokerProxy.setRemoteInvocationFactory(factory);
 
         httpInvokerRequestExecutor.setReadTimeout((int) serverTimeoutInMillis);
 

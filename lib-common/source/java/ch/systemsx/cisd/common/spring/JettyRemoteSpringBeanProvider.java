@@ -22,6 +22,7 @@ import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.HttpProxy;
 import org.eclipse.jetty.client.ProxyConfiguration.Proxy;
 import org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean;
+import org.springframework.remoting.support.RemoteInvocationFactory;
 
 import com.marathon.util.spring.StreamSupportingHttpInvokerProxyFactoryBean;
 
@@ -36,13 +37,14 @@ public class JettyRemoteSpringBeanProvider implements IRemoteSpringBeanProvider
     }
 
     @Override
-    public <T> T create(Class<T> serviceInterface, String serviceURL, long serverTimeoutInMillis)
+    public <T> T create(Class<T> serviceInterface, String serviceURL, long serverTimeoutInMillis, RemoteInvocationFactory factory)
     {
         JettyHttpInvokerRequestExecutor jettyExecutor = new JettyHttpInvokerRequestExecutor(client, serverTimeoutInMillis);
         HttpInvokerProxyFactoryBean httpInvokerProxy = new StreamSupportingHttpInvokerProxyFactoryBean(jettyExecutor);
         httpInvokerProxy.setBeanClassLoader(serviceInterface.getClassLoader());
         httpInvokerProxy.setServiceUrl(serviceURL);
         httpInvokerProxy.setServiceInterface(serviceInterface);
+        httpInvokerProxy.setRemoteInvocationFactory(factory);
 
         final InetSocketAddress proxyAddress = HttpInvokerUtils.tryFindProxy(serviceURL);
         if (proxyAddress != null)
