@@ -25,7 +25,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.jmock.api.Invocation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.remoting.support.RemoteInvocation;
 import org.springframework.stereotype.Controller;
@@ -73,11 +72,11 @@ public class ApplicationServerApiServer extends AbstractApiServiceExporter
     @Override protected Object invoke(final RemoteInvocation invocation, final Object targetObject)
             throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
     {
-        String transactionId = (String) invocation.getAttribute(TwoPhaseTransactionConst.TRANSACTION_ID_ATTRIBUTE);
+        String transactionId = (String) invocation.getAttribute(TransactionConst.TRANSACTION_ID_ATTRIBUTE);
 
         if (transactionId != null)
         {
-            TransactionThread thread = null;
+            TransactionThread thread;
 
             synchronized (this)
             {
@@ -87,7 +86,7 @@ public class ApplicationServerApiServer extends AbstractApiServiceExporter
 
                 if (thread == null)
                 {
-                    if (threadMap.size() >= TwoPhaseTransactionConst.THREAD_COUNT_LIMIT)
+                    if (threadMap.size() >= TransactionConst.THREAD_COUNT_LIMIT)
                     {
                         throw new RuntimeException("Too many two phase transaction threads running");
                     }
@@ -161,34 +160,24 @@ public class ApplicationServerApiServer extends AbstractApiServiceExporter
                             {
                                 if (invocation != null)
                                 {
-                                    if (TwoPhaseTransactionConst.BEGIN_TRANSACTION_METHOD.equals(invocation.getMethodName()))
+                                    if (TransactionConst.BEGIN_TRANSACTION_METHOD.equals(invocation.getMethodName()))
                                     {
-                                        if (transaction != null)
-                                        {
-                                            throw new IllegalStateException(
-                                                    "Two phase transaction " + transactionId + " has been already started.");
-                                        }
+                                        checkTransactionNotStartedYet();
+                                        checkTransactionManagerSecret(invocation);
                                         transaction = transactionManager.getTransaction(new DefaultTransactionDefinition());
-                                    } else if (TwoPhaseTransactionConst.COMMIT_TRANSACTION_METHOD.equals(invocation.getMethodName()))
+                                    } else if (TransactionConst.COMMIT_TRANSACTION_METHOD.equals(invocation.getMethodName()))
                                     {
-                                        if (transaction == null)
-                                        {
-                                            throw new IllegalStateException("Two phase transaction " + transactionId + " hasn't been started yet.");
-                                        }
+                                        checkTransactionAlreadyStarted();
+                                        checkTransactionManagerSecret(invocation);
                                         transactionManager.commit(transaction);
-                                    } else if (TwoPhaseTransactionConst.ROLLBACK_TRANSACTION_METHOD.equals(invocation.getMethodName()))
+                                    } else if (TransactionConst.ROLLBACK_TRANSACTION_METHOD.equals(invocation.getMethodName()))
                                     {
-                                        if (transaction == null)
-                                        {
-                                            throw new IllegalStateException("Two phase transaction " + transactionId + " hasn't been started yet.");
-                                        }
+                                        checkTransactionAlreadyStarted();
+                                        checkTransactionManagerSecret(invocation);
                                         transactionManager.rollback(transaction);
                                     } else
                                     {
-                                        if (transaction == null)
-                                        {
-                                            throw new IllegalStateException("Two phase transaction " + transactionId + " hasn't been started yet.");
-                                        }
+                                        checkTransactionAlreadyStarted();
                                         result = invocation.invoke(service);
                                     }
 
@@ -231,6 +220,33 @@ public class ApplicationServerApiServer extends AbstractApiServiceExporter
                         }
                     }
                 }
+
+                private void checkTransactionNotStartedYet()
+                {
+                    if (transaction != null)
+                    {
+                        throw new IllegalStateException(
+                                "Two phase transaction " + transactionId + " has been already started.");
+                    }
+                }
+
+                private void checkTransactionAlreadyStarted()
+                {
+                    if (transaction == null)
+                    {
+                        throw new IllegalStateException("Two phase transaction " + transactionId + " hasn't been started yet.");
+                    }
+                }
+
+                private void checkTransactionManagerSecret(final RemoteInvocation invocation)
+                {
+                    String secret = (String) invocation.getAttribute(TransactionConst.TRANSACTION_MANAGER_SECRET_ATTRIBUTE);
+
+                    if (secret == null || secret.isBlank())
+                    {
+                        throw new IllegalStateException("Two phase transaction manager secret missing.");
+                    }
+                }
             });
         }
 
@@ -260,6 +276,7 @@ public class ApplicationServerApiServer extends AbstractApiServiceExporter
 
                     invocation = newInvocation;
                     result = null;
+                    exception = null;
                     lock.notifyAll();
 
                     logger.info("Two phase transaction " + transactionId + " method " + newInvocation.getMethodName() + " call scheduled.");

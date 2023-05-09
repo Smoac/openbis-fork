@@ -1,7 +1,9 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.aopalliance.intercept.MethodInvocation;
@@ -20,7 +22,9 @@ import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 public class ApplicationServerApiClient
 {
 
-    private final IApplicationServerApiWithTransactions applicationServerApi;
+    private final ITransactionManager transactionManager;
+
+    private final IApplicationServerApi applicationServerApi;
 
     private String sessionToken;
 
@@ -28,22 +32,11 @@ public class ApplicationServerApiClient
 
     public ApplicationServerApiClient(String applicationServerUrl, long timeout)
     {
-        applicationServerApi =
-                HttpInvokerUtils.createServiceStub(IApplicationServerApiWithTransactions.class, applicationServerUrl + "/openbis/openbis"
-                        + IApplicationServerApi.SERVICE_URL, timeout, new DefaultRemoteInvocationFactory()
-                {
-                    @Override public RemoteInvocation createRemoteInvocation(final MethodInvocation methodInvocation)
-                    {
-                        RemoteInvocation remoteInvocation = super.createRemoteInvocation(methodInvocation);
-                        remoteInvocation.setAttributes(Collections.singletonMap(TwoPhaseTransactionConst.TRANSACTION_ID_ATTRIBUTE, transactionId));
-                        return remoteInvocation;
-                    }
-                });
-    }
+        transactionManager = HttpInvokerUtils.createServiceStub(ITransactionManager.class, applicationServerUrl + "/openbis/openbis"
+                + ITransactionManager.SERVICE_URL, timeout);
 
-    public void login(String userId, String password)
-    {
-        sessionToken = applicationServerApi.login(userId, password);
+        applicationServerApi = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, applicationServerUrl + "/openbis/openbis"
+                + IApplicationServerApi.SERVICE_URL, timeout, new InvocationFactoryWithTransactionAttributes());
     }
 
     public void beginTransaction()
@@ -53,7 +46,30 @@ public class ApplicationServerApiClient
             throw new IllegalStateException("Transaction has been already started");
         }
         transactionId = UUID.randomUUID().toString();
-        applicationServerApi.beginTransaction();
+        transactionManager.beginTransaction(transactionId);
+    }
+
+    public void commitTransaction()
+    {
+        if (transactionId == null)
+        {
+            throw new IllegalStateException("Transaction hasn't started yet");
+        }
+        transactionManager.commitTransaction(transactionId);
+    }
+
+    public void rollbackTransaction()
+    {
+        if (transactionId == null)
+        {
+            throw new IllegalStateException("Transaction hasn't started yet");
+        }
+        transactionManager.rollbackTransaction(transactionId);
+    }
+
+    public void login(String userId, String password)
+    {
+        sessionToken = applicationServerApi.login(userId, password);
     }
 
     public List<SpacePermId> createSpaces(List<SpaceCreation> creations)
@@ -74,31 +90,17 @@ public class ApplicationServerApiClient
         return applicationServerApi.searchSpaces(sessionToken, criteria, fetchOptions);
     }
 
-    public void commitTransaction()
+    private class InvocationFactoryWithTransactionAttributes extends DefaultRemoteInvocationFactory
     {
-        if (transactionId == null)
+        @Override public RemoteInvocation createRemoteInvocation(final MethodInvocation methodInvocation)
         {
-            throw new IllegalStateException("Transaction hasn't started yet");
+            Map<String, Serializable> attributes =
+                    Collections.singletonMap(TransactionConst.TRANSACTION_ID_ATTRIBUTE, transactionId);
+
+            RemoteInvocation remoteInvocation = super.createRemoteInvocation(methodInvocation);
+            remoteInvocation.setAttributes(attributes);
+            return remoteInvocation;
         }
-        applicationServerApi.commitTransaction();
-    }
-
-    public void rollbackTransaction()
-    {
-        if (transactionId == null)
-        {
-            throw new IllegalStateException("Transaction hasn't started yet");
-        }
-        applicationServerApi.rollbackTransaction();
-    }
-
-    private interface IApplicationServerApiWithTransactions extends IApplicationServerApi
-    {
-        void beginTransaction();
-
-        void commitTransaction();
-
-        void rollbackTransaction();
     }
 
     public static void main(String[] args)
@@ -109,7 +111,7 @@ public class ApplicationServerApiClient
         client.login("admin", "admin");
 
         SpaceCreation creation = new SpaceCreation();
-        creation.setCode("2PT_TEST");
+        creation.setCode("2PT_TEST_5");
         client.createSpaces(List.of(creation));
 
         SearchResult<Space> result = client.searchSpaces(new SpaceSearchCriteria(), new SpaceFetchOptions());
