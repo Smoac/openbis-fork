@@ -26,17 +26,24 @@ public class ApplicationServerApiClient
 
     private final IApplicationServerApi applicationServerApi;
 
+    private final IApplicationServerApi applicationServerApi2;
+
     private String sessionToken;
+
+    private String sessionToken2;
 
     private String transactionId;
 
-    public ApplicationServerApiClient(String applicationServerUrl, long timeout)
+    public ApplicationServerApiClient(String applicationServerUrl, String applicationServerUrl2, long timeout)
     {
-        transactionManager = HttpInvokerUtils.createServiceStub(ITransactionManager.class, applicationServerUrl + "/openbis/openbis"
-                + ITransactionManager.SERVICE_URL, timeout);
-
         applicationServerApi = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, applicationServerUrl + "/openbis/openbis"
                 + IApplicationServerApi.SERVICE_URL, timeout, new InvocationFactoryWithTransactionAttributes());
+
+        applicationServerApi2 = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, applicationServerUrl2 + "/openbis/openbis"
+                + IApplicationServerApi.SERVICE_URL, timeout, new InvocationFactoryWithTransactionAttributes());
+
+        transactionManager = HttpInvokerUtils.createServiceStub(ITransactionManager.class, applicationServerUrl2 + "/openbis/openbis"
+                + ITransactionManager.SERVICE_URL, timeout);
     }
 
     public void beginTransaction()
@@ -72,6 +79,11 @@ public class ApplicationServerApiClient
         sessionToken = applicationServerApi.login(userId, password);
     }
 
+    public void login2(String userId, String password)
+    {
+        sessionToken2 = applicationServerApi2.login(userId, password);
+    }
+
     public List<SpacePermId> createSpaces(List<SpaceCreation> creations)
     {
         if (sessionToken == null)
@@ -81,6 +93,15 @@ public class ApplicationServerApiClient
         return applicationServerApi.createSpaces(sessionToken, creations);
     }
 
+    public List<SpacePermId> createSpaces2(List<SpaceCreation> creations)
+    {
+        if (sessionToken2 == null)
+        {
+            throw new IllegalStateException("Session token is null. Please login.");
+        }
+        return applicationServerApi2.createSpaces(sessionToken2, creations);
+    }
+
     public SearchResult<Space> searchSpaces(SpaceSearchCriteria criteria, SpaceFetchOptions fetchOptions)
     {
         if (sessionToken == null)
@@ -88,6 +109,15 @@ public class ApplicationServerApiClient
             throw new IllegalStateException("Session token is null. Please login.");
         }
         return applicationServerApi.searchSpaces(sessionToken, criteria, fetchOptions);
+    }
+
+    public SearchResult<Space> searchSpaces2(SpaceSearchCriteria criteria, SpaceFetchOptions fetchOptions)
+    {
+        if (sessionToken2 == null)
+        {
+            throw new IllegalStateException("Session token is null. Please login.");
+        }
+        return applicationServerApi2.searchSpaces(sessionToken2, criteria, fetchOptions);
     }
 
     private class InvocationFactoryWithTransactionAttributes extends DefaultRemoteInvocationFactory
@@ -105,19 +135,27 @@ public class ApplicationServerApiClient
 
     public static void main(String[] args)
     {
-        ApplicationServerApiClient client = new ApplicationServerApiClient("http://localhost:8888", 10000000);
+        ApplicationServerApiClient client = new ApplicationServerApiClient("http://localhost:7777", "http://localhost:8888", 10000000);
         client.beginTransaction();
 
         client.login("admin", "admin");
+        client.login2("admin", "admin");
 
         SpaceCreation creation = new SpaceCreation();
-        creation.setCode("2PT_TEST_5");
+        creation.setCode("2PT_TEST_A");
         client.createSpaces(List.of(creation));
 
-        SearchResult<Space> result = client.searchSpaces(new SpaceSearchCriteria(), new SpaceFetchOptions());
-        System.out.println(result.getObjects());
+        SpaceCreation creation2 = new SpaceCreation();
+        creation2.setCode("2PT_TEST_A2");
+        client.createSpaces2(List.of(creation2));
 
-        client.commitTransaction();
+        SearchResult<Space> result = client.searchSpaces(new SpaceSearchCriteria(), new SpaceFetchOptions());
+        System.out.println("SPACES: " + result.getObjects());
+
+        result = client.searchSpaces2(new SpaceSearchCriteria(), new SpaceFetchOptions());
+        System.out.println("SPACES 2: " + result.getObjects());
+
+        client.rollbackTransaction();
     }
 
 }

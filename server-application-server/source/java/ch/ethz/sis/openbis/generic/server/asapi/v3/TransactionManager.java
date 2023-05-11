@@ -18,13 +18,17 @@ import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 public class TransactionManager implements ITransactionManager
 {
 
-    private static final String APPLICATION_SERVER_URL = "http://127.0.0.1:8888";
+    private static final String APPLICATION_SERVER_URL = "http://127.0.0.1:7777";
+
+    private static final String APPLICATION_SERVER_URL_2 = "http://127.0.0.1:8888";
 
     private static final String SECRET = "i_am_secret";
 
-    private static final long TIMEOUT = 10000;
+    private static final long TIMEOUT = 10000000;
 
     private IApplicationServerApiWithTransactions applicationServerApi;
+
+    private IApplicationServerApiWithTransactions applicationServerApi2;
 
     @PostConstruct
     public void init()
@@ -32,21 +36,28 @@ public class TransactionManager implements ITransactionManager
         applicationServerApi = HttpInvokerUtils.createServiceStub(IApplicationServerApiWithTransactions.class,
                 APPLICATION_SERVER_URL + "/openbis/openbis" + IApplicationServerApi.SERVICE_URL, TIMEOUT,
                 new InvocationFactoryWithTransactionAttributes());
+
+        applicationServerApi2 = HttpInvokerUtils.createServiceStub(IApplicationServerApiWithTransactions.class,
+                APPLICATION_SERVER_URL_2 + "/openbis/openbis" + IApplicationServerApi.SERVICE_URL, TIMEOUT,
+                new InvocationFactoryWithTransactionAttributes());
     }
 
     @Override public void beginTransaction(final String transactionId)
     {
         applicationServerApi.beginTransaction(transactionId);
+        applicationServerApi2.beginTransaction(transactionId);
     }
 
     @Override public void commitTransaction(final String transactionId)
     {
         applicationServerApi.commitTransaction(transactionId);
+        applicationServerApi2.commitTransaction(transactionId);
     }
 
     @Override public void rollbackTransaction(final String transactionId)
     {
         applicationServerApi.rollbackTransaction(transactionId);
+        applicationServerApi2.rollbackTransaction(transactionId);
     }
 
     @Override public int getMajorVersion()
