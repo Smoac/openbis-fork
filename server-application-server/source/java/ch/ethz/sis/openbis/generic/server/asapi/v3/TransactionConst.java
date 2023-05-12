@@ -3,6 +3,8 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3;
 public class TransactionConst
 {
 
+    public static final String ATTRIBUTES = "attributes";
+
     public static final String TRANSACTION_ID_ATTRIBUTE = "transactionId";
 
     public static final String TRANSACTION_MANAGER_SECRET_ATTRIBUTE = "transactionManagerSecret";
