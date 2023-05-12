@@ -50,6 +50,9 @@ public class TransactionManager implements ITransactionManager
 
     @Override public void commitTransaction(final String transactionId)
     {
+        applicationServerApi.prepareTransaction(transactionId);
+        applicationServerApi2.prepareTransaction(transactionId);
+
         applicationServerApi.commitTransaction(transactionId);
         applicationServerApi2.commitTransaction(transactionId);
     }
@@ -76,8 +79,10 @@ public class TransactionManager implements ITransactionManager
         {
             String methodName = methodInvocation.getMethod().getName();
 
-            if (TransactionConst.BEGIN_TRANSACTION_METHOD.equals(methodName) || TransactionConst.COMMIT_TRANSACTION_METHOD.equals(
-                    methodName) || TransactionConst.ROLLBACK_TRANSACTION_METHOD.equals(methodName))
+            if (TransactionConst.BEGIN_TRANSACTION_METHOD.equals(methodName)
+                    || TransactionConst.PREPARE_TRANSACTION_METHOD.equals(methodName)
+                    || TransactionConst.COMMIT_TRANSACTION_METHOD.equals(methodName)
+                    || TransactionConst.ROLLBACK_TRANSACTION_METHOD.equals(methodName))
             {
                 Map<String, Serializable> attributes = new HashMap<>();
                 attributes.put(TransactionConst.TRANSACTION_ID_ATTRIBUTE, (String) methodInvocation.getArguments()[0]);
@@ -97,6 +102,8 @@ public class TransactionManager implements ITransactionManager
     private interface IApplicationServerApiWithTransactions extends IApplicationServerApi
     {
         void beginTransaction(String transactionId);
+
+        void prepareTransaction(String transactionId);
 
         void commitTransaction(String transactionId);
 

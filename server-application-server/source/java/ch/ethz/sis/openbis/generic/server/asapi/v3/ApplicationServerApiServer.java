@@ -17,6 +17,11 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,6 +30,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.remoting.support.RemoteInvocation;
 import org.springframework.stereotype.Controller;
@@ -34,7 +40,9 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.common.api.server.AbstractApiServiceExporter;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 
 /**
  * @author Franz-Josef Elmer
@@ -48,6 +56,12 @@ public class ApplicationServerApiServer extends AbstractApiServiceExporter
 
     @Autowired
     private PlatformTransactionManager transactionManager;
+
+    @Autowired
+    private IDAOFactory daoFactory;
+
+    @Autowired
+    private DatabaseConfigurationContext databaseContext;
 
     private final Map<String, TransactionThread> threadMap = new HashMap<>();
 
@@ -128,6 +142,11 @@ public class ApplicationServerApiServer extends AbstractApiServiceExporter
         }
     }
 
+    enum TwoPhaseTransactionStatus
+    {
+        NEW, STARTED, PREPARED, COMMITTED, ROLLED_BACK
+    }
+
     class TransactionThread
     {
 
@@ -138,6 +157,8 @@ public class ApplicationServerApiServer extends AbstractApiServiceExporter
         private final String transactionId;
 
         private TransactionStatus transaction;
+
+        private TwoPhaseTransactionStatus status = TwoPhaseTransactionStatus.NEW;
 
         private RemoteInvocation invocation;
 
@@ -162,22 +183,104 @@ public class ApplicationServerApiServer extends AbstractApiServiceExporter
                                 {
                                     if (TransactionConst.BEGIN_TRANSACTION_METHOD.equals(invocation.getMethodName()))
                                     {
-                                        checkTransactionNotStartedYet();
+                                        checkTransactionStatus(TwoPhaseTransactionStatus.NEW);
                                         checkTransactionManagerSecret(invocation);
                                         transaction = transactionManager.getTransaction(new DefaultTransactionDefinition());
+                                        status = TwoPhaseTransactionStatus.STARTED;
+                                    } else if (TransactionConst.PREPARE_TRANSACTION_METHOD.equals(invocation.getMethodName()))
+                                    {
+                                        checkTransactionStatus(TwoPhaseTransactionStatus.STARTED);
+                                        checkTransactionManagerSecret(invocation);
+
+                                        Session session = daoFactory.getSessionFactory().getCurrentSession();
+                                        session.flush();
+                                        session.doWork(connection ->
+                                        {
+                                            PreparedStatement statement = connection.prepareStatement("PREPARE TRANSACTION '" + transactionId + "'");
+                                            statement.execute();
+                                        });
+
+                                        status = TwoPhaseTransactionStatus.PREPARED;
                                     } else if (TransactionConst.COMMIT_TRANSACTION_METHOD.equals(invocation.getMethodName()))
                                     {
-                                        checkTransactionAlreadyStarted();
+                                        checkTransactionStatus(TwoPhaseTransactionStatus.PREPARED);
                                         checkTransactionManagerSecret(invocation);
-                                        transactionManager.commit(transaction);
+
+                                        Connection connection = null;
+                                        Statement statement = null;
+
+                                        try
+                                        {
+                                            connection = databaseContext.getDataSource().getConnection();
+                                            statement = connection.createStatement();
+                                            statement.execute("COMMIT PREPARED '" + transactionId + "'");
+                                        } catch (Exception e)
+                                        {
+                                            if (statement != null)
+                                            {
+                                                try
+                                                {
+                                                    statement.close();
+                                                } catch (Exception ignore)
+                                                {
+                                                }
+                                            }
+                                            if (connection != null)
+                                            {
+                                                try
+                                                {
+                                                    connection.close();
+                                                } catch (SQLException ignore)
+                                                {
+                                                }
+                                            }
+
+                                            throw e;
+                                        }
+
+                                        status = TwoPhaseTransactionStatus.COMMITTED;
                                     } else if (TransactionConst.ROLLBACK_TRANSACTION_METHOD.equals(invocation.getMethodName()))
                                     {
-                                        checkTransactionAlreadyStarted();
+                                        checkTransactionStatus(TwoPhaseTransactionStatus.PREPARED);
                                         checkTransactionManagerSecret(invocation);
-                                        transactionManager.rollback(transaction);
+
+                                        Connection connection = null;
+                                        Statement statement = null;
+
+                                        try
+                                        {
+                                            connection = databaseContext.getDataSource().getConnection();
+                                            statement = connection.createStatement();
+                                            statement.execute("ROLLBACK PREPARED '" + transactionId + "'");
+                                        } catch (Exception e)
+                                        {
+                                            if (statement != null)
+                                            {
+                                                try
+                                                {
+                                                    statement.close();
+                                                } catch (Exception ignore)
+                                                {
+                                                }
+                                            }
+                                            if (connection != null)
+                                            {
+                                                try
+                                                {
+                                                    connection.close();
+                                                } catch (SQLException ignore)
+                                                {
+                                                }
+                                            }
+
+                                            throw e;
+                                        }
+
+                                        status = TwoPhaseTransactionStatus.ROLLED_BACK;
                                     } else
                                     {
-                                        checkTransactionAlreadyStarted();
+                                        checkTransactionStatus(TwoPhaseTransactionStatus.NEW, TwoPhaseTransactionStatus.STARTED,
+                                                TwoPhaseTransactionStatus.PREPARED);
                                         result = invocation.invoke(service);
                                     }
 
@@ -188,7 +291,7 @@ public class ApplicationServerApiServer extends AbstractApiServiceExporter
                                     invocation = null;
                                     lock.notifyAll();
 
-                                    if (transaction.isCompleted())
+                                    if (status == TwoPhaseTransactionStatus.COMMITTED || status == TwoPhaseTransactionStatus.ROLLED_BACK)
                                     {
                                         return;
                                     }
@@ -221,20 +324,13 @@ public class ApplicationServerApiServer extends AbstractApiServiceExporter
                     }
                 }
 
-                private void checkTransactionNotStartedYet()
+                private void checkTransactionStatus(TwoPhaseTransactionStatus... expectedStatuses)
                 {
-                    if (transaction != null)
+                    if (!Arrays.asList(expectedStatuses).contains(status))
                     {
                         throw new IllegalStateException(
-                                "Two phase transaction " + transactionId + " has been already started.");
-                    }
-                }
-
-                private void checkTransactionAlreadyStarted()
-                {
-                    if (transaction == null)
-                    {
-                        throw new IllegalStateException("Two phase transaction " + transactionId + " hasn't been started yet.");
+                                "Two phase transaction " + transactionId + " unexpected status " + status + ". Expected statuses "
+                                        + expectedStatuses + ".");
                     }
                 }
 
