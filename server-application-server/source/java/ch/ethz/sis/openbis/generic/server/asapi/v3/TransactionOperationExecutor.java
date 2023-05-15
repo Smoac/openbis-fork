@@ -13,7 +13,6 @@ import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -27,16 +26,108 @@ public class TransactionOperationExecutor implements ITransactionOperationExecut
 
     private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, TransactionOperationExecutor.class);
 
-    @Autowired
-    private PlatformTransactionManager transactionManager;
-
-    @Autowired
-    private IDAOFactory daoFactory;
-
-    @Autowired
-    private DatabaseConfigurationContext databaseContext;
+    private final ITransactionOperationContext context;
 
     private final Map<String, TransactionThread> threadMap = new HashMap<>();
+
+    TransactionOperationExecutor(ITransactionOperationContext context)
+    {
+        this.context = context;
+    }
+
+    @Autowired
+    public TransactionOperationExecutor(final PlatformTransactionManager transactionManager, final IDAOFactory daoFactory,
+            final DatabaseConfigurationContext databaseContext)
+    {
+        this.context = new ITransactionOperationContext()
+        {
+            @Override public Object getTransaction(final String transactionId) throws Exception
+            {
+                return transactionManager.getTransaction(new DefaultTransactionDefinition());
+            }
+
+            @Override public void prepareTransaction(final String transactionId, final Object transaction) throws Exception
+            {
+                Session session = daoFactory.getSessionFactory().getCurrentSession();
+                session.flush();
+                session.doWork(connection ->
+                {
+                    PreparedStatement statement = connection.prepareStatement("PREPARE TRANSACTION '" + transactionId + "'");
+                    statement.execute();
+                });
+            }
+
+            @Override public void rollbackTransaction(final String transactionId, final Object transaction) throws Exception
+            {
+                Connection connection = null;
+                Statement statement = null;
+
+                try
+                {
+                    connection = databaseContext.getDataSource().getConnection();
+                    statement = connection.createStatement();
+                    statement.execute("ROLLBACK PREPARED '" + transactionId + "'");
+                } catch (Exception e)
+                {
+                    if (statement != null)
+                    {
+                        try
+                        {
+                            statement.close();
+                        } catch (Exception ignore)
+                        {
+                        }
+                    }
+                    if (connection != null)
+                    {
+                        try
+                        {
+                            connection.close();
+                        } catch (SQLException ignore)
+                        {
+                        }
+                    }
+
+                    throw e;
+                }
+            }
+
+            @Override public void commitTransaction(final String transactionId, final Object transaction) throws Exception
+            {
+                Connection connection = null;
+                Statement statement = null;
+
+                try
+                {
+                    connection = databaseContext.getDataSource().getConnection();
+                    statement = connection.createStatement();
+                    statement.execute("COMMIT PREPARED '" + transactionId + "'");
+                } catch (Exception e)
+                {
+                    if (statement != null)
+                    {
+                        try
+                        {
+                            statement.close();
+                        } catch (Exception ignore)
+                        {
+                        }
+                    }
+                    if (connection != null)
+                    {
+                        try
+                        {
+                            connection.close();
+                        } catch (SQLException ignore)
+                        {
+                        }
+                    }
+
+                    throw e;
+                }
+            }
+        };
+    }
 
     public Object execute(String transactionId, String transactionManagerSecret, ITransactionOperation operation) throws Throwable
     {
@@ -104,7 +195,7 @@ public class TransactionOperationExecutor implements ITransactionOperationExecut
 
         private String transactionManagerSecret;
 
-        private TransactionStatus transaction;
+        private Object transaction;
 
         private TwoPhaseTransactionStatus status = TwoPhaseTransactionStatus.NEW;
 
@@ -134,20 +225,14 @@ public class TransactionOperationExecutor implements ITransactionOperationExecut
                                         checkTransactionStatus(TwoPhaseTransactionStatus.NEW);
                                         checkTransactionManagerSecret(transactionManagerSecret);
 
-                                        transaction = transactionManager.getTransaction(new DefaultTransactionDefinition());
+                                        transaction = context.getTransaction(transactionId);
                                         status = TwoPhaseTransactionStatus.STARTED;
                                     } else if (TransactionConst.PREPARE_TRANSACTION_METHOD.equals(invocation.getOperationName()))
                                     {
                                         checkTransactionStatus(TwoPhaseTransactionStatus.STARTED);
                                         checkTransactionManagerSecret(transactionManagerSecret);
 
-                                        Session session = daoFactory.getSessionFactory().getCurrentSession();
-                                        session.flush();
-                                        session.doWork(connection ->
-                                        {
-                                            PreparedStatement statement = connection.prepareStatement("PREPARE TRANSACTION '" + transactionId + "'");
-                                            statement.execute();
-                                        });
+                                        context.prepareTransaction(transactionId, transaction);
 
                                         status = TwoPhaseTransactionStatus.PREPARED;
                                     } else if (TransactionConst.COMMIT_TRANSACTION_METHOD.equals(invocation.getOperationName()))
@@ -155,37 +240,7 @@ public class TransactionOperationExecutor implements ITransactionOperationExecut
                                         checkTransactionStatus(TwoPhaseTransactionStatus.PREPARED);
                                         checkTransactionManagerSecret(transactionManagerSecret);
 
-                                        Connection connection = null;
-                                        Statement statement = null;
-
-                                        try
-                                        {
-                                            connection = databaseContext.getDataSource().getConnection();
-                                            statement = connection.createStatement();
-                                            statement.execute("COMMIT PREPARED '" + transactionId + "'");
-                                        } catch (Exception e)
-                                        {
-                                            if (statement != null)
-                                            {
-                                                try
-                                                {
-                                                    statement.close();
-                                                } catch (Exception ignore)
-                                                {
-                                                }
-                                            }
-                                            if (connection != null)
-                                            {
-                                                try
-                                                {
-                                                    connection.close();
-                                                } catch (SQLException ignore)
-                                                {
-                                                }
-                                            }
-
-                                            throw e;
-                                        }
+                                        context.commitTransaction(transactionId, transaction);
 
                                         status = TwoPhaseTransactionStatus.COMMITTED;
                                     } else if (TransactionConst.ROLLBACK_TRANSACTION_METHOD.equals(invocation.getOperationName()))
@@ -193,37 +248,7 @@ public class TransactionOperationExecutor implements ITransactionOperationExecut
                                         checkTransactionStatus(TwoPhaseTransactionStatus.PREPARED);
                                         checkTransactionManagerSecret(transactionManagerSecret);
 
-                                        Connection connection = null;
-                                        Statement statement = null;
-
-                                        try
-                                        {
-                                            connection = databaseContext.getDataSource().getConnection();
-                                            statement = connection.createStatement();
-                                            statement.execute("ROLLBACK PREPARED '" + transactionId + "'");
-                                        } catch (Exception e)
-                                        {
-                                            if (statement != null)
-                                            {
-                                                try
-                                                {
-                                                    statement.close();
-                                                } catch (Exception ignore)
-                                                {
-                                                }
-                                            }
-                                            if (connection != null)
-                                            {
-                                                try
-                                                {
-                                                    connection.close();
-                                                } catch (SQLException ignore)
-                                                {
-                                                }
-                                            }
-
-                                            throw e;
-                                        }
+                                        context.rollbackTransaction(transactionId, transaction);
 
                                         status = TwoPhaseTransactionStatus.ROLLED_BACK;
                                     } else
@@ -255,14 +280,18 @@ public class TransactionOperationExecutor implements ITransactionOperationExecut
 
                             } catch (Throwable e)
                             {
-                                operationLog.error(
-                                        "Two phase transaction " + transactionId + " method " + (invocation != null ?
-                                                invocation.getOperationName() : "") + " failed or got interrupted.",
-                                        e);
+                                operationLog.error("Two phase transaction " + transactionId + " method " + (invocation != null ?
+                                        invocation.getOperationName() : "") + " failed or got interrupted.", e);
 
                                 if (transaction != null)
                                 {
-                                    transactionManager.rollback(transaction);
+                                    try
+                                    {
+                                        context.rollbackTransaction(transactionId, transaction);
+                                    } catch (Exception e2)
+                                    {
+                                        operationLog.warn("Two phase transaction " + transactionId + " could not be rolled back.", e2);
+                                    }
                                 }
 
                                 exception = e;
@@ -323,8 +352,7 @@ public class TransactionOperationExecutor implements ITransactionOperationExecut
                     {
                         throw new IllegalStateException(
                                 "Cannot schedule another two phase transaction " + transactionId + " call as the previous execution for method "
-                                        + invocation.getOperationName()
-                                        + " hasn't finished yet.");
+                                        + invocation.getOperationName() + " hasn't finished yet.");
                     }
 
                     transactionManagerSecret = newTransactionManagerSecret;
@@ -344,8 +372,7 @@ public class TransactionOperationExecutor implements ITransactionOperationExecut
                 {
                     operationLog.error(
                             "Scheduling of the next two phase transaction method " + invocation.getOperationName()
-                                    + " call failed or got interrupted.",
-                            e);
+                                    + " call failed or got interrupted.", e);
                     throw e;
                 }
 
