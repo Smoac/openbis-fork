@@ -42,8 +42,6 @@ public class TransactionOperationExecutor implements ITransactionOperationExecut
     {
         if (transactionId != null)
         {
-            checkTransactionManagerSecret(transactionManagerSecret);
-
             TransactionThread thread;
 
             synchronized (this)
@@ -72,7 +70,7 @@ public class TransactionOperationExecutor implements ITransactionOperationExecut
 
             try
             {
-                return thread.execute(operation);
+                return thread.execute(transactionManagerSecret, operation);
             } finally
             {
                 synchronized (this)
@@ -104,6 +102,8 @@ public class TransactionOperationExecutor implements ITransactionOperationExecut
 
         private final String transactionId;
 
+        private String transactionManagerSecret;
+
         private TransactionStatus transaction;
 
         private TwoPhaseTransactionStatus status = TwoPhaseTransactionStatus.NEW;
@@ -132,11 +132,14 @@ public class TransactionOperationExecutor implements ITransactionOperationExecut
                                     if (TransactionConst.BEGIN_TRANSACTION_METHOD.equals(invocation.getOperationName()))
                                     {
                                         checkTransactionStatus(TwoPhaseTransactionStatus.NEW);
+                                        checkTransactionManagerSecret(transactionManagerSecret);
+
                                         transaction = transactionManager.getTransaction(new DefaultTransactionDefinition());
                                         status = TwoPhaseTransactionStatus.STARTED;
                                     } else if (TransactionConst.PREPARE_TRANSACTION_METHOD.equals(invocation.getOperationName()))
                                     {
                                         checkTransactionStatus(TwoPhaseTransactionStatus.STARTED);
+                                        checkTransactionManagerSecret(transactionManagerSecret);
 
                                         Session session = daoFactory.getSessionFactory().getCurrentSession();
                                         session.flush();
@@ -150,6 +153,7 @@ public class TransactionOperationExecutor implements ITransactionOperationExecut
                                     } else if (TransactionConst.COMMIT_TRANSACTION_METHOD.equals(invocation.getOperationName()))
                                     {
                                         checkTransactionStatus(TwoPhaseTransactionStatus.PREPARED);
+                                        checkTransactionManagerSecret(transactionManagerSecret);
 
                                         Connection connection = null;
                                         Statement statement = null;
@@ -187,6 +191,7 @@ public class TransactionOperationExecutor implements ITransactionOperationExecut
                                     } else if (TransactionConst.ROLLBACK_TRANSACTION_METHOD.equals(invocation.getOperationName()))
                                     {
                                         checkTransactionStatus(TwoPhaseTransactionStatus.PREPARED);
+                                        checkTransactionManagerSecret(transactionManagerSecret);
 
                                         Connection connection = null;
                                         Statement statement = null;
@@ -287,6 +292,14 @@ public class TransactionOperationExecutor implements ITransactionOperationExecut
                     }
                 }
 
+                private void checkTransactionManagerSecret(String secret)
+                {
+                    if (secret == null || secret.isBlank())
+                    {
+                        throw new IllegalStateException("Two phase transaction manager secret missing.");
+                    }
+                }
+
             });
         }
 
@@ -300,7 +313,7 @@ public class TransactionOperationExecutor implements ITransactionOperationExecut
             return thread.isAlive();
         }
 
-        public Object execute(ITransactionOperation newInvocation) throws Throwable
+        public Object execute(String newTransactionManagerSecret, ITransactionOperation newInvocation) throws Throwable
         {
             synchronized (lock)
             {
@@ -314,6 +327,7 @@ public class TransactionOperationExecutor implements ITransactionOperationExecut
                                         + " hasn't finished yet.");
                     }
 
+                    transactionManagerSecret = newTransactionManagerSecret;
                     invocation = newInvocation;
                     result = null;
                     exception = null;
@@ -343,14 +357,6 @@ public class TransactionOperationExecutor implements ITransactionOperationExecut
                     return result;
                 }
             }
-        }
-    }
-
-    private void checkTransactionManagerSecret(String secret)
-    {
-        if (secret == null || secret.isBlank())
-        {
-            throw new IllegalStateException("Two phase transaction manager secret missing.");
         }
     }
 
