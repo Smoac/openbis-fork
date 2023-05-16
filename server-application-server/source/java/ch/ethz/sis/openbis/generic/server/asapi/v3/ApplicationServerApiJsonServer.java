@@ -56,7 +56,7 @@ public class ApplicationServerApiJsonServer extends AbstractApiJsonServiceExport
     private IApplicationServerApi service;
 
     @Autowired
-    private ITransactionOperationExecutor transactionOperationExecutor;
+    private ITransactionExecutor transactionOperationExecutor;
 
     private final ThreadLocal<Map<String, String>> operationAttributes = new ThreadLocal<>();
 
@@ -113,18 +113,37 @@ public class ApplicationServerApiJsonServer extends AbstractApiJsonServiceExport
                         String transactionId = attributesMap.get(TransactionConst.TRANSACTION_ID_ATTRIBUTE);
                         String transactionManagerSecret = attributesMap.get(TransactionConst.TRANSACTION_MANAGER_SECRET_ATTRIBUTE);
 
-                        return transactionOperationExecutor.execute(transactionId, transactionManagerSecret, new ITransactionOperation()
+                        if (TransactionConst.BEGIN_TRANSACTION_METHOD.equals(invocation.getMethod().getName()))
                         {
-                            @Override public String getOperationName()
+                            transactionOperationExecutor.beginTransaction(transactionId, transactionManagerSecret);
+                            return null;
+                        } else if (TransactionConst.PREPARE_TRANSACTION_METHOD.equals(invocation.getMethod().getName()))
+                        {
+                            transactionOperationExecutor.prepareTransaction(transactionId, transactionManagerSecret);
+                            return null;
+                        } else if (TransactionConst.COMMIT_TRANSACTION_METHOD.equals(invocation.getMethod().getName()))
+                        {
+                            transactionOperationExecutor.commitTransaction(transactionId, transactionManagerSecret);
+                            return null;
+                        } else if (TransactionConst.ROLLBACK_TRANSACTION_METHOD.equals(invocation.getMethod().getName()))
+                        {
+                            transactionOperationExecutor.rollbackTransaction(transactionId, transactionManagerSecret);
+                            return null;
+                        } else
+                        {
+                            return transactionOperationExecutor.executeOperation(transactionId, transactionManagerSecret, new ITransactionOperation()
                             {
-                                return invocation.getMethod().getName();
-                            }
+                                @Override public String getOperationName()
+                                {
+                                    return invocation.getMethod().getName();
+                                }
 
-                            @Override public Object executeOperation() throws Throwable
-                            {
-                                return invocation.proceed();
-                            }
-                        });
+                                @Override public Object executeOperation() throws Throwable
+                                {
+                                    return invocation.proceed();
+                                }
+                            });
+                        }
                     }
                 }
         });

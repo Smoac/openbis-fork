@@ -42,7 +42,7 @@ public class ApplicationServerApiServer extends AbstractApiServiceExporter
     private IApplicationServerApi service;
 
     @Autowired
-    private ITransactionOperationExecutor transactionOperationExecutor;
+    private ITransactionExecutor transactionOperationExecutor;
 
     @Override
     public void afterPropertiesSet()
@@ -70,18 +70,37 @@ public class ApplicationServerApiServer extends AbstractApiServiceExporter
             String transactionId = (String) invocation.getAttribute(TransactionConst.TRANSACTION_ID_ATTRIBUTE);
             String transactionManagerSecret = (String) invocation.getAttribute(TransactionConst.TRANSACTION_MANAGER_SECRET_ATTRIBUTE);
 
-            return transactionOperationExecutor.execute(transactionId, transactionManagerSecret, new ITransactionOperation()
+            if (TransactionConst.BEGIN_TRANSACTION_METHOD.equals(invocation.getMethodName()))
             {
-                @Override public String getOperationName()
+                transactionOperationExecutor.beginTransaction(transactionId, transactionManagerSecret);
+                return null;
+            } else if (TransactionConst.PREPARE_TRANSACTION_METHOD.equals(invocation.getMethodName()))
+            {
+                transactionOperationExecutor.prepareTransaction(transactionId, transactionManagerSecret);
+                return null;
+            } else if (TransactionConst.COMMIT_TRANSACTION_METHOD.equals(invocation.getMethodName()))
+            {
+                transactionOperationExecutor.commitTransaction(transactionId, transactionManagerSecret);
+                return null;
+            } else if (TransactionConst.ROLLBACK_TRANSACTION_METHOD.equals(invocation.getMethodName()))
+            {
+                transactionOperationExecutor.rollbackTransaction(transactionId, transactionManagerSecret);
+                return null;
+            } else
+            {
+                return transactionOperationExecutor.executeOperation(transactionId, transactionManagerSecret, new ITransactionOperation()
                 {
-                    return invocation.getMethodName();
-                }
+                    @Override public String getOperationName()
+                    {
+                        return invocation.getMethodName();
+                    }
 
-                @Override public Object executeOperation() throws Throwable
-                {
-                    return invocation.invoke(service);
-                }
-            });
+                    @Override public Object executeOperation() throws Throwable
+                    {
+                        return invocation.invoke(service);
+                    }
+                });
+            }
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | Error | RuntimeException e)
         {
             throw e;

@@ -1,9 +1,9 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3;
 
-public interface ITransactionOperationContext
+public interface ITransactionProvider
 {
 
-    Object getTransaction(String transactionId) throws Exception;
+    Object beginTransaction(String transactionId) throws Exception;
 
     void prepareTransaction(String transactionId, Object transaction) throws Exception;
 
