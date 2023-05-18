@@ -12,6 +12,7 @@ import org.jmock.lib.action.CustomAction;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public class TransactionExecutorTest
@@ -20,6 +21,10 @@ public class TransactionExecutorTest
     public static final String TEST_TRANSACTION_ID = "test-id";
 
     public static final String TEST_TRANSACTION_ID_2 = "test-id-2";
+
+    public static final Object TEST_TRANSACTION = new Object();
+
+    public static final Object TEST_TRANSACTION_2 = new Object();
 
     public static final String TEST_SECRET = "test-secret";
 
@@ -30,6 +35,12 @@ public class TransactionExecutorTest
     public static final String TEST_RESULT = "test-result";
 
     public static final String TEST_RESULT_2 = "test-result-2";
+
+    public static final RuntimeException TEST_UNCHECKED_EXCEPTION = new RuntimeException("Test unchecked exception");
+
+    public static final Exception TEST_CHECKED_EXCEPTION = new Exception("Test checked exception");
+
+    public static final Error TEST_ERROR = new Error("Test error");
 
     private Mockery mockery;
 
@@ -63,20 +74,17 @@ public class TransactionExecutorTest
         mockery.checking(new Expectations()
         {
             {
-                Object transaction1 = new Object();
-                Object transaction2 = new Object();
-
                 one(provider).beginTransaction(with(TEST_TRANSACTION_ID));
                 will(new CustomAction("beginTransaction")
                 {
                     @Override public Object invoke(final Invocation invocation) throws Throwable
                     {
                         transaction1BeginThreadName.setValue(Thread.currentThread().getName());
-                        return transaction1;
+                        return TEST_TRANSACTION;
                     }
                 });
 
-                one(provider).prepareTransaction(with(TEST_TRANSACTION_ID), with(transaction1));
+                one(provider).prepareTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
                 will(new CustomAction("prepareTransaction")
                 {
                     @Override public Object invoke(final Invocation invocation) throws Throwable
@@ -86,7 +94,7 @@ public class TransactionExecutorTest
                     }
                 });
 
-                one(provider).commitTransaction(with(TEST_TRANSACTION_ID), with(transaction1));
+                one(provider).commitTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
                 will(new CustomAction("commitTransaction")
                 {
                     @Override public Object invoke(final Invocation invocation) throws Throwable
@@ -102,11 +110,11 @@ public class TransactionExecutorTest
                     @Override public Object invoke(final Invocation invocation) throws Throwable
                     {
                         transaction2BeginThreadName.setValue(Thread.currentThread().getName());
-                        return transaction2;
+                        return TEST_TRANSACTION_2;
                     }
                 });
 
-                one(provider).rollbackTransaction(with(TEST_TRANSACTION_ID_2), with(transaction2));
+                one(provider).rollbackTransaction(with(TEST_TRANSACTION_ID_2), with(TEST_TRANSACTION_2));
                 will(new CustomAction("rollbackTransaction")
                 {
                     @Override public Object invoke(final Invocation invocation) throws Throwable
@@ -154,6 +162,155 @@ public class TransactionExecutorTest
         Assert.assertFalse(transaction1ThreadNames.contains(Thread.currentThread().getName()));
         Assert.assertFalse(transaction2ThreadNames.contains(Thread.currentThread().getName()));
         Assert.assertFalse(transaction1ThreadNames.removeAll(transaction2ThreadNames));
+    }
+
+    @Test(dataProvider = "provideExceptions")
+    public void testBeginTransactionFails(Throwable throwable) throws Throwable
+    {
+        TransactionExecutor executor = new TransactionExecutor(provider);
+
+        mockery.checking(new Expectations()
+        {
+            {
+                one(provider).beginTransaction(with(TEST_TRANSACTION_ID));
+                will(throwException(throwable));
+            }
+        });
+
+        try
+        {
+            executor.beginTransaction(TEST_TRANSACTION_ID, TEST_SECRET);
+            Assert.fail();
+        } catch (Throwable t)
+        {
+            Assert.assertEquals(t, throwable);
+        }
+    }
+
+    @Test(dataProvider = "provideExceptions")
+    public void testExecuteOperationFails(Throwable throwable) throws Throwable
+    {
+        TransactionExecutor executor = new TransactionExecutor(provider);
+
+        mockery.checking(new Expectations()
+        {
+            {
+                one(provider).beginTransaction(with(TEST_TRANSACTION_ID));
+                will(returnValue(TEST_TRANSACTION));
+            }
+        });
+
+        executor.beginTransaction(TEST_TRANSACTION_ID, TEST_SECRET);
+
+        try
+        {
+            executor.executeOperation(TEST_TRANSACTION_ID, TEST_SECRET, new ITransactionOperation()
+            {
+                @Override public String getOperationName()
+                {
+                    return TEST_OPERATION_NAME;
+                }
+
+                @Override public Object executeOperation() throws Throwable
+                {
+                    throw throwable;
+                }
+            });
+            Assert.fail();
+        } catch (Throwable t)
+        {
+            Assert.assertEquals(t, throwable);
+        }
+    }
+
+    @Test(dataProvider = "provideExceptions")
+    public void testRollbackFails(Throwable throwable) throws Throwable
+    {
+        TransactionExecutor executor = new TransactionExecutor(provider);
+
+        mockery.checking(new Expectations()
+        {
+            {
+                one(provider).beginTransaction(with(TEST_TRANSACTION_ID));
+                will(returnValue(TEST_TRANSACTION));
+
+                one(provider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
+                will(throwException(throwable));
+            }
+        });
+
+        executor.beginTransaction(TEST_TRANSACTION_ID, TEST_SECRET);
+        executor.executeOperation(TEST_TRANSACTION_ID, TEST_SECRET, new TestOperation(TEST_OPERATION_NAME, TEST_RESULT));
+
+        try
+        {
+            executor.rollbackTransaction(TEST_TRANSACTION_ID, TEST_SECRET);
+            Assert.fail();
+        } catch (Throwable t)
+        {
+            Assert.assertEquals(t, throwable);
+        }
+    }
+
+    @Test(dataProvider = "provideExceptions")
+    public void testPrepareFails(Throwable throwable) throws Throwable
+    {
+        TransactionExecutor executor = new TransactionExecutor(provider);
+
+        mockery.checking(new Expectations()
+        {
+            {
+                one(provider).beginTransaction(with(TEST_TRANSACTION_ID));
+                will(returnValue(TEST_TRANSACTION));
+
+                one(provider).prepareTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
+                will(throwException(throwable));
+            }
+        });
+
+        executor.beginTransaction(TEST_TRANSACTION_ID, TEST_SECRET);
+        executor.executeOperation(TEST_TRANSACTION_ID, TEST_SECRET, new TestOperation(TEST_OPERATION_NAME, TEST_RESULT));
+
+        try
+        {
+            executor.prepareTransaction(TEST_TRANSACTION_ID, TEST_SECRET);
+            Assert.fail();
+        } catch (Throwable t)
+        {
+            Assert.assertEquals(t, throwable);
+        }
+    }
+
+    @Test(dataProvider = "provideExceptions")
+    public void testCommitFails(Throwable throwable) throws Throwable
+    {
+        TransactionExecutor executor = new TransactionExecutor(provider);
+
+        mockery.checking(new Expectations()
+        {
+            {
+                one(provider).beginTransaction(with(TEST_TRANSACTION_ID));
+                will(returnValue(TEST_TRANSACTION));
+
+                one(provider).prepareTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
+
+                one(provider).commitTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
+                will(throwException(throwable));
+            }
+        });
+
+        executor.beginTransaction(TEST_TRANSACTION_ID, TEST_SECRET);
+        executor.executeOperation(TEST_TRANSACTION_ID, TEST_SECRET, new TestOperation(TEST_OPERATION_NAME, TEST_RESULT));
+        executor.prepareTransaction(TEST_TRANSACTION_ID, TEST_SECRET);
+
+        try
+        {
+            executor.commitTransaction(TEST_TRANSACTION_ID, TEST_SECRET);
+            Assert.fail();
+        } catch (Throwable t)
+        {
+            Assert.assertEquals(t, throwable);
+        }
     }
 
     @Test
@@ -521,6 +678,17 @@ public class TransactionExecutorTest
                 return result;
             }
         }
+    }
+
+    @DataProvider
+    protected Object[][] provideExceptions()
+    {
+        return new Object[][]
+                {
+                        { TEST_UNCHECKED_EXCEPTION },
+                        { TEST_CHECKED_EXCEPTION },
+                        { TEST_ERROR },
+                };
     }
 
 }
