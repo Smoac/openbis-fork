@@ -11,6 +11,7 @@ import Error from '@src/js/components/common/error/Error.jsx'
 import Menu from '@src/js/components/common/menu/Menu.jsx'
 
 import Login from '@src/js/components/login/Login.jsx'
+import Workshop from '@src/js/components/workshop/Workshop.jsx'
 import Database from '@src/js/components/database/Database.jsx'
 import Users from '@src/js/components/users/Users.jsx'
 import Types from '@src/js/components/types/Types.jsx'
@@ -39,6 +40,7 @@ const styles = {
 }
 
 const pageToComponent = {
+  [pages.WORKSHOP]: Workshop,
   [pages.DATABASE]: Database,
   [pages.TYPES]: Types,
   [pages.USERS]: Users,

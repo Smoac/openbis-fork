@@ -52,6 +52,9 @@ class DefaultRoute {
 }
 
 const routes = {
+  WORKSHOP: new Route('/workshop', {
+    page: pages.WORKSHOP
+  }),
   DATABASE: new Route('/database', {
     page: pages.DATABASE
   }),
