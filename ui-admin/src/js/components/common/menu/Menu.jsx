@@ -111,6 +111,7 @@ class Menu extends React.PureComponent {
             <Tab value={pages.TYPES} label={messages.get(messages.TYPES)} />
             <Tab value={pages.USERS} label={messages.get(messages.USERS)} />
             <Tab value={pages.TOOLS} label={messages.get(messages.TOOLS)} />
+            <Tab value={pages.WORKSHOP} label={messages.get(messages.WORKSHOP)} />
           </Tabs>
           <TextField
             placeholder={messages.get(messages.SEARCH)}
