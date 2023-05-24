@@ -1,13 +1,25 @@
+/*
+ * Copyright ETH 2022 - 2023 Zürich, Scientific IT Services
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package ch.systemsx.cisd.openbis.generic.server.pat;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 import javax.annotation.Resource;
@@ -140,14 +152,23 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
             return;
         }
 
-        PersonalAccessTokenSession patSession = personalAccessTokenDAO.getSessionByHash(sessionToken);
+        synchronized (sessions)
+        {
+            Session session = sessions.get(sessionToken);
 
-        if (patSession == null)
-        {
-            sessionManager.expireSession(sessionToken);
-        } else
-        {
-            closeSession(sessionToken);
+            if (session == null)
+            {
+                sessionManager.expireSession(sessionToken);
+            } else
+            {
+                PersonalAccessTokenSession patSession = personalAccessTokenDAO.getSessionByHash(sessionToken);
+
+                if (patSession == null || new Date().after(patSession.getValidToDate()))
+                {
+                    session.cleanup();
+                    sessions.remove(session.getSessionToken());
+                }
+            }
         }
     }
 
@@ -160,25 +181,21 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
             return;
         }
 
-        PersonalAccessTokenSession patSession = personalAccessTokenDAO.getSessionByHash(sessionToken);
+        synchronized (sessions)
+        {
+            Session session = sessions.get(sessionToken);
 
-        if (patSession == null)
-        {
-            sessionManager.closeSession(sessionToken);
-        } else
-        {
-            synchronized (sessions)
+            if (session == null)
             {
-                Date now = new Date();
+                sessionManager.closeSession(sessionToken);
+            } else
+            {
+                PersonalAccessTokenSession patSession = personalAccessTokenDAO.getSessionByHash(sessionToken);
 
-                if (now.after(patSession.getValidToDate()))
+                if (patSession == null || new Date().after(patSession.getValidToDate()))
                 {
-                    Session session = sessions.get(patSession.getHash());
-                    if (session != null)
-                    {
-                        session.cleanup();
-                        sessions.remove(session.getSessionToken());
-                    }
+                    session.cleanup();
+                    sessions.remove(session.getSessionToken());
                 }
             }
         }
@@ -201,7 +218,7 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
         {
             synchronized (sessions)
             {
-                Session session = tryGetSession(sessionToken);
+                Session session = getOrCreateSessionForPATSession(patSession);
 
                 if (session != null)
                 {
@@ -238,16 +255,7 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
         {
             synchronized (sessions)
             {
-                if (sessions.containsKey(sessionToken))
-                {
-                    return sessions.get(sessionToken);
-                } else if (isSessionActive(sessionToken))
-                {
-                    return getOrCreateSessionForPATSession(patSession);
-                } else
-                {
-                    return null;
-                }
+                return getOrCreateSessionForPATSession(patSession);
             }
         }
     }
@@ -273,13 +281,10 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
 
             for (PersonalAccessTokenSession patSession : personalAccessTokenDAO.listSessions())
             {
-                if (!allSessions.containsKey(patSession.getHash()) && isSessionActive(patSession.getHash()))
+                Session session = getOrCreateSessionForPATSession(patSession);
+                if (session != null)
                 {
-                    Session session = getOrCreateSessionForPATSession(patSession);
-                    if (session != null)
-                    {
-                        allSessions.put(session.getSessionToken(), session);
-                    }
+                    allSessions.put(session.getSessionToken(), session);
                 }
             }
         }
@@ -290,14 +295,22 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
     private Session getOrCreateSessionForPATSession(PersonalAccessTokenSession patSession)
     {
         Session session = sessions.get(patSession.getHash());
+
         if (session == null)
         {
-            session = createSessionForPATSession(patSession);
-            if (session != null)
+            if (isSessionActive(patSession.getHash()))
             {
-                sessions.put(session.getSessionToken(), session);
+                session = createSessionForPATSession(patSession);
+                if (session != null)
+                {
+                    sessions.put(session.getSessionToken(), session);
+                }
             }
+        } else
+        {
+            session.setSessionExpirationTime(patSession.getValidToDate().getTime() - patSession.getValidFromDate().getTime());
         }
+
         return session;
     }
 
@@ -305,7 +318,31 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
     {
         try
         {
-            final Principal principal = authenticationService.getPrincipal(patSession.getOwnerId());
+
+            PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(patSession.getOwnerId());
+
+            if (person == null)
+            {
+                operationLog.warn("Ignoring a personal access token session (" + patSession
+                        + ") because the session's owner was not found in the openBIS database.");
+                return null;
+            }
+
+            Principal principal = null;
+            try
+            {
+                principal = authenticationService.getPrincipal(patSession.getOwnerId());
+            } catch (Exception ex1) {
+                try
+                {
+                    if (authenticationService.supportsAuthenticatingByEmail())
+                    {
+                        principal = authenticationService.getPrincipal(person.getEmail());
+                    }
+                } catch (Exception ex2) {
+                    operationLog.warn(ex2);
+                }
+            }
 
             if (principal == null)
             {
@@ -315,15 +352,6 @@ public class PersonalAccessTokenOpenBisSessionManagerDecorator implements IOpenB
             } else
             {
                 principal.setAuthenticated(true);
-            }
-
-            PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(patSession.getOwnerId());
-
-            if (person == null)
-            {
-                operationLog.warn("Ignoring a personal access token session (" + patSession
-                        + ") because the session's owner was not found in the openBIS database.");
-                return null;
             }
 
             final Session session = sessionFactory.create(patSession.getHash(), patSession.getOwnerId(), principal, getRemoteHost(),
