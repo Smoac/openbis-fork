@@ -1,7 +1,7 @@
 import React from "react";
-import Toolbar from "@src/js/components/database/data-browser/Toolbar";
-import ListBrowser from "@src/js/components/database/data-browser/ListBrowser";
-import GalleryBrowser from "@src/js/components/database/data-browser/GalleryBrowser";
+import Toolbar from "@src/js/components/database/data-browser/Toolbar.jsx";
+import ListBrowser from "@src/js/components/database/data-browser/ListBrowser.jsx";
+import GalleryBrowser from "@src/js/components/database/data-browser/GalleryBrowser.jsx";
 
 const styles = theme => ({
     containerDefault: {
@@ -14,7 +14,7 @@ const styles = theme => ({
 
 class DataBrowser extends React.Component {
     render() {
-        const { view } = this.state;
+        const { view } = this.props;
 
         return (
             <div>
