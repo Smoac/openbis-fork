@@ -1,15 +1,17 @@
-import React from 'react'
-import Container from '@src/js/components/common/form/Container.jsx'
-import AppController from '@src/js/components/AppController.js'
-import openbis from '@src/js/services/openbis.js'
-import objectType from '@src/js/common/consts/objectType.js'
-import logger from '@src/js/common/logger.js'
+import React from "react";
+import Container from "@src/js/components/common/form/Container.jsx";
+import AppController from "@src/js/components/AppController.js";
+import DataBrowser from "@src/js/components/database/data-browser/DataBrowser";
+import openbis from "@src/js/services/openbis.js";
+import objectType from "@src/js/common/consts/objectType.js";
+import logger from "@src/js/common/logger.js";
 
 class DatabaseComponent extends React.PureComponent {
   constructor(props) {
     super(props)
     this.state = {
-      json: null
+      json: null,
+      showDataBrowser: false
     }
   }
 
@@ -18,6 +20,7 @@ class DatabaseComponent extends React.PureComponent {
       const { object } = this.props
 
       let json = null
+      let showDataBrowser = false;
       if (object.type === objectType.SPACE) {
         const spaces = await openbis.getSpaces(
           [new openbis.SpacePermId(object.id)],
@@ -36,6 +39,7 @@ class DatabaseComponent extends React.PureComponent {
           new openbis.ExperimentFetchOptions()
         )
         json = experiments[object.id]
+        showDataBrowser = true;
       } else if (object.type === objectType.OBJECT) {
         const fetchOptions = new openbis.SampleFetchOptions()
         fetchOptions.withSpace()
@@ -47,6 +51,7 @@ class DatabaseComponent extends React.PureComponent {
           fetchOptions
         )
         json = samples[object.id]
+        showDataBrowser = true;
       } else if (object.type === objectType.DATA_SET) {
         const fetchOptions = new openbis.DataSetFetchOptions()
         fetchOptions.withExperiment()
@@ -60,7 +65,8 @@ class DatabaseComponent extends React.PureComponent {
       }
 
       this.setState({
-        json
+        json,
+        showDataBrowser
       })
     } catch (error) {
       AppController.getInstance().errorChange(error)
@@ -71,9 +77,13 @@ class DatabaseComponent extends React.PureComponent {
     logger.log(logger.DEBUG, 'DatabaseComponent.render')
 
     return (
-      <Container>
-        <pre>{JSON.stringify(this.state.json || {}, null, 2)}</pre>
-      </Container>
+      this.state.showDataBrowser
+        ?
+          <DataBrowser view={"gallery"}/>
+        :
+          <Container>
+            <pre>{JSON.stringify(this.state.json || {}, null, 2)}</pre>
+          </Container>
     )
   }
 }
