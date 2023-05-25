@@ -1,10 +1,10 @@
-import React from "react";
-import Container from "@src/js/components/common/form/Container.jsx";
-import AppController from "@src/js/components/AppController.js";
-import DataBrowser from "@src/js/components/database/data-browser/DataBrowser.jsx";
-import openbis from "@src/js/services/openbis.js";
-import objectType from "@src/js/common/consts/objectType.js";
-import logger from "@src/js/common/logger.js";
+import React from 'react'
+import Container from '@src/js/components/common/form/Container.jsx'
+import AppController from '@src/js/components/AppController.js'
+import DataBrowser from '@src/js/components/database/data-browser/DataBrowser.jsx'
+import openbis from '@src/js/services/openbis.js'
+import objectType from '@src/js/common/consts/objectType.js'
+import logger from '@src/js/common/logger.js'
 
 class DatabaseComponent extends React.PureComponent {
   constructor(props) {
@@ -79,7 +79,7 @@ class DatabaseComponent extends React.PureComponent {
     return (
       this.state.showDataBrowser
         ?
-          <DataBrowser view={"gallery"}/>
+          <DataBrowser viewType='grid'/>
         :
           <Container>
             <pre>{JSON.stringify(this.state.json || {}, null, 2)}</pre>

@@ -1,5 +1,5 @@
-import React from "react";
-import { withStyles } from "@material-ui/core/styles";
+import React from 'react'
+import { withStyles } from '@material-ui/core/styles'
 
 const styles = theme => ({
     containerDefault: {
@@ -10,7 +10,7 @@ const styles = theme => ({
     }
 })
 
-class GalleryView extends React.Component {
+class GridView extends React.Component {
     render() {
         return (
             <div>GalleryBrowser</div>
@@ -18,4 +18,4 @@ class GalleryView extends React.Component {
     }
 }
 
-export default withStyles(styles)(GalleryView)
+export default withStyles(styles)(GridView)
