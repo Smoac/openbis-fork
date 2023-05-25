@@ -27,8 +27,8 @@ class DataBrowser extends React.Component {
         return (
             <div className={classes.boundary}>
                 <Toolbar/>
-                {view === "list" ? <ListView/> : null}
-                {view === "gallery" ? <GalleryView/> : null}
+                {view === 'list' ? <ListView/> : null}
+                {view === 'gallery' ? <GalleryView/> : null}
             </div>
         )
     }
