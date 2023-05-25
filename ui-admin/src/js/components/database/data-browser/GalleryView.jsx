@@ -10,12 +10,12 @@ const styles = theme => ({
     }
 })
 
-class ListBrowser extends React.Component {
+class GalleryView extends React.Component {
     render() {
         return (
-            <div>ListBrowser</div>
+            <div>GalleryBrowser</div>
         )
     }
 }
 
-export default withStyles(styles)(ListBrowser)
+export default withStyles(styles)(GalleryView)

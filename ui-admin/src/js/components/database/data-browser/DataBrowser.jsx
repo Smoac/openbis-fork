@@ -1,7 +1,8 @@
 import React from "react";
+import { withStyles } from "@material-ui/core/styles";
 import Toolbar from "@src/js/components/database/data-browser/Toolbar.jsx";
-import ListBrowser from "@src/js/components/database/data-browser/ListBrowser.jsx";
-import GalleryBrowser from "@src/js/components/database/data-browser/GalleryBrowser.jsx";
+import ListView from "@src/js/components/database/data-browser/ListView.jsx";
+import GalleryView from "@src/js/components/database/data-browser/GalleryView.jsx";
 
 const styles = theme => ({
     containerDefault: {
@@ -19,12 +20,11 @@ class DataBrowser extends React.Component {
         return (
             <div>
                 <Toolbar/>
-                {view === "list" ? <ListBrowser/> : null}
-                {view === "gallery" ? <GalleryBrowser/> : null}
+                {view === "list" ? <ListView/> : null}
+                {view === "gallery" ? <GalleryView/> : null}
             </div>
         )
     }
 }
 
-// export default withStyles(styles)(DataBrowser)
-export default DataBrowser
+export default withStyles(styles)(DataBrowser)
