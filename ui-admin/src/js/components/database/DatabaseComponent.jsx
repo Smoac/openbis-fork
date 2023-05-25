@@ -79,7 +79,7 @@ class DatabaseComponent extends React.PureComponent {
     return (
       this.state.showDataBrowser
         ?
-          <DataBrowser viewType='grid'/>
+          <DataBrowser viewType='list'/>
         :
           <Container>
             <pre>{JSON.stringify(this.state.json || {}, null, 2)}</pre>

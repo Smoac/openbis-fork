@@ -27,7 +27,49 @@ class DataBrowser extends React.Component {
     super(props, context)
     autoBind(this)
     this.state = {
-      viewType: props.viewType
+      viewType: props.viewType,
+      files: [
+        {
+          name: 'Processed',
+          folder: true,
+          size: 0,
+          creationTime: new Date('2020-08-13 14:45:54.034563'),
+          lastModifiedTime: new Date('2022-02-24 04:35:21.486930'),
+          lastAccessTime: new Date('2023-05-25 14:55:31.902857')
+        },
+        {
+          name: 'Text.txt',
+          folder: false,
+          size: 21432,
+          creationTime: new Date('2020-08-13 14:45:54.034563'),
+          lastModifiedTime: new Date('2022-02-24 04:35:21.486930'),
+          lastAccessTime: new Date('2023-05-25 14:55:31.902857')
+        },
+        {
+          name: 'Movie.mp4',
+          folder: false,
+          size: 2143243443537,
+          creationTime: new Date('2020-08-13 14:45:54.034563'),
+          lastModifiedTime: new Date('2022-02-24 04:35:21.486930'),
+          lastAccessTime: new Date('2023-05-25 14:55:31.902857')
+        },
+        {
+          name: 'Music.mp3',
+          folder: false,
+          size: 21432443,
+          creationTime: new Date('2020-08-13 14:45:54.034563'),
+          lastModifiedTime: new Date('2022-02-24 04:35:21.486930'),
+          lastAccessTime: new Date('2023-05-25 14:55:31.902857')
+        },
+        {
+          name: 'Image.png',
+          folder: false,
+          size: 214323234,
+          creationTime: new Date('2020-08-13 14:45:54.034563'),
+          lastModifiedTime: new Date('2022-02-24 04:35:21.486930'),
+          lastAccessTime: new Date('2023-05-25 14:55:31.902857')
+        }
+      ]
     }
   }
 
@@ -36,14 +78,14 @@ class DataBrowser extends React.Component {
   }
 
   render() {
-    const { viewType } = this.state
+    const { viewType, files } = this.state
     const { classes } = this.props
 
     return (
       <div className={classes.boundary}>
         <Toolbar viewType={viewType} onViewTypeChange={this.handleViewTypeChange} />
-        {viewType === 'list' && <ListView />}
-        {viewType === 'grid' && <GridView />}
+        {viewType === 'list' && <ListView files={files} />}
+        {viewType === 'grid' && <GridView files={files} />}
       </div>
     )
   }
