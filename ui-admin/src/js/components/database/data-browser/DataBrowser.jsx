@@ -6,12 +6,6 @@ import ListView from '@src/js/components/database/data-browser/ListView.jsx'
 import GridView from '@src/js/components/database/data-browser/GridView.jsx'
 
 const styles = theme => ({
-  containerDefault: {
-    padding: `${theme.spacing(1)}px ${theme.spacing(2)}px`
-  },
-  containerSquare: {
-    padding: `${theme.spacing(2)}px ${theme.spacing(2)}px`
-  },
   boundary: {
     padding: theme.spacing(1),
     borderWidth: '2px',

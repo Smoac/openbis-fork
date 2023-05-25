@@ -12,12 +12,6 @@ import InfoIcon from '@material-ui/icons/InfoOutlined'
 import CreateNewFolderIcon from '@material-ui/icons/CreateNewFolderOutlined'
 
 const styles = theme => ({
-  containerDefault: {
-    padding: `${theme.spacing(1)}px ${theme.spacing(2)}px`
-  },
-  containerSquare: {
-    padding: `${theme.spacing(2)}px ${theme.spacing(2)}px`
-  }
 })
 
 class Toolbar extends React.Component {

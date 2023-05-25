@@ -1,16 +1,14 @@
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import Container from '@src/js/components/common/form/Container.jsx'
+import FolderIcon from '@material-ui/icons/FolderOpen'
+import FileIcon from '@material-ui/icons/DescriptionOutlined'
+import autoBind from 'auto-bind'
 
 const styles = theme => ({
-  containerDefault: {
-    padding: `${theme.spacing(1)}px ${theme.spacing(2)}px`
-  },
-  containerSquare: {
-    padding: `${theme.spacing(2)}px ${theme.spacing(2)}px`
-  },
   content: {
-    width: '100%'
+    width: '100%',
+    fontFamily: theme.typography.fontFamily,
   },
   tableHeader: {
     textAlign: 'left'
@@ -29,6 +27,20 @@ const styles = theme => ({
 })
 
 class ListView extends React.Component {
+
+  constructor(props, context) {
+    super(props, context)
+    autoBind(this)
+  }
+
+  getIcon(file) {
+    if (file.folder) {
+      return <FolderIcon />
+    } else {
+      return <FileIcon />
+    }
+  }
+
   render() {
     const { classes, files } = this.props
     /* Create strings in messages. */
@@ -45,7 +57,7 @@ class ListView extends React.Component {
           <tbody>
             {files.map((file, index) =>
               <tr key={index}>
-                <td className={classes.nameColumn}>{file.name}</td>
+                <td className={classes.nameColumn}>{<>{this.getIcon(file)} {file.name}</>}</td>
                 <td className={classes.sizeColumn}>{file.folder ? '-' : file.size}</td>
                 <td className={classes.modifiedColumn}>{file.lastModifiedTime.toLocaleString()}</td>
               </tr>
