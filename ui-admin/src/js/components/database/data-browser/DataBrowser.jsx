@@ -10,15 +10,22 @@ const styles = theme => ({
     },
     containerSquare: {
         padding: `${theme.spacing(2)}px ${theme.spacing(2)}px`
-    }
+    },
+    boundary: {
+        padding: theme.spacing(1),
+        borderWidth: '2px',
+        borderStyle: 'solid',
+        borderColor: theme.palette.border.secondary,
+        backgroundColor: theme.palette.background.paper
+    },
 })
 
 class DataBrowser extends React.Component {
     render() {
-        const { view } = this.props;
+        const { view, classes } = this.props;
 
         return (
-            <div>
+            <div className={classes.boundary}>
                 <Toolbar/>
                 {view === "list" ? <ListView/> : null}
                 {view === "gallery" ? <GalleryView/> : null}
