@@ -1,5 +1,5 @@
-import React from "react";
-import { withStyles } from "@material-ui/core/styles";
+import React from 'react'
+import { withStyles } from '@material-ui/core/styles'
 
 const styles = theme => ({
     containerDefault: {
@@ -13,7 +13,7 @@ const styles = theme => ({
 class ListView extends React.Component {
     render() {
         return (
-            <div>ListBrowser</div>
+            <div>ListView</div>
         )
     }
 }

@@ -13,7 +13,7 @@ const styles = theme => ({
 class GridView extends React.Component {
     render() {
         return (
-            <div>GalleryBrowser</div>
+            <div>GridView</div>
         )
     }
 }

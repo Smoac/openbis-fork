@@ -16,11 +16,11 @@ const styles = theme => ({
 
 class Toolbar extends React.Component {
   render() {
-    const { viewType } = this.props
+    const { viewType, onViewTypeChange } = this.props
     return (
       <Container>
-        {viewType === 'list' && <Button label={<ViewComfyIcon/>}/>}
-        {viewType === 'grid' && <Button label={<ViewListIcon/>}/>}
+        {viewType === 'list' && <Button label={<ViewComfyIcon/>} onClick={() => onViewTypeChange('grid')} />}
+        {viewType === 'grid' && <Button label={<ViewListIcon/>} onClick={() => onViewTypeChange('list')} />}
       </Container>
     )
   }

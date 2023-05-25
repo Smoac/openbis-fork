@@ -1,5 +1,6 @@
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
+import autoBind from 'auto-bind'
 import Toolbar from '@src/js/components/database/data-browser/Toolbar.jsx'
 import ListView from '@src/js/components/database/data-browser/ListView.jsx'
 import GridView from '@src/js/components/database/data-browser/GridView.jsx'
@@ -22,12 +23,16 @@ const styles = theme => ({
 
 class DataBrowser extends React.Component {
 
-
   constructor(props, context) {
     super(props, context)
+    autoBind(this)
     this.state = {
       viewType: props.viewType
     }
+  }
+
+  handleViewTypeChange(viewType) {
+    this.setState({ viewType })
   }
 
   render() {
@@ -35,10 +40,10 @@ class DataBrowser extends React.Component {
     const { classes } = this.props
 
     return (
-      <div className={ classes.boundary }>
-        <Toolbar viewType={viewType} />
-        {viewType === 'list' ? <ListView /> : null}
-        {viewType === 'grid' ? <GridView /> : null}
+      <div className={classes.boundary}>
+        <Toolbar viewType={viewType} onViewTypeChange={this.handleViewTypeChange} />
+        {viewType === 'list' && <ListView />}
+        {viewType === 'grid' && <GridView />}
       </div>
     )
   }
