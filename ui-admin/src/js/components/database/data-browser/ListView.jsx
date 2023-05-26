@@ -23,6 +23,23 @@ const styles = theme => ({
   modifiedColumn: {
     width: '11rem',
     textAlign: 'right'
+  },
+  icon: {
+    verticalAlign: 'middle'
+  },
+  text: {
+    fontSize: theme.typography.body2.fontSize,
+    lineHeight: theme.typography.body2.fontSize
+  },
+  listContainer: {
+    flex: '1 1 100%'
+  },
+  tableRow: {
+    fontSize: theme.typography.body1.fontSize,
+    height: '2em'
+  },
+  tableData: {
+    padding: theme.spacing(2),
   }
 })
 
@@ -34,10 +51,12 @@ class ListView extends React.Component {
   }
 
   getIcon(file) {
+    const { classes } = this.props
+
     if (file.folder) {
-      return <FolderIcon />
+      return <FolderIcon className={classes.icon} />
     } else {
-      return <FileIcon />
+      return <FileIcon className={classes.icon} />
     }
   }
 
@@ -48,7 +67,7 @@ class ListView extends React.Component {
       <Container>
         <table className={classes.content}>
           <thead>
-            <tr>
+            <tr className={classes.tableRow}>
               <th className={classes.tableHeader}>Name</th>
               <th className={classes.tableHeader}>Size</th>
               <th className={classes.tableHeader}>Modified</th>
@@ -56,10 +75,10 @@ class ListView extends React.Component {
           </thead>
           <tbody>
             {files.map((file, index) =>
-              <tr key={index}>
-                <td className={classes.nameColumn}>{<>{this.getIcon(file)} {file.name}</>}</td>
-                <td className={classes.sizeColumn}>{file.folder ? '-' : file.size}</td>
-                <td className={classes.modifiedColumn}>{file.lastModifiedTime.toLocaleString()}</td>
+              <tr key={index} className={classes.tableRow}>
+                <td className={`${classes.tableData} ${classes.nameColumn}`}>{<>{this.getIcon(file)} {file.name}</>}</td>
+                <td className={`${classes.tableData} ${classes.sizeColumn}`}>{file.folder ? '-' : file.size}</td>
+                <td className={`${classes.tableData} ${classes.modifiedColumn}`}>{file.lastModifiedTime.toLocaleString()}</td>
               </tr>
             )}
           </tbody>
