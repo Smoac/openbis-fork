@@ -13,6 +13,7 @@ import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -59,6 +60,11 @@ public class TransactionExecutor implements ITransactionExecutor
 
             @Override public void rollbackTransaction(final String transactionId, final Object transaction) throws Exception
             {
+                transactionManager.rollback((TransactionStatus) transaction);
+            }
+
+            @Override public void rollbackPreparedTransaction(final String transactionId, final Object transaction) throws Exception
+            {
                 Connection connection = null;
                 Statement statement = null;
 
@@ -92,7 +98,7 @@ public class TransactionExecutor implements ITransactionExecutor
                 }
             }
 
-            @Override public void commitTransaction(final String transactionId, final Object transaction) throws Exception
+            @Override public void commitPreparedTransaction(final String transactionId, final Object transaction) throws Exception
             {
                 Connection connection = null;
                 Statement statement = null;
@@ -259,14 +265,21 @@ public class TransactionExecutor implements ITransactionExecutor
                                         checkTransactionStatus(TransactionThreadStatus.PREPARED);
                                         checkTransactionManagerSecret(transactionManagerSecret);
 
-                                        provider.commitTransaction(transactionId, transaction);
+                                        provider.commitPreparedTransaction(transactionId, transaction);
                                         status = TransactionThreadStatus.COMMITTED;
                                     } else if (invocation instanceof RollbackTransactionOperation)
                                     {
                                         checkTransactionStatus(TransactionThreadStatus.STARTED, TransactionThreadStatus.PREPARED);
                                         checkTransactionManagerSecret(transactionManagerSecret);
 
-                                        provider.rollbackTransaction(transactionId, transaction);
+                                        if (TransactionThreadStatus.STARTED.equals(status))
+                                        {
+                                            provider.rollbackTransaction(transactionId, transaction);
+                                        } else if (TransactionThreadStatus.PREPARED.equals(status))
+                                        {
+                                            provider.rollbackPreparedTransaction(transactionId, transaction);
+                                        }
+
                                         status = TransactionThreadStatus.ROLLED_BACK;
                                     } else
                                     {

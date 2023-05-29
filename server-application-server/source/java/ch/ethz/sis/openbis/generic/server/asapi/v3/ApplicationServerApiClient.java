@@ -36,14 +36,14 @@ public class ApplicationServerApiClient
 
     public ApplicationServerApiClient(String applicationServerUrl, String applicationServerUrl2, long timeout)
     {
+        transactionManager = HttpInvokerUtils.createServiceStub(ITransactionManager.class, applicationServerUrl + "/openbis/openbis"
+                + ITransactionManager.SERVICE_URL, timeout);
+
         applicationServerApi = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, applicationServerUrl + "/openbis/openbis"
                 + IApplicationServerApi.SERVICE_URL, timeout, new InvocationFactoryWithTransactionAttributes());
 
         applicationServerApi2 = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, applicationServerUrl2 + "/openbis/openbis"
                 + IApplicationServerApi.SERVICE_URL, timeout, new InvocationFactoryWithTransactionAttributes());
-
-        transactionManager = HttpInvokerUtils.createServiceStub(ITransactionManager.class, applicationServerUrl2 + "/openbis/openbis"
-                + ITransactionManager.SERVICE_URL, timeout);
     }
 
     public void beginTransaction()
@@ -135,7 +135,7 @@ public class ApplicationServerApiClient
 
     public static void main(String[] args)
     {
-        ApplicationServerApiClient client = new ApplicationServerApiClient("http://localhost:7777", "http://localhost:8888", 10000000);
+        ApplicationServerApiClient client = new ApplicationServerApiClient("http://localhost:8888", "http://localhost:9999", 10000000);
         client.beginTransaction();
 
         client.login("admin", "admin");

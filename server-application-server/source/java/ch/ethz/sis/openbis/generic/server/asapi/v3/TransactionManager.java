@@ -18,9 +18,9 @@ import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 public class TransactionManager implements ITransactionManager
 {
 
-    private static final String APPLICATION_SERVER_URL = "http://127.0.0.1:7777";
+    private static final String APPLICATION_SERVER_URL = "http://127.0.0.1:8888";
 
-    private static final String APPLICATION_SERVER_URL_2 = "http://127.0.0.1:8888";
+    private static final String APPLICATION_SERVER_URL_2 = "http://127.0.0.1:9999";
 
     private static final String SECRET = "i_am_secret";
 

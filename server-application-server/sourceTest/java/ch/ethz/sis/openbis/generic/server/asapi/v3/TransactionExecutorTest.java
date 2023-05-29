@@ -94,7 +94,7 @@ public class TransactionExecutorTest
                     }
                 });
 
-                one(provider).commitTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
+                one(provider).commitPreparedTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
                 will(new CustomAction("commitTransaction")
                 {
                     @Override public Object invoke(final Invocation invocation) throws Throwable
@@ -294,7 +294,7 @@ public class TransactionExecutorTest
 
                 one(provider).prepareTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
 
-                one(provider).commitTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
+                one(provider).commitPreparedTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
                 will(throwException(throwable));
             }
         });
@@ -605,7 +605,7 @@ public class TransactionExecutorTest
 
                 one(provider).prepareTransaction(with(TEST_TRANSACTION_ID), with(transaction));
 
-                one(provider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(transaction));
+                one(provider).rollbackPreparedTransaction(with(TEST_TRANSACTION_ID), with(transaction));
             }
         });
 
@@ -629,7 +629,7 @@ public class TransactionExecutorTest
 
                 one(provider).prepareTransaction(with(TEST_TRANSACTION_ID), with(transaction));
 
-                one(provider).commitTransaction(with(TEST_TRANSACTION_ID), with(transaction));
+                one(provider).commitPreparedTransaction(with(TEST_TRANSACTION_ID), with(transaction));
             }
         });
 

@@ -42,7 +42,7 @@ public class ApplicationServerApiServer extends AbstractApiServiceExporter
     private IApplicationServerApi service;
 
     @Autowired
-    private ITransactionExecutor transactionOperationExecutor;
+    private ITransactionExecutor transactionExecutor;
 
     @Override
     public void afterPropertiesSet()
@@ -72,23 +72,23 @@ public class ApplicationServerApiServer extends AbstractApiServiceExporter
 
             if (TransactionConst.BEGIN_TRANSACTION_METHOD.equals(invocation.getMethodName()))
             {
-                transactionOperationExecutor.beginTransaction(transactionId, transactionManagerSecret);
+                transactionExecutor.beginTransaction(transactionId, transactionManagerSecret);
                 return null;
             } else if (TransactionConst.PREPARE_TRANSACTION_METHOD.equals(invocation.getMethodName()))
             {
-                transactionOperationExecutor.prepareTransaction(transactionId, transactionManagerSecret);
+                transactionExecutor.prepareTransaction(transactionId, transactionManagerSecret);
                 return null;
             } else if (TransactionConst.COMMIT_TRANSACTION_METHOD.equals(invocation.getMethodName()))
             {
-                transactionOperationExecutor.commitTransaction(transactionId, transactionManagerSecret);
+                transactionExecutor.commitTransaction(transactionId, transactionManagerSecret);
                 return null;
             } else if (TransactionConst.ROLLBACK_TRANSACTION_METHOD.equals(invocation.getMethodName()))
             {
-                transactionOperationExecutor.rollbackTransaction(transactionId, transactionManagerSecret);
+                transactionExecutor.rollbackTransaction(transactionId, transactionManagerSecret);
                 return null;
             } else
             {
-                return transactionOperationExecutor.executeOperation(transactionId, transactionManagerSecret, new ITransactionOperation()
+                return transactionExecutor.executeOperation(transactionId, transactionManagerSecret, new ITransactionOperation()
                 {
                     @Override public String getOperationName()
                     {
