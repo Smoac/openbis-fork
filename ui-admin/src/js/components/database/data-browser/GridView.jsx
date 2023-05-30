@@ -1,19 +1,19 @@
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
+import GridViewItem from "@src/js/components/database/data-browser/GridViewItem.jsx";
+import Container from "@src/js/components/common/form/Container.jsx";
 
 const styles = theme => ({
-    containerDefault: {
-        padding: `${theme.spacing(1)}px ${theme.spacing(2)}px`
-    },
-    containerSquare: {
-        padding: `${theme.spacing(2)}px ${theme.spacing(2)}px`
-    }
 })
 
 class GridView extends React.Component {
+
     render() {
+        const { classes, configuration, files } = this.props
         return (
-            <div>GridView</div>
+            <Container>
+                {files.map((file) => <GridViewItem file={file} configuration={configuration}/>)}
+            </Container>
         )
     }
 }
