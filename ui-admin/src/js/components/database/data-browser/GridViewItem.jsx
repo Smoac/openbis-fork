@@ -3,11 +3,22 @@ import { withStyles } from '@material-ui/core/styles'
 import FolderIcon from "@material-ui/icons/FolderOpen";
 import FileIcon from "@material-ui/icons/InsertDriveFileOutlined";
 import autoBind from "auto-bind";
+import Container from "@src/js/components/common/form/Container.jsx";
 
-const styles = theme => ({
+const styles = (theme) => ({
+    cell: {
+        display: 'block',
+        position: 'relative',
+        width: '6rem',
+        height: '8rem',
+        overflow: 'hidden',
+        margin: '0.25rem',
+        // border: '1px solid black',
+        textAlign: 'center'
+    },
     icon: {
         verticalAlign: 'middle',
-        fontSize: '4rem'
+        fontSize: '6rem'
     },
 })
 
@@ -42,9 +53,9 @@ class GridViewItem extends React.Component {
         const { classes, file } = this.props
 
         return (
-            <div>
+            <Container className={classes.cell}>
                 <>{this.getIcon(file)} {file.name}</>
-            </div>
+            </Container>
         )
     }
 }
