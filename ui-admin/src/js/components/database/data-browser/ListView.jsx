@@ -68,9 +68,9 @@ class ListView extends React.Component {
         <table className={classes.content}>
           <thead>
             <tr className={classes.tableRow}>
-              <th className={classes.tableHeader}>Name</th>
-              <th className={classes.tableHeader}>Size</th>
-              <th className={classes.tableHeader}>Modified</th>
+              <th className={`${classes.tableData} ${classes.tableHeader}`}>Name</th>
+              <th className={`${classes.tableData} ${classes.tableHeader}`}>Size</th>
+              <th className={`${classes.tableData} ${classes.modifiedColumn} ${classes.tableHeader}`}>Modified</th>
             </tr>
           </thead>
           <tbody>
