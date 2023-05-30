@@ -25,7 +25,8 @@ const styles = theme => ({
     textAlign: 'right'
   },
   icon: {
-    verticalAlign: 'middle'
+    verticalAlign: 'middle',
+    fontSize: '2.5rem'
   },
   text: {
     fontSize: theme.typography.body2.fontSize,
@@ -36,7 +37,7 @@ const styles = theme => ({
   },
   tableRow: {
     fontSize: theme.typography.body1.fontSize,
-    height: '2em'
+    height: '2rem'
   },
   tableData: {
     padding: theme.spacing(2)
