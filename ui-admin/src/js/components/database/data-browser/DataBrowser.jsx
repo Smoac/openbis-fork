@@ -4,6 +4,10 @@ import autoBind from 'auto-bind'
 import Toolbar from '@src/js/components/database/data-browser/Toolbar.jsx'
 import ListView from '@src/js/components/database/data-browser/ListView.jsx'
 import GridView from '@src/js/components/database/data-browser/GridView.jsx'
+import DescriptionIcon from '@material-ui/icons/DescriptionOutlined'
+import AudioIcon from '@material-ui/icons/MusicNoteOutlined'
+import VideoIcon from '@material-ui/icons/LocalMovies'
+import ImageIcon from '@material-ui/icons/Image'
 
 const styles = theme => ({
   boundary: {
@@ -14,6 +18,26 @@ const styles = theme => ({
     backgroundColor: theme.palette.background.paper
   }
 })
+
+const configuration =
+  [
+    {
+      icon: AudioIcon,
+      extensions: ['wav', 'mp3', 'acc', 'ogg']
+    },
+    {
+      icon: DescriptionIcon,
+      extensions: ['txt', 'rtf', 'doc', 'pdf']
+    },
+    {
+      icon: VideoIcon,
+      extensions: ['mp4', 'mkv', 'avi']
+    },
+    {
+      icon: ImageIcon,
+      extensions: ['tif', 'gif', 'jpg', 'jpeg', 'png']
+    }
+  ]
 
 class DataBrowser extends React.Component {
 
@@ -62,6 +86,14 @@ class DataBrowser extends React.Component {
           creationTime: new Date('2020-08-13 14:45:54.034563'),
           lastModifiedTime: new Date('2022-02-24 04:35:21.486930'),
           lastAccessTime: new Date('2023-05-25 14:55:31.902857')
+        },
+        {
+          name: 'lock',
+          folder: false,
+          size: 0,
+          creationTime: new Date('2020-08-13 14:45:54.034563'),
+          lastModifiedTime: new Date('2023-05-30 15:33:14.048038'),
+          lastAccessTime: new Date('2023-05-30 15:33:14.048038')
         }
       ]
     }
@@ -78,8 +110,8 @@ class DataBrowser extends React.Component {
     return (
       <div className={classes.boundary}>
         <Toolbar viewType={viewType} onViewTypeChange={this.handleViewTypeChange} />
-        {viewType === 'list' && <ListView files={files} />}
-        {viewType === 'grid' && <GridView files={files} />}
+        {viewType === 'list' && <ListView configuration={configuration} files={files} />}
+        {viewType === 'grid' && <GridView configuration={configuration} files={files} />}
       </div>
     )
   }

@@ -2,13 +2,13 @@ import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import Container from '@src/js/components/common/form/Container.jsx'
 import FolderIcon from '@material-ui/icons/FolderOpen'
-import FileIcon from '@material-ui/icons/DescriptionOutlined'
+import FileIcon from '@material-ui/icons/InsertDriveFileOutlined'
 import autoBind from 'auto-bind'
 
 const styles = theme => ({
   content: {
     width: '100%',
-    fontFamily: theme.typography.fontFamily,
+    fontFamily: theme.typography.fontFamily
   },
   tableHeader: {
     textAlign: 'left'
@@ -39,7 +39,7 @@ const styles = theme => ({
     height: '2em'
   },
   tableData: {
-    padding: theme.spacing(2),
+    padding: theme.spacing(2)
   }
 })
 
@@ -48,6 +48,14 @@ class ListView extends React.Component {
   constructor(props, context) {
     super(props, context)
     autoBind(this)
+
+    const { configuration } = this.props
+
+    this.extensionToIconType = new Map(
+      configuration.flatMap(
+        (configObject) => configObject.extensions.map(extension => [extension, configObject.icon])
+      )
+    )
   }
 
   getIcon(file) {
@@ -56,12 +64,14 @@ class ListView extends React.Component {
     if (file.folder) {
       return <FolderIcon className={classes.icon} />
     } else {
-      return <FileIcon className={classes.icon} />
+      const iconType = this.extensionToIconType.get(file.name.substring(file.name.lastIndexOf(".") + 1))
+      return iconType ? React.createElement(iconType, { className: classes.icon }) : <FileIcon className={classes.icon} />
     }
   }
 
   render() {
     const { classes, files } = this.props
+
     /* Create strings in messages. */
     return (
       <Container>
