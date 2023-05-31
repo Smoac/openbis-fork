@@ -136,26 +136,33 @@ public class ApplicationServerApiClient
     public static void main(String[] args)
     {
         ApplicationServerApiClient client = new ApplicationServerApiClient("http://localhost:8888", "http://localhost:9999", 10000000);
-        client.beginTransaction();
 
-        client.login("admin", "admin");
-        client.login2("admin", "admin");
+        try
+        {
+            client.beginTransaction();
 
-        SpaceCreation creation = new SpaceCreation();
-        creation.setCode("2PT_TEST_A");
-        client.createSpaces(List.of(creation));
+            client.login("admin", "admin");
+            client.login2("admin", "admin");
 
-        SpaceCreation creation2 = new SpaceCreation();
-        creation2.setCode("2PT_TEST_A2");
-        client.createSpaces2(List.of(creation2));
+            SpaceCreation creation = new SpaceCreation();
+            creation.setCode("2PT_TEST_A");
+            client.createSpaces(List.of(creation));
 
-        SearchResult<Space> result = client.searchSpaces(new SpaceSearchCriteria(), new SpaceFetchOptions());
-        System.out.println("SPACES: " + result.getObjects());
+            SpaceCreation creation2 = new SpaceCreation();
+            creation2.setCode("2PT_TEST_A2");
+            client.createSpaces2(List.of(creation2));
 
-        result = client.searchSpaces2(new SpaceSearchCriteria(), new SpaceFetchOptions());
-        System.out.println("SPACES 2: " + result.getObjects());
+            SearchResult<Space> result = client.searchSpaces(new SpaceSearchCriteria(), new SpaceFetchOptions());
+            System.out.println("SPACES: " + result.getObjects());
 
-        client.rollbackTransaction();
+            result = client.searchSpaces2(new SpaceSearchCriteria(), new SpaceFetchOptions());
+            System.out.println("SPACES 2: " + result.getObjects());
+
+            client.commitTransaction();
+        } catch (Exception e)
+        {
+            client.rollbackTransaction();
+        }
     }
 
 }

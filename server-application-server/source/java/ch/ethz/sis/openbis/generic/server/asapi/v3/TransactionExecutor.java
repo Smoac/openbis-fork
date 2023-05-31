@@ -294,8 +294,7 @@ public class TransactionExecutor implements ITransactionExecutor
                                     invocation = null;
                                     lock.notifyAll();
 
-                                    if (status == TransactionThreadStatus.COMMITTED
-                                            || status == TransactionThreadStatus.ROLLED_BACK)
+                                    if (status == TransactionThreadStatus.COMMITTED || status == TransactionThreadStatus.ROLLED_BACK)
                                     {
                                         return;
                                     }
@@ -307,32 +306,10 @@ public class TransactionExecutor implements ITransactionExecutor
 
                             } catch (Throwable e)
                             {
-                                operationLog.error("Two phase transaction " + transactionId + " method " + (invocation != null ?
-                                        invocation.getOperationName() : "") + " failed or got interrupted.", e);
-
-                                if (transaction != null)
-                                {
-                                    try
-                                    {
-                                        provider.rollbackTransaction(transactionId, transaction);
-                                    } catch (Throwable e2)
-                                    {
-                                        operationLog.warn("Two phase transaction " + transactionId + " could not be rolled back.", e2);
-                                    }
-                                }
-
                                 exception = e;
                                 result = null;
                                 invocation = null;
                                 lock.notifyAll();
-
-                                if (e instanceof Error)
-                                {
-                                    throw (Error) e;
-                                } else
-                                {
-                                    return;
-                                }
                             }
                         }
                     }

@@ -487,8 +487,6 @@ public class TransactionExecutorTest
 
                 one(provider).beginTransaction(with(TEST_TRANSACTION_ID));
                 will(returnValue(transaction));
-
-                one(provider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(transaction));
             }
         });
 
