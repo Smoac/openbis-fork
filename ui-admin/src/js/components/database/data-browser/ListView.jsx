@@ -36,6 +36,9 @@ const styles = theme => ({
     flex: '1 1 100%'
   },
   tableRow: {
+    '&:hover': {
+      backgroundColor: '#0000000a'
+    },
     fontSize: theme.typography.body1.fontSize,
     height: '2rem'
   },
