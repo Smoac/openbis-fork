@@ -13,8 +13,11 @@ const styles = (theme) => ({
         height: '8rem',
         overflow: 'hidden',
         margin: '0.25rem',
-        // border: '1px solid black',
-        textAlign: 'center'
+        textAlign: 'center',
+        cursor: 'pointer',
+        '&:hover': {
+            backgroundColor: '#0000000a'
+        },
     },
     icon: {
         verticalAlign: 'middle',
