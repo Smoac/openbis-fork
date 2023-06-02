@@ -90,7 +90,7 @@ class ListView extends React.Component {
 
     /* Create strings in messages. */
     return (
-      <TableContainer>
+      <TableContainer component={Paper}>
         <Table className={classes.content}>
           <TableHead>
             <TableRow className={classes.tableRow}>

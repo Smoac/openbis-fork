@@ -1,9 +1,9 @@
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
-import FolderIcon from "@material-ui/icons/FolderOpen";
-import FileIcon from "@material-ui/icons/InsertDriveFileOutlined";
-import autoBind from "auto-bind";
-import Container from "@src/js/components/common/form/Container.jsx";
+import FolderIcon from '@material-ui/icons/FolderOpen'
+import FileIcon from '@material-ui/icons/InsertDriveFileOutlined'
+import Grid from '@material-ui/core/Grid'
+import autoBind from 'auto-bind'
 
 const styles = (theme) => ({
     cell: {
@@ -56,9 +56,9 @@ class GridViewItem extends React.Component {
         const { classes, file } = this.props
 
         return (
-            <Container className={classes.cell}>
+            <Grid item className={classes.cell}>
                 <>{this.getIcon(file)} {file.name}</>
-            </Container>
+            </Grid>
         )
     }
 }

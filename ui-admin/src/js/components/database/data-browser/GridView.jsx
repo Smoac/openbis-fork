@@ -1,7 +1,8 @@
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
-import GridViewItem from "@src/js/components/database/data-browser/GridViewItem.jsx";
-import Container from "@src/js/components/common/form/Container.jsx";
+import GridViewItem from '@src/js/components/database/data-browser/GridViewItem.jsx'
+import Grid from '@material-ui/core/Grid'
+import Paper from '@material-ui/core/Paper'
 
 const styles = (theme) => ({
     container: {
@@ -17,9 +18,9 @@ class GridView extends React.Component {
     render() {
         const { classes, configuration, files } = this.props
         return (
-            <Container className={classes.container}>
+            <Grid container component={Paper} className={classes.container}>
                 {files.map((file) => <GridViewItem file={file} configuration={configuration}/>)}
-            </Container>
+            </Grid>
         )
     }
 }
