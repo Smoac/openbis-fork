@@ -3,6 +3,13 @@ import { withStyles } from '@material-ui/core/styles'
 import Container from '@src/js/components/common/form/Container.jsx'
 import FolderIcon from '@material-ui/icons/FolderOpen'
 import FileIcon from '@material-ui/icons/InsertDriveFileOutlined'
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import Paper from '@material-ui/core/Paper';
 import autoBind from 'auto-bind'
 
 const styles = theme => ({
@@ -47,7 +54,8 @@ const styles = theme => ({
     height: '2rem'
   },
   tableData: {
-    padding: theme.spacing(2)
+    padding: theme.spacing(2),
+    borderWidth: '0'
   }
 })
 
@@ -82,26 +90,26 @@ class ListView extends React.Component {
 
     /* Create strings in messages. */
     return (
-      <Container>
-        <table className={classes.content}>
-          <thead>
-            <tr className={classes.tableRow}>
-              <th className={`${classes.tableData} ${classes.tableHeader}`}>Name</th>
-              <th className={`${classes.tableData} ${classes.tableHeader}`}>Size</th>
-              <th className={`${classes.tableData} ${classes.modifiedColumn} ${classes.tableHeader}`}>Modified</th>
-            </tr>
-          </thead>
-          <tbody>
+      <TableContainer>
+        <Table className={classes.content}>
+          <TableHead>
+            <TableRow className={classes.tableRow}>
+              <TableCell className={`${classes.tableData} ${classes.tableHeader}`}>Name</TableCell>
+              <TableCell className={`${classes.tableData} ${classes.tableHeader}`}>Size</TableCell>
+              <TableCell className={`${classes.tableData} ${classes.modifiedColumn} ${classes.tableHeader}`}>Modified</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
             {files.map((file, index) =>
-              <tr key={index} className={classes.tableRow}>
-                <td className={`${classes.tableData} ${classes.nameColumn}`}>{<>{this.getIcon(file)} {file.name}</>}</td>
-                <td className={`${classes.tableData} ${classes.sizeColumn}`}>{file.folder ? '-' : file.size}</td>
-                <td className={`${classes.tableData} ${classes.modifiedColumn}`}>{file.lastModifiedTime.toLocaleString()}</td>
-              </tr>
+              <TableRow key={index} className={classes.tableRow}>
+                <TableCell className={`${classes.tableData} ${classes.nameColumn}`}>{<>{this.getIcon(file)} {file.name}</>}</TableCell>
+                <TableCell className={`${classes.tableData} ${classes.sizeColumn}`}>{file.folder ? '-' : file.size}</TableCell>
+                <TableCell className={`${classes.tableData} ${classes.modifiedColumn}`}>{file.lastModifiedTime.toLocaleString()}</TableCell>
+              </TableRow>
             )}
-          </tbody>
-        </table>
-      </Container>
+          </TableBody>
+        </Table>
+      </TableContainer>
     )
   }
 }
