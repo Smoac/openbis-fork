@@ -4,12 +4,14 @@ import FolderIcon from '@material-ui/icons/FolderOpen'
 import FileIcon from '@material-ui/icons/InsertDriveFileOutlined'
 import Grid from '@material-ui/core/Grid'
 import autoBind from 'auto-bind'
+import Card from "@material-ui/core/Card";
+import { CardContent, CardMedia } from "@material-ui/core";
 
 const styles = (theme) => ({
     cell: {
         display: 'block',
         position: 'relative',
-        width: '6rem',
+        width: '8rem',
         height: '8rem',
         overflow: 'hidden',
         margin: '0.25rem',
@@ -56,8 +58,11 @@ class GridViewItem extends React.Component {
         const { classes, file } = this.props
 
         return (
-            <Grid item className={classes.cell}>
-                <>{this.getIcon(file)} {file.name}</>
+            <Grid item component={Card} variant="outlined" className={classes.cell}>
+                <CardMedia>{this.getIcon(file)}</CardMedia>
+                <CardContent>
+                 {file.name}
+                </CardContent>
             </Grid>
         )
     }
