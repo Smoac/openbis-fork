@@ -17,6 +17,9 @@ const styles = theme => ({
     width: '100%',
     borderSpacing: '0',
     fontFamily: theme.typography.fontFamily,
+    '& thead > tr > th': {
+      fontWeight: 'bold'
+    },
     '& tbody > tr': {
       cursor: 'pointer',
       '&:hover': {
