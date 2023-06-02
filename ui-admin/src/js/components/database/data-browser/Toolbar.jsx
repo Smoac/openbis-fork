@@ -19,7 +19,7 @@ class Toolbar extends React.Component {
   render() {
     const { viewType, onViewTypeChange, classes } = this.props
     return (
-      <Paper>
+      <>
         <Button styles={{ root: classes.button }} label={<CreateNewFolderIcon />} />
         <Button styles={{ root: classes.button }} label={<InfoIcon />} />
         <Button styles={{ root: classes.button }} label={<SearchIcon />} />
@@ -27,7 +27,7 @@ class Toolbar extends React.Component {
         {viewType === 'grid' && <Button styles={{ root: classes.button }} label={<ViewListIcon />} onClick={() => onViewTypeChange('list')} />}
         <Button styles={{ root: classes.button }} label={<SettingsIcon />} />
         <Button styles={{ root: classes.button }} label={<><PublishIcon /> {messages.get(messages.UPLOAD)}</>} />
-      </Paper>
+      </>
     )
   }
 }

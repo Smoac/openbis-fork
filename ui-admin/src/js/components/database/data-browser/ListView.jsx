@@ -1,6 +1,5 @@
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
-import Container from '@src/js/components/common/form/Container.jsx'
 import FolderIcon from '@material-ui/icons/FolderOpen'
 import FileIcon from '@material-ui/icons/InsertDriveFileOutlined'
 import Table from '@material-ui/core/Table';
@@ -9,7 +8,6 @@ import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
 import autoBind from 'auto-bind'
 
 const styles = theme => ({
@@ -93,7 +91,7 @@ class ListView extends React.Component {
 
     /* Create strings in messages. */
     return (
-      <TableContainer component={Paper}>
+      <TableContainer>
         <Table className={classes.content}>
           <TableHead>
             <TableRow className={classes.tableRow}>

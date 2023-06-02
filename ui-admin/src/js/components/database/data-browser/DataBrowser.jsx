@@ -8,6 +8,7 @@ import DescriptionIcon from '@material-ui/icons/DescriptionOutlined'
 import AudioIcon from '@material-ui/icons/MusicNoteOutlined'
 import VideoIcon from '@material-ui/icons/LocalMovies'
 import ImageIcon from '@material-ui/icons/Image'
+import Paper from "@material-ui/core/Paper";
 
 const styles = theme => ({
   boundary: {
@@ -108,11 +109,11 @@ class DataBrowser extends React.Component {
     const { classes } = this.props
 
     return (
-      <div className={classes.boundary}>
+      <Paper className={classes.boundary}>
         <Toolbar viewType={viewType} onViewTypeChange={this.handleViewTypeChange} />
         {viewType === 'list' && <ListView configuration={configuration} files={files} />}
         {viewType === 'grid' && <GridView configuration={configuration} files={files} />}
-      </div>
+      </Paper>
     )
   }
 }
