@@ -192,7 +192,7 @@ public class TransactionExecutor implements ITransactionExecutor
             {
                 synchronized (this)
                 {
-                    if (!thread.isAlive())
+                    if (thread.isFinished())
                     {
                         operationLog.info("Two phase transaction " + transactionId + " finished. Removing its thread.");
                         threadMap.remove(transactionId);
@@ -202,6 +202,15 @@ public class TransactionExecutor implements ITransactionExecutor
         } else
         {
             return operation.executeOperation();
+        }
+    }
+
+    public boolean isRunningTransaction(String transactionId)
+    {
+        synchronized (this)
+        {
+            TransactionThread thread = threadMap.get(transactionId);
+            return thread != null && !thread.isFinished();
         }
     }
 
@@ -230,6 +239,8 @@ public class TransactionExecutor implements ITransactionExecutor
         private Object result;
 
         private Throwable exception;
+
+        private boolean finished;
 
         public TransactionThread(String transactionId)
         {
@@ -292,10 +303,10 @@ public class TransactionExecutor implements ITransactionExecutor
 
                                     exception = null;
                                     invocation = null;
-                                    lock.notifyAll();
 
                                     if (status == TransactionThreadStatus.COMMITTED || status == TransactionThreadStatus.ROLLED_BACK)
                                     {
+                                        finished = true;
                                         return;
                                     }
                                 } else
@@ -309,6 +320,14 @@ public class TransactionExecutor implements ITransactionExecutor
                                 exception = e;
                                 result = null;
                                 invocation = null;
+
+                                if (status == TransactionThreadStatus.NEW)
+                                {
+                                    finished = true;
+                                    return;
+                                }
+                            } finally
+                            {
                                 lock.notifyAll();
                             }
                         }
@@ -341,9 +360,9 @@ public class TransactionExecutor implements ITransactionExecutor
             thread.start();
         }
 
-        public boolean isAlive()
+        private boolean isFinished()
         {
-            return thread.isAlive();
+            return finished;
         }
 
         public Object execute(String newTransactionManagerSecret, ITransactionOperation newInvocation) throws Throwable
@@ -389,6 +408,7 @@ public class TransactionExecutor implements ITransactionExecutor
                 }
             }
         }
+
     }
 
     private static class BeginTransactionOperation implements ITransactionOperation

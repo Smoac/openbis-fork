@@ -1,5 +1,9 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -156,12 +160,12 @@ public class TransactionExecutorTest
                 new HashSet<String>(
                         List.of(transaction2BeginThreadName.getValue(), transaction2OperationThreadName, transaction2RollbackThreadName.getValue()));
 
-        Assert.assertEquals(transaction1ThreadNames.size(), 1);
-        Assert.assertEquals(transaction2ThreadNames.size(), 1);
+        assertEquals(transaction1ThreadNames.size(), 1);
+        assertEquals(transaction2ThreadNames.size(), 1);
 
-        Assert.assertFalse(transaction1ThreadNames.contains(Thread.currentThread().getName()));
-        Assert.assertFalse(transaction2ThreadNames.contains(Thread.currentThread().getName()));
-        Assert.assertFalse(transaction1ThreadNames.removeAll(transaction2ThreadNames));
+        assertFalse(transaction1ThreadNames.contains(Thread.currentThread().getName()));
+        assertFalse(transaction2ThreadNames.contains(Thread.currentThread().getName()));
+        assertFalse(transaction1ThreadNames.removeAll(transaction2ThreadNames));
     }
 
     @Test(dataProvider = "provideExceptions")
@@ -183,7 +187,19 @@ public class TransactionExecutorTest
             Assert.fail();
         } catch (Throwable t)
         {
-            Assert.assertEquals(t, throwable);
+            assertEquals(t, throwable);
+            assertFalse(executor.isRunningTransaction(TEST_TRANSACTION_ID));
+
+            try
+            {
+                // TODO the rollback should not fail
+                executor.rollbackTransaction(TEST_TRANSACTION_ID, TEST_SECRET);
+                Assert.fail();
+            } catch (IllegalStateException e)
+            {
+                assertEquals(e.getMessage(), "Two phase transaction test-id unexpected status NEW. Expected statuses [STARTED, PREPARED].");
+            }
+
         }
     }
 
@@ -197,6 +213,8 @@ public class TransactionExecutorTest
             {
                 one(provider).beginTransaction(with(TEST_TRANSACTION_ID));
                 will(returnValue(TEST_TRANSACTION));
+
+                one(provider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
             }
         });
 
@@ -219,7 +237,11 @@ public class TransactionExecutorTest
             Assert.fail();
         } catch (Throwable t)
         {
-            Assert.assertEquals(t, throwable);
+            assertEquals(t, throwable);
+
+            assertTrue(executor.isRunningTransaction(TEST_TRANSACTION_ID));
+            executor.rollbackTransaction(TEST_TRANSACTION_ID, TEST_SECRET);
+            assertFalse(executor.isRunningTransaction(TEST_TRANSACTION_ID));
         }
     }
 
@@ -248,7 +270,8 @@ public class TransactionExecutorTest
             Assert.fail();
         } catch (Throwable t)
         {
-            Assert.assertEquals(t, throwable);
+            assertEquals(t, throwable);
+            assertTrue(executor.isRunningTransaction(TEST_TRANSACTION_ID));
         }
     }
 
@@ -265,6 +288,8 @@ public class TransactionExecutorTest
 
                 one(provider).prepareTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
                 will(throwException(throwable));
+
+                one(provider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
             }
         });
 
@@ -277,7 +302,11 @@ public class TransactionExecutorTest
             Assert.fail();
         } catch (Throwable t)
         {
-            Assert.assertEquals(t, throwable);
+            assertEquals(t, throwable);
+
+            assertTrue(executor.isRunningTransaction(TEST_TRANSACTION_ID));
+            executor.rollbackTransaction(TEST_TRANSACTION_ID, TEST_SECRET);
+            assertFalse(executor.isRunningTransaction(TEST_TRANSACTION_ID));
         }
     }
 
@@ -296,6 +325,8 @@ public class TransactionExecutorTest
 
                 one(provider).commitPreparedTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
                 will(throwException(throwable));
+
+                one(provider).rollbackPreparedTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
             }
         });
 
@@ -309,7 +340,11 @@ public class TransactionExecutorTest
             Assert.fail();
         } catch (Throwable t)
         {
-            Assert.assertEquals(t, throwable);
+            assertEquals(t, throwable);
+
+            assertTrue(executor.isRunningTransaction(TEST_TRANSACTION_ID));
+            executor.rollbackTransaction(TEST_TRANSACTION_ID, TEST_SECRET);
+            assertFalse(executor.isRunningTransaction(TEST_TRANSACTION_ID));
         }
     }
 
@@ -339,7 +374,7 @@ public class TransactionExecutorTest
             Assert.fail();
         } catch (IllegalStateException e)
         {
-            Assert.assertEquals(e.getMessage(), "Two phase transaction test-id unexpected status NEW. Expected statuses [STARTED].");
+            assertEquals(e.getMessage(), "Two phase transaction test-id unexpected status NEW. Expected statuses [STARTED].");
         }
     }
 
@@ -354,7 +389,7 @@ public class TransactionExecutorTest
             Assert.fail();
         } catch (IllegalStateException e)
         {
-            Assert.assertEquals(e.getMessage(), "Two phase transaction test-id unexpected status NEW. Expected statuses [STARTED].");
+            assertEquals(e.getMessage(), "Two phase transaction test-id unexpected status NEW. Expected statuses [STARTED].");
         }
     }
 
@@ -369,7 +404,7 @@ public class TransactionExecutorTest
             Assert.fail();
         } catch (IllegalStateException e)
         {
-            Assert.assertEquals(e.getMessage(), "Two phase transaction test-id unexpected status NEW. Expected statuses [PREPARED].");
+            assertEquals(e.getMessage(), "Two phase transaction test-id unexpected status NEW. Expected statuses [PREPARED].");
         }
     }
 
@@ -384,7 +419,7 @@ public class TransactionExecutorTest
             Assert.fail();
         } catch (IllegalStateException e)
         {
-            Assert.assertEquals(e.getMessage(), "Two phase transaction test-id unexpected status NEW. Expected statuses [STARTED, PREPARED].");
+            assertEquals(e.getMessage(), "Two phase transaction test-id unexpected status NEW. Expected statuses [STARTED, PREPARED].");
         }
     }
 
@@ -408,7 +443,7 @@ public class TransactionExecutorTest
             Assert.fail();
         } catch (Exception e)
         {
-            Assert.assertEquals(e.getMessage(), "Two phase transaction test-id unexpected status STARTED. Expected statuses [NEW].");
+            assertEquals(e.getMessage(), "Two phase transaction test-id unexpected status STARTED. Expected statuses [NEW].");
         }
     }
 
@@ -427,10 +462,10 @@ public class TransactionExecutorTest
         executor.beginTransaction(TEST_TRANSACTION_ID, TEST_SECRET);
 
         Object result = executor.executeOperation(TEST_TRANSACTION_ID, TEST_SECRET, new TestOperation(TEST_OPERATION_NAME, TEST_RESULT));
-        Assert.assertEquals(result, TEST_RESULT);
+        assertEquals(result, TEST_RESULT);
 
         Object result2 = executor.executeOperation(TEST_TRANSACTION_ID, TEST_SECRET, new TestOperation(TEST_OPERATION_NAME_2, TEST_RESULT_2));
-        Assert.assertEquals(result2, TEST_RESULT_2);
+        assertEquals(result2, TEST_RESULT_2);
     }
 
     @Test
@@ -497,7 +532,7 @@ public class TransactionExecutorTest
             Assert.fail();
         } catch (IllegalStateException e)
         {
-            Assert.assertEquals(e.getMessage(), "Two phase transaction test-id unexpected status STARTED. Expected statuses [PREPARED].");
+            assertEquals(e.getMessage(), "Two phase transaction test-id unexpected status STARTED. Expected statuses [PREPARED].");
         }
     }
 
@@ -526,7 +561,7 @@ public class TransactionExecutorTest
             Assert.fail();
         } catch (Exception e)
         {
-            Assert.assertEquals(e.getMessage(), "Two phase transaction test-id unexpected status PREPARED. Expected statuses [NEW].");
+            assertEquals(e.getMessage(), "Two phase transaction test-id unexpected status PREPARED. Expected statuses [NEW].");
         }
     }
 
@@ -555,7 +590,7 @@ public class TransactionExecutorTest
             Assert.fail();
         } catch (Exception e)
         {
-            Assert.assertEquals(e.getMessage(), "Two phase transaction test-id unexpected status PREPARED. Expected statuses [STARTED].");
+            assertEquals(e.getMessage(), "Two phase transaction test-id unexpected status PREPARED. Expected statuses [STARTED].");
         }
     }
 
@@ -584,7 +619,7 @@ public class TransactionExecutorTest
             Assert.fail();
         } catch (Exception e)
         {
-            Assert.assertEquals(e.getMessage(), "Two phase transaction test-id unexpected status PREPARED. Expected statuses [STARTED].");
+            assertEquals(e.getMessage(), "Two phase transaction test-id unexpected status PREPARED. Expected statuses [STARTED].");
         }
     }
 
