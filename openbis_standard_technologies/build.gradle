@@ -508,7 +508,7 @@ task openbisJavadocZip(type: Zip, dependsOn: openbisJavadoc) {
     from openbisJavadoc.destinationDir
 }
 
-task clientsAndApis(type: Zip, dependsOn: [dssClientZip, queryApiZip, apiV3Zip, screeningApiZip, pybisZip, obisZip, dropboxJavaDocZip, dynamicApiJavadocZip,
+task clientsAndApis(type: Zip, dependsOn: [dssClientZip, queryApiZip, apiV3Zip, dropboxApiZip, screeningApiZip, pybisZip, obisZip, dropboxJavaDocZip, dynamicApiJavadocZip,
                                            openbisCommonJavadocZip, dataStoreServerJavadocZip, openbisJavadocZip]) {
   baseName 'openBIS-clients-and-APIs'
   from dssClientZip.archivePath
