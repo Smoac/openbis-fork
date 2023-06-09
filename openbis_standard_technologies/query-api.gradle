@@ -265,7 +265,7 @@ task apiV3Zip(type: Zip, dependsOn: [apiV3JarBatteriesIncluded, apiV3Sources, ap
 task dropboxApiJar(type: Jar) {
     baseName 'openBIS-API-dropbox'
     includeEmptyDirs false
-    from project(':server-original-data-store').compileJava.outputs.getFiles().getAsFileTree().matching {
+    from project(':datastore_server').compileJava.outputs.getFiles().getAsFileTree().matching {
         include "ch/systemsx/cisd/etlserver/registrator/api/v2/*.class"
         include "ch/systemsx/cisd/etlserver/registrator/api/v2/impl/*.class"
     }
