@@ -495,6 +495,12 @@ task dataStoreServerJavadocZip(type: Zip, dependsOn: datastoreServerJavadoc) {
     from datastoreServerJavadoc.destinationDir
 }
 
+task commonbaseZip(type: Zip, dependsOn: [project(':lib-commonbase').tasks.jar]) {
+    baseName 'openBIS-API-commonbase'
+    from project(':commonbase').tasks.jar.archiveFile
+    into 'openBIS-API-commonbase'
+}
+
 task openbisJavadoc(type: Javadoc) {
     source project(':openbis').files('source/java').getAsFileTree().matching {
 		include "**/ch/systemsx/cisd/openbis/generic/server/jython/api/v1/**/*.java"
@@ -509,11 +515,12 @@ task openbisJavadocZip(type: Zip, dependsOn: openbisJavadoc) {
 }
 
 task clientsAndApis(type: Zip, dependsOn: [dssClientZip, queryApiZip, apiV3Zip, dropboxApiZip, screeningApiZip, pybisZip, obisZip, dropboxJavaDocZip, dynamicApiJavadocZip,
-                                           openbisCommonJavadocZip, dataStoreServerJavadocZip, openbisJavadocZip]) {
+                                           openbisCommonJavadocZip, dataStoreServerJavadocZip, openbisJavadocZip, dropboxApiZip, commonbaseZip]) {
   baseName 'openBIS-clients-and-APIs'
   from dssClientZip.archivePath
   from queryApiZip.archivePath
   from apiV3Zip.archivePath
+  from dropboxApiZip.archivePath
   from screeningApiZip.archivePath
   from pybisZip.archivePath
   from obisZip.archivePath
@@ -522,6 +529,7 @@ task clientsAndApis(type: Zip, dependsOn: [dssClientZip, queryApiZip, apiV3Zip, 
   from openbisCommonJavadocZip.archivePath
   from dataStoreServerJavadocZip.archivePath
   from openbisJavadocZip.archivePath
+  from commonbaseZip.archivePath
   from ('dist/client/readme.txt')
   rename { filename ->
     if (filename.startsWith('pybis-')) {
