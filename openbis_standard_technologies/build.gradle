@@ -495,7 +495,7 @@ task dataStoreServerJavadocZip(type: Zip, dependsOn: datastoreServerJavadoc) {
     from datastoreServerJavadoc.destinationDir
 }
 
-task commonbaseZip(type: Zip, dependsOn: [project(':lib-commonbase').tasks.jar]) {
+task commonbaseZip(type: Zip, dependsOn: [project(':commonbase').tasks.jar]) {
     baseName 'openBIS-API-commonbase'
     from project(':commonbase').tasks.jar.archiveFile
     into 'openBIS-API-commonbase'
