@@ -51,11 +51,9 @@ class ItemIcon extends React.Component {
       const iconType = this.extensionToIconType.get(
         file.name.substring(file.name.lastIndexOf('.') + 1)
       )
-      return iconType ? (
-        React.createElement(iconType, { className: classes.icon })
-      ) : (
-        <FileIcon className={classes.icon} />
-      )
+      return iconType
+        ? React.createElement(iconType, { className: classes.icon })
+        : <FileIcon className={classes.icon} />
     }
   }
 }

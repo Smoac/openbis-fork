@@ -19,6 +19,9 @@ const styles = (theme) => ({
             backgroundColor: '#0000000a'
         },
     },
+    name: {
+        padding: '0'
+    }
 })
 
 class GridViewItem extends React.Component {
@@ -31,7 +34,7 @@ class GridViewItem extends React.Component {
                 <CardMedia>
                     <ItemIcon file={file} configuration={configuration} />
                 </CardMedia>
-                <CardContent>
+                <CardContent className={classes.name}>
                     {file.name}
                 </CardContent>
             </Grid>
