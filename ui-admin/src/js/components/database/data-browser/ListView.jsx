@@ -1,7 +1,5 @@
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
-import FolderIcon from '@material-ui/icons/FolderOpen'
-import FileIcon from '@material-ui/icons/InsertDriveFileOutlined'
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -9,6 +7,7 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import autoBind from 'auto-bind'
+import ItemIcon from "@src/js/components/database/data-browser/ItemIcon.jsx";
 
 const styles = theme => ({
   content: {
@@ -62,32 +61,8 @@ const styles = theme => ({
 
 class ListView extends React.Component {
 
-  constructor(props, context) {
-    super(props, context)
-    autoBind(this)
-
-    const { configuration } = this.props
-
-    this.extensionToIconType = new Map(
-      configuration.flatMap(
-        (configObject) => configObject.extensions.map(extension => [extension, configObject.icon])
-      )
-    )
-  }
-
-  getIcon(file) {
-    const { classes } = this.props
-
-    if (file.folder) {
-      return <FolderIcon className={classes.icon} />
-    } else {
-      const iconType = this.extensionToIconType.get(file.name.substring(file.name.lastIndexOf(".") + 1))
-      return iconType ? React.createElement(iconType, { className: classes.icon }) : <FileIcon className={classes.icon} />
-    }
-  }
-
   render() {
-    const { classes, files } = this.props
+    const { classes, files, configuration } = this.props
 
     /* Create strings in messages. */
     return (
@@ -103,7 +78,9 @@ class ListView extends React.Component {
           <TableBody>
             {files.map((file, index) =>
               <TableRow key={index} className={classes.tableRow}>
-                <TableCell className={`${classes.tableData} ${classes.nameColumn}`}>{<>{this.getIcon(file)} {file.name}</>}</TableCell>
+                <TableCell className={`${classes.tableData} ${classes.nameColumn}`}>
+                  {<><ItemIcon classes = {classes} file={file} configuration={configuration} />{file.name}</>}
+                </TableCell>
                 <TableCell className={`${classes.tableData} ${classes.sizeColumn}`}>{file.folder ? '-' : file.size}</TableCell>
                 <TableCell className={`${classes.tableData} ${classes.modifiedColumn}`}>{file.lastModifiedTime.toLocaleString()}</TableCell>
               </TableRow>
