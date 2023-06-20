@@ -96,7 +96,9 @@ class DataBrowser extends React.Component {
           lastModifiedTime: new Date('2023-05-30 15:33:14.048038'),
           lastAccessTime: new Date('2023-05-30 15:33:14.048038')
         }
-      ]
+      ],
+      selectedFile: null,
+      multiselectedFiles: new Set([])
     }
   }
 
@@ -104,15 +106,56 @@ class DataBrowser extends React.Component {
     this.setState({ viewType })
   }
 
+  handleClick(file) {
+    // TODO: implement
+  }
+
+  handleSelect(file) {
+    this.setState({selectedFile: file});
+  }
+
+  handleMultiselect(file) {
+    // TODO: implement
+  }
+
   render() {
-    const { viewType, files } = this.state
+    const { viewType, files, selectedFile, multiselectedFiles } = this.state
     const { classes } = this.props
 
     return (
       <Paper className={classes.boundary}>
-        <Toolbar viewType={viewType} onViewTypeChange={this.handleViewTypeChange} />
-        {viewType === 'list' && <ListView configuration={configuration} files={files} />}
-        {viewType === 'grid' && <GridView configuration={configuration} files={files} />}
+        <Toolbar
+          viewType={viewType}
+          onViewTypeChange={this.handleViewTypeChange}
+        />
+        {viewType === 'list' && (
+          <ListView
+            clickable={true}
+            selectable={true}
+            multiselectable={true}
+            onClick={this.handleClick}
+            onSelect={this.handleSelect}
+            onMultiselect={this.handleMultiselect}
+            configuration={configuration}
+            files={files}
+            selectedFile = {selectedFile}
+            multiselectedFiles = {multiselectedFiles}
+          />
+        )}
+        {viewType === 'grid' && (
+          <GridView
+            clickable={true}
+            selectable={true}
+            multiselectable={true}
+            onClick={this.handleClick}
+            onSelect={this.handleSelect}
+            onMultiselect={this.handleMultiselect}
+            configuration={configuration}
+            files={files}
+            selectedFile = {selectedFile}
+            multiselectedFiles = {multiselectedFiles}
+          />
+        )}
       </Paper>
     )
   }

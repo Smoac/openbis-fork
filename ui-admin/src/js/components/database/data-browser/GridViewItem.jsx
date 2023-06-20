@@ -1,45 +1,93 @@
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import Grid from '@material-ui/core/Grid'
-import Card from "@material-ui/core/Card";
-import { CardContent, CardMedia } from "@material-ui/core";
+import Card from '@material-ui/core/Card'
+import { CardContent, CardMedia } from '@material-ui/core'
 import ItemIcon from '@src/js/components/database/data-browser/ItemIcon.jsx'
+import autoBind from "auto-bind";
 
 const styles = (theme) => ({
-    cell: {
-        display: 'block',
-        position: 'relative',
-        width: '8rem',
-        height: '8rem',
-        overflow: 'hidden',
-        margin: '0.25rem',
-        textAlign: 'center',
-        cursor: 'pointer',
-        '&:hover': {
-            backgroundColor: '#0000000a'
-        },
-    },
-    name: {
-        padding: '0'
+  cell: {
+    display: 'block',
+    position: 'relative',
+    width: '8rem',
+    height: '8rem',
+    overflow: 'hidden',
+    margin: '0.25rem',
+    textAlign: 'center',
+    '&:hover': {
+      backgroundColor: '#0000000a'
     }
+  },
+  name: {
+    padding: '0'
+  },
+  clickable: {
+    cursor: 'pointer'
+  },
+  selectable: {
+    cursor: 'pointer'
+  },
+  selected: {
+    backgroundColor: '#e8f7fd'
+  }
 })
 
 class GridViewItem extends React.Component {
 
-    render() {
-        const { classes, file, configuration } = this.props
 
-        return (
-            <Grid item component={Card} variant="outlined" className={classes.cell}>
-                <CardMedia>
-                    <ItemIcon file={file} configuration={configuration} />
-                </CardMedia>
-                <CardContent className={classes.name}>
-                    {file.name}
-                </CardContent>
-            </Grid>
-        )
+  constructor(props, context) {
+    super(props, context);
+    autoBind(this);
+  }
+
+  handleClick(event) {
+    const { onClick, onSelect, file } = this.props;
+
+    onClick(event, file);
+    onSelect(event, file);
+  };
+
+  render() {
+    const { classes,
+      file,
+      configuration,
+      clickable,
+      selectable,
+      multiselectable,
+      selected
+    } = this.props
+
+    let itemClasses = [classes.cell]
+
+    if (multiselectable) {
+      itemClasses.push(classes.multiselectable)
     }
+    if (selectable) {
+      itemClasses.push(classes.selectable)
+    }
+    if (selected) {
+      itemClasses.push(classes.selected)
+    }
+    if (clickable) {
+      itemClasses.push(classes.clickable)
+    }
+
+    return (
+      <Grid
+        item
+        component={Card}
+        variant='outlined'
+        className={itemClasses.join(' ')}
+        onClick={this.handleClick}
+      >
+        <CardMedia>
+          <ItemIcon file={file} configuration={configuration} />
+        </CardMedia>
+        <CardContent className={classes.name}>{file.name}</CardContent>
+      </Grid>
+    )
+  }
 }
 
 export default withStyles(styles)(GridViewItem)

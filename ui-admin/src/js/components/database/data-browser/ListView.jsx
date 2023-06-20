@@ -55,7 +55,10 @@ const styles = theme => ({
   tableData: {
     padding: theme.spacing(2),
     borderWidth: '0'
-  }
+  },
+  selected: {
+    backgroundColor: '#e8f7fd'
+  },
 })
 
 class ListView extends React.Component {
