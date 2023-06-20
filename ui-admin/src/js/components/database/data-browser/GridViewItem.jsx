@@ -19,10 +19,6 @@ const styles = (theme) => ({
             backgroundColor: '#0000000a'
         },
     },
-    icon: {
-        verticalAlign: 'middle',
-        fontSize: '6rem'
-    },
 })
 
 class GridViewItem extends React.Component {
@@ -33,7 +29,7 @@ class GridViewItem extends React.Component {
         return (
             <Grid item component={Card} variant="outlined" className={classes.cell}>
                 <CardMedia>
-                    <ItemIcon classes={classes} file={file} configuration={configuration} />
+                    <ItemIcon file={file} configuration={configuration} />
                 </CardMedia>
                 <CardContent>
                     {file.name}

@@ -39,7 +39,6 @@ const styles = theme => ({
     textAlign: 'right'
   },
   icon: {
-    verticalAlign: 'middle',
     fontSize: '2.5rem'
   },
   text: {

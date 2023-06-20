@@ -15,13 +15,20 @@
  *
  */
 
-import React from "react";
-import FolderIcon from "@material-ui/icons/FolderOpen.js";
-import FileIcon from "@material-ui/icons/InsertDriveFileOutlined.js";
-import autoBind from "auto-bind";
+import React from 'react'
+import FolderIcon from '@material-ui/icons/FolderOpen.js'
+import FileIcon from '@material-ui/icons/InsertDriveFileOutlined.js'
+import autoBind from 'auto-bind'
+import { withStyles } from '@material-ui/core/styles'
+
+const styles = (theme) => ({
+  icon: {
+    verticalAlign: 'middle',
+    fontSize: '6rem'
+  }
+})
 
 class ItemIcon extends React.Component {
-
   constructor(props, context) {
     super(props, context)
     autoBind(this)
@@ -29,8 +36,8 @@ class ItemIcon extends React.Component {
     const { configuration } = this.props
 
     this.extensionToIconType = new Map(
-      configuration.flatMap(
-        (configObject) => configObject.extensions.map(extension => [extension, configObject.icon])
+      configuration.flatMap(configObject =>
+        configObject.extensions.map(extension => [extension, configObject.icon])
       )
     )
   }
@@ -41,11 +48,16 @@ class ItemIcon extends React.Component {
     if (file.folder) {
       return <FolderIcon className={classes.icon} />
     } else {
-      const iconType = this.extensionToIconType.get(file.name.substring(file.name.lastIndexOf(".") + 1))
-      return iconType ? React.createElement(iconType, { className: classes.icon }) : <FileIcon className={classes.icon} />
+      const iconType = this.extensionToIconType.get(
+        file.name.substring(file.name.lastIndexOf('.') + 1)
+      )
+      return iconType ? (
+        React.createElement(iconType, { className: classes.icon })
+      ) : (
+        <FileIcon className={classes.icon} />
+      )
     }
   }
-
 }
 
-export default ItemIcon
+export default withStyles(styles)(ItemIcon)
