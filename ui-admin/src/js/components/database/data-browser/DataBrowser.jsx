@@ -2,13 +2,15 @@ import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import autoBind from 'auto-bind'
 import Toolbar from '@src/js/components/database/data-browser/Toolbar.jsx'
-import ListView from '@src/js/components/database/data-browser/ListView.jsx'
 import GridView from '@src/js/components/database/data-browser/GridView.jsx'
 import DescriptionIcon from '@material-ui/icons/DescriptionOutlined'
 import AudioIcon from '@material-ui/icons/MusicNoteOutlined'
 import VideoIcon from '@material-ui/icons/LocalMovies'
 import ImageIcon from '@material-ui/icons/Image'
-import Paper from "@material-ui/core/Paper";
+import Paper from '@material-ui/core/Paper'
+import Grid from '@src/js/components/common/grid/Grid.jsx'
+import GridFilterOptions from '@src/js/components/common/grid/GridFilterOptions.js'
+import AppController from '@src/js/components/AppController.js'
 
 const styles = theme => ({
   boundary: {
@@ -118,6 +120,14 @@ class DataBrowser extends React.Component {
     // TODO: implement
   }
 
+  async load(params) {
+    return await this.state.files;
+  }
+
+  async onError(error) {
+    await AppController.getInstance().errorChange(error)
+  }
+
   render() {
     const { viewType, files, selectedFile, multiselectedFiles } = this.state
     const { classes } = this.props
@@ -129,17 +139,42 @@ class DataBrowser extends React.Component {
           onViewTypeChange={this.handleViewTypeChange}
         />
         {viewType === 'list' && (
-          <ListView
-            clickable={true}
+          <Grid
+            // id={id}
+            // settingsId={id}
+            filterModes={[GridFilterOptions.COLUMN_FILTERS]}
+            header='Files'
+            columns={[
+              {
+                name: 'name',
+                label: 'Name',
+                sortable: true,
+                getValue: ({ row }) => row.name,
+                renderValue: ({ value }) => value,
+                renderFilter: null
+              },
+              {
+                name: 'size',
+                label: 'Size',
+                sortable: true,
+                getValue: ({ row }) => row.size
+              },
+              {
+                name: 'modified',
+                label: 'Modified',
+                sortable: false,
+                getValue: ({ row }) => row.lastModifiedTime.toLocaleString()
+              },
+            ]}
+            loadRows={this.load}
+            sort='registrationDate'
+            sortDirection='desc'
+            exportable={false}
             selectable={true}
-            multiselectable={true}
-            onClick={this.handleClick}
-            onSelect={this.handleSelect}
-            onMultiselect={this.handleMultiselect}
-            configuration={configuration}
-            files={files}
-            selectedFile = {selectedFile}
-            multiselectedFiles = {multiselectedFiles}
+            loadSettings={null}
+            onSettingsChange={null}
+            onError={this.onError}
+            exportXLS={null}
           />
         )}
         {viewType === 'grid' && (
