@@ -1,15 +1,15 @@
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import autoBind from 'auto-bind'
-import ItemIcon from "@src/js/components/database/data-browser/ItemIcon.jsx";
+import Table from '@material-ui/core/Table'
+import TableBody from '@material-ui/core/TableBody'
+import TableCell from '@material-ui/core/TableCell'
+import TableContainer from '@material-ui/core/TableContainer'
+import TableHead from '@material-ui/core/TableHead'
+import TableRow from '@material-ui/core/TableRow'
+import { ListViewItem } from '@src/js/components/database/data-browser/ListViewItem.jsx'
+import logger from '@src/js/common/logger.js'
 
-const styles = theme => ({
+const styles = (theme) => ({
   content: {
     width: '100%',
     borderSpacing: '0',
@@ -27,17 +27,6 @@ const styles = theme => ({
   tableHeader: {
     textAlign: 'left'
   },
-  nameColumn: {
-    textAlign: 'left'
-  },
-  sizeColumn: {
-    width: '11rem',
-    textAlign: 'left'
-  },
-  modifiedColumn: {
-    width: '11rem',
-    textAlign: 'right'
-  },
   icon: {
     fontSize: '2.5rem'
   },
@@ -48,6 +37,10 @@ const styles = theme => ({
   listContainer: {
     flex: '1 1 100%'
   },
+  modifiedColumn: {
+    width: '11rem',
+    textAlign: 'right'
+  },
   tableRow: {
     fontSize: theme.typography.body1.fontSize,
     height: '2rem'
@@ -56,14 +49,12 @@ const styles = theme => ({
     padding: theme.spacing(2),
     borderWidth: '0'
   },
-  selected: {
-    backgroundColor: '#e8f7fd'
-  },
 })
 
 class ListView extends React.Component {
 
   render() {
+    logger.log(logger.DEBUG, 'ListView.render')
     const { classes, files, configuration } = this.props
 
     /* Create strings in messages. */
@@ -79,13 +70,7 @@ class ListView extends React.Component {
           </TableHead>
           <TableBody>
             {files.map((file, index) =>
-              <TableRow key={index} className={classes.tableRow}>
-                <TableCell className={`${classes.tableData} ${classes.nameColumn}`}>
-                  {<><ItemIcon classes = {classes} file={file} configuration={configuration} />{file.name}</>}
-                </TableCell>
-                <TableCell className={`${classes.tableData} ${classes.sizeColumn}`}>{file.folder ? '-' : file.size}</TableCell>
-                <TableCell className={`${classes.tableData} ${classes.modifiedColumn}`}>{file.lastModifiedTime.toLocaleString()}</TableCell>
-              </TableRow>
+              <ListViewItem key={index} {...this.props} file={file} />
             )}
           </TableBody>
         </Table>

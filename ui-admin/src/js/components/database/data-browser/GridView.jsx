@@ -1,8 +1,9 @@
-import React from "react";
-import { withStyles } from "@material-ui/core/styles";
-import GridViewItem from "@src/js/components/database/data-browser/GridViewItem.jsx";
-import Grid from "@material-ui/core/Grid";
-import autoBind from "auto-bind";
+import React from 'react'
+import { withStyles } from '@material-ui/core/styles'
+import GridViewItem from '@src/js/components/database/data-browser/GridViewItem.jsx'
+import Grid from '@material-ui/core/Grid'
+import autoBind from 'auto-bind'
+import logger from '@src/js/common/logger.js'
 
 const styles = theme => ({
   container: {
@@ -47,19 +48,18 @@ class GridView extends React.Component {
   }
 
   render() {
+    logger.log(logger.DEBUG, 'GridView.render')
     const { clickable, selectable, multiselectable, classes, configuration, files, selectedFile, multiselectedFiles } = this.props;
 
     return (
       <Grid container className={classes.container}>
-        {files.map(file => (
+        {files.map((file, index) => (
           <GridViewItem
-            clickable={clickable}
-            selectable={selectable}
+            key={index}
+            {...this.props}
             selected={selectedFile === file}
-            multiselectable={multiselectable}
             multiselected={multiselectedFiles.has(file)}
             file={file}
-            configuration={configuration}
             onClick={this.handleClick}
             onSelect={this.handleSelect}
             onMultiselect={this.handleMultiselect}
