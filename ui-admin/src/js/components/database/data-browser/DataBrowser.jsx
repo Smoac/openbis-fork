@@ -11,6 +11,7 @@ import Paper from '@material-ui/core/Paper'
 import Grid from '@src/js/components/common/grid/Grid.jsx'
 import GridFilterOptions from '@src/js/components/common/grid/GridFilterOptions.js'
 import AppController from '@src/js/components/AppController.js'
+import ItemIcon from '@src/js/components/database/data-browser/ItemIcon.jsx'
 
 const styles = theme => ({
   boundary: {
@@ -19,7 +20,10 @@ const styles = theme => ({
     borderStyle: 'solid',
     borderColor: theme.palette.border.secondary,
     backgroundColor: theme.palette.background.paper
-  }
+  },
+  icon: {
+    fontSize: '4rem',
+  },
 })
 
 const configuration =
@@ -149,8 +153,8 @@ class DataBrowser extends React.Component {
                 name: 'name',
                 label: 'Name',
                 sortable: true,
-                getValue: ({ row }) => row.name,
-                renderValue: ({ value }) => value,
+                getValue: ({ row }) => row,
+                renderValue: ({ value }) => <><ItemIcon file={value} classes={classes} configuration={configuration} /> {value.name}</>,
                 renderFilter: null
               },
               {
