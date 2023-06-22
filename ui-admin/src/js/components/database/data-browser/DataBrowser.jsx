@@ -174,6 +174,7 @@ class DataBrowser extends React.Component {
             sort='registrationDate'
             sortDirection='desc'
             exportable={false}
+            selectable={true}
             multiselectable={true}
             loadSettings={null}
             onSettingsChange={null}
