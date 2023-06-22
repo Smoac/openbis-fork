@@ -125,7 +125,7 @@ class DataBrowser extends React.Component {
   }
 
   async load(params) {
-    return await this.state.files;
+    return await this.state.files.map((file) => ({id: file.name, ...file}));
   }
 
   async onError(error) {
@@ -174,7 +174,7 @@ class DataBrowser extends React.Component {
             sort='registrationDate'
             sortDirection='desc'
             exportable={false}
-            selectable={true}
+            multiselectable={true}
             loadSettings={null}
             onSettingsChange={null}
             onError={this.onError}
