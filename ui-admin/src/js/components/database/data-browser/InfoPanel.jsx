@@ -23,6 +23,7 @@ import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
 import TableCell from '@material-ui/core/TableCell'
 import TableRow from '@material-ui/core/TableRow'
+import Header from "@src/js/components/common/form/Header.jsx";
 
 export class InfoPanel extends React.Component {
   constructor(props, context) {
@@ -33,16 +34,11 @@ export class InfoPanel extends React.Component {
   render() {
     const { classes, file } = this.props
 
-    // return <div>Test</div>
-
     return (file &&
       <Container>
+        <Header size='big'>{file.name}</Header>
         <Table>
           <TableBody>
-            <TableRow>
-              <TableCell variant='head'>Name</TableCell>
-              <TableCell>{file.name}</TableCell>
-            </TableRow>
             <TableRow>
               <TableCell variant='head'>Size</TableCell>
               <TableCell>{file.size}</TableCell>

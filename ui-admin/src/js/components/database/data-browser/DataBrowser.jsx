@@ -17,17 +17,27 @@ import { InfoPanel } from "@src/js/components/database/data-browser/InfoPanel.js
 const styles = theme => ({
   boundary: {
     padding: theme.spacing(1),
-    borderWidth: '2px',
-    borderStyle: 'solid',
     borderColor: theme.palette.border.secondary,
     backgroundColor: theme.palette.background.paper
   },
   icon: {
     fontSize: '4rem',
   },
-  flex: {
+  flexContainer: {
     display: 'flex',
     flexWrap: 'wrap',
+    '&>*': {
+      flex: '0 0 auto',
+      padding: theme.spacing(1),
+      borderWidth: '1px',
+      borderStyle: 'solid',
+      borderColor: theme.palette.border.secondary,
+      backgroundColor: theme.palette.background.paper
+    },
+  },
+
+  container: {
+    flexGrow: '1',
   }
 })
 
@@ -122,7 +132,7 @@ class DataBrowser extends React.Component {
   }
 
   handleSelect(selectedRow) {
-    this.setState({selectedFile: selectedRow.data});
+    this.setState({selectedFile: selectedRow && selectedRow.data});
   }
 
   handleMultiselect(file) {
@@ -147,13 +157,14 @@ class DataBrowser extends React.Component {
           viewType={viewType}
           onViewTypeChange={this.handleViewTypeChange}
         />
-        <div className={classes.flex}>
+        <div className={[classes.flexContainer, classes.boundary].join(' ')}>
           {viewType === 'list' && (
             <Grid
               // id={id}
               // settingsId={id}
               filterModes={[GridFilterOptions.COLUMN_FILTERS]}
               header='Files'
+              classes={classes}
               columns={[
                 {
                   name: 'name',
@@ -203,7 +214,7 @@ class DataBrowser extends React.Component {
               multiselectedFiles = {multiselectedFiles}
             />
           )}
-          <InfoPanel file={selectedFile} />
+          {selectedFile && <InfoPanel file={selectedFile} classes={classes} />}
         </div>
       </Paper>
     )
