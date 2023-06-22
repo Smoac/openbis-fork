@@ -10,7 +10,6 @@ import SettingsIcon from '@material-ui/icons/Settings'
 import SearchIcon from '@material-ui/icons/Search'
 import InfoIcon from '@material-ui/icons/InfoOutlined'
 import CreateNewFolderIcon from '@material-ui/icons/CreateNewFolderOutlined'
-import Paper from "@material-ui/core/Paper";
 
 const styles = theme => ({
 })
@@ -20,9 +19,9 @@ class Toolbar extends React.Component {
     const { viewType, onViewTypeChange, classes } = this.props
     return (
       <>
-        <Button styles={{ root: classes.button }} label={<CreateNewFolderIcon />} />
+        <Button styles={{ root: classes.button }} label={<><CreateNewFolderIcon /> New folder</>} />
         <Button styles={{ root: classes.button }} label={<InfoIcon />} />
-        <Button styles={{ root: classes.button }} label={<SearchIcon />} />
+        <Button styles={{ root: classes.button }} label={<><SearchIcon /> Search</>} />
         {viewType === 'list' && <Button styles={{ root: classes.button }} label={<ViewComfyIcon />} onClick={() => onViewTypeChange('grid')} />}
         {viewType === 'grid' && <Button styles={{ root: classes.button }} label={<ViewListIcon />} onClick={() => onViewTypeChange('list')} />}
         <Button styles={{ root: classes.button }} label={<SettingsIcon />} />
