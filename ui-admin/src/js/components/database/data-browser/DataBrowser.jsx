@@ -12,6 +12,7 @@ import Grid from '@src/js/components/common/grid/Grid.jsx'
 import GridFilterOptions from '@src/js/components/common/grid/GridFilterOptions.js'
 import AppController from '@src/js/components/AppController.js'
 import ItemIcon from '@src/js/components/database/data-browser/ItemIcon.jsx'
+import { InfoPanel } from "@src/js/components/database/data-browser/InfoPanel.jsx";
 
 const styles = theme => ({
   boundary: {
@@ -24,6 +25,10 @@ const styles = theme => ({
   icon: {
     fontSize: '4rem',
   },
+  flex: {
+    display: 'flex',
+    flexWrap: 'wrap',
+  }
 })
 
 const configuration =
@@ -116,8 +121,8 @@ class DataBrowser extends React.Component {
     // TODO: implement
   }
 
-  handleSelect(file) {
-    this.setState({selectedFile: file});
+  handleSelect(selectedRow) {
+    this.setState({selectedFile: selectedRow.data});
   }
 
   handleMultiselect(file) {
@@ -142,60 +147,64 @@ class DataBrowser extends React.Component {
           viewType={viewType}
           onViewTypeChange={this.handleViewTypeChange}
         />
-        {viewType === 'list' && (
-          <Grid
-            // id={id}
-            // settingsId={id}
-            filterModes={[GridFilterOptions.COLUMN_FILTERS]}
-            header='Files'
-            columns={[
-              {
-                name: 'name',
-                label: 'Name',
-                sortable: true,
-                getValue: ({ row }) => row,
-                renderValue: ({ value }) => <><ItemIcon file={value} classes={classes} configuration={configuration} /> {value.name}</>,
-                renderFilter: null
-              },
-              {
-                name: 'size',
-                label: 'Size',
-                sortable: true,
-                getValue: ({ row }) => row.size
-              },
-              {
-                name: 'modified',
-                label: 'Modified',
-                sortable: false,
-                getValue: ({ row }) => row.lastModifiedTime.toLocaleString()
-              },
-            ]}
-            loadRows={this.load}
-            sort='registrationDate'
-            sortDirection='desc'
-            exportable={false}
-            selectable={true}
-            multiselectable={true}
-            loadSettings={null}
-            onSettingsChange={null}
-            onError={this.onError}
-            exportXLS={null}
-          />
-        )}
-        {viewType === 'grid' && (
-          <GridView
-            clickable={true}
-            selectable={true}
-            multiselectable={true}
-            onClick={this.handleClick}
-            onSelect={this.handleSelect}
-            onMultiselect={this.handleMultiselect}
-            configuration={configuration}
-            files={files}
-            selectedFile = {selectedFile}
-            multiselectedFiles = {multiselectedFiles}
-          />
-        )}
+        <div className={classes.flex}>
+          {viewType === 'list' && (
+            <Grid
+              // id={id}
+              // settingsId={id}
+              filterModes={[GridFilterOptions.COLUMN_FILTERS]}
+              header='Files'
+              columns={[
+                {
+                  name: 'name',
+                  label: 'Name',
+                  sortable: true,
+                  getValue: ({ row }) => row,
+                  renderValue: ({ value }) => <><ItemIcon file={value} classes={classes} configuration={configuration} /> {value.name}</>,
+                  renderFilter: null
+                },
+                {
+                  name: 'size',
+                  label: 'Size',
+                  sortable: true,
+                  getValue: ({ row }) => row.size
+                },
+                {
+                  name: 'modified',
+                  label: 'Modified',
+                  sortable: false,
+                  getValue: ({ row }) => row.lastModifiedTime.toLocaleString()
+                },
+              ]}
+              loadRows={this.load}
+              sort='registrationDate'
+              sortDirection='desc'
+              exportable={false}
+              selectable={true}
+              multiselectable={true}
+              loadSettings={null}
+              onSettingsChange={null}
+              onError={this.onError}
+              onSelectedRowChange={this.handleSelect}
+              exportXLS={null}
+            />
+          )}
+          {viewType === 'grid' && (
+            <GridView
+              clickable={true}
+              selectable={true}
+              multiselectable={true}
+              onClick={this.handleClick}
+              onSelect={this.handleSelect}
+              onMultiselect={this.handleMultiselect}
+              configuration={configuration}
+              files={files}
+              selectedFile = {selectedFile}
+              multiselectedFiles = {multiselectedFiles}
+            />
+          )}
+          <InfoPanel file={selectedFile} />
+        </div>
       </Paper>
     )
   }

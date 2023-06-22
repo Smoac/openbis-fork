@@ -18,7 +18,6 @@
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import messages from '@src/js/common/messages.js'
-import Container from '@src/js/components/common/form/Container.jsx'
 import Button from '@src/js/components/common/form/Button.jsx'
 import ViewComfyIcon from '@material-ui/icons/ViewComfy'
 import ViewListIcon from '@material-ui/icons/ViewList'
