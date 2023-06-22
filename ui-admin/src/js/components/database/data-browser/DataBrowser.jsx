@@ -12,7 +12,7 @@ import Grid from '@src/js/components/common/grid/Grid.jsx'
 import GridFilterOptions from '@src/js/components/common/grid/GridFilterOptions.js'
 import AppController from '@src/js/components/AppController.js'
 import ItemIcon from '@src/js/components/database/data-browser/ItemIcon.jsx'
-import { InfoPanel } from "@src/js/components/database/data-browser/InfoPanel.jsx";
+import InfoPanel from "@src/js/components/database/data-browser/InfoPanel.jsx";
 
 const styles = theme => ({
   boundary: {
@@ -35,7 +35,6 @@ const styles = theme => ({
       backgroundColor: theme.palette.background.paper
     },
   },
-
   container: {
     flexGrow: '1',
   }
@@ -164,14 +163,14 @@ class DataBrowser extends React.Component {
               // settingsId={id}
               filterModes={[GridFilterOptions.COLUMN_FILTERS]}
               header='Files'
-              classes={classes}
+              classes={{ container: classes.container }}
               columns={[
                 {
                   name: 'name',
                   label: 'Name',
                   sortable: true,
                   getValue: ({ row }) => row,
-                  renderValue: ({ value }) => <><ItemIcon file={value} classes={classes} configuration={configuration} /> {value.name}</>,
+                  renderValue: ({ value }) => <><ItemIcon file={value} classes={{ icon: classes.icon }} configuration={configuration} /> {value.name}</>,
                   renderFilter: null
                 },
                 {
@@ -214,7 +213,7 @@ class DataBrowser extends React.Component {
               multiselectedFiles = {multiselectedFiles}
             />
           )}
-          {selectedFile && <InfoPanel file={selectedFile} classes={classes} />}
+          {selectedFile && <InfoPanel file={selectedFile} configuration={configuration} />}
         </div>
       </Paper>
     )

@@ -24,19 +24,29 @@ import TableBody from '@material-ui/core/TableBody'
 import TableCell from '@material-ui/core/TableCell'
 import TableRow from '@material-ui/core/TableRow'
 import Header from "@src/js/components/common/form/Header.jsx";
+import ItemIcon from "@src/js/components/database/data-browser/ItemIcon.jsx";
+import { withStyles } from "@material-ui/core/styles";
 
-export class InfoPanel extends React.Component {
+const styles = () => ({
+  icon: {
+    verticalAlign: 'middle',
+    fontSize: '12rem'
+  }
+})
+
+class InfoPanel extends React.Component {
   constructor(props, context) {
     super(props, context)
     autoBind(this)
   }
 
   render() {
-    const { classes, file } = this.props
+    const { classes, file, configuration } = this.props
 
     return (file &&
       <Container>
         <Header size='big'>{file.name}</Header>
+        <ItemIcon file={file} classes={classes} configuration={configuration} />
         <Table>
           <TableBody>
             <TableRow>
@@ -61,3 +71,5 @@ export class InfoPanel extends React.Component {
     )
   }
 }
+
+export default withStyles(styles)(InfoPanel)
