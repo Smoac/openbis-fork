@@ -75,11 +75,12 @@ class DatabaseComponent extends React.PureComponent {
 
   render() {
     logger.log(logger.DEBUG, 'DatabaseComponent.render')
+    const { object } = this.props
 
     return (
       this.state.showDataBrowser
         ?
-          <DataBrowser viewType='list'/>
+          <DataBrowser id={object.id} viewType='list'/>
         :
           <Container>
             <pre>{JSON.stringify(this.state.json || {}, null, 2)}</pre>

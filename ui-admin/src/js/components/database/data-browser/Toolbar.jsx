@@ -48,7 +48,7 @@ class Toolbar extends React.Component {
     } = this.props
     return (
       <>
-        <ToggleButton styles={{ root: classes.button }} selected={showInfo} onChange={onShowInfoChange} aria-label='Info'>
+        <ToggleButton styles={{ root: classes.button }} selected={showInfo} onChange={onShowInfoChange} value='Info' aria-label='Info' size='small'>
           <InfoIcon />
         </ToggleButton>
         <Button styles={{ root: classes.button }} label='New folder' startIcon={<CreateNewFolderIcon />} />
