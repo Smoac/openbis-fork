@@ -34,13 +34,13 @@ class Toolbar extends React.Component {
     const { viewType, onViewTypeChange, classes } = this.props
     return (
       <>
-        <Button styles={{ root: classes.button }} label={<><CreateNewFolderIcon /> New folder</>} />
-        <Button styles={{ root: classes.button }} label={<InfoIcon />} />
-        <Button styles={{ root: classes.button }} label={<><SearchIcon /> Search</>} />
+        <Button styles={{ root: classes.button }} label='New folder' startIcon={<CreateNewFolderIcon />} />
+        <Button styles={{ root: classes.button }} startIcon={<InfoIcon />} />
+        <Button styles={{ root: classes.button }} label='Search' startIcon={<SearchIcon />} />
         {viewType === 'list' && <Button styles={{ root: classes.button }} label={<ViewComfyIcon />} onClick={() => onViewTypeChange('grid')} />}
         {viewType === 'grid' && <Button styles={{ root: classes.button }} label={<ViewListIcon />} onClick={() => onViewTypeChange('list')} />}
         <Button styles={{ root: classes.button }} label={<SettingsIcon />} />
-        <Button styles={{ root: classes.button }} label={<><PublishIcon /> {messages.get(messages.UPLOAD)}</>} />
+        <Button styles={{ root: classes.button }} label={messages.get(messages.UPLOAD)} startIcon={<PublishIcon />} />
       </>
     )
   }

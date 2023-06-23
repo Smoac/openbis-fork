@@ -118,7 +118,8 @@ class DataBrowser extends React.Component {
         }
       ],
       selectedFile: null,
-      multiselectedFiles: new Set([])
+      multiselectedFiles: new Set([]),
+      showInfo: false
     }
   }
 
