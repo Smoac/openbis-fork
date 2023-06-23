@@ -147,15 +147,21 @@ class DataBrowser extends React.Component {
     await AppController.getInstance().errorChange(error)
   }
 
+  handleShowInfoChange() {
+    this.setState({showInfo: !this.state.showInfo})
+  }
+
   render() {
-    const { viewType, files, selectedFile, multiselectedFiles } = this.state
     const { classes } = this.props
+    const { viewType, files, selectedFile, multiselectedFiles, showInfo } = this.state
 
     return (
       <Paper className={classes.boundary}>
         <Toolbar
           viewType={viewType}
           onViewTypeChange={this.handleViewTypeChange}
+          onShowInfoChange={this.handleShowInfoChange}
+          showInfo={showInfo}
         />
         <div className={[classes.flexContainer, classes.boundary].join(' ')}>
           {viewType === 'list' && (
@@ -214,7 +220,7 @@ class DataBrowser extends React.Component {
               multiselectedFiles = {multiselectedFiles}
             />
           )}
-          {selectedFile && <InfoPanel file={selectedFile} configuration={configuration} />}
+          {showInfo && selectedFile && <InfoPanel file={selectedFile} configuration={configuration} />}
         </div>
       </Paper>
     )

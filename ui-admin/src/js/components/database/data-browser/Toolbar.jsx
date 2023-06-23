@@ -26,16 +26,32 @@ import SettingsIcon from '@material-ui/icons/Settings'
 import SearchIcon from '@material-ui/icons/Search'
 import InfoIcon from '@material-ui/icons/InfoOutlined'
 import CreateNewFolderIcon from '@material-ui/icons/CreateNewFolderOutlined'
+import autoBind from "auto-bind";
+import { ToggleButton } from "@material-ui/lab";
 
 const styles = () => ({})
 
 class Toolbar extends React.Component {
+
+  constructor(props, context) {
+    super(props, context)
+    autoBind(this)
+  }
+
   render() {
-    const { viewType, onViewTypeChange, classes } = this.props
+    const {
+      viewType,
+      onViewTypeChange,
+      classes,
+      showInfo,
+      onShowInfoChange
+    } = this.props
     return (
       <>
+        <ToggleButton styles={{ root: classes.button }} selected={showInfo} onChange={onShowInfoChange} aria-label='Info'>
+          <InfoIcon />
+        </ToggleButton>
         <Button styles={{ root: classes.button }} label='New folder' startIcon={<CreateNewFolderIcon />} />
-        <Button styles={{ root: classes.button }} startIcon={<InfoIcon />} />
         <Button styles={{ root: classes.button }} label='Search' startIcon={<SearchIcon />} />
         {viewType === 'list' && <Button styles={{ root: classes.button }} label={<ViewComfyIcon />} onClick={() => onViewTypeChange('grid')} />}
         {viewType === 'grid' && <Button styles={{ root: classes.button }} label={<ViewListIcon />} onClick={() => onViewTypeChange('list')} />}

@@ -41,7 +41,11 @@ class InfoPanel extends React.Component {
   }
 
   render() {
-    const { classes, file, configuration } = this.props
+    const {
+      classes,
+      file,
+      configuration
+    } = this.props
 
     return (file &&
       <Container>
