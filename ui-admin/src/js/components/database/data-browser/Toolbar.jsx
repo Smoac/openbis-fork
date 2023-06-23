@@ -39,24 +39,50 @@ class Toolbar extends React.Component {
   }
 
   render() {
-    const {
-      viewType,
-      onViewTypeChange,
-      classes,
-      showInfo,
-      onShowInfoChange
-    } = this.props
+    const { viewType, onViewTypeChange, classes, showInfo, onShowInfoChange } =
+      this.props
     return (
       <>
-        <ToggleButton styles={{ root: classes.button }} selected={showInfo} onChange={onShowInfoChange} value='Info' aria-label='Info' size='small'>
+        <ToggleButton
+          styles={{ root: classes.button }}
+          selected={showInfo}
+          onChange={onShowInfoChange}
+          value={messages.get(messages.INFO)}
+          aria-label={messages.get(messages.INFO)}
+          size='small'
+        >
           <InfoIcon />
         </ToggleButton>
-        <Button styles={{ root: classes.button }} label='New folder' startIcon={<CreateNewFolderIcon />} />
-        <Button styles={{ root: classes.button }} label='Search' startIcon={<SearchIcon />} />
-        {viewType === 'list' && <Button styles={{ root: classes.button }} label={<ViewComfyIcon />} onClick={() => onViewTypeChange('grid')} />}
-        {viewType === 'grid' && <Button styles={{ root: classes.button }} label={<ViewListIcon />} onClick={() => onViewTypeChange('list')} />}
+        <Button
+          styles={{ root: classes.button }}
+          label={messages.get(messages.NEW_FOLDER)}
+          startIcon={<CreateNewFolderIcon />}
+        />
+        <Button
+          styles={{ root: classes.button }}
+          label={messages.get(messages.SEARCH)}
+          startIcon={<SearchIcon />}
+        />
+        {viewType === 'list' && (
+          <Button
+            styles={{ root: classes.button }}
+            label={<ViewComfyIcon />}
+            onClick={() => onViewTypeChange('grid')}
+          />
+        )}
+        {viewType === 'grid' && (
+          <Button
+            styles={{ root: classes.button }}
+            label={<ViewListIcon />}
+            onClick={() => onViewTypeChange('list')}
+          />
+        )}
         <Button styles={{ root: classes.button }} label={<SettingsIcon />} />
-        <Button styles={{ root: classes.button }} label={messages.get(messages.UPLOAD)} startIcon={<PublishIcon />} />
+        <Button
+          styles={{ root: classes.button }}
+          label={messages.get(messages.UPLOAD)}
+          startIcon={<PublishIcon />}
+        />
       </>
     )
   }
