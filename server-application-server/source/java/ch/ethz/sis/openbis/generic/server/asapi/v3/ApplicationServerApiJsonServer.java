@@ -56,7 +56,7 @@ public class ApplicationServerApiJsonServer extends AbstractApiJsonServiceExport
     private IApplicationServerApi service;
 
     @Autowired
-    private ITransactionExecutor transactionExecutor;
+    private ITransactionParticipant transactionParticipant;
 
     private final ThreadLocal<Map<String, String>> operationAttributes = new ThreadLocal<>();
 
@@ -115,23 +115,23 @@ public class ApplicationServerApiJsonServer extends AbstractApiJsonServiceExport
 
                         if (TransactionConst.BEGIN_TRANSACTION_METHOD.equals(invocation.getMethod().getName()))
                         {
-                            transactionExecutor.beginTransaction(transactionId, transactionManagerSecret);
+                            transactionParticipant.beginTransaction(transactionId, transactionManagerSecret);
                             return null;
                         } else if (TransactionConst.PREPARE_TRANSACTION_METHOD.equals(invocation.getMethod().getName()))
                         {
-                            transactionExecutor.prepareTransaction(transactionId, transactionManagerSecret);
+                            transactionParticipant.prepareTransaction(transactionId, transactionManagerSecret);
                             return null;
                         } else if (TransactionConst.COMMIT_TRANSACTION_METHOD.equals(invocation.getMethod().getName()))
                         {
-                            transactionExecutor.commitTransaction(transactionId, transactionManagerSecret);
+                            transactionParticipant.commitTransaction(transactionId, transactionManagerSecret);
                             return null;
                         } else if (TransactionConst.ROLLBACK_TRANSACTION_METHOD.equals(invocation.getMethod().getName()))
                         {
-                            transactionExecutor.rollbackTransaction(transactionId, transactionManagerSecret);
+                            transactionParticipant.rollbackTransaction(transactionId, transactionManagerSecret);
                             return null;
                         } else
                         {
-                            return transactionExecutor.executeOperation(transactionId, transactionManagerSecret, new ITransactionOperation()
+                            return transactionParticipant.executeOperation(transactionId, transactionManagerSecret, new ITransactionOperation()
                             {
                                 @Override public String getOperationName()
                                 {

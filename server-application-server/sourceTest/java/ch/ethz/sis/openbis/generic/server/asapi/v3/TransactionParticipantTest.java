@@ -19,7 +19,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-public class TransactionExecutorTest
+public class TransactionParticipantTest
 {
 
     public static final String TEST_TRANSACTION_ID = "test-id";
@@ -66,7 +66,7 @@ public class TransactionExecutorTest
     @Test
     public void testDifferentTransactionsAreExecutedInSeparateThreads() throws Throwable
     {
-        TransactionExecutor executor = new TransactionExecutor(provider);
+        TransactionParticipant executor = new TransactionParticipant(provider);
 
         MutableObject<String> transaction1BeginThreadName = new MutableObject<>();
         MutableObject<String> transaction1PrepareThreadName = new MutableObject<>();
@@ -171,7 +171,7 @@ public class TransactionExecutorTest
     @Test(dataProvider = "provideExceptions")
     public void testBeginTransactionFails(Throwable throwable) throws Throwable
     {
-        TransactionExecutor executor = new TransactionExecutor(provider);
+        TransactionParticipant executor = new TransactionParticipant(provider);
 
         mockery.checking(new Expectations()
         {
@@ -200,7 +200,7 @@ public class TransactionExecutorTest
     @Test(dataProvider = "provideExceptions")
     public void testExecuteOperationFails(Throwable throwable) throws Throwable
     {
-        TransactionExecutor executor = new TransactionExecutor(provider);
+        TransactionParticipant executor = new TransactionParticipant(provider);
 
         mockery.checking(new Expectations()
         {
@@ -244,7 +244,7 @@ public class TransactionExecutorTest
     @Test(dataProvider = "provideExceptions")
     public void testExecuteOperationFailsButGetsRetriedAndSucceeds(Throwable throwable) throws Throwable
     {
-        TransactionExecutor executor = new TransactionExecutor(provider);
+        TransactionParticipant executor = new TransactionParticipant(provider);
 
         mockery.checking(new Expectations()
         {
@@ -305,7 +305,7 @@ public class TransactionExecutorTest
     @Test(dataProvider = "provideExceptions")
     public void testRollbackFails(Throwable throwable) throws Throwable
     {
-        TransactionExecutor executor = new TransactionExecutor(provider);
+        TransactionParticipant executor = new TransactionParticipant(provider);
 
         mockery.checking(new Expectations()
         {
@@ -338,7 +338,7 @@ public class TransactionExecutorTest
     @Test(dataProvider = "provideExceptions")
     public void testPrepareFails(Throwable throwable) throws Throwable
     {
-        TransactionExecutor executor = new TransactionExecutor(provider);
+        TransactionParticipant executor = new TransactionParticipant(provider);
 
         mockery.checking(new Expectations()
         {
@@ -375,7 +375,7 @@ public class TransactionExecutorTest
     @Test(dataProvider = "provideExceptions")
     public void testCommitFails(Throwable throwable) throws Throwable
     {
-        TransactionExecutor executor = new TransactionExecutor(provider);
+        TransactionParticipant executor = new TransactionParticipant(provider);
 
         mockery.checking(new Expectations()
         {
@@ -417,7 +417,7 @@ public class TransactionExecutorTest
     @Test
     public void testNewTransactionCanBeStarted() throws Throwable
     {
-        TransactionExecutor executor = new TransactionExecutor(provider);
+        TransactionParticipant executor = new TransactionParticipant(provider);
 
         mockery.checking(new Expectations()
         {
@@ -432,7 +432,7 @@ public class TransactionExecutorTest
     @Test
     public void testNewTransactionCannotExecuteOperations() throws Throwable
     {
-        TransactionExecutor executor = new TransactionExecutor(provider);
+        TransactionParticipant executor = new TransactionParticipant(provider);
 
         try
         {
@@ -447,7 +447,7 @@ public class TransactionExecutorTest
     @Test
     public void testNewTransactionCannotBePrepared() throws Throwable
     {
-        TransactionExecutor executor = new TransactionExecutor(provider);
+        TransactionParticipant executor = new TransactionParticipant(provider);
 
         try
         {
@@ -462,7 +462,7 @@ public class TransactionExecutorTest
     @Test
     public void testNewTransactionCannotBeCommitted() throws Throwable
     {
-        TransactionExecutor executor = new TransactionExecutor(provider);
+        TransactionParticipant executor = new TransactionParticipant(provider);
 
         try
         {
@@ -477,7 +477,7 @@ public class TransactionExecutorTest
     @Test
     public void testNewTransactionCanBeRolledBack() throws Throwable
     {
-        TransactionExecutor executor = new TransactionExecutor(provider);
+        TransactionParticipant executor = new TransactionParticipant(provider);
 
         mockery.checking(new Expectations()
         {
@@ -492,7 +492,7 @@ public class TransactionExecutorTest
     @Test
     public void testStartedTransactionCannotBeStarted() throws Throwable
     {
-        TransactionExecutor executor = new TransactionExecutor(provider);
+        TransactionParticipant executor = new TransactionParticipant(provider);
 
         mockery.checking(new Expectations()
         {
@@ -516,7 +516,7 @@ public class TransactionExecutorTest
     @Test
     public void testStartedTransactionCanExecuteOperations() throws Throwable
     {
-        TransactionExecutor executor = new TransactionExecutor(provider);
+        TransactionParticipant executor = new TransactionParticipant(provider);
 
         mockery.checking(new Expectations()
         {
@@ -537,7 +537,7 @@ public class TransactionExecutorTest
     @Test
     public void testStartedTransactionCanPrepare() throws Throwable
     {
-        TransactionExecutor executor = new TransactionExecutor(provider);
+        TransactionParticipant executor = new TransactionParticipant(provider);
 
         mockery.checking(new Expectations()
         {
@@ -558,7 +558,7 @@ public class TransactionExecutorTest
     @Test
     public void testStartedTransactionCanBeRolledBack() throws Throwable
     {
-        TransactionExecutor executor = new TransactionExecutor(provider);
+        TransactionParticipant executor = new TransactionParticipant(provider);
 
         mockery.checking(new Expectations()
         {
@@ -579,7 +579,7 @@ public class TransactionExecutorTest
     @Test
     public void testStartedTransactionCannotBeCommitted() throws Throwable
     {
-        TransactionExecutor executor = new TransactionExecutor(provider);
+        TransactionParticipant executor = new TransactionParticipant(provider);
 
         mockery.checking(new Expectations()
         {
@@ -605,7 +605,7 @@ public class TransactionExecutorTest
     @Test
     public void testPreparedTransactionCannotBeStarted() throws Throwable
     {
-        TransactionExecutor executor = new TransactionExecutor(provider);
+        TransactionParticipant executor = new TransactionParticipant(provider);
 
         mockery.checking(new Expectations()
         {
@@ -634,7 +634,7 @@ public class TransactionExecutorTest
     @Test
     public void testPreparedTransactionCannotBePrepared() throws Throwable
     {
-        TransactionExecutor executor = new TransactionExecutor(provider);
+        TransactionParticipant executor = new TransactionParticipant(provider);
 
         mockery.checking(new Expectations()
         {
@@ -663,7 +663,7 @@ public class TransactionExecutorTest
     @Test
     public void testPreparedTransactionCannotExecuteOperations() throws Throwable
     {
-        TransactionExecutor executor = new TransactionExecutor(provider);
+        TransactionParticipant executor = new TransactionParticipant(provider);
 
         mockery.checking(new Expectations()
         {
@@ -692,7 +692,7 @@ public class TransactionExecutorTest
     @Test
     public void testPreparedTransactionCanBeRolledBack() throws Throwable
     {
-        TransactionExecutor executor = new TransactionExecutor(provider);
+        TransactionParticipant executor = new TransactionParticipant(provider);
 
         mockery.checking(new Expectations()
         {
@@ -716,7 +716,7 @@ public class TransactionExecutorTest
     @Test
     public void testPreparedTransactionCanCommit() throws Throwable
     {
-        TransactionExecutor executor = new TransactionExecutor(provider);
+        TransactionParticipant executor = new TransactionParticipant(provider);
 
         mockery.checking(new Expectations()
         {
@@ -740,7 +740,7 @@ public class TransactionExecutorTest
     @Test
     public void testCommittedTransactionIsForgotten() throws Throwable
     {
-        TransactionExecutor executor = new TransactionExecutor(provider);
+        TransactionParticipant executor = new TransactionParticipant(provider);
 
         mockery.checking(new Expectations()
         {

@@ -1,6 +1,6 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3;
 
-public interface ITransactionExecutor
+public interface ITransactionParticipant
 {
 
     void beginTransaction(String transactionId, String transactionManagerSecret) throws Throwable;

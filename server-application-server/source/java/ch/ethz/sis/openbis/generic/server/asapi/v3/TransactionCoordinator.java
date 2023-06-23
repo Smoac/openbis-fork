@@ -15,7 +15,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 
 @Component
-public class TransactionManager implements ITransactionManager
+public class TransactionCoordinator implements ITransactionCoordinator
 {
 
     private static final String APPLICATION_SERVER_URL = "http://127.0.0.1:8888";

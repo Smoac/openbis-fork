@@ -21,22 +21,22 @@ import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 
 @Component
-public class TransactionExecutor implements ITransactionExecutor
+public class TransactionParticipant implements ITransactionParticipant
 {
 
-    private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, TransactionExecutor.class);
+    private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, TransactionParticipant.class);
 
     private final Map<String, TransactionThread> threadMap = new HashMap<>();
 
     private final ITransactionProvider provider;
 
-    TransactionExecutor(ITransactionProvider provider)
+    TransactionParticipant(ITransactionProvider provider)
     {
         this.provider = provider;
     }
 
     @Autowired
-    public TransactionExecutor(final PlatformTransactionManager transactionManager, final IDAOFactory daoFactory,
+    public TransactionParticipant(final PlatformTransactionManager transactionManager, final IDAOFactory daoFactory,
             final DatabaseConfigurationContext databaseContext)
     {
         this.provider = new ITransactionProvider()

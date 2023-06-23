@@ -22,7 +22,7 @@ import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 public class ApplicationServerApiClient
 {
 
-    private final ITransactionManager transactionManager;
+    private final ITransactionCoordinator transactionCoordinator;
 
     private final IApplicationServerApi applicationServerApi;
 
@@ -36,8 +36,8 @@ public class ApplicationServerApiClient
 
     public ApplicationServerApiClient(String applicationServerUrl, String applicationServerUrl2, long timeout)
     {
-        transactionManager = HttpInvokerUtils.createServiceStub(ITransactionManager.class, applicationServerUrl + "/openbis/openbis"
-                + ITransactionManager.SERVICE_URL, timeout);
+        transactionCoordinator = HttpInvokerUtils.createServiceStub(ITransactionCoordinator.class, applicationServerUrl + "/openbis/openbis"
+                + ITransactionCoordinator.SERVICE_URL, timeout);
 
         applicationServerApi = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, applicationServerUrl + "/openbis/openbis"
                 + IApplicationServerApi.SERVICE_URL, timeout, new InvocationFactoryWithTransactionAttributes());
@@ -53,7 +53,7 @@ public class ApplicationServerApiClient
             throw new IllegalStateException("Transaction has been already started");
         }
         transactionId = UUID.randomUUID().toString();
-        transactionManager.beginTransaction(transactionId);
+        transactionCoordinator.beginTransaction(transactionId);
     }
 
     public void commitTransaction()
@@ -62,7 +62,7 @@ public class ApplicationServerApiClient
         {
             throw new IllegalStateException("Transaction hasn't started yet");
         }
-        transactionManager.commitTransaction(transactionId);
+        transactionCoordinator.commitTransaction(transactionId);
     }
 
     public void rollbackTransaction()
@@ -71,7 +71,7 @@ public class ApplicationServerApiClient
         {
             throw new IllegalStateException("Transaction hasn't started yet");
         }
-        transactionManager.rollbackTransaction(transactionId);
+        transactionCoordinator.rollbackTransaction(transactionId);
     }
 
     public void login(String userId, String password)
