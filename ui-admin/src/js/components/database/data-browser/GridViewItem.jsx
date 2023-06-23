@@ -21,7 +21,7 @@ import Grid from '@material-ui/core/Grid'
 import Card from '@material-ui/core/Card'
 import { CardContent, CardMedia } from '@material-ui/core'
 import ItemIcon from '@src/js/components/database/data-browser/ItemIcon.jsx'
-import autoBind from "auto-bind";
+import autoBind from 'auto-bind';
 
 const styles = (theme) => ({
   cell: {

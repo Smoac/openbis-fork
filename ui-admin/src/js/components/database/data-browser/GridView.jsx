@@ -25,9 +25,9 @@ import logger from '@src/js/common/logger.js'
 const styles = theme => ({
   container: {
     fontFamily: theme.typography.fontFamily,
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(8rem, 1fr))",
-    gridGap: "0.5rem"
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(8rem, 1fr))',
+    gridGap: '0.5rem'
   }
 });
 

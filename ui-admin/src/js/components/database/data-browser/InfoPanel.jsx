@@ -23,8 +23,8 @@ import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
 import TableCell from '@material-ui/core/TableCell'
 import TableRow from '@material-ui/core/TableRow'
-import Header from "@src/js/components/common/form/Header.jsx";
-import ItemIcon from "@src/js/components/database/data-browser/ItemIcon.jsx";
+import Header from '@src/js/components/common/form/Header.jsx';
+import ItemIcon from '@src/js/components/database/data-browser/ItemIcon.jsx';
 import { withStyles } from "@material-ui/core/styles";
 
 const styles = () => ({
@@ -47,6 +47,7 @@ class InfoPanel extends React.Component {
       configuration
     } = this.props
 
+    // TODO: extract strings to messages
     return (file &&
       <Container>
         <Header size='big'>{file.name}</Header>
@@ -54,19 +55,19 @@ class InfoPanel extends React.Component {
         <Table>
           <TableBody>
             <TableRow>
-              <TableCell variant='head'>Size</TableCell>
+              <TableCell variant='head' component='th'>Size</TableCell>
               <TableCell>{file.size}</TableCell>
             </TableRow>
             <TableRow>
-              <TableCell variant='head'>Created</TableCell>
+              <TableCell variant='head' component='th'>Created</TableCell>
               <TableCell>{file.creationTime.toLocaleString()}</TableCell>
             </TableRow>
             <TableRow>
-              <TableCell variant='head'>Modified</TableCell>
+              <TableCell variant='head' component='th'>Modified</TableCell>
               <TableCell>{file.lastModifiedTime.toLocaleString()}</TableCell>
             </TableRow>
             <TableRow>
-              <TableCell variant='head'>Accessed</TableCell>
+              <TableCell variant='head' component='th'>Accessed</TableCell>
               <TableCell>{file.lastAccessTime.toLocaleString()}</TableCell>
             </TableRow>
           </TableBody>

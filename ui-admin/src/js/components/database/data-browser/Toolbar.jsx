@@ -26,8 +26,8 @@ import SettingsIcon from '@material-ui/icons/Settings'
 import SearchIcon from '@material-ui/icons/Search'
 import InfoIcon from '@material-ui/icons/InfoOutlined'
 import CreateNewFolderIcon from '@material-ui/icons/CreateNewFolderOutlined'
-import autoBind from "auto-bind";
-import { ToggleButton } from "@material-ui/lab";
+import autoBind from 'auto-bind'
+import { ToggleButton } from '@material-ui/lab'
 
 const styles = () => ({})
 
