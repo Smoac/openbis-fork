@@ -29,7 +29,16 @@ import CreateNewFolderIcon from '@material-ui/icons/CreateNewFolderOutlined'
 import autoBind from 'auto-bind'
 import { ToggleButton } from '@material-ui/lab'
 
-const styles = () => ({})
+const styles = (theme) => ({
+  buttons: {
+    display: 'flex',
+    whiteSpace: 'nowrap',
+    marginBottom: theme.spacing(1),
+    '& button': {
+      marginRight: theme.spacing(1)
+    }
+  }
+})
 
 class Toolbar extends React.Component {
 
@@ -42,7 +51,7 @@ class Toolbar extends React.Component {
     const { viewType, onViewTypeChange, classes, showInfo, onShowInfoChange } =
       this.props
     return (
-      <>
+      <div className={classes.buttons}>
         <ToggleButton
           styles={{ root: classes.button }}
           selected={showInfo}
@@ -77,13 +86,15 @@ class Toolbar extends React.Component {
             onClick={() => onViewTypeChange('list')}
           />
         )}
-        <Button styles={{ root: classes.button }} label={<SettingsIcon />} />
+        <Button
+          styles={{ root: classes.button }}
+          label={<SettingsIcon />} />
         <Button
           styles={{ root: classes.button }}
           label={messages.get(messages.UPLOAD)}
           startIcon={<PublishIcon />}
         />
-      </>
+      </div>
     )
   }
 }
