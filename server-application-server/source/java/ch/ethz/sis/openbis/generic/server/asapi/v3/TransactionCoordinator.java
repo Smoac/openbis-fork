@@ -1,7 +1,9 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -26,41 +28,51 @@ public class TransactionCoordinator implements ITransactionCoordinator
 
     private static final long TIMEOUT = 10000000;
 
-    private IApplicationServerApiWithTransactions applicationServerApi;
+    private final List<ITransactionCoordinatorParticipant> participants = new ArrayList<>();
 
-    private IApplicationServerApiWithTransactions applicationServerApi2;
+    public TransactionCoordinator()
+    {
+    }
+
+    public TransactionCoordinator(List<ITransactionCoordinatorParticipant> participants)
+    {
+        this.participants.addAll(participants);
+    }
 
     @PostConstruct
     public void init()
     {
-        applicationServerApi = HttpInvokerUtils.createServiceStub(IApplicationServerApiWithTransactions.class,
-                APPLICATION_SERVER_URL + "/openbis/openbis" + IApplicationServerApi.SERVICE_URL, TIMEOUT,
-                new InvocationFactoryWithTransactionAttributes());
-
-        applicationServerApi2 = HttpInvokerUtils.createServiceStub(IApplicationServerApiWithTransactions.class,
-                APPLICATION_SERVER_URL_2 + "/openbis/openbis" + IApplicationServerApi.SERVICE_URL, TIMEOUT,
-                new InvocationFactoryWithTransactionAttributes());
+        this.participants.add(new ApplicationServerApiParticipant(APPLICATION_SERVER_URL, TIMEOUT));
+        this.participants.add(new ApplicationServerApiParticipant(APPLICATION_SERVER_URL_2, TIMEOUT));
     }
 
     @Override public void beginTransaction(final String transactionId)
     {
-        applicationServerApi.beginTransaction(transactionId);
-        applicationServerApi2.beginTransaction(transactionId);
+        for (ITransactionCoordinatorParticipant participant : participants)
+        {
+            participant.beginTransaction(transactionId);
+        }
     }
 
     @Override public void commitTransaction(final String transactionId)
     {
-        applicationServerApi.prepareTransaction(transactionId);
-        applicationServerApi2.prepareTransaction(transactionId);
+        for (ITransactionCoordinatorParticipant participant : participants)
+        {
+            participant.prepareTransaction(transactionId);
+        }
 
-        applicationServerApi.commitTransaction(transactionId);
-        applicationServerApi2.commitTransaction(transactionId);
+        for (ITransactionCoordinatorParticipant participant : participants)
+        {
+            participant.commitTransaction(transactionId);
+        }
     }
 
     @Override public void rollbackTransaction(final String transactionId)
     {
-        applicationServerApi.rollbackTransaction(transactionId);
-        applicationServerApi2.rollbackTransaction(transactionId);
+        for (ITransactionCoordinatorParticipant participant : participants)
+        {
+            participant.rollbackTransaction(transactionId);
+        }
     }
 
     @Override public int getMajorVersion()
@@ -71,6 +83,50 @@ public class TransactionCoordinator implements ITransactionCoordinator
     @Override public int getMinorVersion()
     {
         return 0;
+    }
+
+    private interface IApplicationServerApiWithTransactions extends IApplicationServerApi
+    {
+        void beginTransaction(String transactionId);
+
+        void prepareTransaction(String transactionId);
+
+        void commitTransaction(String transactionId);
+
+        void rollbackTransaction(String transactionId);
+    }
+
+    private static class ApplicationServerApiParticipant implements ITransactionCoordinatorParticipant
+    {
+
+        private final IApplicationServerApiWithTransactions applicationServerApi;
+
+        public ApplicationServerApiParticipant(String applicationServerUrl, long timeout)
+        {
+            applicationServerApi = HttpInvokerUtils.createServiceStub(IApplicationServerApiWithTransactions.class,
+                    applicationServerUrl + "/openbis/openbis" + IApplicationServerApi.SERVICE_URL, timeout,
+                    new InvocationFactoryWithTransactionAttributes());
+        }
+
+        @Override public void beginTransaction(final String transactionId)
+        {
+            applicationServerApi.beginTransaction(transactionId);
+        }
+
+        @Override public void prepareTransaction(final String transactionId)
+        {
+            applicationServerApi.prepareTransaction(transactionId);
+        }
+
+        @Override public void commitTransaction(final String transactionId)
+        {
+            applicationServerApi.commitTransaction(transactionId);
+        }
+
+        @Override public void rollbackTransaction(final String transactionId)
+        {
+            applicationServerApi.rollbackTransaction(transactionId);
+        }
     }
 
     private static class InvocationFactoryWithTransactionAttributes extends DefaultRemoteInvocationFactory
@@ -97,17 +153,6 @@ public class TransactionCoordinator implements ITransactionCoordinator
                         "Only transaction management calls are allowed. Tried to call " + methodName + " method.");
             }
         }
-    }
-
-    private interface IApplicationServerApiWithTransactions extends IApplicationServerApi
-    {
-        void beginTransaction(String transactionId);
-
-        void prepareTransaction(String transactionId);
-
-        void commitTransaction(String transactionId);
-
-        void rollbackTransaction(String transactionId);
     }
 
 }
