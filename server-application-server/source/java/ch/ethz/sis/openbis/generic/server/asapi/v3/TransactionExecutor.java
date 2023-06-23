@@ -13,7 +13,6 @@ import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -58,47 +57,49 @@ public class TransactionExecutor implements ITransactionExecutor
                 });
             }
 
-            @Override public void rollbackTransaction(final String transactionId, final Object transaction) throws Exception
+            @Override public void rollbackTransaction(final String transactionId, final Object transaction, final TransactionStatus transactionStatus)
+                    throws Exception
             {
-                transactionManager.rollback((TransactionStatus) transaction);
-            }
-
-            @Override public void rollbackPreparedTransaction(final String transactionId, final Object transaction) throws Exception
-            {
-                Connection connection = null;
-                Statement statement = null;
-
-                try
+                if (TransactionStatus.STARTED.equals(transactionStatus))
                 {
-                    connection = databaseContext.getDataSource().getConnection();
-                    statement = connection.createStatement();
-                    statement.execute("ROLLBACK PREPARED '" + transactionId + "'");
-                } catch (Exception e)
+                    transactionManager.rollback((org.springframework.transaction.TransactionStatus) transaction);
+                } else if (TransactionStatus.PREPARED.equals(transactionStatus))
                 {
-                    if (statement != null)
-                    {
-                        try
-                        {
-                            statement.close();
-                        } catch (Exception ignore)
-                        {
-                        }
-                    }
-                    if (connection != null)
-                    {
-                        try
-                        {
-                            connection.close();
-                        } catch (SQLException ignore)
-                        {
-                        }
-                    }
+                    Connection connection = null;
+                    Statement statement = null;
 
-                    throw e;
+                    try
+                    {
+                        connection = databaseContext.getDataSource().getConnection();
+                        statement = connection.createStatement();
+                        statement.execute("ROLLBACK PREPARED '" + transactionId + "'");
+                    } catch (Exception e)
+                    {
+                        if (statement != null)
+                        {
+                            try
+                            {
+                                statement.close();
+                            } catch (Exception ignore)
+                            {
+                            }
+                        }
+                        if (connection != null)
+                        {
+                            try
+                            {
+                                connection.close();
+                            } catch (SQLException ignore)
+                            {
+                            }
+                        }
+
+                        throw e;
+                    }
                 }
             }
 
-            @Override public void commitPreparedTransaction(final String transactionId, final Object transaction) throws Exception
+            @Override public void commitTransaction(final String transactionId, final Object transaction) throws Exception
             {
                 Connection connection = null;
                 Statement statement = null;
@@ -214,11 +215,6 @@ public class TransactionExecutor implements ITransactionExecutor
         }
     }
 
-    enum TransactionThreadStatus
-    {
-        NEW, STARTED, PREPARED, COMMITTED, ROLLED_BACK
-    }
-
     class TransactionThread
     {
 
@@ -232,7 +228,7 @@ public class TransactionExecutor implements ITransactionExecutor
 
         private Object transaction;
 
-        private TransactionThreadStatus status = TransactionThreadStatus.NEW;
+        private TransactionStatus status = TransactionStatus.NEW;
 
         private ITransactionOperation invocation;
 
@@ -259,42 +255,37 @@ public class TransactionExecutor implements ITransactionExecutor
                                 {
                                     if (invocation instanceof BeginTransactionOperation)
                                     {
-                                        checkTransactionStatus(TransactionThreadStatus.NEW);
+                                        checkTransactionStatus(TransactionStatus.NEW);
                                         checkTransactionManagerSecret(transactionManagerSecret);
 
                                         result = transaction = provider.beginTransaction(transactionId);
-                                        status = TransactionThreadStatus.STARTED;
+                                        status = TransactionStatus.STARTED;
                                     } else if (invocation instanceof PrepareTransactionOperation)
                                     {
-                                        checkTransactionStatus(TransactionThreadStatus.STARTED);
+                                        checkTransactionStatus(TransactionStatus.STARTED);
                                         checkTransactionManagerSecret(transactionManagerSecret);
 
                                         provider.prepareTransaction(transactionId, transaction);
-                                        status = TransactionThreadStatus.PREPARED;
+                                        status = TransactionStatus.PREPARED;
                                     } else if (invocation instanceof CommitTransactionOperation)
                                     {
-                                        checkTransactionStatus(TransactionThreadStatus.PREPARED);
+                                        checkTransactionStatus(TransactionStatus.PREPARED);
                                         checkTransactionManagerSecret(transactionManagerSecret);
 
-                                        provider.commitPreparedTransaction(transactionId, transaction);
-                                        status = TransactionThreadStatus.COMMITTED;
+                                        provider.commitTransaction(transactionId, transaction);
+                                        status = TransactionStatus.COMMITTED;
                                     } else if (invocation instanceof RollbackTransactionOperation)
                                     {
-                                        checkTransactionStatus(TransactionThreadStatus.STARTED, TransactionThreadStatus.PREPARED);
+                                        checkTransactionStatus(TransactionStatus.NEW, TransactionStatus.STARTED,
+                                                TransactionStatus.PREPARED);
                                         checkTransactionManagerSecret(transactionManagerSecret);
 
-                                        if (TransactionThreadStatus.STARTED.equals(status))
-                                        {
-                                            provider.rollbackTransaction(transactionId, transaction);
-                                        } else if (TransactionThreadStatus.PREPARED.equals(status))
-                                        {
-                                            provider.rollbackPreparedTransaction(transactionId, transaction);
-                                        }
+                                        provider.rollbackTransaction(transactionId, transaction, status);
 
-                                        status = TransactionThreadStatus.ROLLED_BACK;
+                                        status = TransactionStatus.ROLLED_BACK;
                                     } else
                                     {
-                                        checkTransactionStatus(TransactionThreadStatus.STARTED);
+                                        checkTransactionStatus(TransactionStatus.STARTED);
                                         result = invocation.executeOperation();
                                     }
 
@@ -304,7 +295,7 @@ public class TransactionExecutor implements ITransactionExecutor
                                     exception = null;
                                     invocation = null;
 
-                                    if (status == TransactionThreadStatus.COMMITTED || status == TransactionThreadStatus.ROLLED_BACK)
+                                    if (status == TransactionStatus.COMMITTED || status == TransactionStatus.ROLLED_BACK)
                                     {
                                         finished = true;
                                         return;
@@ -321,7 +312,7 @@ public class TransactionExecutor implements ITransactionExecutor
                                 result = null;
                                 invocation = null;
 
-                                if (status == TransactionThreadStatus.NEW)
+                                if (status == TransactionStatus.NEW)
                                 {
                                     finished = true;
                                     return;
@@ -334,7 +325,7 @@ public class TransactionExecutor implements ITransactionExecutor
                     }
                 }
 
-                private void checkTransactionStatus(TransactionThreadStatus... expectedStatuses)
+                private void checkTransactionStatus(TransactionStatus... expectedStatuses)
                 {
                     if (!Arrays.asList(expectedStatuses).contains(status))
                     {

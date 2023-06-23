@@ -7,9 +7,7 @@ public interface ITransactionProvider
 
     void prepareTransaction(String transactionId, Object transaction) throws Exception;
 
-    void rollbackTransaction(String transactionId, Object transaction) throws Exception;
+    void rollbackTransaction(String transactionId, Object transaction, TransactionStatus transactionStatus) throws Exception;
 
-    void rollbackPreparedTransaction(String transactionId, Object transaction) throws Exception;
-
-    void commitPreparedTransaction(String transactionId, Object transaction) throws Exception;
+    void commitTransaction(String transactionId, Object transaction) throws Exception;
 }
