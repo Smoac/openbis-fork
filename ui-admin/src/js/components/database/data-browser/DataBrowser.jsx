@@ -18,7 +18,8 @@ const styles = theme => ({
   boundary: {
     padding: theme.spacing(1),
     borderColor: theme.palette.border.secondary,
-    backgroundColor: theme.palette.background.paper
+    backgroundColor: theme.palette.background.paper,
+    height: '100%'
   },
   icon: {
     fontSize: '4rem',
