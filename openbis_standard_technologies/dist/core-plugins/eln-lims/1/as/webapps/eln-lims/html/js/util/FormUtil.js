@@ -757,24 +757,20 @@ var FormUtil = new function() {
 	//
 	// Get Field with container to obtain a correct layout
 	//
-	this.getFieldForComponentWithLabel = function($component, label, postComponent, isInline) {
+	this.getFieldForComponentWithLabel = function($component, label, postComponent, isInline, $info) {
 		var $fieldset = $('<div>');
 		
 		var $controlGroup = $('<div>', {class : 'form-group'});
 		var requiredText = '';
 		if($component.attr('required')) {
-			requiredText = "&nbsp;(*)"
+			requiredText = " (*)"
 		}
 		
 		var labelText = "";
 		if(label) {
-			labelText = label + requiredText + ":";
-		}
-		var labelColumnClass = ""
-		if(!isInline) {
-			labelColumnClass = this.labelColumnClass;
-		}
-		var $controlLabel = $('<label>', { class : 'control-label' }).html(labelText);
+            labelText = label + requiredText;
+        }
+        var $controlLabel = this.createLabel(labelText, $info);
 		
 		var controlColumnClass = ""
 		if(!isInline) {
@@ -804,8 +800,32 @@ var FormUtil = new function() {
 			return $fieldset;
 		}
 	}
-	
-	this.createPropertyField = function(propertyType, propertyValue) {
+
+    this.createLabel = function(label, $info) {
+        var $controlLabel = $('<label>', {class : 'control-label' });
+        
+        if(label) {
+            if ($info) {
+                var $line = $("<div>");
+                $line.append(label);
+                $infoIcon = $("<span>", { 'class' : 'glyphicon glyphicon-info-sign', 'style' : 'padding:2px' });
+                $infoIcon.tooltipster({
+                    content: $info,
+                    theme: 'tooltipster-shadow',
+                    interactive: true
+                });
+                $line.append($infoIcon);
+                $line.append(":");
+                $controlLabel.append($line);
+            } else
+            {
+                $controlLabel.text(label + ":");
+            }
+        }
+        return $controlLabel;
+    }
+
+    this.createPropertyField = function(propertyType, propertyValue, $info) {
 	    var isLink = propertyType.dataType === "HYPERLINK";
 	    var hyperlinkLabel = null;
 		if (propertyType.dataType === "CONTROLLEDVOCABULARY") {
@@ -815,24 +835,27 @@ var FormUtil = new function() {
 			    propertyValue = propertyType.vocabulary.urlTemplate.replace('${term}', propertyValue);
 			    isLink = true;
 			}
+		} else if (propertyType.dataType === "INTEGER" || propertyType.dataType === "REAL") {
+		    var numberFormat = new Intl.NumberFormat('en-US', { notation : "standard",
+		                                                        minimumSignificantDigits :  "1",
+		                                                        maximumSignificantDigits : "21",
+		                                                        minimumFractionDigits : "0",
+		                                                        maximumFractionDigits : "20" });
+		    propertyValue = numberFormat.format(propertyValue);
 		}
-		return this._createField(isLink, propertyType.label, propertyValue, propertyType.code, null, null, hyperlinkLabel);
+        return this._createField(isLink, propertyType.label, propertyValue, propertyType.code, null, null, hyperlinkLabel, $info);
 	}
 	
 	this.getFieldForLabelWithText = function(label, text, id, postComponent, cssForText) {
 		return this._createField(false, label, text, id, postComponent, cssForText);
 	}
 	
-	this._createField = function(hyperlink, label, text, id, postComponent, cssForText, hyperlinkLabel) {
+    this._createField = function(hyperlink, label, text, id, postComponent, cssForText, hyperlinkLabel, $info) {
 		var $fieldset = $('<div>');
 		
 		var $controlGroup = $('<div>', {class : 'form-group'});
 		
-		var $controlLabel = $('<label>', {class : 'control-label' });
-		
-		if(label) {
-			$controlLabel.text(label + ":");
-		}
+        var $controlLabel = this.createLabel(label, $info);
 		
 		var $controls = $('<div>', {class : 'controls' });
 		
@@ -910,7 +933,7 @@ var FormUtil = new function() {
 			$component = this._getNumberInputField(propertyType.code, propertyType.description, '1', propertyType.mandatory);
 		} else if (propertyType.dataType === "MATERIAL") {
 			$component = this._getInputField("text", propertyType.code, propertyType.description, null, propertyType.mandatory);
-		} else if (propertyType.dataType === "MULTILINE_VARCHAR") {
+		} else if (["MULTILINE_VARCHAR", "JSON"].includes(propertyType.dataType)) {
 			$component = this._getTextBox(propertyType.code, propertyType.description, propertyType.mandatory);
 			if(profile.isForcedMonospaceFont(propertyType)) {
 				$component.css("font-family", "Consolas, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace");
@@ -922,8 +945,10 @@ var FormUtil = new function() {
 		} else if (propertyType.dataType === "DATE") {
 			$component = this._getDatePickerField(propertyType.code, propertyType.description, propertyType.mandatory, true, timestampValue);
 		} else if (propertyType.dataType === "VARCHAR") {
-			$component = this._getInputField("text", propertyType.code, propertyType.description, null, propertyType.mandatory);
-		} else if (propertyType.dataType === "XML") {
+            $component = this._getInputField("text", propertyType.code, propertyType.description, null, propertyType.mandatory);
+        } else if (['ARRAY_STRING', 'ARRAY_INTEGER', 'ARRAY_REAL', 'ARRAY_TIMESTAMP'].includes(propertyType.dataType)) {
+            $component = this._getInputField("text", propertyType.code, propertyType.description, null, propertyType.mandatory);
+        } else if (propertyType.dataType === "XML") {
 			$component = this._getTextBox(propertyType.code, propertyType.description, propertyType.mandatory);
 		} else if (propertyType.dataType === "SAMPLE") {
 		    var sampleTypeCode = propertyType.sampleTypeCode;
@@ -1003,7 +1028,7 @@ var FormUtil = new function() {
 
 		var $container = $('<div>', {'class' : 'checkbox'}).append($('<label>').append($('<input>', attr)));
 
-        $container.append($("<span>", { class: "glyphicon glyphicon-info-sign" })).append(" " + alt);
+        $container.append($("<span>", { class: "glyphicon glyphicon-info-sign" })).append(alt ? " " + alt : "");
 
 		if (isRequired) {
             $container.attr('required', '');
@@ -1255,9 +1280,11 @@ var FormUtil = new function() {
 	}
 	
 	this.fixStringPropertiesForForm = function(propertyType, entity) {
-		var originalValue = entity.properties[propertyType.code];
-		if(propertyType.metaData["custom_widget"] && propertyType.metaData["custom_widget"] === "Word Processor" && originalValue) { // Only filter properties rendered as HTML
-			entity.properties[propertyType.code] = this.sanitizeRichHTMLText(originalValue);
+	    if(entity) {
+            var originalValue = entity.properties[propertyType.code];
+            if(propertyType.metaData["custom_widget"] && propertyType.metaData["custom_widget"] === "Word Processor" && originalValue) { // Only filter properties rendered as HTML
+                entity.properties[propertyType.code] = this.sanitizeRichHTMLText(originalValue);
+            }
 		}
 	}
 	

@@ -124,6 +124,7 @@ export default class BrowserController extends ComponentController {
             loadResult.nodes.forEach(node => {
               delete node.sortings
               delete node.sortingId
+              node.reloadable = false
               node.draggable = false
               node.rootable = false
               if (!_.isEmpty(node.children)) {
@@ -211,7 +212,7 @@ export default class BrowserController extends ComponentController {
   }
 
   async reloadNode(nodeId) {
-    await this._getTreeController().loadNode(nodeId, 0, null, false)
+    await this._getTreeController().reloadNode(nodeId)
   }
 
   async filterChange(newFilter) {

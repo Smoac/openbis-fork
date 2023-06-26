@@ -643,6 +643,11 @@ function ServerFacade(openbisServer) {
 				var entityTypePermId = new EntityTypePermId(sampleType, EntityKind.SAMPLE);
 				var sampleTypeFetchOptions = new SampleTypeFetchOptions();
                 sampleTypeFetchOptions.withPropertyAssignments().withPropertyType();
+                if (profile.showSemanticAnnotations == true) {
+                    sampleTypeFetchOptions.withSemanticAnnotations();
+                    sampleTypeFetchOptions.withPropertyAssignments().withSemanticAnnotations();
+                    sampleTypeFetchOptions.withPropertyAssignments().withPropertyType().withSemanticAnnotations();
+                }
 				mainController.openbisV3.getSampleTypes(entityTypePermId, sampleTypeFetchOptions).done(function(sampleTypesByIds) {
 					callback(sampleTypesByIds[entityTypePermId]);
 				}).fail(function(error) {
@@ -1722,12 +1727,15 @@ function ServerFacade(openbisServer) {
                     })
                 }
 
-				var setOperator = function(criteria, operator) {
+                var setOperator = function(criteria, operator, negated) {
 					//Operator
 					if (!operator) {
 						operator = "AND";
 					}
 					criteria.withOperator(operator);
+                    if (negated) {
+                        criteria.negate();
+                    }
 					return criteria;
 				}
 
@@ -1743,6 +1751,7 @@ function ServerFacade(openbisServer) {
                     var ruleKeys = Object.keys(advancedSearchCriteria.rules);
                     for (var idx = 0; idx < ruleKeys.length; idx++)
                     {
+                        var negated = advancedSearchCriteria.rules[ruleKeys[idx]].negate == true;
                         var fieldType = advancedSearchCriteria.rules[ruleKeys[idx]].type;
                         var fieldName = advancedSearchCriteria.rules[ruleKeys[idx]].name;
                         var fieldNameType = null;
@@ -1888,7 +1897,7 @@ function ServerFacade(openbisServer) {
                             }
                         }
 
-                        var setAttributeCriteria = function(criteria, attributeName, attributeValue, comparisonOperator) {
+                        var setAttributeCriteria = function(criteria, attributeName, attributeValue, comparisonOperator, negated) {
                             switch(attributeName) {
                                 //Used by all entities
                                 case "CODE":
@@ -2034,8 +2043,7 @@ function ServerFacade(openbisServer) {
                                         case "thatContains":
                                                 criteria.withType().withCode().thatContains(attributeValue);
                                                 break;
-                                    }
-                                    break;
+                                    }                                    break;
                                 //Only Sample
                                 case "SPACE":
                                     if(!comparisonOperator) {
@@ -2066,6 +2074,13 @@ function ServerFacade(openbisServer) {
                                                 break;
                                     }
                                     break;
+																case "SAMPLE_CODE":
+																	  switch (comparisonOperator) {
+																		    case 'thatContains':
+																			      criteria.withSample().withCode().thatContains(attributeValue)
+																				    break
+																	  }
+																	  break
                                 case "EXPERIMENT_IDENTIFIER":
                                     if(!comparisonOperator) {
                                         comparisonOperator = "thatEquals";
@@ -2176,7 +2191,7 @@ function ServerFacade(openbisServer) {
                                         setPropertyCriteria(setOperator(searchCriteria.withExperiment(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
                                         break;
                                     case "ATTR":
-                                        setAttributeCriteria(setOperator(searchCriteria.withExperiment(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator);
+                                        setAttributeCriteria(setOperator(searchCriteria.withExperiment(),advancedSearchCriteria.logicalOperator), fieldName, fieldValue, fieldOperator, negated);
                                         break;
                                     case "NULL":
                                         searchCriteria.withoutExperiment();
@@ -2218,6 +2233,13 @@ function ServerFacade(openbisServer) {
                                         break;
                                 }
                                 break;
+                        }
+                        if (negated) {
+                            var subcriteria = searchCriteria.criteria;
+                            var wrapperCriteria = new EntitySearchCriteria();
+                            wrapperCriteria.negate();
+                            wrapperCriteria.criteria.push(subcriteria[subcriteria.length - 1]);
+                            subcriteria[subcriteria.length - 1] = wrapperCriteria;
                         }
                     }
 			    }
@@ -2409,7 +2431,6 @@ function ServerFacade(openbisServer) {
 		v1Sample["experimentIdentifierOrNull"] = (v3Sample.experiment)?v3Sample.experiment.identifier.identifier:null;
         v1Sample["experimentTypeCode"] = v3Sample.experiment && v3Sample.experiment.type ? v3Sample.experiment.type.code : null;
 		v1Sample["sampleTypeCode"] = (v3Sample.type)?v3Sample.type.code:null;
-        v1Sample["semanticAnnotations"] = (v3Sample.type)?v3Sample.type.semanticAnnotations:null;
 		v1Sample["properties"] = v3Sample.properties;
 
 		v1Sample["registrationDetails"] = {};
@@ -2742,7 +2763,7 @@ function ServerFacade(openbisServer) {
             //
             var fetchOptions = new SampleFetchOptions();
             fetchOptions.withSpace();
-            fetchOptions.withType().withSemanticAnnotations();
+            fetchOptions.withType();
             fetchOptions.withRegistrator();
             fetchOptions.withModifier();
             fetchOptions.withProject();
@@ -3053,21 +3074,21 @@ function ServerFacade(openbisServer) {
 			switch (searchKind) {
 				case "ALL": {
                     freeTexts.forEach(function(freeText){
-                        searchCriteria.withText().thatMatches(freeText.toLowerCase().trim());
+                        searchCriteria.withText().thatMatches(freeText.toString().toLowerCase().trim());
                     })
                     break;
                 }
 
                 case "ALL_PARTIAL": {
                     freeTexts.forEach(function(freeText){
-                        searchCriteria.withText().thatContains(freeText.toLowerCase().trim());
+                        searchCriteria.withText().thatContains(freeText.toString().toLowerCase().trim());
                     })
                     break;
                 }
 
                 case "ALL_PREFIX": {
                     freeTexts.forEach(function(freeText){
-                        searchCriteria.withText().thatStartsWith(freeText.toLowerCase().trim());
+                        searchCriteria.withText().thatStartsWith(freeText.toString().toLowerCase().trim());
                     })
                     break;
                 }

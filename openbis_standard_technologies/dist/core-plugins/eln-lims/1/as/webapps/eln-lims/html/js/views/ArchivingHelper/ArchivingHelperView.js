@@ -48,7 +48,6 @@ function ArchivingHelperView(archivingHelperController, archivingHelperModel) {
         searchView.configKeyPrefix += "ARCHIVING_HELPER_";
 //        searchView.suppressedColumns = ['entityKind', 'identifier'];
         searchView.hideByDefaultColumns = ['$NAME', 'registrator', 'modificationDate', 'modifier'];
-        searchController.fetchWithSample = true;
         searchView.firstColumns = [{
             label : "Should be archived",
             property : "archive",
@@ -73,17 +72,8 @@ function ArchivingHelperView(archivingHelperController, archivingHelperModel) {
         searchView.additionalColumns = [{
             label : ELNDictionary.Sample,
             property : 'sample',
-            isExportable: false,
+            exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.SAMPLE,
             sortable : false
-        }];
-        searchView.additionalLastColumns = [{
-            label : "Size",
-            property : "size",
-            isExportable : false,
-            sortable : false,
-            render : function(data, grid) {
-                return PrintUtil.renderNumberOfBytes(data.size);
-            }
         }];
         searchView._paintRulesPanel($rulesPanel);
         searchView._$entityTypeDropdown.val("DATASET");

@@ -1,6 +1,8 @@
 import json
 import os
+import time
 
+from java.lang import System
 from java.nio.file import NoSuchFileException
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id import SpacePermId
 from ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search import SpaceSearchCriteria
@@ -119,6 +121,8 @@ class Acceptor(object):
 
 class Settings(object):
     def __init__(self, inventorySpaces, mainMenues, sampleTypeViewAttributes):
+        if len(mainMenues) == 0:
+            raise NoSuchFileException("No main menues defined because ELN Settings are yet specified.")
         self.inventorySpaces = inventorySpaces
         self.mainMenues = mainMenues
         self.sampleTypeViewAttributes = sampleTypeViewAttributes
@@ -130,7 +134,13 @@ for pluginFileName in os.listdir(pluginsFolder):
     execfile(file, {"acceptor":acceptor})
 
 def resolve(subPath, context):
-    acceptor.configure(getAllSettings(context))
+#    print("%10.3f: (%s) %s %s" % (System.currentTimeMillis()*0.001, context, context.getSessionToken(), context.getCache()))
+    settings = context.getCache().getObject("ELN_SETTINGS")
+    if settings is None:
+        settings = getAllSettings(context)
+        context.getCache().putObject("ELN_SETTINGS", settings)
+
+    acceptor.configure(settings)
     if len(subPath) == 0:
         return listSections(acceptor, context)
 
@@ -171,18 +181,24 @@ def listSpaces(section, acceptor, context):
 def assertValidSpace(space, context):
     if space != space.upper():
         raise NoSuchFileException("Space '%s' contains lower case characters." % space)
-    fetchOptions = SpaceFetchOptions()
-    id = SpacePermId(space)
-    if context.getApi().getSpaces(context.getSessionToken(), [id], fetchOptions).isEmpty():
-        raise NoSuchFileException("Unknown space '%s'." % space)
+    key = "Space:%s" % space
+    if context.getCache().getAccess(key) != True:
+        fetchOptions = SpaceFetchOptions()
+        id = SpacePermId(space)
+        if context.getApi().getSpaces(context.getSessionToken(), [id], fetchOptions).isEmpty():
+            raise NoSuchFileException("Unknown space '%s'." % space)
+        context.getCache().putAccess(key, True)
 
 def assertValidProject(space, project, context):
     if project != project.upper():
         raise NoSuchFileException("Project '%s' contains lower case characters." % project)
-    fetchOptions = ProjectFetchOptions()
-    id = ProjectIdentifier(space, project)
-    if context.getApi().getProjects(context.getSessionToken(), [id], fetchOptions).isEmpty():
-        raise NoSuchFileException("Unknown project '%s'." % id)
+    key = "Project:/%s/%s" % (space, project)
+    if context.getCache().getAccess(key) != True:
+        fetchOptions = ProjectFetchOptions()
+        id = ProjectIdentifier(space, project)
+        if context.getApi().getProjects(context.getSessionToken(), [id], fetchOptions).isEmpty():
+            raise NoSuchFileException("Unknown project '%s'." % id)
+        context.getCache().putAccess(key, True)
 
 def getAllSettings(context):
     criteria = SampleSearchCriteria()
@@ -295,7 +311,8 @@ def addExperimentNodes(section, space, project, response, acceptor, context):
 def addExperimentChildNodes(path, experimentPermId, experimentType, response, acceptor, context):
     dataSetSearchCriteria = DataSetSearchCriteria()
     dataSetSearchCriteria.withExperiment().withPermId().thatEquals(experimentPermId)
-    listDataSets(path, dataSetSearchCriteria, False, response, acceptor, context)
+    dataSetSearchCriteria.withoutSample()
+    listDataSets(path, dataSetSearchCriteria, response, acceptor, context)
 
     sampleSearchCriteria = SampleSearchCriteria()
     sampleSearchCriteria.withExperiment().withPermId().thatEquals(experimentPermId)
@@ -318,7 +335,7 @@ def addSampleChildNodes(path, samplePermId, sampleType, response, acceptor, cont
     dataSetSearchCriteria = DataSetSearchCriteria()
     dataSetSearchCriteria.withSample().withPermId().thatEquals(samplePermId)
 
-    listDataSets(path, dataSetSearchCriteria, True, response, acceptor, context)
+    listDataSets(path, dataSetSearchCriteria, response, acceptor, context)
     addSampleSampleChildNodes(path, samplePermId, response, acceptor, context)
 
 def addSampleSampleChildNodes(path, samplePermId, response, acceptor, context):
@@ -362,18 +379,38 @@ def addDataSetFileNodesFor(path, dataSets, response, acceptor, context):
         addDataSetFileNodes(path, dataSetCode, contentNode, response, acceptor, context)
 
 def getContentNodes(permIds, context):
-    ids = []
+    dataSetCodes = []
     paths = []
     for permId in permIds:
         splittedId = permId.split("::")
-        ids.append(DataSetPermId(splittedId[0]))
+        dataSetCodes.append(splittedId[0])
         paths.append(splittedId[1] if len(splittedId) > 1 else None)
 
-    fetchOptions = DataSetFetchOptions()
-    fetchOptions.withDataStore()
-    fetchOptions.withPhysicalData()
-    dataSets = context.getApi().getDataSets(context.getSessionToken(), ids, fetchOptions).values()
+    dataSets = retrieveDataSets(dataSetCodes, context)
     return asContentNodes(dataSets, context, paths)
+
+class DataSetWrapper(PhysicalDataSet):
+    def __init__(self, dataSet):
+        self.dataSet = dataSet
+        self.setCode(dataSet.getCode())
+
+def retrieveDataSets(dataSetCodes, context):
+    dataSets = []
+    notcachedDataSets = []
+    for dataSetCode in dataSetCodes:
+        dataSet = context.getCache().getExternalData(dataSetCode)
+        if dataSet is None:
+            notcachedDataSets.append(DataSetPermId(dataSetCode))
+        else:
+            dataSets.append(dataSet.dataSet)
+    if len(notcachedDataSets) > 0:
+        fetchOptions = DataSetFetchOptions()
+        fetchOptions.withDataStore()
+        fetchOptions.withPhysicalData()
+        dataSets += context.getApi().getDataSets(context.getSessionToken(), notcachedDataSets, fetchOptions).values()
+    for dataSet in dataSets:
+        context.getCache().putExternalData(DataSetWrapper(dataSet))
+    return dataSets
 
 def asContentNodes(dataSets, context, paths=None):
     result = []
@@ -386,13 +423,16 @@ def asContentNodes(dataSets, context, paths=None):
         dataStore.setHostUrl(dataSet.getDataStore().getDownloadUrl())
         kind = dataSet.getKind()
         if kind == DataSetKind.PHYSICAL:
-            physicalData = dataSet.getPhysicalData()
-            physicalDataSet = PhysicalDataSet()
-            physicalDataSet.setCode(dataSetCode)
-            physicalDataSet.setLocation(physicalData.getLocation())
-            physicalDataSet.setDataStore(dataStore)
-            physicalDataSet.setShareId(physicalData.getShareId())
-            content = contentProvider.asContentWithoutModifyingAccessTimestamp(physicalDataSet)
+            content = context.getCache().getContent(dataSetCode)
+            if content is None:
+                physicalData = dataSet.getPhysicalData()
+                physicalDataSet = PhysicalDataSet()
+                physicalDataSet.setCode(dataSetCode)
+                physicalDataSet.setLocation(physicalData.getLocation())
+                physicalDataSet.setDataStore(dataStore)
+                physicalDataSet.setShareId(physicalData.getShareId())
+                content = contentProvider.asContentWithoutModifyingAccessTimestamp(physicalDataSet)
+                context.getCache().putContent(dataSetCode, content)
             contentNode = content.getRootNode() if paths is None or paths[i] is None else content.tryGetNode(paths[i])
             result.append((dataSetCode, contentNode, content))
         else:
@@ -412,6 +452,9 @@ def getDataSetsOfSampleAndItsChildren(samplePermId, context):
     dataSetSearchCriteria.withSample().withPermId().thatEquals(samplePermId)
     parentsSearchCriteria = dataSetSearchCriteria.withSample().withParents()
     parentsSearchCriteria.withPermId().thatEquals(samplePermId)
+    return getDataSets(dataSetSearchCriteria, context)
+
+def getDataSets(dataSetSearchCriteria, context):
     fetchOptions = DataSetFetchOptions()
     fetchOptions.withDataStore()
     fetchOptions.withPhysicalData()
@@ -420,7 +463,7 @@ def getDataSetsOfSampleAndItsChildren(samplePermId, context):
     fetchOptions.withSample().withType()
     return context.getApi().searchDataSets(context.getSessionToken(), dataSetSearchCriteria, fetchOptions).getObjects()
 
-def listDataSets(path, dataSetSearchCriteria, assignedToSample, response, acceptor, context):
+def listDataSets(path, dataSetSearchCriteria, response, acceptor, context):
     fetchOptions = DataSetFetchOptions()
     fetchOptions.withType()
     fetchOptions.withProperties()
@@ -428,9 +471,7 @@ def listDataSets(path, dataSetSearchCriteria, assignedToSample, response, accept
     dataSets = context.getApi().searchDataSets(context.getSessionToken(), dataSetSearchCriteria, fetchOptions).getObjects()
     entitiesByName = {}
     for dataSet in dataSets:
-        sample = dataSet.getSample()
-        if ((assignedToSample and sample is not None) or (not assignedToSample and sample is None)) \
-                and acceptor.acceptDataSet(dataSet):
+        if acceptor.acceptDataSet(dataSet):
             gatherEntity(entitiesByName, dataSet)
     addNodes("DATASET", entitiesByName, path, response, context)
 

@@ -152,20 +152,40 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         var barcodeReaderBtn = FormUtil.getButtonWithIcon(
             "glyphicon-barcode",
             function() {
-                BarcodeUtil.readBarcodeFromCamera();
+                BarcodeUtil.readBarcodeFromScannerOrCamera();
             },
             null,
-            null,
+            "Scan Barcode/QR code",
             "barcodeReaderBtn"
+        )
+
+        var collapseMenuBtn = FormUtil.getButtonWithIcon(
+            "glyphicon-menu-hamburger",
+            function() {
+                if(!LayoutManager.fullScreenFlag) {
+                    LayoutManager.fullScreen();
+                } else {
+                    LayoutManager.restoreStandardSize();
+                }
+            },
+            null,
+            "Toggle menu",
+            "collapseMenuBtn"
         )
 
         var $searchForm = $("<form>", { onsubmit: "return false;" })
             .append(logoutButton)
             .append(searchElement)
-            .append(dropDownSearch);
+            .append(dropDownSearch)
 
         if(profile.mainMenu.showBarcodes) {
-            $searchForm.append(barcodeReaderBtn);
+            $searchForm.append("&nbsp;")
+            $searchForm.append(barcodeReaderBtn)
+        }
+
+        if(LayoutManager.isMobile()) {
+            $searchForm.append("&nbsp;")
+            $searchForm.append(collapseMenuBtn)
         }
 
         $searchForm.css("width", "100%")

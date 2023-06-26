@@ -1,6 +1,9 @@
 var BarcodeUtil = new function() {
     var barcodeTimeout = false;
     var barcodeReader = "";
+    var isScanner = false;
+    var isCamera = false;
+
     var _this = this;
 
     var readSample = function(action) {
@@ -30,32 +33,150 @@ var BarcodeUtil = new function() {
         }
     }
 
+    this.readBarcodeFromScannerOrCamera = function($container, action) {
+        if(!$container) {
+            mainController.changeView("showBlancPage");
+            if(LayoutManager.isMobile()) {
+                LayoutManager.fullScreen();
+            }
+            var content = mainController.currentView.content;
+            content.empty();
+            $container = content;
+        }
+
+        if(!action) {
+            action = function(barcode, error) {
+                if(barcode) {
+                    readSample(function(sample) {
+                        mainController.changeView('showViewSamplePageFromPermId', sample.permId.permId);
+                    });
+                }
+                if(error) {
+                    _this.disableAutomaticBarcodeReadingFromCamera();
+                    $container.empty();
+                }
+            };
+        }
+
+		var $form = $("<div>");
+
+        var $toggleSwitch = $("<fieldset>");
+        //    $toggleSwitch.append($("<legend>").text("Read Barcode from Device"));
+
+        var deviceInputs = [];
+
+        var $device = $("<div>", { class : "switch-toggle switch-candy-blue" });
+        var $scannerInput = $("<input>", { id : "scanner", name : "device", type : "radio" });
+        $device.append($scannerInput);
+        deviceInputs.push($scannerInput);
+        $device.append($("<label>", { for : "scanner", onclick : "" }).append("Scanner"));
+
+        codeReader = new ZXing.BrowserMultiFormatReader();
+                        codeReader.listVideoInputDevices().then((videoInputDevices) => {
+                            // Add cameras to devices
+                            for(var cIdx = 0; cIdx < videoInputDevices.length; cIdx++) {
+                                var cameraDeviceId = videoInputDevices[cIdx].deviceId;
+                                if(!cameraDeviceId) {
+                                    cameraDeviceId = "trust";
+                                }
+                                var $cameraInput = $("<input>", { id : "camera-" + (cIdx+1), name : "device", type : "radio", value : cameraDeviceId });
+                                        $device.append($cameraInput);
+                                        deviceInputs.push($cameraInput);
+                                        $device.append($("<label>", { for : "camera-" + (cIdx+1),  onclick : "" }).append(videoInputDevices[cIdx].label));
+                            }
+
+                            $device.append($("<a>"));
+                            _this.disableAutomaticBarcodeReadingFromCamera();
+
+                            // Enable last used device
+                            mainController.serverFacade.getSetting("barcode-reader-device", function(selectedDeviceIndex) {
+                                if(!selectedDeviceIndex) {
+                                    selectedDeviceIndex = 0;
+                                }
+                                for(var dIdx = 0; dIdx < deviceInputs.length; dIdx++) {
+                                    if("" + dIdx === "" + selectedDeviceIndex) {
+                                        deviceInputs[dIdx][0]['checked'] =  true;
+                                    } else {
+                                        deviceInputs[dIdx][0]['checked'] =  false;
+                                    }
+                                }
+                                $device.trigger("change");
+                            });
+                        });
+        $toggleSwitch.append($device);
+
+        var $cameraContainer = $("<div>");
+
+        $form.append($toggleSwitch);
+        //$form.append($("<br>"))
+        $form.append($cameraContainer);
+
+        var onDeviceChange = function() {
+            _this.disableAutomaticBarcodeReading();
+            _this.disableAutomaticBarcodeReadingFromCamera();
+            $cameraContainer.empty();
+
+            var isScanner = deviceInputs[0].is(":checked");
+            if(isScanner) {
+                isCamera = false;
+                isScanner = true;
+                _this.enableAutomaticBarcodeReading(action);
+                _this.disableAutomaticBarcodeReadingFromCamera();
+                mainController.serverFacade.setSetting("barcode-reader-device", 0);
+            }
+
+            for(var dIdx = 1; dIdx < deviceInputs.length; dIdx++) {
+                var isCamera = deviceInputs[dIdx].is(":checked");
+                if(isCamera) {
+                    isCamera = true;
+                    isScanner = false;
+                    _this.disableAutomaticBarcodeReading();
+                    _this.enableAutomaticBarcodeReadingFromCamera(deviceInputs[dIdx][0].value, $cameraContainer, action);
+                    mainController.serverFacade.setSetting("barcode-reader-device", dIdx);
+                }
+            }
+        }
+
+        mainController.currentView.finalize = function() {
+            _this.disableAutomaticBarcodeReading();
+            _this.disableAutomaticBarcodeReadingFromCamera();
+            isCamera = false;
+            isScanner = false;
+        }
+
+        $device.change(onDeviceChange);
+
+        $container.append($form);
+
+        //onDeviceChange(); // Enable default device
+    }
+
     var codeReader = null;
 
-    this.readBarcodeFromCamera = function() {
+    this.disableAutomaticBarcodeReadingFromCamera = function() {
         if(codeReader != null) {
             codeReader.reset();
             codeReader = null;
         }
+    }
 
-        // Steals the main controller to show the video feed and a cancel button
-        mainController.changeView("showBlancPage");
-        var content = mainController.currentView.content;
-        content.empty();
-        content.append(FormUtil.getButtonWithIcon("glyphicon-minus-sign", function() {
-            if(codeReader != null) {
-                codeReader.reset();
-                codeReader = null;
-            }
-            // On cancel go back to previews view
-            mainController.backButtonLogic();
-            mainController.backButtonLogic();
-        }));
-        var $videoCameraSelection = $("<select>", { id: "videoCameraSelect", style : "margin-left: 4px;"});
-        content.append($videoCameraSelection);
-        content.append($("<legend>").text("Read Barcode:"));
-        var $video = $("<video>", { id : "video", width : "100%", height : "100%" });
-        content.append($video);
+    this.enableAutomaticBarcodeReadingFromCamera = function(cameraDeviceId, $container, action) {
+        _this.disableAutomaticBarcodeReadingFromCamera();
+        var $video = $("<video>", { id : "video" });
+        var leftColumnSize = 0;
+        if(LayoutManager.FOUND_SIZE >= LayoutManager.TABLET_SIZE) {
+            leftColumnSize = $(LayoutManager.firstColumn).width();
+        }
+        var width = $( window ).width();
+        var height = $( window ).height() * 0.3 - 52; // 30% Size - Header size
+        $video.css({
+            display: "block", // centering
+            margin: "0 auto", // centering
+            width : width - leftColumnSize + "px",
+            height : height + "px",
+            "margin-top" : "4px"
+        });
+        $container.append($video);
 
         // Starts the camera reading code
         const hints = new Map();
@@ -63,38 +184,20 @@ var BarcodeUtil = new function() {
         hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, formats);
         codeReader = new ZXing.BrowserMultiFormatReader(hints);
                 codeReader.listVideoInputDevices().then((videoInputDevices) => {
-                    const sourceSelect = document.getElementById('sourceSelect');
-                    selectedDeviceId = videoInputDevices[0].deviceId;
-
                     var decodeFromVideoDeviceCallback = (result, err) => {
                         if(result && result.text) {
-                            codeReader.reset();
-                            BarcodeUtil.readSample(result.text);
+                            barcodeReader = result.text;
+                            action(result.text, null);
                         }
                         if (err && !(err instanceof ZXing.NotFoundException)) {
                             Util.showError("Failed to read barcode");
-                            // On cancel go back to previews view
-                            mainController.backButtonLogic();
-                            mainController.backButtonLogic();
+                            action(null, err);
                         }
                     };
-
-                    if(videoInputDevices.length > 1) {
-                        videoInputDevices.forEach((element) => {
-                            var option = $("<option>", { value: element.deviceId }).text(element.label);
-                            $videoCameraSelection.append(option);
-                        });
-
-                        $videoCameraSelection.change(function(event) {
-                            //Stop
-                            codeReader.reset();
-                            //Start
-                            selectedDeviceId = $(this).val();
-                            codeReader.decodeFromVideoDevice(selectedDeviceId, 'video', decodeFromVideoDeviceCallback);
-                        });
+                    if(cameraDeviceId === "trust") {
+                        cameraDeviceId = null;
                     }
-
-                    codeReader.decodeFromVideoDevice(selectedDeviceId, 'video', decodeFromVideoDeviceCallback);
+                    codeReader.decodeFromVideoDevice(cameraDeviceId, 'video', decodeFromVideoDeviceCallback);
         });
     }
 
@@ -137,7 +240,7 @@ var BarcodeUtil = new function() {
             if(!barcodeTimeout) {
                   barcodeTimeout = true;
                   var timeoutFunc = function() {
-                      readSample(action);
+                      action(barcodeReader, null);
                       // reset
                       barcodeTimeout = false;
                       barcodeReader = "";
@@ -156,8 +259,9 @@ var BarcodeUtil = new function() {
 
     var barcodeReaderGlobalEventListener = barcodeReaderEventListener();
 
-    this.enableAutomaticBarcodeReading = function() {
+    this.enableAutomaticBarcodeReading = function(action) {
         if(profile.mainMenu.showBarcodes) {
+            barcodeReaderGlobalEventListener = barcodeReaderEventListener(action);
             document.addEventListener('keyup', barcodeReaderGlobalEventListener);
         }
     }
@@ -363,13 +467,40 @@ var BarcodeUtil = new function() {
 
     this.readBarcodeMulti = function(actionLabel, action) {
         var _this = this;
+
+        var $masterContainer = $("<div>");
+        $masterContainer.css({
+            'height' : '100%',
+            'overflow' : 'hidden'
+        });
+
+        var $readerContainer = $("<div>");
+        $readerContainer.css({
+            'height' : '30%',
+            'overflow' : 'hidden'
+        });
+
+        var $window = $('<form>', {
+            'action' : 'javascript:void(0);'
+        });
+        $window.css({
+            'height' : '70%',
+            'overflow' : 'auto'
+        });
+
+        $masterContainer.append($readerContainer).append($window);
+
         var $readed = $('<div>');
 
-        // Remove global event
-        this.disableAutomaticBarcodeReading();
         // Add local event
         var objects = [];
         var gatherReaded = function(object) {
+            // Avoid adding same item twice, check if is already on the list.
+            for(var oIdx = 0; oIdx < objects.length; oIdx++) {
+                if(objects[oIdx].identifier.identifier === object.identifier.identifier) {
+                    return; // Do nothing if the same objet is on the list
+                }
+            }
             objects.push(object);
             var displayName = "";
             var $container = $('<div>');
@@ -385,20 +516,14 @@ var BarcodeUtil = new function() {
             $readed.append($container.append($identifier).append($removeBtn));
         }
 
-        var barcodeReaderLocalEventListener = barcodeReaderEventListener(gatherReaded);
-        document.addEventListener('keyup', barcodeReaderLocalEventListener);
-
-        var $window = $('<form>', {
-            'action' : 'javascript:void(0);'
-        });
         $window.on('keyup keypress', this.preventFormSubmit);
 
         var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : actionLabel });
         $btnAccept.on('keyup keypress', this.preventFormSubmit);
         $btnAccept.click(function(event) {
-            // Swap event listeners
-            document.removeEventListener('keyup', barcodeReaderLocalEventListener);
-            _this.enableAutomaticBarcodeReading();
+            if(mainController.currentView.finalize) {
+                mainController.currentView.finalize();
+            }
             Util.unblockUI();
             action(objects);
         });
@@ -406,37 +531,62 @@ var BarcodeUtil = new function() {
         var $btnCancel = $('<input>', { 'type': 'submit', 'class' : 'btn', 'value' : 'Close' });
         $btnCancel.on('keyup keypress', this.preventFormSubmit);
         $btnCancel.click(function(event) {
-            // Swap event listeners
-            document.removeEventListener('keyup', barcodeReaderLocalEventListener);
-            _this.enableAutomaticBarcodeReading();
+            if(mainController.currentView.finalize) {
+                mainController.currentView.finalize();
+            }
             Util.unblockUI();
         });
 
-        $window.append($('<legend>').append("Barcode Reader"));
-        $window.append($('<br>'));
+        $window.append($('<legend>').append("Read Barcodes"));
+        $window.append(FormUtil.getInfoText("Please scan one or more barcodes. The barcodes will be listed below if the scan is successful."));
+        $window.append($('<legend>').append('Found'));
         $window.append($btnAccept).append('&nbsp;').append($btnCancel);
-        $window.append($('<legend>').append('Read'));
+
         $window.append($('<br>'));
         $window.append($('<div>').append($readed));
 
         var css = {
             'text-align' : 'left',
-            'top' : '15%',
-            'width' : '70%',
-            'height' : '400px',
-            'left' : '15%',
-            'right' : '20%',
-            'overflow' : 'auto'
+            'top' : '0%',
+            'width' : '100%',
+            'height' : '100%',
+            'left' : '0%',
+            'right' : '0%'
         };
 
-        Util.blockUI($window, css);
+        Util.blockUI($masterContainer, css);
+
+        BarcodeUtil.readBarcodeFromScannerOrCamera($readerContainer, function(permId, error) {
+            console.log(permId);
+            readSample(gatherReaded);
+        });
     }
 
     this.readBarcode = function(entities) {
         var _this = this;
+
+        var $masterContainer = $("<div>");
+        $masterContainer.css({
+            'height' : '100%',
+            'overflow' : 'hidden'
+        });
+
+        var $readerContainer = $("<div>");
+        $readerContainer.css({
+            'height' : '30%',
+            'overflow' : 'hidden'
+        });
+
         var $window = $('<form>', {
             'action' : 'javascript:void(0);'
         });
+        $window.css({
+            'height' : '70%',
+            'overflow' : 'auto'
+        });
+
+        $masterContainer.append($readerContainer).append($window);
+
         $window.on('keyup keypress', this.preventFormSubmit);
 
         var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Save Barcode' });
@@ -454,6 +604,9 @@ var BarcodeUtil = new function() {
         }
 
         $btnAccept.click(function(event) {
+            if(mainController.currentView.finalize) {
+                mainController.currentView.finalize();
+            }
             var errors = [];
             for(var eIdx = 0; eIdx < entities.length; eIdx++) {
                 var barcode = $barcodeReaders[eIdx].val();
@@ -526,6 +679,9 @@ var BarcodeUtil = new function() {
         var $btnCancel = $('<input>', { 'type': 'submit', 'class' : 'btn', 'value' : 'Close' });
         $btnCancel.on('keyup keypress', this.preventFormSubmit);
         $btnCancel.click(function(event) {
+            if(mainController.currentView.finalize) {
+                mainController.currentView.finalize();
+            }
             Util.unblockUI();
         });
 
@@ -552,15 +708,38 @@ var BarcodeUtil = new function() {
 
         var css = {
             'text-align' : 'left',
-            'top' : '15%',
-            'width' : '70%',
-            'height' : '400px',
-            'left' : '15%',
-            'right' : '20%',
-            'overflow' : 'auto'
+            'top' : '0%',
+            'width' : '100%',
+            'height' : '100%',
+            'left' : '0%',
+            'right' : '0%'
         };
 
-        Util.blockUI($window, css);
+        Util.blockUI($masterContainer, css);
+
+        BarcodeUtil.readBarcodeFromScannerOrCamera($readerContainer, function(permId, error) {
+            console.log(permId);
+            // We try to find the permId on the fields, if is not already we add it, this handles three corner cases:
+            //  - Scanner already typed on the field -> It avoids to repeat it
+            //  - Scanner not focused on fields -> It adds it to the field
+            //  - Camera doesn't act as a keyboard -> it adds to the field
+            for(var eIdx = 0; eIdx < $barcodeReaders.length; eIdx++) {
+                var $barcodeReader = $barcodeReaders[eIdx];
+                var value = $barcodeReader.val();
+                if(value === permId) {
+                    return; // Do nothing if the same objet is on the list
+                }
+            }
+            // Camera needs this code to set the permId on the first non-empty reader
+            for(var eIdx = 0; eIdx < $barcodeReaders.length; eIdx++) {
+                var $barcodeReader = $barcodeReaders[eIdx];
+                var value = $barcodeReader.val();
+                if(!value) {
+                    $barcodeReader.val(permId);
+                    break;
+                }
+            }
+        });
     }
 
     this.showBarcode = function(entity) {
@@ -647,11 +826,11 @@ var BarcodeUtil = new function() {
 
         var css = {
             'text-align' : 'left',
-            'top' : '15%',
-            'width' : '70%',
-            'height' : '400px',
-            'left' : '15%',
-            'right' : '20%',
+            'top' : '5%',
+            'width' : '90%',
+            'height' : '90%',
+            'left' : '5%',
+            'right' : '5%',
             'overflow' : 'auto'
         };
 

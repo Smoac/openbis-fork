@@ -261,12 +261,12 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 
 		// TODO put the rest in separate panel
 		this._$rulesPanelContainer = $("<div>");
-		this._paintRulesPanel(this._$rulesPanelContainer);
+        this._paintRulesPanel(this._$rulesPanelContainer, this._advancedSearchModel.criteria.entityKind.startsWith("ALL"));
 		$searchCriteriaPanelContainer.append(this._$rulesPanelContainer);
 	}
 
 
-	this._paintRulesPanel = function($container) {
+    this._paintRulesPanel = function($container, isGlobalSearch) {
 		$container.empty();
 		var _this = this;
 		var $table = $("<table>", { class : "table table-bordered"});
@@ -276,28 +276,31 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 
 		//todo there should be ONE add button at the top! (?)
 		this._$addButton = FormUtil.getButtonWithIcon('glyphicon-plus', function() {
-			_this._paintInputRow();
+            _this._paintInputRow(isGlobalSearch);
 		});
 
 		$table
 			.append($thead)
 			.append(this._$tbody);
 
-		$thead
-			.append($("<tr>")
-						.append($("<th>").text("Field Type"))
-						.append($("<th>").text("Field Name"))
-						.append($("<th>").text("Comparator Operator"))
-						.append($("<th>").text("Field Value"))
-						.append($("<th>", { "style" : "width : 56px !important;" }).append(this._$addButton))
-					);
+		
+        $row=$("<tr>");
+        if (!isGlobalSearch) {
+            $row.append($("<th>").text("NOT"))
+        }
+        $row.append($("<th>").text("Field Type"))
+            .append($("<th>").text("Field Name"))
+            .append($("<th>").text("Comparator Operator"))
+            .append($("<th>").text("Field Value"))
+            .append($("<th>", { "style" : "width : 56px !important;" }).append(this._$addButton));
+        $thead.append($row);
 
 		if ($.isEmptyObject(this._advancedSearchModel.criteria.rules)) {
-				this._paintInputRow();
+            this._paintInputRow(isGlobalSearch);
 		} else {
 			for(var ruleKey in this._advancedSearchModel.criteria.rules) {
 				if ( ! this._advancedSearchModel.criteria.rules[ruleKey].hidden) {
-					this._paintInputRow(ruleKey);
+                    this._paintInputRow(isGlobalSearch, ruleKey);
 				}
 			}
 		}
@@ -310,7 +313,7 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 	//
 
 	// paints a row for the given ruleKey or a new empty row if no ruleKey is given
-	this._paintInputRow = function(ruleKey) {
+    this._paintInputRow = function(isGlobalSearch, ruleKey) {
 		var _this = this;
 
 		var uuidValue = null;
@@ -327,6 +330,9 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 		var $newRow = $("<tr>", { id : uuidValue });
 		var $fieldTypeDropdown = this._getNewFieldTypeDropdownComponent($newFieldNameContainer, $newFieldOperatorContainer, $newFieldValueContainer, this._advancedSearchModel.criteria.entityKind, uuidValue);
 
+        if (!isGlobalSearch) {
+            $newRow.append($("<td>").append(this._getNegationOperatorDropdownComponent(uuidValue)));
+        }
 		$newRow.append($("<td>").append($fieldTypeDropdown))
                     .append($newFieldNameContainer)
                     .append($newFieldOperatorContainer)
@@ -618,6 +624,18 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
         }
     }
 
+    this._getNegationOperatorDropdownComponent = function(uuid) {
+        var _this = this;
+        var $checkbox = $('<input>', {'type' : 'checkbox'})
+        $checkbox.change(function() {
+            _this._advancedSearchModel.criteria.rules[uuid].negate = $checkbox.is(":checked");
+        });
+        if (this._advancedSearchModel.criteria.rules[uuid].negate) {
+            $checkbox.prop('checked', true);
+        }
+        return $('<div>', {'class' : 'checkbox'}).append($checkbox);
+    }
+
 	//should make new objects every time. otherwise, using the same object will produce odd results!
 	//how to make an on-select event??
 	this._getNewFieldTypeDropdownComponent = function($newFieldNameContainer, $newFieldOperatorContainer, $newFieldValueContainer, entityKind, uuid) {
@@ -866,7 +884,8 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 
         $dropdown.change(function() {
             var value = $(this).val();
-            if (value.startsWith('ALL')) {
+            var isGlobalSearch = value.startsWith('ALL');
+            if (isGlobalSearch) {
                 mainController.serverFacade.setSetting("GLOBAL_SEARCH_DEFAULT", value);
             }
             var kindAndType = value.split("$");
@@ -879,14 +898,16 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				for(var rIdx = 0; rIdx < rows.length; rIdx++) {
 					var $row = $(rows[rIdx]);
 					var tds = $row.children();
-					var $newFieldTypeComponent = _this._getNewFieldTypeDropdownComponent($(tds[1]), $(tds[2]), $(tds[3]), _this._advancedSearchModel.criteria.entityKind, $row.attr("id"));
-					$(tds[0]).empty();
-					$(tds[0]).append($newFieldTypeComponent);
+                    var $newFieldTypeComponent = _this._getNewFieldTypeDropdownComponent($(tds[2]), $(tds[3]), $(tds[4]), _this._advancedSearchModel.criteria.entityKind, $row.attr("id"));
+                    $(tds[1]).empty();
+                    $(tds[1]).append($newFieldTypeComponent);
 				}
 			} else {
 				_this._advancedSearchModel.resetModel(kindAndType[0]); //Restart model
-				_this._paintRulesPanel(_this._$rulesPanelContainer);
 			}
+            if (_this._$rulesPanelContainer) {
+                _this._paintRulesPanel(_this._$rulesPanelContainer, isGlobalSearch);
+            }
 
 			if(kindAndType.length === 2) {
 				var uuidValue = Util.guid();
@@ -1051,6 +1072,12 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
 				exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.EXPERIMENT,
 				filterable: !isGlobalSearch,
 				sortable : false
+			}, {
+				label : ELNDictionary.getSampleDualName(),
+				property : 'sample',
+				exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.SAMPLE,
+				filterable: !isGlobalSearch,
+				sortable : false
 			}]);
 
 			if (criteria.entityKind === "DATASET") {
@@ -1091,26 +1118,22 @@ function AdvancedSearchView(advancedSearchController, advancedSearchModel) {
                     }
                 });
                 columns.push({
-                    label : 'Storage confirmation',
-                    property : 'storageConfirmation',
-                    filterable: !isGlobalSearch,
-                    sortable : false,
-                    renderFilter : function(params) {
-                        return FormUtil.renderBooleanGridFilter(params);
-                    },
-                    render : function(data) {
-                        return data.storageConfirmation == true ? "true" : "false"
-                    }
-                });
-                columns.push({
                     label : "Size (bytes)",
                     property : "size",
-                    isExportable : false,
+									  exportableProperty: DataGridExportOptions.EXPORTABLE_FIELD.SIZE,
                     sortable : false,
                     render : function(data, grid) {
                         return data.size;
                     }
                 });
+								columns.push({
+									label : "Size",
+									property : "sizeHumanReadable",
+									sortable : false,
+									render : function(data, grid) {
+										return PrintUtil.renderNumberOfBytes(data.size);
+									}
+								});
             }
 
 			columns = columns.concat(_this.additionalColumns);
