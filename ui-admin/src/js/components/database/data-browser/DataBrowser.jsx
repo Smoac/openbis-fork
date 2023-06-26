@@ -177,8 +177,8 @@ class DataBrowser extends React.Component {
                   name: 'name',
                   label: 'Name',
                   sortable: true,
-                  getValue: ({ row }) => row,
-                  renderValue: ({ value }) => <><ItemIcon file={value} classes={{ icon: classes.icon }} configuration={configuration} /> {value.name}</>,
+                  getValue: ({ row }) => row.name,
+                  renderValue: ({ row }) => <><ItemIcon file={row} classes={{ icon: classes.icon }} configuration={configuration} /> {row.name}</>,
                   renderFilter: null
                 },
                 {
