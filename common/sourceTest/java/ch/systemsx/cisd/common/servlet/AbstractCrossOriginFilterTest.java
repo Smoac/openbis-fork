@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 ETH Zuerich, CISD
+ * Copyright ETH 2012 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -113,20 +113,21 @@ public class AbstractCrossOriginFilterTest extends AssertJUnit
     {
 
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(request).getHeader(AbstractCrossOriginFilter.ORIGIN_HEADER);
-                    will(returnValue(origin));
+                one(request).getHeader(AbstractCrossOriginFilter.ORIGIN_HEADER);
+                will(returnValue(origin));
 
-                    // origin allowed
-                    one(response).setHeader(
-                            AbstractCrossOriginFilter.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, origin);
-                    one(response).setHeader(
-                            AbstractCrossOriginFilter.ACCESS_CONTROL_ALLOW_CREDENTIALS_HEADER, String.valueOf(true));
-
-                    one(filterChain).doFilter(request, response);
-                }
-            });
+                // origin allowed
+                one(response).setHeader(
+                        AbstractCrossOriginFilter.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, origin);
+                one(response).setHeader(
+                        AbstractCrossOriginFilter.ACCESS_CONTROL_ALLOW_CREDENTIALS_HEADER, String.valueOf(true));
+                one(response).setHeader(
+                        AbstractCrossOriginFilter.ACCESS_CONTROL_ALLOW_HEADERS_HEADER, AbstractCrossOriginFilter.CONTENT_TYPE);
+                one(filterChain).doFilter(request, response);
+            }
+        });
         filter.doFilter(request, response, filterChain);
         context.assertIsSatisfied();
     }
@@ -136,14 +137,14 @@ public class AbstractCrossOriginFilterTest extends AssertJUnit
     {
 
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(request).getHeader(AbstractCrossOriginFilter.ORIGIN_HEADER);
-                    will(returnValue(origin));
+                one(request).getHeader(AbstractCrossOriginFilter.ORIGIN_HEADER);
+                will(returnValue(origin));
 
-                    one(filterChain).doFilter(request, response);
-                }
-            });
+                one(filterChain).doFilter(request, response);
+            }
+        });
         filter.doFilter(request, response, filterChain);
     }
 
