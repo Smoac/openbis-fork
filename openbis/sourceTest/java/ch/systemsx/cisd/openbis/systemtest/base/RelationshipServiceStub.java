@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 ETH Zuerich, CISD
+ * Copyright ETH 2012 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,6 +47,10 @@ public class RelationshipServiceStub implements IRelationshipService
     @Override
     public void assignSampleToExperiment(IAuthSession session, SamplePE sample,
             ExperimentPE experiment)
+    {
+    }
+
+    @Override public void checkCanUnassignSampleFromProject(final IAuthSession session, final SamplePE sample)
     {
     }
 

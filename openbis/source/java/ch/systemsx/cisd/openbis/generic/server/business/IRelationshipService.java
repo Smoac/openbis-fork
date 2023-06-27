@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 ETH Zuerich, CISD
+ * Copyright ETH 2012 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.openbis.generic.server.business;
 
 import java.util.Map;
@@ -42,7 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 /**
  * Definition of an internal service through which entity relationships can be changed and deleted. All the methods of this service require
  * authorization,
- * 
+ *
  * @author anttil
  */
 public interface IRelationshipService
@@ -55,7 +54,7 @@ public interface IRelationshipService
             @AuthorizationGuard(guardClass = ProjectPEPredicate.class) ProjectPE project);
 
     @Transactional(propagation = Propagation.MANDATORY)
-    @RolesAllowed(value = { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.PROJECT_POWER_USER })
+    @RolesAllowed(value = { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.PROJECT_USER })
     @Capability("ASSIGN_SAMPLE_TO_PROJECT")
     public void assignSampleToProject(IAuthSession session,
             @AuthorizationGuard(guardClass = SamplePEPredicate.class) SamplePE sample,
@@ -74,6 +73,12 @@ public interface IRelationshipService
     public void assignSampleToExperiment(IAuthSession session,
             @AuthorizationGuard(guardClass = SamplePEPredicate.class) SamplePE sample,
             @AuthorizationGuard(guardClass = ExperimentPEPredicate.class) ExperimentPE experiment);
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    @RolesAllowed(value = { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.PROJECT_POWER_USER })
+    @Capability("UNASSIGN_SAMPLE_FROM_PROJECT")
+    public void checkCanUnassignSampleFromProject(IAuthSession session,
+            @AuthorizationGuard(guardClass = SamplePEPredicate.class) SamplePE sample);
 
     @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value = { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.PROJECT_POWER_USER })
@@ -138,7 +143,7 @@ public interface IRelationshipService
     @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value = { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.PROJECT_USER })
     @Capability("SET_SAMPLE_PARENT_CHILD_ANNOTATIONS")
-    public void setSampleParentChildAnnotations(IAuthSession session, 
+    public void setSampleParentChildAnnotations(IAuthSession session,
             @AuthorizationGuard(name = "CHILD", guardClass = SamplePEPredicate.class) SamplePE child,
             @AuthorizationGuard(name = "PARENT", guardClass = SamplePEPredicate.class, rolesAllowed = { RoleWithHierarchy.SPACE_ETL_SERVER,
                     RoleWithHierarchy.PROJECT_USER }) SamplePE parent,

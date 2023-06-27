@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 ETH Zuerich, CISD
+ * Copyright ETH 2012 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.openbis.generic.server.business;
 
 import java.util.Date;
@@ -103,6 +102,12 @@ public class RelationshipService implements IRelationshipService, ApplicationCon
         {
             Date timeStamp = getTransactionTimeStamp();
             ProjectPE previousProject = sample.getProject();
+
+            if (previousProject != null && !previousProject.equals(project))
+            {
+                service.checkCanUnassignSampleFromProject(session, sample);
+            }
+
             RelationshipUtils.updateModificationDateAndModifier(previousProject, session, timeStamp);
             sample.setProject(project);
             RelationshipUtils.updateModificationDateAndModifier(project, session, timeStamp);
@@ -151,6 +156,12 @@ public class RelationshipService implements IRelationshipService, ApplicationCon
         RelationshipUtils.updateModificationDateAndModifier(sample, session, timeStamp);
         RelationshipUtils.updateModificationDateAndModifierOfExperimentAndProject(experiment, currentProject,
                 session, timeStamp);
+    }
+
+    @Override
+    public void checkCanUnassignSampleFromProject(IAuthSession session, SamplePE sample)
+    {
+        // all the logic is done by the authorization mechanism
     }
 
     @Override
