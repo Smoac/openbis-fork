@@ -19,14 +19,36 @@ import java.util.*;
 
 import javax.annotation.Resource;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.SearchDataSetsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.SearchDataSetsOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.SearchExperimentsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.SearchExperimentsOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.fetchoptions.MaterialFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.MaterialSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.SearchMaterialsOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.search.SearchMaterialsOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SearchSamplesOperation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SearchSamplesOperationResult;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.ISearchDataSetExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset.ISearchDataSetsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.ISearchExperimentExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment.ISearchExperimentsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.ISearchMaterialExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.ISearchMaterialsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.ISearchSampleExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample.ISearchSamplesOperationExecutor;
+import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -73,16 +95,16 @@ public abstract class AbstractUpdateEntityTypePropertyTypesExecutor<UPDATE exten
     private IMapPropertyAssignmentByIdExecutor mapPropertyAssignmentByIdExecutor;
 
     @Autowired
-    private ISearchSampleExecutor searchSampleExecutor;
+    private ISearchSamplesOperationExecutor searchSampleExecutor;
 
     @Autowired
-    private ISearchExperimentExecutor searchExperimentExecutor;
+    private ISearchExperimentsOperationExecutor searchExperimentExecutor;
 
     @Autowired
-    private ISearchDataSetExecutor searchDataSetExecutor;
+    private ISearchDataSetsOperationExecutor searchDataSetExecutor;
 
     @Autowired
-    private ISearchMaterialExecutor searchMaterialExecutor;
+    private ISearchMaterialsOperationExecutor searchMaterialExecutor;
 
     protected abstract EntityKind getEntityKind();
 
@@ -250,31 +272,52 @@ public abstract class AbstractUpdateEntityTypePropertyTypesExecutor<UPDATE exten
         for (EntityTypePropertyTypePE entityTypePropertyType : etpts)
         {
             EntityTypePE entityTypePE = entityTypePropertyType.getEntityType();
-            List<Long> found = null;
-            if (entityTypePE instanceof SampleTypePE) {
+            int totalCount = 0;
+            if (entityTypePE instanceof SampleTypePE)
+            {
                 SampleSearchCriteria criteria = new SampleSearchCriteria();
                 criteria.withType().withCode().thatEquals(entityTypePE.getCode());
                 criteria.withProperty(entityTypePropertyType.getPropertyType().getCode());
-                found = searchSampleExecutor.search(context, criteria);
-            } else if (entityTypePE instanceof ExperimentTypePE) {
+                SampleFetchOptions fetchOptions = new SampleFetchOptions();
+                fetchOptions.count(0);
+                Map<IOperation, IOperationResult> results =
+                        searchSampleExecutor.execute(context, List.of(new SearchSamplesOperation(criteria, fetchOptions)));
+                totalCount = ((SearchSamplesOperationResult) results.values().iterator().next()).getSearchResult().getTotalCount();
+            } else if (entityTypePE instanceof ExperimentTypePE)
+            {
                 ExperimentSearchCriteria criteria = new ExperimentSearchCriteria();
                 criteria.withType().withCode().thatEquals(entityTypePE.getCode());
                 criteria.withProperty(entityTypePropertyType.getPropertyType().getCode());
-                found = searchExperimentExecutor.search(context, criteria);
-            } else if (entityTypePE instanceof DataSetTypePE) {
+                ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
+                fetchOptions.count(0);
+                Map<IOperation, IOperationResult> results =
+                        searchExperimentExecutor.execute(context, List.of(new SearchExperimentsOperation(criteria, fetchOptions)));
+                totalCount = ((SearchExperimentsOperationResult) results.values().iterator().next()).getSearchResult().getTotalCount();
+            } else if (entityTypePE instanceof DataSetTypePE)
+            {
                 DataSetSearchCriteria criteria = new DataSetSearchCriteria();
                 criteria.withType().withCode().thatEquals(entityTypePE.getCode());
                 criteria.withProperty(entityTypePropertyType.getPropertyType().getCode());
-                found = searchDataSetExecutor.search(context, criteria);
-            } else if (entityTypePE instanceof MaterialTypePE) {
+                DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
+                fetchOptions.count(0);
+                Map<IOperation, IOperationResult> results =
+                        searchDataSetExecutor.execute(context, List.of(new SearchDataSetsOperation(criteria, fetchOptions)));
+                totalCount = ((SearchDataSetsOperationResult) results.values().iterator().next()).getSearchResult().getTotalCount();
+            } else if (entityTypePE instanceof MaterialTypePE)
+            {
                 MaterialSearchCriteria criteria = new MaterialSearchCriteria();
                 criteria.withType().withCode().thatEquals(entityTypePE.getCode());
                 criteria.withProperty(entityTypePropertyType.getPropertyType().getCode());
-                found = searchMaterialExecutor.search(context, criteria);
-            } else {
+                MaterialFetchOptions fetchOptions = new MaterialFetchOptions();
+                fetchOptions.count(0);
+                Map<IOperation, IOperationResult> results =
+                        searchMaterialExecutor.execute(context, List.of(new SearchMaterialsOperation(criteria, fetchOptions)));
+                totalCount = ((SearchMaterialsOperationResult) results.values().iterator().next()).getSearchResult().getTotalCount();
+            } else
+            {
                 throw new IllegalStateException("This should never happen! entityTypePE=" + entityTypePE.getClass());
             }
-            if (forceRemovingAssignments || found.isEmpty())
+            if (forceRemovingAssignments || totalCount == 0)
             {
                 new InternalPropertyTypeAuthorization().canDeletePropertyAssignment(context.getSession(), entityTypePropertyType.getPropertyType(),
                         entityTypePropertyType);
@@ -285,7 +328,7 @@ public abstract class AbstractUpdateEntityTypePropertyTypesExecutor<UPDATE exten
                 throw new UserFailureException("Can not remove property type "
                         + entityTypePropertyType.getPropertyType().getCode() + " from type "
                         + entityTypePropertyType.getEntityType().getCode() + " because "
-                        + found.size() + " entites using this property. "
+                        + totalCount + " entites using this property. "
                         + "To force removal call getPropertyAssignments().setForceRemovingAssignments(true) "
                         + "on the entity update object.");
             }
