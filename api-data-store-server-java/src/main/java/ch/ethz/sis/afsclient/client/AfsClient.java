@@ -240,19 +240,29 @@ public final class AfsClient implements PublicAPI, ClientAPI
     public void resumeRead(@NonNull String owner, @NonNull String source, @NonNull Path destination,
             @NonNull Long offset) throws Exception
     {
-        AsynchronousFileChannel fileChannel = AsynchronousFileChannel.open(destination, StandardOpenOption.WRITE);
+        AsynchronousFileChannel fileChannel = AsynchronousFileChannel.open(destination, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+
         List<File> infos = list(owner, source, false);
-        if(infos.isEmpty()) {
+        if (infos.isEmpty())
+        {
             throw ClientExceptions.API_ERROR.getInstance("File not found '" + source + "'");
         }
         File file = null;
-        for(File info:infos) {
-            if(info.getName().equals(getName(source))) {
+        for (File info : infos)
+        {
+            if (info.getName().equals(getName(source)))
+            {
                 file = info;
                 break;
             }
         }
-        while(offset < file.getSize()) {
+        if (file == null)
+        {
+            throw ClientExceptions.API_ERROR.getInstance("File not found '" + source + "'");
+        }
+
+        while (offset < file.getSize())
+        {
             byte[] read = read(owner, source, offset, DEFAULT_PACKAGE_SIZE_IN_BYTES);
             fileChannel.write(ByteBuffer.wrap(read), offset);
             offset += read.length;

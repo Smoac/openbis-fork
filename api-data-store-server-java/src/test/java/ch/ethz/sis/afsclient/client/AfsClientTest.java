@@ -5,6 +5,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
 
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
 
@@ -128,6 +130,40 @@ public class AfsClientTest
         assertEquals("GET", httpServer.getHttpExchange().getRequestMethod());
         assertArrayEquals(data, result);
         assertArrayEquals(httpServer.getLastRequestBody(), new byte[0]);
+    }
+
+    @Test
+    public void resumeRead_methodIsGet() throws Exception
+    {
+        login();
+
+        final String fileName = "afs-test.txt";
+        final Path filePath = Path.of(fileName);
+        final String fileNameJson = String.format("{\n"
+                + "  \"id\" : \"1\",\n"
+                + "  \"result\" : [ \"java.util.ArrayList\", [ [ \"ch.ethz.sis.afsapi.dto.File\", {\n"
+                + "    \"path\" : \"%s\",\n"
+                + "    \"name\" : \"%s\",\n"
+                + "    \"directory\" : false,\n"
+                + "    \"size\" : 4,\n"
+                + "    \"lastModifiedTime\" : \"2023-06-27T17:18:08.900154283+02:00\",\n"
+                + "    \"creationTime\" : \"2023-06-27T17:18:08.900154283+02:00\",\n"
+                + "    \"lastAccessTime\" : \"2023-06-27T17:18:08.900154283+02:00\"\n"
+                + "  } ] ] ],\n"
+                + "  \"error\" : null\n"
+                + "}", fileName, fileName);
+        byte[] fileData = "ABCD".getBytes();
+        Files.write(filePath, fileData);
+
+        httpServer.setNextResponses(new byte[][] {fileNameJson.getBytes(), fileData}, new String[] {"application/json", "application/octet-stream"});
+
+        afsClient.resumeRead("", fileName, filePath, 1000L);
+
+        assertEquals("GET", httpServer.getHttpExchange().getRequestMethod());
+        assertArrayEquals(fileData, Files.readAllBytes(filePath));
+        assertArrayEquals(httpServer.getLastRequestBody(), new byte[0]);
+
+        filePath.toFile().delete();
     }
 
     @Test
