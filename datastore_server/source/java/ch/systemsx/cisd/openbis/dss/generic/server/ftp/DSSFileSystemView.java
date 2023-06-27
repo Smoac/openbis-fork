@@ -15,6 +15,7 @@
  */
 package ch.systemsx.cisd.openbis.dss.generic.server.ftp;
 
+import java.lang.ref.Cleaner;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -40,7 +41,6 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.util.Key;
@@ -114,16 +114,17 @@ public class DSSFileSystemView implements FileSystemView
             IGeneralInformationService generalInfoService, IApplicationServerApi v3api,
             IFtpPathResolverRegistry pathResolverRegistry) throws FtpException
     {
-        this(sessionToken, service, generalInfoService, v3api, pathResolverRegistry,
-                new Cache(SystemTimeProvider.SYSTEM_TIME_PROVIDER));
-    }
-
-    public DSSFileSystemView(String sessionToken, final IServiceForDataStoreServer service,
-            IGeneralInformationService generalInfoService, IApplicationServerApi v3api,
-            IFtpPathResolverRegistry pathResolverRegistry, Cache cache) throws FtpException
-    {
         this.sessionToken = sessionToken;
-        this.cache = cache;
+        this.cache = new Cache();
+        Cleaner cleaner = Cleaner.create();
+        cleaner.register(cache, new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                operationLog.info("Finish cache for session " + sessionToken + ": " + cache);
+            }
+        });
         this.service =
                 (IServiceForDataStoreServer) Proxy.newProxyInstance(getClass().getClassLoader(), new Class[] { IServiceForDataStoreServer.class },
                         new ServiceInvocationHandler(service));

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 ETH Zuerich, CISD
+ * Copyright ETH 2011 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver;
 
 import java.io.ByteArrayInputStream;
@@ -181,15 +180,6 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
 
     private PhysicalDataSet ds3;
 
-    private ITimeProvider timeProvider = new ITimeProvider()
-        {
-            @Override
-            public long getTimeInMilliseconds()
-            {
-                return 0;
-            }
-        };
-
     @Override
     @BeforeMethod
     public void setUp()
@@ -208,7 +198,7 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
         root.mkdirs();
         simpleFileContentProvider = new SimpleFileContentProvider(root);
 
-        Cache cache = new Cache(timeProvider);
+        Cache cache = new Cache();
         // these are the tests for old style resolvers.
         // they are tested in here in a way that doesn't use the path in the Resolver context.
         // in productive code we always create a new context for each request and we have a
@@ -217,16 +207,16 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
         resolverContext =
                 new FtpPathResolverContext(SESSION_TOKEN, service, generalInfoService, v3api, null, cache, null);
         context.checking(new Expectations()
+        {
             {
-                {
-                    ExperimentIdentifier experimentIdentifier =
-                            new ExperimentIdentifierFactory(EXP_ID).createIdentifier();
-                    allowing(service).listExperiments(SESSION_TOKEN,
-                            Collections.singletonList(experimentIdentifier),
-                            new ExperimentFetchOptions());
-                    will(returnValue(Collections.singletonList(experiment)));
-                }
-            });
+                ExperimentIdentifier experimentIdentifier =
+                        new ExperimentIdentifierFactory(EXP_ID).createIdentifier();
+                allowing(service).listExperiments(SESSION_TOKEN,
+                        Collections.singletonList(experimentIdentifier),
+                        new ExperimentFetchOptions());
+                will(returnValue(Collections.singletonList(experiment)));
+            }
+        });
 
         ds1 =
                 new DataSetBuilder().experiment(experiment).code("ds1").type(DS_TYPE1).modificationDate(MODIFICATION_DATE)
@@ -444,53 +434,53 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
 
         final RecordingMatcher<ISessionTokenProvider> sessionTokeProviderMatcher = new RecordingMatcher<ISessionTokenProvider>();
         context.checking(new Expectations()
+        {
             {
-                {
-                    IHierarchicalContent content =
-                            context.mock(IHierarchicalContent.class, ds1.getCode());
+                IHierarchicalContent content =
+                        context.mock(IHierarchicalContent.class, ds1.getCode());
 
-                    one(hierarchicalContentProvider).asContent((AbstractExternalData) ds1);
-                    will(returnValue(content));
+                one(hierarchicalContentProvider).asContent((AbstractExternalData) ds1);
+                will(returnValue(content));
 
-                    one(hierarchicalContentProvider).cloneFor(with(sessionTokeProviderMatcher));
-                    will(returnValue(hierarchicalContentProvider));
+                one(hierarchicalContentProvider).cloneFor(with(sessionTokeProviderMatcher));
+                will(returnValue(hierarchicalContentProvider));
 
-                    IHierarchicalContentNode rootNode =
-                            context.mock(IHierarchicalContentNode.class, "root");
-                    IHierarchicalContentNode fileNode =
-                            context.mock(IHierarchicalContentNode.class, "file");
+                IHierarchicalContentNode rootNode =
+                        context.mock(IHierarchicalContentNode.class, "root");
+                IHierarchicalContentNode fileNode =
+                        context.mock(IHierarchicalContentNode.class, "file");
 
-                    one(content).getRootNode();
-                    will(returnValue(rootNode));
+                one(content).getRootNode();
+                will(returnValue(rootNode));
 
-                    one(rootNode).getChildNodes();
-                    will(returnValue(Arrays.asList(fileNode)));
+                one(rootNode).getChildNodes();
+                will(returnValue(Arrays.asList(fileNode)));
 
-                    one(fileNode).getName();
-                    will(returnValue(subPath));
+                one(fileNode).getName();
+                will(returnValue(subPath));
 
-                    one(fileNode).getRelativePath();
-                    will(returnValue(subPath));
+                one(fileNode).getRelativePath();
+                will(returnValue(subPath));
 
-                    exactly(2).of(fileNode).isDirectory();
-                    will(returnValue(false));
+                exactly(2).of(fileNode).isDirectory();
+                will(returnValue(false));
 
-                    one(fileNode).getFileLength();
-                    will(returnValue(2L));
+                one(fileNode).getFileLength();
+                will(returnValue(2L));
 
-                    one(fileNode).getInputStream();
-                    ByteArrayInputStream is = new ByteArrayInputStream(new byte[] {});
-                    will(returnValue(is));
+                one(fileNode).getInputStream();
+                ByteArrayInputStream is = new ByteArrayInputStream(new byte[] {});
+                will(returnValue(is));
 
-                    allowing(content).getNode(subPath);
-                    will(returnValue(fileNode));
+                allowing(content).getNode(subPath);
+                will(returnValue(fileNode));
 
-                    oneOf(fileNode).getLastModified();
-                    will(returnValue(0L));
+                oneOf(fileNode).getLastModified();
+                will(returnValue(0L));
 
-                    atLeast(1).of(content).close();
-                }
-            });
+                atLeast(1).of(content).close();
+            }
+        });
 
         FtpFile ftpFile = resolver.resolve(path, resolverContext);
 
@@ -532,12 +522,12 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
     private void prepareExperimentListExpectations(final List<AbstractExternalData> dataSets)
     {
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(service).listDataSetsByExperimentID(SESSION_TOKEN, new TechId(experiment));
-                    will(returnValue(dataSets));
-                }
-            });
+                one(service).listDataSetsByExperimentID(SESSION_TOKEN, new TechId(experiment));
+                will(returnValue(dataSets));
+            }
+        });
     }
 
     private void prepareGetDataSetMetaData(final AbstractExternalData... dataSets)
@@ -547,28 +537,28 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
                 Translator.translate(Arrays.asList(dataSets),
                         EnumSet.of(Connections.PARENTS, Connections.CHILDREN));
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(generalInfoService).getDataSetMetaData(
-                            SESSION_TOKEN,
-                            codes,
-                            EnumSet.of(DataSetFetchOption.BASIC, DataSetFetchOption.PARENTS,
-                                    DataSetFetchOption.CHILDREN));
-                    will(returnValue(translateDataSets));
-                }
-            });
+                one(generalInfoService).getDataSetMetaData(
+                        SESSION_TOKEN,
+                        codes,
+                        EnumSet.of(DataSetFetchOption.BASIC, DataSetFetchOption.PARENTS,
+                                DataSetFetchOption.CHILDREN));
+                will(returnValue(translateDataSets));
+            }
+        });
     }
 
     private void prepareListDataSetsByCode(final AbstractExternalData... dataSets)
     {
         final List<String> codes = extractCodes(dataSets);
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(service).listDataSetsByCode(SESSION_TOKEN, codes);
-                    will(returnValue(Arrays.asList(dataSets)));
-                }
-            });
+                one(service).listDataSetsByCode(SESSION_TOKEN, codes);
+                will(returnValue(Arrays.asList(dataSets)));
+            }
+        });
 
     }
 
