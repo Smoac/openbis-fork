@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, Scientific IT Services
+ * Copyright ETH 2014 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
@@ -23,6 +22,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -66,6 +66,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.FreezingFlags;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.test.AssertionUtil;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 
@@ -210,7 +211,8 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         experimentCreation.setProjectId(new ProjectIdentifier("/CISD/NEMO"));
         experimentCreation.setProperty("DESCRIPTION", "a description");
 
-        List<ExperimentPermId> experimentIds = v3api.createExperiments(sessionToken, Arrays.asList(experimentCreation));
+        List<ExperimentPermId> experimentIds =
+                v3api.createExperiments(sessionToken, Arrays.asList(experimentCreation));
         IExperimentId experimentId = experimentIds.get(0);
 
         SampleCreation sampleCreation = new SampleCreation();
@@ -219,7 +221,8 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         sampleCreation.setSpaceId(new SpacePermId("CISD"));
         sampleCreation.setExperimentId(experimentId);
 
-        List<SamplePermId> sampleIds = v3api.createSamples(sessionToken, Arrays.asList(sampleCreation));
+        List<SamplePermId> sampleIds =
+                v3api.createSamples(sessionToken, Arrays.asList(sampleCreation));
         ISampleId sampleId = sampleIds.get(0);
 
         final ExperimentUpdate experimentUpdate = new ExperimentUpdate();
@@ -232,12 +235,14 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         sampleFetchOptions.withSpace();
         sampleFetchOptions.withExperiment();
 
-        Map<ISampleId, Sample> sampleMap = v3api.getSamples(sessionToken, sampleIds, sampleFetchOptions);
+        Map<ISampleId, Sample> sampleMap =
+                v3api.getSamples(sessionToken, sampleIds, sampleFetchOptions);
         Sample sample = sampleMap.get(sampleId);
 
         assertEquals(sample.getSpace().getCode(), "TEST-SPACE");
         assertEquals(sample.getExperiment().getPermId(), experimentId);
-        assertEquals(sample.getExperiment().getIdentifier().getIdentifier(), "/TEST-SPACE/TEST-PROJECT/TEST_EXPERIMENT_WITH_SAMPLES");
+        assertEquals(sample.getExperiment().getIdentifier().getIdentifier(),
+                "/TEST-SPACE/TEST-PROJECT/TEST_EXPERIMENT_WITH_SAMPLES");
     }
 
     @Test
@@ -511,7 +516,8 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         attachmentCreation2.setDescription("test_description_2");
         attachmentCreation2.setContent(new String("test_content_2").getBytes());
 
-        ExperimentPermId experimentId = createExperimentWithAttachments(attachmentCreation1, attachmentCreation2);
+        ExperimentPermId experimentId =
+                createExperimentWithAttachments(attachmentCreation1, attachmentCreation2);
 
         assertAttachments(experimentId, attachmentCreation1, attachmentCreation2);
 
@@ -525,7 +531,8 @@ public class UpdateExperimentTest extends AbstractExperimentTest
 
         v3api.updateExperiments(sessionToken, Arrays.asList(update));
 
-        Map<String, Attachment> attachmentMap = assertAttachments(experimentId, attachmentCreation2);
+        Map<String, Attachment> attachmentMap =
+                assertAttachments(experimentId, attachmentCreation2);
         Attachment attachment = attachmentMap.get(attachmentCreation2.getFileName());
 
         assertEquals(attachment.getVersion(), Integer.valueOf(2));
@@ -590,7 +597,8 @@ public class UpdateExperimentTest extends AbstractExperimentTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        ExperimentPermId experimentId = createExperimentWithTags(new TagCode("TEST_TAG_1"), new TagPermId("/test/TEST_TAG_2"));
+        ExperimentPermId experimentId = createExperimentWithTags(new TagCode("TEST_TAG_1"),
+                new TagPermId("/test/TEST_TAG_2"));
 
         ExperimentUpdate update = new ExperimentUpdate();
         update.setExperimentId(experimentId);
@@ -606,7 +614,8 @@ public class UpdateExperimentTest extends AbstractExperimentTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        ExperimentPermId experimentId = createExperimentWithTags(new TagCode("TEST_TAG_1"), new TagPermId("/test/TEST_TAG_2"));
+        ExperimentPermId experimentId = createExperimentWithTags(new TagCode("TEST_TAG_1"),
+                new TagPermId("/test/TEST_TAG_2"));
 
         ExperimentUpdate update = new ExperimentUpdate();
         update.setExperimentId(experimentId);
@@ -622,7 +631,8 @@ public class UpdateExperimentTest extends AbstractExperimentTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        ExperimentPermId experimentId = createExperimentWithTags(new TagCode("TEST_TAG_1"), new TagPermId("/test/TEST_TAG_2"));
+        ExperimentPermId experimentId = createExperimentWithTags(new TagCode("TEST_TAG_1"),
+                new TagPermId("/test/TEST_TAG_2"));
 
         ExperimentUpdate update = new ExperimentUpdate();
         update.setExperimentId(experimentId);
@@ -787,19 +797,23 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         v3api.updateExperiments(sessionToken, Arrays.asList(update1, update2));
 
         // Then
-        Map<IExperimentId, Experiment> experiments = v3api.getExperiments(sessionToken, Arrays.asList(expId1, expId2), new ExperimentFetchOptions());
+        Map<IExperimentId, Experiment> experiments =
+                v3api.getExperiments(sessionToken, Arrays.asList(expId1, expId2),
+                        new ExperimentFetchOptions());
         Experiment experiment1 = experiments.get(expId1);
         assertEquals(experiment1.getIdentifier().getIdentifier(), expId1.getIdentifier());
         assertEquals(experiment1.isFrozen(), true);
         assertEquals(experiment1.isFrozenForDataSets(), false);
         assertEquals(experiment1.isFrozenForSamples(), false);
-        assertFreezingEvent(TEST_USER, experiment1.getIdentifier().getIdentifier(), EntityType.EXPERIMENT, new FreezingFlags().freeze());
+        assertFreezingEvent(TEST_USER, experiment1.getIdentifier().getIdentifier(),
+                EntityType.EXPERIMENT, new FreezingFlags().freeze());
         Experiment experiment2 = experiments.get(expId2);
         assertEquals(experiment2.getIdentifier().getIdentifier(), expId2.getIdentifier());
         assertEquals(experiment2.isFrozen(), true);
         assertEquals(experiment2.isFrozenForDataSets(), false);
         assertEquals(experiment2.isFrozenForSamples(), true);
-        assertFreezingEvent(TEST_USER, experiment2.getIdentifier().getIdentifier(), EntityType.EXPERIMENT,
+        assertFreezingEvent(TEST_USER, experiment2.getIdentifier().getIdentifier(),
+                EntityType.EXPERIMENT,
                 new FreezingFlags().freeze().freezeForSamples());
     }
 
@@ -821,19 +835,23 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         v3api.updateExperiments(sessionToken, Arrays.asList(update1, update2));
 
         // Then
-        Map<IExperimentId, Experiment> experiments = v3api.getExperiments(sessionToken, Arrays.asList(expId1, expId2), new ExperimentFetchOptions());
+        Map<IExperimentId, Experiment> experiments =
+                v3api.getExperiments(sessionToken, Arrays.asList(expId1, expId2),
+                        new ExperimentFetchOptions());
         Experiment experiment1 = experiments.get(expId1);
         assertEquals(experiment1.getIdentifier().getIdentifier(), expId1.getIdentifier());
         assertEquals(experiment1.isFrozen(), true);
         assertEquals(experiment1.isFrozenForDataSets(), false);
         assertEquals(experiment1.isFrozenForSamples(), false);
-        assertFreezingEvent(TEST_USER, experiment1.getIdentifier().getIdentifier(), EntityType.EXPERIMENT, new FreezingFlags().freeze());
+        assertFreezingEvent(TEST_USER, experiment1.getIdentifier().getIdentifier(),
+                EntityType.EXPERIMENT, new FreezingFlags().freeze());
         Experiment experiment2 = experiments.get(expId2);
         assertEquals(experiment2.getIdentifier().getIdentifier(), expId2.getIdentifier());
         assertEquals(experiment2.isFrozen(), true);
         assertEquals(experiment2.isFrozenForDataSets(), true);
         assertEquals(experiment2.isFrozenForSamples(), false);
-        assertFreezingEvent(TEST_USER, experiment2.getIdentifier().getIdentifier(), EntityType.EXPERIMENT,
+        assertFreezingEvent(TEST_USER, experiment2.getIdentifier().getIdentifier(),
+                EntityType.EXPERIMENT,
                 new FreezingFlags().freeze().freezeForDataSets());
     }
 
@@ -852,7 +870,8 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         update2.setProperty("DESCRIPTION", "new description");
 
         // When
-        assertUserFailureException(Void -> v3api.updateExperiments(sessionToken, Arrays.asList(update2)),
+        assertUserFailureException(
+                Void -> v3api.updateExperiments(sessionToken, Arrays.asList(update2)),
                 // Then
                 "ERROR: Operation UPDATE PROPERTY is not allowed because experiment EXP10 is frozen.");
     }
@@ -873,7 +892,8 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         sampleCreation.setCode(PREFIX + "S1");
 
         // When
-        assertUserFailureException(Void -> v3api.createSamples(sessionToken, Arrays.asList(sampleCreation)),
+        assertUserFailureException(
+                Void -> v3api.createSamples(sessionToken, Arrays.asList(sampleCreation)),
                 // Then
                 "ERROR: Operation SET EXPERIMENT is not allowed because experiment EXP10 is frozen for sample UET-S1.");
     }
@@ -889,7 +909,8 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         sampleCreation.setTypeId(new EntityTypePermId("NORMAL", EntityKind.SAMPLE));
         sampleCreation.setCode(PREFIX + "S1");
         sampleCreation.setSpaceId(new SpacePermId("CISD"));
-        SamplePermId sampleId = v3api.createSamples(sessionToken, Arrays.asList(sampleCreation)).get(0);
+        SamplePermId sampleId =
+                v3api.createSamples(sessionToken, Arrays.asList(sampleCreation)).get(0);
         ExperimentUpdate update = new ExperimentUpdate();
         update.setExperimentId(expId);
         update.freezeForSamples();
@@ -898,7 +919,8 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         deletionOptions.setReason("test");
 
         // When
-        assertUserFailureException(Void -> v3api.deleteSamples(sessionToken, Arrays.asList(sampleId), deletionOptions),
+        assertUserFailureException(
+                Void -> v3api.deleteSamples(sessionToken, Arrays.asList(sampleId), deletionOptions),
                 // Then
                 "ERROR: Operation DELETE SAMPLE is not allowed because experiment EXP10 is frozen");
     }
@@ -915,13 +937,15 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         v3api.updateExperiments(sessionToken, Arrays.asList(update));
         DataSetCreation dataSetCreation = new DataSetCreation();
         dataSetCreation.setCode(PREFIX + "D1");
-        dataSetCreation.setTypeId(new EntityTypePermId("DELETION_TEST_CONTAINER", EntityKind.DATA_SET));
+        dataSetCreation.setTypeId(
+                new EntityTypePermId("DELETION_TEST_CONTAINER", EntityKind.DATA_SET));
         dataSetCreation.setDataStoreId(new DataStorePermId("STANDARD"));
         dataSetCreation.setDataSetKind(DataSetKind.CONTAINER);
         dataSetCreation.setExperimentId(expId);
 
         // When
-        assertUserFailureException(Void -> v3api.createDataSets(sessionToken, Arrays.asList(dataSetCreation)),
+        assertUserFailureException(
+                Void -> v3api.createDataSets(sessionToken, Arrays.asList(dataSetCreation)),
                 // Then
                 "ERROR: Operation SET EXPERIMENT is not allowed because experiment EXP10 is frozen for data set UET-D1.");
     }
@@ -934,11 +958,13 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         ExperimentIdentifier expId = new ExperimentIdentifier("/CISD/NEMO/EXP10");
         DataSetCreation dataSetCreation = new DataSetCreation();
         dataSetCreation.setCode(PREFIX + "D1");
-        dataSetCreation.setTypeId(new EntityTypePermId("DELETION_TEST_CONTAINER", EntityKind.DATA_SET));
+        dataSetCreation.setTypeId(
+                new EntityTypePermId("DELETION_TEST_CONTAINER", EntityKind.DATA_SET));
         dataSetCreation.setDataStoreId(new DataStorePermId("STANDARD"));
         dataSetCreation.setDataSetKind(DataSetKind.CONTAINER);
         dataSetCreation.setExperimentId(expId);
-        DataSetPermId dataSetId = v3api.createDataSets(sessionToken, Arrays.asList(dataSetCreation)).get(0);
+        DataSetPermId dataSetId =
+                v3api.createDataSets(sessionToken, Arrays.asList(dataSetCreation)).get(0);
         ExperimentUpdate update = new ExperimentUpdate();
         update.setExperimentId(expId);
         update.freezeForDataSets();
@@ -947,7 +973,9 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         deletionOptions.setReason("test");
 
         // When
-        assertUserFailureException(Void -> v3api.deleteDataSets(sessionToken, Arrays.asList(dataSetId), deletionOptions),
+        assertUserFailureException(
+                Void -> v3api.deleteDataSets(sessionToken, Arrays.asList(dataSetId),
+                        deletionOptions),
                 // Then
                 "ERROR: Operation DELETE DATA SET is not allowed because experiment EXP10 is frozen.");
     }
@@ -968,7 +996,8 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         freezeMethod.method.invoke(update);
 
         // When
-        assertAuthorizationFailureException(Void -> v3api.updateExperiments(sessionToken, Arrays.asList(update)), null);
+        assertAuthorizationFailureException(
+                Void -> v3api.updateExperiments(sessionToken, Arrays.asList(update)), null);
     }
 
     @DataProvider(name = "freezeMethods")
@@ -1003,14 +1032,16 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         creation.setCode("EXPERIMENT_WITH_SAMPLE_PROPERTY");
         creation.setTypeId(new EntityTypePermId("DELETION_TEST"));
         creation.setProjectId(new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT"));
-        ExperimentPermId experimentPermId = v3api.createExperiments(sessionToken, Arrays.asList(creation)).get(0);
+        ExperimentPermId experimentPermId =
+                v3api.createExperiments(sessionToken, Arrays.asList(creation)).get(0);
 
         ExperimentUpdate update = new ExperimentUpdate();
         update.setExperimentId(experimentPermId);
         update.setProperty("PLATE", "200811050924898-997");
 
         // When
-        assertUserFailureException(Void -> v3api.updateExperiments(sessionToken, Arrays.asList(update)),
+        assertUserFailureException(
+                Void -> v3api.updateExperiments(sessionToken, Arrays.asList(update)),
                 // Then
                 "Property type with code 'PLATE' does not exist");
     }
@@ -1027,14 +1058,16 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         creation.setTypeId(experimentType);
         creation.setProjectId(new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT"));
         creation.setProperty(propertyType.getPermId(), "/CISD/CL1");
-        ExperimentPermId experimentPermId = v3api.createExperiments(sessionToken, Arrays.asList(creation)).get(0);
+        ExperimentPermId experimentPermId =
+                v3api.createExperiments(sessionToken, Arrays.asList(creation)).get(0);
 
         ExperimentUpdate update = new ExperimentUpdate();
         update.setExperimentId(experimentPermId);
         update.setProperty(propertyType.getPermId(), "/CISD/UNKNOWN");
 
         // When
-        assertUserFailureException(Void -> v3api.updateExperiments(sessionToken, Arrays.asList(update)),
+        assertUserFailureException(
+                Void -> v3api.updateExperiments(sessionToken, Arrays.asList(update)),
                 // Then
                 "Unknown sample: /CISD/UNKNOWN");
     }
@@ -1052,14 +1085,16 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         creation.setTypeId(experimentType);
         creation.setProjectId(new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT"));
         creation.setProperty(propertyType.getPermId(), "200811050917877-438");
-        ExperimentPermId experimentPermId = v3api.createExperiments(sessionToken, Arrays.asList(creation)).get(0);
+        ExperimentPermId experimentPermId =
+                v3api.createExperiments(sessionToken, Arrays.asList(creation)).get(0);
 
         ExperimentUpdate update = new ExperimentUpdate();
         update.setExperimentId(experimentPermId);
         update.setProperty(propertyType.getPermId(), "200811050919915-8");
 
         // When
-        assertUserFailureException(Void -> v3api.updateExperiments(sessionToken, Arrays.asList(update)),
+        assertUserFailureException(
+                Void -> v3api.updateExperiments(sessionToken, Arrays.asList(update)),
                 // Then
                 "Property " + propertyType.getPermId() + " is not a sample of type WELL but of type CONTROL_LAYOUT");
     }
@@ -1070,13 +1105,15 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         // Given
         String adminSessionToken = v3api.login(TEST_USER, PASSWORD);
         PropertyTypePermId propertyType = createASamplePropertyType(adminSessionToken, null);
-        EntityTypePermId experimentType = createAnExperimentType(adminSessionToken, false, propertyType);
+        EntityTypePermId experimentType =
+                createAnExperimentType(adminSessionToken, false, propertyType);
         ExperimentCreation creation = new ExperimentCreation();
         creation.setCode("EXPERIMENT_WITH_SAMPLE_PROPERTY");
         creation.setTypeId(experimentType);
         creation.setProjectId(new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT"));
         creation.setProperty(propertyType.getPermId(), "/MP");
-        ExperimentPermId experimentPermId = v3api.createExperiments(adminSessionToken, Arrays.asList(creation)).get(0);
+        ExperimentPermId experimentPermId =
+                v3api.createExperiments(adminSessionToken, Arrays.asList(creation)).get(0);
 
         String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
         ExperimentUpdate update = new ExperimentUpdate();
@@ -1084,7 +1121,8 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         update.setProperty(propertyType.getPermId(), "/CISD/CL1");
 
         // When
-        assertUserFailureException(Void -> v3api.updateExperiments(sessionToken, Arrays.asList(update)),
+        assertUserFailureException(
+                Void -> v3api.updateExperiments(sessionToken, Arrays.asList(update)),
                 // Then
                 "Unknown sample: /CISD/CL1");
     }
@@ -1100,7 +1138,8 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         creation.setCode("EXPERIMENT_WITH_SAMPLE_PROPERTY");
         creation.setTypeId(experimentType);
         creation.setProjectId(new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT"));
-        ExperimentPermId experimentPermId = v3api.createExperiments(sessionToken, Arrays.asList(creation)).get(0);
+        ExperimentPermId experimentPermId =
+                v3api.createExperiments(sessionToken, Arrays.asList(creation)).get(0);
 
         ExperimentUpdate update = new ExperimentUpdate();
         update.setExperimentId(experimentPermId);
@@ -1113,9 +1152,13 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
         fetchOptions.withProperties();
         fetchOptions.withSampleProperties();
-        Experiment experiment = v3api.getExperiments(sessionToken, Arrays.asList(experimentPermId), fetchOptions).get(experimentPermId);
-        assertEquals(experiment.getProperties().toString(), "{" + propertyType.getPermId() + "=200811050924898-997}");
-        assertEquals(experiment.getSampleProperties().toString(), "{" + propertyType.getPermId() + "=Sample 200811050924898-997}");
+        Experiment experiment =
+                v3api.getExperiments(sessionToken, Arrays.asList(experimentPermId), fetchOptions)
+                        .get(experimentPermId);
+        assertEquals(experiment.getProperties().toString(),
+                "{" + propertyType.getPermId() + "=200811050924898-997}");
+        assertEquals(experiment.getSampleProperties().toString(),
+                "{" + propertyType.getPermId() + "=Sample 200811050924898-997}");
     }
 
     @Test
@@ -1130,7 +1173,8 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         creation.setTypeId(experimentType);
         creation.setProjectId(new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT"));
         creation.setProperty(propertyType.getPermId(), "200811050919915-8");
-        ExperimentPermId experimentPermId = v3api.createExperiments(sessionToken, Arrays.asList(creation)).get(0);
+        ExperimentPermId experimentPermId =
+                v3api.createExperiments(sessionToken, Arrays.asList(creation)).get(0);
 
         ExperimentUpdate update = new ExperimentUpdate();
         update.setExperimentId(experimentPermId);
@@ -1144,17 +1188,24 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         fetchOptions.withProperties();
         fetchOptions.withSampleProperties();
         fetchOptions.withHistory().withAuthor();
-        Experiment experiment = v3api.getExperiments(sessionToken, Arrays.asList(experimentPermId), fetchOptions).get(experimentPermId);
-        assertEquals(experiment.getProperties().toString(), "{" + propertyType.getPermId() + "=200811050924898-997}");
-        assertEquals(experiment.getSampleProperties().toString(), "{" + propertyType.getPermId() + "=Sample 200811050924898-997}");
+        Experiment experiment =
+                v3api.getExperiments(sessionToken, Arrays.asList(experimentPermId), fetchOptions)
+                        .get(experimentPermId);
+        assertEquals(experiment.getProperties().toString(),
+                "{" + propertyType.getPermId() + "=200811050924898-997}");
+        assertEquals(experiment.getSampleProperties().toString(),
+                "{" + propertyType.getPermId() + "=Sample 200811050924898-997}");
 
         List<HistoryEntry> history = experiment.getHistory();
         assertEquals(history.size(), 3);
 
-        assertPropertyHistory(history.get(0), propertyType.getPermId(), "200811050919915-8", experiment.getRegistrationDate(),
+        assertPropertyHistory(history.get(0), propertyType.getPermId(), "200811050919915-8",
+                experiment.getRegistrationDate(),
                 experiment.getModificationDate());
-        assertPropertyHistory(history.get(1), propertyType.getPermId(), "200811050924898-997", experiment.getRegistrationDate(), null);
-        assertRelationshipHistory(history.get(2), new ProjectPermId("20120814110011738-105"), ExperimentRelationType.PROJECT,
+        assertPropertyHistory(history.get(1), propertyType.getPermId(), "200811050924898-997",
+                experiment.getRegistrationDate(), null);
+        assertRelationshipHistory(history.get(2), new ProjectPermId("20120814110011738-105"),
+                ExperimentRelationType.PROJECT,
                 experiment.getRegistrationDate(), null);
     }
 
@@ -1170,7 +1221,8 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         creation.setTypeId(experimentType);
         creation.setProjectId(new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT"));
         creation.setProperty(propertyType.getPermId(), "200811050919915-8");
-        ExperimentPermId experimentPermId = v3api.createExperiments(sessionToken, Arrays.asList(creation)).get(0);
+        ExperimentPermId experimentPermId =
+                v3api.createExperiments(sessionToken, Arrays.asList(creation)).get(0);
 
         ExperimentUpdate update = new ExperimentUpdate();
         update.setExperimentId(experimentPermId);
@@ -1184,16 +1236,20 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         fetchOptions.withProperties();
         fetchOptions.withSampleProperties();
         fetchOptions.withHistory().withAuthor();
-        Experiment experiment = v3api.getExperiments(sessionToken, Arrays.asList(experimentPermId), fetchOptions).get(experimentPermId);
+        Experiment experiment =
+                v3api.getExperiments(sessionToken, Arrays.asList(experimentPermId), fetchOptions)
+                        .get(experimentPermId);
         assertEquals(experiment.getProperties().toString(), "{}");
         assertEquals(experiment.getSampleProperties().toString(), "{}");
 
         List<HistoryEntry> history = experiment.getHistory();
         assertEquals(history.size(), 2);
 
-        assertPropertyHistory(history.get(0), propertyType.getPermId(), "200811050919915-8", experiment.getRegistrationDate(),
+        assertPropertyHistory(history.get(0), propertyType.getPermId(), "200811050919915-8",
+                experiment.getRegistrationDate(),
                 experiment.getModificationDate());
-        assertRelationshipHistory(history.get(1), new ProjectPermId("20120814110011738-105"), ExperimentRelationType.PROJECT,
+        assertRelationshipHistory(history.get(1), new ProjectPermId("20120814110011738-105"),
+                ExperimentRelationType.PROJECT,
                 experiment.getRegistrationDate(), null);
     }
 
@@ -1209,16 +1265,48 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         creation.setTypeId(experimentType);
         creation.setProjectId(new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT"));
         creation.setProperty(propertyType.getPermId(), "200811050919915-8");
-        ExperimentPermId experimentPermId = v3api.createExperiments(sessionToken, Arrays.asList(creation)).get(0);
+        ExperimentPermId experimentPermId =
+                v3api.createExperiments(sessionToken, Arrays.asList(creation)).get(0);
 
         ExperimentUpdate update = new ExperimentUpdate();
         update.setExperimentId(experimentPermId);
         update.setProperty(propertyType.getPermId(), null);
 
         // When
-        assertUserFailureException(Void -> v3api.updateExperiments(sessionToken, Arrays.asList(update)),
+        assertUserFailureException(
+                Void -> v3api.updateExperiments(sessionToken, Arrays.asList(update)),
                 "Property " + propertyType + " of entity type " + experimentType.getPermId()
                         + " can not be deleted because it is mandatory.");
+    }
+
+    @Test(dataProvider = USER_ROLES_PROVIDER)
+    public void testUpdateWithDifferentRoles(RoleWithHierarchy role)
+    {
+        testWithUserRole(role, params ->
+        {
+            final ExperimentCreation experimentCreation = new ExperimentCreation();
+            experimentCreation.setTypeId(new EntityTypePermId("SIRNA_HCS"));
+            experimentCreation.setCode("TEST_EXPERIMENT_" + UUID.randomUUID());
+            experimentCreation.setProjectId(params.space1Project1Id);
+            experimentCreation.setProperty("DESCRIPTION", "test description");
+
+            final ExperimentPermId experimentId =
+                    v3api.createExperiments(params.adminSessionToken, Collections.singletonList(experimentCreation)).get(0);
+
+            final ExperimentUpdate experimentUpdate = new ExperimentUpdate();
+            experimentUpdate.setExperimentId(experimentId);
+            experimentUpdate.setProjectId(params.space1Project2Id);
+
+            if (Arrays.asList(RoleWithHierarchy.RoleCode.ADMIN, RoleWithHierarchy.RoleCode.POWER_USER)
+                    .contains(role.getRoleCode()))
+            {
+                v3api.updateExperiments(params.userSessionToken, Collections.singletonList(experimentUpdate));
+            } else
+            {
+                assertAnyAuthorizationException(
+                        () -> v3api.updateExperiments(params.userSessionToken, Collections.singletonList(experimentUpdate)));
+            }
+        });
     }
 
     @Test
@@ -1287,23 +1375,27 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
         fetchOptions.withTags();
 
-        Map<IExperimentId, Experiment> experiments = v3api.getExperiments(sessionToken, Arrays.asList(experimentId), fetchOptions);
+        Map<IExperimentId, Experiment> experiments =
+                v3api.getExperiments(sessionToken, Arrays.asList(experimentId), fetchOptions);
         assertEquals(experiments.size(), 1);
 
         assertTags(experiments.get(experimentId).getTags(), expectedTagPermIds);
     }
 
-    private Map<String, Attachment> assertAttachments(IExperimentId experimentId, AttachmentCreation... expectedAttachments)
+    private Map<String, Attachment> assertAttachments(IExperimentId experimentId,
+            AttachmentCreation... expectedAttachments)
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
         fetchOptions.withAttachments().withContent();
 
-        Map<IExperimentId, Experiment> experiments = v3api.getExperiments(sessionToken, Arrays.asList(experimentId), fetchOptions);
+        Map<IExperimentId, Experiment> experiments =
+                v3api.getExperiments(sessionToken, Arrays.asList(experimentId), fetchOptions);
 
         assertEquals(experiments.size(), 1);
 
-        return assertAttachments(experiments.get(experimentId).getAttachments(), expectedAttachments);
+        return assertAttachments(experiments.get(experimentId).getAttachments(),
+                expectedAttachments);
     }
 }

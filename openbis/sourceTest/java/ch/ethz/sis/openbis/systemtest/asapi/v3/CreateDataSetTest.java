@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, Scientific IT Services
+ * Copyright ETH 2015 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
@@ -75,6 +74,7 @@ import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 
 /**
@@ -164,29 +164,29 @@ public class CreateDataSetTest extends AbstractDataSetTest
         final DataSetPermId permId = new DataSetPermId("NO_SHALL_CREATE");
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    String sessionToken = v3api.loginAs(TEST_USER, PASSWORD, TEST_OBSERVER_CISD);
+                String sessionToken = v3api.loginAs(TEST_USER, PASSWORD, TEST_OBSERVER_CISD);
 
-                    PhysicalDataCreation physicalCreation = new PhysicalDataCreation();
-                    physicalCreation.setLocation("test/location/" + permId.getPermId());
-                    physicalCreation.setFileFormatTypeId(new FileFormatTypePermId("TIFF"));
-                    physicalCreation.setLocatorTypeId(new RelativeLocationLocatorTypePermId());
-                    physicalCreation.setStorageFormatId(new ProprietaryStorageFormatPermId());
+                PhysicalDataCreation physicalCreation = new PhysicalDataCreation();
+                physicalCreation.setLocation("test/location/" + permId.getPermId());
+                physicalCreation.setFileFormatTypeId(new FileFormatTypePermId("TIFF"));
+                physicalCreation.setLocatorTypeId(new RelativeLocationLocatorTypePermId());
+                physicalCreation.setStorageFormatId(new ProprietaryStorageFormatPermId());
 
-                    DataSetCreation creation = new DataSetCreation();
-                    creation.setCode(permId.getPermId());
-                    creation.setTypeId(new EntityTypePermId("UNKNOWN"));
-                    creation.setDataStoreId(new DataStorePermId("STANDARD"));
-                    creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
-                    creation.setPhysicalData(physicalCreation);
-                    creation.setCreationId(new CreationId(permId.getPermId()));
+                DataSetCreation creation = new DataSetCreation();
+                creation.setCode(permId.getPermId());
+                creation.setTypeId(new EntityTypePermId("UNKNOWN"));
+                creation.setDataStoreId(new DataStorePermId("STANDARD"));
+                creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
+                creation.setPhysicalData(physicalCreation);
+                creation.setCreationId(new CreationId(permId.getPermId()));
 
-                    v3api.createDataSets(sessionToken, Collections.singletonList(creation));
-                }
-            }, "Access denied to object with DataSetPermId = [NO_SHALL_CREATE]");
+                v3api.createDataSets(sessionToken, Collections.singletonList(creation));
+            }
+        }, "Access denied to object with DataSetPermId = [NO_SHALL_CREATE]");
     }
 
     @Test
@@ -195,59 +195,59 @@ public class CreateDataSetTest extends AbstractDataSetTest
         final DataSetPermId permId = new DataSetPermId("NO_SHALL_CREATE");
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    String sessionToken = v3api.loginAs(TEST_USER, PASSWORD, TEST_OBSERVER_CISD);
+                String sessionToken = v3api.loginAs(TEST_USER, PASSWORD, TEST_OBSERVER_CISD);
 
-                    PhysicalDataCreation physicalCreation = new PhysicalDataCreation();
-                    physicalCreation.setLocation("test/location/" + permId.getPermId());
-                    physicalCreation.setFileFormatTypeId(new FileFormatTypePermId("TIFF"));
-                    physicalCreation.setLocatorTypeId(new RelativeLocationLocatorTypePermId());
-                    physicalCreation.setStorageFormatId(new ProprietaryStorageFormatPermId());
+                PhysicalDataCreation physicalCreation = new PhysicalDataCreation();
+                physicalCreation.setLocation("test/location/" + permId.getPermId());
+                physicalCreation.setFileFormatTypeId(new FileFormatTypePermId("TIFF"));
+                physicalCreation.setLocatorTypeId(new RelativeLocationLocatorTypePermId());
+                physicalCreation.setStorageFormatId(new ProprietaryStorageFormatPermId());
 
-                    DataSetCreation creation = new DataSetCreation();
-                    creation.setCode(permId.getPermId());
-                    creation.setTypeId(new EntityTypePermId("UNKNOWN"));
-                    creation.setSampleId(new SampleIdentifier("/CISD/C1"));
-                    creation.setDataStoreId(new DataStorePermId("STANDARD"));
-                    creation.setPhysicalData(physicalCreation);
-                    creation.setCreationId(new CreationId(permId.getPermId()));
+                DataSetCreation creation = new DataSetCreation();
+                creation.setCode(permId.getPermId());
+                creation.setTypeId(new EntityTypePermId("UNKNOWN"));
+                creation.setSampleId(new SampleIdentifier("/CISD/C1"));
+                creation.setDataStoreId(new DataStorePermId("STANDARD"));
+                creation.setPhysicalData(physicalCreation);
+                creation.setCreationId(new CreationId(permId.getPermId()));
 
-                    v3api.createDataSets(sessionToken, Collections.singletonList(creation));
-                }
-            }, "Access denied to object with DataSetPermId = [NO_SHALL_CREATE]");
+                v3api.createDataSets(sessionToken, Collections.singletonList(creation));
+            }
+        }, "Access denied to object with DataSetPermId = [NO_SHALL_CREATE]");
     }
 
     @Test
     public void testArchiveWithAdminUserInAnotherSpace()
     {
         assertAuthorizationFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    List<DataSetPermId> permIds = testCreateWithIndexCheck();
-                    String sessionToken = v3api.login(TEST_OBSERVER_CISD, PASSWORD);
-                    v3api.archiveDataSets(sessionToken, permIds, new DataSetArchiveOptions());
-                }
-            });
+                List<DataSetPermId> permIds = testCreateWithIndexCheck();
+                String sessionToken = v3api.login(TEST_OBSERVER_CISD, PASSWORD);
+                v3api.archiveDataSets(sessionToken, permIds, new DataSetArchiveOptions());
+            }
+        });
     }
 
     @Test
     public void testUnArchiveWithAdminUserInAnotherSpace()
     {
         assertAuthorizationFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    List<DataSetPermId> permIds = testCreateWithIndexCheck();
-                    String sessionToken = v3api.login(TEST_OBSERVER_CISD, PASSWORD);
-                    v3api.unarchiveDataSets(sessionToken, permIds, new DataSetUnarchiveOptions());
-                }
-            });
+                List<DataSetPermId> permIds = testCreateWithIndexCheck();
+                String sessionToken = v3api.login(TEST_OBSERVER_CISD, PASSWORD);
+                v3api.unarchiveDataSets(sessionToken, permIds, new DataSetUnarchiveOptions());
+            }
+        });
     }
 
     @Test
@@ -271,13 +271,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         dataSet.setCode(null);
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createDataSets(sessionToken, Arrays.asList(dataSet));
-                }
-            }, "Code cannot be empty for a non auto generated code");
+                v3api.createDataSets(sessionToken, Arrays.asList(dataSet));
+            }
+        }, "Code cannot be empty for a non auto generated code");
     }
 
     @Test
@@ -289,13 +289,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         dataSet.setAutoGeneratedCode(true);
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createDataSets(sessionToken, Arrays.asList(dataSet));
-                }
-            }, "Code should be empty when auto generated code is selected");
+                v3api.createDataSets(sessionToken, Arrays.asList(dataSet));
+            }
+        }, "Code should be empty when auto generated code is selected");
     }
 
     @Test
@@ -323,13 +323,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         v3api.createDataSets(sessionToken, Arrays.asList(dataSet));
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createDataSets(sessionToken, Arrays.asList(dataSet));
-                }
-            }, "DataSet already exists in the database and needs to be unique");
+                v3api.createDataSets(sessionToken, Arrays.asList(dataSet));
+            }
+        }, "DataSet already exists in the database and needs to be unique");
     }
 
     @Test
@@ -340,13 +340,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         dataSet.setCode("?!*");
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createDataSets(sessionToken, Arrays.asList(dataSet));
-                }
-            }, "Given code '?!*' contains illegal characters (allowed: A-Z, a-z, 0-9 and _, -, .)");
+                v3api.createDataSets(sessionToken, Arrays.asList(dataSet));
+            }
+        }, "Given code '?!*' contains illegal characters (allowed: A-Z, a-z, 0-9 and _, -, .)");
     }
 
     @Test
@@ -358,13 +358,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         dataSet.setTypeId(null);
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createDataSets(sessionToken, Arrays.asList(dataSet));
-                }
-            }, "Type id cannot be null");
+                v3api.createDataSets(sessionToken, Arrays.asList(dataSet));
+            }
+        }, "Type id cannot be null");
     }
 
     @Test
@@ -377,13 +377,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         dataSet.setTypeId(typeId);
 
         assertObjectNotFoundException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createDataSets(sessionToken, Arrays.asList(dataSet));
-                }
-            }, typeId);
+                v3api.createDataSets(sessionToken, Arrays.asList(dataSet));
+            }
+        }, typeId);
     }
 
     @Test
@@ -395,13 +395,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.setProperty("NONEXISTENT_PROPERTY_CODE", "any value");
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createDataSets(sessionToken, Arrays.asList(creation));
-                }
-            }, "Property type with code 'NONEXISTENT_PROPERTY_CODE' does not exist");
+                v3api.createDataSets(sessionToken, Arrays.asList(creation));
+            }
+        }, "Property type with code 'NONEXISTENT_PROPERTY_CODE' does not exist");
     }
 
     @Test
@@ -414,13 +414,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.setProperty("GENDER", "NON_EXISTENT_GENDER");
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createDataSets(sessionToken, Arrays.asList(creation));
-                }
-            }, "Vocabulary value 'NON_EXISTENT_GENDER' is not valid. It must exist in 'GENDER' controlled vocabulary");
+                v3api.createDataSets(sessionToken, Arrays.asList(creation));
+            }
+        }, "Vocabulary value 'NON_EXISTENT_GENDER' is not valid. It must exist in 'GENDER' controlled vocabulary");
     }
 
     @Test
@@ -432,13 +432,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.setTypeId(new EntityTypePermId("HCS_IMAGE"));
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createDataSets(sessionToken, Arrays.asList(creation));
-                }
-            }, "Value of mandatory property 'COMMENT' not specified");
+                v3api.createDataSets(sessionToken, Arrays.asList(creation));
+            }
+        }, "Value of mandatory property 'COMMENT' not specified");
     }
 
     @Test
@@ -450,13 +450,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.setDataStoreId(null);
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createDataSets(sessionToken, Arrays.asList(creation));
-                }
-            }, "Data store id cannot be null.");
+                v3api.createDataSets(sessionToken, Arrays.asList(creation));
+            }
+        }, "Data store id cannot be null.");
     }
 
     @Test
@@ -469,13 +469,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.setDataStoreId(dataStoreId);
 
         assertObjectNotFoundException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createDataSets(sessionToken, Arrays.asList(creation));
-                }
-            }, dataStoreId);
+                v3api.createDataSets(sessionToken, Arrays.asList(creation));
+            }
+        }, dataStoreId);
     }
 
     @Test
@@ -587,13 +587,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.setSampleId(null);
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createDataSets(sessionToken, Arrays.asList(creation));
-                }
-            }, "Experiment id and sample id cannot be both null.");
+                v3api.createDataSets(sessionToken, Arrays.asList(creation));
+            }
+        }, "Experiment id and sample id cannot be both null.");
     }
 
     @Test
@@ -665,13 +665,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.setSampleId(new SampleIdentifier("/CISD/3V-125"));
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createDataSets(sessionToken, Arrays.asList(creation));
-                }
-            }, "Data set can not be registered because it is not connected to an experiment.");
+                v3api.createDataSets(sessionToken, Arrays.asList(creation));
+            }
+        }, "Data set can not be registered because it is not connected to an experiment.");
     }
 
     @Test
@@ -685,14 +685,14 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.setSampleId(new SampleIdentifier("/CISD/3V-125"));
 
         assertUserFailureException(new IDelegatedAction()
-            {
+        {
 
-                @Override
-                public void execute()
-                {
-                    v3api.createDataSets(sessionToken, Arrays.asList(creation));
-                }
-            }, "Data set can not be registered because it connected to a different experiment than its sample.");
+            @Override
+            public void execute()
+            {
+                v3api.createDataSets(sessionToken, Arrays.asList(creation));
+            }
+        }, "Data set can not be registered because it connected to a different experiment than its sample.");
     }
 
     @Test
@@ -726,14 +726,14 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.setSampleId(new SampleIdentifier("/CISD/NEMO/CP-TEST-1"));
 
         assertUserFailureException(new IDelegatedAction()
-            {
+        {
 
-                @Override
-                public void execute()
-                {
-                    v3api.createDataSets(sessionToken, Arrays.asList(creation));
-                }
-            }, "Data set can not be registered because it connected to a different experiment than its sample.");
+            @Override
+            public void execute()
+            {
+                v3api.createDataSets(sessionToken, Arrays.asList(creation));
+            }
+        }, "Data set can not be registered because it connected to a different experiment than its sample.");
     }
 
     @Test
@@ -751,13 +751,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.setSampleId(null);
 
         assertObjectNotFoundException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createDataSets(sessionToken, Arrays.asList(creation));
-                }
-            }, experimentIds.get(0));
+                v3api.createDataSets(sessionToken, Arrays.asList(creation));
+            }
+        }, experimentIds.get(0));
     }
 
     @Test
@@ -771,13 +771,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.setSampleId(null);
 
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createDataSets(sessionToken, Arrays.asList(creation));
-                }
-            }, experimentId);
+                v3api.createDataSets(sessionToken, Arrays.asList(creation));
+            }
+        }, experimentId);
     }
 
     @Test
@@ -795,13 +795,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.setSampleId(sampleIds.get(0));
 
         assertObjectNotFoundException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createDataSets(sessionToken, Arrays.asList(creation));
-                }
-            }, sampleIds.get(0));
+                v3api.createDataSets(sessionToken, Arrays.asList(creation));
+            }
+        }, sampleIds.get(0));
     }
 
     @Test
@@ -815,13 +815,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.setSampleId(sampleId);
 
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createDataSets(sessionToken, Arrays.asList(creation));
-                }
-            }, sampleId);
+                v3api.createDataSets(sessionToken, Arrays.asList(creation));
+            }
+        }, sampleId);
     }
 
     @Test
@@ -834,13 +834,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.setSampleId(new SamplePermId("200811050947161-652"));
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createDataSets(sessionToken, Arrays.asList(creation));
-                }
-            }, "Data set can not be registered because sample '/MP' is a shared sample.");
+                v3api.createDataSets(sessionToken, Arrays.asList(creation));
+            }
+        }, "Data set can not be registered because sample '/MP' is a shared sample.");
     }
 
     @Test
@@ -852,15 +852,15 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.setContainerIds(Collections.singletonList(new DataSetPermId("20081105092159111-1")));
 
         assertUserFailureException(new IDelegatedAction()
-            {
+        {
 
-                @Override
-                public void execute()
-                {
-                    v3api.createDataSets(sessionToken, Arrays.asList(creation));
-                }
-            }, "Data set 20081105092159111-1 is not of a container type therefore cannot be set as a container of data set "
-                    + creation.getCode().toUpperCase() + ".");
+            @Override
+            public void execute()
+            {
+                v3api.createDataSets(sessionToken, Arrays.asList(creation));
+            }
+        }, "Data set 20081105092159111-1 is not of a container type therefore cannot be set as a container of data set "
+                + creation.getCode().toUpperCase() + ".");
     }
 
     @Test
@@ -894,13 +894,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation1.setContainerIds(Collections.singletonList(creation3.getCreationId()));
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createDataSets(sessionToken, Arrays.asList(creation1, creation2, creation3));
-                }
-            }, "Circular dependency found");
+                v3api.createDataSets(sessionToken, Arrays.asList(creation1, creation2, creation3));
+            }
+        }, "Circular dependency found");
     }
 
     @Test
@@ -914,13 +914,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.setContainerIds(Collections.singletonList(containerId));
 
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
-                }
-            }, containerId);
+                createDataSet(sessionToken, creation, new DataSetFetchOptions());
+            }
+        }, containerId);
     }
 
     @Test
@@ -949,13 +949,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.setComponentIds(Collections.singletonList(new DataSetPermId("20081105092159111-1")));
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
-                }
-            }, "Data set " + creation.getCode().toUpperCase() + " is not of a container type therefore cannot have component data sets.");
+                createDataSet(sessionToken, creation, new DataSetFetchOptions());
+            }
+        }, "Data set " + creation.getCode().toUpperCase() + " is not of a container type therefore cannot have component data sets.");
     }
 
     @Test
@@ -972,13 +972,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation1.setComponentIds(Collections.singletonList(creation3.getCreationId()));
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createDataSets(sessionToken, Arrays.asList(creation1, creation2, creation3));
-                }
-            }, "Circular dependency found");
+                v3api.createDataSets(sessionToken, Arrays.asList(creation1, creation2, creation3));
+            }
+        }, "Circular dependency found");
     }
 
     @Test
@@ -992,13 +992,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.setComponentIds(Collections.singletonList(componentId));
 
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
-                }
-            }, componentId);
+                createDataSet(sessionToken, creation, new DataSetFetchOptions());
+            }
+        }, componentId);
     }
 
     @Test
@@ -1032,13 +1032,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation1.setParentIds(Collections.singletonList(creation3.getCreationId()));
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createDataSets(sessionToken, Arrays.asList(creation1, creation2, creation3));
-                }
-            }, "Circular dependency found");
+                v3api.createDataSets(sessionToken, Arrays.asList(creation1, creation2, creation3));
+            }
+        }, "Circular dependency found");
     }
 
     @Test
@@ -1052,13 +1052,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.setParentIds(Collections.singletonList(parentId));
 
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
-                }
-            }, parentId);
+                createDataSet(sessionToken, creation, new DataSetFetchOptions());
+            }
+        }, parentId);
     }
 
     @Test
@@ -1092,13 +1092,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation1.setChildIds(Collections.singletonList(creation3.getCreationId()));
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createDataSets(sessionToken, Arrays.asList(creation1, creation2, creation3));
-                }
-            }, "Circular dependency found");
+                v3api.createDataSets(sessionToken, Arrays.asList(creation1, creation2, creation3));
+            }
+        }, "Circular dependency found");
     }
 
     @Test
@@ -1112,13 +1112,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.setChildIds(Collections.singletonList(childId));
 
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
-                }
-            }, childId);
+                createDataSet(sessionToken, creation, new DataSetFetchOptions());
+            }
+        }, childId);
     }
 
     @Test
@@ -1127,13 +1127,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         final String sessionToken = v3api.login(TEST_POWER_USER_CISD, PASSWORD);
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    createDataSet(sessionToken, physicalDataSetCreation(), new DataSetFetchOptions());
-                }
-            }, "Data set creation can be only executed by a system user or a user with at least SPACE_ETL_SERVER role");
+                createDataSet(sessionToken, physicalDataSetCreation(), new DataSetFetchOptions());
+            }
+        }, "Data set creation can be only executed by a system user or a user with at least SPACE_ETL_SERVER role");
     }
 
     @Test
@@ -1225,13 +1225,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.setLinkedData(new LinkedDataCreation());
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
-                }
-            }, "Linked data cannot be set for a non-link data set.", patternContains("setting relation dataset-linkeddata (1/1)"));
+                createDataSet(sessionToken, creation, new DataSetFetchOptions());
+            }
+        }, "Linked data cannot be set for a non-link data set.", patternContains("setting relation dataset-linkeddata (1/1)"));
     }
 
     @Test
@@ -1243,13 +1243,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.setPhysicalData(null);
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
-                }
-            }, "Physical data cannot be null for a physical data set.", patternContains("setting relation dataset-physicaldata (1/1)"));
+                createDataSet(sessionToken, creation, new DataSetFetchOptions());
+            }
+        }, "Physical data cannot be null for a physical data set.", patternContains("setting relation dataset-physicaldata (1/1)"));
     }
 
     @Test
@@ -1293,13 +1293,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.getPhysicalData().setLocation(null);
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
-                }
-            }, "Location can not be null.");
+                createDataSet(sessionToken, creation, new DataSetFetchOptions());
+            }
+        }, "Location can not be null.");
     }
 
     @Test
@@ -1311,13 +1311,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.getPhysicalData().setLocation("/cannot_be_absolute_path/sorry");
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
-                }
-            }, "Location is not relative");
+                createDataSet(sessionToken, creation, new DataSetFetchOptions());
+            }
+        }, "Location is not relative");
     }
 
     @Test
@@ -1356,13 +1356,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         assertEquals(dataSet1.getPhysicalData().getLocation(), creation1.getPhysicalData().getLocation());
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    createDataSet(sessionToken, creation2, fo);
-                }
-            }, "DataSet already exists in the database and needs to be unique.");
+                createDataSet(sessionToken, creation2, fo);
+            }
+        }, "DataSet already exists in the database and needs to be unique.");
     }
 
     @Test
@@ -1406,13 +1406,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.getPhysicalData().setSize(-12345L);
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
-                }
-            }, "Physical data set size cannot be < 0.");
+                createDataSet(sessionToken, creation, new DataSetFetchOptions());
+            }
+        }, "Physical data set size cannot be < 0.");
     }
 
     @Test
@@ -1424,13 +1424,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.getPhysicalData().setStorageFormatId(null);
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
-                }
-            }, "Storage format id cannot be null for a physical data set.");
+                createDataSet(sessionToken, creation, new DataSetFetchOptions());
+            }
+        }, "Storage format id cannot be null for a physical data set.");
     }
 
     @Test
@@ -1459,13 +1459,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.getPhysicalData().setStorageFormatId(storageFormatId);
 
         assertObjectNotFoundException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
-                }
-            }, storageFormatId);
+                createDataSet(sessionToken, creation, new DataSetFetchOptions());
+            }
+        }, storageFormatId);
     }
 
     @Test
@@ -1477,13 +1477,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.getPhysicalData().setFileFormatTypeId(null);
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
-                }
-            }, "File format type id cannot be null for a physical data set.");
+                createDataSet(sessionToken, creation, new DataSetFetchOptions());
+            }
+        }, "File format type id cannot be null for a physical data set.");
     }
 
     @Test
@@ -1512,13 +1512,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.getPhysicalData().setFileFormatTypeId(formatId);
 
         assertObjectNotFoundException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
-                }
-            }, formatId);
+                createDataSet(sessionToken, creation, new DataSetFetchOptions());
+            }
+        }, formatId);
     }
 
     @Test
@@ -1564,13 +1564,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.getPhysicalData().setLocatorTypeId(locatorTypeId);
 
         assertObjectNotFoundException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
-                }
-            }, locatorTypeId);
+                createDataSet(sessionToken, creation, new DataSetFetchOptions());
+            }
+        }, locatorTypeId);
     }
 
     @Test
@@ -1680,13 +1680,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.setPhysicalData(new PhysicalDataCreation());
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
-                }
-            }, "Physical data cannot be set for a non-physical data set.");
+                createDataSet(sessionToken, creation, new DataSetFetchOptions());
+            }
+        }, "Physical data cannot be set for a non-physical data set.");
     }
 
     @Test
@@ -1698,13 +1698,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.setLinkedData(new LinkedDataCreation());
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
-                }
-            }, "Linked data cannot be set for a non-link data set.");
+                createDataSet(sessionToken, creation, new DataSetFetchOptions());
+            }
+        }, "Linked data cannot be set for a non-link data set.");
     }
 
     @Test
@@ -1750,13 +1750,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.setPhysicalData(new PhysicalDataCreation());
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
-                }
-            }, "Physical data cannot be set for a non-physical data set.");
+                createDataSet(sessionToken, creation, new DataSetFetchOptions());
+            }
+        }, "Physical data cannot be set for a non-physical data set.");
     }
 
     @Test
@@ -1768,13 +1768,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.setLinkedData(null);
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
-                }
-            }, "Linked data cannot be null for a link data set.");
+                createDataSet(sessionToken, creation, new DataSetFetchOptions());
+            }
+        }, "Linked data cannot be null for a link data set.");
     }
 
     @Test
@@ -1786,13 +1786,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.getLinkedData().setExternalCode(null);
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
-                }
-            }, "External code can not be null.");
+                createDataSet(sessionToken, creation, new DataSetFetchOptions());
+            }
+        }, "External code can not be null.");
     }
 
     @Test
@@ -1805,13 +1805,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.getLinkedData().setExternalDmsId(externalDmsId);
 
         assertObjectNotFoundException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
-                }
-            }, externalDmsId);
+                createDataSet(sessionToken, creation, new DataSetFetchOptions());
+            }
+        }, externalDmsId);
     }
 
     @Test
@@ -1823,13 +1823,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         creation.getLinkedData().setExternalDmsId(null);
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    createDataSet(sessionToken, creation, new DataSetFetchOptions());
-                }
-            }, "External data management system id cannot be null for a link data set.");
+                createDataSet(sessionToken, creation, new DataSetFetchOptions());
+            }
+        }, "External data management system id cannot be null for a link data set.");
     }
 
     @Test(dataProviderClass = ProjectAuthorizationUser.class, dataProvider = ProjectAuthorizationUser.PROVIDER_WITH_ETL)
@@ -1843,13 +1843,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         if (user.isDisabledProjectUser())
         {
             assertAuthorizationFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
                 {
-                    @Override
-                    public void execute()
-                    {
-                        v3api.createDataSets(sessionToken, Collections.singletonList(creation));
-                    }
-                });
+                    v3api.createDataSets(sessionToken, Collections.singletonList(creation));
+                }
+            });
         } else if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
         {
             List<DataSetPermId> permIds = v3api.createDataSets(sessionToken, Collections.singletonList(creation));
@@ -1857,13 +1857,13 @@ public class CreateDataSetTest extends AbstractDataSetTest
         } else
         {
             assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
                 {
-                    @Override
-                    public void execute()
-                    {
-                        v3api.createDataSets(sessionToken, Collections.singletonList(creation));
-                    }
-                }, creation.getExperimentId());
+                    v3api.createDataSets(sessionToken, Collections.singletonList(creation));
+                }
+            }, creation.getExperimentId());
         }
     }
 
@@ -1894,9 +1894,9 @@ public class CreateDataSetTest extends AbstractDataSetTest
 
         assertAccessLog(
                 "create-data-sets  NEW_DATA_SETS('[DataSetCreation[experimentId=/CISD/NEMO/EXP-TEST-1,"
-                + "sampleId=/CISD/NEMO/CP-TEST-1,code=LOG_TEST_1], "
-                + "DataSetCreation[experimentId=/CISD/NEMO/EXP-TEST-1,sampleId=<null>,code=LOG_TEST_2], "
-                + "DataSetCreation[experimentId=<null>,sampleId=/CISD/NEMO/CP-TEST-1,code=LOG_TEST_3]]')");
+                        + "sampleId=/CISD/NEMO/CP-TEST-1,code=LOG_TEST_1], "
+                        + "DataSetCreation[experimentId=/CISD/NEMO/EXP-TEST-1,sampleId=<null>,code=LOG_TEST_2], "
+                        + "DataSetCreation[experimentId=<null>,sampleId=/CISD/NEMO/CP-TEST-1,code=LOG_TEST_3]]')");
     }
 
     @Test
@@ -2103,6 +2103,162 @@ public class CreateDataSetTest extends AbstractDataSetTest
         assertEquals(dataSet.getProperties().size(), 2);
     }
 
+    @Test(dataProvider = USER_ROLES_PROVIDER)
+    public void testCreateWithDifferentRolesExperimentDataSet(RoleWithHierarchy role)
+    {
+        testWithUserRole(role, params ->
+        {
+            final ExperimentCreation experimentCreation = new ExperimentCreation();
+            experimentCreation.setTypeId(new EntityTypePermId("SIRNA_HCS"));
+            experimentCreation.setCode("TEST_EXPERIMENT_" + UUID.randomUUID());
+            experimentCreation.setProjectId(params.space1Project1Id);
+            experimentCreation.setProperty("DESCRIPTION", "test description");
+            final ExperimentPermId experimentId = v3api.createExperiments(params.adminSessionToken, Collections.singletonList(experimentCreation)).get(0);
+
+            final DataSetCreation dataSetCreation = physicalDataSetCreation();
+            dataSetCreation.setExperimentId(experimentId);
+            dataSetCreation.setSampleId(null);
+
+            // use instance admin to login on behalf of the user
+            final String onBehalfOfSessionToken = v3api.loginAs(TEST_USER, PASSWORD, params.userId);
+
+            if (Arrays.asList(RoleWithHierarchy.RoleCode.ADMIN, RoleWithHierarchy.RoleCode.POWER_USER, RoleWithHierarchy.RoleCode.USER)
+                    .contains(role.getRoleCode()))
+            {
+                v3api.createDataSets(onBehalfOfSessionToken, Collections.singletonList(dataSetCreation));
+            } else
+            {
+                assertAnyAuthorizationException(() -> v3api.createDataSets(onBehalfOfSessionToken, Collections.singletonList(dataSetCreation)));
+            }
+        });
+    }
+
+    @Test(dataProvider = USER_ROLES_PROVIDER)
+    public void testCreateWithDifferentRolesInstanceSampleDataSet(RoleWithHierarchy role)
+    {
+        testWithUserRole(role, params ->
+        {
+            final SampleCreation sampleCreation = new SampleCreation();
+            sampleCreation.setCode("TEST_INSTANCE_SAMPLE_" + UUID.randomUUID());
+            sampleCreation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+            final SamplePermId sampleId = v3api.createSamples(params.adminSessionToken, Collections.singletonList(sampleCreation)).get(0);
+
+            final DataSetCreation dataSetCreation = physicalDataSetCreation();
+            dataSetCreation.setExperimentId(null);
+            dataSetCreation.setSampleId(sampleId);
+
+            // use instance admin to login on behalf of the user
+            final String onBehalfOfSessionToken = v3api.loginAs(TEST_USER, PASSWORD, params.userId);
+
+            if (RoleWithHierarchy.INSTANCE_ADMIN.equals(role))
+            {
+                // shared samples cannot have data sets
+                assertUserFailureException(() -> v3api.createDataSets(onBehalfOfSessionToken, Collections.singletonList(dataSetCreation)),
+                        "shared sample");
+            } else
+            {
+                assertAnyAuthorizationException(() -> v3api.createDataSets(onBehalfOfSessionToken, Collections.singletonList(dataSetCreation)));
+            }
+        });
+    }
+
+    @Test(dataProvider = USER_ROLES_PROVIDER)
+    public void testCreateWithDifferentRolesSpaceSampleDataSet(RoleWithHierarchy role)
+    {
+        testWithUserRole(role, params ->
+        {
+            final SampleCreation sampleCreation = new SampleCreation();
+            sampleCreation.setCode("TEST_SPACE_SAMPLE_" + UUID.randomUUID());
+            sampleCreation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+            sampleCreation.setSpaceId(params.space1Id);
+            final SamplePermId sampleId = v3api.createSamples(params.adminSessionToken, Collections.singletonList(sampleCreation)).get(0);
+
+            final DataSetCreation dataSetCreation = physicalDataSetCreation();
+            dataSetCreation.setExperimentId(null);
+            dataSetCreation.setSampleId(sampleId);
+
+            // use instance admin to login on behalf of the user
+            final String onBehalfOfSessionToken = v3api.loginAs(TEST_USER, PASSWORD, params.userId);
+
+            if (Arrays.asList(RoleWithHierarchy.RoleLevel.INSTANCE, RoleWithHierarchy.RoleLevel.SPACE).contains(role.getRoleLevel()) && Arrays.asList(
+                            RoleWithHierarchy.RoleCode.ADMIN, RoleWithHierarchy.RoleCode.POWER_USER, RoleWithHierarchy.RoleCode.USER)
+                    .contains(role.getRoleCode()))
+            {
+                v3api.createDataSets(onBehalfOfSessionToken, Collections.singletonList(dataSetCreation));
+            } else
+            {
+                assertAnyAuthorizationException(() -> v3api.createDataSets(onBehalfOfSessionToken, Collections.singletonList(dataSetCreation)));
+            }
+        });
+    }
+
+    @Test(dataProvider = USER_ROLES_PROVIDER)
+    public void testCreateWithDifferentRolesProjectSampleDataSet(RoleWithHierarchy role)
+    {
+        testWithUserRole(role, params ->
+        {
+            final SampleCreation sampleCreation = new SampleCreation();
+            sampleCreation.setCode("TEST_PROJECT_SAMPLE_" + UUID.randomUUID());
+            sampleCreation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+            sampleCreation.setSpaceId(params.space1Id);
+            sampleCreation.setProjectId(params.space1Project1Id);
+            final SamplePermId sampleId = v3api.createSamples(params.adminSessionToken, Collections.singletonList(sampleCreation)).get(0);
+
+            final DataSetCreation dataSetCreation = physicalDataSetCreation();
+            dataSetCreation.setExperimentId(null);
+            dataSetCreation.setSampleId(sampleId);
+
+            // use instance admin to login on behalf of the user
+            final String onBehalfOfSessionToken = v3api.loginAs(TEST_USER, PASSWORD, params.userId);
+
+            if (Arrays.asList(RoleWithHierarchy.RoleCode.ADMIN, RoleWithHierarchy.RoleCode.POWER_USER, RoleWithHierarchy.RoleCode.USER)
+                    .contains(role.getRoleCode()))
+            {
+                v3api.createDataSets(onBehalfOfSessionToken, Collections.singletonList(dataSetCreation));
+            } else
+            {
+                assertAnyAuthorizationException(() -> v3api.createDataSets(onBehalfOfSessionToken, Collections.singletonList(dataSetCreation)));
+            }
+        });
+    }
+
+    @Test(dataProvider = USER_ROLES_PROVIDER)
+    public void testCreateWithDifferentRolesExperimentSampleDataSet(RoleWithHierarchy role)
+    {
+        testWithUserRole(role, params ->
+        {
+            final ExperimentCreation experimentCreation = new ExperimentCreation();
+            experimentCreation.setTypeId(new EntityTypePermId("SIRNA_HCS"));
+            experimentCreation.setCode("TEST_EXPERIMENT_" + UUID.randomUUID());
+            experimentCreation.setProjectId(params.space1Project1Id);
+            experimentCreation.setProperty("DESCRIPTION", "test description");
+            final ExperimentPermId experimentId = v3api.createExperiments(params.adminSessionToken, Collections.singletonList(experimentCreation)).get(0);
+
+            final SampleCreation sampleCreation = new SampleCreation();
+            sampleCreation.setCode("TEST_EXPERIMENT_SAMPLE_" + UUID.randomUUID());
+            sampleCreation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+            sampleCreation.setSpaceId(params.space1Id);
+            sampleCreation.setExperimentId(experimentId);
+            final SamplePermId sampleId = v3api.createSamples(params.adminSessionToken, Collections.singletonList(sampleCreation)).get(0);
+
+            final DataSetCreation dataSetCreation = physicalDataSetCreation();
+            dataSetCreation.setExperimentId(null);
+            dataSetCreation.setSampleId(sampleId);
+
+            // use instance admin to login on behalf of the user
+            final String onBehalfOfSessionToken = v3api.loginAs(TEST_USER, PASSWORD, params.userId);
+
+            if (Arrays.asList(RoleWithHierarchy.RoleCode.ADMIN, RoleWithHierarchy.RoleCode.POWER_USER, RoleWithHierarchy.RoleCode.USER)
+                    .contains(role.getRoleCode()))
+            {
+                v3api.createDataSets(onBehalfOfSessionToken, Collections.singletonList(dataSetCreation));
+            } else
+            {
+                assertAnyAuthorizationException(() -> v3api.createDataSets(onBehalfOfSessionToken, Collections.singletonList(dataSetCreation)));
+            }
+        });
+    }
+
     private DataSetCreation containerDataSetCreation()
     {
         String code = UUID.randomUUID().toString();
@@ -2158,7 +2314,7 @@ public class CreateDataSetTest extends AbstractDataSetTest
 
     private DataSet createDataSet(String sessionToken, DataSetCreation creation, DataSetFetchOptions fo)
     {
-        List<DataSetPermId> permIds = v3api.createDataSets(sessionToken, Arrays.asList(creation));
+        List<DataSetPermId> permIds = v3api.createDataSets(sessionToken, Collections.singletonList(creation));
         Map<IDataSetId, DataSet> dataSets = v3api.getDataSets(sessionToken, permIds, fo);
         return dataSets.values().iterator().next();
     }

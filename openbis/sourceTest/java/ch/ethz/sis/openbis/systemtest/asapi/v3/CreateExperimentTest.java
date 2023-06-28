@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, Scientific IT Services
+ * Copyright ETH 2014 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
@@ -27,6 +26,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.testng.annotations.Test;
 
@@ -52,6 +52,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.tag.id.TagPermId;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.systemtest.authorization.ProjectAuthorizationUser;
 import junit.framework.Assert;
 
@@ -88,13 +89,13 @@ public class CreateExperimentTest extends AbstractExperimentTest
         experiment.setProjectId(new ProjectIdentifier("/TESTGROUP/TESTPROJ"));
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createExperiments(sessionToken, Arrays.asList(experiment));
-                }
-            }, "Code cannot be empty");
+                v3api.createExperiments(sessionToken, Arrays.asList(experiment));
+            }
+        }, "Code cannot be empty");
     }
 
     @Test
@@ -103,20 +104,20 @@ public class CreateExperimentTest extends AbstractExperimentTest
         final String code = "WILL-FAIL";
         final ExperimentIdentifier identifier = new ExperimentIdentifier("/TEST-SPACE/NOE/" + code);
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
+                String sessionToken = v3api.login(TEST_ROLE_V3, PASSWORD);
 
-                    final ExperimentCreation experiment = new ExperimentCreation();
-                    experiment.setTypeId(new EntityTypePermId("SIRNA_HCS"));
-                    experiment.setProjectId(new ProjectIdentifier("/TEST-SPACE/NOE"));
-                    experiment.setCode(code);
+                final ExperimentCreation experiment = new ExperimentCreation();
+                experiment.setTypeId(new EntityTypePermId("SIRNA_HCS"));
+                experiment.setProjectId(new ProjectIdentifier("/TEST-SPACE/NOE"));
+                experiment.setCode(code);
 
-                    v3api.createExperiments(sessionToken, Collections.singletonList(experiment));
-                }
-            }, identifier);
+                v3api.createExperiments(sessionToken, Collections.singletonList(experiment));
+            }
+        }, identifier);
     }
 
     @Test
@@ -133,13 +134,13 @@ public class CreateExperimentTest extends AbstractExperimentTest
         v3api.createExperiments(sessionToken, Arrays.asList(experiment));
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createExperiments(sessionToken, Arrays.asList(experiment));
-                }
-            }, "Experiment already exists in the database and needs to be unique");
+                v3api.createExperiments(sessionToken, Arrays.asList(experiment));
+            }
+        }, "Experiment already exists in the database and needs to be unique");
     }
 
     @Test
@@ -153,13 +154,13 @@ public class CreateExperimentTest extends AbstractExperimentTest
         experiment.setProjectId(new ProjectIdentifier("/TESTGROUP/TESTPROJ"));
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createExperiments(sessionToken, Arrays.asList(experiment));
-                }
-            }, "The code '?!*' contains illegal characters");
+                v3api.createExperiments(sessionToken, Arrays.asList(experiment));
+            }
+        }, "The code '?!*' contains illegal characters");
     }
 
     @Test
@@ -172,13 +173,13 @@ public class CreateExperimentTest extends AbstractExperimentTest
         experiment.setTypeId(new EntityTypePermId("SIRNA_HCS"));
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createExperiments(sessionToken, Arrays.asList(experiment));
-                }
-            }, "Project id cannot be null");
+                v3api.createExperiments(sessionToken, Arrays.asList(experiment));
+            }
+        }, "Project id cannot be null");
     }
 
     @Test
@@ -193,13 +194,13 @@ public class CreateExperimentTest extends AbstractExperimentTest
         experiment.setProjectId(projectId);
 
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createExperiments(sessionToken, Arrays.asList(experiment));
-                }
-            }, projectId);
+                v3api.createExperiments(sessionToken, Arrays.asList(experiment));
+            }
+        }, projectId);
     }
 
     @Test
@@ -214,13 +215,13 @@ public class CreateExperimentTest extends AbstractExperimentTest
         experiment.setProjectId(projectId);
 
         assertObjectNotFoundException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createExperiments(sessionToken, Arrays.asList(experiment));
-                }
-            }, projectId);
+                v3api.createExperiments(sessionToken, Arrays.asList(experiment));
+            }
+        }, projectId);
     }
 
     @Test
@@ -233,13 +234,13 @@ public class CreateExperimentTest extends AbstractExperimentTest
         experiment.setProjectId(new ProjectIdentifier("/TESTGROUP/TESTPROJ"));
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createExperiments(sessionToken, Arrays.asList(experiment));
-                }
-            }, "Type id cannot be null");
+                v3api.createExperiments(sessionToken, Arrays.asList(experiment));
+            }
+        }, "Type id cannot be null");
     }
 
     @Test
@@ -255,13 +256,13 @@ public class CreateExperimentTest extends AbstractExperimentTest
         experiment.setProjectId(projectId);
 
         assertObjectNotFoundException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createExperiments(sessionToken, Arrays.asList(experiment));
-                }
-            }, typeId);
+                v3api.createExperiments(sessionToken, Arrays.asList(experiment));
+            }
+        }, typeId);
     }
 
     @Test
@@ -382,13 +383,13 @@ public class CreateExperimentTest extends AbstractExperimentTest
         creation.setTagIds(Arrays.asList(tagId));
 
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createExperiments(sessionToken, Arrays.asList(creation));
-                }
-            }, tagId);
+                v3api.createExperiments(sessionToken, Arrays.asList(creation));
+            }
+        }, tagId);
     }
 
     @Test
@@ -403,13 +404,13 @@ public class CreateExperimentTest extends AbstractExperimentTest
         creation.setProperty("NONEXISTENT_PROPERTY_CODE", "any value");
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createExperiments(sessionToken, Arrays.asList(creation));
-                }
-            }, "Property type with code 'NONEXISTENT_PROPERTY_CODE' does not exist");
+                v3api.createExperiments(sessionToken, Arrays.asList(creation));
+            }
+        }, "Property type with code 'NONEXISTENT_PROPERTY_CODE' does not exist");
     }
 
     @Test
@@ -424,13 +425,13 @@ public class CreateExperimentTest extends AbstractExperimentTest
         creation.setProperty("PURCHASE_DATE", "this should be a date");
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createExperiments(sessionToken, Arrays.asList(creation));
-                }
-            }, "Date value 'this should be a date' has improper format");
+                v3api.createExperiments(sessionToken, Arrays.asList(creation));
+            }
+        }, "Date value 'this should be a date' has improper format");
     }
 
     @Test
@@ -444,13 +445,13 @@ public class CreateExperimentTest extends AbstractExperimentTest
         creation.setProjectId(new ProjectIdentifier("/TESTGROUP/TESTPROJ"));
 
         assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.createExperiments(sessionToken, Arrays.asList(creation));
-                }
-            }, "Value of mandatory property 'DESCRIPTION' not specified");
+                v3api.createExperiments(sessionToken, Arrays.asList(creation));
+            }
+        }, "Value of mandatory property 'DESCRIPTION' not specified");
     }
 
     @Test
@@ -514,13 +515,13 @@ public class CreateExperimentTest extends AbstractExperimentTest
         if (user.isDisabledProjectUser())
         {
             assertAuthorizationFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
                 {
-                    @Override
-                    public void execute()
-                    {
-                        v3api.createExperiments(sessionToken, Collections.singletonList(creation));
-                    }
-                });
+                    v3api.createExperiments(sessionToken, Collections.singletonList(creation));
+                }
+            });
         } else if (user.isInstanceUserOrTestSpaceUserOrEnabledTestProjectUser())
         {
             List<ExperimentPermId> permIds = v3api.createExperiments(sessionToken, Collections.singletonList(creation));
@@ -528,13 +529,13 @@ public class CreateExperimentTest extends AbstractExperimentTest
         } else
         {
             assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
                 {
-                    @Override
-                    public void execute()
-                    {
-                        v3api.createExperiments(sessionToken, Collections.singletonList(creation));
-                    }
-                }, creation.getProjectId());
+                    v3api.createExperiments(sessionToken, Collections.singletonList(creation));
+                }
+            }, creation.getProjectId());
         }
     }
 
@@ -859,6 +860,29 @@ public class CreateExperimentTest extends AbstractExperimentTest
         assertEquals(experiment2.getProperties().get(PLATE_GEOMETRY.getPermId()), "384_WELLS_16X24");
         assertEquals(experiment2.getProperties().get(propertyType.getPermId()), "2020-02-17 18:13:47 +0100");
         assertEquals(experiment2.getProperties().size(), 2);
+    }
+
+    @Test(dataProvider = USER_ROLES_PROVIDER)
+    public void testCreateWithDifferentRoles(RoleWithHierarchy role)
+    {
+        testWithUserRole(role, params ->
+        {
+            final ExperimentCreation experimentCreation = new ExperimentCreation();
+            experimentCreation.setTypeId(new EntityTypePermId("SIRNA_HCS"));
+            experimentCreation.setCode("TEST_EXPERIMENT_" + UUID.randomUUID());
+            experimentCreation.setProjectId(params.space1Project1Id);
+            experimentCreation.setProperty("DESCRIPTION", "test description");
+
+            if (Arrays.asList(RoleWithHierarchy.RoleCode.ADMIN, RoleWithHierarchy.RoleCode.POWER_USER, RoleWithHierarchy.RoleCode.USER)
+                    .contains(role.getRoleCode()))
+            {
+                v3api.createExperiments(params.userSessionToken, Collections.singletonList(experimentCreation));
+            } else
+            {
+                assertAnyAuthorizationException(
+                        () -> v3api.createExperiments(params.userSessionToken, Collections.singletonList(experimentCreation)));
+            }
+        });
     }
 
 }
