@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, CISD
+ * Copyright ETH 2016 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.vocabulary;
 
 import java.util.ArrayList;
@@ -80,75 +79,75 @@ public class UpdateVocabularyTermExecutor implements IUpdateVocabularyTermExecut
             if (update.getDescription().isModified() || update.getLabel().isModified() || update.getPreviousTermId().isModified())
             {
                 termBO.update(new IVocabularyTermUpdates()
+                {
+                    @Override
+                    public Long getId()
                     {
-                        @Override
-                        public Long getId()
-                        {
-                            return termPE.getId();
-                        }
+                        return termPE.getId();
+                    }
 
-                        @Override
-                        public String getCode()
-                        {
-                            return termPE.getCode();
-                        }
+                    @Override
+                    public String getCode()
+                    {
+                        return termPE.getCode();
+                    }
 
-                        @Override
-                        public String getLabel()
-                        {
-                            return update.getLabel().isModified() ? update.getLabel().getValue() : termPE.getLabel();
-                        }
+                    @Override
+                    public String getLabel()
+                    {
+                        return update.getLabel().isModified() ? update.getLabel().getValue() : termPE.getLabel();
+                    }
 
-                        @Override
-                        public String getDescription()
-                        {
-                            return update.getDescription().isModified() ? update.getDescription().getValue() : termPE.getDescription();
-                        }
+                    @Override
+                    public String getDescription()
+                    {
+                        return update.getDescription().isModified() ? update.getDescription().getValue() : termPE.getDescription();
+                    }
 
-                        @Override
-                        public Long getOrdinal()
+                    @Override
+                    public Long getOrdinal()
+                    {
+                        if (update.getPreviousTermId().isModified())
                         {
-                            if (update.getPreviousTermId().isModified())
+                            if (update.getPreviousTermId().getValue() == null)
                             {
-                                if (update.getPreviousTermId().getValue() == null)
+                                Long minOrdinal = termPE.getOrdinal();
+
+                                for (VocabularyTermPE otherTermPE : termPE.getVocabulary().getTerms())
                                 {
-                                    Long minOrdinal = termPE.getOrdinal();
-
-                                    for (VocabularyTermPE otherTermPE : termPE.getVocabulary().getTerms())
+                                    if (minOrdinal > otherTermPE.getOrdinal())
                                     {
-                                        if (minOrdinal > otherTermPE.getOrdinal())
-                                        {
-                                            minOrdinal = otherTermPE.getOrdinal();
-                                        }
+                                        minOrdinal = otherTermPE.getOrdinal();
                                     }
-
-                                    return minOrdinal;
-                                } else
-                                {
-                                    VocabularyTermPE previousTermPE = previousTerms.get(update.getPreviousTermId().getValue());
-
-                                    if (false == previousTermPE.getVocabulary().equals(termPE.getVocabulary()))
-                                    {
-                                        throw new UserFailureException("Position of term " + update.getVocabularyTermId()
-                                                + " could not be found as the specified previous term " + update.getPreviousTermId().getValue()
-                                                + " is in a different vocabulary (" + previousTermPE.getVocabulary().getCode() + ").");
-                                    }
-
-                                    return previousTermPE.getOrdinal() + 1;
                                 }
+
+                                return minOrdinal;
                             } else
                             {
-                                return termPE.getOrdinal();
+                                VocabularyTermPE previousTermPE = previousTerms.get(update.getPreviousTermId().getValue());
+
+                                if (false == previousTermPE.getVocabulary().equals(termPE.getVocabulary()))
+                                {
+                                    throw new UserFailureException("Position of term " + update.getVocabularyTermId()
+                                            + " could not be found as the specified previous term " + update.getPreviousTermId().getValue()
+                                            + " is in a different vocabulary (" + previousTermPE.getVocabulary().getCode() + ").");
+                                }
+
+                                return previousTermPE.getOrdinal() + 1;
                             }
-                        }
-
-                        @Override
-                        public Date getModificationDate()
+                        } else
                         {
-                            return termPE.getModificationDate();
+                            return termPE.getOrdinal();
                         }
+                    }
 
-                    });
+                    @Override
+                    public Date getModificationDate()
+                    {
+                        return termPE.getModificationDate();
+                    }
+
+                });
             }
 
             if (update.isOfficial().isModified())
@@ -156,11 +155,13 @@ public class UpdateVocabularyTermExecutor implements IUpdateVocabularyTermExecut
                 if (termPE.isOfficial() && Boolean.FALSE.equals(update.isOfficial().getValue()))
                 {
                     throw new UserFailureException(
-                            "Offical vocabulary term " + update.getVocabularyTermId() + " cannot be updated to be unofficial.");
+                            "Official vocabulary term " + update.getVocabularyTermId() + " cannot be updated to be unofficial.");
+                } else if (!termPE.isOfficial() && Boolean.TRUE.equals(update.isOfficial().getValue()))
+                {
+                    VocabularyTerm term = new VocabularyTerm();
+                    term.setId(termPE.getId());
+                    termBO.makeOfficial(Arrays.asList(term));
                 }
-                VocabularyTerm term = new VocabularyTerm();
-                term.setId(termPE.getId());
-                termBO.makeOfficial(Arrays.asList(term));
             }
         }
 

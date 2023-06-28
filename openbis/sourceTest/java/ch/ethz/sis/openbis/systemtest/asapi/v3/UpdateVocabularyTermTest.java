@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ETH Zuerich, CISD
+ * Copyright ETH 2016 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
@@ -92,17 +91,18 @@ public class UpdateVocabularyTermTest extends AbstractVocabularyTest
 
         VocabularyTermUpdate update = new VocabularyTermUpdate();
         update.setVocabularyTermId(permIds.get(0));
+        update.setDescription("updated description");
         update.setOfficial(true);
 
         assertExceptionMessage(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    String sessionTokenUpdater = termUpdater.equals(SYSTEM_USER) ? v3api.loginAsSystem() : v3api.login(termUpdater, PASSWORD);
-                    v3api.updateVocabularyTerms(sessionTokenUpdater, Arrays.asList(update));
-                }
-            }, expectedError);
+                String sessionTokenUpdater = termUpdater.equals(SYSTEM_USER) ? v3api.loginAsSystem() : v3api.login(termUpdater, PASSWORD);
+                v3api.updateVocabularyTerms(sessionTokenUpdater, Arrays.asList(update));
+            }
+        }, expectedError);
     }
 
     @DataProvider
@@ -148,25 +148,25 @@ public class UpdateVocabularyTermTest extends AbstractVocabularyTest
         termUpdate.setDescription("Updated Description");
 
         assertExceptionMessage(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    v3api.updateVocabularyTerms(termUpdaterSessionToken, Arrays.asList(termUpdate));
+                v3api.updateVocabularyTerms(termUpdaterSessionToken, Arrays.asList(termUpdate));
 
-                    VocabularyTermFetchOptions fetchOptions = new VocabularyTermFetchOptions();
-                    fetchOptions.withRegistrator();
+                VocabularyTermFetchOptions fetchOptions = new VocabularyTermFetchOptions();
+                fetchOptions.withRegistrator();
 
-                    Map<IVocabularyTermId, VocabularyTerm> terms = v3api.getVocabularyTerms(termGetterSessionToken, termIds, fetchOptions);
-                    assertEquals(terms.size(), 1);
+                Map<IVocabularyTermId, VocabularyTerm> terms = v3api.getVocabularyTerms(termGetterSessionToken, termIds, fetchOptions);
+                assertEquals(terms.size(), 1);
 
-                    VocabularyTerm term = terms.get(termIds.get(0));
-                    assertEquals(term.getCode(), "TERM-TO-TAKE-OVER");
-                    assertEquals(term.getLabel(), "Updated Label");
-                    assertEquals(term.getDescription(), "Updated Description");
-                    assertEquals(term.getRegistrator().getUserId(), expectedTermRegistratorAfterUpdate);
-                }
-            }, expectedError);
+                VocabularyTerm term = terms.get(termIds.get(0));
+                assertEquals(term.getCode(), "TERM-TO-TAKE-OVER");
+                assertEquals(term.getLabel(), "Updated Label");
+                assertEquals(term.getDescription(), "Updated Description");
+                assertEquals(term.getRegistrator().getUserId(), expectedTermRegistratorAfterUpdate);
+            }
+        }, expectedError);
     }
 
     @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = ".*Vocabulary term id cannot be null.*")
@@ -184,7 +184,7 @@ public class UpdateVocabularyTermTest extends AbstractVocabularyTest
         updateTerms(TEST_USER, PASSWORD, update);
     }
 
-    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = ".*Offical vocabulary term DOG \\(ORGANISM\\) cannot be updated to be unofficial.*")
+    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = ".*Official vocabulary term DOG \\(ORGANISM\\) cannot be updated to be unofficial.*")
     public void testUpdateWithOfficialTermMadeUnofficial()
     {
         VocabularyTermUpdate update = new VocabularyTermUpdate();
