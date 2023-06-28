@@ -1,12 +1,31 @@
+/*
+ * Copyright ETH 2016 - 2023 Zürich, Scientific IT Services
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package ch.systemsx.cisd.etlserver.plugins;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.springframework.transaction.annotation.Transactional;
@@ -115,14 +134,25 @@ public class DataSetArchiverOrphanFinderTask implements IMaintenanceTask
             }
         }
 
-        File[] filesOnDisk = destinationFolder.listFiles();
-        operationLog.info("3. Verify if the " + filesOnDisk.length
+        List<File> filesOnDisk = null;
+
+        try
+        {
+            filesOnDisk = Files.find(destinationFolder.toPath(), Integer.MAX_VALUE, (path, basicFileAttributes) -> !Files.isDirectory(path))
+                    .map(Path::toFile).collect(Collectors.toList());
+        } catch (IOException e)
+        {
+            throw new RuntimeException("Couldn't list files in folder: " + destinationFolder.getAbsolutePath(), e);
+        }
+
+        operationLog.info("3. Verify if the " + filesOnDisk.size()
                 + " files on destination are on multi dataset archiver containers or a normal archived dataset.");
+
         Set<String> presentInArchiveFS = new HashSet<String>();
         List<File> onFSandNotDB = new ArrayList<File>();
         for (File file : filesOnDisk)
         {
-            String fileName = file.getName().toLowerCase();
+            String fileName = destinationFolder.toPath().relativize(file.toPath()).toString().toLowerCase();
             presentInArchiveFS.add(fileName); // To be used in step 4
             if (multiDatasetsContainersOnDB.contains(fileName))
             {
@@ -142,8 +172,8 @@ public class DataSetArchiverOrphanFinderTask implements IMaintenanceTask
             }
         }
 
-        operationLog.info("4. Verify if the " + multiDatasetsContainersOnDB.size() 
-            + " containers of the multi data set mapping database are on the file system.");
+        operationLog.info("4. Verify if the " + multiDatasetsContainersOnDB.size()
+                + " containers of the multi data set mapping database are on the file system.");
         List<String> multiOnDBandNotFS = new ArrayList<String>();
         for (String multiDatasetsContainerOnDB : multiDatasetsContainersOnDB)
         {
@@ -174,12 +204,12 @@ public class DataSetArchiverOrphanFinderTask implements IMaintenanceTask
         if (onFSandNotDB.isEmpty() == false || multiOnDBandNotFS.isEmpty() == false || singleOnDBandNotFS.isEmpty() == false)
         {
             operationLog.info("5. Send email with not found files.");
-            String subject = "openBIS Data Set Archiv Orphan Finder report";
+            String subject = "openBIS Data Set Archive Orphan Finder report";
             String content = "";
             Collections.sort(onFSandNotDB);
             for (File notFound : onFSandNotDB)
             {
-                content += "Found in the archive but not in the database: " + notFound.getName() + "\n";
+                content += "Found in the archive but not in the database: " + destinationFolder.toPath().relativize(notFound.toPath()) + "\n";
             }
             Collections.sort(multiOnDBandNotFS);
             for (String notFound : multiOnDBandNotFS)
