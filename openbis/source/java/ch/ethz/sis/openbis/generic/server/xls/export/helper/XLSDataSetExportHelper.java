@@ -19,6 +19,7 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.ARCHIVING_
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.CHILDREN;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.CODE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.EXPERIMENT;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.IDENTIFIER;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MODIFICATION_DATE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MODIFIER;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.PARENTS;
@@ -27,6 +28,7 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.PRESENT_IN
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.REGISTRATION_DATE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.REGISTRATOR;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.SAMPLE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.SIZE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.STORAGE_CONFIRMATION;
 
 import java.util.Collection;
@@ -35,16 +37,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.apache.poi.ss.usermodel.Workbook;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.PhysicalData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
@@ -116,10 +120,10 @@ public class XLSDataSetExportHelper extends AbstractXLSEntityExportHelper<DataSe
     }
 
     @Override
-    protected Attribute[] getAttributes(final DataSet dataSet)
+    protected Attribute[] getAttributes(final Collection<DataSet> dataSets)
     {
-        return new Attribute[] { PERM_ID, CODE, ARCHIVING_STATUS, PRESENT_IN_ARCHIVE, STORAGE_CONFIRMATION,
-                dataSet.getSample() != null ? SAMPLE : EXPERIMENT, PARENTS, CHILDREN, REGISTRATOR, REGISTRATION_DATE, MODIFIER, MODIFICATION_DATE };
+        return new Attribute[] { PERM_ID, CODE, IDENTIFIER, ARCHIVING_STATUS, PRESENT_IN_ARCHIVE, STORAGE_CONFIRMATION, SAMPLE, EXPERIMENT, PARENTS,
+                CHILDREN, REGISTRATOR, REGISTRATION_DATE, MODIFIER, MODIFICATION_DATE, SIZE };
     }
 
     @Override
@@ -133,27 +137,38 @@ public class XLSDataSetExportHelper extends AbstractXLSEntityExportHelper<DataSe
             }
             case ARCHIVING_STATUS:
             {
-                return dataSet.getPhysicalData().getStatus().toString();
+                final PhysicalData physicalData = dataSet.getPhysicalData();
+                return physicalData != null ? physicalData.getStatus().toString() : null;
             }
             case PRESENT_IN_ARCHIVE:
             {
-                return dataSet.getPhysicalData().isPresentInArchive().toString().toUpperCase();
+                final PhysicalData physicalData = dataSet.getPhysicalData();
+                return physicalData != null ? physicalData.isPresentInArchive().toString().toUpperCase() : null;
             }
             case STORAGE_CONFIRMATION:
             {
-                return dataSet.getPhysicalData().isStorageConfirmation().toString().toUpperCase();
+                final PhysicalData physicalData = dataSet.getPhysicalData();
+                return physicalData != null ? physicalData.isStorageConfirmation().toString().toUpperCase() : null;
             }
+            case SIZE:
+            {
+                final PhysicalData physicalData = dataSet.getPhysicalData();
+                return physicalData != null ? physicalData.getSize().toString() : null;
+            }
+            case IDENTIFIER:
             case CODE:
             {
                 return dataSet.getCode();
             }
             case SAMPLE:
             {
-                return dataSet.getSample().getIdentifier().getIdentifier();
+                final Sample sample = dataSet.getSample();
+                return sample != null ? sample.getIdentifier().getIdentifier() : null;
             }
             case EXPERIMENT:
             {
-                return dataSet.getExperiment().getIdentifier().getIdentifier();
+                final Experiment experiment = dataSet.getExperiment();
+                return experiment != null ? experiment.getIdentifier().getIdentifier() : null;
             }
             case REGISTRATOR:
             {

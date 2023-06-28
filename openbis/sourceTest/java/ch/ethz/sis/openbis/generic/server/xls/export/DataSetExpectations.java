@@ -29,14 +29,14 @@ import org.jmock.lib.action.CustomAction;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.ArchivingStatus;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.PhysicalData;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.PhysicalData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
@@ -74,11 +74,14 @@ class DataSetExpectations extends Expectations
 
                 final Sample[] samples = new Sample[2];
 
+                final Experiment sampleExperiment = new Experiment();
+                sampleExperiment.setIdentifier(new ExperimentIdentifier("/TEST/TEST"));
+
                 samples[0] = new Sample();
-                samples[0].setIdentifier(new SampleIdentifier("/TEST/TEST_2"));
+                samples[0].setIdentifier(new SampleIdentifier("/TEST/TEST/TEST_2"));
 
                 samples[1] = new Sample();
-                samples[1].setIdentifier(new SampleIdentifier("/TEST/TEST_3"));
+                samples[1].setIdentifier(new SampleIdentifier("/TEST/TEST/TEST_3"));
 
                 final Experiment experiment = new Experiment();
                 experiment.setIdentifier(new ExperimentIdentifier("/TEST/TEST_1"));
@@ -102,18 +105,21 @@ class DataSetExpectations extends Expectations
                 physicalData[0].setPresentInArchive(true);
                 physicalData[0].setStorageConfirmation(true);
                 physicalData[0].setStatus(ArchivingStatus.AVAILABLE);
+                physicalData[0].setSize(123456L);
 
                 physicalData[1] = new PhysicalData();
                 physicalData[1].setArchivingRequested(true);
                 physicalData[1].setPresentInArchive(false);
                 physicalData[1].setStorageConfirmation(false);
                 physicalData[1].setStatus(ArchivingStatus.AVAILABLE);
+                physicalData[1].setSize(234567L);
 
                 physicalData[2] = new PhysicalData();
                 physicalData[2].setArchivingRequested(true);
                 physicalData[2].setPresentInArchive(true);
                 physicalData[2].setStorageConfirmation(false);
                 physicalData[2].setStatus(ArchivingStatus.ARCHIVED);
+                physicalData[2].setSize(345678L);
 
                 final DataSet[] dataSets = new DataSet[3];
 
@@ -137,6 +143,7 @@ class DataSetExpectations extends Expectations
                 dataSets[1].setCode("TEST_2");
                 dataSets[1].setPhysicalData(physicalData[1]);
                 dataSets[1].setSample(samples[0]);
+                dataSets[1].setExperiment(sampleExperiment);
                 dataSets[1].setType(dataSetTypes[0]);
                 dataSets[1].setProperty("$NAME", "<i>Test 2</i>");
                 dataSets[1].setProperty("$ATTACHMENT", "file1.bin");
@@ -152,6 +159,7 @@ class DataSetExpectations extends Expectations
                 dataSets[2].setCode("TEST_3");
                 dataSets[2].setPhysicalData(physicalData[2]);
                 dataSets[2].setSample(samples[1]);
+                dataSets[2].setExperiment(sampleExperiment);
                 dataSets[2].setType(dataSetTypes[0]);
                 dataSets[2].setProperty("$NAME", "Test 3");
                 dataSets[2].setProperty("$ATTACHMENT", "file2.bin");
