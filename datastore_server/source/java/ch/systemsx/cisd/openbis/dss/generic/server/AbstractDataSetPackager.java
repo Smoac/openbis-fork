@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.ByteArrayInputStream;
@@ -33,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 
 /**
  * Abstract super class of packagers which package all files of a data set together with a meta data file.
- * 
+ *
  * @author Franz-Josef Elmer
  */
 public abstract class AbstractDataSetPackager
@@ -53,7 +52,7 @@ public abstract class AbstractDataSetPackager
 
     /**
      * Adds an entry with specified entry path and last modification date filled with data from specified input stream.
-     * 
+     *
      * @param size Number of bytes.
      * @param checksum Checksum. Can be 0 if {@link #isChecksumNeeded()} return <code>false</code>.
      */
@@ -151,9 +150,9 @@ public abstract class AbstractDataSetPackager
         {
             long size = file.length();
             long checksum = isChecksumNeeded() ? node.getChecksumCRC32() : 0;
-            try
+            try (InputStream nodeInputStream = node.getInputStream())
             {
-                addEntry(entryPath, node.getLastModified(), size, checksum, node.getInputStream());
+                addEntry(entryPath, node.getLastModified(), size, checksum, nodeInputStream);
             } catch (Exception ex)
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);
