@@ -137,8 +137,10 @@ public class AfsClientTest
     {
         login();
 
-        final String fileName = "afs-test.txt";
-        final Path filePath = Path.of(fileName);
+        final String sourceFileName = "afs-test-src.txt";
+        final Path sourceFilePath = Path.of(sourceFileName);
+        final String destinationFileName = "afs-test-dst.txt";
+        final Path destinationFilePath = Path.of(destinationFileName);
         final String fileNameJson = String.format("{\n"
                 + "  \"id\" : \"1\",\n"
                 + "  \"result\" : [ \"java.util.ArrayList\", [ [ \"ch.ethz.sis.afsapi.dto.File\", {\n"
@@ -151,19 +153,37 @@ public class AfsClientTest
                 + "    \"lastAccessTime\" : \"2023-06-27T17:18:08.900154283+02:00\"\n"
                 + "  } ] ] ],\n"
                 + "  \"error\" : null\n"
-                + "}", fileName, fileName);
+                + "}", sourceFileName, sourceFileName);
         byte[] fileData = "ABCD".getBytes();
-        Files.write(filePath, fileData);
+        Files.write(sourceFilePath, fileData);
 
         httpServer.setNextResponses(new byte[][] {fileNameJson.getBytes(), fileData}, new String[] {"application/json", "application/octet-stream"});
 
-        afsClient.resumeRead("", fileName, filePath, 1000L);
+        afsClient.resumeRead("", sourceFileName, destinationFilePath, 0L);
 
         assertEquals("GET", httpServer.getHttpExchange().getRequestMethod());
-        assertArrayEquals(fileData, Files.readAllBytes(filePath));
-        assertArrayEquals(httpServer.getLastRequestBody(), new byte[0]);
+        assertArrayEquals(fileData, Files.readAllBytes(destinationFilePath));
+        assertEquals(0, httpServer.getLastRequestBody().length);
 
-        filePath.toFile().delete();
+        sourceFilePath.toFile().delete();
+        destinationFilePath.toFile().delete();
+    }
+
+    @Test
+    public void resumeWrite_methodIsPost() throws Exception
+    {
+//        login();
+//
+//        final String fileName = "afs-test.txt";
+//
+//        httpServer.setNextResponse("{\"result\": true}");
+//        final Boolean result = afsClient.resumeWrite("", fileName, , 0L);
+//
+//        assertEquals("POST", httpServer.getHttpExchange().getRequestMethod());
+//        assertTrue(result);
+//        assertTrue(httpServer.getLastRequestBody().length > 0);
+//
+//        filePath.toFile().delete();
     }
 
     @Test

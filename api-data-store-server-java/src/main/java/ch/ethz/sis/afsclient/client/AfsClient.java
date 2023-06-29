@@ -17,6 +17,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
+import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -240,34 +241,36 @@ public final class AfsClient implements PublicAPI, ClientAPI
     public void resumeRead(@NonNull String owner, @NonNull String source, @NonNull Path destination,
             @NonNull Long offset) throws Exception
     {
-        AsynchronousFileChannel fileChannel = AsynchronousFileChannel.open(destination, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+        try (final FileChannel fileChannel = FileChannel.open(destination, StandardOpenOption.CREATE, StandardOpenOption.WRITE))
+        {
 
-        List<File> infos = list(owner, source, false);
-        if (infos.isEmpty())
-        {
-            throw ClientExceptions.API_ERROR.getInstance("File not found '" + source + "'");
-        }
-        File file = null;
-        for (File info : infos)
-        {
-            if (info.getName().equals(getName(source)))
+            List<File> infos = list(owner, source, false);
+            if (infos.isEmpty())
             {
-                file = info;
-                break;
+                throw ClientExceptions.API_ERROR.getInstance("File not found '" + source + "'");
+            }
+            File file = null;
+            for (File info : infos)
+            {
+                if (info.getName().equals(getName(source)))
+                {
+                    file = info;
+                    break;
+                }
+            }
+            if (file == null)
+            {
+                throw ClientExceptions.API_ERROR.getInstance("File not found '" + source + "'");
+            }
+
+            while (offset < file.getSize())
+            {
+                byte[] read = read(owner, source, offset, DEFAULT_PACKAGE_SIZE_IN_BYTES);
+                System.out.printf("Writing %s", Arrays.toString(read));
+                fileChannel.write(ByteBuffer.wrap(read), offset);
+                offset += read.length;
             }
         }
-        if (file == null)
-        {
-            throw ClientExceptions.API_ERROR.getInstance("File not found '" + source + "'");
-        }
-
-        while (offset < file.getSize())
-        {
-            byte[] read = read(owner, source, offset, DEFAULT_PACKAGE_SIZE_IN_BYTES);
-            fileChannel.write(ByteBuffer.wrap(read), offset);
-            offset += read.length;
-        }
-        fileChannel.close();
     }
 
     @Override
