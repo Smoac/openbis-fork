@@ -172,18 +172,27 @@ public class AfsClientTest
     @Test
     public void resumeWrite_methodIsPost() throws Exception
     {
-//        login();
-//
-//        final String fileName = "afs-test.txt";
-//
-//        httpServer.setNextResponse("{\"result\": true}");
-//        final Boolean result = afsClient.resumeWrite("", fileName, , 0L);
-//
-//        assertEquals("POST", httpServer.getHttpExchange().getRequestMethod());
-//        assertTrue(result);
-//        assertTrue(httpServer.getLastRequestBody().length > 0);
-//
-//        filePath.toFile().delete();
+        login();
+
+        final String sourceFileName = "afs-test-src.txt";
+        final Path sourceFilePath = Path.of(sourceFileName);
+        final String destinationFileName = "afs-test-dst.txt";
+        final Path destinationFilePath = Path.of(destinationFileName);
+        final byte[] sourceFileData = "ABCD".getBytes();
+        Files.write(sourceFilePath, sourceFileData);
+
+        httpServer.setNextResponse("{\"result\": true}");
+        final Boolean result = afsClient.resumeWrite("", destinationFileName, sourceFilePath, 0L);
+
+        assertEquals("POST", httpServer.getHttpExchange().getRequestMethod());
+        assertTrue(result);
+        assertTrue(httpServer.getLastRequestBody().length > 0);
+
+        final byte[] destinationFileData = Files.readAllBytes(destinationFilePath);
+        assertArrayEquals(sourceFileData, destinationFileData);
+
+        sourceFilePath.toFile().delete();
+        destinationFilePath.toFile().delete();
     }
 
     @Test
