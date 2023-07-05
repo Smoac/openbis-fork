@@ -196,6 +196,17 @@ public abstract class BaseApiClientTest
     }
 
     @Test
+    public void resumeWrite_zeroOffset_createsFile() throws Exception
+    {
+        login();
+
+        final Boolean result = afsClient.resumeWrite(owner, FILE_B, Path.of(IOUtils.getPath(testDataRoot, FILE_A)), 0L);
+        assertTrue(result);
+
+        assertFilesEqual(IOUtils.getPath(testDataRoot, FILE_A), FILE_B);
+    }
+
+    @Test
     public void delete_fileIsGone() throws Exception
     {
         login();

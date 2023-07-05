@@ -15,6 +15,7 @@ import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.time.Duration;
 import java.util.AbstractMap;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -322,7 +323,7 @@ public final class AfsClient implements PublicAPI, ClientAPI
             {
                 final ByteBuffer byteBuffer = ByteBuffer.allocate(DEFAULT_PACKAGE_SIZE_IN_BYTES);
                 fileChannel.read(byteBuffer, offset, byteBuffer,
-                        new ChannelReadCompletionHandler(owner, destination, byteBuffer, offset, latch, hasError));
+                        new ChannelReadCompletionHandler(owner, destination, offset, latch, hasError));
                 offset += DEFAULT_PACKAGE_SIZE_IN_BYTES;
             }
 
@@ -543,8 +544,6 @@ public final class AfsClient implements PublicAPI, ClientAPI
     private class ChannelReadCompletionHandler implements CompletionHandler<Integer, ByteBuffer>
     {
 
-        private final ByteBuffer byteBuffer;
-
         private final @NonNull String owner;
 
         private final @NonNull String destination;
@@ -555,11 +554,9 @@ public final class AfsClient implements PublicAPI, ClientAPI
 
         private final Long offset;
 
-        public ChannelReadCompletionHandler(final @NonNull String owner, final @NonNull String destination, final ByteBuffer byteBuffer,
-                final Long offset, final CountDownLatch latch,
-                final AtomicBoolean hasError)
+        public ChannelReadCompletionHandler(final @NonNull String owner, final @NonNull String destination, final Long offset,
+                final CountDownLatch latch, final AtomicBoolean hasError)
         {
-            this.byteBuffer = byteBuffer;
             this.owner = owner;
             this.destination = destination;
             this.offset = offset;
@@ -570,7 +567,8 @@ public final class AfsClient implements PublicAPI, ClientAPI
         @Override
         public void completed(final Integer result, final ByteBuffer attachment)
         {
-            final byte[] data = byteBuffer.array();
+            final byte[] fullBuffer = attachment.array();
+            final byte[] data = result < fullBuffer.length ? Arrays.copyOf(fullBuffer, result) : fullBuffer;
             try
             {
                 final Boolean writeSuccessful = write(owner, destination, this.offset, data, getMD5(data));
