@@ -23,6 +23,7 @@ import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
 
@@ -150,6 +151,23 @@ public abstract class BaseApiClientTest
 
         byte[] bytes = afsClient.read(owner, FILE_A, 0L, DATA.length);
         assertArrayEquals(DATA, bytes);
+    }
+
+    @Test
+    public void resumeRead_getsDataFromTemporaryFile() throws Exception
+    {
+        login();
+
+        afsClient.resumeRead(owner, FILE_A, Path.of(FILE_B), 0L);
+
+        assertFilesEqual(IOUtils.getPath(testDataRoot, FILE_A), FILE_B);
+    }
+
+    private void assertFilesEqual(final String expectedFile, final String actualFile) throws IOException
+    {
+        byte[] expectedData = IOUtils.readFully(expectedFile);
+        byte[] actualData = IOUtils.readFully(actualFile);
+        assertArrayEquals(expectedData, actualData);
     }
 
     @Test

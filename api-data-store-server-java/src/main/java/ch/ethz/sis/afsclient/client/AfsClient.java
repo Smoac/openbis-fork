@@ -280,7 +280,9 @@ public final class AfsClient implements PublicAPI, ClientAPI
         {
             while (offset < sourceFileSize)
             {
-                final byte[] bufferArray = read(owner, source, offset, DEFAULT_PACKAGE_SIZE_IN_BYTES);
+                final long remainingSize = sourceFileSize - offset;
+                final int limit = DEFAULT_PACKAGE_SIZE_IN_BYTES <= remainingSize ? DEFAULT_PACKAGE_SIZE_IN_BYTES : (int) remainingSize;
+                final byte[] bufferArray = read(owner, source, offset, limit);
                 final ByteBuffer byteBuffer = ByteBuffer.wrap(bufferArray);
 
                 fileChannel.write(byteBuffer, offset, byteBuffer, new ChannelWriteCompletionHandler(latch, hasError));
