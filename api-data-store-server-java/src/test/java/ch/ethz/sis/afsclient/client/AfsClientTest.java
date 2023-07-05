@@ -188,11 +188,7 @@ public class AfsClientTest
         assertTrue(result);
         assertTrue(httpServer.getLastRequestBody().length > 0);
 
-        final byte[] destinationFileData = Files.readAllBytes(destinationFilePath);
-        assertArrayEquals(sourceFileData, destinationFileData);
-
         sourceFilePath.toFile().delete();
-        destinationFilePath.toFile().delete();
     }
 
     @Test

@@ -9,7 +9,6 @@ import java.net.http.HttpResponse;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.CompletionHandler;
-import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -284,22 +283,7 @@ public final class AfsClient implements PublicAPI, ClientAPI
                 final byte[] bufferArray = read(owner, source, offset, DEFAULT_PACKAGE_SIZE_IN_BYTES);
                 final ByteBuffer byteBuffer = ByteBuffer.wrap(bufferArray);
 
-                fileChannel.write(byteBuffer, offset, byteBuffer, new CompletionHandler<>()
-                {
-
-                    @Override
-                    public void completed(final Integer result, final ByteBuffer attachment)
-                    {
-                        latch.countDown();
-                    }
-
-                    @Override
-                    public void failed(final Throwable exc, final ByteBuffer attachment)
-                    {
-                        hasError.set(true);
-                        latch.countDown();
-                    }
-                });
+                fileChannel.write(byteBuffer, offset, byteBuffer, new ChannelWriteCompletionHandler(latch, hasError));
                 offset += bufferArray.length;
             }
 
@@ -327,25 +311,25 @@ public final class AfsClient implements PublicAPI, ClientAPI
 
         final long sourceFileSize = sourceFile.length();
 
-        try (final FileChannel fileChannel = FileChannel.open(source, StandardOpenOption.READ))
+        try (final AsynchronousFileChannel fileChannel = AsynchronousFileChannel.open(source, StandardOpenOption.READ))
         {
-            // TODO: should we use asynchronous file channel here???
-            final ByteBuffer buf = ByteBuffer.allocate(DEFAULT_PACKAGE_SIZE_IN_BYTES);
+            final CountDownLatch latch = new CountDownLatch((int) ((sourceFileSize - offset - 1) / DEFAULT_PACKAGE_SIZE_IN_BYTES) + 1);
+            final AtomicBoolean hasError = new AtomicBoolean(false);
+
             while (offset < sourceFileSize)
             {
-                final int readSize = fileChannel.read(buf, offset);
-                if (readSize <= 0)
-                {
-                    break;
-                }
-
-                final byte[] data = buf.array();
-                write(owner, destination, offset, data, getMD5(data));
-
-                buf.clear();
-                offset += readSize;
+                final ByteBuffer byteBuffer = ByteBuffer.allocate(DEFAULT_PACKAGE_SIZE_IN_BYTES);
+                fileChannel.read(byteBuffer, offset, byteBuffer,
+                        new ChannelReadCompletionHandler(owner, destination, byteBuffer, offset, latch, hasError));
+                offset += DEFAULT_PACKAGE_SIZE_IN_BYTES;
             }
-            return true;
+
+            latch.await();
+
+            return !hasError.get();
+        } catch (final Exception e)
+        {
+            return false;
         }
     }
 
@@ -525,4 +509,89 @@ public final class AfsClient implements PublicAPI, ClientAPI
             throw new IllegalStateException("No session information detected!");
         }
     }
+
+    private static class ChannelWriteCompletionHandler implements CompletionHandler<Integer, ByteBuffer>
+    {
+
+        private final CountDownLatch latch;
+
+        private final AtomicBoolean hasError;
+
+        public ChannelWriteCompletionHandler(final CountDownLatch latch, final AtomicBoolean hasError)
+        {
+            this.latch = latch;
+            this.hasError = hasError;
+        }
+
+        @Override
+        public void completed(final Integer result, final ByteBuffer attachment)
+        {
+            latch.countDown();
+        }
+
+        @Override
+        public void failed(final Throwable exc, final ByteBuffer attachment)
+        {
+            hasError.set(true);
+            latch.countDown();
+        }
+
+    }
+
+    private class ChannelReadCompletionHandler implements CompletionHandler<Integer, ByteBuffer>
+    {
+
+        private final ByteBuffer byteBuffer;
+
+        private final @NonNull String owner;
+
+        private final @NonNull String destination;
+
+        private final CountDownLatch latch;
+
+        private final AtomicBoolean hasError;
+
+        private final Long offset;
+
+        public ChannelReadCompletionHandler(final @NonNull String owner, final @NonNull String destination, final ByteBuffer byteBuffer,
+                final Long offset, final CountDownLatch latch,
+                final AtomicBoolean hasError)
+        {
+            this.byteBuffer = byteBuffer;
+            this.owner = owner;
+            this.destination = destination;
+            this.offset = offset;
+            this.latch = latch;
+            this.hasError = hasError;
+        }
+
+        @Override
+        public void completed(final Integer result, final ByteBuffer attachment)
+        {
+            final byte[] data = byteBuffer.array();
+            try
+            {
+                final Boolean writeSuccessful = write(owner, destination, this.offset, data, getMD5(data));
+                if (!writeSuccessful)
+                {
+                    hasError.set(true);
+                }
+            } catch (final Exception e)
+            {
+                hasError.set(true);
+            } finally
+            {
+                latch.countDown();
+            }
+        }
+
+        @Override
+        public void failed(final Throwable exc, final ByteBuffer attachment)
+        {
+            hasError.set(true);
+            latch.countDown();
+        }
+
+    }
+
 }
