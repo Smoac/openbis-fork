@@ -316,18 +316,23 @@ public final class AfsClient implements PublicAPI, ClientAPI
 
         try (final AsynchronousFileChannel fileChannel = AsynchronousFileChannel.open(source, StandardOpenOption.READ))
         {
-            final CountDownLatch latch = new CountDownLatch((int) ((sourceFileSize - offset - 1) / DEFAULT_PACKAGE_SIZE_IN_BYTES) + 1);
+            final long remainingFileSize = sourceFileSize - offset;
             final AtomicBoolean hasError = new AtomicBoolean(false);
 
-            while (offset < sourceFileSize)
+            if (remainingFileSize > 0)
             {
-                final ByteBuffer byteBuffer = ByteBuffer.allocate(DEFAULT_PACKAGE_SIZE_IN_BYTES);
-                fileChannel.read(byteBuffer, offset, byteBuffer,
-                        new ChannelReadCompletionHandler(owner, destination, offset, latch, hasError));
-                offset += DEFAULT_PACKAGE_SIZE_IN_BYTES;
-            }
+                final CountDownLatch latch = new CountDownLatch((int) ((remainingFileSize - 1) / DEFAULT_PACKAGE_SIZE_IN_BYTES) + 1);
 
-            latch.await();
+                while (offset < sourceFileSize)
+                {
+                    final ByteBuffer byteBuffer = ByteBuffer.allocate(DEFAULT_PACKAGE_SIZE_IN_BYTES);
+                    fileChannel.read(byteBuffer, offset, byteBuffer,
+                            new ChannelReadCompletionHandler(owner, destination, offset, latch, hasError));
+                    offset += DEFAULT_PACKAGE_SIZE_IN_BYTES;
+                }
+
+                latch.await();
+            }
 
             return !hasError.get();
         } catch (final Exception e)

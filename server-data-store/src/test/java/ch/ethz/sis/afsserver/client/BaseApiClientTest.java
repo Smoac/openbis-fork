@@ -204,6 +204,20 @@ public abstract class BaseApiClientTest
         assertTrue(result);
 
         assertFilesEqual(IOUtils.getPath(testDataRoot, FILE_A), FILE_B);
+
+        Path.of(FILE_B).toFile().delete();
+    }
+
+    @Test
+    public void resumeWrite_nonZeroOffset_doesNotCreateFile() throws Exception
+    {
+        login();
+
+        final Long offset = 65L;
+        final Boolean result = afsClient.resumeWrite(owner, FILE_B, Path.of(IOUtils.getPath(testDataRoot, FILE_A)), offset);
+        assertTrue(result);
+
+        assertFalse(Path.of(FILE_B).toFile().exists());
     }
 
     @Test
