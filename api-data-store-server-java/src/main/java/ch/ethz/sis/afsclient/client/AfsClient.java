@@ -21,6 +21,7 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.security.MessageDigest;
 import java.time.Duration;
 import java.util.*;
 import java.util.stream.Stream;
@@ -31,6 +32,8 @@ public final class AfsClient implements PublicAPI, ClientAPI
     private static final int DEFAULT_PACKAGE_SIZE_IN_BYTES = 1024;
 
     private static final int DEFAULT_TIMEOUT_IN_MILLIS = 30000;
+
+    private static final String MD5 = "MD5";
 
     private final int maxReadSizeInBytes;
 
@@ -243,41 +246,78 @@ public final class AfsClient implements PublicAPI, ClientAPI
     {
         try (final FileChannel fileChannel = FileChannel.open(destination, StandardOpenOption.CREATE, StandardOpenOption.WRITE))
         {
-
             List<File> infos = list(owner, source, false);
             if (infos.isEmpty())
             {
                 throw ClientExceptions.API_ERROR.getInstance("File not found '" + source + "'");
             }
-            File file = null;
+            File sourceFile = null;
             for (File info : infos)
             {
                 if (info.getName().equals(getName(source)))
                 {
-                    file = info;
+                    sourceFile = info;
                     break;
                 }
             }
-            if (file == null)
+            if (sourceFile == null)
             {
                 throw ClientExceptions.API_ERROR.getInstance("File not found '" + source + "'");
             }
 
-            while (offset < file.getSize())
+            final Long sourceFileSize = sourceFile.getSize();
+            while (offset < sourceFileSize)
             {
-                byte[] read = read(owner, source, offset, DEFAULT_PACKAGE_SIZE_IN_BYTES);
-                System.out.printf("Writing %s", Arrays.toString(read));
-                fileChannel.write(ByteBuffer.wrap(read), offset);
-                offset += read.length;
+                byte[] buf = read(owner, source, offset, DEFAULT_PACKAGE_SIZE_IN_BYTES);
+                fileChannel.write(ByteBuffer.wrap(buf), offset);
+                offset += buf.length;
             }
         }
     }
 
     @Override
-    public @NonNull Boolean resumeWrite(@NonNull String owner, @NonNull String destination,
-            @NonNull Path source, @NonNull Long offset) throws Exception
+    public @NonNull Boolean resumeWrite(@NonNull final String owner, @NonNull final String destination,
+            @NonNull final Path source, @NonNull Long offset) throws Exception
     {
-        return null;
+        final java.io.File sourceFile = source.toFile();
+        if (!sourceFile.exists())
+        {
+            throw ClientExceptions.API_ERROR.getInstance("File not found '" + source + "'");
+        }
+
+        final long sourceFileSize = sourceFile.length();
+
+        try (final FileChannel fileChannel = FileChannel.open(source, StandardOpenOption.READ))
+        {
+            // TODO: should we use asynchronous file channel here???
+            final ByteBuffer buf = ByteBuffer.allocate(DEFAULT_PACKAGE_SIZE_IN_BYTES);
+            while (offset < sourceFileSize)
+            {
+                final int readSize = fileChannel.read(buf, offset);
+                if (readSize <= 0)
+                {
+                    break;
+                }
+
+                final byte[] data = buf.array();
+                write(owner, destination, offset, data, getMD5(data));
+
+                buf.clear();
+                offset += readSize;
+            }
+            return true;
+        }
+    }
+
+    private static byte[] getMD5(final byte[] data)
+    {
+        try
+        {
+            return MessageDigest.getInstance(MD5).digest(data);
+        } catch (Exception exception)
+        {
+            throw new RuntimeException(exception);
+        }
     }
 
     @SuppressWarnings({ "OptionalGetWithoutIsPresent", "unchecked" })
