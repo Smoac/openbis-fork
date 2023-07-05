@@ -1,14 +1,5 @@
 package ch.ethz.sis.afsclient.client;
 
-import ch.ethz.sis.afsapi.api.ClientAPI;
-import ch.ethz.sis.afsapi.api.PublicAPI;
-import ch.ethz.sis.afsapi.dto.ApiResponse;
-import ch.ethz.sis.afsapi.dto.File;
-import ch.ethz.sis.afsclient.client.exception.ClientExceptions;
-import ch.ethz.sis.afsjson.JsonObjectMapper;
-import ch.ethz.sis.afsjson.jackson.JacksonObjectMapper;
-import lombok.NonNull;
-
 import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -17,14 +8,31 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
+import java.nio.channels.CompletionHandler;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.time.Duration;
-import java.util.*;
+import java.util.AbstractMap;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
+
+import ch.ethz.sis.afsapi.api.ClientAPI;
+import ch.ethz.sis.afsapi.api.PublicAPI;
+import ch.ethz.sis.afsapi.dto.ApiResponse;
+import ch.ethz.sis.afsapi.dto.File;
+import ch.ethz.sis.afsclient.client.exception.ClientExceptions;
+import ch.ethz.sis.afsjson.JsonObjectMapper;
+import ch.ethz.sis.afsjson.jackson.JacksonObjectMapper;
+import lombok.NonNull;
 
 public final class AfsClient implements PublicAPI, ClientAPI
 {
@@ -244,34 +252,66 @@ public final class AfsClient implements PublicAPI, ClientAPI
     public void resumeRead(@NonNull String owner, @NonNull String source, @NonNull Path destination,
             @NonNull Long offset) throws Exception
     {
-        try (final FileChannel fileChannel = FileChannel.open(destination, StandardOpenOption.CREATE, StandardOpenOption.WRITE))
-        {
-            List<File> infos = list(owner, source, false);
-            if (infos.isEmpty())
-            {
-                throw ClientExceptions.API_ERROR.getInstance("File not found '" + source + "'");
-            }
-            File sourceFile = null;
-            for (File info : infos)
-            {
-                if (info.getName().equals(getName(source)))
-                {
-                    sourceFile = info;
-                    break;
-                }
-            }
-            if (sourceFile == null)
-            {
-                throw ClientExceptions.API_ERROR.getInstance("File not found '" + source + "'");
-            }
 
-            final Long sourceFileSize = sourceFile.getSize();
+        final List<File> infos = list(owner, source, false);
+        if (infos.isEmpty())
+        {
+            throw ClientExceptions.API_ERROR.getInstance("File not found '" + source + "'");
+        }
+        File sourceFile = null;
+        for (File info : infos)
+        {
+            if (info.getName().equals(getName(source)))
+            {
+                sourceFile = info;
+                break;
+            }
+        }
+        if (sourceFile == null)
+        {
+            throw ClientExceptions.API_ERROR.getInstance("File not found '" + source + "'");
+        }
+
+        final Long sourceFileSize = sourceFile.getSize();
+        final CountDownLatch latch = new CountDownLatch((int) ((sourceFileSize - 1) / DEFAULT_PACKAGE_SIZE_IN_BYTES) + 1);
+        final AtomicBoolean hasError = new AtomicBoolean(false);
+
+        try (final AsynchronousFileChannel fileChannel = AsynchronousFileChannel.open(destination, StandardOpenOption.CREATE,
+                StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING))
+        {
             while (offset < sourceFileSize)
             {
-                byte[] buf = read(owner, source, offset, DEFAULT_PACKAGE_SIZE_IN_BYTES);
-                fileChannel.write(ByteBuffer.wrap(buf), offset);
-                offset += buf.length;
+                final byte[] bufferArray = read(owner, source, offset, DEFAULT_PACKAGE_SIZE_IN_BYTES);
+                final ByteBuffer byteBuffer = ByteBuffer.wrap(bufferArray);
+
+                fileChannel.write(byteBuffer, offset, byteBuffer, new CompletionHandler<>()
+                {
+
+                    @Override
+                    public void completed(final Integer result, final ByteBuffer attachment)
+                    {
+                        latch.countDown();
+                    }
+
+                    @Override
+                    public void failed(final Throwable exc, final ByteBuffer attachment)
+                    {
+                        hasError.set(true);
+                        latch.countDown();
+                    }
+                });
+                offset += bufferArray.length;
             }
+
+            latch.await();
+
+            if (hasError.get())
+            {
+                throw new Exception("Failed to write all chunks");
+            }
+        } catch (final Exception e)
+        {
+            throw ClientExceptions.API_ERROR.getInstance("Error writing to file from source '" + source + "'");
         }
     }
 
