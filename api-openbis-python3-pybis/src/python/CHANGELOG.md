@@ -1,10 +1,14 @@
+## Changes with pybis-1.35.7
+
+- Improvements to fast download scheme 
+
 ## Changes with pybis-1.35.6
 
 - Added metaData attribute handling for sample, sampleType, experiment, experimentType, dataset, datasetType
 - Fixed property assignment to a newly created sample type.
 - Updated docs.
 - Fixed sample.del_children() method.
-- Fixed metaData attributed assignment case.
+- Fixed metaData attribute assignment case.
 
 ## Changes with pybis-1.35.5
 
