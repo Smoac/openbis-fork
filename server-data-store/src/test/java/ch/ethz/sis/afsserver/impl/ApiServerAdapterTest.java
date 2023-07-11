@@ -22,15 +22,30 @@ import ch.ethz.sis.afsserver.server.impl.ApiServerAdapter;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
 import ch.ethz.sis.afsjson.JsonObjectMapper;
 import ch.ethz.sis.shared.startup.Configuration;
+import org.junit.Test;
+
+import java.util.UUID;
 
 public class ApiServerAdapterTest extends ApiServerTest {
 
     @Override
-    public PublicAPI getPublicAPI() throws Exception {
+    public PublicAPI getPublicAPI(String interactiveSessionKey, String transactionManagerKey) throws Exception {
+        UUID sessionToken = UUID.randomUUID();
         APIServer apiServer = getAPIServer();
         Configuration configuration = ServerClientEnvironmentFS.getInstance().getDefaultServerConfiguration();
         JsonObjectMapper jsonObjectMapper = configuration.getSharableInstance(AtomicFileSystemServerParameter.jsonObjectMapperClass);
         ApiServerAdapter apiServerAdapter = new ApiServerAdapter(apiServer, jsonObjectMapper);
-        return new APIServerAdapterWrapper(apiServerAdapter);
+        return new APIServerAdapterWrapper(apiServerAdapter, interactiveSessionKey, transactionManagerKey, sessionToken.toString());
     }
+
+    @Override
+    public PublicAPI getPublicAPI() throws Exception {
+        UUID sessionToken = UUID.randomUUID();
+        APIServer apiServer = getAPIServer();
+        Configuration configuration = ServerClientEnvironmentFS.getInstance().getDefaultServerConfiguration();
+        JsonObjectMapper jsonObjectMapper = configuration.getSharableInstance(AtomicFileSystemServerParameter.jsonObjectMapperClass);
+        ApiServerAdapter apiServerAdapter = new ApiServerAdapter(apiServer, jsonObjectMapper);
+        return new APIServerAdapterWrapper(apiServerAdapter, null, null, sessionToken.toString());
+    }
+
 }
