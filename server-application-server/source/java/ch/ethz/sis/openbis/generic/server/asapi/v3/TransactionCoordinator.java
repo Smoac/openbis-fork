@@ -59,89 +59,171 @@ public class TransactionCoordinator implements ITransactionCoordinator
         this.transactionLog = new TransactionCoordinatorLog(TRANSACTION_LOGS_FOLDER_PATH);
     }
 
-    @Override public void beginTransaction(final String transactionId)
+    public void restoreTransactions()
     {
-        transactionLog.beginTransactionStarted(transactionId);
+        Map<String, TransactionCoordinatorStatus> lastStatuses = transactionLog.getLastStatuses();
 
-        for (int index = 0; index < participants.size(); index++)
+        if (lastStatuses != null && !lastStatuses.isEmpty())
         {
-            try
+            for (String transactionId : lastStatuses.keySet())
             {
-                participants.get(index).beginTransaction(transactionId);
-            } catch (Exception beginException)
-            {
-                operationLog.warn(
-                        "Transaction '" + transactionId + "' beginTransaction failed for participant '" + participants.get(index)
-                                .getParticipantId() + "'", beginException);
+                TransactionCoordinatorStatus lastStatus = lastStatuses.get(transactionId);
 
-                rollbackTransaction(transactionId, index);
+                operationLog.info("Restoring transaction '" + transactionId + "' with last status '" + lastStatus + "'");
 
-                throw beginException;
+                switch (lastStatus)
+                {
+                    case BEGIN_STARTED:
+                    case BEGIN_FINISHED:
+                    case COMMIT_STARTED:
+                    case ROLLBACK_STARTED:
+                        try
+                        {
+                            rollbackTransactionOnParticipants(transactionId, null);
+                            transactionLog.logStatus(transactionId, TransactionCoordinatorStatus.ROLLBACK_FINISHED);
+                        } catch (Exception e)
+                        {
+                            operationLog.info("Transaction '" + transactionId + "' restore of started rollback failed.", e);
+                        }
+                        break;
+                    case COMMIT_PREPARED:
+                        try
+                        {
+                            commitTransactionOnParticipants(transactionId);
+                            transactionLog.logStatus(transactionId, TransactionCoordinatorStatus.COMMIT_FINISHED);
+                        } catch (Exception e)
+                        {
+                            operationLog.info("Transaction '" + transactionId + "' restore of prepared commit failed.", e);
+                        }
+                        break;
+                    case COMMIT_FINISHED:
+                    case ROLLBACK_FINISHED:
+                        // nothing to do
+                        break;
+                    default:
+                        operationLog.error(
+                                "Transaction '" + transactionId + "' restore failed because of an unknown transaction last status '" + lastStatus
+                                        + "'");
+                }
             }
         }
+    }
 
-        transactionLog.beginTransactionFinished(transactionId);
+    @Override public void beginTransaction(final String transactionId)
+    {
+        operationLog.info("Begin transaction '" + transactionId + "' started.");
+
+        transactionLog.logStatus(transactionId, TransactionCoordinatorStatus.BEGIN_STARTED);
+        beginTransactionOnParticipants(transactionId);
+        transactionLog.logStatus(transactionId, TransactionCoordinatorStatus.BEGIN_FINISHED);
+
+        operationLog.info("Begin transaction '" + transactionId + "' finished.");
+    }
+
+    private void beginTransactionOnParticipants(String transactionId)
+    {
+        for (int index = 0; index < participants.size(); index++)
+        {
+            ITransactionCoordinatorParticipant participant = participants.get(index);
+
+            try
+            {
+                operationLog.info("Begin transaction '" + transactionId + "' for participant '" + participant.getParticipantId() + "'.");
+                participant.beginTransaction(transactionId);
+            } catch (Exception e)
+            {
+                operationLog.info(
+                        "Begin transaction '" + transactionId + "' failed for participant '" + participant.getParticipantId() + "'.", e);
+
+                transactionLog.logStatus(transactionId, TransactionCoordinatorStatus.ROLLBACK_STARTED);
+                rollbackTransactionOnParticipants(transactionId, index);
+                transactionLog.logStatus(transactionId, TransactionCoordinatorStatus.ROLLBACK_FINISHED);
+
+                throw e;
+            }
+        }
     }
 
     @Override public void commitTransaction(final String transactionId)
     {
-        transactionLog.commitTransactionStarted(transactionId);
+        operationLog.info("Commit transaction '" + transactionId + "' started.");
 
+        transactionLog.logStatus(transactionId, TransactionCoordinatorStatus.COMMIT_STARTED);
+        prepareTransactionOnParticipants(transactionId);
+        transactionLog.logStatus(transactionId, TransactionCoordinatorStatus.COMMIT_PREPARED);
+        commitTransactionOnParticipants(transactionId);
+        transactionLog.logStatus(transactionId, TransactionCoordinatorStatus.COMMIT_FINISHED);
+
+        operationLog.info("Commit transaction '" + transactionId + "' finished.");
+    }
+
+    private void prepareTransactionOnParticipants(String transactionId)
+    {
         for (ITransactionCoordinatorParticipant participant : participants)
         {
             try
             {
+                operationLog.info("Prepare transaction '" + transactionId + "' for participant '" + participant.getParticipantId() + "'.");
                 participant.prepareTransaction(transactionId);
-            } catch (Exception prepareException)
+            } catch (Exception e)
             {
-                operationLog.warn(
-                        "Transaction '" + transactionId + "' prepareTransaction failed for participant '" + participant.getParticipantId() + "'",
-                        prepareException);
+                operationLog.info(
+                        "Prepare transaction '" + transactionId + "' failed for participant '" + participant.getParticipantId() + "'.", e);
 
-                rollbackTransaction(transactionId, null);
+                transactionLog.logStatus(transactionId, TransactionCoordinatorStatus.ROLLBACK_STARTED);
+                rollbackTransactionOnParticipants(transactionId, null);
+                transactionLog.logStatus(transactionId, TransactionCoordinatorStatus.ROLLBACK_FINISHED);
 
-                throw prepareException;
+                throw e;
             }
         }
+    }
 
-        transactionLog.commitTransactionPrepared(transactionId);
-
+    private void commitTransactionOnParticipants(String transactionId)
+    {
         for (ITransactionCoordinatorParticipant participant : participants)
         {
             try
             {
+                operationLog.info("Commit transaction '" + transactionId + "' for participant '" + participant.getParticipantId() + "'.");
                 participant.commitTransaction(transactionId);
-            } catch (Exception commitException)
+            } catch (Exception e)
             {
-                operationLog.warn(
-                        "Transaction '" + transactionId + "' commitTransaction failed for participant '" + participant.getParticipantId() + "'",
-                        commitException);
+                operationLog.info(
+                        "Commit transaction '" + transactionId + "' failed for participant '" + participant.getParticipantId() + "'.", e);
 
-                rollbackTransaction(transactionId, null);
+                transactionLog.logStatus(transactionId, TransactionCoordinatorStatus.ROLLBACK_STARTED);
+                rollbackTransactionOnParticipants(transactionId, null);
+                transactionLog.logStatus(transactionId, TransactionCoordinatorStatus.ROLLBACK_FINISHED);
 
-                throw commitException;
+                throw e;
             }
         }
-
-        transactionLog.commitTransactionFinished(transactionId);
     }
 
     @Override public void rollbackTransaction(final String transactionId)
     {
-        rollbackTransaction(transactionId, null);
+        operationLog.info("Rollback transaction '" + transactionId + "' started.");
+
+        transactionLog.logStatus(transactionId, TransactionCoordinatorStatus.ROLLBACK_STARTED);
+        rollbackTransactionOnParticipants(transactionId, null);
+        transactionLog.logStatus(transactionId, TransactionCoordinatorStatus.ROLLBACK_FINISHED);
+
+        operationLog.info("Rollback transaction '" + transactionId + "' finished.");
     }
 
-    private void rollbackTransaction(final String transactionId, final Integer toIndexOrNull)
+    private void rollbackTransactionOnParticipants(final String transactionId, final Integer toIndexOrNull)
     {
-        transactionLog.rollbackTransactionStarted(transactionId);
-
         int toIndex = toIndexOrNull != null ? toIndexOrNull : participants.size() - 1;
 
         for (int index = 0; index <= toIndex; index++)
         {
+            ITransactionCoordinatorParticipant participant = participants.get(index);
+
             try
             {
-                participants.get(index).rollbackTransaction(transactionId);
+                operationLog.info("Rollback transaction '" + transactionId + "' for participant '" + participant.getParticipantId() + "'.");
+                participant.rollbackTransaction(transactionId);
             } catch (Exception rollbackException)
             {
                 operationLog.info(
@@ -149,8 +231,6 @@ public class TransactionCoordinator implements ITransactionCoordinator
                                 .getParticipantId() + "'", rollbackException);
             }
         }
-
-        transactionLog.rollbackTransactionFinished(transactionId);
     }
 
     @Override public int getMajorVersion()
