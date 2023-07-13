@@ -212,6 +212,7 @@ task copyOpenbisStaticResources(type: Copy) {
 
 task copyV3ApiResources(type: Copy, dependsOn: [copyOpenbisStaticResources, ':api-openbis-javascript:bundleOpenbisStaticResources']) {
     from("${project(':api-openbis-javascript').projectDir}/src/v3")
+    from("${project(':api-data-store-server-javascript').projectDir}/src/js")
     into "${gwtModuleBuildDir}/resources/api/v3"
 }
 

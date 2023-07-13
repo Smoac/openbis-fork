@@ -94,7 +94,11 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 		}
 	}
 
-	var dataStoreFacade = function(facade, dataStoreCodes) {
+	var dataStoreServerFacade = function() {
+
+	}
+
+	var originalDataStoreServerFacade = function(facade, dataStoreCodes) {
 
 		this._getDataStores = function() {
 			if (this._dataStores) {
@@ -413,7 +417,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 		}
 	}
 
-	var facade = function(openbisUrl) {
+	var applicationServerFacade = function(openbisUrl) {
 
 		if (!openbisUrl) {
 			openbisUrl = "/openbis/openbis/rmi-application-server-v3.json";
@@ -2352,7 +2356,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			for (var i = 0; i < arguments.length; i++) {
 				dataStoreCodes.push(arguments[i]);
 			}
-			return new dataStoreFacade(this, dataStoreCodes);
+			return new originalDataStoreServerFacade(this, dataStoreCodes);
 		}
 
 		this.getMajorVersion = function() {
@@ -2439,6 +2443,6 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 		}
 	}
 
-	return facade;
+	return applicationServerFacade;
 
 });
