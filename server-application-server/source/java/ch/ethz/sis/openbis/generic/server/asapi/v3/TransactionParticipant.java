@@ -24,22 +24,27 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 public class TransactionParticipant implements ITransactionParticipant
 {
 
-    private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, TransactionParticipant.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, TransactionParticipant.class);
+
+    private static final String TRANSACTION_COORDINATOR_SECRET = "i_am_secret";
 
     private final Map<String, TransactionThread> threadMap = new HashMap<>();
 
-    private final ITransactionProvider provider;
+    private final ITransactionProvider transactionProvider;
 
-    TransactionParticipant(ITransactionProvider provider)
+    private final ITransactionLog transactionLog;
+
+    TransactionParticipant(ITransactionProvider transactionProvider, ITransactionLog transactionLog)
     {
-        this.provider = provider;
+        this.transactionProvider = transactionProvider;
+        this.transactionLog = transactionLog;
     }
 
     @Autowired
     public TransactionParticipant(final PlatformTransactionManager transactionManager, final IDAOFactory daoFactory,
             final DatabaseConfigurationContext databaseContext)
     {
-        this.provider = new ITransactionProvider()
+        this.transactionProvider = new ITransactionProvider()
         {
             @Override public Object beginTransaction(final String transactionId) throws Exception
             {
@@ -57,44 +62,47 @@ public class TransactionParticipant implements ITransactionParticipant
                 });
             }
 
-            @Override public void rollbackTransaction(final String transactionId, final Object transaction, final TransactionStatus transactionStatus)
+            @Override public void rollbackTransaction(final String transactionId, final Object transaction)
                     throws Exception
             {
-                if (TransactionStatus.STARTED.equals(transactionStatus))
-                {
-                    transactionManager.rollback((org.springframework.transaction.TransactionStatus) transaction);
-                } else if (TransactionStatus.PREPARED.equals(transactionStatus))
-                {
-                    Connection connection = null;
-                    Statement statement = null;
+                Connection connection = null;
+                Statement statement = null;
 
+                try
+                {
+                    connection = databaseContext.getDataSource().getConnection();
+                    statement = connection.createStatement();
+                    statement.execute("ROLLBACK PREPARED '" + transactionId + "'");
+                } catch (Exception e)
+                {
+                    if (statement != null)
+                    {
+                        try
+                        {
+                            statement.close();
+                        } catch (Exception ignore)
+                        {
+                        }
+                    }
+                    if (connection != null)
+                    {
+                        try
+                        {
+                            connection.close();
+                        } catch (SQLException ignore)
+                        {
+                        }
+                    }
+
+                    throw e;
+                } finally
+                {
                     try
                     {
-                        connection = databaseContext.getDataSource().getConnection();
-                        statement = connection.createStatement();
-                        statement.execute("ROLLBACK PREPARED '" + transactionId + "'");
+                        transactionManager.rollback((org.springframework.transaction.TransactionStatus) transaction);
                     } catch (Exception e)
                     {
-                        if (statement != null)
-                        {
-                            try
-                            {
-                                statement.close();
-                            } catch (Exception ignore)
-                            {
-                            }
-                        }
-                        if (connection != null)
-                        {
-                            try
-                            {
-                                connection.close();
-                            } catch (SQLException ignore)
-                            {
-                            }
-                        }
-
-                        throw e;
+                        // nothing to do
                     }
                 }
             }
@@ -134,29 +142,30 @@ public class TransactionParticipant implements ITransactionParticipant
                 }
             }
         };
+        this.transactionLog = new TransactionLog();
     }
 
-    @Override public void beginTransaction(final String transactionId, final String transactionManagerSecret) throws Throwable
+    @Override public void beginTransaction(final String transactionId, final String transactionCoordinatorSecret) throws Throwable
     {
-        executeOperation(transactionId, transactionManagerSecret, new BeginTransactionOperation());
+        executeOperation(transactionId, transactionCoordinatorSecret, new BeginTransactionOperation());
     }
 
-    @Override public void prepareTransaction(final String transactionId, final String transactionManagerSecret) throws Throwable
+    @Override public void prepareTransaction(final String transactionId, final String transactionCoordinatorSecret) throws Throwable
     {
-        executeOperation(transactionId, transactionManagerSecret, new PrepareTransactionOperation());
+        executeOperation(transactionId, transactionCoordinatorSecret, new PrepareTransactionOperation());
     }
 
-    @Override public void commitTransaction(final String transactionId, final String transactionManagerSecret) throws Throwable
+    @Override public void commitTransaction(final String transactionId, final String transactionCoordinatorSecret) throws Throwable
     {
-        executeOperation(transactionId, transactionManagerSecret, new CommitTransactionOperation());
+        executeOperation(transactionId, transactionCoordinatorSecret, new CommitTransactionOperation());
     }
 
-    @Override public void rollbackTransaction(final String transactionId, final String transactionManagerSecret) throws Throwable
+    @Override public void rollbackTransaction(final String transactionId, final String transactionCoordinatorSecret) throws Throwable
     {
-        executeOperation(transactionId, transactionManagerSecret, new RollbackTransactionOperation());
+        executeOperation(transactionId, transactionCoordinatorSecret, new RollbackTransactionOperation());
     }
 
-    public Object executeOperation(String transactionId, String transactionManagerSecret, ITransactionOperation operation) throws Throwable
+    public Object executeOperation(String transactionId, String transactionCoordinatorSecret, ITransactionOperation operation) throws Throwable
     {
         if (transactionId != null)
         {
@@ -188,7 +197,7 @@ public class TransactionParticipant implements ITransactionParticipant
 
             try
             {
-                return thread.execute(transactionManagerSecret, operation);
+                return thread.execute(transactionCoordinatorSecret, operation);
             } finally
             {
                 synchronized (this)
@@ -224,11 +233,9 @@ public class TransactionParticipant implements ITransactionParticipant
 
         private final String transactionId;
 
-        private String transactionManagerSecret;
+        private String transactionCoordinatorSecret;
 
         private Object transaction;
-
-        private TransactionStatus status = TransactionStatus.NEW;
 
         private ITransactionOperation invocation;
 
@@ -249,43 +256,51 @@ public class TransactionParticipant implements ITransactionParticipant
                     {
                         while (true)
                         {
+                            TransactionStatus transactionStatus = null;
+
                             try
                             {
+                                transactionStatus = transactionLog.getLastStatus(transactionId);
+
                                 if (invocation != null)
                                 {
                                     if (invocation instanceof BeginTransactionOperation)
                                     {
-                                        checkTransactionStatus(TransactionStatus.NEW);
-                                        checkTransactionManagerSecret(transactionManagerSecret);
+                                        checkTransactionStatus(transactionStatus, (TransactionStatus) null);
+                                        checkTransactionCoordinatorSecret(transactionCoordinatorSecret);
 
-                                        result = transaction = provider.beginTransaction(transactionId);
-                                        status = TransactionStatus.STARTED;
+                                        transactionLog.logStatus(transactionId, TransactionStatus.BEGIN_STARTED);
+                                        result = transaction = transactionProvider.beginTransaction(transactionId);
+                                        transactionLog.logStatus(transactionId, TransactionStatus.BEGIN_FINISHED);
                                     } else if (invocation instanceof PrepareTransactionOperation)
                                     {
-                                        checkTransactionStatus(TransactionStatus.STARTED);
-                                        checkTransactionManagerSecret(transactionManagerSecret);
+                                        checkTransactionStatus(transactionStatus, TransactionStatus.BEGIN_FINISHED);
+                                        checkTransactionCoordinatorSecret(transactionCoordinatorSecret);
 
-                                        provider.prepareTransaction(transactionId, transaction);
-                                        status = TransactionStatus.PREPARED;
+                                        transactionLog.logStatus(transactionId, TransactionStatus.PREPARE_STARTED);
+                                        transactionProvider.prepareTransaction(transactionId, transaction);
+                                        transactionLog.logStatus(transactionId, TransactionStatus.PREPARE_FINISHED);
                                     } else if (invocation instanceof CommitTransactionOperation)
                                     {
-                                        checkTransactionStatus(TransactionStatus.PREPARED);
-                                        checkTransactionManagerSecret(transactionManagerSecret);
+                                        checkTransactionStatus(transactionStatus, TransactionStatus.PREPARE_FINISHED);
+                                        checkTransactionCoordinatorSecret(transactionCoordinatorSecret);
 
-                                        provider.commitTransaction(transactionId, transaction);
-                                        status = TransactionStatus.COMMITTED;
+                                        transactionLog.logStatus(transactionId, TransactionStatus.COMMIT_STARTED);
+                                        transactionProvider.commitTransaction(transactionId, transaction);
+                                        transactionLog.logStatus(transactionId, TransactionStatus.COMMIT_FINISHED);
                                     } else if (invocation instanceof RollbackTransactionOperation)
                                     {
-                                        checkTransactionStatus(TransactionStatus.NEW, TransactionStatus.STARTED,
-                                                TransactionStatus.PREPARED);
-                                        checkTransactionManagerSecret(transactionManagerSecret);
+                                        checkTransactionStatus(transactionStatus, TransactionStatus.BEGIN_STARTED,
+                                                TransactionStatus.BEGIN_FINISHED, TransactionStatus.PREPARE_STARTED,
+                                                TransactionStatus.PREPARE_FINISHED);
+                                        checkTransactionCoordinatorSecret(transactionCoordinatorSecret);
 
-                                        provider.rollbackTransaction(transactionId, transaction, status);
-
-                                        status = TransactionStatus.ROLLED_BACK;
+                                        transactionLog.logStatus(transactionId, TransactionStatus.ROLLBACK_STARTED);
+                                        transactionProvider.rollbackTransaction(transactionId, transaction);
+                                        transactionLog.logStatus(transactionId, TransactionStatus.ROLLBACK_FINISHED);
                                     } else
                                     {
-                                        checkTransactionStatus(TransactionStatus.STARTED);
+                                        checkTransactionStatus(transactionStatus, TransactionStatus.BEGIN_FINISHED);
                                         result = invocation.executeOperation();
                                     }
 
@@ -295,7 +310,10 @@ public class TransactionParticipant implements ITransactionParticipant
                                     exception = null;
                                     invocation = null;
 
-                                    if (status == TransactionStatus.COMMITTED || status == TransactionStatus.ROLLED_BACK)
+                                    TransactionStatus newTransactionStatus = transactionLog.getLastStatus(transactionId);
+
+                                    if (newTransactionStatus == TransactionStatus.COMMIT_FINISHED
+                                            || newTransactionStatus == TransactionStatus.ROLLBACK_FINISHED)
                                     {
                                         finished = true;
                                         return;
@@ -312,7 +330,7 @@ public class TransactionParticipant implements ITransactionParticipant
                                 result = null;
                                 invocation = null;
 
-                                if (status == TransactionStatus.NEW)
+                                if (transactionStatus == null)
                                 {
                                     finished = true;
                                     return;
@@ -325,21 +343,26 @@ public class TransactionParticipant implements ITransactionParticipant
                     }
                 }
 
-                private void checkTransactionStatus(TransactionStatus... expectedStatuses)
+                private void checkTransactionStatus(TransactionStatus actualStatus, TransactionStatus... expectedStatuses)
                 {
-                    if (!Arrays.asList(expectedStatuses).contains(status))
+                    for (final TransactionStatus expectedStatus : expectedStatuses)
                     {
-                        throw new IllegalStateException(
-                                "Two phase transaction " + transactionId + " unexpected status " + status + ". Expected statuses "
-                                        + Arrays.toString(expectedStatuses) + ".");
+                        if (actualStatus == expectedStatus)
+                        {
+                            return;
+                        }
                     }
+
+                    throw new IllegalStateException(
+                            "Two phase transaction " + transactionId + " unexpected status " + actualStatus + ". Expected statuses "
+                                    + Arrays.toString(expectedStatuses) + ".");
                 }
 
-                private void checkTransactionManagerSecret(String secret)
+                private void checkTransactionCoordinatorSecret(String secret)
                 {
-                    if (secret == null || secret.isBlank())
+                    if (!TRANSACTION_COORDINATOR_SECRET.equals(secret))
                     {
-                        throw new IllegalStateException("Two phase transaction manager secret missing.");
+                        throw new IllegalStateException("Two phase transaction coordinator secret is incorrect.");
                     }
                 }
 
@@ -356,7 +379,7 @@ public class TransactionParticipant implements ITransactionParticipant
             return finished;
         }
 
-        public Object execute(String newTransactionManagerSecret, ITransactionOperation newInvocation) throws Throwable
+        public Object execute(String newTransactionCoordinatorSecret, ITransactionOperation newInvocation) throws Throwable
         {
             synchronized (lock)
             {
@@ -369,7 +392,7 @@ public class TransactionParticipant implements ITransactionParticipant
                                         + invocation.getOperationName() + " hasn't finished yet.");
                     }
 
-                    transactionManagerSecret = newTransactionManagerSecret;
+                    transactionCoordinatorSecret = newTransactionCoordinatorSecret;
                     invocation = newInvocation;
                     result = null;
                     exception = null;

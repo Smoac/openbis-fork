@@ -111,27 +111,27 @@ public class ApplicationServerApiJsonServer extends AbstractApiJsonServiceExport
                         Map<String, String> attributesMap = operationAttributes.get();
 
                         String transactionId = attributesMap.get(TransactionConst.TRANSACTION_ID_ATTRIBUTE);
-                        String transactionManagerSecret = attributesMap.get(TransactionConst.TRANSACTION_MANAGER_SECRET_ATTRIBUTE);
+                        String transactionCoordinatorSecret = attributesMap.get(TransactionConst.TRANSACTION_COORDINATOR_SECRET_ATTRIBUTE);
 
                         if (TransactionConst.BEGIN_TRANSACTION_METHOD.equals(invocation.getMethod().getName()))
                         {
-                            transactionParticipant.beginTransaction(transactionId, transactionManagerSecret);
+                            transactionParticipant.beginTransaction(transactionId, transactionCoordinatorSecret);
                             return null;
                         } else if (TransactionConst.PREPARE_TRANSACTION_METHOD.equals(invocation.getMethod().getName()))
                         {
-                            transactionParticipant.prepareTransaction(transactionId, transactionManagerSecret);
+                            transactionParticipant.prepareTransaction(transactionId, transactionCoordinatorSecret);
                             return null;
                         } else if (TransactionConst.COMMIT_TRANSACTION_METHOD.equals(invocation.getMethod().getName()))
                         {
-                            transactionParticipant.commitTransaction(transactionId, transactionManagerSecret);
+                            transactionParticipant.commitTransaction(transactionId, transactionCoordinatorSecret);
                             return null;
                         } else if (TransactionConst.ROLLBACK_TRANSACTION_METHOD.equals(invocation.getMethod().getName()))
                         {
-                            transactionParticipant.rollbackTransaction(transactionId, transactionManagerSecret);
+                            transactionParticipant.rollbackTransaction(transactionId, transactionCoordinatorSecret);
                             return null;
                         } else
                         {
-                            return transactionParticipant.executeOperation(transactionId, transactionManagerSecret, new ITransactionOperation()
+                            return transactionParticipant.executeOperation(transactionId, transactionCoordinatorSecret, new ITransactionOperation()
                             {
                                 @Override public String getOperationName()
                                 {

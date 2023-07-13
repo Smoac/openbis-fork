@@ -30,7 +30,7 @@ public class TransactionParticipantTest
 
     public static final Object TEST_TRANSACTION_2 = new Object();
 
-    public static final String TEST_SECRET = "test-secret";
+    public static final String TEST_SECRET = "i_am_secret";
 
     public static final String TEST_OPERATION_NAME = "test-operation";
 
@@ -48,13 +48,16 @@ public class TransactionParticipantTest
 
     private Mockery mockery;
 
-    private ITransactionProvider provider;
+    private ITransactionProvider transactionProvider;
+
+    private ITransactionLog transactionLog;
 
     @BeforeMethod
     protected void beforeMethod()
     {
         mockery = new Mockery();
-        provider = mockery.mock(ITransactionProvider.class);
+        transactionProvider = mockery.mock(ITransactionProvider.class);
+        transactionLog = new TransactionLog();
     }
 
     @AfterMethod
@@ -66,7 +69,7 @@ public class TransactionParticipantTest
     @Test
     public void testDifferentTransactionsAreExecutedInSeparateThreads() throws Throwable
     {
-        TransactionParticipant executor = new TransactionParticipant(provider);
+        TransactionParticipant executor = new TransactionParticipant(transactionProvider, transactionLog);
 
         MutableObject<String> transaction1BeginThreadName = new MutableObject<>();
         MutableObject<String> transaction1PrepareThreadName = new MutableObject<>();
@@ -78,7 +81,7 @@ public class TransactionParticipantTest
         mockery.checking(new Expectations()
         {
             {
-                one(provider).beginTransaction(with(TEST_TRANSACTION_ID));
+                one(transactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
                 will(new CustomAction("beginTransaction")
                 {
                     @Override public Object invoke(final Invocation invocation) throws Throwable
@@ -88,7 +91,7 @@ public class TransactionParticipantTest
                     }
                 });
 
-                one(provider).prepareTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
+                one(transactionProvider).prepareTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
                 will(new CustomAction("prepareTransaction")
                 {
                     @Override public Object invoke(final Invocation invocation) throws Throwable
@@ -98,7 +101,7 @@ public class TransactionParticipantTest
                     }
                 });
 
-                one(provider).commitTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
+                one(transactionProvider).commitTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
                 will(new CustomAction("commitTransaction")
                 {
                     @Override public Object invoke(final Invocation invocation) throws Throwable
@@ -108,7 +111,7 @@ public class TransactionParticipantTest
                     }
                 });
 
-                one(provider).beginTransaction(with(TEST_TRANSACTION_ID_2));
+                one(transactionProvider).beginTransaction(with(TEST_TRANSACTION_ID_2));
                 will(new CustomAction("beginTransaction")
                 {
                     @Override public Object invoke(final Invocation invocation) throws Throwable
@@ -118,7 +121,7 @@ public class TransactionParticipantTest
                     }
                 });
 
-                one(provider).rollbackTransaction(with(TEST_TRANSACTION_ID_2), with(TEST_TRANSACTION_2), with(TransactionStatus.STARTED));
+                one(transactionProvider).rollbackTransaction(with(TEST_TRANSACTION_ID_2), with(TEST_TRANSACTION_2));
                 will(new CustomAction("rollbackTransaction")
                 {
                     @Override public Object invoke(final Invocation invocation) throws Throwable
@@ -171,15 +174,20 @@ public class TransactionParticipantTest
     @Test(dataProvider = "provideExceptions")
     public void testBeginTransactionFails(Throwable throwable) throws Throwable
     {
-        TransactionParticipant executor = new TransactionParticipant(provider);
+        TransactionParticipant executor = new TransactionParticipant(transactionProvider, transactionLog);
 
         mockery.checking(new Expectations()
         {
             {
-                one(provider).beginTransaction(with(TEST_TRANSACTION_ID));
+                one(transactionLog).getLastStatus(TEST_TRANSACTION_ID);
+                will(returnValue(null));
+
+                one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED);
+
+                one(transactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
                 will(throwException(throwable));
 
-                one(provider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(aNull(Object.class)), with(TransactionStatus.NEW));
+                one(transactionProvider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(aNull(Object.class)));
             }
         });
 
@@ -200,15 +208,15 @@ public class TransactionParticipantTest
     @Test(dataProvider = "provideExceptions")
     public void testExecuteOperationFails(Throwable throwable) throws Throwable
     {
-        TransactionParticipant executor = new TransactionParticipant(provider);
+        TransactionParticipant executor = new TransactionParticipant(transactionProvider, transactionLog);
 
         mockery.checking(new Expectations()
         {
             {
-                one(provider).beginTransaction(with(TEST_TRANSACTION_ID));
+                one(transactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
                 will(returnValue(TEST_TRANSACTION));
 
-                one(provider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION), with(TransactionStatus.STARTED));
+                one(transactionProvider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
             }
         });
 
@@ -244,17 +252,17 @@ public class TransactionParticipantTest
     @Test(dataProvider = "provideExceptions")
     public void testExecuteOperationFailsButGetsRetriedAndSucceeds(Throwable throwable) throws Throwable
     {
-        TransactionParticipant executor = new TransactionParticipant(provider);
+        TransactionParticipant executor = new TransactionParticipant(transactionProvider, transactionLog);
 
         mockery.checking(new Expectations()
         {
             {
-                one(provider).beginTransaction(with(TEST_TRANSACTION_ID));
+                one(transactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
                 will(returnValue(TEST_TRANSACTION));
 
-                one(provider).prepareTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
+                one(transactionProvider).prepareTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
 
-                one(provider).commitTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
+                one(transactionProvider).commitTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
             }
         });
 
@@ -305,15 +313,15 @@ public class TransactionParticipantTest
     @Test(dataProvider = "provideExceptions")
     public void testRollbackFails(Throwable throwable) throws Throwable
     {
-        TransactionParticipant executor = new TransactionParticipant(provider);
+        TransactionParticipant executor = new TransactionParticipant(transactionProvider, transactionLog);
 
         mockery.checking(new Expectations()
         {
             {
-                one(provider).beginTransaction(with(TEST_TRANSACTION_ID));
+                one(transactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
                 will(returnValue(TEST_TRANSACTION));
 
-                one(provider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION), with(TransactionStatus.STARTED));
+                one(transactionProvider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
                 will(throwException(throwable));
             }
         });
@@ -338,18 +346,18 @@ public class TransactionParticipantTest
     @Test(dataProvider = "provideExceptions")
     public void testPrepareFails(Throwable throwable) throws Throwable
     {
-        TransactionParticipant executor = new TransactionParticipant(provider);
+        TransactionParticipant executor = new TransactionParticipant(transactionProvider, transactionLog);
 
         mockery.checking(new Expectations()
         {
             {
-                one(provider).beginTransaction(with(TEST_TRANSACTION_ID));
+                one(transactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
                 will(returnValue(TEST_TRANSACTION));
 
-                one(provider).prepareTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
+                one(transactionProvider).prepareTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
                 will(throwException(throwable));
 
-                one(provider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION), with(TransactionStatus.STARTED));
+                one(transactionProvider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
             }
         });
 
@@ -375,20 +383,20 @@ public class TransactionParticipantTest
     @Test(dataProvider = "provideExceptions")
     public void testCommitFails(Throwable throwable) throws Throwable
     {
-        TransactionParticipant executor = new TransactionParticipant(provider);
+        TransactionParticipant executor = new TransactionParticipant(transactionProvider, transactionLog);
 
         mockery.checking(new Expectations()
         {
             {
-                one(provider).beginTransaction(with(TEST_TRANSACTION_ID));
+                one(transactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
                 will(returnValue(TEST_TRANSACTION));
 
-                one(provider).prepareTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
+                one(transactionProvider).prepareTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
 
-                one(provider).commitTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
+                one(transactionProvider).commitTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
                 will(throwException(throwable));
 
-                one(provider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION), with(TransactionStatus.PREPARED));
+                one(transactionProvider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
             }
         });
 
@@ -417,12 +425,12 @@ public class TransactionParticipantTest
     @Test
     public void testNewTransactionCanBeStarted() throws Throwable
     {
-        TransactionParticipant executor = new TransactionParticipant(provider);
+        TransactionParticipant executor = new TransactionParticipant(transactionProvider, transactionLog);
 
         mockery.checking(new Expectations()
         {
             {
-                one(provider).beginTransaction(with(TEST_TRANSACTION_ID));
+                one(transactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
             }
         });
 
@@ -432,7 +440,7 @@ public class TransactionParticipantTest
     @Test
     public void testNewTransactionCannotExecuteOperations() throws Throwable
     {
-        TransactionParticipant executor = new TransactionParticipant(provider);
+        TransactionParticipant executor = new TransactionParticipant(transactionProvider, transactionLog);
 
         try
         {
@@ -447,7 +455,7 @@ public class TransactionParticipantTest
     @Test
     public void testNewTransactionCannotBePrepared() throws Throwable
     {
-        TransactionParticipant executor = new TransactionParticipant(provider);
+        TransactionParticipant executor = new TransactionParticipant(transactionProvider, transactionLog);
 
         try
         {
@@ -462,7 +470,7 @@ public class TransactionParticipantTest
     @Test
     public void testNewTransactionCannotBeCommitted() throws Throwable
     {
-        TransactionParticipant executor = new TransactionParticipant(provider);
+        TransactionParticipant executor = new TransactionParticipant(transactionProvider, transactionLog);
 
         try
         {
@@ -477,12 +485,12 @@ public class TransactionParticipantTest
     @Test
     public void testNewTransactionCanBeRolledBack() throws Throwable
     {
-        TransactionParticipant executor = new TransactionParticipant(provider);
+        TransactionParticipant executor = new TransactionParticipant(transactionProvider, transactionLog);
 
         mockery.checking(new Expectations()
         {
             {
-                one(provider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(aNull(Object.class)), with(TransactionStatus.NEW));
+                one(transactionProvider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(aNull(Object.class)));
             }
         });
 
@@ -492,12 +500,12 @@ public class TransactionParticipantTest
     @Test
     public void testStartedTransactionCannotBeStarted() throws Throwable
     {
-        TransactionParticipant executor = new TransactionParticipant(provider);
+        TransactionParticipant executor = new TransactionParticipant(transactionProvider, transactionLog);
 
         mockery.checking(new Expectations()
         {
             {
-                one(provider).beginTransaction(with(TEST_TRANSACTION_ID));
+                one(transactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
             }
         });
 
@@ -516,12 +524,12 @@ public class TransactionParticipantTest
     @Test
     public void testStartedTransactionCanExecuteOperations() throws Throwable
     {
-        TransactionParticipant executor = new TransactionParticipant(provider);
+        TransactionParticipant executor = new TransactionParticipant(transactionProvider, transactionLog);
 
         mockery.checking(new Expectations()
         {
             {
-                one(provider).beginTransaction(with(TEST_TRANSACTION_ID));
+                one(transactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
             }
         });
 
@@ -537,17 +545,17 @@ public class TransactionParticipantTest
     @Test
     public void testStartedTransactionCanPrepare() throws Throwable
     {
-        TransactionParticipant executor = new TransactionParticipant(provider);
+        TransactionParticipant executor = new TransactionParticipant(transactionProvider, transactionLog);
 
         mockery.checking(new Expectations()
         {
             {
                 Object transaction = new Object();
 
-                one(provider).beginTransaction(with(TEST_TRANSACTION_ID));
+                one(transactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
                 will(returnValue(transaction));
 
-                one(provider).prepareTransaction(with(TEST_TRANSACTION_ID), with(transaction));
+                one(transactionProvider).prepareTransaction(with(TEST_TRANSACTION_ID), with(transaction));
             }
         });
 
@@ -558,17 +566,17 @@ public class TransactionParticipantTest
     @Test
     public void testStartedTransactionCanBeRolledBack() throws Throwable
     {
-        TransactionParticipant executor = new TransactionParticipant(provider);
+        TransactionParticipant executor = new TransactionParticipant(transactionProvider, transactionLog);
 
         mockery.checking(new Expectations()
         {
             {
                 Object transaction = new Object();
 
-                one(provider).beginTransaction(with(TEST_TRANSACTION_ID));
+                one(transactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
                 will(returnValue(transaction));
 
-                one(provider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(transaction), with(TransactionStatus.STARTED));
+                one(transactionProvider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(transaction));
             }
         });
 
@@ -579,14 +587,14 @@ public class TransactionParticipantTest
     @Test
     public void testStartedTransactionCannotBeCommitted() throws Throwable
     {
-        TransactionParticipant executor = new TransactionParticipant(provider);
+        TransactionParticipant executor = new TransactionParticipant(transactionProvider, transactionLog);
 
         mockery.checking(new Expectations()
         {
             {
                 Object transaction = new Object();
 
-                one(provider).beginTransaction(with(TEST_TRANSACTION_ID));
+                one(transactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
                 will(returnValue(transaction));
             }
         });
@@ -605,17 +613,17 @@ public class TransactionParticipantTest
     @Test
     public void testPreparedTransactionCannotBeStarted() throws Throwable
     {
-        TransactionParticipant executor = new TransactionParticipant(provider);
+        TransactionParticipant executor = new TransactionParticipant(transactionProvider, transactionLog);
 
         mockery.checking(new Expectations()
         {
             {
                 Object transaction = new Object();
 
-                one(provider).beginTransaction(with(TEST_TRANSACTION_ID));
+                one(transactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
                 will(returnValue(transaction));
 
-                one(provider).prepareTransaction(with(TEST_TRANSACTION_ID), with(transaction));
+                one(transactionProvider).prepareTransaction(with(TEST_TRANSACTION_ID), with(transaction));
             }
         });
 
@@ -634,17 +642,17 @@ public class TransactionParticipantTest
     @Test
     public void testPreparedTransactionCannotBePrepared() throws Throwable
     {
-        TransactionParticipant executor = new TransactionParticipant(provider);
+        TransactionParticipant executor = new TransactionParticipant(transactionProvider, transactionLog);
 
         mockery.checking(new Expectations()
         {
             {
                 Object transaction = new Object();
 
-                one(provider).beginTransaction(with(TEST_TRANSACTION_ID));
+                one(transactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
                 will(returnValue(transaction));
 
-                one(provider).prepareTransaction(with(TEST_TRANSACTION_ID), with(transaction));
+                one(transactionProvider).prepareTransaction(with(TEST_TRANSACTION_ID), with(transaction));
             }
         });
 
@@ -663,17 +671,17 @@ public class TransactionParticipantTest
     @Test
     public void testPreparedTransactionCannotExecuteOperations() throws Throwable
     {
-        TransactionParticipant executor = new TransactionParticipant(provider);
+        TransactionParticipant executor = new TransactionParticipant(transactionProvider, transactionLog);
 
         mockery.checking(new Expectations()
         {
             {
                 Object transaction = new Object();
 
-                one(provider).beginTransaction(with(TEST_TRANSACTION_ID));
+                one(transactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
                 will(returnValue(transaction));
 
-                one(provider).prepareTransaction(with(TEST_TRANSACTION_ID), with(transaction));
+                one(transactionProvider).prepareTransaction(with(TEST_TRANSACTION_ID), with(transaction));
             }
         });
 
@@ -692,19 +700,19 @@ public class TransactionParticipantTest
     @Test
     public void testPreparedTransactionCanBeRolledBack() throws Throwable
     {
-        TransactionParticipant executor = new TransactionParticipant(provider);
+        TransactionParticipant executor = new TransactionParticipant(transactionProvider, transactionLog);
 
         mockery.checking(new Expectations()
         {
             {
                 Object transaction = new Object();
 
-                one(provider).beginTransaction(with(TEST_TRANSACTION_ID));
+                one(transactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
                 will(returnValue(transaction));
 
-                one(provider).prepareTransaction(with(TEST_TRANSACTION_ID), with(transaction));
+                one(transactionProvider).prepareTransaction(with(TEST_TRANSACTION_ID), with(transaction));
 
-                one(provider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(transaction), with(TransactionStatus.PREPARED));
+                one(transactionProvider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(transaction));
             }
         });
 
@@ -716,19 +724,19 @@ public class TransactionParticipantTest
     @Test
     public void testPreparedTransactionCanCommit() throws Throwable
     {
-        TransactionParticipant executor = new TransactionParticipant(provider);
+        TransactionParticipant executor = new TransactionParticipant(transactionProvider, transactionLog);
 
         mockery.checking(new Expectations()
         {
             {
                 Object transaction = new Object();
 
-                one(provider).beginTransaction(with(TEST_TRANSACTION_ID));
+                one(transactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
                 will(returnValue(transaction));
 
-                one(provider).prepareTransaction(with(TEST_TRANSACTION_ID), with(transaction));
+                one(transactionProvider).prepareTransaction(with(TEST_TRANSACTION_ID), with(transaction));
 
-                one(provider).commitTransaction(with(TEST_TRANSACTION_ID), with(transaction));
+                one(transactionProvider).commitTransaction(with(TEST_TRANSACTION_ID), with(transaction));
             }
         });
 
@@ -740,19 +748,19 @@ public class TransactionParticipantTest
     @Test
     public void testCommittedTransactionIsForgotten() throws Throwable
     {
-        TransactionParticipant executor = new TransactionParticipant(provider);
+        TransactionParticipant executor = new TransactionParticipant(transactionProvider, transactionLog);
 
         mockery.checking(new Expectations()
         {
             {
                 Object transaction = new Object();
 
-                allowing(provider).beginTransaction(with(TEST_TRANSACTION_ID));
+                allowing(transactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
                 will(returnValue(transaction));
 
-                one(provider).prepareTransaction(with(TEST_TRANSACTION_ID), with(transaction));
+                one(transactionProvider).prepareTransaction(with(TEST_TRANSACTION_ID), with(transaction));
 
-                one(provider).commitTransaction(with(TEST_TRANSACTION_ID), with(transaction));
+                one(transactionProvider).commitTransaction(with(TEST_TRANSACTION_ID), with(transaction));
             }
         });
 

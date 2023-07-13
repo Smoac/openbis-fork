@@ -30,21 +30,19 @@ public class TransactionCoordinator implements ITransactionCoordinator
 
     private static final String APPLICATION_SERVER_URL_2 = "http://127.0.0.1:9999";
 
-    private static final String TRANSACTION_LOGS_FOLDER_PATH = "transaction-logs";
-
     private static final String SECRET = "i_am_secret";
 
     private static final long TIMEOUT = 10000000;
 
     private List<ITransactionCoordinatorParticipant> participants = new ArrayList<>();
 
-    private ITransactionCoordinatorLog transactionLog;
+    private ITransactionLog transactionLog;
 
     public TransactionCoordinator()
     {
     }
 
-    public TransactionCoordinator(final List<ITransactionCoordinatorParticipant> participants, final ITransactionCoordinatorLog transactionLog)
+    public TransactionCoordinator(final List<ITransactionCoordinatorParticipant> participants, final ITransactionLog transactionLog)
     {
         this.participants = Collections.unmodifiableList(participants);
         this.transactionLog = transactionLog;
@@ -56,18 +54,18 @@ public class TransactionCoordinator implements ITransactionCoordinator
         this.participants = List.of(
                 new ApplicationServerApiParticipant(APPLICATION_SERVER_URL, TIMEOUT),
                 new ApplicationServerApiParticipant(APPLICATION_SERVER_URL_2, TIMEOUT));
-        this.transactionLog = new TransactionCoordinatorLog(TRANSACTION_LOGS_FOLDER_PATH);
+        this.transactionLog = new TransactionLog();
     }
 
     public void restoreTransactions()
     {
-        Map<String, TransactionCoordinatorStatus> lastStatuses = transactionLog.getLastStatuses();
+        Map<String, TransactionStatus> lastStatuses = transactionLog.getLastStatuses();
 
         if (lastStatuses != null && !lastStatuses.isEmpty())
         {
             for (String transactionId : lastStatuses.keySet())
             {
-                TransactionCoordinatorStatus lastStatus = lastStatuses.get(transactionId);
+                TransactionStatus lastStatus = lastStatuses.get(transactionId);
 
                 operationLog.info("Restoring transaction '" + transactionId + "' with last status '" + lastStatus + "'");
 
@@ -75,22 +73,25 @@ public class TransactionCoordinator implements ITransactionCoordinator
                 {
                     case BEGIN_STARTED:
                     case BEGIN_FINISHED:
-                    case COMMIT_STARTED:
+                    case PREPARE_STARTED:
                     case ROLLBACK_STARTED:
                         try
                         {
+                            transactionLog.logStatus(transactionId, TransactionStatus.ROLLBACK_STARTED);
                             rollbackTransactionOnParticipants(transactionId, null);
-                            transactionLog.logStatus(transactionId, TransactionCoordinatorStatus.ROLLBACK_FINISHED);
+                            transactionLog.logStatus(transactionId, TransactionStatus.ROLLBACK_FINISHED);
                         } catch (Exception e)
                         {
                             operationLog.info("Transaction '" + transactionId + "' restore of started rollback failed.", e);
                         }
                         break;
-                    case COMMIT_PREPARED:
+                    case PREPARE_FINISHED:
+                    case COMMIT_STARTED:
                         try
                         {
+                            transactionLog.logStatus(transactionId, TransactionStatus.COMMIT_STARTED);
                             commitTransactionOnParticipants(transactionId);
-                            transactionLog.logStatus(transactionId, TransactionCoordinatorStatus.COMMIT_FINISHED);
+                            transactionLog.logStatus(transactionId, TransactionStatus.COMMIT_FINISHED);
                         } catch (Exception e)
                         {
                             operationLog.info("Transaction '" + transactionId + "' restore of prepared commit failed.", e);
@@ -113,9 +114,9 @@ public class TransactionCoordinator implements ITransactionCoordinator
     {
         operationLog.info("Begin transaction '" + transactionId + "' started.");
 
-        transactionLog.logStatus(transactionId, TransactionCoordinatorStatus.BEGIN_STARTED);
+        transactionLog.logStatus(transactionId, TransactionStatus.BEGIN_STARTED);
         beginTransactionOnParticipants(transactionId);
-        transactionLog.logStatus(transactionId, TransactionCoordinatorStatus.BEGIN_FINISHED);
+        transactionLog.logStatus(transactionId, TransactionStatus.BEGIN_FINISHED);
 
         operationLog.info("Begin transaction '" + transactionId + "' finished.");
     }
@@ -135,9 +136,9 @@ public class TransactionCoordinator implements ITransactionCoordinator
                 operationLog.info(
                         "Begin transaction '" + transactionId + "' failed for participant '" + participant.getParticipantId() + "'.", e);
 
-                transactionLog.logStatus(transactionId, TransactionCoordinatorStatus.ROLLBACK_STARTED);
+                transactionLog.logStatus(transactionId, TransactionStatus.ROLLBACK_STARTED);
                 rollbackTransactionOnParticipants(transactionId, index);
-                transactionLog.logStatus(transactionId, TransactionCoordinatorStatus.ROLLBACK_FINISHED);
+                transactionLog.logStatus(transactionId, TransactionStatus.ROLLBACK_FINISHED);
 
                 throw e;
             }
@@ -148,11 +149,13 @@ public class TransactionCoordinator implements ITransactionCoordinator
     {
         operationLog.info("Commit transaction '" + transactionId + "' started.");
 
-        transactionLog.logStatus(transactionId, TransactionCoordinatorStatus.COMMIT_STARTED);
+        transactionLog.logStatus(transactionId, TransactionStatus.PREPARE_STARTED);
         prepareTransactionOnParticipants(transactionId);
-        transactionLog.logStatus(transactionId, TransactionCoordinatorStatus.COMMIT_PREPARED);
+        transactionLog.logStatus(transactionId, TransactionStatus.PREPARE_FINISHED);
+
+        transactionLog.logStatus(transactionId, TransactionStatus.COMMIT_STARTED);
         commitTransactionOnParticipants(transactionId);
-        transactionLog.logStatus(transactionId, TransactionCoordinatorStatus.COMMIT_FINISHED);
+        transactionLog.logStatus(transactionId, TransactionStatus.COMMIT_FINISHED);
 
         operationLog.info("Commit transaction '" + transactionId + "' finished.");
     }
@@ -170,9 +173,9 @@ public class TransactionCoordinator implements ITransactionCoordinator
                 operationLog.info(
                         "Prepare transaction '" + transactionId + "' failed for participant '" + participant.getParticipantId() + "'.", e);
 
-                transactionLog.logStatus(transactionId, TransactionCoordinatorStatus.ROLLBACK_STARTED);
+                transactionLog.logStatus(transactionId, TransactionStatus.ROLLBACK_STARTED);
                 rollbackTransactionOnParticipants(transactionId, null);
-                transactionLog.logStatus(transactionId, TransactionCoordinatorStatus.ROLLBACK_FINISHED);
+                transactionLog.logStatus(transactionId, TransactionStatus.ROLLBACK_FINISHED);
 
                 throw e;
             }
@@ -192,9 +195,9 @@ public class TransactionCoordinator implements ITransactionCoordinator
                 operationLog.info(
                         "Commit transaction '" + transactionId + "' failed for participant '" + participant.getParticipantId() + "'.", e);
 
-                transactionLog.logStatus(transactionId, TransactionCoordinatorStatus.ROLLBACK_STARTED);
+                transactionLog.logStatus(transactionId, TransactionStatus.ROLLBACK_STARTED);
                 rollbackTransactionOnParticipants(transactionId, null);
-                transactionLog.logStatus(transactionId, TransactionCoordinatorStatus.ROLLBACK_FINISHED);
+                transactionLog.logStatus(transactionId, TransactionStatus.ROLLBACK_FINISHED);
 
                 throw e;
             }
@@ -205,9 +208,9 @@ public class TransactionCoordinator implements ITransactionCoordinator
     {
         operationLog.info("Rollback transaction '" + transactionId + "' started.");
 
-        transactionLog.logStatus(transactionId, TransactionCoordinatorStatus.ROLLBACK_STARTED);
+        transactionLog.logStatus(transactionId, TransactionStatus.ROLLBACK_STARTED);
         rollbackTransactionOnParticipants(transactionId, null);
-        transactionLog.logStatus(transactionId, TransactionCoordinatorStatus.ROLLBACK_FINISHED);
+        transactionLog.logStatus(transactionId, TransactionStatus.ROLLBACK_FINISHED);
 
         operationLog.info("Rollback transaction '" + transactionId + "' finished.");
     }
@@ -308,7 +311,7 @@ public class TransactionCoordinator implements ITransactionCoordinator
             {
                 Map<String, Serializable> attributes = new HashMap<>();
                 attributes.put(TransactionConst.TRANSACTION_ID_ATTRIBUTE, (String) methodInvocation.getArguments()[0]);
-                attributes.put(TransactionConst.TRANSACTION_MANAGER_SECRET_ATTRIBUTE, SECRET);
+                attributes.put(TransactionConst.TRANSACTION_COORDINATOR_SECRET_ATTRIBUTE, SECRET);
 
                 RemoteInvocation remoteInvocation = super.createRemoteInvocation(methodInvocation);
                 remoteInvocation.setAttributes(attributes);
