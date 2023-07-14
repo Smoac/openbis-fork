@@ -94,15 +94,17 @@ task compileGWTToTempJDK11(type: Copy, dependsOn: untarGwt) {
 
 task copyV3Api(type: Copy, dependsOn: [compileGWTToTempJDK11, ':api-openbis-javascript:bundleOpenbisStaticResources']) {
     from("${project(':api-openbis-javascript').projectDir}/src/v3")
-    into "${gwtTempPath}/ch.systemsx.cisd.openbis.OpenBIS/resources/api/v3"
-}
-
-task copyDSSApi(type: Copy) {
     from("${project(':api-data-store-server-javascript').projectDir}/src/js")
     into "${gwtTempPath}/ch.systemsx.cisd.openbis.OpenBIS/resources/api/v3"
 }
 
-task openBISDevelopmentEnvironmentASPrepare(type: Copy, dependsOn: [copyV3Api, copyDSSApi]) {
+task copyV3Api(type: Copy, dependsOn: [compileGWTToTempJDK11, ':api-openbis-javascript:bundleOpenbisStaticResources']) {
+    from("${project(':api-openbis-javascript').projectDir}/src/v3")
+    from("${project(':api-data-store-server-javascript').projectDir}/src/js")
+    into "${gwtTempPath}/ch.systemsx.cisd.openbis.OpenBIS/resources/api/v3"
+}
+
+task openBISDevelopmentEnvironmentASPrepare(type: Copy, dependsOn: [copyV3Api]) {
     from "${gwtTempPath}/ch.systemsx.cisd.openbis.OpenBIS"
     into "targets/www/openbis-test"
 }
