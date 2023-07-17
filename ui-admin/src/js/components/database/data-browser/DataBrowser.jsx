@@ -28,7 +28,6 @@ const styles = theme => ({
   },
   flexContainer: {
     display: 'flex',
-    flexWrap: 'wrap',
     '&>*': {
       flex: '0 0 auto',
       padding: theme.spacing(1),
@@ -122,11 +121,10 @@ class DataBrowser extends React.Component {
     })
   }
 
-  async load(params) {
+  async load() {
     await this.login()
     const files = await this.listFiles()
-    this.setState({ files: files })
-    console.log('Received data: ' + files)
+    this.setState({ files })
     return await files.map(file => ({ id: file.name, ...file }))
   }
 
