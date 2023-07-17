@@ -12,9 +12,9 @@ import Grid from '@src/js/components/common/grid/Grid.jsx'
 import GridFilterOptions from '@src/js/components/common/grid/GridFilterOptions.js'
 import AppController from '@src/js/components/AppController.js'
 import ItemIcon from '@src/js/components/database/data-browser/ItemIcon.jsx'
-import InfoPanel from "@src/js/components/database/data-browser/InfoPanel.jsx";
+import InfoPanel from '@src/js/components/database/data-browser/InfoPanel.jsx'
 
-const HTTP_SERVER_URI = "/data-store-server";
+const HTTP_SERVER_URI = '/data-store-server'
 
 const styles = theme => ({
   boundary: {
@@ -64,102 +64,22 @@ const configuration =
   ]
 
 class DataBrowser extends React.Component {
-
   constructor(props, context) {
     super(props, context)
     autoBind(this)
-    this.datastoreServer = new DataStoreServer('http://localhost:8085', HTTP_SERVER_URI);
-
-    const owner = "demo-sample"
-    const source = ""
-    this.datastoreServer.login("admin", "changeit", this.login);
-
+    this.datastoreServer = new DataStoreServer(
+      'http://localhost:8085',
+      HTTP_SERVER_URI
+    )
 
     this.state = {
       viewType: props.viewType,
-      files: [
-        {
-          name: 'Processed',
-          folder: true,
-          size: 0,
-          creationTime: new Date('2020-08-13 14:45:54.034563'),
-          lastModifiedTime: new Date('2022-02-24 04:35:21.486930'),
-          lastAccessTime: new Date('2023-05-25 14:55:31.902857')
-        },
-        {
-          name: 'Text.txt',
-          folder: false,
-          size: 21432,
-          creationTime: new Date('2020-08-13 14:45:54.034563'),
-          lastModifiedTime: new Date('2022-02-24 04:35:21.486930'),
-          lastAccessTime: new Date('2023-05-25 14:55:31.902857')
-        },
-        {
-          name: 'Movie.mp4',
-          folder: false,
-          size: 2143243443537,
-          creationTime: new Date('2020-08-13 14:45:54.034563'),
-          lastModifiedTime: new Date('2022-02-24 04:35:21.486930'),
-          lastAccessTime: new Date('2023-05-25 14:55:31.902857')
-        },
-        {
-          name: 'Music.mp3',
-          folder: false,
-          size: 21432443,
-          creationTime: new Date('2020-08-13 14:45:54.034563'),
-          lastModifiedTime: new Date('2022-02-24 04:35:21.486930'),
-          lastAccessTime: new Date('2023-05-25 14:55:31.902857')
-        },
-        {
-          name: 'Image.png',
-          folder: false,
-          size: 214323234,
-          creationTime: new Date('2020-08-13 14:45:54.034563'),
-          lastModifiedTime: new Date('2022-02-24 04:35:21.486930'),
-          lastAccessTime: new Date('2023-05-25 14:55:31.902857')
-        },
-        {
-          name: 'lock',
-          folder: false,
-          size: 0,
-          creationTime: new Date('2020-08-13 14:45:54.034563'),
-          lastModifiedTime: new Date('2023-05-30 15:33:14.048038'),
-          lastAccessTime: new Date('2023-05-30 15:33:14.048038')
-        }
-      ],
+      files: [],
       selectedFile: null,
       multiselectedFiles: new Set([]),
       showInfo: false
     }
   }
-
-  login(token) {
-    if (!token) {
-      alert("Could not perform login.");
-      return;
-    }
-
-    console.log("Token: " + token)
-    this.datastoreServer.list("demo-sample", "", "true", this.displayReturnedFiles)
-  }
-
-  displayReturnedFiles(data) {
-    if (data.error) {
-      console.error(data.error);
-      alert("Could not list files.");
-      return;
-    }
-
-    const results = data.result[1];
-
-    // Restrict the display to 50 samples
-    // results = results.splice(0, 50);
-
-    // generateTable(results);
-
-    console.log("Received data: " + results)
-  }
-
   handleViewTypeChange(viewType) {
     this.setState({ viewType })
   }
@@ -169,15 +89,45 @@ class DataBrowser extends React.Component {
   }
 
   handleSelect(selectedRow) {
-    this.setState({selectedFile: selectedRow && selectedRow.data});
+    this.setState({ selectedFile: selectedRow && selectedRow.data })
   }
 
   handleMultiselect(file) {
     // TODO: implement
   }
 
+  async login() {
+    return new Promise((resolve, reject) => {
+      this.datastoreServer.login('admin', 'changeit', token => {
+        if (token) {
+          resolve(token)
+        } else {
+          reject('Could not perform login.')
+        }
+      })
+    })
+  }
+
+  async listFiles() {
+    return new Promise((resolve, reject) => {
+      this.datastoreServer.list('demo-sample', '', 'true', (data) => {
+        if (!data.error) {
+          const results = data.result[1]
+          const files = results.map(result => result[1])
+          resolve(files)
+        } else {
+          reject(data.error)
+        }
+      })
+    })
+  }
+
   async load(params) {
-    return await this.state.files.map((file) => ({id: file.name, ...file}));
+    await this.login()
+    const files = await this.listFiles()
+    this.setState({ files: files })
+    console.log('Received data: ' + files)
+    return await files.map(file => ({ id: file.name, ...file }))
   }
 
   async onError(error) {
@@ -185,12 +135,13 @@ class DataBrowser extends React.Component {
   }
 
   handleShowInfoChange() {
-    this.setState({showInfo: !this.state.showInfo})
+    this.setState({ showInfo: !this.state.showInfo })
   }
 
   render() {
     const { classes } = this.props
-    const { viewType, files, selectedFile, multiselectedFiles, showInfo } = this.state
+    const { viewType, files, selectedFile, multiselectedFiles, showInfo } =
+      this.state
 
     return (
       <Paper className={classes.boundary}>
@@ -214,7 +165,16 @@ class DataBrowser extends React.Component {
                   label: 'Name',
                   sortable: true,
                   getValue: ({ row }) => row.name,
-                  renderValue: ({ row }) => <><ItemIcon file={row} classes={{ icon: classes.icon }} configuration={configuration} /> {row.name}</>,
+                  renderValue: ({ row }) => (
+                    <>
+                      <ItemIcon
+                        file={row}
+                        classes={{ icon: classes.icon }}
+                        configuration={configuration}
+                      />{' '}
+                      {row.name}
+                    </>
+                  ),
                   renderFilter: null
                 },
                 {
@@ -228,7 +188,7 @@ class DataBrowser extends React.Component {
                   label: 'Modified',
                   sortable: false,
                   getValue: ({ row }) => row.lastModifiedTime.toLocaleString()
-                },
+                }
               ]}
               loadRows={this.load}
               sort='registrationDate'
@@ -253,11 +213,13 @@ class DataBrowser extends React.Component {
               onMultiselect={this.handleMultiselect}
               configuration={configuration}
               files={files}
-              selectedFile = {selectedFile}
-              multiselectedFiles = {multiselectedFiles}
+              selectedFile={selectedFile}
+              multiselectedFiles={multiselectedFiles}
             />
           )}
-          {showInfo && selectedFile && <InfoPanel file={selectedFile} configuration={configuration} />}
+          {showInfo && selectedFile && (
+            <InfoPanel file={selectedFile} configuration={configuration} />
+          )}
         </div>
       </Paper>
     )
