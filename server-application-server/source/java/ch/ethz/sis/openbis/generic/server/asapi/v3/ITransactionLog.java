@@ -7,8 +7,6 @@ public interface ITransactionLog
 
     void logStatus(final String transactionId, TransactionStatus transactionStatus);
 
-    TransactionStatus getLastStatus(String transactionId);
-
     Map<String, TransactionStatus> getLastStatuses();
 
 }

@@ -22,11 +22,6 @@ public class TransactionLog implements ITransactionLog
         statuses.put(transactionId, transactionStatus);
     }
 
-    @Override public TransactionStatus getLastStatus(final String transactionId)
-    {
-        return statuses.get(transactionId);
-    }
-
     @Override public Map<String, TransactionStatus> getLastStatuses()
     {
         return Collections.unmodifiableMap(statuses);
