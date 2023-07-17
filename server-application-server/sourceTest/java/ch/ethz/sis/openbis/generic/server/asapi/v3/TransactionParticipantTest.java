@@ -52,12 +52,18 @@ public class TransactionParticipantTest
 
     private ITransactionLog transactionLog;
 
+    private ITransactionOperation transactionOperation;
+
+    private ITransactionOperation transactionOperation2;
+
     @BeforeMethod
     protected void beforeMethod()
     {
         mockery = new Mockery();
         databaseTransactionProvider = mockery.mock(IDatabaseTransactionProvider.class);
         transactionLog = mockery.mock(ITransactionLog.class);
+        transactionOperation = mockery.mock(ITransactionOperation.class, "transactionOperation");
+        transactionOperation2 = mockery.mock(ITransactionOperation.class, "transactionOperation2");
     }
 
     @AfterMethod
@@ -86,7 +92,7 @@ public class TransactionParticipantTest
                 one(databaseTransactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
                 will(new CustomAction("beginTransaction")
                 {
-                    @Override public Object invoke(final Invocation invocation) throws Throwable
+                    @Override public Object invoke(final Invocation invocation)
                     {
                         transaction1BeginThreadName.setValue(Thread.currentThread().getName());
                         return TEST_TRANSACTION;
@@ -99,7 +105,7 @@ public class TransactionParticipantTest
                 one(databaseTransactionProvider).prepareTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
                 will(new CustomAction("prepareTransaction")
                 {
-                    @Override public Object invoke(final Invocation invocation) throws Throwable
+                    @Override public Object invoke(final Invocation invocation)
                     {
                         transaction1PrepareThreadName.setValue(Thread.currentThread().getName());
                         return null;
@@ -107,12 +113,24 @@ public class TransactionParticipantTest
                 });
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.PREPARE_FINISHED);
 
+                // execute 1
+                allowing(transactionOperation).getOperationName();
+                will(returnValue(TEST_OPERATION_NAME));
+                one(transactionOperation).executeOperation();
+                will(new CustomAction("executeOperation")
+                {
+                    @Override public Object invoke(final Invocation invocation)
+                    {
+                        return Thread.currentThread().getName();
+                    }
+                });
+
                 // commit 1
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.COMMIT_STARTED);
                 one(databaseTransactionProvider).commitTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
                 will(new CustomAction("commitTransaction")
                 {
-                    @Override public Object invoke(final Invocation invocation) throws Throwable
+                    @Override public Object invoke(final Invocation invocation)
                     {
                         transaction1CommitThreadName.setValue(Thread.currentThread().getName());
                         return null;
@@ -125,7 +143,7 @@ public class TransactionParticipantTest
                 one(databaseTransactionProvider).beginTransaction(with(TEST_TRANSACTION_ID_2));
                 will(new CustomAction("beginTransaction")
                 {
-                    @Override public Object invoke(final Invocation invocation) throws Throwable
+                    @Override public Object invoke(final Invocation invocation)
                     {
                         transaction2BeginThreadName.setValue(Thread.currentThread().getName());
                         return TEST_TRANSACTION_2;
@@ -133,12 +151,24 @@ public class TransactionParticipantTest
                 });
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID_2, TransactionStatus.BEGIN_FINISHED);
 
+                // execute 2
+                allowing(transactionOperation2).getOperationName();
+                will(returnValue(TEST_OPERATION_NAME_2));
+                one(transactionOperation2).executeOperation();
+                will(new CustomAction("executeOperation")
+                {
+                    @Override public Object invoke(final Invocation invocation)
+                    {
+                        return Thread.currentThread().getName();
+                    }
+                });
+
                 // rollback 2
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID_2, TransactionStatus.ROLLBACK_STARTED);
                 one(databaseTransactionProvider).rollbackTransaction(with(TEST_TRANSACTION_ID_2), with(TEST_TRANSACTION_2));
                 will(new CustomAction("rollbackTransaction")
                 {
-                    @Override public Object invoke(final Invocation invocation) throws Throwable
+                    @Override public Object invoke(final Invocation invocation)
                     {
                         transaction2RollbackThreadName.setValue(Thread.currentThread().getName());
                         return null;
@@ -148,27 +178,14 @@ public class TransactionParticipantTest
             }
         });
 
-        ITransactionOperation testOperation = new ITransactionOperation()
-        {
-            @Override public String getOperationName()
-            {
-                return TEST_OPERATION_NAME;
-            }
-
-            @Override public Object executeOperation() throws Throwable
-            {
-                return Thread.currentThread().getName();
-            }
-        };
-
         // begin 1
         executor.beginTransaction(TEST_TRANSACTION_ID, TEST_SECRET);
         // begin 2
         executor.beginTransaction(TEST_TRANSACTION_ID_2, TEST_SECRET);
-
-        String transaction1OperationThreadName = (String) executor.executeOperation(TEST_TRANSACTION_ID, TEST_SECRET, testOperation);
-        String transaction2OperationThreadName = (String) executor.executeOperation(TEST_TRANSACTION_ID_2, TEST_SECRET, testOperation);
-
+        // execute 1
+        String transaction1OperationThreadName = (String) executor.executeOperation(TEST_TRANSACTION_ID, TEST_SECRET, transactionOperation);
+        // execute 2
+        String transaction2OperationThreadName = (String) executor.executeOperation(TEST_TRANSACTION_ID_2, TEST_SECRET, transactionOperation2);
         // prepare 1
         executor.prepareTransaction(TEST_TRANSACTION_ID, TEST_SECRET);
         // commit 1
@@ -177,10 +194,10 @@ public class TransactionParticipantTest
         executor.rollbackTransaction(TEST_TRANSACTION_ID_2, TEST_SECRET);
 
         Set<String> transaction1ThreadNames =
-                new HashSet<String>(List.of(transaction1BeginThreadName.getValue(), transaction1OperationThreadName,
+                new HashSet<>(List.of(transaction1BeginThreadName.getValue(), transaction1OperationThreadName,
                         transaction1PrepareThreadName.getValue(), transaction1CommitThreadName.getValue()));
         Set<String> transaction2ThreadNames =
-                new HashSet<String>(
+                new HashSet<>(
                         List.of(transaction2BeginThreadName.getValue(), transaction2OperationThreadName, transaction2RollbackThreadName.getValue()));
 
         assertEquals(transaction1ThreadNames.size(), 1);
@@ -337,7 +354,7 @@ public class TransactionParticipantTest
                     return TEST_OPERATION_NAME;
                 }
 
-                @Override public Object executeOperation() throws Throwable
+                @Override public Object executeOperation()
                 {
                     return "OK";
                 }
@@ -367,6 +384,12 @@ public class TransactionParticipantTest
                 will(returnValue(TEST_TRANSACTION));
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED);
 
+                // execute
+                allowing(transactionOperation).getOperationName();
+                will(returnValue(TEST_OPERATION_NAME));
+                one(transactionOperation).executeOperation();
+                will(returnValue(TEST_RESULT));
+
                 // rollback (fails)
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_STARTED);
                 one(databaseTransactionProvider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
@@ -378,7 +401,8 @@ public class TransactionParticipantTest
         // begin
         executor.beginTransaction(TEST_TRANSACTION_ID, TEST_SECRET);
         assertTrue(executor.isRunningTransaction(TEST_TRANSACTION_ID));
-        executor.executeOperation(TEST_TRANSACTION_ID, TEST_SECRET, new TestOperation(TEST_OPERATION_NAME, TEST_RESULT));
+        // execute
+        executor.executeOperation(TEST_TRANSACTION_ID, TEST_SECRET, transactionOperation);
         assertTrue(executor.isRunningTransaction(TEST_TRANSACTION_ID));
 
         try
@@ -407,6 +431,12 @@ public class TransactionParticipantTest
                 will(returnValue(TEST_TRANSACTION));
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED);
 
+                // execute
+                allowing(transactionOperation).getOperationName();
+                will(returnValue(TEST_OPERATION_NAME));
+                one(transactionOperation).executeOperation();
+                will(returnValue(TEST_RESULT));
+
                 // prepare (fails)
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.PREPARE_STARTED);
                 one(databaseTransactionProvider).prepareTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
@@ -423,7 +453,8 @@ public class TransactionParticipantTest
         // begin
         executor.beginTransaction(TEST_TRANSACTION_ID, TEST_SECRET);
         assertTrue(executor.isRunningTransaction(TEST_TRANSACTION_ID));
-        executor.executeOperation(TEST_TRANSACTION_ID, TEST_SECRET, new TestOperation(TEST_OPERATION_NAME, TEST_RESULT));
+        // execute
+        executor.executeOperation(TEST_TRANSACTION_ID, TEST_SECRET, transactionOperation);
 
         try
         {
@@ -455,6 +486,12 @@ public class TransactionParticipantTest
                 will(returnValue(TEST_TRANSACTION));
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED);
 
+                // execute
+                allowing(transactionOperation).getOperationName();
+                will(returnValue(TEST_OPERATION_NAME));
+                one(transactionOperation).executeOperation();
+                will(returnValue(TEST_RESULT));
+
                 // prepare
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.PREPARE_STARTED);
                 one(databaseTransactionProvider).prepareTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
@@ -476,7 +513,8 @@ public class TransactionParticipantTest
         // begin
         executor.beginTransaction(TEST_TRANSACTION_ID, TEST_SECRET);
         assertTrue(executor.isRunningTransaction(TEST_TRANSACTION_ID));
-        executor.executeOperation(TEST_TRANSACTION_ID, TEST_SECRET, new TestOperation(TEST_OPERATION_NAME, TEST_RESULT));
+        // execute
+        executor.executeOperation(TEST_TRANSACTION_ID, TEST_SECRET, transactionOperation);
         assertTrue(executor.isRunningTransaction(TEST_TRANSACTION_ID));
         // prepare
         executor.prepareTransaction(TEST_TRANSACTION_ID, TEST_SECRET);
@@ -522,9 +560,19 @@ public class TransactionParticipantTest
     {
         TransactionParticipant executor = new TransactionParticipant(databaseTransactionProvider, transactionLog);
 
+        mockery.checking(new Expectations()
+        {
+            {
+                // execute (fails)
+                allowing(transactionOperation).getOperationName();
+                will(returnValue(TEST_OPERATION_NAME));
+            }
+        });
+
         try
         {
-            executor.executeOperation(TEST_TRANSACTION_ID, TEST_SECRET, new TestOperation(TEST_OPERATION_NAME, TEST_RESULT));
+            // execute (fails)
+            executor.executeOperation(TEST_TRANSACTION_ID, TEST_SECRET, transactionOperation);
             Assert.fail();
         } catch (IllegalStateException e)
         {
@@ -622,16 +670,30 @@ public class TransactionParticipantTest
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED);
                 one(databaseTransactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED);
+
+                // execute 1
+                allowing(transactionOperation).getOperationName();
+                will(returnValue(TEST_OPERATION_NAME));
+                one(transactionOperation).executeOperation();
+                will(returnValue(TEST_RESULT));
+
+                // execute 2
+                allowing(transactionOperation2).getOperationName();
+                will(returnValue(TEST_OPERATION_NAME_2));
+                one(transactionOperation2).executeOperation();
+                will(returnValue(TEST_RESULT_2));
             }
         });
 
         // begin
         executor.beginTransaction(TEST_TRANSACTION_ID, TEST_SECRET);
 
-        Object result = executor.executeOperation(TEST_TRANSACTION_ID, TEST_SECRET, new TestOperation(TEST_OPERATION_NAME, TEST_RESULT));
+        // execute 1
+        Object result = executor.executeOperation(TEST_TRANSACTION_ID, TEST_SECRET, transactionOperation);
         assertEquals(result, TEST_RESULT);
 
-        Object result2 = executor.executeOperation(TEST_TRANSACTION_ID, TEST_SECRET, new TestOperation(TEST_OPERATION_NAME_2, TEST_RESULT_2));
+        // execute 2
+        Object result2 = executor.executeOperation(TEST_TRANSACTION_ID, TEST_SECRET, transactionOperation2);
         assertEquals(result2, TEST_RESULT_2);
     }
 
@@ -821,6 +883,10 @@ public class TransactionParticipantTest
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.PREPARE_STARTED);
                 one(databaseTransactionProvider).prepareTransaction(with(TEST_TRANSACTION_ID), with(transaction));
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.PREPARE_FINISHED);
+
+                // execute
+                allowing(transactionOperation).getOperationName();
+                will(returnValue(TEST_OPERATION_NAME));
             }
         });
 
@@ -831,7 +897,7 @@ public class TransactionParticipantTest
         try
         {
             // execute (fails)
-            executor.executeOperation(TEST_TRANSACTION_ID, TEST_SECRET, new TestOperation(TEST_OPERATION_NAME));
+            executor.executeOperation(TEST_TRANSACTION_ID, TEST_SECRET, transactionOperation);
             Assert.fail();
         } catch (Exception e)
         {
@@ -959,48 +1025,6 @@ public class TransactionParticipantTest
         // another begin - this is treated as a new transaction as the previous transaction with the same id has been already committed and therefore forgotten
         executor.beginTransaction(TEST_TRANSACTION_ID, TEST_SECRET);
         assertTrue(executor.isRunningTransaction(TEST_TRANSACTION_ID));
-    }
-
-    private static class TestOperation implements ITransactionOperation
-    {
-        private final String name;
-
-        private Object result;
-
-        private Throwable exception;
-
-        public TestOperation(String name)
-        {
-            this.name = name;
-        }
-
-        public TestOperation(String name, Object result)
-        {
-            this.name = name;
-            this.result = result;
-        }
-
-        public TestOperation(String name, Throwable exception)
-        {
-            this.name = name;
-            this.exception = exception;
-        }
-
-        @Override public String getOperationName()
-        {
-            return name;
-        }
-
-        @Override public Object executeOperation() throws Throwable
-        {
-            if (exception != null)
-            {
-                throw exception;
-            } else
-            {
-                return result;
-            }
-        }
     }
 
     @DataProvider

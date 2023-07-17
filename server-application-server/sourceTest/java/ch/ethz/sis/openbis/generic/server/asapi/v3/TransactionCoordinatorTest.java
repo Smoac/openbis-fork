@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -23,8 +22,6 @@ public class TransactionCoordinatorTest
     public static final String TEST_TRANSACTION_ID = "test-id";
 
     public static final String TEST_TRANSACTION_ID_2 = "test-id-2";
-
-    public static final String TEST_TRANSACTION_ID_3 = "test-id-3";
 
     private Mockery mockery;
 
@@ -78,7 +75,7 @@ public class TransactionCoordinatorTest
     @Test
     public void testBeginTransactionFails()
     {
-        TransactionCoordinator coordinator = new TransactionCoordinator(List.of(participant1, participant2, participant3), transactionLog);
+        TransactionCoordinator coordinator = new TransactionCoordinator(List.of(participant1, participant2), transactionLog);
 
         Exception beginException = new RuntimeException();
         Exception rollbackException = new RuntimeException();
@@ -88,7 +85,6 @@ public class TransactionCoordinatorTest
             {
                 allowing(participant1).getParticipantId();
                 allowing(participant2).getParticipantId();
-                allowing(participant3).getParticipantId();
 
                 one(transactionLog).logStatus(with(TEST_TRANSACTION_ID), with(TransactionStatus.BEGIN_STARTED));
 
