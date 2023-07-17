@@ -236,7 +236,7 @@ public class TransactionParticipantTest
         } catch (Throwable t)
         {
             assertEquals(t, throwable);
-            assertFalse(executor.isRunningTransaction(TEST_TRANSACTION_ID));
+            assertTrue(executor.isRunningTransaction(TEST_TRANSACTION_ID));
 
             // rollback
             executor.rollbackTransaction(TEST_TRANSACTION_ID, TEST_SECRET);
@@ -576,7 +576,7 @@ public class TransactionParticipantTest
             Assert.fail();
         } catch (IllegalStateException e)
         {
-            assertEquals(e.getMessage(), "Two phase transaction test-id unexpected status null. Expected statuses [BEGIN_FINISHED].");
+            assertEquals(e.getMessage(), "Two phase transaction test-id unexpected status NEW. Expected statuses [BEGIN_FINISHED].");
         }
     }
 
@@ -591,41 +591,23 @@ public class TransactionParticipantTest
             Assert.fail();
         } catch (IllegalStateException e)
         {
-            assertEquals(e.getMessage(), "Two phase transaction test-id unexpected status null. Expected statuses [BEGIN_FINISHED].");
+            assertEquals(e.getMessage(), "Two phase transaction test-id unexpected status NEW. Expected statuses [BEGIN_FINISHED].");
         }
     }
 
     @Test
-    public void testNewTransactionCannotBeCommitted() throws Throwable
+    public void testNewTransactionCanBeCommitted() throws Throwable
     {
         TransactionParticipant executor = new TransactionParticipant(databaseTransactionProvider, transactionLog);
-
-        try
-        {
-            executor.commitTransaction(TEST_TRANSACTION_ID, TEST_SECRET);
-            Assert.fail();
-        } catch (IllegalStateException e)
-        {
-            assertEquals(e.getMessage(), "Two phase transaction test-id unexpected status null. Expected statuses [PREPARE_FINISHED].");
-        }
+        // the call is possible and does nothing (used in recovery process)
+        executor.commitTransaction(TEST_TRANSACTION_ID, TEST_SECRET);
     }
 
     @Test
     public void testNewTransactionCanBeRolledBack() throws Throwable
     {
         TransactionParticipant executor = new TransactionParticipant(databaseTransactionProvider, transactionLog);
-
-        mockery.checking(new Expectations()
-        {
-            {
-                // rollback
-                one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_STARTED);
-                one(databaseTransactionProvider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(aNull(Object.class)));
-                one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_FINISHED);
-            }
-        });
-
-        // rollback
+        // the call is possible and does nothing (used in recovery process)
         executor.rollbackTransaction(TEST_TRANSACTION_ID, TEST_SECRET);
     }
 
@@ -654,7 +636,7 @@ public class TransactionParticipantTest
             Assert.fail();
         } catch (Exception e)
         {
-            assertEquals(e.getMessage(), "Two phase transaction test-id unexpected status BEGIN_FINISHED. Expected statuses [null].");
+            assertEquals(e.getMessage(), "Two phase transaction test-id unexpected status BEGIN_FINISHED. Expected statuses [NEW].");
         }
     }
 
@@ -783,7 +765,8 @@ public class TransactionParticipantTest
             Assert.fail();
         } catch (IllegalStateException e)
         {
-            assertEquals(e.getMessage(), "Two phase transaction test-id unexpected status BEGIN_FINISHED. Expected statuses [PREPARE_FINISHED].");
+            assertEquals(e.getMessage(),
+                    "Two phase transaction test-id unexpected status BEGIN_FINISHED. Expected statuses [NEW, PREPARE_FINISHED].");
         }
     }
 
@@ -821,7 +804,7 @@ public class TransactionParticipantTest
             Assert.fail();
         } catch (Exception e)
         {
-            assertEquals(e.getMessage(), "Two phase transaction test-id unexpected status PREPARE_FINISHED. Expected statuses [null].");
+            assertEquals(e.getMessage(), "Two phase transaction test-id unexpected status PREPARE_FINISHED. Expected statuses [NEW].");
         }
     }
 
