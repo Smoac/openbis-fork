@@ -14,6 +14,8 @@ import AppController from '@src/js/components/AppController.js'
 import ItemIcon from '@src/js/components/database/data-browser/ItemIcon.jsx'
 import InfoPanel from "@src/js/components/database/data-browser/InfoPanel.jsx";
 
+const HTTP_SERVER_URI = "/data-store-server";
+
 const styles = theme => ({
   boundary: {
     padding: theme.spacing(1),
@@ -66,6 +68,13 @@ class DataBrowser extends React.Component {
   constructor(props, context) {
     super(props, context)
     autoBind(this)
+    this.datastoreServer = new DataStoreServer('http://localhost:8085', HTTP_SERVER_URI);
+
+    const owner = "demo-sample"
+    const source = ""
+    this.datastoreServer.login("admin", "changeit", this.login);
+
+
     this.state = {
       viewType: props.viewType,
       files: [
@@ -122,6 +131,33 @@ class DataBrowser extends React.Component {
       multiselectedFiles: new Set([]),
       showInfo: false
     }
+  }
+
+  login(token) {
+    if (!token) {
+      alert("Could not perform login.");
+      return;
+    }
+
+    console.log("Token: " + token)
+    this.datastoreServer.list("demo-sample", "", "true", this.displayReturnedFiles)
+  }
+
+  displayReturnedFiles(data) {
+    if (data.error) {
+      console.error(data.error);
+      alert("Could not list files.");
+      return;
+    }
+
+    const results = data.result[1];
+
+    // Restrict the display to 50 samples
+    // results = results.splice(0, 50);
+
+    // generateTable(results);
+
+    console.log("Received data: " + results)
   }
 
   handleViewTypeChange(viewType) {
