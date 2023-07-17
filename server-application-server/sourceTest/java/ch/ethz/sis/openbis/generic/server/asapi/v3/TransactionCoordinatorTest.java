@@ -326,39 +326,6 @@ public class TransactionCoordinatorTest
         coordinator.rollbackTransaction(TEST_TRANSACTION_ID);
     }
 
-    @Test
-    public void testRestoreTransactionWithStatusBeginStarted()
-    {
-        TransactionCoordinator coordinator = new TransactionCoordinator(List.of(participant1, participant2), transactionLog);
-
-        Map<String, TransactionStatus> lastStatuses = new HashMap<>();
-        lastStatuses.put(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED);
-
-        Exception rollbackException = new RuntimeException();
-
-        mockery.checking(new Expectations()
-        {
-            {
-                allowing(participant1).getParticipantId();
-                allowing(participant2).getParticipantId();
-
-                one(transactionLog).getLastStatuses();
-                will(returnValue(lastStatuses));
-
-                one(transactionLog).logStatus(with(TEST_TRANSACTION_ID), with(TransactionStatus.ROLLBACK_STARTED));
-
-                one(participant1).rollbackTransaction(with(TEST_TRANSACTION_ID));
-                // test that a failing rollback won't prevent other rollbacks from being called
-                will(throwException(rollbackException));
-                one(participant2).rollbackTransaction(TEST_TRANSACTION_ID);
-
-                one(transactionLog).logStatus(with(TEST_TRANSACTION_ID), with(TransactionStatus.ROLLBACK_FINISHED));
-            }
-        });
-
-        coordinator.restoreTransactions();
-    }
-
     @Test(dataProvider = "provideTestRestoreTransactionWithStatus")
     public void testRestoreTransactionWithStatus(TransactionStatus transactionStatus, boolean throwException)
     {
