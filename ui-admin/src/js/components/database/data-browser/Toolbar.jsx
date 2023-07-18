@@ -31,6 +31,7 @@ import { ToggleButton } from '@material-ui/lab'
 
 const styles = (theme) => ({
   buttons: {
+    flex: '0 0 auto',
     display: 'flex',
     whiteSpace: 'nowrap',
     marginBottom: theme.spacing(1),

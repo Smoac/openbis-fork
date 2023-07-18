@@ -17,11 +17,15 @@ import InfoPanel from '@src/js/components/database/data-browser/InfoPanel.jsx'
 const HTTP_SERVER_URI = '/data-store-server'
 
 const styles = theme => ({
+  columnFlexContainer: {
+    flexDirection: 'column',
+    display: 'flex',
+    height: '100vh'
+  },
   boundary: {
     padding: theme.spacing(1),
     borderColor: theme.palette.border.secondary,
-    backgroundColor: theme.palette.background.paper,
-    height: '100%'
+    backgroundColor: theme.palette.background.paper
   },
   icon: {
     fontSize: '4rem',
@@ -37,8 +41,16 @@ const styles = theme => ({
       backgroundColor: theme.palette.background.paper
     },
   },
-  container: {
+  grid: {
     flexGrow: '1',
+    flex: '1',
+    height: 'auto',
+    overflowY: 'auto'
+  },
+  content: {
+    flex: '1 1 100%',
+    height: '0',
+    overflowY: 'hidden'
   }
 })
 
@@ -142,21 +154,21 @@ class DataBrowser extends React.Component {
       this.state
 
     return (
-      <Paper className={classes.boundary}>
+      <div className={[classes.boundary, classes.columnFlexContainer].join(' ')}>
         <Toolbar
           viewType={viewType}
           onViewTypeChange={this.handleViewTypeChange}
           onShowInfoChange={this.handleShowInfoChange}
           showInfo={showInfo}
         />
-        <div className={[classes.flexContainer, classes.boundary].join(' ')}>
+        <div className={[classes.flexContainer, classes.boundary, classes.content].join(' ')}>
           {viewType === 'list' && (
             <Grid
               // id={id}
               // settingsId={id}
               filterModes={[GridFilterOptions.COLUMN_FILTERS]}
               header='Files'
-              classes={{ container: classes.container }}
+              classes={{ container: classes.grid }}
               columns={[
                 {
                   name: 'name',
@@ -219,7 +231,7 @@ class DataBrowser extends React.Component {
             <InfoPanel file={selectedFile} configuration={configuration} />
           )}
         </div>
-      </Paper>
+      </div>
     )
   }
 }

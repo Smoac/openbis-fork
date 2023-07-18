@@ -28,6 +28,9 @@ import ItemIcon from '@src/js/components/database/data-browser/ItemIcon.jsx';
 import { withStyles } from "@material-ui/core/styles";
 
 const styles = () => ({
+  container: {
+    position: 'sticky'
+  },
   icon: {
     verticalAlign: 'middle',
     fontSize: '12rem'
@@ -49,7 +52,7 @@ class InfoPanel extends React.Component {
 
     // TODO: extract strings to messages
     return (file &&
-      <Container>
+      <Container className={classes.container}>
         <Header size='big'>{file.name}</Header>
         <ItemIcon file={file} classes={classes} configuration={configuration} />
         <Table>
