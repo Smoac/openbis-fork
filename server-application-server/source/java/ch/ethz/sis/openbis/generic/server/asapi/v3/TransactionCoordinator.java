@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -184,20 +185,44 @@ public class TransactionCoordinator implements ITransactionCoordinator
 
     private void commitTransactionOnParticipants(String transactionId)
     {
-        for (ITransactionCoordinatorParticipant participant : participants)
+        for (int index = 0; index < participants.size(); index++)
         {
+            ITransactionCoordinatorParticipant participant = participants.get(index);
+
             try
             {
                 operationLog.info("Commit transaction '" + transactionId + "' for participant '" + participant.getParticipantId() + "'.");
                 participant.commitTransaction(transactionId);
             } catch (Exception e)
             {
-                operationLog.info(
-                        "Commit transaction '" + transactionId + "' failed for participant '" + participant.getParticipantId() + "'.", e);
+                if (index == 0)
+                {
+                    operationLog.info(
+                            "Commit transaction '" + transactionId + "' failed for participant '" + participant.getParticipantId()
+                                    + "'. This was the first participant to be committed, therefore the system will be left in a consistent state after the rollback.",
+                            e);
 
-                transactionLog.logStatus(transactionId, TransactionStatus.ROLLBACK_STARTED);
-                rollbackTransactionOnParticipants(transactionId, null);
-                transactionLog.logStatus(transactionId, TransactionStatus.ROLLBACK_FINISHED);
+                    transactionLog.logStatus(transactionId, TransactionStatus.ROLLBACK_STARTED);
+                    rollbackTransactionOnParticipants(transactionId, null);
+                    transactionLog.logStatus(transactionId, TransactionStatus.ROLLBACK_FINISHED);
+                } else
+                {
+                    List<String> committedParticipants =
+                            participants.subList(0, index).stream().map(ITransactionCoordinatorParticipant::getParticipantId)
+                                    .collect(Collectors.toList());
+                    List<String> notCommittedParticipants =
+                            participants.subList(index, participants.size()).stream().map(ITransactionCoordinatorParticipant::getParticipantId)
+                                    .collect(Collectors.toList());
+
+                    operationLog.error(
+                            "Commit transaction '" + transactionId + "' failed for participant '" + participant.getParticipantId()
+                                    + "'. The system is in an inconsistent state and needs a manual intervention! Transaction has been already committed for participants: "
+                                    + committedParticipants + ". Transaction hasn't been yet committed for participants: " + notCommittedParticipants
+                                    + ". The uncommitted participants are left with the transaction prepared (not rolled back) in hope that they can be manually fixed and the system can be brought back to a consistent state.",
+                            e);
+
+                    transactionLog.logStatus(transactionId, TransactionStatus.COMMIT_INCONSISTENT);
+                }
 
                 throw e;
             }

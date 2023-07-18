@@ -206,7 +206,6 @@ public class TransactionCoordinatorTest
         TransactionCoordinator coordinator = new TransactionCoordinator(List.of(participant1, participant2, participant3), transactionLog);
 
         Exception commitException = new RuntimeException();
-        Exception rollbackException = new RuntimeException();
 
         mockery.checking(new Expectations()
         {
@@ -235,15 +234,7 @@ public class TransactionCoordinatorTest
                 one(participant2).commitTransaction(with(TEST_TRANSACTION_ID));
                 will(throwException(commitException));
 
-                one(transactionLog).logStatus(with(TEST_TRANSACTION_ID), with(TransactionStatus.ROLLBACK_STARTED));
-
-                one(participant1).rollbackTransaction(with(TEST_TRANSACTION_ID));
-                // test that a failing rollback won't prevent other rollbacks from being called
-                will(throwException(rollbackException));
-                one(participant2).rollbackTransaction(with(TEST_TRANSACTION_ID));
-                one(participant3).rollbackTransaction(with(TEST_TRANSACTION_ID));
-
-                one(transactionLog).logStatus(with(TEST_TRANSACTION_ID), with(TransactionStatus.ROLLBACK_FINISHED));
+                one(transactionLog).logStatus(with(TEST_TRANSACTION_ID), with(TransactionStatus.COMMIT_INCONSISTENT));
             }
         });
 
