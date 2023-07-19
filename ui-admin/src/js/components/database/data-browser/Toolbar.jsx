@@ -18,7 +18,6 @@
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import messages from '@src/js/common/messages.js'
-import Button from '@src/js/components/common/form/Button.jsx'
 import ViewComfyIcon from '@material-ui/icons/ViewComfy'
 import ViewListIcon from '@material-ui/icons/ViewList'
 import PublishIcon from '@material-ui/icons/Publish'
@@ -28,6 +27,9 @@ import InfoIcon from '@material-ui/icons/InfoOutlined'
 import CreateNewFolderIcon from '@material-ui/icons/CreateNewFolderOutlined'
 import autoBind from 'auto-bind'
 import { ToggleButton } from '@material-ui/lab'
+import Button from '@material-ui/core/Button'
+
+const color = 'secondary'
 
 const styles = (theme) => ({
   buttons: {
@@ -37,6 +39,13 @@ const styles = (theme) => ({
     marginBottom: theme.spacing(1),
     '& button': {
       marginRight: theme.spacing(1)
+    }
+  },
+  toggleButton: {
+    marginRight: theme.spacing(1),
+    border: '1px solid ' + theme.palette[color].main,
+    '& *': {
+      color: theme.palette[color].main
     }
   }
 })
@@ -51,50 +60,78 @@ class Toolbar extends React.Component {
   render() {
     const { viewType, onViewTypeChange, classes, showInfo, onShowInfoChange } =
       this.props
+    const size = 'small'
     return (
       <div className={classes.buttons}>
+        <Button
+          classes={{ root: classes.button }}
+          color={color}
+          size={size}
+          variant='outlined'
+          startIcon={<CreateNewFolderIcon />}
+        >
+          {messages.get(messages.NEW_FOLDER)}
+        </Button>
         <ToggleButton
-          styles={{ root: classes.button }}
+          classes={{ root: classes.toggleButton }}
+          color={color}
+          size={size}
           selected={showInfo}
           onChange={onShowInfoChange}
           value={messages.get(messages.INFO)}
           aria-label={messages.get(messages.INFO)}
-          size='small'
         >
           <InfoIcon />
         </ToggleButton>
         <Button
-          styles={{ root: classes.button }}
-          label={messages.get(messages.NEW_FOLDER)}
-          startIcon={<CreateNewFolderIcon />}
-        />
-        <Button
-          styles={{ root: classes.button }}
-          label={messages.get(messages.SEARCH)}
-          startIcon={<SearchIcon />}
-        />
+          classes={{ root: classes.button }}
+          color={color}
+          size={size}
+          variant='outlined'
+        >
+          <SearchIcon />
+        </Button>
         {viewType === 'list' && (
           <Button
-            styles={{ root: classes.button }}
-            label={<ViewComfyIcon />}
-            onClick={() => onViewTypeChange('grid')}
-          />
+              classes={{ root: classes.button }}
+              color={color}
+              size={size}
+              variant='outlined'
+              onClick={() => onViewTypeChange('grid')}
+            >
+            <ViewComfyIcon />
+          </Button>
         )}
         {viewType === 'grid' && (
           <Button
-            styles={{ root: classes.button }}
-            label={<ViewListIcon />}
+            classes={{ root: classes.button }}
+            color={color}
+            size={size}
+            variant='outlined'
             onClick={() => onViewTypeChange('list')}
-          />
+          >
+            <ViewListIcon />
+          </Button>
         )}
         <Button
-          styles={{ root: classes.button }}
-          label={<SettingsIcon />} />
+          classes={{ root: classes.button }}
+          color={color}
+          size={size}
+          variant='outlined'
+          onClick={() => onViewTypeChange('list')}
+        >
+          <SettingsIcon />
+        </Button>
         <Button
-          styles={{ root: classes.button }}
-          label={messages.get(messages.UPLOAD)}
+          classes={{ root: classes.button }}
+          color={color}
+          size={size}
+          variant='contained'
           startIcon={<PublishIcon />}
-        />
+          onClick={() => onViewTypeChange('list')}
+        >
+          {messages.get(messages.UPLOAD)}
+        </Button>
       </div>
     )
   }

@@ -7,7 +7,6 @@ import DescriptionIcon from '@material-ui/icons/DescriptionOutlined'
 import AudioIcon from '@material-ui/icons/MusicNoteOutlined'
 import VideoIcon from '@material-ui/icons/LocalMovies'
 import ImageIcon from '@material-ui/icons/Image'
-import Paper from '@material-ui/core/Paper'
 import Grid from '@src/js/components/common/grid/Grid.jsx'
 import GridFilterOptions from '@src/js/components/common/grid/GridFilterOptions.js'
 import AppController from '@src/js/components/AppController.js'
@@ -20,7 +19,7 @@ const styles = theme => ({
   columnFlexContainer: {
     flexDirection: 'column',
     display: 'flex',
-    height: '100vh'
+    height: 'calc(100vh - ' + theme.spacing(10) + 'px)'
   },
   boundary: {
     padding: theme.spacing(1),
