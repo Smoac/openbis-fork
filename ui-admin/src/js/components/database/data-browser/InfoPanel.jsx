@@ -26,6 +26,7 @@ import TableRow from '@material-ui/core/TableRow'
 import Header from '@src/js/components/common/form/Header.jsx'
 import ItemIcon from '@src/js/components/database/data-browser/ItemIcon.jsx'
 import { withStyles } from '@material-ui/core/styles'
+import messages from '@src/js/common/messages.js'
 
 const styles = () => ({
   container: {
@@ -61,7 +62,6 @@ class InfoPanel extends React.Component {
       configuration
     } = this.props
 
-    // TODO: extract strings to messages
     return (file &&
       <Container className={classes.container}>
         <span className={classes.fileName}>
@@ -71,19 +71,19 @@ class InfoPanel extends React.Component {
         <Table>
           <TableBody>
             <TableRow>
-              <TableCell variant='head' component='th'>Size</TableCell>
+              <TableCell variant='head' component='th'>{messages.get(messages.SIZE)}</TableCell>
               <TableCell>{file.size}</TableCell>
             </TableRow>
             <TableRow>
-              <TableCell variant='head' component='th'>Created</TableCell>
+              <TableCell variant='head' component='th'>{messages.get(messages.CREATED)}</TableCell>
               <TableCell>{file.creationTime.toLocaleString()}</TableCell>
             </TableRow>
             <TableRow>
-              <TableCell variant='head' component='th'>Modified</TableCell>
+              <TableCell variant='head' component='th'>{messages.get(messages.MODIFIED)}</TableCell>
               <TableCell>{file.lastModifiedTime.toLocaleString()}</TableCell>
             </TableRow>
             <TableRow>
-              <TableCell variant='head' component='th'>Accessed</TableCell>
+              <TableCell variant='head' component='th'>{messages.get(messages.ACCESSED)}</TableCell>
               <TableCell>{file.lastAccessTime.toLocaleString()}</TableCell>
             </TableRow>
           </TableBody>

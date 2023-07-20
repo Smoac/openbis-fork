@@ -1,6 +1,7 @@
 // prettier-ignore
 const keys = {
   ACCESS: 'ACCESS',
+  ACCESSED: 'ACCESSED',
   ACCESS_DATE: 'ACCESS_DATE',
   ACTIONS: 'ACTIONS',
   ACTIVATE_USER: 'ACTIVATE_USER',
@@ -51,6 +52,7 @@ const keys = {
   CONTENT: 'CONTENT',
   CONVERTED: 'CONVERTED',
   CRASH: 'CRASH',
+  CREATED: 'CREATED',
   CURRENT_PAGE: 'CURRENT_PAGE',
   CUSTOM_SORTING: 'CUSTOM_SORTING',
   DATABASE: 'DATABASE',
@@ -146,6 +148,7 @@ const keys = {
   META_DATA: 'META_DATA',
   MINUTE_OR_MINUTES: 'MINUTE_OR_MINUTES',
   MODIFICATION_DATE: 'MODIFICATION_DATE',
+  MODIFIED: 'MODIFIED',
   MORE: 'MORE',
   NAME: 'NAME',
   NEW_COLLECTION_TYPE: 'NEW_COLLECTION_TYPE',
@@ -249,6 +252,7 @@ const keys = {
   SHOW_PARENTS: 'SHOW_PARENTS',
   SHOW_STACK_TRACE: 'SHOW_STACK_TRACE',
   SHOW_ALL: 'SHOW_ALL',
+  SIZE: 'SIZE',
   SPACE: 'SPACE',
   SPACES: 'SPACES',
   SUPPORT: 'SUPPORT',
@@ -303,6 +307,7 @@ const keys = {
 // prettier-ignore
 const messages_en = {
   [keys.ACCESS]: 'Access',
+  [keys.ACCESSED]: 'Accessed',
   [keys.ACCESS_DATE]: 'Access Date',
   [keys.ACTIONS]: 'Actions',
   [keys.ACTIVATE_USER]: 'Activate user',
@@ -353,6 +358,7 @@ const messages_en = {
   [keys.CONTENT]: 'Content',
   [keys.CONVERTED]: 'Converted',
   [keys.CRASH]: 'Something went wrong :(',
+  [keys.CREATED]: 'Created',
   [keys.CURRENT_PAGE]: 'Current Page',
   [keys.CUSTOM_SORTING]: 'Custom Sorting',
   [keys.DATABASE]: 'Database',
@@ -448,6 +454,7 @@ const messages_en = {
   [keys.META_DATA]: 'Meta Data',
   [keys.MORE]: 'More',
   [keys.MODIFICATION_DATE]: 'Modification Date',
+  [keys.MODIFIED]: 'Modified',
   [keys.MINUTE_OR_MINUTES]: '${0} minute(s)',
   [keys.NAME]: 'Name',
   [keys.NEW_COLLECTION_TYPE]: 'New Collection Type',
@@ -552,6 +559,7 @@ const messages_en = {
   [keys.SHOW_STACK_TRACE]: 'Show stack trace',
   [keys.SHOW_ALL]: 'Show All',
   [keys.SPACE]: 'Space',
+  [keys.SIZE]: 'Size',
   [keys.SPACES]: 'Spaces',
   [keys.SUPPORT]: 'openBIS Support',
   [keys.SQL]: 'SQL',
