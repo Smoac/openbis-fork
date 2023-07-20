@@ -28,6 +28,7 @@ import CreateNewFolderIcon from '@material-ui/icons/CreateNewFolderOutlined'
 import autoBind from 'auto-bind'
 import { ToggleButton } from '@material-ui/lab'
 import Button from '@material-ui/core/Button'
+import IconButton from '@material-ui/core/IconButton'
 
 const color = 'secondary'
 
@@ -37,15 +38,13 @@ const styles = (theme) => ({
     display: 'flex',
     whiteSpace: 'nowrap',
     marginLeft: theme.spacing(1),
-    marginBottom: theme.spacing(1)
+    marginBottom: theme.spacing(1),
+    marginRight: theme.spacing(1)
   },
   buttons: {
     flex: '0 0 auto',
     display: 'flex',
     whiteSpace: 'nowrap',
-    '& button': {
-      marginRight: theme.spacing(1)
-    }
   },
   leftSection: {
     flexGrow: 1,
@@ -54,8 +53,10 @@ const styles = (theme) => ({
     flexShrink: 0
   },
   toggleButton: {
-    marginRight: theme.spacing(1),
-    border: '1px solid ' + theme.palette[color].main + '80',
+    border: 'none',
+    borderRadius: '50%',
+    display: 'inline-flex',
+    padding: theme.spacing(1.5) + 'px',
     '& *': {
       color: theme.palette[color].main
     }
@@ -72,14 +73,15 @@ class Toolbar extends React.Component {
   render() {
     const { viewType, onViewTypeChange, classes, showInfo, onShowInfoChange } =
       this.props
-    const size = 'small'
+    const buttonSize = 'small'
+    const iconButtonSize = 'medium'
     return (
       <div className={classes.toolbar}>
         <div className={[classes.buttons, classes.leftSection].join(' ')}>
           <Button
             classes={{ root: classes.button }}
             color={color}
-            size={size}
+            size={buttonSize}
             variant='outlined'
             startIcon={<CreateNewFolderIcon />}
           >
@@ -90,7 +92,7 @@ class Toolbar extends React.Component {
           <ToggleButton
             classes={{ root: classes.toggleButton }}
             color={color}
-            size={size}
+            size={buttonSize}
             selected={showInfo}
             onChange={onShowInfoChange}
             value={messages.get(messages.INFO)}
@@ -98,52 +100,50 @@ class Toolbar extends React.Component {
           >
             <InfoIcon />
           </ToggleButton>
-          <Button
+          <IconButton
             classes={{ root: classes.button }}
             color={color}
-            size={size}
+            size={iconButtonSize}
             variant='outlined'
           >
             <SearchIcon />
-          </Button>
+          </IconButton>
           {viewType === 'list' && (
-            <Button
+            <IconButton
                 classes={{ root: classes.button }}
                 color={color}
-                size={size}
+                size={iconButtonSize}
                 variant='outlined'
                 onClick={() => onViewTypeChange('grid')}
               >
               <ViewComfyIcon />
-            </Button>
+            </IconButton>
           )}
           {viewType === 'grid' && (
-            <Button
+            <IconButton
               classes={{ root: classes.button }}
               color={color}
-              size={size}
+              size={iconButtonSize}
               variant='outlined'
               onClick={() => onViewTypeChange('list')}
             >
               <ViewListIcon />
-            </Button>
+            </IconButton>
           )}
-          <Button
+          <IconButton
             classes={{ root: classes.button }}
             color={color}
-            size={size}
+            size={iconButtonSize}
             variant='outlined'
-            onClick={() => onViewTypeChange('list')}
           >
             <SettingsIcon />
-          </Button>
+          </IconButton>
           <Button
             classes={{ root: classes.button }}
             color={color}
-            size={size}
+            size={buttonSize}
             variant='contained'
             startIcon={<PublishIcon />}
-            onClick={() => onViewTypeChange('list')}
           >
             {messages.get(messages.UPLOAD)}
           </Button>

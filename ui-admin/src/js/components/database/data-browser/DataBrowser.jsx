@@ -48,7 +48,7 @@ const styles = theme => ({
   },
   content: {
     flex: '1 1 100%',
-    height: 'calc(100vh - ' + theme.spacing(10) + 'px)',
+    height: 0,
     overflowY: 'hidden'
   }
 })
