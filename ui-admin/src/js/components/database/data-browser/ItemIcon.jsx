@@ -45,7 +45,7 @@ class ItemIcon extends React.Component {
   render() {
     const { classes, file } = this.props
 
-    if (file.folder) {
+    if (file.directory) {
       return <FolderIcon className={classes.icon} />
     } else {
       const iconType = this.extensionToIconType.get(
