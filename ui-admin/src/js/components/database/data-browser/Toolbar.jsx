@@ -68,6 +68,8 @@ class Toolbar extends React.Component {
   constructor(props, context) {
     super(props, context)
     autoBind(this)
+
+    this.controller = this.props.controller
   }
 
   render() {
@@ -84,6 +86,7 @@ class Toolbar extends React.Component {
             size={buttonSize}
             variant='outlined'
             startIcon={<CreateNewFolderIcon />}
+            onClick={this.controller.handleNewFolderClick}
           >
             {messages.get(messages.NEW_FOLDER)}
           </Button>
@@ -144,6 +147,7 @@ class Toolbar extends React.Component {
             size={buttonSize}
             variant='contained'
             startIcon={<PublishIcon />}
+            onClick={this.controller.handleUploadClick}
           >
             {messages.get(messages.UPLOAD)}
           </Button>

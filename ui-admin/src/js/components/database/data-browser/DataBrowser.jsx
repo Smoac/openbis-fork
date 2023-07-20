@@ -12,6 +12,7 @@ import GridFilterOptions from '@src/js/components/common/grid/GridFilterOptions.
 import AppController from '@src/js/components/AppController.js'
 import ItemIcon from '@src/js/components/database/data-browser/ItemIcon.jsx'
 import InfoPanel from '@src/js/components/database/data-browser/InfoPanel.jsx'
+import DataBrowserController from '@src/js/components/database/data-browser/DataBrowserController.js'
 
 const HTTP_SERVER_URI = '/data-store-server'
 
@@ -88,6 +89,9 @@ class DataBrowser extends React.Component {
   constructor(props, context) {
     super(props, context)
     autoBind(this)
+
+    this.controller = this.props.controller || new DataBrowserController()
+    this.controller.attach(this)
     this.datastoreServer = new DataStoreServer(
       'http://localhost:8085',
       HTTP_SERVER_URI
@@ -117,39 +121,6 @@ class DataBrowser extends React.Component {
     // TODO: implement
   }
 
-  async login() {
-    return new Promise((resolve, reject) => {
-      this.datastoreServer.login('admin', 'changeit', token => {
-        if (token) {
-          resolve(token)
-        } else {
-          reject('Could not perform login.')
-        }
-      })
-    })
-  }
-
-  async listFiles() {
-    return new Promise((resolve, reject) => {
-      this.datastoreServer.list('demo-sample', '', 'true', (data) => {
-        if (!data.error) {
-          const results = data.result[1]
-          const files = results.map(result => result[1])
-          resolve(files)
-        } else {
-          reject(data.error)
-        }
-      })
-    })
-  }
-
-  async load() {
-    await this.login()
-    const files = await this.listFiles()
-    this.setState({ files })
-    return await files.map(file => ({ id: file.name, ...file }))
-  }
-
   async onError(error) {
     await AppController.getInstance().errorChange(error)
   }
@@ -166,6 +137,7 @@ class DataBrowser extends React.Component {
     return (
       <div className={[classes.boundary, classes.columnFlexContainer].join(' ')}>
         <Toolbar
+          controller={this.controller}
           viewType={viewType}
           onViewTypeChange={this.handleViewTypeChange}
           onShowInfoChange={this.handleShowInfoChange}
@@ -210,7 +182,7 @@ class DataBrowser extends React.Component {
                   getValue: ({ row }) => row.lastModifiedTime.toLocaleString()
                 }
               ]}
-              loadRows={this.load}
+              loadRows={this.controller.load}
               sort='registrationDate'
               sortDirection='desc'
               exportable={false}
