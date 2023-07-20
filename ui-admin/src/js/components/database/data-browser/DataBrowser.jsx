@@ -41,10 +41,12 @@ const styles = theme => ({
     },
   },
   grid: {
-    flexGrow: '1',
-    flex: '1',
+    flexGrow: 1,
+    flex: 1,
     height: 'auto',
-    overflowY: 'auto'
+    overflowY: 'auto',
+    paddingTop: 0,
+    paddingBottom: 0
   },
   content: {
     flex: '1 1 100%',
