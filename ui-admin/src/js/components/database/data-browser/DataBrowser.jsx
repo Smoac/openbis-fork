@@ -51,7 +51,6 @@ const styles = theme => ({
   content: {
     flex: '1 1 100%',
     height: 0,
-    overflowY: 'hidden'
   },
   nameCell: {
     display: 'flex',

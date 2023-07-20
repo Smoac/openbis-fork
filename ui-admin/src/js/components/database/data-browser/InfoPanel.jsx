@@ -23,17 +23,28 @@ import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
 import TableCell from '@material-ui/core/TableCell'
 import TableRow from '@material-ui/core/TableRow'
-import Header from '@src/js/components/common/form/Header.jsx';
-import ItemIcon from '@src/js/components/database/data-browser/ItemIcon.jsx';
-import { withStyles } from "@material-ui/core/styles";
+import Header from '@src/js/components/common/form/Header.jsx'
+import ItemIcon from '@src/js/components/database/data-browser/ItemIcon.jsx'
+import { withStyles } from '@material-ui/core/styles'
 
 const styles = () => ({
   container: {
-    position: 'sticky'
+    position: 'sticky',
+    overflowX: 'hidden',
+    overflowY: 'auto',
+    width: '24rem'
   },
   icon: {
     verticalAlign: 'middle',
     fontSize: '12rem'
+  },
+  fileName: {
+    whiteSpace: 'nowrap',
+    '& *': {
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis'
+    }
   }
 })
 
@@ -53,7 +64,9 @@ class InfoPanel extends React.Component {
     // TODO: extract strings to messages
     return (file &&
       <Container className={classes.container}>
-        <Header size='big'>{file.name}</Header>
+        <span className={classes.fileName}>
+          <Header size='big'>{file.name}</Header>
+        </span>
         <ItemIcon file={file} classes={classes} configuration={configuration} />
         <Table>
           <TableBody>
