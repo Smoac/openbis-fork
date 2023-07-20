@@ -38,12 +38,12 @@ const styles = (theme) => ({
     display: 'flex',
     whiteSpace: 'nowrap',
     marginLeft: theme.spacing(1),
-    marginBottom: theme.spacing(1),
     marginRight: theme.spacing(1)
   },
   buttons: {
     flex: '0 0 auto',
     display: 'flex',
+    alignItems: 'center',
     whiteSpace: 'nowrap',
   },
   leftSection: {
