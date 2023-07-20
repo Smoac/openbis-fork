@@ -32,18 +32,30 @@ import Button from '@material-ui/core/Button'
 const color = 'secondary'
 
 const styles = (theme) => ({
+  toolbar: {
+    flex: '0 0 auto',
+    display: 'flex',
+    whiteSpace: 'nowrap',
+    marginLeft: theme.spacing(1),
+    marginBottom: theme.spacing(1)
+  },
   buttons: {
     flex: '0 0 auto',
     display: 'flex',
     whiteSpace: 'nowrap',
-    marginBottom: theme.spacing(1),
     '& button': {
       marginRight: theme.spacing(1)
     }
   },
+  leftSection: {
+    flexGrow: 1,
+  },
+  rightSection: {
+    flexShrink: 0
+  },
   toggleButton: {
     marginRight: theme.spacing(1),
-    border: '1px solid ' + theme.palette[color].main,
+    border: '1px solid ' + theme.palette[color].main + '80',
     '& *': {
       color: theme.palette[color].main
     }
@@ -62,47 +74,60 @@ class Toolbar extends React.Component {
       this.props
     const size = 'small'
     return (
-      <div className={classes.buttons}>
-        <Button
-          classes={{ root: classes.button }}
-          color={color}
-          size={size}
-          variant='outlined'
-          startIcon={<CreateNewFolderIcon />}
-        >
-          {messages.get(messages.NEW_FOLDER)}
-        </Button>
-        <ToggleButton
-          classes={{ root: classes.toggleButton }}
-          color={color}
-          size={size}
-          selected={showInfo}
-          onChange={onShowInfoChange}
-          value={messages.get(messages.INFO)}
-          aria-label={messages.get(messages.INFO)}
-        >
-          <InfoIcon />
-        </ToggleButton>
-        <Button
-          classes={{ root: classes.button }}
-          color={color}
-          size={size}
-          variant='outlined'
-        >
-          <SearchIcon />
-        </Button>
-        {viewType === 'list' && (
+      <div className={classes.toolbar}>
+        <div className={[classes.buttons, classes.leftSection].join(' ')}>
           <Button
+            classes={{ root: classes.button }}
+            color={color}
+            size={size}
+            variant='outlined'
+            startIcon={<CreateNewFolderIcon />}
+          >
+            {messages.get(messages.NEW_FOLDER)}
+          </Button>
+        </div>
+        <div className={[classes.buttons, classes.rightSection].join(' ')}>
+          <ToggleButton
+            classes={{ root: classes.toggleButton }}
+            color={color}
+            size={size}
+            selected={showInfo}
+            onChange={onShowInfoChange}
+            value={messages.get(messages.INFO)}
+            aria-label={messages.get(messages.INFO)}
+          >
+            <InfoIcon />
+          </ToggleButton>
+          <Button
+            classes={{ root: classes.button }}
+            color={color}
+            size={size}
+            variant='outlined'
+          >
+            <SearchIcon />
+          </Button>
+          {viewType === 'list' && (
+            <Button
+                classes={{ root: classes.button }}
+                color={color}
+                size={size}
+                variant='outlined'
+                onClick={() => onViewTypeChange('grid')}
+              >
+              <ViewComfyIcon />
+            </Button>
+          )}
+          {viewType === 'grid' && (
+            <Button
               classes={{ root: classes.button }}
               color={color}
               size={size}
               variant='outlined'
-              onClick={() => onViewTypeChange('grid')}
+              onClick={() => onViewTypeChange('list')}
             >
-            <ViewComfyIcon />
-          </Button>
-        )}
-        {viewType === 'grid' && (
+              <ViewListIcon />
+            </Button>
+          )}
           <Button
             classes={{ root: classes.button }}
             color={color}
@@ -110,28 +135,19 @@ class Toolbar extends React.Component {
             variant='outlined'
             onClick={() => onViewTypeChange('list')}
           >
-            <ViewListIcon />
+            <SettingsIcon />
           </Button>
-        )}
-        <Button
-          classes={{ root: classes.button }}
-          color={color}
-          size={size}
-          variant='outlined'
-          onClick={() => onViewTypeChange('list')}
-        >
-          <SettingsIcon />
-        </Button>
-        <Button
-          classes={{ root: classes.button }}
-          color={color}
-          size={size}
-          variant='contained'
-          startIcon={<PublishIcon />}
-          onClick={() => onViewTypeChange('list')}
-        >
-          {messages.get(messages.UPLOAD)}
-        </Button>
+          <Button
+            classes={{ root: classes.button }}
+            color={color}
+            size={size}
+            variant='contained'
+            startIcon={<PublishIcon />}
+            onClick={() => onViewTypeChange('list')}
+          >
+            {messages.get(messages.UPLOAD)}
+          </Button>
+        </div>
       </div>
     )
   }
