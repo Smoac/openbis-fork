@@ -19,7 +19,7 @@ const styles = theme => ({
   columnFlexContainer: {
     flexDirection: 'column',
     display: 'flex',
-    height: 'calc(100vh - ' + theme.spacing(10) + 'px)'
+    height: 'calc(100vh - ' + theme.spacing(12) + 'px)'
   },
   boundary: {
     padding: theme.spacing(1),
@@ -48,7 +48,7 @@ const styles = theme => ({
   },
   content: {
     flex: '1 1 100%',
-    height: '0',
+    height: 'calc(100vh - ' + theme.spacing(10) + 'px)',
     overflowY: 'hidden'
   }
 })
