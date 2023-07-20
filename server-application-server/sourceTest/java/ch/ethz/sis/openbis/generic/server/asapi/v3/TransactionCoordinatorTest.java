@@ -374,6 +374,7 @@ public class TransactionCoordinatorTest
                             one(transactionLog).logStatus(with(TEST_TRANSACTION_ID), with(TransactionStatus.COMMIT_FINISHED));
                         }
                         break;
+                    case COMMIT_INCONSISTENT:
                     case COMMIT_FINISHED:
                     case ROLLBACK_FINISHED:
                 }

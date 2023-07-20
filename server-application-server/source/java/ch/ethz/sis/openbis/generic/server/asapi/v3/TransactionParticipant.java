@@ -1,5 +1,6 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -27,6 +28,8 @@ public class TransactionParticipant implements ITransactionParticipant
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, TransactionParticipant.class);
 
     private static final String TRANSACTION_COORDINATOR_SECRET = "i_am_secret";
+
+    private static final String TRANSACTION_LOG_PATH = "transaction-logs";
 
     private final Map<String, TransactionThread> threadMap = new HashMap<>();
 
@@ -142,7 +145,7 @@ public class TransactionParticipant implements ITransactionParticipant
                 }
             }
         };
-        this.transactionLog = new TransactionLog();
+        this.transactionLog = new TransactionLog(new File(TRANSACTION_LOG_PATH));
     }
 
     @Override public void beginTransaction(final String transactionId, final String transactionCoordinatorSecret) throws Throwable

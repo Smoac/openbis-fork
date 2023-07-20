@@ -1,5 +1,6 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,6 +32,8 @@ public class TransactionCoordinator implements ITransactionCoordinator
 
     private static final String APPLICATION_SERVER_URL_2 = "http://127.0.0.1:9999";
 
+    private static final String TRANSACTION_LOG_PATH = "transaction-logs";
+
     private static final String SECRET = "i_am_secret";
 
     private static final long TIMEOUT = 10000000;
@@ -55,7 +58,7 @@ public class TransactionCoordinator implements ITransactionCoordinator
         this.participants = List.of(
                 new ApplicationServerApiParticipant(APPLICATION_SERVER_URL, TIMEOUT),
                 new ApplicationServerApiParticipant(APPLICATION_SERVER_URL_2, TIMEOUT));
-        this.transactionLog = new TransactionLog();
+        this.transactionLog = new TransactionLog(new File(TRANSACTION_LOG_PATH));
     }
 
     public void restoreTransactions()
@@ -98,6 +101,7 @@ public class TransactionCoordinator implements ITransactionCoordinator
                             operationLog.info("Transaction '" + transactionId + "' restore of prepared commit failed.", e);
                         }
                         break;
+                    case COMMIT_INCONSISTENT:
                     case COMMIT_FINISHED:
                     case ROLLBACK_FINISHED:
                         // nothing to do
