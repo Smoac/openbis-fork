@@ -52,7 +52,17 @@ const styles = theme => ({
     flex: '1 1 100%',
     height: 0,
     overflowY: 'hidden'
-  }
+  },
+  nameCell: {
+    display: 'flex',
+    alignItems: 'center',
+    '&>span': {
+      flex: 1,
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis'
+    }
+  },
 })
 
 const configuration =
@@ -177,14 +187,14 @@ class DataBrowser extends React.Component {
                   sortable: true,
                   getValue: ({ row }) => row.name,
                   renderValue: ({ row }) => (
-                    <>
+                    <div className={classes.nameCell}>
                       <ItemIcon
                         file={row}
                         classes={{ icon: classes.icon }}
                         configuration={configuration}
-                      />{' '}
-                      {row.name}
-                    </>
+                      />
+                      <span>{row.name}</span>
+                    </div>
                   ),
                   renderFilter: null
                 },
