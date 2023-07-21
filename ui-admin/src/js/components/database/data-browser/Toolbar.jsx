@@ -29,8 +29,12 @@ import autoBind from 'auto-bind'
 import { ToggleButton } from '@material-ui/lab'
 import Button from '@material-ui/core/Button'
 import IconButton from '@material-ui/core/IconButton'
+import Container from "@src/js/components/common/form/Container.jsx";
+import Popover from "@material-ui/core/Popover";
 
 const color = 'secondary'
+const buttonSize = 'small'
+const iconButtonSize = 'medium'
 
 const styles = (theme) => ({
   toolbar: {
@@ -60,6 +64,13 @@ const styles = (theme) => ({
     '& *': {
       color: theme.palette[color].main
     }
+  },
+  uploadButtonsContainer: {
+    display: 'flex',
+    flexDirection: 'column'
+  },
+  marginBottom: {
+    marginBottom: theme.spacing(1)
   }
 })
 
@@ -70,13 +81,52 @@ class Toolbar extends React.Component {
     autoBind(this)
 
     this.controller = this.props.controller
+    this.state = {
+      el: null
+    }
+  }
+
+  handleOpen(event) {
+    this.setState({
+      el: event.currentTarget
+    })
+  }
+
+  handleClose() {
+    this.setState({
+      el: null
+    })
+  }
+
+  renderUploadButtons() {
+    const { classes } = this.props
+    return (
+      <div className={classes.uploadButtonsContainer}>
+        <Button
+          classes={{ root: [classes.button, classes.marginBottom].join(' ') }}
+          color={color}
+          size={buttonSize}
+          variant='contained'
+          // onClick={this.controller.handleNewFolderClick}
+        >
+          File upload
+        </Button>
+        <Button
+          classes={{ root: classes.button }}
+          color={color}
+          size={buttonSize}
+          variant='contained'
+          // onClick={this.controller.handleNewFolderClick}
+        >
+          Folder upload
+        </Button>
+      </div>
+    )
   }
 
   render() {
-    const { viewType, onViewTypeChange, classes, showInfo, onShowInfoChange } =
-      this.props
-    const buttonSize = 'small'
-    const iconButtonSize = 'medium'
+    const { viewType, onViewTypeChange, classes, showInfo, onShowInfoChange } = this.props
+    const { el } = this.state
     return (
       <div className={classes.toolbar}>
         <div className={[classes.buttons, classes.leftSection].join(' ')}>
@@ -145,12 +195,28 @@ class Toolbar extends React.Component {
             classes={{ root: classes.button }}
             color={color}
             size={buttonSize}
-            variant='contained'
+            variant='outlined'
             startIcon={<PublishIcon />}
-            onClick={this.controller.handleUploadClick}
+            onClick={this.handleOpen}
           >
             {messages.get(messages.UPLOAD)}
           </Button>
+          <Popover
+            id={'toolbar.columns-popup-id'}
+            open={Boolean(el)}
+            anchorEl={el}
+            onClose={this.handleClose}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'left'
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'left'
+            }}
+          >
+            <Container square={true}>{this.renderUploadButtons()}</Container>
+          </Popover>
         </div>
       </div>
     )

@@ -146,8 +146,7 @@ class DataBrowser extends React.Component {
         <div className={[classes.flexContainer, classes.boundary, classes.content].join(' ')}>
           {viewType === 'list' && (
             <Grid
-              // id={id}
-              // settingsId={id}
+              id='data-browser-grid'
               filterModes={[GridFilterOptions.COLUMN_FILTERS]}
               header='Files'
               classes={{ container: classes.grid }}
