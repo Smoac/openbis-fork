@@ -31,6 +31,7 @@ import Button from '@material-ui/core/Button'
 import IconButton from '@material-ui/core/IconButton'
 import Container from "@src/js/components/common/form/Container.jsx";
 import Popover from "@material-ui/core/Popover";
+import UploadButton from "@src/js/components/database/data-browser/UploadButton.jsx";
 
 const color = 'secondary'
 const buttonSize = 'small'
@@ -98,28 +99,36 @@ class Toolbar extends React.Component {
     })
   }
 
+  handleUploadFiles() {
+
+  }
+
+  handleUploadFolders() {
+
+  }
+
   renderUploadButtons() {
     const { classes } = this.props
     return (
       <div className={classes.uploadButtonsContainer}>
-        <Button
+        <UploadButton
           classes={{ root: [classes.button, classes.marginBottom].join(' ') }}
           color={color}
           size={buttonSize}
           variant='contained'
-          // onClick={this.controller.handleNewFolderClick}
+          onClick={this.handleUploadFiles}
         >
           File upload
-        </Button>
-        <Button
+        </UploadButton>
+        <UploadButton
           classes={{ root: classes.button }}
           color={color}
           size={buttonSize}
           variant='contained'
-          // onClick={this.controller.handleNewFolderClick}
+          onClick={this.handleUploadFolders}
         >
           Folder upload
-        </Button>
+        </UploadButton>
       </div>
     )
   }
