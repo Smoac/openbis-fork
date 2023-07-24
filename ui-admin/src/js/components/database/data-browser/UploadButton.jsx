@@ -32,7 +32,7 @@ class UploadButton extends React.Component {
     const fileInputRef = React.createRef();
 
     return (
-      <div>
+      <>
         {/* Hidden file input */}
         <input
           type="file"
@@ -51,7 +51,7 @@ class UploadButton extends React.Component {
         >
           {children}
         </Button>
-      </div>
+      </>
     );
   }
 }

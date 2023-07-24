@@ -68,11 +68,14 @@ const styles = (theme) => ({
   },
   uploadButtonsContainer: {
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    '&>button': {
+      marginBottom: theme.spacing(1)
+    },
+    '&>button:nth-last-child(1)': {
+      marginBottom: 0
+    }
   },
-  marginBottom: {
-    marginBottom: theme.spacing(1)
-  }
 })
 
 class Toolbar extends React.Component {
@@ -112,7 +115,7 @@ class Toolbar extends React.Component {
     return (
       <div className={classes.uploadButtonsContainer}>
         <UploadButton
-          classes={{ root: [classes.button, classes.marginBottom].join(' ') }}
+          classes={{ root: classes.button }}
           color={color}
           size={buttonSize}
           variant='contained'
