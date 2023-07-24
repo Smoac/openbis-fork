@@ -20,6 +20,7 @@ import Button from '@material-ui/core/Button'
 import CreateNewFolderIcon from '@material-ui/icons/CreateNewFolderOutlined'
 import messages from '@src/js/common/messages.js'
 import { withStyles } from '@material-ui/core/styles'
+import logger from "@src/js/common/logger.js";
 
 const color = 'secondary'
 
@@ -35,6 +36,8 @@ const styles = theme => ({
 
 class LeftToolbar extends React.Component {
   render() {
+    logger.log(logger.DEBUG, 'LeftToolbar.render')
+
     const { buttonSize, controller, classes } = this.props
     return (
       <div className={classes.buttons}>

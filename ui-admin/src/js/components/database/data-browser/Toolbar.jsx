@@ -20,6 +20,7 @@ import { withStyles } from '@material-ui/core/styles'
 import autoBind from 'auto-bind'
 import LeftToolbar from '@src/js/components/database/data-browser/LeftToolbar.jsx'
 import RightToolbar from '@src/js/components/database/data-browser/RightToolbar.jsx'
+import logger from "@src/js/common/logger.js";
 
 const buttonSize = 'small'
 
@@ -46,6 +47,8 @@ class Toolbar extends React.Component {
   handleUploadFolders() {}
 
   render() {
+    logger.log(logger.DEBUG, 'Toolbar.render')
+
     const { viewType, onViewTypeChange, classes, showInfo, onShowInfoChange } =
       this.props
     return (
