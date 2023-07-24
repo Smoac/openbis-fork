@@ -17,224 +17,48 @@
 
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
-import messages from '@src/js/common/messages.js'
-import FileIcon from '@material-ui/icons/InsertDriveFileOutlined'
-import FolderIcon from '@material-ui/icons/FolderOpen'
-import ViewComfyIcon from '@material-ui/icons/ViewComfy'
-import ViewListIcon from '@material-ui/icons/ViewList'
-import PublishIcon from '@material-ui/icons/Publish'
-import SettingsIcon from '@material-ui/icons/Settings'
-import SearchIcon from '@material-ui/icons/Search'
-import InfoIcon from '@material-ui/icons/InfoOutlined'
-import CreateNewFolderIcon from '@material-ui/icons/CreateNewFolderOutlined'
 import autoBind from 'auto-bind'
-import { ToggleButton } from '@material-ui/lab'
-import Button from '@material-ui/core/Button'
-import IconButton from '@material-ui/core/IconButton'
-import Container from "@src/js/components/common/form/Container.jsx";
-import Popover from "@material-ui/core/Popover";
-import UploadButton from "@src/js/components/database/data-browser/UploadButton.jsx";
-import { Folder, InsertDriveFile } from "@material-ui/icons";
+import LeftToolbar from '@src/js/components/database/data-browser/LeftToolbar.jsx'
+import RightToolbar from '@src/js/components/database/data-browser/RightToolbar.jsx'
 
-const color = 'secondary'
 const buttonSize = 'small'
-const iconButtonSize = 'medium'
 
-const styles = (theme) => ({
+const styles = theme => ({
   toolbar: {
     flex: '0 0 auto',
     display: 'flex',
     whiteSpace: 'nowrap',
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1)
-  },
-  buttons: {
-    flex: '0 0 auto',
-    display: 'flex',
-    alignItems: 'center',
-    whiteSpace: 'nowrap',
-  },
-  leftSection: {
-    flexGrow: 1,
-  },
-  rightSection: {
-    flexShrink: 0
-  },
-  toggleButton: {
-    border: 'none',
-    borderRadius: '50%',
-    display: 'inline-flex',
-    padding: theme.spacing(1.5) + 'px',
-    '& *': {
-      color: theme.palette[color].main
-    }
-  },
-  uploadButtonsContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    '&>button': {
-      marginBottom: theme.spacing(1)
-    },
-    '&>button:nth-last-child(1)': {
-      marginBottom: 0
-    }
-  },
+  }
 })
 
 class Toolbar extends React.Component {
-
   constructor(props, context) {
     super(props, context)
     autoBind(this)
 
     this.controller = this.props.controller
-    this.state = {
-      el: null
-    }
   }
 
-  handleOpen(event) {
-    this.setState({
-      el: event.currentTarget
-    })
-  }
+  handleUploadFiles() {}
 
-  handleClose() {
-    this.setState({
-      el: null
-    })
-  }
-
-  handleUploadFiles() {
-
-  }
-
-  handleUploadFolders() {
-
-  }
-
-  renderUploadButtons() {
-    const { classes } = this.props
-    return (
-      <div className={classes.uploadButtonsContainer}>
-        <UploadButton
-          classes={{ root: classes.button }}
-          color={color}
-          size={buttonSize}
-          variant='contained'
-          startIcon={<FileIcon />}
-          onClick={this.handleUploadFiles}
-        >
-          Upload file
-        </UploadButton>
-        <UploadButton
-          classes={{ root: classes.button }}
-          color={color}
-          size={buttonSize}
-          variant='contained'
-          startIcon={<FolderIcon />}
-          onClick={this.handleUploadFolders}
-        >
-          Upload folder
-        </UploadButton>
-      </div>
-    )
-  }
+  handleUploadFolders() {}
 
   render() {
-    const { viewType, onViewTypeChange, classes, showInfo, onShowInfoChange } = this.props
-    const { el } = this.state
+    const { viewType, onViewTypeChange, classes, showInfo, onShowInfoChange } =
+      this.props
     return (
       <div className={classes.toolbar}>
-        <div className={[classes.buttons, classes.leftSection].join(' ')}>
-          <Button
-            classes={{ root: classes.button }}
-            color={color}
-            size={buttonSize}
-            variant='outlined'
-            startIcon={<CreateNewFolderIcon />}
-            onClick={this.controller.handleNewFolderClick}
-          >
-            {messages.get(messages.NEW_FOLDER)}
-          </Button>
-        </div>
-        <div className={[classes.buttons, classes.rightSection].join(' ')}>
-          <ToggleButton
-            classes={{ root: classes.toggleButton }}
-            color={color}
-            size={buttonSize}
-            selected={showInfo}
-            onChange={onShowInfoChange}
-            value={messages.get(messages.INFO)}
-            aria-label={messages.get(messages.INFO)}
-          >
-            <InfoIcon />
-          </ToggleButton>
-          <IconButton
-            classes={{ root: classes.button }}
-            color={color}
-            size={iconButtonSize}
-            variant='outlined'
-          >
-            <SearchIcon />
-          </IconButton>
-          {viewType === 'list' && (
-            <IconButton
-                classes={{ root: classes.button }}
-                color={color}
-                size={iconButtonSize}
-                variant='outlined'
-                onClick={() => onViewTypeChange('grid')}
-              >
-              <ViewComfyIcon />
-            </IconButton>
-          )}
-          {viewType === 'grid' && (
-            <IconButton
-              classes={{ root: classes.button }}
-              color={color}
-              size={iconButtonSize}
-              variant='outlined'
-              onClick={() => onViewTypeChange('list')}
-            >
-              <ViewListIcon />
-            </IconButton>
-          )}
-          <IconButton
-            classes={{ root: classes.button }}
-            color={color}
-            size={iconButtonSize}
-            variant='outlined'
-          >
-            <SettingsIcon />
-          </IconButton>
-          <Button
-            classes={{ root: classes.button }}
-            color={color}
-            size={buttonSize}
-            variant='outlined'
-            startIcon={<PublishIcon />}
-            onClick={this.handleOpen}
-          >
-            {messages.get(messages.UPLOAD)}
-          </Button>
-          <Popover
-            id={'toolbar.columns-popup-id'}
-            open={Boolean(el)}
-            anchorEl={el}
-            onClose={this.handleClose}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'left'
-            }}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'left'
-            }}
-          >
-            <Container square={true}>{this.renderUploadButtons()}</Container>
-          </Popover>
-        </div>
+        <LeftToolbar buttonSize={buttonSize} controller={this.controller} />
+        <RightToolbar
+          buttonSize={buttonSize}
+          selected={showInfo}
+          onChange={onShowInfoChange}
+          viewType={viewType}
+          onViewTypeChange={onViewTypeChange}
+          controller={this.controller}
+        />
       </div>
     )
   }

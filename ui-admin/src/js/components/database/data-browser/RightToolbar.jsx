@@ -1,0 +1,205 @@
+/*
+ *  Copyright ETH 2023 Zürich, Scientific IT Services
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ */
+
+import React from 'react'
+import { ToggleButton } from '@material-ui/lab'
+import messages from '@src/js/common/messages.js'
+import InfoIcon from '@material-ui/icons/InfoOutlined'
+import IconButton from '@material-ui/core/IconButton'
+import SearchIcon from '@material-ui/icons/Search'
+import ViewComfyIcon from '@material-ui/icons/ViewComfy'
+import ViewListIcon from '@material-ui/icons/ViewList'
+import SettingsIcon from '@material-ui/icons/Settings'
+import Button from '@material-ui/core/Button'
+import PublishIcon from '@material-ui/icons/Publish'
+import Popover from '@material-ui/core/Popover'
+import Container from '@src/js/components/common/form/Container.jsx'
+import { withStyles } from '@material-ui/core/styles'
+import autoBind from 'auto-bind'
+import UploadButton from '@src/js/components/database/data-browser/UploadButton.jsx'
+import FileIcon from '@material-ui/icons/InsertDriveFileOutlined'
+import FolderIcon from '@material-ui/icons/FolderOpen'
+
+const color = 'secondary'
+const iconButtonSize = 'medium'
+
+const styles = theme => ({
+  buttons: {
+    flex: '0 0 auto',
+    display: 'flex',
+    alignItems: 'center',
+    whiteSpace: 'nowrap'
+  },
+  uploadButtonsContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    '&>button': {
+      marginBottom: theme.spacing(1)
+    },
+    '&>button:nth-last-child(1)': {
+      marginBottom: 0
+    }
+  },
+  toggleButton: {
+    border: 'none',
+    borderRadius: '50%',
+    display: 'inline-flex',
+    padding: theme.spacing(1.5) + 'px',
+    '& *': {
+      color: theme.palette[color].main
+    }
+  }
+})
+
+class RightToolbar extends React.Component {
+  constructor(props, context) {
+    super(props, context)
+    autoBind(this)
+
+    const { controller } = this.props
+
+    this.state = {
+      uploadButtonsPopup: null
+    }
+  }
+
+  handleOpen(event) {
+    this.setState({
+      uploadButtonsPopup: event.currentTarget
+    })
+  }
+
+  handleClose() {
+    this.setState({
+      uploadButtonsPopup: null
+    })
+  }
+
+  renderUploadButtons() {
+    const { classes, buttonSize } = this.props
+    return (
+      <div className={classes.uploadButtonsContainer}>
+        <UploadButton
+          classes={{ root: classes.button }}
+          color={color}
+          size={buttonSize}
+          variant='contained'
+          startIcon={<FileIcon />}
+          onClick={this.handleUploadFiles}
+        >
+          Upload file
+        </UploadButton>
+        <UploadButton
+          classes={{ root: classes.button }}
+          color={color}
+          size={buttonSize}
+          variant='contained'
+          startIcon={<FolderIcon />}
+          onClick={this.handleUploadFolders}
+        >
+          Upload folder
+        </UploadButton>
+      </div>
+    )
+  }
+
+  render() {
+    const { classes, onViewTypeChange, buttonSize } = this.props
+    const { uploadButtonsPopup } = this.state
+    return (
+      <div className={[classes.buttons, classes.rightSection].join(' ')}>
+        <ToggleButton
+          classes={{ root: classes.toggleButton }}
+          color={color}
+          size={buttonSize}
+          selected={this.props.selected}
+          onChange={this.props.onChange}
+          value={messages.get(messages.INFO)}
+          aria-label={messages.get(messages.INFO)}
+        >
+          <InfoIcon />
+        </ToggleButton>
+        <IconButton
+          classes={{ root: classes.button }}
+          color={color}
+          size={iconButtonSize}
+          variant='outlined'
+        >
+          <SearchIcon />
+        </IconButton>
+        {this.props.viewType === 'list' && (
+          <IconButton
+            classes={{ root: classes.button }}
+            color={color}
+            size={iconButtonSize}
+            variant='outlined'
+            onClick={() => onViewTypeChange('grid')}
+          >
+            <ViewComfyIcon />
+          </IconButton>
+        )}
+        {this.props.viewType === 'grid' && (
+          <IconButton
+            classes={{ root: classes.button }}
+            color={color}
+            size={iconButtonSize}
+            variant='outlined'
+            onClick={() => onViewTypeChange('list')}
+          >
+            <ViewListIcon />
+          </IconButton>
+        )}
+        <IconButton
+          classes={{ root: classes.button }}
+          color={color}
+          size={iconButtonSize}
+          variant='outlined'
+        >
+          <SettingsIcon />
+        </IconButton>
+        <Button
+          classes={{ root: classes.button }}
+          color={color}
+          size={buttonSize}
+          variant='outlined'
+          startIcon={<PublishIcon />}
+          onClick={this.handleOpen}
+        >
+          {messages.get(messages.UPLOAD)}
+        </Button>
+        <Popover
+          id={'toolbar.columns-popup-id'}
+          open={Boolean(uploadButtonsPopup)}
+          anchorEl={uploadButtonsPopup}
+          onClose={this.handleClose}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'left'
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'left'
+          }}
+        >
+          <Container square={true}>{this.renderUploadButtons()}</Container>
+        </Popover>
+      </div>
+    )
+  }
+}
+
+export default withStyles(styles)(RightToolbar)
