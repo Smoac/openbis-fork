@@ -18,6 +18,8 @@
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import messages from '@src/js/common/messages.js'
+import FileIcon from '@material-ui/icons/InsertDriveFileOutlined'
+import FolderIcon from '@material-ui/icons/FolderOpen'
 import ViewComfyIcon from '@material-ui/icons/ViewComfy'
 import ViewListIcon from '@material-ui/icons/ViewList'
 import PublishIcon from '@material-ui/icons/Publish'
@@ -32,6 +34,7 @@ import IconButton from '@material-ui/core/IconButton'
 import Container from "@src/js/components/common/form/Container.jsx";
 import Popover from "@material-ui/core/Popover";
 import UploadButton from "@src/js/components/database/data-browser/UploadButton.jsx";
+import { Folder, InsertDriveFile } from "@material-ui/icons";
 
 const color = 'secondary'
 const buttonSize = 'small'
@@ -119,18 +122,20 @@ class Toolbar extends React.Component {
           color={color}
           size={buttonSize}
           variant='contained'
+          startIcon={<FileIcon />}
           onClick={this.handleUploadFiles}
         >
-          File upload
+          Upload file
         </UploadButton>
         <UploadButton
           classes={{ root: classes.button }}
           color={color}
           size={buttonSize}
           variant='contained'
+          startIcon={<FolderIcon />}
           onClick={this.handleUploadFolders}
         >
-          Folder upload
+          Upload folder
         </UploadButton>
       </div>
     )

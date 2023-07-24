@@ -28,7 +28,7 @@ const styles = () => ({
 class UploadButton extends React.Component {
 
   render () {
-    const { children, classes, size, variant, color, onClick } = this.props;
+    const { children, classes, size, variant, color, onClick, startIcon } = this.props;
     const fileInputRef = React.createRef();
 
     return (
@@ -47,6 +47,7 @@ class UploadButton extends React.Component {
           color={color}
           size={size}
           variant={variant}
+          startIcon={startIcon}
           onClick={() => fileInputRef.current.click()}
         >
           {children}
