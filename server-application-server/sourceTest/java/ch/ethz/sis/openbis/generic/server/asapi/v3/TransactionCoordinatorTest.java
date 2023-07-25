@@ -1,6 +1,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,6 +23,14 @@ public class TransactionCoordinatorTest
     public static final String TEST_TRANSACTION_ID = "test-id";
 
     public static final String TEST_TRANSACTION_ID_2 = "test-id-2";
+
+    public static final String TEST_PARTICIPANT_ID = "participant-id";
+
+    public static final String TEST_PARTICIPANT_ID_2 = "participant-id-2";
+
+    public static final String TEST_METHOD_NAME = "test-method";
+
+    public static final Object[] TEST_METHOD_ARGUMENTS = new Object[] { 1, "abc" };
 
     private Mockery mockery;
 
@@ -109,6 +118,108 @@ public class TransactionCoordinatorTest
         } catch (Exception e)
         {
             assertEquals(e, beginException);
+        }
+    }
+
+    @Test
+    public void testExecuteOperationSucceeds()
+    {
+        TransactionCoordinator coordinator = new TransactionCoordinator(List.of(participant1, participant2), transactionLog);
+
+        mockery.checking(new Expectations()
+        {
+            {
+                allowing(participant1).getParticipantId();
+                will(returnValue(TEST_PARTICIPANT_ID));
+                allowing(participant2).getParticipantId();
+                will(returnValue(TEST_PARTICIPANT_ID_2));
+
+                one(transactionLog).logStatus(with(TEST_TRANSACTION_ID), with(TransactionStatus.BEGIN_STARTED));
+
+                one(participant1).beginTransaction(with(TEST_TRANSACTION_ID));
+                one(participant2).beginTransaction(with(TEST_TRANSACTION_ID));
+
+                one(transactionLog).logStatus(with(TEST_TRANSACTION_ID), with(TransactionStatus.BEGIN_FINISHED));
+
+                one(participant1).executeOperation(TEST_TRANSACTION_ID, TEST_METHOD_NAME, TEST_METHOD_ARGUMENTS);
+
+            }
+        });
+
+        coordinator.beginTransaction(TEST_TRANSACTION_ID);
+        coordinator.executeOperation(TEST_TRANSACTION_ID, TEST_PARTICIPANT_ID, TEST_METHOD_NAME, TEST_METHOD_ARGUMENTS);
+    }
+
+    @Test
+    public void testExecuteOperationFails()
+    {
+        TransactionCoordinator coordinator = new TransactionCoordinator(List.of(participant1, participant2), transactionLog);
+
+        Exception executeOperationException = new RuntimeException();
+
+        mockery.checking(new Expectations()
+        {
+            {
+                allowing(participant1).getParticipantId();
+                will(returnValue(TEST_PARTICIPANT_ID));
+                allowing(participant2).getParticipantId();
+                will(returnValue(TEST_PARTICIPANT_ID_2));
+
+                one(transactionLog).logStatus(with(TEST_TRANSACTION_ID), with(TransactionStatus.BEGIN_STARTED));
+
+                one(participant1).beginTransaction(with(TEST_TRANSACTION_ID));
+                one(participant2).beginTransaction(with(TEST_TRANSACTION_ID));
+
+                one(transactionLog).logStatus(with(TEST_TRANSACTION_ID), with(TransactionStatus.BEGIN_FINISHED));
+
+                one(participant1).executeOperation(TEST_TRANSACTION_ID, TEST_METHOD_NAME, TEST_METHOD_ARGUMENTS);
+                will(throwException(executeOperationException));
+            }
+        });
+
+        coordinator.beginTransaction(TEST_TRANSACTION_ID);
+
+        try
+        {
+            coordinator.executeOperation(TEST_TRANSACTION_ID, TEST_PARTICIPANT_ID, TEST_METHOD_NAME, TEST_METHOD_ARGUMENTS);
+            fail();
+        } catch (Exception e)
+        {
+            assertEquals(e, executeOperationException);
+        }
+    }
+
+    @Test
+    public void testExecuteOperationWithUnknownParticipantId()
+    {
+        TransactionCoordinator coordinator = new TransactionCoordinator(List.of(participant1, participant2), transactionLog);
+
+        mockery.checking(new Expectations()
+        {
+            {
+                allowing(participant1).getParticipantId();
+                will(returnValue(TEST_PARTICIPANT_ID));
+                allowing(participant2).getParticipantId();
+                will(returnValue(TEST_PARTICIPANT_ID_2));
+
+                one(transactionLog).logStatus(with(TEST_TRANSACTION_ID), with(TransactionStatus.BEGIN_STARTED));
+
+                one(participant1).beginTransaction(with(TEST_TRANSACTION_ID));
+                one(participant2).beginTransaction(with(TEST_TRANSACTION_ID));
+
+                one(transactionLog).logStatus(with(TEST_TRANSACTION_ID), with(TransactionStatus.BEGIN_FINISHED));
+            }
+        });
+
+        coordinator.beginTransaction(TEST_TRANSACTION_ID);
+
+        try
+        {
+            coordinator.executeOperation(TEST_TRANSACTION_ID, "unknown-participant-id", TEST_METHOD_NAME, TEST_METHOD_ARGUMENTS);
+            fail();
+        } catch (Exception e)
+        {
+            assertEquals(e.getMessage(), "Unknown participant id: unknown-participant-id");
         }
     }
 

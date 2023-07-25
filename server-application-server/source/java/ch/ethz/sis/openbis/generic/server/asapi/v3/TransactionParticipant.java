@@ -168,7 +168,8 @@ public class TransactionParticipant implements ITransactionParticipant
         executeOperation(transactionId, transactionCoordinatorSecret, new RollbackTransactionOperation());
     }
 
-    public Object executeOperation(String transactionId, String transactionCoordinatorSecret, ITransactionOperation operation) throws Throwable
+    public Object executeOperation(String transactionId, String transactionCoordinatorSecret, ITransactionParticipantOperation operation)
+            throws Throwable
     {
         if (transactionId != null)
         {
@@ -240,7 +241,7 @@ public class TransactionParticipant implements ITransactionParticipant
 
         private Object transaction;
 
-        private ITransactionOperation invocation;
+        private ITransactionParticipantOperation invocation;
 
         private TransactionStatus status = TransactionStatus.NEW;
 
@@ -390,7 +391,7 @@ public class TransactionParticipant implements ITransactionParticipant
             return finished;
         }
 
-        public Object execute(String newTransactionCoordinatorSecret, ITransactionOperation newInvocation) throws Throwable
+        public Object execute(String newTransactionCoordinatorSecret, ITransactionParticipantOperation newInvocation) throws Throwable
         {
             synchronized (lock)
             {
@@ -436,7 +437,7 @@ public class TransactionParticipant implements ITransactionParticipant
 
     }
 
-    private static class BeginTransactionOperation implements ITransactionOperation
+    private static class BeginTransactionOperation implements ITransactionParticipantOperation
     {
         @Override public String getOperationName()
         {
@@ -449,7 +450,7 @@ public class TransactionParticipant implements ITransactionParticipant
         }
     }
 
-    private static class PrepareTransactionOperation implements ITransactionOperation
+    private static class PrepareTransactionOperation implements ITransactionParticipantOperation
     {
         @Override public String getOperationName()
         {
@@ -462,7 +463,7 @@ public class TransactionParticipant implements ITransactionParticipant
         }
     }
 
-    private static class CommitTransactionOperation implements ITransactionOperation
+    private static class CommitTransactionOperation implements ITransactionParticipantOperation
     {
         @Override public String getOperationName()
         {
@@ -475,7 +476,7 @@ public class TransactionParticipant implements ITransactionParticipant
         }
     }
 
-    private static class RollbackTransactionOperation implements ITransactionOperation
+    private static class RollbackTransactionOperation implements ITransactionParticipantOperation
     {
         @Override public String getOperationName()
         {

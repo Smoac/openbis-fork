@@ -7,6 +7,8 @@ public interface ITransactionCoordinatorParticipant
 
     void beginTransaction(final String transactionId);
 
+    Object executeOperation(final String transactionId, final String methodName, Object[] methodArguments);
+
     void prepareTransaction(final String transactionId);
 
     void commitTransaction(final String transactionId);

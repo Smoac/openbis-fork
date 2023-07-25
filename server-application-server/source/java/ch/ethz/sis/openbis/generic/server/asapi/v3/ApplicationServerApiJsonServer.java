@@ -131,17 +131,18 @@ public class ApplicationServerApiJsonServer extends AbstractApiJsonServiceExport
                             return null;
                         } else
                         {
-                            return transactionParticipant.executeOperation(transactionId, transactionCoordinatorSecret, new ITransactionOperation()
-                            {
-                                @Override public String getOperationName()
-                                {
-                                    return invocation.getMethod().getName();
-                                }
+                            return transactionParticipant.executeOperation(transactionId, transactionCoordinatorSecret,
+                                    new ITransactionParticipantOperation()
+                                    {
+                                        @Override public String getOperationName()
+                                        {
+                                            return invocation.getMethod().getName();
+                                        }
 
-                                @Override public Object executeOperation() throws Throwable
-                                {
-                                    return invocation.proceed();
-                                }
+                                        @Override public Object executeOperation() throws Throwable
+                                        {
+                                            return invocation.proceed();
+                                        }
                             });
                         }
                     }

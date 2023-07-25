@@ -88,7 +88,7 @@ public class ApplicationServerApiServer extends AbstractApiServiceExporter
                 return null;
             } else
             {
-                return transactionParticipant.executeOperation(transactionId, transactionCoordinatorSecret, new ITransactionOperation()
+                return transactionParticipant.executeOperation(transactionId, transactionCoordinatorSecret, new ITransactionParticipantOperation()
                 {
                     @Override public String getOperationName()
                     {

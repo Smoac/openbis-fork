@@ -2,11 +2,13 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3;
 
 import java.io.File;
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -148,6 +150,26 @@ public class TransactionCoordinator implements ITransactionCoordinator
                 throw e;
             }
         }
+    }
+
+    @Override public Object executeOperation(final String transactionId, final String participantId, final String methodName,
+            final Object[] methodArguments)
+    {
+        operationLog.info("Execute operation '" + transactionId + "' started.");
+
+        for (ITransactionCoordinatorParticipant participant : participants)
+        {
+            if (Objects.equals(participant.getParticipantId(), participantId))
+            {
+                Object result = participant.executeOperation(transactionId, methodName, methodArguments);
+
+                operationLog.info("Execute operation '" + transactionId + "' finished.");
+
+                return result;
+            }
+        }
+
+        throw new IllegalArgumentException("Unknown participant id: " + participantId);
     }
 
     @Override public void commitTransaction(final String transactionId)
@@ -311,6 +333,29 @@ public class TransactionCoordinator implements ITransactionCoordinator
             applicationServerApi.beginTransaction(transactionId);
         }
 
+        @Override public Object executeOperation(final String transactionId, final String methodName, final Object[] methodArguments)
+        {
+            // TODO security and error handling
+            for (Method method : applicationServerApi.getClass().getMethods())
+            {
+                if (method.getName().equals(methodName))
+                {
+                    try
+                    {
+                        Object[] methodArgumentsWithTransactionId = new Object[methodArguments.length + 1];
+                        methodArgumentsWithTransactionId[0] = transactionId;
+                        System.arraycopy(methodArguments, 0, methodArgumentsWithTransactionId, 1, methodArguments.length);
+                        return method.invoke(applicationServerApi, methodArgumentsWithTransactionId);
+                    } catch (Exception e)
+                    {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+
+            throw new IllegalArgumentException("Unknown method: " + methodName);
+        }
+
         @Override public void prepareTransaction(final String transactionId)
         {
             applicationServerApi.prepareTransaction(transactionId);
@@ -333,23 +378,22 @@ public class TransactionCoordinator implements ITransactionCoordinator
         {
             String methodName = methodInvocation.getMethod().getName();
 
+            Map<String, Serializable> attributes = new HashMap<>();
+
             if (TransactionConst.BEGIN_TRANSACTION_METHOD.equals(methodName)
+                    || TransactionConst.EXECUTE_OPERATION_METHOD.equals(methodName)
                     || TransactionConst.PREPARE_TRANSACTION_METHOD.equals(methodName)
                     || TransactionConst.COMMIT_TRANSACTION_METHOD.equals(methodName)
                     || TransactionConst.ROLLBACK_TRANSACTION_METHOD.equals(methodName))
             {
-                Map<String, Serializable> attributes = new HashMap<>();
                 attributes.put(TransactionConst.TRANSACTION_ID_ATTRIBUTE, (String) methodInvocation.getArguments()[0]);
                 attributes.put(TransactionConst.TRANSACTION_COORDINATOR_SECRET_ATTRIBUTE, SECRET);
-
-                RemoteInvocation remoteInvocation = super.createRemoteInvocation(methodInvocation);
-                remoteInvocation.setAttributes(attributes);
-                return remoteInvocation;
-            } else
-            {
-                throw new IllegalArgumentException(
-                        "Only transaction management calls are allowed. Tried to call " + methodName + " method.");
             }
+
+            RemoteInvocation remoteInvocation = super.createRemoteInvocation(methodInvocation);
+            remoteInvocation.setAttributes(attributes);
+
+            return remoteInvocation;
         }
     }
 

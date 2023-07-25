@@ -11,6 +11,8 @@ public class TransactionConst
 
     public static final String BEGIN_TRANSACTION_METHOD = "beginTransaction";
 
+    public static final String EXECUTE_OPERATION_METHOD = "executeOperation";
+
     public static final String PREPARE_TRANSACTION_METHOD = "prepareTransaction";
 
     public static final String COMMIT_TRANSACTION_METHOD = "commitTransaction";
