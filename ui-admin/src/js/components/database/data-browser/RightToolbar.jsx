@@ -43,7 +43,13 @@ const styles = theme => ({
     flex: '0 0 auto',
     display: 'flex',
     alignItems: 'center',
-    whiteSpace: 'nowrap'
+    whiteSpace: 'nowrap',
+    '&>button': {
+      marginRight: theme.spacing(1)
+    },
+    '&>button:nth-last-child(1)': {
+      marginRight: 0
+    }
   },
   uploadButtonsContainer: {
     display: 'flex',

@@ -20,6 +20,9 @@ import Button from '@material-ui/core/Button'
 import CreateNewFolderIcon from '@material-ui/icons/CreateNewFolderOutlined'
 import DownloadIcon from '@material-ui/icons/GetApp'
 import DeleteIcon from '@material-ui/icons/Delete'
+import RenameIcon from '@material-ui/icons/Create'
+import CopyIcon from '@material-ui/icons/FileCopy'
+import MoveIcon from '@material-ui/icons/ArrowRightAlt'
 import messages from '@src/js/common/messages.js'
 import { withStyles } from '@material-ui/core/styles'
 import logger from "@src/js/common/logger.js";
@@ -32,7 +35,13 @@ const styles = theme => ({
     flex: '1 0 auto',
     display: 'flex',
     alignItems: 'center',
-    whiteSpace: 'nowrap'
+    whiteSpace: 'nowrap',
+    '&>button': {
+      marginRight: theme.spacing(1)
+    },
+    '&>button:nth-last-child(1)': {
+      marginRight: 0
+    }
   },
   toggleButton: {}
 })
@@ -82,11 +91,41 @@ class LeftToolbar extends React.Component {
           classes={{ root: classes.button }}
           color={color}
           size={buttonSize}
-          variant='outlined'
+          variant='text'
           startIcon={<DeleteIcon />}
           onClick={this.controller.handleNewFolderClick}
         >
           {messages.get(messages.DELETE)}
+        </Button>
+        <Button
+          classes={{ root: classes.button }}
+          color={color}
+          size={buttonSize}
+          variant='text'
+          startIcon={<RenameIcon />}
+          onClick={this.controller.handleNewFolderClick}
+        >
+          {messages.get(messages.RENAME)}
+        </Button>
+        <Button
+          classes={{ root: classes.button }}
+          color={color}
+          size={buttonSize}
+          variant='text'
+          startIcon={<CopyIcon />}
+          onClick={this.controller.handleNewFolderClick}
+        >
+          {messages.get(messages.COPY)}
+        </Button>
+        <Button
+          classes={{ root: classes.button }}
+          color={color}
+          size={buttonSize}
+          variant='text'
+          startIcon={<MoveIcon />}
+          onClick={this.controller.handleNewFolderClick}
+        >
+          {messages.get(messages.MOVE)}
         </Button>
       </div>
     )
