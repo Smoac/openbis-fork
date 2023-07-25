@@ -49,11 +49,14 @@ class Toolbar extends React.Component {
   render() {
     logger.log(logger.DEBUG, 'Toolbar.render')
 
-    const { viewType, onViewTypeChange, classes, showInfo, onShowInfoChange } =
-      this.props
+    const { viewType, onViewTypeChange, classes, showInfo, onShowInfoChange,
+      selectedFile } = this.props
     return (
       <div className={classes.toolbar}>
-        <LeftToolbar buttonSize={buttonSize} controller={this.controller} />
+        <LeftToolbar
+          buttonSize={buttonSize}
+          controller={this.controller}
+          selectedFile={selectedFile} />
         <RightToolbar
           buttonSize={buttonSize}
           selected={showInfo}

@@ -58,33 +58,33 @@ class InfoPanel extends React.Component {
   render() {
     const {
       classes,
-      file,
+      selectedFile,
       configuration
     } = this.props
 
-    return (file &&
+    return (selectedFile &&
       <Container className={classes.container}>
         <span className={classes.fileName}>
-          <Header size='big'>{file.name}</Header>
+          <Header size='big'>{selectedFile.name}</Header>
         </span>
-        <ItemIcon file={file} classes={classes} configuration={configuration} />
+        <ItemIcon file={selectedFile} classes={classes} configuration={configuration} />
         <Table>
           <TableBody>
             <TableRow>
               <TableCell variant='head' component='th'>{messages.get(messages.SIZE)}</TableCell>
-              <TableCell>{file.size}</TableCell>
+              <TableCell>{selectedFile.size}</TableCell>
             </TableRow>
             <TableRow>
               <TableCell variant='head' component='th'>{messages.get(messages.CREATED)}</TableCell>
-              <TableCell>{file.creationTime.toLocaleString()}</TableCell>
+              <TableCell>{selectedFile.creationTime.toLocaleString()}</TableCell>
             </TableRow>
             <TableRow>
               <TableCell variant='head' component='th'>{messages.get(messages.MODIFIED)}</TableCell>
-              <TableCell>{file.lastModifiedTime.toLocaleString()}</TableCell>
+              <TableCell>{selectedFile.lastModifiedTime.toLocaleString()}</TableCell>
             </TableRow>
             <TableRow>
               <TableCell variant='head' component='th'>{messages.get(messages.ACCESSED)}</TableCell>
-              <TableCell>{file.lastAccessTime.toLocaleString()}</TableCell>
+              <TableCell>{selectedFile.lastAccessTime.toLocaleString()}</TableCell>
             </TableRow>
           </TableBody>
         </Table>

@@ -18,9 +18,12 @@
 import React from 'react'
 import Button from '@material-ui/core/Button'
 import CreateNewFolderIcon from '@material-ui/icons/CreateNewFolderOutlined'
+import DownloadIcon from '@material-ui/icons/GetApp'
+import DeleteIcon from '@material-ui/icons/Delete'
 import messages from '@src/js/common/messages.js'
 import { withStyles } from '@material-ui/core/styles'
 import logger from "@src/js/common/logger.js";
+import autoBind from "auto-bind";
 
 const color = 'secondary'
 
@@ -35,10 +38,16 @@ const styles = theme => ({
 })
 
 class LeftToolbar extends React.Component {
-  render() {
-    logger.log(logger.DEBUG, 'LeftToolbar.render')
 
-    const { buttonSize, controller, classes } = this.props
+  constructor(props, context) {
+    super(props, context)
+    autoBind(this)
+
+    this.controller = this.props.controller
+  }
+
+  renderNoSelectionContextToolbar() {
+    const { classes, buttonSize } = this.props
     return (
       <div className={classes.buttons}>
         <Button
@@ -47,12 +56,49 @@ class LeftToolbar extends React.Component {
           size={buttonSize}
           variant='outlined'
           startIcon={<CreateNewFolderIcon />}
-          onClick={controller.handleNewFolderClick}
+          onClick={this.controller.handleNewFolderClick}
         >
           {messages.get(messages.NEW_FOLDER)}
         </Button>
       </div>
     )
+  }
+
+  renderSelectionContextToolbar() {
+    const { classes, buttonSize } = this.props
+    return (
+      <div className={classes.buttons}>
+        <Button
+          classes={{ root: classes.button }}
+          color={color}
+          size={buttonSize}
+          variant='outlined'
+          startIcon={<DownloadIcon />}
+          onClick={this.controller.handleNewFolderClick}
+        >
+          {messages.get(messages.DOWNLOAD)}
+        </Button>
+        <Button
+          classes={{ root: classes.button }}
+          color={color}
+          size={buttonSize}
+          variant='outlined'
+          startIcon={<DeleteIcon />}
+          onClick={this.controller.handleNewFolderClick}
+        >
+          {messages.get(messages.DELETE)}
+        </Button>
+      </div>
+    )
+  }
+
+  render() {
+    logger.log(logger.DEBUG, 'LeftToolbar.render')
+
+    const { selectedFile } = this.props
+    return selectedFile
+        ? this.renderSelectionContextToolbar()
+        : this.renderNoSelectionContextToolbar()
   }
 }
 

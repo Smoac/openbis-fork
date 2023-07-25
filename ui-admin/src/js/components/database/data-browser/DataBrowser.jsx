@@ -142,6 +142,7 @@ class DataBrowser extends React.Component {
           onViewTypeChange={this.handleViewTypeChange}
           onShowInfoChange={this.handleShowInfoChange}
           showInfo={showInfo}
+          selectedFile={selectedFile}
         />
         <div className={[classes.flexContainer, classes.boundary, classes.content].join(' ')}>
           {viewType === 'list' && (
@@ -209,7 +210,7 @@ class DataBrowser extends React.Component {
             />
           )}
           {showInfo && selectedFile && (
-            <InfoPanel file={selectedFile} configuration={configuration} />
+            <InfoPanel selectedFile={selectedFile} configuration={configuration} />
           )}
         </div>
       </div>
