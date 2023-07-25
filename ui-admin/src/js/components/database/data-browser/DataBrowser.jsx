@@ -117,8 +117,17 @@ class DataBrowser extends React.Component {
     this.setState({ selectedFile: selectedRow && selectedRow.data })
   }
 
-  handleMultiselect(file) {
-    // TODO: implement
+  handleMultiselect(event) {
+    // event.preventDefault();
+    // event.stopPropagation();
+
+    console.log("handleMultiselect. event: " + event)
+
+    // const { multiselectable, onMultiselect, file } = this.props;
+    //
+    // if (multiselectable && onMultiselect) {
+    //   onMultiselect(file);
+    // }
   }
 
   async onError(error) {
@@ -143,6 +152,7 @@ class DataBrowser extends React.Component {
           onShowInfoChange={this.handleShowInfoChange}
           showInfo={showInfo}
           selectedFile={selectedFile}
+          multiselectedFiles={multiselectedFiles}
         />
         <div className={[classes.flexContainer, classes.boundary, classes.content].join(' ')}>
           {viewType === 'list' && (
@@ -192,6 +202,7 @@ class DataBrowser extends React.Component {
               onSettingsChange={null}
               onError={this.onError}
               onSelectedRowChange={this.handleSelect}
+              onMultiselect={this.handleMultiselect}
               exportXLS={null}
             />
           )}

@@ -134,8 +134,11 @@ class LeftToolbar extends React.Component {
   render() {
     logger.log(logger.DEBUG, 'LeftToolbar.render')
 
-    const { selectedFile } = this.props
-    return selectedFile
+    const { multiselectedFiles } = this.props
+    console.log("multiselectedFiles: " + multiselectedFiles)
+    console.log(multiselectedFiles.size)
+    console.log("multiselectedFiles.size: " + multiselectedFiles.size)
+    return multiselectedFiles && multiselectedFiles.size > 0
         ? this.renderSelectionContextToolbar()
         : this.renderNoSelectionContextToolbar()
   }

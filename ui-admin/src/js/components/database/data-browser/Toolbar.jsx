@@ -50,13 +50,13 @@ class Toolbar extends React.Component {
     logger.log(logger.DEBUG, 'Toolbar.render')
 
     const { viewType, onViewTypeChange, classes, showInfo, onShowInfoChange,
-      selectedFile } = this.props
+      selectedFile, multiselectedFiles } = this.props
     return (
       <div className={classes.toolbar}>
         <LeftToolbar
           buttonSize={buttonSize}
           controller={this.controller}
-          selectedFile={selectedFile} />
+          multiselectedFiles={multiselectedFiles} />
         <RightToolbar
           buttonSize={buttonSize}
           selected={showInfo}
