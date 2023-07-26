@@ -31,6 +31,8 @@ import logger from "@src/js/common/logger.js";
 import autoBind from "auto-bind";
 import IconButton from "@material-ui/core/IconButton";
 import { debounce } from "@material-ui/core";
+import Container from "@src/js/components/common/form/Container.jsx";
+import Popover from "@material-ui/core/Popover";
 
 const color = 'secondary'
 const iconButtonSize = 'medium'
@@ -49,7 +51,17 @@ const styles = theme => ({
       marginRight: 0
     }
   },
-  toggleButton: {}
+  toggleButton: {},
+  collapsedButtonsContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    '&>button': {
+      marginBottom: theme.spacing(1)
+    },
+    '&>button:nth-last-child(1)': {
+      marginBottom: 0
+    }
+  },
 })
 
 class LeftToolbar extends React.Component {
@@ -59,7 +71,8 @@ class LeftToolbar extends React.Component {
     autoBind(this)
 
     this.state = {
-      width: 0
+      width: 0,
+      hiddenButtonsPopup: null
     }
 
     this.controller = this.props.controller
@@ -84,7 +97,7 @@ class LeftToolbar extends React.Component {
 
   renderSelectionContextToolbar() {
     const { classes, buttonSize } = this.props
-    const { width } = this.state
+    const { width, hiddenButtonsPopup } = this.state
 
     const ellipsisButtonSize = 24
     const buttonsCount = 5
@@ -147,29 +160,69 @@ class LeftToolbar extends React.Component {
     ]
     const ellipsisButton = (
       <IconButton
-        key="ellipsis"
+        key='ellipsis'
         classes={{ root: classes.button }}
         color={color}
         size={iconButtonSize}
-        variant="outlined"
+        variant='outlined'
+        onClick={this.handleOpen}
       >
         <MoreIcon />
       </IconButton>
-    );
+    )
+
+    const popover = (
+      <Popover
+        open={Boolean(hiddenButtonsPopup)}
+        anchorEl={hiddenButtonsPopup}
+        onClose={this.handleClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left'
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'left'
+        }}
+      >
+        <Container square={true}>{this.renderCollapsedButtons(buttons.slice(visibleButtonsCount))}</Container>
+      </Popover>
+    )
 
     return (
       <div className={classes.buttons}>
         {hideButtons
-          ? [...buttons.slice(0, visibleButtonsCount), ellipsisButton]
+          ? [...buttons.slice(0, visibleButtonsCount), ellipsisButton, popover]
           : buttons}
       </div>
     );
   }
 
+  renderCollapsedButtons(buttons) {
+    const { classes } = this.props
+    return (
+      <div className={classes.collapsedButtonsContainer}>
+        {buttons}
+      </div>
+    )
+  }
+
   onResize({ width }) {
     if (width !== this.state.width) {
-      this.setState({ width })
+      this.setState({ width, hiddenButtonsPopup: null })
     }
+  }
+
+  handleOpen(event) {
+    this.setState({
+      hiddenButtonsPopup: event.currentTarget
+    })
+  }
+
+  handleClose() {
+    this.setState({
+      hiddenButtonsPopup: null
+    })
   }
 
   render() {
