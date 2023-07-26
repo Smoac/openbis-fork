@@ -15,7 +15,8 @@
  *
  */
 
-import React from 'react'
+import React from "react";
+import ResizeObserver from 'rc-resize-observer'
 import Button from '@material-ui/core/Button'
 import CreateNewFolderIcon from '@material-ui/icons/CreateNewFolderOutlined'
 import DownloadIcon from '@material-ui/icons/GetApp'
@@ -23,19 +24,24 @@ import DeleteIcon from '@material-ui/icons/Delete'
 import RenameIcon from '@material-ui/icons/Create'
 import CopyIcon from '@material-ui/icons/FileCopy'
 import MoveIcon from '@material-ui/icons/ArrowRightAlt'
+import MoreIcon from '@material-ui/icons/MoreVert'
 import messages from '@src/js/common/messages.js'
 import { withStyles } from '@material-ui/core/styles'
 import logger from "@src/js/common/logger.js";
 import autoBind from "auto-bind";
+import IconButton from "@material-ui/core/IconButton";
+import { debounce } from "@material-ui/core";
 
 const color = 'secondary'
+const iconButtonSize = 'medium'
 
 const styles = theme => ({
   buttons: {
-    flex: '1 0 auto',
+    flex: '1 1 auto',
     display: 'flex',
     alignItems: 'center',
     whiteSpace: 'nowrap',
+    overflow: 'hidden',
     '&>button': {
       marginRight: theme.spacing(1)
     },
@@ -52,95 +58,133 @@ class LeftToolbar extends React.Component {
     super(props, context)
     autoBind(this)
 
+    this.state = {
+      width: 0
+    }
+
     this.controller = this.props.controller
+    this.onResize = debounce(this.onResize, 1);
   }
 
   renderNoSelectionContextToolbar() {
     const { classes, buttonSize } = this.props
     return (
-      <div className={classes.buttons}>
-        <Button
-          classes={{ root: classes.button }}
-          color={color}
-          size={buttonSize}
-          variant='outlined'
-          startIcon={<CreateNewFolderIcon />}
-          onClick={this.controller.handleNewFolderClick}
-        >
-          {messages.get(messages.NEW_FOLDER)}
-        </Button>
-      </div>
+      <Button
+        classes={{ root: classes.button }}
+        color={color}
+        size={buttonSize}
+        variant='outlined'
+        startIcon={<CreateNewFolderIcon />}
+        onClick={this.controller.handleNewFolderClick}
+      >
+        {messages.get(messages.NEW_FOLDER)}
+      </Button>
     )
   }
 
   renderSelectionContextToolbar() {
     const { classes, buttonSize } = this.props
+    const { width } = this.state
+
+    const ellipsisButtonSize = 24
+    const buttonsCount = 5
+    const minSize = 500
+    const roughButtonSize = Math.floor(minSize / buttonsCount)
+    const hideButtons = width < minSize
+    const visibleButtonsCount = hideButtons ? Math.floor((width - 3 * ellipsisButtonSize) / roughButtonSize) : 5
+
+    const buttons = [
+      <Button
+        classes={{ root: classes.button }}
+        color={color}
+        size={buttonSize}
+        variant='outlined'
+        startIcon={<DownloadIcon />}
+        onClick={this.controller.handleNewFolderClick}
+      >
+        {messages.get(messages.DOWNLOAD)}
+      </Button>,
+      <Button
+        classes={{ root: classes.button }}
+        color={color}
+        size={buttonSize}
+        variant='text'
+        startIcon={<DeleteIcon />}
+        onClick={this.controller.handleNewFolderClick}
+      >
+        {messages.get(messages.DELETE)}
+      </Button>,
+      <Button
+        classes={{ root: classes.button }}
+        color={color}
+        size={buttonSize}
+        variant='text'
+        startIcon={<RenameIcon />}
+        onClick={this.controller.handleNewFolderClick}
+      >
+        {messages.get(messages.RENAME)}
+      </Button>,
+      <Button
+        classes={{ root: classes.button }}
+        color={color}
+        size={buttonSize}
+        variant='text'
+        startIcon={<CopyIcon />}
+        onClick={this.controller.handleNewFolderClick}
+      >
+        {messages.get(messages.COPY)}
+      </Button>,
+      <Button
+        classes={{ root: classes.button }}
+        color={color}
+        size={buttonSize}
+        variant='text'
+        startIcon={<MoveIcon />}
+        onClick={this.controller.handleNewFolderClick}
+      >
+        {messages.get(messages.MOVE)}
+      </Button>
+    ]
+    const ellipsisButton = (
+      <IconButton
+        key="ellipsis"
+        classes={{ root: classes.button }}
+        color={color}
+        size={iconButtonSize}
+        variant="outlined"
+      >
+        <MoreIcon />
+      </IconButton>
+    );
+
     return (
       <div className={classes.buttons}>
-        <Button
-          classes={{ root: classes.button }}
-          color={color}
-          size={buttonSize}
-          variant='outlined'
-          startIcon={<DownloadIcon />}
-          onClick={this.controller.handleNewFolderClick}
-        >
-          {messages.get(messages.DOWNLOAD)}
-        </Button>
-        <Button
-          classes={{ root: classes.button }}
-          color={color}
-          size={buttonSize}
-          variant='text'
-          startIcon={<DeleteIcon />}
-          onClick={this.controller.handleNewFolderClick}
-        >
-          {messages.get(messages.DELETE)}
-        </Button>
-        <Button
-          classes={{ root: classes.button }}
-          color={color}
-          size={buttonSize}
-          variant='text'
-          startIcon={<RenameIcon />}
-          onClick={this.controller.handleNewFolderClick}
-        >
-          {messages.get(messages.RENAME)}
-        </Button>
-        <Button
-          classes={{ root: classes.button }}
-          color={color}
-          size={buttonSize}
-          variant='text'
-          startIcon={<CopyIcon />}
-          onClick={this.controller.handleNewFolderClick}
-        >
-          {messages.get(messages.COPY)}
-        </Button>
-        <Button
-          classes={{ root: classes.button }}
-          color={color}
-          size={buttonSize}
-          variant='text'
-          startIcon={<MoveIcon />}
-          onClick={this.controller.handleNewFolderClick}
-        >
-          {messages.get(messages.MOVE)}
-        </Button>
+        {hideButtons
+          ? [...buttons.slice(0, visibleButtonsCount), ellipsisButton]
+          : buttons}
       </div>
-    )
+    );
+  }
+
+  onResize({ width }) {
+    if (width !== this.state.width) {
+      this.setState({ width })
+    }
   }
 
   render() {
     logger.log(logger.DEBUG, 'LeftToolbar.render')
 
-    const { multiselectedFiles } = this.props
-    console.log("multiselectedFiles: " + multiselectedFiles)
-    console.log(multiselectedFiles.size)
-    console.log("multiselectedFiles.size: " + multiselectedFiles.size)
-    return multiselectedFiles && multiselectedFiles.size > 0
-        ? this.renderSelectionContextToolbar()
-        : this.renderNoSelectionContextToolbar()
+    const { multiselectedFiles, classes } = this.props
+    return (
+      <ResizeObserver onResize={this.onResize}>
+        <div className={classes.buttons}>
+          {multiselectedFiles && multiselectedFiles.size > 0
+            ? this.renderSelectionContextToolbar()
+            : this.renderNoSelectionContextToolbar()}
+        </div>
+      </ResizeObserver>
+    )
   }
 }
 
