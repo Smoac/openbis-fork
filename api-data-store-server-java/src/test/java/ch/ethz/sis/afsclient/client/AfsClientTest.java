@@ -1,8 +1,13 @@
 package ch.ethz.sis.afsclient.client;
 
-import static org.junit.Assert.*;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.net.URI;
 import java.nio.file.Files;
@@ -10,7 +15,9 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 public class AfsClientTest
 {
@@ -177,7 +184,6 @@ public class AfsClientTest
         final String sourceFileName = "afs-test-src.txt";
         final Path sourceFilePath = Path.of(sourceFileName);
         final String destinationFileName = "afs-test-dst.txt";
-        final Path destinationFilePath = Path.of(destinationFileName);
         final byte[] sourceFileData = "ABCD".getBytes();
         Files.write(sourceFilePath, sourceFileData);
 
@@ -299,6 +305,32 @@ public class AfsClientTest
         List<UUID> result = afsClient.recover();
         assertEquals("POST", httpServer.getHttpExchange().getRequestMethod());
         assertNull(result);
+    }
+
+    @Test
+    public void create_folder_methodIdPost() throws Exception
+    {
+        login();
+
+        httpServer.setNextResponse("{\"result\": true}");
+        final Boolean result = afsClient.create("", "", true);
+
+        assertEquals("POST", httpServer.getHttpExchange().getRequestMethod());
+        assertTrue(result);
+        assertEquals(0, httpServer.getLastRequestBody().length);
+    }
+
+    @Test
+    public void create_file_methodIdPost() throws Exception
+    {
+        login();
+
+        httpServer.setNextResponse("{\"result\": true}");
+        final Boolean result = afsClient.create("", "", false);
+
+        assertEquals("POST", httpServer.getHttpExchange().getRequestMethod());
+        assertTrue(result);
+        assertEquals(0, httpServer.getLastRequestBody().length);
     }
 
     private void login() throws Exception

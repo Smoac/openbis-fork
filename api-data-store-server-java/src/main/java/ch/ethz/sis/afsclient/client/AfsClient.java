@@ -204,6 +204,14 @@ public final class AfsClient implements PublicAPI, ClientAPI
     }
 
     @Override
+    public @NonNull Boolean create(@NonNull final String owner, @NonNull final String source, @NonNull final Boolean directory)
+            throws Exception
+    {
+        validateSessionToken();
+        return request("POST", "create", Boolean.class, Map.of("owner", owner, "source", source, "directory", String.valueOf(directory)));
+    }
+
+    @Override
     public void begin(final UUID transactionId) throws Exception
     {
         validateSessionToken();
