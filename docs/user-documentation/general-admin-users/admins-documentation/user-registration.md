@@ -3,7 +3,7 @@ User Registration
  
 ## openBIS roles
 
-[](# "Print this article")
+
 
 
  
@@ -117,7 +117,7 @@ Updated on April 26, 2023
  
 ## User Profile
 
-[](# "Print this article")
+
 
 In the User Profile, a user who is logged in into openBIS can find the
 following information:
@@ -129,7 +129,7 @@ following information:
 3.  **Email**
 4.  **openBIS session token**
 5.  **Zenodo API Token** ([Export to
-    Zenodo](https://openbis.ch/index.php/docs/user-documentation-20-10-3/data-export/export-to-zenodo/))
+    Zenodo](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/data-export.html#export-to-zenodo))
 
  
 
@@ -156,7 +156,7 @@ Updated on June 28, 2022
  
 ## Assign home space to a user
 
-[](# "Print this article")
+
 
  
 

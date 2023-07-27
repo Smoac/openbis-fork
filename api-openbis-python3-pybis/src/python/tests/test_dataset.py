@@ -23,18 +23,68 @@ import pytest
 from pybis.things import Things
 
 
-def test_get_datasets(space):
-    # test paging
+def test_get_datasets_count(space):
     o = space.openbis
-    current_datasets = o.get_datasets(start_with=1, count=1)
-    assert current_datasets is not None
-    assert len(current_datasets) == 1
+    testfile_path = os.path.join(os.path.dirname(__file__), "testdir/testfile")
+    dataset = o.new_dataset(
+        type="RAW_DATA",
+        experiment="/DEFAULT/DEFAULT/DEFAULT",
+        files=[testfile_path],
+        props={"$name": "some good name"},
+    )
+    dataset.save()
+
+    try:
+        current_datasets = o.get_datasets(count=1)
+        assert current_datasets is not None
+        assert len(current_datasets) == 1
+    finally:
+        dataset.delete("test_get_datasets_count", True)
+
+
+def test_get_datasets_paging(space):
+    o = space.openbis
+    testfile_path = os.path.join(os.path.dirname(__file__), "testdir/testfile")
+    dataset1 = o.new_dataset(
+        type="RAW_DATA",
+        experiment="/DEFAULT/DEFAULT/DEFAULT",
+        files=[testfile_path],
+        props={"$name": "some good name"},
+    )
+    dataset1.save()
+
+    dataset2 = o.new_dataset(
+        type="RAW_DATA",
+        experiment="/DEFAULT/DEFAULT/DEFAULT",
+        files=[testfile_path],
+        props={"$name": "some good name"},
+    )
+    dataset2.save()
+
+    try:
+        current_datasets = o.get_datasets(start_with=1, count=1)
+        assert current_datasets is not None
+        assert len(current_datasets) == 1
+    finally:
+        dataset1.delete("test_get_datasets_paging", True)
+        dataset2.delete("test_get_datasets_paging", True)
+
+
+def test_create_datasets_no_file(space):
+    o = space.openbis
+    with pytest.raises(Exception) as exc:
+        o.new_dataset(
+            type="RAW_DATA",
+            experiment="/DEFAULT/DEFAULT/DEFAULT",
+            props={"$name": "some good name"},
+        )
+    assert str(exc.value) == "please provide at least one file"
 
 
 def test_create_delete_dataset(space):
     timestamp = time.strftime("%a_%y%m%d_%H%M%S").upper()
     o = space.openbis
-    testfile_path = os.path.join(os.path.dirname(__file__), "testfile")
+    testfile_path = os.path.join(os.path.dirname(__file__), "testdir/testfile")
 
     dataset = o.new_dataset(
         type="RAW_DATA",
@@ -210,7 +260,7 @@ def test_create_new_dataset_v3_directory(space):
     dataset.save()
 
     assert dataset.permId is not None
-    assert dataset.file_list == ["testdir/testfile"]
+    assert dataset.file_list == ["original/DEFAULT/testdir/testfile"]
 
 
 def test_dataset_property_in_isoformat_date(space):
@@ -303,12 +353,11 @@ def create_array_properties(openbis, code_prefix):
 
 
 def test_dataset_array_properties(space):
-
     create_array_properties(space.openbis, "DATASET")
 
     dataset_code = 'TEST_ARRAY_DATASET'
     dataset_type = space.openbis.new_dataset_type(
-         code = dataset_code
+        code=dataset_code
     )
     dataset_type.save()
 
@@ -321,10 +370,10 @@ def test_dataset_array_properties(space):
 
     testfile_path = os.path.join(os.path.dirname(__file__), "testdir/testfile")
     dataset = space.openbis.new_dataset(
-        type = dataset_code,
+        type=dataset_code,
         sample="/DEFAULT/DEFAULT/DEFAULT",
         files=[testfile_path],
-        props = { 'dataset_array_integer': [1, 2, 3]}
+        props={'dataset_array_integer': [1, 2, 3]}
     )
     dataset.save()
 
@@ -332,10 +381,14 @@ def test_dataset_array_properties(space):
     dataset.props['dataset_array_real'] = [3.1, 2.2, 1.3]
     dataset.props['dataset_array_string'] = ["aa", "bb", "cc"]
     dataset.props['dataset_array_timestamp'] = ['2023-05-18 11:17:03', '2023-05-18 11:17:04',
-                                               '2023-05-18 11:17:05']
+                                                '2023-05-18 11:17:05']
     dataset.props['dataset_json'] = "{ \"key\": [1, 1, 1] }"
     dataset.save()
 
-    assert dataset.props['sample_array_integer'] == [3, 2, 1]
-    assert dataset.props['sample_array_real'] == [3.1, 2.2, 1.3]
-
+    assert dataset.props['dataset_array_integer'] == [3, 2, 1]
+    assert dataset.props['dataset_array_real'] == [3.1, 2.2, 1.3]
+    assert dataset.props['dataset_array_string'] == ["aa", "bb", "cc"]
+    assert dataset.props['dataset_json'] == "{ \"key\": [1, 1, 1] }"
+    assert dataset.props['dataset_array_timestamp'] == ['2023-05-18 11:17:03',
+                                                        '2023-05-18 11:17:04',
+                                                        '2023-05-18 11:17:05']

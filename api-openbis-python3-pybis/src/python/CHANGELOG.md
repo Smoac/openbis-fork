@@ -1,3 +1,24 @@
+## Changes with pybis-1.36.0
+
+- Reverted breaking changes to dataset upload functionality
+- Performance improvements to get_sample and get_samples methods 
+
+## Changes with pybis-1.35.11
+
+- Improvements to dataset upload performance
+
+## Changes with pybis-1.35.10
+
+- Fixed issue with changing properties for linked datasets 
+
+## Changes with pybis-1.35.9
+
+- Changed get_samples method to also include dataset ids depending on the params 
+
+## Changes with pybis-1.35.8
+
+- Fixed a typo in the set attribute method
+
 ## Changes with pybis-1.35.7
 
 - Improvements to fast download scheme 

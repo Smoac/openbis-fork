@@ -2,16 +2,11 @@ Space Management
 ====
  
 ## Create new Inventory Spaces
-
-[](# "Print this article")
-
   
 The default Inventory contains two
 folders: **Materials** and **Methods**. These are openBIS *Spaces*.
 
 Additional *Spaces* can be created by an *Instance admin*.
-
- 
 
 ### Create a new Inventory Space from the ELN UI
 
@@ -55,11 +50,11 @@ create a new *Space*:
 
 1.  **no group**. The new *Space* will have no prefix and the Settings
     defined in General Settings will apply (see [General ELN
-    Settings](https://openbis.ch/index.php/docs/admin-documentation/multi-group-set-up/general-eln-settings/)).
+    Settings](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/multi-group-set-up.html#general-eln-settings)).
 2.  **in one of the existing groups**. The new *Space* will have the
     group prefix and the Settings of that group will apply (see [Group
     ELN
-    Settings](https://openbis.ch/index.php/docs/admin-documentation/multi-group-set-up/group-eln-settings/)).
+    Settings](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/multi-group-set-up.html#group-eln-settings)).
 
  
 
@@ -79,7 +74,7 @@ In the core UI:
 
  
 
-1.  Select **Admin -&gt; Spaces**
+1.  Select **Admin -> Spaces**
 2.  Click **Add Space** at the bottom of the page
 3.  Enter the *Space* **Code**, e.g. **EQUIPMENT**
 4.  **Save**
@@ -120,7 +115,7 @@ Updated on April 26, 2023
  
 ## Create new ELN Spaces
 
-[](# "Print this article")
+
 
 
 ### Create a new Lab Notebook Space from the ELN UI
@@ -162,11 +157,11 @@ create a new *Space*:
 
 1.  **no group**. The new *Space* will have no prefix and the Settings
     defined in General Settings will apply (see [General ELN
-    Settings](https://openbis.ch/index.php/docs/admin-documentation/multi-group-set-up/general-eln-settings/)).
+    Settings](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/multi-group-set-up.html#general-eln-settings)).
 2.  **in one of the existing groups**. The new *Space* will have the
     group prefix and the Settings of that group will apply (see [Group
     ELN
-    Settings](https://openbis.ch/index.php/docs/admin-documentation/multi-group-set-up/group-eln-settings/)). 
+    Settings](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/multi-group-set-up.html#group-eln-settings)). 
 
  
 
@@ -204,7 +199,7 @@ In the core UI:  
 
  
 
-1.  Select **Admin -&gt; Spaces**
+1.  Select **Admin -> Spaces**
 2.  Click **Add Space** at the bottom of the page
 3.  Enter the Space **Code**, e.g. **EQUIPMENT**
 4.  **Save**
@@ -222,7 +217,7 @@ Updated on April 26, 2023
  
 ## Delete Spaces
 
-[](# "Print this article")
+
 
  
 
@@ -265,7 +260,7 @@ Updated on April 26, 2023
  
 ## Move Spaces between Lab Notebook and Inventory
 
-[](# "Print this article")
+
 
  
 

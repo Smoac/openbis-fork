@@ -3,7 +3,7 @@ Tools For Analysis Of Data Stored In Openbis
  
 ## Jupyter Notebooks
 
-[](# "Print this article")
+
 
   
 Jupyter notebooks are web applications that combine text, code and
@@ -40,7 +40,7 @@ Jupyter notebooks can be opened at every level of the openBIS hierarchy
 
 If you get a similar error as the one shown below when you try to launch
 a notebook from an entity, you need to start the JupyterHub server by
-going to the main menu **Utilities** -&gt; **Jupyter Workspace**. This
+going to the main menu **Utilities** -> **Jupyter Workspace**. This
 error appears when the JupyterHub server is restarted (e.g. after an
 upgrade), because the user profile needs to be recreated.
 
@@ -213,11 +213,11 @@ Updated on April 25, 2023
  
 ## MATLAB toolbox
 
-[](# "Print this article")
+
 
   
 The MATLAB toolbox for openBIS allows to access data stored in openBIS
 directly from MATALB. Full documentation can be found here: [MATLAB
-API](https://sissource.ethz.ch/sispub/openbis/-/tree/master/api-openbis-matlab)
+API](https://openbis.readthedocs.io/en/latest/software-developer-documentation/apis/matlab-v3-api.html)
 
 Updated on April 17, 2023

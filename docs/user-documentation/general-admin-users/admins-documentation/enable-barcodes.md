@@ -1,6 +1,6 @@
 # Enable Barcodes
 
-[](# "Print this article")
+
 
 In order to be able to add custom barcodes to *Objects*, an *Instance
 Admin* needs to add the $BARCODE property to the object type for which
@@ -35,6 +35,6 @@ barcode icon will be added above the menu.
 
 Information on how to use the Barcode functionality in openBIS can be
 found
-here: [Barcodes](https://openbis.ch/index.php/docs/user-documentation-20-10-3/inventory-of-materials-and-methods/barcodes/)
+here: [Barcodes](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/barcodes.html)
 
 Updated on April 26, 2023

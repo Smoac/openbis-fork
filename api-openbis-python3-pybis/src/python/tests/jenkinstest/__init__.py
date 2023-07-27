@@ -1,4 +1,4 @@
-#   Copyright ETH 2018 - 2023 Zürich, Scientific IT Services
+#   Copyright ETH 2007 - 2023 Zürich, Scientific IT Services
 # 
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -12,8 +12,3 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
-__author__ = "ID SIS • ETH Zürich"
-__email__ = "openbis-support@id.ethz.ch"
-__version__ = "0.4.2rc7"
-
-from .dm import *

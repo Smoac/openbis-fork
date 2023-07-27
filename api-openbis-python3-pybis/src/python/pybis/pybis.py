@@ -1267,6 +1267,7 @@ class Openbis:
         """internal method, used to handle all post requests and serializing / deserializing
         data
         """
+
         if "id" not in request:
             request["id"] = "2"
         if "jsonrpc" not in request:
@@ -1276,7 +1277,6 @@ class Openbis:
 
         if DEBUG_LEVEL >= LOG_DEBUG:
             print(json.dumps(request))
-
         try:
             resp = requests.post(
                 full_url, json.dumps(request), verify=self.verify_certificates
@@ -2380,6 +2380,7 @@ class Openbis:
             attrs=None,
             props=None,
             where=None,
+            raw_response=False,
             **properties,
     ):
         """Returns a DataFrame of all samples for a given space/project/experiment (or any combination).
@@ -2497,6 +2498,9 @@ class Openbis:
         if props is not None:
             fetchopts["properties"] = get_fetchoption_for_entity("properties")
 
+        if "dataSets" in attrs:
+            fetchopts["dataSets"] = get_fetchoptions("dataSets")
+
         request = {
             "method": "searchSamples",
             "params": [
@@ -2509,6 +2513,8 @@ class Openbis:
         resp = self._post_request(self.as_v3, request)
 
         parse_jackson(resp)
+        if raw_response:
+            return resp
 
         response = resp["objects"]
 
@@ -4660,7 +4666,8 @@ class Openbis:
         )
 
     def get_sample(
-            self, sample_ident, only_data=False, withAttachments=False, props=None, **kvals
+            self, sample_ident, only_data=False, withAttachments=False, props=None,
+            withDataSetIds=False, raw_response=False, **kvals
     ):
         """Retrieve metadata for the sample.
         Get metadata for the sample and any directly connected parents of the sample to allow access
@@ -4701,6 +4708,9 @@ class Openbis:
         for key in ["parents", "children", "container", "components"]:
             fetchopts[key] = {"@type": "as.dto.sample.fetchoptions.SampleFetchOptions"}
 
+        if withDataSetIds:
+            fetchopts["dataSets"] = get_fetchoptions("dataSets")
+
         request = {
             "method": "getSamples",
             "params": [self.token, identifiers, fetchopts],
@@ -4723,6 +4733,9 @@ class Openbis:
                         data=resp[sample_ident],
                     )
         else:
+            if raw_response:
+                parse_jackson(resp)
+                return resp
             return self._sample_list_for_response(
                 response=list(resp.values()), props=props, parsed=False
             )
@@ -4801,7 +4814,7 @@ class Openbis:
                 samples["container"] = samples["container"].map(
                     extract_nested_identifier
                 )
-                for column in ["parents", "children", "components"]:
+                for column in ["parents", "children", "components", "dataSets"]:
                     if column in samples:
                         samples[column] = samples[column].map(extract_identifiers)
                 samples["permId"] = samples["permId"].map(extract_permid)

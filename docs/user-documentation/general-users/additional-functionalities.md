@@ -3,7 +3,7 @@ Additional Functionalities
  
 ## Visualise Relationships
 
-[](# "Print this article")
+
 
   
 Parent-child relationships between *Objects* can be visualised as trees
@@ -32,7 +32,7 @@ Updated on March 4, 2022
  
 ## Tables
 
-[](# "Print this article")
+
 
 
   
@@ -229,7 +229,7 @@ Updated on April 26, 2023
  
 ## Browse Entries by Type
 
-[](# "Print this article")
+
 
   
 The **Object Browser** under the **Utilities** main menu allows to see
@@ -262,7 +262,7 @@ Updated on April 25, 2023
  
 ## Trashcan
 
-[](# "Print this article")
+
 
   
 When *Experiments*, *Objects* and *Datasets* are deleted, they are moved
@@ -304,7 +304,7 @@ Updated on October 9, 2022
  
 ## Vocabulary Browser
 
-[](# "Print this article")
+
 
   
 The **Vocabulary browser** is accessible from the **Utilities** main
@@ -328,7 +328,7 @@ Updated on April 25, 2023
  
 ## Freeze Entities
 
-[](# "Print this article")
+
 
   
 Each level of the openBIS hierarchy (Space, Project,
@@ -391,63 +391,93 @@ password and save.
 
 1.  **Freeze Space only**
 
-[TABLE]
-
- 
-
- 
+||Allowed|Not allowed|
+|--- |--- |--- |
+|Create new Project||x|
+|Create new Experiment/Collection|x||
+|Create new Object||x|
+|Create new Dataset in existing Experiment/Collection|x||
+|Create new Dataset in existing Object|x||
+|Edit existing Project|x||
+|Edit existing Experiment/Collection|x||
+|Edit existing Object|x||
+|Edit existing Dataset|x||
+|Delete Space||x|
+|Delete Project||x|
+|Delete Experiment/Collection|x||
+|Delete Object|x||
+|Delete Dataset|x||
+|Move Experiment/Collection|x||
+|Move Object|x||
+|Copy Object||x|
+|Export|x||
 
 1.  **Freeze Project only**
 
- 
-
- 
-
-[TABLE]
-
- 
-
- 
+||Allowed|Not allowed|
+|--- |--- |--- |
+|Create new Experiment/Collection||x|
+|Create new Object||x|
+|Create new Dataset in existing Experiment/Collection|x||
+|Create new Dataset in existing Object|x||
+|Edit Project||x|
+|Edit existing Experiment/Collection|x||
+|Edit existing Object|x||
+|Edit existing Dataset|x||
+|Delete Project||x|
+|Delete Experiment/Collection||x|
+|Delete Object||x|
+|Delete Dataset||x|
+|Move Experiment/Collection||x|
+|Move Object||x|
+|Copy Object||x|
+|Export|x||
 
 **3. Freeze Experiment/Collection only**
 
- 
-
- 
-
-[TABLE]
-
- 
-
- 
+||Allowed|Not allowed|
+|--- |--- |--- |
+|Create new Object||x|
+|Create new Dataset in existing Experiment/Collection||x|
+|Create new Dataset in existing Object||x|
+|Edit existing Experiment/Collection||x|
+|Edit existing Object|x||
+|Edit existing Dataset|x||
+|Delete Experiment/Collection||x|
+|Delete Object||x|
+|Delete Dataset||x|
+|Move Experiment/Collection||x|
+|Move Object||x|
+|Copy Object||x|
+|Export|x||
 
 **4. Freeze Object only**
 
- 
-
- 
-
-[TABLE]
-
- 
-
- 
-
- 
+||Allowed|Not allowed|
+|--- |--- |--- |
+|Create new Dataset in existing Object||x|
+|Edit existing Object||x|
+|Edit existing Dataset in Object|x||
+|Delete Object||x|
+|Delete Dataset||x|
+|Move Object||x|
+|Copy Object|x (only if the Experiment is not frozen)||
+|Export|x||
 
 **5. Freeze Dataset only **  
-  
 
- 
-
-[TABLE]
-
+||Allowed|Not allowed|
+|--- |--- |--- |
+|Edit existing Dataset||x|
+|Delete Dataset||x|
+|Move Dataset||x|
+|Export|x||
 
 Updated on April 25, 2023
  
 ## Navigation menu
 
-[](# "Print this article")
+
 
  
 
@@ -549,7 +579,7 @@ Updated on April 26, 2023
  
 ## Custom Imports
 
-[](# "Print this article")
+
 
  
 
@@ -608,7 +638,7 @@ Updated on April 26, 2023
  
 ## Entity history
 
-[](# "Print this article")
+
 
  
 

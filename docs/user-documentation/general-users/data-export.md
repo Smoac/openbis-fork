@@ -3,7 +3,7 @@ Data Export
  
 ## Export to File
 
-[](# "Print this article")
+
 
 
 ### Export Lab Notebooks
@@ -65,7 +65,7 @@ Updated on April 25, 2023
  
 ## Export to Zenodo
 
-[](# "Print this article")
+
 
   
 Currently openBIS offers an integration with the **Zenodo** data
@@ -112,7 +112,7 @@ stored in openBIS, with the following procedure:
   
 To export data to Zenodo:
 
-1.  Go to **Exports** -&gt; **Export to Zenodo** under **Utilities** in
+1.  Go to **Exports** -> **Export to Zenodo** under **Utilities** in
     the main menu.
 2.  Select the data you want to export from the menu.
 3.  enter a **Submission** **Title.**
@@ -143,7 +143,7 @@ Updated on April 25, 2023
  
 ## Export to ETH Research Collection
 
-[](# "Print this article")
+
 
  
 
@@ -162,7 +162,7 @@ To export data to the ETH Research Collection:
 
 ![image info](img/export-to-research-collection-1024x818.png)
 
-1.  Go to **Utilities** -&gt; **Exports** -&gt; **Export to Research
+1.  Go to **Utilities** -> **Exports** -> **Export to Research
     Collection**.
 2.  Select what to export from the tree.
 3.  Select the **Submission Type** from the available list: *Data

@@ -34,14 +34,14 @@ The Java V3 API consists of two interfaces:
 Please check our JavaDoc for more
 details: <https://openbis.ch/javadoc/20.10.x/javadoc-api-v3/index.html>
 
-All V3 API jars are packed in openBIS-API-V3-&lt;VERSION&gt;.zip which
-is part of openBIS-clients-and-APIs-&lt;VERSION&gt;.zip (the latest
-version can be downloaded at [Sprint Releases](#) &gt; Clients and APIs)
+All V3 API jars are packed in openBIS-API-V3-<VERSION>.zip which
+is part of openBIS-clients-and-APIs-<VERSION>.zip (the latest
+version can be downloaded at [Sprint Releases](#) > Clients and APIs)
 
 ### The Javascript API
 
 The Javascript V3 API consists of a module hosted at
-&lt;OPENBIS\_URL&gt;/resources/api/v3/openbis.js, for instance
+<OPENBIS\_URL>/resources/api/v3/openbis.js, for instance
 <http://localhost/openbis>/ resources/api/v3/openbis.js. Please check
 the openbis.js file itself for more details.
 
@@ -113,12 +113,15 @@ property [javax.net](http://javax.net).ssl.trustStore. Example:
 
 **Using openBIS trust store in Java clients**
 
+```bash
     java -Djavax.net.ssl.trustStore=/home/openbis/openbis/servers/openBIS-server/jetty/etc/openBIS.keystore -jar the-client.jar
+```
 
 Connecting in Java
 
 **V3ConnectionExample.java**
 
+```java
     import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
@@ -151,6 +154,7 @@ Connecting in Java
 
 
     }
+```
 
 ### Connecting in Javascript
 
@@ -165,6 +169,7 @@ be conceptually consistent.
 
 **V3ConnectionExample.html**
 
+```html
     <!DOCTYPE html>
     <html>
     <head>
@@ -209,7 +214,7 @@ be conceptually consistent.
         </script>
     </body>
     </html>
-
+```
   
 
 ##   IV. AS Methods  
@@ -257,6 +262,7 @@ was incorrect the login methods return null.
 
 **V3LoginExample.java**
 
+```java
     public class V3LoginExample
     {
         public static void main(String[] args)
@@ -276,9 +282,12 @@ was incorrect the login methods return null.
             System.out.println(sessionToken);
         }
     }
+```
+
 
 **V3LoginExample.html**
 
+```html
     <script>
      
         // we assume here that v3 object has been already created (please check "Accessing the API" section for more details)
@@ -298,6 +307,7 @@ was incorrect the login methods return null.
             });
         });
     </script>
+```
 
 ### Personal Access Tokens
 
@@ -309,6 +319,7 @@ Tokens](/pages/viewpage.action?pageId=122140993).
 
 Example of how to create and use a PAT:
 
+```java
     import java.util.Arrays;
     import java.util.Date;
     import java.util.List;
@@ -344,7 +355,7 @@ Example of how to create and use a PAT:
             v3api.searchSpaces(pat.getHash(), new SpaceSearchCriteria(), new SpaceFetchOptions());
         }
     }
-
+```
 ### Session Information
 
 OpenBIS provides a method to obtain the session information for an
@@ -352,8 +363,10 @@ already log in user:
 
 #### Example
 
+
 **V3CreationExample.java**
 
+```java
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.SessionInformation;
 
     public class V3SessionInformationExample
@@ -368,6 +381,7 @@ already log in user:
             System.out.println("Creator Person: " + sessionInformation.getCreatorPerson());
         }
     }
+```
 
 ### Creating entities
 
@@ -387,6 +401,7 @@ until V3 version is out.
 
 **V3CreationExample.java**
 
+```java
     import java.util.List;
     import java.util.Arrays;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
@@ -411,9 +426,11 @@ until V3 version is out.
             System.out.println("Perm ids: " + permIds);    
         }
     }
+```
 
 **V3CreationExample.html**
 
+```html
     <script>
             require([ "as/dto/sample/create/SampleCreation", "as/dto/entitytype/id/EntityTypePermId", "as/dto/space/id/SpacePermId", "as/dto/experiment/id/ExperimentIdentifier" ], 
                 function(SampleCreation, EntityTypePermId, SpacePermId, ExperimentIdentifier) {
@@ -432,11 +449,13 @@ until V3 version is out.
                 });
         });
     </script>
+```
 
 #### Properties example
 
 **V3CreationWithPropertiesExample.java**
 
+```java
     import java.util.Arrays;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
@@ -466,9 +485,12 @@ until V3 version is out.
             v3.createSamples(sessionToken, Arrays.asList(sample));
         }
     }
+```
+
 
 **V3CreationWithPropertiesExample.html**
 
+```html
     <script>
         require([ "as/dto/sample/create/SampleCreation", "as/dto/entitytype/id/EntityTypePermId", "as/dto/space/id/SpacePermId", "as/dto/experiment/id/ExperimentIdentifier" ],
             function(SampleCreation, EntityTypePermId, SpacePermId, ExperimentIdentifier) {
@@ -495,11 +517,14 @@ until V3 version is out.
             });
         });
     </script>
+```
 
 #### Different ids example
 
+
 **V3CreationWithDifferentIdsExample.java**
 
+```java
     import java.util.Arrays;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
@@ -526,9 +551,11 @@ until V3 version is out.
             v3.createSamples(sessionToken, Arrays.asList(sample));
         }
     }
+```
 
 **V3CreationWithDifferentIdsExample.html**
 
+```html
     <script>
         require([ "as/dto/sample/create/SampleCreation", "as/dto/entitytype/id/EntityTypePermId", "as/dto/space/id/SpacePermId", "as/dto/experiment/id/ExperimentIdentifier", "as/dto/experiment/id/ExperimentPermId" ], 
             function(SampleCreation, EntityTypePermId, SpacePermId, ExperimentIdentifier, ExperimentPermId) {
@@ -551,7 +578,7 @@ until V3 version is out.
                 });
             });
     </script>
-
+```
 #### Parent child example
 
 The following example creates parent and child samples for a sample type
@@ -559,6 +586,7 @@ which allow automatic code generation:
 
 **V3CreationParentAndChildExample**
 
+```java
     import java.util.Arrays;
     import java.util.List;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.CreationId;
@@ -587,9 +615,11 @@ which allow automatic code generation:
             System.out.println("Perm ids: " + permIds);
         }
     }
+```
 
 **V3CreationParentAndChildExample.html**
 
+```html
     <script>
         require([ "openbis", "as/dto/sample/create/SampleCreation", "as/dto/entitytype/id/EntityTypePermId", "as/dto/space/id/SpacePermId", "as/dto/common/id/CreationId" ], 
             function(openbis, SampleCreation, EntityTypePermId, SpacePermId, CreationId) {
@@ -609,6 +639,7 @@ which allow automatic code generation:
                 });
             });
     </script>
+```
 
 ### Updating entities
 
@@ -629,6 +660,7 @@ after creation.
 
 **V3UpdateExample.java**
 
+```java
     import java.util.Arrays;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
@@ -650,9 +682,11 @@ after creation.
             System.out.println("Updated");
         }
     }
+```
 
 **V3UpdateExample.html**
 
+```html
     <script>
         require([ "as/dto/sample/update/SampleUpdate", "as/dto/sample/id/SampleIdentifier", "as/dto/experiment/id/ExperimentIdentifier" ], 
             function(SampleUpdate, SampleIdentifier, ExperimentIdentifier) {
@@ -670,11 +704,13 @@ after creation.
                 });
             });
     </script>
+```
 
 #### Properties example
 
 **V3UpdateWithPropertiesExample.java**
 
+```java
     import java.util.Arrays;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleUpdate;
@@ -701,9 +737,11 @@ after creation.
             System.out.println("Updated");
         }
     }
+```
 
 **V3UpdateWithPropertiesExample.html**
 
+```html
     <script>
         require([ "as/dto/sample/update/SampleUpdate", "as/dto/sample/id/SampleIdentifier" ], function(SampleUpdate, SampleIdentifier) {
 
@@ -725,11 +763,13 @@ after creation.
             });
         });
     </script>
+```
 
 #### Parents example
 
 **V3UpdateWithParentsExample.java**
 
+```java
     import java.util.Arrays;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleUpdate;
@@ -763,9 +803,11 @@ after creation.
             System.out.println("Updated");
         }
     }
+```
 
 **V3UpdateWithParentsExample.html**
 
+```html
     <script>
         require([ "as/dto/sample/update/SampleUpdate", "as/dto/sample/id/SampleIdentifier" ], 
             function(SampleUpdate, SampleIdentifier) {
@@ -795,7 +837,7 @@ after creation.
                 });
             });
     </script>
-
+```
 ### Getting authorization rights for entities
 
 If the user isn't allowed to create or update an entity an exception is
@@ -940,6 +982,7 @@ identifier). A code example on how to use sorting is presented below.
 
 **V3SearchExample.java**
 
+```java
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
@@ -969,9 +1012,11 @@ identifier). A code example on how to use sorting is presented below.
             }
         }
     }
+```
 
 **V3SearchExample.html**
 
+```html
     <script>
         require([ "as/dto/sample/search/SampleSearchCriteria", "as/dto/sample/fetchoptions/SampleFetchOptions" ], 
             function(SampleSearchCriteria, SampleFetchOptions) {
@@ -995,11 +1040,13 @@ identifier). A code example on how to use sorting is presented below.
                 });
             });
     </script>
+```
 
 #### Example with pagination and sorting
 
 **V3SearchWithPaginationAndSortingExample.java**
 
+```java
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
@@ -1031,9 +1078,11 @@ identifier). A code example on how to use sorting is presented below.
             System.out.println(result.getTotalCount());
         }
     }
+```
 
 **V3SearchWithPaginationAndSortingExample.html**
 
+```html
     <script>
         require([ "as/dto/sample/search/SampleSearchCriteria", "as/dto/sample/fetchoptions/SampleFetchOptions" ], 
             function(SampleSearchCriteria, SampleFetchOptions) {
@@ -1060,6 +1109,7 @@ identifier). A code example on how to use sorting is presented below.
                 });
             });
     </script>
+```
 
 ####  Example with OR operator
 
@@ -1069,6 +1119,7 @@ the following example:
 
 **V3SearchWithOrOperatorExample.java**
 
+```java
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
@@ -1098,9 +1149,11 @@ the following example:
             }
         }
     }
+```
 
 **V3SearchWithOrOperatorExample.html**
 
+```html
     <script>
         require([ "as/dto/sample/search/SampleSearchCriteria", "as/dto/sample/fetchoptions/SampleFetchOptions" ], 
             function(SampleSearchCriteria, SampleFetchOptions) {
@@ -1124,6 +1177,7 @@ the following example:
                 });
             });
     </script>
+```
 
 #### Example with nested logical operators
 
@@ -1133,6 +1187,7 @@ experiment OR of type whose code starts with "MASTER").
 
 **V3SearchWithNestedLogicalOperatorsExample.java**
 
+```java
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
@@ -1164,9 +1219,11 @@ experiment OR of type whose code starts with "MASTER").
             }
         }
     }
+```
 
 **V3SearchWithNestedLogicalOperatorsExample.html**
 
+```html
     <script>
         require([ "as/dto/sample/search/SampleSearchCriteria", "as/dto/sample/fetchoptions/SampleFetchOptions" ], 
             function(SampleSearchCriteria, SampleFetchOptions) {
@@ -1193,6 +1250,7 @@ experiment OR of type whose code starts with "MASTER").
                 });
             });
     </script>
+```
 
 #### Example with recursive fetch options
 
@@ -1203,6 +1261,7 @@ example:
 
 **V3SearchWithRecursiveFetchOptionsExample.java**
 
+```java
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
@@ -1247,9 +1306,11 @@ example:
             return sample.getCode() + " -> (" + builder.toString() + ")";
         }
     }
+```
 
 **V3SearchWithRecursiveFetchOptionsExample.html**
 
+```html
     <script>
         require([ "as/dto/sample/search/SampleSearchCriteria", "as/dto/sample/fetchoptions/SampleFetchOptions" ], 
             function(SampleSearchCriteria, SampleFetchOptions) {
@@ -1285,6 +1346,7 @@ example:
                 }
         });
     </script>
+```
 
 #### Global search
 
@@ -1304,6 +1366,7 @@ of meta data (entity attribute or property). Example:
 
 **V3GlobalSearchExample.java**
 
+```java
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.GlobalSearchObject;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.fetchoptions.GlobalSearchObjectFetchOptions;
@@ -1335,11 +1398,12 @@ of meta data (entity attribute or property). Example:
             }
         }
     }
-
+```
   
 
 **V3GlobalSearchExample.html**
 
+```html
     <script>
         require([ "as/dto/global/search/GlobalSearchCriteria", "as/dto/global/search/GlobalSearchObjectKind", "as/dto/global/fetchoptions/GlobalSearchObjectFetchOptions" ], 
             function(GlobalSearchCriteria, GlobalSearchObjectKind, GlobalSearchObjectFetchOptions) {
@@ -1364,7 +1428,7 @@ of meta data (entity attribute or property). Example:
                 });
             });
     </script>
-
+```
   
 
 ### Getting entities
@@ -1383,6 +1447,7 @@ returned map.
 
 **V3GetExample.java**
 
+```java
     import java.util.Arrays;
     import java.util.Map;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
@@ -1415,9 +1480,11 @@ returned map.
             map.get(id5); // returns null
         }
     }
+```
 
 **V3GetExample.html**
 
+```html
     <script>
         require([ "as/dto/sample/id/SampleIdentifier", "as/dto/sample/id/SamplePermId", "as/dto/sample/fetchoptions/SampleFetchOptions" ],
             function(SampleIdentifier, SamplePermId, SampleFetchOptions) {
@@ -1443,6 +1510,7 @@ returned map.
                 });
             });
     </script>
+```
 
 ### Deleting entities
 
@@ -1462,6 +1530,7 @@ can.
 
 **V3DeleteExample.java**
 
+```java
     import java.util.Arrays;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.delete.SampleDeletionOptions;
@@ -1490,9 +1559,11 @@ can.
             v3.revertDeletions(sessionToken, Arrays.asList(deletionId));
         }
     }
+```
 
 **V3DeleteExample.html**
 
+```html
     <script>
         require([ "as/dto/sample/id/SampleIdentifier", "as/dto/sample/delete/SampleDeletionOptions" ], 
             function(SampleIdentifier, SampleDeletionOptions) {
@@ -1516,6 +1587,7 @@ can.
                 });
             });
     </script>
+```
 
 ### Searching entity types
 
@@ -1527,6 +1599,7 @@ sample types and assigned property types:
 
 **V3SearchTypesExample.java**
 
+```java
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
@@ -1555,9 +1628,11 @@ sample types and assigned property types:
             }
         }
     }
+```
 
 **V3SearchTypesExample.html**
 
+```html
     <script>
         require([ "as/dto/sample/search/SampleTypeSearchCriteria", "as/dto/sample/fetchoptions/SampleTypeFetchOptions" ], 
             function(SampleTypeSearchCriteria, SampleTypeFetchOptions) {
@@ -1581,6 +1656,7 @@ sample types and assigned property types:
                 });
             });
     </script>
+```
 
 ### Modifications
 
@@ -1593,6 +1669,7 @@ project and sample update:
 
 **V3SearchObjectKindModificationsExample.java**
 
+```java
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.ObjectKind;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.objectkindmodification.ObjectKindModification;
@@ -1621,9 +1698,11 @@ project and sample update:
             }
         }
     }
+```
 
 **V3SearchObjectKindModificationsExample.html**
 
+```html
     <script>
         require([ "as/dto/objectkindmodification/search/ObjectKindModificationSearchCriteria", 
                 "as/dto/objectkindmodification/ObjectKind", "as/dto/objectkindmodification/OperationKind",
@@ -1647,6 +1726,7 @@ project and sample update:
                 });
             });
     </script>
+```
 
 ### Custom AS Services
 
@@ -1666,6 +1746,7 @@ available custom AS services.
 
 **V3SearchCustomASServicesExample.java**
 
+```java
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASService;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.CustomASServiceFetchOptions;
@@ -1686,9 +1767,11 @@ available custom AS services.
             }
         }
     }
+```
 
 **V3SearchCustomASServicesExample.html**
 
+```html
     <script>
         require([ "as/dto/service/search/CustomASServiceSearchCriteria", "as/dto/service/fetchoptions/CustomASServiceFetchOptions" ], 
             function(CustomASServiceSearchCriteria, CustomASServiceFetchOptions) {
@@ -1703,6 +1786,7 @@ available custom AS services.
                 });
             });
     </script>
+```
 
 #### Execute a custom service
 
@@ -1721,6 +1805,7 @@ further processing.
 
 **V3ExecuteCustomASServiceExample.java**
 
+```java
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASServiceExecutionOptions;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.CustomASServiceCode;
 
@@ -1737,9 +1822,11 @@ further processing.
             System.out.println("Result: " + result);
         }
     }
+```
 
 **V3ExecuteCustomASServiceExample.html**
 
+```html
     <script>
         require([ "as/dto/service/id/CustomASServiceCode", "as/dto/service/CustomASServiceExecutionOptions" ], 
             function(CustomASServiceCode, CustomASServiceExecutionOptions) {
@@ -1751,6 +1838,7 @@ further processing.
                 });
             });
     </script>
+```
 
 ### Archiving / unarchiving data sets
 
@@ -1767,6 +1855,7 @@ in the archive/store yet.
 
 **V3ArchiveDataSetsExample.java**
 
+```java
     import java.util.Arrays;
     import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.archive.DataSetArchiveOptions;
@@ -1796,9 +1885,11 @@ in the archive/store yet.
             System.out.println("Archiving scheduled");
         }
     }
+```
 
 **V3ArchiveDataSetsExample.html**
 
+```html
     <script>
         require([ "openbis", "as/dto/dataset/id/DataSetPermId", "as/dto/dataset/archive/DataSetArchiveOptions" ], 
             function(openbis, DataSetPermId, DataSetArchiveOptions) {
@@ -1822,6 +1913,7 @@ in the archive/store yet.
             });
         });
     </script>
+```
 
 #### Unarchiving data sets
 
@@ -1829,6 +1921,7 @@ in the archive/store yet.
 
 **V3UnarchiveDataSetsExample.java**
 
+```java
     import java.util.Arrays;
     import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
@@ -1853,9 +1946,11 @@ in the archive/store yet.
             System.out.println("Unarchiving scheduled");
         }
     }
+```
 
 **V3UnarchiveDataSetsExample.html**
 
+```html
     <script>
         require([ "openbis", "as/dto/dataset/id/DataSetPermId", "as/dto/dataset/unarchive/DataSetUnarchiveOptions" ], 
             function(openbis, DataSetPermId, DataSetUnarchiveOptions) {
@@ -1874,6 +1969,7 @@ in the archive/store yet.
             });
         });
     </script>
+```
 
 ###  Executing Operations 
 
@@ -1999,6 +2095,7 @@ states:
 
 **V3ExecuteOperationsAsynchronous.java**
 
+```java
     import java.util.Arrays;
     import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
@@ -2029,9 +2126,11 @@ states:
             System.out.println("Execution id: " + results.getExecutionId());
         }
     }
+```
 
 **V3ExecuteOperationsAsynchronous.html**
 
+```html
     <script>
         require([ "openbis", "as/dto/sample/create/SampleCreation", "as/dto/entitytype/id/EntityTypePermId", "as/dto/space/id/SpacePermId", "as/dto/experiment/id/ExperimentIdentifier", "as/dto/sample/create/CreateSamplesOperation", "as/dto/operation/AsynchronousOperationExecutionOptions" ],
             function(openbis, SampleCreation, EntityTypePermId, SpacePermId, ExperimentIdentifier, CreateSamplesOperation, AsynchronousOperationExecutionOptions) {
@@ -2052,6 +2151,7 @@ states:
                 });
             });
     </script>
+```
 
 ##### **Synchronous operation execution**
 
@@ -2083,6 +2183,7 @@ states:
 
 **V3ExecuteOperationsSynchronous.java**
 
+```java
     import java.util.Arrays;
     import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
@@ -2116,9 +2217,11 @@ states:
             System.out.println("Sample id: " + result.getObjectIds());
         }
     }
+```
 
 **V3ExecuteOperationsSynchronous.html**
 
+```html
     <script>
         require([ "openbis", "as/dto/sample/create/SampleCreation", "as/dto/entitytype/id/EntityTypePermId", "as/dto/space/id/SpacePermId", "as/dto/experiment/id/ExperimentIdentifier", "as/dto/sample/create/CreateSamplesOperation", "as/dto/operation/SynchronousOperationExecutionOptions" ],        
             function(openbis, SampleCreation, EntityTypePermId, SpacePermId, ExperimentIdentifier, CreateSamplesOperation, SynchronousOperationExecutionOptions) {
@@ -2140,6 +2243,7 @@ states:
                 });
             });
     </script>
+```
 
 ##### **Notifications**
 
@@ -2164,6 +2268,7 @@ For failed executions an email contains:
 
 **V3ExecuteOperationsEmailNotification.java**
 
+```java
     import java.util.Arrays;
     import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
@@ -2198,9 +2303,11 @@ For failed executions an email contains:
             System.out.println("Execution id: " + results.getExecutionId());
         }
     }
+```
 
 **V3ExecuteOperationsEmailNotification.html**
 
+```html
     <script>
         require([ "openbis", "as/dto/sample/create/SampleCreation", "as/dto/entitytype/id/EntityTypePermId", "as/dto/space/id/SpacePermId", "as/dto/experiment/id/ExperimentIdentifier", "as/dto/sample/create/CreateSamplesOperation", "as/dto/operation/AsynchronousOperationExecutionOptions", "as/dto/operation/OperationExecutionEmailNotification" ], 
             function(openbis, SampleCreation, EntityTypePermId, SpacePermId, ExperimentIdentifier, CreateSamplesOperation, AsynchronousOperationExecutionOptions, OperationExecutionEmailNotification) {
@@ -2224,6 +2331,7 @@ For failed executions an email contains:
                 });
             });
     </script>
+```
 
 #### Method getOperationExecutions / searchOperationExecutions
 
@@ -2281,6 +2389,7 @@ related information are done with two separate V3 maintenance tasks
 
 **V3GetOperationExecutionsAsynchronous.java**
 
+```java
     import java.util.Arrays;
     import java.util.Map;
     import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
@@ -2368,9 +2477,11 @@ related information are done with two separate V3 maintenance tasks
             System.out.println("Details.error: " + execution.getSummary().getError());
         }    
     }
+```
 
 **V3GetOperationExecutionsAsynchronous.html**
 
+```html
     <script>
         require([ "openbis", "as/dto/sample/create/SampleCreation", "as/dto/entitytype/id/EntityTypePermId", "as/dto/space/id/SpacePermId", "as/dto/experiment/id/ExperimentIdentifier", "as/dto/sample/create/CreateSamplesOperation", "as/dto/operation/AsynchronousOperationExecutionOptions", "as/dto/operation/fetchoptions/OperationExecutionFetchOptions",   "as/dto/operation/id/OperationExecutionPermId" ], 
             function(openbis, SampleCreation, EntityTypePermId, SpacePermId, ExperimentIdentifier, CreateSamplesOperation, AsynchronousOperationExecutionOptions, OperationExecutionFetchOptions, OperationExecutionPermId) {
@@ -2445,13 +2556,11 @@ related information are done with two separate V3 maintenance tasks
                 });
             });
     </script>
-
-  
-
-  
+```  
 
 **V3GetOperationExecutionsSynchronous.java**
 
+```java
     import java.util.Arrays;
     import java.util.Map;
     import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
@@ -2536,9 +2645,11 @@ related information are done with two separate V3 maintenance tasks
             System.out.println("Details.error: " + execution.getSummary().getError());
         }
     }
+```
 
 **V3GetOperationExecutionsSynchronous.html**
 
+```html
     <script>
         require([ "openbis", "as/dto/sample/create/SampleCreation", "as/dto/entitytype/id/EntityTypePermId", "as/dto/space/id/SpacePermId", "as/dto/experiment/id/ExperimentIdentifier", "as/dto/sample/create/CreateSamplesOperation", "as/dto/operation/SynchronousOperationExecutionOptions", "as/dto/operation/fetchoptions/OperationExecutionFetchOptions",    "as/dto/operation/id/OperationExecutionPermId" ], 
             function(openbis, SampleCreation, EntityTypePermId, SpacePermId, ExperimentIdentifier, CreateSamplesOperation, SynchronousOperationExecutionOptions, OperationExecutionFetchOptions, OperationExecutionPermId) {
@@ -2611,6 +2722,7 @@ related information are done with two separate V3 maintenance tasks
                 });
             });
     </script>
+```
 
 ####  Method updateOperationExecutions / deleteOperationExecutions
 
@@ -2621,6 +2733,7 @@ availability time expires.
 
 **V3UpdateOperationExecutions.java**
 
+```java
     import java.util.Arrays;
     import java.util.Map;
     import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
@@ -2684,9 +2797,11 @@ availability time expires.
             System.out.println("Details.availability: " + execution.getDetailsAvailability());
         }
     }
+```
 
 **V3UpdateOperationExecutions.html**
 
+```html
     <script>
         require([ "openbis", "as/dto/sample/create/SampleCreation", "as/dto/entitytype/id/EntityTypePermId", "as/dto/space/id/SpacePermId", "as/dto/experiment/id/ExperimentIdentifier", "as/dto/sample/create/CreateSamplesOperation", "as/dto/operation/AsynchronousOperationExecutionOptions", "as/dto/operation/update/OperationExecutionUpdate", "as/dto/operation/fetchoptions/OperationExecutionFetchOptions" ], 
             function(openbis, SampleCreation, EntityTypePermId, SpacePermId, ExperimentIdentifier, CreateSamplesOperation, AsynchronousOperationExecutionOptions, OperationExecutionUpdate, OperationExecutionFetchOptions) {
@@ -2736,12 +2851,11 @@ availability time expires.
                 });
             });
     </script>
-
-  
-  
+```
 
 **V3DeleteOperationExecutions.java**
 
+```java
     import java.util.Arrays;
     import java.util.Map;
     import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
@@ -2798,9 +2912,11 @@ availability time expires.
             System.out.println("Availability: " + (execution != null ? execution.getAvailability() : null));
         }
     }
+```
 
 **V3DeleteOperationExecutions.html**
 
+```html
     <script>
         require([ "openbis", "as/dto/sample/create/SampleCreation", "as/dto/entitytype/id/EntityTypePermId", "as/dto/space/id/SpacePermId", "as/dto/experiment/id/ExperimentIdentifier", "as/dto/sample/create/CreateSamplesOperation", "as/dto/operation/AsynchronousOperationExecutionOptions", "as/dto/operation/delete/OperationExecutionDeletionOptions", "as/dto/operation/fetchoptions/OperationExecutionFetchOptions" ], 
             function(openbis, SampleCreation, EntityTypePermId, SpacePermId, ExperimentIdentifier, CreateSamplesOperation, AsynchronousOperationExecutionOptions, OperationExecutionDeletionOptions, OperationExecutionFetchOptions) {
@@ -2843,6 +2959,7 @@ availability time expires.
                 });
             });
     </script>
+```
 
 #### Configuration
 
@@ -2911,6 +3028,7 @@ user or by an instance admin.
 
 **WebAppSettingsExample.java**
 
+```java
     import java.util.Arrays;
     import java.util.Map;
     import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
@@ -2978,9 +3096,11 @@ user or by an instance admin.
             System.out.println(settings2);
         }
     }
+```
 
 **WebAppSettingsExample.html**
 
+```html
     <script>
         require([ "jquery", "openbis", "as/dto/person/update/PersonUpdate", "as/dto/person/id/Me", "as/dto/webapp/create/WebAppSettingCreation", "as/dto/person/fetchoptions/PersonFetchOptions" ], 
             function($, openbis, PersonUpdate, Me, WebAppSettingCreation, PersonFetchOptions) {
@@ -3039,6 +3159,7 @@ user or by an instance admin.
                 });
             });
     </script>
+```
 
 ### Imports
 
@@ -3137,15 +3258,12 @@ message like "Registration of 1 sample(s) is complete." while the
 asynchronous version could return a message like "When the import is
 complete the confirmation or failure report will be sent by email.".
 
-  
-
 An example webapp to upload a file with samples and a custom AS service
 to import that file is presented below.
 
-  
-
 **ImportSamplesWebAppExample.html**
 
+```html
     <!DOCTYPE html>
     <html>
     <head>
@@ -3214,14 +3332,17 @@ to import that file is presented below.
 
     </body>
     </html>
+```
 
 **ImportSamplesServiceExample.py**
 
+```python
     def process(context, parameters):
         sampleType = parameters.get("sampleType")
         return context.getImportService().createSamples(context.getSessionToken(), "importWebappUploadKey", sampleType, None, None, None, False, False, None);
 
 ### Generate identifiers
+```
 
 V3 API provides 2 methods for generating unique identifiers:
 
@@ -3233,10 +3354,9 @@ V3 API provides 2 methods for generating unique identifiers:
     (e.g. "MY-PREFIX-147"); this method uses a dedicated sequence for
     each entity kind.
 
-  
-
 **GenerateIdentifiersExample.java**
 
+```java
     import java.util.List;
     import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
@@ -3253,9 +3373,11 @@ V3 API provides 2 methods for generating unique identifiers:
             System.out.println(codes); // example output: [MY-PREFIX-782, MY-PREFIX-783, MY-PREFIX-784]
         }
     }
+```
 
 **GenerateIdentifiersExample.html**
 
+```html
     <script>
         require([ "jquery", "openbis", "as/dto/entitytype/EntityKind" ], function($, openbis, EntityKind) {
                 $(document).ready(function() {
@@ -3271,6 +3393,7 @@ V3 API provides 2 methods for generating unique identifiers:
                 });
             });
     </script>
+```
 
 ## V. DSS Methods
 
@@ -3292,6 +3415,7 @@ result object as if it was returned by only one data store.
 
 **V3SearchDataSetFilesExample.java**
 
+```java
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
     import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetSearchCriteria;
     import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
@@ -3321,11 +3445,12 @@ result object as if it was returned by only one data store.
             }
         }
     }
-
+```
  
 
 **V3SearchDataSetFilesAtAllDataStoresExample.html**
 
+```html
     <script>
         require([ "openbis", "dss/dto/datasetfile/search/DataSetFileSearchCriteria", "dss/dto/datasetfile/fetchoptions/DataSetFileFetchOptions" ], 
             function(DataSetFileSearchCriteria, DataSetFileFetchOptions) {
@@ -3350,9 +3475,11 @@ result object as if it was returned by only one data store.
                 });
             });
     </script>
+```
 
 **V3SearchDataSetFilesAtChosenDataStoresExample.html**
 
+```html
     <script>
         require([ "openbis", "dss/dto/datasetfile/search/DataSetFileSearchCriteria", "dss/dto/datasetfile/fetchoptions/DataSetFileFetchOptions" ], 
             function(DataSetFileSearchCriteria, DataSetFileFetchOptions) {
@@ -3378,6 +3505,7 @@ result object as if it was returned by only one data store.
                 });
             });
     </script>
+```
 
 ###  Downloading files, folders, and datasets
 
@@ -3428,6 +3556,7 @@ the directory.
 
 **Download a single file**
 
+```java
     import java.io.InputStream;
     import java.util.Arrays;
     import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
@@ -3492,6 +3621,7 @@ the directory.
             }
         }
     }
+```
 
 #### Download a folder located inside a dataset
 
@@ -3507,6 +3637,7 @@ the directory object.
 
 **Download a folder**
 
+```java
     import java.io.InputStream;
     import java.util.Arrays;
     import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
@@ -3568,6 +3699,7 @@ the directory object.
             }      
         }
     }
+```
 
 #### Search for a dataset and download all its contents, file by file
 
@@ -3589,6 +3721,7 @@ this example.
 
 **Search & download a whole dataset, file by file**
 
+```java
     import java.io.InputStream;
     import java.util.LinkedList;
     import java.util.List;
@@ -3669,6 +3802,7 @@ this example.
             }
         }
     }
+```
 
 #### Download a whole dataset recursively
 
@@ -3679,6 +3813,7 @@ DataSetFileDownloadOptions object.
 
 **Download a whole dataset recursively**
 
+```java
     import java.io.InputStream;
     import java.util.Arrays;
     import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
@@ -3733,6 +3868,7 @@ DataSetFileDownloadOptions object.
             }
         }
     }
+```
 
 #### Search and list all the files inside a data store 
 
@@ -3747,6 +3883,7 @@ the whole data store. 
 
 **Search and list all files inside a data store**
 
+```java
     import java.io.InputStream;
     import java.util.LinkedList;
     import java.util.List;
@@ -3820,7 +3957,8 @@ the whole data store. 
                 System.out.println(file.getInputStream());
             }
         }
-    } 
+    }
+```
 
 ### Fast Downloading
 
@@ -3843,13 +3981,14 @@ library. Downloading is done in two steps:
 
         new FastDownloader(downloadSession).downloadTo(destinationFolder);
 
-    The files are stored in the destination folder in &lt;data set
-    code&gt;/&lt;relative file path as in the data store on openBIS&gt;.
+    The files are stored in the destination folder in <data set
+    code>/<relative file path as in the data store on openBIS>.
 
 Here is a complete example:
 
 **Search and list all files inside a data store**
 
+```java
     import java.io.File;
     import java.nio.file.Path;
     import java.util.ArrayList;
@@ -3946,6 +4085,7 @@ Here is a complete example:
             v3.logout(sessionToken);
         }
     }
+```
 
 #### What happens under the hood?
 
@@ -3999,6 +4139,7 @@ following examples as a template.
 
 **Register Data Set**
 
+```java
     import java.util.UUID;
     import org.eclipse.jetty.client.HttpClient;
     import org.eclipse.jetty.client.api.Request;
@@ -4047,12 +4188,14 @@ following examples as a template.
             openbisV3.logout();
         }
     }
+```
 
 **  
 Example (Javascript)**
 
 **Register Data Set**
 
+```html
     <!DOCTYPE html>
     <html>
     <head>
@@ -4106,6 +4249,7 @@ Example (Javascript)**
         </script>
     </body>
     </html>
+```
 
 ## VI. Web application context
 
@@ -4127,6 +4271,7 @@ web application will do nothing.
 
 **WebAppContextExample.html**
 
+```html
     <script>
         require(['openbis'], function(openbis) {
                 var openbisV3 = new openbis();
@@ -4145,3 +4290,4 @@ web application will do nothing.
                 });
             });
     </script>
+```
