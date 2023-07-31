@@ -1,22 +1,16 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3;
 
 import java.io.File;
-import java.io.Serializable;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 
-import org.aopalliance.intercept.MethodInvocation;
 import org.apache.log4j.Logger;
-import org.springframework.remoting.support.DefaultRemoteInvocationFactory;
-import org.springframework.remoting.support.RemoteInvocation;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
@@ -36,11 +30,11 @@ public class TransactionCoordinator implements ITransactionCoordinator
 
     private static final String TRANSACTION_LOG_PATH = "transaction-logs";
 
-    private static final String SECRET = "i_am_secret";
+    private static final String TRANSACTION_COORDINATOR_KEY = "test-transaction-coordinator-key";
 
     private static final long TIMEOUT = 10000000;
 
-    private List<ITransactionCoordinatorParticipant> participants = new ArrayList<>();
+    private List<ITransactionParticipant> participants = new ArrayList<>();
 
     private ITransactionLog transactionLog;
 
@@ -48,7 +42,7 @@ public class TransactionCoordinator implements ITransactionCoordinator
     {
     }
 
-    public TransactionCoordinator(final List<ITransactionCoordinatorParticipant> participants, final ITransactionLog transactionLog)
+    public TransactionCoordinator(final List<ITransactionParticipant> participants, final ITransactionLog transactionLog)
     {
         this.participants = Collections.unmodifiableList(participants);
         this.transactionLog = transactionLog;
@@ -65,103 +59,91 @@ public class TransactionCoordinator implements ITransactionCoordinator
 
     public void restoreTransactions()
     {
-        Map<String, TransactionStatus> lastStatuses = transactionLog.getLastStatuses();
+        Map<UUID, TransactionStatus> lastStatuses = transactionLog.getLastStatuses();
 
         if (lastStatuses != null && !lastStatuses.isEmpty())
         {
-            for (String transactionId : lastStatuses.keySet())
+            for (UUID transactionId : lastStatuses.keySet())
             {
                 TransactionStatus lastStatus = lastStatuses.get(transactionId);
 
                 operationLog.info("Restoring transaction '" + transactionId + "' with last status '" + lastStatus + "'");
 
-                switch (lastStatus)
+                try
                 {
-                    case BEGIN_STARTED:
-                    case BEGIN_FINISHED:
-                    case PREPARE_STARTED:
-                    case ROLLBACK_STARTED:
-                        try
-                        {
-                            transactionLog.logStatus(transactionId, TransactionStatus.ROLLBACK_STARTED);
-                            rollbackTransactionOnParticipants(transactionId, null);
-                            transactionLog.logStatus(transactionId, TransactionStatus.ROLLBACK_FINISHED);
-                        } catch (Exception e)
-                        {
-                            operationLog.info("Transaction '" + transactionId + "' restore of started rollback failed.", e);
-                        }
-                        break;
-                    case PREPARE_FINISHED:
-                    case COMMIT_STARTED:
-                        try
-                        {
-                            transactionLog.logStatus(transactionId, TransactionStatus.COMMIT_STARTED);
-                            commitTransactionOnParticipants(transactionId);
-                            transactionLog.logStatus(transactionId, TransactionStatus.COMMIT_FINISHED);
-                        } catch (Exception e)
-                        {
-                            operationLog.info("Transaction '" + transactionId + "' restore of prepared commit failed.", e);
-                        }
-                        break;
-                    case COMMIT_INCONSISTENT:
-                    case COMMIT_FINISHED:
-                    case ROLLBACK_FINISHED:
-                        // nothing to do
-                        break;
-                    default:
-                        operationLog.error(
-                                "Transaction '" + transactionId + "' restore failed because of an unknown transaction last status '" + lastStatus
-                                        + "'");
+                    switch (lastStatus)
+                    {
+                        case BEGIN_STARTED:
+                        case BEGIN_FINISHED:
+                        case PREPARE_STARTED:
+                        case ROLLBACK_STARTED:
+                            rollbackTransaction(transactionId, null, null, true);
+                            break;
+                        case PREPARE_FINISHED:
+                        case COMMIT_STARTED:
+                            commitPreparedTransaction(transactionId, null, null, true);
+                            break;
+                        case COMMIT_FINISHED:
+                        case ROLLBACK_FINISHED:
+                            // nothing to do
+                            break;
+                        default:
+                            operationLog.error(
+                                    "Transaction '" + transactionId + "' restore failed because of an unknown transaction last status '" + lastStatus
+                                            + "'");
+                    }
+                } catch (Exception e)
+                {
+                    operationLog.info("Restore of transaction '" + transactionId + "' with last status '" + lastStatus + "' failed.", e);
                 }
             }
         }
     }
 
-    @Override public void beginTransaction(final String transactionId)
+    @Override public void beginTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
     {
         operationLog.info("Begin transaction '" + transactionId + "' started.");
 
         transactionLog.logStatus(transactionId, TransactionStatus.BEGIN_STARTED);
-        beginTransactionOnParticipants(transactionId);
-        transactionLog.logStatus(transactionId, TransactionStatus.BEGIN_FINISHED);
 
-        operationLog.info("Begin transaction '" + transactionId + "' finished.");
-    }
-
-    private void beginTransactionOnParticipants(String transactionId)
-    {
-        for (int index = 0; index < participants.size(); index++)
+        for (ITransactionParticipant participant : participants)
         {
-            ITransactionCoordinatorParticipant participant = participants.get(index);
-
             try
             {
                 operationLog.info("Begin transaction '" + transactionId + "' for participant '" + participant.getParticipantId() + "'.");
-                participant.beginTransaction(transactionId);
+
+                participant.beginTransaction(transactionId, sessionToken, interactiveSessionKey);
             } catch (Exception e)
             {
                 operationLog.info(
                         "Begin transaction '" + transactionId + "' failed for participant '" + participant.getParticipantId() + "'.", e);
 
-                transactionLog.logStatus(transactionId, TransactionStatus.ROLLBACK_STARTED);
-                rollbackTransactionOnParticipants(transactionId, index);
-                transactionLog.logStatus(transactionId, TransactionStatus.ROLLBACK_FINISHED);
+                try
+                {
+                    rollbackTransaction(transactionId, sessionToken, interactiveSessionKey);
+                } catch (Exception ignore)
+                {
+                }
 
                 throw e;
             }
         }
+
+        transactionLog.logStatus(transactionId, TransactionStatus.BEGIN_FINISHED);
+
+        operationLog.info("Begin transaction '" + transactionId + "' finished successfully.");
     }
 
-    @Override public Object executeOperation(final String transactionId, final String participantId, final String methodName,
-            final Object[] methodArguments)
+    @Override public Object executeOperation(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
+            final String participantId, final String operationName, final Object[] operationArguments)
     {
         operationLog.info("Execute operation '" + transactionId + "' started.");
 
-        for (ITransactionCoordinatorParticipant participant : participants)
+        for (ITransactionParticipant participant : participants)
         {
             if (Objects.equals(participant.getParticipantId(), participantId))
             {
-                Object result = participant.executeOperation(transactionId, methodName, methodArguments);
+                Object result = participant.executeOperation(transactionId, sessionToken, interactiveSessionKey, operationName, operationArguments);
 
                 operationLog.info("Execute operation '" + transactionId + "' finished.");
 
@@ -172,118 +154,161 @@ public class TransactionCoordinator implements ITransactionCoordinator
         throw new IllegalArgumentException("Unknown participant id: " + participantId);
     }
 
-    @Override public void commitTransaction(final String transactionId)
+    @Override public void commitTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
     {
         operationLog.info("Commit transaction '" + transactionId + "' started.");
 
-        transactionLog.logStatus(transactionId, TransactionStatus.PREPARE_STARTED);
-        prepareTransactionOnParticipants(transactionId);
-        transactionLog.logStatus(transactionId, TransactionStatus.PREPARE_FINISHED);
+        prepareTransaction(transactionId, sessionToken, interactiveSessionKey);
+        commitPreparedTransaction(transactionId, sessionToken, interactiveSessionKey, false);
 
-        transactionLog.logStatus(transactionId, TransactionStatus.COMMIT_STARTED);
-        commitTransactionOnParticipants(transactionId);
-        transactionLog.logStatus(transactionId, TransactionStatus.COMMIT_FINISHED);
-
-        operationLog.info("Commit transaction '" + transactionId + "' finished.");
+        operationLog.info("Commit transaction '" + transactionId + "' finished successfully.");
     }
 
-    private void prepareTransactionOnParticipants(String transactionId)
+    private void prepareTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
     {
-        for (ITransactionCoordinatorParticipant participant : participants)
+        operationLog.info("Prepare transaction '" + transactionId + "' started.");
+
+        transactionLog.logStatus(transactionId, TransactionStatus.PREPARE_STARTED);
+
+        for (ITransactionParticipant participant : participants)
         {
             try
             {
                 operationLog.info("Prepare transaction '" + transactionId + "' for participant '" + participant.getParticipantId() + "'.");
-                participant.prepareTransaction(transactionId);
+                participant.prepareTransaction(transactionId, sessionToken, interactiveSessionKey, TRANSACTION_COORDINATOR_KEY);
             } catch (Exception e)
             {
                 operationLog.info(
                         "Prepare transaction '" + transactionId + "' failed for participant '" + participant.getParticipantId() + "'.", e);
 
-                transactionLog.logStatus(transactionId, TransactionStatus.ROLLBACK_STARTED);
-                rollbackTransactionOnParticipants(transactionId, null);
-                transactionLog.logStatus(transactionId, TransactionStatus.ROLLBACK_FINISHED);
-
-                throw e;
-            }
-        }
-    }
-
-    private void commitTransactionOnParticipants(String transactionId)
-    {
-        for (int index = 0; index < participants.size(); index++)
-        {
-            ITransactionCoordinatorParticipant participant = participants.get(index);
-
-            try
-            {
-                operationLog.info("Commit transaction '" + transactionId + "' for participant '" + participant.getParticipantId() + "'.");
-                participant.commitTransaction(transactionId);
-            } catch (Exception e)
-            {
-                if (index == 0)
+                try
                 {
-                    operationLog.info(
-                            "Commit transaction '" + transactionId + "' failed for participant '" + participant.getParticipantId()
-                                    + "'. This was the first participant to be committed, therefore the system will be left in a consistent state after the rollback.",
-                            e);
-
-                    transactionLog.logStatus(transactionId, TransactionStatus.ROLLBACK_STARTED);
-                    rollbackTransactionOnParticipants(transactionId, null);
-                    transactionLog.logStatus(transactionId, TransactionStatus.ROLLBACK_FINISHED);
-                } else
+                    rollbackTransaction(transactionId, sessionToken, interactiveSessionKey);
+                } catch (Exception ignore)
                 {
-                    List<String> committedParticipants =
-                            participants.subList(0, index).stream().map(ITransactionCoordinatorParticipant::getParticipantId)
-                                    .collect(Collectors.toList());
-                    List<String> notCommittedParticipants =
-                            participants.subList(index, participants.size()).stream().map(ITransactionCoordinatorParticipant::getParticipantId)
-                                    .collect(Collectors.toList());
-
-                    operationLog.error(
-                            "Commit transaction '" + transactionId + "' failed for participant '" + participant.getParticipantId()
-                                    + "'. The system is in an inconsistent state and needs a manual intervention! Transaction has been already committed for participants: "
-                                    + committedParticipants + ". Transaction hasn't been yet committed for participants: " + notCommittedParticipants
-                                    + ". The uncommitted participants are left with the transaction prepared (not rolled back) in hope that they can be manually fixed and the system can be brought back to a consistent state.",
-                            e);
-
-                    transactionLog.logStatus(transactionId, TransactionStatus.COMMIT_INCONSISTENT);
                 }
 
+                operationLog.info("Prepare transaction '" + transactionId + "' failed.");
+
                 throw e;
             }
         }
+
+        transactionLog.logStatus(transactionId, TransactionStatus.PREPARE_FINISHED);
+
+        operationLog.info("Prepare transaction '" + transactionId + "' finished successfully.");
     }
 
-    @Override public void rollbackTransaction(final String transactionId)
+    private void commitPreparedTransaction(UUID transactionId, final String sessionToken, final String interactiveSessionKey, boolean restore)
+    {
+        operationLog.info("Commit prepared transaction '" + transactionId + "' started.");
+
+        transactionLog.logStatus(transactionId, TransactionStatus.COMMIT_STARTED);
+
+        RuntimeException exception = null;
+
+        for (ITransactionParticipant participant : participants)
+        {
+            try
+            {
+                if (restore)
+                {
+                    List<UUID> transactions = participant.getTransactions(TRANSACTION_COORDINATOR_KEY);
+
+                    if (transactions != null && transactions.contains(transactionId))
+                    {
+                        operationLog.info(
+                                "Commit prepared transaction '" + transactionId + "' for participant '" + participant.getParticipantId() + "'.");
+                        participant.commitTransaction(transactionId, TRANSACTION_COORDINATOR_KEY);
+                    } else
+                    {
+                        operationLog.info(
+                                "Skipping commit of prepared transaction '" + transactionId + "' for participant '" + participant.getParticipantId()
+                                        + "'. The transaction has been already committed at that participant before.");
+                    }
+                } else
+                {
+                    operationLog.info(
+                            "Commit prepared transaction '" + transactionId + "' for participant '" + participant.getParticipantId() + "'.");
+                    participant.commitTransaction(transactionId, sessionToken, interactiveSessionKey);
+                }
+            } catch (RuntimeException e)
+            {
+                operationLog.error(
+                        "Commit prepared transaction '" + transactionId + "' failed for participant '" + participant.getParticipantId() + "'.", e);
+                if (exception == null)
+                {
+                    exception = e;
+                }
+            }
+        }
+
+        if (exception == null)
+        {
+            transactionLog.logStatus(transactionId, TransactionStatus.COMMIT_FINISHED);
+            operationLog.info("Commit prepared transaction '" + transactionId + "' finished successfully.");
+        } else
+        {
+            operationLog.info("Commit prepared transaction '" + transactionId + "' failed.");
+            throw exception;
+        }
+    }
+
+    @Override public void rollbackTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
+    {
+        rollbackTransaction(transactionId, sessionToken, interactiveSessionKey, false);
+    }
+
+    private void rollbackTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey, final boolean restore)
     {
         operationLog.info("Rollback transaction '" + transactionId + "' started.");
 
         transactionLog.logStatus(transactionId, TransactionStatus.ROLLBACK_STARTED);
-        rollbackTransactionOnParticipants(transactionId, null);
-        transactionLog.logStatus(transactionId, TransactionStatus.ROLLBACK_FINISHED);
 
-        operationLog.info("Rollback transaction '" + transactionId + "' finished.");
-    }
+        RuntimeException exception = null;
 
-    private void rollbackTransactionOnParticipants(final String transactionId, final Integer toIndexOrNull)
-    {
-        int toIndex = toIndexOrNull != null ? toIndexOrNull : participants.size() - 1;
-
-        for (int index = 0; index <= toIndex; index++)
+        for (ITransactionParticipant participant : participants)
         {
-            ITransactionCoordinatorParticipant participant = participants.get(index);
-
             try
             {
-                operationLog.info("Rollback transaction '" + transactionId + "' for participant '" + participant.getParticipantId() + "'.");
-                participant.rollbackTransaction(transactionId);
-            } catch (Exception rollbackException)
+                if (restore)
+                {
+                    List<UUID> transactions = participant.getTransactions(TRANSACTION_COORDINATOR_KEY);
+
+                    if (transactions != null && transactions.contains(transactionId))
+                    {
+                        operationLog.info("Rollback transaction '" + transactionId + "' for participant '" + participant.getParticipantId() + "'.");
+                        participant.rollbackTransaction(transactionId, TRANSACTION_COORDINATOR_KEY);
+                    } else
+                    {
+                        operationLog.info(
+                                "Skipping rollback of transaction '" + transactionId + "' for participant '" + participant.getParticipantId()
+                                        + "'. The transaction has been already rolled back at that participant before.");
+                    }
+                } else
+                {
+                    operationLog.info("Rollback transaction '" + transactionId + "' for participant '" + participant.getParticipantId() + "'.");
+                    participant.rollbackTransaction(transactionId, sessionToken, interactiveSessionKey);
+                }
+            } catch (RuntimeException e)
             {
-                operationLog.info(
-                        "Transaction '" + transactionId + "' rollbackTransaction failed for participant '" + participants.get(index)
-                                .getParticipantId() + "'", rollbackException);
+                operationLog.info("Rollback transaction '" + transactionId + "' failed for participant '" + participant.getParticipantId() + "'.", e);
+
+                if (exception == null)
+                {
+                    exception = e;
+                }
             }
+        }
+
+        if (exception == null)
+        {
+            transactionLog.logStatus(transactionId, TransactionStatus.ROLLBACK_FINISHED);
+            operationLog.info("Rollback transaction '" + transactionId + "' finished successfully.");
+        } else
+        {
+            operationLog.info("Rollback transaction '" + transactionId + "' failed.");
+            throw exception;
         }
     }
 
@@ -297,30 +322,18 @@ public class TransactionCoordinator implements ITransactionCoordinator
         return 0;
     }
 
-    private interface IApplicationServerApiWithTransactions extends IApplicationServerApi
-    {
-        void beginTransaction(String transactionId);
-
-        void prepareTransaction(String transactionId);
-
-        void commitTransaction(String transactionId);
-
-        void rollbackTransaction(String transactionId);
-    }
-
-    private static class ApplicationServerApiParticipant implements ITransactionCoordinatorParticipant
+    private static class ApplicationServerApiParticipant implements ITransactionParticipant
     {
 
         private final String applicationServerUrl;
 
-        private final IApplicationServerApiWithTransactions applicationServerApi;
+        private final ITransactionParticipant applicationServerApi;
 
         public ApplicationServerApiParticipant(String applicationServerUrl, long timeout)
         {
             this.applicationServerUrl = applicationServerUrl;
-            this.applicationServerApi = HttpInvokerUtils.createServiceStub(IApplicationServerApiWithTransactions.class,
-                    applicationServerUrl + "/openbis/openbis" + IApplicationServerApi.SERVICE_URL, timeout,
-                    new InvocationFactoryWithTransactionAttributes());
+            this.applicationServerApi = HttpInvokerUtils.createServiceStub(ITransactionParticipant.class,
+                    applicationServerUrl + "/openbis/openbis" + IApplicationServerApi.SERVICE_URL, timeout, null);
         }
 
         @Override public String getParticipantId()
@@ -328,72 +341,46 @@ public class TransactionCoordinator implements ITransactionCoordinator
             return "ApplicationServer[" + applicationServerUrl + "]";
         }
 
-        @Override public void beginTransaction(final String transactionId)
+        @Override public void beginTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
         {
-            applicationServerApi.beginTransaction(transactionId);
+            applicationServerApi.beginTransaction(transactionId, sessionToken, interactiveSessionKey);
         }
 
-        @Override public Object executeOperation(final String transactionId, final String methodName, final Object[] methodArguments)
+        @Override public Object executeOperation(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
+                final String operationName, final Object[] operationArguments)
         {
-            // TODO security and error handling
-            for (Method method : applicationServerApi.getClass().getMethods())
-            {
-                if (method.getName().equals(methodName))
-                {
-                    try
-                    {
-                        Object[] methodArgumentsWithTransactionId = new Object[methodArguments.length + 1];
-                        methodArgumentsWithTransactionId[0] = transactionId;
-                        System.arraycopy(methodArguments, 0, methodArgumentsWithTransactionId, 1, methodArguments.length);
-                        return method.invoke(applicationServerApi, methodArgumentsWithTransactionId);
-                    } catch (Exception e)
-                    {
-                        throw new RuntimeException(e);
-                    }
-                }
-            }
-
-            throw new IllegalArgumentException("Unknown method: " + methodName);
+            return applicationServerApi.executeOperation(transactionId, sessionToken, interactiveSessionKey, operationName, operationArguments);
         }
 
-        @Override public void prepareTransaction(final String transactionId)
+        @Override public void prepareTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
+                final String transactionCoordinatorKey)
         {
-            applicationServerApi.prepareTransaction(transactionId);
+            applicationServerApi.prepareTransaction(transactionId, sessionToken, interactiveSessionKey, transactionCoordinatorKey);
         }
 
-        @Override public void commitTransaction(final String transactionId)
+        @Override public List<UUID> getTransactions(final String transactionCoordinatorKey)
         {
-            applicationServerApi.commitTransaction(transactionId);
+            return applicationServerApi.getTransactions(transactionCoordinatorKey);
         }
 
-        @Override public void rollbackTransaction(final String transactionId)
+        @Override public void commitTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
         {
-            applicationServerApi.rollbackTransaction(transactionId);
+            applicationServerApi.commitTransaction(transactionId, sessionToken, interactiveSessionKey);
         }
-    }
 
-    private static class InvocationFactoryWithTransactionAttributes extends DefaultRemoteInvocationFactory
-    {
-        @Override public RemoteInvocation createRemoteInvocation(final MethodInvocation methodInvocation)
+        @Override public void commitTransaction(final UUID transactionId, final String transactionCoordinatorKey)
         {
-            String methodName = methodInvocation.getMethod().getName();
+            applicationServerApi.commitTransaction(transactionId, transactionCoordinatorKey);
+        }
 
-            Map<String, Serializable> attributes = new HashMap<>();
+        @Override public void rollbackTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
+        {
+            applicationServerApi.rollbackTransaction(transactionId, sessionToken, interactiveSessionKey);
+        }
 
-            if (TransactionConst.BEGIN_TRANSACTION_METHOD.equals(methodName)
-                    || TransactionConst.EXECUTE_OPERATION_METHOD.equals(methodName)
-                    || TransactionConst.PREPARE_TRANSACTION_METHOD.equals(methodName)
-                    || TransactionConst.COMMIT_TRANSACTION_METHOD.equals(methodName)
-                    || TransactionConst.ROLLBACK_TRANSACTION_METHOD.equals(methodName))
-            {
-                attributes.put(TransactionConst.TRANSACTION_ID_ATTRIBUTE, (String) methodInvocation.getArguments()[0]);
-                attributes.put(TransactionConst.TRANSACTION_COORDINATOR_SECRET_ATTRIBUTE, SECRET);
-            }
-
-            RemoteInvocation remoteInvocation = super.createRemoteInvocation(methodInvocation);
-            remoteInvocation.setAttributes(attributes);
-
-            return remoteInvocation;
+        @Override public void rollbackTransaction(final UUID transactionId, final String transactionCoordinatorKey)
+        {
+            applicationServerApi.rollbackTransaction(transactionId, transactionCoordinatorKey);
         }
     }
 

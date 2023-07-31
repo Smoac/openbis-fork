@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.log4j.Logger;
 
@@ -18,7 +19,7 @@ public class TransactionLog implements ITransactionLog
 
     private final File logFolder;
 
-    private final Map<String, TransactionStatus> lastStatuses;
+    private final Map<UUID, TransactionStatus> lastStatuses;
 
     public TransactionLog(File logFolder)
     {
@@ -39,11 +40,11 @@ public class TransactionLog implements ITransactionLog
         this.lastStatuses = loadLastStatuses(logFolder);
     }
 
-    @Override public void logStatus(final String transactionId, final TransactionStatus transactionStatus)
+    @Override public void logStatus(final UUID transactionId, final TransactionStatus transactionStatus)
     {
         operationLog.info("Logging transaction: " + transactionId + " status: " + transactionStatus);
 
-        File transactionLogFolder = new File(logFolder, transactionId);
+        File transactionLogFolder = new File(logFolder, transactionId.toString());
 
         try
         {
@@ -67,12 +68,12 @@ public class TransactionLog implements ITransactionLog
         lastStatuses.put(transactionId, transactionStatus);
     }
 
-    @Override public Map<String, TransactionStatus> getLastStatuses()
+    @Override public Map<UUID, TransactionStatus> getLastStatuses()
     {
         return Collections.unmodifiableMap(lastStatuses);
     }
 
-    private static Map<String, TransactionStatus> loadLastStatuses(File logFolder)
+    private static Map<UUID, TransactionStatus> loadLastStatuses(File logFolder)
     {
         operationLog.info("Loading last transaction statuses from folder: " + logFolder);
 
@@ -81,7 +82,7 @@ public class TransactionLog implements ITransactionLog
             throw new RuntimeException("Transactions log folder: " + logFolder + " does not exist or is not a directory.");
         }
 
-        Map<String, TransactionStatus> lastStatuses = new HashMap<>();
+        Map<UUID, TransactionStatus> lastStatuses = new HashMap<>();
         File[] transactionFolders = logFolder.listFiles();
 
         if (transactionFolders == null)
@@ -106,12 +107,12 @@ public class TransactionLog implements ITransactionLog
                     {
                         try
                         {
-                            TransactionStatus previousLastStatus = lastStatuses.get(transactionFolder.getName());
+                            TransactionStatus previousLastStatus = lastStatuses.get(UUID.fromString(transactionFolder.getName()));
                             TransactionStatus lastStatus = TransactionStatus.valueOf(statusFile.getName());
 
                             if (previousLastStatus == null || previousLastStatus.isPreviousStatusOf(lastStatus))
                             {
-                                lastStatuses.put(transactionFolder.getName(), lastStatus);
+                                lastStatuses.put(UUID.fromString(transactionFolder.getName()), lastStatus);
                             }
                         } catch (Exception e)
                         {

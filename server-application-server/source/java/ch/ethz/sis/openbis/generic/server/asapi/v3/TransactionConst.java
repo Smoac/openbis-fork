@@ -7,7 +7,7 @@ public class TransactionConst
 
     public static final String TRANSACTION_ID_ATTRIBUTE = "transactionId";
 
-    public static final String TRANSACTION_COORDINATOR_SECRET_ATTRIBUTE = "transactionCoordinatorSecret";
+    public static final String TRANSACTION_SECRET_ATTRIBUTE = "transactionSecret";
 
     public static final String BEGIN_TRANSACTION_METHOD = "beginTransaction";
 

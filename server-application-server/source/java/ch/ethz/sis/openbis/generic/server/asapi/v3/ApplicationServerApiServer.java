@@ -17,6 +17,8 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletException;
@@ -39,7 +41,7 @@ public class ApplicationServerApiServer extends AbstractApiServiceExporter
 {
 
     @Resource(name = ApplicationServerApi.INTERNAL_SERVICE_NAME)
-    private IApplicationServerApi service;
+    private IApplicationServerApi applicationServerApi;
 
     @Autowired
     private ITransactionParticipant transactionParticipant;
@@ -47,7 +49,7 @@ public class ApplicationServerApiServer extends AbstractApiServiceExporter
     @Override
     public void afterPropertiesSet()
     {
-        establishService(IApplicationServerApi.class, service, IApplicationServerApi.SERVICE_NAME,
+        establishService(IApplicationServerApi.class, applicationServerApi, IApplicationServerApi.SERVICE_NAME,
                 IApplicationServerApi.SERVICE_URL);
         super.afterPropertiesSet();
     }
@@ -65,49 +67,34 @@ public class ApplicationServerApiServer extends AbstractApiServiceExporter
     @Override protected Object invoke(final RemoteInvocation invocation, final Object targetObject)
             throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
     {
+        Method method = null;
+
         try
         {
-            String transactionId = (String) invocation.getAttribute(TransactionConst.TRANSACTION_ID_ATTRIBUTE);
-            String transactionCoordinatorSecret = (String) invocation.getAttribute(TransactionConst.TRANSACTION_COORDINATOR_SECRET_ATTRIBUTE);
-
-            if (TransactionConst.BEGIN_TRANSACTION_METHOD.equals(invocation.getMethodName()))
-            {
-                transactionParticipant.beginTransaction(transactionId, transactionCoordinatorSecret);
-                return null;
-            } else if (TransactionConst.PREPARE_TRANSACTION_METHOD.equals(invocation.getMethodName()))
-            {
-                transactionParticipant.prepareTransaction(transactionId, transactionCoordinatorSecret);
-                return null;
-            } else if (TransactionConst.COMMIT_TRANSACTION_METHOD.equals(invocation.getMethodName()))
-            {
-                transactionParticipant.commitTransaction(transactionId, transactionCoordinatorSecret);
-                return null;
-            } else if (TransactionConst.ROLLBACK_TRANSACTION_METHOD.equals(invocation.getMethodName()))
-            {
-                transactionParticipant.rollbackTransaction(transactionId, transactionCoordinatorSecret);
-                return null;
-            } else
-            {
-                return transactionParticipant.executeOperation(transactionId, transactionCoordinatorSecret, new ITransactionParticipantOperation()
-                {
-                    @Override public String getOperationName()
-                    {
-                        return invocation.getMethodName();
-                    }
-
-                    @Override public Object executeOperation() throws Throwable
-                    {
-                        return invocation.invoke(service);
-                    }
-                });
-            }
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | Error | RuntimeException e)
+            method = applicationServerApi.getClass().getMethod(invocation.getMethodName(), invocation.getParameterTypes());
+        } catch (Exception ignore)
         {
-            throw e;
-        } catch (Throwable e)
-        {
-            throw new RuntimeException(e);
         }
+
+        if (method != null)
+        {
+            return method.invoke(applicationServerApi, invocation.getArguments());
+        }
+
+        try
+        {
+            method = transactionParticipant.getClass().getMethod(invocation.getMethodName(), invocation.getParameterTypes());
+        } catch (Exception ignore)
+        {
+        }
+
+        if (method != null)
+        {
+            return method.invoke(transactionParticipant, invocation.getArguments());
+        }
+
+        throw new NoSuchMethodException("No method found with name: " + invocation.getMethodName() + " and argument types: " + Arrays.toString(
+                invocation.getParameterTypes()));
     }
 
 }

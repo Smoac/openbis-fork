@@ -1,16 +1,63 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3;
 
+import java.util.List;
+import java.util.UUID;
+
 public interface ITransactionParticipant
 {
 
-    void beginTransaction(String transactionId, String transactionCoordinatorSecret) throws Throwable;
+    String getParticipantId();
 
-    Object executeOperation(String transactionId, String transactionCoordinatorSecret, ITransactionParticipantOperation operation) throws Throwable;
+    /**
+     * Used in:
+     * - coordinator flow
+     * - participant interactive flow
+     */
+    void beginTransaction(UUID transactionId, String sessionToken, String interactiveSessionKey);
 
-    void prepareTransaction(String transactionId, String transactionCoordinatorSecret) throws Throwable;
+    /**
+     * Used in:
+     * - coordinator flow
+     * - participant interactive flow
+     */
+    Object executeOperation(UUID transactionId, String sessionToken, String interactiveSessionKey, String operationName, Object[] operationArguments);
 
-    void commitTransaction(String transactionId, String transactionCoordinatorSecret) throws Throwable;
+    /**
+     * Used in:
+     * - coordinator flow
+     */
+    void prepareTransaction(UUID transactionId, String sessionToken, String interactiveSessionKey, String transactionCoordinatorKey);
 
-    void rollbackTransaction(String transactionId, String transactionCoordinatorSecret) throws Throwable;
+    /**
+     * Used in:
+     * - coordinator flow
+     * - participant interactive flow
+     */
+    void commitTransaction(UUID transactionId, String sessionToken, String interactiveSessionKey);
+
+    /**
+     * Used in:
+     * - coordinator recovery flow
+     */
+    void commitTransaction(UUID transactionId, String transactionCoordinatorKey);
+
+    /**
+     * Used in:
+     * - coordinator flow
+     * - participant interactive flow
+     */
+    void rollbackTransaction(UUID transactionId, String sessionToken, String interactiveSessionKey);
+
+    /**
+     * Used in:
+     * - coordinator recovery flow
+     */
+    void rollbackTransaction(UUID transactionId, String transactionCoordinatorKey);
+
+    /**
+     * Used in:
+     * - coordinator recovery flow
+     */
+    List<UUID> getTransactions(String transactionCoordinatorKey);
 
 }

@@ -1,24 +1,14 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3;
 
-import java.io.Serializable;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-
-import org.aopalliance.intercept.MethodInvocation;
-import org.springframework.remoting.support.DefaultRemoteInvocationFactory;
-import org.springframework.remoting.support.RemoteInvocation;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 
@@ -27,48 +17,74 @@ public class TransactionCoordinatorClient
 
     private final ITransactionCoordinator transactionCoordinator;
 
-    private String transactionId;
+    private UUID transactionId;
 
-    public TransactionCoordinatorClient(String transactionCoordinatorServerUrl, long timeout)
+    private String sessionToken;
+
+    private final String interactiveSessionKey;
+
+    public TransactionCoordinatorClient(String transactionCoordinatorUrl, String interactiveSessionKey, long timeout)
     {
-        transactionCoordinator =
-                HttpInvokerUtils.createServiceStub(ITransactionCoordinator.class, transactionCoordinatorServerUrl + "/openbis/openbis"
+        if (interactiveSessionKey == null)
+        {
+            throw new IllegalArgumentException("Interactive session key cannot be null");
+        }
+        this.transactionCoordinator =
+                HttpInvokerUtils.createServiceStub(ITransactionCoordinator.class, transactionCoordinatorUrl + "/openbis/openbis"
                         + ITransactionCoordinator.SERVICE_URL, timeout);
+        this.interactiveSessionKey = interactiveSessionKey;
+    }
+
+    public void login(String userId, String password)
+    {
+        sessionToken = getApplicationServerApi().login(userId, password);
     }
 
     public void beginTransaction()
     {
+        if (sessionToken == null)
+        {
+            throw new IllegalStateException("Session token hasn't been set yet");
+        }
         if (transactionId != null)
         {
             throw new IllegalStateException("Transaction has been already started");
         }
-        transactionId = UUID.randomUUID().toString();
-        transactionCoordinator.beginTransaction(transactionId);
+        transactionId = UUID.randomUUID();
+        transactionCoordinator.beginTransaction(transactionId, sessionToken, interactiveSessionKey);
     }
 
     public void commitTransaction()
     {
+        if (sessionToken == null)
+        {
+            throw new IllegalStateException("Session token hasn't been set yet");
+        }
         if (transactionId == null)
         {
             throw new IllegalStateException("Transaction hasn't started yet");
         }
-        transactionCoordinator.commitTransaction(transactionId);
+        transactionCoordinator.commitTransaction(transactionId, sessionToken, interactiveSessionKey);
     }
 
     public void rollbackTransaction()
     {
+        if (sessionToken == null)
+        {
+            throw new IllegalStateException("Session token hasn't been set yet");
+        }
         if (transactionId == null)
         {
             throw new IllegalStateException("Transaction hasn't started yet");
         }
-        transactionCoordinator.rollbackTransaction(transactionId);
+        transactionCoordinator.rollbackTransaction(transactionId, sessionToken, interactiveSessionKey);
     }
 
     public IApplicationServerApi getApplicationServerApi()
     {
         return (IApplicationServerApi) Proxy.newProxyInstance(IApplicationServerApi.class.getClassLoader(),
                 new Class[] { IApplicationServerApi.class },
-                (proxy, method, args) -> transactionCoordinator.executeOperation(transactionId,
+                (proxy, method, args) -> transactionCoordinator.executeOperation(transactionId, sessionToken, interactiveSessionKey,
                         ITransactionCoordinator.PARTICIPANT_ID_APPLICATION_SERVER,
                         method.getName(),
                         args));
@@ -78,28 +94,15 @@ public class TransactionCoordinatorClient
     {
         return (IApplicationServerApi) Proxy.newProxyInstance(IApplicationServerApi.class.getClassLoader(),
                 new Class[] { IApplicationServerApi.class },
-                (proxy, method, args) -> transactionCoordinator.executeOperation(transactionId,
+                (proxy, method, args) -> transactionCoordinator.executeOperation(transactionId, sessionToken, interactiveSessionKey,
                         ITransactionCoordinator.PARTICIPANT_ID_APPLICATION_SERVER_2,
                         method.getName(),
                         args));
     }
 
-    private class InvocationFactoryWithTransactionAttributes extends DefaultRemoteInvocationFactory
-    {
-        @Override public RemoteInvocation createRemoteInvocation(final MethodInvocation methodInvocation)
-        {
-            Map<String, Serializable> attributes =
-                    Collections.singletonMap(TransactionConst.TRANSACTION_ID_ATTRIBUTE, transactionId);
-
-            RemoteInvocation remoteInvocation = super.createRemoteInvocation(methodInvocation);
-            remoteInvocation.setAttributes(attributes);
-            return remoteInvocation;
-        }
-    }
-
     public static void main(String[] args)
     {
-        TransactionCoordinatorClient client = new TransactionCoordinatorClient("http://localhost:8888", 10000000);
+        TransactionCoordinatorClient client = new TransactionCoordinatorClient("http://localhost:8888", "i_am_secret", 10000000);
 
         try
         {

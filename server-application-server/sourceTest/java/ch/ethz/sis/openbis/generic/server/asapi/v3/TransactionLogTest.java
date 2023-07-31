@@ -26,9 +26,9 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 public class TransactionLogTest
 {
 
-    public static final String TEST_TRANSACTION_ID = "test-id";
+    public static final UUID TEST_TRANSACTION_ID = UUID.randomUUID();
 
-    public static final String TEST_TRANSACTION_ID_2 = "test-id-2";
+    public static final UUID TEST_TRANSACTION_ID_2 = UUID.randomUUID();
 
     private File testWorkspace;
 
@@ -66,14 +66,14 @@ public class TransactionLogTest
         Files.createDirectory(existingLogFolder.toPath());
         assertTrue(existingLogFolder.exists());
 
-        File transaction1Folder = createFolder(new File(existingLogFolder, TEST_TRANSACTION_ID));
+        File transaction1Folder = createFolder(new File(existingLogFolder, TEST_TRANSACTION_ID.toString()));
         createFile(new File(transaction1Folder, TransactionStatus.BEGIN_STARTED.name()));
         createFile(new File(transaction1Folder, TransactionStatus.BEGIN_FINISHED.name()));
         createFile(new File(transaction1Folder, TransactionStatus.PREPARE_STARTED.name()));
         createFolder(new File(transaction1Folder, "some_folder"));
         createFile(new File(transaction1Folder, "some_file_with_name_which_is_not_status"));
 
-        File transaction2Folder = createFolder(new File(existingLogFolder, TEST_TRANSACTION_ID_2));
+        File transaction2Folder = createFolder(new File(existingLogFolder, TEST_TRANSACTION_ID_2.toString()));
         createFile(new File(transaction2Folder, TransactionStatus.BEGIN_STARTED.name()));
         createFile(new File(transaction2Folder, TransactionStatus.BEGIN_FINISHED.name()));
         createFile(new File(transaction2Folder, TransactionStatus.PREPARE_STARTED.name()));
@@ -85,7 +85,7 @@ public class TransactionLogTest
 
         ITransactionLog transactionLog = new TransactionLog(existingLogFolder);
 
-        Map<String, TransactionStatus> expectedLastStatuses = new HashMap<>();
+        Map<UUID, TransactionStatus> expectedLastStatuses = new HashMap<>();
         expectedLastStatuses.put(TEST_TRANSACTION_ID, TransactionStatus.PREPARE_STARTED);
         expectedLastStatuses.put(TEST_TRANSACTION_ID_2, TransactionStatus.ROLLBACK_FINISHED);
 
@@ -120,9 +120,9 @@ public class TransactionLogTest
         transactionLog.logStatus(TEST_TRANSACTION_ID_2, TransactionStatus.PREPARE_STARTED);
         transactionLog.logStatus(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED);
 
-        assertTransactionFolders(logFolder, TEST_TRANSACTION_ID, TEST_TRANSACTION_ID_2);
-        assertTransactionStatusFiles(logFolder, TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED, TransactionStatus.BEGIN_FINISHED);
-        assertTransactionStatusFiles(logFolder, TEST_TRANSACTION_ID_2, TransactionStatus.PREPARE_STARTED);
+        assertTransactionFolders(logFolder, TEST_TRANSACTION_ID.toString(), TEST_TRANSACTION_ID_2.toString());
+        assertTransactionStatusFiles(logFolder, TEST_TRANSACTION_ID.toString(), TransactionStatus.BEGIN_STARTED, TransactionStatus.BEGIN_FINISHED);
+        assertTransactionStatusFiles(logFolder, TEST_TRANSACTION_ID_2.toString(), TransactionStatus.PREPARE_STARTED);
     }
 
     private void assertTransactionFolders(File logFolder, String... expectedFolderNames) throws IOException
