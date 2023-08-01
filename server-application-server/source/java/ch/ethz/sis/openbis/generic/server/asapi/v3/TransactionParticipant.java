@@ -1,8 +1,10 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3;
 
 import java.io.File;
+import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -11,16 +13,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Function;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
@@ -62,7 +63,7 @@ public class TransactionParticipant implements ITransactionParticipant
 
     @Autowired
     public TransactionParticipant(final PlatformTransactionManager transactionManager, final IDAOFactory daoFactory,
-            final DatabaseConfigurationContext databaseContext)
+            final DatabaseConfigurationContext databaseContext, final IApplicationServerApi applicationServerApi)
     {
         this.participantId = null;
         this.sessionTokenProvider = new ISessionTokenProvider()
@@ -85,44 +86,42 @@ public class TransactionParticipant implements ITransactionParticipant
                 session.flush();
                 session.doWork(connection ->
                 {
-                    PreparedStatement statement = connection.prepareStatement("PREPARE TRANSACTION '" + transactionId + "'");
-                    statement.execute();
+                    try (PreparedStatement prepareStatement = connection.prepareStatement("PREPARE TRANSACTION '" + transactionId + "'"))
+                    {
+                        prepareStatement.execute();
+                        operationLog.info("Database transaction '" + transactionId + "' was prepared.");
+                    }
                 });
             }
 
             @Override public void rollbackTransaction(final UUID transactionId, final Object transaction)
                     throws Exception
             {
-                Connection connection = null;
-                Statement statement = null;
+                try (Connection connection = databaseContext.getDataSource().getConnection();
+                        PreparedStatement countStatement = connection.prepareStatement(
+                                "SELECT count(*) AS count FROM pg_prepared_xacts WHERE gid = ?");
+                        PreparedStatement rollbackStatement = connection.prepareStatement("ROLLBACK PREPARED '" + transactionId + "'"))
+                {
+                    countStatement.setString(1, transactionId.toString());
 
-                try
-                {
-                    connection = databaseContext.getDataSource().getConnection();
-                    statement = connection.createStatement();
-                    statement.execute("ROLLBACK PREPARED '" + transactionId + "'");
-                } catch (Exception e)
-                {
-                    if (statement != null)
+                    try (ResultSet countResult = countStatement.executeQuery())
                     {
-                        try
+                        if (countResult.next())
                         {
-                            statement.close();
-                        } catch (Exception ignore)
-                        {
+                            int count = countResult.getInt("count");
+
+                            if (count > 0)
+                            {
+                                rollbackStatement.execute();
+                                operationLog.info(
+                                        "Prepared database transaction '" + transactionId + "' was rolled back.");
+                            } else
+                            {
+                                operationLog.info(
+                                        "Nothing to rollback in the database. Prepared database transaction '" + transactionId + "' was not found.");
+                            }
                         }
                     }
-                    if (connection != null)
-                    {
-                        try
-                        {
-                            connection.close();
-                        } catch (SQLException ignore)
-                        {
-                        }
-                    }
-
-                    throw e;
                 } finally
                 {
                     try
@@ -137,36 +136,11 @@ public class TransactionParticipant implements ITransactionParticipant
 
             @Override public void commitTransaction(final UUID transactionId, final Object transaction) throws Exception
             {
-                Connection connection = null;
-                Statement statement = null;
-
-                try
+                try (Connection connection = databaseContext.getDataSource().getConnection();
+                        PreparedStatement commitStatement = connection.prepareStatement("COMMIT PREPARED '" + transactionId + "'"))
                 {
-                    connection = databaseContext.getDataSource().getConnection();
-                    statement = connection.createStatement();
-                    statement.execute("COMMIT PREPARED '" + transactionId + "'");
-                } catch (Exception e)
-                {
-                    if (statement != null)
-                    {
-                        try
-                        {
-                            statement.close();
-                        } catch (Exception ignore)
-                        {
-                        }
-                    }
-                    if (connection != null)
-                    {
-                        try
-                        {
-                            connection.close();
-                        } catch (SQLException ignore)
-                        {
-                        }
-                    }
-
-                    throw e;
+                    commitStatement.execute();
+                    operationLog.info("Database prepared transaction '" + transactionId + "' was committed.");
                 }
             }
         };
@@ -174,7 +148,21 @@ public class TransactionParticipant implements ITransactionParticipant
         {
             @Override public Object executeOperation(String sessionToken, String operationName, Object[] operationArguments)
             {
-                return null;
+                for (Method method : applicationServerApi.getClass().getMethods())
+                {
+                    if (method.getName().equals(operationName))
+                    {
+                        try
+                        {
+                            return method.invoke(applicationServerApi, operationArguments);
+                        } catch (Exception e)
+                        {
+                            throw new TransactionOperationException(e);
+                        }
+                    }
+                }
+
+                throw new IllegalArgumentException("Unknown operation  '" + operationName + "'.");
             }
         };
         this.transactionLog = new TransactionLog(new File(TRANSACTION_LOG_PATH));
@@ -241,42 +229,55 @@ public class TransactionParticipant implements ITransactionParticipant
     private Object executeInTransactionThread(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
             final String transactionCoordinatorKey, final String operationName, final Object[] operationArguments)
     {
+        if (transactionId == null)
+        {
+            throw new IllegalArgumentException("Transaction id cannot be null");
+        }
+
         TransactionThread thread;
+
+        operationLog.info("Transaction '" + transactionId + "' execute operation '" + operationName + "' started.");
 
         synchronized (this)
         {
-            operationLog.info("Two phase transaction id: " + transactionId);
-
             thread = threadMap.get(transactionId);
 
             if (thread == null)
             {
                 if (threadMap.size() >= TransactionConst.THREAD_COUNT_LIMIT)
                 {
-                    throw new RuntimeException("Too many two phase transaction threads running");
+                    throw new RuntimeException(
+                            "Cannot handle transaction '" + transactionId + "' as there are too many other transactions running already.");
                 }
 
-                operationLog.info("Creating two phase transaction thread");
+                operationLog.info("Creating a new thread for transaction '" + transactionId + "'.");
 
                 thread = new TransactionThread(transactionId);
                 threadMap.put(transactionId, thread);
                 thread.startThread();
             } else
             {
-                operationLog.info("Found existing two phase transaction thread");
+                operationLog.info("Found existing thread for transaction '" + transactionId + "'.");
             }
         }
 
         try
         {
-            return thread.executeOperation(sessionToken, interactiveSessionKey, transactionCoordinatorKey, operationName, operationArguments);
+            Object result =
+                    thread.executeOperation(sessionToken, interactiveSessionKey, transactionCoordinatorKey, operationName, operationArguments);
+            operationLog.info("Transaction '" + transactionId + "' execute operation '" + operationName + "' finished successfully.");
+            return result;
+        } catch (Exception e)
+        {
+            operationLog.info("Transaction '" + transactionId + "' execute operation '" + operationName + "' failed.", e);
+            throw e;
         } finally
         {
             synchronized (this)
             {
                 if (thread.isThreadFinished())
                 {
-                    operationLog.info("Two phase transaction " + transactionId + " finished. Removing its thread.");
+                    operationLog.info("Transaction '" + transactionId + "' finished. Removing its thread.");
                     threadMap.remove(transactionId);
                 }
             }
@@ -332,6 +333,8 @@ public class TransactionParticipant implements ITransactionParticipant
                             {
                                 if (operationName != null)
                                 {
+                                    operationLog.info("Transaction '" + transactionId + "' thread executing operation '" + operationName + "'.");
+
                                     if (TransactionConst.BEGIN_TRANSACTION_METHOD.equals(operationName))
                                     {
                                         checkTransactionStatus(transactionStatus, TransactionStatus.NEW);
@@ -374,9 +377,6 @@ public class TransactionParticipant implements ITransactionParticipant
                                         operationResult = operationExecutor.executeOperation(sessionToken, operationName, operationArguments);
                                     }
 
-                                    operationLog.info("Two phase transaction " + transactionId + " method " + operationName
-                                            + " executed.");
-
                                     operationName = null;
                                     operationArguments = null;
                                     operationException = null;
@@ -389,7 +389,7 @@ public class TransactionParticipant implements ITransactionParticipant
                                     }
                                 } else
                                 {
-                                    operationLog.info("Two phase transaction " + transactionId + " thread waiting for the next call.");
+                                    operationLog.info("Transaction '" + transactionId + "' thread waiting for the next call.");
                                     lock.wait();
                                 }
 
@@ -424,8 +424,8 @@ public class TransactionParticipant implements ITransactionParticipant
                     }
 
                     throw new IllegalStateException(
-                            "Two phase transaction " + transactionId + " unexpected status " + actualStatus + ". Expected statuses "
-                                    + Arrays.toString(expectedStatuses) + ".");
+                            "Transaction '" + transactionId + "' unexpected status '" + actualStatus + "'. Expected statuses '"
+                                    + Arrays.toString(expectedStatuses) + "'.");
                 }
 
                 private void changeTransactionStatus(TransactionStatus status)
@@ -439,6 +439,7 @@ public class TransactionParticipant implements ITransactionParticipant
 
         public void startThread()
         {
+            operationLog.info("Transaction '" + transactionId + "' thread '" + thread.getName() + "' started.");
             thread.start();
         }
 
@@ -452,8 +453,9 @@ public class TransactionParticipant implements ITransactionParticipant
                     if (operationName != null)
                     {
                         throw new IllegalStateException(
-                                "Cannot schedule another two phase transaction " + transactionId + " call as the previous execution for operation "
-                                        + operationName + " hasn't finished yet.");
+                                "Cannot schedule transaction '" + transactionId + "' operation '" + newOperationName
+                                        + "' execution as the previous operation '"
+                                        + operationName + "' hasn't finished yet.");
                     }
 
                     sessionToken = newSessionToken;
@@ -463,7 +465,7 @@ public class TransactionParticipant implements ITransactionParticipant
                     operationException = null;
                     lock.notifyAll();
 
-                    operationLog.info("Two phase transaction " + transactionId + " method " + newOperationName + " call scheduled.");
+                    operationLog.info("Transaction '" + transactionId + "' thread scheduled operation '" + newOperationName + "' execution.");
 
                     while (operationName != null)
                     {
@@ -473,13 +475,20 @@ public class TransactionParticipant implements ITransactionParticipant
                 } catch (Exception e)
                 {
                     operationLog.error(
-                            "Scheduling of the next two phase transaction method " + operationName + " call failed or got interrupted.", e);
+                            "Scheduling of transaction '" + operationName + "' operation '" + operationName
+                                    + "' execution in thread failed or got interrupted.", e);
                     throw new RuntimeException(e);
                 }
 
                 if (operationException != null)
                 {
-                    throw new TransactionOperationException(operationException);
+                    if (operationException instanceof TransactionOperationException)
+                    {
+                        throw (TransactionOperationException) operationException;
+                    } else
+                    {
+                        throw new TransactionOperationException(operationException);
+                    }
                 } else
                 {
                     return operationResult;

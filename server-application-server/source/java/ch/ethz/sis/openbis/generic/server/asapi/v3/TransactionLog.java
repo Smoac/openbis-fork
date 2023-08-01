@@ -33,7 +33,7 @@ public class TransactionLog implements ITransactionLog
             createOrCheckFolder(logFolder);
         } catch (Exception e)
         {
-            throw new RuntimeException("Could not prepare transactions log folder: " + logFolder, e);
+            throw new RuntimeException("Could not prepare transactions log folder '" + logFolder + "'.", e);
         }
 
         this.logFolder = logFolder;
@@ -42,8 +42,6 @@ public class TransactionLog implements ITransactionLog
 
     @Override public void logStatus(final UUID transactionId, final TransactionStatus transactionStatus)
     {
-        operationLog.info("Logging transaction: " + transactionId + " status: " + transactionStatus);
-
         File transactionLogFolder = new File(logFolder, transactionId.toString());
 
         try
@@ -51,7 +49,8 @@ public class TransactionLog implements ITransactionLog
             createOrCheckFolder(transactionLogFolder);
         } catch (Exception e)
         {
-            throw new RuntimeException("Could not prepare transaction log folder: " + transactionLogFolder + " for transaction: " + transactionId, e);
+            throw new RuntimeException(
+                    "Could not prepare transaction log folder '" + transactionLogFolder + "' for transaction '" + transactionId + "'.", e);
         }
 
         File transactionStatusFile = new File(transactionLogFolder, transactionStatus.name());
@@ -61,11 +60,14 @@ public class TransactionLog implements ITransactionLog
             createOrCheckAndTouchFile(transactionStatusFile);
         } catch (Exception e)
         {
-            throw new RuntimeException("Could not prepare transaction status file: " + transactionStatusFile + " for transaction: " + transactionId,
+            throw new RuntimeException(
+                    "Could not prepare transaction status file '" + transactionStatusFile + "' for transaction '" + transactionId + "'.",
                     e);
         }
 
         lastStatuses.put(transactionId, transactionStatus);
+
+        operationLog.info("Logged transaction '" + transactionId + "' status '" + transactionStatus + "'.");
     }
 
     @Override public Map<UUID, TransactionStatus> getLastStatuses()
@@ -75,11 +77,11 @@ public class TransactionLog implements ITransactionLog
 
     private static Map<UUID, TransactionStatus> loadLastStatuses(File logFolder)
     {
-        operationLog.info("Loading last transaction statuses from folder: " + logFolder);
+        operationLog.info("Loading last transaction statuses from folder '" + logFolder + "'.");
 
         if (!logFolder.exists() || !logFolder.isDirectory())
         {
-            throw new RuntimeException("Transactions log folder: " + logFolder + " does not exist or is not a directory.");
+            throw new RuntimeException("Transactions log folder '" + logFolder + "' does not exist or is not a directory.");
         }
 
         Map<UUID, TransactionStatus> lastStatuses = new HashMap<>();
@@ -87,7 +89,7 @@ public class TransactionLog implements ITransactionLog
 
         if (transactionFolders == null)
         {
-            throw new RuntimeException("Could not load the contents of the transaction log folder: " + logFolder);
+            throw new RuntimeException("Could not load the contents of the transaction log folder '" + logFolder + "'.");
         }
 
         for (File transactionFolder : transactionFolders)
@@ -98,7 +100,7 @@ public class TransactionLog implements ITransactionLog
 
                 if (statusFiles == null)
                 {
-                    throw new RuntimeException("Could not load the contents of the transaction log folder: " + transactionFolder);
+                    throw new RuntimeException("Could not load the contents of the transaction log folder '" + transactionFolder + "'.");
                 }
 
                 for (File statusFile : statusFiles)
@@ -116,22 +118,22 @@ public class TransactionLog implements ITransactionLog
                             }
                         } catch (Exception e)
                         {
-                            operationLog.info("Ignoring file: " + statusFile + ". It's name: " + statusFile.getName()
-                                    + " does not match any of the transaction statuses: " + Arrays.toString(TransactionStatus.values()));
+                            operationLog.info("Ignoring file '" + statusFile + "'. It's name '" + statusFile.getName()
+                                    + "' does not match any of the transaction statuses '" + Arrays.toString(TransactionStatus.values()) + "'.");
                         }
                     } else
                     {
                         operationLog.info(
-                                "Ignoring non-regular file: " + statusFile
-                                        + ". Only regular files that represent transaction statuses are expected to be found in: "
-                                        + transactionFolder);
+                                "Ignoring non-regular file '" + statusFile
+                                        + "'. Only regular files that represent transaction statuses are expected to be found in '"
+                                        + transactionFolder + "'.");
                     }
                 }
             } else
             {
                 operationLog.info(
-                        "Ignoring regular file: " + transactionFolder + ". Only folders that represent transactions are expected to be found in: "
-                                + logFolder);
+                        "Ignoring regular file '" + transactionFolder + "'. Only folders that represent transactions are expected to be found in '"
+                                + logFolder + "'.");
             }
         }
 
@@ -142,7 +144,7 @@ public class TransactionLog implements ITransactionLog
     {
         if (folder.exists() && !folder.isDirectory())
         {
-            throw new IllegalArgumentException("Folder: " + folder.getAbsolutePath() + " is not a directory");
+            throw new IllegalArgumentException("Folder '" + folder.getAbsolutePath() + "' is not a directory");
         }
 
         if (!folder.exists())
@@ -160,13 +162,13 @@ public class TransactionLog implements ITransactionLog
 
             if (!created)
             {
-                throw new RuntimeException("Could not create folder: " + folder.getAbsolutePath(), exception);
+                throw new RuntimeException("Could not create folder '" + folder.getAbsolutePath() + "'.", exception);
             }
         }
 
         if (!folder.canWrite())
         {
-            throw new IllegalArgumentException("Cannot write to folder: " + folder.getAbsolutePath());
+            throw new IllegalArgumentException("Cannot write to folder '" + folder.getAbsolutePath() + "'.");
         }
     }
 
@@ -181,7 +183,7 @@ public class TransactionLog implements ITransactionLog
             {
                 if (!file.isFile())
                 {
-                    throw new RuntimeException("File: " + file + " is not a regular file.");
+                    throw new RuntimeException("File '" + file + "' is not a regular file.");
                 }
                 success = file.setLastModified(System.currentTimeMillis());
             } else
@@ -195,7 +197,7 @@ public class TransactionLog implements ITransactionLog
 
         if (!success)
         {
-            throw new RuntimeException("Could not create or touch file: " + file, exception);
+            throw new RuntimeException("Could not create or touch file '" + file + "'.", exception);
         }
     }
 

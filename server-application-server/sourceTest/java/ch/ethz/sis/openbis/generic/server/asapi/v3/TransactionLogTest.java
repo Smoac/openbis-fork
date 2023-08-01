@@ -104,7 +104,7 @@ public class TransactionLogTest
             new TransactionLog(existingFile);
         } catch (Exception e)
         {
-            assertEquals(e.getCause().getMessage(), "Folder: " + existingFile.getAbsolutePath() + " is not a directory");
+            assertEquals(e.getCause().getMessage(), "Folder '" + existingFile.getAbsolutePath() + "' is not a directory");
         }
     }
 

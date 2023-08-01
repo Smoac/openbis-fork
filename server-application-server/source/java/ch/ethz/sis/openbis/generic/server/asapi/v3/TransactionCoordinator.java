@@ -52,8 +52,8 @@ public class TransactionCoordinator implements ITransactionCoordinator
     public void init()
     {
         this.participants = List.of(
-                new ApplicationServerApiParticipant(APPLICATION_SERVER_URL, TIMEOUT),
-                new ApplicationServerApiParticipant(APPLICATION_SERVER_URL_2, TIMEOUT));
+                new ApplicationServerApiParticipant(ITransactionCoordinator.PARTICIPANT_ID_APPLICATION_SERVER, APPLICATION_SERVER_URL, TIMEOUT),
+                new ApplicationServerApiParticipant(ITransactionCoordinator.PARTICIPANT_ID_APPLICATION_SERVER_2, APPLICATION_SERVER_URL_2, TIMEOUT));
         this.transactionLog = new TransactionLog(new File(TRANSACTION_LOG_PATH));
     }
 
@@ -137,7 +137,7 @@ public class TransactionCoordinator implements ITransactionCoordinator
     @Override public Object executeOperation(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
             final String participantId, final String operationName, final Object[] operationArguments)
     {
-        operationLog.info("Execute operation '" + transactionId + "' started.");
+        operationLog.info("Transaction '" + transactionId + "' execute operation '" + operationName + "' started.");
 
         for (ITransactionParticipant participant : participants)
         {
@@ -145,7 +145,7 @@ public class TransactionCoordinator implements ITransactionCoordinator
             {
                 Object result = participant.executeOperation(transactionId, sessionToken, interactiveSessionKey, operationName, operationArguments);
 
-                operationLog.info("Execute operation '" + transactionId + "' finished.");
+                operationLog.info("Transaction '" + transactionId + "' execute operation '" + operationName + "' finished successfully.");
 
                 return result;
             }
@@ -325,62 +325,62 @@ public class TransactionCoordinator implements ITransactionCoordinator
     private static class ApplicationServerApiParticipant implements ITransactionParticipant
     {
 
-        private final String applicationServerUrl;
+        private final String participantId;
 
-        private final ITransactionParticipant applicationServerApi;
+        private final ITransactionParticipant participantApi;
 
-        public ApplicationServerApiParticipant(String applicationServerUrl, long timeout)
+        public ApplicationServerApiParticipant(String participantId, String participantServerUrl, long timeout)
         {
-            this.applicationServerUrl = applicationServerUrl;
-            this.applicationServerApi = HttpInvokerUtils.createServiceStub(ITransactionParticipant.class,
-                    applicationServerUrl + "/openbis/openbis" + IApplicationServerApi.SERVICE_URL, timeout, null);
+            this.participantId = participantId;
+            this.participantApi = HttpInvokerUtils.createServiceStub(ITransactionParticipant.class,
+                    participantServerUrl + "/openbis/openbis" + IApplicationServerApi.SERVICE_URL, timeout, null);
         }
 
         @Override public String getParticipantId()
         {
-            return "ApplicationServer[" + applicationServerUrl + "]";
+            return participantId;
         }
 
         @Override public void beginTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
         {
-            applicationServerApi.beginTransaction(transactionId, sessionToken, interactiveSessionKey);
+            participantApi.beginTransaction(transactionId, sessionToken, interactiveSessionKey);
         }
 
         @Override public Object executeOperation(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
                 final String operationName, final Object[] operationArguments)
         {
-            return applicationServerApi.executeOperation(transactionId, sessionToken, interactiveSessionKey, operationName, operationArguments);
+            return participantApi.executeOperation(transactionId, sessionToken, interactiveSessionKey, operationName, operationArguments);
         }
 
         @Override public void prepareTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
                 final String transactionCoordinatorKey)
         {
-            applicationServerApi.prepareTransaction(transactionId, sessionToken, interactiveSessionKey, transactionCoordinatorKey);
+            participantApi.prepareTransaction(transactionId, sessionToken, interactiveSessionKey, transactionCoordinatorKey);
         }
 
         @Override public List<UUID> getTransactions(final String transactionCoordinatorKey)
         {
-            return applicationServerApi.getTransactions(transactionCoordinatorKey);
+            return participantApi.getTransactions(transactionCoordinatorKey);
         }
 
         @Override public void commitTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
         {
-            applicationServerApi.commitTransaction(transactionId, sessionToken, interactiveSessionKey);
+            participantApi.commitTransaction(transactionId, sessionToken, interactiveSessionKey);
         }
 
         @Override public void commitTransaction(final UUID transactionId, final String transactionCoordinatorKey)
         {
-            applicationServerApi.commitTransaction(transactionId, transactionCoordinatorKey);
+            participantApi.commitTransaction(transactionId, transactionCoordinatorKey);
         }
 
         @Override public void rollbackTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
         {
-            applicationServerApi.rollbackTransaction(transactionId, sessionToken, interactiveSessionKey);
+            participantApi.rollbackTransaction(transactionId, sessionToken, interactiveSessionKey);
         }
 
         @Override public void rollbackTransaction(final UUID transactionId, final String transactionCoordinatorKey)
         {
-            applicationServerApi.rollbackTransaction(transactionId, transactionCoordinatorKey);
+            participantApi.rollbackTransaction(transactionId, transactionCoordinatorKey);
         }
     }
 

@@ -577,7 +577,7 @@ public class TransactionParticipantTest
         } catch (Exception e)
         {
             assertEquals(e.getCause().getMessage(),
-                    "Two phase transaction " + TEST_TRANSACTION_ID + " unexpected status NEW. Expected statuses [BEGIN_FINISHED].");
+                    "Transaction '" + TEST_TRANSACTION_ID + "' unexpected status 'NEW'. Expected statuses '[BEGIN_FINISHED]'.");
         }
     }
 
@@ -595,7 +595,7 @@ public class TransactionParticipantTest
         } catch (Exception e)
         {
             assertEquals(e.getCause().getMessage(),
-                    "Two phase transaction " + TEST_TRANSACTION_ID + " unexpected status NEW. Expected statuses [BEGIN_FINISHED].");
+                    "Transaction '" + TEST_TRANSACTION_ID + "' unexpected status 'NEW'. Expected statuses '[BEGIN_FINISHED]'.");
         }
     }
 
@@ -649,7 +649,7 @@ public class TransactionParticipantTest
         } catch (Exception e)
         {
             assertEquals(e.getCause().getMessage(),
-                    "Two phase transaction " + TEST_TRANSACTION_ID + " unexpected status BEGIN_FINISHED. Expected statuses [NEW].");
+                    "Transaction '" + TEST_TRANSACTION_ID + "' unexpected status 'BEGIN_FINISHED'. Expected statuses '[NEW]'.");
         }
     }
 
@@ -785,7 +785,8 @@ public class TransactionParticipantTest
         } catch (Exception e)
         {
             assertEquals(e.getCause().getMessage(),
-                    "Two phase transaction " + TEST_TRANSACTION_ID + " unexpected status BEGIN_FINISHED. Expected statuses [NEW, PREPARE_FINISHED].");
+                    "Transaction '" + TEST_TRANSACTION_ID
+                            + "' unexpected status 'BEGIN_FINISHED'. Expected statuses '[NEW, PREPARE_FINISHED]'.");
         }
     }
 
@@ -826,7 +827,7 @@ public class TransactionParticipantTest
         } catch (Exception e)
         {
             assertEquals(e.getCause().getMessage(),
-                    "Two phase transaction " + TEST_TRANSACTION_ID + " unexpected status PREPARE_FINISHED. Expected statuses [NEW].");
+                    "Transaction '" + TEST_TRANSACTION_ID + "' unexpected status 'PREPARE_FINISHED'. Expected statuses '[NEW]'.");
         }
     }
 
@@ -867,7 +868,8 @@ public class TransactionParticipantTest
         } catch (Exception e)
         {
             assertEquals(e.getCause().getMessage(),
-                    "Two phase transaction " + TEST_TRANSACTION_ID + " unexpected status PREPARE_FINISHED. Expected statuses [BEGIN_FINISHED].");
+                    "Transaction '" + TEST_TRANSACTION_ID
+                            + "' unexpected status 'PREPARE_FINISHED'. Expected statuses '[BEGIN_FINISHED]'.");
         }
     }
 
@@ -909,7 +911,8 @@ public class TransactionParticipantTest
         } catch (Exception e)
         {
             assertEquals(e.getCause().getMessage(),
-                    "Two phase transaction " + TEST_TRANSACTION_ID + " unexpected status PREPARE_FINISHED. Expected statuses [BEGIN_FINISHED].");
+                    "Transaction '" + TEST_TRANSACTION_ID
+                            + "' unexpected status 'PREPARE_FINISHED'. Expected statuses '[BEGIN_FINISHED]'.");
         }
     }
 
