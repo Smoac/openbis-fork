@@ -52,6 +52,8 @@ public class TransactionCoordinatorTest
 
     private ITransactionParticipant participant3;
 
+    private ISessionTokenProvider sessionTokenProvider;
+
     private ITransactionLog transactionLog;
 
     @BeforeMethod
@@ -61,6 +63,7 @@ public class TransactionCoordinatorTest
         participant1 = mockery.mock(ITransactionParticipant.class, "participant1");
         participant2 = mockery.mock(ITransactionParticipant.class, "participant2");
         participant3 = mockery.mock(ITransactionParticipant.class, "participant3");
+        sessionTokenProvider = mockery.mock(ISessionTokenProvider.class);
         transactionLog = mockery.mock(ITransactionLog.class);
     }
 
@@ -73,7 +76,9 @@ public class TransactionCoordinatorTest
     @Test
     public void testBeginTransactionSucceeds()
     {
-        TransactionCoordinator coordinator = new TransactionCoordinator(List.of(participant1, participant2), transactionLog);
+        TransactionCoordinator coordinator =
+                new TransactionCoordinator(TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        List.of(participant1, participant2), transactionLog);
 
         mockery.checking(new Expectations()
         {
@@ -96,7 +101,9 @@ public class TransactionCoordinatorTest
     @Test
     public void testBeginTransactionFails()
     {
-        TransactionCoordinator coordinator = new TransactionCoordinator(List.of(participant1, participant2), transactionLog);
+        TransactionCoordinator coordinator =
+                new TransactionCoordinator(TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        List.of(participant1, participant2), transactionLog);
 
         Exception beginException = new RuntimeException();
         Exception rollbackException = new RuntimeException();
@@ -134,7 +141,9 @@ public class TransactionCoordinatorTest
     @Test
     public void testExecuteOperationSucceeds()
     {
-        TransactionCoordinator coordinator = new TransactionCoordinator(List.of(participant1, participant2), transactionLog);
+        TransactionCoordinator coordinator =
+                new TransactionCoordinator(TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        List.of(participant1, participant2), transactionLog);
 
         mockery.checking(new Expectations()
         {
@@ -164,7 +173,9 @@ public class TransactionCoordinatorTest
     @Test
     public void testExecuteOperationFails()
     {
-        TransactionCoordinator coordinator = new TransactionCoordinator(List.of(participant1, participant2), transactionLog);
+        TransactionCoordinator coordinator =
+                new TransactionCoordinator(TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        List.of(participant1, participant2), transactionLog);
 
         Exception executeOperationException = new RuntimeException();
 
@@ -206,7 +217,9 @@ public class TransactionCoordinatorTest
     @Test
     public void testExecuteOperationWithUnknownParticipantId()
     {
-        TransactionCoordinator coordinator = new TransactionCoordinator(List.of(participant1, participant2), transactionLog);
+        TransactionCoordinator coordinator =
+                new TransactionCoordinator(TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        List.of(participant1, participant2), transactionLog);
 
         mockery.checking(new Expectations()
         {
@@ -241,7 +254,9 @@ public class TransactionCoordinatorTest
     @Test
     public void testCommitTransactionSucceeds()
     {
-        TransactionCoordinator coordinator = new TransactionCoordinator(List.of(participant1, participant2), transactionLog);
+        TransactionCoordinator coordinator =
+                new TransactionCoordinator(TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        List.of(participant1, participant2), transactionLog);
 
         mockery.checking(new Expectations()
         {
@@ -279,7 +294,9 @@ public class TransactionCoordinatorTest
     @Test
     public void testCommitTransactionFailsDuringPrepare()
     {
-        TransactionCoordinator coordinator = new TransactionCoordinator(List.of(participant1, participant2, participant3), transactionLog);
+        TransactionCoordinator coordinator =
+                new TransactionCoordinator(TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        List.of(participant1, participant2, participant3), transactionLog);
 
         Exception prepareException = new RuntimeException();
         Exception rollbackException = new RuntimeException();
@@ -331,7 +348,9 @@ public class TransactionCoordinatorTest
     @Test
     public void testCommitTransactionFailsDuringCommit()
     {
-        TransactionCoordinator coordinator = new TransactionCoordinator(List.of(participant1, participant2, participant3), transactionLog);
+        TransactionCoordinator coordinator =
+                new TransactionCoordinator(TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        List.of(participant1, participant2, participant3), transactionLog);
 
         Exception commitException1 = new RuntimeException();
         Exception commitException2 = new RuntimeException();
@@ -387,7 +406,9 @@ public class TransactionCoordinatorTest
     @Test
     public void testRollbackTransactionSucceeds()
     {
-        TransactionCoordinator coordinator = new TransactionCoordinator(List.of(participant1, participant2), transactionLog);
+        TransactionCoordinator coordinator =
+                new TransactionCoordinator(TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        List.of(participant1, participant2), transactionLog);
 
         mockery.checking(new Expectations()
         {
@@ -417,7 +438,9 @@ public class TransactionCoordinatorTest
     @Test
     public void testRollbackTransactionFails()
     {
-        TransactionCoordinator coordinator = new TransactionCoordinator(List.of(participant1, participant2, participant3), transactionLog);
+        TransactionCoordinator coordinator =
+                new TransactionCoordinator(TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        List.of(participant1, participant2, participant3), transactionLog);
 
         Exception rollbackException1 = new RuntimeException();
         Exception rollbackException2 = new RuntimeException();
@@ -463,7 +486,9 @@ public class TransactionCoordinatorTest
     @Test(dataProvider = "provideTestRestoreTransactionWithStatus")
     public void testRestoreTransactionWithStatus(TransactionStatus transactionStatus, boolean throwException)
     {
-        TransactionCoordinator coordinator = new TransactionCoordinator(List.of(participant1, participant2, participant3), transactionLog);
+        TransactionCoordinator coordinator =
+                new TransactionCoordinator(TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        List.of(participant1, participant2, participant3), transactionLog);
 
         Map<UUID, TransactionStatus> lastStatuses = new HashMap<>();
         lastStatuses.put(TEST_TRANSACTION_ID, transactionStatus);
@@ -548,7 +573,9 @@ public class TransactionCoordinatorTest
     @Test
     public void testRestoreMultipleTransactions()
     {
-        TransactionCoordinator coordinator = new TransactionCoordinator(List.of(participant1, participant2), transactionLog);
+        TransactionCoordinator coordinator =
+                new TransactionCoordinator(TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        List.of(participant1, participant2), transactionLog);
 
         Map<UUID, TransactionStatus> lastStatuses = new HashMap<>();
         lastStatuses.put(TEST_TRANSACTION_ID, TransactionStatus.PREPARE_FINISHED);

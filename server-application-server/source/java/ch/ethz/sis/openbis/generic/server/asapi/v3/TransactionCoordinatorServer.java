@@ -17,19 +17,19 @@ public class TransactionCoordinatorServer extends AbstractApiServiceExporter
 {
 
     @Autowired
-    private ITransactionCoordinator transactionCoordinator;
+    private ITransactionCoordinatorService transactionCoordinatorService;
 
     @Override
     public void afterPropertiesSet()
     {
-        establishService(ITransactionCoordinator.class, transactionCoordinator, ITransactionCoordinator.SERVICE_NAME,
-                ITransactionCoordinator.SERVICE_URL);
+        establishService(ITransactionCoordinatorService.class, transactionCoordinatorService, ITransactionCoordinatorService.SERVICE_NAME,
+                ITransactionCoordinatorService.SERVICE_URL);
         super.afterPropertiesSet();
     }
 
     @RequestMapping(
-            { ITransactionCoordinator.SERVICE_URL, "/openbis" + ITransactionCoordinator.SERVICE_URL,
-                    "/openbis/openbis" + ITransactionCoordinator.SERVICE_URL })
+            { ITransactionCoordinatorService.SERVICE_URL, "/openbis" + ITransactionCoordinatorService.SERVICE_URL,
+                    "/openbis/openbis" + ITransactionCoordinatorService.SERVICE_URL })
     @Override
     public void handleRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException

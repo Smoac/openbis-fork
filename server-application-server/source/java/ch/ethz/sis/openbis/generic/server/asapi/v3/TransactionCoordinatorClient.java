@@ -34,7 +34,7 @@ public class TransactionCoordinatorClient
         }
         this.transactionCoordinator =
                 HttpInvokerUtils.createServiceStub(ITransactionCoordinator.class, transactionCoordinatorUrl + "/openbis/openbis"
-                        + ITransactionCoordinator.SERVICE_URL, timeout);
+                        + ITransactionCoordinatorService.SERVICE_URL, timeout);
         this.applicationServerApi =
                 HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, applicationServerUrl + "/openbis/openbis"
                         + IApplicationServerApi.SERVICE_URL, timeout);
@@ -114,12 +114,12 @@ public class TransactionCoordinatorClient
             throw new IllegalStateException("Session token hasn't been set yet");
         }
 
-        return new ApplicationServerApiClient(ITransactionCoordinator.PARTICIPANT_ID_APPLICATION_SERVER);
+        return new ApplicationServerApiClient(ITransactionCoordinatorService.APPLICATION_SERVER_PARTICIPANT_ID);
     }
 
     public ApplicationServerApiClient getApplicationServerApi2()
     {
-        return new ApplicationServerApiClient(ITransactionCoordinator.PARTICIPANT_ID_APPLICATION_SERVER_2);
+        return new ApplicationServerApiClient(ITransactionCoordinatorService.APPLICATION_SERVER_PARTICIPANT_ID_2);
     }
 
     public class ApplicationServerApiClient
@@ -180,7 +180,7 @@ public class TransactionCoordinatorClient
             client.beginTransaction();
 
             SpaceCreation creation = new SpaceCreation();
-            creation.setCode("2PT_TEST_A");
+            creation.setCode("2PT_TEST_C");
             client.getApplicationServerApi().createSpaces(List.of(creation));
 
             SearchResult<Space> result = client.getApplicationServerApi().searchSpaces(new SpaceSearchCriteria(), new SpaceFetchOptions());
