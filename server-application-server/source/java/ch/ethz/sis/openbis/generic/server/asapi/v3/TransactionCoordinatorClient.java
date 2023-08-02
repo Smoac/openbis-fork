@@ -10,6 +10,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
+import ch.ethz.sis.openbis.generic.server.transaction.ITransactionCoordinator;
+import ch.ethz.sis.openbis.generic.server.transaction.ITransactionCoordinatorService;
+import ch.ethz.sis.openbis.generic.server.transaction.ITransactionParticipantService;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 
 public class TransactionCoordinatorClient
@@ -179,7 +182,7 @@ public class TransactionCoordinatorClient
             client.beginTransaction();
 
             SpaceCreation creation = new SpaceCreation();
-            creation.setCode("2PT_TEST_C");
+            creation.setCode("2PT_TEST_E");
             client.getApplicationServerApi().createSpaces(List.of(creation));
 
             SearchResult<Space> result = client.getApplicationServerApi().searchSpaces(new SpaceSearchCriteria(), new SpaceFetchOptions());

@@ -9,6 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.server.transaction.ISessionTokenProvider;
+import ch.ethz.sis.openbis.generic.server.transaction.ITransactionCoordinator;
+import ch.ethz.sis.openbis.generic.server.transaction.ITransactionCoordinatorService;
+import ch.ethz.sis.openbis.generic.server.transaction.ITransactionParticipant;
+import ch.ethz.sis.openbis.generic.server.transaction.ITransactionParticipantService;
+import ch.ethz.sis.openbis.generic.server.transaction.TransactionCoordinator;
+import ch.ethz.sis.openbis.generic.server.transaction.TransactionLog;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 
 @Component

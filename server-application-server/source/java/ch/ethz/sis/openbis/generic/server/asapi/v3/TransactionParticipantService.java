@@ -16,6 +16,14 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.server.transaction.IDatabaseTransactionProvider;
+import ch.ethz.sis.openbis.generic.server.transaction.ISessionTokenProvider;
+import ch.ethz.sis.openbis.generic.server.transaction.ITransactionOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.transaction.ITransactionParticipant;
+import ch.ethz.sis.openbis.generic.server.transaction.ITransactionParticipantService;
+import ch.ethz.sis.openbis.generic.server.transaction.TransactionLog;
+import ch.ethz.sis.openbis.generic.server.transaction.TransactionOperationException;
+import ch.ethz.sis.openbis.generic.server.transaction.TransactionParticipant;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
