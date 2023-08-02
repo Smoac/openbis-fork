@@ -5,8 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-import javax.annotation.PostConstruct;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -29,32 +27,23 @@ public class TransactionCoordinatorService implements ITransactionCoordinatorSer
 
     private static final long TIMEOUT = 10000000;
 
+    private final ITransactionCoordinator transactionCoordinator;
+
     @Autowired
-    private IApplicationServerApi applicationServerApi;
-
-    private ITransactionCoordinator transactionCoordinator;
-
-    @PostConstruct
-    public void init()
+    public TransactionCoordinatorService(final IApplicationServerApi applicationServerApi)
     {
-        ISessionTokenProvider sessionTokenProvider = new ISessionTokenProvider()
-        {
-            @Override public boolean isValid(final String sessionToken)
-            {
-                return applicationServerApi.isSessionActive(sessionToken);
-            }
-        };
-
         List<ITransactionParticipant> participants = Arrays.asList(
-                new ApplicationServerApiParticipant(ITransactionCoordinatorService.APPLICATION_SERVER_PARTICIPANT_ID, APPLICATION_SERVER_URL,
+                new ApplicationServerApiParticipant(ITransactionParticipantService.PARTICIPANT_ID, APPLICATION_SERVER_URL,
                         TIMEOUT),
-                new ApplicationServerApiParticipant(ITransactionCoordinatorService.APPLICATION_SERVER_PARTICIPANT_ID_2, APPLICATION_SERVER_URL_2,
+                new ApplicationServerApiParticipant(ITransactionParticipantService.PARTICIPANT_ID_2, APPLICATION_SERVER_URL_2,
                         TIMEOUT));
-        
-        ITransactionLog transactionLog = new TransactionLog(new File(TRANSACTION_LOG_PATH));
 
-        this.transactionCoordinator =
-                new TransactionCoordinator(TRANSACTION_COORDINATOR_KEY, INTERACTIVE_SESSION_KEY, sessionTokenProvider, participants, transactionLog);
+        this.transactionCoordinator = new TransactionCoordinator(
+                TRANSACTION_COORDINATOR_KEY,
+                INTERACTIVE_SESSION_KEY,
+                new ApplicationServerSessionTokenProvider(applicationServerApi),
+                participants,
+                new TransactionLog(new File(TRANSACTION_LOG_PATH)));
     }
 
     @Override public void beginTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
@@ -100,7 +89,7 @@ public class TransactionCoordinatorService implements ITransactionCoordinatorSer
         {
             this.participantId = participantId;
             this.participantApi = HttpInvokerUtils.createServiceStub(ITransactionParticipant.class,
-                    participantServerUrl + "/openbis/openbis" + IApplicationServerApi.SERVICE_URL, timeout, null);
+                    participantServerUrl + "/openbis/openbis" + ITransactionParticipantService.SERVICE_URL, timeout, null);
         }
 
         @Override public String getParticipantId()
@@ -150,4 +139,21 @@ public class TransactionCoordinatorService implements ITransactionCoordinatorSer
             participantApi.rollbackTransaction(transactionId, transactionCoordinatorKey);
         }
     }
+
+    private static class ApplicationServerSessionTokenProvider implements ISessionTokenProvider
+    {
+
+        private final IApplicationServerApi applicationServerApi;
+
+        public ApplicationServerSessionTokenProvider(final IApplicationServerApi applicationServerApi)
+        {
+            this.applicationServerApi = applicationServerApi;
+        }
+
+        @Override public boolean isValid(final String sessionToken)
+        {
+            return applicationServerApi.isSessionActive(sessionToken);
+        }
+    }
+
 }

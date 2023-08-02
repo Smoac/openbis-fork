@@ -9,10 +9,4 @@ public interface ITransactionCoordinatorService extends ITransactionCoordinator,
 
     String SERVICE_URL = "/rmi-" + SERVICE_NAME;
 
-    String JSON_SERVICE_URL = SERVICE_URL + ".json";
-
-    String APPLICATION_SERVER_PARTICIPANT_ID = "application-server";
-
-    String APPLICATION_SERVER_PARTICIPANT_ID_2 = "application-server-2";
-
 }

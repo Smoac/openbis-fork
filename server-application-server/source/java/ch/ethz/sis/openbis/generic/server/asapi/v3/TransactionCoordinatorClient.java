@@ -1,6 +1,5 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3;
 
-import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.UUID;
 
@@ -114,12 +113,12 @@ public class TransactionCoordinatorClient
             throw new IllegalStateException("Session token hasn't been set yet");
         }
 
-        return new ApplicationServerApiClient(ITransactionCoordinatorService.APPLICATION_SERVER_PARTICIPANT_ID);
+        return new ApplicationServerApiClient(ITransactionParticipantService.PARTICIPANT_ID);
     }
 
     public ApplicationServerApiClient getApplicationServerApi2()
     {
-        return new ApplicationServerApiClient(ITransactionCoordinatorService.APPLICATION_SERVER_PARTICIPANT_ID_2);
+        return new ApplicationServerApiClient(ITransactionParticipantService.PARTICIPANT_ID_2);
     }
 
     public class ApplicationServerApiClient

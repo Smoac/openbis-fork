@@ -33,11 +33,11 @@ public class TransactionParticipantTest
 
     public static final Object TEST_TRANSACTION_2 = new Object();
 
-    public static final String TEST_SESSION_TOKEN = "test-session-token";
+    public static final String TEST_TRANSACTION_COORDINATOR_KEY = "test-transaction-coordinator-key";
 
     public static final String TEST_INTERACTIVE_SESSION_KEY = "test-interactive-session-key";
 
-    public static final String TEST_TRANSACTION_COORDINATOR_KEY = "test-transaction-coordinator-key";
+    public static final String TEST_SESSION_TOKEN = "test-session-token";
 
     public static final String TEST_OPERATION_NAME = "test-operation";
 
@@ -87,8 +87,8 @@ public class TransactionParticipantTest
     public void testDifferentTransactionsAreExecutedInSeparateThreads() throws Throwable
     {
         TransactionParticipant participant =
-                new TransactionParticipant(TEST_PARTICIPANT_ID, databaseTransactionProvider, sessionTokenProvider, transactionOperationExecutor,
-                        transactionLog);
+                new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog);
 
         MutableObject<String> transaction1BeginThreadName = new MutableObject<>();
         MutableObject<String> transaction1PrepareThreadName = new MutableObject<>();
@@ -225,8 +225,8 @@ public class TransactionParticipantTest
     public void testBeginTransactionFails(Throwable throwable) throws Throwable
     {
         TransactionParticipant participant =
-                new TransactionParticipant(TEST_PARTICIPANT_ID, databaseTransactionProvider, sessionTokenProvider, transactionOperationExecutor,
-                        transactionLog);
+                new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog);
 
         mockery.checking(new Expectations()
         {
@@ -263,8 +263,8 @@ public class TransactionParticipantTest
     public void testExecuteOperationFails(Throwable throwable) throws Throwable
     {
         TransactionParticipant participant =
-                new TransactionParticipant(TEST_PARTICIPANT_ID, databaseTransactionProvider, sessionTokenProvider, transactionOperationExecutor,
-                        transactionLog);
+                new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog);
 
         mockery.checking(new Expectations()
         {
@@ -312,8 +312,8 @@ public class TransactionParticipantTest
     public void testExecuteOperationFailsButGetsRetriedAndSucceeds(Throwable throwable) throws Throwable
     {
         TransactionParticipant participant =
-                new TransactionParticipant(TEST_PARTICIPANT_ID, databaseTransactionProvider, sessionTokenProvider, transactionOperationExecutor,
-                        transactionLog);
+                new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog);
 
         mockery.checking(new Expectations()
         {
@@ -379,8 +379,8 @@ public class TransactionParticipantTest
     public void testRollbackFails(Throwable throwable) throws Throwable
     {
         TransactionParticipant participant =
-                new TransactionParticipant(TEST_PARTICIPANT_ID, databaseTransactionProvider, sessionTokenProvider, transactionOperationExecutor,
-                        transactionLog);
+                new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog);
 
         mockery.checking(new Expectations()
         {
@@ -426,8 +426,8 @@ public class TransactionParticipantTest
     public void testPrepareFails(Throwable throwable) throws Throwable
     {
         TransactionParticipant participant =
-                new TransactionParticipant(TEST_PARTICIPANT_ID, databaseTransactionProvider, sessionTokenProvider, transactionOperationExecutor,
-                        transactionLog);
+                new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog);
 
         mockery.checking(new Expectations()
         {
@@ -481,8 +481,8 @@ public class TransactionParticipantTest
     public void testCommitFails(Throwable throwable) throws Throwable
     {
         TransactionParticipant participant =
-                new TransactionParticipant(TEST_PARTICIPANT_ID, databaseTransactionProvider, sessionTokenProvider, transactionOperationExecutor,
-                        transactionLog);
+                new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog);
 
         mockery.checking(new Expectations()
         {
@@ -545,8 +545,8 @@ public class TransactionParticipantTest
     public void testNewTransactionCanBeStarted() throws Throwable
     {
         TransactionParticipant participant =
-                new TransactionParticipant(TEST_PARTICIPANT_ID, databaseTransactionProvider, sessionTokenProvider, transactionOperationExecutor,
-                        transactionLog);
+                new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog);
 
         mockery.checking(new Expectations()
         {
@@ -566,8 +566,8 @@ public class TransactionParticipantTest
     public void testNewTransactionCannotExecuteOperations()
     {
         TransactionParticipant participant =
-                new TransactionParticipant(TEST_PARTICIPANT_ID, databaseTransactionProvider, sessionTokenProvider, transactionOperationExecutor,
-                        transactionLog);
+                new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog);
 
         try
         {
@@ -585,8 +585,8 @@ public class TransactionParticipantTest
     public void testNewTransactionCannotBePrepared()
     {
         TransactionParticipant participant =
-                new TransactionParticipant(TEST_PARTICIPANT_ID, databaseTransactionProvider, sessionTokenProvider, transactionOperationExecutor,
-                        transactionLog);
+                new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog);
 
         try
         {
@@ -603,8 +603,8 @@ public class TransactionParticipantTest
     public void testNewTransactionCanBeCommitted()
     {
         TransactionParticipant participant =
-                new TransactionParticipant(TEST_PARTICIPANT_ID, databaseTransactionProvider, sessionTokenProvider, transactionOperationExecutor,
-                        transactionLog);
+                new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog);
 
         // the call is possible and does nothing (used in recovery process)
         participant.commitTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
@@ -614,8 +614,8 @@ public class TransactionParticipantTest
     public void testNewTransactionCanBeRolledBack()
     {
         TransactionParticipant participant =
-                new TransactionParticipant(TEST_PARTICIPANT_ID, databaseTransactionProvider, sessionTokenProvider, transactionOperationExecutor,
-                        transactionLog);
+                new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog);
 
         // the call is possible and does nothing (used in recovery process)
         participant.rollbackTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
@@ -625,8 +625,8 @@ public class TransactionParticipantTest
     public void testStartedTransactionCannotBeStarted() throws Throwable
     {
         TransactionParticipant participant =
-                new TransactionParticipant(TEST_PARTICIPANT_ID, databaseTransactionProvider, sessionTokenProvider, transactionOperationExecutor,
-                        transactionLog);
+                new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog);
 
         mockery.checking(new Expectations()
         {
@@ -657,8 +657,8 @@ public class TransactionParticipantTest
     public void testStartedTransactionCanExecuteOperations() throws Throwable
     {
         TransactionParticipant participant =
-                new TransactionParticipant(TEST_PARTICIPANT_ID, databaseTransactionProvider, sessionTokenProvider, transactionOperationExecutor,
-                        transactionLog);
+                new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog);
 
         mockery.checking(new Expectations()
         {
@@ -696,8 +696,8 @@ public class TransactionParticipantTest
     public void testStartedTransactionCanPrepare() throws Throwable
     {
         TransactionParticipant participant =
-                new TransactionParticipant(TEST_PARTICIPANT_ID, databaseTransactionProvider, sessionTokenProvider, transactionOperationExecutor,
-                        transactionLog);
+                new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog);
 
         mockery.checking(new Expectations()
         {
@@ -727,8 +727,8 @@ public class TransactionParticipantTest
     public void testStartedTransactionCanBeRolledBack() throws Throwable
     {
         TransactionParticipant participant =
-                new TransactionParticipant(TEST_PARTICIPANT_ID, databaseTransactionProvider, sessionTokenProvider, transactionOperationExecutor,
-                        transactionLog);
+                new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog);
 
         mockery.checking(new Expectations()
         {
@@ -758,8 +758,8 @@ public class TransactionParticipantTest
     public void testStartedTransactionCannotBeCommitted() throws Throwable
     {
         TransactionParticipant participant =
-                new TransactionParticipant(TEST_PARTICIPANT_ID, databaseTransactionProvider, sessionTokenProvider, transactionOperationExecutor,
-                        transactionLog);
+                new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog);
 
         mockery.checking(new Expectations()
         {
@@ -794,8 +794,8 @@ public class TransactionParticipantTest
     public void testPreparedTransactionCannotBeStarted() throws Throwable
     {
         TransactionParticipant participant =
-                new TransactionParticipant(TEST_PARTICIPANT_ID, databaseTransactionProvider, sessionTokenProvider, transactionOperationExecutor,
-                        transactionLog);
+                new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog);
 
         mockery.checking(new Expectations()
         {
@@ -835,8 +835,8 @@ public class TransactionParticipantTest
     public void testPreparedTransactionCannotBePrepared() throws Throwable
     {
         TransactionParticipant participant =
-                new TransactionParticipant(TEST_PARTICIPANT_ID, databaseTransactionProvider, sessionTokenProvider, transactionOperationExecutor,
-                        transactionLog);
+                new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog);
 
         mockery.checking(new Expectations()
         {
@@ -877,8 +877,8 @@ public class TransactionParticipantTest
     public void testPreparedTransactionCannotExecuteOperations() throws Throwable
     {
         TransactionParticipant participant =
-                new TransactionParticipant(TEST_PARTICIPANT_ID, databaseTransactionProvider, sessionTokenProvider, transactionOperationExecutor,
-                        transactionLog);
+                new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog);
 
         mockery.checking(new Expectations()
         {
@@ -920,8 +920,8 @@ public class TransactionParticipantTest
     public void testPreparedTransactionCanBeRolledBack() throws Throwable
     {
         TransactionParticipant participant =
-                new TransactionParticipant(TEST_PARTICIPANT_ID, databaseTransactionProvider, sessionTokenProvider, transactionOperationExecutor,
-                        transactionLog);
+                new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog);
 
         mockery.checking(new Expectations()
         {
@@ -958,8 +958,8 @@ public class TransactionParticipantTest
     public void testPreparedTransactionCanCommit() throws Throwable
     {
         TransactionParticipant participant =
-                new TransactionParticipant(TEST_PARTICIPANT_ID, databaseTransactionProvider, sessionTokenProvider, transactionOperationExecutor,
-                        transactionLog);
+                new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog);
 
         mockery.checking(new Expectations()
         {
@@ -996,8 +996,8 @@ public class TransactionParticipantTest
     public void testCommittedTransactionIsForgotten() throws Throwable
     {
         TransactionParticipant participant =
-                new TransactionParticipant(TEST_PARTICIPANT_ID, databaseTransactionProvider, sessionTokenProvider, transactionOperationExecutor,
-                        transactionLog);
+                new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog);
 
         mockery.checking(new Expectations()
         {

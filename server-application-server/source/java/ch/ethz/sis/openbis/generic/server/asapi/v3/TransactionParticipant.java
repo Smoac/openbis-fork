@@ -1,12 +1,5 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3;
 
-import java.io.File;
-import java.lang.reflect.Method;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -15,33 +8,22 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
-import org.hibernate.Session;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 
-@Component
 public class TransactionParticipant implements ITransactionParticipant
 {
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, TransactionParticipant.class);
 
-    private static final String TRANSACTION_COORDINATOR_KEY = "i_am_transaction_coordinator_key";
-
-    private static final String INTERACTIVE_SESSION_KEY = "i_am_interactive_session_key";
-
-    private static final String TRANSACTION_LOG_PATH = "transaction-logs";
-
     private final Map<UUID, TransactionThread> threadMap = new HashMap<>();
 
     private final String participantId;
+
+    private final String transactionCoordinatorKey;
+
+    private final String interactiveSessionKey;
 
     private final ISessionTokenProvider sessionTokenProvider;
 
@@ -51,121 +33,17 @@ public class TransactionParticipant implements ITransactionParticipant
 
     private final ITransactionLog transactionLog;
 
-    TransactionParticipant(String participantId, IDatabaseTransactionProvider databaseTransactionProvider, ISessionTokenProvider sessionTokenProvider,
+    public TransactionParticipant(String participantId, String transactionCoordinatorKey, String interactiveSessionKey,
+            ISessionTokenProvider sessionTokenProvider, IDatabaseTransactionProvider databaseTransactionProvider,
             ITransactionOperationExecutor operationExecutor, ITransactionLog transactionLog)
     {
         this.participantId = participantId;
+        this.transactionCoordinatorKey = transactionCoordinatorKey;
+        this.interactiveSessionKey = interactiveSessionKey;
         this.sessionTokenProvider = sessionTokenProvider;
         this.databaseTransactionProvider = databaseTransactionProvider;
         this.operationExecutor = operationExecutor;
         this.transactionLog = transactionLog;
-    }
-
-    @Autowired
-    public TransactionParticipant(final PlatformTransactionManager transactionManager, final IDAOFactory daoFactory,
-            final DatabaseConfigurationContext databaseContext, final IApplicationServerApi applicationServerApi)
-    {
-        this.participantId = null;
-        this.sessionTokenProvider = new ISessionTokenProvider()
-        {
-            @Override public boolean isValid(final String sessionToken)
-            {
-                return true;
-            }
-        };
-        this.databaseTransactionProvider = new IDatabaseTransactionProvider()
-        {
-            @Override public Object beginTransaction(final UUID transactionId)
-            {
-                return transactionManager.getTransaction(new DefaultTransactionDefinition());
-            }
-
-            @Override public void prepareTransaction(final UUID transactionId, final Object transaction)
-            {
-                Session session = daoFactory.getSessionFactory().getCurrentSession();
-                session.flush();
-                session.doWork(connection ->
-                {
-                    try (PreparedStatement prepareStatement = connection.prepareStatement("PREPARE TRANSACTION '" + transactionId + "'"))
-                    {
-                        prepareStatement.execute();
-                        operationLog.info("Database transaction '" + transactionId + "' was prepared.");
-                    }
-                });
-            }
-
-            @Override public void rollbackTransaction(final UUID transactionId, final Object transaction)
-                    throws Exception
-            {
-                try (Connection connection = databaseContext.getDataSource().getConnection();
-                        PreparedStatement countStatement = connection.prepareStatement(
-                                "SELECT count(*) AS count FROM pg_prepared_xacts WHERE gid = ?");
-                        PreparedStatement rollbackStatement = connection.prepareStatement("ROLLBACK PREPARED '" + transactionId + "'"))
-                {
-                    countStatement.setString(1, transactionId.toString());
-
-                    try (ResultSet countResult = countStatement.executeQuery())
-                    {
-                        if (countResult.next())
-                        {
-                            int count = countResult.getInt("count");
-
-                            if (count > 0)
-                            {
-                                rollbackStatement.execute();
-                                operationLog.info(
-                                        "Prepared database transaction '" + transactionId + "' was rolled back.");
-                            } else
-                            {
-                                operationLog.info(
-                                        "Nothing to rollback in the database. Prepared database transaction '" + transactionId + "' was not found.");
-                            }
-                        }
-                    }
-                } finally
-                {
-                    try
-                    {
-                        transactionManager.rollback((org.springframework.transaction.TransactionStatus) transaction);
-                    } catch (Exception e)
-                    {
-                        // nothing to do
-                    }
-                }
-            }
-
-            @Override public void commitTransaction(final UUID transactionId, final Object transaction) throws Exception
-            {
-                try (Connection connection = databaseContext.getDataSource().getConnection();
-                        PreparedStatement commitStatement = connection.prepareStatement("COMMIT PREPARED '" + transactionId + "'"))
-                {
-                    commitStatement.execute();
-                    operationLog.info("Database prepared transaction '" + transactionId + "' was committed.");
-                }
-            }
-        };
-        this.operationExecutor = new ITransactionOperationExecutor()
-        {
-            @Override public Object executeOperation(String sessionToken, String operationName, Object[] operationArguments)
-            {
-                for (Method method : applicationServerApi.getClass().getMethods())
-                {
-                    if (method.getName().equals(operationName))
-                    {
-                        try
-                        {
-                            return method.invoke(applicationServerApi, operationArguments);
-                        } catch (Exception e)
-                        {
-                            throw new TransactionOperationException(e);
-                        }
-                    }
-                }
-
-                throw new IllegalArgumentException("Unknown operation  '" + operationName + "'.");
-            }
-        };
-        this.transactionLog = new TransactionLog(new File(TRANSACTION_LOG_PATH));
     }
 
     @Override public String getParticipantId()
