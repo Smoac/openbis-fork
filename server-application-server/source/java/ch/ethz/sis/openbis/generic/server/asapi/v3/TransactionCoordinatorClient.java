@@ -11,8 +11,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOpt
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.transaction.ITransactionCoordinator;
-import ch.ethz.sis.openbis.generic.server.transaction.ITransactionCoordinatorService;
-import ch.ethz.sis.openbis.generic.server.transaction.ITransactionParticipantService;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 
 public class TransactionCoordinatorClient

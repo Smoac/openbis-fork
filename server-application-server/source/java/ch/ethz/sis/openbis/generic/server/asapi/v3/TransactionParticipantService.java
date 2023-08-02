@@ -20,7 +20,6 @@ import ch.ethz.sis.openbis.generic.server.transaction.IDatabaseTransactionProvid
 import ch.ethz.sis.openbis.generic.server.transaction.ISessionTokenProvider;
 import ch.ethz.sis.openbis.generic.server.transaction.ITransactionOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.transaction.ITransactionParticipant;
-import ch.ethz.sis.openbis.generic.server.transaction.ITransactionParticipantService;
 import ch.ethz.sis.openbis.generic.server.transaction.TransactionLog;
 import ch.ethz.sis.openbis.generic.server.transaction.TransactionOperationException;
 import ch.ethz.sis.openbis.generic.server.transaction.TransactionParticipant;

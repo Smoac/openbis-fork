@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import ch.ethz.sis.openbis.generic.server.transaction.ITransactionCoordinatorService;
 import ch.systemsx.cisd.openbis.common.api.server.AbstractApiServiceExporter;
 
 @Controller

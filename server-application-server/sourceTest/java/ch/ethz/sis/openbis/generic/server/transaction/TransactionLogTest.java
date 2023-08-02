@@ -21,7 +21,6 @@ import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import ch.ethz.sis.openbis.generic.server.asapi.v3.TransactionStatus;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 public class TransactionLogTest

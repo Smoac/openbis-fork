@@ -1,5 +1,6 @@
-package ch.ethz.sis.openbis.generic.server.transaction;
+package ch.ethz.sis.openbis.generic.server.asapi.v3;
 
+import ch.ethz.sis.openbis.generic.server.transaction.ITransactionParticipant;
 import ch.systemsx.cisd.common.api.IRpcService;
 
 public interface ITransactionParticipantService extends ITransactionParticipant, IRpcService

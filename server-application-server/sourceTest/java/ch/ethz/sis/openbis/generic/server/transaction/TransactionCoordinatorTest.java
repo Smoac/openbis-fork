@@ -19,8 +19,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import ch.ethz.sis.openbis.generic.server.asapi.v3.TransactionStatus;
-
 public class TransactionCoordinatorTest
 {
 
