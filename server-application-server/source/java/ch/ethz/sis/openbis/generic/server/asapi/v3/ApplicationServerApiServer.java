@@ -16,17 +16,12 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Arrays;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.remoting.support.RemoteInvocation;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -39,62 +34,23 @@ import ch.systemsx.cisd.openbis.common.api.server.AbstractApiServiceExporter;
 @Controller
 public class ApplicationServerApiServer extends AbstractApiServiceExporter
 {
-
     @Resource(name = ApplicationServerApi.INTERNAL_SERVICE_NAME)
-    private IApplicationServerApi applicationServerApi;
-
-    @Autowired
-    private ITransactionParticipant transactionParticipant;
+    private IApplicationServerApi service;
 
     @Override
     public void afterPropertiesSet()
     {
-        establishService(IApplicationServerApi.class, applicationServerApi, IApplicationServerApi.SERVICE_NAME,
+        establishService(IApplicationServerApi.class, service, IApplicationServerApi.SERVICE_NAME,
                 IApplicationServerApi.SERVICE_URL);
         super.afterPropertiesSet();
     }
 
-    @RequestMapping(
-            { IApplicationServerApi.SERVICE_URL, "/openbis" + IApplicationServerApi.SERVICE_URL,
-                    "/openbis/openbis" + IApplicationServerApi.SERVICE_URL })
+    @RequestMapping({ IApplicationServerApi.SERVICE_URL, "/openbis" + IApplicationServerApi.SERVICE_URL,
+            "/openbis/openbis" + IApplicationServerApi.SERVICE_URL })
     @Override
     public void handleRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException
     {
         super.handleRequest(request, response);
     }
-
-    @Override protected Object invoke(final RemoteInvocation invocation, final Object targetObject)
-            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
-    {
-        Method method = null;
-
-        try
-        {
-            method = applicationServerApi.getClass().getMethod(invocation.getMethodName(), invocation.getParameterTypes());
-        } catch (Exception ignore)
-        {
-        }
-
-        if (method != null)
-        {
-            return method.invoke(applicationServerApi, invocation.getArguments());
-        }
-
-        try
-        {
-            method = transactionParticipant.getClass().getMethod(invocation.getMethodName(), invocation.getParameterTypes());
-        } catch (Exception ignore)
-        {
-        }
-
-        if (method != null)
-        {
-            return method.invoke(transactionParticipant, invocation.getArguments());
-        }
-
-        throw new NoSuchMethodException("No method found with name: " + invocation.getMethodName() + " and argument types: " + Arrays.toString(
-                invocation.getParameterTypes()));
-    }
-
 }

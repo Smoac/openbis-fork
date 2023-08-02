@@ -16,32 +16,19 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.googlecode.jsonrpc4j.JsonRpcInterceptor;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.server.sharedapi.v3.json.ObjectMapperResource;
-import ch.systemsx.cisd.common.spring.ServiceExceptionTranslator;
 import ch.systemsx.cisd.openbis.common.api.server.AbstractApiJsonServiceExporter;
 
 /**
@@ -54,63 +41,18 @@ public class ApplicationServerApiJsonServer extends AbstractApiJsonServiceExport
     private ObjectMapper objectMapper;
 
     @Resource(name = ApplicationServerApi.INTERNAL_SERVICE_NAME)
-    private IApplicationServerApi applicationServerApi;
-
-    @Autowired
-    private ITransactionParticipant transactionParticipant;
+    private IApplicationServerApi service;
 
     @Override
     public void afterPropertiesSet() throws Exception
     {
         setObjectMapper(objectMapper);
-        establishService(IApplicationServerApi.class, applicationServerApi, IApplicationServerApi.SERVICE_NAME,
+        establishService(IApplicationServerApi.class, service, IApplicationServerApi.SERVICE_NAME,
                 IApplicationServerApi.JSON_SERVICE_URL);
-        setInterceptors(new Object[] {
-                new ServiceExceptionTranslator(),
-                new MethodInterceptor()
-                {
-                    @Override public Object invoke(final MethodInvocation invocation) throws Throwable
-                    {
-                        Method method = null;
-
-                        try
-                        {
-                            method = applicationServerApi.getClass()
-                                    .getMethod(invocation.getMethod().getName(), invocation.getMethod().getParameterTypes());
-                        } catch (Exception ignore)
-                        {
-                        }
-
-                        if (method != null)
-                        {
-                            return method.invoke(applicationServerApi, invocation.getArguments());
-                        }
-
-                        try
-                        {
-                            method = transactionParticipant.getClass()
-                                    .getMethod(invocation.getMethod().getName(), invocation.getMethod().getParameterTypes());
-                        } catch (Exception ignore)
-                        {
-                        }
-
-                        if (method != null)
-                        {
-                            return method.invoke(transactionParticipant, invocation.getArguments());
-                        }
-
-                        throw new NoSuchMethodException(
-                                "No method found with name: " + invocation.getMethod().getName() + " and argument types: " + Arrays.toString(
-                                        invocation.getMethod().getParameterTypes()));
-                    }
-                }
-        });
-
         super.afterPropertiesSet();
     }
 
-    @RequestMapping(
-    { IApplicationServerApi.JSON_SERVICE_URL, "/openbis" + IApplicationServerApi.JSON_SERVICE_URL })
+    @RequestMapping({ IApplicationServerApi.JSON_SERVICE_URL, "/openbis" + IApplicationServerApi.JSON_SERVICE_URL })
     @Override
     public void handleRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException,
