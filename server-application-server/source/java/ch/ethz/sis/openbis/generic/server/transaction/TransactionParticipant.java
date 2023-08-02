@@ -17,6 +17,16 @@ public class TransactionParticipant implements ITransactionParticipant
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, TransactionParticipant.class);
 
+    private static final String BEGIN_TRANSACTION_METHOD = "beginTransaction";
+
+    private static final String PREPARE_TRANSACTION_METHOD = "prepareTransaction";
+
+    private static final String COMMIT_TRANSACTION_METHOD = "commitTransaction";
+
+    private static final String ROLLBACK_TRANSACTION_METHOD = "rollbackTransaction";
+
+    private static final int THREAD_COUNT_LIMIT = 10;
+
     private final Map<UUID, TransactionThread> threadMap = new HashMap<>();
 
     private final String participantId;
@@ -53,7 +63,7 @@ public class TransactionParticipant implements ITransactionParticipant
 
     @Override public void beginTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
     {
-        executeInTransactionThread(transactionId, sessionToken, interactiveSessionKey, null, TransactionConst.BEGIN_TRANSACTION_METHOD, null);
+        executeInTransactionThread(transactionId, sessionToken, interactiveSessionKey, null, BEGIN_TRANSACTION_METHOD, null);
     }
 
     @Override public Object executeOperation(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
@@ -65,7 +75,7 @@ public class TransactionParticipant implements ITransactionParticipant
     @Override public void prepareTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
             final String transactionCoordinatorKey)
     {
-        executeInTransactionThread(transactionId, sessionToken, interactiveSessionKey, null, TransactionConst.PREPARE_TRANSACTION_METHOD, null);
+        executeInTransactionThread(transactionId, sessionToken, interactiveSessionKey, null, PREPARE_TRANSACTION_METHOD, null);
     }
 
     @Override public List<UUID> getTransactions(final String transactionCoordinatorKey)
@@ -86,22 +96,22 @@ public class TransactionParticipant implements ITransactionParticipant
 
     @Override public void commitTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
     {
-        executeInTransactionThread(transactionId, sessionToken, interactiveSessionKey, null, TransactionConst.COMMIT_TRANSACTION_METHOD, null);
+        executeInTransactionThread(transactionId, sessionToken, interactiveSessionKey, null, COMMIT_TRANSACTION_METHOD, null);
     }
 
     @Override public void commitTransaction(final UUID transactionId, final String transactionCoordinatorKey)
     {
-        executeInTransactionThread(transactionId, null, null, transactionCoordinatorKey, TransactionConst.COMMIT_TRANSACTION_METHOD, null);
+        executeInTransactionThread(transactionId, null, null, transactionCoordinatorKey, COMMIT_TRANSACTION_METHOD, null);
     }
 
     @Override public void rollbackTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
     {
-        executeInTransactionThread(transactionId, sessionToken, interactiveSessionKey, null, TransactionConst.ROLLBACK_TRANSACTION_METHOD, null);
+        executeInTransactionThread(transactionId, sessionToken, interactiveSessionKey, null, ROLLBACK_TRANSACTION_METHOD, null);
     }
 
     @Override public void rollbackTransaction(final UUID transactionId, final String transactionCoordinatorKey)
     {
-        executeInTransactionThread(transactionId, null, null, transactionCoordinatorKey, TransactionConst.ROLLBACK_TRANSACTION_METHOD, null);
+        executeInTransactionThread(transactionId, null, null, transactionCoordinatorKey, ROLLBACK_TRANSACTION_METHOD, null);
     }
 
     private Object executeInTransactionThread(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
@@ -122,7 +132,7 @@ public class TransactionParticipant implements ITransactionParticipant
 
             if (thread == null)
             {
-                if (threadMap.size() >= TransactionConst.THREAD_COUNT_LIMIT)
+                if (threadMap.size() >= THREAD_COUNT_LIMIT)
                 {
                     throw new RuntimeException(
                             "Cannot handle transaction '" + transactionId + "' as there are too many other transactions running already.");
@@ -213,21 +223,21 @@ public class TransactionParticipant implements ITransactionParticipant
                                 {
                                     operationLog.info("Transaction '" + transactionId + "' thread executing operation '" + operationName + "'.");
 
-                                    if (TransactionConst.BEGIN_TRANSACTION_METHOD.equals(operationName))
+                                    if (BEGIN_TRANSACTION_METHOD.equals(operationName))
                                     {
                                         checkTransactionStatus(transactionStatus, TransactionStatus.NEW);
 
                                         changeTransactionStatus(TransactionStatus.BEGIN_STARTED);
                                         operationResult = transactionObject = databaseTransactionProvider.beginTransaction(transactionId);
                                         changeTransactionStatus(TransactionStatus.BEGIN_FINISHED);
-                                    } else if (TransactionConst.PREPARE_TRANSACTION_METHOD.equals(operationName))
+                                    } else if (PREPARE_TRANSACTION_METHOD.equals(operationName))
                                     {
                                         checkTransactionStatus(transactionStatus, TransactionStatus.BEGIN_FINISHED);
 
                                         changeTransactionStatus(TransactionStatus.PREPARE_STARTED);
                                         databaseTransactionProvider.prepareTransaction(transactionId, transactionObject);
                                         changeTransactionStatus(TransactionStatus.PREPARE_FINISHED);
-                                    } else if (TransactionConst.COMMIT_TRANSACTION_METHOD.equals(operationName))
+                                    } else if (COMMIT_TRANSACTION_METHOD.equals(operationName))
                                     {
                                         checkTransactionStatus(transactionStatus, TransactionStatus.NEW, TransactionStatus.PREPARE_FINISHED);
 
@@ -237,7 +247,7 @@ public class TransactionParticipant implements ITransactionParticipant
                                             databaseTransactionProvider.commitTransaction(transactionId, transactionObject);
                                             changeTransactionStatus(TransactionStatus.COMMIT_FINISHED);
                                         }
-                                    } else if (TransactionConst.ROLLBACK_TRANSACTION_METHOD.equals(operationName))
+                                    } else if (ROLLBACK_TRANSACTION_METHOD.equals(operationName))
                                     {
                                         checkTransactionStatus(transactionStatus, TransactionStatus.NEW, TransactionStatus.BEGIN_STARTED,
                                                 TransactionStatus.BEGIN_FINISHED, TransactionStatus.PREPARE_STARTED,
