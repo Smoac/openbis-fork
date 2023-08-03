@@ -61,7 +61,7 @@ export default class DataBrowserController extends ComponentController {
   }
 
   createNewFolder(name) {
-    // this.component.datastoreServer.create(this.owner, this.source, true, )
+    this.component.datastoreServer.create(this.owner, this.source, true, name)
   }
 
   handleUploadClick(event) {

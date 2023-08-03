@@ -81,9 +81,9 @@ class LeftToolbar extends React.Component {
     this.onResize = debounce(this.onResize, 1)
   }
 
-  handleNewFolderCreate(event) {
+  handleNewFolderCreate(folderName) {
     this.closeNewFolderDialog()
-    console.log(event)
+    this.controller.createNewFolder(folderName)
   }
 
   openNewFolderDialog() {
