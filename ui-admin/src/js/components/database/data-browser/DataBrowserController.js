@@ -22,6 +22,9 @@ export default class DataBrowserController extends ComponentController {
   constructor() {
     super()
     autoBind(this)
+
+    this.owner = 'demo-sample'
+    this.source = ''
   }
 
   async login() {
@@ -38,7 +41,7 @@ export default class DataBrowserController extends ComponentController {
 
   async listFiles() {
     return new Promise((resolve, reject) => {
-      this.component.datastoreServer.list('demo-sample', '', 'true', (data) => {
+      this.component.datastoreServer.list(this.owner, this.source, true, (data) => {
         if (!data.error) {
           const results = data.result[1]
           const files = results.map(result => result[1])
@@ -57,8 +60,8 @@ export default class DataBrowserController extends ComponentController {
     return await files.map(file => ({ id: file.name, ...file }))
   }
 
-  handleNewFolderClick(event) {
-    console.log(event.target)
+  createNewFolder(name) {
+    // this.component.datastoreServer.create(this.owner, this.source, true, )
   }
 
   handleUploadClick(event) {

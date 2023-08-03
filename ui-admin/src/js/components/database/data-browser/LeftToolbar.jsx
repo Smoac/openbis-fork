@@ -33,6 +33,7 @@ import IconButton from '@material-ui/core/IconButton'
 import { debounce } from '@material-ui/core'
 import Container from '@src/js/components/common/form/Container.jsx'
 import Popover from '@material-ui/core/Popover'
+import InputDialog from '@src/js/components/common/dialog/InputDialog.jsx'
 
 const color = 'secondary'
 const iconButtonSize = 'medium'
@@ -72,27 +73,50 @@ class LeftToolbar extends React.Component {
 
     this.state = {
       width: 0,
-      hiddenButtonsPopup: null
+      hiddenButtonsPopup: null,
+      newFolderDialogOpen: false
     }
 
     this.controller = this.props.controller
-    this.onResize = debounce(this.onResize, 1);
+    this.onResize = debounce(this.onResize, 1)
+  }
+
+  handleNewFolderCreate(event) {
+    this.closeNewFolderDialog()
+    console.log(event)
+  }
+
+  openNewFolderDialog() {
+    this.setState({ newFolderDialogOpen: true })
+  }
+
+  closeNewFolderDialog() {
+    this.setState({ newFolderDialogOpen: false })
   }
 
   renderNoSelectionContextToolbar() {
     const { classes, buttonSize } = this.props
-    return (
+    return ([
       <Button
+        key='new-folder'
         classes={{ root: classes.button }}
         color={color}
         size={buttonSize}
         variant='outlined'
         startIcon={<CreateNewFolderIcon />}
-        onClick={this.controller.handleNewFolderClick}
+        onClick={this.openNewFolderDialog}
       >
         {messages.get(messages.NEW_FOLDER)}
-      </Button>
-    )
+      </Button>,
+      <InputDialog
+        key='new-folder-dialog'
+        open={this.state.newFolderDialogOpen}
+        title={messages.get(messages.NEW_FOLDER)}
+        inputLabel={messages.get(messages.FOLDER_NAME)}
+        onCancel={this.closeNewFolderDialog}
+        onConfirm={this.handleNewFolderCreate}
+        />
+    ])
   }
 
   renderSelectionContextToolbar() {
@@ -114,7 +138,6 @@ class LeftToolbar extends React.Component {
         size={buttonSize}
         variant='outlined'
         startIcon={<DownloadIcon />}
-        onClick={this.controller.handleNewFolderClick}
       >
         {messages.get(messages.DOWNLOAD)}
       </Button>,
@@ -125,7 +148,6 @@ class LeftToolbar extends React.Component {
         size={buttonSize}
         variant='text'
         startIcon={<DeleteIcon />}
-        onClick={this.controller.handleNewFolderClick}
       >
         {messages.get(messages.DELETE)}
       </Button>,
@@ -136,7 +158,6 @@ class LeftToolbar extends React.Component {
         size={buttonSize}
         variant='text'
         startIcon={<RenameIcon />}
-        onClick={this.controller.handleNewFolderClick}
       >
         {messages.get(messages.RENAME)}
       </Button>,
@@ -147,7 +168,6 @@ class LeftToolbar extends React.Component {
         size={buttonSize}
         variant='text'
         startIcon={<CopyIcon />}
-        onClick={this.controller.handleNewFolderClick}
       >
         {messages.get(messages.COPY)}
       </Button>,
@@ -158,7 +178,6 @@ class LeftToolbar extends React.Component {
         size={buttonSize}
         variant='text'
         startIcon={<MoveIcon />}
-        onClick={this.controller.handleNewFolderClick}
       >
         {messages.get(messages.MOVE)}
       </Button>
