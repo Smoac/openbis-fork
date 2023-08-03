@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
 
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.jmock.Expectations;
@@ -38,6 +39,12 @@ public class TransactionParticipantTest
     public static final String TEST_INTERACTIVE_SESSION_KEY = "test-interactive-session-key";
 
     public static final String TEST_SESSION_TOKEN = "test-session-token";
+
+    public static final String INVALID_TRANSACTION_COORDINATOR_KEY = "invalid-transaction-coordinator-key";
+
+    public static final String INVALID_INTERACTIVE_SESSION_KEY = "invalid-interactive-session-key";
+
+    public static final String INVALID_SESSION_TOKEN = "invalid-session-token";
 
     public static final String TEST_OPERATION_NAME = "test-operation";
 
@@ -100,6 +107,9 @@ public class TransactionParticipantTest
         mockery.checking(new Expectations()
         {
             {
+                allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
+                will(returnValue(true));
+
                 // begin 1
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED);
                 one(databaseTransactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
@@ -221,6 +231,65 @@ public class TransactionParticipantTest
         assertFalse(transaction1ThreadNames.removeAll(transaction2ThreadNames));
     }
 
+    @Test
+    public void testBeginTransactionWithoutTransactionId() throws Throwable
+    {
+        doTestBeginTransactionWithInvalidArguments(participant ->
+        {
+            participant.beginTransaction(null, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
+            return null;
+        }, "Transaction id cannot be null");
+    }
+
+    @Test
+    public void testBeginTransactionWithInvalidSessionToken() throws Throwable
+    {
+        doTestBeginTransactionWithInvalidArguments(participant ->
+        {
+            participant.beginTransaction(TEST_TRANSACTION_ID, INVALID_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
+            return null;
+        }, "Invalid session token");
+    }
+
+    @Test
+    public void testBeginTransactionWithInvalidInteractiveSessionKey() throws Throwable
+    {
+        doTestBeginTransactionWithInvalidArguments(participant ->
+        {
+            participant.beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, INVALID_INTERACTIVE_SESSION_KEY);
+            return null;
+        }, "Invalid interactive session key");
+    }
+
+    private void doTestBeginTransactionWithInvalidArguments(Function<ITransactionParticipant, Void> beginTransaction, String expectedExceptionMessage)
+    {
+        TransactionParticipant participant =
+                new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog);
+
+        mockery.checking(new Expectations()
+        {
+            {
+                allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
+                will(returnValue(true));
+
+                allowing(sessionTokenProvider).isValid(INVALID_SESSION_TOKEN);
+                will(returnValue(false));
+            }
+        });
+
+        try
+        {
+            // begin (fails)
+            beginTransaction.apply(participant);
+            Assert.fail();
+        } catch (Throwable t)
+        {
+            assertEquals(t.getMessage(), expectedExceptionMessage);
+            assertFalse(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+        }
+    }
+
     @Test(dataProvider = "provideExceptions")
     public void testBeginTransactionFails(Throwable throwable) throws Throwable
     {
@@ -231,6 +300,9 @@ public class TransactionParticipantTest
         mockery.checking(new Expectations()
         {
             {
+                allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
+                will(returnValue(true));
+
                 // begin (fails)
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED);
                 one(databaseTransactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
@@ -259,6 +331,76 @@ public class TransactionParticipantTest
         }
     }
 
+    @Test
+    public void testExecuteOperationWithoutTransactionId() throws Throwable
+    {
+        doTestExecuteOperationWithInvalidArguments(participant ->
+        {
+            participant.executeOperation(null, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_OPERATION_NAME, TEST_OPERATION_ARGUMENTS);
+            return null;
+        }, "Transaction id cannot be null");
+    }
+
+    @Test
+    public void testExecuteOperationWithInvalidSessionToken() throws Throwable
+    {
+        doTestExecuteOperationWithInvalidArguments(participant ->
+        {
+            participant.executeOperation(TEST_TRANSACTION_ID, INVALID_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_OPERATION_NAME,
+                    TEST_OPERATION_ARGUMENTS);
+            return null;
+        }, "Invalid session token");
+    }
+
+    @Test
+    public void testExecuteOperationWithInvalidInteractiveSessionKey() throws Throwable
+    {
+        doTestExecuteOperationWithInvalidArguments(participant ->
+        {
+            participant.executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, INVALID_INTERACTIVE_SESSION_KEY, TEST_OPERATION_NAME,
+                    TEST_OPERATION_ARGUMENTS);
+            return null;
+        }, "Invalid interactive session key");
+    }
+
+    private void doTestExecuteOperationWithInvalidArguments(Function<ITransactionParticipant, Void> executeOperation, String expectedExceptionMessage)
+            throws Throwable
+    {
+        TransactionParticipant participant =
+                new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog);
+
+        mockery.checking(new Expectations()
+        {
+            {
+                allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
+                will(returnValue(true));
+
+                allowing(sessionTokenProvider).isValid(INVALID_SESSION_TOKEN);
+                will(returnValue(false));
+
+                // begin
+                one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED);
+                one(databaseTransactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
+                one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED);
+            }
+        });
+
+        // begin
+        participant.beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
+
+        try
+        {
+            // execute (fails)
+            executeOperation.apply(participant);
+            Assert.fail();
+        } catch (Throwable t)
+        {
+            assertEquals(t.getMessage(), expectedExceptionMessage);
+            assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+        }
+    }
+
     @Test(dataProvider = "provideExceptions")
     public void testExecuteOperationFails(Throwable throwable) throws Throwable
     {
@@ -269,6 +411,9 @@ public class TransactionParticipantTest
         mockery.checking(new Expectations()
         {
             {
+                allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
+                will(returnValue(true));
+
                 // begin
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED);
                 one(databaseTransactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
@@ -318,6 +463,9 @@ public class TransactionParticipantTest
         mockery.checking(new Expectations()
         {
             {
+                allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
+                will(returnValue(true));
+
                 // begin
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED);
                 one(databaseTransactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
@@ -375,8 +523,51 @@ public class TransactionParticipantTest
         }
     }
 
-    @Test(dataProvider = "provideExceptions")
-    public void testRollbackFails(Throwable throwable) throws Throwable
+    @Test
+    public void testPrepareTransactionWithoutTransactionId() throws Throwable
+    {
+        doTestPrepareTransactionWithInvalidArguments(participant ->
+        {
+            participant.prepareTransaction(null, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY);
+            return null;
+        }, "Transaction id cannot be null");
+    }
+
+    @Test
+    public void testPrepareTransactionWithInvalidSessionToken() throws Throwable
+    {
+        doTestPrepareTransactionWithInvalidArguments(participant ->
+        {
+            participant.prepareTransaction(TEST_TRANSACTION_ID, INVALID_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY,
+                    TEST_TRANSACTION_COORDINATOR_KEY);
+            return null;
+        }, "Invalid session token");
+    }
+
+    @Test
+    public void testPrepareTransactionWithInvalidInteractiveSessionKey() throws Throwable
+    {
+        doTestPrepareTransactionWithInvalidArguments(participant ->
+        {
+            participant.prepareTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, INVALID_INTERACTIVE_SESSION_KEY,
+                    TEST_TRANSACTION_COORDINATOR_KEY);
+            return null;
+        }, "Invalid interactive session key");
+    }
+
+    @Test
+    public void testPrepareTransactionWithInvalidTransactionCoordinatorKey() throws Throwable
+    {
+        doTestPrepareTransactionWithInvalidArguments(participant ->
+        {
+            participant.prepareTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY,
+                    INVALID_TRANSACTION_COORDINATOR_KEY);
+            return null;
+        }, "Invalid transaction coordinator key");
+    }
+
+    private void doTestPrepareTransactionWithInvalidArguments(Function<ITransactionParticipant, Void> prepareTransaction,
+            String expectedExceptionMessage) throws Throwable
     {
         TransactionParticipant participant =
                 new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
@@ -385,45 +576,36 @@ public class TransactionParticipantTest
         mockery.checking(new Expectations()
         {
             {
+                allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
+                will(returnValue(true));
+
+                allowing(sessionTokenProvider).isValid(INVALID_SESSION_TOKEN);
+                will(returnValue(false));
+
                 // begin
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED);
                 one(databaseTransactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
-                will(returnValue(TEST_TRANSACTION));
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED);
-
-                // execute
-                one(transactionOperationExecutor).executeOperation(TEST_SESSION_TOKEN, TEST_OPERATION_NAME, TEST_OPERATION_ARGUMENTS);
-
-                // rollback (fails)
-                one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_STARTED);
-                one(databaseTransactionProvider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
-                will(throwException(throwable));
             }
         });
 
-        assertFalse(participant.isRunningTransaction(TEST_TRANSACTION_ID));
         // begin
         participant.beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
-        assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
-        // execute
-        participant.executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_OPERATION_NAME,
-                TEST_OPERATION_ARGUMENTS);
-        assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
 
         try
         {
-            // rollback (fails)
-            participant.rollbackTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
+            // prepare (fails)
+            prepareTransaction.apply(participant);
             Assert.fail();
         } catch (Throwable t)
         {
-            assertEquals(t.getCause(), throwable);
+            assertEquals(t.getMessage(), expectedExceptionMessage);
             assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
         }
     }
 
     @Test(dataProvider = "provideExceptions")
-    public void testPrepareFails(Throwable throwable) throws Throwable
+    public void testPrepareTransactionFails(Throwable throwable) throws Throwable
     {
         TransactionParticipant participant =
                 new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
@@ -432,6 +614,9 @@ public class TransactionParticipantTest
         mockery.checking(new Expectations()
         {
             {
+                allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
+                will(returnValue(true));
+
                 // begin
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED);
                 one(databaseTransactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
@@ -477,8 +662,59 @@ public class TransactionParticipantTest
         }
     }
 
-    @Test(dataProvider = "provideExceptions")
-    public void testCommitFails(Throwable throwable) throws Throwable
+    @Test
+    public void testCommitTransactionWithoutTransactionId() throws Throwable
+    {
+        doTestCommitTransactionWithInvalidArguments(participant ->
+        {
+            participant.commitTransaction(null, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
+            return null;
+        }, "Transaction id cannot be null");
+    }
+
+    @Test
+    public void testCommitTransactionWithInvalidSessionToken() throws Throwable
+    {
+        doTestCommitTransactionWithInvalidArguments(participant ->
+        {
+            participant.commitTransaction(TEST_TRANSACTION_ID, INVALID_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
+            return null;
+        }, "Invalid session token");
+    }
+
+    @Test
+    public void testCommitTransactionWithInvalidInteractiveSessionKey() throws Throwable
+    {
+        doTestCommitTransactionWithInvalidArguments(participant ->
+        {
+            participant.commitTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, INVALID_INTERACTIVE_SESSION_KEY);
+            return null;
+        }, "Invalid interactive session key");
+    }
+
+    @Test
+    public void testCommitTransactionRecoveryWithoutTransactionId() throws Throwable
+    {
+        doTestCommitTransactionWithInvalidArguments(participant ->
+        {
+            participant.commitTransaction(null, INVALID_TRANSACTION_COORDINATOR_KEY);
+            return null;
+        }, "Transaction id cannot be null");
+    }
+
+    @Test
+    public void testCommitTransactionRecoveryWithInvalidTransactionCoordinatorKey() throws Throwable
+    {
+        doTestCommitTransactionWithInvalidArguments(participant ->
+        {
+            participant.commitTransaction(TEST_TRANSACTION_ID, INVALID_TRANSACTION_COORDINATOR_KEY);
+            return null;
+        }, "Invalid transaction coordinator key");
+    }
+
+    private void doTestCommitTransactionWithInvalidArguments(Function<ITransactionParticipant, Void> commitTransaction,
+            String expectedExceptionMessage)
+            throws Throwable
     {
         TransactionParticipant participant =
                 new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
@@ -487,6 +723,64 @@ public class TransactionParticipantTest
         mockery.checking(new Expectations()
         {
             {
+                allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
+                will(returnValue(true));
+
+                allowing(sessionTokenProvider).isValid(INVALID_SESSION_TOKEN);
+                will(returnValue(false));
+
+                // begin
+                one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED);
+                one(databaseTransactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
+                one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED);
+            }
+        });
+
+        // begin
+        participant.beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
+
+        try
+        {
+            commitTransaction.apply(participant);
+            Assert.fail();
+        } catch (Throwable t)
+        {
+            assertEquals(t.getMessage(), expectedExceptionMessage);
+        }
+    }
+
+    @Test(dataProvider = "provideExceptions")
+    public void testCommitTransactionFails(Throwable throwable) throws Throwable
+    {
+        doTestCommitTransactionFails(throwable, participant ->
+        {
+            participant.commitTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
+            return null;
+        });
+    }
+
+    @Test(dataProvider = "provideExceptions")
+    public void testCommitTransactionRecoveryFails(Throwable throwable) throws Throwable
+    {
+        doTestCommitTransactionFails(throwable, participant ->
+        {
+            participant.commitTransaction(TEST_TRANSACTION_ID, TEST_TRANSACTION_COORDINATOR_KEY);
+            return null;
+        });
+    }
+
+    private void doTestCommitTransactionFails(Throwable throwable, Function<ITransactionParticipant, Void> commitTransaction) throws Throwable
+    {
+        TransactionParticipant participant =
+                new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog);
+
+        mockery.checking(new Expectations()
+        {
+            {
+                allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
+                will(returnValue(true));
+
                 // begin
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED);
                 one(databaseTransactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
@@ -528,7 +822,7 @@ public class TransactionParticipantTest
         try
         {
             // commit (fails)
-            participant.commitTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
+            commitTransaction.apply(participant);
             Assert.fail();
         } catch (Throwable t)
         {
@@ -542,6 +836,170 @@ public class TransactionParticipantTest
     }
 
     @Test
+    public void testRollbackTransactionWithoutTransactionId() throws Throwable
+    {
+        doTestRollbackTransactionWithInvalidArguments(participant ->
+        {
+            participant.rollbackTransaction(null, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
+            return null;
+        }, "Transaction id cannot be null");
+    }
+
+    @Test
+    public void testRollbackTransactionWithInvalidSessionToken() throws Throwable
+    {
+        doTestRollbackTransactionWithInvalidArguments(
+                participant ->
+                {
+                    participant.rollbackTransaction(TEST_TRANSACTION_ID, INVALID_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
+                    return null;
+                },
+                "Invalid session token");
+    }
+
+    @Test
+    public void testRollbackTransactionWithInvalidInteractiveSessionKey() throws Throwable
+    {
+        doTestRollbackTransactionWithInvalidArguments(
+                participant ->
+                {
+                    participant.rollbackTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, INVALID_INTERACTIVE_SESSION_KEY);
+                    return null;
+                },
+                "Invalid interactive session key");
+    }
+
+    @Test
+    public void testRollbackTransactionRecoveryWithoutTransactionId() throws Throwable
+    {
+        doTestRollbackTransactionWithInvalidArguments(participant ->
+        {
+            participant.rollbackTransaction(null, INVALID_TRANSACTION_COORDINATOR_KEY);
+            return null;
+        }, "Transaction id cannot be null");
+    }
+
+    @Test
+    public void testRollbackTransactionRecoveryWithInvalidTransactionCoordinatorKey() throws Throwable
+    {
+        doTestRollbackTransactionWithInvalidArguments(
+                participant ->
+                {
+                    participant.rollbackTransaction(TEST_TRANSACTION_ID, INVALID_TRANSACTION_COORDINATOR_KEY);
+                    return null;
+                },
+                "Invalid transaction coordinator key");
+    }
+
+    private void doTestRollbackTransactionWithInvalidArguments(Function<ITransactionParticipant, Void> rollbackTransaction,
+            String expectedExceptionMessage)
+            throws Throwable
+    {
+        TransactionParticipant participant =
+                new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog);
+
+        mockery.checking(new Expectations()
+        {
+            {
+                allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
+                will(returnValue(true));
+
+                allowing(sessionTokenProvider).isValid(INVALID_SESSION_TOKEN);
+                will(returnValue(false));
+
+                // begin
+                one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED);
+                one(databaseTransactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
+                one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED);
+            }
+        });
+
+        // begin
+        participant.beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
+
+        try
+        {
+            // rollback (fails)
+            rollbackTransaction.apply(participant);
+            Assert.fail();
+        } catch (Throwable t)
+        {
+            assertEquals(t.getMessage(), expectedExceptionMessage);
+            assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+        }
+    }
+
+    @Test(dataProvider = "provideExceptions")
+    public void testRollbackTransactionFails(Throwable throwable) throws Throwable
+    {
+        doTestRollbackTransactionFails(throwable, participant ->
+        {
+            participant.rollbackTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
+            return null;
+        });
+    }
+
+    @Test(dataProvider = "provideExceptions")
+    public void testRollbackTransactionRecoveryFails(Throwable throwable) throws Throwable
+    {
+        doTestRollbackTransactionFails(throwable, participant ->
+        {
+            participant.rollbackTransaction(TEST_TRANSACTION_ID, TEST_TRANSACTION_COORDINATOR_KEY);
+            return null;
+        });
+    }
+
+    private void doTestRollbackTransactionFails(Throwable throwable, Function<ITransactionParticipant, Void> rollbackTransaction) throws Throwable
+    {
+        TransactionParticipant participant =
+                new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog);
+
+        mockery.checking(new Expectations()
+        {
+            {
+                allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
+                will(returnValue(true));
+
+                // begin
+                one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED);
+                one(databaseTransactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
+                will(returnValue(TEST_TRANSACTION));
+                one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED);
+
+                // execute
+                one(transactionOperationExecutor).executeOperation(TEST_SESSION_TOKEN, TEST_OPERATION_NAME, TEST_OPERATION_ARGUMENTS);
+
+                // rollback (fails)
+                one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_STARTED);
+                one(databaseTransactionProvider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
+                will(throwException(throwable));
+            }
+        });
+
+        assertFalse(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+        // begin
+        participant.beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
+        assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+        // execute
+        participant.executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_OPERATION_NAME,
+                TEST_OPERATION_ARGUMENTS);
+        assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+
+        try
+        {
+            // rollback (fails)
+            rollbackTransaction.apply(participant);
+            Assert.fail();
+        } catch (Throwable t)
+        {
+            assertEquals(t.getCause(), throwable);
+            assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+        }
+    }
+
+    @Test
     public void testNewTransactionCanBeStarted() throws Throwable
     {
         TransactionParticipant participant =
@@ -551,6 +1009,9 @@ public class TransactionParticipantTest
         mockery.checking(new Expectations()
         {
             {
+                allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
+                will(returnValue(true));
+
                 // begin
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED);
                 one(databaseTransactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
@@ -568,6 +1029,14 @@ public class TransactionParticipantTest
         TransactionParticipant participant =
                 new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
                         databaseTransactionProvider, transactionOperationExecutor, transactionLog);
+
+        mockery.checking(new Expectations()
+        {
+            {
+                allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
+                will(returnValue(true));
+            }
+        });
 
         try
         {
@@ -588,6 +1057,14 @@ public class TransactionParticipantTest
                 new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
                         databaseTransactionProvider, transactionOperationExecutor, transactionLog);
 
+        mockery.checking(new Expectations()
+        {
+            {
+                allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
+                will(returnValue(true));
+            }
+        });
+
         try
         {
             participant.prepareTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY);
@@ -606,6 +1083,14 @@ public class TransactionParticipantTest
                 new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
                         databaseTransactionProvider, transactionOperationExecutor, transactionLog);
 
+        mockery.checking(new Expectations()
+        {
+            {
+                allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
+                will(returnValue(true));
+            }
+        });
+
         // the call is possible and does nothing (used in recovery process)
         participant.commitTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
     }
@@ -616,6 +1101,14 @@ public class TransactionParticipantTest
         TransactionParticipant participant =
                 new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
                         databaseTransactionProvider, transactionOperationExecutor, transactionLog);
+
+        mockery.checking(new Expectations()
+        {
+            {
+                allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
+                will(returnValue(true));
+            }
+        });
 
         // the call is possible and does nothing (used in recovery process)
         participant.rollbackTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
@@ -631,6 +1124,9 @@ public class TransactionParticipantTest
         mockery.checking(new Expectations()
         {
             {
+                allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
+                will(returnValue(true));
+
                 // begin
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED);
                 one(databaseTransactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
@@ -663,6 +1159,9 @@ public class TransactionParticipantTest
         mockery.checking(new Expectations()
         {
             {
+                allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
+                will(returnValue(true));
+
                 // begin
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED);
                 one(databaseTransactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
@@ -704,6 +1203,9 @@ public class TransactionParticipantTest
             {
                 Object transaction = new Object();
 
+                allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
+                will(returnValue(true));
+
                 // begin
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED);
                 one(databaseTransactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
@@ -735,6 +1237,9 @@ public class TransactionParticipantTest
             {
                 Object transaction = new Object();
 
+                allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
+                will(returnValue(true));
+
                 // begin
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED);
                 one(databaseTransactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
@@ -765,6 +1270,9 @@ public class TransactionParticipantTest
         {
             {
                 Object transaction = new Object();
+
+                allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
+                will(returnValue(true));
 
                 // begin
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED);
@@ -801,6 +1309,9 @@ public class TransactionParticipantTest
         {
             {
                 Object transaction = new Object();
+
+                allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
+                will(returnValue(true));
 
                 // begin
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED);
@@ -843,6 +1354,9 @@ public class TransactionParticipantTest
             {
                 Object transaction = new Object();
 
+                allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
+                will(returnValue(true));
+
                 // begin
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED);
                 one(databaseTransactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
@@ -884,6 +1398,9 @@ public class TransactionParticipantTest
         {
             {
                 Object transaction = new Object();
+
+                allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
+                will(returnValue(true));
 
                 // begin
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED);
@@ -928,6 +1445,9 @@ public class TransactionParticipantTest
             {
                 Object transaction = new Object();
 
+                allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
+                will(returnValue(true));
+
                 // begin
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED);
                 one(databaseTransactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
@@ -966,6 +1486,9 @@ public class TransactionParticipantTest
             {
                 Object transaction = new Object();
 
+                allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
+                will(returnValue(true));
+
                 // begin
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED);
                 one(databaseTransactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
@@ -1003,6 +1526,9 @@ public class TransactionParticipantTest
         {
             {
                 Object transaction = new Object();
+
+                allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
+                will(returnValue(true));
 
                 // begin
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED);
