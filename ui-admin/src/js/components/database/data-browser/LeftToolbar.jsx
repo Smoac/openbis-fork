@@ -15,7 +15,7 @@
  *
  */
 
-import React from "react";
+import React from 'react'
 import ResizeObserver from 'rc-resize-observer'
 import Button from '@material-ui/core/Button'
 import CreateNewFolderIcon from '@material-ui/icons/CreateNewFolderOutlined'
@@ -27,12 +27,12 @@ import MoveIcon from '@material-ui/icons/ArrowRightAlt'
 import MoreIcon from '@material-ui/icons/MoreVert'
 import messages from '@src/js/common/messages.js'
 import { withStyles } from '@material-ui/core/styles'
-import logger from "@src/js/common/logger.js";
-import autoBind from "auto-bind";
-import IconButton from "@material-ui/core/IconButton";
-import { debounce } from "@material-ui/core";
-import Container from "@src/js/components/common/form/Container.jsx";
-import Popover from "@material-ui/core/Popover";
+import logger from '@src/js/common/logger.js'
+import autoBind from 'auto-bind'
+import IconButton from '@material-ui/core/IconButton'
+import { debounce } from '@material-ui/core'
+import Container from '@src/js/components/common/form/Container.jsx'
+import Popover from '@material-ui/core/Popover'
 
 const color = 'secondary'
 const iconButtonSize = 'medium'
@@ -108,6 +108,7 @@ class LeftToolbar extends React.Component {
 
     const buttons = [
       <Button
+        key='download'
         classes={{ root: classes.button }}
         color={color}
         size={buttonSize}
@@ -118,6 +119,7 @@ class LeftToolbar extends React.Component {
         {messages.get(messages.DOWNLOAD)}
       </Button>,
       <Button
+        key='delete'
         classes={{ root: classes.button }}
         color={color}
         size={buttonSize}
@@ -128,6 +130,7 @@ class LeftToolbar extends React.Component {
         {messages.get(messages.DELETE)}
       </Button>,
       <Button
+        key='rename'
         classes={{ root: classes.button }}
         color={color}
         size={buttonSize}
@@ -138,6 +141,7 @@ class LeftToolbar extends React.Component {
         {messages.get(messages.RENAME)}
       </Button>,
       <Button
+        key='copy'
         classes={{ root: classes.button }}
         color={color}
         size={buttonSize}
@@ -148,6 +152,7 @@ class LeftToolbar extends React.Component {
         {messages.get(messages.COPY)}
       </Button>,
       <Button
+        key='move'
         classes={{ root: classes.button }}
         color={color}
         size={buttonSize}
@@ -173,6 +178,7 @@ class LeftToolbar extends React.Component {
 
     const popover = (
       <Popover
+        key='more'
         open={Boolean(hiddenButtonsPopup)}
         anchorEl={hiddenButtonsPopup}
         onClose={this.handleClose}
