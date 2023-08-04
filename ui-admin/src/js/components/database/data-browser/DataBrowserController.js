@@ -25,6 +25,7 @@ export default class DataBrowserController extends ComponentController {
 
     this.owner = 'demo-sample'
     this.source = ''
+    this.gridController = null
   }
 
   async login() {
@@ -60,8 +61,19 @@ export default class DataBrowserController extends ComponentController {
     return await files.map(file => ({ id: file.name, ...file }))
   }
 
-  createNewFolder(name) {
-    this.component.datastoreServer.create(this.owner, this.source, true, name)
+  async createNewFolder(name) {
+    return new Promise((resolve, reject) => {
+      this.component.datastoreServer.create(this.owner, this.source + name, true, async (success) => {
+        if (success) {
+          if (this.gridController) {
+            await this.gridController.load()
+          }
+          resolve()
+        } else {
+          reject()
+        }
+      })
+    })
   }
 
   handleUploadClick(event) {

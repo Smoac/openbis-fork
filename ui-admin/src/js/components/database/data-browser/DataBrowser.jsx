@@ -132,6 +132,10 @@ class DataBrowser extends React.Component {
     this.setState({ showInfo: !this.state.showInfo })
   }
 
+  handleGridControllerRef(gridController) {
+    this.controller.gridController = gridController
+  }
+
   render() {
     const { classes } = this.props
     const { viewType, files, selectedFile, multiselectedFiles, showInfo } =
@@ -152,6 +156,7 @@ class DataBrowser extends React.Component {
           {viewType === 'list' && (
             <Grid
               id='data-browser-grid'
+              controllerRef={this.handleGridControllerRef}
               filterModes={[GridFilterOptions.COLUMN_FILTERS]}
               header='Files'
               classes={{ container: classes.grid }}
