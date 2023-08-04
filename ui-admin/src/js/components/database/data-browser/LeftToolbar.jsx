@@ -34,6 +34,7 @@ import { debounce } from '@material-ui/core'
 import Container from '@src/js/components/common/form/Container.jsx'
 import Popover from '@material-ui/core/Popover'
 import InputDialog from '@src/js/components/common/dialog/InputDialog.jsx'
+import ConfirmationDialog from "@src/js/components/common/dialog/ConfirmationDialog.jsx";
 
 const color = 'secondary'
 const iconButtonSize = 'medium'
@@ -74,7 +75,8 @@ class LeftToolbar extends React.Component {
     this.state = {
       width: 0,
       hiddenButtonsPopup: null,
-      newFolderDialogOpen: false
+      newFolderDialogOpen: false,
+      deleteDialogOpen: false
     }
 
     this.controller = this.props.controller
@@ -86,12 +88,36 @@ class LeftToolbar extends React.Component {
     await this.controller.createNewFolder(folderName)
   }
 
+  handleNewFolderCancel() {
+    this.closeNewFolderDialog()
+  }
+
   openNewFolderDialog() {
     this.setState({ newFolderDialogOpen: true })
   }
 
   closeNewFolderDialog() {
     this.setState({ newFolderDialogOpen: false })
+  }
+
+  openDeleteDialog() {
+    this.setState({ deleteDialogOpen: true })
+  }
+
+  closeDeleteDialog() {
+    this.setState({ deleteDialogOpen: false })
+  }
+
+  async handleDeleteConfirm() {
+    const { multiselectedFiles } = this.props
+
+    this.closeDeleteDialog()
+    await this.controller.delete(Array.from(multiselectedFiles).map((file) => file.path))
+    // await this.controller.delete(multiselectedFiles)
+  }
+
+  handleDeleteCancel() {
+    this.closeDeleteDialog()
   }
 
   renderNoSelectionContextToolbar() {
@@ -113,7 +139,7 @@ class LeftToolbar extends React.Component {
         open={this.state.newFolderDialogOpen}
         title={messages.get(messages.NEW_FOLDER)}
         inputLabel={messages.get(messages.FOLDER_NAME)}
-        onCancel={this.closeNewFolderDialog}
+        onCancel={this.handleNewFolderCancel}
         onConfirm={this.handleNewFolderCreate}
         />
     ])
@@ -121,7 +147,7 @@ class LeftToolbar extends React.Component {
 
   renderSelectionContextToolbar() {
     const { classes, buttonSize } = this.props
-    const { width, hiddenButtonsPopup } = this.state
+    const { width, hiddenButtonsPopup, deleteDialogOpen } = this.state
 
     const ellipsisButtonSize = 24
     const buttonsCount = 5
@@ -148,6 +174,7 @@ class LeftToolbar extends React.Component {
         size={buttonSize}
         variant='text'
         startIcon={<DeleteIcon />}
+        onClick={this.openDeleteDialog}
       >
         {messages.get(messages.DELETE)}
       </Button>,
@@ -219,6 +246,13 @@ class LeftToolbar extends React.Component {
         {hideButtons
           ? [...buttons.slice(0, visibleButtonsCount), ellipsisButton, popover]
           : buttons}
+        <ConfirmationDialog
+          open={deleteDialogOpen}
+          onConfirm={this.handleDeleteConfirm}
+          onCancel={this.handleDeleteCancel}
+          title={messages.get(messages.DELETE)}
+          content={messages.get(messages.CONFIRMATION_DELETE_SELECTED)}
+        />
       </div>
     );
   }
