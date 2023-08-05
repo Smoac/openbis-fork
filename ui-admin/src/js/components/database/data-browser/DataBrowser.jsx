@@ -13,6 +13,7 @@ import AppController from '@src/js/components/AppController.js'
 import ItemIcon from '@src/js/components/database/data-browser/ItemIcon.jsx'
 import InfoPanel from '@src/js/components/database/data-browser/InfoPanel.jsx'
 import DataBrowserController from '@src/js/components/database/data-browser/DataBrowserController.js'
+import NavigationBar from "@src/js/components/database/data-browser/NavigationBar.jsx";
 
 const HTTP_SERVER_URI = '/data-store-server'
 
@@ -102,7 +103,8 @@ class DataBrowser extends React.Component {
       files: [],
       selectedFile: null,
       multiselectedFiles: new Set([]),
-      showInfo: false
+      showInfo: false,
+      path: '/'
     }
 
     // Login for all subsequent requests
@@ -116,6 +118,13 @@ class DataBrowser extends React.Component {
 
   handleClick(file) {
     // TODO: implement
+  }
+
+  handleRowDoubleClick(row) {
+    const { directory, path } = row.data
+    if (directory) {
+      this.setState({ path: path + '/' })
+    }
   }
 
   handleSelect(selectedRow) {
@@ -141,10 +150,22 @@ class DataBrowser extends React.Component {
     this.controller.gridController = gridController
   }
 
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const { path } = this.state
+    this.controller.setPath(path)
+    this.controller.load().then(() => {})
+  }
+
   render() {
     const { classes } = this.props
-    const { viewType, files, selectedFile, multiselectedFiles, showInfo } =
-      this.state
+    const {
+      viewType,
+      files,
+      selectedFile,
+      multiselectedFiles,
+      showInfo,
+      path
+    } = this.state
 
     return (
       <div className={[classes.boundary, classes.columnFlexContainer].join(' ')}>
@@ -157,6 +178,7 @@ class DataBrowser extends React.Component {
           selectedFile={selectedFile}
           multiselectedFiles={multiselectedFiles}
         />
+        <NavigationBar path={path} />
         <div className={[classes.flexContainer, classes.boundary, classes.content].join(' ')}>
           {viewType === 'list' && (
             <Grid
@@ -207,6 +229,7 @@ class DataBrowser extends React.Component {
               onError={this.onError}
               onSelectedRowChange={this.handleSelect}
               onMultiselectedRowsChange={this.handleMultiselect}
+              onRowDoubleClick={this.handleRowDoubleClick}
               exportXLS={null}
             />
           )}

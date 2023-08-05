@@ -26,6 +26,7 @@ export default class DataBrowserController extends ComponentController {
     this.owner = 'demo-sample'
     this.source = ''
     this.gridController = null
+    this.path = ''
   }
 
   async login() {
@@ -42,7 +43,7 @@ export default class DataBrowserController extends ComponentController {
 
   async listFiles() {
     return new Promise((resolve, reject) => {
-      this.component.datastoreServer.list(this.owner, this.source, true, (data) => {
+      this.component.datastoreServer.list(this.owner, this.path, true, (data) => {
         if (!data.error) {
           const results = data.result[1]
           const files = results.map(result => result[1])
@@ -57,12 +58,12 @@ export default class DataBrowserController extends ComponentController {
   async load() {
     const files = await this.listFiles()
     await this.setState({ files })
-    return await files.map(file => ({ id: file.name, ...file }))
+    return files.map(file => ({ id: file.name, ...file }))
   }
 
   async createNewFolder(name) {
     return new Promise((resolve, reject) => {
-      this.component.datastoreServer.create(this.owner, this.source + name, true, async (success) => {
+      this.component.datastoreServer.create(this.owner, this.path + name, true, async (success) => {
         if (success) {
           if (this.gridController) {
             await this.gridController.load()
@@ -104,6 +105,10 @@ export default class DataBrowserController extends ComponentController {
 
   handleUploadClick(event) {
     console.log(event.target)
+  }
+
+  setPath(path) {
+    this.path = path
   }
 
 }
