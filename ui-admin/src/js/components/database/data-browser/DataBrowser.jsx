@@ -98,12 +98,17 @@ class DataBrowser extends React.Component {
     )
 
     this.state = {
-      viewType: props.viewType,
+      viewType: null,
       files: [],
       selectedFile: null,
       multiselectedFiles: new Set([]),
       showInfo: false
     }
+
+    // Login for all subsequent requests
+    this.controller.login().then(() => {
+      this.setState({ viewType: props.viewType })
+    })
   }
   handleViewTypeChange(viewType) {
     this.setState({ viewType })

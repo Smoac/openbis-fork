@@ -55,7 +55,6 @@ export default class DataBrowserController extends ComponentController {
   }
 
   async load() {
-    await this.login()
     const files = await this.listFiles()
     await this.setState({ files })
     return await files.map(file => ({ id: file.name, ...file }))
@@ -77,7 +76,6 @@ export default class DataBrowserController extends ComponentController {
   }
 
   async delete(paths) {
-    // console.log(paths)
     return new Promise((resolve, reject) => {
       const pathsLength = paths.length
       let responsesCount = 0
