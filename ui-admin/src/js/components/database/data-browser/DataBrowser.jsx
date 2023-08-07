@@ -29,7 +29,8 @@ const styles = theme => ({
     backgroundColor: theme.palette.background.paper
   },
   icon: {
-    fontSize: '4rem',
+    fontSize: '2rem',
+    paddingRight: '0.5rem'
   },
   flexContainer: {
     display: 'flex',
