@@ -152,7 +152,6 @@ class DataBrowser extends React.Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     const { path } = this.state
     this.controller.setPath(path)
-    this.controller.load().then(() => {})
   }
 
   render() {
