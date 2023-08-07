@@ -161,12 +161,12 @@ public final class AfsClient implements PublicAPI, ClientAPI
     }
 
     @Override
-    public @NonNull Boolean write(@NonNull final String owner, @NonNull final String destination,
+    public @NonNull Boolean write(@NonNull final String owner, @NonNull final String source,
             @NonNull final Long offset, @NonNull final byte[] data,
             @NonNull final byte[] md5Hash) throws Exception
     {
         validateSessionToken();
-        return request("POST", "write", Boolean.class, Map.of("owner", owner, "destination", destination,
+        return request("POST", "write", Boolean.class, Map.of("owner", owner, "source", source,
                 "offset", offset.toString(), "data", Base64.getEncoder().encodeToString(data),
                 "md5Hash", Base64.getEncoder().encodeToString(md5Hash)));
     }
