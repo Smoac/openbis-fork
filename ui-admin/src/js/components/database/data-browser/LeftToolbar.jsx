@@ -36,7 +36,7 @@ import Popover from '@material-ui/core/Popover'
 import InputDialog from '@src/js/components/common/dialog/InputDialog.jsx'
 import ConfirmationDialog from "@src/js/components/common/dialog/ConfirmationDialog.jsx";
 
-const color = 'secondary'
+const color = 'default'
 const iconButtonSize = 'medium'
 
 const styles = theme => ({

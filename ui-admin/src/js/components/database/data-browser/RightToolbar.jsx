@@ -35,7 +35,8 @@ import FileIcon from '@material-ui/icons/InsertDriveFileOutlined'
 import FolderIcon from '@material-ui/icons/FolderOpen'
 import logger from "@src/js/common/logger.js";
 
-const color = 'secondary'
+const color = 'default'
+const uploadButtonsColor = 'secondary'
 const iconButtonSize = 'medium'
 
 const styles = theme => ({
@@ -77,8 +78,6 @@ class RightToolbar extends React.Component {
     super(props, context)
     autoBind(this)
 
-    const { controller } = this.props
-
     this.state = {
       uploadButtonsPopup: null
     }
@@ -102,7 +101,7 @@ class RightToolbar extends React.Component {
       <div className={classes.uploadButtonsContainer}>
         <UploadButton
           classes={{ root: classes.button }}
-          color={color}
+          color={uploadButtonsColor}
           size={buttonSize}
           variant='contained'
           startIcon={<FileIcon />}
@@ -112,7 +111,7 @@ class RightToolbar extends React.Component {
         </UploadButton>
         <UploadButton
           classes={{ root: classes.button }}
-          color={color}
+          color={uploadButtonsColor}
           size={buttonSize}
           variant='contained'
           startIcon={<FolderIcon />}
