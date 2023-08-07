@@ -91,7 +91,7 @@ class DataBrowser extends React.Component {
     super(props, context)
     autoBind(this)
 
-    const { sessionTokenProvider, controller } = this.props
+    const { sessionToken, controller } = this.props
 
     this.controller = controller || new DataBrowserController()
     this.controller.attach(this)
@@ -100,7 +100,7 @@ class DataBrowser extends React.Component {
       HTTP_SERVER_URI
     )
 
-    this.controller.useSessionToken(sessionTokenProvider)
+    this.controller.setSessionToken(sessionToken)
 
     this.state = {
       viewType: props.viewType,

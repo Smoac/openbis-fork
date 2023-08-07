@@ -81,7 +81,7 @@ class DatabaseComponent extends React.PureComponent {
       <DataBrowser
         id={object.id}
         viewType='list'
-        sessionTokenProvider={() => AppController.getInstance().getSessionToken()}
+        sessionToken={AppController.getInstance().getSessionToken()}
       />
     ) : (
       <Container>

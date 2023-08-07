@@ -29,20 +29,8 @@ export default class DataBrowserController extends ComponentController {
     this.path = ''
   }
 
-  async login() {
-    return new Promise((resolve, reject) => {
-      this.component.datastoreServer.login('admin', 'changeit', token => {
-        if (token) {
-          resolve(token)
-        } else {
-          reject('Could not perform login.')
-        }
-      })
-    })
-  }
-
-  useSessionToken(sessionTokenProvider) {
-    this.component.datastoreServer.useSession(sessionTokenProvider())
+  setSessionToken(sessionToken) {
+    this.component.datastoreServer.useSession(sessionToken)
   }
 
   async listFiles() {
