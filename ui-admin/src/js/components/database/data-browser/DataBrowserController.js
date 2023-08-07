@@ -41,6 +41,10 @@ export default class DataBrowserController extends ComponentController {
     })
   }
 
+  useSessionToken(sessionTokenProvider) {
+    this.component.datastoreServer.useSession(sessionTokenProvider())
+  }
+
   async listFiles() {
     return new Promise((resolve, reject) => {
       this.component.datastoreServer.list(this.owner, this.path, true, (data) => {

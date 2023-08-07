@@ -91,26 +91,25 @@ class DataBrowser extends React.Component {
     super(props, context)
     autoBind(this)
 
-    this.controller = this.props.controller || new DataBrowserController()
+    const { sessionTokenProvider, controller } = this.props
+
+    this.controller = controller || new DataBrowserController()
     this.controller.attach(this)
     this.datastoreServer = new DataStoreServer(
       'http://localhost:8085',
       HTTP_SERVER_URI
     )
 
+    this.controller.useSessionToken(sessionTokenProvider)
+
     this.state = {
-      viewType: null,
+      viewType: props.viewType,
       files: [],
       selectedFile: null,
       multiselectedFiles: new Set([]),
       showInfo: false,
       path: '/'
     }
-
-    // Login for all subsequent requests
-    this.controller.login().then(() => {
-      this.setState({ viewType: props.viewType })
-    })
   }
   handleViewTypeChange(viewType) {
     this.setState({ viewType })

@@ -77,14 +77,16 @@ class DatabaseComponent extends React.PureComponent {
     logger.log(logger.DEBUG, 'DatabaseComponent.render')
     const { object } = this.props
 
-    return (
-      this.state.showDataBrowser
-        ?
-          <DataBrowser id={object.id} viewType='list'/>
-        :
-          <Container>
-            <pre>{JSON.stringify(this.state.json || {}, null, 2)}</pre>
-          </Container>
+    return this.state.showDataBrowser ? (
+      <DataBrowser
+        id={object.id}
+        viewType='list'
+        sessionTokenProvider={() => AppController.getInstance().getSessionToken()}
+      />
+    ) : (
+      <Container>
+        <pre>{JSON.stringify(this.state.json || {}, null, 2)}</pre>
+      </Container>
     )
   }
 }
