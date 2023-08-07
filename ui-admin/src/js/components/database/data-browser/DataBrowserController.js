@@ -69,28 +69,23 @@ export default class DataBrowserController extends ComponentController {
   }
 
   async delete(paths) {
+    for (const path of paths) {
+      await this._delete(path)
+    }
+
+    if (this.gridController) {
+      await this.gridController.load()
+    }
+  }
+
+  async _delete(path) {
     return new Promise((resolve, reject) => {
-      const pathsLength = paths.length
-      let responsesCount = 0
-      let hasError = false
-      paths.forEach((path) => {
-        this.component.datastoreServer.delete(this.owner, path, async (success) => {
-          if (!success) {
-            hasError = true
-          }
-
-          if (++responsesCount === pathsLength) {
-            if (this.gridController) {
-              await this.gridController.load()
-            }
-
-            if (!hasError) {
-              resolve()
-            } else {
-              reject()
-            }
-          }
-        })
+      this.component.datastoreServer.delete(this.owner, path, async (success) => {
+        if (success) {
+          resolve()
+        } else {
+          reject()
+        }
       })
     })
   }
