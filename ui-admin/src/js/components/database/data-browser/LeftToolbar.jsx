@@ -154,7 +154,7 @@ class LeftToolbar extends React.Component {
     const minSize = 500
     const roughButtonSize = Math.floor(minSize / buttonsCount)
     const hideButtons = width < minSize
-    const visibleButtonsCount = hideButtons ? Math.floor((width - 3 * ellipsisButtonSize) / roughButtonSize) : 5
+    const visibleButtonsCount = Math.max(hideButtons ? Math.floor((width - 3 * ellipsisButtonSize) / roughButtonSize) : buttonsCount, 0)
 
     const buttons = [
       <Button
