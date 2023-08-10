@@ -13,7 +13,7 @@ import AppController from '@src/js/components/AppController.js'
 import ItemIcon from '@src/js/components/database/data-browser/ItemIcon.jsx'
 import InfoPanel from '@src/js/components/database/data-browser/InfoPanel.jsx'
 import DataBrowserController from '@src/js/components/database/data-browser/DataBrowserController.js'
-import NavigationBar from "@src/js/components/database/data-browser/NavigationBar.jsx";
+import NavigationBar from '@src/js/components/database/data-browser/NavigationBar.jsx'
 
 const HTTP_SERVER_URI = '/data-store-server'
 
@@ -120,10 +120,10 @@ class DataBrowser extends React.Component {
     // TODO: implement
   }
 
-  handleRowDoubleClick(row) {
+  async handleRowDoubleClick(row) {
     const { directory, path } = row.data
     if (directory) {
-      this.setState({ path: path + '/' })
+      await this.setPath(path)
     }
   }
 
@@ -150,9 +150,12 @@ class DataBrowser extends React.Component {
     this.controller.gridController = gridController
   }
 
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    const { path } = this.state
-    this.controller.setPath(path)
+  async setPath(path) {
+    if (this.state.path !== path) {
+      this.setState({ path: path + '/' })
+      this.controller.setPath(path + '/')
+      this.controller.gridController.load()
+    }
   }
 
   render() {
