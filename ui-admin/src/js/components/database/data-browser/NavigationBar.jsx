@@ -20,13 +20,13 @@ import { withStyles } from '@material-ui/core/styles'
 import autoBind from 'auto-bind'
 import logger from "@src/js/common/logger.js";
 import Container from "@src/js/components/common/form/Container.jsx";
-import Link from "@material-ui/core/Link";
 import HomeIcon from "@material-ui/icons/Home";
 import IconButton from "@material-ui/core/IconButton";
+import Button from "@material-ui/core/Button";
 
 const color = 'default'
 const buttonSize = 'small'
-const iconButtonSize = 'small'
+const iconButtonSize = 'medium'
 
 const styles = theme => ({
   containerDefault: {
@@ -36,15 +36,31 @@ const styles = theme => ({
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
     fontSize: '1.125rem',
-    '& *': {
-      fontSize: '1.125rem'
+    alignItems: 'center',
+    '&>*': {
+      minWidth: 'auto',
+      fontSize: '1.125rem',
+      textTransform: 'none',
+      padding: '0 0.25rem',
+      margin: '0.25rem'
     },
-    '& *:not(:first-child):last-child':  {
+    '&>*:first-child':  {
+      padding: '0 0',
+      margin: '0.25rem 0.5rem 0.25rem 0.25rem'
+    },
+    '&>*:first-child svg': {
+      width: '31.5px',
+      height: '31.5px'
+    },
+    '&>*:not(:first-child):last-child':  {
       pointerEvents: 'none',
       color: 'inherit',
       fontWeight: 'bold'
     }
   },
+  homeButton: {
+    marginRight: '1rem'
+  }
 })
 
 class NavigationBar extends React.Component {
@@ -67,10 +83,10 @@ class NavigationBar extends React.Component {
     return { folders, paths }
   }
 
-  renderLinks() {
+  renderItems() {
     const { classes, path, onPathChange } = this.props
     const { folders, paths } = this.splitPath(path)
-    const components = new Array(2 * paths.length + 2)
+    const components = new Array(2 * paths.length + 1)
 
     components[0] = <IconButton
           key='root'
@@ -84,18 +100,22 @@ class NavigationBar extends React.Component {
       <HomeIcon />
     </IconButton>
     for (let i = 0; i < paths.length; i++) {
-      components[2 * i + 2] = '/'
-      components[2 * i + 3] = <Link
+      components[2 * i + 1] = '/'
+      components[2 * i + 2] = <Button
         key={'path-' + i}
-        classes={{ root: classes.link }}
-        component="button"
+        classes={{ root: classes.button }}
+        color={color}
+        size={buttonSize}
+        variant='text'
         onClick={() => onPathChange(paths[i])}
       >
         {folders[i]}
-      </Link>
+      </Button>
     }
 
-    return components
+    return components.length === 1
+      ? [components[0], '/']
+      : components
   }
 
   render() {
@@ -104,7 +124,7 @@ class NavigationBar extends React.Component {
 
     return (
       <Container classes={{ containerDefault: classes.containerDefault }}>
-        { this.renderLinks() }
+        { this.renderItems() }
       </Container>
     )
   }
