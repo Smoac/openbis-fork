@@ -150,11 +150,15 @@ class DataBrowser extends React.Component {
     this.controller.gridController = gridController
   }
 
+  async handlePathChange(path) {
+    await this.setPath(path)
+  }
+
   async setPath(path) {
-    if (this.state.path !== path) {
+    if (this.state.path !== path + '/') {
       this.setState({ path: path + '/' })
       this.controller.setPath(path + '/')
-      this.controller.gridController.load()
+      await this.controller.gridController.load()
     }
   }
 
@@ -180,7 +184,10 @@ class DataBrowser extends React.Component {
           selectedFile={selectedFile}
           multiselectedFiles={multiselectedFiles}
         />
-        <NavigationBar path={path} />
+        <NavigationBar
+          path={path}
+          onPathChange={this.handlePathChange}
+        />
         <div className={[classes.flexContainer, classes.boundary, classes.content].join(' ')}>
           {viewType === 'list' && (
             <Grid

@@ -20,6 +20,7 @@ import { withStyles } from '@material-ui/core/styles'
 import autoBind from 'auto-bind'
 import logger from "@src/js/common/logger.js";
 import Container from "@src/js/components/common/form/Container.jsx";
+import Link from "@material-ui/core/Link";
 
 const buttonSize = 'small'
 
@@ -29,7 +30,10 @@ const styles = theme => ({
     display: 'flex',
     whiteSpace: 'nowrap',
     marginLeft: theme.spacing(1),
-    marginRight: theme.spacing(1)
+    marginRight: theme.spacing(1),
+  },
+  link: {
+    fontSize: theme.typography.body2.fontSize
   }
 })
 
@@ -37,21 +41,50 @@ class NavigationBar extends React.Component {
   constructor(props, context) {
     super(props, context)
     autoBind(this)
-
-    this.controller = this.props.controller
   }
 
-  handleUploadFiles() {}
+  splitPath(path) {
+    const folders = path.split('/').filter((folder) => folder.length > 0)
+    let paths = new Array(folders.length)
 
-  handleUploadFolders() {}
+    if (paths.length > 0) {
+      paths[0] = '/' + folders[0]
+      for (let i = 1; i < paths.length; i++) {
+        paths[i] = paths[i - 1] + '/' + folders[i]
+      }
+    }
+
+    return { folders, paths }
+  }
+
+  renderLinks() {
+    const { classes, path, onPathChange } = this.props
+    const { folders, paths } = this.splitPath(path)
+    const components = new Array(2 * paths.length + 1)
+
+    components[0] = '/'
+    for (let i = 0; i < paths.length; i++) {
+      components[2 * i + 1] = <Link
+        key={'path-' + i}
+        classes={{ root: classes.link }}
+        component="button"
+        onClick={() => onPathChange(paths[i])}
+        disabled={i === path.length - 1}
+      >
+        {folders[i]}
+      </Link>
+      components[2 * i + 2] = '/'
+    }
+
+    return components
+  }
 
   render() {
     logger.log(logger.DEBUG, 'NavigationBar.render')
 
-    const { classes, path } = this.props
     return (
       <Container>
-        { path }
+        { this.renderLinks() }
       </Container>
     )
   }
