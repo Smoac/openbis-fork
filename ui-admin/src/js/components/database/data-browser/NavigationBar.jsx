@@ -83,9 +83,9 @@ class NavigationBar extends React.Component {
         >
       <HomeIcon />
     </IconButton>
-    components[1] = '/'
     for (let i = 0; i < paths.length; i++) {
-      components[2 * i + 2] = <Link
+      components[2 * i + 2] = '/'
+      components[2 * i + 3] = <Link
         key={'path-' + i}
         classes={{ root: classes.link }}
         component="button"
@@ -93,7 +93,6 @@ class NavigationBar extends React.Component {
       >
         {folders[i]}
       </Link>
-      components[2 * i + 3] = '/'
     }
 
     return components
