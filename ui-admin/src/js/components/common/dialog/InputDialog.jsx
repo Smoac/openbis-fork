@@ -44,13 +44,18 @@ class InputDialog extends React.Component {
     const { onConfirm } = this.props
     const { value } = this.state
     onConfirm(value)
-    this.clearInput()
+
+    if (!this.props.inputValue) {
+      this.clearInput()
+    }
   }
 
   handleCancelClick() {
     const { onCancel } = this.props
     onCancel()
-    this.clearInput()
+    if (!this.props.inputValue) {
+      this.clearInput()
+    }
   }
 
   clearInput() {
