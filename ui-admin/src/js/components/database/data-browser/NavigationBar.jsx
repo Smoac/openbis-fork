@@ -21,20 +21,28 @@ import autoBind from 'auto-bind'
 import logger from "@src/js/common/logger.js";
 import Container from "@src/js/components/common/form/Container.jsx";
 import Link from "@material-ui/core/Link";
+import HomeIcon from "@material-ui/icons/Home";
+import IconButton from "@material-ui/core/IconButton";
 
+const color = 'default'
 const buttonSize = 'small'
+const iconButtonSize = 'small'
 
 const styles = theme => ({
-  navigationBar: {
+  containerDefault: {
     flex: '0 0 auto',
     display: 'flex',
     whiteSpace: 'nowrap',
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
+    fontSize: '1.125rem',
+    '& *': {
+      fontSize: '1.125rem'
+    },
+    '& .disabled':  {
+      pointerEvents: 'none'
+    }
   },
-  link: {
-    fontSize: theme.typography.body2.fontSize
-  }
 })
 
 class NavigationBar extends React.Component {
@@ -60,11 +68,22 @@ class NavigationBar extends React.Component {
   renderLinks() {
     const { classes, path, onPathChange } = this.props
     const { folders, paths } = this.splitPath(path)
-    const components = new Array(2 * paths.length + 1)
+    const components = new Array(2 * paths.length + 2)
 
-    components[0] = '/'
+    components[0] = <IconButton
+          key='root'
+          classes={{ root: classes.button }}
+          color={color}
+          size={iconButtonSize}
+          variant='outlined'
+          onClick={() => onPathChange('/')}
+          disabled={paths.length === 0}
+        >
+      <HomeIcon />
+    </IconButton>
+    components[1] = '/'
     for (let i = 0; i < paths.length; i++) {
-      components[2 * i + 1] = <Link
+      components[2 * i + 2] = <Link
         key={'path-' + i}
         classes={{ root: classes.link }}
         component="button"
@@ -73,7 +92,7 @@ class NavigationBar extends React.Component {
       >
         {folders[i]}
       </Link>
-      components[2 * i + 2] = '/'
+      components[2 * i + 3] = '/'
     }
 
     return components
@@ -81,9 +100,10 @@ class NavigationBar extends React.Component {
 
   render() {
     logger.log(logger.DEBUG, 'NavigationBar.render')
+    const { classes } = this.props
 
     return (
-      <Container>
+      <Container classes={{ containerDefault: classes.containerDefault }}>
         { this.renderLinks() }
       </Container>
     )
