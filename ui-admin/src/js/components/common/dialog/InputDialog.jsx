@@ -20,7 +20,7 @@ class InputDialog extends React.Component {
     autoBind(this)
 
     this.state = {
-      inputValue: ''
+      value: '' || this.props.inputValue
     }
 
     this.handleClose = this.handleClose.bind(this)
@@ -33,17 +33,17 @@ class InputDialog extends React.Component {
     }
   }
 
-  updateInputValue(event) {
+  updateValue(event) {
     const value = event.target.value
     this.setState({
-      inputValue: value
+      value: value
     })
   }
 
   handleConfirmClick() {
     const { onConfirm } = this.props
-    const { inputValue } = this.state
-    onConfirm(inputValue)
+    const { value } = this.state
+    onConfirm(value)
     this.clearInput()
   }
 
@@ -55,7 +55,7 @@ class InputDialog extends React.Component {
 
   clearInput() {
     this.setState({
-      inputValue: ''
+      value: ''
     })
   }
 
@@ -112,7 +112,7 @@ class InputDialog extends React.Component {
     logger.log(logger.DEBUG, 'ConfirmationDialog.render')
 
     const { open, title, inputLabel, inputType, content } = this.props
-    const { inputValue } = this.state
+    const { value } = this.state
 
     return (
       <Dialog
@@ -128,8 +128,8 @@ class InputDialog extends React.Component {
             type={inputType || 'text'}
             fullWidth
             variant='standard'
-            value={inputValue}
-            onChange={this.updateInputValue}
+            value={value}
+            onChange={this.updateValue}
             />]}
         actions={this.renderButtons()}
       />

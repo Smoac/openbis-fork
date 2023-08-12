@@ -83,13 +83,13 @@ class RightToolbar extends React.Component {
     }
   }
 
-  handleOpen(event) {
+  handleUploadClick(event) {
     this.setState({
       uploadButtonsPopup: event.currentTarget
     })
   }
 
-  handleClose() {
+  handlePopoverClose() {
     this.setState({
       uploadButtonsPopup: null
     })
@@ -185,7 +185,7 @@ class RightToolbar extends React.Component {
           size={buttonSize}
           variant='outlined'
           startIcon={<PublishIcon />}
-          onClick={this.handleOpen}
+          onClick={this.handleUploadClick}
         >
           {messages.get(messages.UPLOAD)}
         </Button>
@@ -193,7 +193,7 @@ class RightToolbar extends React.Component {
           id={'toolbar.columns-popup-id'}
           open={Boolean(uploadButtonsPopup)}
           anchorEl={uploadButtonsPopup}
-          onClose={this.handleClose}
+          onClose={this.handlePopoverClose}
           anchorOrigin={{
             vertical: 'bottom',
             horizontal: 'left'

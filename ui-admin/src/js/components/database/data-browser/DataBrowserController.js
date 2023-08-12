@@ -68,6 +68,21 @@ export default class DataBrowserController extends ComponentController {
     })
   }
 
+  async rename(oldName, newName) {
+    return new Promise((resolve, reject) => {
+      this.component.datastoreServer.move(this.owner, this.path + oldName, this.owner, this.path + newName, async (success) => {
+        if (success) {
+          if (this.gridController) {
+            await this.gridController.load()
+          }
+          resolve()
+        } else {
+          reject()
+        }
+      })
+    })
+  }
+
   async delete(paths) {
     for (const path of paths) {
       await this._delete(path)

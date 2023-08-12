@@ -76,7 +76,8 @@ class LeftToolbar extends React.Component {
       width: 0,
       hiddenButtonsPopup: null,
       newFolderDialogOpen: false,
-      deleteDialogOpen: false
+      deleteDialogOpen: false,
+      renameDialogOpen: false
     }
 
     this.controller = this.props.controller
@@ -106,6 +107,25 @@ class LeftToolbar extends React.Component {
 
   closeDeleteDialog() {
     this.setState({ deleteDialogOpen: false })
+  }
+
+  openRenameDialog() {
+    this.setState({ renameDialogOpen: true })
+  }
+
+  closeRenameDialog() {
+    this.setState({ renameDialogOpen: false })
+  }
+
+  async handleRenameConfirm(newName) {
+    const { multiselectedFiles } = this.props
+    const oldName = multiselectedFiles.values().next().value.name
+    this.closeRenameDialog()
+    await this.controller.rename(oldName, newName)
+  }
+
+  handleRenameCancel() {
+    this.closeRenameDialog()
   }
 
   async handleDeleteConfirm() {
@@ -185,6 +205,7 @@ class LeftToolbar extends React.Component {
         variant='text'
         disabled={multiselectedFiles.size !== 1}
         startIcon={<RenameIcon />}
+        onClick={this.openRenameDialog}
       >
         {messages.get(messages.RENAME)}
       </Button>,
@@ -241,17 +262,28 @@ class LeftToolbar extends React.Component {
       </Popover>
     )
 
+    const selectedValue = multiselectedFiles.values().next().value;
     return (
       <div className={classes.buttons}>
         {hideButtons
           ? [...buttons.slice(0, visibleButtonsCount), ellipsisButton, popover]
           : buttons}
         <ConfirmationDialog
+          key='delete-dialog'
           open={deleteDialogOpen}
           onConfirm={this.handleDeleteConfirm}
           onCancel={this.handleDeleteCancel}
           title={messages.get(messages.DELETE)}
           content={messages.get(messages.CONFIRMATION_DELETE_SELECTED)}
+        />
+        <InputDialog
+          key='rename-dialog'
+          open={this.state.renameDialogOpen}
+          title={selectedValue.directory ? messages.get(messages.RENAME_FOLDER) : messages.get(messages.RENAME_FILE)}
+          inputLabel={selectedValue.directory ? messages.get(messages.FOLDER_NAME) : messages.get(messages.FILE_NAME)}
+          inputValue={selectedValue.name}
+          onCancel={this.handleRenameCancel}
+          onConfirm={this.handleRenameConfirm}
         />
       </div>
     );
