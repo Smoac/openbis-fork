@@ -39,8 +39,10 @@ const styles = theme => ({
     '& *': {
       fontSize: '1.125rem'
     },
-    '& .disabled':  {
-      pointerEvents: 'none'
+    '& *:not(:first-child):last-child':  {
+      pointerEvents: 'none',
+      color: 'inherit',
+      fontWeight: 'bold'
     }
   },
 })
@@ -73,7 +75,7 @@ class NavigationBar extends React.Component {
     components[0] = <IconButton
           key='root'
           classes={{ root: classes.button }}
-          color={color}
+          color='secondary'
           size={iconButtonSize}
           variant='outlined'
           onClick={() => onPathChange('/')}
@@ -88,7 +90,6 @@ class NavigationBar extends React.Component {
         classes={{ root: classes.link }}
         component="button"
         onClick={() => onPathChange(paths[i])}
-        disabled={i === path.length - 1}
       >
         {folders[i]}
       </Link>
