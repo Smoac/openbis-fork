@@ -113,7 +113,6 @@ class LeftToolbar extends React.Component {
 
     this.closeDeleteDialog()
     await this.controller.delete(Array.from(multiselectedFiles).map((file) => file.path))
-    // await this.controller.delete(multiselectedFiles)
   }
 
   handleDeleteCancel() {
@@ -146,7 +145,7 @@ class LeftToolbar extends React.Component {
   }
 
   renderSelectionContextToolbar() {
-    const { classes, buttonSize } = this.props
+    const { classes, buttonSize, multiselectedFiles } = this.props
     const { width, hiddenButtonsPopup, deleteDialogOpen } = this.state
 
     const ellipsisButtonSize = 24
@@ -184,6 +183,7 @@ class LeftToolbar extends React.Component {
         color={color}
         size={buttonSize}
         variant='text'
+        disabled={multiselectedFiles.size !== 1}
         startIcon={<RenameIcon />}
       >
         {messages.get(messages.RENAME)}
