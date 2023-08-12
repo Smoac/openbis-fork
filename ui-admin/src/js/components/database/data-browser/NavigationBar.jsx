@@ -39,18 +39,20 @@ const styles = theme => ({
     alignItems: 'center',
     '&>*': {
       minWidth: 'auto',
+      height: theme.spacing(4),
       fontSize: '1.125rem',
       textTransform: 'none',
-      padding: '0 0.25rem',
-      margin: '0.25rem'
+      padding: '0 ' + theme.spacing(1),
+      margin: theme.spacing(0.5)
     },
     '&>*:first-child':  {
       padding: '0 0',
-      margin: '0.25rem 0.5rem 0.25rem 0.25rem'
+      margin: theme.spacing(1) + ' ' + theme.spacing(2) + ' ' +
+        theme.spacing(1) + ' ' + theme.spacing(1)
     },
     '&>*:first-child svg': {
-      width: '31.5px',
-      height: '31.5px'
+      width: theme.spacing(4),
+      height: theme.spacing(4)
     },
     '&>*:not(:first-child):last-child':  {
       pointerEvents: 'none',
