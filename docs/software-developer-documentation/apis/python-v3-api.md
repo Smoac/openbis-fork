@@ -142,9 +142,13 @@ pat = o.get_or_create_personal_access_token(sessionName="Project A")
 o.set_token(pat.permId, save_token=True) 
 ```
 
-**Note:** If there is an existing PAT with the same _sessionName_ which is still valid and the validity is within the warning period (defined by the server), then this existing PAT is returned instead. However, you can enforce creating a new PAT by passing the argument `force=True`.
+```{note}
+If there is an existing PAT with the same _sessionName_ which is still valid and the validity is within the warning period (defined by the server), then this existing PAT is returned instead. However, you can enforce creating a new PAT by passing the argument `force=True`.
+```
 
-**Note:** Most operations are permitted using the PAT, _except_:
+```{note}
+Most operations are permitted using the PAT, _except_:
+```
 
 - all operations on personal access tokens itself
 - i.e. create, list, delete operations on tokens
@@ -441,7 +445,7 @@ material_type.get_property_assignments()
 
 ### create plugins
 
-Plugins are Jython scripts that can accomplish more complex data-checks than ordinary types and vocabularies can achieve. They are assigned to entity types (dataset type, sample type etc). [Documentation and examples can be found here](https://wiki-bsse.ethz.ch/display/openBISDoc/Properties+Handled+By+Scripts)
+Plugins are Jython scripts that can accomplish more complex data-checks than ordinary types and vocabularies can achieve. They are assigned to entity types (dataset type, sample type etc). [Documentation and examples can be found here](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html)
 
 ```python
 pl = o.new_plugin(

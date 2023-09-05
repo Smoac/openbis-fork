@@ -55,7 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
 
 /**
  * Handles Managed Properties of batch uploads/updates.
- * 
+ *
  * @author Franz-Josef Elmer
  */
 public class PropertiesBatchManager implements IPropertiesBatchManager
@@ -159,7 +159,7 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
             {
                 EntityProperty entityProperty =
                         evaluateManagedProperty(code, person, entry.getValue(), evalContext);
-                if (false == ManagedProperty.isSpecialValue(entityProperty.getValue()))
+                if (false == ManagedProperty.isSpecialValue(entityProperty.getStringValue()))
                 {
                     newProperties.add(entityProperty);
                 }
@@ -216,7 +216,7 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
         for (IEntityProperty property : properties)
         {
             final String code = property.getPropertyType().getCode().toUpperCase();
-            final String value = property.getValue();
+            final String value = property.getStringValue();
             originalColumnBindings.put(ManagedPropertyFunctions.originalColumnNameBindingKey(code),
                     value);
 

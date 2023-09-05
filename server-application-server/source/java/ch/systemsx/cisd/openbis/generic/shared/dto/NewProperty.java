@@ -33,13 +33,13 @@ public class NewProperty implements Serializable
 
     String property;
 
-    String value;
+    Serializable value;
 
     public NewProperty()
     {
     }
 
-    public NewProperty(String name, String value)
+    public NewProperty(String name, Serializable value)
     {
         this.property = name;
         this.value = value;
@@ -58,7 +58,7 @@ public class NewProperty implements Serializable
 
     public String getValue()
     {
-        return value;
+        return getPropertyAsString(value);
     }
 
     @BeanProperty(label = "value", optional = false)
@@ -96,6 +96,27 @@ public class NewProperty implements Serializable
             return builder.isEquals();
         }
         return false;
+    }
+
+    private String getPropertyAsString(Serializable propertyValue) {
+        if(propertyValue == null) {
+            return null;
+        } else {
+            if(propertyValue.getClass().isArray()) {
+                Serializable[] values = (Serializable[]) propertyValue;
+                StringBuilder builder = new StringBuilder("[");
+                for(Serializable value : values) {
+                    if(builder.length() > 1) {
+                        builder.append(", ");
+                    }
+                    builder.append(value);
+                }
+                builder.append("]");
+                return builder.toString();
+            } else {
+                return (String) propertyValue;
+            }
+        }
     }
 
 }

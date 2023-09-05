@@ -17,15 +17,22 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
 import java.util.Set;
 
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import org.apache.log4j.Logger;
 
 class PlaceholderPropertyCreator implements IPropertyPlaceholderCreator
 {
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            PlaceholderPropertyCreator.class);
+
     /**
-     * Adds placeholders for <var>dynamicProperties</var> to <var>definedProperties</var> if they don't exist yet.
+     * Adds placeholders for <var>dynamicProperties</var> to <var>definedProperties</var> if they
+     * don't exist yet.
      */
     @Override
     public void addDynamicPropertiesPlaceholders(Set<IEntityProperty> definedProperties,
@@ -36,7 +43,8 @@ class PlaceholderPropertyCreator implements IPropertyPlaceholderCreator
     }
 
     /**
-     * Adds placeholders for <var>managedProperties</var> to <var>definedProperties</var> if they don't exist yet.
+     * Adds placeholders for <var>managedProperties</var> to <var>definedProperties</var> if they
+     * don't exist yet.
      */
     @Override
     public void addManagedPropertiesPlaceholders(Set<IEntityProperty> definedProperties,
@@ -47,21 +55,25 @@ class PlaceholderPropertyCreator implements IPropertyPlaceholderCreator
     }
 
     /**
-     * Adds <var>placeholderProperties</var> with specified <var>placeholderValue</var>to <var>definedProperties</var> if they don't exist yet.
+     * Adds <var>placeholderProperties</var> with specified <var>placeholderValue</var>to
+     * <var>definedProperties</var> if they don't exist yet.
      */
     private void addPlaceholders(Set<IEntityProperty> definedProperties,
             Set<String> placeholderProperties, String placeholderValue)
     {
         for (String p : placeholderProperties)
         {
-            if (definedProperties.contains(p) == false)
+            if (definedProperties.stream()
+                    .anyMatch(x -> x.getPropertyType().getCode().equals(p)) == false)
             {
+                definedProperties.forEach(operationLog::info);
                 final IEntityProperty entityProperty = new EntityProperty();
                 entityProperty.setValue(placeholderValue);
                 PropertyType propertyType = new PropertyType();
                 propertyType.setCode(p);
                 entityProperty.setPropertyType(propertyType);
                 definedProperties.add(entityProperty);
+                definedProperties.forEach(operationLog::info);
             }
         }
     }

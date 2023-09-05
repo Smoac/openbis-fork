@@ -57,11 +57,9 @@ will be established. This is needed for editing additional node
 parameters. For example, the combo boxes of the reader nodes have to be
 populated.
 
-For a data set registration node the credentials combo box is only
-filled if all nodes of the upstream part of the workflow are
-successfully configured.
-
- 
+```{warning}
+For a data set registration node the credentials combo box is only filled if all nodes of the upstream part of the workflow are successfully configured.
+```
 
 The OK button closes the node setting dialog. The connection parameters
 and all other parameters will be stored and used when executing a
@@ -97,11 +95,9 @@ user ID (called 'Login') and a password:
 The credentials are saved with the workflow except of the passwords. The
 user will be asked for the passwords after loading a workflow.
 
- 
-
-If user ID and password are entered directly in the node setting dialog
-the KNIME master key on the preferences page **KNIME -> Master Key**
-should be activated. Otherwise passwords will be stored unencrypted!
+```{warning} 
+If user ID and password are entered directly in the node setting dialog the KNIME master key on the preferences page **KNIME -> Master Key** should be activated. Otherwise passwords will be stored unencrypted!
+```
 
 ### openBIS Query Reader
 
@@ -219,7 +215,7 @@ the flow variables `openbis.DATA_SET`, `openbis.EXPERIMENT`, or
 ### openBIS Aggregation Service Report Reader
 
 This nodes allows to get an [aggregation
-service](/display/openBISDoc2010/Reporting+Plugins) report. Only
+service](https://openbis.readthedocs.io/en/latest/user-documentation/legacy-advance-features/openbis-kinme-nodes.html#openbis-aggregation-service-report-reader) report. Only
 aggregation services where the service key starts with `knime-` can be
 chosen by the user in the node settings dialog.  After the service has
 been chosen the aggregation service will be invoked with the parameter
@@ -229,12 +225,12 @@ its type. This is used to created an appropriated form in the node
 settings dialog. The values specified by the user will be used to invoke
 the aggregation service when the node is executed. The result will be
 available as a KNIME table. See also section [KNIME Aggregation Service
-Specifications](#openBISKNIMENodes-KNIMEAggregationServiceSpecifications).
+Specifications](https://openbis.readthedocs.io/en/latest/user-documentation/legacy-advance-features/openbis-kinme-nodes.html#knime-aggregation-service-specifications).
 
 ### openBIS Aggregated Data File Importer
 
 This nodes allows to invoke an [aggregation
-service](/display/openBISDoc2010/Reporting+Plugins) which returns a name
+service](https://openbis.readthedocs.io/en/latest/user-documentation/legacy-advance-features/openbis-kinme-nodes.html#knime-aggregation-service-specifications) which returns a name
 of a file in the session workspace which will be downloaded and made
 available for nodes with input ports of type
 `org.knime.core.data.uri.URIPortObject`. Such nodes exist in
@@ -253,10 +249,10 @@ KNIME Aggregation Service Specifications
 
 Nodes of type 'openBIS Aggregation Service Report Reader' and 'openBIS
 Aggregated Data File Importer' rely on [aggregation
-services](/display/openBISDoc2010/Reporting+Plugins) which follow a
+services](https://openbis.readthedocs.io/en/latest/user-documentation/legacy-advance-features/openbis-kinme-nodes.html#knime-aggregation-service-specifications) which follow a
 certain protocol. In order to distinguish these services from other
 aggregation services the service key (i.e. [core
-plugins](/display/openBISDoc2010/Core+Plugins) ID) has to start
+plugins](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/core-plugins.html) ID) has to start
 with `knime-`. The specifications of such services are the following:
 
 1.  If there is a parameter `_REQUEST_ `with
@@ -291,7 +287,7 @@ with `knime-`. The specifications of such services are the following:
 
 In order to simplify KNIME aggregation services a Helper API in Java is
 available
-[openbis-knime-server.jar](/download/attachments/53746033/openbis-knime-server.jar?version=1&modificationDate=1601541485341&api=v2).
+[openbis-knime-server.jar](att/openbis-knime-server.jar).
 It should be added to openBIS installation in
 folder `<installation folder>/servers/datastore_server/ext-lib`.
 
@@ -328,74 +324,77 @@ argument: The string array of vocabulary terms.
 
 #### Example for an Aggregation Service Report Reader
 
-    from ch.systemsx.cisd.openbis.knime.server import AggregationCommand
-    from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
-    from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchSubCriteria
-    from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import MatchClause
-    from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import MatchClauseAttribute
-    EXPERIMENT = 'Experiment'
-    DATA_SET_COLUMN = 'Data Set'
-    PATH_COLUMN = 'Path'
-    SIZE_COLUMN = 'Size'
-    def scan(tableBuilder, dataSetCode, node):
-        if node.isDirectory():
-            for child in node.childNodes:
-                scan(tableBuilder, dataSetCode, child)
-        else:
-            row = tableBuilder.addRow()
-            row.setCell(DATA_SET_COLUMN, dataSetCode)
-            row.setCell(PATH_COLUMN, node.relativePath)
-            row.setCell(SIZE_COLUMN, node.fileLength)
-    class MyAggregationCommand(AggregationCommand):
-        def defineParameters(self, builder):
-            builder.parameter(EXPERIMENT).experiment()
-            
-        def aggregate(self, parameters, tableBuilder):
-            experiment = searchService.getExperiment(parameters.get(EXPERIMENT))
-            searchCriteria = SearchCriteria()
-            subCriteria = SearchCriteria()
-            subCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.PERM_ID, experiment.permId))
-            searchCriteria.addSubCriteria(SearchSubCriteria.createExperimentCriteria(subCriteria))
-            dataSets = searchService.searchForDataSets(searchCriteria)
-            tableBuilder.addHeader(DATA_SET_COLUMN)
-            tableBuilder.addHeader(PATH_COLUMN)
-            tableBuilder.addHeader(SIZE_COLUMN)
-            for dataSet in dataSets:
-                dataSetCode = dataSet.dataSetCode
-                try:
-                    content = contentProvider.getContent(dataSetCode)
-                    scan(tableBuilder, dataSetCode, content.rootNode)
-                finally:
-                    if content != None:
-                        content.close()
-            
-    def aggregate(parameters, tableBuilder):
-        MyAggregationCommand().handleRequest(parameters, tableBuilder)
+```py
+from ch.systemsx.cisd.openbis.knime.server import AggregationCommand
+from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
+from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchSubCriteria
+from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import MatchClause
+from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import MatchClauseAttribute
+EXPERIMENT = 'Experiment'
+DATA_SET_COLUMN = 'Data Set'
+PATH_COLUMN = 'Path'
+SIZE_COLUMN = 'Size'
+def scan(tableBuilder, dataSetCode, node):
+    if node.isDirectory():
+        for child in node.childNodes:
+            scan(tableBuilder, dataSetCode, child)
+    else:
+        row = tableBuilder.addRow()
+        row.setCell(DATA_SET_COLUMN, dataSetCode)
+        row.setCell(PATH_COLUMN, node.relativePath)
+        row.setCell(SIZE_COLUMN, node.fileLength)
+class MyAggregationCommand(AggregationCommand):
+    def defineParameters(self, builder):
+        builder.parameter(EXPERIMENT).experiment()
+        
+    def aggregate(self, parameters, tableBuilder):
+        experiment = searchService.getExperiment(parameters.get(EXPERIMENT))
+        searchCriteria = SearchCriteria()
+        subCriteria = SearchCriteria()
+        subCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.PERM_ID, experiment.permId))
+        searchCriteria.addSubCriteria(SearchSubCriteria.createExperimentCriteria(subCriteria))
+        dataSets = searchService.searchForDataSets(searchCriteria)
+        tableBuilder.addHeader(DATA_SET_COLUMN)
+        tableBuilder.addHeader(PATH_COLUMN)
+        tableBuilder.addHeader(SIZE_COLUMN)
+        for dataSet in dataSets:
+            dataSetCode = dataSet.dataSetCode
+            try:
+                content = contentProvider.getContent(dataSetCode)
+                scan(tableBuilder, dataSetCode, content.rootNode)
+            finally:
+                if content != None:
+                    content.close()
+        
+def aggregate(parameters, tableBuilder):
+    MyAggregationCommand().handleRequest(parameters, tableBuilder)
+```
+
 
 #### Example for an Aggregated Data File Importer
 
- 
+```py
+import os.path
+from java.util import Date
+from ch.systemsx.cisd.openbis.knime.server import AggregationFileCommand
 
-    import os.path
-    from java.util import Date
-    from ch.systemsx.cisd.openbis.knime.server import AggregationFileCommand
+class MyAggregationFileCommand(AggregationFileCommand):
+    def defineParameters(self, builder):
+        builder.parameter('Greeting Type').vocabulary(['Hi', 'Hello'])
+        builder.parameter('Name')
+        builder.parameter('Sample').sample()
+        
+    def createFile(self, parameters):
+        sessionWorkspace = sessionWorkspaceProvider.getSessionWorkspace()
+        filename = "report.txt"
+        output = open(os.path.join(sessionWorkspace.getAbsolutePath(), filename), "w")
+        name = parameters.get('Name')
+        sample = searchService.getSample(parameters.get('Sample'))
+        output.write(str(parameters.get('Greeting Type')) + " " + str(name) + "!\n\n" + Date().toString() + "\n")
+        output.write(sample.getSampleType())
+        output.close()
+        return filename
 
-    class MyAggregationFileCommand(AggregationFileCommand):
-        def defineParameters(self, builder):
-            builder.parameter('Greeting Type').vocabulary(['Hi', 'Hello'])
-            builder.parameter('Name')
-            builder.parameter('Sample').sample()
-            
-        def createFile(self, parameters):
-            sessionWorkspace = sessionWorkspaceProvider.getSessionWorkspace()
-            filename = "report.txt"
-            output = open(os.path.join(sessionWorkspace.getAbsolutePath(), filename), "w")
-            name = parameters.get('Name')
-            sample = searchService.getSample(parameters.get('Sample'))
-            output.write(str(parameters.get('Greeting Type')) + " " + str(name) + "!\n\n" + Date().toString() + "\n")
-            output.write(sample.getSampleType())
-            output.close()
-            return filename
-
-    def aggregate(parameters, tableBuilder):
-        MyAggregationFileCommand().handleRequest(parameters, tableBuilder)
+def aggregate(parameters, tableBuilder):
+    MyAggregationFileCommand().handleRequest(parameters, tableBuilder)
+```

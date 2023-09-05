@@ -20,7 +20,7 @@ available by default, but needs to be enabled and configured by a
 download page: [openBIS
 download.](https://wiki-bsse.ethz.ch/display/bis/openBIS+Download+Page)
 Further documentation can be found here: [JupyterHub for
-openBIS](https://unlimited.ethz.ch/display/openBISDoc2010/JupyterHub+for+openBIS)  
+openBIS](https://openbis.readthedocs.io/en/latest/user-documentation/advance-features/jupiterhub-for-openbis.html)  
   
 
 
@@ -135,7 +135,7 @@ bottom of the  error message you can see:
 
  
 
-![](https://openbis.ch/wp-content/uploads/2022/03/invalid-session-token-error-1024x58.jpg)
+![](att/invalid-session-token-error-1024x58.jpg)
 
  
 

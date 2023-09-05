@@ -317,7 +317,6 @@ public class AfsClientTest
 
         assertEquals("POST", httpServer.getHttpExchange().getRequestMethod());
         assertTrue(result);
-        assertEquals(0, httpServer.getLastRequestBody().length);
     }
 
     @Test
@@ -330,7 +329,6 @@ public class AfsClientTest
 
         assertEquals("POST", httpServer.getHttpExchange().getRequestMethod());
         assertTrue(result);
-        assertEquals(0, httpServer.getLastRequestBody().length);
     }
 
     private void login() throws Exception

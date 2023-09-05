@@ -515,6 +515,11 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 			var propertyType = propertyTypeGroup.propertyTypes[j];
 			var propertyTypeV3 = profile.getPropertyTypeFromSampleTypeV3(this._experimentFormModel.experimentType, propertyType.code);
+			var isMultiValue = false;
+            if(propertyTypeV3.isMultiValue) {
+                isMultiValue = propertyTypeV3.isMultiValue();
+            }
+
 			profile.fixV1PropertyTypeVocabulary(propertyType);
 			FormUtil.fixStringPropertiesForForm(propertyTypeV3, this._experimentFormModel.experiment);
 
@@ -565,7 +570,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
                                 $controlGroup = FormUtil.getFieldForComponentWithLabel($component, propertyType.label);
                             }
                         } else if(propertyType.dataType === "SAMPLE") {
-                            var $component = new SampleField(false, '', false, value, true);
+                            var $component = new SampleField(false, '', false, value, true, isMultiValue);
                             $controlGroup = FormUtil.getFieldForComponentWithLabel($component, propertyType.label);
                         } else {
                     	    $controlGroup = FormUtil.createPropertyField(propertyType, value);
@@ -578,13 +583,25 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 					if(propertyType.code === "$DEFAULT_OBJECT_TYPE") {
 						$component = FormUtil.getSampleTypeDropdown(propertyType.code, false, null, null, IdentifierUtil.getSpaceCodeFromIdentifier(this._experimentFormModel.experiment.identifier), true);
 					} else {
-						$component = FormUtil.getFieldForPropertyType(propertyType, value);
+						$component = FormUtil.getFieldForPropertyType(propertyType, value, isMultiValue);
 					}
 
 					if(this._experimentFormModel.mode === FormMode.EDIT) {
 						if(propertyType.dataType === "BOOLEAN") {
 							FormUtil.setFieldValue(propertyType, $component, value);
 						} else if(propertyType.dataType === "TIMESTAMP" || propertyType.dataType === "DATE") {
+						} else if(isMultiValue) {
+						    var valueV3 = this._experimentFormModel.v3_experiment.properties[propertyType.code];
+						    if(valueV3) {
+                                var valueArray;
+                                if(Array.isArray(valueV3)) {
+                                    valueArray = valueV3.sort();
+                                } else {
+                                    valueArray = valueV3.split(',');
+                                    valueArray = valueArray.map(x => x.trim()).sort();
+                                }
+                                $component.val(valueArray);
+                            }
 						} else {
 							$component.val(value);
 						}
@@ -592,31 +609,72 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 						$component.val(""); //HACK-FIX: Not all browsers show the placeholder in Bootstrap 3 if you don't set an empty value.
 					}
 
-					var changeEvent = function(propertyType) {
-						return function(jsEvent, newValue) {
-							var propertyTypeCode = null;
-							propertyTypeCode = propertyType.code;
-							_this._experimentFormModel.isFormDirty = true;
-							var field = $(this);
-							if(propertyType.dataType === "BOOLEAN") {
-								_this._experimentFormModel.experiment.properties[propertyTypeCode] = FormUtil.getBooleanValue(field);
-							} else if (propertyType.dataType === "TIMESTAMP" || propertyType.dataType === "DATE") {
-								var timeValue = $($(field.children()[0]).children()[0]).val();
-								var isValidValue = Util.isDateValid(timeValue, propertyType.dataType === "DATE");
-								if(!isValidValue.isValid) {
-								    Util.showUserError(isValidValue.error);
-								} else {
-								    _this._experimentFormModel.experiment.properties[propertyTypeCode] = timeValue;
-								}
-							} else {
-								if(newValue !== undefined && newValue !== null) {
-									_this._experimentFormModel.experiment.properties[propertyTypeCode] = Util.getEmptyIfNull(newValue);
-								} else {
-									_this._experimentFormModel.experiment.properties[propertyTypeCode] = Util.getEmptyIfNull(field.val());
-								}
-							}
-						}
-					}
+					var changeEvent = function(propertyType, isMultiValueProperty) {
+                        return function(jsEvent, newValue) {
+                            var propertyTypeCode = null;
+                            propertyTypeCode = propertyType.code;
+                            _this._experimentFormModel.isFormDirty = true;
+                            var field = $(this);
+                            if(propertyType.dataType === "BOOLEAN") {
+                                _this._experimentFormModel.experiment.properties[propertyTypeCode] = FormUtil.getBooleanValue(field);
+                            } else if (propertyType.dataType === "TIMESTAMP" || propertyType.dataType === "DATE") {
+                                var timeValue = $($(field.children()[0]).children()[0]).val();
+                                var isValidValue = Util.isDateValid(timeValue, propertyType.dataType === "DATE");
+                                if(!isValidValue.isValid) {
+                                    Util.showUserError(isValidValue.error);
+                                } else {
+                                    _this._experimentFormModel.experiment.properties[propertyTypeCode] = timeValue;
+                                }
+                            } else {
+                                if(newValue !== undefined && newValue !== null) {
+                                    _this._experimentFormModel.experiment.properties[propertyTypeCode] = Util.getEmptyIfNull(newValue);
+                                } else {
+                                    var lastSelected = Util.getEmptyIfNull($('option', this).filter(':selected:last').val());
+                                    var dataLast = field.data('last');
+                                     if(propertyType.dataType === "CONTROLLEDVOCABULARY" && isMultiValueProperty) {
+                                         var props = _this._experimentFormModel.experiment.properties[propertyTypeCode];
+                                         if (field.val()) {
+                                        if(props !== undefined) {
+                                            if(props != '' && field.val().includes('')) {
+                                                _this._experimentFormModel.experiment.properties[propertyTypeCode] = '';
+                                                field.val([]);
+                                            } else {
+                                                if(props == '' && field.val().includes('')) {
+                                                    var removedEmpty = field.val().filter(x => x != '');
+                                                    _this._experimentFormModel.experiment.properties[propertyTypeCode] = removedEmpty;
+                                                    field.val(removedEmpty);
+                                                } else {
+                                                    _this._experimentFormModel.experiment.properties[propertyTypeCode] = Util.getEmptyIfNull(field.val());
+                                                }
+                                            }
+                                        } else {
+                                            if(field.val().includes('')) {
+                                                if(dataLast == undefined) {
+                                                    var val = field.val().filter(x => x != '');
+                                                    _this._experimentFormModel.experiment.properties[propertyTypeCode] = val;
+                                                    field.val(val);
+                                                } else {
+                                                    _this._experimentFormModel.experiment.properties[propertyTypeCode] = '';
+                                                    field.val([]);
+                                                }
+                                            } else {
+                                                _this._experimentFormModel.experiment.properties[propertyTypeCode] = field.val();
+                                            }
+                                        }
+                                         } else {
+                                              _this._experimentFormModel.experiment.properties[propertyTypeCode] = Util.getEmptyIfNull(field.val());
+                                         }
+
+
+
+                                    } else {
+                                        _this._experimentFormModel.experiment.properties[propertyTypeCode] = Util.getEmptyIfNull(field.val());
+                                    }
+                                    field.data('last', field.val());
+                                }
+                            }
+                        }
+                    }
 
 					//Avoid modifications in properties managed by scripts
 					if(propertyType.managed || propertyType.dinamic) {
@@ -650,7 +708,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
                     } else if(propertyType.dataType === "TIMESTAMP" || propertyType.dataType === "DATE") {
 						$component.on("dp.change", changeEvent(propertyType));
 					} else {
-						$component.change(changeEvent(propertyType));
+						$component.change(changeEvent(propertyType, isMultiValue));
 					}
 
 					$controlGroup = FormUtil.getFieldForComponentWithLabel($component, propertyType.label);

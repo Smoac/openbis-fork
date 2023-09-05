@@ -9,8 +9,7 @@ Additional Functionalities
 Parent-child relationships between *Objects* can be visualised as trees
 or tables in the ELN.
 
-To see the genealogical tree, select the **Hierarchy Graph** option from
-the **More…**dropdown in an entity form*.*
+To see the genealogical tree, select the **Hierarchy Graph** option from the **More…** dropdown in an entity form.
 
  
 
@@ -25,8 +24,7 @@ and/or children and which types to show.
 
  
 
-To view the genealogy of an *Object* in a tabular format, select the
-**Hierarchy Table** option from the **More…** dropdown.
+To view the genealogy of an *Object* in a tabular format, select the **Hierarchy Table** option from the **More…** dropdown.
 
 Updated on March 4, 2022
  
@@ -50,15 +48,11 @@ Per Column** and **Global Filter**. The first allows to filter on
 individual columns, or multiple columns, whereas the second filters
 terms across the entire table using the **AND** or **OR** operator. 
 
->  
->
-![image info](img/filter-per-column-tables-1024x248.png)
->
-![image info](img/global-filter-tables-1024x219.png)
->
->  
 
->  
+![image info](img/filter-per-column-tables-1024x248.png)
+
+![image info](img/global-filter-tables-1024x219.png)
+
 
 ### Sorting
 
@@ -71,14 +65,14 @@ each column, as shown below.
 
 ![image info](img/multi-colums-sorting-1024x334.png)
 
->  
+
 
 ### Exports
 
 Tables can be exported in different ways, using the export button shown
 below.
 
->  
+
 
 ![image info](img/export-tables-1024x419.png)
 
@@ -277,8 +271,7 @@ not moved to the trashcan first.
 
  
 
-To empty the whole trashcan, click the blue **Empty Trash **button above
-the table.
+To empty the whole trashcan, click the blue **Empty Trash** button above the table.
 
 To delete permanently single entries choose one of two options from the
 Operations dropdown:
@@ -293,7 +286,7 @@ Operations dropdown:
  
 
 If one entity was unintentionally deleted, the operation can be reverted
-at this stage by choosing the** Revert Deletions** option from
+at this stage by choosing the **Revert Deletions** option from
 the **Operations** drop down in the table.
 
  
@@ -312,7 +305,7 @@ menu. This shows all controlled vocabularies registered in openBIS and
 the terms they contain. Vocabularies are predefined lists of values to
 choose from in given fields. Vocabularies can be created/modified by an
 openBIS *Instance admin* (see [New Entity Type
-Registration](https://openbis.ch/index.php/docs/admin-documentation-openbis-19-06-4/new-entity-type-registration/)).
+Registration](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/new-entity-type-registration.html)).
 
 This information is needed for filling the forms for **Batch
 Upload **or**Batch Update** of *Objects* via TSV file. If an *Object*
@@ -346,8 +339,7 @@ A Space admin role is necessary to freeze entities in a given Space.
 **IMPORTANT: the freezing is IRREVERSIBLE!**  
   
 
-This operation cannot be undone from any UI, not even by an *Instance
-admin.* Please freeze entities only when you are absolutely sure that
+This operation cannot be undone from any UI, not even by an *Instance admin.* Please freeze entities only when you are absolutely sure that
 they should not be further modified!
 
 ###  **How to freeze an entity**
@@ -464,7 +456,7 @@ password and save.
 |Copy Object|x (only if the Experiment is not frozen)||
 |Export|x||
 
-**5. Freeze Dataset only **  
+**5. Freeze Dataset only**  
 
 ||Allowed|Not allowed|
 |--- |--- |--- |
@@ -598,7 +590,7 @@ as metadata in openBIS.
 Custom imports are not available by default, but need to be enabled on
 the server side by a *system admin*, and a dropbox script needs to be
 associated with an import (see [Custom
-Imports](https://unlimited.ethz.ch/display/openBISDoc2010/Custom+Import)).
+Imports](https://openbis.readthedocs.io/en/latest/software-developer-documentation/legacy-server-side-extensions/custom-import.html)).
 
  
 
@@ -738,7 +730,7 @@ For every dataset, the history of changes can be accessed from the
  
 
 For a *Dataset*, the **PermID** (Permanent Identifier) of the
-*Object*/*Collection* it belongs to is shown. If a* Dataset* is moved
+*Object*/*Collection* it belongs to is shown. If a *Dataset* is moved
 from one *Object*/*Collection* to another, the PermID of the old and new
 *Objects*/*Collections* are shown in the history table.
 
@@ -746,7 +738,7 @@ Updated on November 10, 2022
 
 ## Spreadsheet
 
-The spreadsheet component needs to be enabled by a group admin or lab manager who can edit the ELN Settings, as described here: [Enable Rich Text Editor or Spreadsheet Widgets](../general-admin-users/admins-documentation/new-entity-type-registration.md)
+The spreadsheet component needs to be enabled by a group admin or lab manager who can edit the ELN Settings, as described here: [Enable Rich Text Editor or Spreadsheet Widgets](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/admins-documentation/new-entity-type-registration.html#enable-rich-text-editor-or-spreadsheet-widgets)
 
 ![image info](img/Screenshot-2020-03-09-at-17.13.07.png)
 

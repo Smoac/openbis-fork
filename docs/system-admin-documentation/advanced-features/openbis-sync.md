@@ -13,55 +13,53 @@ data from several data-source instances.
 
 ## Data Source
 
-The Data Source instance provides a service based on the ResourceSync
-Framework Specification (see
-<http://www.openarchives.org/rs/1.1/resourcesync>). This service is
-provided as [core plugin](/pages/viewpage.action?pageId=80699503) module
-`openbis-sync` which has a DSS service based on [Service
-Plugins](/pages/viewpage.action?pageId=80699366).
+The Data Source instance provides a service based on the ResourceSync Framework Specification (see <http://www.openarchives.org/rs/1.1/resourcesync>). This service is provided as [core plugin](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/core-plugins.html#core-plugins) module `openbis-sync` which has a DSS service based on [Service Plugins](https://unlimited.ethz.ch/display/openBISDoc2010/Service+Plugins).
 
-This DSS service access the main openBIS database directly. If the name
-of this database isn't {{openbis\_prod}} the property `database.kind` in
-DSS service.properties should be defined with the same value as the same
-property in AS service.properties. Example:
+This DSS service access the main openBIS database directly. If the name of this database isn't {{openbis\_prod}} the property `database.kind` in DSS service.properties should be defined with the same value as the same property in AS service.properties. Example:
 
 **servers/openBIS-server/jetty/etc/plugin.properties**
 
-    ...
-    database.kind = production
-    ...
+```html
+...
+database.kind = production
+...
 
 **servers/datastore\_server/etc/plugin.properties**
 
-    ...
-    database.kind = production
-    ...
+...
+database.kind = production
+...
+```
 
-  
 
 The URL of the service is `<DSS base URL>/datastore_server/re-sync`. The
 returned XML document looks like the following:
 
-    <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:rs="http://www.openarchives.org/rs/terms/">
-      <rs:ln href="https://localhost:8444/datastore_server/re-sync/?verb=about.xml" rel="describedby"/>
-      <rs:md capability="description"/>
-      <url>
-        <loc>https://localhost:8444/datastore_server/re-sync/?verb=capabilitylist.xml</loc>
-        <rs:md capability="capabilitylist"/>
-      </url>
-    </urlset>
+```xml
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:rs="http://www.openarchives.org/rs/terms/">
+    <rs:ln href="https://localhost:8444/datastore_server/re-sync/?verb=about.xml" rel="describedby"/>
+    <rs:md capability="description"/>
+    <url>
+    <loc>https://localhost:8444/datastore_server/re-sync/?verb=capabilitylist.xml</loc>
+    <rs:md capability="capabilitylist"/>
+    </url>
+</urlset>
+```
+
 
 The loc element contains the URL which delivers a list of all
 capabilities:
 
-    <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:rs="http://www.openarchives.org/rs/terms/">
-      <rs:ln href="https://localhost:8444/datastore_server/re-sync/?verb=about.xml" rel="up"/>
-      <rs:md capability="capabilitylist" from="2013-02-07T22:39:00"/>
-      <url>
-        <loc>https://localhost:8444/datastore_server/re-sync/?verb=resourcelist.xml</loc>
-        <rs:md capability="resourcelist"/>
-      </url>
-    </urlset>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:rs="http://www.openarchives.org/rs/terms/">
+    <rs:ln href="https://localhost:8444/datastore_server/re-sync/?verb=about.xml" rel="up"/>
+    <rs:md capability="capabilitylist" from="2013-02-07T22:39:00"/>
+    <url>
+    <loc>https://localhost:8444/datastore_server/re-sync/?verb=resourcelist.xml</loc>
+    <rs:md capability="resourcelist"/>
+    </url>
+</urlset>
+```
+
 
 From capabilities described in the ResourceSync Framework Specification
 only `resourcelist` is supported. The resourcelist returns an XML with
@@ -86,17 +84,16 @@ Remarks:
 
 ## Harvester
 
-In order to get the data and meta-data from a Data Source openBIS
-instance a DSS harvester [maintenance
-task](/pages/viewpage.action?pageId=80699482) has to be configured on
-the Harvester openBIS instance. This maintenance task reads another
-configuration file each time the task is executed.
+In order to get the data and meta-data from a Data Source openBIS instance a DSS harvester [maintenance task](https://openbis.readthedocs.io/en/latest/system-admin-documentation/advanced-features/maintenance-tasks.html#maintenance-tasks) has to be configured on the Harvester openBIS instance. This maintenance task reads another configuration file each time the task is executed.
 
 **plugin.properties**
 
-    class = ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.HarvesterMaintenanceTask
-    interval = 1 d
-    harvester-config-file = ../../data/harvester-config.txt
+```
+class = ch.ethz.sis.openbis.generic.server.dss.plugins.sync.harvester.HarvesterMaintenanceTask
+interval = 1 d
+harvester-config-file = ../../data/harvester-config.txt
+```
+
 
 The only specific property of `HarvesterMaintenanceTask` is
 `harvester-config-file` which is absolute or relative path to the actual
@@ -113,15 +110,21 @@ service.properties. Example:
 
 **servers/openBIS-server/jetty/etc/plugin.properties**
 
-    ...
-    database.kind = production
-    ...
+```
+...
+database.kind = production
+...
+```
+
 
 **servers/datastore\_server/etc/plugin.properties**
 
-    ...
-    database.kind = production
-    ...
+```
+...
+database.kind = production
+...
+```
+
 
 ### Harvester Config File
 
@@ -129,31 +132,34 @@ Here is an example of a typical configuration:
 
 **harvester-config.txt**
 
-    [DS1]
+```
+[DS1]
 
-    resource-list-url = https://<data source host>:<DSS port>/datastore_server/re-sync
+resource-list-url = https://<data source host>:<DSS port>/datastore_server/re-sync
 
-    data-source-openbis-url = https://<data source host>:<AS port>/openbis/openbis
-    data-source-dss-url = https://<data source host>:<DSS port>/datastore_server
-    data-source-auth-realm = OAI-PMH
-    data-source-auth-user = <data source user id>
-    data-source-auth-pass = <data source password>
-    space-black-list = SYSTEM
-    space-white-list = ABC_.*
+data-source-openbis-url = https://<data source host>:<AS port>/openbis/openbis
+data-source-dss-url = https://<data source host>:<DSS port>/datastore_server
+data-source-auth-realm = OAI-PMH
+data-source-auth-user = <data source user id>
+data-source-auth-pass = <data source password>
+space-black-list = SYSTEM
+space-white-list = ABC_.*
 
-    harvester-user = <harvester user id>
-    harvester-pass = <harvester user password>
+harvester-user = <harvester user id>
+harvester-pass = <harvester user password>
 
-    keep-original-timestamps-and-users = false
-    harvester-tmp-dir = temp
-    last-sync-timestamp-file = ../../data/last-sync-timestamp-file_HRVSTR.txt
-    log-file = log/synchronization.log
+keep-original-timestamps-and-users = false
+harvester-tmp-dir = temp
+last-sync-timestamp-file = ../../data/last-sync-timestamp-file_HRVSTR.txt
+log-file = log/synchronization.log
 
-    email-addresses = <e-mail 1>, <e-mail 2>, ...
+email-addresses = <e-mail 1>, <e-mail 2>, ...
 
-    translate-using-data-source-alias = true
-    verbose = true
-    #dry-run = true
+translate-using-data-source-alias = true
+verbose = true
+#dry-run = true
+```
+
 
 -   The configuration file can have one or many section for each openBIS
     instance. Each section start with an arbitrary name in square

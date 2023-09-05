@@ -15,11 +15,14 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update;
 
+import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IMetaDataUpdateHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.PropertiesDeserializer;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.*;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -78,7 +81,8 @@ public class SampleUpdate implements IUpdate, IPropertiesHolder, IObjectUpdate<I
     private IdListUpdateValue<ITagId> tagIds = new IdListUpdateValue<ITagId>();
 
     @JsonProperty
-    private Map<String, String> properties = new HashMap<String, String>();
+    @JsonDeserialize(contentUsing = PropertiesDeserializer.class)
+    private Map<String, Serializable> properties = new HashMap<>();
 
     @JsonProperty
     private FieldUpdateValue<ISampleId> containerId = new FieldUpdateValue<ISampleId>();
@@ -229,7 +233,7 @@ public class SampleUpdate implements IUpdate, IPropertiesHolder, IObjectUpdate<I
 
     @Override
     @JsonIgnore
-    public void setProperty(String propertyName, String propertyValue)
+    public void setProperty(String propertyName, Serializable propertyValue)
     {
         properties.put(propertyName, propertyValue);
     }
@@ -238,19 +242,19 @@ public class SampleUpdate implements IUpdate, IPropertiesHolder, IObjectUpdate<I
     @JsonIgnore
     public String getProperty(String propertyName)
     {
-        return properties != null ? properties.get(propertyName) : null;
+        return properties != null ? (String) properties.get(propertyName) : null;
     }
 
     @Override
     @JsonIgnore
-    public void setProperties(Map<String, String> properties)
+    public void setProperties(Map<String, Serializable> properties)
     {
         this.properties = properties;
     }
 
     @Override
     @JsonIgnore
-    public Map<String, String> getProperties()
+    public Map<String, Serializable> getProperties()
     {
         return properties;
     }
@@ -343,7 +347,7 @@ public class SampleUpdate implements IUpdate, IPropertiesHolder, IObjectUpdate<I
     public Long getIntegerProperty(String propertyName)
     {
         String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.isBlank()) ?
+        return (propertyValue == null || propertyValue.trim().isEmpty()) ?
                 null :
                 Long.parseLong(propertyValue);
     }
@@ -382,7 +386,7 @@ public class SampleUpdate implements IUpdate, IPropertiesHolder, IObjectUpdate<I
     public Double getRealProperty(String propertyName)
     {
         String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.isBlank()) ?
+        return (propertyValue == null || propertyValue.trim().isEmpty()) ?
                 null :
                 Double.parseDouble(propertyValue);
     }
@@ -413,7 +417,7 @@ public class SampleUpdate implements IUpdate, IPropertiesHolder, IObjectUpdate<I
     public Boolean getBooleanProperty(String propertyName)
     {
         String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.isBlank()) ?
+        return (propertyValue == null || propertyValue.trim().isEmpty()) ?
                 null :
                 Boolean.parseBoolean(propertyValue);
     }
@@ -449,37 +453,56 @@ public class SampleUpdate implements IUpdate, IPropertiesHolder, IObjectUpdate<I
     }
 
     @Override
-    public String getControlledVocabularyProperty(String propertyName)
+    public String[] getControlledVocabularyProperty(String propertyName)
     {
-        return getProperty(propertyName);
+        if(getProperties() == null || getProperties().get(propertyName) == null) {
+            return null;
+        }
+        Serializable value = getProperties().get(propertyName);
+        if(value.getClass().isArray()) {
+            Serializable[] values = (Serializable[]) value;
+            return Arrays.stream(values).map(x->(String)x).toArray(String[]::new);
+        } else {
+            String propertyValue = (String) value;
+            return new String[]{ propertyValue };
+        }
     }
 
     @Override
-    public void setControlledVocabularyProperty(String propertyName, String propertyValue)
+    public void setControlledVocabularyProperty(String propertyName, String[] propertyValue)
     {
         setProperty(propertyName, propertyValue);
     }
 
     @Override
-    public SamplePermId getSampleProperty(String propertyName)
+    public SamplePermId[] getSampleProperty(String propertyName)
     {
-        String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.isBlank()) ?
-                null :
-                new SamplePermId(propertyValue);
+        if(getProperties() == null || getProperties().get(propertyName) == null) {
+            return null;
+        }
+        Serializable value = getProperties().get(propertyName);
+        if(value.getClass().isArray()) {
+            Serializable[] values = (Serializable[]) value;
+            return Arrays.stream(values).map(x -> new SamplePermId((String)x)).toArray(SamplePermId[]::new);
+        } else {
+            String propertyValue = (String) value;
+            return new SamplePermId[]{new SamplePermId(propertyValue)};
+        }
     }
 
     @Override
-    public void setSampleProperty(String propertyName, SamplePermId propertyValue)
+    public void setSampleProperty(String propertyName, SamplePermId[] propertyValue)
     {
-        setProperty(propertyName, propertyValue == null ? null : propertyValue.getPermId());
+        setProperty(propertyName, propertyValue == null ? null : Arrays.stream(propertyValue)
+                .map(ObjectPermId::getPermId)
+                .toArray(String[]::new));
     }
 
     @Override
     public Long[] getIntegerArrayProperty(String propertyName)
     {
         String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.isBlank()) ?
+        return (propertyValue == null || propertyValue.trim().isEmpty()) ?
                 null :
                 Arrays.stream(propertyValue.split(",")).map(String::trim).map(Long::parseLong)
                         .toArray(Long[]::new);
@@ -498,7 +521,7 @@ public class SampleUpdate implements IUpdate, IPropertiesHolder, IObjectUpdate<I
     public Double[] getRealArrayProperty(String propertyName)
     {
         String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.isBlank()) ?
+        return (propertyValue == null || propertyValue.trim().isEmpty()) ?
                 null :
                 Arrays.stream(propertyValue.split(",")).map(String::trim).map(Double::parseDouble)
                         .toArray(Double[]::new);
@@ -517,7 +540,7 @@ public class SampleUpdate implements IUpdate, IPropertiesHolder, IObjectUpdate<I
     public String[] getStringArrayProperty(String propertyName)
     {
         String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.isBlank()) ?
+        return (propertyValue == null || propertyValue.trim().isEmpty()) ?
                 null :
                 Arrays.stream(propertyValue.split(",")).map(String::trim).toArray(String[]::new);
     }

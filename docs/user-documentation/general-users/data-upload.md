@@ -1,15 +1,15 @@
 Data Upload
 ====
+
+
+Data can be uploaded to Datasets in openBIS to *Experiments* and *Objects* (e.g., *Experimental Steps*). openBIS is agnostic of file formats and types.
+
+Small data files can be uploaded via the web user interface, larger data files can be uploaded via dropbox mechanism.
+
  
 ## Data upload via web UI
 
-
-
- 
-
-  To upload data via the web interface:
-
- 
+To upload data via the web interface: 
 
 1.Click the **Upload** button in the form, as shown below.
 
@@ -35,12 +35,11 @@ import** will be presented in the form.
 
  
 
-**Note for MacOS users: **the default MacOS archiver generates hidden
+**Note for MacOS users:** the default MacOS archiver generates hidden
 folders that become visible in openBIS upon unarchive. To avoid this
 there are two options:
 
-1.  Zip using  the following command on the command-line: *zip -r
-     folder-name.zip folder-name/\*  -x “\*.DS\_Store”*
+1.  Zip using  the following command on the command-line: `zip -r folder-name.zip folder-name/\*  -x “\.DS\_Store”`
 2.  Use an external archiver (e.g. Stuffit Deluxe).
 
 Updated on March 23, 2023
@@ -54,18 +53,17 @@ Updated on March 23, 2023
 Web upload of data files is only suitable for files of limited size (few
 GB). To upload larger data, openBIS uses dropbox scripts that run in the
 background (see
-[Dropboxes](https://unlimited.ethz.ch/display/openBISDoc2010/Dropboxes)).
+[Dropboxes](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/dss-dropboxes.html)).
 A default dropbox script is provided with the openBIS ELN-LIMS plugin,
 and the dropbox folder needs to be set up by a *system admin*.
 
 If this is available, users need to organise their data in a specific
 way:
 
- 
 
 **Folder 1**
 
-**         Data** (can be single files or folders)
+**Data** (can be single files or folders)
 
  
 
@@ -73,7 +71,6 @@ way:
 of where the data should be uploaded to openBIS.
 
 The name of **Folder 1** can be generated from the ELN interface:
-
  
 
 1.  From the page where you want to upload data, select **Dataset upload
@@ -86,13 +83,10 @@ The name of **Folder 1** can be generated from the ELN interface:
 
  
 
-2\. Select:
-
-1.  The dataset type from the list of available types (mandatory);
-2.  Enter the name of your dataset (optional, but recommended);
-3.  Copy the generated name of the folder using the copy to clipboard
-    icon.
-
+2. Select:
+    1.  The dataset type from the list of available types (mandatory);
+    2.  Enter the name of your dataset (optional, but recommended);
+    3.  Copy the generated name of the folder using the copy to clipboard icon.
  
 
 ![image info](img/dataset-uploader-helper-tool-1024x436.png)
@@ -126,15 +120,12 @@ done by a *system admin*. The process of data preparation is the same as
 described above, however in this case the data move to the openBIS final
 storage only starts when a markerfile is placed in the
 eln-lims-dropbox-marker folder. The marker file is an empty file with
-this name:  **.MARKER\_is\_finished\_<folder-to-upload-name>.
-**Please note the “.” at the start of the name, which indicates that
-this is a hidden file. This file should also not have any extension. For
-example, if the folder to be uploaded has the following name:
+this name: **.MARKER\_is\_finished\_<folder-to-upload-name>.** Please note the “.” at the start of the name, which indicates that this is a hidden file. This file should also not have any extension. For example, if the folder to be uploaded has the following name:
 
  
-
+```
 O+BARILLAC+PROJECT\_1+EXP1+RAW\_DATA+test
-
+```
  
 
 The marker file should be named:
@@ -248,6 +239,7 @@ and 2 folders.
 For example, the metadata.json file for the default RAW\_DATA dataset
 type would be:
 
+```
 { “properties” :
 
 { “$NAME” : “my raw data”,
@@ -255,7 +247,7 @@ type would be:
 “NOTES” : “This is a test for metadata upload via dropbox” }
 
 }
-
+```
  
 
 It is possible to download the template metadata.json file for each

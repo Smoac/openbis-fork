@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3.translator.property;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -31,17 +32,17 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.translator.sample.ISampleAuth
  * @author pkupczyk
  */
 public abstract class PropertyTranslator extends
-        AbstractCachingTranslator<Long, ObjectHolder<Map<String, String>>, PropertyFetchOptions>
+        AbstractCachingTranslator<Long, ObjectHolder<Map<String, Serializable>>, PropertyFetchOptions>
         implements IPropertyTranslator
 {
     @Autowired
     private ISampleAuthorizationValidator sampleAuthorizationValidator;
 
     @Override
-    protected ObjectHolder<Map<String, String>> createObject(TranslationContext context,
+    protected ObjectHolder<Map<String, Serializable>> createObject(TranslationContext context,
             Long objectId, PropertyFetchOptions fetchOptions)
     {
-        return new ObjectHolder<Map<String, String>>();
+        return new ObjectHolder<Map<String, Serializable>>();
     }
 
     @Override
@@ -54,14 +55,14 @@ public abstract class PropertyTranslator extends
                         records.stream().filter(r -> r.sample_id != null).map(r -> r.sample_id)
                                 .collect(Collectors.toSet()));
 
-        Map<Long, Map<String, String>> properties = new HashMap<Long, Map<String, String>>();
+        Map<Long, Map<String, Serializable>> properties = new HashMap<Long, Map<String, Serializable>>();
         for (PropertyRecord record : records)
         {
-            Map<String, String> objectProperties = properties.get(record.objectId);
+            Map<String, Serializable> objectProperties = properties.get(record.objectId);
 
             if (objectProperties == null)
             {
-                objectProperties = new HashMap<String, String>();
+                objectProperties = new HashMap<String, Serializable>();
                 properties.put(record.objectId, objectProperties);
             }
 
@@ -75,12 +76,25 @@ public abstract class PropertyTranslator extends
                                 + ")");
             } else if (record.vocabularyPropertyValue != null)
             {
-                objectProperties.put(record.propertyCode, record.vocabularyPropertyValue);
+                if(objectProperties.containsKey(record.propertyCode)) {
+                    Serializable current = objectProperties.get(record.propertyCode);
+                    Serializable newValue = composeMultiValueProperty(current, record.vocabularyPropertyValue);
+                    objectProperties.put(record.propertyCode, newValue);
+                } else {
+                    objectProperties.put(record.propertyCode, record.vocabularyPropertyValue);
+                }
             } else if (record.sample_perm_id != null)
             {
                 if (visibaleSamples.contains(record.sample_id))
                 {
-                    objectProperties.put(record.propertyCode, record.sample_perm_id);
+                    if(objectProperties.containsKey(record.propertyCode)) {
+                        Serializable current = objectProperties.get(record.propertyCode);
+                        Serializable newValue = composeMultiValueProperty(current, record.sample_perm_id);
+                        objectProperties.put(record.propertyCode, newValue);
+                    } else
+                    {
+                        objectProperties.put(record.propertyCode, record.sample_perm_id);
+                    }
                 }
             } else if (record.integerArrayPropertyValue != null)
             {
@@ -110,6 +124,19 @@ public abstract class PropertyTranslator extends
         return properties;
     }
 
+    private Serializable composeMultiValueProperty(Serializable current, Serializable newValue) {
+        Serializable[] result;
+        if(current.getClass().isArray()) {
+            Serializable[] values = (Serializable[]) current;
+            result = new Serializable[values.length + 1];
+            System.arraycopy(values, 0, result, 0, values.length);
+            result[values.length] = newValue;
+        } else {
+            result = new Serializable[] {current, newValue};
+        }
+        return result;
+    }
+
     private String convertArrayToString(String[] array)
     {
         return Stream.of(array)
@@ -120,15 +147,15 @@ public abstract class PropertyTranslator extends
     @SuppressWarnings("unchecked")
     @Override
     protected void updateObject(TranslationContext context, Long objectId,
-            ObjectHolder<Map<String, String>> result, Object relations,
+            ObjectHolder<Map<String, Serializable>> result, Object relations,
             PropertyFetchOptions fetchOptions)
     {
-        Map<Long, Map<String, String>> properties = (Map<Long, Map<String, String>>) relations;
-        Map<String, String> objectProperties = properties.get(objectId);
+        Map<Long, Map<String, Serializable>> properties = (Map<Long, Map<String, Serializable>>) relations;
+        Map<String, Serializable> objectProperties = properties.get(objectId);
 
         if (objectProperties == null)
         {
-            objectProperties = new HashMap<String, String>();
+            objectProperties = new HashMap<String, Serializable>();
         }
 
         result.setObject(objectProperties);

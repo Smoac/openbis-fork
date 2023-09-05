@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -48,7 +49,7 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
 
     protected static final String[] ENTITY_ASSIGNMENT_COLUMNS = new String[] { "Version", "Code", "Mandatory",
             "Show in edit views", "Section", "Property label", "Data type", "Vocabulary code", "Description",
-            "Metadata", "Dynamic script" };
+            "Metadata", "Dynamic script", "Multivalued" };
 
     protected static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(BasicConstant.DATE_HOURS_MINUTES_SECONDS_PATTERN);
 
@@ -160,20 +161,36 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
     }
 
     protected static Function<PropertyType, String> getPropertiesMappingFunction(
-            final XLSExport.TextFormatting textFormatting, final Map<String, String> properties)
+            final XLSExport.TextFormatting textFormatting, final Map<String, Serializable> properties)
     {
         return textFormatting == XLSExport.TextFormatting.PLAIN
                 ? propertyType -> propertyType.getDataType() == DataType.MULTILINE_VARCHAR
                         ? getProperty(properties, propertyType) != null
-                                ? properties.get(propertyType.getCode()).replaceAll("<[^>]+>", "")
+                                ? ((String)properties.get(propertyType.getCode())).replaceAll("<[^>]+>", "")
                                 : null
                         : getProperty(properties, propertyType)
                 : propertyType -> getProperty(properties, propertyType);
     }
 
-    private static String getProperty(final Map<String, String> properties, final PropertyType propertyType)
+    private static String getProperty(final Map<String, Serializable> properties, final PropertyType propertyType)
     {
-        return properties.get(propertyType.getCode());
+        Serializable propertyValue = properties.get(propertyType.getCode());
+        if(propertyValue == null) {
+            return null;
+        }
+        if(propertyValue.getClass().isArray()) {
+            StringBuilder sb = new StringBuilder();
+            Serializable[] values = (Serializable[]) propertyValue;
+            for(Serializable value : values) {
+                if(sb.length() > 0) {
+                    sb.append(", ");
+                }
+                sb.append(value);
+            }
+            return sb.toString();
+        } else {
+            return propertyValue.toString();
+        }
     }
 
 }

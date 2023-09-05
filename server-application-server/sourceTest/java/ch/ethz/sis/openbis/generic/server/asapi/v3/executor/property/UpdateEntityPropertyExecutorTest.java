@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property;
 
+import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.*;
 
@@ -120,26 +121,26 @@ public class UpdateEntityPropertyExecutorTest extends AbstractEntityPropertyExec
                 }
             });
 
-        Map<String, String> updatedPropertyValues = new HashMap<String, String>();
+        Map<String, Serializable> updatedPropertyValues = new HashMap<String, Serializable>();
         updatedPropertyValues.put("TEST_PROPERTY_1", "value 1.1");
         updatedPropertyValues.put("TEST_PROPERTY_3", "value 3");
 
         execute(entityPropertiesHolder, entityType, updatedPropertyValues);
     }
 
-    private void execute(IEntityInformationWithPropertiesHolder entity, EntityTypePE entityType, final Map<String, String> propertiesMap)
+    private void execute(IEntityInformationWithPropertiesHolder entity, EntityTypePE entityType, final Map<String, Serializable> propertiesMap)
     {
         UpdateEntityPropertyExecutor executor = new UpdateEntityPropertyExecutor(daoFactory, managedPropertyEvaluatorFactory);
         IPropertiesHolder holder = new IPropertiesHolder()
             {
                 @Override
-                public void setProperty(String propertyName, String propertyValue)
+                public void setProperty(String propertyName, Serializable propertyValue)
                 {
                     throw new UnsupportedOperationException();
                 }
 
                 @Override
-                public void setProperties(Map<String, String> properties)
+                public void setProperties(Map<String, Serializable> properties)
                 {
                     throw new UnsupportedOperationException();
                 }
@@ -151,7 +152,7 @@ public class UpdateEntityPropertyExecutorTest extends AbstractEntityPropertyExec
                 }
 
                 @Override
-                public Map<String, String> getProperties()
+                public Map<String, Serializable> getProperties()
                 {
                     return propertiesMap;
                 }
@@ -169,26 +170,26 @@ public class UpdateEntityPropertyExecutorTest extends AbstractEntityPropertyExec
                 }
 
                 @Override
-                public String getControlledVocabularyProperty(String propertyName)
+                public String[] getControlledVocabularyProperty(String propertyName)
                 {
                     throw new UnsupportedOperationException();
                 }
 
                 @Override
                 public void setControlledVocabularyProperty(String propertyName,
-                        String propertyValue)
+                        String[] propertyValue)
                 {
                     throw new UnsupportedOperationException();
                 }
 
                 @Override
-                public SamplePermId getSampleProperty(String propertyName)
+                public SamplePermId[] getSampleProperty(String propertyName)
                 {
                     throw new UnsupportedOperationException();
                 }
 
                 @Override
-                public void setSampleProperty(String propertyName, SamplePermId propertyValue)
+                public void setSampleProperty(String propertyName, SamplePermId[] propertyValue)
                 {
                     throw new UnsupportedOperationException();
                 }

@@ -46,8 +46,9 @@ The names of the files and worksheets are ignored by the service, the
 user is advised to use descriptive names that they can quickly
 remember/refer to later.
 
-If there are dependencies between files they should be submitted
-together or an error will be shown.
+```{warning}
+If there are dependencies between files they should be submitted together or an error will be shown.
+```
 
 **Example:**
 
@@ -93,21 +94,20 @@ element (table, clipart) will cause the import to fail.
     eliminated.
 
   
+```{warning}
+If any content is placed after two consecutive empty rows it will result in an error. This is to alert the user and avoid silently ignoring content.
+```
 
-If any content is placed after two consecutive empty rows it will result
-in an error. This is to alert the user and avoid silently ignoring
-content.
-
-Header rows **NEED TO BE** a valid attribute of the entity or entity
-type, property label or property code.
+```{warning}
+Header rows **NEED TO BE** a valid attribute of the entity or entity type, property label or property code.
+```
 
 Any unintended header will result in an error. This is to avoid possible
 misspellings and avoid silently ignoring content.
 
 ## Entity Types Definitions
 
-All entity types can be created*.* There are differences due to the
-nature of the defined elements themselves.
+All entity types can be created. There are differences due to the nature of the defined elements themselves.
 
 ### Vocabulary and Vocabulary Term
 
@@ -341,8 +341,7 @@ ELSE:
 
 ## Entity Definitions
 
-Most entities can be created, excluding DataSets*.* There are
-differences due to the nature of the defined elements themselves.
+Most entities can be created, excluding DataSets. There are differences due to the nature of the defined elements themselves.
 
 General Rules:
 
@@ -353,11 +352,13 @@ General Rules:
     either the vocabulary term code or the vocabulary term label.
 
   
-
+```{warning}
 If a mandatory header is missing it results in an error.
+```
 
-Repeated headers will result in an error, in case a Property shares
-Label with an Attribute is encouraged to use the property code instead.
+```{warning}
+Repeated headers will result in an error, in case a Property shares Label with an Attribute is encouraged to use the property code instead.
+```
 
 ### Space
 
@@ -462,9 +463,9 @@ samples. Samples can be addressed by:
 2.  Identifiers
 
   
-
-Parents and children SHOULD be separated by an end of line, each sample
-should be in its own line.
+```{warning}
+Parents and children SHOULD be separated by an end of line, each sample should be in its own line.
+```
 
 |SAMPLE|||||||||
 |--- |--- |--- |--- |--- |--- |--- |--- |--- |
@@ -522,7 +523,7 @@ props = CustomASServiceExecutionOptions().withParameter('xls', helper.listXlsByt
     .withParameter('xls_name', 'ELN-LIMS-LIFE-SCIENCES').withParameter('update_mode', 'UPDATE_IF_EXISTS') \
     .withParameter('scripts', helper.getAllScripts())
 result = api.executeCustomASService(sessionToken, CustomASServiceCode("xls-import-api"), props)
-```  
+```
 
 There are following parameters to fill (Easiest is to use
 MasterDataRegistrationHelper to evaluate parameter values):

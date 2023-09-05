@@ -1,3 +1,15 @@
+## Changes with pybis-1.36.2
+
+- Refactoring of the set_token method.
+- Improvement to exception handling for dataset upload 
+- Improvement to PAT functionality 
+
+## Changes with pybis-1.36.1
+
+- Amended get_*_types() method to be backwards-compatible
+- Amended dataset upload functionality to support big files 
+- Added multivalued properties support for objects, collections and datasets
+
 ## Changes with pybis-1.36.0
 
 - Reverted breaking changes to dataset upload functionality

@@ -37,6 +37,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PermId;
 import org.apache.commons.collections4.map.LinkedMap;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -267,7 +269,7 @@ public class UserManager
             }
             CurrentState currentState = loadCurrentState(sessionToken, service);
             manageInstanceAdmins(sessionToken, currentState, report);
-            removeGroups(sessionToken, currentState, groupsToBeRemoved, report);
+            removeGroups(sessionToken, currentState, groupsToBeRemoved, usersToBeIgnored, report);
             for (Entry<String, Map<String, Principal>> entry : usersByGroupCode.entrySet())
             {
                 String groupCode = entry.getKey();
@@ -308,6 +310,7 @@ public class UserManager
         searchCriteria.withCodes().setFieldValue(adminGroupsByGroupId.keySet());
         AuthorizationGroupFetchOptions fetchOptions = new AuthorizationGroupFetchOptions();
         fetchOptions.withUsers();
+        fetchOptions.withRegistrator();
         List<AuthorizationGroup> groups = service.searchAuthorizationGroups(sessionToken, searchCriteria,
                 fetchOptions).getObjects();
         List<AuthorizationGroup> removedGroups = new ArrayList<>();
@@ -319,7 +322,10 @@ public class UserManager
                 Set<String> users = extractUserIds(group);
                 if (users.containsAll(extractUserIds(adminGroup)))
                 {
-                    removedGroups.add(group);
+                    if (group.getRegistrator().getUserId().equals("system"))
+                    {
+                        removedGroups.add(group);
+                    }
                 }
             }
         }
@@ -332,6 +338,7 @@ public class UserManager
         searchCriteria.withCode().thatEndsWith(ADMIN_POSTFIX);
         AuthorizationGroupFetchOptions fetchOptions = new AuthorizationGroupFetchOptions();
         fetchOptions.withUsers();
+        fetchOptions.withRegistrator();
         List<AuthorizationGroup> adminGroups = service.searchAuthorizationGroups(sessionToken, searchCriteria,
                 fetchOptions).getObjects();
         Map<String, AuthorizationGroup> adminGroupsByGroupId = new HashMap<>();
@@ -348,13 +355,15 @@ public class UserManager
     }
 
     private void removeGroups(String sessionToken, CurrentState currentState, List<AuthorizationGroup> groups,
-            UserManagerReport report)
+            Set<String> usersToBeIgnored, UserManagerReport report)
     {
         List<IAuthorizationGroupId> groupIds = new ArrayList<>();
         Context context = new Context(sessionToken, service, currentState, report);
         for (AuthorizationGroup group : groups)
         {
-            removeUsersFromGroup(context, group.getCode(), extractUserIds(group));
+            Set<String> users = extractUserIds(group);
+            users.removeAll(usersToBeIgnored);
+            removeUsersFromGroup(context, group.getCode(), users);
             groupIds.add(group.getPermId());
             report.removeGroup(group.getCode());
             String adminGroupCode = group.getCode() + ADMIN_POSTFIX;
@@ -473,6 +482,7 @@ public class UserManager
     {
         PersonFetchOptions fetchOptions = new PersonFetchOptions();
         fetchOptions.withRoleAssignments().withSpace();
+        fetchOptions.withRoleAssignments().withRegistrator();
         Person user = service.getPersons(sessionToken, Arrays.asList(userId), fetchOptions).get(userId);
         if (user == null)
         {
@@ -519,6 +529,8 @@ public class UserManager
     {
         AuthorizationGroupFetchOptions fetchOptions = new AuthorizationGroupFetchOptions();
         fetchOptions.withRoleAssignments().withSpace();
+        fetchOptions.withRoleAssignments().withRegistrator();
+        fetchOptions.withRegistrator();
         AuthorizationGroup group = service.getAuthorizationGroups(sessionToken, Arrays.asList(groupId), fetchOptions).get(groupId);
         Set<String> knownGlobalSpaces = new TreeSet<>();
         if (group == null)
@@ -619,7 +631,9 @@ public class UserManager
         List<AuthorizationGroupPermId> ids = Arrays.asList(GLOBAL_AUTHORIZATION_GROUP_ID);
         AuthorizationGroupFetchOptions fetchOptions = new AuthorizationGroupFetchOptions();
         fetchOptions.withRoleAssignments().withSpace();
+        fetchOptions.withRoleAssignments().withRegistrator();
         fetchOptions.withUsers();
+        fetchOptions.withRegistrator();
         AuthorizationGroup group = service.getAuthorizationGroups(sessionToken, ids, fetchOptions).get(GLOBAL_AUTHORIZATION_GROUP_ID);
         return new CurrentState(authorizationGroups, group, spaces, users);
     }
@@ -628,8 +642,10 @@ public class UserManager
     {
         AuthorizationGroupSearchCriteria searchCriteria = new AuthorizationGroupSearchCriteria();
         AuthorizationGroupFetchOptions fetchOptions = new AuthorizationGroupFetchOptions();
+        fetchOptions.withRegistrator();
         fetchOptions.withUsers().withSpace();
         fetchOptions.withRoleAssignments().withSpace();
+        fetchOptions.withRoleAssignments().withRegistrator();
         return service.searchAuthorizationGroups(sessionToken, searchCriteria, fetchOptions).getObjects();
     }
 
@@ -638,6 +654,7 @@ public class UserManager
         PersonSearchCriteria searchCriteria = new PersonSearchCriteria();
         PersonFetchOptions fetchOptions = new PersonFetchOptions();
         fetchOptions.withRoleAssignments().withSpace();
+        fetchOptions.withRoleAssignments().withRegistrator();
         fetchOptions.withSpace();
         return service.searchPersons(sessionToken, searchCriteria, fetchOptions).getObjects();
     }
@@ -889,7 +906,7 @@ public class UserManager
                 {
                     if (role != null)
                     {
-                        context.delete(roleAssignment.getId());
+                        context.delete(roleAssignment);
                         context.report.unassignRoleFrom(groupId, roleAssignment.getRole(), permId);
                     }
                     if (userSpaceRole != null)
@@ -1007,7 +1024,7 @@ public class UserManager
                 String userSpace = createCommonSpaceCode(groupCode, userId.toUpperCase());
                 if (space != null && space.getCode().startsWith(userSpace))
                 {
-                    context.delete(roleAssignment.getId());
+                    context.delete(roleAssignment);
                     context.report.unassignRoleFrom(userId, roleAssignment.getRole(), space.getPermId());
                 }
             }
@@ -1026,15 +1043,19 @@ public class UserManager
     private SpacePermId createUserSpace(Context context, String groupCode, String userId)
     {
         String userSpaceCode = createCommonSpaceCode(groupCode, userId.toUpperCase());
-        if(!reuseHomeSpace)
+        int n = context.getCurrentState().getNumberOfSpacesStartingWith(userSpaceCode);
+        if (n > 0) // Existing space, what to do depending on configuration
         {
-            int n = context.getCurrentState().getNumberOfSpacesStartingWith(userSpaceCode);
-            if (n > 0)
+            if(!reuseHomeSpace)
             {
                 userSpaceCode += "_" + (n + 1);
+                return createSpace(context, userSpaceCode);
+            } else {
+                return new SpacePermId(userSpaceCode);
             }
+        } else {
+            return createSpace(context, userSpaceCode);
         }
-        return createSpace(context, userSpaceCode);
     }
 
     private HomeSpaceRequest getHomeSpaceRequest(String userId)
@@ -1105,6 +1126,7 @@ public class UserManager
         RoleAssignmentFetchOptions fetchOptions = new RoleAssignmentFetchOptions();
         fetchOptions.withSpace();
         fetchOptions.withProject();
+        fetchOptions.withRegistrator();
         List<RoleAssignment> roleAssignments = service.searchRoleAssignments(context.getSessionToken(), 
                 searchCriteria, fetchOptions).getObjects();
         for (RoleAssignment roleAssignment : roleAssignments)
@@ -1116,7 +1138,7 @@ public class UserManager
             if (roleAssignment.getRole().equals(role))
             {
                 Space space = roleAssignment.getSpace();
-                if ((space == null && spaceId == null) || space.getId().equals(spaceId))
+                if ((space == null && spaceId == null) || space.getId().equals(spaceId) || space.getPermId().equals(spaceId))
                 {
                     return;
                 }
@@ -1470,9 +1492,15 @@ public class UserManager
             groupUpdates.add(groupUpdate);
         }
 
-        public void delete(IRoleAssignmentId roleAssignmentId)
+        public void delete(RoleAssignment roleAssignment)
         {
-            roleDeletions.add(roleAssignmentId);
+            /*\
+             * The maintenance task should only remove role assignments created by itself
+             */
+            if (roleAssignment.getRegistrator().getUserId().equals("system"))
+            {
+                roleDeletions.add(roleAssignment.getId());
+            }
         }
 
         public void executeOperations()
@@ -1488,6 +1516,10 @@ public class UserManager
             }
             if (spaceCreations.isEmpty() == false)
             {
+//                // Filter out already existing spaces to not repeat creations
+//                List<SpacePermId> spacesToCreate = spaceCreations.stream().map( creation -> new SpacePermId(creation.getCode())).collect(Collectors.toList());
+//                Map<ISpaceId, Space> existingSpaces = service.getSpaces(sessionToken, spacesToCreate, new SpaceFetchOptions());
+//                spaceCreations = spaceCreations.stream().filter( creation -> !existingSpaces.keySet().contains(new SpacePermId(creation.getCode()))).collect(Collectors.toList());
                 operations.add(new CreateSpacesOperation(spaceCreations));
             }
             if (projectCreations.isEmpty() == false)
@@ -1512,6 +1544,33 @@ public class UserManager
             }
             if (roleCreations.isEmpty() == false)
             {
+//                // Filter out already existing roles to not repeat creations
+//                // This is to manage a corner case when a user is reactivated reusing the same home space
+//                List<RoleAssignmentCreation> filteredRoleCreations = new ArrayList<>();
+//                for (RoleAssignmentCreation roleAssignmentCreationToCheck:roleCreations) {
+//                    PersonPermId userId = (PersonPermId) roleAssignmentCreationToCheck.getUserId();
+//                    SpacePermId spaceId = (SpacePermId) roleAssignmentCreationToCheck.getSpaceId();
+//                    RoleAssignmentSearchCriteria roleAssignmentSearchCriteria = new RoleAssignmentSearchCriteria();
+//                    roleAssignmentSearchCriteria.withUser().withUserId().thatEquals(userId.getPermId());
+//                    roleAssignmentSearchCriteria.withSpace().withCode().thatEquals(spaceId.getPermId());
+//                    SearchResult<RoleAssignment> roleAssignmentSearchResult =
+//                            service.searchRoleAssignments(sessionToken,
+//                                    roleAssignmentSearchCriteria, new RoleAssignmentFetchOptions());
+//
+//                    boolean found = false;
+//                    if (!roleAssignmentSearchResult.getObjects().isEmpty()) {
+//                        Role role = roleAssignmentCreationToCheck.getRole();
+//                        for (RoleAssignment roleAssignment:roleAssignmentSearchResult.getObjects()) {
+//                            if (roleAssignment.getRole().equals(role)) {
+//                                found = true;
+//                            }
+//                        }
+//                    }
+//                    if (!found) {
+//                        filteredRoleCreations.add(roleAssignmentCreationToCheck);
+//                    }
+//                }
+//                roleCreations = filteredRoleCreations;
                 operations.add(new CreateRoleAssignmentsOperation(roleCreations));
             }
             if (roleDeletions.isEmpty() == false)

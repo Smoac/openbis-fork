@@ -1,5 +1,24 @@
 Inventory Of Materials And Methods
 ====
+
+The default Inventory contains two folders: **Materials** and **Methods**.
+
+These are used to organise respectively samples and materials of any type and lab protocols.
+
+Samples, materials and protocols are modelled in openBIS as **Objects.**
+
+In the **openBIS ELN-LIMS for life sciences**, the following Object types are preconfigured in the database:
+
+*Antibodies, Chemicals, Enzymes, Media, Solutions and Buffers, Plasmids, Plants, Oligos, RNAs, Bacteria, Cell lines, Flies, Yeasts, General protocols, PCR protocols, Western blotting protocols.*
+
+These Objects are organised in **Collections** in the **Materials** and **Methods** sections of the Inventory.
+
+![image](img/inventory-materials-life-sciences-1.png)
+
+![image](img/inventory-methods-life-sciences-2.png)
+
+The generic openBIS ELN-LIMS only has one predefined Object type for the Inventory, General Protocol, in the General Protocols Collection in the Methods folder. The Material folder is empty. Additional Object types and Collections must be created by an openBIS instance admin, based on the needs of the lab(s).
+
  
 ## Customise Collection View
 
@@ -7,8 +26,6 @@ It is possible customise the view of *Collections* in the ELN.
 
 The default *Collection* can have a **Form View** or a **List View**.
 Depending on this selection, the collection view will be different.
-
- 
 
 ![image info](img/customize-collection-view.png)
 
@@ -29,7 +46,7 @@ enable this by selecting **Show Objects** from the **More..** dropdown
 
  
 
-**List View: **The metadata of the *Collection* is not shown in this
+**List View:** The metadata of the *Collection* is not shown in this
 view, but only the table of objects is shown.
 
  
@@ -58,7 +75,7 @@ should be followed to register any other *Object* in other
 *Collections*.
 
 1.  Click on the **Raw Samples** *Collection* folder in the main menu.
-2.  Click the **+ New Sample ** in the main page
+2.  Click the **New Sample** in the main page
 3.  Fill in the form
 4.  **Save**
 
@@ -73,8 +90,7 @@ To register a different object type in the Collection:
 
 1.  Select **New Object** from the **More** drop down menu (as shown
     below)
-2.  Select the relevant *Object type* from the list *(Sample,* in this
-    case*).*
+2.  Select the relevant *Object type* from the list *(Sample,* in this case).
 3.  Fill in the form
 4.  **Save**
 
@@ -96,22 +112,21 @@ methods are currently available:
 
 ![image info](img/batch-register-entries-one-collection-1024x300.png)
 
-![image info](img/warning-sign-1024x904.png)
+```{warning}
 In openBIS versions prior to 20.10.6, the XLS batch registration is not
 recommended to register several hundreds of entries. The use of the TSV
 batch upload to register several hundreds of entries is recommended in
 those cases.
+```
 
 ### Batch registration via Excel template file
 
 To register several entries of the same type with an Excel file:
 
-1.  Navigate to the relevant collection (e.g.** Samples**).
-2.  Select **XLS Batch Register Object*****s*** from the
-    **More*** *drop-down menu (see figure above)
+1.  Navigate to the relevant collection (e.g. **Samples**).
+2.  Select **XLS Batch Register Objects** from the **More** drop-down menu (see figure above)
 3.  Download the **template** file and fill in the relevant information.
-    (Example file:
-    [SAMPLE-COLLECTION-REGISTRATION-SAMPLE-STORAGE\_POSITION-template](https://openbis.ch/wp-content/uploads/2022/02/SAMPLE-COLLECTION-REGISTRATION-SAMPLE-STORAGE_POSITION-template-2.xlsx))
+    (Example file: [SAMPLE-COLLECTION-REGISTRATION-SAMPLE-STORAGE\_POSITION-template](att/SAMPLE-COLLECTION-REGISTRATION-SAMPLE-STORAGE_POSITION-template-2.xlsx))
 4.  Upload the file.
 
 #### **Codes**
@@ -151,22 +166,22 @@ corresponding Excel cell. A new line in an Excel cell is entered with
 the keyboard shortcuts **Alt** + **Enter.**
 
 Example file:
-[SAMPLE-COLLECTION-REGISTRATION-ANTIBODY-STORAGE\_POSITION-template](https://openbis.ch/wp-content/uploads/2022/02/SAMPLE-COLLECTION-REGISTRATION-ANTIBODY-STORAGE_POSITION-template-1.xlsx)
+[SAMPLE-COLLECTION-REGISTRATION-ANTIBODY-STORAGE\_POSITION-template](att/SAMPLE-COLLECTION-REGISTRATION-ANTIBODY-STORAGE_POSITION-template-1.xlsx)
 
-** Note:** no other separators (e.g “,” or  “;”) should be used,
+**Note:** no other separators (e.g “,” or  “;”) should be used,
 otherwise an error will be thrown.
 
-**2. Register Objects and assign parents in the same batch registration
-process. **
+2. **Register Objects and assign parents in the same batch registration
+process.**
 
 If you want to register a few *Objects* and at the same time establish a
 parent-child relationship between some of them, you can do so by using
-the **\\$** and **Parents** columns. In the example below we want to
+the **$** and **Parents** columns. In the example below we want to
 register 2 *Objects*, antibody 1 and antibody 2. We want to assign
-antibody 1 as parent of antibody 2. In the **\\$ column** corresponding to
-antibody 1 we need to enter numbers or letters proceeded by the \\$ symbol
-(i.e. \\$1, or \\$parent1). In the **Parents** column of antibody 2, we need
-to use the same value used in the **\\$ column** for antibody 1.
+antibody 1 as parent of antibody 2. In the **$ column** corresponding to
+antibody 1 we need to enter numbers or letters proceeded by the $ symbol
+(i.e. $1, or $parent1). In the **Parents** column of antibody 2, we need
+to use the same value used in the **$ column** for antibody 1.
 
 ![image info](img/register-objects-assign-parents-in-same-transaction.png)
 
@@ -186,13 +201,10 @@ together, as shown in the template provided above:
 
 ### Batch registration via TSV template file
 
-1.  Select **TSV** **Batch Register Object*****s*** from the
-    **More*** *drop-down menu
+1.  Select **TSV** **Batch Register Objects** from the **More** drop-down menu
 2.  Select the *Object* type (E.g. Sample or Storage)
 3.  Download the **template** file and fill in the relevant information
 4.  Upload the file
-
-** **
 
 #### **Rules to follow to fill in the template .tsv file**
 
@@ -267,7 +279,7 @@ You can then download the template that will allow you to register
 *Space, Project, Collection* need to be entered in the file. The
 complete path for *Projects* and *Collections* need to be used, as shown
 in this example file:
-[SAMPLE-GENERAL-REGISTRATION-EXPERIMENTAL\_STEP-MASS\_MEASUREMENT-SAMPLE-template](https://openbis.ch/wp-content/uploads/2022/03/SAMPLE-GENERAL-REGISTRATION-EXPERIMENTAL_STEP-MASS_MEASUREMENT-SAMPLE-template.xlsx)
+[SAMPLE-GENERAL-REGISTRATION-EXPERIMENTAL\_STEP-MASS\_MEASUREMENT-SAMPLE-template](att/SAMPLE-GENERAL-REGISTRATION-EXPERIMENTAL_STEP-MASS_MEASUREMENT-SAMPLE-template.xlsx)
 
 ### TSV Batch Register Objects
 
@@ -309,7 +321,7 @@ objects simultaneously via batch update. This can be done in two ways:
 ![image info](img/Batch-update-entries-one-collection-column-selection-1024x584.png)
 
 3\. If you have several entries you can filter the table
-(see [Tables](https://openbis.ch/index.php/docs/user-documentation-20-10-3/additional-functionalities/tables/))
+(see [Tables](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/additional-functionalities.html#tables))
 
 4\. **Export** the table choosing the options **Import Compatible= YES;
 Selected Columns; All pages/Current page/Selected rows** (depending on
@@ -341,25 +353,25 @@ enter   
 
 1.  Navigate to the relevant collection (e.g. **Raw Samples**).
 
-2\. Select **TSV** **Batch Update Objects** from the **More…** dropdown.
+2. Select **TSV** **Batch Update Objects** from the **More…** dropdown.
 
 ![image info](img/collection-TSV-batch-update-menu.png)
 
-3\. Select the relevant *Object* *type*, e.g. **Sample **
+3. Select the relevant *Object* *type*, e.g. **Sample**
 
 ![image info](img/old-batch-update.png)
 
-4\. Download the available **template**
+4. Download the available **template**
 
-5\. Fill in the **identifiers** of the objects you want to update
+5. Fill in the **identifiers** of the objects you want to update
 (identifiers are unique in openBIS. This is how openBIS knows what to
 update). You can copy the identifiers from the identifier column in the
 table and paste them in the file. Identifiers have this format:
 /MATERIALS/SAMPLES/SAMPLE1.
 
-6\. Fill in the values in the columns you want to update
+6. Fill in the values in the columns you want to update
 
-7\. Save the file and upload it via the **XLS Batch Update
+7. Save the file and upload it via the **XLS Batch Update
 Objects** from the **More..** dropdown
 
 **Note**:
@@ -406,7 +418,7 @@ complete path for *Projects* and *Collections* need to be used. In
 addition, identifiers for the *Objects* need to be provided: identifiers
 are unique in openBIS, by providing them openBIS will know which
 *Objects* have to be updated. Example file:
-[SAMPLE-GENERAL-REGISTRATION-EXPERIMENTAL\_STEP-MASS\_MEASUREMENT-SAMPLE-template](https://openbis.ch/wp-content/uploads/2022/03/SAMPLE-GENERAL-REGISTRATION-EXPERIMENTAL_STEP-MASS_MEASUREMENT-SAMPLE-template-1.xlsx)
+[SAMPLE-GENERAL-REGISTRATION-EXPERIMENTAL\_STEP-MASS\_MEASUREMENT-SAMPLE-template](att/SAMPLE-GENERAL-REGISTRATION-EXPERIMENTAL_STEP-MASS_MEASUREMENT-SAMPLE-template-1.xlsx)
 
 ### TSV Batch Update Objects
 
@@ -499,4 +511,4 @@ To register a new General Protocol in the General Protocols folder, follow these
 
 When writing a protocol, it is possible to create links to samples, materials or other protocols stored in the Inventory. These are parent-child relationships in openBIS.
 
-Everything that is used in the protocol can be added as Parent of the protocol itself. This can be done as described fo Experimental Steps: [Add parents and children to Experimental Steps](lab-notebook.md)
+Everything that is used in the protocol can be added as Parent of the protocol itself. This can be done as described fo Experimental Steps: [Add parents and children to Experimental Steps](https://openbis.readthedocs.io/en/latest/user-documentation/general-users/lab-notebook.html#add-parents-and-children-to-experimental-steps)

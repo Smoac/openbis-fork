@@ -15,6 +15,7 @@
  */
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+
 /**
  * A {@link IEntityProperty} class that only stores the vocabulary term value, but not a generic value or a material value.
  * 

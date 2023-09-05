@@ -5,497 +5,482 @@ Installation and Administrator Guide of the openBIS Server
 
 The minimal requirements of a system running openBIS are:
 
--   Operating System: Linux / MacOS X   
-    (The binaries: `bash`, `awk`, `sed`, `unzip` need to be installed
-    and in the `PATH` of the openBIS user.)
--   Java Runtime Environment: recent versions of Oracle JRE 11
--   PostgreSQL 11
+- Operating System: Linux / MacOS X (The binaries: `bash`, `awk`, `sed`, `unzip` need to be installed and in the `PATH` of the openBIS user.)
+- Java Runtime Environment: recent versions of Oracle JRE 11
+- PostgreSQL 11
 
-We find Linux to be the easiest choice to get an openBIS server running
-quickly.
+We find Linux to be the easiest choice to get an openBIS server running quickly.
 
-For recommended memory settings, see [Recommended CPU and memory
-settings for openBIS
-20.10](/display/openBISDoc2010/Recommended+CPU+and+memory+settings+for+openBIS+20.10).
+For recommended memory settings, see [Recommended CPU and memory settings for openBIS 20.10](https://openbis.readthedocs.io/en/latest/system-admin-documentation/installation/system-requirements.html).
 
-An SMTP server needs to be accessible and configured if you want to
-obtain notifications.
+An SMTP server needs to be accessible and configured if you want to obtain notifications.
 
 ## Installation
 
-The server distribution is a `gzipped` `tar` file named
-`openBIS-installation-standard-technologies-<version>` `.tar.gz`. It
-contains:
+The server distribution is a `gzipped` `tar` file named `openBIS-installation-standard-technologies-<version>` `.tar.gz`. It contains:
 
--   `console.properties:` configuration file for a console/non-gui
-    installation
+- `console.properties:` configuration file for a console/non-gui installation
 
--   `extract.sh:` helper script for installation
+- `extract.sh:` helper script for installation
 
--   `jul.config:` Log configuration for the openBIS install process
+- `jul.config:` Log configuration for the openBIS install process
 
--   `openBIS-installer.jar` Java archive containing openBIS
+- `openBIS-installer.jar` Java archive containing openBIS
 
--   `run-console.sh` Installation script for console/non-gui
-    installation
+- `run-console.sh` Installation script for console/non-gui installation
 
--   `run-ui.sh` Installation script for gui installation
+- `run-ui.sh` Installation script for gui installation
 
 ### Installation steps
 
-1.  Create a service user account, i.e. an unprivileged, regular user
-    account. **Do not run openBIS as root!**
+1. Create a service user account, i.e. an unprivileged, regular user account. **Do not run openBIS as root!**
 
-2.  Gunzip the distribution on the server machine into some temporary
-    folder.
+2. Gunzip the distribution on the server machine into some temporary folder.
 
-3.  Run either the console/non-gui installation script or the gui
-    installation script:
+3. Run either the console/non-gui installation script or the gui installation script:
 
     **GUI-based installation**
 
-        > tar xvfz openBIS-installation-standard-technologies-S139.0-r26480.tar.gz
-        > cd openBIS-installation-standard-technologies-S139.0-r26480
-        > ./run-ui.sh
+    ```bash
+    tar xvfz openBIS-installation-standard-technologies-S139.0-r26480.tar.gz
+    cd openBIS-installation-standard-technologies-S139.0-r26480
+    ./run-ui.sh
+    ```
 
     In the non-gui version you have to edit the `console.properties`
     files:
 
     **Non-GUI installation**
 
-        > tar xvfz openBIS-installation-standard-technologies-S139.0-r26480.tar.gz
-        > cd openBIS-installation-standard-technologies-S139.0-r26480
-        > vi console.properties
-        > ./run-console.sh
+    ```bash
+    tar xvfz openBIS-installation-standard-technologies-S139.0-r26480.tar.gz
+    cd openBIS-installation-standard-technologies-S139.0-r26480
+    vi console.properties
+    ./run-console.sh
+    ```
+    
+    ```{note}
+    Please be aware that the directory where openbis is installed should not already exist. Users should specify the directory where they want to install openBIS (in the console.properties or in the graphical installer) and this directory will be created by the installation procedure. If the directory already exists, the installation will fail.
+    ```
 
-      
-    **NOTE:** Please be aware that the directory where openbis is
-    installed should not already exist. Users should specify the
-    directory where they want to install openBIS (in the
-    console.properties or in the graphical installer) and this directory
-    will be created by the installation procedure. If the directory
-    already exists, the installation will fail. 
+After the successful installation you should have a look at the configuration file called s`ervice.properties`. It is located in `<server_folder>openBIS-server/jetty/etc/`
 
-After the successful installation you should have a look at the
-configuration file called s`ervice.properties`. It is located in
-`<server_folder>openBIS-server/jetty/etc/`
-
-This file is a an [Extended Properties
-File](/display/openBISDoc2010/Extended+Configuration+Properties). Here
-is an example which can be used as a template:
+This file is a an [Extended Properties File](https://openbis.readthedocs.io/en/latest/system-admin-documentation/installation/optional-application-server-configuration.html). Here is an example which can be used as a template:
 
 **service.properties**
 
-    # ---------------------------------------------------------------------------
-    # Database configuration
-    # ---------------------------------------------------------------------------
-    # The database instance local unique identifier. Used when the new database is created.
-    database-instance = DEFAULT
+```bash
+# ---------------------------------------------------------------------------
+# Database configuration
+# ---------------------------------------------------------------------------
+# The database instance local unique identifier. Used when the new database is created.
+database-instance = DEFAULT
 
-    # Supported: currently only 'postgresql' is supported
-    database.engine = postgresql
-    database.url-host-part =
-    database.kind = prod
-    # User who owns the database. Default: Operating system user running the server.
-    database.owner =
-    database.owner-password =
-    # Superuser of the database. Default: database-dependent.
-    database.admin-user = 
-    database.admin-password =
-    # Max. number of active database connections. Default: 20. 
-    database.max-active-connections =
-    # Max. number of idle database connections to keep open. Default: 20.  
-    database.max-idle-connections = 
-    # Log interval (in seconds) between two regular log entries of the number of active database 
-    # connections. Default: 3600s.
-    database.active-connections-log-interval = 
+# Supported: currently only 'postgresql' is supported
+database.engine = postgresql
+database.url-host-part =
+database.kind = prod
+# User who owns the database. Default: Operating system user running the server.
+database.owner =
+database.owner-password =
+# Superuser of the database. Default: database-dependent.
+database.admin-user = 
+database.admin-password =
+# Max. number of active database connections. Default: 20. 
+database.max-active-connections =
+# Max. number of idle database connections to keep open. Default: 20. 
+database.max-idle-connections = 
+# Log interval (in seconds) between two regular log entries of the number of active database 
+# connections. Default: 3600s.
+database.active-connections-log-interval = 
 
-    # ---------------------------------------------------------------------------
-    # Master data by Excel sheets
-    # ---------------------------------------------------------------------------
-    # Path to the file which stores version information of master data imported from Excel sheets. 
-    # Default value: ../../../xls-import-version-info.json. The file will be created. 
-    # It should be <openbis installation path>/servers/openBIS-server. 
-    # Note, that the folder containing this file has to exist. 
-    # xls-import.version-data-file = ../../../xls-import-version-info.json
+# ---------------------------------------------------------------------------
+# Master data by Excel sheets
+# ---------------------------------------------------------------------------
+# Path to the file which stores version information of master data imported from Excel sheets. 
+# Default value: ../../../xls-import-version-info.json. The file will be created. 
+# It should be <openbis installation path>/servers/openBIS-server. 
+# Note, that the folder containing this file has to exist. 
+# xls-import.version-data-file = ../../../xls-import-version-info.json
 
-    # ---------------------------------------------------------------------------
-    # Authentication configuration
-    # ---------------------------------------------------------------------------
-    # Supported Authentication options are:
-    # 'file-authentication-service'
-    # 'ldap-authentication-service'
-    # 'crowd-authentication-service'
-    # 'file-crowd-authentication-service'
-    # 'file-ldap-authentication-service'
-    # 'ldap-crowd-authentication-service'
-    # 'file-ldap-crowd-caching-authentication-service'
-    # For a detailed description, have a look at the Installation and Administrator
-    # Guide of the openBIS Server: https://wiki-bsse.ethz.ch/x/oYIUBQ 
-    authentication-service = file-ldap-crowd-caching-authentication-service
+# ---------------------------------------------------------------------------
+# Authentication configuration
+# ---------------------------------------------------------------------------
+# Supported Authentication options are:
+# 'file-authentication-service'
+# 'ldap-authentication-service'
+# 'crowd-authentication-service'
+# 'file-crowd-authentication-service'
+# 'file-ldap-authentication-service'
+# 'ldap-crowd-authentication-service'
+# 'file-ldap-crowd-caching-authentication-service'
+# For a detailed description, have a look at the Installation and Administrator
+# Guide of the openBIS Server: https://wiki-bsse.ethz.ch/x/oYIUBQ 
+authentication-service = file-ldap-crowd-caching-authentication-service
 
-    # ---------------------------------------------------------------------------
-    # Caching configuration (only used with 'file-ldap-crowd-caching-authentication-service')
-    # ---------------------------------------------------------------------------
-    # The time that the authentication cache keeps entries. Default: 28h
-    authentication.cache.time = 28h
-    # The time that the authentication cache does not perform re-validation on a cache entry. 
-    # Default: 1h
-    authentication.cache.time-no-revalidation = 1h
+# ---------------------------------------------------------------------------
+# Caching configuration (only used with 'file-ldap-crowd-caching-authentication-service')
+# ---------------------------------------------------------------------------
+# The time that the authentication cache keeps entries. Default: 28h
+authentication.cache.time = 28h
+# The time that the authentication cache does not perform re-validation on a cache entry. 
+# Default: 1h
+authentication.cache.time-no-revalidation = 1h
 
-    # ---------------------------------------------------------------------------
-    # Crowd configuration
-    # ---------------------------------------------------------------------------
-    #
-    # The Crowd host.
-    # Mandatory.
-    crowd.service.host = 
-    # The Crowd service port. Default: 443
-    crowd.service.port =
-    # The timeout (in s) to wait for a Crowd query to return, -1 for "wait indefinitely". Default: 10s. 
-    crowd.service.timeout =
-    # The Crowd application name. The value 'openbis' is just a suggestion.
-    # Mandatory. 
-    crowd.application.name = openbis
-    # The Crowd application password. 
-    # Mandatory.
-    crowd.application.password =
+# ---------------------------------------------------------------------------
+# Crowd configuration
+# ---------------------------------------------------------------------------
+#
+# The Crowd host.
+# Mandatory.
+crowd.service.host = 
+# The Crowd service port. Default: 443
+crowd.service.port =
+# The timeout (in s) to wait for a Crowd query to return, -1 for "wait indefinitely". Default: 10s. 
+crowd.service.timeout =
+# The Crowd application name. The value 'openbis' is just a suggestion.
+# Mandatory. 
+crowd.application.name = openbis
+# The Crowd application password. 
+# Mandatory.
+crowd.application.password =
 
-    # ---------------------------------------------------------------------------
-    # LDAP configuration
-    # ---------------------------------------------------------------------------
-    # The space-separated URLs of the LDAP servers, e.g. "ldap://d.ethz.ch/DC=d,DC=ethz,DC=ch". 
-    # Mandatory.
-    ldap.server.url = 
-    # The distinguished name of the security principal, e.g. "CN=carl,OU=EthUsers,DC=d,DC=ethz,DC=ch".
-    # Mandatory.
-    ldap.security.principal.distinguished.name = 
-    # Password of the LDAP user account that will be used to login to the LDAP server to perform the queries. 
-    # Mandatory.
-    ldap.security.principal.password = 
-    # The security protocol to use, use "ssl" or "none", default is "ssl"
-    ldap.security.protocol =
-    # The authentication method to use: "none" (no authentication), "simple", "strong" (SASL), defaults to "simple"
-    ldap.security.authentication-method =
-    # The referral mode:
-    # "follow" - follow referrals automatically (the default)
-    # "ignore" - ignore referrals
-    # "throw" - throw ReferralException when a referral is encountered
-    ldap.referral =
-    # The attribute name for the user id, defaults to "uid"
-    ldap.attributenames.user.id =
-    # The attribute name for the email, defaults to "mail"
-    ldap.attributenames.email =
-    # The attribute name for the first name, defaults to "givenName"
-    ldap.attributenames.first.name =
-    # The attribute name for the last name, defaults to "sn"
-    ldap.attributenames.last.name =
-    # Set to true to also query for email aliases
-    ldap.queryEmailForAliases = true
-    # The query template, needs to contain %s which will be filled with the query term, e.g. uid=username
-    # The default is:
-    # ldap.queryTemplate = (&(objectClass=organizationalPerson)(objectCategory=person)(objectClass=user)(%s))
-    # which is known to work for many Active Directory installations.
-    # For OpenLDAP, replace by: 
-    # ldap.queryTemplate = (&(%s))
-    # For restriction to BSSE accounts in OpenLDAP, set to: 
-    # ldap.queryTemplate = (&(objectClass=bssePosixAccount)(%s))
-    ldap.queryTemplate =
-    # The number of times a failed LDAP query is retried at the max. Default: 1.
-    ldap.maxRetries = 
-    # The timeout (in s) to wait for an LDAP query to return, -1 for "wait indefinitely". Default: 10s. 
-    ldap.timeout = 
-    # The time (in s) to wait after a failure before retrying the query. Default: 10s. 
-    ldap.timeToWaitAfterFailure =
+# ---------------------------------------------------------------------------
+# LDAP configuration
+# ---------------------------------------------------------------------------
+# The space-separated URLs of the LDAP servers, e.g. "ldap://d.ethz.ch/DC=d,DC=ethz,DC=ch". 
+# Mandatory.
+ldap.server.url = 
+# The distinguished name of the security principal, e.g. "CN=carl,OU=EthUsers,DC=d,DC=ethz,DC=ch".
+# Mandatory.
+ldap.security.principal.distinguished.name = 
+# Password of the LDAP user account that will be used to login to the LDAP server to perform the queries. 
+# Mandatory.
+ldap.security.principal.password = 
+# The security protocol to use, use "ssl" or "none", default is "ssl"
+ldap.security.protocol =
+# The authentication method to use: "none" (no authentication), "simple", "strong" (SASL), defaults to "simple"
+ldap.security.authentication-method =
+# The referral mode:
+# "follow" - follow referrals automatically (the default)
+# "ignore" - ignore referrals
+# "throw" - throw ReferralException when a referral is encountered
+ldap.referral =
+# The attribute name for the user id, defaults to "uid"
+ldap.attributenames.user.id =
+# The attribute name for the email, defaults to "mail"
+ldap.attributenames.email =
+# The attribute name for the first name, defaults to "givenName"
+ldap.attributenames.first.name =
+# The attribute name for the last name, defaults to "sn"
+ldap.attributenames.last.name =
+# Set to true to also query for email aliases
+ldap.queryEmailForAliases = true
+# The query template, needs to contain %s which will be filled with the query term, e.g. uid=username
+# The default is:
+# ldap.queryTemplate = (&(objectClass=organizationalPerson)(objectCategory=person)(objectClass=user)(%s))
+# which is known to work for many Active Directory installations.
+# For OpenLDAP, replace by: 
+# ldap.queryTemplate = (&(%s))
+# For restriction to BSSE accounts in OpenLDAP, set to: 
+# ldap.queryTemplate = (&(objectClass=bssePosixAccount)(%s))
+ldap.queryTemplate =
+# The number of times a failed LDAP query is retried at the max. Default: 1.
+ldap.maxRetries = 
+# The timeout (in s) to wait for an LDAP query to return, -1 for "wait indefinitely". Default: 10s. 
+ldap.timeout = 
+# The time (in s) to wait after a failure before retrying the query. Default: 10s. 
+ldap.timeToWaitAfterFailure =
 
-    # ---------------------------------------------------------------------------
-    # Anonymous login configuration (optional)
-    # ---------------------------------------------------------------------------
-    # Login of the existing user whose settings will be used for anonymous login 
-    #user-for-anonymous-login = <user-login>
+# ---------------------------------------------------------------------------
+# Anonymous login configuration (optional)
+# ---------------------------------------------------------------------------
+# Login of the existing user whose settings will be used for anonymous login 
+#user-for-anonymous-login = <user-login>
 
-    # ---------------------------------------------------------------------------
-    # Project authorization
-    # ---------------------------------------------------------------------------
-    # Enabled if set to 'true'. Default: disabled 
-    authorization.project-level.enabled = true
-    # Regular expression for user ids allowed to have a project role 
-    authorization.project-level.users = .*
+# ---------------------------------------------------------------------------
+# Project authorization
+# ---------------------------------------------------------------------------
+# Enabled if set to 'true'. Default: disabled 
+authorization.project-level.enabled = true
+# Regular expression for user ids allowed to have a project role 
+authorization.project-level.users = .*
 
-    # ---------------------------------------------------------------------------
-    # Project samples
-    # ---------------------------------------------------------------------------
-    # Enabled if set to 'true'. Default: disabled 
-    # Note: Changing to 'true' turns experiment samples to project samples 
-    # which can not be reverted after setting this flag back to 'false'. Also
-    # the sample identifier will change for such samples.
-    #project-samples-enabled = true
+# ---------------------------------------------------------------------------
+# Project samples
+# ---------------------------------------------------------------------------
+# Enabled if set to 'true'. Default: disabled 
+# Note: Changing to 'true' turns experiment samples to project samples 
+# which can not be reverted after setting this flag back to 'false'. Also
+# the sample identifier will change for such samples.
+#project-samples-enabled = true
 
-    # ---------------------------------------------------------------------------
-    # Client configuration
-    # ---------------------------------------------------------------------------
-    # Name of the file that stores Web Client configuration
-    web-client-configuration-file = etc/web-client.properties
+# ---------------------------------------------------------------------------
+# Client configuration
+# ---------------------------------------------------------------------------
+# Name of the file that stores Web Client configuration
+web-client-configuration-file = etc/web-client.properties
 
-    # A comma-separated list of trusted cross-origin domains, that are allowed to
-    # query openBIS content. Typically these are lightweight webapps that integrate with openBIS 
-    # via JSON-RPC services, but are not directly hosted within the openBIS application.
-    # 
-    # Example 1 (two different domains configured):
-    # 
-    # trusted-cross-origin-domains=https://myapp.domain.com:8443, http://other.domain.com
-    #
-    # Example 2 (match every domain):
-    #
-    # trusted-cross-origin-domains= *
-    #
-    # The '*' matches any arbitrary domain. It should be used with care as it opens openBIS 
-    # for potential cross-site scripting attacks.
-    #
-    #trusted-cross-origin-domains=
+# A comma-separated list of trusted cross-origin domains, that are allowed to
+# query openBIS content. Typically these are lightweight webapps that integrate with openBIS 
+# via JSON-RPC services, but are not directly hosted within the openBIS application.
+# 
+# Example 1 (two different domains configured):
+# 
+# trusted-cross-origin-domains=https://myapp.domain.com:8443, http://other.domain.com
+#
+# Example 2 (match every domain):
+#
+# trusted-cross-origin-domains= *
+#
+# The '*' matches any arbitrary domain. It should be used with care as it opens openBIS 
+# for potential cross-site scripting attacks.
+#
+#trusted-cross-origin-domains=
 
-    # ---------------------------------------------------------------------------
-    # Session configuration
-    # ---------------------------------------------------------------------------
-    # The time after which an inactive session is expired by the service (in minutes).
-    session-timeout = 720
+# ---------------------------------------------------------------------------
+# Session configuration
+# ---------------------------------------------------------------------------
+# The time after which an inactive session is expired by the service (in minutes).
+session-timeout = 720
 
-    # Session time (in minutes) in case of presents of file etc/nologin.html. Should be < 30. 
-    #session-timeout-no-login = 10
+# Session time (in minutes) in case of presents of file etc/nologin.html. Should be < 30. 
+#session-timeout-no-login = 10
 
-    # Maximum number of sessions allowed per user. Zero means unlimited number of sessions. Default value is 1.
-    # max-number-of-sessions-per-user = 1
+# Maximum number of sessions allowed per user. Zero means unlimited number of sessions. Default value is 1.
+# max-number-of-sessions-per-user = 1
 
-    # Comma separated list of users allowed to have unlimited number of sessions. Default: Empty list.
-    # Note: The DSS (user 'etlserver' by default, see property 'username' of DSS service.properties)
-    # should be added to this list.
-    # users-with-unrestricted-number-of-sessions = 
-
-
-    # ---------------------------------------------------------------------------
-    # Business rules configuration
-    # ---------------------------------------------------------------------------
-    # When set to "true" enables the system to store material codes containing non-alphanumeric characters.
-    # Regardless of the value of this property no white spaces are allowed in the material codes.
-    #material-relax-code-constraints=false
-
-    # Comma-separated list of regular expression of data set types which do not require that the data set 
-    # is linked to an experiment. If not linked to an experiment a link to a sample with space is required.
-    data-set-types-with-no-experiment-needed = .*
-
-    # When set to 'true' the sequence of sample codes is gap less for each type if all samples are created by
-    # batch registrations. 
-    #create-continuous-sample-codes = false
+# Comma separated list of users allowed to have unlimited number of sessions. Default: Empty list.
+# Note: The DSS (user 'etlserver' by default, see property 'username' of DSS service.properties)
+# should be added to this list.
+# users-with-unrestricted-number-of-sessions = 
 
 
-    # ---------------------------------------------------------------------------
-    # RPC Dropbox Default DSS configuration 
-    # ---------------------------------------------------------------------------
-    # Set this to the DSS code of the DSS handling RPC Dropboxes for this user.
-    # Note: This is only required if more than one DSS is connected to this openBIS server.
-    dss-rpc.put.dss-code =
+# ---------------------------------------------------------------------------
+# Business rules configuration
+# ---------------------------------------------------------------------------
+# When set to "true" enables the system to store material codes containing non-alphanumeric characters.
+# Regardless of the value of this property no white spaces are allowed in the material codes.
+#material-relax-code-constraints=false
 
-    # ---------------------------------------------------------------------------
-    # Hibernate Search
-    # ---------------------------------------------------------------------------
-    # The working directory.
-    hibernate.search.index-base = ./indices
-    # One of NO_INDEX, SKIP_IF_MARKER_FOUND, INDEX_FROM_SCRATCH.
-    # If not specified, default (SKIP_IF_MARKER_FOUND) is taken.
-    hibernate.search.index-mode = SKIP_IF_MARKER_FOUND
-    # Defines the maximum number of elements indexed before flushing the transaction-bound queue.
-    # Default is 1000.
-    hibernate.search.batch-size = 1000
-    # Maximum number of search results
-    hibernate.search.maxResults = 100000
-    # If 'async', the update of indices will be done in a separate thread.
-    hibernate.search.worker.execution=async
-    # How long fulltext searches can take (in seconds) before they are timed out. 
-    # When not defined, there is no timeout.
-    # fulltext-timeout = 30
+# Comma-separated list of regular expression of data set types which do not require that the data set 
+# is linked to an experiment. If not linked to an experiment a link to a sample with space is required.
+data-set-types-with-no-experiment-needed = .*
 
-    # ---------------------------------------------------------------------------
-    # Online Help
-    # ---------------------------------------------------------------------------
-    # Online help is broken into two sections -- generic and specific. Generic help links back to
-    # the CISD. Specific help is provided by the host of the installation
-    #
-    # OpenBIS needs to know the root URL for the online help and a template for the individual pages.
-    # The template should have on parameter, called title, and should be constructed to automatically
-    # create the page if it does not already exist.
-    # The template can be created by going to the root page, adding a new link to the page, and
-    # replacing the title of the new page with the ${title}
-    onlinehelp.generic.root-url = https://wiki-bsse.ethz.ch/display/CISDDoc/OnlineHelp
-    onlinehelp.generic.page-template = https://wiki-bsse.ethz.ch/pages/createpage.action?spaceKey=CISDDoc&title=${title}&linkCreation=true&fromPageId=40633829
-    #onlinehelp.specific.root-url = https://wiki-bsse.ethz.ch/display/CISDDoc/OnlineHelp
-    #onlinehelp.specific.page-template = https://wiki-bsse.ethz.ch/pages/createpage.action?spaceKey=CISDDoc&title=${title}&linkCreation=true&fromPageId=40633829
+# When set to 'true' the sequence of sample codes is gap less for each type if all samples are created by
+# batch registrations. 
+#create-continuous-sample-codes = false
 
-    # ---------------------------------------------------------------------------
-    # JMX memory monitor
-    # ---------------------------------------------------------------------------
-    # Interval between two runs of the memory monitor (in seconds). 
-    # Set to -1 to disable the memory monitor.
-    memorymonitor-monitoring-interval = 60
-    # Interval between two regular log call of the memory monitor (in seconds).
-    # Set to -1 to disable regular memory usage logging. 
-    memorymonitor-log-interval = 3600
-    # The percentage of memory that, if exceeded, triggers a notify log of the memory manager, 
-    # Set to 100 to disable.
-    memorymonitor-high-watermark-percent = 90
 
-    # ---------------------------------------------------------------------------
-    # Database Configurations for Query module (optional)
-    # ---------------------------------------------------------------------------
-    # Comma separated keys of databases configured for Query module.
-    # Each database should have configuration properties prefixed with its key.
-    # Mandatory properties for each <database> include: 
-    #   <database>.label                - name shown to the openBIS user when adding or editing a customized query
-    #       <database>.database-driver      - JDBC Driver of the database (e.g. org.postgresql.Driver)
-    #   <database>.database-url           - JDBC URL to the database (e.g. jdbc:postgresql://localhost/openbis)
-    # Optional properties for each <database> include:
-    #   <database>.database-user        - name of the database user (default: user.name from system properties)
-    #   <database>.database-password    - password of the database user
-    #   <database>.creator-minimal-role - minimal role required to create/edit queries on this database (default: POWER_USER)
-    #   <database>.data-space           - If NOT specified OBSERVER of any space will be allowed to perform 
-    #                                     queries and <creator-minimal-role> of any space will allowed 
-    #                                     to create/edit queries on this DB.
-    #                                   - If specified only OBSERVER of the space will be allowed to perform 
-    #                                     queries and <creator-minimal-role> of the space will allowed 
-    #                                     to create/edit queries on this DB.
-    #query-databases = openbisDB
-    #
-    #openbisDB.label = openBIS meta data
-    #openbisDB.data-space = CISD
-    #openbisDB.creator-minimal-role = SPACE_ADMIN
-    #openbisDB.database-driver = org.postgresql.Driver
-    #openbisDB.database-url = jdbc:postgresql://localhost/openbis_${database.kind}
-    #openbisDB.database-username =
-    #openbisDB.database-password =
+# ---------------------------------------------------------------------------
+# RPC Dropbox Default DSS configuration 
+# ---------------------------------------------------------------------------
+# Set this to the DSS code of the DSS handling RPC Dropboxes for this user.
+# Note: This is only required if more than one DSS is connected to this openBIS server.
+dss-rpc.put.dss-code =
 
-    # ---------------------------------------------------------------------------
-    # Maintenance plugins configuration (optional)
-    # ---------------------------------------------------------------------------
-    # Comma separated names of maintenance plugins.  
-    # Each plugin should have configuration properties prefixed with its name.
-    # Mandatory properties for each <plugin> include: 
-    #   <plugin>.class - Fully qualified plugin class name
-    #   <plugin>.interval - The time between plugin executions (in seconds)
-    # Optional properties for each <plugin> include:
-    #   <plugin>.start - Time of the first execution (HH:mm)
-    #   <plugin>.execute-only-once - If true the task will be executed exactly once, 
-    #                                interval will be ignored. By default set to false.
-    #maintenance-plugins = demo
-    #
-    #demo.class = ch.systemsx.cisd.openbis.generic.server.task.DemoMaintenanceTask
-    #demo.interval = 60
-    #demo.property_1 = some value
-    #demo.property_2 = some value 2
+# ---------------------------------------------------------------------------
+# Hibernate Search
+# ---------------------------------------------------------------------------
+# The working directory.
+hibernate.search.index-base = ./indices
+# One of NO_INDEX, SKIP_IF_MARKER_FOUND, INDEX_FROM_SCRATCH.
+# If not specified, default (SKIP_IF_MARKER_FOUND) is taken.
+hibernate.search.index-mode = SKIP_IF_MARKER_FOUND
+# Defines the maximum number of elements indexed before flushing the transaction-bound queue.
+# Default is 1000.
+hibernate.search.batch-size = 1000
+# Maximum number of search results
+hibernate.search.maxResults = 100000
+# If 'async', the update of indices will be done in a separate thread.
+hibernate.search.worker.execution=async
+# How long fulltext searches can take (in seconds) before they are timed out. 
+# When not defined, there is no timeout.
+# fulltext-timeout = 30
 
-    #
-    # Internal - do not change
-    #
+# ---------------------------------------------------------------------------
+# Online Help
+# ---------------------------------------------------------------------------
+# Online help is broken into two sections -- generic and specific. Generic help links back to
+# the CISD. Specific help is provided by the host of the installation
+#
+# OpenBIS needs to know the root URL for the online help and a template for the individual pages.
+# The template should have on parameter, called title, and should be constructed to automatically
+# create the page if it does not already exist.
+# The template can be created by going to the root page, adding a new link to the page, and
+# replacing the title of the new page with the ${title}
+onlinehelp.generic.root-url = https://wiki-bsse.ethz.ch/display/CISDDoc/OnlineHelp
+onlinehelp.generic.page-template = https://wiki-bsse.ethz.ch/pages/createpage.action?spaceKey=CISDDoc&title=${title}&linkCreation=true&fromPageId=40633829
+#onlinehelp.specific.root-url = https://wiki-bsse.ethz.ch/display/CISDDoc/OnlineHelp
+#onlinehelp.specific.page-template = https://wiki-bsse.ethz.ch/pages/createpage.action?spaceKey=CISDDoc&title=${title}&linkCreation=true&fromPageId=40633829
 
-    # Authorization
-    # Supported: 'no-authorization' and 'active-authorization'
-    authorization-component-factory = active-authorization
+# ---------------------------------------------------------------------------
+# JMX memory monitor
+# ---------------------------------------------------------------------------
+# Interval between two runs of the memory monitor (in seconds). 
+# Set to -1 to disable the memory monitor.
+memorymonitor-monitoring-interval = 60
+# Interval between two regular log call of the memory monitor (in seconds).
+# Set to -1 to disable regular memory usage logging. 
+memorymonitor-log-interval = 3600
+# The percentage of memory that, if exceeded, triggers a notify log of the memory manager, 
+# Set to 100 to disable.
+memorymonitor-high-watermark-percent = 90
 
-    script-folder = .
+# ---------------------------------------------------------------------------
+# Database Configurations for Query module (optional)
+# ---------------------------------------------------------------------------
+# Comma separated keys of databases configured for Query module.
+# Each database should have configuration properties prefixed with its key.
+# Mandatory properties for each <database> include: 
+#   <database>.label                - name shown to the openBIS user when adding or editing a customized query
+#       <database>.database-driver      - JDBC Driver of the database (e.g. org.postgresql.Driver)
+#   <database>.database-url           - JDBC URL to the database (e.g. jdbc:postgresql://localhost/openbis)
+# Optional properties for each <database> include:
+#   <database>.database-user        - name of the database user (default: user.name from system properties)
+#   <database>.database-password    - password of the database user
+#   <database>.creator-minimal-role - minimal role required to create/edit queries on this database (default: POWER_USER)
+#   <database>.data-space           - If NOT specified OBSERVER of any space will be allowed to perform 
+#                                     queries and <creator-minimal-role> of any space will allowed 
+#                                     to create/edit queries on this DB.
+#                                   - If specified only OBSERVER of the space will be allowed to perform 
+#                                     queries and <creator-minimal-role> of the space will allowed 
+#                                     to create/edit queries on this DB.
+#query-databases = openbisDB
+#
+#openbisDB.label = openBIS meta data
+#openbisDB.data-space = CISD
+#openbisDB.creator-minimal-role = SPACE_ADMIN
+#openbisDB.database-driver = org.postgresql.Driver
+#openbisDB.database-url = jdbc:postgresql://localhost/openbis_${database.kind}
+#openbisDB.database-username =
+#openbisDB.database-password =
 
-    #
-    # Version of Jython to be used in plugins. 2.5 and 2.7 are supported
-    #
-    jython-version=2.7
+# ---------------------------------------------------------------------------
+# Maintenance plugins configuration (optional)
+# ---------------------------------------------------------------------------
+# Comma separated names of maintenance plugins. 
+# Each plugin should have configuration properties prefixed with its name.
+# Mandatory properties for each <plugin> include: 
+#   <plugin>.class - Fully qualified plugin class name
+#   <plugin>.interval - The time between plugin executions (in seconds)
+# Optional properties for each <plugin> include:
+#   <plugin>.start - Time of the first execution (HH:mm)
+#   <plugin>.execute-only-once - If true the task will be executed exactly once, 
+#                                interval will be ignored. By default set to false.
+#maintenance-plugins = demo
+#
+#demo.class = ch.systemsx.cisd.openbis.generic.server.task.DemoMaintenanceTask
+#demo.interval = 60
+#demo.property_1 = some value
+#demo.property_2 = some value 2
 
-    ##########
-    # V3 API #
-    ##########
+#
+# Internal - do not change
+#
 
-    # -------------------------------------------------------------------------
-    # The configuration below reflects the default values used by the V3 API.
-    # Please uncomment and change the chosen values to overwrite the defaults.  
-    # -------------------------------------------------------------------------
-    #
-    # A path to a directory where operation execution details are stored.
-    #
-    #  api.v3.operation-execution.store.path = operation-execution-store
-    #
-    # A thread pool that is used for executing all asynchronous operations.  
-    #
-    # api.v3.operation-execution.thread-pool.name = operation-execution-pool
-    # api.v3.operation-execution.thread-pool.core-size = 10
-    # api.v3.operation-execution.thread-pool.max-size = 10
-    # api.v3.operation-execution.thread-pool.keep-alive-time = 0
-    #
-    # A name of a thread that updates operation execution progress information.
-    #
-    # api.v3.operation-execution.progress.thread-name = operation-execution-progress
-    #
-    # An interval that controls how often operation execution progress information gets updated. The interval is defined in seconds.
-    # 
-    # api.v3.operation-execution.progress.interval = 5
-    #
-    # Availability times control for how long information about an operation execution is stored in the system. 
-    # There are 3 levels of such information:
-    #
-    # * core information (code, state, owner, description, creation_date, start_date, finish_date)
-    # * summary information (summary of operations, progress, error, results)
-    # * detailed information (details of operations, progress, error, results)
-    #
-    # Each level of information can have a different availability time.
-    # The availability times can be defined at the moment of scheduling an operation execution.
-    # If a time is not provided explicitly then a corresponding 'default' value is used. 
-    # The maximum possible value that can be used for a given availability time is controlled with the 'max' property.
-    #
-    # All availability times are defined in seconds.
-    # Examples of values: 31536000 (1 year), 2592000 (30 days), 86400 (1 day), 3600 (1 hour).
-    #
-    # api.v3.operation-execution.availability-time.default = 31536000
-    # api.v3.operation-execution.availability-time.max = 31536000
-    # api.v3.operation-execution.availability-time.summary.default = 2592000
-    # api.v3.operation-execution.availability-time.summary.max = 2592000
-    # api.v3.operation-execution.availability-time.details.default = 86400 
-    # api.v3.operation-execution.availability-time.details.max = 86400
-    #
-    # Maintenance tasks responsible for marking and deleting timed out operation executions. Intervals are defined in seconds.
-    #
-    # api.v3.operation-execution.availability-update.mark-timeout-pending-task.name = operation-execution-mark-timeout-pending-task
-    # api.v3.operation-execution.availability-update.mark-timeout-pending-task.interval = 60
-    #
-    # api.v3.operation-execution.availability-update.mark-timed-out-or-deleted-task.name = operation-execution-mark-timed-out-or-deleted-task
-    # api.v3.operation-execution.availability-update.mark-timed-out-or-deleted-task.interval = 300
-    #
-    # Maintenance task responsible for marking new, scheduled and running operation executions as failed after server restart.
-    #
-    # api.v3.operation-execution.state-update.mark-failed-after-server-restart-task.name = operation-execution-mark-failed-after-server-restart-task
-    #
-    #
+# Authorization
+# Supported: 'no-authorization' and 'active-authorization'
+authorization-component-factory = active-authorization
+
+script-folder = .
+
+#
+# Version of Jython to be used in plugins. 2.5 and 2.7 are supported
+#
+jython-version=2.7
+
+##########
+# V3 API #
+##########
+
+# -------------------------------------------------------------------------
+# The configuration below reflects the default values used by the V3 API.
+# Please uncomment and change the chosen values to overwrite the defaults. 
+# -------------------------------------------------------------------------
+#
+# A path to a directory where operation execution details are stored.
+#
+#  api.v3.operation-execution.store.path = operation-execution-store
+#
+# A thread pool that is used for executing all asynchronous operations. 
+#
+# api.v3.operation-execution.thread-pool.name = operation-execution-pool
+# api.v3.operation-execution.thread-pool.core-size = 10
+# api.v3.operation-execution.thread-pool.max-size = 10
+# api.v3.operation-execution.thread-pool.keep-alive-time = 0
+#
+# A name of a thread that updates operation execution progress information.
+#
+# api.v3.operation-execution.progress.thread-name = operation-execution-progress
+#
+# An interval that controls how often operation execution progress information gets updated. The interval is defined in seconds.
+# 
+# api.v3.operation-execution.progress.interval = 5
+#
+# Availability times control for how long information about an operation execution is stored in the system. 
+# There are 3 levels of such information:
+#
+# * core information (code, state, owner, description, creation_date, start_date, finish_date)
+# * summary information (summary of operations, progress, error, results)
+# * detailed information (details of operations, progress, error, results)
+#
+# Each level of information can have a different availability time.
+# The availability times can be defined at the moment of scheduling an operation execution.
+# If a time is not provided explicitly then a corresponding 'default' value is used. 
+# The maximum possible value that can be used for a given availability time is controlled with the 'max' property.
+#
+# All availability times are defined in seconds.
+# Examples of values: 31536000 (1 year), 2592000 (30 days), 86400 (1 day), 3600 (1 hour).
+#
+# api.v3.operation-execution.availability-time.default = 31536000
+# api.v3.operation-execution.availability-time.max = 31536000
+# api.v3.operation-execution.availability-time.summary.default = 2592000
+# api.v3.operation-execution.availability-time.summary.max = 2592000
+# api.v3.operation-execution.availability-time.details.default = 86400 
+# api.v3.operation-execution.availability-time.details.max = 86400
+#
+# Maintenance tasks responsible for marking and deleting timed out operation executions. Intervals are defined in seconds.
+#
+# api.v3.operation-execution.availability-update.mark-timeout-pending-task.name = operation-execution-mark-timeout-pending-task
+# api.v3.operation-execution.availability-update.mark-timeout-pending-task.interval = 60
+#
+# api.v3.operation-execution.availability-update.mark-timed-out-or-deleted-task.name = operation-execution-mark-timed-out-or-deleted-task
+# api.v3.operation-execution.availability-update.mark-timed-out-or-deleted-task.interval = 300
+#
+# Maintenance task responsible for marking new, scheduled and running operation executions as failed after server restart.
+#
+# api.v3.operation-execution.state-update.mark-failed-after-server-restart-task.name = operation-execution-mark-failed-after-server-restart-task
+#
+#
+```
 
 ### Database Settings
 
-All properties starting with `database.` specify the settings for the
-openBIS database. They are all mandatory.
+All properties starting with `database.` specify the settings for the openBIS database. They are all mandatory.
 
 | Property                         | Description                                                                                                                                                                                                           |
 |----------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `database.engine`                  | Type of database. Currently only postgresql is supported.                                                                                                                                                             |
-| `database.create-from-scratch`     | If true the database will be dropped and an empty database will be created. In productive use always set this value to  false  .                                                                                      |
-| `database.script-single-step-mode` | If true all SQL scripts are executed in single step mode. Useful for localizing errors in SQL scripts. Should be always false in productive mode.                                                                     |
-| `database.url-host-part`           | Part of JDBC URL denoting the host of the database server. If openBIS Application Server and database server are running on the same machine this property should be an empty string.                                 |
-| `database.kind`                    | Part of the name of the database. The full name reads openbis_<  kind  >.                                                                                                                                       |
+| `database.engine`                  | Type of database. Currently only postgresql is supported.                                                                                                                                                            |
+| `database.create-from-scratch`     | If true the database will be dropped and an empty database will be created. In productive use always set this value to  false  .                                                                                     |
+| `database.script-single-step-mode` | If true all SQL scripts are executed in single step mode. Useful for localizing errors in SQL scripts. Should be always false in productive mode.                                                                    |
+| `database.url-host-part`           | Part of JDBC URL denoting the host of the database server. If openBIS Application Server and database server are running on the same machine this property should be an empty string.                                |
+| `database.kind`                    | Part of the name of the database. The full name reads openbis_<  kind  >.                                                                                                                                      |
 | `database.admin-user`              | ID of the user on database server with admin rights, like creation of tables. Should be an empty string if default admin user should be used. In case of PostgreSQL the default admin user is assumed to be postgres. |
-| database.admin-password          | Password for admin user. Usual an empty string.                                                                                                                                                                       |
-| `database.owner`                   | ID of the user owning the data. This should generally be openbis. The openbis role and password need to be created. In case of an empty string it is the same user who started up openBIS Application Server.         |
-| `database.owner-password`          | Password of the owner.                                                                                                                                                                                                |
-
-The credentials for the database user with the privilege to create a new
-database depends on the installation and configuration of the PostgreSQL
-database.
+| database.admin-password          | Password for admin user. Usual an empty string.                                                                                                                                                                      |
+| `database.owner`                   | ID of the user owning the data. This should generally be openbis. The openbis role and password need to be created. In case of an empty string it is the same user who started up openBIS Application Server.        |
+| `database.owner-password`          | Password of the owner.                                                                                                                                                                                               |
+```{warning}
+The credentials for the database user with the privilege to create a new database depends on the installation and configuration of the PostgreSQL database.
+```
 
 ## Start Server
 
 The server is started as follows:
 
-    prompt> <installation folder>/bin/bisup.sh
+```console
+prompt> <installation folder>/bin/bisup.sh
+```
 
 On startup the openBIS server creates the database on PostgreSQL and
 checks the connection with the remote authentication services (if they
@@ -503,14 +488,17 @@ are configured). Log files can be found in
 `<installation folder>/servers/openBIS-server/jetty/logs`. Also the
 following command shows the log: `<installation folder>/bin/bislog.sh`
 
-The first user logged in into the system will have full administrator
-rights (role `INSTANCE_ADMIN`).
+```{warning}
+The first user logged in into the system will have full administrator rights (role `INSTANCE_ADMIN`).
+```
 
 ## Stop Server
 
 The server is stopped as follows:
 
-    prompt> <installation folder>/bin/bisdown.sh
+```console
+prompt> <installation folder>/bin/bisdown.sh
+```
 
 ## Authentication systems
 
@@ -550,17 +538,22 @@ system is successful or not.
 The script `<server folder>/jetty/bin/passwd.sh` can be used to maintain
 this file. This script supports the options:
 
-    passwd list | [remove|show|test] <userid> | [add|change] <userid> [option [...]]
-     --help                 : Prints out a description of the options.
-     [-P,--change-password] : Read the new password from the console,
-     [-e,--email] VAL       : Email address of the user.
-     [-f,--first-name] VAL  : First name of the user.
-     [-l,--last-name] VAL   : Last name of the user.
-     [-p,--password] VAL    : The password.
+```bash
+passwd list | [remove|show|test] <userid> | [add|change] <userid> [option [...]]
+    --help                 : Prints out a description of the options.
+    [-P,--change-password] : Read the new password from the console,
+    [-e,--email] VAL       : Email address of the user.
+    [-f,--first-name] VAL  : First name of the user.
+    [-l,--last-name] VAL   : Last name of the user.
+    [-p,--password] VAL    : The password.
+```
+
 
 A new user can be added with
 
-    prompt> passwd.sh add [-f <first name>] [-l <last name>] [-e <email>] [-p <password>] <username>
+```bash
+prompt> passwd.sh add [-f <first name>] [-l <last name>] [-e <email>] [-p <password>] <username>
+```
 
 If no password is provided with the `-p` option, the system will ask for
 a password of the new user on the console. Please note that providing a
@@ -570,26 +563,36 @@ the `ps` table. Thus `-p` is not recommended in normal operation.
 
 The password of a user can be tested with
 
-    prompt> passwd.sh test <username>
+```bash
+prompt> passwd.sh test <username>
+```
 
 The system will ask for the current password on the console and then
 print whether the user was authenticated successfully or not.
 
 An account can be changed with
 
-    prompt> passwd.sh change [-f <first name>] [-l <last name>] [-e <email>] [-P] <username>
+```bash
+prompt> passwd.sh change [-f <first name>] [-l <last name>] [-e <email>] [-P] <username>
+```
 
 An account can be removed with
 
-    prompt> passwd.sh remove <username>
+```bash
+prompt> passwd.sh remove <username>
+```
 
 The details of an account can be queried with
 
-    prompt> passwd.sh show <username>
+```bash
+prompt> passwd.sh show <username>
+```
 
 All accounts can be listed with
 
-    prompt> passwd.sh list
+```bash
+prompt> passwd.sh list
+```
 
 The password file contains each user in a separate line. The fields of
 each line are separated by colon and contain (in this order): *User Id*,
@@ -605,13 +608,18 @@ To work with an LDAP server, you need to provide the server URL with
 (example) and set the
 `authentication-service = ldap-authentication-service`
 
-    ldap.server.url = ldap://d.ethz.ch/DC=d,DC=ethz,DC=ch
+```bash
+ldap.server.url = ldap://d.ethz.ch/DC=d,DC=ethz,DC=ch
+```
 
 and the details of an LDAP account who is allowed to make queries on the
 LDAP server with (example)
 
-    ldap.security.principal.distinguished.name = CN=carl,OU=EthUsers,DC=d,DC=ethz,DC=ch
-    ldap.security.principal.password = Carls_LDAP_Password
+```bash
+ldap.security.principal.distinguished.name = CN=carl,OU=EthUsers,DC=d,DC=ethz,DC=ch
+ldap.security.principal.password = Carls_LDAP_Password
+```
+
 
 Note: A space-separated list of URLs can be provided if distinguished
 name and password  are valid for all specified LDAP servers.
@@ -660,7 +668,7 @@ the login.
 There are two service properties which give you control over the working
 of the authentication cache:
 
--   `authentication.cache.time` lets you set for how long (after putting
+- `authentication.cache.time` lets you set for how long (after putting
     it into the cache) a cache entry (read: "user name and password")
     will be kept if the user does not have a successful login to openBIS
     in this period of time (as successful logins will trigger
@@ -668,7 +676,7 @@ of the authentication cache:
     28h, which means that users logging into the system every day will
     never experience a delay from slow remote authentication systems. A
     non-positive value will disable caching.
--   `authentication.cache.time-no-revalidation` lets you set for how
+- `authentication.cache.time-no-revalidation` lets you set for how
     long (after putting it into the cache) a cache entry will *not* be
     re-validated if the login was successful. This allows you to reduce
     the load that openBIS creates on the remote authentication servers
@@ -705,22 +713,15 @@ used for the anonymous login.
 
 Anonymous login is possible with URL parameter `anonymous` set to `true`
 or by property `default-anonymous-login` in web configuration properties
-(see [Web Client
-Customization](#InstallationandAdministratorGuideoftheopenBISServer-WebClientCustomization)).
-Note, that for the ELN client the property `default-anonymous-login`
-isn't used. Anonymous login needs only the property
-`user-for-anonymous-login` for an existing user with some rights.
+(see [Web Client Customization](https://openbis.readthedocs.io/en/latest/system-admin-documentation/installation/installation-and-configuration-guide.html#web-client-customizations)). Note, that for the ELN client the property `default-anonymous-login` isn't used. Anonymous login needs only the property `user-for-anonymous-login` for an existing user with some rights.
 
 ### Single Sign On Authentication
 
-Currently only Shibboleth SSO is supported. For more details see [Single
-Sign On
-Authentication](/display/openBISDoc2010/Single+Sign+On+Authentication).
+Currently only Shibboleth SSO is supported. For more details see [Single Sign On Authentication](https://openbis.readthedocs.io/en/latest/system-admin-documentation/installation/installation-and-configuration-guide.html#single-sign-on-authentication).
 
 ## Authorization
 
-openBIS authorization is described
-here: [Authorization](/display/openBISDoc2010/Authorization).
+openBIS authorization is described here: [Authorization](https://openbis.readthedocs.io/en/latest/system-admin-documentation/installation/installation-and-configuration-guide.html#authorization).
 
 ## System Customization
 
@@ -738,23 +739,26 @@ Example of the `loginHeader.html`:
 For announcements you have to edit the `index.html` file. Here is an
 example showing the tail:
 
-    <input style="margin-left: 200px" type="submit" id="openbis_login_submit" value="Login">
-    <br>
-    <br>
-    <br>
-    <br>
-    <span style="color:red">
-    Due the server maintenance openBIS 
-    <br>
-    will not be available on 24th of 
-    <br>
-     December 2010 from 10 am to 3 pm!
-    <br>
-    </span>
-    </form>
-    </div>
-    </body>
-    </html>
+```html
+<input style="margin-left: 200px" type="submit" id="openbis_login_submit" value="Login">
+<br>
+<br>
+<br>
+<br>
+<span style="color:red">
+Due the server maintenance openBIS 
+<br>
+will not be available on 24th of 
+<br>
+    December 2010 from 10 am to 3 pm!
+<br>
+</span>
+</form>
+</div>
+</body>
+</html>
+```
+
 
 Note: the current work around with `br` tags between the lines ensures
 that the login box is still centered.
@@ -772,7 +776,7 @@ Client, prepare the configuration file and add the path to the value of
 
 #### Web client customizations
 
--   Enable the trashcan. When the trashcan is enabled, deleting entities
+- Enable the trashcan. When the trashcan is enabled, deleting entities
     only marks them as deleted but not deletes them physically (it is
     also called "logical deletion"). When clicking on the trashcan icon
     in the Web GUI, the user can see all of his deletion operations and
@@ -780,18 +784,18 @@ Client, prepare the configuration file and add the path to the value of
     and thus delete the entities physically. Only with enabled trashcan
     is it possible to delete complete hierarchies (e.g. an experiment
     with samples and datasets attached).
--   Default view mode (`SIMPLE/NORMAL`) that should be used if user
+- Default view mode (`SIMPLE/NORMAL`) that should be used if user
     doesn't have it specified in a URL.
--   Replacement texts for 'Experiment' and 'Sample' by `experiment-text`
+- Replacement texts for 'Experiment' and 'Sample' by `experiment-text`
     and `sample-text`, respectively.
--   Anonymous login by default.
--   Sample, material, experiment and data set `detail views `can be
+- Anonymous login by default.
+- Sample, material, experiment and data set `detail views `can be
     customized by:
-    -   hiding the sections (e.g. attachments)
--   Additionally `data set detail view` can be customized by:
-    -   removing `Smart View` and `File View` from the list of available
+    - hiding the sections (e.g. attachments)
+- Additionally `data set detail view` can be customized by:
+    - removing `Smart View` and `File View` from the list of available
         reports in `Data View` section
--   Technology specific properties with property `technologies` which is
+- Technology specific properties with property `technologies` which is
     a comma-separated list of technologies. For each technology
     properties are defined where the property names start with
     technology name followed by a dot character.
@@ -815,9 +819,9 @@ patterns are shown to the user, whereas for the blacklist, the data set
 types that match the specified patterns are those that are not shown to
 the user.
 
-####### Examples
+##### Examples
 
--   Specifying a whitelist
+- Specifying a whitelist
 
 **web-client.properties.**
 
@@ -832,7 +836,7 @@ In this case, the follwing data set types will be available to the user:
 
 *MICROSCOPE-IMAGE*, *IMAGE-SCREENING*, *ANALYSIS*, *THUMBNAIL1*
 
--   Specifying a blacklist
+- Specifying a blacklist
 
 **web-client.properties.**
 
@@ -851,86 +855,89 @@ In this case, the follwing data set types will be available to the user:
 
 **web-client.properties**
 
-    # Enable the trash can and logical deletion.
-    # Default value: false
-    enable-trash = true
+```
+# Enable the trash can and logical deletion.
+# Default value: false
+enable-trash = true
 
-    # Replacement texts for 'Experiment' and 'Sample' in the UI 
-    # sample-text = Object
-    # experiment-text = Collection
+# Replacement texts for 'Experiment' and 'Sample' in the UI 
+# sample-text = Object
+# experiment-text = Collection
 
-    # Default view mode that should be used if user doesn't have it specified in URL.
-    # Options: 'NORMAL' (standard or application mode - default), 'SIMPLE' (read-only mode with simplified GUI)
-    #
-    default-view-mode = SIMPLE
+# Default view mode that should be used if user doesn't have it specified in URL.
+# Options: 'NORMAL' (standard or application mode - default), 'SIMPLE' (read-only mode with simplified GUI)
+#
+default-view-mode = SIMPLE
 
-    # Flag specifying whether default login mode is anonymous or not. 
-    # If true a user-for-anonymous-login has to be defined in service.properties
-    # Default value: false
-    default-anonymous-login = true
+# Flag specifying whether default login mode is anonymous or not. 
+# If true a user-for-anonymous-login has to be defined in service.properties
+# Default value: false
+default-anonymous-login = true
 
-    # Configuration of entity (experiment, sample, data set, material) detail views.
-    #
-    # Mandatory properties:
-    #   - view (entity detail view id)
-    #   - types (list of entity type codes)
-    # Optional properties:
-    #   - hide-sections (list of section ids)
-    #   - hide-smart-view (removes "Smart View" from Data Set Detail View -> Data View) (generic_dataset_viewer)
-    #   - hide-file-view (removes "File View" from Data Set Detail View -> Data View) (generic_dataset_viewer)
-    # Available sections in entity-detail-views:
-    #   generic_dataset_viewer
-    #       data-set-data-section
-    #       data-set-parents-section
-    #       data-set-children-section
-    #       query-section
-    #   generic_experiment_viewer
-    #       data-set-section
-    #       attachment-section
-    #       query-section
-    #       container-sample-section
-    #   generic_sample_viewer
-    #       container-sample-section
-    #       derived-samples-section
-    #       parent-samples-section
-    #       data-set-section
-    #       attachment-section
-    #       query-section
-    #   generic_material_viewer
-    #       query-section
-    #
-    # Example:
-    #
-    #detail-views = sample-view, experiment-view, data-view
-    #
-    #sample-view.view = generic_sample_viewer
-    #sample-view.types = STYPE1, STYPE2
-    #sample-view.hide-sections = derived-samples-section, container-sample-section
-    #
-    #experiment-view.view = generic_sample_viewer
-    #experiment-view.types = ETYPE1, ETYPE2
-    #experiment-view.hide-sections = data-set-section
-    #
-    #data-view.view = generic_dataset_viewer
-    #data-view.types = DSTYPE
-    #data-view.hide-smart-view = false
-    #data-view.hide-file-view = true
+# Configuration of entity (experiment, sample, data set, material) detail views.
+#
+# Mandatory properties:
+#   - view (entity detail view id)
+#   - types (list of entity type codes)
+# Optional properties:
+#   - hide-sections (list of section ids)
+#   - hide-smart-view (removes "Smart View" from Data Set Detail View -> Data View) (generic_dataset_viewer)
+#   - hide-file-view (removes "File View" from Data Set Detail View -> Data View) (generic_dataset_viewer)
+# Available sections in entity-detail-views:
+#   generic_dataset_viewer
+#       data-set-data-section
+#       data-set-parents-section
+#       data-set-children-section
+#       query-section
+#   generic_experiment_viewer
+#       data-set-section
+#       attachment-section
+#       query-section
+#       container-sample-section
+#   generic_sample_viewer
+#       container-sample-section
+#       derived-samples-section
+#       parent-samples-section
+#       data-set-section
+#       attachment-section
+#       query-section
+#   generic_material_viewer
+#       query-section
+#
+# Example:
+#
+#detail-views = sample-view, experiment-view, data-view
+#
+#sample-view.view = generic_sample_viewer
+#sample-view.types = STYPE1, STYPE2
+#sample-view.hide-sections = derived-samples-section, container-sample-section
+#
+#experiment-view.view = generic_sample_viewer
+#experiment-view.types = ETYPE1, ETYPE2
+#experiment-view.hide-sections = data-set-section
+#
+#data-view.view = generic_dataset_viewer
+#data-view.types = DSTYPE
+#data-view.hide-smart-view = false
+#data-view.hide-file-view = true
 
-    #technologies = screening
-    #screening.image-viewer-enabled = true
+#technologies = screening
+#screening.image-viewer-enabled = true
 
-    #
-    # Only render these types when creating new data sets via the 
-    # Data Set Upload Client
-    #
-    #creatable-data-set-types-whitelist=WHITELISTED_TYPE1, WHITELISTED_TYPE2
+#
+# Only render these types when creating new data sets via the 
+# Data Set Upload Client
+#
+#creatable-data-set-types-whitelist=WHITELISTED_TYPE1, WHITELISTED_TYPE2
 
-    #
-    # Do not render these types in the Data Set Upload Client. 
-    # The value of the property is only taken into account if  
-    # creatable-data-set-types-whitelist is not configured
-    #
-    #creatable-data-set-types-blacklist=BLACKLISTED_TYPE1, BLACKLISTED_TYPE2
+#
+# Do not render these types in the Data Set Upload Client. 
+# The value of the property is only taken into account if  
+# creatable-data-set-types-whitelist is not configured
+#
+#creatable-data-set-types-blacklist=BLACKLISTED_TYPE1, BLACKLISTED_TYPE2
+```
+
 
 ### Configuring File Servlet
 
@@ -940,9 +947,9 @@ meant to be used for small images and rich text editors like CKEditor.
 
 | Property Key                        | Default Value              | Description                                                                                               |
 |-------------------------------------|----------------------------|-----------------------------------------------------------------------------------------------------------|
-| file-server.maximum-file-size-in-MB | 10                         |  Max size of files.                                                                                       |
+| file-server.maximum-file-size-in-MB | 10                         |  Max size of files.                                                                                      |
 | file-server.repository-path         |  ../../../data/file-server | Path where files will be stored, ideally should be a folder on the same NAS you are storing the DataSets. |
-| file-server.download-check          | true                       | Checks that the user is log in into the system to be able to download files.                              |
+| file-server.download-check          | true                       | Checks that the user is log in into the system to be able to download files.                             |
 
 ### Configuring DSS Data Sources
 
@@ -951,18 +958,18 @@ Depending on the DSS (specified by the DSS code) and the technology
 different databases have to be used.
 
 Configuration is best done by AS [core
-plugins](/display/openBISDoc2010/Core+Plugins) of type
+plugins](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/core-plugins.html) of type
 `dss-data-sources`. The name of the plugin is just the DSS code. The
 following properties of `plugin.properties` are recognized:
 
 | Property Key                                     | Description                                                                                                                                                                                                                             |
 |--------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | technology                                       | Normally the technology/module folder of the core plugin specifies the technology/module for which this data source has to be configured. If this is not the case this property allows to specify the technology/module independently.  |
-| database-driver                                  | Fully qualified class name of the data base driver, e.g. `org.postgresql.Driver`.                                                                                                                                                         |
+| database-driver                                  | Fully qualified class name of the data base driver, e.g. `org.postgresql.Driver`.                                                                                                                                                        |
 | database-url                                     | URL of the database, e.g. `jdbc:postgresql://localhost/imaging_dev`                                                                                                                                                                       |
-| username                                         | Optional user name needed to access database.                                                                                                                                                                                           |
-| password                                         | Optional password needed to access database.                                                                                                                                                                                            |
-| validation-query                                 | Optional SQL script to be executed to validate database connections.                                                                                                                                                                    |
+| username                                         | Optional user name needed to access database.                                                                                                                                                                                          |
+| password                                         | Optional password needed to access database.                                                                                                                                                                                           |
+| validation-query                                 | Optional SQL script to be executed to validate database connections.                                                                                                                                                                   |
 | database-max-idle-connections                    | The maximum number of connections that can remain idle in the pool. A negative value indicates that there is no limit. Default: -1                                                                                                      |
 | database-max-active-connections                  | The maximum number of active connections that can be allocated at the same time. A negative value indicates that there is no limit. Default: -1                                                                                         |
 | database-max-wait-for-connection                 | The maximum number of seconds that the pool will wait for a connection to be returned before throwing an exception. A value less than or equal to zero means the pool is set to wait indefinitely. Default: -1                          |
@@ -972,7 +979,7 @@ following properties of `plugin.properties` are recognized:
 
 Properties `database-driver` and `database-url` can be omitted if a
 `etc/dss-datasource-mapping` is defined. For more see [Sharing
-Databases](/display/openBISDoc2010/Sharing+Databases).
+Databases](https://unlimited.ethz.ch/display/openBISDoc2010/Sharing+Databases).
 
 ### Changing the Capability-Role map
 
@@ -981,9 +988,12 @@ needed to perform a given action. The defaults can be overridden by
 creating a file `etc/capabilities`. One line in this file has one of the
 following formats:
 
-    <Capability>: <Role>[,<ROLE>...]
-    <Capability>: <Role>[,<ROLE>...][; <Parameter> = <Role>[, <Role>...]][; <Parameter> = <Role>[, <Role>]] ...
-    <Capability>: <Parameter> = <Role>[, <Role>...][; <Parameter> = <Role>[, <Role>]] ...
+```
+<Capability>: <Role>[,<ROLE>...]
+<Capability>: <Role>[,<ROLE>...][; <Parameter> = <Role>[, <Role>...]][; <Parameter> = <Role>[, <Role>]] ...
+<Capability>: <Parameter> = <Role>[, <Role>...][; <Parameter> = <Role>[, <Role>]] ...
+```
+
 
 which sets a new (minimal) role for the given capability. There is a
 special role `INSTANCE_DISABLED` which allows to completely disable a
@@ -1056,8 +1066,8 @@ This is the default map:
 |`REMOVE_PARENT_FROM_DATASET`      |         |`SPACE_POWER_USER`, `SPACE_ETL_SERVER` |                                                                                                                                                                                               |
 |`ADD_CONTAINER_TO_DATASET`        |         |`SPACE_POWER_USER`, `SPACE_ETL_SERVER` |                                                                                                                                                                                               |
 |`REMOVE_CONTAINER_FROM_DATASET`   |         |`SPACE_POWER_USER`, `SPACE_ETL_SERVER` |                                                                                                                                                                                               |
-|`ASSIGN_ROLE_TO_SPACE_VIA_DSS`    |         |`SPACE_ADMIN, `INSTANCE_ETL_SERVER`   |                                                                                                                                                                                               |
-|`CREATE_SPACES_VIA_DSS`           |         |`SPACE_ADMIN, `INSTANCE_ETL_SERVER`   |                                                                                                                                                                                               |
+|`ASSIGN_ROLE_TO_SPACE_VIA_DSS`    |         |`SPACE_ADMIN`, `INSTANCE_ETL_SERVER`   |                                                                                                                                                                                               |
+|`CREATE_SPACES_VIA_DSS`           |         |`SPACE_ADMIN`, `INSTANCE_ETL_SERVER`   |                                                                                                                                                                                               |
 |`CREATE_PROJECTS_VIA_DSS`         |         |`SPACE_POWER_USER`, `SPACE_ETL_SERVER` |                                                                                                                                                                                               |
 |`UPDATE_PROJECTS_VIA_DSS`         |         |`SPACE_POWER_USER`, `SPACE_ETL_SERVER` |                                                                                                                                                                                               |
 |`CREATE_EXPERIMENTS_VIA_DSS`      |         |`SPACE_USER`, `SPACE_ETL_SERVER`       |                                                                                                                                                                                               |
@@ -1070,41 +1080,44 @@ This is the default map:
 |`UPDATE_MATERIALS_VIA_DSS`        |         |`INSTANCE_ETL_SERVER`                |                                                                                                                                                                                               |
 |`CREATE_DATA_SETS_VIA_DSS`        |         |`SPACE_USER`, `SPACE_ETL_SERVER`       |                                                                                                                                                                                               |
 |`UPDATE_DATA_SETS_VIA_DSS`        |         |`SPACE_POWER_USER`, `SPACE_ETL_SERVER` |                                                                                                                                                                                               |
-|`SEARCH_ON_BEHALF_OF_USER`        |         |`INSTANCE_OBSERVER`                  |All search or list operations being performed on behalf of another user. Supposed to be used by a service user for server-to-server communication tasks.                                       |
+|`SEARCH_ON_BEHALF_OF_USER`        |         |`INSTANCE_OBSERVER`                  |All search or list operations being performed on behalf of another user. Supposed to be used by a service user for server-to-server communication tasks.                                      |
 
 
 Older versions of openBIS used to allow changing entity relationships to
 regular `SPACE_USER`. If you want to get this behavior back, put these
 lines into `etc/capabilities`:
 
-    ASSIGN_EXPERIMENT_TO_PROJECT: SPACE_USER
-    ASSIGN_EXPERIMENT_TO_PROJECT: SPACE_ETL_SERVER
-    ASSIGN_SAMPLE_TO_EXPERIMENT: SPACE_USER
-    ASSIGN_SAMPLE_TO_EXPERIMENT: SPACE_ETL_SERVER
-    UNASSIGN_SAMPLE_FROM_EXPERIMENT: SPACE_USER
-    UNASSIGN_SAMPLE_FROM_EXPERIMENT: SPACE_ETL_SERVER
-    ASSIGN_SAMPLE_TO_SPACE: SPACE_USER
-    ASSIGN_SAMPLE_TO_SPACE: SPACE_ETL_SERVER
-    ASSIGN_DATASET_TO_EXPERIMENT: SPACE_USER
-    ASSIGN_DATASET_TO_EXPERIMENT: SPACE_ETL_SERVER
-    ASSIGN_DATASET_TO_SAMPLE: SPACE_USER
-    ASSIGN_DATASET_TO_SAMPLE: SPACE_ETL_SERVER
-    ADD_PARENT_TO_SAMPLE: SPACE_USER
-    ADD_PARENT_TO_SAMPLE: SPACE_ETL_SERVER
-    REMOVE_PARENT_FROM_SAMPLE: SPACE_USER
-    REMOVE_PARENT_FROM_SAMPLE: SPACE_ETL_SERVER
-    ADD_CONTAINER_TO_SAMPLE: SPACE_USER
-    ADD_CONTAINER_TO_SAMPLE: SPACE_ETL_SERVER
-    REMOVE_CONTAINER_FROM_SAMPLE: SPACE_USER
-    REMOVE_CONTAINER_FROM_SAMPLE: SPACE_ETL_SERVER
-    ADD_PARENT_TO_DATASET: SPACE_USER
-    ADD_PARENT_TO_DATASET: SPACE_ETL_SERVER
-    REMOVE_PARENT_FROM_DATASET: SPACE_USER
-    REMOVE_PARENT_FROM_DATASET: SPACE_ETL_SERVER
-    ADD_CONTAINER_TO_DATASET: SPACE_USER
-    ADD_CONTAINER_TO_DATASET: SPACE_ETL_SERVER
-    REMOVE_CONTAINER_FROM_DATASET: SPACE_USER
-    REMOVE_CONTAINER_FROM_DATASET: SPACE_ETL_SERVER
+```
+ASSIGN_EXPERIMENT_TO_PROJECT: SPACE_USER
+ASSIGN_EXPERIMENT_TO_PROJECT: SPACE_ETL_SERVER
+ASSIGN_SAMPLE_TO_EXPERIMENT: SPACE_USER
+ASSIGN_SAMPLE_TO_EXPERIMENT: SPACE_ETL_SERVER
+UNASSIGN_SAMPLE_FROM_EXPERIMENT: SPACE_USER
+UNASSIGN_SAMPLE_FROM_EXPERIMENT: SPACE_ETL_SERVER
+ASSIGN_SAMPLE_TO_SPACE: SPACE_USER
+ASSIGN_SAMPLE_TO_SPACE: SPACE_ETL_SERVER
+ASSIGN_DATASET_TO_EXPERIMENT: SPACE_USER
+ASSIGN_DATASET_TO_EXPERIMENT: SPACE_ETL_SERVER
+ASSIGN_DATASET_TO_SAMPLE: SPACE_USER
+ASSIGN_DATASET_TO_SAMPLE: SPACE_ETL_SERVER
+ADD_PARENT_TO_SAMPLE: SPACE_USER
+ADD_PARENT_TO_SAMPLE: SPACE_ETL_SERVER
+REMOVE_PARENT_FROM_SAMPLE: SPACE_USER
+REMOVE_PARENT_FROM_SAMPLE: SPACE_ETL_SERVER
+ADD_CONTAINER_TO_SAMPLE: SPACE_USER
+ADD_CONTAINER_TO_SAMPLE: SPACE_ETL_SERVER
+REMOVE_CONTAINER_FROM_SAMPLE: SPACE_USER
+REMOVE_CONTAINER_FROM_SAMPLE: SPACE_ETL_SERVER
+ADD_PARENT_TO_DATASET: SPACE_USER
+ADD_PARENT_TO_DATASET: SPACE_ETL_SERVER
+REMOVE_PARENT_FROM_DATASET: SPACE_USER
+REMOVE_PARENT_FROM_DATASET: SPACE_ETL_SERVER
+ADD_CONTAINER_TO_DATASET: SPACE_USER
+ADD_CONTAINER_TO_DATASET: SPACE_ETL_SERVER
+REMOVE_CONTAINER_FROM_DATASET: SPACE_USER
+REMOVE_CONTAINER_FROM_DATASET: SPACE_ETL_SERVER
+```
+
 
 #### Capability Role Map for V3 API
 
@@ -1269,23 +1282,30 @@ application server should access this database as a user which is member
 of a read-only group. The name of this read-only group is project
 specific.
 
-It is possible to configure openBIS to query multiple project-specific
-databases.
+```{note}
+It is possible to configure openBIS to query multiple project-specific databases.
+```
 
 #### Create Read-Only User in PostgreSQL
 
 A new user (aka role) is created by
 
-    CREATE ROLE <read-only user> LOGIN NOSUPERUSER INHERIT NOCREATEDB NOCREATEROLE;
+```sql
+CREATE ROLE <read-only user> LOGIN NOSUPERUSER INHERIT NOCREATEDB NOCREATEROLE;
+```
 
 This new user is added to the read-only group by the following command:
 
-    GRANT <read-only group> TO <read-only user>;
+```sql
+GRANT <read-only group> TO <read-only user>;
+```
 
 The name of the read-only group can be obtained by having a look into
 the list of all groups:
 
-    SELECT * from PG_GROUP;
+```sql
+SELECT * from PG_GROUP;
+```
 
 *Note that by default openBIS creates a user* ` openbis_readonly `
 *which has read-only permissions to all database objects. You can use
@@ -1294,18 +1314,15 @@ interface.*
 
 #### Enable Querying
 
-To enable querying functionality for additional databases in openBIS Web
-application a [core plugin](/display/openBISDoc2010/Core+Plugins) of
-type query-databases has to be created. The following
-`plugin.properties` have to be specified:
+To enable querying functionality for additional databases in openBIS Web  application a [core plugin](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/core-plugins.html#core-plugins) of type query-databases has to be created. The following `plugin.properties` have to be specified:
 
 | Property          | Description                                                                                                               |
 |-------------------|---------------------------------------------------------------------------------------------------------------------------|
 | label             | Label of the database. It will be used in the Web application in drop down lists for adding / editing customized queries. |
-| database-driver   | JDBC Driver of the database, e.g. org.postgresql.Driver for postgresql.                                                   |
+| database-driver   | JDBC Driver of the database, e.g. org.postgresql.Driver for postgresql.                                                  |
 | database-url      | JDBC URL to the database containing full database name, e.g. jdbc:postgresql://localhost/database_name for postgresql     |
-| database-username | Above-mentioned defined read-only user.                                                                                   |
-| database-password | Password of the read-only user.                                                                                           |
+| database-username | Above-mentioned defined read-only user.                                                                                  |
+| database-password | Password of the read-only user.                                                                                          |
 
 #### Configure Authorization
 
@@ -1315,7 +1332,7 @@ configured:
 | Property                              | Description                                                                                                                                                                 |
 |---------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | <database>.data-space           | To which data-space this database belongs to (optional, i.e. a query database can be configured not to belong to one data space by leaving this configuration value empty). |
-| <database>.creator-minimal-role | What role is required to be allowed to create / edit queries on this database (optional, default: INSTANCE_OBSERVER if data-space is not set, POWER_USER otherwise).        |
+| <database>.creator-minimal-role | What role is required to be allowed to create / edit queries on this database (optional, default: INSTANCE_OBSERVER if data-space is not set, POWER_USER otherwise).       |
 
 The given parameters data-space and creator-minimal-role are used by
 openBIS to enforce proper authorization.
@@ -1327,33 +1344,24 @@ For example, if
 
 is configured, then for the query database configured with key `db1`:
 
--   only a `SPACE_ADMIN` on data space `CISD` and an `INSTANCE_ADMIN`
+- only a `SPACE_ADMIN` on data space `CISD` and an `INSTANCE_ADMIN`
     are allowed to create / edit queries,
--   only a user who has the `OBSERVER` role in data space `CISD` is
+- only a user who has the `OBSERVER` role in data space `CISD` is
     allowed to execute a query.
 
-For query databases that do not belong to a space but that have a column
-with any of the [magic column
-names](/display/openBISDoc2010/Custom+Database+Queries#CustomDatabaseQueries-Hyperlinks),
-the query result is filtered on a per-row basis according to what the
-user executing the query is allowed to see. In detail this means: if the
-user executing the query is not an instance admin, filter out all rows
-which belong to a data space where the user doesn't have a least the
-observer role. The relationship between a row and a data space is
-established by means of the experiment / sample / data set whose
-`permId` is given by one of the magical column names.
+For query databases that do not belong to a space but that have a column with any of the [magic column names](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/custom-database-queries.html#hyperlinks), the query result is filtered on a per-row basis according to what the user executing the query is allowed to see. In detail this means: if the user executing the query is not an instance admin, filter out all rows which belong to a data space where the user doesn't have a least the observer role. The relationship between a row and a data space is established by means of the experiment / sample / data set whose `permId` is given by one of the magical column names.
 
 For sensitive data where authorization needs to be enforced, there are
 two setups possible:
 
-1.  Configure a query database that **does not** belong to a data space
+1. Configure a query database that **does not** belong to a data space
     and set the creator-minimal-role to `INSTANCE_ADMIN`. Any instance
     admin can be trusted to understand authorization issues and ensure
     that only queries are added for this query database that contain a
     proper reference to an experiment / sample / data set. This way, it
     can be ensured that only properly filtered query results are
     returned to the user running the query.
-2.  Configure a query database that **does** belong to a specific data
+2. Configure a query database that **does** belong to a specific data
     space and set the creator-minimal-role to `POWER_USER`. The
     datastore server (or whatever server maintains the query database)
     ensures that only information related to the configured data space
@@ -1369,14 +1377,13 @@ The master data of openBIS comprises all entity/property types, property
 assignments, vocabularies etc. needed for your customized installation
 to work. The system offers a way to export/import master data via Jython
 scripts. More information on how to do create such scripts and run them
-manually see the advanced guide [Jython Master Data
-Scripts](/display/openBISDoc2010/Jython+Master+Data+Scripts#JythonMasterDataScripts-Commandlinetools).
+manually see the advanced guide [Jython Master Data Scripts](https://unlimited.ethz.ch/display/openBISDoc2010/Jython+Master+Data+Scripts#JythonMasterDataScripts-Commandlinetools).
 
 A master data script can be run automatically by start up of the AS if
 it is defined in an AS core plugin. The script path should be
 `<installation directory>/servers/core-plugins/<module name>/<version number>/as/initialize-master-data.py`.
 For more details about the folder structure of core plugins see [Core
-Plugins](/display/openBISDoc2010/Core+Plugins). If there are several
+Plugins](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/core-plugins.html#core-plugins). If there are several
 core plugins with master data scripts the scripts will be executed in
 alphabetical order of the module names. For example, the master data
 script of module `screening-optional` will be executed after the master
@@ -1384,7 +1391,7 @@ data script of module `screening` has been executed.
 
 Execution of master data script can be suppressed by
 disabling `initialize-master-data` core plugin. For more details see
-[Core Plugins](/display/openBISDoc2010/Core+Plugins).
+[Core Plugins](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/core-plugins.html).
 
 ### Limit of open files
 
@@ -1408,15 +1415,15 @@ The table below describes the possible commands and their arguments.
 | log-service-calls                    | 'on', 'off'                                            | 'off'         | Turns on / off detailed service call logging.
 When this feature is enabled, openBIS will log about start and end of every service call it executes to file <installation directory>/servers/openBIS-server/jetty/log/openbis_service_calls.txt                                                                                                                                                                                                                                 |
 | log-long-running-invocations         | 'on', 'off'                                            | 'on'          | Turns on / off logging of long running invocations.
-When this feature is enabled, openBIS will periodically create a report of all service calls that have been in execution more than 15 seconds to file <installation directory>/servers/openBIS-server/jetty/log/openbis_long_running_threads.txt.                                                                                                                                                                          |
+When this feature is enabled, openBIS will periodically create a report of all service calls that have been in execution more than 15 seconds to file <installation directory>/servers/openBIS-server/jetty/log/openbis_long_running_threads.txt.                                                                                                                                                                         |
 | debug-db-connections                 | 'on', 'off'                                            | 'off'         | Turns on / off logging about database connection pool activity.
 When this feature is enabled, information about every borrow and return to database connection pool is logged to openBIS main log in file <installation directory>/servers/openBIS-server/jetty/log/openbis_log.txt                                                                                                                                                                                            |
 | log-db-connections                   | no argument / minimum connection age (in milliseconds) | 5000          | When this command is executed without an argument, information about every database connection that has been borrowed from the connection pool is written into openBIS main log in file <installation directory>/servers/openBIS-server/jetty/log/openbis_log.txt
 If the "minimum connection age" argument is specified, only connections that have been out of the pool longer than the specified time are logged. The minimum connection age value is given in milliseconds. |
 | record-stacktrace-db-connections     | 'on', 'off'                                            | 'off'         | Turns on / off logging of stacktraces.
-When this feature is enabled AND debug-db-connections is enabled, the full stack trace of the borrowing thread will be recorded with the connection pool activity logs.                                                                                                                                                                                                                                                                       |
+When this feature is enabled AND debug-db-connections is enabled, the full stack trace of the borrowing thread will be recorded with the connection pool activity logs.                                                                                                                                                                                                                                                                      |
 | log-db-connections-separate-log-file | 'on', 'off'                                            | 'off'         | Turns on / off database connection pool logging to separate file.
-When this feature is disabled, the database connection pool activity logging is done only to openBIS main log. When this feature is enabled, the activity logging is done ALSO to file <installation directory>/servers/openBIS-server/jetty/log/openbis_db_connections.txt.                                                                                                                                 |
+When this feature is disabled, the database connection pool activity logging is done only to openBIS main log. When this feature is enabled, the activity logging is done ALSO to file <installation directory>/servers/openBIS-server/jetty/log/openbis_db_connections.txt.                                                                                                                                |
 
  
 
@@ -1444,20 +1451,23 @@ march of 2014.
 The following SQL script lists all samples with data sets but no
 experiments:
 
-    ##
-    ## SELECT SAMPLES WITH DATASETS AND NO EXPERIMENTS
-    ##
-    SELECT s.id, d.expe_id from samples_all s join data_all d on (d.samp_id=s.id) where s.expe_id is null ORDER by s.id
+```sql
+##
+## SELECT SAMPLES WITH DATASETS AND NO EXPERIMENTS
+##
+SELECT s.id, d.expe_id from samples_all s join data_all d on (d.samp_id=s.id) where s.expe_id is null ORDER by s.id
 
 If the last query shows no output the system is fine, if not, it can be
 repaired with the following update query.
 
-    ##
-    ## FIX SAMPLES WITH DATASETS AND NO EXPERIMENTS ASSIGNING EXPERIMENT FROM DATASET
-    ##
-    UPDATE samples_all
-    SET expe_id = subquery.expe_id
-    FROM (
-        SELECT s.id as samp_id, d.expe_id as expe_id from samples_all s join data_all d on (d.samp_id=s.id) where s.expe_id is null
-    ) as subquery
-    where id = subquery.samp_id
+##
+## FIX SAMPLES WITH DATASETS AND NO EXPERIMENTS ASSIGNING EXPERIMENT FROM DATASET
+##
+UPDATE samples_all
+SET expe_id = subquery.expe_id
+FROM (
+    SELECT s.id as samp_id, d.expe_id as expe_id from samples_all s join data_all d on (d.samp_id=s.id) where s.expe_id is null
+) as subquery
+where id = subquery.samp_id
+```
+

@@ -672,20 +672,20 @@ function ServerFacade(openbisServer) {
     		});
     }
 
-    	this.getDatasetTypes = function(callback) {
-        		require(["as/dto/entitytype/id/EntityTypePermId", "as/dto/dataset/fetchoptions/DataSetTypeFetchOptions", "as/dto/dataset/search/DataSetTypeSearchCriteria" ],
-        			function(EntityTypePermId, DataSetTypeFetchOptions, DataSetTypeSearchCriteria) {
-        				var dataSetTypeSearchCriteria = new DataSetTypeSearchCriteria();
-        				var dataSetTypeFetchOptions = new DataSetTypeFetchOptions();
-                        dataSetTypeFetchOptions.withPropertyAssignments().withPropertyType();
-        				mainController.openbisV3.searchDataSetTypes(dataSetTypeSearchCriteria, dataSetTypeFetchOptions).done(function(searchResults) {
-        					callback(searchResults.objects);
-        				}).fail(function(error) {
-        					Util.showFailedServerCallError(error);
-        					Util.unblockUI();
-        				});
-        		});
-        }
+    this.getDatasetTypes = function(callback) {
+            require(["as/dto/entitytype/id/EntityTypePermId", "as/dto/dataset/fetchoptions/DataSetTypeFetchOptions", "as/dto/dataset/search/DataSetTypeSearchCriteria" ],
+                function(EntityTypePermId, DataSetTypeFetchOptions, DataSetTypeSearchCriteria) {
+                    var dataSetTypeSearchCriteria = new DataSetTypeSearchCriteria();
+                    var dataSetTypeFetchOptions = new DataSetTypeFetchOptions();
+                    dataSetTypeFetchOptions.withPropertyAssignments().withPropertyType();
+                    mainController.openbisV3.searchDataSetTypes(dataSetTypeSearchCriteria, dataSetTypeFetchOptions).done(function(searchResults) {
+                        callback(searchResults.objects);
+                    }).fail(function(error) {
+                        Util.showFailedServerCallError(error);
+                        Util.unblockUI();
+                    });
+            });
+    }
 
 	this.listSampleTypes = function(callbackFunction) {
 		this.openbisServer.listSampleTypes(callbackFunction);
@@ -759,6 +759,26 @@ function ServerFacade(openbisServer) {
 			});
 		});
 	}
+
+	this.getProjectFromPermIdWithExperiments = function(projectPermId, callbackFunction) {
+    		require(["as/dto/project/id/ProjectPermId", "as/dto/project/fetchoptions/ProjectFetchOptions"],
+    		  function(ProjectPermId, ProjectFetchOptions) {
+    				var projectId = new ProjectPermId(projectPermId);
+    				var fetchOptions = new ProjectFetchOptions();
+    				fetchOptions.withExperiments().withProperties();
+                    fetchOptions.withExperiments().withRegistrator();
+                    fetchOptions.withExperiments().withModifier();
+                    fetchOptions.withExperiments().withType();
+
+    				mainController.openbisV3.getProjects([projectId], fetchOptions).done(function(result) {
+    					callbackFunction(result);
+    				}).fail(function(result) {
+    					Util.showFailedServerCallError(result);
+    					callbackFunction(false);
+    				});
+    			}
+    		);
+    	}
 
 	this.listExperimentsForIdentifiers = function(experimentsIdentifiers, callbackFunction) {
 		this.openbisServer.listExperimentsForIdentifiers(experimentsIdentifiers, callbackFunction);
@@ -2963,6 +2983,38 @@ function ServerFacade(openbisServer) {
 
 		searchNext();
 	}
+
+	this.searchWithSamplePermIds = function(samplePermIds, callbackFunction)
+    {
+        var _this = this;
+        var searchResults = [];
+        var searchForSamplePermIds = jQuery.extend(true, [], samplePermIds);
+
+        var searchNext = function() {
+            if(searchForSamplePermIds.length === 0) {
+                callbackFunction(searchResults);
+            } else {
+                var next = searchForSamplePermIds.pop();
+                searchFunction(next);
+            }
+        }
+
+        var searchFunction = function(samplePermId) {
+            _this.searchSamples({
+                "withProperties" : true,
+                "withParents" : true,
+                "withChildren" : true,
+                "samplePermId" : samplePermId
+            }, function(samples) {
+                samples.forEach(function(sample) {
+                    searchResults.push(sample);
+                });
+                searchNext();
+            });
+        }
+
+        searchNext();
+    }
 
 	this.searchContained = function(permId, callbackFunction) {
 		this.searchSamples({

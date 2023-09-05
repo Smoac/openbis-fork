@@ -63,10 +63,9 @@ following steps.
 2.  Define a script that will handle the property
     (Administration->Scripts) or deploy a Java plugin. For details
     and examples of usage go to pages:  
-    -   [Dynamic Properties](/display/openBISDoc2010/Dynamic+Properties)
-    -   [Managed Properties](/display/openBISDoc2010/Managed+Properties)
-    -   [Entity validation
-        scripts](/display/openBISDoc2010/Entity+validation+scripts)
+    -   [Dynamic Properties](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#dynamic-properties)
+    -   [Managed Properties](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#managed-properties)
+    -   [Entity validation scripts](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#entity-validation-scripts)
 3.  Assign the created property type to chosen entity type using the
     created script (e.g. for samples: Administration->Property
     Types->Assign to Sample Type):  
@@ -88,8 +87,7 @@ Dynamic Properties
 
 *Dynamic Properties* are one of two types of properties that use Jython
 scripts for providing special functionality to OpenBIS. To understand
-the basic concept read about [Properties Handled By
-Scripts](/display/openBISDoc2010/Properties+Handled+By+Scripts).
+the basic concept read about [Properties Handled By Scripts](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#properties-handled-by-scripts).
 
 ### Defining dynamic properties
 
@@ -118,7 +116,7 @@ will be used as property value.
 
 To access the entity object from the script, use the following syntax:
 
-    entity.<requested method>
+`entity.<requested method>`
 
 Currently available methods that can be called on all kinds of entities
 include:
@@ -153,143 +151,145 @@ You can test your script on selected entities
 
 1.  Show a value of a Sample property which is named 'Multiplicity'
 
-```java
-    entity.propertyValue('Multiplicity')
+```py
+entity.propertyValue('Multiplicity')
 ```
   
 
 2. Takes an existing property and multiplies the value by 1.5
 
-```java
-    float(entity.propertyValue('CONCENTRATION_ORIGINAL_ILLUMINA'))*1.5
-```  
+```py
+float(entity.propertyValue('CONCENTRATION_ORIGINAL_ILLUMINA'))*1.5
+```
 
 #### Advanced Examples
 
 1.  Show all entity properties as one dynamic property:
 
 
-```java
-    def get_properties(e):  
-        """Automatically creates entity description"""
-        properties = e.properties()
-        if properties is None:
-            return "No properties defined"
-        else:
-            result = ""
-            for p in properties:
-                result = result + "\n" + p.propertyTypeCode() + ": " + p.renderedValue()
-            return result
-        
-    def calculate(): 
-        """Main script function. The result will be used as the value of appropriate dynamic property."""
-        return get_properties(entity)
+```py
+def get_properties(e):  
+    """Automatically creates entity description"""
+    properties = e.properties()
+    if properties is None:
+        return "No properties defined"
+    else:
+        result = ""
+        for p in properties:
+            result = result + "\n" + p.propertyTypeCode() + ": " + p.renderedValue()
+        return result
+    
+def calculate(): 
+    """Main script function. The result will be used as the value of appropriate dynamic property."""
+    return get_properties(entity)
 ```
 
 2. Calculate a new float value based some other values
 
-```java
-    import java.lang.String as String
 
-    def calculateValue():  
-      nM = 0
-      uLDNA = 0
-      if entity.propertyValue('CONCENTRATION_PREPARED_ILLUMINA') != '' and \
-         entity.propertyValue('FRAGMENT_SIZE_PREPARED_ILLUMINA') != '' :
-        nM =  float(entity.propertyValue('CONCENTRATION_PREPARED_ILLUMINA')) /  \
-               float(entity.propertyValue('FRAGMENT_SIZE_PREPARED_ILLUMINA')) *  \
-               1000000 / 650
-        if float(entity.propertyValue('UL_STOCK')) !='' :
-          uLDNA =  float(entity.propertyValue('UL_STOCK')) * 2 / nM    
-          uLEB = float(entity.propertyValue('UL_STOCK')) - uLDNA
-          return String.format("%16.1f", uLEB)
-      return 0
-     
-    def calculate(): 
-        """Main script function. The result will be used as the value of appropriate dynamic property."""
-        return calculateValue()
-```  
+```py
+import java.lang.String as String
+
+def calculateValue():
+    nM = 0
+    uLDNA = 0
+    if entity.propertyValue('CONCENTRATION_PREPARED_ILLUMINA') != '' and \
+        entity.propertyValue('FRAGMENT_SIZE_PREPARED_ILLUMINA') != '' :
+    nM =  float(entity.propertyValue('CONCENTRATION_PREPARED_ILLUMINA')) /  \
+            float(entity.propertyValue('FRAGMENT_SIZE_PREPARED_ILLUMINA')) *  \
+            1000000 / 650
+    if float(entity.propertyValue('UL_STOCK')) !='' :
+        uLDNA =  float(entity.propertyValue('UL_STOCK')) * 2 / nM
+        uLEB = float(entity.propertyValue('UL_STOCK')) - uLDNA
+        return String.format("%16.1f", uLEB)
+    return 0
+
+def calculate():
+    """Main script function. The result will be used as the value of appropriate dynamic property."""
+    return calculateValue()
+```
 
 3. Calculate a time difference between two time stamps:
 
-```java
-    from datetime import datetime
-    def dateTimeSplitter(openbisDate):
-      dateAndTime, tz = openbisDate.rsplit(" ", 1)
-      pythonDateTime = datetime.strptime(dateAndTime, "%Y-%m-%d %H:%M:%S")  
-      return pythonDateTime
-    def calculate():
-      
-      try:
-        start = entity.propertyValue('FLOW_CELL_SEQUENCED_ON')
-        end = entity.propertyValue('SEQUENCER_FINISHED')
-        s = dateTimeSplitter(start)
-        e = dateTimeSplitter(end)
-        diffTime = e-s
-        return str(diffTime)
-      except:
-        return "N/A"
+
+```py
+from datetime import datetime
+def dateTimeSplitter(openbisDate):
+    dateAndTime, tz = openbisDate.rsplit(" ", 1)
+    pythonDateTime = datetime.strptime(dateAndTime, "%Y-%m-%d %H:%M:%S")  
+    return pythonDateTime
+def calculate():
+    
+    try:
+    start = entity.propertyValue('FLOW_CELL_SEQUENCED_ON')
+    end = entity.propertyValue('SEQUENCER_FINISHED')
+    s = dateTimeSplitter(start)
+    e = dateTimeSplitter(end)
+    diffTime = e-s
+    return str(diffTime)
+    except:
+    return "N/A"
 ```
 
   
 
 4. Illumina NGS Low Plexity Pooling Checker: checks if the complexity of a pooled sample is good enough for a successful run:
 
-```java
-    def checkBarcodes():
-      '''
-      'parents' are a HashSet of SamplePropertyPE
-      ''' 
-      VOCABULARY_INDEX1 = 'BARCODE'
-      VOCABULARY_INDEX2 = 'INDEX2'
-      RED = set(['A','C'])
-      GREEN = set(['T', 'G'])
-      SUCCESS_MESSAGE="OK"
-      NO_INDEX = "No Index"
-      
-      listofIndices = []
-      boolList = []
-      positionList = []
-      returnString = " "
-      for e in entity.entityPE().parents:
-        for s in e.properties:
-          if s.entityTypePropertyType.propertyType.simpleCode == VOCABULARY_INDEX1:
-            index = s.getVocabularyTerm().code
-            if len(listofIndices) > 0:
-              for n in range(0,len(index)-1):
-                listofIndices[n].append(index[n])
-            else:
-              for n in range(0,len(index)-1):
-                listofIndices.append([index[n]])
-           
-          # remove any duplicates   
-          setofIndices=[set(list) for list in listofIndices]    
-     
-          # Test whether every element in the set 's' is in the RED set
-          boolList=[setofNuc.issubset(RED) for setofNuc in setofIndices]
-      if boolList:
-        for b in boolList:
-          if b:
-            positionList.append(boolList.index(b)+1)
-            # set the value to False, because 'index' returns only the first occurrence
-            boolList[boolList.index(b)]=False
-      else:
-       return NO_INDEX
-        #  if s.entityTypePropertyType.propertyType.simpleCode == VOCABULARY_INDEX2:
-        #   pass 
-      if positionList:
-        for pos in positionList:
-          returnString += "WARNING! Base position " + str(pos) + " of " + \
-                             VOCABULARY_INDEX1 + \
-                             " does not contain both color channels" + \
-                             "\n" 
-      else:
-        returnString = SUCCESS_MESSAGE
-      return returnString
-    def calculate(): 
-        """Main script function. The result will be used as the value of appropriate dynamic property."""
-        return checkBarcodes()
-```  
+```py
+def checkBarcodes():
+    '''
+    'parents' are a HashSet of SamplePropertyPE
+    ''' 
+    VOCABULARY_INDEX1 = 'BARCODE'
+    VOCABULARY_INDEX2 = 'INDEX2'
+    RED = set(['A','C'])
+    GREEN = set(['T', 'G'])
+    SUCCESS_MESSAGE="OK"
+    NO_INDEX = "No Index"
+    
+    listofIndices = []
+    boolList = []
+    positionList = []
+    returnString = " "
+    for e in entity.entityPE().parents:
+    for s in e.properties:
+        if s.entityTypePropertyType.propertyType.simpleCode == VOCABULARY_INDEX1:
+        index = s.getVocabularyTerm().code
+        if len(listofIndices) > 0:
+            for n in range(0,len(index)-1):
+            listofIndices[n].append(index[n])
+        else:
+            for n in range(0,len(index)-1):
+            listofIndices.append([index[n]])
+        
+        # remove any duplicates   
+        setofIndices=[set(list) for list in listofIndices]    
+    
+        # Test whether every element in the set 's' is in the RED set
+        boolList=[setofNuc.issubset(RED) for setofNuc in setofIndices]
+    if boolList:
+    for b in boolList:
+        if b:
+        positionList.append(boolList.index(b)+1)
+        # set the value to False, because 'index' returns only the first occurrence
+        boolList[boolList.index(b)]=False
+    else:
+    return NO_INDEX
+    #  if s.entityTypePropertyType.propertyType.simpleCode == VOCABULARY_INDEX2:
+    #   pass 
+    if positionList:
+    for pos in positionList:
+        returnString += "WARNING! Base position " + str(pos) + " of " + \
+                            VOCABULARY_INDEX1 + \
+                            " does not contain both color channels" + \
+                            "\n" 
+    else:
+    returnString = SUCCESS_MESSAGE
+    return returnString
+def calculate(): 
+    """Main script function. The result will be used as the value of appropriate dynamic property."""
+    return checkBarcodes()
+```
 
 #### Data Types
 
@@ -309,14 +309,7 @@ The non-trivial cases are properties with data type:
 
 ### Creating and Deploying Java Plugins
 
-To create valid Java plugin for Dynamic Properties, one should create a
-class that is
-implementing `ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IDynamicPropertyCalculatorHotDeployPlugin`
-interface. The class should be annotated with 
-`ch.ethz.cisd.hotdeploy.PluginInfo` annotation specifying the name of
-the plugin,
-and `ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IDynamicPropertyCalculatorHotDeployPlugin`
-class as a plugin type.
+To create valid Java plugin for Dynamic Properties, one should create a class that is implementing `ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IDynamicPropertyCalculatorHotDeployPlugin` interface. The class should be annotated with `ch.ethz.cisd.hotdeploy.PluginInfo` annotation specifying the name of the plugin, and `ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IDynamicPropertyCalculatorHotDeployPlugin` class as a plugin type.
 
 Such a plugin should be exported to a jar file and put
 into `<<openBIS installation directory>>/servers/entity-related-plugins/dynamic-properties`
@@ -330,17 +323,22 @@ it is not done automatically after each metadata update. To make sure
 that the potential inconsistencies are repaired, the maintenance task
 can be defined (`service.properties`), that runs in specified intervals:
 
-    maintenance-plugins = dynamic-property-evaluator
+`maintenance-plugins = dynamic-property-evaluator`
 
-    dynamic-property-evaluator.class = ch.systemsx.cisd.openbis.generic.server.task.DynamicPropertyEvaluationMaintenanceTask
-    # run daily at midnight  
-    dynamic-property-evaluator.interval = 86400
-    dynamic-property-evaluator.start = 00:00
+```py
+dynamic-property-evaluator.class = ch.systemsx.cisd.openbis.generic.server.task.DynamicPropertyEvaluationMaintenanceTask
+# run daily at midnight  
+dynamic-property-evaluator.interval = 86400
+dynamic-property-evaluator.start = 00:00
+```
+
 
 If the value of a dynamic property has not yet been calculated, it will
 be shown as `(pending evaluation)`.
 
 -   No labels
+
+## Entity validation scripts
  
 ### Introduction
 
@@ -412,7 +410,7 @@ validation script for each type:
 -   You find a property which is called 'Validation Script' (see screen
     shot below). Just select your defined Script and hit save.
 
-![image info](img/434.png)
+![image info](img/Screen_shot_2013-03-01_at_11.40.41_AM.png)
 
 ### Creating and Deploying Java Validation Plugins
 
@@ -447,7 +445,7 @@ the validations succeed after all the updates have been done.
 1.  Validation scripts should be read-only.  
     -   In theory it is possible to edit the entity during the
         validation. This is a bad practice. Consider using [Dynamic
-        Properties](/display/openBISDoc2010/Dynamic+Properties) if you
+        Properties](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#dynamic-properties) if you
         want calculations being performed after the entity updates.
 2.  Think about performance  
     -   The plugins will be executed for every creation or update of
@@ -464,7 +462,7 @@ Managed Properties
 *Managed Properties* are one of two types of properties that use Jython
 scripts for providing special functionality to openBIS. To understand
 the basic concept read about [Properties Handled By
-Scripts](/display/openBISDoc2010/Properties+Handled+By+Scripts).
+Scripts](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#).
 
 The feature is especially useful when a complex data structure should be
 stored in a single property. Properties holding XML documents are a good
@@ -491,7 +489,7 @@ To create a Managed Property:
     1.  select `Handled By Script` checkbox,
     2.  select `Managed Property Handler` radio option
     3.  choose the appropriate `Script` that will be responsible
-    4.  optionally set the *Shown in Edit Views *checkbox to true. This
+    4.  optionally set the *Shown in Edit Views* checkbox to true. This
         has the following effects:
         1.  In registration/editing form the raw values backing the
             managed properties is show.
@@ -509,15 +507,23 @@ Administration->Scripts from the top menu.
 The scripts should be written in standard Jython syntax. The following
 functions are invoked by openBIS, some of them are mandatory:
 
-[TABLE]
+|Function|Mandatory/Optional|Description|
+|--- |--- |--- |
+|`updateFromUI(action)`|optional|Updates the property value from an input form constructed by the action defined in `configureUI()`.This function has an access to a variable named 'person' which holds an object of type  ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IPerson. This object contains information about a user that is performing the update.|
+|`updateFromRegistrationForm(bindings)`|optional|Creates the property value from input data provided by a registration forms. This function is mandatory if function  inputWidgets  are defined. The argument is list of a  java.util.Map  objects which has the values taken from the registration form. Here `<code>`  is either a batch column name in upper case or a input widget code. The bound value is a string accessed with  get(`<code>`).    This function has an access to a variable named 'person' which holds an object of type  ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IPerson. This object contains information about a user that is performing the update.|
+|`updateFromBatchInput(bindings)`|optional|Creates the property value from input data provided by a batch input file (for batch import and batch update operations). This function is mandatory if function batchColumnNames is defined. The argument is a java.util.Map which has the values of the columns with headers of the form `<property type code>:<code>` in the input file. Here `<code>` is either a batch column name in upper case or a input widget code. The bound value is a string accessed with `get(<code>`). If no batchColumnNames is defined in the script the input value from the file with column `<property type code>` is accessed by `get('')`.This function has an access to a variable named 'person' which holds an object of type  ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IPerson. This object contains information about a user that is performing the update. <br /> **Batch update has currently only limited support. There is no way to retrieve old value of managed property (property.getValue() always returns null). The `updateFromBatchInput(bindings)` function can set the new value though.** |
+|`inputWidgets()`|optional|A function which returns a list of IManagedInputWidgetDescription instances which will be used for batch update and/or input widgets in registration forms. The function `updateFromBatchInput(bindings)` assumes that values are bound to the upper-case version of the code of the widget description which is by default the upper-case version of its label.|
+|`configureUI()`|mandatory|It defines output UI (e.g. table for tabular data) to be used in the detailed view of the entity owning the property. Multiple actions (of type IManagedUIAction) for update of the property value can be defined in this function. Every action specifies input UI for displaying forms with input fields and transferring the values provided by users.|
+|`batchColumnNames()`|optional|A function which returns a list of column names to be used for batch update and/or input widgets in registration forms. The function `updateFromBatchInput(bindings)` assumes that values are bound to the upper-case version of the column names. The names will be the labels of non-mandatory text input widgets.|
+
 
 All functions (except `batchColumnNames and` ` inputWidgets` )  have
 access to a variable named `property` which holds an object of type
 ` IManagedProperty `. Methods of this class are explained below. To
 access the property object from the script, use the following syntax:
 
-```java
-    property.<requested method>
+```py
+property.<requested method>
 ```
 
 #### Predefined Functions
@@ -542,7 +548,7 @@ script:
     returns a factory that can be used to create descriptions of input
     fields used for modification of managed property value (see
     [IManagedInputWidgetDescription](http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/openbis/generic/shared/basic/dto/api/IManagedInputWidgetDescription.html)
-    and [example](#ManagedProperties-Example3)).
+    and [example](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#example-3)).
 
  
 
@@ -550,7 +556,7 @@ script:
     used to create
     [IElement](http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IElement.html)-s.
     See [\#Storing structured content in managed
-    properties](#ManagedProperties-Storingstructuredcontentinmanagedproperties).
+    properties](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#storing-structured-content-in-managed-properties).
 
  
 
@@ -559,13 +565,13 @@ script:
     [IElement](http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IElement.html)-s
     to XML Strings and from XML or JSON Strings. See [\#Storing
     structured content in managed
-    properties](#ManagedProperties-Storingstructuredcontentinmanagedproperties).
+    properties](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#storing-structured-content-in-managed-properties).
 -   ` IStructuredPropertyConverter jsonPropertyConverter()`: returns a
     converter that can translate
     [IElement](http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IElement.html)-s
     to JSON Strings and from XML or JSON Strings. See [\#Storing
     structured content in managed
-    properties](#ManagedProperties-Storingstructuredcontentinmanagedproperties).
+    properties](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#storing-structured-content-in-managed-properties).
 
 #### Java API
 
@@ -591,32 +597,32 @@ This example shows how to configure a fixed table (without using value
 stored in the property at all) that will be shown in detail view of an
 entity.
 
-```java
-    def configureUI():
-        """create table builder and add 3 columns"""
-        tableBuilder = createTableBuilder()
-        tableBuilder.addHeader("column 1")
-        tableBuilder.addHeader("column 2")
-        tableBuilder.addHeader("column 3")
+```py
+def configureUI():
+    """create table builder and add 3 columns"""
+    tableBuilder = createTableBuilder()
+    tableBuilder.addHeader("column 1")
+    tableBuilder.addHeader("column 2")
+    tableBuilder.addHeader("column 3")
 
-        """add two rows with values of types: string, integer, real"""
-        row1 = tableBuilder.addRow()
-        row1.setCell("column 1","v1")
-        row1.setCell("column 2", 1)
-        row1.setCell("column 3", 1.5)
-        row2 = tableBuilder.addRow()
-        row2.setCell("column 1","v2")
-        row2.setCell("column 2", 2)
-        row2.setCell("column 3", 2.5)
+    """add two rows with values of types: string, integer, real"""
+    row1 = tableBuilder.addRow()
+    row1.setCell("column 1","v1")
+    row1.setCell("column 2", 1)
+    row1.setCell("column 3", 1.5)
+    row2 = tableBuilder.addRow()
+    row2.setCell("column 1","v2")
+    row2.setCell("column 2", 2)
+    row2.setCell("column 3", 2.5)
 
-        """add a row with only value for the first column specified (two other columns will be empty)"""
-        row3 = tableBuilder.addRow()
-        row3.setCell("column 1","v3")
+    """add a row with only value for the first column specified (two other columns will be empty)"""
+    row3 = tableBuilder.addRow()
+    row3.setCell("column 1","v3")
 
-        """specify that the property should be shown in a tab and set the table output"""
-        property.setOwnTab(True)
-        uiDesc = property.getUiDescription()
-        uiDesc.useTableOutput(tableBuilder.getTableModel())
+    """specify that the property should be shown in a tab and set the table output"""
+    property.setOwnTab(True)
+    uiDesc = property.getUiDescription()
+    uiDesc.useTableOutput(tableBuilder.getTableModel())
 ```
 
 Let's assume, that a property type with label *Fixed Table* was assigned
@@ -633,36 +639,34 @@ tables like sorting, filtering, exporting etc.
 
 This is another example of showing how to configure a fixed table, but
 this time values in the table will be displayed as clickable links to
-openBIS entities (see [Linking to openBIS
-entities](#ManagedProperties-LinkingtoopenBISentities) for more
-details):
+openBIS entities (see [Linking to openBIS entities](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#linking-to-openbis-entities) for more details):
 
-```java
-    def configureUI():
-        """create table builder with 4 columns (any column names can be used)"""
-        tableBuilder = createTableBuilder()
-        tableBuilder.addHeader("sample")
-        tableBuilder.addHeader("experiment")
-        tableBuilder.addHeader("data set")
-        tableBuilder.addHeader("material")
+```py
+def configureUI():
+    """create table builder with 4 columns (any column names can be used)"""
+    tableBuilder = createTableBuilder()
+    tableBuilder.addHeader("sample")
+    tableBuilder.addHeader("experiment")
+    tableBuilder.addHeader("data set")
+    tableBuilder.addHeader("material")
 
-        """
-           Add rows with values of type entity link.
-           Use element link factory to create link cells and.
-        """
-        factory = elementFactory()
-        row = tableBuilder.addRow()
-        """ for links to samples, experiments and datasets provide the permId """
-        row.setCell("sample", factory.createSampleLink("samplePermId"))
-        row.setCell("experiment", factory.createExperimentLink("experimentPermId"))
-        row.setCell("data set", factory.createDataSetLink("dataSetPermId"))
-        """ for material links material code and material type code are needed """
-        row.setCell("material", factory.createMaterialLink("materialCode", "materialTypeCode"))
+    """
+        Add rows with values of type entity link.
+        Use element link factory to create link cells and.
+    """
+    factory = elementFactory()
+    row = tableBuilder.addRow()
+    """ for links to samples, experiments and datasets provide the permId """
+    row.setCell("sample", factory.createSampleLink("samplePermId"))
+    row.setCell("experiment", factory.createExperimentLink("experimentPermId"))
+    row.setCell("data set", factory.createDataSetLink("dataSetPermId"))
+    """ for material links material code and material type code are needed """
+    row.setCell("material", factory.createMaterialLink("materialCode", "materialTypeCode"))
 
-        """specify that the property should be shown in a tab and set the table output"""
-        property.setOwnTab(True)
-        uiDesc = property.getUiDescription()
-        uiDesc.useTableOutput(tableBuilder.getTableModel())
+    """specify that the property should be shown in a tab and set the table output"""
+    property.setOwnTab(True)
+    uiDesc = property.getUiDescription()
+    uiDesc.useTableOutput(tableBuilder.getTableModel())
 ```
 
 If linked entity doesn't exist in the database the perm id
@@ -679,28 +683,28 @@ Otherwise clickable links will be displayed with link text equal to:
 This example shows how to configure a table representation of a property
 value holding a CSV document (many lines with comma separated values):
 
-```java
-    def configureUI():
-        """get the property value as String and split it using newline character""" 
-        value = property.getValue()
-        lines = []
-        if value != None:
-            lines = value.split("\n")
+```py
+def configureUI():
+    """get the property value as String and split it using newline character""" 
+    value = property.getValue()
+    lines = []
+    if value != None:
+        lines = value.split("\n")
 
-        tableBuilder = createTableBuilder()
-        if len(lines) > 0:
-            """treat first line as header - split using comma character to get column titles"""
-            header = lines[0].split(",")
-            tableBuilder.addFullHeader(header)
-            """iterate over rest of lines and add them to the table as rows"""
-            for i in range(1, len(lines)):
-                row = lines[i].split(",")
-                tableBuilder.addFullRow(row)
+    tableBuilder = createTableBuilder()
+    if len(lines) > 0:
+        """treat first line as header - split using comma character to get column titles"""
+        header = lines[0].split(",")
+        tableBuilder.addFullHeader(header)
+        """iterate over rest of lines and add them to the table as rows"""
+        for i in range(1, len(lines)):
+            row = lines[i].split(",")
+            tableBuilder.addFullRow(row)
 
-        """specify that the property should be shown in a tab and set the table output"""
-        property.setOwnTab(True)
-        uiDesc = property.getUiDescription()
-        uiDesc.useTableOutput(tableBuilder.getTableModel())
+    """specify that the property should be shown in a tab and set the table output"""
+    property.setOwnTab(True)
+    uiDesc = property.getUiDescription()
+    uiDesc.useTableOutput(tableBuilder.getTableModel())
 ```
 
 Let's assume, that:
@@ -728,7 +732,7 @@ Managed property value will be visible as text in the left panel
 This is an extension of the previous example showing how to specify user
 input for actions like add, edit and delete:
 
-```java
+```py
 def configureUI():
     """code from previous example is not repeated here"""
 
@@ -774,7 +778,7 @@ automatically to a value from the selected row.
 
 Whenever an action is defined in `configureUI` there should be
 `updateFromUI()` function defined that handles the actions (see [next
-example](#ManagedProperties-Example5)). Otherwise clicking on action
+example](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#example-5)). Otherwise clicking on action
 buttons will cause an error.
 
 ##### updateFromUI()
@@ -787,7 +791,7 @@ response to user's action.
 This is an extension of the previous example showing how to specify
 behaviour of actions defined in `configureUI()` function:
 
-```java
+```py
 def configureUI():
     """code from previous example is not repeated here"""
 
@@ -846,16 +850,16 @@ entity type which has managed properties.
 
 This example assumes one column in the file for the managed property.
 
-```java
-    def updateFromBatchInput(bindings):
-        property.setValue('hello ' + bindings.get(''))
+```py
+def updateFromBatchInput(bindings):
+    property.setValue('hello ' + bindings.get(''))
 
-    def configureUI():
-        builder = createTableBuilder()
-        builder.addHeader('Greetings')
-        row = builder.addRow()
-        row.setCell('Greetings', property.getValue())
-        property.getUiDescription().useTableOutput(builder.getTableModel())
+def configureUI():
+    builder = createTableBuilder()
+    builder.addHeader('Greetings')
+    row = builder.addRow()
+    row.setCell('Greetings', property.getValue())
+    property.getUiDescription().useTableOutput(builder.getTableModel())
 ```
 
 The following input file for a batch upload for samples of a type where
@@ -874,18 +878,18 @@ would create in sample detailed view
 This example takes two columns from the batch input file for creation of
 one managed property.
 
-```java
-    def batchColumnNames():
-        return ['Unit', 'Value']
+```py
+def batchColumnNames():
+    return ['Unit', 'Value']
 
-    def updateFromBatchInput(bindings):
-        property.setValue(bindings.get('VALUE') + ' [' + bindings.get('UNIT') + ']')
+def updateFromBatchInput(bindings):
+    property.setValue(bindings.get('VALUE') + ' [' + bindings.get('UNIT') + ']')
 
-    def configureUI():
-        builder = createTableBuilder()
-        builder.addHeader('Value')
-        builder.addRow().setCell('Value', property.getValue())
-        property.getUiDescription().useTableOutput(builder.getTableModel())
+def configureUI():
+    builder = createTableBuilder()
+    builder.addHeader('Value')
+    builder.addRow().setCell('Value', property.getValue())
+    property.getUiDescription().useTableOutput(builder.getTableModel())
 ```
 
 Assuming a sample type is assigned to the property `MANAGED-TEXT` with
@@ -925,13 +929,13 @@ are all non-mandatory single-line fields with labels specified by the
 batch column names. More is possible if the function `batchColumnsNames`
 is replaced by function `inputWidgets` as in the following example:
 
-```java
-    def inputWidgets():
-        factory = inputWidgetFactory()
-        unit = factory.createComboBoxInputField('Unit', ['cm', 'mm']).setMandatory(True)
-        value = factory.createTextInputField('Value').setMandatory(True)
-        return [unit, value]
-``` 
+```py
+def inputWidgets():
+    factory = inputWidgetFactory()
+    unit = factory.createComboBoxInputField('Unit', ['cm', 'mm']).setMandatory(True)
+    value = factory.createTextInputField('Value').setMandatory(True)
+    return [unit, value]
+```
 
 The field 'Managed Text' in the registration form will be as shown in
 the following screen shot:
@@ -948,9 +952,9 @@ Here is a (overly) simple example:
 
 ###### Example 8
 
-```java
-    def configureUI():
-      property.getUiDescription().useHtmlOutput("<p>hello<br>foo</p>")
+```py
+def configureUI():
+    property.getUiDescription().useHtmlOutput("<p>hello<br>foo</p>")
 ```
 
 ##### Accessing information about a person that performs an update operation
@@ -962,9 +966,9 @@ update operation can be access in a managed property script. The
 information is stored in the 'person' variable that is available in both
 'updateFromUI' and 'updateFromBatchInput' functions.
 
-```java
-    def updateFromBatchInput(bindings):
-        property.setValue('userId: ' + person.getUserId() + ', userName: ' + person.getUserName())
+```py
+def updateFromBatchInput(bindings):
+    property.setValue('userId: ' + person.getUserId() + ', userName: ' + person.getUserName())
 ```
 
 #### Storing structured content in managed properties
@@ -987,7 +991,7 @@ IElements can also be used as containers for larger chunks of raw data.
 To construct concrete instances of IElement one has to use
 [IElementFactory](http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IElementFactory.html)
 available via the predefined function
-[elementFactory()](#ManagedProperties-PredefinedFunctions).
+[elementFactory()](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#predefined-functions).
 
 ##### Linking to openBIS entities
 
@@ -1011,7 +1015,7 @@ you can use an
 to convert it to a property value. An instance of
 [IStructuredPropertyConverter](http://svnsis.ethz.ch/doc/openbis/current/ch/systemsx/cisd/openbis/generic/shared/managed_property/api/IStructuredPropertyConverter.html)
 can be created from the [\#Predefined
-Functions](#ManagedProperties-PredefinedFunctions).
+Functions](https://openbis.readthedocs.io/en/latest/user-documentation/general-admin-users/properties-handled-by-scripts.html#predefined-functions).
 
 Managed properties can be stored either as XML Strings or as JSON
 Strings. The script writer makes the decision for a serialization type
@@ -1033,48 +1037,48 @@ the example code below. It is extracted from a Jython script and
 demonstrates the basics of constructing and serializing structured
 content within a managed property.
 
-```java
-    factory = elementFactory()
-    converter = xmlPropertyConverter()
-      
-    def initialCreationOfPropertyValue():
-      
-      """
-       Create an element data structure containing
-       1) A link to Sample with specified perm id
-       2) A link to Material with specified type and typCode 
-       3) An application specific element "testElement"
-      """
-      elements = [
-          factory.createSampleLink("samplePermId"),
-          factory.createMaterialLink("type", "typeCode"),
-          factory.createElement("testElement").addAttribute("key1", "value1").addAttribute("key2", "value2")
-      ]
-      
-      # save the created data structure into the property value
-      property.value = converter.convertToString(elements)
+```py
+factory = elementFactory()
+converter = xmlPropertyConverter()
+    
+def initialCreationOfPropertyValue():
+    
+    """
+    Create an element data structure containing
+    1) A link to Sample with specified perm id
+    2) A link to Material with specified type and typCode 
+    3) An application specific element "testElement"
+    """
+    elements = [
+        factory.createSampleLink("samplePermId"),
+        factory.createMaterialLink("type", "typeCode"),
+        factory.createElement("testElement").addAttribute("key1", "value1").addAttribute("key2", "value2")
+    ]
+    
+    # save the created data structure into the property value
+    property.value = converter.convertToString(elements)
 
 
-    def updateDataStructure():
-      """ 
-        This function imitates an update procedure. The content of the property
-        is parsed to a list of elements, several modifications are made on the elements
-        and these are then saved back in the property.
-      """
+def updateDataStructure():
+    """ 
+    This function imitates an update procedure. The content of the property
+    is parsed to a list of elements, several modifications are made on the elements
+    and these are then saved back in the property.
+    """
 
-      # read the stored data structure
-      elements = list(converter.convertToElements(property))
-      
-      # we assume, the contents from the "create..." method above
-      elements[0] = factory.createSampleLink("modifiedLink")
-      elements[1].children = [
-          factory.createElement("nested1").addAttribute("na1", "na2")
-      ]
-      # replaces the old value of the "key2" attribute
-      elements[2].addAttribute("key2", "modifiedvalue")
+    # read the stored data structure
+    elements = list(converter.convertToElements(property))
+    
+    # we assume, the contents from the "create..." method above
+    elements[0] = factory.createSampleLink("modifiedLink")
+    elements[1].children = [
+        factory.createElement("nested1").addAttribute("na1", "na2")
+    ]
+    # replaces the old value of the "key2" attribute
+    elements[2].addAttribute("key2", "modifiedvalue")
 
-      # update the property value to reflect the modified data structure
-      property.value = converter.convertToString(elements)
+    # update the property value to reflect the modified data structure
+    property.value = converter.convertToString(elements)
 ```
 
 At the end of the function `initialCreationOfPropertyValue()`, the
@@ -1117,145 +1121,145 @@ The following example shows a complete implementation of a managed
 property script for handling list of log entries. The property value is
 stored as an XML document.
 
-```java
-    from java.util import Date
-     
+```py
+from java.util import Date
+    
+"""
+Example XML property value handled by this script:
+<root>
+    <logEntry date="2011-02-20 14:15:28 GMT+01:00" person="buczekp" logType="INFO">Here is the 1st log entry text.<logEntry>
+    <logEntry date="2011-02-20 14:16:28 GMT+01:00" person="kohleman" logType="WARN">Here is the 2nd log entry text - a warning!<logEntry>
+    <logEntry date="2011-02-20 14:17:28 GMT+01:00" person="tpylak" logType="ERROR">Here is the 3rd log entry text - an error!!!<logEntry>
+    <logEntry date="2011-02-20 14:18:28 GMT+01:00" person="brinn" logType="ERROR">Here is the 4th log entry text - an error!!!<logEntry>
+    <logEntry date="2011-02-20 14:19:28 GMT+01:00" person="felmer" logType="WARN">Here is the 5th log entry text - a warning!<logEntry>
+</root>
+"""
+    
+LOG_ENTRY_ELEMENT_LABEL = 'logEntry'
+LOG_TYPES = ['INFO', 'WARN', 'ERROR']
+    
+""" labels of table columns and corresponding input fields """
+DATE_LABEL = 'Date'
+PERSON_LABEL = 'Person'
+LOG_TYPE_LABEL = 'Log Type'
+LOG_TEXT_LABEL = 'Log Text'
+    
+""" names of attributes of XML elements for log entries """
+DATE_ATTRIBUTE = 'date'
+PERSON_ATTRIBUTE = 'person'
+LOG_TYPE_ATTRIBUTE = 'logType'
+    
+""" action labels (shown as button labels in UI) """
+ADD_ACTION_LABEL = 'Add Log Entry'
+EDIT_ACTION_LABEL = 'Edit'
+DELETE_ACTION_LABEL = 'Delete'
+    
+    
+def configureUI():
+    """Create table builder and add headers of columns."""
+    builder = createTableBuilder()
+    builder.addHeader(DATE_LABEL, 250) # date and log text values are long, override default width (150)
+    builder.addHeader(PERSON_LABEL)
+    builder.addHeader(LOG_TYPE_LABEL)
+    builder.addHeader(LOG_TEXT_LABEL, 300) 
+        
     """
-    Example XML property value handled by this script:
-    <root>
-      <logEntry date="2011-02-20 14:15:28 GMT+01:00" person="buczekp" logType="INFO">Here is the 1st log entry text.<logEntry>
-      <logEntry date="2011-02-20 14:16:28 GMT+01:00" person="kohleman" logType="WARN">Here is the 2nd log entry text - a warning!<logEntry>
-      <logEntry date="2011-02-20 14:17:28 GMT+01:00" person="tpylak" logType="ERROR">Here is the 3rd log entry text - an error!!!<logEntry>
-      <logEntry date="2011-02-20 14:18:28 GMT+01:00" person="brinn" logType="ERROR">Here is the 4th log entry text - an error!!!<logEntry>
-      <logEntry date="2011-02-20 14:19:28 GMT+01:00" person="felmer" logType="WARN">Here is the 5th log entry text - a warning!<logEntry>
-    </root>
+        Extract XML elements from property value to a Python list.
+        For each element (log entry) add add a row to the table.   
     """
-     
-    LOG_ENTRY_ELEMENT_LABEL = 'logEntry'
-    LOG_TYPES = ['INFO', 'WARN', 'ERROR']
-     
-    """ labels of table columns and corresponding input fields """
-    DATE_LABEL = 'Date'
-    PERSON_LABEL = 'Person'
-    LOG_TYPE_LABEL = 'Log Type'
-    LOG_TEXT_LABEL = 'Log Text'
-     
-    """ names of attributes of XML elements for log entries """
-    DATE_ATTRIBUTE = 'date'
-    PERSON_ATTRIBUTE = 'person'
-    LOG_TYPE_ATTRIBUTE = 'logType'
-     
-    """ action labels (shown as button labels in UI) """
-    ADD_ACTION_LABEL = 'Add Log Entry'
-    EDIT_ACTION_LABEL = 'Edit'
-    DELETE_ACTION_LABEL = 'Delete'
-     
-     
-    def configureUI():
-        """Create table builder and add headers of columns."""
-        builder = createTableBuilder()
-        builder.addHeader(DATE_LABEL, 250) # date and log text values are long, override default width (150)
-        builder.addHeader(PERSON_LABEL)
-        builder.addHeader(LOG_TYPE_LABEL)
-        builder.addHeader(LOG_TEXT_LABEL, 300) 
-         
+    elements = list(xmlPropertyConverter().convertToElements(property))
+    for logEntry in elements:
+        row = builder.addRow()
+        row.setCell(DATE_LABEL, Date(long(logEntry.getAttribute(DATE_ATTRIBUTE))))
+        row.setCell(PERSON_LABEL, logEntry.getAttribute(PERSON_ATTRIBUTE))
+        row.setCell(LOG_TYPE_LABEL, logEntry.getAttribute(LOG_TYPE_ATTRIBUTE))
+        row.setCell(LOG_TEXT_LABEL, logEntry.getData())
+    
+    """Specify that the property should be shown in a tab and set the table output."""
+    property.setOwnTab(True)
+    uiDescription = property.getUiDescription()
+    uiDescription.useTableOutput(builder.getTableModel())
+    
+    """
+        Define and add actions with input fields used to:
+        1. specify attributes of new log entry,
+    """
+    addAction = uiDescription.addTableAction(ADD_ACTION_LABEL)\
+                                .setDescription('Add a new log entry:')
+    widgets = [
+        inputWidgetFactory().createComboBoxInputField(LOG_TYPE_LABEL, LOG_TYPES)\
+                            .setMandatory(True)\
+                            .setValue('INFO'),
+        inputWidgetFactory().createMultilineTextInputField(LOG_TEXT_LABEL)\
+                            .setMandatory(True)
+    ]
+    addAction.addInputWidgets(widgets)
+        
+    """
+        2. modify attributes of a selected log entry,
+    """
+    editAction = uiDescription.addTableAction(EDIT_ACTION_LABEL)\
+                                .setDescription('Edit selected log entry:')
+    # Exactly 1 row needs to be selected to enable action.
+    editAction.setRowSelectionRequiredSingle()             
+    widgets = [
+        inputWidgetFactory().createMultilineTextInputField(LOG_TEXT_LABEL).setMandatory(True)
+    ]
+    editAction.addInputWidgets(widgets)
+    # Bind field name with column name.
+    editAction.addBinding(LOG_TEXT_LABEL, LOG_TEXT_LABEL)
+    
+    """
+        3. delete selected log entries.
+    """
+    deleteAction = uiDescription.addTableAction(DELETE_ACTION_LABEL)\
+                                .setDescription('Are you sure you want to delete selected log entries?')
+    # Delete is enabled when at least 1 row is selected.
+    deleteAction.setRowSelectionRequired()
+    
+    
+def updateFromUI(action):
+    """Extract list of elements from old value of the property."""
+    converter = xmlPropertyConverter()
+    elements = list(converter.convertToElements(property))
+    
+    """Implement behaviour of user actions."""
+    if action.name == ADD_ACTION_LABEL:
         """
-           Extract XML elements from property value to a Python list.
-           For each element (log entry) add add a row to the table.   
+            For 'add' action create new log entry element with values from input fields
+            and add it to existing elements.
         """
-        elements = list(xmlPropertyConverter().convertToElements(property))
-        for logEntry in elements:
-            row = builder.addRow()
-            row.setCell(DATE_LABEL, Date(long(logEntry.getAttribute(DATE_ATTRIBUTE))))
-            row.setCell(PERSON_LABEL, logEntry.getAttribute(PERSON_ATTRIBUTE))
-            row.setCell(LOG_TYPE_LABEL, logEntry.getAttribute(LOG_TYPE_ATTRIBUTE))
-            row.setCell(LOG_TEXT_LABEL, logEntry.getData())
-     
-        """Specify that the property should be shown in a tab and set the table output."""
-        property.setOwnTab(True)
-        uiDescription = property.getUiDescription()
-        uiDescription.useTableOutput(builder.getTableModel())
-     
+        element = elementFactory().createElement(LOG_ENTRY_ELEMENT_LABEL)
+        """Fill element attributes with appropriate values."""
+        element.addAttribute(DATE_ATTRIBUTE, str(Date().getTime()))            # current date
+        element.addAttribute(PERSON_ATTRIBUTE, action.getPerson().getUserId()) # invoker the action
+        """Retrieve values from input fields filled by user on the client side."""
+        element.addAttribute(LOG_TYPE_ATTRIBUTE, action.getInputValue(LOG_TYPE_LABEL))
+        """Set log text as a text element, not an attribute."""
+        element.setData(action.getInputValue(LOG_TEXT_LABEL))
+        """Add the new entry to the end of the element list."""
+        elements.append(element)
+    elif action.name == EDIT_ACTION_LABEL:
         """
-           Define and add actions with input fields used to:
-           1. specify attributes of new log entry,
+            For 'edit' action find the log entry element corresponding to selected row
+            and replace it with an element with values from input fields.
         """
-        addAction = uiDescription.addTableAction(ADD_ACTION_LABEL)\
-                                 .setDescription('Add a new log entry:')
-        widgets = [
-            inputWidgetFactory().createComboBoxInputField(LOG_TYPE_LABEL, LOG_TYPES)\
-                                .setMandatory(True)\
-                                .setValue('INFO'),
-            inputWidgetFactory().createMultilineTextInputField(LOG_TEXT_LABEL)\
-                                .setMandatory(True)
-        ]
-        addAction.addInputWidgets(widgets)
-         
+        selectedRowId = action.getSelectedRows()[0]
+        elements[selectedRowId].setData(action.getInputValue(LOG_TEXT_LABEL))
+    elif action.name == DELETE_ACTION_LABEL:
         """
-           2. modify attributes of a selected log entry,
+            For 'delete' action delete the entries that correspond to selected rows.
+            NOTE: As many rows can be deleted at once it is easier to delete them in reversed order.
         """
-        editAction = uiDescription.addTableAction(EDIT_ACTION_LABEL)\
-                                  .setDescription('Edit selected log entry:')
-        # Exactly 1 row needs to be selected to enable action.
-        editAction.setRowSelectionRequiredSingle()             
-        widgets = [
-            inputWidgetFactory().createMultilineTextInputField(LOG_TEXT_LABEL).setMandatory(True)
-        ]
-        editAction.addInputWidgets(widgets)
-        # Bind field name with column name.
-        editAction.addBinding(LOG_TEXT_LABEL, LOG_TEXT_LABEL)
-     
-        """
-           3. delete selected log entries.
-        """
-        deleteAction = uiDescription.addTableAction(DELETE_ACTION_LABEL)\
-                                    .setDescription('Are you sure you want to delete selected log entries?')
-        # Delete is enabled when at least 1 row is selected.
-        deleteAction.setRowSelectionRequired()
-       
-     
-    def updateFromUI(action):
-        """Extract list of elements from old value of the property."""
-        converter = xmlPropertyConverter()
-        elements = list(converter.convertToElements(property))
-     
-        """Implement behaviour of user actions."""
-        if action.name == ADD_ACTION_LABEL:
-            """
-               For 'add' action create new log entry element with values from input fields
-               and add it to existing elements.
-            """
-            element = elementFactory().createElement(LOG_ENTRY_ELEMENT_LABEL)
-            """Fill element attributes with appropriate values."""
-            element.addAttribute(DATE_ATTRIBUTE, str(Date().getTime()))            # current date
-            element.addAttribute(PERSON_ATTRIBUTE, action.getPerson().getUserId()) # invoker the action
-            """Retrieve values from input fields filled by user on the client side."""
-            element.addAttribute(LOG_TYPE_ATTRIBUTE, action.getInputValue(LOG_TYPE_LABEL))
-            """Set log text as a text element, not an attribute."""
-            element.setData(action.getInputValue(LOG_TEXT_LABEL))
-            """Add the new entry to the end of the element list."""
-            elements.append(element)
-        elif action.name == EDIT_ACTION_LABEL:
-            """
-               For 'edit' action find the log entry element corresponding to selected row
-               and replace it with an element with values from input fields.
-            """
-            selectedRowId = action.getSelectedRows()[0]
-            elements[selectedRowId].setData(action.getInputValue(LOG_TEXT_LABEL))
-        elif action.name == DELETE_ACTION_LABEL:
-            """
-               For 'delete' action delete the entries that correspond to selected rows.
-               NOTE: As many rows can be deleted at once it is easier to delete them in reversed order.
-            """
-            rowIds = list(action.getSelectedRows())
-            rowIds.reverse()        
-            for rowId in rowIds:
-                elements.pop(rowId)       
-        else:
-            raise ValidationException('action not supported')
-         
-        """Update value of the managed property to XML string created from modified list of elements."""
-        property.value = converter.convertToString(elements)
+        rowIds = list(action.getSelectedRows())
+        rowIds.reverse()        
+        for rowId in rowIds:
+            elements.pop(rowId)       
+    else:
+        raise ValidationException('action not supported')
+        
+    """Update value of the managed property to XML string created from modified list of elements."""
+    property.value = converter.convertToString(elements)
 ```
 
 ### Creating and Deploying Java Plugins

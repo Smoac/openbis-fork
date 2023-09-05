@@ -25,9 +25,9 @@ openBIS. The name of the webapp defines the URL used to access it. See
 the example below. The file index.html is used as a welcome page if the
 user does not specifically request a particular page.
 
-An openBIS webapp is *not* a J2EE webapp. It has more in common with an
-app for mobile devices.
-
+```{warning}
+An openBIS webapp is *not* a J2EE webapp. It has more in common with an app for mobile devices.
+```
  
 
 ### Example
@@ -92,24 +92,27 @@ ch.systemsx.cisd.openbis.generic.server.util.OpenbisWebAppProvider in
 
 **jetty.xml**
 
-    <Call name="addBean">
-      <Arg>
-        <New id="DeploymentManager" class="org.eclipse.jetty.deploy.DeploymentManager">
-          <Set name="contexts">
-            <Ref id="Contexts" />
-          </Set>
-          <Call name="addAppProvider">
-            <Arg>
-              <New class="ch.systemsx.cisd.openbis.generic.server.util.OpenbisWebAppProvider">
-                <Set name="monitoredDir"><Property name="jetty.home" default="." />/webapps</Set>
-                <Set name="scanInterval">0</Set>
-                <Set name="extractWars">true</Set>
-              </New>
-            </Arg>
-          </Call>
-        </New>
-      </Arg>
-    </Call>
+```xml
+<Call name="addBean">
+    <Arg>
+    <New id="DeploymentManager" class="org.eclipse.jetty.deploy.DeploymentManager">
+        <Set name="contexts">
+        <Ref id="Contexts" />
+        </Set>
+        <Call name="addAppProvider">
+        <Arg>
+            <New class="ch.systemsx.cisd.openbis.generic.server.util.OpenbisWebAppProvider">
+            <Set name="monitoredDir"><Property name="jetty.home" default="." />/webapps</Set>
+            <Set name="scanInterval">0</Set>
+            <Set name="extractWars">true</Set>
+            </New>
+        </Arg>
+        </Call>
+    </New>
+    </Arg>
+</Call>
+```
+
 
 Embedding webapps in the OpenBIS UI
 -----------------------------------
@@ -173,51 +176,54 @@ webapp that makes use of this context information is presented below:
 
 **webapp.html**
 
-    <html>
-    <head>
-        <!-- include jquery library required by the openbis.js -->
-        <script src="/openbis/resources/js/jquery.js"></script>
-        <!-- include openbis library to gain access to the openbisWebAppContext and openbis objects -->
-        <script src="/openbis/resources/js/openbis.js"></script>
-    </head>
-    <body>
+```html
+<html>
+<head>
+    <!-- include jquery library required by the openbis.js -->
+    <script src="/openbis/resources/js/jquery.js"></script>
+    <!-- include openbis library to gain access to the openbisWebAppContext and openbis objects -->
+    <script src="/openbis/resources/js/openbis.js"></script>
+</head>
+<body>
 
 
-    <div id="log"></div>
+<div id="log"></div>
 
 
-    <script>
-        $(document).ready(function(){
+<script>
+    $(document).ready(function(){
 
 
-            // create a context object to access the context information
-            var c = new openbisWebAppContext();
-            $("#log").append("SessionId: " + c.getSessionId() + "<br/>");
-            $("#log").append("EntityKind: " + c.getEntityKind() + "<br/>");
-            $("#log").append("EntityType: " + c.getEntityType() + "<br/>");
-            $("#log").append("EntityIdentifier: " + c.getEntityIdentifier() + "<br/>");
-            $("#log").append("EntityPermId: " + c.getEntityPermId() + "<br/>");
+        // create a context object to access the context information
+        var c = new openbisWebAppContext();
+        $("#log").append("SessionId: " + c.getSessionId() + "<br/>");
+        $("#log").append("EntityKind: " + c.getEntityKind() + "<br/>");
+        $("#log").append("EntityType: " + c.getEntityType() + "<br/>");
+        $("#log").append("EntityIdentifier: " + c.getEntityIdentifier() + "<br/>");
+        $("#log").append("EntityPermId: " + c.getEntityPermId() + "<br/>");
 
 
-            // create an OpenBIS facade to call JSON RPC services
-            var o = new openbis();
+        // create an OpenBIS facade to call JSON RPC services
+        var o = new openbis();
 
 
-            // reuse the current sessionId that we received in the context for all the facade calls
-            o.useSession(c.getSessionId());
+        // reuse the current sessionId that we received in the context for all the facade calls
+        o.useSession(c.getSessionId());
 
-            // call one of the OpenBIS facade methods
-            o.listProjects(function(response){
-                $("#log").append("<br/>Projects:<br/>"); 
-                $.each(response.result, function(index, value){
-                     $("#log").append(value.code + "<br/>");  
-                });
+        // call one of the OpenBIS facade methods
+        o.listProjects(function(response){
+            $("#log").append("<br/>Projects:<br/>"); 
+            $.each(response.result, function(index, value){
+                    $("#log").append(value.code + "<br/>");  
             });
         });
+    });
 
-    </script>
-    </body>
-    </html>
+</script>
+</body>
+</html>
+```
+
 
 #### Linking to subtabs of other entity detail views
 
@@ -280,8 +286,9 @@ Even if the web app is accessible from other URLs, not using the URL
 configured on the DSS service.properties will lead to the DSS not
 recognizing the app.
 
-As a consequence the DSS will not set the necessary header and the
-client will reject the responses.
+```{warning}
+As a consequence the DSS will not set the necessary header and the client will reject the responses.
+```
 
 ### Basic Configuration
 
@@ -306,10 +313,9 @@ using a reverse proxy like Apache or NGNIX. This way the web security
 sandbox is respected. On this case the "Access-Control-Allow-Origin"
 header is unnecessary and will also work out of the box.
 
-Even with this configuration, sometimes happens  that a web app call the
-DSS using an auto detected URL given by openBIS. This auto detected URL
-not necessarily respects your proxy configuration, giving a different
-port or hostname to the DSS.
+```{warning}
+Even with this configuration, sometimes happens that a web app call the DSS using an auto detected URL given by openBIS. This auto detected URL not necessarily respects your proxy configuration, giving a different port or hostname to the DSS.
+```
 
 On this case you will need to solve the problems with one of the methods
 explained above or modify your web app.
@@ -356,16 +362,19 @@ Example:
 
 Full Example
 
-    <!DOCTYPE html>
-    <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
-    <head>
-        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-        <title>Embedded Grid Example</title>
-    </head>
-    <body>
-    <iframe src="http://localhost:8888/openbis-test/index.html?viewMode=GRID#action=AGGREGATION_SERVICE&serviceKey=sp-233&dss=standard&gridSettingsId=myTestGridSettingsId&gridHeaderText=myTestGridHeaderText&name=hello" width="100%" height="95%" style="border: none">
-    </body>
-    </html>
+```html
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Embedded Grid Example</title>
+</head>
+<body>
+<iframe src="http://localhost:8888/openbis-test/index.html?viewMode=GRID#action=AGGREGATION_SERVICE&serviceKey=sp-233&dss=standard&gridSettingsId=myTestGridSettingsId&gridHeaderText=myTestGridHeaderText&name=hello" width="100%" height="95%" style="border: none">
+</body>
+</html>
+```
+
 
 Image Viewer component
 ----------------------
@@ -376,62 +385,65 @@ Image viewer screenshot:
 
 Example usage of the image viewer component:
 
-    <!DOCTYPE html>
-    <html>
-    <head>
-    <meta charset="utf-8">
-    <title>Image Viewer Example</title>
+```html
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Image Viewer Example</title>
 
-    <link rel="stylesheet" href="/openbis/resources/lib/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/openbis/resources/lib/bootstrap-slider/css/bootstrap-slider.min.css">
-    <link rel="stylesheet" href="/openbis/resources/components/imageviewer/css/image-viewer.css">
+<link rel="stylesheet" href="/openbis/resources/lib/bootstrap/css/bootstrap.min.css">
+<link rel="stylesheet" href="/openbis/resources/lib/bootstrap-slider/css/bootstrap-slider.min.css">
+<link rel="stylesheet" href="/openbis/resources/components/imageviewer/css/image-viewer.css">
 
-    <script type="text/javascript" src="/openbis/resources/config.js"></script>
-    <script type="text/javascript" src="/openbis/resources/require.js"></script>
+<script type="text/javascript" src="/openbis/resources/config.js"></script>
+<script type="text/javascript" src="/openbis/resources/require.js"></script>
 
-    </head>
-    <body>
-        <script>
-            
-            // ask for jquery library, openbis-screening facade and the image viewer component
-            require([ "jquery", "openbis-screening", "components/imageviewer/ImageViewerWidget" ], function($, openbis, ImageViewerWidget) {
+</head>
+<body>
+    <script>
+         
+        // ask for jquery library, openbis-screening facade and the image viewer component
+        require([ "jquery", "openbis-screening", "components/imageviewer/ImageViewerWidget" ], function($, openbis, ImageViewerWidget) {
 
-                $(document).ready(
-                        function() {
-                            var facade = new openbis();
-                            facade.login("admin", "password", function(response) {
-     
-                                // create the image viewer component for the specific data sets
-                                var widget = new ImageViewerWidget(facade, [ "20140513145946659-3284", "20140415140347875-53", "20140429125231346-56",
-                                        "20140429125614418-59", "20140506132344798-146" ]);
-
-
-                                // do the customization once the component is loaded
-                                widget.addLoadListener(function() {
-                                    var view = widget.getDataSetChooserWidget().getView();
+            $(document).ready(
+                    function() {
+                        var facade = new openbis();
+                        facade.login("admin", "password", function(response) {
+ 
+                            // create the image viewer component for the specific data sets
+                            var widget = new ImageViewerWidget(facade, [ "20140513145946659-3284", "20140415140347875-53", "20140429125231346-56",
+                                    "20140429125614418-59", "20140506132344798-146" ]);
 
 
-                                    // example of how to customize a widget
-                                    view.getDataSetText = function(dataSetCode) {
-                                        return "My data set: " + dataSetCode;
-                                    };
+                            // do the customization once the component is loaded
+                            widget.addLoadListener(function() {
+                                var view = widget.getDataSetChooserWidget().getView();
 
 
-                                    // example of how to add a change listener to a widget
-                                    widget.getDataSetChooserWidget().addChangeListener(function(event) {
-                                        console.log("data set changed from: " + event.getOldValue() + " to: " + event.getNewValue());
-                                    });
+                                // example of how to customize a widget
+                                view.getDataSetText = function(dataSetCode) {
+                                    return "My data set: " + dataSetCode;
+                                };
+
+
+                                // example of how to add a change listener to a widget
+                                widget.getDataSetChooserWidget().addChangeListener(function(event) {
+                                    console.log("data set changed from: " + event.getOldValue() + " to: " + event.getNewValue());
                                 });
-
-
-                                // render the component and add it to the page
-                                $("#container").append(widget.render());
                             });
+
+
+                            // render the component and add it to the page
+                            $("#container").append(widget.render());
                         });
-            });
-        </script>
+                    });
+        });
+    </script>
 
-        <div id="container" style="padding: 20px"></div>
+    <div id="container" style="padding: 20px"></div>
 
-    </body>
-    </html>
+</body>
+</html>
+```
+

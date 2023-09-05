@@ -22,7 +22,8 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		var $container = views.content;
 		mainController.profile.beforeViewPaint(ViewType.SAMPLE_FORM, this._sampleFormModel, $container);
 		var _this = this;
-        var sampleTypeDefinitionsExtension = profile.sampleTypeDefinitionsExtension[_this._sampleFormModel.sample.sampleTypeCode];
+		var spaceSettings = SettingsManagerUtils.getSpaceSettings(_this._sampleFormModel.sample.spaceCode);
+		var sampleTypeDefinitionsExtension = spaceSettings.sampleTypeDefinitionsExtension[_this._sampleFormModel.sample.sampleTypeCode];
 
 		//
 		// Form setup
@@ -42,7 +43,6 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		var sampleTypeCode = this._sampleFormModel.sample.sampleTypeCode;
 		var sampleType = mainController.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
-		var sampleTypeDefinitionsExtension = profile.sampleTypeDefinitionsExtension[this._sampleFormModel.sample.sampleTypeCode];
 
 		//
 		// TITLE
@@ -192,7 +192,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 
                     if(profile.isPropertyPressent(sampleType, "$BARCODE")) {
                         dropdownOptionsModel.push({
-                            label : "Custom Barcode Update",
+                            label : "Custom Barcode/QR Code Update",
                             action : function() {
                                 BarcodeUtil.readBarcode([_this._sampleFormModel.sample]);
                             }
@@ -683,6 +683,10 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 		    var propertyType = propertyTypeGroup.propertyTypes[j];
 			var propertyTypeV3 = profile.getPropertyTypeFromSampleTypeV3(this._sampleFormModel.sampleType, propertyType.code);
+			var isMultiValue = false;
+			if(propertyTypeV3.isMultiValue) {
+				isMultiValue = propertyTypeV3.isMultiValue();
+			}
             var semanticAnnotations = this._renderPropertyTypeSemanticAnnotations(propertyType.code);
 			FormUtil.fixStringPropertiesForForm(propertyTypeV3, this._sampleFormModel.sample);
 			if(!propertyType.showInEditViews && (this._sampleFormModel.mode === FormMode.EDIT || this._sampleFormModel.mode === FormMode.CREATE) && propertyType.code !== "$XMLCOMMENTS") { //Skip
@@ -732,7 +736,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
                                 $controlGroup = FormUtil.getFieldForComponentWithLabel($component, propertyType.label, null, null, semanticAnnotations);
                             }
                         } else if(propertyType.dataType === "SAMPLE") {
-                            var $component = new SampleField(false, '', false, value, true);
+                            var $component = new SampleField(false, '', false, value, true, isMultiValue);
                             $controlGroup = FormUtil.getFieldForComponentWithLabel($component, propertyType.label, null, null, semanticAnnotations);
                         } else { // The base case paints the property value as a label
                             $controlGroup = FormUtil.createPropertyField(propertyType, value, semanticAnnotations);
@@ -741,13 +745,25 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 						continue;
 					}
 				} else {
-					var $component = FormUtil.getFieldForPropertyType(propertyType, value);
+					var $component = FormUtil.getFieldForPropertyType(propertyType, value, isMultiValue);
 
 					//Update values if is into edit mode
 					if(this._sampleFormModel.mode === FormMode.EDIT || loadFromTemplate) {
 						if(propertyType.dataType === "BOOLEAN") {
 						    FormUtil.setFieldValue(propertyType, $component, value);
 						} else if(propertyType.dataType === "TIMESTAMP" || propertyType.dataType === "DATE") {
+						} else if(isMultiValue) {
+						    var valueV3 = this._sampleFormModel.v3_sample.properties[propertyType.code];
+						    if(valueV3) {
+								var valueArray;
+								if(Array.isArray(value)) {
+									valueArray = valueV3.sort();
+								} else {
+									valueArray = valueV3.split(',');
+							        valueArray = valueArray.map(x => x.trim()).sort();
+								}
+						        $component.val(valueArray);
+						    }
 						} else {
 							$component.val(value);
 						}
@@ -755,7 +771,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 						$component.val(""); //HACK-FIX: Not all browsers show the placeholder in Bootstrap 3 if you don't set an empty value.
 					}
 
-					var changeEvent = function(propertyType) {
+					var changeEvent = function(propertyType, isMultiValueProperty) {
 						return function(jsEvent, newValue) {
 							var propertyTypeCode = null;
 							propertyTypeCode = propertyType.code;
@@ -775,7 +791,45 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 								if(newValue !== undefined && newValue !== null) {
 									_this._sampleFormModel.sample.properties[propertyTypeCode] = Util.getEmptyIfNull(newValue);
 								} else {
-									_this._sampleFormModel.sample.properties[propertyTypeCode] = Util.getEmptyIfNull(field.val());
+									var lastSelected = Util.getEmptyIfNull($('option', this).filter(':selected:last').val());
+                                    var dataLast = field.data('last');
+                                     if(propertyType.dataType === "CONTROLLEDVOCABULARY" && isMultiValueProperty) {
+                                         var props = _this._sampleFormModel.sample.properties[propertyTypeCode];
+                                         if (field.val()) {
+                                        if(props !== undefined) {
+                                            if(props != '' && field.val().includes('')) {
+                                                _this._sampleFormModel.sample.properties[propertyTypeCode] = '';
+                                                field.val([]);
+                                            } else {
+                                                if(props == '' && field.val().includes('')) {
+                                                    var removedEmpty = field.val().filter(x => x != '');
+                                                    _this._sampleFormModel.sample.properties[propertyTypeCode] = removedEmpty;
+                                                    field.val(removedEmpty);
+                                                } else {
+                                                    _this._sampleFormModel.sample.properties[propertyTypeCode] = Util.getEmptyIfNull(field.val());
+                                                }
+                                            }
+                                        } else {
+                                            if(field.val().includes('')) {
+                                               if(dataLast == undefined) {
+                                                    var val = field.val().filter(x => x != '');
+                                                    _this._sampleFormModel.sample.properties[propertyTypeCode] = val;
+                                                    field.val(val);
+                                               } else {
+                                                    _this._sampleFormModel.sample.properties[propertyTypeCode] = '';
+                                                    field.val([]);
+                                               }
+                                            } else {
+                                                _this._sampleFormModel.sample.properties[propertyTypeCode] = field.val();
+                                            }
+                                        }
+                                         } else {
+                                              _this._sampleFormModel.sample.properties[propertyTypeCode] = Util.getEmptyIfNull(field.val());
+                                         }
+                                    } else {
+                                        _this._sampleFormModel.sample.properties[propertyTypeCode] = Util.getEmptyIfNull(field.val());
+                                    }
+                                    field.data('last', field.val());
 								}
 							}
 						}
@@ -813,7 +867,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					} else if(propertyType.dataType === "TIMESTAMP" || propertyType.dataType === "DATE") {
 						$component.on("dp.change", changeEvent(propertyType));
 					} else {
-						$component.change(changeEvent(propertyType));
+						$component.change(changeEvent(propertyType, isMultiValue));
 					}
 
                     $controlGroup = FormUtil.getFieldForComponentWithLabel($component, propertyType.label, null, null, semanticAnnotations);
@@ -945,7 +999,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 
 		    var $customBarcodeProperty = this._sampleFormModel.sample.properties["$BARCODE"];
 		    if($customBarcodeProperty) {
-		        var $customBarcodePropertyField = FormUtil.getFieldForLabelWithText("Custom Barcode", $customBarcodeProperty);
+		        var $customBarcodePropertyField = FormUtil.getFieldForLabelWithText("Custom Barcode/QR Code", $customBarcodeProperty);
 		        $fieldset.append($customBarcodePropertyField);
 		    }
         }

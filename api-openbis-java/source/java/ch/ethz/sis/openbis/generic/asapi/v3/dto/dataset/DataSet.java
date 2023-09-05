@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityTypeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IExperimentHolder;
@@ -28,10 +29,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistrationD
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IRegistratorHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ISampleHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ITagsHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetKind;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.LinkedData;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.PhysicalData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.PropertiesDeserializer;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.DataStore;
@@ -46,6 +44,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -56,6 +56,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /*
  * Class automatically generated with DtoGenerator
@@ -117,13 +118,14 @@ public class DataSet implements Serializable, ICodeHolder, IEntityTypeHolder, IE
     private Sample sample;
 
     @JsonProperty
-    private Map<String, String> properties;
+    @JsonDeserialize(contentUsing = PropertiesDeserializer.class)
+    private Map<String, Serializable> properties;
 
     @JsonProperty
     private Map<String, Material> materialProperties;
 
     @JsonProperty
-    private Map<String, Sample> sampleProperties;
+    private Map<String, Sample[]> sampleProperties;
 
     @JsonProperty
     private List<DataSet> parents;
@@ -465,7 +467,7 @@ public class DataSet implements Serializable, ICodeHolder, IEntityTypeHolder, IE
     // Method automatically generated with DtoGenerator
     @JsonIgnore
     @Override
-    public Map<String, String> getProperties()
+    public Map<String, Serializable> getProperties()
     {
         if (getFetchOptions() != null && getFetchOptions().hasProperties())
         {
@@ -479,7 +481,7 @@ public class DataSet implements Serializable, ICodeHolder, IEntityTypeHolder, IE
 
     // Method automatically generated with DtoGenerator
     @Override
-    public void setProperties(Map<String, String> properties)
+    public void setProperties(Map<String, Serializable> properties)
     {
         this.properties = properties;
     }
@@ -508,7 +510,7 @@ public class DataSet implements Serializable, ICodeHolder, IEntityTypeHolder, IE
 
     // Method automatically generated with DtoGenerator
     @JsonIgnore
-    public Map<String, Sample> getSampleProperties()
+    public Map<String, Sample[]> getSampleProperties()
     {
         if (getFetchOptions() != null && getFetchOptions().hasSampleProperties())
         {
@@ -521,7 +523,7 @@ public class DataSet implements Serializable, ICodeHolder, IEntityTypeHolder, IE
     }
 
     // Method automatically generated with DtoGenerator
-    public void setSampleProperties(Map<String, Sample> sampleProperties)
+    public void setSampleProperties(Map<String, Sample[]> sampleProperties)
     {
         this.sampleProperties = sampleProperties;
     }
@@ -941,15 +943,15 @@ public class DataSet implements Serializable, ICodeHolder, IEntityTypeHolder, IE
     @Override
     public String getProperty(String propertyName)
     {
-        return getProperties() != null ? getProperties().get(propertyName) : null;
+        return getProperties() != null ? PropertiesDeserializer.getPropertyAsString(getProperties().get(propertyName)) : null;
     }
 
     @Override
-    public void setProperty(String propertyName, String propertyValue)
+    public void setProperty(String propertyName, Serializable propertyValue)
     {
         if (properties == null)
         {
-            properties = new HashMap<String, String>();
+            properties = new HashMap<String, Serializable>();
         }
         properties.put(propertyName, propertyValue);
     }
@@ -974,7 +976,7 @@ public class DataSet implements Serializable, ICodeHolder, IEntityTypeHolder, IE
     public Long getIntegerProperty(String propertyName)
     {
         String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.isBlank()) ? null : Long.parseLong(propertyValue);
+        return (propertyValue == null || propertyValue.trim().isEmpty()) ? null : Long.parseLong(propertyValue);
     }
 
     @Override
@@ -1011,7 +1013,7 @@ public class DataSet implements Serializable, ICodeHolder, IEntityTypeHolder, IE
     public Double getRealProperty(String propertyName)
     {
         String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.isBlank()) ? null : Double.parseDouble(propertyValue);
+        return (propertyValue == null || propertyValue.trim().isEmpty()) ? null : Double.parseDouble(propertyValue);
     }
 
     @Override
@@ -1038,7 +1040,7 @@ public class DataSet implements Serializable, ICodeHolder, IEntityTypeHolder, IE
     public Boolean getBooleanProperty(String propertyName)
     {
         String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.isBlank()) ? null : Boolean.parseBoolean(propertyValue);
+        return (propertyValue == null || propertyValue.trim().isEmpty()) ? null : Boolean.parseBoolean(propertyValue);
     }
 
     @Override
@@ -1072,35 +1074,56 @@ public class DataSet implements Serializable, ICodeHolder, IEntityTypeHolder, IE
     }
 
     @Override
-    public String getControlledVocabularyProperty(String propertyName)
+    public String[] getControlledVocabularyProperty(String propertyName)
     {
-        return getProperty(propertyName);
+        if(getProperties() == null || getProperties().get(propertyName) == null) {
+            return null;
+        }
+        Serializable value = getProperties().get(propertyName);
+        if(value.getClass().isArray()) {
+            Serializable[] values = (Serializable[]) value;
+            return Arrays.stream(values).map(x -> (String)x).toArray(String[]::new);
+        } else {
+            String propertyValue = (String) value;
+            return new String[]{ propertyValue };
+        }
     }
 
     @Override
-    public void setControlledVocabularyProperty(String propertyName, String propertyValue)
+    public void setControlledVocabularyProperty(String propertyName, String[] propertyValue)
     {
         setProperty(propertyName, propertyValue);
     }
 
     @Override
-    public SamplePermId getSampleProperty(String propertyName)
+    public SamplePermId[] getSampleProperty(String propertyName)
     {
-        String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.isBlank()) ? null : new SamplePermId(propertyValue);
+        if(getProperties() == null || getProperties().get(propertyName) == null) {
+            return null;
+        }
+        Serializable value = getProperties().get(propertyName);
+        if(value.getClass().isArray()) {
+            Serializable[] values = (Serializable[]) value;
+            return Arrays.stream(values).map(x -> new SamplePermId((String)x)).toArray(SamplePermId[]::new);
+        } else {
+            String propertyValue = (String) value;
+            return new SamplePermId[]{new SamplePermId(propertyValue)};
+        }
     }
 
     @Override
-    public void setSampleProperty(String propertyName, SamplePermId propertyValue)
+    public void setSampleProperty(String propertyName, SamplePermId[] propertyValue)
     {
-        setProperty(propertyName, propertyValue == null ? null : propertyValue.getPermId());
+        setProperty(propertyName, propertyValue == null ? null : Arrays.stream(propertyValue)
+                .map(ObjectPermId::getPermId)
+                .toArray(String[]::new));
     }
 
     @Override
     public Long[] getIntegerArrayProperty(String propertyName)
     {
         String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.isBlank()) ? null : Arrays.stream(propertyValue.split(",")).map(String::trim).map(Long::parseLong).toArray(Long[]::new);
+        return (propertyValue == null || propertyValue.trim().isEmpty()) ? null : Arrays.stream(propertyValue.split(",")).map(String::trim).map(Long::parseLong).toArray(Long[]::new);
     }
 
     @Override
@@ -1113,7 +1136,7 @@ public class DataSet implements Serializable, ICodeHolder, IEntityTypeHolder, IE
     public Double[] getRealArrayProperty(String propertyName)
     {
         String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.isBlank()) ? null : Arrays.stream(propertyValue.split(",")).map(String::trim).map(Double::parseDouble).toArray(Double[]::new);
+        return (propertyValue == null || propertyValue.trim().isEmpty()) ? null : Arrays.stream(propertyValue.split(",")).map(String::trim).map(Double::parseDouble).toArray(Double[]::new);
     }
 
     @Override
@@ -1126,7 +1149,7 @@ public class DataSet implements Serializable, ICodeHolder, IEntityTypeHolder, IE
     public String[] getStringArrayProperty(String propertyName)
     {
         String propertyValue = getProperty(propertyName);
-        return (propertyValue == null || propertyValue.isBlank()) ? null : Arrays.stream(propertyValue.split(",")).map(String::trim).toArray(String[]::new);
+        return (propertyValue == null || propertyValue.trim().isEmpty()) ? null : Arrays.stream(propertyValue.split(",")).map(String::trim).toArray(String[]::new);
     }
 
     @Override
