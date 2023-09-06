@@ -100,7 +100,6 @@ class DataBrowser extends React.Component {
       'http://localhost:8085',
       HTTP_SERVER_URI
     )
-
     this.controller.setSessionToken(sessionToken)
 
     this.state = {
@@ -170,6 +169,7 @@ class DataBrowser extends React.Component {
       selectedFile,
       multiselectedFiles,
       showInfo,
+      sessionToken,
       path
     } = this.state
 
@@ -183,6 +183,9 @@ class DataBrowser extends React.Component {
           showInfo={showInfo}
           selectedFile={selectedFile}
           multiselectedFiles={multiselectedFiles}
+          datastoreServer={this.datastoreServer}
+          sessionToken={sessionToken}
+          path={path}
         />
         <NavigationBar
           path={path}
@@ -228,8 +231,6 @@ class DataBrowser extends React.Component {
                 }
               ]}
               loadRows={this.controller.load}
-              sort='registrationDate'
-              sortDirection='desc'
               exportable={false}
               selectable={true}
               multiselectable={true}

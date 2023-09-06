@@ -22,8 +22,6 @@ class InputDialog extends React.Component {
     this.state = {
       value: '' || this.props.inputValue
     }
-
-    this.handleClose = this.handleClose.bind(this)
   }
 
   handleClose() {
@@ -114,7 +112,7 @@ class InputDialog extends React.Component {
   }
 
   render() {
-    logger.log(logger.DEBUG, 'ConfirmationDialog.render')
+    logger.log(logger.DEBUG, 'InputDialog.render')
 
     const { open, title, inputLabel, inputType, content } = this.props
     const { value } = this.state

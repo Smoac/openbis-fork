@@ -35,9 +35,12 @@ import Container from '@src/js/components/common/form/Container.jsx'
 import Popover from '@material-ui/core/Popover'
 import InputDialog from '@src/js/components/common/dialog/InputDialog.jsx'
 import ConfirmationDialog from "@src/js/components/common/dialog/ConfirmationDialog.jsx";
+import LocationDialog from "@src/js/components/database/data-browser/LocationDialog.jsx";
 
 const color = 'default'
 const iconButtonSize = 'medium'
+const moveLocationMode = 'move'
+const copyLocationMode = 'copy'
 
 const styles = theme => ({
   buttons: {
@@ -77,7 +80,8 @@ class LeftToolbar extends React.Component {
       hiddenButtonsPopup: null,
       newFolderDialogOpen: false,
       deleteDialogOpen: false,
-      renameDialogOpen: false
+      renameDialogOpen: false,
+      locationDialogMode: null
     }
 
     this.controller = this.props.controller
@@ -128,6 +132,28 @@ class LeftToolbar extends React.Component {
     this.closeRenameDialog()
   }
 
+  openMoveLocationDialog() {
+    this.setState({ locationDialogMode: moveLocationMode })
+  }
+
+  openCopyLocationDialog() {
+    this.setState({ locationDialogMode: copyLocationMode })
+  }
+
+  closeLocationDialog() {
+    this.setState({ locationDialogMode: null })
+  }
+
+  async handleLocationConfirm(newName) {
+    // const oldName = multiselectedFiles.values().next().value.name
+    this.closeLocationDialog()
+    // await this.controller.move()
+  }
+
+  handleLocationCancel() {
+    this.closeLocationDialog()
+  }
+
   async handleDeleteConfirm() {
     const { multiselectedFiles } = this.props
 
@@ -165,7 +191,14 @@ class LeftToolbar extends React.Component {
   }
 
   renderSelectionContextToolbar() {
-    const { classes, buttonSize, multiselectedFiles } = this.props
+    const {
+      classes,
+      buttonSize,
+      multiselectedFiles,
+      datastoreServer,
+      sessionToken,
+      path: path
+    } = this.props
     const { width, hiddenButtonsPopup, deleteDialogOpen } = this.state
 
     const ellipsisButtonSize = 24
@@ -216,6 +249,7 @@ class LeftToolbar extends React.Component {
         size={buttonSize}
         variant='text'
         startIcon={<CopyIcon />}
+        onClick={this.openCopyLocationDialog}
       >
         {messages.get(messages.COPY)}
       </Button>,
@@ -226,6 +260,7 @@ class LeftToolbar extends React.Component {
         size={buttonSize}
         variant='text'
         startIcon={<MoveIcon />}
+        onClick={this.openMoveLocationDialog}
       >
         {messages.get(messages.MOVE)}
       </Button>
@@ -285,6 +320,16 @@ class LeftToolbar extends React.Component {
           onCancel={this.handleRenameCancel}
           onConfirm={this.handleRenameConfirm}
         />
+        <LocationDialog
+          key='location-dialog'
+          open={!!this.state.locationDialogMode}
+          title={this.state.locationDialogMode === moveLocationMode ? messages.get(messages.MOVE) : messages.get(messages.COPY)}
+          datastoreServer={datastoreServer}
+          sessionToken={sessionToken}
+          location={path}
+          onCancel={this.handleLocationCancel}
+          onConfirm={this.handleLocationConfirm}
+          />
       </div>
     );
   }
