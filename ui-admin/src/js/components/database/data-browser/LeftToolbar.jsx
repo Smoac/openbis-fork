@@ -34,8 +34,8 @@ import { debounce } from '@material-ui/core'
 import Container from '@src/js/components/common/form/Container.jsx'
 import Popover from '@material-ui/core/Popover'
 import InputDialog from '@src/js/components/common/dialog/InputDialog.jsx'
-import ConfirmationDialog from "@src/js/components/common/dialog/ConfirmationDialog.jsx";
-import LocationDialog from "@src/js/components/database/data-browser/LocationDialog.jsx";
+import ConfirmationDialog from '@src/js/components/common/dialog/ConfirmationDialog.jsx'
+import LocationDialog from '@src/js/components/database/data-browser/LocationDialog.jsx'
 
 const color = 'default'
 const iconButtonSize = 'medium'
@@ -320,13 +320,15 @@ class LeftToolbar extends React.Component {
           onCancel={this.handleRenameCancel}
           onConfirm={this.handleRenameConfirm}
         />
+        {/* TODO: add messages */}
         <LocationDialog
           key='location-dialog'
           open={!!this.state.locationDialogMode}
           title={this.state.locationDialogMode === moveLocationMode ? messages.get(messages.MOVE) : messages.get(messages.COPY)}
+          content='Files'
           datastoreServer={datastoreServer}
           sessionToken={sessionToken}
-          location={path}
+          path={path}
           onCancel={this.handleLocationCancel}
           onConfirm={this.handleLocationConfirm}
           />

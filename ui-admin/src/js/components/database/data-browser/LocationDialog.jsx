@@ -5,12 +5,10 @@ import Dialog from '@src/js/components/common/dialog/Dialog.jsx'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
 import { DialogContentText } from '@material-ui/core'
-import TextField from '@material-ui/core/TextField'
 import autoBind from 'auto-bind'
-import GridFilterOptions from "@src/js/components/common/grid/GridFilterOptions.js";
-import ItemIcon from "@src/js/components/database/data-browser/ItemIcon.jsx";
-import Grid from "@src/js/components/common/grid/Grid.jsx";
-import DataBrowserController from "@src/js/components/database/data-browser/DataBrowserController.js";
+import ItemIcon from '@src/js/components/database/data-browser/ItemIcon.jsx'
+import Grid from '@src/js/components/common/grid/Grid.jsx'
+import DataBrowserController from '@src/js/components/database/data-browser/DataBrowserController.js'
 
 const styles = theme => ({
   button: {
@@ -45,17 +43,18 @@ class LocationDialog extends React.Component {
     super(props)
     autoBind(this)
 
-    const { location, path, sessionToken, datastoreServer} = this.props
+    const { path, sessionToken, datastoreServer} = this.props
 
     this.controller = new DataBrowserController()
     this.controller.attach(this)
     this.datastoreServer = datastoreServer
     this.controller.setSessionToken(sessionToken)
+    // this.initialPath = path
 
-    this.state = {
-      location: '' || location,
-      path
-    }
+    // this.state = {
+    //   path
+    // }
+    this.controller.setPath(path)
 
     this.handleClose = this.handleClose.bind(this)
   }
@@ -68,35 +67,36 @@ class LocationDialog extends React.Component {
   }
 
   updateValue(event) {
-    const location = event.target.value
-    this.setState({
-      location: location
-    })
+    const path = event.target.value
+    // this.setState({
+    //   path
+    // })
+    this.controller.setPath(path)
   }
 
   handleConfirmClick() {
     const { onConfirm } = this.props
-    const { location } = this.state
-    onConfirm(location)
-
-    if (!this.props.locationValue) {
-      this.clearLocation()
-    }
+    const { path } = this.state
+    onConfirm(path)
+    //
+    // if (!this.props.path) {
+    //   this.clearLocation()
+    // }
   }
 
   handleCancelClick() {
     const { onCancel } = this.props
     onCancel()
-    if (!this.props.locationValue) {
-      this.clearLocation()
-    }
+    // if (!this.props.path) {
+    //   this.clearLocation()
+    // }
   }
 
-  clearLocation() {
-    this.setState({
-      location: ''
-    })
-  }
+  // clearLocation() {
+  //   this.setState({
+  //     path: ''
+  //   })
+  // }
 
   async setPath(path) {
     if (this.state.path !== path + '/') {
