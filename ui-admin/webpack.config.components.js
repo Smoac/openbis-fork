@@ -43,7 +43,8 @@ module.exports = {
     alias: {
       '@src': path.resolve(__dirname, 'src/'),
       '@srcTest': path.resolve(__dirname, 'srcTest/'),
-      '@srcV3': path.resolve(__dirname, 'srcV3/')
+      '@srcV3': path.resolve(__dirname, 'srcV3/'),
+      '@srcDss': path.resolve(__dirname, 'srcDss/')
     },
     fallback: {
       stream: require.resolve('stream-browserify'),

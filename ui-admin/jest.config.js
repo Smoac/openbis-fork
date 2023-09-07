@@ -22,6 +22,7 @@ module.exports = {
     '<rootDir>/src/js',
     '<rootDir>/srcTest/js',
     '<rootDir>/srcV3',
+    '<rootDir>/srcDss',
     '<rootDir>/node_modules'
   ],
   moduleNameMapper: {
@@ -34,7 +35,8 @@ module.exports = {
     '^@src/resources(.*)$': '<rootDir>/srcTest/js/mockResources.js',
     '^@src/(.*)$': '<rootDir>/src/$1',
     '^@srcTest/(.*)$': '<rootDir>/srcTest/$1',
-    '^@srcV3/(.*)$': '<rootDir>/srcV3/$1'
+    '^@srcV3/(.*)$': '<rootDir>/srcV3/$1',
+    '^@srcDss/(.*)$': '<rootDir>/srcDss/$1'
   },
   transformIgnorePatterns: ['<rootDir>/node_modules/(?!(auto-bind|date-fns))'],
   slowTestThreshold: 30
