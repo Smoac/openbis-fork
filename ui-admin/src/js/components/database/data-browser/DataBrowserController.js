@@ -53,6 +53,11 @@ export default class DataBrowserController extends ComponentController {
     return files.map(file => ({ id: file.name, ...file }))
   }
 
+  async loadFolders() {
+    const files = await this.listFiles()
+    return files.filter(file => file.directory).map(file => ({ id: file.name, ...file }))
+  }
+
   async createNewFolder(name) {
     return new Promise((resolve, reject) => {
       this.component.datastoreServer.create(this.owner, this.path + name, true, async (success) => {

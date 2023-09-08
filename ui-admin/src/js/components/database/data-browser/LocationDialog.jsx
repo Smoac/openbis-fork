@@ -159,7 +159,6 @@ class LocationDialog extends React.Component {
                 <ItemIcon
                   file={row}
                   classes={{ icon: classes.icon }}
-                  configuration={configuration}
                 />
                 <span>{row.name}</span>
               </div>
@@ -167,7 +166,7 @@ class LocationDialog extends React.Component {
             renderFilter: null
           }
         ]}
-        loadRows={this.controller.load}
+        loadRows={this.controller.loadFolders}
         exportable={false}
         selectable={false}
         multiselectable={false}

@@ -378,7 +378,7 @@ DataStoreServer.prototype.list = function(owner, source, recursively, action){
  * Read the contents of selected file
  * @param {str} owner owner of the file 
  * @param {str} source path to file
- * @param {int} offset offset from whoch to start reading
+ * @param {int} offset offset from which to start reading
  * @param {int} limit how many characters to read
  * @param {*} action post-processing action
  */

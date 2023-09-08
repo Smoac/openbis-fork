@@ -33,7 +33,7 @@ class ItemIcon extends React.Component {
     super(props, context)
     autoBind(this)
 
-    const { configuration } = this.props
+    const configuration = this.props.configuration || []
 
     this.extensionToIconType = new Map(
       configuration.flatMap(configObject =>

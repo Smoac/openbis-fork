@@ -162,14 +162,13 @@ class DataBrowser extends React.Component {
   }
 
   render() {
-    const { classes } = this.props
+    const { classes, sessionToken } = this.props
     const {
       viewType,
       files,
       selectedFile,
       multiselectedFiles,
       showInfo,
-      sessionToken,
       path
     } = this.state
 

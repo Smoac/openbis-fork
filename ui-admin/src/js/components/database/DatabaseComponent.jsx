@@ -20,7 +20,7 @@ class DatabaseComponent extends React.PureComponent {
       const { object } = this.props
 
       let json = null
-      let showDataBrowser = false;
+      let showDataBrowser = false
       if (object.type === objectType.SPACE) {
         const spaces = await openbis.getSpaces(
           [new openbis.SpacePermId(object.id)],
@@ -39,7 +39,7 @@ class DatabaseComponent extends React.PureComponent {
           new openbis.ExperimentFetchOptions()
         )
         json = experiments[object.id]
-        showDataBrowser = true;
+        showDataBrowser = true
       } else if (object.type === objectType.OBJECT) {
         const fetchOptions = new openbis.SampleFetchOptions()
         fetchOptions.withSpace()
@@ -51,7 +51,7 @@ class DatabaseComponent extends React.PureComponent {
           fetchOptions
         )
         json = samples[object.id]
-        showDataBrowser = true;
+        showDataBrowser = true
       } else if (object.type === objectType.DATA_SET) {
         const fetchOptions = new openbis.DataSetFetchOptions()
         fetchOptions.withExperiment()

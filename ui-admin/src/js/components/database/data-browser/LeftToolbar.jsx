@@ -197,7 +197,7 @@ class LeftToolbar extends React.Component {
       multiselectedFiles,
       datastoreServer,
       sessionToken,
-      path: path
+      path
     } = this.props
     const { width, hiddenButtonsPopup, deleteDialogOpen } = this.state
 

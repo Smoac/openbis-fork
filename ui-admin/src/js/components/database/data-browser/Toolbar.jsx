@@ -50,7 +50,7 @@ class Toolbar extends React.Component {
     logger.log(logger.DEBUG, 'Toolbar.render')
 
     const {
-      viewType: viewType,
+      viewType,
       onViewTypeChange,
       classes,
       showInfo,
