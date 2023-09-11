@@ -113,6 +113,10 @@ class LocationDialog extends React.Component {
     }
   }
 
+  handleGridControllerRef(gridController) {
+    this.controller.gridController = gridController
+  }
+
   async onError(error) {
     await AppController.getInstance().errorChange(error)
   }
