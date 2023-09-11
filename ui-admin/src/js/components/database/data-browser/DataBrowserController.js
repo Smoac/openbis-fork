@@ -110,6 +110,48 @@ export default class DataBrowserController extends ComponentController {
     })
   }
 
+  async copy(paths, newLocation) {
+    for (const path of paths) {
+      await this._copy(path, newLocation)
+    }
+  }
+
+  async _copy(path, newLocation){
+    const cleanNewLocation = this._removeLeadingSlash(newLocation)
+    return new Promise((resolve, reject) => {
+      this.component.datastoreServer.copy(this.owner, this.path + path, this.owner, cleanNewLocation, async (success) => {
+        if (success) {
+          resolve()
+        } else {
+          reject()
+        }
+      })
+    })
+  }
+
+  async move(paths, newLocation) {
+    for (const path of paths) {
+      await this._move(path, newLocation)
+    }
+  }
+
+  async _move(path, newLocation){
+    const cleanNewLocation = this._removeLeadingSlash(newLocation)
+    return new Promise((resolve, reject) => {
+      this.component.datastoreServer.move(this.owner, this.path + path, this.owner, cleanNewLocation, async (success) => {
+        if (success) {
+          resolve()
+        } else {
+          reject()
+        }
+      })
+    })
+  }
+  
+  _removeLeadingSlash(path) {
+    return path && path[0] === '/' ? path.substring(1) : path
+  }
+
   handleUploadClick(event) {
     console.log(event.target)
   }

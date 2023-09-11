@@ -144,10 +144,16 @@ class LeftToolbar extends React.Component {
     this.setState({ locationDialogMode: null })
   }
 
-  async handleLocationConfirm(newName) {
-    // const oldName = multiselectedFiles.values().next().value.name
+  async handleLocationConfirm(newPath) {
+    const { multiselectedFiles } = this.props
+    const { locationDialogMode} = this.state
     this.closeLocationDialog()
-    // await this.controller.move()
+
+    if (locationDialogMode === moveLocationMode) {
+      await this.controller.move(this._filesToPaths(multiselectedFiles), newPath)
+    } else {
+      await this.controller.copy(this._filesToPaths(multiselectedFiles), newPath)
+    }
   }
 
   handleLocationCancel() {
@@ -158,7 +164,11 @@ class LeftToolbar extends React.Component {
     const { multiselectedFiles } = this.props
 
     this.closeDeleteDialog()
-    await this.controller.delete(Array.from(multiselectedFiles).map((file) => file.path))
+    await this.controller.delete(this._filesToPaths(multiselectedFiles))
+  }
+
+  _filesToPaths(files) {
+    return Array.from(files).map((file) => file.path)
   }
 
   handleDeleteCancel() {
@@ -199,7 +209,13 @@ class LeftToolbar extends React.Component {
       sessionToken,
       path
     } = this.props
-    const { width, hiddenButtonsPopup, deleteDialogOpen } = this.state
+    const {
+      width,
+      hiddenButtonsPopup,
+      deleteDialogOpen,
+      renameDialogOpen,
+      locationDialogMode
+    } = this.state
 
     const ellipsisButtonSize = 24
     const buttonsCount = 5
@@ -313,7 +329,7 @@ class LeftToolbar extends React.Component {
         />
         <InputDialog
           key='rename-dialog'
-          open={this.state.renameDialogOpen}
+          open={renameDialogOpen}
           title={selectedValue.directory ? messages.get(messages.RENAME_FOLDER) : messages.get(messages.RENAME_FILE)}
           inputLabel={selectedValue.directory ? messages.get(messages.FOLDER_NAME) : messages.get(messages.FILE_NAME)}
           inputValue={selectedValue.name}
@@ -323,8 +339,8 @@ class LeftToolbar extends React.Component {
         {/* TODO: add messages */}
         <LocationDialog
           key='location-dialog'
-          open={!!this.state.locationDialogMode}
-          title={this.state.locationDialogMode === moveLocationMode ? messages.get(messages.MOVE) : messages.get(messages.COPY)}
+          open={!!locationDialogMode}
+          title={locationDialogMode === moveLocationMode ? messages.get(messages.MOVE) : messages.get(messages.COPY)}
           content={messages.get(messages.FILE_OR_FILES, multiselectedFiles.size)}
           datastoreServer={datastoreServer}
           sessionToken={sessionToken}

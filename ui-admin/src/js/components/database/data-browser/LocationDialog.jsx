@@ -79,18 +79,11 @@ class LocationDialog extends React.Component {
     const { onConfirm, multiselectedFiles } = this.props
     const { path } = this.state
     onConfirm(path)
-    //
-    // if (!this.props.path) {
-    //   this.clearLocation()
-    // }
   }
 
   handleCancelClick() {
     const { onCancel } = this.props
     onCancel()
-    // if (!this.props.path) {
-    //   this.clearLocation()
-    // }
   }
 
   async setPath(path) {
@@ -142,7 +135,7 @@ class LocationDialog extends React.Component {
   }
 
   renderGrid() {
-    const { classes, multiselectedFiles } = this.props
+    const { classes } = this.props
     return (
       <Grid
         id='location-grid'
@@ -222,6 +215,7 @@ class LocationDialog extends React.Component {
         title={title}
         content={[<DialogContentText key='dialog-content'>{content}</DialogContentText>,
           <NavigationBar
+            key='navigation-bar'
             path={path}
             onPathChange={this.handlePathChange}
           />,
