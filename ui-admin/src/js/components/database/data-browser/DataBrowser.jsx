@@ -14,6 +14,7 @@ import ItemIcon from '@src/js/components/database/data-browser/ItemIcon.jsx'
 import InfoPanel from '@src/js/components/database/data-browser/InfoPanel.jsx'
 import DataBrowserController from '@src/js/components/database/data-browser/DataBrowserController.js'
 import NavigationBar from '@src/js/components/database/data-browser/NavigationBar.jsx'
+import messages from "@src/js/common/messages.js";
 
 const HTTP_SERVER_URI = '/data-store-server'
 
@@ -201,7 +202,7 @@ class DataBrowser extends React.Component {
               columns={[
                 {
                   name: 'name',
-                  label: 'Name',
+                  label: messages.get(messages.NAME),
                   sortable: true,
                   getValue: ({ row }) => row.name,
                   renderValue: ({ row }) => (

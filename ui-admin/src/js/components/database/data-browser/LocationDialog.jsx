@@ -9,6 +9,7 @@ import autoBind from 'auto-bind'
 import ItemIcon from '@src/js/components/database/data-browser/ItemIcon.jsx'
 import Grid from '@src/js/components/common/grid/Grid.jsx'
 import DataBrowserController from '@src/js/components/database/data-browser/DataBrowserController.js'
+import NavigationBar from "@src/js/components/database/data-browser/NavigationBar.jsx";
 
 const styles = theme => ({
   button: {
@@ -51,9 +52,9 @@ class LocationDialog extends React.Component {
     this.controller.setSessionToken(sessionToken)
     // this.initialPath = path
 
-    // this.state = {
-    //   path
-    // }
+    this.state = {
+      path
+    }
     this.controller.setPath(path)
 
     this.handleClose = this.handleClose.bind(this)
@@ -68,14 +69,14 @@ class LocationDialog extends React.Component {
 
   updateValue(event) {
     const path = event.target.value
-    // this.setState({
-    //   path
-    // })
+    this.setState({
+      path
+    })
     this.controller.setPath(path)
   }
 
   handleConfirmClick() {
-    const { onConfirm } = this.props
+    const { onConfirm, multiselectedFiles } = this.props
     const { path } = this.state
     onConfirm(path)
     //
@@ -91,12 +92,6 @@ class LocationDialog extends React.Component {
     //   this.clearLocation()
     // }
   }
-
-  // clearLocation() {
-  //   this.setState({
-  //     path: ''
-  //   })
-  // }
 
   async setPath(path) {
     if (this.state.path !== path + '/') {
@@ -117,17 +112,21 @@ class LocationDialog extends React.Component {
     this.controller.gridController = gridController
   }
 
+  async handlePathChange(path) {
+    await this.setPath(path)
+  }
+
   async onError(error) {
     await AppController.getInstance().errorChange(error)
   }
 
   renderButtons() {
-    const { classes } = this.props
+    const { classes, title } = this.props
     return (
       <div>
         <Button
           name='confirm'
-          label={messages.get(messages.CONFIRM)}
+          label={title}
           type={this.getButtonType()}
           styles={{ root: classes.button }}
           onClick={this.handleConfirmClick}
@@ -143,19 +142,18 @@ class LocationDialog extends React.Component {
   }
 
   renderGrid() {
-    const { classes } = this.props
+    const { classes, multiselectedFiles } = this.props
     return (
       <Grid
         id='location-grid'
         key='location-grid'
         controllerRef={this.handleGridControllerRef}
         filterModes={[]}
-        header='Folders'
         classes={{ container: classes.grid }}
         columns={[
           {
             name: 'name',
-            label: 'Name',
+            label: messages.get(messages.NAME),
             sortable: true,
             getValue: ({ row }) => row.name,
             renderValue: ({ row }) => (
@@ -215,6 +213,7 @@ class LocationDialog extends React.Component {
     logger.log(logger.DEBUG, 'LocationDialog.render')
 
     const { open, title, content } = this.props
+    const { path } = this.state
 
     return (
       <Dialog
@@ -222,6 +221,10 @@ class LocationDialog extends React.Component {
         onClose={this.handleClose}
         title={title}
         content={[<DialogContentText key='dialog-content'>{content}</DialogContentText>,
+          <NavigationBar
+            path={path}
+            onPathChange={this.handlePathChange}
+          />,
           this.renderGrid()]}
         actions={this.renderButtons()}
       />

@@ -325,10 +325,11 @@ class LeftToolbar extends React.Component {
           key='location-dialog'
           open={!!this.state.locationDialogMode}
           title={this.state.locationDialogMode === moveLocationMode ? messages.get(messages.MOVE) : messages.get(messages.COPY)}
-          content='Files'
+          content={messages.get(messages.FILE_OR_FILES, multiselectedFiles.size)}
           datastoreServer={datastoreServer}
           sessionToken={sessionToken}
           path={path}
+          multiselectedFiles={multiselectedFiles}
           onCancel={this.handleLocationCancel}
           onConfirm={this.handleLocationConfirm}
           />
