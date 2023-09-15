@@ -36,6 +36,7 @@ import Popover from '@material-ui/core/Popover'
 import InputDialog from '@src/js/components/common/dialog/InputDialog.jsx'
 import ConfirmationDialog from '@src/js/components/common/dialog/ConfirmationDialog.jsx'
 import LocationDialog from '@src/js/components/database/data-browser/LocationDialog.jsx'
+import LoadingDialog from "@src/js/components/common/loading/LoadingDialog.jsx";
 
 const color = 'default'
 const iconButtonSize = 'medium'
@@ -81,7 +82,8 @@ class LeftToolbar extends React.Component {
       newFolderDialogOpen: false,
       deleteDialogOpen: false,
       renameDialogOpen: false,
-      locationDialogMode: null
+      locationDialogMode: null,
+      loading: false
     }
 
     this.controller = this.props.controller
@@ -125,7 +127,13 @@ class LeftToolbar extends React.Component {
     const { multiselectedFiles } = this.props
     const oldName = multiselectedFiles.values().next().value.name
     this.closeRenameDialog()
-    await this.controller.rename(oldName, newName)
+
+    try {
+      this.setState({ loading: true })
+      await this.controller.rename(oldName, newName)
+    } finally {
+      this.setState({ loading: false })
+    }
   }
 
   handleRenameCancel() {
@@ -149,10 +157,15 @@ class LeftToolbar extends React.Component {
     const { locationDialogMode} = this.state
     this.closeLocationDialog()
 
-    if (locationDialogMode === moveLocationMode) {
-      await this.controller.move(multiselectedFiles, newPath)
-    } else {
-      await this.controller.copy(multiselectedFiles, newPath)
+    try {
+      this.setState({ loading: true })
+      if (locationDialogMode === moveLocationMode) {
+        await this.controller.move(multiselectedFiles, newPath)
+      } else {
+        await this.controller.copy(multiselectedFiles, newPath)
+      }
+    } finally {
+      this.setState({ loading: false })
     }
   }
 
@@ -379,15 +392,18 @@ class LeftToolbar extends React.Component {
     logger.log(logger.DEBUG, 'LeftToolbar.render')
 
     const { multiselectedFiles, classes } = this.props
-    return (
-      <ResizeObserver onResize={this.onResize}>
+    const { loading } = this.state
+
+    return ([
+      <ResizeObserver key='resize-observer' onResize={this.onResize}>
         <div className={classes.buttons}>
           {multiselectedFiles && multiselectedFiles.size > 0
             ? this.renderSelectionContextToolbar()
             : this.renderNoSelectionContextToolbar()}
         </div>
-      </ResizeObserver>
-    )
+      </ResizeObserver>,
+      <LoadingDialog key='loaging-dialog' loading={loading} />
+    ])
   }
 }
 
