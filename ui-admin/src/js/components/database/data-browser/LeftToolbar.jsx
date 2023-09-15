@@ -150,9 +150,9 @@ class LeftToolbar extends React.Component {
     this.closeLocationDialog()
 
     if (locationDialogMode === moveLocationMode) {
-      await this.controller.move(this._filesToPaths(multiselectedFiles), newPath)
+      await this.controller.move(multiselectedFiles, newPath)
     } else {
-      await this.controller.copy(this._filesToPaths(multiselectedFiles), newPath)
+      await this.controller.copy(multiselectedFiles, newPath)
     }
   }
 
@@ -164,11 +164,7 @@ class LeftToolbar extends React.Component {
     const { multiselectedFiles } = this.props
 
     this.closeDeleteDialog()
-    await this.controller.delete(this._filesToPaths(multiselectedFiles))
-  }
-
-  _filesToPaths(files) {
-    return Array.from(files).map((file) => file.path)
+    await this.controller.delete(multiselectedFiles)
   }
 
   handleDeleteCancel() {
