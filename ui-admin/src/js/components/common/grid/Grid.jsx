@@ -108,6 +108,9 @@ class Grid extends React.PureComponent {
 
     const { id, classes } = this.props
     const { loading, rows } = this.state
+    let showHeaders = typeof this.props.showHeaders === 'boolean'
+      ? this.props.showHeaders
+      : true
 
     return (
       <div
@@ -125,7 +128,7 @@ class Grid extends React.PureComponent {
                 <TableHead classes={{ root: classes.tableHead }}>
                   {this.renderTitle()}
                   {this.renderPagingAndConfigsAndExports()}
-                  {this.renderHeaders()}
+                  {showHeaders && this.renderHeaders()}
                   {this.renderFilters()}
                   {this.renderSelectionInfo()}
                 </TableHead>

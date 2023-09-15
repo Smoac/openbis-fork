@@ -235,6 +235,7 @@ class DataBrowser extends React.Component {
               selectable={true}
               multiselectable={true}
               loadSettings={null}
+              showHeaders={true}
               onSettingsChange={null}
               onError={this.onError}
               onSelectedRowChange={this.handleSelect}
