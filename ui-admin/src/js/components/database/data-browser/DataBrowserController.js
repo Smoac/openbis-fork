@@ -114,12 +114,16 @@ export default class DataBrowserController extends ComponentController {
     for (const file of files) {
       await this._copy(file, newLocation)
     }
+
+    if (this.gridController) {
+      await this.gridController.clearSelection()
+    }
   }
 
   async _copy(file, newLocation){
     const cleanNewLocation = this._removeLeadingSlash(newLocation) + file.name
     return new Promise((resolve, reject) => {
-      this.component.datastoreServer.copy(this.owner, this.path + file.path, this.owner, cleanNewLocation, async (success) => {
+      this.component.datastoreServer.copy(this.owner, file.path, this.owner, cleanNewLocation, async (success) => {
         if (success) {
           resolve()
         } else {
@@ -142,7 +146,7 @@ export default class DataBrowserController extends ComponentController {
   async _move(file, newLocation){
     const cleanNewLocation = this._removeLeadingSlash(newLocation) + file.name
     return new Promise((resolve, reject) => {
-      this.component.datastoreServer.move(this.owner, this.path + file.path, this.owner, cleanNewLocation, async (success) => {
+      this.component.datastoreServer.move(this.owner, file.path, this.owner, cleanNewLocation, async (success) => {
         if (success) {
           resolve()
         } else {

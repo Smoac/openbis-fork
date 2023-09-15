@@ -1034,6 +1034,10 @@ export default class GridController {
   }
 
   async handleMultiselectionClear() {
+    this.clearSelection()
+  }
+
+  clearSelection() {
     this.multiselectRows([])
   }
 

@@ -76,7 +76,7 @@ class LocationDialog extends React.Component {
   }
 
   handleConfirmClick() {
-    const { onConfirm, multiselectedFiles } = this.props
+    const { onConfirm } = this.props
     const { path } = this.state
     onConfirm(path)
   }

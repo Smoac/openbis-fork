@@ -332,7 +332,6 @@ class LeftToolbar extends React.Component {
           onCancel={this.handleRenameCancel}
           onConfirm={this.handleRenameConfirm}
         />
-        {/* TODO: add messages */}
         <LocationDialog
           key='location-dialog'
           open={!!locationDialogMode}
