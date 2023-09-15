@@ -106,11 +106,9 @@ class Grid extends React.PureComponent {
       return <Loading loading={true}></Loading>
     }
 
-    const { id, classes } = this.props
+    const { id, classes, showHeaders } = this.props
     const { loading, rows } = this.state
-    let showHeaders = typeof this.props.showHeaders === 'boolean'
-      ? this.props.showHeaders
-      : true
+    const doShowHeaders = typeof showHeaders === 'boolean' ? showHeaders : true
 
     return (
       <div
@@ -128,7 +126,7 @@ class Grid extends React.PureComponent {
                 <TableHead classes={{ root: classes.tableHead }}>
                   {this.renderTitle()}
                   {this.renderPagingAndConfigsAndExports()}
-                  {showHeaders && this.renderHeaders()}
+                  {doShowHeaders && this.renderHeaders()}
                   {this.renderFilters()}
                   {this.renderSelectionInfo()}
                 </TableHead>
@@ -169,7 +167,9 @@ class Grid extends React.PureComponent {
   }
 
   renderPagingAndConfigsAndExports() {
-    const { multiselectable, classes } = this.props
+    const { multiselectable, classes, showPaging, showConfigs } = this.props
+    const doShowPaging = typeof showPaging === 'boolean' ? showPaging : true
+    const doShowConfigs = typeof showConfigs === 'boolean' ? showConfigs : true
 
     const visibleColumns = this.controller.getVisibleColumns()
 
@@ -181,15 +181,15 @@ class Grid extends React.PureComponent {
           content: classes.pagingAndConfigsAndExportsContent
         }}
       >
-        {this.renderPaging()}
-        {this.renderConfigs()}
+        {doShowPaging && this.renderPaging()}
+        {doShowConfigs && this.renderConfigs()}
         {this.renderExports()}
       </GridRowFullWidth>
     )
   }
 
   renderPaging() {
-    const { id } = this.props
+    const { id, showRowsPerPage } = this.props
     const { page, pageSize, totalCount } = this.state
 
     return (
@@ -198,6 +198,7 @@ class Grid extends React.PureComponent {
         count={totalCount}
         page={page}
         pageSize={pageSize}
+        showRowsPerPage={showRowsPerPage}
         onPageChange={this.controller.handlePageChange}
         onPageSizeChange={this.controller.handlePageSizeChange}
       />

@@ -167,6 +167,9 @@ class LocationDialog extends React.Component {
         multiselectable={false}
         loadSettings={null}
         showHeaders={false}
+        showPaging={true}
+        showConfigs={false}
+        showRowsPerPage={false}
         onSettingsChange={null}
         onError={this.onError}
         onRowDoubleClick={this.handleRowDoubleClick}
