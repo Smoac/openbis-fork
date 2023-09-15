@@ -55,6 +55,7 @@ export default class DataBrowserController extends ComponentController {
 
   async loadFolders() {
     const files = await this.listFiles()
+    await this.setState({ files })
     return files.filter(file => file.directory).map(file => ({ id: file.name, ...file }))
   }
 

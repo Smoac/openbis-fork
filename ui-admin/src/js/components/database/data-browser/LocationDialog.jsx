@@ -44,7 +44,7 @@ class LocationDialog extends React.Component {
     super(props)
     autoBind(this)
 
-    const { path, sessionToken, datastoreServer} = this.props
+    const { path, sessionToken, datastoreServer } = this.props
 
     this.controller = new DataBrowserController()
     this.controller.attach(this)
@@ -114,7 +114,9 @@ class LocationDialog extends React.Component {
   }
 
   renderButtons() {
-    const { classes, title } = this.props
+    const { classes, title, multiselectedFiles } = this.props
+    const fileNameSet = new Set([...multiselectedFiles].map(file => (file.name)))
+    // TODO: confirm should be disabled if at least one of files already exists.
     return (
       <div>
         <Button
@@ -122,6 +124,7 @@ class LocationDialog extends React.Component {
           label={title}
           type={this.getButtonType()}
           styles={{ root: classes.button }}
+          // disabled={this.controller.getState().files.some(value => fileNameSet.has(value.name))}
           onClick={this.handleConfirmClick}
         />
         <Button
