@@ -1,7 +1,9 @@
 define([
          'test/test-login',
          'test/test-jsVSjava',
-         'test/test-create', 'test/test-update', 'test/test-search',
+         'test/test-create',
+         'test/test-update',
+         'test/test-search',
 
          'test/test-freezing',
          'test/test-get',
@@ -14,7 +16,9 @@ define([
          'test/test-dto-roundtrip',
          'test/test-custom-services',
          'test/test-dss-services',
-         'test/test-archive-unarchive'
+         'test/test-archive-unarchive',
+
+         'test/test-import-export'
          ], function() {
 	var testSuites = arguments;
 	return function() {

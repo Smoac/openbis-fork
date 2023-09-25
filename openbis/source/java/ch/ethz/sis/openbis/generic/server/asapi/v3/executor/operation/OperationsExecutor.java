@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ETH Zuerich, CISD
+ * Copyright ETH 2016 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.operation;
 
 import java.util.ArrayList;
@@ -77,6 +76,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.externaldms.IGetExte
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.externaldms.ISearchExternalDmsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.externaldms.IUpdateExternalDmsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.globalsearch.ISearchGloballyOperationExecutor;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.importer.ImportOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.ICreateMaterialTypesOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.ICreateMaterialsOperationExecutor;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material.IDeleteMaterialTypesOperationExecutor;
@@ -652,6 +652,9 @@ public class OperationsExecutor implements IOperationsExecutor
     @Autowired
     private IGetSessionInformationOperationExecutor getSessionInformationExecutor;
 
+    @Autowired
+    private ImportOperationExecutor importOperationExecutor;
+
     @Override
     public List<IOperationResult> execute(IOperationContext context, List<? extends IOperation> operations, IOperationExecutionOptions options)
     {
@@ -682,6 +685,7 @@ public class OperationsExecutor implements IOperationsExecutor
             executeCreations(operations, resultMap, context);
             executeUpdates(operations, resultMap, context);
             resultMap.putAll(internalOperationExecutor.execute(context, operations));
+            resultMap.putAll(importOperationExecutor.execute(context, operations));
 
             flushCurrentSession();
             clearCurrentSession();
