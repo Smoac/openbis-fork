@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ETH Zuerich, SIS
+ * Copyright ETH 2018 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.openbis.generic.server.task;
 
 import java.util.List;
@@ -132,7 +131,7 @@ public class UsageGatherer
         fetchOptions.withSpace();
         fetchOptions.withRegistrator();
         List<Sample> samples = service.searchSamples(sessionToken, searchCriteria, fetchOptions).getObjects();
-        Function<Sample, String> spaceExtractor = sample -> sample.getSpace().getCode();
+        Function<Sample, String> spaceExtractor = sample -> sample.getSpace() != null ? sample.getSpace().getCode() : null;
         gatherUsage(usageByUsersAndSpaces, samples, spaceExtractor, UsageInfo::addNewSample);
     }
 
@@ -148,18 +147,25 @@ public class UsageGatherer
         experimentFetchOptions.withProject().withSpace();
         List<DataSet> dataSets = service.searchDataSets(sessionToken, searchCriteria, fetchOptions).getObjects();
         Function<DataSet, String> spaceExtractor = new Function<DataSet, String>()
+        {
+            @Override
+            public String apply(DataSet dataSet)
             {
-                @Override
-                public String apply(DataSet dataSet)
+                Experiment experiment = dataSet.getExperiment();
+                if (experiment != null)
                 {
-                    Experiment experiment = dataSet.getExperiment();
-                    if (experiment != null)
-                    {
-                        return experiment.getProject().getSpace().getCode();
-                    } 
-                    return dataSet.getSample().getSpace().getCode();
+                    return experiment.getProject().getSpace().getCode();
                 }
-            };
+
+                Sample sample = dataSet.getSample();
+                if (sample != null)
+                {
+                    return sample.getSpace() != null ? sample.getSpace().getCode() : null;
+                }
+
+                return null;
+            }
+        };
         gatherUsage(usageByUsersAndSpaces, dataSets, spaceExtractor, UsageInfo::addNewDataSet);
     }
 
@@ -173,7 +179,7 @@ public class UsageGatherer
             if (usageBySpaces != null)
             {
                 String space = spaceExtractor.apply(entity);
-                if (spacesToBeIgnored.contains(space) == false)
+                if (space != null && spacesToBeIgnored.contains(space) == false)
                 {
                     UsageInfo usageInfo = usageBySpaces.get(space);
                     if (usageInfo == null)
