@@ -18,7 +18,12 @@ define([ 'jquery', 'underscore' ], function(jquery, _) {
     }, {})
 
 	var Json = function() {
+        this.requireFn = require
 	}
+
+    Json.prototype.setRequireFn = function(requireFn) {
+        this.requireFn = requireFn
+    }
 
 	Json.prototype.fromJson = function(jsonType, jsonObject) {
 		var dfd = jquery.Deferred();
@@ -29,7 +34,7 @@ define([ 'jquery', 'underscore' ], function(jquery, _) {
 		var moduleNames = Object.keys(types).map(function(type) {
 			return typeToModuleName(type);
 		});
-		require(moduleNames, function() {
+		this.requireFn(moduleNames, function() {
 			var moduleMap = {};
 
 			for (var i = 0; i < arguments.length; i++) {
@@ -222,7 +227,7 @@ define([ 'jquery', 'underscore' ], function(jquery, _) {
 		if (object === null) {
 			return object;
 		}
-		index = _.indexOf(references, object);
+		var index = _.indexOf(references, object);
 		if (index >= 0) {
 			return index;
 		}
@@ -233,7 +238,7 @@ define([ 'jquery', 'underscore' ], function(jquery, _) {
 		} else if (_.isObject(object)) {
 			var result = {};
 			if (object["@type"] != null) {
-				id = references.length;
+				var id = references.length;
 				result["@id"] = id;
 				references.push(object);
 			}
