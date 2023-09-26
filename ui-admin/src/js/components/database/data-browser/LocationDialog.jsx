@@ -50,10 +50,10 @@ class LocationDialog extends React.Component {
     this.controller.attach(this)
     this.datastoreServer = datastoreServer
     this.controller.setSessionToken(sessionToken)
-    // this.initialPath = path
 
     this.state = {
-      path
+      path,
+      fileNames: []
     }
     this.controller.setPath(path)
 
@@ -88,8 +88,8 @@ class LocationDialog extends React.Component {
 
   async setPath(path) {
     if (this.state.path !== path + '/') {
-      this.setState({ path: path + '/' })
       this.controller.setPath(path + '/')
+      this.setState({ path: path + '/' })
       await this.controller.gridController.load()
     }
   }
@@ -115,8 +115,8 @@ class LocationDialog extends React.Component {
 
   renderButtons() {
     const { classes, title, multiselectedFiles } = this.props
-    const fileNameSet = new Set([...multiselectedFiles].map(file => (file.name)))
-    // TODO: confirm should be disabled if at least one of files already exists.
+    const selectedFileNameSet = new Set([...multiselectedFiles].map(file => (file.name)))
+
     return (
       <div>
         <Button
@@ -124,7 +124,7 @@ class LocationDialog extends React.Component {
           label={title}
           type={this.getButtonType()}
           styles={{ root: classes.button }}
-          // disabled={this.controller.getState().files.some(value => fileNameSet.has(value.name))}
+          disabled={this.state.fileNames.some(name => selectedFileNameSet.has(name))}
           onClick={this.handleConfirmClick}
         />
         <Button
@@ -135,6 +135,12 @@ class LocationDialog extends React.Component {
         />
       </div>
     )
+  }
+
+  async loadRows() {
+    const result = await this.controller.loadFolders()
+    this.setState({ fileNames: this.controller.fileNames })
+    return result
   }
 
   renderGrid() {
@@ -164,7 +170,7 @@ class LocationDialog extends React.Component {
             renderFilter: null
           }
         ]}
-        loadRows={this.controller.loadFolders}
+        loadRows={this.loadRows}
         exportable={false}
         selectable={false}
         multiselectable={false}

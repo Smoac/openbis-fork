@@ -16,6 +16,7 @@
 
 import ComponentController from '@src/js/components/common/ComponentController.js'
 import autoBind from 'auto-bind'
+import AppController from '@src/js/components/AppController.js'
 
 export default class DataBrowserController extends ComponentController {
 
@@ -27,6 +28,7 @@ export default class DataBrowserController extends ComponentController {
     this.owner = 'demo-sample'
     this.gridController = null
     this.path = ''
+    this.fileNames = []
   }
 
   setSessionToken(sessionToken) {
@@ -49,13 +51,13 @@ export default class DataBrowserController extends ComponentController {
 
   async load() {
     const files = await this.listFiles()
-    await this.setState({ files })
+    this.fileNames = files.map(file => file.name)
     return files.map(file => ({ id: file.name, ...file }))
   }
 
   async loadFolders() {
     const files = await this.listFiles()
-    await this.setState({ files })
+    this.fileNames = files.map(file => file.name)
     return files.filter(file => file.directory).map(file => ({ id: file.name, ...file }))
   }
 
@@ -112,12 +114,18 @@ export default class DataBrowserController extends ComponentController {
   }
 
   async copy(files, newLocation) {
-    for (const file of files) {
-      await this._copy(file, newLocation)
-    }
+    try {
+      // this._checkNameCollision([...files].map(file => file.name))
 
-    if (this.gridController) {
-      await this.gridController.clearSelection()
+      for (const file of files) {
+        await this._copy(file, newLocation);
+      }
+
+      if (this.gridController) {
+        await this.gridController.clearSelection()
+      }
+    } catch (error) {
+      await AppController.getInstance().errorChange(error)
     }
   }
 
@@ -135,12 +143,18 @@ export default class DataBrowserController extends ComponentController {
   }
 
   async move(files, newLocation) {
-    for (const file of files) {
-      await this._move(file, newLocation)
-    }
+    try {
+      // this._checkNameCollision([...files].map(file => file.name))
 
-    if (this.gridController) {
-      await this.gridController.load()
+      for (const file of files) {
+        await this._move(file, newLocation)
+      }
+
+      if (this.gridController) {
+        await this.gridController.load()
+      }
+    } catch (error) {
+      await AppController.getInstance().errorChange(error)
     }
   }
 
@@ -155,6 +169,12 @@ export default class DataBrowserController extends ComponentController {
         }
       })
     })
+  }
+
+  _checkNameCollision(fileNames) {
+    if (fileNames.some(name => this.fileNames.includes(name))) {
+      throw new Error("Destination already contains one of the files.")
+    }
   }
   
   _removeLeadingSlash(path) {
