@@ -36,7 +36,7 @@ public class VocabularyTermImportHelper extends BasicImportHelper
     private static final String VOCABULARY_CODE_FIELD = "Code";
 
     private enum Attribute implements IAttribute {
-        Version("Version", true),
+        Version("Version", false),
         Code("Code", true),
         Label("Label", true),
         Description("Description", true);
@@ -99,6 +99,12 @@ public class VocabularyTermImportHelper extends BasicImportHelper
     {
         String version = getValueByColumnName(header, values, Attribute.Version);
         String code = getValueByColumnName(header, values, Attribute.Code);
+
+        if (version == null || version.isEmpty()) {
+            Integer storedVersion = VersionUtils.getStoredVersion(versions, ImportTypes.VOCABULARY_TERM.getType() + "-" + vocabularyCode, code);
+            storedVersion++;
+            version = storedVersion.toString();
+        }
 
         VersionUtils.updateVersion(version, versions, ImportTypes.VOCABULARY_TERM.getType() + "-" + vocabularyCode, code);
     }

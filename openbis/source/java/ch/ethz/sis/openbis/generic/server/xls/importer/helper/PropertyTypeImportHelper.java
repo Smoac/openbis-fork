@@ -50,7 +50,7 @@ public class PropertyTypeImportHelper extends BasicImportHelper
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, PropertyTypeImportHelper.class);
 
     private enum Attribute implements IAttribute {
-        Version("Version", true),
+        Version("Version", false),
         Code("Code", true),
         Mandatory("Mandatory", false),
         DefaultValue("Default Value", false),  // Ignored, only used by PropertyAssignmentImportHelper
@@ -128,16 +128,27 @@ public class PropertyTypeImportHelper extends BasicImportHelper
 
     @Override protected boolean isNewVersion(Map<String, Integer> header, List<String> values)
     {
-        String newVersion = getValueByColumnName(header, values, Attribute.Version);
+        String version = getValueByColumnName(header, values, Attribute.Version);
         String code = getValueByColumnName(header, values, Attribute.Code);
 
-        return VersionUtils.isNewVersion(newVersion, VersionUtils.getStoredVersion(versions, ImportTypes.PROPERTY_TYPE.getType(), code));
+        if (version == null || version.isEmpty()) {
+            return true;
+        } else {
+            return VersionUtils.isNewVersion(version,
+                    VersionUtils.getStoredVersion(versions, ImportTypes.PROPERTY_TYPE.getType(), code));
+        }
     }
 
     @Override protected void updateVersion(Map<String, Integer> header, List<String> values)
     {
         String version = getValueByColumnName(header, values, Attribute.Version);
         String code = getValueByColumnName(header, values, Attribute.Code);
+
+        if (version == null || version.isEmpty()) {
+            Integer storedVersion = VersionUtils.getStoredVersion(versions, ImportTypes.PROPERTY_TYPE.getType(), code);
+            storedVersion++;
+            version = storedVersion.toString();
+        }
 
         VersionUtils.updateVersion(version, versions, ImportTypes.PROPERTY_TYPE.getType(), code);
     }
