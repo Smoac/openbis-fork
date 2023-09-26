@@ -16,7 +16,6 @@
 
 import ComponentController from '@src/js/components/common/ComponentController.js'
 import autoBind from 'auto-bind'
-import AppController from '@src/js/components/AppController.js'
 
 export default class DataBrowserController extends ComponentController {
 
@@ -114,18 +113,12 @@ export default class DataBrowserController extends ComponentController {
   }
 
   async copy(files, newLocation) {
-    try {
-      // this._checkNameCollision([...files].map(file => file.name))
+    for (const file of files) {
+      await this._copy(file, newLocation);
+    }
 
-      for (const file of files) {
-        await this._copy(file, newLocation);
-      }
-
-      if (this.gridController) {
-        await this.gridController.clearSelection()
-      }
-    } catch (error) {
-      await AppController.getInstance().errorChange(error)
+    if (this.gridController) {
+      await this.gridController.clearSelection()
     }
   }
 
@@ -143,18 +136,12 @@ export default class DataBrowserController extends ComponentController {
   }
 
   async move(files, newLocation) {
-    try {
-      // this._checkNameCollision([...files].map(file => file.name))
+    for (const file of files) {
+      await this._move(file, newLocation)
+    }
 
-      for (const file of files) {
-        await this._move(file, newLocation)
-      }
-
-      if (this.gridController) {
-        await this.gridController.load()
-      }
-    } catch (error) {
-      await AppController.getInstance().errorChange(error)
+    if (this.gridController) {
+      await this.gridController.load()
     }
   }
 
@@ -171,12 +158,10 @@ export default class DataBrowserController extends ComponentController {
     })
   }
 
-  _checkNameCollision(fileNames) {
-    if (fileNames.some(name => this.fileNames.includes(name))) {
-      throw new Error("Destination already contains one of the files.")
-    }
+  async download() {
+
   }
-  
+
   _removeLeadingSlash(path) {
     return path && path[0] === '/' ? path.substring(1) : path
   }

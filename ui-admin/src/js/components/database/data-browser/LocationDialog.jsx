@@ -9,7 +9,8 @@ import autoBind from 'auto-bind'
 import ItemIcon from '@src/js/components/database/data-browser/ItemIcon.jsx'
 import Grid from '@src/js/components/common/grid/Grid.jsx'
 import DataBrowserController from '@src/js/components/database/data-browser/DataBrowserController.js'
-import NavigationBar from "@src/js/components/database/data-browser/NavigationBar.jsx";
+import NavigationBar from "@src/js/components/database/data-browser/NavigationBar.jsx"
+import AppController from '@src/js/components/AppController.js'
 
 const styles = theme => ({
   button: {

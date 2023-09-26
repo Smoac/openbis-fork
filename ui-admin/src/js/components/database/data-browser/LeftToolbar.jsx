@@ -240,6 +240,7 @@ class LeftToolbar extends React.Component {
         color={color}
         size={buttonSize}
         variant='outlined'
+        disabled={multiselectedFiles.size !== 1 || multiselectedFiles.values().next().value.directory}
         startIcon={<DownloadIcon />}
       >
         {messages.get(messages.DOWNLOAD)}
