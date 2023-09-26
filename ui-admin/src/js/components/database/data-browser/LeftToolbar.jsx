@@ -184,6 +184,18 @@ class LeftToolbar extends React.Component {
     this.closeDeleteDialog()
   }
 
+  async handleDownload() {
+    const { multiselectedFiles } = this.props
+    const file = multiselectedFiles.values().next().value;
+    const dataArray = await this.controller.download(file)
+
+    const blob = new Blob(dataArray, { type: "application/octet-stream" })
+    const link = document.createElement('a')
+    link.href = window.URL.createObjectURL(blob)
+    link.download = file.name
+    link.click()
+  }
+
   renderNoSelectionContextToolbar() {
     const { classes, buttonSize } = this.props
     return ([
@@ -242,6 +254,7 @@ class LeftToolbar extends React.Component {
         variant='outlined'
         disabled={multiselectedFiles.size !== 1 || multiselectedFiles.values().next().value.directory}
         startIcon={<DownloadIcon />}
+        onClick={this.handleDownload}
       >
         {messages.get(messages.DOWNLOAD)}
       </Button>,
