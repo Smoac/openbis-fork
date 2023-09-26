@@ -1302,7 +1302,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			}
 
 			var fUpdate = function(facade, permId) {
-				var update = new c.PersonUpdate();
+				var update = new dtos.PersonUpdate();
 				update.setUserId(permId);
 				update.setSpaceId(new dtos.SpacePermId("TEST"))
 				return facade.updatePersons([ update ]);
@@ -1564,8 +1564,6 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 	}
 
 	return function() {
-		executeModule("Update tests", openbis);
-		executeModule("Update tests (executeOperations)", openbisExecuteOperations);
 		executeModule("Update tests (RequireJS)", new openbis(), dtos);
 		executeModule("Update tests (RequireJS - executeOperations)", new openbisExecuteOperations(new openbis(), dtos), dtos);
 		executeModule("Update tests (module VAR)", new window.openbis.openbis(), window.openbis);

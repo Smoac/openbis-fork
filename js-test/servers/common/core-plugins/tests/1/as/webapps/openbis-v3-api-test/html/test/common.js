@@ -194,7 +194,6 @@ define([ 'jquery', 'underscore'], function($, _) {
 			creation.setLabel("Testing");
 			creation.setDescription("testing");
 			creation.setDataType(dtos.DataType.VARCHAR);
-			creation.setMultiValue(false);
 			return facade.createPropertyTypes([ creation ]).then(function(permIds) {
 				return permIds[0];
 			});

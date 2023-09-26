@@ -1129,8 +1129,6 @@ define(
 			}
 
 			return function() {
-				executeModule("Create tests", openbis);
-				executeModule("Create tests (executeOperations)", openbisExecuteOperations);
 				executeModule("Create tests (RequireJS)", new openbis(), dtos);
 				executeModule("Create tests (RequireJS - executeOperations)", new openbisExecuteOperations(new openbis(), dtos), dtos);
 				executeModule("Create tests (module VAR)", new window.openbis.openbis(), window.openbis);
