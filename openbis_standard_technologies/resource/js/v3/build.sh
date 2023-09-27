@@ -5,7 +5,7 @@ pushd $(dirname $0) > /dev/null
 CURRENT_DIR=$(pwd)
 TEMP_DIR=${CURRENT_DIR}/temp
 V3_DIR=../../../../openbis/source/java/ch/systemsx/cisd/openbis/public/resources/api/v3
-NODE_DIR=$(echo ${CURRENT_DIR}/../node/nodejs/node-*/bin)
+NODE_DIR=$(echo ${CURRENT_DIR}/../../../node/nodejs/node-*/bin)
 NPM_DIR=$(echo ${CURRENT_DIR}/../../../node/nodejs/node-*/lib/node_modules/npm/bin)
 
 # fix broken npm link
