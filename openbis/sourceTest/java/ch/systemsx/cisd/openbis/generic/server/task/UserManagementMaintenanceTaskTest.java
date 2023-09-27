@@ -32,7 +32,6 @@ import java.util.TreeMap;
 
 import org.apache.log4j.Level;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.Role;

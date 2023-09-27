@@ -169,7 +169,7 @@ public class UserManager
     }
 
     public void setCommon(Map<Role, List<String>> commonSpacesByRole, Map<String, String> commonSamples,
-            List<Map<String, String>> commonExperiments)
+                          List<Map<String, String>> commonExperiments)
     {
         this.commonSpacesByRole = commonSpacesByRole;
         this.commonSamples = commonSamples;
@@ -182,7 +182,7 @@ public class UserManager
     }
 
     private void checkIdentifierTemplates(List<Map<String, String>> commonEntities, Set<String> commonSpaces,
-            String entityKind, String templateSchema)
+                                          String entityKind, String templateSchema)
     {
         for (Map<String, String> templateModel : commonEntities)
         {
@@ -294,11 +294,11 @@ public class UserManager
     }
 
     /*
-     * Get groups to be removed by the following heuristics:
-     * 1. Find all groups which ends with <code>_ADMIN</code>.
+     * Get groups to be removed by the following heuristics: 
+     * 1. Find all groups which ends with <code>_ADMIN</code>. 
      * 2. Get for each admin group the
-     * corresponding group.
-     * 3. Take it as a deleted if it isn't specific in the list of added groups as specified in configuration
+     * corresponding group. 
+     * 3. Take it as a deleted if it isn't specific in the list of added groups as specified in configuration 
      *   AND if the users of the admin group are also in the group.
      */
     private List<AuthorizationGroup> getGroupsToBeRemoved(String sessionToken)
@@ -308,6 +308,7 @@ public class UserManager
         searchCriteria.withCodes().setFieldValue(adminGroupsByGroupId.keySet());
         AuthorizationGroupFetchOptions fetchOptions = new AuthorizationGroupFetchOptions();
         fetchOptions.withUsers();
+        fetchOptions.withRegistrator();
         List<AuthorizationGroup> groups = service.searchAuthorizationGroups(sessionToken, searchCriteria,
                 fetchOptions).getObjects();
         List<AuthorizationGroup> removedGroups = new ArrayList<>();
@@ -319,7 +320,13 @@ public class UserManager
                 Set<String> users = extractUserIds(group);
                 if (users.containsAll(extractUserIds(adminGroup)))
                 {
-                    removedGroups.add(group);
+                    /*\
+                     * The maintenance task should only remove groups created by itself
+                     */
+                    if (group.getRegistrator().getUserId().equals("system"))
+                    {
+                        removedGroups.add(group);
+                    }
                 }
             }
         }
@@ -332,6 +339,7 @@ public class UserManager
         searchCriteria.withCode().thatEndsWith(ADMIN_POSTFIX);
         AuthorizationGroupFetchOptions fetchOptions = new AuthorizationGroupFetchOptions();
         fetchOptions.withUsers();
+        fetchOptions.withRegistrator();
         List<AuthorizationGroup> adminGroups = service.searchAuthorizationGroups(sessionToken, searchCriteria,
                 fetchOptions).getObjects();
         Map<String, AuthorizationGroup> adminGroupsByGroupId = new HashMap<>();
@@ -475,13 +483,14 @@ public class UserManager
     {
         PersonFetchOptions fetchOptions = new PersonFetchOptions();
         fetchOptions.withRoleAssignments().withSpace();
+        fetchOptions.withRoleAssignments().withRegistrator();
         Person user = service.getPersons(sessionToken, Arrays.asList(userId), fetchOptions).get(userId);
         if (user == null)
         {
             return false;
         }
         List<RoleAssignment> instanceAdminRole = user.getRoleAssignments().stream().filter(
-                        ra -> ra.getRoleLevel() == RoleLevel.INSTANCE && ra.getSpace() == null)
+                ra -> ra.getRoleLevel() == RoleLevel.INSTANCE && ra.getSpace() == null)
                 .collect(Collectors.toList());
         return instanceAdminRole.isEmpty() == false;
     }
@@ -521,6 +530,8 @@ public class UserManager
     {
         AuthorizationGroupFetchOptions fetchOptions = new AuthorizationGroupFetchOptions();
         fetchOptions.withRoleAssignments().withSpace();
+        fetchOptions.withRoleAssignments().withRegistrator();
+        fetchOptions.withRegistrator();
         AuthorizationGroup group = service.getAuthorizationGroups(sessionToken, Arrays.asList(groupId), fetchOptions).get(groupId);
         Set<String> knownGlobalSpaces = new TreeSet<>();
         if (group == null)
@@ -575,8 +586,12 @@ public class UserManager
         List<Person> persons = service.searchPersons(sessionToken, searchCriteria, fetchOptions).getObjects();
         for (Person person : persons)
         {
+            /*\
+             * The maintenance task should only disable users created by itself
+             */
             if (person.isActive() && person.getRegistrator() != null // user 'system' has no registrator
-                    && isKnownUser(knownUsers, person) == false)
+                    && isKnownUser(knownUsers, person) == false
+                    && person.getRegistrator().getUserId().equals("system"))
             {
                 PersonUpdate update = new PersonUpdate();
                 update.setUserId(person.getPermId());
@@ -621,7 +636,9 @@ public class UserManager
         List<AuthorizationGroupPermId> ids = Arrays.asList(GLOBAL_AUTHORIZATION_GROUP_ID);
         AuthorizationGroupFetchOptions fetchOptions = new AuthorizationGroupFetchOptions();
         fetchOptions.withRoleAssignments().withSpace();
+        fetchOptions.withRoleAssignments().withRegistrator();
         fetchOptions.withUsers();
+        fetchOptions.withRegistrator();
         AuthorizationGroup group = service.getAuthorizationGroups(sessionToken, ids, fetchOptions).get(GLOBAL_AUTHORIZATION_GROUP_ID);
         return new CurrentState(authorizationGroups, group, spaces, users);
     }
@@ -630,8 +647,10 @@ public class UserManager
     {
         AuthorizationGroupSearchCriteria searchCriteria = new AuthorizationGroupSearchCriteria();
         AuthorizationGroupFetchOptions fetchOptions = new AuthorizationGroupFetchOptions();
+        fetchOptions.withRegistrator();
         fetchOptions.withUsers().withSpace();
         fetchOptions.withRoleAssignments().withSpace();
+        fetchOptions.withRoleAssignments().withRegistrator();
         return service.searchAuthorizationGroups(sessionToken, searchCriteria, fetchOptions).getObjects();
     }
 
@@ -640,6 +659,7 @@ public class UserManager
         PersonSearchCriteria searchCriteria = new PersonSearchCriteria();
         PersonFetchOptions fetchOptions = new PersonFetchOptions();
         fetchOptions.withRoleAssignments().withSpace();
+        fetchOptions.withRoleAssignments().withRegistrator();
         fetchOptions.withSpace();
         return service.searchPersons(sessionToken, searchCriteria, fetchOptions).getObjects();
     }
@@ -708,40 +728,40 @@ public class UserManager
 
     private String getCommonSpacesConfiguration(String groupCode, Map<Role, List<String>> commonSpacesByRole) {
         String  jsonConfiguration = "";
-        jsonConfiguration += "{";
-        jsonConfiguration += "\"inventorySpaces\":";
-        jsonConfiguration += "[";
-        boolean isFirstInventorySpace = true;
-        for (Role role:commonSpacesByRole.keySet()) {
-            if (role != Role.OBSERVER) {
-                List<String> spaceCodes = commonSpacesByRole.get(role);
+                jsonConfiguration += "{";
+                jsonConfiguration += "\"inventorySpaces\":";
+                jsonConfiguration += "[";
+                boolean isFirstInventorySpace = true;
+                for (Role role:commonSpacesByRole.keySet()) {
+                    if (role != Role.OBSERVER) {
+                        List<String> spaceCodes = commonSpacesByRole.get(role);
+                        for (String spaceCode:spaceCodes) {
+                            String groupSpaceCode = groupCode + "_" + spaceCode;
+                            if (isFirstInventorySpace) {
+                                isFirstInventorySpace = false;
+                            } else {
+                                jsonConfiguration += ",";
+                            }
+                            jsonConfiguration += "\"" + groupSpaceCode + "\"";
+                        }
+                    }
+                }
+                jsonConfiguration += "],";
+                jsonConfiguration += "\"inventorySpacesReadOnly\":";
+                jsonConfiguration += "[";
+                boolean isFirstinventorySpacesReadOnly = true;
+                List<String> spaceCodes = commonSpacesByRole.get(Role.OBSERVER);
                 for (String spaceCode:spaceCodes) {
                     String groupSpaceCode = groupCode + "_" + spaceCode;
-                    if (isFirstInventorySpace) {
-                        isFirstInventorySpace = false;
+                    if (isFirstinventorySpacesReadOnly) {
+                        isFirstinventorySpacesReadOnly = false;
                     } else {
                         jsonConfiguration += ",";
                     }
                     jsonConfiguration += "\"" + groupSpaceCode + "\"";
                 }
-            }
-        }
-        jsonConfiguration += "],";
-        jsonConfiguration += "\"inventorySpacesReadOnly\":";
-        jsonConfiguration += "[";
-        boolean isFirstinventorySpacesReadOnly = true;
-        List<String> spaceCodes = commonSpacesByRole.get(Role.OBSERVER);
-        for (String spaceCode:spaceCodes) {
-            String groupSpaceCode = groupCode + "_" + spaceCode;
-            if (isFirstinventorySpacesReadOnly) {
-                isFirstinventorySpacesReadOnly = false;
-            } else {
-                jsonConfiguration += ",";
-            }
-            jsonConfiguration += "\"" + groupSpaceCode + "\"";
-        }
-        jsonConfiguration += "]";
-        jsonConfiguration += "}";
+                jsonConfiguration += "]";
+                jsonConfiguration += "}";
         return jsonConfiguration;
     }
 
@@ -825,7 +845,7 @@ public class UserManager
                 Space space = context.getCurrentState().getSpace(spaceCode);
                 ISpaceId spaceId = space != null ? space.getId() : createSpace(context, spaceCode);
                 createRoleAssignment(context, new AuthorizationGroupPermId(groupCode), role, spaceId, spaceCode);
-                createRoleAssignment(context, new AuthorizationGroupPermId(createAdminGroupCode(groupCode)),
+                createRoleAssignment(context, new AuthorizationGroupPermId(createAdminGroupCode(groupCode)), 
                         Role.ADMIN, spaceId, spaceCode);
             }
         }
@@ -891,8 +911,14 @@ public class UserManager
                 {
                     if (role != null)
                     {
-                        context.delete(roleAssignment.getId());
+                        /*\
+                         * The maintenance task should only remove role assignments created by itself
+                         */
+                        if (roleAssignment.getRegistrator().getUserId().equals("system"))
+                        {
+                        context.delete(roleAssignment);
                         context.report.unassignRoleFrom(groupId, roleAssignment.getRole(), permId);
+                        }
                     }
                     if (userSpaceRole != null)
                     {
@@ -1009,8 +1035,14 @@ public class UserManager
                 String userSpace = createCommonSpaceCode(groupCode, userId.toUpperCase());
                 if (space != null && space.getCode().startsWith(userSpace))
                 {
-                    context.delete(roleAssignment.getId());
+                    /*\
+                     * The maintenance task should only remove role assignments created by itself
+                     */
+                    if (roleAssignment.getRegistrator().getUserId().equals("system"))
+                    {
+                    context.delete(roleAssignment);
                     context.report.unassignRoleFrom(userId, roleAssignment.getRole(), space.getPermId());
+                    }
                 }
             }
         }
@@ -1028,15 +1060,19 @@ public class UserManager
     private SpacePermId createUserSpace(Context context, String groupCode, String userId)
     {
         String userSpaceCode = createCommonSpaceCode(groupCode, userId.toUpperCase());
-        if(!reuseHomeSpace)
+        int n = context.getCurrentState().getNumberOfSpacesStartingWith(userSpaceCode);
+        if (n > 0) // Existing space, what to do depending on configuration
         {
-            int n = context.getCurrentState().getNumberOfSpacesStartingWith(userSpaceCode);
-            if (n > 0)
+            if(!reuseHomeSpace)
             {
                 userSpaceCode += "_" + (n + 1);
+                return createSpace(context, userSpaceCode);
+            } else {
+                return new SpacePermId(userSpaceCode);
             }
+        } else {
+            return createSpace(context, userSpaceCode);
         }
-        return createSpace(context, userSpaceCode);
     }
 
     private HomeSpaceRequest getHomeSpaceRequest(String userId)
@@ -1107,7 +1143,8 @@ public class UserManager
         RoleAssignmentFetchOptions fetchOptions = new RoleAssignmentFetchOptions();
         fetchOptions.withSpace();
         fetchOptions.withProject();
-        List<RoleAssignment> roleAssignments = service.searchRoleAssignments(context.getSessionToken(),
+        fetchOptions.withRegistrator();
+        List<RoleAssignment> roleAssignments = service.searchRoleAssignments(context.getSessionToken(), 
                 searchCriteria, fetchOptions).getObjects();
         for (RoleAssignment roleAssignment : roleAssignments)
         {
@@ -1118,7 +1155,7 @@ public class UserManager
             if (roleAssignment.getRole().equals(role))
             {
                 Space space = roleAssignment.getSpace();
-                if ((space == null && spaceId == null) || space.getId().equals(spaceId))
+                if ((space == null && spaceId == null) || space.getId().equals(spaceId) || space.getPermId().equals(spaceId))
                 {
                     return;
                 }
@@ -1472,9 +1509,9 @@ public class UserManager
             groupUpdates.add(groupUpdate);
         }
 
-        public void delete(IRoleAssignmentId roleAssignmentId)
+        public void delete(RoleAssignment roleAssignment)
         {
-            roleDeletions.add(roleAssignmentId);
+            roleDeletions.add(roleAssignment.getId());
         }
 
         public void executeOperations()

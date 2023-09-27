@@ -15,6 +15,27 @@
  */
 package ch.systemsx.cisd.openbis.systemtest.task;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
+import javax.annotation.Resource;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.create.PersonCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.id.PersonPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.roleassignment.Role;
@@ -37,16 +58,6 @@ import ch.systemsx.cisd.openbis.generic.server.task.UserGroup;
 import ch.systemsx.cisd.openbis.generic.server.task.UserManager;
 import ch.systemsx.cisd.openbis.generic.server.task.UserManagerReport;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
-
-import javax.annotation.Resource;
-import java.io.File;
-import java.util.*;
-
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.fail;
 
 /**
  * @author Franz-Josef Elmer
@@ -123,10 +134,10 @@ public class UserManagerTest extends AbstractTest
         MockLogger logger = new MockLogger();
         UserManager userManager = new UserManagerBuilder(v3api, logger, report()).instanceAdmins(U1.getUserId()).get();
         manage(userManager);
-
+        
         // When
         UserManagerReport report = manage(userManager);
-
+        
         // Then
         assertEquals(report.getErrorReport(), "");
         assertEquals(report.getAuditLog(), "1970-01-01 01:00:00 [ADD-USER] u1\n"
@@ -135,7 +146,7 @@ public class UserManagerTest extends AbstractTest
         builder.space("").instanceAdmin(U1);
         builder.assertExpectations();
     }
-
+    
     @Test
     public void testCreateOneGroupWithAUserWhichAlreadyHasAHomeSpace()
     {
@@ -147,10 +158,10 @@ public class UserManagerTest extends AbstractTest
         Map<Role, List<String>> commonSpaces = commonSpaces();
         UserManager userManager = new UserManagerBuilder(v3api, logger, report()).commonSpaces(commonSpaces).get();
         userManager.addGroup(new UserGroupAsBuilder("G1").admins(U1.getUserId(), "blabla"), users(U1, U2));
-
+        
         // When
         UserManagerReport report = manage(userManager);
-
+        
         // Then
         assertEquals(report.getErrorReport(), "");
         assertEquals(report.getAuditLog(), "1970-01-01 01:00:00 [ADD-AUTHORIZATION-GROUP] G1\n"
@@ -188,7 +199,7 @@ public class UserManagerTest extends AbstractTest
         builder.homeSpace(U2, "G1_U2");
         builder.assertExpectations();
     }
-
+    
     @Test
     public void testAddAndRemoveAUserWhichAlreadyHasAHomeSpace()
     {
@@ -858,7 +869,7 @@ public class UserManagerTest extends AbstractTest
         builder.assertExpectations();
     }
 
-
+    
     @Test
     public void testMoveUserToAnotherGroupAndRemovePreviousGroup()
     {
@@ -2309,17 +2320,17 @@ public class UserManagerTest extends AbstractTest
         UserManager get()
         {
             NullAuthenticationService authenticationService = new NullAuthenticationService()
-            {
-                @Override
-                public Principal getPrincipal(String user) throws IllegalArgumentException
                 {
-                    if (usersUnknownByAuthenticationService.contains(user))
+                    @Override
+                    public Principal getPrincipal(String user) throws IllegalArgumentException
                     {
-                        throw new IllegalArgumentException("Unknown user " + user);
+                        if (usersUnknownByAuthenticationService.contains(user))
+                        {
+                            throw new IllegalArgumentException("Unknown user " + user);
+                        }
+                        return new Principal(user, "John", "Doe", "jd@abc.de");
                     }
-                    return new Principal(user, "John", "Doe", "jd@abc.de");
-                }
-            };
+                };
             UserManager userManager = new UserManager(authenticationService, service, shareIdsMappingFile, logger, report);
             userManager.setGlobalSpaces(globalSpaces);
             userManager.setInstanceAdmins(instanceAdmins);
