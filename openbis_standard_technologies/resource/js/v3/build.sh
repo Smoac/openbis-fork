@@ -6,6 +6,11 @@ CURRENT_DIR=$(pwd)
 TEMP_DIR=${CURRENT_DIR}/temp
 V3_DIR=../../../../openbis/source/java/ch/systemsx/cisd/openbis/public/resources/api/v3
 NODE_DIR=$(echo ${CURRENT_DIR}/../node/nodejs/node-*/bin)
+NPM_DIR=$(echo ${CURRENT_DIR}/../../../node/nodejs/node-*/lib/node_modules/npm/bin)
+
+# fix broken npm link
+rm ${NODE_DIR}/npm
+ln -s ${NPM_DIR}/npm-cli.js ${NODE_DIR}/npm
 
 export PATH=$PATH:${NODE_DIR}
 
