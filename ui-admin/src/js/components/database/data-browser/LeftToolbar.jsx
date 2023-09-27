@@ -36,7 +36,7 @@ import Popover from '@material-ui/core/Popover'
 import InputDialog from '@src/js/components/common/dialog/InputDialog.jsx'
 import ConfirmationDialog from '@src/js/components/common/dialog/ConfirmationDialog.jsx'
 import LocationDialog from '@src/js/components/database/data-browser/LocationDialog.jsx'
-import LoadingDialog from "@src/js/components/common/loading/LoadingDialog.jsx";
+import LoadingDialog from '@src/js/components/common/loading/LoadingDialog.jsx'
 
 const color = 'default'
 const iconButtonSize = 'medium'
@@ -187,13 +187,19 @@ class LeftToolbar extends React.Component {
   async handleDownload() {
     const { multiselectedFiles } = this.props
     const file = multiselectedFiles.values().next().value;
-    const dataArray = await this.controller.download(file)
 
-    const blob = new Blob(dataArray, { type: "application/octet-stream" })
-    const link = document.createElement('a')
-    link.href = window.URL.createObjectURL(blob)
-    link.download = file.name
-    link.click()
+    try {
+      this.setState({ loading: true })
+
+      const dataArray = await this.controller.download(file)
+      const blob = new Blob(dataArray, { type: "application/octet-stream" })
+      const link = document.createElement('a')
+      link.href = window.URL.createObjectURL(blob)
+      link.download = file.name
+      link.click()
+    }  finally {
+      this.setState({ loading: false })
+    }
   }
 
   renderNoSelectionContextToolbar() {

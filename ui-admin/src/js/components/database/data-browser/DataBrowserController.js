@@ -165,7 +165,8 @@ export default class DataBrowserController extends ComponentController {
     const dataArray = []
 
     while (offset < file.size) {
-      dataArray.push(await this._download(file, offset))
+      const blob = await this._download(file, offset)
+      dataArray.push(await blob.arrayBuffer())
       offset += MAX_READ_SIZE_IN_BYTES
     }
 
