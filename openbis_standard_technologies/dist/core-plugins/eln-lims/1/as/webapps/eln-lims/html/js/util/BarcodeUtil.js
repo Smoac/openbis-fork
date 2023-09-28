@@ -285,13 +285,13 @@ var BarcodeUtil = new function() {
     }
 
     this.preGenerateBarcodes = function(views, selectedBarcodes) {
-        views.header.append($("<h2>").append("Barcode Generator"));
+        views.header.append($("<h2>").append("Barcode/QR Code Generator"));
 
         var generateBarcodeText = null;
         if(selectedBarcodes === undefined) {
-            generateBarcodeText = "Generate Custom Barcodes";
+            generateBarcodeText = "Generate Custom Barcodes/QR Codes";
         } else {
-            generateBarcodeText = "Update Custom Barcodes";
+            generateBarcodeText = "Update Custom Barcodes/QR Codes";
         }
 
 	    var $generateBtn = FormUtil.getButtonWithText(generateBarcodeText, function() {}, "btn-primary");
@@ -537,8 +537,8 @@ var BarcodeUtil = new function() {
             Util.unblockUI();
         });
 
-        $window.append($('<legend>').append("Read Barcodes"));
-        $window.append(FormUtil.getInfoText("Please scan one or more barcodes. The barcodes will be listed below if the scan is successful."));
+        $window.append($('<legend>').append("Scan Barcode/QR code"));
+        $window.append(FormUtil.getInfoText("Please scan one or more barcodes/QR codes. The barcodes/QR codes will be listed below if the scan is successful."));
         $window.append($('<legend>').append('Found'));
         $window.append($btnAccept).append('&nbsp;').append($btnCancel);
 
@@ -589,7 +589,7 @@ var BarcodeUtil = new function() {
 
         $window.on('keyup keypress', this.preventFormSubmit);
 
-        var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Save Barcode' });
+        var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Save Barcode/QR Code' });
         $btnAccept.on('keyup keypress', this.preventFormSubmit);
         $btnAccept.prop("disabled",false);
 
@@ -617,7 +617,7 @@ var BarcodeUtil = new function() {
                 }
             }
             if(errors.length > 0) {
-                Util.showUserError("Invalid Barcode found", function() {}, true);
+                Util.showUserError("Invalid Barcode/QR Code found", function() {}, true);
                 return;
             }
 
@@ -639,9 +639,9 @@ var BarcodeUtil = new function() {
                             Util.unblockUI();
                             var message = null;
                             if(sampleUpdates.length === 1) {
-                                message = "Custom Barcode Updated";
+                                message = "Custom Barcode/QR Code Updated";
                             } else {
-                                message = sampleUpdates.length + " Custom Barcodes Updated";
+                                message = sampleUpdates.length + " Custom Barcodes/QR Codes Updated";
                             }
 
                             Util.showInfo(message, function() {
@@ -670,7 +670,7 @@ var BarcodeUtil = new function() {
                     if(results.objects.length === 0) {
                         updateBarcode();
                     } else {
-                        Util.showError("Custom Barcode already in use by " +  results.objects[0].identifier.identifier + " : It will not be assigned.");
+                        Util.showError("Custom Barcode/QR code already in use by " +  results.objects[0].identifier.identifier + " : It will not be assigned.");
                     }
                 });
             }
@@ -685,11 +685,11 @@ var BarcodeUtil = new function() {
             Util.unblockUI();
         });
 
-        $window.append($('<legend>').append("Update Custom Barcode"));
+        $window.append($('<legend>').append("Update Custom Barcode/QR Code"));
         $window.append($('<br>'));
-        $window.append(FormUtil.getInfoText("A valid barcode need to have " + this.getMinBarcodeLength() + " or more characters. Only characters in the pattern " + this.getBarcodePattern() + " are allowed."));
-        $window.append(FormUtil.getInfoText("If a custom barcode is not given the permId is always used as default barcode."));
-        $window.append(FormUtil.getWarningText("Empty the custom barcode to delete the current custom barcode."));
+        $window.append(FormUtil.getInfoText("A valid barcode/QR code need to have " + this.getMinBarcodeLength() + " or more characters. Only characters in the pattern " + this.getBarcodePattern() + " are allowed."));
+        $window.append(FormUtil.getInfoText("If a custom barcode/QR code is not given the permId is always used as default barcode/QR Code."));
+        $window.append(FormUtil.getWarningText("Empty the custom barcode/QR code to delete the current custom barcode/QR code."));
 
         $window.append($('<br>'));
         for(var eIdx = 0; eIdx < entities.length; eIdx++) {
@@ -812,7 +812,7 @@ var BarcodeUtil = new function() {
         $width.change(updateBarcode);
         $height.change(updateBarcode);
 
-		$window.append($('<legend>').append("Print Barcode"));
+		$window.append($('<legend>').append("Print Barcode/QR Code"));
 	    $window.append($('<br>'));
 	    $window.append($('<center>').append($barcodeTypesDropdown));
 	    $window.append($('<br>'));

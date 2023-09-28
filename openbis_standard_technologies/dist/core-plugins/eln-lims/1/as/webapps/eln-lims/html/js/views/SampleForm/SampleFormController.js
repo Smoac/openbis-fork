@@ -36,6 +36,7 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
 					fetchOptions.withSpace();
 					fetchOptions.withProject();
 					fetchOptions.withExperiment();
+					fetchOptions.withProperties();
 					fetchOptions.withParents();
 					fetchOptions.withChildren();
                     fetchOptions.withDataSets().withType();
@@ -504,7 +505,9 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
                 var project = parameters["sampleProject"];
                 if (project != null) {
                     object.setProjectId(new ProjectIdentifier("/" + space + "/" + project));
-                    sampleIdentifier += "/" + project;
+                    if(IdentifierUtil.isProjectSamplesEnabled) {
+                        sampleIdentifier += "/" + project;
+                    }
                     var experiment = parameters["sampleExperiment"]
                     if (experiment != null) {
                         object.setExperimentId(new ExperimentIdentifier("/" + space + "/" + project + "/" + experiment));
@@ -659,6 +662,15 @@ function SampleFormController(mainController, mode, sample, paginationInfo) {
                 }
                 // End of 'copySample' section
             }
+            parameters["sampleChildrenNew"].forEach(function(newSampleChild) {
+                var identifier = newSampleChild["identifier"];
+                if (existingSamples[identifier]) {
+                    var update = new SampleUpdate();
+                    sampleUpdates.push(update);
+                    update.setSampleId(new SampleIdentifier(identifier));
+                    update.setProperties(newSampleChild["properties"]);
+                }
+            });
             parameters["changesToDo"].forEach(function(change) {
                 var update = new SampleUpdate();
                 sampleUpdates.push(update);

@@ -154,9 +154,9 @@ function DataGridController(
                             lastUsedOptions: _this.lastUsedOptions,
                             container: params.container,
                             value: params.value
-                        })
+                        });
                     } else {
-                        value = params.value
+                        value = params.value;
                     }
 
                     if (value === null || value === undefined || value === "") {

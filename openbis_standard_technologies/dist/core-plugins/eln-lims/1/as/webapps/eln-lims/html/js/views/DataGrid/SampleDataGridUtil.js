@@ -67,7 +67,7 @@ var SampleDataGridUtil = new function() {
         if(profile.mainMenu.showBarcodes || true) {
             var permIdLabel = "PermId";
             if(profile.mainMenu.showBarcodes) {
-                permIdLabel += " / Default Barcode";
+                permIdLabel += " / Default Barcode/QR Code";
             }
             columnsFirst.push({
                 label : permIdLabel,
@@ -795,7 +795,7 @@ var SampleDataGridUtil = new function() {
 				$list.append($move);
 
                 if(profile.mainMenu.showBarcodes) {
-                    var $updateBarcode = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Update Barcode'}).append("Update Barcode"));
+                    var $updateBarcode = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Update Barcode/QR Code'}).append("Update Barcode/QR Code"));
                     $updateBarcode.click(function(event) {
                         stopEventsBuble(event);
                         BarcodeUtil.readBarcode([data]);
@@ -880,8 +880,8 @@ var SampleDataGridUtil = new function() {
                                     return _this.getTerm(params, propertyType);
                                 };
                             })(propertyType),
-                            render : function(data) {
-                                return FormUtil.getVocabularyLabelForTermCode(propertyType, data[propertyType.code]);
+                            render : function(params, data) {
+                                return FormUtil.getVocabularyLabelForTermCode(propertyType, data.value);
                             },
                             renderFilter: function(params){
                                 return FormUtil.renderVocabularyGridFilter(params, propertyType.vocabulary);
@@ -954,12 +954,29 @@ var SampleDataGridUtil = new function() {
                             return FormUtil.renderXmlGridValue(row, params, propertyType)
                         }
                     })(propertyType)
-                }else if(propertyType.dataType === "MULTILINE_VARCHAR"){
+                } else if(propertyType.dataType === "MULTILINE_VARCHAR"){
                     renderValue = (function(propertyType){
                         return function(row, params){
                             return FormUtil.renderMultilineVarcharGridValue(row, params, propertyType)
                         }
                     })(propertyType)
+                } else if(propertyType.dataType === "SAMPLE") {
+                    renderValue = (function(propertyType){
+                          return function(row, params){
+                            if(Array.isArray(params.value)) {
+                               var result = [];
+                               for (var singleValue of params.value) {
+                                   if(result.length > 0) {
+                                       result.push(', ')
+                                   }
+                                   result.push(FormUtil.getFormLink(singleValue, "Sample", singleValue));
+                               }
+                               return result;
+                            } else {
+                               return FormUtil.getFormLink(params.value, "Sample", params.value);
+}
+                          }
+                      })(propertyType)
                 }
 
                 propertyColumnsToSort.push({
@@ -993,6 +1010,10 @@ var SampleDataGridUtil = new function() {
 
     this.getTerm = function(params, propertyType) {
         var value = params.row[propertyType.code]
-        return value ? value : "";
+//        if(Array.isArray(value)) {
+//            return value.sort().toString();
+//        } else {
+            return value ? value : "";
+//        }
     }
 }
