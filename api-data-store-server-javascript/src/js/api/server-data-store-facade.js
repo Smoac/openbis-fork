@@ -72,19 +72,19 @@ _DataStoreServerInternal.prototype.sendHttpRequest = function(httpMethod, conten
 							break;
 						}
 						default: {
-							reject("Client error HTTP response. Unsupported content-type received.");
+							reject(new Error("Client error HTTP response. Unsupported content-type received."));
 							break;
 						}
 					}
 				} else if (status >= 400 && status < 600) {
 					if (response.size > 0) {
-						response.text().then((blobResponse) => reject(JSON.parse(blobResponse).error[1].message))
+						response.text().then((blobResponse) => reject(new Error(JSON.parse(blobResponse).error[1].message)))
 							.catch((error) => reject(error));
 					} else {
-						reject(xhr.statusText);
+						reject(new Error(xhr.statusText));
 					}
 				} else {
-					reject("ERROR: " + xhr.responseText);
+					reject(new Error("ERROR: " + xhr.responseText));
 				}
 			}
 		};
@@ -167,7 +167,7 @@ function parseJsonResponse(rawResponse) {
 	return new Promise((resolve, reject) => {
 		let response = JSON.parse(rawResponse);
 		if (response.error) {
-			reject(response.error[1].message);
+			reject(new Error(response.error[1].message));
 		} else {
 			resolve(response);
 		}

@@ -37,17 +37,13 @@ export default class DataBrowserController extends ComponentController {
   }
 
   async listFiles() {
-    return new Promise((resolve, reject) => {
-      this.component.datastoreServer.list(this.owner, this.path, false, (data) => {
-        if (!data.error) {
-          const results = data.result[1]
-          const files = results.map(result => result[1])
-          resolve(files)
-        } else {
-          reject(data.error)
-        }
-      })
-    })
+    const data = await this.component.datastoreServer.list(this.owner, this.path, false)
+    if (!data.error) {
+      const results = data.result[1]
+      return results.map(result => result[1])
+    } else {
+      throw new Error(data.error)
+    }
   }
 
   async load() {
@@ -63,33 +59,17 @@ export default class DataBrowserController extends ComponentController {
   }
 
   async createNewFolder(name) {
-    return new Promise((resolve, reject) => {
-      this.component.datastoreServer.create(this.owner, this.path + name, true, async (response) => {
-        if (response) {
-          if (this.gridController) {
-            await this.gridController.load()
-          }
-          resolve()
-        } else {
-          reject()
-        }
-      })
-    })
+    await this.component.datastoreServer.create(this.owner, this.path + name, true)
+    if (this.gridController) {
+      await this.gridController.load()
+    }
   }
 
   async rename(oldName, newName) {
-    return new Promise((resolve, reject) => {
-      this.component.datastoreServer.move(this.owner, this.path + oldName, this.owner, this.path + newName, async (response) => {
-        if (response) {
-          if (this.gridController) {
-            await this.gridController.load()
-          }
-          resolve()
-        } else {
-          reject()
-        }
-      })
-    })
+    await this.component.datastoreServer.move(this.owner, this.path + oldName, this.owner, this.path + newName)
+    if (this.gridController) {
+      await this.gridController.load()
+    }
   }
 
   async delete(files) {
@@ -103,15 +83,7 @@ export default class DataBrowserController extends ComponentController {
   }
 
   async _delete(file) {
-    return new Promise((resolve, reject) => {
-      this.component.datastoreServer.delete(this.owner, file.path, async (response) => {
-        if (response) {
-          resolve()
-        } else {
-          reject()
-        }
-      })
-    })
+    await this.component.datastoreServer.delete(this.owner, file.path)
   }
 
   async copy(files, newLocation) {
@@ -126,15 +98,7 @@ export default class DataBrowserController extends ComponentController {
 
   async _copy(file, newLocation){
     const cleanNewLocation = this._removeLeadingSlash(newLocation) + file.name
-    return new Promise((resolve, reject) => {
-      this.component.datastoreServer.copy(this.owner, file.path, this.owner, cleanNewLocation, async (response) => {
-        if (response) {
-          resolve()
-        } else {
-          reject()
-        }
-      })
-    })
+    await this.component.datastoreServer.copy(this.owner, file.path, this.owner, cleanNewLocation)
   }
 
   async move(files, newLocation) {
@@ -149,15 +113,7 @@ export default class DataBrowserController extends ComponentController {
 
   async _move(file, newLocation){
     const cleanNewLocation = this._removeLeadingSlash(newLocation) + file.name
-    return new Promise((resolve, reject) => {
-      this.component.datastoreServer.move(this.owner, file.path, this.owner, cleanNewLocation, async (response) => {
-        if (response) {
-          resolve()
-        } else {
-          reject()
-        }
-      })
-    })
+    await this.component.datastoreServer.move(this.owner, file.path, this.owner, cleanNewLocation)
   }
 
   async download(file) {
@@ -174,16 +130,8 @@ export default class DataBrowserController extends ComponentController {
   }
 
   async _download(file, offset) {
-    return new Promise((resolve, reject) => {
-      const limit = Math.min(MAX_READ_SIZE_IN_BYTES, file.size - offset)
-      this.component.datastoreServer.read(this.owner, file.path, offset, limit, async (responseData) => {
-        if (responseData) {
-          resolve(responseData)
-        } else {
-          reject()
-        }
-      })
-    })
+    const limit = Math.min(MAX_READ_SIZE_IN_BYTES, file.size - offset)
+    return await this.component.datastoreServer.read(this.owner, file.path, offset, limit)
   }
 
   _removeLeadingSlash(path) {
@@ -197,5 +145,4 @@ export default class DataBrowserController extends ComponentController {
   setPath(path) {
     this.path = path
   }
-
 }
