@@ -18,7 +18,7 @@ Maintenance Tasks
 
 ## Introduction
 
-A maintenance task is a process which runs once or in regular time intervals. It is defined by a [core plugin](https://openbis.readthedocs.io/en/latest/software-developer-documentation/server-side-extensions/core-plugins.html#core-plugins) of type `maintenance-tasks`. Usually a maintenance task can only run on AS or DSS but not in both environments.
+A maintenance task is a process which runs once or in regular time intervals. It is defined by a [core plugin](../../software-developer-documentation/server-side-extensions/core-plugins.md#core-plugins) of type `maintenance-tasks`. Usually a maintenance task can only run on AS or DSS but not in both environments.
 
 The following properties are common for all maintenance tasks:
 
@@ -400,7 +400,7 @@ link-naming-strategy.component-template = ${space}/${project}/${experiment}/${co
 
 **Description**: Deletes data sets which are already deleted on AS also
 from multi-data-set archives. This maintenance task works only if the
-[Multi Data Set Archiver](/pages/viewpage.action?pageId=80699422)  is
+[Multi Data Set Archiver](../../uncategorized/multi-data-set-archiving.md)  is
 configured. It does the following:
 
 1.  Extracts the not-deleted data sets of a TAR container with deleted
@@ -410,7 +410,7 @@ configured. It does the following:
 4.  Requests archiving of the non-deleted data sets.
 
 The last step requires that the maintenance task
-[ArchivingByRequestTask](https://openbis.readthedocs.io/en/latest/system-admin-documentation/advanced-features/maintenance-tasks.html#archivingbyrequesttask) is configured.
+[ArchivingByRequestTask](./maintenance-tasks.md#archivingbyrequesttask) is configured.
 
 **Configuration**:
 
@@ -442,7 +442,7 @@ archiver when the archive data should be deletable.
 
 **Description**: Triggers unarchiving of multi data set archives. Is
 only needed if the configuration property `delay-unarchiving` of the
-[Multi Data Set Archiver](/pages/viewpage.action?pageId=80699422) is
+[Multi Data Set Archiver](../../uncategorized/multi-data-set-archiving.md) is
 set `true`.
 
 This maintenance task allows to reduce the stress of the tape system by
@@ -622,9 +622,7 @@ interval = 60 s
 experiments for all members of an LDAP authorization group or an
 explicit list of user ids. A configuration file (in JSON format) will be
 read each time this task is executed. All actions are logged in an audit
-log file. For more details see [User Group Management for Multi-groups
-openBIS
-Instances](https://unlimited.ethz.ch/display/openBISDoc2010/User+Group+Management+for+Multi-groups+openBIS+Instances)
+log file. For more details see [User Group Management for Multi-groups openBIS Instances](../../uncategorized/user-group-management-for-multi-groups-openbis-instances.md)
 
 **Configuration:**
 
@@ -836,7 +834,7 @@ If you put a foreign key constraint on the material code of one of the material 
 e-mail recipients about the usage (i.e. creation of experiments, samples
 and data sets) by users or groups. For more details see [User Group
 Management for Multi-groups openBIS
-Instances](/pages/viewpage.action?pageId=80699449).
+Instances](../../uncategorized/user-group-management-for-multi-groups-openbis-instances.md).
 
 In order to be able to send an e-mail the following properties in
 `service.properties` have to be defined:
@@ -902,7 +900,7 @@ in `service.properties` of AS.
 **Description**: Removes data sets from the unarchiving scratch share
 which have status ARCHIVED and which are present in archive. For more
 details see [Multi data set
-archiving](/pages/viewpage.action?pageId=80699422).
+archiving](../../uncategorized/multi-data-set-archiving.md).
 
 **Configuration**:
 
@@ -1152,7 +1150,7 @@ data-set-type = HCS_IMAGE
 
 **Relevancy:** Rare
 
-**Description**: Removes unofficial unused vocabulary terms. For more details about unofficial vocabulary terms see [Ad Hoc Vocabulary Terms](https://unlimited.ethz.ch/display/openBISDoc2010/Ad+Hoc+Vocabulary+Terms).
+**Description**: Removes unofficial unused vocabulary terms. For more details about unofficial vocabulary terms see [Ad Hoc Vocabulary Terms](../../uncategorized/ad-hoc-vocabulary-terms.md).
 
 **Configuration:**
 
@@ -1311,9 +1309,9 @@ if int(seriesNum) % 2 == 0:
 **Relevancy:** Relevant
 
 **Description**: Deletes database entries from the imaging database.
-This is special variant of [DeleteFromExternalDBMaintenanceTask](https://openbis.readthedocs.io/en/latest/system-admin-documentation/advanced-features/maintenance-tasks.html#deletefromexternaldbmaintenancetask) with the same configuration parameters.
+This is special variant of [DeleteFromExternalDBMaintenanceTask](./maintenance-tasks.md#deletefromexternaldbmaintenancetask) with the same configuration parameters.
 
-**Configuration**: See [DeleteFromExternalDBMaintenanceTask](https://openbis.readthedocs.io/en/latest/system-admin-documentation/advanced-features/maintenance-tasks.html#deletefromexternaldbmaintenancetask)
+**Configuration**: See [DeleteFromExternalDBMaintenanceTask](./maintenance-tasks.md#deletefromexternaldbmaintenancetask)
 
 **Example**:
 
