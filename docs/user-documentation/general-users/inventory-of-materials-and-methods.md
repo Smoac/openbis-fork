@@ -1,6 +1,8 @@
 Inventory Of Materials And Methods
 ====
 
+
+Test
 The default Inventory contains two folders: **Materials** and **Methods**.
 
 These are used to organise respectively samples and materials of any type and lab protocols.
