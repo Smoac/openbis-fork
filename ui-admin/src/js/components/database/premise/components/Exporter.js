@@ -1,0 +1,84 @@
+import { Box, Button, Modal, Typography } from "@material-ui/core";
+import React from "react";
+import Dropdown from "@src/js/components/database/premise/common/Dropdown";
+import {makeStyles} from "@material-ui/core/styles";
+
+const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+};
+
+const useStyles = makeStyles((theme) => ({
+    risky: {
+        backgroundColor: theme.palette.error.main,
+        color: theme.palette.error.contrastText,
+        '&:hover': {
+            backgroundColor: theme.palette.error.dark
+        },
+        '&:disabled': {
+            backgroundColor: theme.palette.error.light
+        }
+    }
+}));
+
+
+const Export = ({ config, handleExport }) => {
+    const classes = useStyles();
+    const [open, setOpen] = React.useState(false);
+    const [exportState, setExportState] = React.useState({});
+
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => setOpen(false);
+
+    const handleExportChange = (event) => {
+        setExportState({
+            ...exportState,
+            [event.target.name]: event.target.value
+        });
+    };
+
+    const sendExportRequest = () => {
+        handleExport(exportState);
+        handleClose();
+    };
+
+    const listExportsComp = config.map((c, idx) =>
+        c.type == 'Dropdown' ? <Dropdown key={"export-"+c.type +"-"+ idx}
+                                         label={c.label}
+                                         initValue={c.multiselect ? [c.values[0]]:c.values[0]}
+                                         values={c.values}
+                                         isMulti={c.multiselect}
+                                         onSelectChange={handleExportChange} />
+            : <h2>UNKOWN TYPE: {c.type}</h2>
+    );
+
+    return (
+        <>
+            <Button sx={{ height: 'fit-content' }} variant="outlined" onClick={handleOpen}>Open exports</Button>
+            <Modal open={open}
+                   onClose={handleClose}
+                   aria-labelledby="modal-modal-title"
+                   aria-describedby="modal-modal-description"
+            >
+                <Box sx={style}>
+                    <Typography id="modal-modal-title" variant="h6" component="h2">
+                        Select export options
+                    </Typography>
+                    {listExportsComp}
+                    <Button onClick={sendExportRequest} variant="contained" color="secondary">Export</Button>
+                    <Button onClick={handleClose} variant="contained" className={classes.risky}>Close</Button>
+                </Box>
+
+            </Modal>
+        </>
+    );
+};
+
+export default Export;
