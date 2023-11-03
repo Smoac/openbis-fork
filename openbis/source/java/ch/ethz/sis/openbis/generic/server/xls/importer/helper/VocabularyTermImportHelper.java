@@ -91,8 +91,12 @@ public class VocabularyTermImportHelper extends BasicImportHelper
         String version = getValueByColumnName(header, values, Attribute.Version);
         String code = getValueByColumnName(header, values, Attribute.Code);
 
-        return VersionUtils.isNewVersion(version,
-                VersionUtils.getStoredVersion(versions, ImportTypes.VOCABULARY_TERM.getType() + "-" + vocabularyCode, code));
+        if (version == null || version.isEmpty()) {
+            return true;
+        } else {
+            return VersionUtils.isNewVersion(version,
+                    VersionUtils.getStoredVersion(versions, ImportTypes.VOCABULARY_TERM.getType() + "-" + vocabularyCode, code));
+        }
     }
 
     @Override protected void updateVersion(Map<String, Integer> header, List<String> values)

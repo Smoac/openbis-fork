@@ -70,6 +70,7 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
         OntologyId("Ontology Id", false),
         OntologyVersion("Ontology Version", false),
         OntologyAnnotationId("Ontology Annotation Id", false);
+//        MultiValued("Multivalued", false);
 
         private final String headerName;
 

@@ -83,6 +83,11 @@ public class PropertyTypeSearcher
 
     public static String getPropertyValue(PropertyType propertyType, String value)
     {
+        return getPropertyValueInternal(propertyType, value);
+    }
+
+    private static String getPropertyValueInternal(PropertyType propertyType, String value)
+    {
         if (propertyType.getDataType() == DataType.CONTROLLEDVOCABULARY)
         {
             // First we try to code match, codes have priority
