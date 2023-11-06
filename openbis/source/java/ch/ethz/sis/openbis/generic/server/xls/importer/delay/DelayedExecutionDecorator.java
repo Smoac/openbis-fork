@@ -570,7 +570,7 @@ public class DelayedExecutionDecorator
     }
 
     private void resolveAndScheduleAssignmentOfSamplePropertiesCyclicalDependencies(EntityKind entityKind, IObjectId id,
-            Map<String, Serializable> properties, int page, int line)
+            Map<String, String> properties, int page, int line)
     {
         // Manage Sample properties cyclical dependencies
         List<String> assignmentsToRemove = new ArrayList<>();
