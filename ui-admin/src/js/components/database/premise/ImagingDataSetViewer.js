@@ -28,6 +28,7 @@ import Player from "@src/js/components/database/premise/common/Player";
 import InputsPanel from "@src/js/components/database/premise/components/InputsPanel";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import {Alert} from "@material-ui/lab";
+import MetadataViewer from "@src/js/components/database/premise/components/MetadataViewr";
 
 const themeList = createTheme({
     overrides: {
@@ -71,7 +72,7 @@ const useStyles = makeStyles((theme) => ({
     },
     elevation: {
         boxShadow: '0 3px 10px rgb(0 0 0 / 0.2)',
-        border: '3px solid #34b2e4',
+        border: '3px solid #039be5',
     },
     trasparency: {
         opacity: 0.5
@@ -108,7 +109,6 @@ const ImagingDataSetViewer = () => {
     const handleOpen = () => {
         setOpen(true);
     };
-
     const handleSnackbarClose = (event, reason) => {
         if (reason === 'clickaway') {
             return;
@@ -129,7 +129,6 @@ const ImagingDataSetViewer = () => {
     let extendedInputsConfig = imagingDataSet.config.inputs.map(c => Object.assign(c, { 'initValue': imagingDataSet.images[activeImageIdx].previews[activePreviewIdx].config[c.label] }));
 
     //console.log("CONFIG: ", imagingDataSet.images[activeImageIdx].previews[activePreviewIdx].config);
-
 
     const handleResolutionChange = (event) => {
         const v_list = event.target.value.split('x');
@@ -165,7 +164,7 @@ const ImagingDataSetViewer = () => {
         //console.log(state);
         let exportRequest = {
             "type": "export",
-            "permId": "999999999-9999",
+            "permId": "999999999-9999",//TODO: implement logic to get correct perm-ID
             "error": null,
             "imageIndex": imagingDataSet.images[activeImageIdx].imageIdx,
             "export": {
@@ -175,7 +174,6 @@ const ImagingDataSetViewer = () => {
             }
         };
         alert(JSON.stringify(exportRequest));
-
         //getExportResponse(exportRequest);
     };
 
@@ -188,7 +186,7 @@ const ImagingDataSetViewer = () => {
 
     const updatePreview = () => {
         setOpen(true);
-        console.log('UPDATE PREVIEW ', activeImageIdx, activePreviewIdx, imagingDataSet.images[activeImageIdx].config);
+        console.log('UPDATE PREVIEW ', activeImageIdx, activePreviewIdx, imagingDataSet.images[activeImageIdx].previews[activePreviewIdx].config);
         console.log('UPDATE PREVIEW ', imagingDataSet.images[activeImageIdx].previews[activePreviewIdx]);
         //onUpdate(activeImage.imageIdx, activePreview.previewIdx, activeConfig);
         setTimeout(handleClose, 1000);
@@ -340,6 +338,8 @@ const ImagingDataSetViewer = () => {
                 </Grid>
             </Grid>
             <Divider className={classes.dividerFullWidth} />
+
+            <MetadataViewer configMetadata={imagingDataSet.config.metadata} previews={imagingDataSet.images[activeImageIdx].previews} />
 
         </React.Fragment>
     )
