@@ -2,6 +2,7 @@ import { Box, Button, Modal, Typography } from "@material-ui/core";
 import React from "react";
 import Dropdown from "@src/js/components/database/premise/common/Dropdown";
 import {makeStyles} from "@material-ui/core/styles";
+import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 
 const style = {
     position: 'absolute',
@@ -49,19 +50,24 @@ const Export = ({ config, handleExport }) => {
         handleClose();
     };
 
-    const listExportsComp = config.map((c, idx) =>
-        c.type == 'Dropdown' ? <Dropdown key={"export-"+c.type +"-"+ idx}
-                                         label={c.label}
-                                         initValue={c.multiselect ? [c.values[0]]:c.values[0]}
-                                         values={c.values}
-                                         isMulti={c.multiselect}
-                                         onSelectChange={handleExportChange} />
-            : <h2>UNKOWN TYPE: {c.type}</h2>
+    const listExportsComp = config.map((c, idx) => {
+            switch (c.type) {
+                case 'Dropdown':
+                    return <Dropdown key={"export-" + c.type + "-" + idx}
+                                     label={c.label}
+                                     initValue={c.multiselect ? [c.values[0]] : c.values[0]}
+                                     values={c.values}
+                                     isMulti={c.multiselect}
+                                     onSelectChange={handleExportChange}/>
+                default:
+                    return <h2>UNKOWN TYPE: {c.type}</h2>
+            }
+        }
     );
 
     return (
         <>
-            <Button sx={{ height: 'fit-content' }} variant="outlined" onClick={handleOpen}>Open exports</Button>
+            <Button sx={{ height: 'fit-content' }} variant="outlined" onClick={handleOpen} startIcon={<CloudDownloadIcon/>}>Open exports</Button>
             <Modal open={open}
                    onClose={handleClose}
                    aria-labelledby="modal-modal-title"
