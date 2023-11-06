@@ -14,30 +14,31 @@ const Components = {
     RangeSlider
 }
 
-const InputsPanel = ({ extendedConfig, prevConfig, onConfigChange }) => {
+const InputsPanel = ({ extendedConfig, prevConfigValues, onConfigChange }) => {
     const [show, setShow] = React.useState(true);
-    const [currentPreviewConfig, setCurrentPreviewConfig] = React.useState(prevConfig);
+    const [currentPreviewConfig, setCurrentPreviewConfig] = React.useState(prevConfigValues);
     const [currentExtendedConfig, setCurrentExtendedConfig] = React.useState(extendedConfig);
-    //console.log('InputsPanel = ', prevConfig);
+
+    //console.log('InputsPanel = ', prevConfigValues);
     const handleSliderOnChange = (name, value) => {
         //console.log(name, value);
-        var newConfig = {...currentPreviewConfig};
+        let newConfig = {...currentPreviewConfig};
         newConfig[name] = value;
-        setCurrentPreviewConfig(newConfig);
+        //setCurrentPreviewConfig(newConfig);
         onConfigChange(newConfig);
-        //console.log("handleOnChange - ", newConfig);
+         //console.log("handleOnChange - ", newConfig);
     };
 
     const handleDropdownOnChange = (event) => {
         //console.log(event);
-        var newConfig = {...currentPreviewConfig}
+        let newConfig = {...currentPreviewConfig}
         newConfig[event.target.name] = event.target.value;
-        setCurrentPreviewConfig(newConfig);
+        //setCurrentPreviewConfig(newConfig);
         onConfigChange(newConfig);
         //console.log("handleDropdownOnChange - ", newConfig);
     }
 
-    const listInputsComp = extendedConfig.map((c, idx) => {
+    /*    const listInputsComp = extendedConfig.map((c, idx) => {
         //console.log(panelConfig, initConfig);
         switch (c.type) {
             case 'Dropdown':
@@ -47,11 +48,19 @@ const InputsPanel = ({ extendedConfig, prevConfig, onConfigChange }) => {
             case 'RangeSlider':
                 return <RangeSlider key={idx} label={c.label} initValue={c.initValue} range={c.range} onChange={handleSliderOnChange}/>
         }
-    });
+    });*/
 
-    const listInputsComponents = currentExtendedConfig.map((c, idx) => {
+    const listInputsComponents = extendedConfig.map((c, idx) => {
+        //console.log(c.label, prevConfigValues[c.label]);
         let Component = Components[c.type];
-        return (<Component key={"inputpanel-"+c.type +"-"+ idx} label={c.label} initValue={c.initValue} values={c.values} isMulti={c.multiselect} onSelectChange={handleDropdownOnChange} range={c.range} onChange={handleSliderOnChange}/>);
+        return (<Component key={"inputpanel-"+c.type +"-"+ idx}
+                           label={c.label}
+                           initValue={prevConfigValues[c.label]}
+                           values={c.values}
+                           isMulti={c.multiselect}
+                           onSelectChange={handleDropdownOnChange}
+                           range={c.range}
+                           onChange={handleSliderOnChange}/>);
     });
 
     return (
