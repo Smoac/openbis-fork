@@ -1,18 +1,10 @@
 import * as React from 'react';
 import Player from "@src/js/components/database/premise/common/Player";
-import {makeStyles} from "@material-ui/core/styles";
 import Grid from '@material-ui/core/Grid';
 import Slider from "@material-ui/core/Slider";
-import { OutlinedInput, Input } from "@material-ui/core";
+import { Input } from "@material-ui/core";
 import OutlinedBox from "@src/js/components/database/premise/common/OutlinedBox";
-import * as PropTypes from "prop-types";
 import InputAdornment from "@material-ui/core/InputAdornment";
-
-const useStyles = makeStyles({
-    input: {
-        width: 42,
-    },
-});
 
 const InputRangeSlider = ({ label, range, initValue, playable, speeds, onChange}) => {
     const min = range[0]

@@ -3,8 +3,7 @@ import Dropdown from "@src/js/components/database/premise/common/Dropdown";
 import Slider from "@src/js/components/database/premise/common/InputSlider";
 import RangeSlider from "@src/js/components/database/premise/common/InputRangeSlider";
 import Grid from "@material-ui/core/Grid";
-import {FormGroup, Switch} from "@material-ui/core";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
+import { Switch} from "@material-ui/core";
 import OutlinedBox from "@src/js/components/database/premise/common/OutlinedBox";
 
 
