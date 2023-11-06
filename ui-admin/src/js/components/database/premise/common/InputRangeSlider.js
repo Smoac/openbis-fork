@@ -80,14 +80,13 @@ const InputRangeSlider = ({ label, range, initValue, playable, speeds, onChange}
                         size="small"
                         onChange={handleInputMinChange}
                         onBlur={handleBlur}
+                        endAdornment={<InputAdornment position="end">Kg</InputAdornment>}
                         inputProps={{
                             step: step,
                             min: min,
                             max: max,
-                            type: 'number',
-                            'aria-label': 'weight',
+                            type: 'number'
                         }}
-                        endAdornment={<InputAdornment position="end">Kg</InputAdornment>}
                     />
                 </Grid>
                 <Grid item xs>
@@ -107,6 +106,7 @@ const InputRangeSlider = ({ label, range, initValue, playable, speeds, onChange}
                         size="small"
                         onChange={handleInputMaxChange}
                         onBlur={handleBlur}
+                        endAdornment={<InputAdornment position="end">Kg</InputAdornment>}
                         inputProps={{
                             step: step,
                             min: min,

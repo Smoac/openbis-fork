@@ -4,6 +4,7 @@ import Slider from "@material-ui/core/Slider";
 import Input from "@material-ui/core/Input";
 import Player from "@src/js/components/database/premise/common/Player";
 import OutlinedBox from "@src/js/components/database/premise/common/OutlinedBox";
+import InputAdornment from "@material-ui/core/InputAdornment";
 
 
 const InputSlider = ({ label, range, initValue, playable, speeds, onChange }) => {
@@ -73,6 +74,7 @@ const InputSlider = ({ label, range, initValue, playable, speeds, onChange }) =>
                             name={label}
                             onChange={handleInputChange}
                             onBlur={handleBlur}
+                            endAdornment={<InputAdornment position="end">Kg</InputAdornment>}
                             inputProps={{
                                 step: step,
                                 min: min,
