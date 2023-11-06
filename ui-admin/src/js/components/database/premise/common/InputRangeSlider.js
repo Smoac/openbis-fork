@@ -5,6 +5,8 @@ import Grid from '@material-ui/core/Grid';
 import Slider from "@material-ui/core/Slider";
 import { OutlinedInput, Input } from "@material-ui/core";
 import OutlinedBox from "@src/js/components/database/premise/common/OutlinedBox";
+import * as PropTypes from "prop-types";
+import InputAdornment from "@material-ui/core/InputAdornment";
 
 const useStyles = makeStyles({
     input: {
@@ -12,7 +14,7 @@ const useStyles = makeStyles({
     },
 });
 
-const InputRangeSlider = ({ label, range, initValue=null, playable = true, speeds = [1000, 2000, 5000], onChange = () => console.log('Default onChange InputRangeSlider') }) => {
+const InputRangeSlider = ({ label, range, initValue, playable, speeds, onChange}) => {
     const min = range[0]
     const max = range[1]
     const step = range[2]
@@ -23,31 +25,31 @@ const InputRangeSlider = ({ label, range, initValue=null, playable = true, speed
 
     const [value, setValue] = React.useState(initValue == null ? [min,max] : initValue);
 
-    React.useEffect(() => {
-        //console.log("useEffect RANGESLIDER: ", label, range, initValue);
+    //console.log("InputSlider: ", label, initValue, value);
+    /*React.useEffect(() => {
         if (initValue !== value) {
             setValue(initValue);
         }
-    }, [initValue]);
+    }, [initValue]);*/
 
     function roundToClosest(counts, goal){
         return counts.reduce((prev, curr) => Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev);
     }
 
-    const handleSliderChange = (event, newValue) => {
+    const handleSliderChange = (newValue, name) => {
         setValue(newValue);
-        onChange(event.target.name, event.target.value);
+        onChange(name, newValue);
     };
 
     const handleInputMinChange = (event) => {
-        console.log('handleInputMinChange:', event.target);
+        //console.log('handleInputMinChange:', event.target);
         let newValue = event.target.value === '' ? [value[0], value[1]] : [Number(event.target.value), value[1]];
         setValue(newValue);
         onChange(event.target.name, newValue);
     };
 
     const handleInputMaxChange = (event) => {
-        console.log('handleInputMaxChange:', event.target);
+        //console.log('handleInputMaxChange:', event.target);
         let newValue = event.target.value === '' ? [value[0], value[1]] : [value[0], Number(event.target.value)];
         setValue(newValue);
         onChange(event.target.name, newValue);
@@ -74,7 +76,7 @@ const InputRangeSlider = ({ label, range, initValue=null, playable = true, speed
                 <Grid item >
                     <Input
                         name={label}
-                        value={value[0]}
+                        value={initValue == null ? [min,max] : initValue[0]}
                         size="small"
                         onChange={handleInputMinChange}
                         onBlur={handleBlur}
@@ -82,15 +84,17 @@ const InputRangeSlider = ({ label, range, initValue=null, playable = true, speed
                             step: step,
                             min: min,
                             max: max,
-                            type: 'number'
+                            type: 'number',
+                            'aria-label': 'weight',
                         }}
+                        endAdornment={<InputAdornment position="end">Kg</InputAdornment>}
                     />
                 </Grid>
                 <Grid item xs>
                     <Slider
-                        value={value}
+                        value={initValue == null ? [min,max] : initValue}
                         name={label}
-                        onChange={handleSliderChange}
+                        onChange={(event, newValue) => handleSliderChange(newValue, label)}
                         min={min}
                         max={max}
                         step={step}
@@ -99,7 +103,7 @@ const InputRangeSlider = ({ label, range, initValue=null, playable = true, speed
                 <Grid item xs>
                     <Input
                         name={label}
-                        value={value[1]}
+                        value={initValue == null ? [min,max] : initValue[1]}
                         size="small"
                         onChange={handleInputMaxChange}
                         onBlur={handleBlur}

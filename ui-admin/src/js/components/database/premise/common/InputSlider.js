@@ -1,6 +1,4 @@
 import * as React from 'react';
-import {makeStyles} from "@material-ui/core/styles";
-import {Box, FormLabel, OutlinedInput, Typography} from "@material-ui/core";
 import Grid from "@material-ui/core/Grid";
 import Slider from "@material-ui/core/Slider";
 import Input from "@material-ui/core/Input";
@@ -8,7 +6,7 @@ import Player from "@src/js/components/database/premise/common/Player";
 import OutlinedBox from "@src/js/components/database/premise/common/OutlinedBox";
 
 
-const InputSlider = ({ label, range, initValue = null, playable = true, speeds = [1000, 2000, 5000], onChange = () => console.log('Default onChange InputSlider') }) => {
+const InputSlider = ({ label, range, initValue, playable, speeds, onChange }) => {
     const min = range[0]
     const max = range[1]
     const step = range[2]
@@ -18,21 +16,22 @@ const InputSlider = ({ label, range, initValue = null, playable = true, speeds =
     );
     const [value, setValue] = React.useState(initValue == null ? min : Number(initValue));
 
-    React.useEffect(() => {
+    //console.log("InputSlider: ", label, initValue, value);
+    /*React.useEffect(() => {
         //console.log("useEffect SLIDER: ", label, range, initValue);
         if (initValue !== value) {
             setValue(initValue == null ? min : Number(initValue));
         }
-    }, [initValue]);
+    }, [initValue]);*/
 
 
     function roundToClosest(counts, goal) {
         return counts.reduce((prev, curr) => Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev);
     }
 
-    const handleSliderChange = (event, newValue) => {
+    const handleSliderChange = (newValue, name) => {
         setValue(newValue);
-        //onChange(event.target.name, [newValue]);
+        onChange(name, [newValue]);
     };
 
     const handleInputChange = (event) => {
@@ -59,17 +58,17 @@ const InputSlider = ({ label, range, initValue = null, playable = true, speeds =
             <Grid container spacing={2} alignItems="center" direction="row" sx={{ mb: 1, px: 1 }}>
                     <Grid item xs>
                         <Slider
-                            value={value}
+                            value={initValue == null ? min : Number(initValue)}
                             name={label}
-                            onChange={handleSliderChange}
+                            onChange={(event, newValue)=> handleSliderChange(newValue, label)}
                             min={min}
                             max={max}
                             step={step}
                         />
                     </Grid>
                     <Grid item xs>
-                        <OutlinedInput
-                            value={value}
+                        <Input
+                            value={initValue == null ? min : Number(initValue)}
                             size="small"
                             name={label}
                             onChange={handleInputChange}
