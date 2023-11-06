@@ -22,7 +22,10 @@ import AddToQueueIcon from '@material-ui/icons/AddToQueue';
 import Dropdown from "@src/js/components/database/premise/common/Dropdown.js";
 import AlertDialog from "@src/js/components/database/premise/common/AlertDialog";
 import InputFileUpload from "@src/js/components/database/premise/components/InputFileUpload";
-import {convertToBase64} from "@src/js/components/database/premise/utils";
+import {
+    convertToBase64,
+    getExportResponse
+} from "@src/js/components/database/premise/utils";
 import Export from "@src/js/components/database/premise/components/Exporter";
 import Player from "@src/js/components/database/premise/common/Player";
 import InputsPanel from "@src/js/components/database/premise/components/InputsPanel";
@@ -174,23 +177,49 @@ const ImagingDataSetViewer = () => {
             }
         };
         alert(JSON.stringify(exportRequest));
-        //getExportResponse(exportRequest);
+        getExportResponse(exportRequest);
     };
 
     const handleUpload = async (file) => {
         //console.log(file);
         const base64 = await convertToBase64(file);
         //console.log('handleUpload: ', base64);
-        //onUpload(activeImage.imageIdx, base64, file)
+        await uploadPreview(activeImageIdx, base64, file);
     };
 
-    const updatePreview = () => {
+    const uploadPreview = async (imageIdx, bytes, file) => {
         setOpen(true);
-        console.log('UPDATE PREVIEW ', activeImageIdx, activePreviewIdx, imagingDataSet.images[activeImageIdx].previews[activePreviewIdx].config);
-        console.log('UPDATE PREVIEW ', imagingDataSet.images[activeImageIdx].previews[activePreviewIdx]);
+        try {
+            const result = await openbis.uploadImaginingDataSet(imagingDataSet, imageIdx, bytes, file);
+            console.log('Data => ', result);
+            setImaginingDataSet(result);
+            setTimeout(handleClose, 1000);
+            setTimeout(() => setSnackbar({show:true, message:"Image uploaded", severity: "success"}), 1000);
+        }
+        catch (err) {
+            setTimeout(handleClose, 1000);
+            setTimeout(() => setSnackbar({show:true, message:"Image not uploaded", severity: "error"}), 1000);
+            console.log('Err => ', err);
+        }
+    };
+
+    const updatePreview = async () => {
+        setOpen(true);
+        try {
+            const result = await openbis.updateImaginingDataSet(imagingDataSet, activeImageIdx, activePreviewIdx, imagingDataSet.images[activeImageIdx].previews[activePreviewIdx].config);
+            console.log('Data => ', result);
+            setImaginingDataSet(result);
+            setTimeout(handleClose, 1000);
+            setTimeout(() => setSnackbar({show:true, message:"Image updated", severity: "success"}), 1000);
+        }
+        catch (err) {
+            setTimeout(handleClose, 1000);
+            setTimeout(() => setSnackbar({show:true, message:"Image not updated", severity: "error"}), 1000);
+            console.log('Err => ', err);
+        }
+        //console.log('UPDATE PREVIEW ', activeImageIdx, activePreviewIdx, imagingDataSet.images[activeImageIdx].previews[activePreviewIdx].config);
+        //console.log('UPDATE PREVIEW ', imagingDataSet.images[activeImageIdx].previews[activePreviewIdx]);
         //onUpdate(activeImage.imageIdx, activePreview.previewIdx, activeConfig);
-        setTimeout(handleClose, 1000);
-        setTimeout(() => setSnackbar({show:true, message:"Image updated", severity: "success"}), 1000);
     };
 
     const savePreview = () => {
@@ -224,8 +253,7 @@ const ImagingDataSetViewer = () => {
             <ImageListItem className={activePreviewIdx === preview.previewIdx ? classes.elevation : classes.trasparency} onClick={() => handleActivePreviewChange(preview.previewIdx)} key={preview.previewIdx}>
                 <ThemeProvider theme={themeList}>
                     <img className={classes.imgFullWidth}
-                         srcSet={`${preview.img}`}
-                         src={`${preview.img}`}
+                         src={preview.img}
                          alt={preview.bytes}
                     />
                    {/* <img
@@ -297,6 +325,7 @@ const ImagingDataSetViewer = () => {
                         <h2>
                             Previews:
                         </h2>
+
                         <Button sx={{ margin: '3px' }} variant="outlined" startIcon={<RefreshIcon />}
                                 onClick={updatePreview} >Update</Button>
 

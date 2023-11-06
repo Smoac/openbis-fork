@@ -1,3 +1,5 @@
+import openbis from "@src/js/services/openbis";
+
 export const convertToBase64 = (file) => {
     return new Promise((resolve, reject) => {
         const fileReader = new FileReader();
@@ -11,10 +13,21 @@ export const convertToBase64 = (file) => {
     });
 };
 
-export function Download(arrayBuffer, type) {
-    var blob = new Blob([arrayBuffer], { type: type });
+function Download(arrayBuffer, type) {
+    let blob = new Blob([arrayBuffer], { type: type });
     //console.log(blob);
-    var url = URL.createObjectURL(blob);
+    let url = URL.createObjectURL(blob);
     //console.log(url);
     window.open(url);
+}
+
+export const getExportResponse = async (exportRequest) => {
+    try {
+        const result = await openbis.getImaginingDataSetExport(exportRequest);
+        console.log('Data => ', result);
+        Download(result.export.bytes, result.export.config.Format);
+    }
+    catch (err) {
+        console.log('Err => ', err);
+    }
 }
