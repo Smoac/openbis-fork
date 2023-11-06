@@ -2,30 +2,32 @@ import React from 'react'
 import logger from '@src/js/common/logger.js'
 import {createTheme, makeStyles} from "@material-ui/core/styles";
 import {
+    Backdrop,
     Box,
+    Button,
     Divider,
     Grid,
     ImageList,
     ImageListItem,
-    Paper,
+    Paper, Snackbar,
     ThemeProvider
 } from "@material-ui/core";
-import Dropdown from "@src/js/components/database/premise/common/Dropdown.js";
 import openbis from "@src/js/services/openbis";
-import Button from "@material-ui/core/Button";
 
 import SaveIcon from '@material-ui/icons/Save';
 import DeleteIcon from '@material-ui/icons/Delete';
 import RefreshIcon from '@material-ui/icons/Refresh';
 import AddToQueueIcon from '@material-ui/icons/AddToQueue';
+
+import Dropdown from "@src/js/components/database/premise/common/Dropdown.js";
 import AlertDialog from "@src/js/components/database/premise/common/AlertDialog";
 import InputFileUpload from "@src/js/components/database/premise/components/InputFileUpload";
 import {convertToBase64} from "@src/js/components/database/premise/utils";
 import Export from "@src/js/components/database/premise/components/Exporter";
 import Player from "@src/js/components/database/premise/common/Player";
 import InputsPanel from "@src/js/components/database/premise/components/InputsPanel";
-//import ArrowCircleLeftIcon from '@material-ui/icons/ArrowCircleLeft';
-//import ArrowCircleRightIcon from '@material-ui/icons/ArrowCircleRight';
+import CircularProgress from "@material-ui/core/CircularProgress";
+import {Alert} from "@material-ui/lab";
 
 const themeList = createTheme({
     overrides: {
@@ -41,6 +43,23 @@ const themeList = createTheme({
 });
 
 const useStyles = makeStyles((theme) => ({
+    '@global': {
+        "&::-webkit-scrollbar, & *::-webkit-scrollbar": {
+            backgroundColor: "rgba( 48, 63, 159,0.5)",
+            borderRadius: 10,
+            height: 10,
+            width: 10
+        },
+        "&::-webkit-scrollbar-thumb, & *::-webkit-scrollbar-thumb": {
+            borderRadius: 10,
+            backgroundColor: "rgba( 48, 63, 159,0.8)",
+            height: 10,
+        },
+    },
+    backdrop: {
+        zIndex: theme.zIndex.drawer + 1,
+        color: '#fff',
+    },
     imgContainer: {
         maxWidth: '800px',
         maxHeight: '800px',
@@ -81,6 +100,22 @@ const useStyles = makeStyles((theme) => ({
 const ImagingDataSetViewer = () => {
     const classes = useStyles();
 
+    const [open, setOpen] = React.useState(false);
+    const [snackbar, setSnackbar] = React.useState({show:false, message:'Default Success', severity:"success"});
+    const handleClose = () => {
+        setOpen(false);
+    };
+    const handleOpen = () => {
+        setOpen(true);
+    };
+
+    const handleSnackbarClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setSnackbar({show:false});
+    };
+
     const [imagingDataSet, setImaginingDataSet] = React.useState(openbis.getImaginingDataSetConfig());
     const [resolution, setResolution] = React.useState([200, 200]);
     const [activeImageIdx, setActiveImageIdx] = React.useState(0);
@@ -90,10 +125,11 @@ const ImagingDataSetViewer = () => {
     let images = imagingDataSet.images;
     let activeImage = imagingDataSet.images[activeImageIdx];
     let activePreview = imagingDataSet.images[activeImageIdx].previews[activePreviewIdx];
-    let activeConfig = activePreview.config;
-    let extendedInputsConfig = imagingDataSet.config.inputs.map(c => Object.assign(c, { 'initValue': activeConfig[c.label] }));
+    let activeConfig = imagingDataSet.images[activeImageIdx].config;
+    let extendedInputsConfig = imagingDataSet.config.inputs.map(c => Object.assign(c, { 'initValue': imagingDataSet.images[activeImageIdx].previews[activePreviewIdx].config[c.label] }));
 
-    console.log("CONFIG: ", imagingDataSet);
+    //console.log("CONFIG: ", imagingDataSet.images[activeImageIdx].previews[activePreviewIdx].config);
+
 
     const handleResolutionChange = (event) => {
         const v_list = event.target.value.split('x');
@@ -117,7 +153,11 @@ const ImagingDataSetViewer = () => {
     };
 
     const handleActiveConfigChange = (newConfig) => {
-        console.log('handleActiveConfigChange = ', activeConfig === newConfig);
+        //console.log('handleActiveConfigChange = ', imagingDataSet.images[activeImageIdx].previews[activePreviewIdx].config);
+        //console.log('handleActiveConfigChange = ', newConfig);
+        let toUpdateIDS = {...imagingDataSet};
+        toUpdateIDS.images[activeImageIdx].previews[activePreviewIdx].config = newConfig;
+        setImaginingDataSet(toUpdateIDS);
         //setActiveConfig(newConfig);
     }
 
@@ -127,7 +167,7 @@ const ImagingDataSetViewer = () => {
             "type": "export",
             "permId": "999999999-9999",
             "error": null,
-            "imageIndex": activeImage.imageIdx,
+            "imageIndex": imagingDataSet.images[activeImageIdx].imageIdx,
             "export": {
                 "@type": "ImagingDataSetExport",
                 "config": state,
@@ -142,13 +182,17 @@ const ImagingDataSetViewer = () => {
     const handleUpload = async (file) => {
         //console.log(file);
         const base64 = await convertToBase64(file);
-        console.log('handleUpload: ', base64);
+        //console.log('handleUpload: ', base64);
         //onUpload(activeImage.imageIdx, base64, file)
     };
 
     const updatePreview = () => {
-        console.log('UPDATE PREVIEW ', activeImageIdx, activePreviewIdx);
+        setOpen(true);
+        console.log('UPDATE PREVIEW ', activeImageIdx, activePreviewIdx, imagingDataSet.images[activeImageIdx].config);
+        console.log('UPDATE PREVIEW ', imagingDataSet.images[activeImageIdx].previews[activePreviewIdx]);
         //onUpdate(activeImage.imageIdx, activePreview.previewIdx, activeConfig);
+        setTimeout(handleClose, 1000);
+        setTimeout(() => setSnackbar({show:true, message:"Image updated", severity: "success"}), 1000);
     };
 
     const savePreview = () => {
@@ -166,7 +210,7 @@ const ImagingDataSetViewer = () => {
         //onDelete(activeImage.imageIdx, activePreview.previewIdx);
     };
 
-    const imagesCompList = images.map((image, idx) => (
+    const imagesCompList = imagingDataSet.images.map((image, idx) => (
         <ImageListItem className={activeImageIdx === image.imageIdx ? classes.elevation : classes.trasparency} onClick={() => handleActiveImageChange(image.imageIdx)} key={image.imageIdx}>
             <ThemeProvider theme={themeList}>
                 <img
@@ -178,7 +222,7 @@ const ImagingDataSetViewer = () => {
         </ImageListItem>
     ));
 
-    const previewsCompList = activeImage.previews.map((preview, idx) => (
+    const previewsCompList = imagingDataSet.images[activeImageIdx].previews.map((preview, idx) => (
             <ImageListItem className={activePreviewIdx === preview.previewIdx ? classes.elevation : classes.trasparency} onClick={() => handleActivePreviewChange(preview.previewIdx)} key={preview.previewIdx}>
                 <ThemeProvider theme={themeList}>
                     <img className={classes.imgFullWidth}
@@ -186,19 +230,33 @@ const ImagingDataSetViewer = () => {
                          src={`${preview.img}`}
                          alt={preview.bytes}
                     />
+                   {/* <img
+                        className={classes.imgFullWidth}
+                        src={`data:image/${preview.format};base64,${preview.bytes}`}
+                        height={164}
+                        width={164}
+                    />*/}
                 </ThemeProvider>
-                {/* <img
-                                        src={`data:image/${preview.format};base64,${preview.bytes}`}
-                                        height={164}
-                                        width={164}
-                                    />
-                                    {activePreview.previewIdx == preview.previewIdx ? moveArrowCompList(activePreview.previewIdx) : ''}*/}
+                {/*{activePreview.previewIdx == preview.previewIdx ? moveArrowCompList(activePreview.previewIdx) : ''}*/}
             </ImageListItem>
         ));
 
     logger.log(logger.DEBUG, 'ImaginingDataViewer.render');
     return (
         <React.Fragment>
+            <Backdrop
+                className={classes.backdrop}
+                open={open}
+            >
+                <CircularProgress color="inherit" />
+            </Backdrop>
+            <Snackbar anchorOrigin={{ vertical:'bottom', horizontal:'right' }}
+                      open={snackbar.show}
+                      autoHideDuration={5000} onClose={handleSnackbarClose}>
+                <Alert onClose={handleSnackbarClose} severity={snackbar.severity} sx={{ width: '100%' }}>
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
             <h2>Imaging Dataset Viewer</h2>
             <Grid container direction="row">
                 <Grid item xs>
@@ -206,16 +264,26 @@ const ImagingDataSetViewer = () => {
                         <Box className={classes.imgContainer}>
                             <Paper sx={{width: '100%', height: '100%'}} variant="outlined">
                                 <img
-                                    src={`${activePreview.img}?w=${resolution[0]}&h=${resolution[1]}&fit=crop&auto=format`}
-                                    alt={activePreview.bytes}
+                                    src={`${imagingDataSet.images[activeImageIdx].previews[activePreviewIdx].img}?w=${resolution[0]}&h=${resolution[1]}&fit=crop&auto=format`}
+                                    alt={imagingDataSet.images[activeImageIdx].previews[activePreviewIdx].bytes}
                                     loading="lazy"
                                 />
                             </Paper>
                         </Box>
                     </Grid>
-                    <Grid item xs={3}>
-                        <Dropdown onSelectChange={handleResolutionChange} label="Resolutions"
-                                  values={resolutions} initValue={[resolution.join('x')]}/>
+                    <Grid item container
+                          direction="row"
+                          justifyContent="space-between"
+                          alignItems="center">
+                        <Grid item xs={3}>
+                            <Dropdown onSelectChange={handleResolutionChange}
+                                      label="Resolutions"
+                                      values={imagingDataSet.config.resolutions}
+                                      initValue={[resolution.join('x')]}/>
+                        </Grid>
+
+                        <Export handleExport={handleExport}
+                                config={imagingDataSet.config.export} />
                     </Grid>
                     <Grid item xs={12}>
                         <h2>
@@ -259,16 +327,14 @@ const ImagingDataSetViewer = () => {
                     </Grid>
                 </Grid>
                 <Grid item xs>
-                    <InputsPanel inputsConfig={imagingDataSet.config.inputs} extendedConfig={extendedInputsConfig} prevConfig={activeConfig} onConfigChange={handleActiveConfigChange} />
+                    <InputsPanel inputsConfig={imagingDataSet.config.inputs}
+                                 extendedConfig={imagingDataSet.config.inputs}
+                                 prevConfigValues={imagingDataSet.images[activeImageIdx].previews[activePreviewIdx].config}
+                                 onConfigChange={handleActiveConfigChange} />
 
                     <Grid item container
-                          direction="row"
-                          justifyContent="right"
-                          alignItems="center"
-                            className={classes.spaced2}>
-
-                        <Export handleExport={handleExport} config={imagingDataSet.config.export} />
-
+                          justifyContent="center"
+                          alignItems="center">
                         <Player speedable={true}></Player>
                     </Grid>
                 </Grid>
