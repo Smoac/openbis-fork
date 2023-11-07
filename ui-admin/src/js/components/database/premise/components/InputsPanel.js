@@ -13,29 +13,10 @@ const Components = {
     RangeSlider
 }
 
-const InputsPanel = ({ extendedConfig, prevConfigValues, onConfigChange }) => {
+const InputsPanel = ({ inputsConfig, prevConfigValues, onConfigChange }) => {
     const [show, setShow] = React.useState(true);
-    const [currentPreviewConfig, setCurrentPreviewConfig] = React.useState(prevConfigValues);
-    const [currentExtendedConfig, setCurrentExtendedConfig] = React.useState(extendedConfig);
 
-    //console.log('InputsPanel = ', prevConfigValues);
-    const handleSliderOnChange = (name, value) => {
-        //console.log(name, value);
-        let newConfig = {...currentPreviewConfig};
-        newConfig[name] = value;
-        //setCurrentPreviewConfig(newConfig);
-        onConfigChange(newConfig);
-         //console.log("handleOnChange - ", newConfig);
-    };
-
-    const handleDropdownOnChange = (event) => {
-        //console.log(event);
-        let newConfig = {...currentPreviewConfig}
-        newConfig[event.target.name] = event.target.value;
-        //setCurrentPreviewConfig(newConfig);
-        onConfigChange(newConfig);
-        //console.log("handleDropdownOnChange - ", newConfig);
-    }
+    console.log('InputsPanel = ', prevConfigValues);
 
     /*    const listInputsComp = extendedConfig.map((c, idx) => {
         //console.log(panelConfig, initConfig);
@@ -49,7 +30,7 @@ const InputsPanel = ({ extendedConfig, prevConfigValues, onConfigChange }) => {
         }
     });*/
 
-    const listInputsComponents = extendedConfig.map((c, idx) => {
+    const listInputsComponents = inputsConfig.map((c, idx) => {
         //console.log(c.label, prevConfigValues[c.label]);
         let Component = Components[c.type];
         return (<Component key={"inputpanel-"+c.type +"-"+ idx}
@@ -57,9 +38,9 @@ const InputsPanel = ({ extendedConfig, prevConfigValues, onConfigChange }) => {
                            initValue={prevConfigValues[c.label]}
                            values={c.values}
                            isMulti={c.multiselect}
-                           onSelectChange={handleDropdownOnChange}
+                           onSelectChange={(event) => onConfigChange(event.target.name, event.target.value)}
                            range={c.range}
-                           onChange={handleSliderOnChange}/>);
+                           onChange={(name, value) => onConfigChange(name, value)}/>);
     });
 
     return (

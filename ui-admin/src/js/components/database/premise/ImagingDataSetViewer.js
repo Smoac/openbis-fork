@@ -197,6 +197,15 @@ const ImagingDataSetViewer = () => {
         //setActiveConfig(newConfig);
     }
 
+    const handleActiveConfigChange2 = (name, value) => {
+        //console.log('handleActiveConfigChange = ', imagingDataSet.images[activeImageIdx].previews[activePreviewIdx].config);
+        //console.log('handleActiveConfigChange = ', newConfig);
+        let toUpdateIDS = {...imagingDataSet};
+        toUpdateIDS.images[activeImageIdx].previews[activePreviewIdx].config[name] = value;
+        setImaginingDataSet(toUpdateIDS);
+        //setActiveConfig(newConfig);
+    }
+
     const handleExport = (state) => {
         let exportRequest = {
             "type": "export",
@@ -414,9 +423,8 @@ const ImagingDataSetViewer = () => {
                 </Grid>
                 <Grid item xs>
                     <InputsPanel inputsConfig={imagingDataSet.config.inputs}
-                                 extendedConfig={imagingDataSet.config.inputs}
                                  prevConfigValues={imagingDataSet.images[activeImageIdx].previews[activePreviewIdx].config}
-                                 onConfigChange={handleActiveConfigChange} />
+                                 onConfigChange={handleActiveConfigChange2} />
 
                     <Grid item container
                           justifyContent="center"

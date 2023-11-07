@@ -17,13 +17,6 @@ const InputRangeSlider = ({ label, range, initValue, playable, speeds, onChange}
 
     const [value, setValue] = React.useState(initValue == null ? [min,max] : initValue);
 
-    //console.log("InputSlider: ", label, initValue, value);
-    /*React.useEffect(() => {
-        if (initValue !== value) {
-            setValue(initValue);
-        }
-    }, [initValue]);*/
-
     function roundToClosest(counts, goal){
         return counts.reduce((prev, curr) => Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev);
     }
