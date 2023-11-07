@@ -228,14 +228,40 @@ const ImagingDataSetViewer = () => {
         //onUpdate(activeImage.imageIdx, activePreview.previewIdx, activeConfig);
     };
 
-    const createNewPreview = () => {
+    const createNewPreview = async () => {
         console.log('NEW PREVIEW ', activeImageIdx, activePreviewIdx);
-        //onNew(activeImage.imageIdx);
+        setOpen(true);
+        try {
+            const result = await openbis.getNewPreview(imagingDataSet, activeImageIdx);
+            console.log('createNewPreview Data => ', result);
+            setImaginingDataSet(result);
+            setTimeout(handleClose, 1000);
+            setTimeout(() => setSnackbar({show:true, message:"Created new empty preview", severity: "success"}), 1000);
+        }
+        catch (err) {
+            setTimeout(handleClose, 1000);
+            setTimeout(() => setSnackbar({show:true, message:"Failed new empty preview creation", severity: "error"}), 1000);
+            console.log('Err => ', err);
+        }
     };
 
-    const deletePreview = () => {
+    const deletePreview = async () => {
         console.log("DELETE PREVIEW ", activeImageIdx, activePreviewIdx);
         //onDelete(activeImage.imageIdx, activePreview.previewIdx);
+        setOpen(true);
+        setActivePreviewIdx(0);
+        try {
+            const result = await openbis.deletePreview(imagingDataSet, activeImageIdx, activePreviewIdx);
+            console.log('deletePreview Data => ', result);
+            setImaginingDataSet(result);
+            setTimeout(handleClose, 1000);
+            setTimeout(() => setSnackbar({show:true, message:"Preview deleted", severity: "success"}), 1000);
+        }
+        catch (err) {
+            setTimeout(handleClose, 1000);
+            setTimeout(() => setSnackbar({show:true, message:"Failed to delete the preview", severity: "error"}), 1000);
+            console.log('Err => ', err);
+        }
     };
 
     const imagesCompList = imagingDataSet.images.map((image, idx) => (
@@ -294,6 +320,8 @@ const ImagingDataSetViewer = () => {
                                     src={`${imagingDataSet.images[activeImageIdx].previews[activePreviewIdx].img}?w=${resolution[0]}&h=${resolution[1]}&fit=crop&auto=format`}
                                     alt={imagingDataSet.images[activeImageIdx].previews[activePreviewIdx].bytes}
                                     loading="lazy"
+                                    height={resolution[0]}
+                                    width={resolution[1]}
                                 />
                             </Paper>
                         </Box>
