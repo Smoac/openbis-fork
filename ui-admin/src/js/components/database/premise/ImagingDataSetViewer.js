@@ -197,13 +197,14 @@ const ImagingDataSetViewer = () => {
         //setActiveConfig(newConfig);
     }
 
-    const handleActiveConfigChange2 = (name, value) => {
+    const handleActiveConfigChange2 = (name, value, update) => {
         //console.log('handleActiveConfigChange = ', imagingDataSet.images[activeImageIdx].previews[activePreviewIdx].config);
-        //console.log('handleActiveConfigChange = ', newConfig);
+        console.log('handleActiveConfigChange2 = ', name, value, update);
         let toUpdateIDS = {...imagingDataSet};
         toUpdateIDS.images[activeImageIdx].previews[activePreviewIdx].config[name] = value;
         setImaginingDataSet(toUpdateIDS);
         //setActiveConfig(newConfig);
+        if (update) updatePreview();
     }
 
     const handleExport = (state) => {
@@ -426,12 +427,11 @@ const ImagingDataSetViewer = () => {
                                  prevConfigValues={imagingDataSet.images[activeImageIdx].previews[activePreviewIdx].config}
                                  onConfigChange={handleActiveConfigChange2} />
 
-                    <Grid item container
+                    {/*<Grid item container
                           justifyContent="center"
                           alignItems="center">
                         <Player speedable={true}></Player>
-                        <Stepper/>
-                    </Grid>
+                    </Grid>*/}
                 </Grid>
             </Grid>
             <Divider className={classes.dividerFullWidth} />

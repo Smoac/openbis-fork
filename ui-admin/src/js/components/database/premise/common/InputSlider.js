@@ -30,9 +30,10 @@ const InputSlider = ({ label, range, initValue, playable, speeds, onChange }) =>
         return counts.reduce((prev, curr) => Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev);
     }
 
-    const handleSliderChange = (newValue, name) => {
+    const handleSliderChange = (newValue, name, update) => {
+        console.log(name+' SLIDER CHANGED '+newValue);
         setValue(newValue);
-        onChange(name, [newValue]);
+        onChange(name, [newValue], update);
     };
 
     const handleInputChange = (event) => {
@@ -61,7 +62,7 @@ const InputSlider = ({ label, range, initValue, playable, speeds, onChange }) =>
                         <Slider
                             value={initValue == null ? min : Number(initValue)}
                             name={label}
-                            onChange={(event, newValue)=> handleSliderChange(newValue, label)}
+                            onChange={(event, newValue)=> handleSliderChange(newValue, label, false)}
                             min={min}
                             max={max}
                             step={step}
@@ -84,7 +85,7 @@ const InputSlider = ({ label, range, initValue, playable, speeds, onChange }) =>
                         />
                     </Grid>
                 </Grid>
-                <Player />
+                <Player label={label} onStep={handleSliderChange} steps={arrayRange} speeds={speeds} speedable={playable} />
 
         </OutlinedBox>
     );

@@ -101,7 +101,7 @@ const InputRangeSlider = ({ label, range, initValue, playable, speeds, onChange}
                     />
                 </Grid>
             </Grid>
-            <Player />
+            <Player steps={arrayRange} speeds={speeds} speedable={playable}/>
         </OutlinedBox>
     );
 }

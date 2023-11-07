@@ -16,7 +16,7 @@ const Components = {
 const InputsPanel = ({ inputsConfig, prevConfigValues, onConfigChange }) => {
     const [show, setShow] = React.useState(true);
 
-    console.log('InputsPanel = ', prevConfigValues);
+    //console.log('InputsPanel = ', prevConfigValues);
 
     /*    const listInputsComp = extendedConfig.map((c, idx) => {
         //console.log(panelConfig, initConfig);
@@ -40,7 +40,9 @@ const InputsPanel = ({ inputsConfig, prevConfigValues, onConfigChange }) => {
                            isMulti={c.multiselect}
                            onSelectChange={(event) => onConfigChange(event.target.name, event.target.value)}
                            range={c.range}
-                           onChange={(name, value) => onConfigChange(name, value)}/>);
+                           playable={c.playable}
+                           speeds={c.speeds}
+                           onChange={(name, value, update) => onConfigChange(name, value, update)}/>);
     });
 
     return (

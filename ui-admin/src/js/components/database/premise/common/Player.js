@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { styled, useTheme } from '@material-ui/core/styles';
+import {makeStyles, styled, useTheme} from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
 import Slider from '@material-ui/core/Slider';
 import IconButton from '@material-ui/core/IconButton';
@@ -7,10 +7,14 @@ import PauseRounded from '@material-ui/icons/PauseRounded';
 import PlayArrowRounded from '@material-ui/icons/PlayArrowRounded';
 import FastForwardRounded from '@material-ui/icons/FastForwardRounded';
 import FastRewindRounded from '@material-ui/icons/FastRewindRounded';
+import Button from "@material-ui/core/Button";
+import KeyboardArrowLeft from "@material-ui/icons/KeyboardArrowLeft";
+import KeyboardArrowRight from "@material-ui/icons/KeyboardArrowRight";
+import MobileStepper from "@material-ui/core/MobileStepper";
 
-/* import SkipPreviousIcon from '@material-ui/icons/SkipPrevious';
+ import SkipPreviousIcon from '@material-ui/icons/SkipPrevious';
 import PlayArrowIcon from '@material-ui/icons/PlayArrow';
-import SkipNextIcon from '@material-ui/icons/SkipNext'; */
+import SkipNextIcon from '@material-ui/icons/SkipNext';
 
 const Widget = styled('div')(({ theme }) => ({
     padding: 16,
@@ -27,49 +31,102 @@ const Widget = styled('div')(({ theme }) => ({
 const defaultSpeeds = [
     {
         value: 1000,
-        label: 'x1',
+        label: '1s',
     },
     {
         value: 2000,
-        label: 'x2',
+        label: '2s',
     },
     {
         value: 5000,
-        label: 'x5',
+        label: '5s',
     },
     {
         value: 10000,
-        label: 'x10',
+        label: '10s',
     },
 ];
 
-export default function Player({ speeds = defaultSpeeds, speedable = false }) {
-    //{playable: playable, speeds:speeds}
-    //const playerConfig = React.useContext(PlayerContext);
-    //console.log(playerConfig);
+const useStyles = makeStyles({
+    rootBox: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        mt: -1,
+    },
+    root: {
+        display: 'contents'
+    }
+});
+export default function Player({ label= 'DEFAULT', onStep=()=>console.log('DEFAULT LOG'), steps = [], speeds = defaultSpeeds, speedable = false }) {
+    const classes = useStyles();
     const theme = useTheme();
-    const duration = 200; // seconds
-    const [position, setPosition] = React.useState(32);
+    const [activeStep, setActiveStep] = React.useState(-1);
     const [paused, setPaused] = React.useState(true);
-    function formatDuration(value) {
-        const minute = Math.floor(value / 60);
-        const secondLeft = value - minute * 60;
-        return `${minute}:${secondLeft < 10 ? `0${secondLeft}` : secondLeft}`;
+    const [speed, setSpeed] = React.useState(2000);
+    const timeoutRef = React.useRef(null);
+
+    const handleSpeedChange = (event, newValue) => {
+        setSpeed(newValue);
+    };
+
+    function resetTimeout() {
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+        }
+    }
+
+    React.useEffect(() => {
+        if (!paused){
+            console.log(`RUN activeStep=${activeStep} value=${steps[activeStep]}`);
+            resetTimeout();
+            onStep(steps[activeStep], label, true);
+            timeoutRef.current = setTimeout(
+                () =>
+                    setActiveStep((prevIndex) =>
+                        prevIndex === steps.length - 1 ? 0 : prevIndex + 1
+                    ),
+                speed
+            );
+
+            return () => {
+                resetTimeout();
+            };
+        }
+    }, [activeStep]);
+
+    const duration = 2000;
+    const handleNext = () => {
+        setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    };
+
+    const handleBack = () => {
+        setActiveStep((prevActiveStep) => prevActiveStep - 1);
+    };
+
+    const handlePlay = () => {
+        resetTimeout();
+        timeoutRef.current = setTimeout(
+            () =>
+                setActiveStep((prevIndex) =>
+                    prevIndex === steps.length - 1 ? 0 : prevIndex + 1
+                ),
+            2000
+        );
+
+        return () => {
+            resetTimeout();
+        };
     }
 
     const mainIconColor = theme.palette.mode === 'dark' ? '#fff' : '#000';
-
+    console.log(steps);
     return (
         <Widget>
-            <Box
-                sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    mt: -1,
-                }}
-            >
-                <IconButton aria-label="previous">
+            <Box className={classes.rootBox}>
+                <IconButton aria-label="previous"
+                            onClick={handleBack}
+                            disabled={paused || activeStep === 0}>
                     <FastRewindRounded fontSize="large" htmlColor={mainIconColor} />
                 </IconButton>
                 <IconButton
@@ -80,44 +137,31 @@ export default function Player({ speeds = defaultSpeeds, speedable = false }) {
                         <PlayArrowRounded
                             sx={{ fontSize: '3rem' }}
                             htmlColor={mainIconColor}
+                            onClick={handlePlay}
                         />
                     ) : (
                         <PauseRounded sx={{ fontSize: '3rem' }} htmlColor={mainIconColor} />
                     )}
                 </IconButton>
-                <IconButton aria-label="next">
+                <IconButton aria-label="next"
+                            onClick={handleNext}
+                            disabled={paused || activeStep === steps.length-1}>
                     <FastForwardRounded fontSize="large" htmlColor={mainIconColor} />
                 </IconButton>
             </Box>
-            {/* <Box sx={{ display: 'flex', alignItems: 'center', pl: 1, pb: 1 }}>
-				<IconButton aria-label="previous">
-					{theme.direction === 'rtl' ? <SkipNextIcon /> : <SkipPreviousIcon />}
-				</IconButton>
-				<IconButton aria-label="play/pause">
-					<PlayArrowIcon sx={{ height: 38, width: 38 }} />
-				</IconButton>
-				<IconButton aria-label="next">
-					{theme.direction === 'rtl' ? <SkipPreviousIcon /> : <SkipNextIcon />}
-				</IconButton>
-			</Box> */}
+            {!paused && <MobileStepper variant="dots"
+                            steps={steps.length}
+                            position="static"
+                            activeStep={activeStep}
+                            className={classes.root}
+            />}
             {speedable && <Slider
-                aria-label="Speed"
-                defaultValue={speeds[0].value}
-                sx={{
-                    color: 'rgba(0,0,0,0.87)',
-                    '& .MuiSlider-track': { border: 'none', },
-                    '& .MuiSlider-thumb': {
-                        width: 24,
-                        height: 24,
-                        backgroundColor: '#fff',
-                        '&:before': { boxShadow: '0 4px 8px rgba(0,0,0,0.4)' },
-                        '&:hover, &.Mui-focusVisible, &.Mui-active': { boxShadow: 'none' },
-                    }
-                }}
+                value={speed}
+                onChange={handleSpeedChange}
                 step={null}
-                min={speeds[0].value}
-                max={speeds[speeds.length - 1].value}
-                marks={speeds}
+                min={defaultSpeeds[0].value}
+                max={defaultSpeeds[defaultSpeeds.length - 1].value}
+                marks={defaultSpeeds}
             />}
         </Widget>
     );
