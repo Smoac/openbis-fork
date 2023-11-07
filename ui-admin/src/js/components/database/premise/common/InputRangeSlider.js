@@ -68,7 +68,7 @@ const InputRangeSlider = ({ label, range, initValue, playable, speeds, onChange}
                 <Grid item >
                     <Input
                         name={label}
-                        value={initValue == null ? [min,max] : initValue[0]}
+                        value={initValue == null ? min : initValue[0]}
                         size="small"
                         onChange={handleInputMinChange}
                         onBlur={handleBlur}
@@ -94,7 +94,7 @@ const InputRangeSlider = ({ label, range, initValue, playable, speeds, onChange}
                 <Grid item xs>
                     <Input
                         name={label}
-                        value={initValue == null ? [min,max] : initValue[1]}
+                        value={initValue == null ? max : initValue[1]}
                         size="small"
                         onChange={handleInputMaxChange}
                         onBlur={handleBlur}
