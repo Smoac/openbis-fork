@@ -8,16 +8,19 @@ import {
     Divider,
     Grid,
     ImageList,
-    ImageListItem,
+    ImageListItem, ImageListItemBar,
     Paper, Snackbar,
-    ThemeProvider
+    ThemeProvider, Tooltip, IconButton
 } from "@material-ui/core";
+import {Alert} from "@material-ui/lab";
 import openbis from "@src/js/services/openbis";
 
 import SaveIcon from '@material-ui/icons/Save';
 import DeleteIcon from '@material-ui/icons/Delete';
 import RefreshIcon from '@material-ui/icons/Refresh';
 import AddToQueueIcon from '@material-ui/icons/AddToQueue';
+import ArrowLeftIcon from '@material-ui/icons/ArrowLeft';
+import ArrowRightIcon from '@material-ui/icons/ArrowRight';
 
 import Dropdown from "@src/js/components/database/premise/common/Dropdown.js";
 import AlertDialog from "@src/js/components/database/premise/common/AlertDialog";
@@ -30,9 +33,11 @@ import Export from "@src/js/components/database/premise/components/Exporter";
 import Player from "@src/js/components/database/premise/common/Player";
 import InputsPanel from "@src/js/components/database/premise/components/InputsPanel";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import {Alert} from "@material-ui/lab";
+
 import MetadataViewer from "@src/js/components/database/premise/components/MetadataViewr";
 import Stepper from "@src/js/components/database/premise/components/Stepper";
+import ImageListItemBarAction
+    from "@src/js/components/database/premise/common/ImageListItemBarAction";
 
 const themeList = createTheme({
     overrides: {
@@ -99,7 +104,7 @@ const useStyles = makeStyles((theme) => ({
         '& > *': {
             margin: theme.spacing(2),
         },
-    },
+    }
 }));
 
 const ImagingDataSetViewer = () => {
@@ -109,9 +114,6 @@ const ImagingDataSetViewer = () => {
     const [snackbar, setSnackbar] = React.useState({show:false, message:'Default Success', severity:"success"});
     const handleClose = () => {
         setOpen(false);
-    };
-    const handleOpen = () => {
-        setOpen(true);
     };
     const handleSnackbarClose = (event, reason) => {
         if (reason === 'clickaway') {
@@ -125,14 +127,45 @@ const ImagingDataSetViewer = () => {
     const [activeImageIdx, setActiveImageIdx] = React.useState(0);
     const [activePreviewIdx, setActivePreviewIdx] = React.useState(0);
 
-    let resolutions = imagingDataSet.config.resolutions;
-    let images = imagingDataSet.images;
-    let activeImage = imagingDataSet.images[activeImageIdx];
-    let activePreview = imagingDataSet.images[activeImageIdx].previews[activePreviewIdx];
-    let activeConfig = imagingDataSet.images[activeImageIdx].config;
-    let extendedInputsConfig = imagingDataSet.config.inputs.map(c => Object.assign(c, { 'initValue': imagingDataSet.images[activeImageIdx].previews[activePreviewIdx].config[c.label] }));
+    //let resolutions = imagingDataSet.config.resolutions;
+    //let images = imagingDataSet.images;
+    //let activeImage = imagingDataSet.images[activeImageIdx];
+    //let activePreview = imagingDataSet.images[activeImageIdx].previews[activePreviewIdx];
+    //let activeConfig = imagingDataSet.images[activeImageIdx].config;
+    //let extendedInputsConfig = imagingDataSet.config.inputs.map(c => Object.assign(c, { 'initValue': imagingDataSet.images[activeImageIdx].previews[activePreviewIdx].config[c.label] }));
 
     //console.log("CONFIG: ", imagingDataSet.images[activeImageIdx].previews[activePreviewIdx].config);
+
+    function handleMove(position) {
+        console.log(activeImageIdx, activePreviewIdx, position);
+        setOpen(true);
+        let toUpdateImgDs = { ...imagingDataSet };
+        let previewsList = toUpdateImgDs.images[activeImageIdx].previews;
+        let tempMovedPreview = previewsList[activePreviewIdx];
+        tempMovedPreview.previewIdx += position;
+        previewsList[activePreviewIdx] = previewsList[activePreviewIdx+position];
+        previewsList[activePreviewIdx].previewIdx -= position;
+        previewsList[activePreviewIdx+position] = tempMovedPreview;
+        toUpdateImgDs.images[activeImageIdx].previews = previewsList;
+        setImaginingDataSet(toUpdateImgDs);
+        setTimeout(handleClose, 1000);
+        setTimeout(() => setSnackbar({show:true, message:"Preview Moved", severity: "success"}), 1000);
+    }
+
+    const moveArrowCompList = (currentIdx) => {
+        let previewsLength = imagingDataSet.images[activeImageIdx].previews.length;
+        if (currentIdx === 0 && previewsLength === 1) { // only 1 element
+            return [];
+        } else if (currentIdx === 0) { // first element
+            return [<ImageListItemBarAction classNames={'singleActionBar'} position={'right'} onMove={() => handleMove(1)}/>];
+        } else if (currentIdx === previewsLength - 1) { // last element
+            return [<ImageListItemBarAction classNames={'singleActionBar'} position={'left'} onMove={() => handleMove(-1)}/>];
+        } else {
+            //console.log('ELEMENT ', currentIdx, (activeImage.previews.length) - 1);
+            return [<ImageListItemBarAction classNames={'actionBarL'} position={'left'} onMove={() => handleMove(-1)}/>,
+                <ImageListItemBarAction classNames={'actionBarR'} position={'right'}  onMove={() => handleMove(1)}/>];
+        }
+    };
 
     const handleResolutionChange = (event) => {
         const v_list = event.target.value.split('x');
@@ -165,7 +198,6 @@ const ImagingDataSetViewer = () => {
     }
 
     const handleExport = (state) => {
-        //console.log(state);
         let exportRequest = {
             "type": "export",
             "permId": "999999999-9999",//TODO: implement logic to get correct perm-ID
@@ -182,9 +214,7 @@ const ImagingDataSetViewer = () => {
     };
 
     const handleUpload = async (file) => {
-        //console.log(file);
         const base64 = await convertToBase64(file);
-        //console.log('handleUpload: ', base64);
         await uploadPreview(activeImageIdx, base64, file);
     };
 
@@ -290,7 +320,7 @@ const ImagingDataSetViewer = () => {
                         width={164}
                     />*/}
                 </ThemeProvider>
-                {/*{activePreview.previewIdx == preview.previewIdx ? moveArrowCompList(activePreview.previewIdx) : ''}*/}
+                {activePreviewIdx == preview.previewIdx ? moveArrowCompList(activePreviewIdx) : ''}
             </ImageListItem>
         ));
 
