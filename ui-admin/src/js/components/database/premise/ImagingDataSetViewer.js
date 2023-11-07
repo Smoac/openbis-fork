@@ -32,6 +32,7 @@ import InputsPanel from "@src/js/components/database/premise/components/InputsPa
 import CircularProgress from "@material-ui/core/CircularProgress";
 import {Alert} from "@material-ui/lab";
 import MetadataViewer from "@src/js/components/database/premise/components/MetadataViewr";
+import Stepper from "@src/js/components/database/premise/components/Stepper";
 
 const themeList = createTheme({
     overrides: {
@@ -363,6 +364,7 @@ const ImagingDataSetViewer = () => {
                           justifyContent="center"
                           alignItems="center">
                         <Player speedable={true}></Player>
+                        <Stepper/>
                     </Grid>
                 </Grid>
             </Grid>
