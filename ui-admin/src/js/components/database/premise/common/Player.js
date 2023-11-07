@@ -7,14 +7,8 @@ import PauseRounded from '@material-ui/icons/PauseRounded';
 import PlayArrowRounded from '@material-ui/icons/PlayArrowRounded';
 import FastForwardRounded from '@material-ui/icons/FastForwardRounded';
 import FastRewindRounded from '@material-ui/icons/FastRewindRounded';
-import Button from "@material-ui/core/Button";
-import KeyboardArrowLeft from "@material-ui/icons/KeyboardArrowLeft";
-import KeyboardArrowRight from "@material-ui/icons/KeyboardArrowRight";
 import MobileStepper from "@material-ui/core/MobileStepper";
 
- import SkipPreviousIcon from '@material-ui/icons/SkipPrevious';
-import PlayArrowIcon from '@material-ui/icons/PlayArrow';
-import SkipNextIcon from '@material-ui/icons/SkipNext';
 
 const Widget = styled('div')(({ theme }) => ({
     padding: 16,
@@ -154,6 +148,8 @@ export default function Player({ label= 'DEFAULT', onStep=()=>console.log('DEFAU
                             position="static"
                             activeStep={activeStep}
                             className={classes.root}
+                           nextButton={''}
+                           backButton={''}
             />}
             {speedable && <Slider
                 value={speed}

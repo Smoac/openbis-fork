@@ -1,5 +1,6 @@
 import React from 'react'
 import logger from '@src/js/common/logger.js'
+import openbis from "@src/js/services/openbis";
 import {createTheme, makeStyles} from "@material-ui/core/styles";
 import {
     Backdrop,
@@ -8,36 +9,30 @@ import {
     Divider,
     Grid,
     ImageList,
-    ImageListItem, ImageListItemBar,
+    ImageListItem,
     Paper, Snackbar,
-    ThemeProvider, Tooltip, IconButton
+    ThemeProvider,
+    CircularProgress,
 } from "@material-ui/core";
 import {Alert} from "@material-ui/lab";
-import openbis from "@src/js/services/openbis";
 
 import SaveIcon from '@material-ui/icons/Save';
 import DeleteIcon from '@material-ui/icons/Delete';
 import RefreshIcon from '@material-ui/icons/Refresh';
 import AddToQueueIcon from '@material-ui/icons/AddToQueue';
-import ArrowLeftIcon from '@material-ui/icons/ArrowLeft';
-import ArrowRightIcon from '@material-ui/icons/ArrowRight';
 
-import Dropdown from "@src/js/components/database/premise/common/Dropdown.js";
-import AlertDialog from "@src/js/components/database/premise/common/AlertDialog";
-import InputFileUpload from "@src/js/components/database/premise/components/InputFileUpload";
 import {
     convertToBase64,
     getExportResponse
 } from "@src/js/components/database/premise/utils";
+import Dropdown from "@src/js/components/database/premise/common/Dropdown.js";
+import AlertDialog from "@src/js/components/database/premise/common/AlertDialog";
+import InputFileUpload from "@src/js/components/database/premise/components/InputFileUpload";
 import Export from "@src/js/components/database/premise/components/Exporter";
 import Player from "@src/js/components/database/premise/common/Player";
 import InputsPanel from "@src/js/components/database/premise/components/InputsPanel";
-import CircularProgress from "@material-ui/core/CircularProgress";
-
 import MetadataViewer from "@src/js/components/database/premise/components/MetadataViewr";
-import Stepper from "@src/js/components/database/premise/components/Stepper";
-import ImageListItemBarAction
-    from "@src/js/components/database/premise/common/ImageListItemBarAction";
+import ImageListItemBarAction from "@src/js/components/database/premise/common/ImageListItemBarAction";
 
 const themeList = createTheme({
     overrides: {
@@ -304,7 +299,7 @@ const ImagingDataSetViewer = () => {
         }
     };
 
-    const imagesCompList = imagingDataSet.images.map((image, idx) => (
+    const imagesCompList = imagingDataSet.images.map(image => (
         <ImageListItem className={activeImageIdx === image.imageIdx ? classes.elevation : classes.trasparency} onClick={() => handleActiveImageChange(image.imageIdx)} key={image.imageIdx}>
             <ThemeProvider theme={themeList}>
                 <img
@@ -316,7 +311,7 @@ const ImagingDataSetViewer = () => {
         </ImageListItem>
     ));
 
-    const previewsCompList = imagingDataSet.images[activeImageIdx].previews.map((preview, idx) => (
+    const previewsCompList = imagingDataSet.images[activeImageIdx].previews.map(preview => (
             <ImageListItem className={activePreviewIdx === preview.previewIdx ? classes.elevation : classes.trasparency} onClick={() => handleActivePreviewChange(preview.previewIdx)} key={preview.previewIdx}>
                 <ThemeProvider theme={themeList}>
                     <img className={classes.imgFullWidth}
