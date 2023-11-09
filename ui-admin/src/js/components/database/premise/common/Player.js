@@ -52,7 +52,7 @@ const useStyles = makeStyles({
         display: 'contents'
     }
 });
-export default function Player({ label= 'DEFAULT', onStep=()=>console.log('DEFAULT LOG'), steps = [], speeds = defaultSpeeds, speedable = false }) {
+export default function Player({ label= 'DEFAULT', onStep, steps = [], speeds = defaultSpeeds, speedable = false }) {
     const classes = useStyles();
     const theme = useTheme();
     const [activeStep, setActiveStep] = React.useState(-1);
@@ -114,7 +114,7 @@ export default function Player({ label= 'DEFAULT', onStep=()=>console.log('DEFAU
     }
 
     const mainIconColor = theme.palette.mode === 'dark' ? '#fff' : '#000';
-    console.log(steps);
+    //console.log(steps);
     return (
         <Widget>
             <Box className={classes.rootBox}>

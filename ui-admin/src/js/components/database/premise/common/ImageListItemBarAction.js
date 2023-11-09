@@ -28,8 +28,7 @@ const useStyles = makeStyles(() => ({
 const ImageListItemBarAction = ({classNames, position, onMove}) => {
     const classes = useStyles();
 
-    return <ImageListItemBar key={"ImageListItemBarAction-" + position}
-                             actionPosition={position}
+    return <ImageListItemBar actionPosition={position}
                              className={classes[classNames]}
                              actionIcon={
                                  <Tooltip title={"Move " + position}>

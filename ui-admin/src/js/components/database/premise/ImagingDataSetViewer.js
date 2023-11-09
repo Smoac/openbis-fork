@@ -152,13 +152,13 @@ const ImagingDataSetViewer = () => {
         if (currentIdx === 0 && previewsLength === 1) { // only 1 element
             return [];
         } else if (currentIdx === 0) { // first element
-            return [<ImageListItemBarAction classNames={'singleActionBar'} position={'right'} onMove={() => handleMove(1)}/>];
+            return [<ImageListItemBarAction key={"ImageListItemBarAction-left-"+currentIdx} classNames={'singleActionBar'} position={'right'} onMove={() => handleMove(1)}/>];
         } else if (currentIdx === previewsLength - 1) { // last element
-            return [<ImageListItemBarAction classNames={'singleActionBar'} position={'left'} onMove={() => handleMove(-1)}/>];
+            return [<ImageListItemBarAction key={"ImageListItemBarAction-right-"+currentIdx} classNames={'singleActionBar'} position={'left'} onMove={() => handleMove(-1)}/>];
         } else {
             //console.log('ELEMENT ', currentIdx, (activeImage.previews.length) - 1);
-            return [<ImageListItemBarAction classNames={'actionBarL'} position={'left'} onMove={() => handleMove(-1)}/>,
-                <ImageListItemBarAction classNames={'actionBarR'} position={'right'}  onMove={() => handleMove(1)}/>];
+            return [<ImageListItemBarAction key={"ImageListItemBarAction-left-"+currentIdx} classNames={'actionBarL'} position={'left'} onMove={() => handleMove(-1)}/>,
+                <ImageListItemBarAction key={"ImageListItemBarAction-right-"+currentIdx} classNames={'actionBarR'} position={'right'}  onMove={() => handleMove(1)}/>];
         }
     };
 
