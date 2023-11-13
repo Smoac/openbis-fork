@@ -12,13 +12,12 @@ const useStyles = makeStyles({
         border: '1px solid rgba(0, 0, 0, 0.3)',
         borderRadius: '6px',
         position: 'relative',
-        lineHeight: '6ex',
-        padding: '1.5rem',
+        padding: '0.8rem',
         display: 'flex',
     },
     overlapLabel: {
         position: 'absolute',
-        top: '-1ex',
+        top: '-1.3ex',
         zIndex: 1,
         left: '2em',
         backgroundColor: 'white',
@@ -29,7 +28,7 @@ const OutlinedBox = ({ label, children, style }) => {
     const classes = useStyles();
     return (
         <Box className={classes.outlinedWrapper} style={style}>
-            <Typography gutterBottom align='left' className={classes.overlapLabel}>
+            <Typography variant='body2' gutterBottom align='left' className={classes.overlapLabel}>
                 {label}
             </Typography>
             <Box className={classes.outlined}>

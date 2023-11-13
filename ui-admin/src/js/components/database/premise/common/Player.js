@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {makeStyles, styled, useTheme} from '@material-ui/core/styles';
+import {createTheme, makeStyles, styled, useTheme} from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
 import Slider from '@material-ui/core/Slider';
 import IconButton from '@material-ui/core/IconButton';
@@ -8,7 +8,20 @@ import PlayArrowRounded from '@material-ui/icons/PlayArrowRounded';
 import FastForwardRounded from '@material-ui/icons/FastForwardRounded';
 import FastRewindRounded from '@material-ui/icons/FastRewindRounded';
 import MobileStepper from "@material-ui/core/MobileStepper";
+import {ThemeProvider} from "@material-ui/core";
 
+const themeDisabled = createTheme({
+    overrides: {
+        // Style sheet name ⚛️
+        MuiIconButton: {
+            // Name of the rule
+            root: {
+                // Some CSS
+                color: 'rgba(0, 0, 0, 1)'
+            }
+        },
+    },
+});
 
 const Widget = styled('div')(({ theme }) => ({
     padding: 16,
@@ -46,7 +59,6 @@ const useStyles = makeStyles({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        mt: -1,
     },
     root: {
         display: 'contents'
@@ -99,49 +111,47 @@ export default function Player({ label= 'DEFAULT', onStep, steps = [], speeds = 
     };
 
     const handlePlay = () => {
-        resetTimeout();
-        timeoutRef.current = setTimeout(
-            () =>
-                setActiveStep((prevIndex) =>
-                    prevIndex === steps.length - 1 ? 0 : prevIndex + 1
-                ),
-            2000
-        );
-
+        setPaused(!paused);
+        if (paused) {
+            resetTimeout();
+            timeoutRef.current = setTimeout(
+                () =>
+                    setActiveStep((prevIndex) =>
+                        prevIndex === steps.length - 1 ? 0 : prevIndex + 1
+                    ),
+                2000
+            );
+        }
         return () => {
             resetTimeout();
         };
     }
 
-    const mainIconColor = theme.palette.mode === 'dark' ? '#fff' : '#000';
     //console.log(steps);
     return (
         <Widget>
             <Box className={classes.rootBox}>
-                <IconButton aria-label="previous"
-                            onClick={handleBack}
-                            disabled={paused || activeStep === 0}>
-                    <FastRewindRounded fontSize="large" htmlColor={mainIconColor} />
-                </IconButton>
-                <IconButton
-                    aria-label={paused ? 'play' : 'pause'}
-                    onClick={() => setPaused(!paused)}
-                >
-                    {paused ? (
-                        <PlayArrowRounded
-                            sx={{ fontSize: '3rem' }}
-                            htmlColor={mainIconColor}
-                            onClick={handlePlay}
-                        />
-                    ) : (
-                        <PauseRounded sx={{ fontSize: '3rem' }} htmlColor={mainIconColor} />
-                    )}
-                </IconButton>
-                <IconButton aria-label="next"
-                            onClick={handleNext}
-                            disabled={paused || activeStep === steps.length-1}>
-                    <FastForwardRounded fontSize="large" htmlColor={mainIconColor} />
-                </IconButton>
+                <ThemeProvider theme={themeDisabled}>
+                    <IconButton aria-label="previous"
+                                onClick={handleBack}
+                                disabled={paused || activeStep <= 0}>
+                        <FastRewindRounded fontSize="large"  />
+                    </IconButton>
+                    <IconButton aria-label={paused ? 'play' : 'pause'}
+                                onClick={handlePlay}
+                    >
+                        {paused ? (
+                            <PlayArrowRounded sx={{ fontSize: '3rem' }}/>
+                        ) : (
+                            <PauseRounded sx={{ fontSize: '3rem' }}  />
+                        )}
+                    </IconButton>
+                    <IconButton aria-label="next"
+                                onClick={handleNext}
+                                disabled={paused || activeStep === steps.length-1}>
+                        <FastForwardRounded fontSize="large"  />
+                    </IconButton>
+                </ThemeProvider>
             </Box>
             {!paused && <MobileStepper variant="dots"
                             steps={steps.length}

@@ -12,7 +12,7 @@ import {
     ImageListItem,
     Paper, Snackbar,
     ThemeProvider,
-    CircularProgress,
+    CircularProgress, Switch,
 } from "@material-ui/core";
 import {Alert} from "@material-ui/lab";
 
@@ -33,6 +33,12 @@ import Player from "@src/js/components/database/premise/common/Player";
 import InputsPanel from "@src/js/components/database/premise/components/InputsPanel";
 import MetadataViewer from "@src/js/components/database/premise/components/MetadataViewr";
 import ImageListItemBarAction from "@src/js/components/database/premise/common/ImageListItemBarAction";
+import OutlinedBox from "@src/js/components/database/premise/common/OutlinedBox";
+import InputSlider from "@src/js/components/database/premise/common/InputSlider";
+import InputRangeSlider from "@src/js/components/database/premise/common/InputRangeSlider";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Typography from "@material-ui/core/Typography";
+
 
 const themeList = createTheme({
     overrides: {
@@ -329,6 +335,7 @@ const ImagingDataSetViewer = () => {
             </ImageListItem>
         ));
 
+    const [show, setShow] = React.useState(true);
     logger.log(logger.DEBUG, 'ImaginingDataViewer.render');
     return (
         <React.Fragment>
@@ -376,9 +383,9 @@ const ImagingDataSetViewer = () => {
                                 config={imagingDataSet.config.export} />
                     </Grid>
                     <Grid item xs={12}>
-                        <h2>
-                            Images:
-                        </h2>
+                        <Typography variant='h4'>
+                            Images
+                        </Typography>
                         <ImageList className={classes.imageList}
                                    cols={3}
                                    rowHeight={200}>
@@ -386,10 +393,9 @@ const ImagingDataSetViewer = () => {
                         </ImageList>
                     </Grid>
                     <Grid item xs={12} className={classes.spaced1} >
-                        <h2>
-                            Previews:
-                        </h2>
-
+                        <Typography variant='h4'>
+                            Previews
+                        </Typography>
                         <Button sx={{ margin: '3px' }} variant="outlined" startIcon={<RefreshIcon />}
                                 onClick={updatePreview} >Update</Button>
 
@@ -418,6 +424,53 @@ const ImagingDataSetViewer = () => {
                     </Grid>
                 </Grid>
                 <Grid item xs>
+                    {/*<OutlinedBox style={{width:'fit-content'}} label="Show">
+                            <Switch checked={show} onChange={() => setShow(!show)} color="primary"  />
+                        </OutlinedBox>
+                        {imagingDataSet.config.inputs.map((c, idx) => {
+                            const prevConfigValues = imagingDataSet.images[activeImageIdx].previews[activePreviewIdx].config;
+                            //console.log(panelConfig, initConfig);
+                            switch (c.type) {
+                            case 'Dropdown':
+                                return <Dropdown key={"InputsPanel-"+c.type +"-"+ idx}
+                                    label={c.label}
+                                    initValue={prevConfigValues[c.label]}
+                                    values={c.values}
+                                    isMulti={c.multiselect}
+                                    onSelectChange={(event) => handleActiveConfigChange2(event.target.name, event.target.value)} />
+                            case 'Slider':
+                                if (c.visibility) {
+                                    for (const condition of c.visibility){
+                                        if(condition.values.includes(prevConfigValues[condition.label])){
+                                            c.range = condition.range;
+                                        }
+                                    }
+                                }
+                                return <InputSlider key={"InputsPanel-"+c.type +"-"+ idx}
+                                           label={c.label}
+                                           initValue={prevConfigValues[c.label]}
+                                           range={c.range}
+                                           playable={c.playable}
+                                           speeds={c.speeds}
+                                           onChange={(name, value, update) => handleActiveConfigChange2(name, value, update)}/>
+                            case 'RangeSlider':
+                                if (c.visibility) {
+                                    for (const condition of c.visibility){
+                                        if(condition.values.includes(prevConfigValues[condition.label])){
+                                            c.range = condition.range;
+                                        }
+                                    }
+                                }
+                                return <InputRangeSlider key={"InputsPanel-"+c.type +"-"+ idx}
+                                                label={c.label}
+                                                initValue={prevConfigValues[c.label]}
+                                                range={c.range}
+                                                playable={c.playable}
+                                                speeds={c.speeds}
+                                                onChange={(name, value, update) => handleActiveConfigChange2(name, value, update)}/>
+                            }})
+                        }*/}
+
                     <InputsPanel inputsConfig={imagingDataSet.config.inputs}
                                  prevConfigValues={imagingDataSet.images[activeImageIdx].previews[activePreviewIdx].config}
                                  onConfigChange={handleActiveConfigChange2} />

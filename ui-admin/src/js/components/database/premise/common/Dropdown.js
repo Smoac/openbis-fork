@@ -1,14 +1,15 @@
 import * as React from 'react';
-import {Box, FormControl, InputLabel, MenuItem, Select} from "@material-ui/core";
+import {FormControl, MenuItem, Select} from "@material-ui/core";
 import OutlinedBox from "@src/js/components/database/premise/common/OutlinedBox";
 
 const Dropdown = ({ label, values, initValue, isMulti, onSelectChange = null }) => {
-    const [value, setValue] = React.useState(typeof initValue === 'string' ? initValue.split(',') : initValue);
+    const [value, setValue] = React.useState(typeof initValue === 'string' ? initValue.split(',') : [initValue]);
 
     React.useEffect(() => {
         if (!isMulti){
             //console.log("useEffect DROPDOWN: ", label, values, initValue, isMulti);
-            if (initValue !== value) setValue(initValue);
+            if (initValue !== value)
+                setValue(initValue);
         }
     }, [initValue]);
 
@@ -16,7 +17,7 @@ const Dropdown = ({ label, values, initValue, isMulti, onSelectChange = null }) 
         const { target: { value }, } = event;
         setValue(
             // On autofill we get a stringified value.
-            typeof event.target.value === 'string' ? value.split(',') : value,
+            typeof event.target.value === 'string' ? value.split(',') : [value],
         );
         if (onSelectChange != null) {
             onSelectChange(event);

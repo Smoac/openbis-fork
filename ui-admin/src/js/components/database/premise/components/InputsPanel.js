@@ -15,25 +15,74 @@ const Components = {
 
 const InputsPanel = ({ inputsConfig, prevConfigValues, onConfigChange }) => {
     const [show, setShow] = React.useState(true);
+    const [components, setComponents] = React.useState();
 
+    /*React.useEffect(() => {
+        const listInputsComponents = inputsConfig.map((c, idx) => {
+            if (c.visibility) {
+                for (const condition of c.visibility){
+                    if(condition.values.includes(prevConfigValues[condition.label])){
+                        c.range = condition.range;
+                    }
+                }
+            }
+            let Component = Components[c.type];
+            return (<Component key={"InputsPanel-"+c.type +"-"+ idx}
+                               label={c.label}
+                               initValue={prevConfigValues[c.label]}
+                               values={c.values}
+                               isMulti={c.multiselect}
+                               onSelectChange={(event) => onConfigChange(event.target.name, event.target.value)}
+                               range={c.range}
+                               playable={c.playable}
+                               speeds={c.speeds}
+                               onChange={(name, value, update) => onConfigChange(name, value, update)}/>);
+
+        });
+        setComponents(listInputsComponents);
+    }, [prevConfigValues]);*/
     //console.log('InputsPanel = ', prevConfigValues);
 
-    /*    const listInputsComp = extendedConfig.map((c, idx) => {
+    /*const listInputsComp = inputsConfig.map((c, idx) => {
         //console.log(panelConfig, initConfig);
         switch (c.type) {
             case 'Dropdown':
-                return <Dropdown key={idx} label={c.label} initValue={c.initValue} values={c.values} isMulti={c.multiselect} onSelectChange={handleDropdownOnChange} />
+                return <Dropdown key={"inputpanel-"+c.type +"-"+ idx}
+                                 label={c.label}
+                                 initValue={prevConfigValues[c.label]}
+                                 values={c.values}
+                                 isMulti={c.multiselect}
+                                 onSelectChange={(event) => onConfigChange(event.target.name, event.target.value)} />
             case 'Slider':
-                return <Slider key={idx} label={c.label} initValue={c.initValue} range={c.range} onChange={handleSliderOnChange}/>
+                return <Slider key={"inputpanel-"+c.type +"-"+ idx}
+                               label={c.label}
+                               initValue={prevConfigValues[c.label]}
+                               range={c.range}
+                               playable={c.playable}
+                               speeds={c.speeds}
+                               onChange={(name, value, update) => onConfigChange(name, value, update)}/>
             case 'RangeSlider':
-                return <RangeSlider key={idx} label={c.label} initValue={c.initValue} range={c.range} onChange={handleSliderOnChange}/>
+                return <RangeSlider key={"inputpanel-"+c.type +"-"+ idx}
+                                    label={c.label}
+                                    initValue={prevConfigValues[c.label]}
+                                    range={c.range}
+                                    playable={c.playable}
+                                    speeds={c.speeds}
+                                    onChange={(name, value, update) => onConfigChange(name, value, update)}/>
         }
     });*/
 
+
     const listInputsComponents = inputsConfig.map((c, idx) => {
-        //console.log(c.label, prevConfigValues[c.label]);
+        if (c.visibility) {
+            for (const condition of c.visibility){
+                if(condition.values.includes(prevConfigValues[condition.label])){
+                    c.range = condition.range;
+                }
+            }
+        }
         let Component = Components[c.type];
-        return (<Component key={"inputpanel-"+c.type +"-"+ idx}
+        return (<Component key={"InputsPanel-"+c.type +"-"+ idx}
                            label={c.label}
                            initValue={prevConfigValues[c.label]}
                            values={c.values}
@@ -43,6 +92,7 @@ const InputsPanel = ({ inputsConfig, prevConfigValues, onConfigChange }) => {
                            playable={c.playable}
                            speeds={c.speeds}
                            onChange={(name, value, update) => onConfigChange(name, value, update)}/>);
+
     });
 
     return (

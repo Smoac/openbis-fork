@@ -101,7 +101,7 @@ const InputRangeSlider = ({ label, range, initValue, playable, speeds, onChange}
                     />
                 </Grid>
             </Grid>
-            <Player steps={arrayRange} speeds={speeds} speedable={playable}/>
+            <Player steps={arrayRange} speeds={speeds} speedable={playable} onStep={()=>console.log('DEFAULT onStep InputRangeSlider!')}/>
         </OutlinedBox>
     );
 }
