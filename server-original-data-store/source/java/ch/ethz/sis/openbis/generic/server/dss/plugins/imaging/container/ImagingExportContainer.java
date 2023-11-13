@@ -15,16 +15,25 @@
  *
  */
 
-package ch.ethz.sis.openbis.generic.server.dssapi.v3.executor;
+package ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.container;
 
-import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.CustomDSSServiceExecutionOptions;
-import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.execute.ExecuteCustomDSSServiceOperationResult;
-import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.id.ICustomDSSServiceId;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.imaging.ImagingDataSetExport;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.io.Serializable;
-
-public interface IExecuteCustomDSSServiceExecutor
+public final class ImagingExportContainer extends ImagingDataContainer
 {
-    Serializable execute(String sessionToken, ICustomDSSServiceId serviceId,
-            CustomDSSServiceExecutionOptions options);
+    @JsonProperty
+    private ImagingDataSetExport export = null;
+
+    @JsonIgnore
+    public ImagingDataSetExport getExport()
+    {
+        return export;
+    }
+
+    public void setExport(ImagingDataSetExport export)
+    {
+        this.export = export;
+    }
 }

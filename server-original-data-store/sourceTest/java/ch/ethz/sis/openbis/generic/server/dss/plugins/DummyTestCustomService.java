@@ -15,16 +15,28 @@
  *
  */
 
-package ch.ethz.sis.openbis.generic.server.dssapi.v3.executor;
+package ch.ethz.sis.openbis.generic.server.dss.plugins;
 
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.CustomDSSServiceExecutionOptions;
-import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.execute.ExecuteCustomDSSServiceOperationResult;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.id.ICustomDSSServiceId;
+import ch.ethz.sis.openbis.generic.server.dssapi.v3.executor.service.ICustomDSSServiceExecutor;
 
 import java.io.Serializable;
+import java.util.Map;
+import java.util.Properties;
 
-public interface IExecuteCustomDSSServiceExecutor
+public class DummyTestCustomService implements ICustomDSSServiceExecutor
 {
-    Serializable execute(String sessionToken, ICustomDSSServiceId serviceId,
-            CustomDSSServiceExecutionOptions options);
+    public DummyTestCustomService(Properties properties) {}
+    @Override
+    public Serializable executeService(String sessionToken, ICustomDSSServiceId serviceId,
+            CustomDSSServiceExecutionOptions options)
+    {
+        Map<String, Object> params = options.getParameters();
+        if(params.containsKey("key") && params.get("key").toString().equalsIgnoreCase("PING"))
+        {
+            return "PONG";
+        }
+        throw new IllegalArgumentException("Missing Ping parameter");
+    }
 }

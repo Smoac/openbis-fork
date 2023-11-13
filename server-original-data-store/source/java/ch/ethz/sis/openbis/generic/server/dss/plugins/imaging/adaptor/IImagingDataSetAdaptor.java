@@ -15,16 +15,18 @@
  *
  */
 
-package ch.ethz.sis.openbis.generic.server.dssapi.v3.executor;
+package ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.adaptor;
 
-import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.CustomDSSServiceExecutionOptions;
-import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.execute.ExecuteCustomDSSServiceOperationResult;
-import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.id.ICustomDSSServiceId;
+import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
 
+import java.io.File;
 import java.io.Serializable;
+import java.util.Map;
 
-public interface IExecuteCustomDSSServiceExecutor
+public interface IImagingDataSetAdaptor
 {
-    Serializable execute(String sessionToken, ICustomDSSServiceId serviceId,
-            CustomDSSServiceExecutionOptions options);
+
+    Serializable process(IApplicationServerApi asApi, IDataStoreServerApi dssApi, File rootFile, Map<String, Serializable> previewConfig, Map<String, String> metaData);
+
 }
