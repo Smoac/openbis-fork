@@ -15,17 +15,26 @@
  *
  */
 
-package ch.ethz.sis.openbis.generic.server.dssapi.v3.executor.service;
+package ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.container;
 
-import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.CustomDSSServiceExecutionOptions;
-import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.id.ICustomDSSServiceId;
-import com.fasterxml.jackson.annotation.JsonIgnoreType;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.imaging.ImagingDataSetPreview;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.io.Serializable;
-
-@JsonIgnoreType
-public interface ICustomDSSServiceExecutor
+public final class ImagingPreviewContainer extends ImagingDataContainer
 {
-    Serializable executeService(String sessionToken, ICustomDSSServiceId serviceId,
-            CustomDSSServiceExecutionOptions options);
+
+    @JsonProperty
+    private ImagingDataSetPreview preview = null;
+
+    @JsonIgnore
+    public ImagingDataSetPreview getPreview()
+    {
+        return preview;
+    }
+
+    public void setPreview(ImagingDataSetPreview preview)
+    {
+        this.preview = preview;
+    }
 }
