@@ -17,6 +17,10 @@
 
 package ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.adaptor;
 
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.imaging.ImagingDataSetImage;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.imaging.ImagingDataSetPreview;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.Util;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.container.ImagingPreviewContainer;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.ImagingServiceContext;
 import ch.ethz.sis.openbis.generic.server.sharedapi.v3.json.GenericObjectMapper;
@@ -30,6 +34,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -53,26 +58,6 @@ public final class NanonisSxmAdaptor extends ImagingDataSetPythonAdaptor
         }
         this.scriptPath = script.toString();
         this.pythonPath = properties.getProperty("python3-path", "python3");
-    }
-
-    @Override
-    public Serializable process(ImagingServiceContext context, File rootFile, Map<String, Serializable> imageConfig,
-            Map<String, Serializable> previewConfig, Map<String, String> metaData, String format)
-    {
-        Serializable result = super.process(context, rootFile, imageConfig, previewConfig, metaData, format);
-        if (result == null)
-        {
-            return result;
-        }
-        String str = result.toString();
-        if (str.length() > 3)
-        {
-            return str.substring(2, str.length() - 1);
-        } else
-        {
-            return "";
-        }
-
     }
 
 }

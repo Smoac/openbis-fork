@@ -29,7 +29,7 @@ IMAGING_CONFIG_PROP_NAME = "$IMAGING_DATA_CONFIG".lower()
 def get_instance(url="http://localhost:8888/openbis"):
     base_url = url
     # base_url = "http://localhost:8888/openbis"
-    # base_url = "https://alaskowski:8443/openbis"
+    base_url = "https://alaskowski:8443/openbis"
     # base_url = "https://openbis-sis-ci-sprint.ethz.ch/"
     openbis_instance = Openbis(
         url=base_url,
@@ -62,6 +62,9 @@ class ImagingDataSetPreview(AbstractImagingRequest):
     config: dict
     format: str
     bytes: str | None
+    width: int
+    height: int
+    previewId: int
     show: bool
     metadata: dict
 
@@ -72,6 +75,11 @@ class ImagingDataSetPreview(AbstractImagingRequest):
         self.config = config if config is not None else dict()
         self.metadata = metadata if metadata is not None else dict()
         self._validate_data()
+
+    def set_preview_image(self, width, height, bytes):
+        self.width = width
+        self.height = height
+        self.bytes = bytes
 
     def _validate_data(self):
         assert self.format is not None, "Format can not be null"
@@ -172,16 +180,29 @@ class ImagingDataSetControl(AbstractImagingClass):
     visibility: list[ImagingDataSetControlVisibility]
     metaData: dict
 
-    def __init__(self, label: str, control_type: str, values: list[str] = None,
-                 values_range: list[str] = None, multiselect: bool = None):
+    def __init__(self, label: str, control_type: str, section: str = None, values: list[str] = None,
+                 unit: str = None, values_range: list[str] = None, multiselect: bool = None,
+                 playable: bool = False, speeds: list[int] = None,
+                 visibility: list[ImagingDataSetControlVisibility] = None, metaData: dict = None):
         self.__dict__["@type"] = "dss.dto.imaging.ImagingDataSetControl"
         self.label = label
         self.type = control_type
+        self.section = section
+        self.unit = unit
         if control_type.lower() in ["slider", "range"]:
             self.range = values_range
         elif control_type.lower() == "dropdown":
             self.values = values
-            self.multiselect = multiselect
+            if multiselect is None:
+                self.multiselect = False
+            else:
+                self.multiselect = multiselect
+
+        if playable is True:
+            self.playable = True
+            self.speeds = speeds
+        self.visibility = visibility
+        self.metaData = metaData
 
     @classmethod
     def from_dict(cls, data):
@@ -378,6 +399,20 @@ class ImagingControl:
         dataset = self._openbis.get_dataset(perm_id)
         dataset.props[IMAGING_CONFIG_PROP_NAME] = config.to_json()
         dataset.save()
+
+    def create_imaging_dataset(self, dataset_type: str, config: ImagingDataSetPropertyConfig,
+                               experiment: str, sample: str,
+                               files: list[str], other_properties=None):
+        if other_properties is None:
+            other_properties = {}
+        assert dataset_type is not None
+        assert files is not None and len(files) > 0, "Files parameter must not be empty!"
+        assert config is not None
+        props = other_properties
+        props[IMAGING_CONFIG_PROP_NAME] = config.to_json()
+        dataset = self._openbis.new_dataset(dataset_type, experiment=experiment, sample=sample, files=files, props=props)
+        return dataset.save()
+
 
 
 # o = get_instance()

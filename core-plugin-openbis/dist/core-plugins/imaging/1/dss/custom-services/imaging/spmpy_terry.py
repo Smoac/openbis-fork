@@ -449,7 +449,6 @@ class spm:
                 # plt.title(title + '\n', loc='left')
                 plt.xlabel('x (%s)' % width[1])
                 plt.ylabel('y (%s)' % height[1])
-                print(f'AXES={im.axes}')
                 cbar = plt.colorbar(im)#,fraction=0.046, pad=0.02, format='%.2g',shrink = 0.5,aspect=10)
                 cbar.set_label('channel:%s (%s)' % (channel,chUnit))
             

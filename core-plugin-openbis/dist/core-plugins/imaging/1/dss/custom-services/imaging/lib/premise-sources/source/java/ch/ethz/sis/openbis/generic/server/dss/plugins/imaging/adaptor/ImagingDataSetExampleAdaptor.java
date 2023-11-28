@@ -17,6 +17,8 @@
 
 package ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.adaptor;
 
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.imaging.ImagingDataSetImage;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.imaging.ImagingDataSetPreview;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.ImagingServiceContext;
 
 import javax.imageio.ImageIO;
@@ -25,6 +27,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.Serializable;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -38,8 +41,11 @@ public final class ImagingDataSetExampleAdaptor implements IImagingDataSetAdapto
     }
 
     @Override
-    public Serializable process(ImagingServiceContext context, File rootFile, Map<String, Serializable> imageConfig,
-            Map<String, Serializable> previewConfig, Map<String, String> metaData, String format)
+    public Map<String, Serializable> process(ImagingServiceContext context, File rootFile, String format,
+            Map<String, Serializable> imageConfig,
+            Map<String, Serializable> imageMetadata,
+            Map<String, Serializable> previewConfig,
+            Map<String, Serializable> previewMetadata)
     {
         BufferedImage img = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_ARGB);
         for(int y=0;y<HEIGHT; y++)
@@ -60,11 +66,45 @@ public final class ImagingDataSetExampleAdaptor implements IImagingDataSetAdapto
         try
         {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            ImageIO.write(img, "png", byteArrayOutputStream);
+            ImageIO.write(img, format, byteArrayOutputStream);
             byteArrayOutputStream.flush();
-            return Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray());
+            String bytes = Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray());
+            HashMap<String, Serializable> map = new HashMap<>();
+            map.put("width", WIDTH);
+            map.put("height", HEIGHT);
+            map.put("bytes", bytes);
+            return map;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public void computePreview(ImagingServiceContext context, File rootFile,
+            ImagingDataSetImage image, ImagingDataSetPreview preview)
+    {
+        Map<String, Serializable> map = process(context, rootFile, preview.getFormat(),
+                image.getConfig(), image.getMetaData(),
+                preview.getConfig(), preview.getMetaData());
+
+        for (Map.Entry<String, Serializable> entry : map.entrySet())
+        {
+            if (entry.getKey().equalsIgnoreCase("width"))
+            {
+                Integer value = Integer.valueOf(entry.getValue().toString());
+                preview.setWidth(value);
+            } else if (entry.getKey().equalsIgnoreCase("height"))
+            {
+                Integer value = Integer.valueOf(entry.getValue().toString());
+                preview.setHeight(value);
+            } else if (entry.getKey().equalsIgnoreCase("bytes"))
+            {
+                preview.setBytes(entry.getValue().toString());
+            } else
+            {
+                preview.getMetaData().put(entry.getKey(), entry.getValue());
+            }
+        }
+    }
+
 }
