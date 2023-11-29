@@ -60,7 +60,7 @@ public class ImagingService implements ICustomDSSServiceExecutor
     private static final Logger
             operationLog = LogFactory.getLogger(LogCategory.OPERATION, ImagingService.class);
 
-    private static final String IMAGING_CONFIG_PROPERTY_NAME = "$IMAGING_DATA_CONFIG";
+    static final String IMAGING_CONFIG_PROPERTY_NAME = "$IMAGING_DATA_CONFIG";
 
     public ImagingService(Properties properties)
     {

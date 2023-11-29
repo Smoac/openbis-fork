@@ -51,6 +51,8 @@ def generate_random_image(height, width):
     im.save(img_byte_arr, format=format)
     img_byte_arr = img_byte_arr.getvalue()
     encoded = base64.b64encode(img_byte_arr)
+    preview = {'bytes': encoded.decode('utf-8'), 'width': int(width), 'height': int(height)}
+    print(f'{json.dumps(preview)}')
     return encoded
 
 
@@ -118,7 +120,7 @@ params = preview_config
 print(params)
 if 'mode' in params:
     if params['mode'] == '1':
-        print(generate_random_image(640, 640))
+        generate_random_image(640, 640)
     elif params['mode'] == '2':
         dat_mode(preview_config)
 

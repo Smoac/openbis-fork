@@ -57,7 +57,9 @@ def generate_random_image(height, width):
     im.save(img_byte_arr, format='PNG')
     img_byte_arr = img_byte_arr.getvalue()
     encoded = base64.b64encode(img_byte_arr)
-    return encoded
+    preview = {'bytes': encoded.decode('utf-8'), 'width': int(width), 'height': int(height)}
+    print(f'{json.dumps(preview)}')
+    return preview
 
 
 def get_sxm_image(channel_name, x_axis, y_axis, scaling, color_scale, colormap, colormap_scaling, resolution):
@@ -116,7 +118,7 @@ def sxm_mode(parameters):
 print(params)
 if 'mode' in params:
     if params['mode'] == '3':
-        print(f'{generate_random_image(256, 256)}')
+        generate_random_image(256, 256)
     elif params['mode'] == '5':
         sxm_mode(preview_config)
 else:

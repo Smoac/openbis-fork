@@ -64,19 +64,20 @@ class ImagingDataSetPreview(AbstractImagingRequest):
     bytes: str | None
     width: int
     height: int
-    previewId: int
+    index: int
     show: bool
     metadata: dict
 
-    def __init__(self, config, preview_format, metadata=None):
+    def __init__(self, preview_format, config=None, metadata=None, index=0):
         self.__dict__["@type"] = "dss.dto.imaging.ImagingDataSetPreview"
         self.bytes = None
         self.format = preview_format
         self.config = config if config is not None else dict()
         self.metadata = metadata if metadata is not None else dict()
+        self.index = index
         self._validate_data()
 
-    def set_preview_image(self, width, height, bytes):
+    def set_preview_image_bytes(self, width, height, bytes):
         self.width = width
         self.height = height
         self.bytes = bytes
@@ -262,8 +263,9 @@ class ImagingDataSetImage(AbstractImagingClass):
     def __init__(self, config=None, previews=None, metadata=None):
         self.__dict__["@type"] = "dss.dto.imaging.ImagingDataSetImage"
         self.config = config if config is not None else dict()
-        self.previews = previews if previews is not None else []
+        self.previews = previews if previews is not None else [ImagingDataSetPreview("png")]
         self.metadata = metadata if metadata is not None else dict()
+        assert isinstance(self.previews, list), "Previews must be a list!"
 
     def add_preview(self, preview):
         self.previews += [preview]
@@ -412,70 +414,6 @@ class ImagingControl:
         props[IMAGING_CONFIG_PROP_NAME] = config.to_json()
         dataset = self._openbis.new_dataset(dataset_type, experiment=experiment, sample=sample, files=files, props=props)
         return dataset.save()
-
-
-
-# o = get_instance()
-#
-#
-# # imaging_preview = ImagingDataSetPreview(preview_format="png", config=config_sxm)
-# # response = get_preview('20231110130838616-26', 0, imaging_preview)
-# # print(response)
-#
-# config_export = {
-#     "include": ['image', 'raw data'],
-#     "image-format": 'original',
-#     "archive-format": "zip",
-#     "resolution": "original"
-# }
-# # imaging_export = ImagingDataSetExport(config_export)
-# # export_response = get_export('20231110130838616-26', 0, imaging_export)
-# # print(export_response)
-#
-#
-# # imaging_export1 = ImagingDataSetMultiExport('20231110130838616-26', 0, config_export)
-# # imaging_export2 = ImagingDataSetMultiExport('20231110134813653-27', 0, config_export)
-# # multi_export_response = get_multi_export([imaging_export1, imaging_export2])
-# # print(multi_export_response)
-#
-#
-# # imaging_property_config = get_property_config('20231110134813653-27')
-# # print(imaging_property_config.to_json())
-#
-# ic = ImagingControl(o)
-# perm_id = '20231110130838616-26'
-# pc = ic.get_property_config(perm_id)
-#
-#
-#
-# config_sxm_preview = {
-#     "channel": "z", # usually one of these: ['z', 'I', 'dIdV', 'dIdV_Y']
-#     "x-axis": [1.2, 3.0], # file dependent
-#     "y-axis": [1.2, 3.0], # file dependent
-#     "color-scale": [-700.0, 700.0], # file dependend
-#     "colormap": "gray", # [gray, YlOrBr, viridis, cividis, inferno, rainbow, Spectral, RdBu, RdGy]
-#     "scaling": "linear", # ['linear', 'logarithmic']
-#     # "mode": 3 # uncomment this if you want to generate random pixel image generation
-# }
-#
-# # imaging_preview = ImagingDataSetPreview(preview_format="png", config=config_sxm_preview)
-# #
-# # preview = ic.make_preview(perm_id, 0, imaging_preview)
-# # pc.images[0].add_preview(preview)
-# # ic.update_property_config(perm_id, pc)
-# #
-# # print(ic.get_property_config(perm_id))
-#
-#
-#
-# config_export = {
-#     "include": ['image', 'raw data'],
-#     "image-format": 'original',
-#     "archive-format": "zip",
-#     "resolution": "original"
-# }
-# imaging_export = ImagingDataSetExport(config_export)
-# ic.single_export_download(perm_id, imaging_export, 0, '/home/alaskowski/PREMISE')
 
 
 

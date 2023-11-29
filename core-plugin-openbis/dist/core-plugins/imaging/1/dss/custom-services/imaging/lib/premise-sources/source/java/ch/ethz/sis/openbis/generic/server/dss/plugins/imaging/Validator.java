@@ -29,18 +29,10 @@ class Validator
 
     static void validateInputParams(Map<String, Object> params)
     {
-//        if (!params.containsKey("permId"))
-//        {
-//            throw new UserFailureException("Missing dataset permId!");
-//        }
         if (!params.containsKey("type"))
         {
             throw new UserFailureException("Missing type!");
         }
-//        if (!params.containsKey("index"))
-//        {
-//            throw new UserFailureException("Missing index!");
-//        }
     }
 
 
@@ -62,21 +54,21 @@ class Validator
     private static void validateTag(Map<String, Serializable> config, String tagName, boolean isMultiValue)
     {
         if(!config.containsKey(tagName)){
-            throw new UserFailureException("Missing '"+tagName+"' in export config!");
+            throw new UserFailureException("Missing '"+tagName+"' in config!");
         }
         Serializable include = config.get(tagName);
         if(include == null){
-            throw new UserFailureException("'"+tagName+"' tag in export config can not be null!");
+            throw new UserFailureException("'"+tagName+"' tag in config can not be null!");
         }
         if(isMultiValue)
         {
             if (!include.getClass().isArray())
             {
-                throw new UserFailureException("'include' tag in export config must be an array!");
+                throw new UserFailureException("'include' tag in config must be an array!");
             }
             if (((Serializable[]) include).length == 0)
             {
-                throw new UserFailureException("'include' tag in export config can not be empty!");
+                throw new UserFailureException("'include' tag in config can not be empty!");
             }
         }
     }
