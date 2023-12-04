@@ -29,7 +29,7 @@ IMAGING_CONFIG_PROP_NAME = "$IMAGING_DATA_CONFIG".lower()
 def get_instance(url="http://localhost:8888/openbis"):
     base_url = url
     # base_url = "http://localhost:8888/openbis"
-    # base_url = "https://alaskowski:8443/openbis"
+    base_url = "https://alaskowski:8443/openbis"
     # base_url = "https://openbis-sis-ci-sprint.ethz.ch/"
     openbis_instance = Openbis(
         url=base_url,
@@ -62,16 +62,25 @@ class ImagingDataSetPreview(AbstractImagingRequest):
     config: dict
     format: str
     bytes: str | None
+    width: int
+    height: int
+    index: int
     show: bool
     metadata: dict
 
-    def __init__(self, config, preview_format, metadata=None):
+    def __init__(self, preview_format, config=None, metadata=None, index=0):
         self.__dict__["@type"] = "dss.dto.imaging.ImagingDataSetPreview"
         self.bytes = None
         self.format = preview_format
         self.config = config if config is not None else dict()
         self.metadata = metadata if metadata is not None else dict()
+        self.index = index
         self._validate_data()
+
+    def set_preview_image_bytes(self, width, height, bytes):
+        self.width = width
+        self.height = height
+        self.bytes = bytes
 
     def _validate_data(self):
         assert self.format is not None, "Format can not be null"
@@ -172,16 +181,29 @@ class ImagingDataSetControl(AbstractImagingClass):
     visibility: list[ImagingDataSetControlVisibility]
     metaData: dict
 
-    def __init__(self, label: str, control_type: str, values: list[str] = None,
-                 values_range: list[str] = None, multiselect: bool = None):
+    def __init__(self, label: str, control_type: str, section: str = None, values: list[str] = None,
+                 unit: str = None, values_range: list[str] = None, multiselect: bool = None,
+                 playable: bool = False, speeds: list[int] = None,
+                 visibility: list[ImagingDataSetControlVisibility] = None, metaData: dict = None):
         self.__dict__["@type"] = "dss.dto.imaging.ImagingDataSetControl"
         self.label = label
         self.type = control_type
+        self.section = section
+        self.unit = unit
         if control_type.lower() in ["slider", "range"]:
             self.range = values_range
         elif control_type.lower() == "dropdown":
             self.values = values
-            self.multiselect = multiselect
+            if multiselect is None:
+                self.multiselect = False
+            else:
+                self.multiselect = multiselect
+
+        if playable is True:
+            self.playable = True
+            self.speeds = speeds
+        self.visibility = visibility
+        self.metaData = metaData
 
     @classmethod
     def from_dict(cls, data):
@@ -241,8 +263,9 @@ class ImagingDataSetImage(AbstractImagingClass):
     def __init__(self, config=None, previews=None, metadata=None):
         self.__dict__["@type"] = "dss.dto.imaging.ImagingDataSetImage"
         self.config = config if config is not None else dict()
-        self.previews = previews if previews is not None else []
+        self.previews = previews if previews is not None else [ImagingDataSetPreview("png")]
         self.metadata = metadata if metadata is not None else dict()
+        assert isinstance(self.previews, list), "Previews must be a list!"
 
     def add_preview(self, preview):
         self.previews += [preview]
@@ -379,68 +402,18 @@ class ImagingControl:
         dataset.props[IMAGING_CONFIG_PROP_NAME] = config.to_json()
         dataset.save()
 
-
-# o = get_instance()
-#
-#
-# # imaging_preview = ImagingDataSetPreview(preview_format="png", config=config_sxm)
-# # response = get_preview('20231110130838616-26', 0, imaging_preview)
-# # print(response)
-#
-# config_export = {
-#     "include": ['image', 'raw data'],
-#     "image-format": 'original',
-#     "archive-format": "zip",
-#     "resolution": "original"
-# }
-# # imaging_export = ImagingDataSetExport(config_export)
-# # export_response = get_export('20231110130838616-26', 0, imaging_export)
-# # print(export_response)
-#
-#
-# # imaging_export1 = ImagingDataSetMultiExport('20231110130838616-26', 0, config_export)
-# # imaging_export2 = ImagingDataSetMultiExport('20231110134813653-27', 0, config_export)
-# # multi_export_response = get_multi_export([imaging_export1, imaging_export2])
-# # print(multi_export_response)
-#
-#
-# # imaging_property_config = get_property_config('20231110134813653-27')
-# # print(imaging_property_config.to_json())
-#
-# ic = ImagingControl(o)
-# perm_id = '20231110130838616-26'
-# pc = ic.get_property_config(perm_id)
-#
-#
-#
-# config_sxm_preview = {
-#     "channel": "z", # usually one of these: ['z', 'I', 'dIdV', 'dIdV_Y']
-#     "x-axis": [1.2, 3.0], # file dependent
-#     "y-axis": [1.2, 3.0], # file dependent
-#     "color-scale": [-700.0, 700.0], # file dependend
-#     "colormap": "gray", # [gray, YlOrBr, viridis, cividis, inferno, rainbow, Spectral, RdBu, RdGy]
-#     "scaling": "linear", # ['linear', 'logarithmic']
-#     # "mode": 3 # uncomment this if you want to generate random pixel image generation
-# }
-#
-# # imaging_preview = ImagingDataSetPreview(preview_format="png", config=config_sxm_preview)
-# #
-# # preview = ic.make_preview(perm_id, 0, imaging_preview)
-# # pc.images[0].add_preview(preview)
-# # ic.update_property_config(perm_id, pc)
-# #
-# # print(ic.get_property_config(perm_id))
-#
-#
-#
-# config_export = {
-#     "include": ['image', 'raw data'],
-#     "image-format": 'original',
-#     "archive-format": "zip",
-#     "resolution": "original"
-# }
-# imaging_export = ImagingDataSetExport(config_export)
-# ic.single_export_download(perm_id, imaging_export, 0, '/home/alaskowski/PREMISE')
+    def create_imaging_dataset(self, dataset_type: str, config: ImagingDataSetPropertyConfig,
+                               experiment: str, sample: str,
+                               files: list[str], other_properties=None):
+        if other_properties is None:
+            other_properties = {}
+        assert dataset_type is not None
+        assert files is not None and len(files) > 0, "Files parameter must not be empty!"
+        assert config is not None
+        props = other_properties
+        props[IMAGING_CONFIG_PROP_NAME] = config.to_json()
+        dataset = self._openbis.new_dataset(dataset_type, experiment=experiment, sample=sample, files=files, props=props)
+        return dataset.save()
 
 
 

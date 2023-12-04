@@ -43,10 +43,20 @@ public class ImagingDataSetPreview implements Serializable
     private String bytes;
 
     @JsonProperty
+    private Integer width;
+
+    @JsonProperty
+    private Integer height;
+
+    @JsonProperty
+    private Integer index;
+
+    @JsonProperty
     private boolean show;
 
     @JsonProperty
-    private Map<String, String> metaData;
+    @JsonDeserialize(contentUsing = PropertiesDeserializer.class)
+    private Map<String, Serializable> metaData;
 
 
     @JsonIgnore
@@ -94,12 +104,45 @@ public class ImagingDataSetPreview implements Serializable
     }
 
     @JsonIgnore
-    public Map<String, String> getMetaData()
+    public Integer getWidth()
+    {
+        return width;
+    }
+
+    public void setWidth(Integer width)
+    {
+        this.width = width;
+    }
+
+    @JsonIgnore
+    public Integer getHeight()
+    {
+        return height;
+    }
+
+    public void setHeight(Integer height)
+    {
+        this.height = height;
+    }
+
+    @JsonIgnore
+    public Integer getIndex()
+    {
+        return index;
+    }
+
+    public void setIndex(Integer index)
+    {
+        this.index = index;
+    }
+
+    @JsonIgnore
+    public Map<String, Serializable> getMetaData()
     {
         return metaData;
     }
 
-    public void setMetaData(Map<String, String> metaData)
+    public void setMetaData(Map<String, Serializable> metaData)
     {
         this.metaData = metaData;
     }

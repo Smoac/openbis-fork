@@ -40,25 +40,15 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.reflection.ClassUtils;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
-import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDataSetPackager;
-import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer;
-import ch.systemsx.cisd.openbis.dss.generic.server.TarDataSetPackager;
-import ch.systemsx.cisd.openbis.dss.generic.server.ZipDataSetPackager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.ISessionWorkspaceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
-import java.util.function.Function;
 
 public class ImagingService implements ICustomDSSServiceExecutor
 {
@@ -70,9 +60,7 @@ public class ImagingService implements ICustomDSSServiceExecutor
     private static final Logger
             operationLog = LogFactory.getLogger(LogCategory.OPERATION, ImagingService.class);
 
-    private static final int DEFAULT_BUFFER_SIZE = (int) (10 * FileUtils.ONE_MB);
-
-    private static final String IMAGING_CONFIG_PROPERTY_NAME = "$IMAGING_DATA_CONFIG";
+    static final String IMAGING_CONFIG_PROPERTY_NAME = "$IMAGING_DATA_CONFIG";
 
     public ImagingService(Properties properties)
     {
@@ -139,13 +127,11 @@ public class ImagingService implements ICustomDSSServiceExecutor
         DataSet dataSet = getDataSet(sessionToken, data.getPermId());
 
         ImagingDataSetPropertyConfig config =
-                Util.readConfig(dataSet.getJsonProperty("$IMAGING_DATA_CONFIG"),
+                Util.readConfig(dataSet.getJsonProperty(IMAGING_CONFIG_PROPERTY_NAME),
                         ImagingDataSetPropertyConfig.class);
 
         IImagingDataSetAdaptor adaptor = getAdaptor(config);
         File rootFile = getRootFile(sessionToken, dataSet);
-        Map<String, Serializable> previewParams = data.getPreview().getConfig();
-        Map<String, String> meta = data.getPreview().getMetaData();
         String format = data.getPreview().getFormat();
 
         int index = data.getIndex();
@@ -153,7 +139,7 @@ public class ImagingService implements ICustomDSSServiceExecutor
         {
             throw new UserFailureException("There is no image with index:" + index);
         }
-        Map<String, Serializable> imageConfig = config.getImages().get(index).getConfig();
+        ImagingDataSetImage image = config.getImages().get(index);
 
         if (format == null || format.isBlank())
         {
@@ -164,9 +150,7 @@ public class ImagingService implements ICustomDSSServiceExecutor
                 new ImagingServiceContext(sessionToken, getApplicationServerApi(),
                         getDataStoreServerApi());
 
-        data.getPreview().setBytes(
-                adaptor.process(context,
-                        rootFile, imageConfig, previewParams, meta, format).toString());
+        adaptor.computePreview(context, rootFile, image, data.getPreview());
         return data;
     }
 
@@ -188,9 +172,6 @@ public class ImagingService implements ICustomDSSServiceExecutor
         }
 
         final ImagingDataSetImage image = config.getImages().get(index);
-
-        // TODO: discuss image config as filtering for export
-        Map<String, Serializable> imageConfig = image.getConfig();
 
         Map<String, Serializable> exportConfig = data.getExport().getConfig();
         Validator.validateExportConfig(exportConfig);
@@ -261,9 +242,6 @@ public class ImagingService implements ICustomDSSServiceExecutor
                 }
 
                 ImagingDataSetImage image = config.getImages().get(index);
-
-                // TODO: discuss image config as filtering for export
-                Map<String, Serializable> imageConfig = image.getConfig();
 
                 Map<String, Serializable> exportConfig = export.getConfig();
                 Validator.validateExportConfig(exportConfig);
@@ -384,9 +362,9 @@ public class ImagingService implements ICustomDSSServiceExecutor
             }
             Map<String, Serializable> params = preview.getConfig();
             params.put("resolution", exportConfig.get("resolution"));
-            Serializable img = adaptor.process(context,
-                    rootFile, image.getConfig(), params, image.getMetaData(), format);
-            String imgString = img.toString();
+            Map<String, Serializable> img = adaptor.process(context,
+                    rootFile, format, image.getConfig(), image.getMetaData(), params, preview.getMetaData());
+            String imgString = img.get("bytes").toString();
             byte[] decoded = Base64.getDecoder().decode(imgString);
             String fileName = "image" + imageIdx +"_preview" + previewIdx + "." + format;
 

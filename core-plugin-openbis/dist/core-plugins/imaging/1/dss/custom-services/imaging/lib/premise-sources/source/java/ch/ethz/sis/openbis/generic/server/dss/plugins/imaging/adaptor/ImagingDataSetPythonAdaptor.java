@@ -17,7 +17,10 @@
 
 package ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.adaptor;
 
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.imaging.ImagingDataSetImage;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.imaging.ImagingDataSetPreview;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.ImagingServiceContext;
+import ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.Util;
 import ch.ethz.sis.openbis.generic.server.sharedapi.v3.json.GenericObjectMapper;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,13 +40,15 @@ public abstract class ImagingDataSetPythonAdaptor implements IImagingDataSetAdap
     protected String scriptPath;
 
     @Override
-    public Serializable process(ImagingServiceContext context, File rootFile, Map<String, Serializable> imageConfig,
-            Map<String, Serializable> previewConfig, Map<String, String> metaData, String format)
+    public Map<String, Serializable> process(ImagingServiceContext context, File rootFile, String format,
+            Map<String, Serializable> imageConfig,
+            Map<String, Serializable> imageMetadata,
+            Map<String, Serializable> previewConfig,
+            Map<String, Serializable> previewMetadata)
     {
-
         ProcessBuilder processBuilder = new ProcessBuilder(pythonPath,
-                scriptPath, rootFile.getAbsolutePath(), convertMapToJson(imageConfig),
-                convertMapToJson(previewConfig), convertMapToJson(metaData), format);
+                scriptPath, rootFile.getAbsolutePath(), format, convertMapToJson(imageConfig),
+                convertMapToJson(imageMetadata), convertMapToJson(previewConfig), convertMapToJson(previewMetadata));
         processBuilder.redirectErrorStream(false);
 
         String fullOutput;
@@ -68,9 +73,36 @@ public abstract class ImagingDataSetPythonAdaptor implements IImagingDataSetAdap
         {
             throw new UserFailureException("Script produced no results!");
         }
+        String[] result = fullOutput.split("\n");
+        return convertPythonOutput(result[result.length-1]);
+    }
 
-        String[] resultSplit = fullOutput.split("\n");
-        return resultSplit[resultSplit.length - 1];
+    @Override
+    public void computePreview(ImagingServiceContext context, File rootFile,
+            ImagingDataSetImage image, ImagingDataSetPreview preview)
+    {
+        Map<String, Serializable> map = process(context, rootFile, preview.getFormat(),
+                image.getConfig(), image.getMetaData(),
+                preview.getConfig(), preview.getMetaData());
+
+        for (Map.Entry<String, Serializable> entry : map.entrySet())
+        {
+            if (entry.getKey().equalsIgnoreCase("width"))
+            {
+                Integer value = Integer.valueOf(entry.getValue().toString());
+                preview.setWidth(value);
+            } else if (entry.getKey().equalsIgnoreCase("height"))
+            {
+                Integer value = Integer.valueOf(entry.getValue().toString());
+                preview.setHeight(value);
+            } else if (entry.getKey().equalsIgnoreCase("bytes"))
+            {
+                preview.setBytes(entry.getValue().toString());
+            } else
+            {
+                preview.getMetaData().put(entry.getKey(), entry.getValue());
+            }
+        }
     }
 
     private String convertMapToJson(Map<String, ?> map)
@@ -86,6 +118,16 @@ public abstract class ImagingDataSetPythonAdaptor implements IImagingDataSetAdap
         } catch (Exception e)
         {
             throw new UserFailureException("Couldn't convert map to string", e);
+        }
+    }
+
+    private Map<String, Serializable> convertPythonOutput(String line) {
+        try
+        {
+            return Util.readConfig(line, Map.class);
+        } catch (Exception e)
+        {
+            return Map.of("bytes", line);
         }
     }
 

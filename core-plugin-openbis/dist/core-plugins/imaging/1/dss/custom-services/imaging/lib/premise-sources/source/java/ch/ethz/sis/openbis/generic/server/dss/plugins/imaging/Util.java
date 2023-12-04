@@ -18,22 +18,15 @@
 package ch.ethz.sis.openbis.generic.server.dss.plugins.imaging;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDataSetPackager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
-import java.util.AbstractMap;
-import java.util.Deque;
-import java.util.LinkedList;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.zip.CRC32;
 
-class Util
+public class Util
 {
     private Util() {}
 
@@ -69,7 +62,7 @@ class Util
         return crc.getValue();
     }
 
-    static <T> T readConfig(String val, Class<T> clazz)
+    public static <T> T readConfig(String val, Class<T> clazz)
     {
         try
         {
@@ -95,43 +88,6 @@ class Util
         {
             throw new UserFailureException("Could not serialize the input parameters!", e);
         }
-    }
-
-
-
-    static void archiveFiles(AbstractDataSetPackager packager, File rootFile, String rootFolderName,
-            Function<InputStream, Long> checksumFunction)
-    {
-        Deque<Map.Entry<String, File>> queue = new LinkedList<>();
-
-        queue.add(new AbstractMap.SimpleImmutableEntry<>(rootFolderName, rootFile));
-        while (!queue.isEmpty())
-        {
-            Map.Entry<String, File> element = queue.pollFirst();
-            String prefixPath = element.getKey();
-            File file = element.getValue();
-            String path = Paths.get(prefixPath, file.getName()).toString();
-            if (file.isDirectory())
-            {
-                for (File f : file.listFiles())
-                {
-                    queue.add(new AbstractMap.SimpleImmutableEntry<>(path, f));
-                }
-                packager.addDirectoryEntry(path);
-            } else
-            {
-                try
-                {
-                    FileInputStream fileStream = new FileInputStream(file);
-                    packager.addEntry(path, file.lastModified(), file.getTotalSpace(),
-                            checksumFunction.apply(fileStream), new FileInputStream(file));
-                } catch (IOException exc)
-                {
-                    throw new UserFailureException("Failed during export!", exc);
-                }
-            }
-        }
-
     }
 
 }

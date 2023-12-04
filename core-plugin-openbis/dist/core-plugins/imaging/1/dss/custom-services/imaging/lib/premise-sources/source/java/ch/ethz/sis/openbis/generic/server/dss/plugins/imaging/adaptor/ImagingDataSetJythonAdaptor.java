@@ -17,6 +17,8 @@
 
 package ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.adaptor;
 
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.imaging.ImagingDataSetImage;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.imaging.ImagingDataSetPreview;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.CustomDSSServiceExecutionOptions;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.ImagingServiceContext;
 import ch.ethz.sis.openbis.generic.server.dssapi.v3.helper.IDssServiceScriptRunner;
@@ -40,21 +42,56 @@ public class ImagingDataSetJythonAdaptor implements IImagingDataSetAdaptor
         }
     }
     @Override
-    public Serializable process(ImagingServiceContext context, File rootFile, Map<String, Serializable> imageConfig,
-            Map<String, Serializable> previewConfig, Map<String, String> metaData, String format)
+    public Map<String, Serializable> process(ImagingServiceContext context, File rootFile, String format,
+            Map<String, Serializable> imageConfig,
+            Map<String, Serializable> imageMetadata,
+            Map<String, Serializable> previewConfig,
+            Map<String, Serializable> previewMetadata)
     {
         CustomDSSServiceExecutionOptions options = new CustomDSSServiceExecutionOptions();
         options.withParameter("sessionToken", context.getSessionToken());
         options.withParameter("asApi", context.getAsApi());
         options.withParameter("dssApi", context.getDssApi());
         options.withParameter("file", rootFile);
+        options.withParameter("format", format);
         options.withParameter("imageConfig", imageConfig);
-        options.withParameter("config", previewConfig);
-        options.withParameter("metaData", metaData);
+        options.withParameter("imageMetadata", imageMetadata);
+        options.withParameter("previewConfig", previewConfig);
+        options.withParameter("previewMetadata", previewMetadata);
             IDssServiceScriptRunner
                     runner = new ScriptRunnerFactory(scriptPath, context.getAsApi(),
                     context.getDssApi())
                     .createServiceRunner(context.getSessionToken());
-        return runner.process(options);
+        return Map.of("BYTES", runner.process(options));
     }
+
+
+    @Override
+    public void computePreview(ImagingServiceContext context, File rootFile,
+            ImagingDataSetImage image, ImagingDataSetPreview preview)
+    {
+        Map<String, Serializable> map = process(context, rootFile, preview.getFormat(),
+                image.getConfig(), image.getMetaData(),
+                preview.getConfig(), preview.getMetaData());
+
+        for (Map.Entry<String, Serializable> entry : map.entrySet())
+        {
+            if (entry.getKey().equalsIgnoreCase("width"))
+            {
+                Integer value = Integer.valueOf(entry.getValue().toString());
+                preview.setWidth(value);
+            } else if (entry.getKey().equalsIgnoreCase("height"))
+            {
+                Integer value = Integer.valueOf(entry.getValue().toString());
+                preview.setHeight(value);
+            } else if (entry.getKey().equalsIgnoreCase("bytes"))
+            {
+                preview.setBytes(entry.getValue().toString());
+            } else
+            {
+                preview.getMetaData().put(entry.getKey(), entry.getValue());
+            }
+        }
+    }
+
 }

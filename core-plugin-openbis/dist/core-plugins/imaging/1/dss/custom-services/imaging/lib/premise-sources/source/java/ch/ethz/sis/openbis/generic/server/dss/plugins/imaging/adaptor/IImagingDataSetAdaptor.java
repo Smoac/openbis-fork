@@ -17,6 +17,8 @@
 
 package ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.adaptor;
 
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.imaging.ImagingDataSetImage;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.imaging.ImagingDataSetPreview;
 import ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.ImagingServiceContext;
 
 import java.io.File;
@@ -25,7 +27,13 @@ import java.util.Map;
 
 public interface IImagingDataSetAdaptor
 {
-    Serializable process(ImagingServiceContext context, File rootFile, Map<String, Serializable> imageConfig,
-            Map<String, Serializable> previewConfig, Map<String, String> metaData, String format);
+    Map<String, Serializable> process(ImagingServiceContext context, File rootFile, String format,
+            Map<String, Serializable> imageConfig,
+            Map<String, Serializable> imageMetadata,
+            Map<String, Serializable> previewConfig,
+            Map<String, Serializable> previewMetadata);
+
+    void computePreview(ImagingServiceContext context, File rootFile,
+            ImagingDataSetImage image, ImagingDataSetPreview preview);
 
 }
