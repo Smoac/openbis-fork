@@ -1,20 +1,13 @@
 import React from 'react'
-import logger from '@src/js/common/logger.js'
-import openbis from "@src/js/services/openbis";
 import {createTheme, makeStyles} from "@material-ui/core/styles";
 import {
-    Backdrop,
     Box,
-    Divider,
     Button,
     Grid,
     ImageList,
     ImageListItem,
-    Paper, Snackbar,
-    ThemeProvider,
-    CircularProgress, Switch,
+    ThemeProvider, Switch,
 } from "@material-ui/core";
-import {Alert} from "@material-ui/lab";
 
 import SaveIcon from '@material-ui/icons/Save';
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -22,26 +15,21 @@ import RefreshIcon from '@material-ui/icons/Refresh';
 import AddToQueueIcon from '@material-ui/icons/AddToQueue';
 
 import {
-    convertToBase64,
-    getExportResponse
+    convertToBase64
 } from "@src/js/components/database/premise/utils";
 import Dropdown from "@src/js/components/database/premise/common/Dropdown";
 import AlertDialog from "@src/js/components/database/premise/common/AlertDialog";
 import InputFileUpload from "@src/js/components/database/premise/components/InputFileUpload";
 import Export from "@src/js/components/database/premise/components/Exporter";
-import Player from "@src/js/components/database/premise/common/Player";
 import InputsPanel from "@src/js/components/database/premise/components/InputsPanel";
 import MetadataViewer from "@src/js/components/database/premise/components/MetadataViewr";
 import ImageListItemBarAction from "@src/js/components/database/premise/common/ImageListItemBarAction";
 import OutlinedBox from "@src/js/components/database/premise/common/OutlinedBox";
 import InputSlider from "@src/js/components/database/premise/common/InputSlider";
 import InputRangeSlider from "@src/js/components/database/premise/common/InputRangeSlider";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Typography from "@material-ui/core/Typography";
 import PaperBox from "@src/js/components/database/premise/common/PaperBox";
-import {ChromePicker, MaterialPicker, SketchPicker} from "react-color";
 import ColorMap from "@src/js/components/database/premise/components/ColorMap";
-//import Button from '@src/js/components/common/form/Button';
 
 const themeList = createTheme({
     overrides: {
@@ -346,7 +334,7 @@ const ImagingDataSetViewer = ({images, config, onDelete, onNew, onUpload, onUpda
                                          config={imagingDataSet.config.exports}/>: <></>}
                                 <Dropdown onSelectChange={handleResolutionChange}
                                           label="Resolutions"
-                                          values={imagingDataSet.config !== undefined && imagingDataSet.config.resolutions}
+                                          values={imagingDataSet.config.resolutions}
                                           initValue={[resolution.join('x')]}/>
                             </Grid>
 
@@ -356,56 +344,60 @@ const ImagingDataSetViewer = ({images, config, onDelete, onNew, onUpload, onUpda
                             <OutlinedBox style={{width:'fit-content'}} label="Show">
                                 <Switch checked={show} onChange={() => setShow(!show)} color="primary"  />
                             </OutlinedBox>
-                            {imagingDataSet.config !== undefined && imagingDataSet.config.inputs.map((c, idx) => {
+                            {imagingDataSet.config.inputs.map((c, idx) => {
                                 //const prevConfigValues = imagingDataSet.images[activeImageIdx].previews[activePreviewIdx].config;
                                 //console.log(panelConfig, initConfig);
                                 switch (c.type) {
-                                case 'Dropdown':
-                                    return <Dropdown key={"InputsPanel-"+c.type +"-"+ idx}
-                                        label={c.label}
-                                        initValue={inputValues[c.label]}
-                                        values={c.values}
-                                        isMulti={c.multiselect}
-                                        onSelectChange={(event) => handleActiveConfigChange(event.target.name, event.target.value)} />;
-                                case 'Slider':
-                                    if (c.visibility) {
-                                        for (const condition of c.visibility){
-                                            if(condition.values.includes(inputValues[condition.label])){
-                                                c.range = condition.range;
-                                                c.unit = condition.unit;
+                                    case 'Dropdown':
+                                        return <Dropdown key={"InputsPanel-" + c.type + "-" + idx}
+                                                         label={c.label}
+                                                         initValue={inputValues[c.label]}
+                                                         values={c.values}
+                                                         isMulti={c.multiselect}
+                                                         onSelectChange={(event) => handleActiveConfigChange(event.target.name, event.target.value)}/>;
+                                    case 'Slider':
+                                        if (c.visibility) {
+                                            for (const condition of c.visibility) {
+                                                if (condition.values.includes(inputValues[condition.label])) {
+                                                    c.range = condition.range;
+                                                    c.unit = condition.unit;
+                                                }
                                             }
                                         }
-                                    }
-                                    return <InputSlider key={"InputsPanel-"+c.type +"-"+ idx}
-                                                        label={c.label}
-                                                        initValue={inputValues[c.label]}
-                                                        range={c.range}
-                                                        unit={c.unit}
-                                                        playable={c.playable}
-                                                        speeds={c.speeds}
-                                                        onChange={(name, value, update) => handleActiveConfigChange(name, value, update)}/>;
-                                case 'Range':
-                                    console.log(c);
-                                    if (c.visibility) {
-                                        for (const condition of c.visibility){
-                                            if(condition.values.includes(inputValues[condition.label])){
-                                                c.range = condition.range;
-                                                c.unit = condition.unit;
+                                        return <InputSlider
+                                            key={"InputsPanel-" + c.type + "-" + idx}
+                                            label={c.label}
+                                            initValue={inputValues[c.label]}
+                                            range={c.range}
+                                            unit={c.unit}
+                                            playable={c.playable}
+                                            speeds={c.speeds}
+                                            onChange={(name, value, update) => handleActiveConfigChange(name, value, update)}/>;
+                                    case 'Range':
+                                        console.log(c);
+                                        if (c.visibility) {
+                                            for (const condition of c.visibility) {
+                                                if (condition.values.includes(inputValues[condition.label])) {
+                                                    c.range = condition.range;
+                                                    c.unit = condition.unit;
+                                                }
                                             }
                                         }
-                                    }
-                                    return <InputRangeSlider key={"InputsPanel-"+c.type +"-"+ idx}
-                                                             label={c.label}
-                                                             initValue={inputValues[c.label]}
-                                                             range={c.range}
-                                                             unit={c.unit}
-                                                             playable={c.playable}
-                                                             speeds={c.speeds}
-                                                             onChange={(name, value, update) => console.log(name, value, update)}/>;
-                                                             //onChange={(name, value, update) => handleActiveConfigChange(name, value, update)}/>;
-                                case 'Colormap':
-                                    return <ColorMap key={"InputsPanel-"+c.type +"-"+ idx} values={c.values} />
-                                }})
+                                        return <InputRangeSlider
+                                            key={"InputsPanel-" + c.type + "-" + idx}
+                                            label={c.label}
+                                            initValue={inputValues[c.label]}
+                                            range={c.range}
+                                            unit={c.unit}
+                                            playable={c.playable}
+                                            speeds={c.speeds}
+                                            onChange={(name, value, update) => console.log(name, value, update)}/>;
+                                    //onChange={(name, value, update) => handleActiveConfigChange(name, value, update)}/>;
+                                    case 'Colormap':
+                                        return <ColorMap key={"InputsPanel-" + c.type + "-" + idx}
+                                                         values={c.values}/>
+                                }
+                            })
                             }
                         </Grid>
                     </PaperBox>

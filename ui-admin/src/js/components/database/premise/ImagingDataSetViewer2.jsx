@@ -113,7 +113,6 @@ class ImagingDataSetViewer extends React.PureComponent {
         if (!this.state.loaded) {
             try {
                 const {objId} = this.props
-                let dataset = null
                 const fetchOptions = new openbis.DataSetFetchOptions()
                 fetchOptions.withExperiment()
                 fetchOptions.withSample()
@@ -124,7 +123,7 @@ class ImagingDataSetViewer extends React.PureComponent {
                     fetchOptions
                 )
                 //console.log("fetchData - dataSets: ", dataSets);
-                dataset = JSON.parse(dataSets[objId].properties['$IMAGING_DATA_CONFIG'])
+                let dataset = JSON.parse(dataSets[objId].properties['$IMAGING_DATA_CONFIG'])
                 this.setState({open: false, loaded: true, imagingDataset: dataset})
             } catch (error) {
                 console.log(error)
@@ -182,7 +181,7 @@ class ImagingDataSetViewer extends React.PureComponent {
     }
 
     createNewPreview = () => {
-        const {imagingDataset, activeImageIdx, activePreviewIdx} = this.state;
+        const {imagingDataset, activeImageIdx} = this.state;
         //setOpen(true);
         let toUpdateImgDs = {...imagingDataset};
         let newLastIdx = toUpdateImgDs.images[activeImageIdx].previews.length;
@@ -213,7 +212,7 @@ class ImagingDataSetViewer extends React.PureComponent {
 
     handleUpload = async (file) => {
         const base64 = await convertToBase64(file);
-        const {imagingDataset, activeImageIdx, activePreviewIdx} = this.state;
+        const {imagingDataset, activeImageIdx} = this.state;
         //setOpen(true);
         try {
             let toUpdateImgDs = {...imagingDataset};
@@ -291,7 +290,7 @@ class ImagingDataSetViewer extends React.PureComponent {
 
     renderImageSection() {
         const {classes} = this.props;
-        const {imagingDataset, activeImageIdx, activePreviewIdx} = this.state;
+        const {imagingDataset, activeImageIdx} = this.state;
         return (
             <PaperBox>
                 <Typography variant='h6'>
@@ -303,7 +302,7 @@ class ImagingDataSetViewer extends React.PureComponent {
                         <ImageListItem className={activeImageIdx === image.index ? classes.elevation : classes.trasparency}
                             onClick={() => this.handleActiveImageChange(image.index)}
                             key={`imagelistitem-image-${image.index}`}>
-                                {image.previews[0].bytes ? <img
+                                {image.previews[0].bytes ? <img alt={""}
                                     className={classes.imgFullWidth}
                                     src={`data:image/${image.previews[0].format};base64,${image.previews[0].bytes}`}
                                 /> : <BlankImage className={classes.imgFullWidth}/>}
@@ -315,7 +314,7 @@ class ImagingDataSetViewer extends React.PureComponent {
     };
 
     moveArrowCompList(currentIdx) {
-        const {imagingDataset, activeImageIdx, activePreviewIdx} = this.state;
+        const {imagingDataset, activeImageIdx} = this.state;
         let previewsLength = imagingDataset.images[activeImageIdx].previews.length;
         if (currentIdx === 0 && previewsLength === 1) { // only 1 element
             return [];
@@ -355,8 +354,9 @@ class ImagingDataSetViewer extends React.PureComponent {
                                 <ImageListItem key={`imagelistitem-preview-${activeImageIdx}-${preview.index}`}
                                                className={activePreviewIdx === preview.index ? classes.elevation : classes.trasparency}
                                                onClick={() => this.handleActivePreviewChange(preview.index)}>
-                                    {preview.bytes ? <img className={classes.imgFullWidth}
-                                        src={`data:image/${preview.format};base64,${preview.bytes}`}/>
+                                    {preview.bytes ? <img alt={""}
+                                                          className={classes.imgFullWidth}
+                                                          src={`data:image/${preview.format};base64,${preview.bytes}`}/>
                                         : <BlankImage className={classes.imgFullWidth}/>}
                                     {activePreviewIdx === preview.index ? this.moveArrowCompList(activePreviewIdx) : ''}
                                 </ImageListItem>

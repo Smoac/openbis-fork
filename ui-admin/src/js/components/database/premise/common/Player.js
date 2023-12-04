@@ -42,7 +42,7 @@ const themeSlider = createTheme({
    }
 });
 
-const Widget = styled('div')(({ theme }) => ({
+const Widget = styled('div')(() => ({
     padding: 10,
     borderRadius: 16,
     width: 170,
@@ -85,7 +85,6 @@ const useStyles = makeStyles({
 });
 export default function Player({ label= 'DEFAULT', onStep, steps = [], speeds = defaultSpeeds, speedable = false }) {
     const classes = useStyles();
-    const theme = useTheme();
     const [activeStep, setActiveStep] = React.useState(-1);
     const [paused, setPaused] = React.useState(true);
     const [speed, setSpeed] = React.useState(2000);
