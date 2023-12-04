@@ -1,21 +1,22 @@
 import * as React from 'react';
 import Dropdown from "@src/js/components/database/premise/common/Dropdown";
 import Slider from "@src/js/components/database/premise/common/InputSlider";
-import RangeSlider from "@src/js/components/database/premise/common/InputRangeSlider";
+import Range from "@src/js/components/database/premise/common/InputRangeSlider";
 import Grid from "@material-ui/core/Grid";
 import { Switch} from "@material-ui/core";
 import OutlinedBox from "@src/js/components/database/premise/common/OutlinedBox";
+import ColorMap from "@src/js/components/database/premise/components/ColorMap";
 
 
 const Components = {
     Dropdown,
     Slider,
-    RangeSlider
+    Range,
+    ColorMap
 }
 
 const InputsPanel = ({ inputsConfig, prevConfigValues, onConfigChange }) => {
     const [show, setShow] = React.useState(true);
-    const [components, setComponents] = React.useState();
 
     /*React.useEffect(() => {
         const listInputsComponents = inputsConfig.map((c, idx) => {
@@ -78,6 +79,7 @@ const InputsPanel = ({ inputsConfig, prevConfigValues, onConfigChange }) => {
             for (const condition of c.visibility){
                 if(condition.values.includes(prevConfigValues[condition.label])){
                     c.range = condition.range;
+                    c.unit = condition.unit;
                 }
             }
         }
@@ -89,6 +91,7 @@ const InputsPanel = ({ inputsConfig, prevConfigValues, onConfigChange }) => {
                            isMulti={c.multiselect}
                            onSelectChange={(event) => onConfigChange(event.target.name, event.target.value)}
                            range={c.range}
+                           unit={c.unit}
                            playable={c.playable}
                            speeds={c.speeds}
                            onChange={(name, value, update) => onConfigChange(name, value, update)}/>);
