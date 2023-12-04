@@ -67,7 +67,7 @@ const Export = ({ config, handleExport }) => {
 
     return (
         <>
-            <Button sx={{ height: 'fit-content' }} variant="outlined" onClick={handleOpen} startIcon={<CloudDownloadIcon/>}>Open exports</Button>
+            <Button sx={{ height: 'fit-content' }} variant="outlined" onClick={handleOpen} startIcon={<CloudDownloadIcon/>}>Export</Button>
             <Modal open={open}
                    onClose={handleClose}
                    aria-labelledby="modal-modal-title"

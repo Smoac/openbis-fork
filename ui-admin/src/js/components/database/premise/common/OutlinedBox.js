@@ -5,8 +5,8 @@ import {makeStyles} from "@material-ui/core/styles";
 
 const useStyles = makeStyles({
     outlinedWrapper: {
-        width: '95%',
-        margin: '16px',
+        width: '100%',
+        margin: '12px 0 0 0',
         position:'relative'},
     outlined: {
         border: '1px solid rgba(0, 0, 0, 0.3)',
@@ -14,12 +14,15 @@ const useStyles = makeStyles({
         position: 'relative',
         padding: '0.8rem',
         display: 'flex',
+        '&:hover': {
+            borderColor: 'rgba(0, 0, 0, 0.5)'
+        }
     },
     overlapLabel: {
         position: 'absolute',
         top: '-1.3ex',
         zIndex: 1,
-        left: '2em',
+        left: '1em',
         backgroundColor: 'white',
         padding: '0 5px'
     }

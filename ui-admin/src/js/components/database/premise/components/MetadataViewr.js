@@ -13,11 +13,12 @@ const useStyles = makeStyles({
 });
 const MetadataViewer = ({configMetadata, previews}) => {
     const classes = useStyles();
-
     return (
         <Grid container spacing={2} direction="column" >
             <Grid item sx={{ textAlign: 'left' }}>
-                <h1>Config Metadata section</h1>
+                <Typography variant='h6'>
+                    Config Metadata section
+                </Typography>
                 <Card className={classes.root}>
                     <CardContent>
                         {Object.entries(configMetadata).map(([key, value], idx) => <Typography variant="body2" component="p" key={idx}><strong>{key}:</strong> {value}</Typography>)}
@@ -26,17 +27,19 @@ const MetadataViewer = ({configMetadata, previews}) => {
 
             </Grid>
             <Grid item sx={{ textAlign: 'left' }} >
-                <h1>Image section</h1>
+                <Typography variant='h6'>
+                    Image section
+                </Typography>
             </Grid>
             <Grid item container className={classes.spaceAround} >
                 {previews.map(preview =>
-                    <Grid key={'preview_md_'+preview.previewIdx} item sx={{ textAlign: 'left' }}>
+                    preview.metadata && <Grid key={'preview_md_'+preview.previewIdx} item sx={{ textAlign: 'left' }}>
                         <Card className={classes.root}>
                             <Typography gutterBottom variant="h5" component="h2">
                                 Preview {preview.previewIdx}
                             </Typography>
                             <CardContent>
-                                {Object.entries(preview.metadata).map(([key, value], idx) => <Typography variant="body2" component="p" key={idx}><strong>{key}:</strong> {value}</Typography>)}
+                                {preview.metadata && Object.entries(preview.metadata).map(([key, value], idx) => <Typography variant="body2" component="p" key={idx}><strong>{key}:</strong> {value}</Typography>)}
                             </CardContent>
                         </Card>
                     </Grid>

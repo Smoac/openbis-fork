@@ -21,7 +21,7 @@ export default function InputFileUpload({onInputFile}) {
     const [flag, setFlag] = React.useState(false);
 
     const fileChangedHandler = async (event) => {
-        console.log(event.target.files);
+        console.log("InputFileUpload - fileChangedHandler: ", event.target.files);
         let file = event.target.files[0];
         let reader = new FileReader();
         reader.onload = function (e) {

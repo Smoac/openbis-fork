@@ -24,13 +24,11 @@ const Dropdown = ({ label, values, initValue, isMulti, onSelectChange = null }) 
         }
     };
 
-    const labelId = "select-" + label + "-label"
-
     return (
         <OutlinedBox label={label}>
             <FormControl fullWidth >
                 <Select
-                    labelId={labelId}
+                    labelId={"select-" + label + "-label"}
                     id={"select-" + label}
                     value={value}
                     multiple={isMulti}

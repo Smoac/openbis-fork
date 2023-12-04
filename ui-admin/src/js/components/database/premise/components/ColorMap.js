@@ -1,5 +1,4 @@
 import React from 'react';
-import {ChromePicker, SketchPicker} from "react-color";
 import {FormControl, MenuItem, Select} from "@material-ui/core";
 import OutlinedBox from "@src/js/components/database/premise/common/OutlinedBox";
 

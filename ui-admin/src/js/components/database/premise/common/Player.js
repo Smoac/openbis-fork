@@ -23,10 +23,29 @@ const themeDisabled = createTheme({
     },
 });
 
+const themeSlider = createTheme({
+   overrides: {
+       MuiSlider: {
+           thumb: {
+               width: '8px',
+               height: '8px',
+               marginTop: '-3px',
+           },
+           markLabel: {
+               top: '20px',
+               fontSize: '0.6rem',
+           },
+           marked:{
+               marginBottom: "unset"
+           }
+       }
+   }
+});
+
 const Widget = styled('div')(({ theme }) => ({
-    padding: 16,
+    padding: 10,
     borderRadius: 16,
-    width: 143,
+    width: 170,
     maxWidth: '100%',
     height: 'fit-content',
     position: 'relative',
@@ -134,22 +153,27 @@ export default function Player({ label= 'DEFAULT', onStep, steps = [], speeds = 
                 <ThemeProvider theme={themeDisabled}>
                     <IconButton aria-label="previous"
                                 onClick={handleBack}
-                                disabled={paused || activeStep <= 0}>
-                        <FastRewindRounded fontSize="large"  />
+                                disabled={paused || activeStep <= 0}
+                                size="small"
+                    >
+                        <FastRewindRounded />
                     </IconButton>
                     <IconButton aria-label={paused ? 'play' : 'pause'}
                                 onClick={handlePlay}
+                                size="small"
                     >
                         {paused ? (
-                            <PlayArrowRounded sx={{ fontSize: '3rem' }}/>
+                            <PlayArrowRounded />
                         ) : (
-                            <PauseRounded sx={{ fontSize: '3rem' }}  />
+                            <PauseRounded />
                         )}
                     </IconButton>
                     <IconButton aria-label="next"
                                 onClick={handleNext}
-                                disabled={paused || activeStep === steps.length-1}>
-                        <FastForwardRounded fontSize="large"  />
+                                disabled={paused || activeStep === steps.length-1}
+                                size="small"
+                    >
+                        <FastForwardRounded />
                     </IconButton>
                 </ThemeProvider>
             </Box>
@@ -161,14 +185,18 @@ export default function Player({ label= 'DEFAULT', onStep, steps = [], speeds = 
                            nextButton={''}
                            backButton={''}
             />}
-            {speedable && <Slider
-                value={speed}
-                onChange={handleSpeedChange}
-                step={null}
-                min={defaultSpeeds[0].value}
-                max={defaultSpeeds[defaultSpeeds.length - 1].value}
-                marks={defaultSpeeds}
-            />}
+            <ThemeProvider theme={themeSlider}>
+                {speedable && <Slider
+                    className={classes.thumb}
+                    value={speed}
+                    color="primary"
+                    onChange={handleSpeedChange}
+                    step={null}
+                    min={defaultSpeeds[0].value}
+                    max={defaultSpeeds[defaultSpeeds.length - 1].value}
+                    marks={defaultSpeeds}
+                />}
+            </ThemeProvider>
         </Widget>
     );
 }

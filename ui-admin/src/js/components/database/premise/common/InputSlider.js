@@ -7,7 +7,7 @@ import OutlinedBox from "@src/js/components/database/premise/common/OutlinedBox"
 import InputAdornment from "@material-ui/core/InputAdornment";
 
 
-const InputSlider = ({ label, range, initValue, playable, speeds, onChange }) => {
+const InputSlider = ({ label, range, initValue, playable, speeds, onChange, unit='' }) => {
     const min = range[0]
     const max = range[1]
     const step = range[2]
@@ -75,7 +75,7 @@ const InputSlider = ({ label, range, initValue, playable, speeds, onChange }) =>
                             name={label}
                             onChange={handleInputChange}
                             onBlur={handleBlur}
-                            endAdornment={<InputAdornment position="end">Kg</InputAdornment>}
+                            endAdornment={<InputAdornment position="end">{unit}</InputAdornment>}
                             inputProps={{
                                 step: step,
                                 min: min,
