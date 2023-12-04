@@ -4,6 +4,7 @@ import AppController from '@src/js/components/AppController.js'
 import openbis from '@src/js/services/openbis.js'
 import objectType from '@src/js/common/consts/objectType.js'
 import logger from '@src/js/common/logger.js'
+import ImagingDataSetViewer2 from "@src/js/components/database/premise/ImagingDataSetViewer2.jsx";
 
 class DatabaseComponent extends React.PureComponent {
   constructor(props) {
@@ -52,13 +53,18 @@ class DatabaseComponent extends React.PureComponent {
         fetchOptions.withExperiment()
         fetchOptions.withSample()
         fetchOptions.withParents()
+        fetchOptions.withProperties()
         const dataSets = await openbis.getDataSets(
           [new openbis.DataSetPermId(object.id)],
           fetchOptions
         )
-        json = dataSets[object.id]
+        if ('$IMAGING_DATA_CONFIG' in dataSets[object.id].properties){
+          json = JSON.parse(dataSets[object.id].properties['$IMAGING_DATA_CONFIG']);
+        } else {
+          json = dataSets[object.id]
+        }
+        //json = dataSets[object.id]
       }
-
       this.setState({
         json
       })
@@ -68,10 +74,13 @@ class DatabaseComponent extends React.PureComponent {
   }
 
   render() {
+    //TODO: remove imagingDataset component
     logger.log(logger.DEBUG, 'DatabaseComponent.render')
-
+    if(!this.state.json) return null;
     return (
       <Container>
+        {this.props.object.type === objectType.DATA_SET && <ImagingDataSetViewer2 objId={this.props.object.id}/>}
+        ----------------------------------------------------------------------------------------------
         <pre>{JSON.stringify(this.state.json || {}, null, 2)}</pre>
       </Container>
     )
