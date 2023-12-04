@@ -38,8 +38,8 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
         prototype.getExport = function() {
             return this.export;
         };
-        prototype.setExport = function(export) {
-            this.export = export;
+        prototype.setExport = function(exportVar) {
+            this.export = exportVar;
         };
         prototype.getUrl = function() {
             return this.url;
