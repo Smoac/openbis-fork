@@ -14,7 +14,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.playable = null;
 		prototype.speeds = null;
 		prototype.visibility = null;
-		prototype.metaData = null;
+		prototype.metadata = null;
 
 		prototype.getLabel = function() {
 			return this.label;
@@ -76,11 +76,11 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
         prototype.setVisibility = function(visibility) {
             this.visibility = visibility;
         };
-		prototype.getMetaData = function() {
-			return this.metaData;
+		prototype.getMetadata = function() {
+			return this.metadata;
 		};
-		prototype.setMetaData = function(metaData) {
-			this.metaData = metaData;
+		prototype.setMetadata = function(metadata) {
+			this.metadata = metadata;
 		};
 		prototype.toString = function() {
             return "ImagingDataSetControl: " + this.label;
@@ -103,7 +103,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
             name : "List",
             arguments : [ "Integer"]
         },
-        metaData : {
+        metadata : {
             name : "Map",
             arguments : [ "String", "String" ]
         }

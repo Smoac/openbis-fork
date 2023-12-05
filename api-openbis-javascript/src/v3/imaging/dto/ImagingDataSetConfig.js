@@ -11,7 +11,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.playable = null;
 		prototype.exports = null;
 		prototype.inputs = null;
-		prototype.metaData = null;
+		prototype.metadata = null;
 
 		prototype.getAdaptor = function() {
 			return this.adaptor;
@@ -55,11 +55,11 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
         prototype.setInputs = function(inputs) {
             this.inputs = inputs;
         };
-		prototype.getMetaData = function() {
-			return this.metaData;
+		prototype.getMetadata = function() {
+			return this.metadata;
 		};
-		prototype.setMetaData = function(metaData) {
-			this.metaData = metaData;
+		prototype.setMetadata = function(metadata) {
+			this.metadata = metadata;
 		};
 		prototype.toString = function() {
             return "ImagingDataSetConfig: " + this.adaptor;
@@ -82,7 +82,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
             name : "List",
             arguments : [ "ImagingDataSetControl"]
         },
-        metaData : {
+        metadata : {
             name : "Map",
             arguments : [ "String", "String" ]
         }

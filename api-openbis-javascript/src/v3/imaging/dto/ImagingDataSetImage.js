@@ -6,7 +6,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		constructor.serialVersionUID = 1;
 		prototype.previews = null;
 		prototype.config = null;
-		prototype.metaData = null;
+		prototype.metadata = null;
 
 		prototype.getPreviews = function() {
 			return this.previews;
@@ -20,11 +20,11 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
         prototype.setConfig = function(config) {
             this.config = config;
         };
-		prototype.getMetaData = function() {
-			return this.metaData;
+		prototype.getMetadata = function() {
+			return this.metadata;
 		};
-		prototype.setMetaData = function(metaData) {
-			this.metaData = metaData;
+		prototype.setMetadata = function(metadata) {
+			this.metadata = metadata;
 		};
 		prototype.toString = function() {
             return "ImagingDataSetImage: " + this.previews;
@@ -39,7 +39,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
             name : "Map",
             arguments : [ "String", "Serializable" ]
         },
-        metaData : {
+        metadata : {
             name : "Map",
             arguments : [ "String", "Serializable" ]
         }

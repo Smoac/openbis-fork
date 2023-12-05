@@ -7,7 +7,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.permId = null;
         prototype.index = null;
 		prototype.config = null;
-		prototype.metaData = null;
+		prototype.metadata = null;
 
         prototype.getPermId = function() {
 			return this.permId;
@@ -27,11 +27,11 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setConfig = function(config) {
 			this.config = config;
 		};
-		prototype.getMetaData = function() {
-			return this.metaData;
+		prototype.getMetadata = function() {
+			return this.metadata;
 		};
-		prototype.setMetaData = function(metaData) {
-			this.metaData = metaData;
+		prototype.setMetadata = function(metadata) {
+			this.metadata = metadata;
 		};
 		prototype.toString = function() {
             return "ImagingDataSetExport: " + this.config;
@@ -42,7 +42,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
             name : "Map",
             arguments : [ "String", "Serializable" ]
         },
-        metaData : {
+        metadata : {
             name : "Map",
             arguments : [ "String", "Serializable" ]
         }

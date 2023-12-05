@@ -11,7 +11,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.width = null;
 		prototype.height = null;
 		prototype.index = null;
-		prototype.metaData = null;
+		prototype.metadata = null;
 
 		prototype.getConfig = function() {
 			return this.config;
@@ -55,11 +55,11 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
         prototype.setIndex = function(index) {
             this.index = index;
         };
-		prototype.getMetaData = function() {
-			return this.metaData;
+		prototype.getMetadata = function() {
+			return this.metadata;
 		};
-		prototype.setMetaData = function(metaData) {
-			this.metaData = metaData;
+		prototype.setMetadata = function(metadata) {
+			this.metadata = metadata;
 		};
 		prototype.toString = function() {
             return "ImagingDataSetPreview: " + this.config;
@@ -70,7 +70,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
             name : "Map",
             arguments : [ "String", "Serializable" ]
         },
-        metaData : {
+        metadata : {
             name : "Map",
             arguments : [ "String", "Serializable" ]
         }
