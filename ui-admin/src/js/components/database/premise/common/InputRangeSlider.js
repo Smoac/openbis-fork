@@ -6,7 +6,7 @@ import { Input } from "@material-ui/core";
 import OutlinedBox from "@src/js/components/database/premise/common/OutlinedBox";
 import InputAdornment from "@material-ui/core/InputAdornment";
 
-const InputRangeSlider = ({ label, range, initValue = null, playable, speeds, onChange, unit = ''}) => {
+const InputRangeSlider = ({ label, range, initValue = null, playable, speeds, onChange, unit = null}) => {
     const min = Number(range[0]);
     const max = Number(range[1]);
     const step = Number(range[2]);
@@ -14,7 +14,6 @@ const InputRangeSlider = ({ label, range, initValue = null, playable, speeds, on
         { length: (max - min) / step + 1 },
         (value, index) => min + index * step
     );
-    console.log('value = ', initValue);
     const [value, setValue] = React.useState(initValue == null ? [min,max] : initValue);
 
     function roundToClosest(counts, goal){
@@ -27,14 +26,12 @@ const InputRangeSlider = ({ label, range, initValue = null, playable, speeds, on
     };
 
     const handleInputMinChange = (event) => {
-        console.log('handleInputMinChange: ', event.target);
         let newValue = event.target.value === '' ? [value[0], value[1]] : [Number(event.target.value), value[1]];
         setValue(newValue);
         onChange(event.target.name, newValue);
     };
 
     const handleInputMaxChange = (event) => {
-        console.log('handleInputMaxChange: ', event.target);
         let newValue = event.target.value === '' ? [value[0], value[1]] : [value[0], Number(event.target.value)];
         setValue(newValue);
         onChange(event.target.name, newValue);
@@ -65,7 +62,7 @@ const InputRangeSlider = ({ label, range, initValue = null, playable, speeds, on
                         size="small"
                         onChange={handleInputMinChange}
                         onBlur={handleBlur}
-                        endAdornment={<InputAdornment position="end">{unit}</InputAdornment>}
+                        endAdornment={unit && <InputAdornment position="end">{unit}</InputAdornment>}
                         inputProps={{
                             step: step,
                             min: min,
@@ -91,7 +88,7 @@ const InputRangeSlider = ({ label, range, initValue = null, playable, speeds, on
                         size="small"
                         onChange={handleInputMaxChange}
                         onBlur={handleBlur}
-                        endAdornment={<InputAdornment position="end">{unit}</InputAdornment>}
+                        endAdornment={unit && <InputAdornment position="end">{unit}</InputAdornment>}
                         inputProps={{
                             step: step,
                             min: min,

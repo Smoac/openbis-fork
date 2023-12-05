@@ -7,31 +7,21 @@ import OutlinedBox from "@src/js/components/database/premise/common/OutlinedBox"
 import InputAdornment from "@material-ui/core/InputAdornment";
 
 
-const InputSlider = ({ label, range, initValue, playable, speeds, onChange, unit='' }) => {
-    const min = range[0]
-    const max = range[1]
-    const step = range[2]
+const InputSlider = ({ label, range, initValue, playable, speeds, onChange, unit= null }) => {
+    const min = Number(range[0])
+    const max = Number(range[1])
+    const step = Number(range[2])
     const arrayRange = Array.from(
         { length: (max - min) / step + 1 },
         (value, index) => min + index * step
     );
     const [value, setValue] = React.useState(initValue == null ? min : Number(initValue));
 
-    //console.log("InputSlider: ", label, initValue, value);
-    /*React.useEffect(() => {
-        //console.log("useEffect SLIDER: ", label, range, initValue);
-        if (initValue !== value) {
-            setValue(initValue == null ? min : Number(initValue));
-        }
-    }, [initValue]);*/
-
-
     function roundToClosest(counts, goal) {
         return counts.reduce((prev, curr) => Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev);
     }
 
     const handleSliderChange = (newValue, name, update) => {
-        console.log(name+' SLIDER CHANGED '+newValue);
         setValue(newValue);
         onChange(name, [newValue], update);
     };
@@ -58,35 +48,34 @@ const InputSlider = ({ label, range, initValue, playable, speeds, onChange, unit
     return (
         <OutlinedBox label={label}>
             <Grid container spacing={2} alignItems="center" direction="row" sx={{ mb: 1, px: 1 }}>
-                    <Grid item xs>
-                        <Slider
-                            value={initValue == null ? min : Number(initValue)}
-                            name={label}
-                            onChange={(event, newValue)=> handleSliderChange(newValue, label, false)}
-                            min={min}
-                            max={max}
-                            step={step}
-                        />
-                    </Grid>
-                    <Grid item xs>
-                        <Input
-                            value={initValue == null ? min : Number(initValue)}
-                            size="small"
-                            name={label}
-                            onChange={handleInputChange}
-                            onBlur={handleBlur}
-                            endAdornment={<InputAdornment position="end">{unit}</InputAdornment>}
-                            inputProps={{
-                                step: step,
-                                min: min,
-                                max: max,
-                                type: 'number'
-                            }}
-                        />
-                    </Grid>
+                <Grid item xs>
+                    <Slider
+                        value={initValue == null ? min : Number(initValue)}
+                        name={label}
+                        onChange={(event, newValue)=> handleSliderChange(newValue, label, false)}
+                        min={min}
+                        max={max}
+                        step={step}
+                    />
                 </Grid>
-                <Player label={label} onStep={handleSliderChange} steps={arrayRange} speeds={speeds} speedable={playable} />
-
+                <Grid item xs>
+                    <Input
+                        value={initValue == null ? min : Number(initValue)}
+                        size="small"
+                        name={label}
+                        onChange={handleInputChange}
+                        onBlur={handleBlur}
+                        endAdornment={unit && <InputAdornment position="end">{unit}</InputAdornment>}
+                        inputProps={{
+                            step: step,
+                            min: min,
+                            max: max,
+                            type: 'number'
+                        }}
+                    />
+                </Grid>
+            </Grid>
+            {playable && <Player label={label} onStep={handleSliderChange} steps={arrayRange} speeds={speeds} speedable={playable} />}
         </OutlinedBox>
     );
 }
