@@ -1,7 +1,7 @@
 define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
-	var ImagingDataSetExport = function() {
+	var ImagingDataSetMultiExport = function() {
 	};
-	stjs.extend(ImagingDataSetExport, null, [], function(constructor, prototype) {
+	stjs.extend(ImagingDataSetMultiExport, null, [], function(constructor, prototype) {
 		prototype['@type'] = 'imaging.dto.ImagingDataSetMultiExport';
 		constructor.serialVersionUID = 1;
 		prototype.permId = null;
@@ -47,5 +47,5 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
             arguments : [ "String", "Serializable" ]
         }
 	});
-	return ImagingDataSetExport;
+	return ImagingDataSetMultiExport;
 })
