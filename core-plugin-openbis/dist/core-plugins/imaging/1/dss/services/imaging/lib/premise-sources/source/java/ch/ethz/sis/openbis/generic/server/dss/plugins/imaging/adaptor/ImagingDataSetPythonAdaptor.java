@@ -82,8 +82,8 @@ public abstract class ImagingDataSetPythonAdaptor implements IImagingDataSetAdap
             ImagingDataSetImage image, ImagingDataSetPreview preview)
     {
         Map<String, Serializable> map = process(context, rootFile, preview.getFormat(),
-                image.getConfig(), image.getMetaData(),
-                preview.getConfig(), preview.getMetaData());
+                image.getConfig(), image.getMetadata(),
+                preview.getConfig(), preview.getMetadata());
 
         for (Map.Entry<String, Serializable> entry : map.entrySet())
         {
@@ -100,7 +100,7 @@ public abstract class ImagingDataSetPythonAdaptor implements IImagingDataSetAdap
                 preview.setBytes(entry.getValue().toString());
             } else
             {
-                preview.getMetaData().put(entry.getKey(), entry.getValue());
+                preview.getMetadata().put(entry.getKey(), entry.getValue());
             }
         }
     }

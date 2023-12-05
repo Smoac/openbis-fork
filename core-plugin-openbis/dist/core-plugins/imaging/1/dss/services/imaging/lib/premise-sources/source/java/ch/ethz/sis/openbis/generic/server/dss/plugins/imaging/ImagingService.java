@@ -363,7 +363,7 @@ public class ImagingService implements ICustomDSSServiceExecutor
             Map<String, Serializable> params = preview.getConfig();
             params.put("resolution", exportConfig.get("resolution"));
             Map<String, Serializable> img = adaptor.process(context,
-                    rootFile, format, image.getConfig(), image.getMetaData(), params, preview.getMetaData());
+                    rootFile, format, image.getConfig(), image.getMetadata(), params, preview.getMetadata());
             String imgString = img.get("bytes").toString();
             byte[] decoded = Base64.getDecoder().decode(imgString);
             String fileName = "image" + imageIdx +"_preview" + previewIdx + "." + format;
