@@ -1,8 +1,10 @@
 import { Box, Button, Modal, Typography } from "@material-ui/core";
 import React from "react";
 import Dropdown from "@src/js/components/database/premise/common/Dropdown";
-import {makeStyles} from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
+import SelectField from "@src/js/components/common/form/SelectField.jsx";
+import GridPagingOptions from "@src/js/components/common/grid/GridPagingOptions";
 
 const style = {
     position: 'absolute',
@@ -33,15 +35,21 @@ const useStyles = makeStyles((theme) => ({
 const Export = ({ config, handleExport }) => {
     const classes = useStyles();
     const [open, setOpen] = React.useState(false);
-    const [exportState, setExportState] = React.useState({});
+    const [exportState, setExportState] = React.useState(Object.fromEntries(config.map(c => {
+        switch (c.type) {
+            case 'Dropdown':
+                return [c.label, c.multiselect ? [c.values[0]] : c.values[0]];
+        }
+    })));
 
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
     const handleExportChange = (event) => {
-        setExportState({
-            ...exportState,
-            [event.target.name]: event.target.value
+        setExportState(prevState => {
+            let newState = {...prevState};
+            newState[event.target.name] = event.target.value;
+            return newState;
         });
     };
 
@@ -51,19 +59,27 @@ const Export = ({ config, handleExport }) => {
     };
 
     const listExportsComp = config.map((c, idx) => {
-            switch (c.type) {
-                case 'Dropdown':
-                    return <Dropdown key={"export-" + c.type + "-" + idx}
-                                     label={c.label}
-                                     initValue={c.multiselect ? [c.values[0]] : c.values[0]}
-                                     values={c.values}
-                                     isMulti={c.multiselect}
-                                     onSelectChange={handleExportChange}/>
-                default:
-                    return <h2>UNKOWN TYPE: {c.type}</h2>
-            }
+        switch (c.type) {
+            case 'Dropdown':
+                return <Dropdown key={"export-" + c.type + "-" + idx}
+                                 label={c.label}
+                                 initValue={c.multiselect ? [c.values[0]] : c.values[0]}
+                                 values={c.values}
+                                 isMulti={c.multiselect}
+                                 onSelectChange={handleExportChange}/>
+                /*return <SelectField key={"export-" + c.type + "-" + idx}
+                                        label={c.label}
+                                        value={c.values[0]}
+                                        options={c.values.map(pageSize => ({
+                                            label: pageSize,
+                                            value: pageSize
+                                        }))}
+                                        isMulti={c.multiselect}
+                                        onSelectChange={handleExportChange}></SelectField>*/
+            default:
+                return <h2>UNKOWN TYPE: {c.type}</h2>
         }
-    );
+    });
 
     return (
         <>
