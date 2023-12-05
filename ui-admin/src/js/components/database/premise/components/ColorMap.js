@@ -17,17 +17,21 @@ const DEFAULT_COLORMAP = {
 
 const ColorItem = ({colorMapValue}) => {
     return (
-        <span style={{background: `linear-gradient(90deg, ${DEFAULT_COLORMAP[colorMapValue]})`, width: '50%', height: '15px', marginLeft:'10px'}} />
+        <span style={{background: `linear-gradient(90deg, ${DEFAULT_COLORMAP[colorMapValue]})`, width: '70%', height: '15px', marginLeft:'10px'}} />
     )
 }
 
-const ColorMap = ({values, label, onSelectChange=null}) => {
-    const [value, setValue] = React.useState(values[0]);
+const ColorMap = ({values, initValue, label, onSelectChange=null}) => {
+    const [value, setValue] = React.useState(initValue);
+
+    React.useEffect(() => {
+        //console.log("useEffect DROPDOWN: ", label, values, initValue, isMulti);
+        if (initValue !== value)
+            setValue(initValue);
+    }, [initValue]);
 
     const handleChange = (event) => {
-        console.log('handleChange:', event);
-        const { target: { value }, } = event;
-        setValue(value);
+        setValue(event.target.value);
         if (onSelectChange != null) {
             onSelectChange(event);
         }
@@ -46,7 +50,7 @@ const ColorMap = ({values, label, onSelectChange=null}) => {
                     onChange={handleChange}
                 >
                     {values.map((v, i) => <MenuItem key={"select-" + label + "-menuitem-" + i} value={v}>
-                        {v} <ColorItem colorMapValue={v} />
+                        <span style={{width: '30%'}}>{v}</span> <ColorItem colorMapValue={v} />
                     </MenuItem>)}
                 </Select>
             </FormControl>

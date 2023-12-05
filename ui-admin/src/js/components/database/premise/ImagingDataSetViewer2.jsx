@@ -538,6 +538,7 @@ class ImagingDataSetViewer extends React.PureComponent {
                                 case 'Colormap':
                                     return <ColorMap key={`InputsPanel-${c.type}-${idx}`}
                                                      values={c.values}
+                                                     initValue={inputValues[c.label]}
                                                      label={c.label}
                                                      onSelectChange={(event) => this.handleActiveConfigChange(event.target.name, event.target.value)}/>;
                             }
