@@ -192,12 +192,12 @@ class ImagingDataSetControl(AbstractImagingClass):
     playable: bool
     speeds: list[int]
     visibility: list[ImagingDataSetControlVisibility]
-    metaData: dict
+    metadata: dict
 
     def __init__(self, label: str, control_type: str, section: str = None, values: list[str] = None,
                  unit: str = None, values_range: list[str] = None, multiselect: bool = None,
                  playable: bool = False, speeds: list[int] = None,
-                 visibility: list[ImagingDataSetControlVisibility] = None, metaData: dict = None):
+                 visibility: list[ImagingDataSetControlVisibility] = None, metadata: dict = None):
         self.__dict__["@type"] = "imaging.dto.ImagingDataSetControl"
         self.label = label
         self.type = control_type
@@ -216,7 +216,7 @@ class ImagingDataSetControl(AbstractImagingClass):
             self.playable = True
             self.speeds = speeds
         self.visibility = visibility
-        self.metaData = metaData
+        self.metadata = metadata
 
     @classmethod
     def from_dict(cls, data):
