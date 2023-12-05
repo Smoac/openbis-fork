@@ -37,7 +37,7 @@ public class ImagingDataSetExport implements Serializable
 
     @JsonProperty
     @JsonDeserialize(contentUsing = PropertiesDeserializer.class)
-    private Map<String, String> metaData;
+    private Map<String, String> metadata;
 
     @JsonIgnore
     public Map<String, Serializable> getConfig()
@@ -51,14 +51,14 @@ public class ImagingDataSetExport implements Serializable
     }
 
     @JsonIgnore
-    public Map<String, String> getMetaData()
+    public Map<String, String> getMetadata()
     {
-        return metaData;
+        return metadata;
     }
 
-    public void setMetaData(Map<String, String> metaData)
+    public void setMetadata(Map<String, String> metadata)
     {
-        this.metaData = metaData;
+        this.metadata = metadata;
     }
 
     @Override

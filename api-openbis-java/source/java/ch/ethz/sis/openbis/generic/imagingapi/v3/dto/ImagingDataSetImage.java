@@ -37,7 +37,7 @@ public class ImagingDataSetImage implements Serializable
     private Map<String, Serializable> config;
 
     @JsonProperty
-    private Map<String, Serializable> metaData;
+    private Map<String, Serializable> metadata;
 
     @JsonIgnore
     public List<ImagingDataSetPreview> getPreviews()
@@ -62,14 +62,14 @@ public class ImagingDataSetImage implements Serializable
     }
 
     @JsonIgnore
-    public Map<String, Serializable> getMetaData()
+    public Map<String, Serializable> getMetadata()
     {
-        return metaData;
+        return metadata;
     }
 
-    public void setMetaData(Map<String, Serializable> metaData)
+    public void setMetadata(Map<String, Serializable> metadata)
     {
-        this.metaData = metaData;
+        this.metadata = metadata;
     }
 
     @Override
