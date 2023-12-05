@@ -27,6 +27,20 @@ class Facade {
     this.v3._private.sessionToken = sessionToken
   }
 
+  updatePreview(objId, preview) {
+    return this.promise(this.v3.getDataStoreFacade().executeCustomDSSService({
+      "@type": "dss.dto.service.id.CustomDssServiceCode",
+      "permId": "imaging"
+    }, {
+      "@type": "dss.dto.service.CustomDSSServiceExecutionOptions",
+      "parameters": {
+        "type" : "preview",
+        "permId" : objId,
+        "preview" :  preview
+      }
+    }))
+  }
+
   getSessionInformation() {
     return this.promise(this.v3.getSessionInformation())
   }
