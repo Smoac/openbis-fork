@@ -271,13 +271,15 @@ class ImagingDataSetConfig(AbstractImagingClass):
 class ImagingDataSetImage(AbstractImagingClass):
     previews: list[ImagingDataSetPreview]
     config: dict
+    index: int
     metadata: dict
 
-    def __init__(self, config=None, previews=None, metadata=None):
+    def __init__(self, config=None, previews=None, metadata=None, index=0):
         self.__dict__["@type"] = "imaging.dto.ImagingDataSetImage"
         self.config = config if config is not None else dict()
         self.previews = previews if previews is not None else [ImagingDataSetPreview("png")]
         self.metadata = metadata if metadata is not None else dict()
+        self.index = index if index is not None else 0
         assert isinstance(self.previews, list), "Previews must be a list!"
 
     def add_preview(self, preview):
