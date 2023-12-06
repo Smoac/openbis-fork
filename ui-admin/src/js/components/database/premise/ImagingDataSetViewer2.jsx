@@ -9,7 +9,7 @@ import {
 
 import Typography from "@material-ui/core/Typography";
 import PaperBox from "@src/js/components/database/premise/common/PaperBox";
-import openbis from "@src/js/services/openbis";
+import openbis from "@src/js/services/openbis.js";
 import BlankImage from "@src/js/components/database/premise/common/BlankImage";
 import InputFileUpload from "@src/js/components/database/premise/components/InputFileUpload";
 import AddToQueueIcon from "@material-ui/icons/AddToQueue";
@@ -17,8 +17,7 @@ import AlertDialog from "@src/js/components/database/premise/common/AlertDialog"
 import SaveIcon from "@material-ui/icons/Save";
 import DeleteIcon from "@material-ui/icons/Delete";
 import Export from "@src/js/components/database/premise/components/Exporter";
-import ImageListItemBarAction
-    from "@src/js/components/database/premise/common/ImageListItemBarAction";
+import ImageListItemBarAction from "@src/js/components/database/premise/common/ImageListItemBarAction";
 import {convertToBase64} from "@src/js/components/database/premise/utils";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import Dropdown from "@src/js/components/database/premise/common/Dropdown";
@@ -405,7 +404,8 @@ class ImagingDataSetViewer extends React.PureComponent {
     };
 
     renderActionButtonSection() {
-        const { imagingDataset, isSaved } = this.state;
+        const { imagingDataset, activeImageIdx, isSaved } = this.state;
+        const nPreviews = imagingDataset.images[activeImageIdx].previews.length;
         return (
             <Grid item xs={2} container direction='column' justifyContent="space-around">
                 {!isSaved && (
@@ -420,6 +420,7 @@ class ImagingDataSetViewer extends React.PureComponent {
                 <AlertDialog label={'Delete'} icon={<DeleteIcon/>}
                              title={"Are you sure to delete the current preview?"}
                              text={"The preview will be definitly deleted from the dataset."}
+                             disabled={nPreviews === 1}
                              onHandleYes={this.deletePreview}/>
 
                 <Button name='new' label='Blank Preview' type='final' variant="outlined" startIcon={<AddToQueueIcon/>}
@@ -475,6 +476,7 @@ class ImagingDataSetViewer extends React.PureComponent {
             objectName.constructor === Object
         );
     };
+
     renderInputControls() {
         const {classes} = this.props;
         const {imagingDataset, activeImageIdx, activePreviewIdx, resolution, changed} = this.state;

@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
         }
     }
 }));
-export default function AlertDialog({label, icon, title, text, onHandleYes}) {
+export default function AlertDialog({label, icon, title, text, disabled, onHandleYes}) {
     const classes = useStyles();
     const [open, setOpen] = React.useState(false);
 
@@ -34,7 +34,7 @@ export default function AlertDialog({label, icon, title, text, onHandleYes}) {
 
     return (
         <>
-            <Button variant="outlined" onClick={handleClickOpen} startIcon={icon}>
+            <Button variant="outlined" onClick={handleClickOpen} startIcon={icon} disabled={disabled}>
                 {label}
             </Button>
             <Dialog
