@@ -135,6 +135,28 @@ class ImagingDataSetViewer extends React.PureComponent {
         }
     }
 
+    async saveDataset() {
+        try {
+            const {objId} = this.props
+            const fetchOptions = new openbis.DataSetFetchOptions()
+            fetchOptions.withExperiment()
+            fetchOptions.withSample()
+            fetchOptions.withParents()
+            fetchOptions.withProperties()
+            const dataSets = await openbis.getDataSets(
+                [new openbis.DataSetPermId(objId)],
+                fetchOptions
+            )
+            console.log("saveDataset(): ", dataSets)
+            dataSets[objId].properties['$IMAGING_DATA_CONFIG'] = this.state.imagingDataset;
+            //console.log("fetchData - dataSets: ", dataSets);
+            const res = await openbis.updateDataSets(dataSets);
+            console.log(res);
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     handleClose = () => {
         this.setState({open: false})
     };
@@ -269,8 +291,6 @@ class ImagingDataSetViewer extends React.PureComponent {
         setTimeout(this.handleClose, 1000);
     };
 
-
-
     handleUpdate = async () => {
         const {imagingDataset, activeImageIdx, activePreviewIdx} = this.state;
         this.handleOpen();
@@ -395,7 +415,7 @@ class ImagingDataSetViewer extends React.PureComponent {
                 )}
                 <Button name="save" label="Save" variant="outlined" color="primary" startIcon={<SaveIcon/>}
                         disabled={isSaved}
-                        onClick={() => console.log('SAVE FILE')}>Save</Button>
+                        onClick={() => this.saveDataset()}>Save</Button>
 
                 <AlertDialog label={'Delete'} icon={<DeleteIcon/>}
                              title={"Are you sure to delete the current preview?"}
@@ -448,15 +468,23 @@ class ImagingDataSetViewer extends React.PureComponent {
         );
     };
 
+    isObjectEmpty = (objectName) => {
+        return (
+            objectName &&
+            Object.keys(objectName).length === 0 &&
+            objectName.constructor === Object
+        );
+    };
     renderInputControls() {
         const {classes} = this.props;
         const {imagingDataset, activeImageIdx, activePreviewIdx, resolution, changed} = this.state;
-        //const current
+        const activeConfig = imagingDataset.images[activeImageIdx].previews[activePreviewIdx].config;
+        //console.log('activeConfig: ', activeConfig);
         const inputValues = Object.fromEntries(imagingDataset.config.inputs.map(input => {
-            const activeConfig = imagingDataset.images[activeImageIdx].previews[activePreviewIdx].config;
+            //console.log("current input: ", input);
             switch (input.type) {
                 case 'Dropdown':
-                    return [input.label, activeConfig[input.label] ? activeConfig[input.label] : input.values[0]];
+                    return [input.label, activeConfig[input.label] ? activeConfig[input.label] : input.multiselect ? [input.values[0]] :  input.values[0]];
                 case 'Slider':
                     return [input.label, activeConfig[input.label] ? activeConfig[input.label] : [0]];
                 case 'Range':
@@ -465,6 +493,12 @@ class ImagingDataSetViewer extends React.PureComponent {
                     return [input.label, activeConfig[input.label] ? activeConfig[input.label] : input.values[0]];
             }
         }));
+        //console.log("inputValues: ", inputValues, activeConfig === {});
+        if (this.isObjectEmpty(activeConfig)) {
+            let toUpdateIDS = {...imagingDataset};
+            toUpdateIDS.images[activeImageIdx].previews[activePreviewIdx].config = inputValues;
+            this.setState({imagingDataset: toUpdateIDS, changed: true});
+        }
         return (
             <Grid item xs={4} sm={4}>
                 <PaperBox className={classes.noBorderNoShadow}>
@@ -486,7 +520,7 @@ class ImagingDataSetViewer extends React.PureComponent {
                             <Dropdown onSelectChange={this.handleResolutionChange}
                                   label="Resolutions"
                                   values={imagingDataset.config.resolutions}
-                                  initValue={[resolution.join('x')]}/>
+                                  initValue={resolution.join('x')}/>
                         </Grid>
 
 

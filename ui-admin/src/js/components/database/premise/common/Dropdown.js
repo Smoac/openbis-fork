@@ -3,13 +3,11 @@ import {FormControl, MenuItem, Select} from "@material-ui/core";
 import OutlinedBox from "@src/js/components/database/premise/common/OutlinedBox";
 
 const Dropdown = ({ label, values, initValue, isMulti, onSelectChange = null }) => {
-    console.log("RENDER Dropdown: ", label, values, initValue, isMulti);
     const [value, setValue] = React.useState(initValue);
 
     React.useEffect(() => {
-        //console.log("useEffect DROPDOWN: ", label, values, initValue, isMulti);
-        if (initValue !== value)
-            setValue(initValue);
+        //console.log("useEffect DROPDOWN: ", label, values, initValue, typeof initValue === "string", isMulti);
+        if (initValue !== value) setValue(initValue);
     }, [initValue]);
 
     const handleChange = (event) => {
