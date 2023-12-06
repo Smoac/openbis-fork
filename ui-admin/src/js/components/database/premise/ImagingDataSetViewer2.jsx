@@ -251,6 +251,7 @@ class ImagingDataSetViewer extends React.PureComponent {
 
     handleUpload = async (file) => {
         this.handleOpen();
+        console.log(file);
         const base64 = await convertToBase64(file);
         const {imagingDataset, activeImageIdx, activePreviewIdx} = this.state;
         try {
@@ -259,13 +260,13 @@ class ImagingDataSetViewer extends React.PureComponent {
             let previewTemplate = {
                 "@type" : "imaging.dto.ImagingDataSetPreview",
                 "index": newLastIdx,
-                "config": toUpdateImgDs.images[activeImageIdx].previews[activePreviewIdx].config,
+                "config": {},
                 "format": file.type.split('/')[1],
                 "bytes": base64.split(',')[1],
                 "show": false,
-                "height": 256,
-                "width": 256,
-                "metadata": {}
+                "height": null,
+                "width": null,
+                "metadata": {"file": file}
             }
             toUpdateImgDs.images[activeImageIdx].previews = [...toUpdateImgDs.images[activeImageIdx].previews, previewTemplate];
             this.setState({imagingDataset: toUpdateImgDs, isSaved: false})
@@ -501,6 +502,7 @@ class ImagingDataSetViewer extends React.PureComponent {
             toUpdateIDS.images[activeImageIdx].previews[activePreviewIdx].config = inputValues;
             this.setState({imagingDataset: toUpdateIDS, changed: true});
         }
+        const isUploadedPreview = "file" in imagingDataset.images[activeImageIdx].previews[activePreviewIdx].metadata;
         return (
             <Grid item xs={4} sm={4}>
                 <PaperBox className={classes.noBorderNoShadow}>
@@ -511,13 +513,13 @@ class ImagingDataSetViewer extends React.PureComponent {
                                     checked={imagingDataset.images[activeImageIdx].previews[activePreviewIdx].show}
                                     onChange={this.handleShowPreview} color="primary"/>
                             </OutlinedBox>
-                            {changed && (
+                            {changed && !isUploadedPreview && (
                                 <Message type='info'>
                                     {"Update to see changes"}
                                 </Message>
                             )}
                             <Button label='Update' style={{marginLeft: '8px'}} variant="outlined" color='primary' startIcon={<RefreshIcon/>}
-                                    onClick={this.handleUpdate} disabled={!changed}>Update</Button>
+                                    onClick={this.handleUpdate} disabled={!changed || isUploadedPreview}>Update</Button>
 
                             <Dropdown onSelectChange={this.handleResolutionChange}
                                   label="Resolutions"
@@ -536,6 +538,7 @@ class ImagingDataSetViewer extends React.PureComponent {
                                                      initValue={inputValues[c.label]}
                                                      values={c.values}
                                                      isMulti={c.multiselect}
+                                                     disabled={isUploadedPreview}
                                                      onSelectChange={(event) => this.handleActiveConfigChange(event.target.name, event.target.value)}/>;
                                 case 'Slider':
                                     if (c.visibility) {
@@ -553,6 +556,7 @@ class ImagingDataSetViewer extends React.PureComponent {
                                                         unit={c.unit}
                                                         playable={c.playable}
                                                         speeds={c.speeds}
+                                                        disabled={isUploadedPreview}
                                                         onChange={(name, value, update) => this.handleActiveConfigChange(name, value, update)}/>;
                                 case 'Range':
                                     if (c.visibility) {
@@ -567,6 +571,7 @@ class ImagingDataSetViewer extends React.PureComponent {
                                                              label={c.label}
                                                              initValue={inputValues[c.label]}
                                                              range={c.range}
+                                                             disabled={isUploadedPreview}
                                                              unit={c.unit}
                                                              playable={c.playable}
                                                              speeds={c.speeds}
@@ -574,6 +579,7 @@ class ImagingDataSetViewer extends React.PureComponent {
                                 case 'Colormap':
                                     return <ColorMap key={`InputsPanel-${c.type}-${idx}`}
                                                      values={c.values}
+                                                     disabled={isUploadedPreview}
                                                      initValue={inputValues[c.label]}
                                                      label={c.label}
                                                      onSelectChange={(event) => this.handleActiveConfigChange(event.target.name, event.target.value)}/>;

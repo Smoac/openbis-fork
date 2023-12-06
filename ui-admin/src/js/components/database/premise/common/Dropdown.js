@@ -2,7 +2,7 @@ import * as React from 'react';
 import {FormControl, MenuItem, Select} from "@material-ui/core";
 import OutlinedBox from "@src/js/components/database/premise/common/OutlinedBox";
 
-const Dropdown = ({ label, values, initValue, isMulti, onSelectChange = null }) => {
+const Dropdown = ({ label, values, initValue, isMulti, disabled = false, onSelectChange = null }) => {
     const [value, setValue] = React.useState(initValue);
 
     React.useEffect(() => {
@@ -28,6 +28,7 @@ const Dropdown = ({ label, values, initValue, isMulti, onSelectChange = null }) 
                     label={label}
                     name={label}
                     onChange={handleChange}
+                    disabled={disabled}
                 >
                     {values.map((v, i) => <MenuItem key={"select-" + label + "-menuitem-" + i} value={v}>{v}</MenuItem>)}
                 </Select>

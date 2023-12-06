@@ -7,7 +7,7 @@ import OutlinedBox from "@src/js/components/database/premise/common/OutlinedBox"
 import InputAdornment from "@material-ui/core/InputAdornment";
 
 
-const InputSlider = ({ label, range, initValue, playable, speeds, onChange, unit= null }) => {
+const InputSlider = ({ label, range, initValue, playable, speeds, disabled = false, onChange, unit= null }) => {
     const min = Number(range[0])
     const max = Number(range[1])
     const step = Number(range[2])
@@ -56,6 +56,7 @@ const InputSlider = ({ label, range, initValue, playable, speeds, onChange, unit
                         min={min}
                         max={max}
                         step={step}
+                        disabled={disabled}
                     />
                 </Grid>
                 <Grid item xs>
@@ -65,6 +66,7 @@ const InputSlider = ({ label, range, initValue, playable, speeds, onChange, unit
                         name={label}
                         onChange={handleInputChange}
                         onBlur={handleBlur}
+                        disabled={disabled}
                         endAdornment={unit && <InputAdornment position="end">{unit}</InputAdornment>}
                         inputProps={{
                             step: step,

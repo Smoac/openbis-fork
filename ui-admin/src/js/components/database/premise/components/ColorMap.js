@@ -21,7 +21,7 @@ const ColorItem = ({colorMapValue}) => {
     )
 }
 
-const ColorMap = ({values, initValue, label, onSelectChange=null}) => {
+const ColorMap = ({values, initValue, label, disabled = false, onSelectChange=null}) => {
     const [value, setValue] = React.useState(initValue);
 
     React.useEffect(() => {
@@ -42,6 +42,7 @@ const ColorMap = ({values, initValue, label, onSelectChange=null}) => {
             <FormControl fullWidth >
                 <Select
                     labelId={"select-" + label + "-label"}
+                    disabled={disabled}
                     id={"select-" + label}
                     value={value}
                     multiple={false}

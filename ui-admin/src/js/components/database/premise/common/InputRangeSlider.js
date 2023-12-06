@@ -6,7 +6,7 @@ import { Input } from "@material-ui/core";
 import OutlinedBox from "@src/js/components/database/premise/common/OutlinedBox";
 import InputAdornment from "@material-ui/core/InputAdornment";
 
-const InputRangeSlider = ({ label, range, initValue = null, playable, speeds, onChange, unit = null}) => {
+const InputRangeSlider = ({ label, range, initValue = null, playable, speeds, disabled = false, onChange, unit = null}) => {
     const min = Number(range[0]);
     const max = Number(range[1]);
     const step = Number(range[2]);
@@ -62,6 +62,7 @@ const InputRangeSlider = ({ label, range, initValue = null, playable, speeds, on
                         size="small"
                         onChange={handleInputMinChange}
                         onBlur={handleBlur}
+                        disabled={disabled}
                         endAdornment={unit && <InputAdornment position="end">{unit}</InputAdornment>}
                         inputProps={{
                             step: step,
@@ -75,6 +76,7 @@ const InputRangeSlider = ({ label, range, initValue = null, playable, speeds, on
                     <Slider
                         value={initValue == null ? [min,max] : initValue}
                         name={label}
+                        disabled={disabled}
                         onChange={(event, newValue) => handleSliderChange(newValue, label)}
                         min={min}
                         max={max}
@@ -84,6 +86,7 @@ const InputRangeSlider = ({ label, range, initValue = null, playable, speeds, on
                 <Grid item xs>
                     <Input
                         name={label}
+                        disabled={disabled}
                         value={initValue == null ? max : initValue[1]}
                         size="small"
                         onChange={handleInputMaxChange}
