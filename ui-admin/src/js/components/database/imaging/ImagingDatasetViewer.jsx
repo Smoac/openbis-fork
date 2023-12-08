@@ -8,27 +8,28 @@ import {
 } from "@material-ui/core";
 
 import Typography from "@material-ui/core/Typography";
-import PaperBox from "@src/js/components/database/premise/common/PaperBox";
-import openbis from "@src/js/services/openbis.js";
-import BlankImage from "@src/js/components/database/premise/common/BlankImage";
-import InputFileUpload from "@src/js/components/database/premise/components/InputFileUpload";
+import PaperBox from "@src/js/components/database/imaging/common/PaperBox";
+import BlankImage from "@src/js/components/database/imaging/common/BlankImage";
+import InputFileUpload from "@src/js/components/database/imaging/components/InputFileUpload";
 import AddToQueueIcon from "@material-ui/icons/AddToQueue";
-import AlertDialog from "@src/js/components/database/premise/common/AlertDialog";
+import AlertDialog from "@src/js/components/database/imaging/common/AlertDialog";
 import SaveIcon from "@material-ui/icons/Save";
 import DeleteIcon from "@material-ui/icons/Delete";
-import Export from "@src/js/components/database/premise/components/Exporter";
-import ImageListItemBarAction from "@src/js/components/database/premise/common/ImageListItemBarAction";
-import {convertToBase64} from "@src/js/components/database/premise/utils";
+import Export from "@src/js/components/database/imaging/components/Exporter";
+import ImageListItemBarAction from "@src/js/components/database/imaging/common/ImageListItemBarAction";
+import {convertToBase64, isObjectEmpty} from "@src/js/components/database/imaging/utils";
 import RefreshIcon from "@material-ui/icons/Refresh";
-import Dropdown from "@src/js/components/database/premise/common/Dropdown";
-import OutlinedBox from "@src/js/components/database/premise/common/OutlinedBox";
-import InputSlider from "@src/js/components/database/premise/common/InputSlider";
-import InputRangeSlider from "@src/js/components/database/premise/common/InputRangeSlider";
-import ColorMap from "@src/js/components/database/premise/components/ColorMap";
-import MetadataViewer from "@src/js/components/database/premise/components/MetadataViewr";
+import Dropdown from "@src/js/components/database/imaging/common/Dropdown";
+import OutlinedBox from "@src/js/components/database/imaging/common/OutlinedBox";
+import InputSlider from "@src/js/components/database/imaging/common/InputSlider";
+import InputRangeSlider from "@src/js/components/database/imaging/common/InputRangeSlider";
+import ColorMap from "@src/js/components/database/imaging/components/ColorMap";
+import MetadataViewer from "@src/js/components/database/imaging/components/MetadataViewr";
 import LoadingDialog from "@src/js/components/common/loading/LoadingDialog.jsx";
 import Message from '@src/js/components/common/form/Message.jsx'
 import messages from '@src/js/common/messages.js'
+import ImagingFacade from "@src/js/components/database/imaging/ImagingFacade";
+import ErrorDialog from "@src/js/components/common/error/ErrorDialog.jsx";
 //import Button from '@src/js/components/common/form/Button.jsx'
 
 const styles = theme => ({
@@ -101,6 +102,7 @@ class ImagingDataSetViewer extends React.PureComponent {
     constructor(props) {
         super(props)
         this.state = {
+            error: {open: false, error: null},
             isSaved: true,
             changed: false,
             open: true,
@@ -114,46 +116,51 @@ class ImagingDataSetViewer extends React.PureComponent {
 
     async componentDidMount() {
         if (!this.state.loaded) {
-            try {
-                const {objId} = this.props
-                const fetchOptions = new openbis.DataSetFetchOptions()
-                fetchOptions.withExperiment()
-                fetchOptions.withSample()
-                fetchOptions.withParents()
-                fetchOptions.withProperties()
-                const dataSets = await openbis.getDataSets(
-                    [new openbis.DataSetPermId(objId)],
-                    fetchOptions
-                )
-                //console.log("fetchData - dataSets: ", dataSets);
-                let dataset = JSON.parse(dataSets[objId].properties['$IMAGING_DATA_CONFIG'])
-                this.setState({open: false, loaded: true, imagingDataset: dataset})
-            } catch (error) {
-                console.log(error)
-            }
+            const {objId, extOpenbis} = this.props;
+            new ImagingFacade(extOpenbis)
+                .loadImagingDataset(objId)
+                .then(dataset => {
+                    this.setState({open: false, loaded: true, imagingDataset: dataset});
+                })
+                .catch(error => this.handleError(error));
         }
     }
 
     async saveDataset() {
-        try {
-            const {objId} = this.props
-            const fetchOptions = new openbis.DataSetFetchOptions()
-            fetchOptions.withExperiment()
-            fetchOptions.withSample()
-            fetchOptions.withParents()
-            fetchOptions.withProperties()
-            const dataSets = await openbis.getDataSets(
-                [new openbis.DataSetPermId(objId)],
-                fetchOptions
-            )
-            console.log("saveDataset(): ", dataSets)
-            dataSets[objId].properties['$IMAGING_DATA_CONFIG'] = this.state.imagingDataset;
-            //console.log("fetchData - dataSets: ", dataSets);
-            const res = await openbis.updateDataSets(dataSets);
-            console.log(res);
-        } catch (error) {
-            console.log(error)
-        }
+        const {objId, extOpenbis} = this.props;
+        this.handleOpen();
+        new ImagingFacade(extOpenbis).saveImagingDataset(objId, this.state.imagingDataset)
+            .then(isStored => {
+                if (isStored) this.setState({open: false, changed: false, isSaved: true});
+            })
+            .catch(error => this.handleError(error));
+    }
+
+    handleUpdate = async () => {
+        this.handleOpen();
+        const {imagingDataset, activeImageIdx, activePreviewIdx} = this.state;
+        const {objId, extOpenbis} = this.props;
+        new ImagingFacade(extOpenbis)
+            .updateImagingDataset(objId, imagingDataset.images[activeImageIdx].previews[activePreviewIdx])
+            .then(dataset => {
+                //console.log("updateImagingDataset: ", dataset);
+                let toUpdateImgDs = { ...imagingDataset };
+                toUpdateImgDs.images[activeImageIdx].previews[activePreviewIdx] = dataset.preview;
+                this.setState({open: false, imagingDataset : toUpdateImgDs, changed: false, isSaved: false});
+            })
+            .catch(error => this.handleError(error))
+    };
+
+    handleErrorCancel = () => {
+        this.setState({
+            error: {open: false, error: null}
+        })
+    }
+
+    handleError = (error) => {
+        this.setState({
+            error: {open: true, error: error}
+        })
     }
 
     handleClose = () => {
@@ -173,7 +180,7 @@ class ImagingDataSetViewer extends React.PureComponent {
     };
 
     handleResolutionChange = (event) => {
-        this.handleOpen();
+        //this.handleOpen();
         /*console.log('handleResolutionChange: ', event);
         let val = event.target.value;
         console.log(val);
@@ -184,17 +191,18 @@ class ImagingDataSetViewer extends React.PureComponent {
         } else if (val.includes('x')){*/
         const v_list = event.target.value.split('x');
         this.setState({resolution: v_list});
-        setTimeout(this.handleClose, 1000);
+        //this.handleClose();
     };
 
-    handleActiveConfigChange = (name, value, update) => {
+    handleActiveConfigChange = (name, value, update = false) => {
         const {imagingDataset, activeImageIdx, activePreviewIdx,} = this.state;
-        //console.log('handleActiveConfigChange = ', imagingDataset.images[activeImageIdx].previews[activePreviewIdx].config);
-        //console.log('handleActiveConfigChange = ', name, value, update);
         let toUpdateIDS = {...imagingDataset};
         toUpdateIDS.images[activeImageIdx].previews[activePreviewIdx].config[name] = value;
         this.setState({imagingDataset: toUpdateIDS, changed: true});
-        if (update) console.log('onUpdate');
+        if (update) {
+            console.log('handleActiveConfigChange: ', update);
+            this.handleUpdate();
+        }
     }
 
     handleShowPreview = () => {
@@ -287,22 +295,8 @@ class ImagingDataSetViewer extends React.PureComponent {
             if (p.index > activePreviewIdx) p.index -= 1;
             return p
         });
-        this.setState({imagingDataset: toUpdateImgDs, activePreviewIdx: 0, isSaved: false})
-        setTimeout(this.handleClose, 1000);
-    };
-
-    handleUpdate = async () => {
-        const {imagingDataset, activeImageIdx, activePreviewIdx} = this.state;
-        this.handleOpen();
-        const dataSets = await openbis.updatePreview(
-            this.props.objId,
-            imagingDataset.images[activeImageIdx].previews[activePreviewIdx]
-        );
-        console.log("handleUpdate: ", dataSets);
-        let toUpdateImgDs = { ...imagingDataset };
-        toUpdateImgDs.images[activeImageIdx].previews[activePreviewIdx] = dataSets.preview;
-        this.setState({imagingDataset : toUpdateImgDs, changed: false, isSaved: false})
-        setTimeout(this.handleClose, 1000);
+        this.setState({imagingDataset: toUpdateImgDs, activePreviewIdx: 0});
+        this.saveDataset();
     };
 
     onExport = (state) => {
@@ -315,6 +309,7 @@ class ImagingDataSetViewer extends React.PureComponent {
         return (
             <React.Fragment>
                 <LoadingDialog loading={this.state.open} />
+                <ErrorDialog open={this.state.error.state} error={this.state.error.error} onClose={this.handleErrorCancel} />
                 {this.renderImageSection()}
                 {this.renderPreviewsSection()}
                 {this.renderMainSection()}
@@ -420,7 +415,7 @@ class ImagingDataSetViewer extends React.PureComponent {
 
                 <AlertDialog label={'Delete'} icon={<DeleteIcon/>}
                              title={"Are you sure to delete the current preview?"}
-                             text={"The preview will be definitly deleted from the dataset."}
+                             content={"The preview will be definitly deleted from the dataset."}
                              disabled={nPreviews === 1}
                              onHandleYes={this.deletePreview}/>
 
@@ -470,14 +465,6 @@ class ImagingDataSetViewer extends React.PureComponent {
         );
     };
 
-    isObjectEmpty = (objectName) => {
-        return (
-            objectName &&
-            Object.keys(objectName).length === 0 &&
-            objectName.constructor === Object
-        );
-    };
-
     renderInputControls() {
         const {classes} = this.props;
         const {imagingDataset, activeImageIdx, activePreviewIdx, resolution, changed} = this.state;
@@ -497,7 +484,7 @@ class ImagingDataSetViewer extends React.PureComponent {
             }
         }));
         //console.log("inputValues: ", inputValues, activeConfig === {});
-        if (this.isObjectEmpty(activeConfig)) {
+        if (isObjectEmpty(activeConfig)) {
             let toUpdateIDS = {...imagingDataset};
             toUpdateIDS.images[activeImageIdx].previews[activePreviewIdx].config = inputValues;
             this.setState({imagingDataset: toUpdateIDS, changed: true});
