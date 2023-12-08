@@ -4,7 +4,8 @@ import AppController from '@src/js/components/AppController.js'
 import openbis from '@src/js/services/openbis.js'
 import objectType from '@src/js/common/consts/objectType.js'
 import logger from '@src/js/common/logger.js'
-import ImagingDataSetViewer2 from "@src/js/components/database/premise/ImagingDataSetViewer2.jsx";
+import ImagingDataSetViewer2 from "@src/js/components/database/imaging/ImagingDatasetViewer.jsx";
+import constants from "@src/js/components/database/imaging/constants";
 
 class DatabaseComponent extends React.PureComponent {
   constructor(props) {
@@ -58,8 +59,8 @@ class DatabaseComponent extends React.PureComponent {
           [new openbis.DataSetPermId(object.id)],
           fetchOptions
         )
-        if ('$IMAGING_DATA_CONFIG' in dataSets[object.id].properties){
-          json = JSON.parse(dataSets[object.id].properties['$IMAGING_DATA_CONFIG']);
+        if (constants.IMAGING_DATA_CONFIG in dataSets[object.id].properties){
+          json = JSON.parse(dataSets[object.id].properties[constants.IMAGING_DATA_CONFIG]);
         } else {
           json = dataSets[object.id]
         }
@@ -79,8 +80,8 @@ class DatabaseComponent extends React.PureComponent {
     if(!this.state.json) return null;
     return (
       <Container>
-        {this.props.object.type === objectType.DATA_SET && <ImagingDataSetViewer2 objId={this.props.object.id}/>}
-        ----------------------------------------------------------------------------------------------
+        {this.props.object.type === objectType.DATA_SET && <ImagingDataSetViewer2 objId={this.props.object.id} extOpenbis={openbis}/>}
+        --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         <pre>{JSON.stringify(this.state.json || {}, null, 2)}</pre>
       </Container>
     )
