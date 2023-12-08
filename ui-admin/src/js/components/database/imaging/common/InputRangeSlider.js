@@ -1,9 +1,9 @@
 import * as React from 'react';
-import Player from "@src/js/components/database/premise/common/Player";
+import Player from "@src/js/components/database/imaging/common/Player";
 import Grid from '@material-ui/core/Grid';
 import Slider from "@material-ui/core/Slider";
 import { Input } from "@material-ui/core";
-import OutlinedBox from "@src/js/components/database/premise/common/OutlinedBox";
+import OutlinedBox from "@src/js/components/database/imaging/common/OutlinedBox";
 import InputAdornment from "@material-ui/core/InputAdornment";
 
 const InputRangeSlider = ({ label, range, initValue = null, playable, speeds, disabled = false, onChange, unit = null}) => {
@@ -55,7 +55,7 @@ const InputRangeSlider = ({ label, range, initValue = null, playable, speeds, di
     return (
         <OutlinedBox label={label}>
             <Grid container spacing={2} alignItems="center" direction="row">
-                <Grid item >
+                <Grid item xs>
                     <Input
                         name={label}
                         value={initValue == null ? min : initValue[0]}
@@ -100,9 +100,13 @@ const InputRangeSlider = ({ label, range, initValue = null, playable, speeds, di
                         }}
                     />
                 </Grid>
+                {playable &&
+                    (<Grid item xs>
+                        <Player steps={arrayRange} speeds={speeds} speedable={playable}
+                                onStep={() => console.log('DEFAULT onStep InputRangeSlider!')}/>
+                    </Grid>)
+                }
             </Grid>
-            {playable && <Player steps={arrayRange} speeds={speeds} speedable={playable}
-                     onStep={() => console.log('DEFAULT onStep InputRangeSlider!')}/>}
         </OutlinedBox>
     );
 }

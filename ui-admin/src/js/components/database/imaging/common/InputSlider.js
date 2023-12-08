@@ -2,8 +2,8 @@ import * as React from 'react';
 import Grid from "@material-ui/core/Grid";
 import Slider from "@material-ui/core/Slider";
 import Input from "@material-ui/core/Input";
-import Player from "@src/js/components/database/premise/common/Player";
-import OutlinedBox from "@src/js/components/database/premise/common/OutlinedBox";
+import Player from "@src/js/components/database/imaging/common/Player";
+import OutlinedBox from "@src/js/components/database/imaging/common/OutlinedBox";
 import InputAdornment from "@material-ui/core/InputAdornment";
 
 
@@ -76,8 +76,12 @@ const InputSlider = ({ label, range, initValue, playable, speeds, disabled = fal
                         }}
                     />
                 </Grid>
+                {playable &&
+                    (<Grid item xs>
+                        <Player label={label} onStep={handleSliderChange} steps={arrayRange} speeds={speeds} speedable={playable} />
+                    </Grid>)
+                }
             </Grid>
-            {playable && <Player label={label} onStep={handleSliderChange} steps={arrayRange} speeds={speeds} speedable={playable} />}
         </OutlinedBox>
     );
 }

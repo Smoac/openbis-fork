@@ -80,7 +80,9 @@ const useStyles = makeStyles({
         justifyContent: 'center',
     },
     root: {
-        display: 'contents'
+        justifyContent: 'center',
+        padding: 'unset',
+        background: 'unset'
     }
 });
 export default function Player({ label= 'DEFAULT', onStep, steps = [], speeds = defaultSpeeds, speedable = false }) {
@@ -119,7 +121,6 @@ export default function Player({ label= 'DEFAULT', onStep, steps = [], speeds = 
         }
     }, [activeStep]);
 
-    const duration = 2000;
     const handleNext = () => {
         setActiveStep((prevActiveStep) => prevActiveStep + 1);
     };
@@ -161,11 +162,7 @@ export default function Player({ label= 'DEFAULT', onStep, steps = [], speeds = 
                                 onClick={handlePlay}
                                 size="small"
                     >
-                        {paused ? (
-                            <PlayArrowRounded />
-                        ) : (
-                            <PauseRounded />
-                        )}
+                        {paused ? <PlayArrowRounded /> : <PauseRounded />}
                     </IconButton>
                     <IconButton aria-label="next"
                                 onClick={handleNext}
@@ -176,13 +173,11 @@ export default function Player({ label= 'DEFAULT', onStep, steps = [], speeds = 
                     </IconButton>
                 </ThemeProvider>
             </Box>
-            {!paused && <MobileStepper variant="dots"
-                            steps={steps.length}
-                            position="static"
-                            activeStep={activeStep}
-                            className={classes.root}
-                           nextButton={''}
-                           backButton={''}
+            {!paused && <MobileStepper variant="text"
+                                       steps={steps.length}
+                                       position="static"
+                                       activeStep={activeStep}
+                                       className={classes.root}
             />}
             <ThemeProvider theme={themeSlider}>
                 {speedable && <Slider
