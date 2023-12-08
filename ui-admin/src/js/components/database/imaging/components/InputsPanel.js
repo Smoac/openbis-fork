@@ -1,11 +1,11 @@
 import * as React from 'react';
-import Dropdown from "@src/js/components/database/premise/common/Dropdown";
-import Slider from "@src/js/components/database/premise/common/InputSlider";
-import Range from "@src/js/components/database/premise/common/InputRangeSlider";
+import Dropdown from "@src/js/components/database/imaging/common/Dropdown";
+import Slider from "@src/js/components/database/imaging/common/InputSlider";
+import Range from "@src/js/components/database/imaging/common/InputRangeSlider";
 import Grid from "@material-ui/core/Grid";
 import { Switch} from "@material-ui/core";
-import OutlinedBox from "@src/js/components/database/premise/common/OutlinedBox";
-import ColorMap from "@src/js/components/database/premise/components/ColorMap";
+import OutlinedBox from "@src/js/components/database/imaging/common/OutlinedBox";
+import ColorMap from "@src/js/components/database/imaging/components/ColorMap";
 
 
 const Components = {

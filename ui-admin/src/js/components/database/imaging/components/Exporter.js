@@ -1,10 +1,8 @@
 import { Box, Button, Modal, Typography } from "@material-ui/core";
 import React from "react";
-import Dropdown from "@src/js/components/database/premise/common/Dropdown";
+import Dropdown from "@src/js/components/database/imaging/common/Dropdown";
 import { makeStyles } from "@material-ui/core/styles";
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
-import SelectField from "@src/js/components/common/form/SelectField.jsx";
-import GridPagingOptions from "@src/js/components/common/grid/GridPagingOptions";
 
 const style = {
     position: 'absolute',
@@ -67,15 +65,6 @@ const Export = ({ config, handleExport }) => {
                                  values={c.values}
                                  isMulti={c.multiselect}
                                  onSelectChange={handleExportChange}/>
-                /*return <SelectField key={"export-" + c.type + "-" + idx}
-                                        label={c.label}
-                                        value={c.values[0]}
-                                        options={c.values.map(pageSize => ({
-                                            label: pageSize,
-                                            value: pageSize
-                                        }))}
-                                        isMulti={c.multiselect}
-                                        onSelectChange={handleExportChange}></SelectField>*/
             default:
                 return <h2>UNKOWN TYPE: {c.type}</h2>
         }
