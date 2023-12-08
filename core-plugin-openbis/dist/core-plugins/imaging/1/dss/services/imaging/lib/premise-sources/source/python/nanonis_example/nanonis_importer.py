@@ -78,7 +78,7 @@ def create_sxm_dataset(openbis, experiment, file_path, sample=None):
         imaging.ImagingDataSetControl('X-axis', "Range", values_range=["0", str(img.get_param('width')[0]), "0.01"]),
         imaging.ImagingDataSetControl('Y-axis', "Range", values_range=["0", str(img.get_param('height')[0]), "0.01"]),
         imaging.ImagingDataSetControl('Color-scale', "Range", visibility=color_scale_visibility),
-        imaging.ImagingDataSetControl('Colormap', "Dropdown", values=['gray', 'YlOrBr', 'viridis', 'cividis', 'inferno', 'rainbow', 'Spectral', 'RdBu', 'RdGy']),
+        imaging.ImagingDataSetControl('Colormap', "Colormap", values=['gray', 'YlOrBr', 'viridis', 'cividis', 'inferno', 'rainbow', 'Spectral', 'RdBu', 'RdGy']),
         imaging.ImagingDataSetControl('Scaling', "Dropdown", values=['linear', 'logarithmic']),
     ]
 
@@ -126,7 +126,8 @@ def create_dat_dataset(openbis, folder_path, file_prefix='', sample=None, experi
 
     channels = list(set([(channel['ChannelNickname'], channel['ChannelUnit'], channel['ChannelScaling']) for spec in data for channel in spec.SignalsList]))
 
-    color_scale_visibility = []
+    color_scale_visibility_x = []
+    color_scale_visibility_y = []
     for (channel, unit, scaling) in channels:
         minimum = []
         maximum = []
@@ -140,8 +141,15 @@ def create_dat_dataset(openbis, folder_path, file_prefix='', sample=None, experi
         if step == 0.0:
             step = (maximum - minimum) / 100
 
-        color_scale_visibility += [imaging.ImagingDataSetControlVisibility(
-            "Channel",
+        color_scale_visibility_x += [imaging.ImagingDataSetControlVisibility(
+            "Channel X",
+            [channel],
+            [minimum, maximum, step],
+            unit
+        )]
+
+        color_scale_visibility_y += [imaging.ImagingDataSetControlVisibility(
+            "Channel Y",
             [channel],
             [minimum, maximum, step],
             unit
@@ -155,10 +163,10 @@ def create_dat_dataset(openbis, folder_path, file_prefix='', sample=None, experi
     inputs = [
         imaging.ImagingDataSetControl('Channel X', "Dropdown", values=[channel[0] for channel in channels]),
         imaging.ImagingDataSetControl('Channel Y', "Dropdown", values=[channel[0] for channel in channels]),
-        imaging.ImagingDataSetControl('X-axis', "Range", visibility=color_scale_visibility),
-        imaging.ImagingDataSetControl('Y-axis', "Range", visibility=color_scale_visibility),
-        imaging.ImagingDataSetControl('Grouping', "Dropdown", values=[d.name for d in data]),
-        imaging.ImagingDataSetControl('Colormap', "Dropdown", values=['gray', 'YlOrBr', 'viridis', 'cividis', 'inferno', 'rainbow', 'Spectral', 'RdBu', 'RdGy']),
+        imaging.ImagingDataSetControl('X-axis', "Range", visibility=color_scale_visibility_x),
+        imaging.ImagingDataSetControl('Y-axis', "Range", visibility=color_scale_visibility_y),
+        imaging.ImagingDataSetControl('Grouping', "Dropdown", values=[d.name for d in data], multiselect=True),
+        imaging.ImagingDataSetControl('Colormap', "Colormap", values=['gray', 'YlOrBr', 'viridis', 'cividis', 'inferno', 'rainbow', 'Spectral', 'RdBu', 'RdGy']),
         imaging.ImagingDataSetControl('Scaling', "Dropdown", values=['lin-lin', 'lin-log', 'log-lin', 'log-log']),
     ]
 
@@ -227,44 +235,60 @@ o = get_instance()
 
 def demo_sxm_flow(openbis):
 
-    # dataset_sxm = create_sxm_dataset(
-    #     openbis=o,
-    #     experiment='/DEFAULT/DEFAULT/DEFAULT',
-    #     file_path='data/img_0150.sxm')
-    # print(dataset_sxm.permId)
+    dataset_sxm = create_sxm_dataset(
+        openbis=o,
+        experiment='/DEFAULT/DEFAULT/DEFAULT',
+        file_path='data/img_0150.sxm')
+    print(dataset_sxm.permId)
 
     config_sxm_preview = {
-        "channel": "z",  # usually one of these: ['z', 'I', 'dIdV', 'dIdV_Y']
-        "x-axis": [0, 3.0],  # file dependent
-        "y-axis": [0, 3.0],  # file dependent
-        "color-scale": [-700.0, 700.0],  # file dependent
-        "colormap": "YlOrBr",  # [gray, YlOrBr, viridis, cividis, inferno, rainbow, Spectral, RdBu, RdGy]
-        "scaling": "linear",  # ['linear', 'logarithmic']
+        "Channel": "z",  # usually one of these: ['z', 'I', 'dIdV', 'dIdV_Y']
+        "X-axis": [0, 3.0],  # file dependent
+        "Y-axis": [0, 3.0],  # file dependent
+        "Color-scale": [-70.24, -69.1],  # file dependent
+        "Colormap": "gray",  # [gray, YlOrBr, viridis, cividis, inferno, rainbow, Spectral, RdBu, RdGy]
+        "Scaling": "linear",  # ['linear', 'logarithmic']
         # "mode": 3 # debug
     }
 
-    config_preview = config_sxm_preview
-    # perm_id = dataset_sxm.permId
-    # perm_id = '20231129145334261-68'
-    perm_id = '20231204133025390-73'
+    config_preview = config_sxm_preview.copy()
+    perm_id = dataset_sxm.permId
+    # perm_id = '20231204133025390-73'
 
     preview = create_preview(o, perm_id, config_preview)
     preview.save_to_file('/home/alaskowski/PREMISE/DEMO/my_sxm_preview.png')
 
-    # preview.index = 0
-    # update_image_with_preview(o, perm_id, 0, preview)
-    #
-    # config_preview['colormap'] = 'inferno'
-    # preview = create_preview(o, perm_id, config_preview)
-    # preview.index = 1
-    # update_image_with_preview(o, perm_id, 0, preview)
-    #
-    # config_preview['x-axis'] = [1.2, 3]
-    # config_preview['y-axis'] = [1.2, 3]
-    # config_preview['scaling'] = 'logarithmic'
-    # preview = create_preview(o, perm_id, config_preview)
-    # preview.index = 2
-    # update_image_with_preview(o, perm_id, 0, preview)
+    preview.index = 0
+    update_image_with_preview(o, perm_id, 0, preview)
+
+    config_preview = config_sxm_preview.copy()
+    config_preview['Scaling'] = 'logarithmic'
+    preview = create_preview(o, perm_id, config_preview)
+    preview.index = 1
+    update_image_with_preview(o, perm_id, 0, preview)
+
+    config_preview = config_sxm_preview.copy()
+    config_preview['X-axis'] = [0.7, 2.7]
+    config_preview['Y-axis'] = [0.7, 2.7]
+    config_preview['Colormap'] = 'inferno'
+    preview = create_preview(o, perm_id, config_preview)
+    preview.index = 2
+    update_image_with_preview(o, perm_id, 0, preview)
+
+    config_preview = config_sxm_preview.copy()
+    config_preview['Colormap'] = 'RdGy'
+    config_preview['Color-scale'] = [-70.10, -69.0]
+    preview = create_preview(o, perm_id, config_preview)
+    preview.index = 3
+    update_image_with_preview(o, perm_id, 0, preview)
+
+    config_preview = config_sxm_preview.copy()
+    config_preview['Channel'] = 'I'
+    config_preview['Color-scale'] = [-55.67, -42.60]
+    preview = create_preview(o, perm_id, config_preview)
+    preview.index = 4
+    update_image_with_preview(o, perm_id, 0, preview)
+
     #
     # export_image(o, perm_id, 0, '/home/alaskowski/PREMISE/DEMO')
 
@@ -280,20 +304,21 @@ def demo_dat_flow(openbis):
     print(dataset_dat.permId)
 
     config_dat_preview = {
-        "channel x": "V",
-        "channel y": "dIdV",
-        "x-axis": [-2.1, 1],
-        "y-axis": [0.00311e-11, 0.39334e-11],
-        "grouping": ["didv_00063.dat", "didv_00064.dat", "didv_00065.dat", "didv_00066.dat",
+        "Channel x": "V",
+        "Channel y": "dIdV",
+        "X-axis": [-2.1, 1],
+        "Y-axis": [0.00311e-11, 0.39334e-11],
+        "Grouping": ["didv_00063.dat", "didv_00064.dat", "didv_00065.dat", "didv_00066.dat",
                      "didv_00067.dat", "didv_00068.dat", "didv_00069.dat", "didv_00070.dat"],
-        "colormap": "rainbow",
-        "scaling": "lin-lin",  # ['lin-lin', 'lin-log', 'log-lin', 'log-log']
+        "Colormap": "rainbow",
+        "Scaling": "lin-lin",  # ['lin-lin', 'lin-log', 'log-lin', 'log-log']
         # "print_legend": "false", # disable legend in image
         # "mode": 1 # debug
     }
 
-    config_preview = config_dat_preview
+    config_preview = config_dat_preview.copy()
     perm_id = dataset_dat.permId
+    # perm_id = '20231205143804619-75'
 
     preview = create_preview(o, perm_id, config_preview)
     preview.save_to_file('/home/alaskowski/PREMISE/DEMO/my_dat_preview.png')
@@ -301,20 +326,29 @@ def demo_dat_flow(openbis):
     preview.index = 0
     update_image_with_preview(o, perm_id, 0, preview)
 
-    config_preview["grouping"] = ["didv_00063.dat", "didv_00064.dat", "didv_00068.dat", "didv_00070.dat"]
+    config_preview = config_dat_preview.copy()
+    config_preview["Grouping"] = ["didv_00063.dat", "didv_00064.dat", "didv_00068.dat", "didv_00070.dat"]
     preview = create_preview(o, perm_id, config_preview)
     preview.index = 1
     update_image_with_preview(o, perm_id, 0, preview)
 
-    config_preview["print_legend"] = "false"
+    config_preview = config_dat_preview.copy()
+    config_preview["Print_legend"] = "false"
+    config_preview["Grouping"] = ["didv_00063.dat", "didv_00064.dat", "didv_00068.dat", "didv_00070.dat"]
     preview = create_preview(o, perm_id, config_preview)
     preview.index = 2
     update_image_with_preview(o, perm_id, 0, preview)
 
-    export_image(o, perm_id, 0, '/home/alaskowski/PREMISE/DEMO')
+    config_preview = config_dat_preview.copy()
+    config_preview["Scaling"] = "log-log"
+    preview = create_preview(o, perm_id, config_preview)
+    preview.index = 3
+    update_image_with_preview(o, perm_id, 0, preview)
+
+    # export_image(o, perm_id, 0, '/home/alaskowski/PREMISE/DEMO')
 
 
 demo_sxm_flow(o)
 
-# demo_dat_flow(o)
+demo_dat_flow(o)
 

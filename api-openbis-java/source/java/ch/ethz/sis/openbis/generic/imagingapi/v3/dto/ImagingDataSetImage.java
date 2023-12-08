@@ -37,6 +37,9 @@ public class ImagingDataSetImage implements Serializable
     private Map<String, Serializable> config;
 
     @JsonProperty
+    private Integer index;
+
+    @JsonProperty
     private Map<String, Serializable> metadata;
 
     @JsonIgnore
@@ -51,6 +54,7 @@ public class ImagingDataSetImage implements Serializable
         this.previews = previews;
     }
 
+    @JsonIgnore
     public Map<String, Serializable> getConfig()
     {
         return config;
@@ -59,6 +63,17 @@ public class ImagingDataSetImage implements Serializable
     public void setConfig(Map<String, Serializable> config)
     {
         this.config = config;
+    }
+
+    @JsonIgnore
+    public Integer getIndex()
+    {
+        return index;
+    }
+
+    public void setIndex(Integer index)
+    {
+        this.index = index;
     }
 
     @JsonIgnore

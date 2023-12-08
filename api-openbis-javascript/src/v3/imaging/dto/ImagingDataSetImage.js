@@ -6,6 +6,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		constructor.serialVersionUID = 1;
 		prototype.previews = null;
 		prototype.config = null;
+		prototype.index = null;
 		prototype.metadata = null;
 
 		prototype.getPreviews = function() {
@@ -19,6 +20,12 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
         };
         prototype.setConfig = function(config) {
             this.config = config;
+        };
+        prototype.getIndex = function() {
+            return this.index;
+        };
+        prototype.setIndex = function(index) {
+            this.index = index;
         };
 		prototype.getMetadata = function() {
 			return this.metadata;
