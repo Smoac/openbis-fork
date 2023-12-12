@@ -14,8 +14,7 @@ const InputRangeSlider = ({ label, range, initValue = null, playable, speeds, di
         { length: (max - min) / step + 1 },
         (value, index) => min + index * step
     );
-    const [value, setValue] = React.useState(initValue == null ? [min,max] : initValue);
-
+    const [value, setValue] = React.useState(initValue == null ? [min,max] : initValue.map(n=>Number(n)));
     function roundToClosest(counts, goal){
         return counts.reduce((prev, curr) => Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev);
     }
@@ -52,13 +51,14 @@ const InputRangeSlider = ({ label, range, initValue = null, playable, speeds, di
         onChange(event.target.name, newValue);
     };
 
+
     return (
         <OutlinedBox label={label}>
             <Grid container spacing={2} alignItems="center" direction="row">
                 <Grid item xs>
                     <Input
                         name={label}
-                        value={initValue == null ? min : initValue[0]}
+                        value={initValue == null ? min : Number(initValue[0])}
                         size="small"
                         onChange={handleInputMinChange}
                         onBlur={handleBlur}
@@ -74,7 +74,7 @@ const InputRangeSlider = ({ label, range, initValue = null, playable, speeds, di
                 </Grid>
                 <Grid item xs>
                     <Slider
-                        value={initValue == null ? [min,max] : initValue}
+                        value={initValue == null ? [min,max] : initValue.map(n=>Number(n))}
                         name={label}
                         disabled={disabled}
                         onChange={(event, newValue) => handleSliderChange(newValue, label)}
@@ -87,7 +87,7 @@ const InputRangeSlider = ({ label, range, initValue = null, playable, speeds, di
                     <Input
                         name={label}
                         disabled={disabled}
-                        value={initValue == null ? max : initValue[1]}
+                        value={initValue == null ? max : Number(initValue[1])}
                         size="small"
                         onChange={handleInputMaxChange}
                         onBlur={handleBlur}

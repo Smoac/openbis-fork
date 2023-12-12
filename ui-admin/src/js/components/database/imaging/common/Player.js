@@ -45,7 +45,6 @@ const themeSlider = createTheme({
 const Widget = styled('div')(() => ({
     padding: 10,
     borderRadius: 16,
-    width: 170,
     maxWidth: '100%',
     height: 'fit-content',
     position: 'relative',
@@ -104,7 +103,7 @@ export default function Player({ label= 'DEFAULT', onStep, steps = [], speeds = 
 
     React.useEffect(() => {
         if (!paused){
-            console.log(`RUN activeStep=${activeStep} value=${steps[activeStep]}`);
+            //console.log(`RUN activeStep=${activeStep} value=${steps[activeStep]}`);
             resetTimeout();
             onStep(steps[activeStep], label, true);
             timeoutRef.current = setTimeout(
@@ -146,7 +145,6 @@ export default function Player({ label= 'DEFAULT', onStep, steps = [], speeds = 
         };
     }
 
-    //console.log(steps);
     return (
         <Widget>
             <Box className={classes.rootBox}>
