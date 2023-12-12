@@ -30,6 +30,7 @@ import Message from '@src/js/components/common/form/Message.jsx'
 import messages from '@src/js/common/messages.js'
 import ImagingFacade from "@src/js/components/database/imaging/ImagingFacade";
 import ErrorDialog from "@src/js/components/common/error/ErrorDialog.jsx";
+import constants from "@src/js/components/database/imaging/constants";
 //import Button from '@src/js/components/common/form/Button.jsx'
 
 const styles = theme => ({
@@ -402,6 +403,12 @@ class ImagingDataSetViewer extends React.PureComponent {
     renderActionButtonSection() {
         const { imagingDataset, activeImageIdx, isSaved } = this.state;
         const nPreviews = imagingDataset.images[activeImageIdx].previews.length;
+        const initExportState = Object.fromEntries(imagingDataset.config.exports.map(c => {
+            switch (c.type) {
+                case constants.DROPDOWN:
+                    return [c.label, c.multiselect ? [c.values[0]] : c.values[0]];
+            }
+        }))
         return (
             <Grid item xs={2} container direction='column' justifyContent="space-around">
                 {!isSaved && (
@@ -409,23 +416,27 @@ class ImagingDataSetViewer extends React.PureComponent {
                         {messages.get(messages.UNSAVED_CHANGES)}
                     </Message>
                 )}
-                <Button name="save" label="Save" variant="outlined" color="primary" startIcon={<SaveIcon/>}
+                <Button name="save" label={messages.get(messages.SAVE)} variant="outlined" color="primary" startIcon={<SaveIcon/>}
                         disabled={isSaved}
-                        onClick={() => this.saveDataset()}>Save</Button>
+                        onClick={() => this.saveDataset()}>{messages.get(messages.SAVE)}</Button>
 
-                <AlertDialog label={'Delete'} icon={<DeleteIcon/>}
+                <AlertDialog label='Delete' icon={<DeleteIcon/>}
                              title={"Are you sure to delete the current preview?"}
                              content={"The preview will be definitly deleted from the dataset."}
                              disabled={nPreviews === 1}
                              onHandleYes={this.deletePreview}/>
 
-                <Button name='new' label='Blank Preview' type='final' variant="outlined" startIcon={<AddToQueueIcon/>}
-                        onClick={this.createNewPreview}>New</Button>
+                <Button name='blank'
+                        label={messages.get(messages.BLANK_PREVIEW)}
+                        type='final' variant="outlined"
+                        startIcon={<AddToQueueIcon/>}
+                        onClick={this.createNewPreview}>{messages.get(messages.BLANK_PREVIEW)}</Button>
 
                 <InputFileUpload onInputFile={this.handleUpload}/>
 
                 {imagingDataset.config.exports.length > 0 ?
                     <Export handleExport={this.onExport}
+                            initValue={initExportState}
                             config={imagingDataset.config.exports}/> : <></>}
             </Grid>
         )
@@ -453,7 +464,7 @@ class ImagingDataSetViewer extends React.PureComponent {
                 <Box className={classes.imgContainer}>
                     {imagingDataset.images[activeImageIdx].previews[activePreviewIdx].bytes === null ?
                         <Typography variant='body2'>
-                            No preview available
+                            {messages.get(messages.NO_PREVIEW)}
                         </Typography>
                         : <img src={`data:image/${imagingDataset.images[activeImageIdx].previews[activePreviewIdx].format};base64,${imagingDataset.images[activeImageIdx].previews[activePreviewIdx].bytes}`}
                                alt={""}
@@ -473,7 +484,7 @@ class ImagingDataSetViewer extends React.PureComponent {
         const inputValues = Object.fromEntries(imagingDataset.config.inputs.map(input => {
             //console.log("current input: ", input);
             switch (input.type) {
-                case 'Dropdown':
+                case constants.DROPDOWN:
                     return [input.label, activeConfig[input.label] ? activeConfig[input.label] : input.multiselect ? [input.values[0]] :  input.values[0]];
                 case 'Slider':
                     return [input.label, activeConfig[input.label] ? activeConfig[input.label] : [0]];
@@ -502,11 +513,11 @@ class ImagingDataSetViewer extends React.PureComponent {
                             </OutlinedBox>
                             {changed && !isUploadedPreview && (
                                 <Message type='info'>
-                                    {"Update to see changes"}
+                                    {messages.get(messages.UPDATE_CHANGES)}
                                 </Message>
                             )}
                             <Button label='Update' style={{marginLeft: '8px'}} variant="outlined" color='primary' startIcon={<RefreshIcon/>}
-                                    onClick={this.handleUpdate} disabled={!changed || isUploadedPreview}>Update</Button>
+                                    onClick={this.handleUpdate} disabled={!changed || isUploadedPreview}>{messages.get(messages.UPDATE)}</Button>
 
                             <Dropdown onSelectChange={this.handleResolutionChange}
                                   label="Resolutions"
@@ -519,7 +530,7 @@ class ImagingDataSetViewer extends React.PureComponent {
                             //const prevConfigValues = imagingDataSet.images[activeImageIdx].previews[activePreviewIdx].config;
                             //console.log(panelConfig, initConfig);
                             switch (c.type) {
-                                case 'Dropdown':
+                                case constants.DROPDOWN:
                                     return <Dropdown key={`InputsPanel-${c.type}-${idx}`}
                                                      label={c.label}
                                                      initValue={inputValues[c.label]}
@@ -527,7 +538,7 @@ class ImagingDataSetViewer extends React.PureComponent {
                                                      isMulti={c.multiselect}
                                                      disabled={isUploadedPreview}
                                                      onSelectChange={(event) => this.handleActiveConfigChange(event.target.name, event.target.value)}/>;
-                                case 'Slider':
+                                case constants.SLIDER:
                                     if (c.visibility) {
                                         for (const condition of c.visibility) {
                                             if (condition.values.includes(inputValues[condition.label])) {
@@ -545,7 +556,7 @@ class ImagingDataSetViewer extends React.PureComponent {
                                                         speeds={c.speeds}
                                                         disabled={isUploadedPreview}
                                                         onChange={(name, value, update) => this.handleActiveConfigChange(name, value, update)}/>;
-                                case 'Range':
+                                case constants.RANGE:
                                     if (c.visibility) {
                                         for (const condition of c.visibility) {
                                             if (condition.values.includes(inputValues[condition.label])) {
@@ -563,7 +574,7 @@ class ImagingDataSetViewer extends React.PureComponent {
                                                              playable={c.playable}
                                                              speeds={c.speeds}
                                                              onChange={(name, value, update) => this.handleActiveConfigChange(name, value, update)}/>;
-                                case 'Colormap':
+                                case constants.COLORMAP:
                                     return <ColorMap key={`InputsPanel-${c.type}-${idx}`}
                                                      values={c.values}
                                                      disabled={isUploadedPreview}

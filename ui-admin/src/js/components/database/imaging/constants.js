@@ -11,7 +11,15 @@ const DEFAULT_COLORMAP = {
     "RdBu":["#2166ac", "#4393c3", "#92c5de", "#d1e5f0", "#f7f7f7", "#fddbc7", "#f4a582", "#d6604d", "#b2182b"],
     "RdGy":["#4d4d4d", "#878787", "#bababa", "#e0e0e0", "#ffffff", "#fddbc7", "#f4a582", "#d6604d", "#b2182b"]
 }
+const DROPDOWN = 'Dropdown';
+const SLIDER = 'Slider';
+const RANGE = 'Range';
+const COLORMAP = 'Colormap';
 export default {
     IMAGING_DATA_CONFIG,
-    DEFAULT_COLORMAP
+    DEFAULT_COLORMAP,
+    DROPDOWN,
+    SLIDER,
+    RANGE,
+    COLORMAP
 }
