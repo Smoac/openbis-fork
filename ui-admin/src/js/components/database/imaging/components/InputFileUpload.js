@@ -2,6 +2,7 @@ import * as React from 'react';
 import { styled } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
+import messages from "@src/js/common/messages.js";
 
 const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
@@ -21,28 +22,23 @@ export default function InputFileUpload({onInputFile}) {
     const [flag, setFlag] = React.useState(false);
 
     const fileChangedHandler = async (event) => {
-        console.log("InputFileUpload - fileChangedHandler: ", event.target.files);
         let file = event.target.files[0];
         let reader = new FileReader();
         reader.onload = function (e) {
             setFile(e.target.result);
             setFlag(true);
-            //var arrayBuffer = e.target.result;
-            //console.log(arrayBuffer);
-            //Download(arrayBuffer, file.type);
         };
-        //reader.readAsDataURL(event.target.files[0]);
         reader.readAsArrayBuffer(event.target.files[0]);
         onInputFile(file);
     };
 
     return (
         <Button component="label" variant="outlined" startIcon={<CloudUploadIcon />}>
-            Upload
+            {messages.get(messages.UPLOAD)}
             <VisuallyHiddenInput type="file"
                                  onChange={fileChangedHandler}
                                  inputprops={{ accept: "image/*" }}
-                                 accept=".png,.jpg,.jpeg" />
+                                 accept=".png,.jpg,.jpeg"/>
         </Button>
     );
 };

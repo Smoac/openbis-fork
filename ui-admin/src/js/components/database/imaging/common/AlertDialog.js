@@ -1,6 +1,6 @@
 import * as React from 'react';
-import Button from '@material-ui/core/Button';
 import ConfirmationDialog from "@src/js/components/common/dialog/ConfirmationDialog.jsx";
+import Button from "@src/js/components/common/form/Button.jsx";
 
 export default function AlertDialog({label, icon, title, content, disabled, onHandleYes}) {
     const [open, setOpen] = React.useState(false);
@@ -16,9 +16,12 @@ export default function AlertDialog({label, icon, title, content, disabled, onHa
 
     return (
         <>
-            <Button variant="outlined" onClick={handleClickOpen} startIcon={icon} disabled={disabled}>
-                {label}
-            </Button>
+            <Button label={label}
+                    variant='outlined'
+                    color='default'
+                    onClick={handleClickOpen}
+                    startIcon={icon}
+                    disabled={disabled}/>
             <ConfirmationDialog open={open}
                                 onConfirm={handleYes}
                                 onCancel={() => setOpen(false)}

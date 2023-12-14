@@ -1,8 +1,12 @@
-import { Box, Button, Modal, Typography } from "@material-ui/core";
+import {Box, Modal, Typography} from "@material-ui/core";
 import React from "react";
 import Dropdown from "@src/js/components/database/imaging/common/Dropdown";
 import { makeStyles } from "@material-ui/core/styles";
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
+import messages from "@src/js/common/messages.js";
+import constants from "@src/js/components/database/imaging/constants.js";
+import Button from "@src/js/components/common/form/Button.jsx";
+import {isObjectEmpty} from "@src/js/components/database/imaging/utils";
 
 const style = {
     position: 'absolute',
@@ -26,6 +30,9 @@ const useStyles = makeStyles((theme) => ({
         '&:disabled': {
             backgroundColor: theme.palette.error.light
         }
+    },
+    mt: {
+        marginTop: '10px'
     }
 }));
 
@@ -34,16 +41,17 @@ const Export = ({ config, handleExport }) => {
     const classes = useStyles();
     const [open, setOpen] = React.useState(false);
     const [exportState, setExportState] = React.useState(Object.fromEntries(config.map(c => {
-        switch (c.type) {
-            case 'Dropdown':
-                return [c.label, c.multiselect ? [c.values[0]] : c.values[0]];
-        }
-    })));
+            switch (c.type) {
+                case constants.DROPDOWN:
+                    return [c.label, c.multiselect ? [c.values[0]]: c.values[0]];
+            }
+        })));
 
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
     const handleExportChange = (event) => {
+        console.log('handleExportChange: ', event);
         setExportState(prevState => {
             let newState = {...prevState};
             newState[event.target.name] = event.target.value;
@@ -56,23 +64,17 @@ const Export = ({ config, handleExport }) => {
         handleClose();
     };
 
-    const listExportsComp = config.map((c, idx) => {
-        switch (c.type) {
-            case 'Dropdown':
-                return <Dropdown key={"export-" + c.type + "-" + idx}
-                                 label={c.label}
-                                 initValue={c.multiselect ? [c.values[0]] : c.values[0]}
-                                 values={c.values}
-                                 isMulti={c.multiselect}
-                                 onSelectChange={handleExportChange}/>
-            default:
-                return <h2>UNKOWN TYPE: {c.type}</h2>
-        }
-    });
+    if (isObjectEmpty(exportState)) return null;
 
     return (
         <>
-            <Button sx={{ height: 'fit-content' }} variant="outlined" onClick={handleOpen} startIcon={<CloudDownloadIcon/>}>Export</Button>
+            <Button label={messages.get(messages.EXPORT)}
+                    type='final'
+                    color='default'
+                    variant='outlined'
+                    onClick={handleOpen}
+                    startIcon={<CloudDownloadIcon/>}/>
+
             <Modal open={open}
                    onClose={handleClose}
                    aria-labelledby="modal-modal-title"
@@ -80,11 +82,27 @@ const Export = ({ config, handleExport }) => {
             >
                 <Box sx={style}>
                     <Typography id="modal-modal-title" variant="h6" component="h2">
-                        Select export options
+                        {messages.get(messages.EXPORT_SELECTION)}
                     </Typography>
-                    {listExportsComp}
-                    <Button onClick={sendExportRequest} variant="contained" color="secondary">Export</Button>
-                    <Button onClick={handleClose} variant="contained" className={classes.risky}>Close</Button>
+                    {config.map((c, idx) => {
+                        switch (c.type) {
+                            case constants.DROPDOWN:
+                                return <Dropdown key={"export-" + c.type + "-" + idx}
+                                                 label={c.label}
+                                                 initValue={exportState[c.label]}
+                                                 values={c.values}
+                                                 isMulti={c.multiselect}
+                                                 onSelectChange={handleExportChange}/>
+                            default:
+                                return (<Typography variant='body2'>
+                                    {messages.get(messages.NO_PREVIEW)}: {c.type}
+                                </Typography>)
+                        }
+                    })}
+                    <div className={classes.mt} >
+                        <Button label={messages.get(messages.EXPORT)} type='secondary' onClick={sendExportRequest} />
+                        <Button label={messages.get(messages.CANCEL)} type='risky' onClick={handleClose} styles={{ root: classes.risky }} />
+                    </div>
                 </Box>
 
             </Modal>
