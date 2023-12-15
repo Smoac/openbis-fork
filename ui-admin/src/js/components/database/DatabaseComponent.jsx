@@ -5,7 +5,8 @@ import openbis from '@src/js/services/openbis.js'
 import objectType from '@src/js/common/consts/objectType.js'
 import logger from '@src/js/common/logger.js'
 import ImagingDataSetViewer2 from "@src/js/components/database/imaging/ImagingDatasetViewer.jsx";
-import constants from "@src/js/components/database/imaging/constants";
+import constants from "@src/js/components/database/imaging/constants.js";
+import ImagingGalleryViewer from "@src/js/components/database/imaging/ImagingGalleryViewer.js";
 
 class DatabaseComponent extends React.PureComponent {
   constructor(props) {
@@ -33,9 +34,12 @@ class DatabaseComponent extends React.PureComponent {
         )
         json = projects[object.id]
       } else if (object.type === objectType.COLLECTION) {
+        const fetchOptions = new openbis.ExperimentFetchOptions()
+        fetchOptions.withProperties()
+        fetchOptions.withDataSets().withProperties()
         const experiments = await openbis.getExperiments(
           [new openbis.ExperimentPermId(object.id)],
-          new openbis.ExperimentFetchOptions()
+             fetchOptions
         )
         json = experiments[object.id]
       } else if (object.type === objectType.OBJECT) {
@@ -44,6 +48,7 @@ class DatabaseComponent extends React.PureComponent {
         fetchOptions.withProject()
         fetchOptions.withExperiment()
         fetchOptions.withParents()
+        fetchOptions.withProperties()
         const samples = await openbis.getSamples(
           [new openbis.SamplePermId(object.id)],
           fetchOptions
@@ -81,6 +86,8 @@ class DatabaseComponent extends React.PureComponent {
     return (
       <Container>
         {this.props.object.type === objectType.DATA_SET && <ImagingDataSetViewer2 objId={this.props.object.id} extOpenbis={openbis}/>}
+        {(this.props.object.type === objectType.COLLECTION || this.props.object.type === objectType.OBJECT)
+            && <ImagingGalleryViewer objId={this.props.object.id} extOpenbis={openbis}/>}
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         <pre>{JSON.stringify(this.state.json || {}, null, 2)}</pre>
       </Container>
