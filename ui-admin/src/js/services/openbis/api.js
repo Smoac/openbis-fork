@@ -11,9 +11,10 @@ class Facade {
     return new Promise((resolve, reject) => {
       /* eslint-disable-next-line no-undef */
       requirejs(
-        ['openbis'],
-        openbis => {
+        ['openbis', 'util/Json'],
+        (openbis, stjs) => {
           _this.v3 = new openbis()
+          _this.stjs = stjs
           resolve()
         },
         error => {
