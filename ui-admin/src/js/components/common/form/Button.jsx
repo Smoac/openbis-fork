@@ -31,6 +31,7 @@ class FormButton extends React.Component {
       variant,
       disabled,
       href,
+      startIcon,
       styles,
       classes,
       onClick
@@ -67,6 +68,7 @@ class FormButton extends React.Component {
         onClick={onClick}
         disabled={disabled}
         size='small'
+        startIcon={startIcon}
       >
         {label}
       </Button>
