@@ -1,4 +1,7 @@
-const IMAGING_DATA_CONFIG = '$IMAGING_DATA_CONFIG';
+const COLORMAP = 'Colormap';
+const DEFAULT_COLLECTION_VIEW = '$DEFAULT_COLLECTION_VIEW';
+const DEFAULT_OBJECT_VIEW = '$DEFAULT_OBJECT_VIEW';
+
 //https://docs.bokeh.org/en/latest/_modules/bokeh/palettes.html#inferno
 const DEFAULT_COLORMAP = {
     "gray":["#000000", "#252525", "#525252", "#737373", "#969696", "#bdbdbd", "#d9d9d9", "#f0f0f0", "#ffffff"],
@@ -12,14 +15,19 @@ const DEFAULT_COLORMAP = {
     "RdGy":["#4d4d4d", "#878787", "#bababa", "#e0e0e0", "#ffffff", "#fddbc7", "#f4a582", "#d6604d", "#b2182b"]
 }
 const DROPDOWN = 'Dropdown';
-const SLIDER = 'Slider';
+const IMAGING_CODE = 'imaging';
+const IMAGING_DATA_CONFIG = '$IMAGING_DATA_CONFIG';
 const RANGE = 'Range';
-const COLORMAP = 'Colormap';
+const SLIDER = 'Slider';
+
 export default {
-    IMAGING_DATA_CONFIG,
+    COLORMAP,
+    DEFAULT_COLLECTION_VIEW,
+    DEFAULT_OBJECT_VIEW,
     DEFAULT_COLORMAP,
     DROPDOWN,
-    SLIDER,
+    IMAGING_CODE,
+    IMAGING_DATA_CONFIG,
     RANGE,
-    COLORMAP
+    SLIDER,
 }
