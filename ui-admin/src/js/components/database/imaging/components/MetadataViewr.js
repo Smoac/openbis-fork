@@ -33,10 +33,10 @@ const MetadataViewer = ({configMetadata, previews}) => {
             </Grid>
             <Grid item container className={classes.spaceAround} >
                 {previews.map(preview =>
-                    preview.metadata && <Grid key={'preview_md_'+preview.previewIdx} item sx={{ textAlign: 'left' }}>
+                    preview.metadata && <Grid key={'preview_md_'+preview.index} item sx={{ textAlign: 'left' }}>
                         <Card className={classes.root}>
                             <Typography gutterBottom variant="h5" component="h2">
-                                Preview {preview.previewIdx}
+                                Preview {preview.index}
                             </Typography>
                             <CardContent>
                                 {preview.metadata && Object.entries(preview.metadata).map(([key, value], idx) => <Typography variant="body2" component="p" key={idx}><strong>{key}:</strong> {value}</Typography>)}

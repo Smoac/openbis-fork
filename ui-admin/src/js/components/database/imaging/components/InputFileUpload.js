@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { styled } from '@material-ui/core/styles';
+import {makeStyles, styled} from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import messages from "@src/js/common/messages.js";
@@ -33,11 +33,11 @@ export default function InputFileUpload({onInputFile}) {
     };
 
     return (
-        <Button component="label" variant="outlined" startIcon={<CloudUploadIcon />}>
+        <Button component="label" variant="outlined" startIcon={<CloudUploadIcon/>}>
             {messages.get(messages.UPLOAD)}
             <VisuallyHiddenInput type="file"
                                  onChange={fileChangedHandler}
-                                 inputprops={{ accept: "image/*" }}
+                                 inputprops={{accept: "image/*"}}
                                  accept=".png,.jpg,.jpeg"/>
         </Button>
     );
