@@ -19,6 +19,7 @@ parent_dir = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(parent_dir)
 import imaging.imaging as imaging
 
+import math
 from pybis import Openbis
 import json
 import numpy as np
@@ -136,10 +137,15 @@ def create_dat_dataset(openbis, folder_path, file_prefix='', sample=None, experi
             maximum += [np.max(spec.get_channel(f'{channel}')[0])]
         minimum = np.min(minimum)
         maximum = np.max(maximum)
-        step = round((maximum - minimum) / 100, 2)
+        step = abs(round((maximum - minimum) / 100, 2))
 
-        if step == 0.0:
-            step = (maximum - minimum) / 100
+        if step >= 1:
+            step = 1
+        elif step > 0:
+            step = 0.01
+        else:
+            step = abs((maximum - minimum) / 100)
+            step = 10 ** math.floor(math.log10(step))
 
         color_scale_visibility_x += [imaging.ImagingDataSetControlVisibility(
             "Channel X",
@@ -256,7 +262,7 @@ def demo_sxm_flow(openbis):
     # perm_id = '20231204133025390-73'
 
     preview = create_preview(o, perm_id, config_preview)
-    preview.save_to_file('/home/alaskowski/PREMISE/DEMO/my_sxm_preview.png')
+    # preview.save_to_file('/home/alaskowski/PREMISE/DEMO/my_sxm_preview.png')
 
     preview.index = 0
     update_image_with_preview(o, perm_id, 0, preview)
@@ -297,8 +303,8 @@ def demo_dat_flow(openbis):
 
     dataset_dat = create_dat_dataset(
         openbis=o,
-        experiment='/DEFAULT/DEFAULT/DEFAULT',
-        # sample='/DEFAULT/DEFAULT/DEFAULT',
+        experiment='/IMAGING/NANONIS/DAT_COLLECTION',
+        sample='/IMAGING/NANONIS/TEMPLATE-DAT',
         folder_path='data',
         file_prefix='didv_')
     print(dataset_dat.permId)
@@ -307,7 +313,8 @@ def demo_dat_flow(openbis):
         "Channel x": "V",
         "Channel y": "dIdV",
         "X-axis": [-2.1, 1],
-        "Y-axis": [0.00311e-11, 0.39334e-11],
+        "Y-axis": [0.031115681, 13.933415],
+        # "Y-axis": [0.00311e-11, 0.39334e-11],
         "Grouping": ["didv_00063.dat", "didv_00064.dat", "didv_00065.dat", "didv_00066.dat",
                      "didv_00067.dat", "didv_00068.dat", "didv_00069.dat", "didv_00070.dat"],
         "Colormap": "rainbow",
@@ -318,7 +325,7 @@ def demo_dat_flow(openbis):
 
     config_preview = config_dat_preview.copy()
     perm_id = dataset_dat.permId
-    # perm_id = '20231205143804619-75'
+    # perm_id = '20231212152039720-33'
 
     preview = create_preview(o, perm_id, config_preview)
     preview.save_to_file('/home/alaskowski/PREMISE/DEMO/my_dat_preview.png')
@@ -348,7 +355,7 @@ def demo_dat_flow(openbis):
     # export_image(o, perm_id, 0, '/home/alaskowski/PREMISE/DEMO')
 
 
-demo_sxm_flow(o)
+# demo_sxm_flow(o)
 
 demo_dat_flow(o)
 

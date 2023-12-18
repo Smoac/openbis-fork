@@ -95,6 +95,7 @@
 	<suppress>
 		<packageUrl regex="true">^pkg:maven/googlecode/jsonrpc4j@.*$</packageUrl>
 		<cve>CVE-2018-7489</cve>
+		<cve>CVE-2017-7525</cve>
 	</suppress>
 	<!-- Old Jetty used by GWT -->
 	<suppress>
@@ -341,7 +342,11 @@
 	</suppress>
 	<suppress>
    		<gav regex="true">^com\.fasterxml\.jackson\.core:jackson-databind:.*$</gav>
-   		<cve>CVE-2017-15095</cve><cve>CVE-2017-17485</cve><cve>CVE-2017-7525</cve><cve>CVE-2018-5968</cve><cve>CVE-2018-7489</cve>
+   		<cve>CVE-2017-15095</cve>
+		<cve>CVE-2017-17485</cve>
+		<cve>CVE-2017-7525</cve>
+		<cve>CVE-2018-5968</cve>
+		<cve>CVE-2018-7489</cve>
 	</suppress>
 	<!-- Spring 4.1 -->
 	<suppress>

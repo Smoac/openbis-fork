@@ -18,6 +18,7 @@ import os
 
 import imaging as imaging
 
+import math
 from pybis import Openbis
 import numpy as np
 
@@ -132,10 +133,15 @@ def create_dat_dataset(openbis, folder_path, file_prefix='', sample=None, experi
             maximum += [np.max(spec.get_channel(f'{channel}')[0])]
         minimum = np.min(minimum)
         maximum = np.max(maximum)
-        step = round((maximum - minimum) / 100, 2)
+        step = abs(round((maximum - minimum) / 100, 2))
 
-        if step == 0.0:
-            step = (maximum - minimum) / 100
+        if step >= 1:
+            step = 1
+        elif step > 0:
+            step = 0.01
+        else:
+            step = abs((maximum - minimum) / 100)
+            step = 10 ** math.floor(math.log10(step))
 
         color_scale_visibility_x += [imaging.ImagingDataSetControlVisibility(
             "Channel X",
