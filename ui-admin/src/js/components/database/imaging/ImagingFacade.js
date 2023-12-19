@@ -33,6 +33,9 @@ export default class ImagingFacade {
         let update = new this.openbis.DataSetUpdate();
         update.setDataSetId(new this.openbis.DataSetPermId(permId));
         update.setProperty(constants.IMAGING_DATA_CONFIG, JSON.stringify(imagingDataset));
+        const totalPreviews = imagingDataset.images.reduce((count, image) => count + image.previews.length, 0);
+        update.setMetaDataActions({"preview-total-count": totalPreviews});
+        //console.log('saveImagingDataset - update: ', update);
         const isUpdated = await this.openbis.updateDataSets([ update ]);
         return await isUpdated;
     };
@@ -43,6 +46,14 @@ export default class ImagingFacade {
         options.parameters = new ImagingMapper(this.openbis).mapToImagingUpdateParams(objId, activeImageIdx, preview);
         const updatedImagingDataset = await this.openbis.executeCustomDSSService(serviceId, options);
         return await this.openbis.fromJson(null, updatedImagingDataset);
+    }
+
+    exportImagingDataset = async (objId, activeImageIdx, exportConfig, metadata) => {
+        const serviceId = new this.openbis.CustomDssServiceCode(constants.IMAGING_CODE);
+        const options = new this.openbis.CustomDSSServiceExecutionOptions();
+        options.parameters = new ImagingMapper(this.openbis).mapToImagingExportParams(objId, activeImageIdx, exportConfig, metadata);
+        const exportedImagingDataset = await this.openbis.executeCustomDSSService(serviceId, options);
+        return await exportedImagingDataset.url;
     }
 
     loadGalleryDatasets = async (objId) => {

@@ -3,7 +3,8 @@ import {withStyles} from "@material-ui/core/styles";
 import {
     Box,
     Grid,
-    ImageList, ImageListItem, Switch,
+    ImageList,
+    ImageListItem,
 } from "@material-ui/core";
 
 import Typography from "@material-ui/core/Typography";
@@ -32,6 +33,7 @@ import ErrorDialog from "@src/js/components/common/error/ErrorDialog.jsx";
 import constants from "@src/js/components/database/imaging/constants.js";
 import Button from '@src/js/components/common/form/Button.jsx'
 import ImagingMapper from "@src/js/components/database/imaging/ImagingMapper.js";
+import CustomSwitch from "@src/js/components/database/imaging/common/CustomSwitch";
 
 const styles = theme => ({
     backdrop: {
@@ -120,8 +122,10 @@ class ImagingDataSetViewer extends React.PureComponent {
             const {objId, extOpenbis} = this.props;
             try {
                 const imagingDataSetPropertyConfig = await new ImagingFacade(extOpenbis).loadImagingDataset(objId);
+                //console.log("imagingDataSetPropertyConfig: ",typeof imagingDataSetPropertyConfig, imagingDataSetPropertyConfig)
                 this.setState({open: false, loaded: true, imagingDataset: imagingDataSetPropertyConfig});
             } catch(error) {
+                console.log("componentDidMount ERROR: ", error);
                 this.handleError(error);
             }
         }
@@ -157,6 +161,22 @@ class ImagingDataSetViewer extends React.PureComponent {
         }
     };
 
+    onExport = async (state) => {
+        this.handleOpen();
+        const {activeImageIdx} = this.state;
+        const {objId, extOpenbis} = this.props;
+        try {
+            const downloadableURL = await new ImagingFacade(extOpenbis)
+                .exportImagingDataset(objId, activeImageIdx, state, {});
+            if (downloadableURL)
+                window.open(downloadableURL, '_blank');
+            this.setState({open: false});
+        } catch (error) {
+            this.setState({open: false});
+            this.handleError(error);
+        }
+    };
+
     handleErrorCancel = () => {
         this.setState({
             error: {open: false, error: null}
@@ -168,10 +188,6 @@ class ImagingDataSetViewer extends React.PureComponent {
             error: {open: true, error: error}
         })
     }
-
-    handleClose = () => {
-        this.setState({open: false})
-    };
 
     handleOpen = () => {
         this.setState({open: true});
@@ -186,7 +202,6 @@ class ImagingDataSetViewer extends React.PureComponent {
     };
 
     handleResolutionChange = (event) => {
-        //this.handleOpen();
         /*console.log('handleResolutionChange: ', event);
         let val = event.target.value;
         console.log(val);
@@ -197,7 +212,6 @@ class ImagingDataSetViewer extends React.PureComponent {
         } else if (val.includes('x')){*/
         const v_list = event.target.value.split('x');
         this.setState({resolution: v_list});
-        //this.handleClose();
     };
 
     handleActiveConfigChange = (name, value, update = false) => {
@@ -207,7 +221,7 @@ class ImagingDataSetViewer extends React.PureComponent {
         this.setState({imagingDataset: toUpdateIDS, isChanged: true});
         // Used by the player to autoupdate
         if (update) {
-            console.log('handleActiveConfigChange: ', update);
+            //console.log('handleActiveConfigChange autoUpdate: ', update);
             this.handleUpdate();
         }
     }
@@ -230,8 +244,7 @@ class ImagingDataSetViewer extends React.PureComponent {
         previewsList[activePreviewIdx].index -= position;
         previewsList[activePreviewIdx+position] = tempMovedPreview;
         toUpdateImgDs.images[activeImageIdx].previews = previewsList;
-        this.setState({imagingDataset: toUpdateImgDs, isSaved: false});
-        this.handleClose();
+        this.setState({open: false, imagingDataset: toUpdateImgDs, isSaved: false});
     }
 
     createInitValues = () => {
@@ -265,27 +278,8 @@ class ImagingDataSetViewer extends React.PureComponent {
         let toUpdateImgDs = {...imagingDataset};
         let newLastIdx = toUpdateImgDs.images[activeImageIdx].previews.length;
         let inputValues = this.createInitValues();
-        let imagingDataSetPreview = new extOpenbis.ImagingDataSetPreview();
-        imagingDataSetPreview.config = inputValues;
-        imagingDataSetPreview.format = 'png';
-        imagingDataSetPreview.bytes = null;
-        imagingDataSetPreview.width = null;
-        imagingDataSetPreview.height = null;
-        imagingDataSetPreview.index = newLastIdx;
-        imagingDataSetPreview.show = false;
-        imagingDataSetPreview.metadata = {};
-        /*let previewTemplate = {
-            "@type" : "imaging.dto.ImagingDataSetPreview",
-            "index": newLastIdx,
-            "config": inputValues,
-            "format": 'png',
-            "bytes": null,
-            "show": false,
-            "height": 256,
-            "width": 256,
-            "metadata": {}
-        }*/
-        //console.log('createNewPreview Data => ', previewTemplate);
+        let imagingDataSetPreview = new ImagingMapper(extOpenbis)
+            .getImagingDataSetPreview(inputValues, 'png', null, null, null, newLastIdx, false, {});
         toUpdateImgDs.images[activeImageIdx].previews = [...toUpdateImgDs.images[activeImageIdx].previews, imagingDataSetPreview];
         this.setState({imagingDataset: toUpdateImgDs, isSaved: false})
     };
@@ -311,7 +305,7 @@ class ImagingDataSetViewer extends React.PureComponent {
             toUpdateImgDs.images[activeImageIdx].previews = [...toUpdateImgDs.images[activeImageIdx].previews, previewTemplate];
             this.setState({open: false, imagingDataset: toUpdateImgDs, isSaved: false})
         } catch (err) {
-            this.handleClose();
+            this.setState({open: false});
             console.log('Err => ', err);
         }
     };
@@ -322,24 +316,22 @@ class ImagingDataSetViewer extends React.PureComponent {
         let toUpdateImgDs = {...imagingDataset};
         toUpdateImgDs.images[activeImageIdx].previews.splice(activePreviewIdx,1);
         toUpdateImgDs.images[activeImageIdx].previews = toUpdateImgDs.images[activeImageIdx].previews.map(p => {
-            if (p.index > activePreviewIdx) p.index -= 1;
-            return p
+            if (p.index > activePreviewIdx)
+                p.index -= 1;
+            return p;
         });
         this.setState({imagingDataset: toUpdateImgDs, activePreviewIdx: 0});
         this.saveDataset();
     };
 
-    onExport = (state) => {
-        console.log('onExport: ', state);
-    };
-
     render() {
-        if (!this.state.loaded) return null;
+        const { loaded, open, error } = this.state;
+        if (!loaded) return null;
         console.log('ImagingDataSetViewer.render: ', this.state);
         return (
             <React.Fragment>
-                <LoadingDialog loading={this.state.open} />
-                <ErrorDialog open={this.state.error.state} error={this.state.error.error} onClose={this.handleErrorCancel} />
+                <LoadingDialog loading={open} />
+                <ErrorDialog open={error.state} error={error.error} onClose={this.handleErrorCancel} />
                 {this.renderImageSection()}
                 {this.renderPreviewsSection()}
                 {this.renderMainSection()}
@@ -581,10 +573,11 @@ class ImagingDataSetViewer extends React.PureComponent {
                             )}
 
                             <OutlinedBox style={{width: 'fit-content'}} label={messages.get(messages.SHOW)}>
-                                <Switch
-                                    checked={imagingDataset.images[activeImageIdx].previews[activePreviewIdx].show}
-                                    onChange={this.handleShowPreview} color="primary"/>
+                                <CustomSwitch isChecked={imagingDataset.images[activeImageIdx].previews[activePreviewIdx].show}
+                                              onChange={this.handleShowPreview} />
                             </OutlinedBox>
+
+
 
                             <Dropdown onSelectChange={this.handleResolutionChange}
                                   label={messages.get(messages.RESOLUTIONS)}

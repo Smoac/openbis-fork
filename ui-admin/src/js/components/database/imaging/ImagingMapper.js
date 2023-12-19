@@ -39,4 +39,18 @@ export default class ImagingMapper{
             "preview" :  this.mapToImagingDataSetPreview(preview)
         };
     }
+
+    mapToImagingExportParams(objId, activeImageIdx, exportConfig, metadata) {
+        let imagingDataSetExport = new this.openbis.ImagingDataSetExport();
+        imagingDataSetExport.config = exportConfig;
+        imagingDataSetExport.metadata = metadata;
+        return {
+            "type" : "export",
+            "permId" : objId,
+            "error" : null,
+            "index" : activeImageIdx,
+            "url" : null,
+            "export" :  imagingDataSetExport
+        };
+    }
 }
