@@ -563,7 +563,7 @@ const messages_en = {
   [keys.SESSION_NAME]: 'Session name',
   [keys.SESSION_IDENTIFIER]: 'Session identifier',
   [keys.SET_AS_ROOT]: 'Set as root',
-  [keys.SHOW]: 'show',
+  [keys.SHOW]: 'Show',
   [keys.SHOW_CONTAINER]: 'Show Container',
   [keys.SHOW_DETAILS]: 'Show details',
   [keys.SHOW_PARENTS]: 'Show Parents',
