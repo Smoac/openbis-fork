@@ -34,10 +34,8 @@ export default class ImagingFacade {
         update.setDataSetId(new this.openbis.DataSetPermId(permId));
         update.setProperty(constants.IMAGING_DATA_CONFIG, JSON.stringify(imagingDataset));
         const totalPreviews = imagingDataset.images.reduce((count, image) => count + image.previews.length, 0);
-        update.setMetaDataActions({"preview-total-count": totalPreviews});
-        //console.log('saveImagingDataset - update: ', update);
-        const isUpdated = await this.openbis.updateDataSets([ update ]);
-        return await isUpdated;
+        update.getMetaData().put(constants.METADATA_PREVIEW_COUNT, totalPreviews.toString());
+        return await this.openbis.updateDataSets([ update ]);
     };
 
     updateImagingDataset = async (objId, activeImageIdx, preview) => {

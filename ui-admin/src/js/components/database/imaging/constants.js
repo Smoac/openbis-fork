@@ -19,6 +19,7 @@ const DEFAULT_COLORMAP = {
 const DROPDOWN = 'Dropdown';
 const IMAGING_CODE = 'imaging';
 const IMAGING_DATA_CONFIG = '$IMAGING_DATA_CONFIG';
+const METADATA_PREVIEW_COUNT = 'preview-total-count';
 const RANGE = 'Range';
 const SLIDER = 'Slider';
 
@@ -31,6 +32,7 @@ export default {
     DROPDOWN,
     IMAGING_CODE,
     IMAGING_DATA_CONFIG,
+    METADATA_PREVIEW_COUNT,
     RANGE,
     SLIDER,
 }
