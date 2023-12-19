@@ -1,3 +1,5 @@
+import constants from "@src/js/components/database/imaging/constants";
+
 export default class ImagingMapper{
 
     constructor(extOpenbis) {
@@ -31,6 +33,13 @@ export default class ImagingMapper{
     }
 
     mapToImagingUpdateParams(objId, activeImageIdx, preview) {
+        /*let imagingPreviewContainer = new this.openbis.ImagingPreviewContainer();
+        imagingPreviewContainer.type = constants.PREVIEW_TYPE;
+        imagingPreviewContainer.permId = objId;
+        imagingPreviewContainer.error = null;
+        imagingPreviewContainer.index = activeImageIdx;
+        imagingPreviewContainer.preview = this.mapToImagingDataSetPreview(preview)
+        return imagingPreviewContainer;*/
         return {
             "type" : "preview",
             "permId" : objId,
@@ -44,8 +53,16 @@ export default class ImagingMapper{
         let imagingDataSetExport = new this.openbis.ImagingDataSetExport();
         imagingDataSetExport.config = exportConfig;
         imagingDataSetExport.metadata = metadata;
+        /*let imagingExportContainer = new this.openbis.ImagingExportContainer();
+        imagingExportContainer.permId = objId;
+        imagingExportContainer.type = constants.EXPORT_TYPE;
+        imagingExportContainer.error = null;
+        imagingExportContainer.index = activeImageIdx;
+        imagingExportContainer.export = imagingDataSetExport;
+        imagingExportContainer.url = null;
+        return imagingExportContainer;*/
         return {
-            "type" : "export",
+            "type" : constants.EXPORT_TYPE,
             "permId" : objId,
             "error" : null,
             "index" : activeImageIdx,

@@ -51,7 +51,7 @@ const Export = ({ config, handleExport }) => {
     const handleClose = () => setOpen(false);
 
     const handleExportChange = (event) => {
-        console.log('handleExportChange: ', event);
+        //console.log('handleExportChange: ', event);
         setExportState(prevState => {
             let newState = {...prevState};
             newState[event.target.name] = event.target.value;

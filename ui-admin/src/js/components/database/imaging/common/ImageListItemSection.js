@@ -1,0 +1,108 @@
+import React from "react";
+import Typography from "@material-ui/core/Typography";
+import {ImageList, ImageListItem} from "@material-ui/core";
+import BlankImage from "@src/js/components/database/imaging/common/BlankImage";
+import {makeStyles} from "@material-ui/core/styles";
+import ImageListItemBarAction
+    from "@src/js/components/database/imaging/common/ImageListItemBarAction";
+import constants from "@src/js/components/database/imaging/constants";
+
+const useStyles = makeStyles(() => ({
+    imgFullWidth: {
+        width: '100%',
+        height: 'unset'
+    },
+    elevation: {
+        boxShadow: '0 3px 10px rgb(0 0 0 / 0.2)',
+        border: '3px solid #039be5',
+        width: '150px !important',
+    },
+    trasparency: {
+        opacity: 0.5,
+        width: '150px !important',
+    },
+    imageList: {
+        flexWrap: 'nowrap',
+        // Promote the list into his own layer on Chrome. This cost memory but helps keeping high FPS.
+        transform: 'translateZ(0)',
+        height: 'auto',
+    }
+}));
+
+const ImageListItemSection = ({title, cols, rowHeight, type, items, activeImageIdx, activePreviewIdx, onActiveItemChange, onMove}) => {
+    const classes = useStyles();
+
+    const moveArrowCompList = (currentIdx) => {
+        let previewsLength = items.length;
+        if (currentIdx === 0 && previewsLength === 1) { // only 1 element
+            return [];
+        } else if (currentIdx === 0) { // first element
+            return [<ImageListItemBarAction key={"ImageListItemBarAction-left-" + currentIdx}
+                                            classNames={'singleActionBar'} position={'right'}
+                                            onMove={() => onMove(1)}/>];
+        } else if (currentIdx === previewsLength - 1) { // last element
+            return [<ImageListItemBarAction key={"ImageListItemBarAction-right-" + currentIdx}
+                                            classNames={'singleActionBar'} position={'left'}
+                                            onMove={() => onMove(-1)}/>];
+        } else {
+            //console.log('ELEMENT ', currentIdx, (activeImage.previews.length) - 1);
+            return [<ImageListItemBarAction key={"ImageListItemBarAction-left-" + currentIdx}
+                                            classNames={'actionBarL'} position={'left'}
+                                            onMove={() => onMove(-1)}/>,
+                <ImageListItemBarAction key={"ImageListItemBarAction-right-" + currentIdx}
+                                        classNames={'actionBarR'} position={'right'}
+                                        onMove={() => onMove(1)}/>];
+        }
+    };
+
+    const buildImageListItem = (key, className, index, preview) => {
+        return (<ImageListItem key={key}
+                       className={className}
+                       onClick={() => onActiveItemChange(index)}>
+            {preview.bytes ?
+                <img alt={""} className={classes.imgFullWidth} src={`data:image/${preview.format};base64,${preview.bytes}`}/>
+                : <BlankImage className={classes.imgFullWidth}/>}
+        </ImageListItem>)
+    };
+
+    const renderImageListItems = () => {
+        switch(type){
+            case constants.IMAGE_TYPE:
+                return items.map(image => (
+                    <ImageListItem key={`imageListItem-image-${image.index}`}
+                                   className={activeImageIdx === image.index ? classes.elevation : classes.trasparency}
+                                   onClick={() => onActiveItemChange(image.index)}>
+                        {image.previews[0].bytes ?
+                            <img alt={""} className={classes.imgFullWidth} src={`data:image/${image.previews[0].format};base64,${image.previews[0].bytes}`}/>
+                            : <BlankImage className={classes.imgFullWidth}/>}
+                    </ImageListItem>
+                ))
+            case constants.PREVIEW_TYPE:
+                return items.map(preview => (
+                    <ImageListItem key={`imageListItem-preview-${activeImageIdx}-${preview.index}`}
+                                   className={activePreviewIdx === preview.index ? classes.elevation : classes.trasparency}
+                                   onClick={() => onActiveItemChange(preview.index)}>
+                        {preview.bytes ?
+                            <img alt={""} className={classes.imgFullWidth} src={`data:image/${preview.format};base64,${preview.bytes}`}/>
+                            : <BlankImage className={classes.imgFullWidth}/>}
+                        {activePreviewIdx === preview.index && moveArrowCompList(activePreviewIdx)}
+                    </ImageListItem>
+                ))
+            default:
+                return null;
+        }
+    }
+
+    return <>
+        <Typography variant='h6'>
+            {title}
+        </Typography>
+        <ImageList className={classes.imageList}
+                   cols={cols}
+                   rowHeight={rowHeight}>
+            {renderImageListItems()}
+        </ImageList>
+    </>
+}
+
+export default ImageListItemSection;

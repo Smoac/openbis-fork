@@ -17,9 +17,12 @@ const DEFAULT_COLORMAP = {
     "RdGy":["#4d4d4d", "#878787", "#bababa", "#e0e0e0", "#ffffff", "#fddbc7", "#f4a582", "#d6604d", "#b2182b"]
 }
 const DROPDOWN = 'Dropdown';
+const EXPORT_TYPE = 'export';
+const IMAGE_TYPE = 'image';
 const IMAGING_CODE = 'imaging';
 const IMAGING_DATA_CONFIG = '$IMAGING_DATA_CONFIG';
 const METADATA_PREVIEW_COUNT = 'preview-total-count';
+const PREVIEW_TYPE = 'preview';
 const RANGE = 'Range';
 const SLIDER = 'Slider';
 
@@ -30,9 +33,12 @@ export default {
     DEFAULT_OBJECT_VIEW,
     DEFAULT_COLORMAP,
     DROPDOWN,
+    EXPORT_TYPE,
+    IMAGE_TYPE,
     IMAGING_CODE,
     IMAGING_DATA_CONFIG,
     METADATA_PREVIEW_COUNT,
+    PREVIEW_TYPE,
     RANGE,
     SLIDER,
 }

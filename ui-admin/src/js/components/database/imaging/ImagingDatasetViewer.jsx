@@ -34,66 +34,19 @@ import constants from "@src/js/components/database/imaging/constants.js";
 import Button from '@src/js/components/common/form/Button.jsx'
 import ImagingMapper from "@src/js/components/database/imaging/ImagingMapper.js";
 import CustomSwitch from "@src/js/components/database/imaging/common/CustomSwitch";
+import ImageListItemSection from "@src/js/components/database/imaging/common/ImageListItemSection";
 
 const styles = theme => ({
-    backdrop: {
-        zIndex: theme.zIndex.drawer + 1,
-        color: '#fff',
-    },
     imgContainer: {
         maxHeight: '800px',
         textAlign: 'center',
         overflow: 'auto',
-    },
-    imgFullWidth: {
-        width: '100%',
-        height: 'unset'
-    },
-    elevation: {
-        boxShadow: '0 3px 10px rgb(0 0 0 / 0.2)',
-        border: '3px solid #039be5',
-        width: '150px !important',
-    },
-    trasparency: {
-        opacity: 0.5,
-        width: '150px !important',
-    },
-    imageList: {
-        flexWrap: 'nowrap',
-        // Promote the list into his own layer on Chrome. This cost memory but helps keeping high FPS.
-        transform: 'translateZ(0)',
-        height: 'auto',
-    },
-    dividerFullWidth: {
-        margin: `${theme.spacing(2)}px 0 0 0`,
-    },
-    spaced1: {
-        '& > *': {
-            margin: theme.spacing(1),
-        },
-    },
-    spaced2: {
-        '& > *': {
-            margin: theme.spacing(2),
-        },
     },
     gridDirection: {
         flexDirection: "row",
         [theme.breakpoints.down('sm')]: {
             flexDirection: "column",
         },
-    },
-    topSticky: {
-        position: 'sticky',
-        top: 0,
-        zIndex: 1000,
-        background: 'white',
-    },
-    bottomSticky: {
-        position: 'sticky',
-        bottom: 0,
-        zIndex: 1000,
-        background: 'white',
     },
     noBorderNoShadow: {
         border: 'unset',
@@ -193,11 +146,11 @@ class ImagingDataSetViewer extends React.PureComponent {
         this.setState({open: true});
     }
 
-    handleActiveImageChange(selectedImageIdx) {
+    handleActiveImageChange = (selectedImageIdx) => {
         this.setState({activeImageIdx: selectedImageIdx, activePreviewIdx: 0});
     };
 
-    handleActivePreviewChange(selectedPreviewIdx) {
+    handleActivePreviewChange = (selectedPreviewIdx) => {
         this.setState({activePreviewIdx: selectedPreviewIdx});
     };
 
@@ -281,7 +234,7 @@ class ImagingDataSetViewer extends React.PureComponent {
         let imagingDataSetPreview = new ImagingMapper(extOpenbis)
             .getImagingDataSetPreview(inputValues, 'png', null, null, null, newLastIdx, false, {});
         toUpdateImgDs.images[activeImageIdx].previews = [...toUpdateImgDs.images[activeImageIdx].previews, imagingDataSetPreview];
-        this.setState({imagingDataset: toUpdateImgDs, isSaved: false})
+        this.setState({activePreviewIdx: newLastIdx, imagingDataset: toUpdateImgDs, isChanged:true, isSaved: false})
     };
 
     handleUpload = async (file) => {
@@ -327,107 +280,65 @@ class ImagingDataSetViewer extends React.PureComponent {
     render() {
         const { loaded, open, error } = this.state;
         if (!loaded) return null;
+        const {imagingDataset, activeImageIdx, activePreviewIdx, resolution, isSaved} = this.state;
         console.log('ImagingDataSetViewer.render: ', this.state);
+        const {classes} = this.props;
         return (
             <React.Fragment>
                 <LoadingDialog loading={open} />
                 <ErrorDialog open={error.state} error={error.error} onClose={this.handleErrorCancel} />
-                {this.renderImageSection()}
-                {this.renderPreviewsSection()}
-                {this.renderMainSection()}
+                {this.renderImageSection(imagingDataset.images, activeImageIdx)}
+                {this.renderPreviewsSection(imagingDataset.images[activeImageIdx].previews, imagingDataset.config.exports, activeImageIdx, activePreviewIdx, isSaved)}
+                <PaperBox>
+                    <Grid container className={classes.gridDirection}>
+                        {this.renderBigPreview(classes)}
+                        {this.renderInputControls()}
+                    </Grid>
+                </PaperBox>
                 {this.renderMetadataSection()}
             </React.Fragment>
         )
     };
 
-    renderImageSection() {
-        const {classes} = this.props;
-        const {imagingDataset, activeImageIdx} = this.state;
+    renderImageSection(images, activeImageIdx) {
         return (
             <PaperBox>
-                <Typography variant='h6'>
-                    {messages.get(messages.IMAGES)}
-                </Typography>
-                <ImageList cols={3}
-                           rowHeight={150}>
-                    {imagingDataset.images.map(image => (
-                        <ImageListItem className={activeImageIdx === image.index ? classes.elevation : classes.trasparency}
-                            onClick={() => this.handleActiveImageChange(image.index)}
-                            key={`imagelistitem-image-${image.index}`}>
-                                {image.previews[0].bytes ? <img alt={""}
-                                    className={classes.imgFullWidth}
-                                    src={`data:image/${image.previews[0].format};base64,${image.previews[0].bytes}`}
-                                /> : <BlankImage className={classes.imgFullWidth}/>}
-                        </ImageListItem>
-                    ))}
-                </ImageList>
+                <ImageListItemSection title={messages.get(messages.IMAGES)}
+                                      cols={3} rowHeight={150}
+                                      type={constants.IMAGE_TYPE}
+                                      items={images}
+                                      activeImageIdx={activeImageIdx}
+                                      onActiveItemChange={this.handleActiveImageChange}/>
             </PaperBox>
         )
     };
 
-    moveArrowCompList(currentIdx) {
-        const {imagingDataset, activeImageIdx} = this.state;
-        let previewsLength = imagingDataset.images[activeImageIdx].previews.length;
-        if (currentIdx === 0 && previewsLength === 1) { // only 1 element
-            return [];
-        } else if (currentIdx === 0) { // first element
-            return [<ImageListItemBarAction key={"ImageListItemBarAction-left-" + currentIdx}
-                                            classNames={'singleActionBar'} position={'right'}
-                                            onMove={() => this.onMove(1)}/>];
-        } else if (currentIdx === previewsLength - 1) { // last element
-            return [<ImageListItemBarAction key={"ImageListItemBarAction-right-" + currentIdx}
-                                            classNames={'singleActionBar'} position={'left'}
-                                            onMove={() => this.onMove(-1)}/>];
-        } else {
-            //console.log('ELEMENT ', currentIdx, (activeImage.previews.length) - 1);
-            return [<ImageListItemBarAction key={"ImageListItemBarAction-left-" + currentIdx}
-                                            classNames={'actionBarL'} position={'left'}
-                                            onMove={() => this.onMove(-1)}/>,
-                <ImageListItemBarAction key={"ImageListItemBarAction-right-" + currentIdx}
-                                        classNames={'actionBarR'} position={'right'}
-                                        onMove={() => this.onMove(1)}/>];
-        }
-    };
-
-    renderPreviewsSection() {
-        const {classes} = this.props;
-        const {imagingDataset, activeImageIdx, activePreviewIdx} = this.state;
+    renderPreviewsSection(previews, configExports, activeImageIdx, activePreviewIdx, isSaved) {
         return (
             <PaperBox>
                 <Grid container direction='row' spacing={1}>
                     <Grid item xs={9} sm={10}>
-                        <Typography variant='h6'>
-                            {messages.get(messages.PREVIEWS)}
-                        </Typography>
-                        <ImageList className={classes.imageList}
-                                   cols={4}
-                                   rowHeight={200}>
-                            {imagingDataset.images[activeImageIdx].previews.map(preview => (
-                                <ImageListItem key={`imagelistitem-preview-${activeImageIdx}-${preview.index}`}
-                                               className={activePreviewIdx === preview.index ? classes.elevation : classes.trasparency}
-                                               onClick={() => this.handleActivePreviewChange(preview.index)}>
-                                    {preview.bytes ? <img alt={""}
-                                                          className={classes.imgFullWidth}
-                                                          src={`data:image/${preview.format};base64,${preview.bytes}`}/>
-                                        : <BlankImage className={classes.imgFullWidth}/>}
-                                    {activePreviewIdx === preview.index ? this.moveArrowCompList(activePreviewIdx) : ''}
-                                </ImageListItem>
-                            ))}
-                        </ImageList>
+                        <ImageListItemSection title={messages.get(messages.PREVIEWS)}
+                                              cols={4} rowHeight={200}
+                                              type={constants.PREVIEW_TYPE}
+                                              items={previews}
+                                              activeImageIdx={activeImageIdx}
+                                              activePreviewIdx={activePreviewIdx}
+                                              onActiveItemChange={this.handleActivePreviewChange}
+                                              onMove={this.onMove}/>
                     </Grid>
-                    {this.renderActionButtonSection()}
+                    {this.renderActionButtonSection(previews, configExports, activeImageIdx, isSaved)}
                 </Grid>
             </PaperBox>
         )
     };
 
-    renderActionButtonSection() {
-        const { imagingDataset, activeImageIdx, isSaved } = this.state;
-        const nPreviews = imagingDataset.images[activeImageIdx].previews.length;
-        const initExportState = Object.fromEntries(imagingDataset.config.exports.map(c => {
-            switch (c.type) {
+    renderActionButtonSection(previews, configExports, activeImageIdx, isSaved) {
+        const nPreviews = previews.length;
+        const initExportState = Object.fromEntries(configExports.map(config => {
+            switch (config.type) {
                 case constants.DROPDOWN:
-                    return [c.label, c.multiselect ? [c.values[0]] : c.values[0]];
+                    return [config.label, config.multiselect ? [config.values[0]] : config.values[0]];
             }
         }))
         return (
@@ -461,28 +372,15 @@ class ImagingDataSetViewer extends React.PureComponent {
 
                 <InputFileUpload onInputFile={this.handleUpload}/>
 
-                {imagingDataset.config.exports.length > 0 ?
+                {configExports.length > 0 ?
                     <Export handleExport={this.onExport}
                             initValue={initExportState}
-                            config={imagingDataset.config.exports}/> : <></>}
+                            config={configExports}/> : <></>}
             </Grid>
         )
     };
 
-    renderMainSection() {
-        const {classes} = this.props;
-        return (
-            <PaperBox>
-                <Grid container className={classes.gridDirection}>
-                    {this.renderBigPreview()}
-                    {this.renderInputControls()}
-                </Grid>
-            </PaperBox>
-        );
-    };
-
-    renderBigPreview() {
-        const {classes} = this.props;
+    renderBigPreview(classes) {
         const {imagingDataset, activeImageIdx, activePreviewIdx, resolution} = this.state;
         return (
             <Grid container item xs={12} sm={8}
