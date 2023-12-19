@@ -244,6 +244,10 @@ class Facade {
     return this.promise(this.v3.getDataStoreFacade().executeCustomDSSService(serviceId, options));
   }
 
+  fromJson(jsonType, jsonObject) {
+    return this.promise(this.stjs.fromJson(jsonType, jsonObject));
+  }
+
   async executeService(id, options) {
     const scheduleResult = await this.executeOperations(
       [new dto.ExecuteCustomASServiceOperation(id, options)],
