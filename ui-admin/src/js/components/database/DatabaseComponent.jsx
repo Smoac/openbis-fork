@@ -4,7 +4,7 @@ import AppController from '@src/js/components/AppController.js'
 import openbis from '@src/js/services/openbis.js'
 import objectType from '@src/js/common/consts/objectType.js'
 import logger from '@src/js/common/logger.js'
-import ImagingDataSetViewer2 from "@src/js/components/database/imaging/ImagingDatasetViewer.jsx";
+import ImagingDataSetViewer from "@src/js/components/database/imaging/ImagingDatasetViewer.jsx";
 import constants from "@src/js/components/database/imaging/constants.js";
 import ImagingGalleryViewer from "@src/js/components/database/imaging/ImagingGalleryViewer.js";
 
@@ -49,6 +49,7 @@ class DatabaseComponent extends React.PureComponent {
         fetchOptions.withExperiment()
         fetchOptions.withParents()
         fetchOptions.withProperties()
+        fetchOptions.withDataSets().withProperties()
         const samples = await openbis.getSamples(
           [new openbis.SamplePermId(object.id)],
           fetchOptions
@@ -64,12 +65,7 @@ class DatabaseComponent extends React.PureComponent {
           [new openbis.DataSetPermId(object.id)],
           fetchOptions
         )
-        if (constants.IMAGING_DATA_CONFIG in dataSets[object.id].properties){
-          json = JSON.parse(dataSets[object.id].properties[constants.IMAGING_DATA_CONFIG]);
-        } else {
-          json = dataSets[object.id]
-        }
-        //json = dataSets[object.id]
+        json = dataSets[object.id]
       }
       this.setState({
         json
@@ -83,11 +79,12 @@ class DatabaseComponent extends React.PureComponent {
     //TODO: remove imagingDataset component
     logger.log(logger.DEBUG, 'DatabaseComponent.render')
     if(!this.state.json) return null;
+    const { object } = this.props
+    console.log(object);
     return (
       <Container>
-        {this.props.object.type === objectType.DATA_SET && <ImagingDataSetViewer2 objId={this.props.object.id} extOpenbis={openbis}/>}
-        {(this.props.object.type === objectType.COLLECTION || this.props.object.type === objectType.OBJECT)
-            && <ImagingGalleryViewer objId={this.props.object.id} extOpenbis={openbis}/>}
+        {(object.type === objectType.DATA_SET && constants.IMAGING_DATA_CONFIG in this.state.json.properties) && <ImagingDataSetViewer objId={object.id} extOpenbis={openbis}/>}
+        {object.type === objectType.COLLECTION && <ImagingGalleryViewer objId={object.id} extOpenbis={openbis}/>}
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         <pre>{JSON.stringify(this.state.json || {}, null, 2)}</pre>
       </Container>
