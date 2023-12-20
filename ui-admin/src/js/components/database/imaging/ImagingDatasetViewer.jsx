@@ -1,40 +1,34 @@
 import React from 'react'
 import {withStyles} from "@material-ui/core/styles";
-import {
-    Box,
-    Grid,
-    ImageList,
-    ImageListItem,
-} from "@material-ui/core";
+import {Box, Grid, Typography} from "@material-ui/core";
 
-import Typography from "@material-ui/core/Typography";
-import PaperBox from "@src/js/components/database/imaging/common/PaperBox";
-import BlankImage from "@src/js/components/database/imaging/common/BlankImage";
-import InputFileUpload from "@src/js/components/database/imaging/components/InputFileUpload";
+import {convertToBase64, inRange, isObjectEmpty} from "@src/js/components/database/imaging/utils.js";
+import PaperBox from "@src/js/components/database/imaging/common/PaperBox.js";
+import InputFileUpload from "@src/js/components/database/imaging/components/InputFileUpload.js";
+import AlertDialog from "@src/js/components/database/imaging/common/AlertDialog.js";
+import Export from "@src/js/components/database/imaging/components/Exporter.js";
+import Dropdown from "@src/js/components/database/imaging/common/Dropdown.js";
+import OutlinedBox from "@src/js/components/database/imaging/common/OutlinedBox.js";
+import InputSlider from "@src/js/components/database/imaging/common/InputSlider.js";
+import InputRangeSlider from "@src/js/components/database/imaging/common/InputRangeSlider.js";
+import ColorMap from "@src/js/components/database/imaging/components/ColorMap.js";
+import MetadataViewer from "@src/js/components/database/imaging/components/MetadataViewer.js";
+import ImagingFacade from "@src/js/components/database/imaging/ImagingFacade.js";
+import constants from "@src/js/components/database/imaging/constants.js";
+import ImagingMapper from "@src/js/components/database/imaging/ImagingMapper.js";
+import CustomSwitch from "@src/js/components/database/imaging/common/CustomSwitch.js";
+import ImageListItemSection from "@src/js/components/database/imaging/common/ImageListItemSection.js";
+
 import AddToQueueIcon from "@material-ui/icons/AddToQueue";
-import AlertDialog from "@src/js/components/database/imaging/common/AlertDialog";
 import SaveIcon from "@material-ui/icons/Save";
 import DeleteIcon from "@material-ui/icons/Delete";
-import Export from "@src/js/components/database/imaging/components/Exporter";
-import ImageListItemBarAction from "@src/js/components/database/imaging/common/ImageListItemBarAction";
-import {convertToBase64, isObjectEmpty} from "@src/js/components/database/imaging/utils";
 import RefreshIcon from "@material-ui/icons/Refresh";
-import Dropdown from "@src/js/components/database/imaging/common/Dropdown";
-import OutlinedBox from "@src/js/components/database/imaging/common/OutlinedBox";
-import InputSlider from "@src/js/components/database/imaging/common/InputSlider";
-import InputRangeSlider from "@src/js/components/database/imaging/common/InputRangeSlider";
-import ColorMap from "@src/js/components/database/imaging/components/ColorMap";
-import MetadataViewer from "@src/js/components/database/imaging/components/MetadataViewr";
+
+import messages from '@src/js/common/messages.js'
 import LoadingDialog from "@src/js/components/common/loading/LoadingDialog.jsx";
 import Message from '@src/js/components/common/form/Message.jsx'
-import messages from '@src/js/common/messages.js'
-import ImagingFacade from "@src/js/components/database/imaging/ImagingFacade";
 import ErrorDialog from "@src/js/components/common/error/ErrorDialog.jsx";
-import constants from "@src/js/components/database/imaging/constants.js";
 import Button from '@src/js/components/common/form/Button.jsx'
-import ImagingMapper from "@src/js/components/database/imaging/ImagingMapper.js";
-import CustomSwitch from "@src/js/components/database/imaging/common/CustomSwitch";
-import ImageListItemSection from "@src/js/components/database/imaging/common/ImageListItemSection";
 
 const styles = theme => ({
     imgContainer: {
@@ -75,10 +69,14 @@ class ImagingDataSetViewer extends React.PureComponent {
             const {objId, extOpenbis} = this.props;
             try {
                 const imagingDataSetPropertyConfig = await new ImagingFacade(extOpenbis).loadImagingDataset(objId);
-                //console.log("imagingDataSetPropertyConfig: ",typeof imagingDataSetPropertyConfig, imagingDataSetPropertyConfig)
-                this.setState({open: false, loaded: true, imagingDataset: imagingDataSetPropertyConfig});
+                if (isObjectEmpty(imagingDataSetPropertyConfig.images[0].previews[0].config)) {
+                    imagingDataSetPropertyConfig.images[0].previews[0].config = this.createInitValues(imagingDataSetPropertyConfig.config.inputs, {});
+                    this.setState({open: false, loaded: true, isChanged: true, imagingDataset: imagingDataSetPropertyConfig});
+                } else {
+                    this.setState({open: false, loaded: true, imagingDataset: imagingDataSetPropertyConfig});
+                }
+                //console.log("componentDidMount: ", imagingDataSetPropertyConfig);
             } catch(error) {
-                console.log("componentDidMount ERROR: ", error);
                 this.handleError(error);
             }
         }
@@ -104,6 +102,10 @@ class ImagingDataSetViewer extends React.PureComponent {
         try {
             const updatedImagingDataset = await new ImagingFacade(extOpenbis)
                 .updateImagingDataset(objId, activeImageIdx, imagingDataset.images[activeImageIdx].previews[activePreviewIdx]);
+            if (updatedImagingDataset.error){
+                this.setState({open: false, isChanged: true, isSaved: false});
+                this.handleError(updatedImagingDataset.error);
+            }
             delete updatedImagingDataset.preview['@id']; //@id are duplicated across different previews on update, need to be deleted
             let toUpdateImgDs = { ...imagingDataset };
             toUpdateImgDs.images[activeImageIdx].previews[activePreviewIdx] = updatedImagingDataset.preview;
@@ -174,7 +176,6 @@ class ImagingDataSetViewer extends React.PureComponent {
         this.setState({imagingDataset: toUpdateIDS, isChanged: true});
         // Used by the player to autoupdate
         if (update) {
-            //console.log('handleActiveConfigChange autoUpdate: ', update);
             this.handleUpdate();
         }
     }
@@ -200,29 +201,56 @@ class ImagingDataSetViewer extends React.PureComponent {
         this.setState({open: false, imagingDataset: toUpdateImgDs, isSaved: false});
     }
 
-    createInitValues = () => {
-        const {imagingDataset, activeImageIdx, activePreviewIdx} = this.state;
-        const inputValues = Object.fromEntries(imagingDataset.config.inputs.map(input => {
-            //console.log("current input: ", input);
+    createInitValues = (inputsConfig, activeConfig) => {
+        const isActiveConfig = isObjectEmpty(activeConfig);
+        return Object.fromEntries(inputsConfig.map(input => {
             switch (input.type) {
                 case constants.DROPDOWN:
-                    return [input.label, input.multiselect ? [input.values[0]] :  input.values[0]];
+                    if (!isActiveConfig)
+                        return [input.label, activeConfig[input.label] ? activeConfig[input.label] : input.multiselect ? [input.values[0]] : input.values[0]];
+                    else
+                        return [input.label, input.multiselect ? [input.values[0]] : input.values[0]];
                 case constants.SLIDER:
-                    if (input.visibility) {
-                        input.range = input.visibility[0].range[0];
+                    if (!isActiveConfig) {
+                        if (input.visibility) {
+                            for (const condition of input.visibility) {
+                                if (condition.values.includes(activeConfig[condition.label])) {
+                                    input.range = condition.range;
+                                }
+                            }
+                        }
+                        return [input.label, activeConfig[input.label] ? activeConfig[input.label] : input.range[0]];
+                    } else {
+                        if (input.visibility) {
+                            input.range = input.visibility[0].range[0];
+                        }
+                        return [input.label, input.range[0]];
                     }
-                    return [input.label, input.range];
                 case constants.RANGE:
-                    if (input.visibility) {
-                        return [input.label, [input.visibility[0].range[0],input.visibility[0].range[1]]] ;
+                    if (!isActiveConfig) {
+                        if (input.visibility) {
+                            for (const condition of input.visibility) {
+                                if (condition.values.includes(activeConfig[condition.label])) {
+                                    input.range = condition.range;
+                                }
+                            }
+                        }
+                        let rangeInitValue = [inRange(activeConfig[input.label][0], input.range[0], input.range[1]) ? activeConfig[input.label][0] : input.range[0],
+                            inRange(activeConfig[input.label][1], input.range[0], input.range[1]) ? activeConfig[input.label][1] : input.range[1]]
+                        return [input.label, rangeInitValue];
+                    } else {
+                        if (input.visibility) {
+                            return [input.label, [input.visibility[0].range[0], input.visibility[0].range[1]]];
+                        }
+                        return [input.label, [input.range[0], input.range[1]]];
                     }
-                    return [input.label, input.range];
                 case constants.COLORMAP:
-                    return [input.label, input.values[0]];
+                    if (!isActiveConfig)
+                        return [input.label, activeConfig[input.label] ? activeConfig[input.label] : input.values[0]];
+                    else
+                        return [input.label, input.values[0]];
             }
         }));
-        //console.log("createInitValues: ", inputValues);
-        return inputValues;
     };
 
     createNewPreview = () => {
@@ -230,7 +258,7 @@ class ImagingDataSetViewer extends React.PureComponent {
         const {extOpenbis} = this.props;
         let toUpdateImgDs = {...imagingDataset};
         let newLastIdx = toUpdateImgDs.images[activeImageIdx].previews.length;
-        let inputValues = this.createInitValues();
+        let inputValues = this.createInitValues(imagingDataset.config.inputs, toUpdateImgDs.images[activeImageIdx].previews[activePreviewIdx].config);
         let imagingDataSetPreview = new ImagingMapper(extOpenbis)
             .getImagingDataSetPreview(inputValues, 'png', null, null, null, newLastIdx, false, {});
         toUpdateImgDs.images[activeImageIdx].previews = [...toUpdateImgDs.images[activeImageIdx].previews, imagingDataSetPreview];
@@ -239,7 +267,6 @@ class ImagingDataSetViewer extends React.PureComponent {
 
     handleUpload = async (file) => {
         this.handleOpen();
-        console.log(file);
         const base64 = await convertToBase64(file);
         const {imagingDataset, activeImageIdx, activePreviewIdx} = this.state;
         try {
@@ -257,9 +284,9 @@ class ImagingDataSetViewer extends React.PureComponent {
             )
             toUpdateImgDs.images[activeImageIdx].previews = [...toUpdateImgDs.images[activeImageIdx].previews, previewTemplate];
             this.setState({open: false, imagingDataset: toUpdateImgDs, isSaved: false})
-        } catch (err) {
+        } catch (error) {
             this.setState({open: false});
-            console.log('Err => ', err);
+            this.handleError(error);
         }
     };
 
@@ -280,9 +307,10 @@ class ImagingDataSetViewer extends React.PureComponent {
     render() {
         const { loaded, open, error } = this.state;
         if (!loaded) return null;
-        const {imagingDataset, activeImageIdx, activePreviewIdx, resolution, isSaved} = this.state;
-        console.log('ImagingDataSetViewer.render: ', this.state);
+        const {imagingDataset, activeImageIdx, activePreviewIdx, resolution, isSaved, isChanged} = this.state;
         const {classes} = this.props;
+        const activePreview = imagingDataset.images[activeImageIdx].previews[activePreviewIdx];
+        //console.log('ImagingDataSetViewer.render: ', this.state);
         return (
             <React.Fragment>
                 <LoadingDialog loading={open} />
@@ -291,8 +319,8 @@ class ImagingDataSetViewer extends React.PureComponent {
                 {this.renderPreviewsSection(imagingDataset.images[activeImageIdx].previews, imagingDataset.config.exports, activeImageIdx, activePreviewIdx, isSaved)}
                 <PaperBox>
                     <Grid container className={classes.gridDirection}>
-                        {this.renderBigPreview(classes)}
-                        {this.renderInputControls()}
+                        {this.renderBigPreview(classes, activePreview, resolution)}
+                        {this.renderInputControls(classes, activePreview, imagingDataset.config.inputs, imagingDataset.config.resolutions, resolution, isChanged)}
                     </Grid>
                 </PaperBox>
                 {this.renderMetadataSection()}
@@ -327,13 +355,13 @@ class ImagingDataSetViewer extends React.PureComponent {
                                               onActiveItemChange={this.handleActivePreviewChange}
                                               onMove={this.onMove}/>
                     </Grid>
-                    {this.renderActionButtonSection(previews, configExports, activeImageIdx, isSaved)}
+                    {this.renderActionButtonSection(previews, configExports, isSaved)}
                 </Grid>
             </PaperBox>
         )
     };
 
-    renderActionButtonSection(previews, configExports, activeImageIdx, isSaved) {
+    renderActionButtonSection(previews, configExports, isSaved) {
         const nPreviews = previews.length;
         const initExportState = Object.fromEntries(configExports.map(config => {
             switch (config.type) {
@@ -380,18 +408,17 @@ class ImagingDataSetViewer extends React.PureComponent {
         )
     };
 
-    renderBigPreview(classes) {
-        const {imagingDataset, activeImageIdx, activePreviewIdx, resolution} = this.state;
+    renderBigPreview(classes, activePreview, resolution) {
         return (
             <Grid container item xs={12} sm={8}
                   justifyContent="center"
                   alignItems="center">
                 <Box className={classes.imgContainer}>
-                    {imagingDataset.images[activeImageIdx].previews[activePreviewIdx].bytes === null ?
+                    {activePreview.bytes === null ?
                         <Typography variant='body2'>
                             {messages.get(messages.NO_PREVIEW)}
                         </Typography>
-                        : <img src={`data:image/${imagingDataset.images[activeImageIdx].previews[activePreviewIdx].format};base64,${imagingDataset.images[activeImageIdx].previews[activePreviewIdx].bytes}`}
+                        : <img src={`data:image/${activePreview.format};base64,${activePreview.bytes}`}
                                alt={""}
                                height={resolution[0]}
                                width={resolution[1]}
@@ -401,62 +428,15 @@ class ImagingDataSetViewer extends React.PureComponent {
         );
     };
 
-    renderInputControls() {
-        this.createInitValues();
-        const {classes} = this.props;
-        const {imagingDataset, activeImageIdx, activePreviewIdx, resolution, isChanged} = this.state;
-        const activeConfig = imagingDataset.images[activeImageIdx].previews[activePreviewIdx].config;
-        //console.log('activeConfig: ', activeConfig);
-        const inputValues = Object.fromEntries(imagingDataset.config.inputs.map(input => {
-            //console.log("current input: ", input);
-            switch (input.type) {
-                case constants.DROPDOWN:
-                    return [input.label, activeConfig[input.label] ? activeConfig[input.label] : input.multiselect ? [input.values[0]] :  input.values[0]];
-                case constants.SLIDER:
-                    if (input.visibility) {
-                        for (const condition of input.visibility) {
-                            if (condition.values.includes(activeConfig[condition.label])) {
-                                input.range = condition.range;
-                                input.unit = condition.unit;
-                            }
-                        }
-                    }
-                    /*if (input.visibility) {
-                        input.range = input.visibility[0].range[0];
-                    }*/
-                    return [input.label, activeConfig[input.label] ? activeConfig[input.label] : input.range[0]];
-                case constants.RANGE:
-                    if (input.visibility) {
-                        for (const condition of input.visibility) {
-                            if (condition.values.includes(activeConfig[condition.label])) {
-                                input.range = condition.range;
-                                input.unit = condition.unit;
-                            }
-                        }
-                    }
-                    /*if (input.visibility) {
-                        input.range = [input.visibility[0].range[0],input.visibility[0].range[1]] ;
-                    }*/
-                    return [input.label, activeConfig[input.label] ? activeConfig[input.label] : input.range ? [input.range[0], input.range[1]] : [0,0]];
-                case constants.COLORMAP:
-                    return [input.label, activeConfig[input.label] ? activeConfig[input.label] : input.values[0]];
-            }
-        }));
-        //console.log("activeConfig: ", activeConfig);
-        //console.log("inputValues: ", inputValues, activeConfig === {});
-        if (isObjectEmpty(activeConfig)) {
-            let toUpdateIDS = {...imagingDataset};
-            toUpdateIDS.images[activeImageIdx].previews[activePreviewIdx].config = inputValues;
-            this.setState({imagingDataset: toUpdateIDS, isChanged: true});
-            return null;
-        }
-        const currentMetadata = imagingDataset.images[activeImageIdx].previews[activePreviewIdx].metadata;
+    renderInputControls(classes, activePreview, configInputs, configResolutions, resolution, isChanged) {
+        const inputValues = this.createInitValues(configInputs, activePreview.config);
+        const currentMetadata = activePreview.metadata;
         const isUploadedPreview = isObjectEmpty(currentMetadata) ?  false : ("file" in currentMetadata);
         return (
             <Grid item xs={12} sm={4}>
                 <PaperBox className={classes.noBorderNoShadow}>
                     <Grid item xs>
-                        <Grid container item xs justifyContent="space-between" alignItems="center">
+                        <Grid container justifyContent="space-between" alignItems="center">
                             <Button label={messages.get(messages.UPDATE)}
                                     variant='outlined'
                                     color='primary'
@@ -471,22 +451,17 @@ class ImagingDataSetViewer extends React.PureComponent {
                             )}
 
                             <OutlinedBox style={{width: 'fit-content'}} label={messages.get(messages.SHOW)}>
-                                <CustomSwitch isChecked={imagingDataset.images[activeImageIdx].previews[activePreviewIdx].show}
+                                <CustomSwitch isChecked={activePreview.show}
                                               onChange={this.handleShowPreview} />
                             </OutlinedBox>
 
-
-
                             <Dropdown onSelectChange={this.handleResolutionChange}
                                   label={messages.get(messages.RESOLUTIONS)}
-                                  values={imagingDataset.config.resolutions}
+                                  values={configResolutions}
                                   initValue={resolution.join('x')}/>
                         </Grid>
 
-
-                        {imagingDataset.config.inputs.map((c, idx) => {
-                            //const prevConfigValues = imagingDataSet.images[activeImageIdx].previews[activePreviewIdx].config;
-                            //console.log(panelConfig, initConfig);
+                        {configInputs.map((c, idx) => {
                             switch (c.type) {
                                 case constants.DROPDOWN:
                                     return <Dropdown key={`InputsPanel-${c.type}-${idx}`}
@@ -497,14 +472,6 @@ class ImagingDataSetViewer extends React.PureComponent {
                                                      disabled={isUploadedPreview}
                                                      onSelectChange={(event) => this.handleActiveConfigChange(event.target.name, event.target.value)}/>;
                                 case constants.SLIDER:
-                                    if (c.visibility) {
-                                        for (const condition of c.visibility) {
-                                            if (condition.values.includes(inputValues[condition.label])) {
-                                                c.range = condition.range;
-                                                c.unit = condition.unit;
-                                            }
-                                        }
-                                    }
                                     return <InputSlider key={`InputsPanel-${c.type}-${idx}`}
                                                         label={c.label}
                                                         initValue={inputValues[c.label]}
@@ -515,14 +482,6 @@ class ImagingDataSetViewer extends React.PureComponent {
                                                         disabled={isUploadedPreview}
                                                         onChange={(name, value, update) => this.handleActiveConfigChange(name, value, update)}/>;
                                 case constants.RANGE:
-                                    if (c.visibility) {
-                                        for (const condition of c.visibility) {
-                                            if (condition.values.includes(inputValues[condition.label])) {
-                                                c.range = condition.range;
-                                                c.unit = condition.unit;
-                                            }
-                                        }
-                                    }
                                     return <InputRangeSlider key={`InputsPanel-${c.type}-${idx}`}
                                                              label={c.label}
                                                              initValue={inputValues[c.label]}

@@ -19,3 +19,7 @@ export const isObjectEmpty = (objectName) => {
         objectName.constructor === Object
     );
 };
+
+export const inRange = (x, min, max) => {
+    return ((x-min)*(x-max) <= 0);
+};

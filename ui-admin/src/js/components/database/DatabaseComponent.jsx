@@ -80,7 +80,6 @@ class DatabaseComponent extends React.PureComponent {
     logger.log(logger.DEBUG, 'DatabaseComponent.render')
     if(!this.state.json) return null;
     const { object } = this.props
-    console.log(object);
     return (
       <Container>
         {(object.type === objectType.DATA_SET && constants.IMAGING_DATA_CONFIG in this.state.json.properties) && <ImagingDataSetViewer objId={object.id} extOpenbis={openbis}/>}

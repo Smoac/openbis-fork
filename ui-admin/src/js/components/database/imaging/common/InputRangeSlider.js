@@ -14,7 +14,7 @@ const InputRangeSlider = ({ label, range, initValue = null, playable, speeds, di
         { length: (max - min) / step + 1 },
         (value, index) => min + index * step
     );
-    const [value, setValue] = React.useState(initValue == null ? [min,max] : initValue.map(n=>Number(n)));
+    const [value, setValue] = React.useState(initValue == null ? [Number(range[0]), Number(range[1])] : initValue.map(n=>Number(n)));
     function roundToClosest(counts, goal){
         return counts.reduce((prev, curr) => Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev);
     }
