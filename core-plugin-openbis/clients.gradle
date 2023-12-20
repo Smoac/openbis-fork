@@ -9,7 +9,7 @@ dependencies {
             'apache:commons-io:2.6',
             'apache:httpclient:4.3.6',
             'apache:commons-lang3:3.11',
-            'apache:commons-text:1.6',
+            'apache:commons-text:1.11',
             'apache:commons-logging:1.2',
             'apache:log4j:1.2.15',
             'apache:geronimo-stax:1.0',
