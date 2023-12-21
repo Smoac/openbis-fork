@@ -1,6 +1,6 @@
 import {Box, Modal, Typography} from "@material-ui/core";
 import React from "react";
-import Dropdown from "@src/js/components/database/imaging/common/Dropdown";
+import Dropdown from "@src/js/components/database/imaging/components/common/Dropdown";
 import { makeStyles } from "@material-ui/core/styles";
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 import messages from "@src/js/common/messages.js";

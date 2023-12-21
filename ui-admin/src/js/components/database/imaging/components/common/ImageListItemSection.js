@@ -1,10 +1,10 @@
 import React from "react";
 import Typography from "@material-ui/core/Typography";
 import {ImageList, ImageListItem} from "@material-ui/core";
-import BlankImage from "@src/js/components/database/imaging/common/BlankImage";
+import BlankImage from "@src/js/components/database/imaging/components/common/BlankImage";
 import {makeStyles} from "@material-ui/core/styles";
 import ImageListItemBarAction
-    from "@src/js/components/database/imaging/common/ImageListItemBarAction";
+    from "@src/js/components/database/imaging/components/common/ImageListItemBarAction";
 import constants from "@src/js/components/database/imaging/constants";
 
 const useStyles = makeStyles(() => ({

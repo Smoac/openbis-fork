@@ -1,9 +1,9 @@
 import * as React from 'react';
-import Player from "@src/js/components/database/imaging/common/Player";
+import Player from "@src/js/components/database/imaging/components/common/Player";
 import Grid from '@material-ui/core/Grid';
 import Slider from "@material-ui/core/Slider";
 import { Input } from "@material-ui/core";
-import OutlinedBox from "@src/js/components/database/imaging/common/OutlinedBox";
+import OutlinedBox from "@src/js/components/database/imaging/components/common/OutlinedBox";
 import InputAdornment from "@material-ui/core/InputAdornment";
 
 const InputRangeSlider = ({ label, range, initValue = null, playable, speeds, disabled = false, onChange, unit = null}) => {
