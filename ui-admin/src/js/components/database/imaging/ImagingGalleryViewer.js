@@ -60,24 +60,37 @@ const ImagingGalleryViewer = ({objId, extOpenbis, onOpenPreview}) => {
     const [open, setOpen] = React.useState(false);
     const [error, setError] = React.useState({open: false, error: null});
     const [imagingDatasets, setImagingDatasets] = React.useState([]);
+    const [previewList, setPreviewList] = React.useState([]);
     const [paging, setPaging] = React.useState({page: 0, pageSize:8, pageColumns:4});
     const [showAll, setShowAll] = React.useState(true);
     const [selectAll, setSelectAll] = React.useState(true);
 
-    React.useEffect( ()=> {
+    /*React.useEffect( ()=> {
         async function load() {
             const imagingFacade = new ImagingFacade(extOpenbis);
             const imagingDatasets = await imagingFacade.loadGalleryDatasets(objId);
 
-            /*const serializedImagingDatasets = await new ImagingFacade(extOpenbis).multiFromJson(imagingDatasets);
-            console.log("serializedImagingDatasets: ", serializedImagingDatasets);*/
+            /!*const serializedImagingDatasets = await new ImagingFacade(extOpenbis).multiFromJson(imagingDatasets);
+            console.log("serializedImagingDatasets: ", serializedImagingDatasets);*!/
 
             setImagingDatasets(imagingDatasets);
             setIsLoaded(true);
         }
         load();
         console.log("AFTER load() imagingDataSetPropertyConfig: ", imagingDatasets)
-    }, [])
+    }, [])*/
+
+    React.useEffect( ()=> {
+        async function load() {
+            const imagingFacade = new ImagingFacade(extOpenbis);
+            const {previewList, totalCount} = await imagingFacade.loadPaginatedGalleryDatasets(objId, paging.page, paging.pageSize);
+            console.log("ImagingGalleryViewer: ", previewList);
+            setPreviewList(previewList);
+            setIsLoaded(true);
+        }
+        load();
+        //console.log("AFTER load() imagingDataSetPropertyConfig: ", imagingDatasets)
+    }, [paging])
 
     /*React.useEffect(() => {
         async function convert() {
@@ -123,7 +136,7 @@ const ImagingGalleryViewer = ({objId, extOpenbis, onOpenPreview}) => {
                         <OutlinedBox label='Paging'>
                             <GalleryPaging id='gallery-paging'
                                            xsOptions={true}
-                                           count={totalItems}
+                                           count={21}
                                            page={paging.page}
                                            pageSize={paging.pageSize}
                                            pageColumns={paging.pageColumns}
@@ -221,9 +234,17 @@ const ImagingGalleryViewer = ({objId, extOpenbis, onOpenPreview}) => {
     }
 
     if (!isLoaded) return null;
-    if (imagingDatasets.length === 0) return <Grid item xs={12}> No Datasets to display </Grid>
+    //if (imagingDatasets.length === 0) return <Grid item xs={12}> No Datasets to display </Grid>
+    if (previewList.length === 0) return <Grid item xs={12}> No Datasets to display </Grid>
     console.log("RENDER.ImagingGalleryViewer: ", imagingDatasets);
-    const previews = imagingDatasets.map((item, datasetIdx) => (
+    const previews = previewList.map(preview => {
+        if (showAll)
+            if (preview.show)
+                return {"preview": preview}
+            else
+                return {"preview": preview}
+    });
+    /*imagingDatasets.map((item, datasetIdx) => (
         item.imagingDataset.images.map(image => (
             image.previews.map(preview => {
                 if (showAll)
@@ -233,17 +254,13 @@ const ImagingGalleryViewer = ({objId, extOpenbis, onOpenPreview}) => {
                     return {"permId": item.permId, "datasetIdx": datasetIdx, "imageIdx": image.index, "preview": preview}
             })
         )).flat()
-    )).flat();
+    )).flat();*/
     return (
         <>
             <LoadingDialog loading={open}/>
             <ErrorDialog open={error.state} error={error.error} onClose={handleErrorCancel}/>
             {renderControlsBar(previews.length)}
             {renderGallery(previews)}
-            <Grid item xs={12}>
-                Gallery View
-                <pre>{imagingDatasets.map(imagingDataset => JSON.stringify(imagingDataset['@type'] || {}, null, 2))}</pre>
-            </Grid>
         </>
     );
 }
