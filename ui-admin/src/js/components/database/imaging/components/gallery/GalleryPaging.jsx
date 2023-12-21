@@ -1,4 +1,3 @@
-import _ from 'lodash'
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
@@ -12,6 +11,7 @@ import SelectField from '@src/js/components/common/form/SelectField.jsx'
 import GridPagingOptions from '@src/js/components/common/grid/GridPagingOptions.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
+import Grid from "@material-ui/core/Grid";
 
 const styles = theme => ({
     container: {
@@ -83,11 +83,11 @@ class GridPaging extends React.PureComponent {
     render() {
         logger.log(logger.DEBUG, 'GridPaging.render')
 
-        const { id, classes, count, page, pageSize, cols } = this.props
+        const { id, classes, count, page, pageSize, pageColumns, onColumnChange, options } = this.props
 
         return (
-            <div className={classes.container}>
-                <div className={classes.pagePrevButtons}>
+            <Grid container spacing={2} className={classes.container}>
+                <Grid item xs={3} sm className={classes.pagePrevButtons}>
                     <IconButton
                         id={id + '.first-page-id'}
                         onClick={this.handleFirstPageButtonClick}
@@ -106,13 +106,15 @@ class GridPaging extends React.PureComponent {
                     >
                         <KeyboardArrowLeft fontSize='small'/>
                     </IconButton>
-                </div>
-                <div id={id + '.page-range-id'} className={classes.pageRange}>
+                </Grid>
+
+                <Grid item xs={4} sm id={id + '.page-range-id'} className={classes.pageRange}>
                     <Typography variant='body2' data-part='range'>
                         {this.renderRange()}
                     </Typography>
-                </div>
-                <div className={classes.pageNextButtons}>
+                </Grid>
+
+                <Grid item xs={3} sm className={classes.pageNextButtons}>
                     <IconButton
                         id={id + '.next-page-id'}
                         onClick={this.handleNextButtonClick}
@@ -131,17 +133,15 @@ class GridPaging extends React.PureComponent {
                     >
                         <LastPageIcon fontSize='small'/>
                     </IconButton>
-                </div>
-                <div className={classes.separator}></div>
-                <div id={id + '.page-size-id'} className={classes.pageSize}>
+                </Grid>
+
+                <Grid item xs={6} sm id={id + '.page-size-id'} className={classes.pageSize}>
+
                     <FormControlLabel
                         control={
                             <SelectField
                                 value={pageSize}
-                                options={GridPagingOptions.PAGE_SIZE_OPTIONS.map(pageSize => ({
-                                    label: pageSize,
-                                    value: pageSize
-                                }))}
+                                options={options}
                                 onChange={this.handlePageSizeChange}
                                 variant='standard'
                             />
@@ -153,18 +153,18 @@ class GridPaging extends React.PureComponent {
                         label={messages.get(messages.ITEMS_PER_PAGE)}
                         labelPlacement='start'
                     />
-                </div>
-                <div className={classes.separator}></div>
-                <div id={id + '.grid-cols-id'} className={classes.pageSize}>
+                </Grid>
+
+                <Grid item xs={6} sm id={id + '.grid-cols-id'} className={classes.pageSize}>
                     <FormControlLabel
                         control={
                             <SelectField
-                                value={cols}
+                                value={pageColumns}
                                 options={GridPagingOptions.COLUMN_OPTIONS.map(cols => ({
                                     label: cols,
                                     value: cols
                                 }))}
-                                onChange={event => this.props.onColumnChange(event.target.value)}
+                                onChange={event => onColumnChange(event.target.value)}
                                 variant='standard'
                             />
                         }
@@ -175,8 +175,8 @@ class GridPaging extends React.PureComponent {
                         label={messages.get(messages.COLUMNS)}
                         labelPlacement='start'
                     />
-                </div>
-            </div>
+                </Grid>
+            </Grid>
         )
     }
 
@@ -200,4 +200,4 @@ class GridPaging extends React.PureComponent {
     }
 }
 
-export default _.flow(withStyles(styles))(GridPaging)
+export default withStyles(styles)(GridPaging)

@@ -20,6 +20,9 @@ import ViewListIcon from '@material-ui/icons/ViewList';
 import Button from "@src/js/components/common/form/Button.jsx";
 import GridOnIcon from '@material-ui/icons/GridOn';
 import GalleryPaging from "@src/js/components/database/imaging/components/gallery/GalleryPaging.jsx";
+import GridPagingOptions from "@src/js/components/common/grid/GridPagingOptions";
+import IconButton from "@material-ui/core/IconButton";
+import CloudDownloadIcon from "@material-ui/icons/CloudDownload";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -43,21 +46,21 @@ const useStyles = makeStyles((theme) => ({
     pageSize: {
         display: 'none'
     },
-    sticky: {
+    /*sticky: {
         position: 'sticky',
         top: '0px',
         zIndex: 1
-    }
+    },*/
 }));
 
 const ImagingGalleryViewer = ({objId, extOpenbis, onOpenPreview}) => {
     const classes = useStyles();
+    const [gridView, setGridView] = React.useState(true);
     const [isLoaded, setIsLoaded] = React.useState(false);
     const [open, setOpen] = React.useState(false);
     const [error, setError] = React.useState({open: false, error: null});
     const [imagingDatasets, setImagingDatasets] = React.useState([]);
-    const [zoom, setZoom] = React.useState(4);
-    const [paging, setPaging] = React.useState({page: 0, pageSize:5});
+    const [paging, setPaging] = React.useState({page: 0, pageSize:8, pageColumns:4});
     const [showAll, setShowAll] = React.useState(true);
     const [selectAll, setSelectAll] = React.useState(true);
 
@@ -100,63 +103,74 @@ const ImagingGalleryViewer = ({objId, extOpenbis, onOpenPreview}) => {
         setOpen(true);
     }
 
-    const handleZoomChange = (newValue) => {
-        setZoom(newValue);
-    };
-
-    const openImagingDataset = (permId) => {
-        onOpenPreview(permId);
+    const handleViewChange = (isGridView) => {
+        if (gridView !== isGridView) setGridView(isGridView);
     }
 
     const renderControlsBar = (totalItems) => {
+        const options = GridPagingOptions.GALLERY_PAGE_SIZE_OPTIONS[paging.pageColumns - 1].map(pageSize => ({
+            label: pageSize,
+            value: pageSize
+        }))
         return (
             <PaperBox className={classes.sticky}>
                 <Typography variant='h6'>
                     Gallery View
                 </Typography>
 
-                <Grid container alignItems="center" direction="row">
-                    <Grid item xs>
+                <Grid container alignItems="center" direction="row" spacing={2}>
+                    <Grid item xs={8}>
                         <OutlinedBox label='Paging'>
                             <GalleryPaging id='gallery-paging'
                                            xsOptions={true}
                                            count={totalItems}
                                            page={paging.page}
                                            pageSize={paging.pageSize}
-                                           cols={zoom}
-                                           onColumnChange={handleZoomChange}
+                                           pageColumns={paging.pageColumns}
+                                           options={options}
+                                           onColumnChange={(value) => setPaging({...paging, pageSize: value, pageColumns: value})}
                                            onPageChange={(value) => setPaging({...paging, page: value})}
                                            onPageSizeChange={(value) => setPaging({...paging, pageSize: value})}
                             />
                         </OutlinedBox>
                     </Grid>
-                </Grid>
-                <Grid container alignItems="center" direction="row">
-                    <Grid item xs={3}>
-                        <CustomSwitch size="small"
-                                      label="Show"
-                                      labelPlacement="start"
-                                      isChecked={showAll}
-                                      onChange={checked => setShowAll(checked)}/>
+                    <Grid item xs>
+                        <OutlinedBox style={{width: 'fit-content'}} label={messages.get(messages.SHOW)}>
+                            <CustomSwitch isChecked={showAll} onChange={checked => setShowAll(checked)}/>
+                        </OutlinedBox>
+                        <OutlinedBox style={{width: 'fit-content'}} label='Select'>
+                            <CustomSwitch isChecked={selectAll} onChange={checked => setSelectAll(checked)}/>
+                        </OutlinedBox>
                     </Grid>
-                    <Grid item xs={3}>
-                        <CustomSwitch size="small"
-                                      label="Select"
-                                      labelPlacement="start"
-                                      isChecked={selectAll}
-                                      onChange={checked => setSelectAll(checked)}/>
+                    <Grid item xs>
+                        <OutlinedBox style={{width: 'fit-content'}} label='View Mode'>
+                            <IconButton color={gridView ? 'primary' : 'default'}
+                                        onClick={() => handleViewChange(true)}>
+                                <GridOnIcon fontSize="large"/>
+                            </IconButton>
+                            <IconButton color={!gridView ? 'primary' : 'default'}
+                                        onClick={() => handleViewChange(false)}>
+                                <ViewListIcon fontSize="large"/>
+                            </IconButton>
+                        </OutlinedBox>
+                    </Grid>
+                    <Grid item xs>
+                        <Button label={messages.get(messages.EXPORT)}
+                                type='final'
+                                color='default'
+                                variant='outlined'
+                                onClick={() => alert('EXPORT')}
+                                startIcon={<CloudDownloadIcon/>}/>
                     </Grid>
                 </Grid>
-                <Button startIcon={<GridOnIcon/>} />
-                <Button startIcon={<ViewListIcon/>} />
             </PaperBox>
-            );
+        );
     }
 
     const renderGallery = (previews) => {
         return (
             <div className={classes.root}>
-                <ImageList className={classes.imageList} cols={zoom}>
+                <ImageList className={classes.imageList} cols={paging.pageColumns}>
                     {previews.map((previewObj, idx) => (
                         <ImageListItem style={{height: 'unset'}} key={`item-${idx}-${previewObj.datasetIdx}-${previewObj.imageIdx}`}>
                             {/*<PaperBox className={classes.paperFullHeight}>
