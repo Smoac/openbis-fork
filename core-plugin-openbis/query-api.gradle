@@ -79,7 +79,7 @@ dependencies {
             'springframework:spring-webmvc:5.0.1.RELEASE',
             'springframework:spring-expression:5.0.1.RELEASE',
             'apache:commons-logging:1.2',
-            'apache:commons-lang3:3.14',
+            'apache:commons-lang3:3.11',
             'marathon:marathon-spring-util:1.2.5',
             'aopalliance:aopalliance:1.0'
 }
@@ -127,7 +127,7 @@ dependencies {
     apiV3Dependencies 'sis:sis-base:23.06.0',
             'sis:sis-file-transfer:19.03.1',
             'apache:httpclient:4.3.6',
-            'apache:commons-lang3:3.14',
+            'apache:commons-lang3:3.11',
             'eclipse:jetty-client:9.4.44.v20210927',
             'springframework:spring-web:5.0.1.RELEASE',
             'marathon:marathon-spring-util:1.2.5'

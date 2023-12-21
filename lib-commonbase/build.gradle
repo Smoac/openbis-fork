@@ -2,8 +2,8 @@ apply from: '../build/javaproject.gradle'
 
 dependencies {
     api 'apache:commons-io:2.6',
-            'apache:commons-lang3:3.14',
-            'apache:commons-text:1.11',
+            'apache:commons-lang3:3.11',
+            'apache:commons-text:1.6',
             'apache:log4j:1.2.15',
             'sis:sis-base:23.06.0',
             'rinn:restrictions:1.0.2',
