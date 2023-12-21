@@ -28,7 +28,7 @@ from datetime import datetime
 
 SXM_ADAPTOR = "ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.adaptor.NanonisSxmAdaptor"
 DAT_ADAPTOR = "ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.adaptor.NanonisDatAdaptor"
-VERBOSE = False
+VERBOSE = True
 
 def get_instance(url=None):
     base_url = "http://localhost:8888/openbis"
@@ -146,14 +146,14 @@ def create_dat_dataset(openbis, folder_path, file_prefix='', sample=None, experi
         color_scale_visibility_x += [imaging.ImagingDataSetControlVisibility(
             "Channel X",
             [channel],
-            [minimum, maximum, step],
+            [str(minimum), str(maximum), str(step)],
             unit
         )]
 
         color_scale_visibility_y += [imaging.ImagingDataSetControlVisibility(
             "Channel Y",
             [channel],
-            [minimum, maximum, step],
+            [str(minimum), str(maximum), str(step)],
             unit
         )]
 
@@ -231,12 +231,12 @@ def export_image(openbis: Openbis, perm_id: str, image_id: int, path_to_download
 
 
 def demo_sxm_flow(openbis, file_sxm):
-    dataset_sxm = create_sxm_dataset(
-        openbis=openbis,
-        experiment='/IMAGING/NANONIS/SXM_COLLECTION',
-        sample='/IMAGING/NANONIS/TEMPLATE-SXM',
-        file_path=file_sxm)
-    print(f'Created imaging .SXM dataset: {dataset_dat.permId}')
+    # dataset_sxm = create_sxm_dataset(
+    #     openbis=openbis,
+    #     experiment='/IMAGING/NANONIS/SXM_COLLECTION',
+    #     sample='/IMAGING/NANONIS/TEMPLATE-SXM',
+    #     file_path=file_sxm)
+    # print(f'Created imaging .SXM dataset: {dataset_dat.permId}')
 
     config_sxm_preview = {
         "Channel": "z",  # usually one of these: ['z', 'I', 'dIdV', 'dIdV_Y']
@@ -248,7 +248,8 @@ def demo_sxm_flow(openbis, file_sxm):
     }
 
     config_preview = config_sxm_preview.copy()
-    perm_id = dataset_sxm.permId
+    # perm_id = dataset_sxm.permId
+    perm_id = '20231218185328401-36'
 
     preview = create_preview(openbis, perm_id, config_preview)
 
@@ -286,13 +287,13 @@ def demo_sxm_flow(openbis, file_sxm):
 
 def demo_dat_flow(openbis, folder_path):
 
-    dataset_dat = create_dat_dataset(
-        openbis=openbis,
-        experiment='/IMAGING/NANONIS/SXM_COLLECTION',
-        sample='/IMAGING/NANONIS/TEMPLATE-DAT',
-        folder_path=folder_path,
-        file_prefix='didv_')
-    print(f'Created imaging .DAT dataset: {dataset_dat.permId}')
+    # dataset_dat = create_dat_dataset(
+    #     openbis=openbis,
+    #     experiment='/IMAGING/NANONIS/SXM_COLLECTION',
+    #     sample='/IMAGING/NANONIS/TEMPLATE-DAT',
+    #     folder_path=folder_path,
+    #     file_prefix='didv_')
+    # print(f'Created imaging .DAT dataset: {dataset_dat.permId}')
 
     config_dat_preview = {
         "Channel x": "V",
@@ -307,7 +308,8 @@ def demo_dat_flow(openbis, folder_path):
     }
 
     config_preview = config_dat_preview.copy()
-    perm_id = dataset_dat.permId
+    # perm_id = dataset_dat.permId
+    perm_id = '20231218173431944-33'
 
     preview = create_preview(openbis, perm_id, config_preview)
 
@@ -334,16 +336,27 @@ def demo_dat_flow(openbis, folder_path):
     update_image_with_preview(openbis, perm_id, 0, preview)
 
 
-openbis_url = sys.argv[1]
-nanonis_data_folder = sys.argv[2]
+# openbis_url = sys.argv[1]
+# nanonis_data_folder = sys.argv[2]
+
+
+openbis_url = None
+nanonis_data_folder = './data'
 
 o = get_instance(openbis_url)
 
-sxm_files = [f for f in os.listdir(nanonis_data_folder) if f.endswith('.sxm')]
+# sxm_files = [f for f in os.listdir(nanonis_data_folder) if f.endswith('.sxm')]
+#
+# for sxm_file in sxm_files:
+#     file_path = os.path.join(nanonis_data_folder, sxm_file)
+#     demo_sxm_flow(o, file_path)
 
-for sxm_file in sxm_files:
-    file_path = os.path.join(nanonis_data_folder, sxm_file)
-    demo_sxm_flow(o, file_path)
+# demo_dat_flow(o, nanonis_data_folder)
 
-demo_dat_flow(o, nanonis_data_folder)
+perm_id = '20231218185328401-36'
 
+imaging_control = imaging.ImagingControl(o)
+config = imaging_control.get_property_config(perm_id)
+
+
+imaging_control.update_property_config(perm_id, config)
