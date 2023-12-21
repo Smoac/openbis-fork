@@ -3,21 +3,21 @@ import {withStyles} from "@material-ui/core/styles";
 import {Box, Grid, Typography} from "@material-ui/core";
 
 import {convertToBase64, inRange, isObjectEmpty} from "@src/js/components/database/imaging/utils.js";
-import PaperBox from "@src/js/components/database/imaging/common/PaperBox.js";
-import InputFileUpload from "@src/js/components/database/imaging/components/InputFileUpload.js";
-import AlertDialog from "@src/js/components/database/imaging/common/AlertDialog.js";
-import Export from "@src/js/components/database/imaging/components/Exporter.js";
-import Dropdown from "@src/js/components/database/imaging/common/Dropdown.js";
-import OutlinedBox from "@src/js/components/database/imaging/common/OutlinedBox.js";
-import InputSlider from "@src/js/components/database/imaging/common/InputSlider.js";
-import InputRangeSlider from "@src/js/components/database/imaging/common/InputRangeSlider.js";
-import ColorMap from "@src/js/components/database/imaging/components/ColorMap.js";
-import MetadataViewer from "@src/js/components/database/imaging/components/MetadataViewer.js";
+import PaperBox from "@src/js/components/database/imaging/components/common/PaperBox.js";
+import InputFileUpload from "@src/js/components/database/imaging/components/viewer/InputFileUpload.js";
+import AlertDialog from "@src/js/components/database/imaging/components/common/AlertDialog.js";
+import Export from "@src/js/components/database/imaging/components/viewer/Exporter.js";
+import Dropdown from "@src/js/components/database/imaging/components/common/Dropdown.js";
+import OutlinedBox from "@src/js/components/database/imaging/components/common/OutlinedBox.js";
+import InputSlider from "@src/js/components/database/imaging/components/common/InputSlider.js";
+import InputRangeSlider from "@src/js/components/database/imaging/components/common/InputRangeSlider.js";
+import ColorMap from "@src/js/components/database/imaging/components/viewer/ColorMap.js";
+import MetadataViewer from "@src/js/components/database/imaging/components/viewer/MetadataViewer.js";
 import ImagingFacade from "@src/js/components/database/imaging/ImagingFacade.js";
 import constants from "@src/js/components/database/imaging/constants.js";
 import ImagingMapper from "@src/js/components/database/imaging/ImagingMapper.js";
-import CustomSwitch from "@src/js/components/database/imaging/common/CustomSwitch.js";
-import ImageListItemSection from "@src/js/components/database/imaging/common/ImageListItemSection.js";
+import CustomSwitch from "@src/js/components/database/imaging/components/common/CustomSwitch.js";
+import ImageListItemSection from "@src/js/components/database/imaging/components/common/ImageListItemSection.js";
 
 import AddToQueueIcon from "@material-ui/icons/AddToQueue";
 import SaveIcon from "@material-ui/icons/Save";
@@ -83,12 +83,15 @@ class ImagingDataSetViewer extends React.PureComponent {
     }
 
     saveDataset = async () => {
-        const {objId, extOpenbis} = this.props;
+        const {objId, extOpenbis, onUnsavedChanges} = this.props;
         const {imagingDataset} = this.state;
         this.handleOpen();
         try {
             const isSaved = await new ImagingFacade(extOpenbis).saveImagingDataset(objId, imagingDataset);
-            if (isSaved === null) this.setState({open: false, isChanged: false, isSaved: true});
+            if (isSaved === null) {
+                this.setState({open: false, isChanged: false, isSaved: true});
+                onUnsavedChanges(this.props.objId, false);
+            }
         } catch (error) {
             this.setState({open: false, isChanged: false, isSaved: false});
             this.handleError(error);
@@ -98,7 +101,7 @@ class ImagingDataSetViewer extends React.PureComponent {
     handleUpdate = async () => {
         this.handleOpen();
         const {imagingDataset, activeImageIdx, activePreviewIdx} = this.state;
-        const {objId, extOpenbis} = this.props;
+        const {objId, extOpenbis, onUnsavedChanges} = this.props;
         try {
             const updatedImagingDataset = await new ImagingFacade(extOpenbis)
                 .updateImagingDataset(objId, activeImageIdx, imagingDataset.images[activeImageIdx].previews[activePreviewIdx]);
@@ -110,6 +113,7 @@ class ImagingDataSetViewer extends React.PureComponent {
             let toUpdateImgDs = { ...imagingDataset };
             toUpdateImgDs.images[activeImageIdx].previews[activePreviewIdx] = updatedImagingDataset.preview;
             this.setState({open: false, imagingDataset : toUpdateImgDs, isChanged: false, isSaved: false});
+            onUnsavedChanges(this.props.objId, true);
         } catch (error) {
             this.setState({open: false, isChanged: true, isSaved: false});
             this.handleError(error);

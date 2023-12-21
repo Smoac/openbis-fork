@@ -1,5 +1,7 @@
 const PAGE_SIZE_OPTIONS = [5, 10, 20, 50, 100]
+const COLUMN_OPTIONS = [1,2,3,4,5]
 
 export default {
-  PAGE_SIZE_OPTIONS
+  PAGE_SIZE_OPTIONS,
+  COLUMN_OPTIONS
 }

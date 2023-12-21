@@ -7,6 +7,8 @@ import logger from '@src/js/common/logger.js'
 import ImagingDataSetViewer from "@src/js/components/database/imaging/ImagingDatasetViewer.jsx";
 import constants from "@src/js/components/database/imaging/constants.js";
 import ImagingGalleryViewer from "@src/js/components/database/imaging/ImagingGalleryViewer.js";
+import pages from "@src/js/common/consts/pages";
+import objectTypes from "@src/js/common/consts/objectType";
 
 class DatabaseComponent extends React.PureComponent {
   constructor(props) {
@@ -75,6 +77,23 @@ class DatabaseComponent extends React.PureComponent {
     }
   }
 
+  datasetOpenTab(id) {
+    AppController.getInstance().objectOpen(
+        pages.DATABASE,
+        objectTypes.DATA_SET,
+        id
+    )
+  }
+
+  imagingDatasetChange(id, changed){
+    AppController.getInstance().objectChange(
+        pages.DATABASE,
+        objectTypes.DATA_SET,
+        id,
+        changed
+    )
+  }
+
   render() {
     //TODO: remove imagingDataset component
     logger.log(logger.DEBUG, 'DatabaseComponent.render')
@@ -82,8 +101,8 @@ class DatabaseComponent extends React.PureComponent {
     const { object } = this.props
     return (
       <Container>
-        {(object.type === objectType.DATA_SET && constants.IMAGING_DATA_CONFIG in this.state.json.properties) && <ImagingDataSetViewer objId={object.id} extOpenbis={openbis}/>}
-        {object.type === objectType.COLLECTION && <ImagingGalleryViewer objId={object.id} extOpenbis={openbis}/>}
+        {(object.type === objectType.DATA_SET && constants.IMAGING_DATA_CONFIG in this.state.json.properties) && <ImagingDataSetViewer onUnsavedChanges={this.imagingDatasetChange} objId={object.id} extOpenbis={openbis}/>}
+        {object.type === objectType.COLLECTION && <ImagingGalleryViewer onOpenPreview={this.datasetOpenTab} objId={object.id} extOpenbis={openbis}/>}
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         <pre>{JSON.stringify(this.state.json || {}, null, 2)}</pre>
       </Container>

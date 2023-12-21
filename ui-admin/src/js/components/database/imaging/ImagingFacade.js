@@ -66,7 +66,7 @@ export default class ImagingFacade {
         const datasets = experiments[objId].dataSets;
         const imagingDatasets = datasets.map(dataset => {
             if (constants.IMAGING_DATA_CONFIG in dataset.properties)
-                return JSON.parse(dataset.properties[constants.IMAGING_DATA_CONFIG]);
+                return {'permId': dataset.code, 'metadata': dataset.metaData, 'imagingDataset': JSON.parse(dataset.properties[constants.IMAGING_DATA_CONFIG])};
         });
         return await imagingDatasets;
     }
