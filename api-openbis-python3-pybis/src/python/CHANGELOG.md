@@ -1,3 +1,20 @@
+## Changes with pybis-1.36.4
+
+- Changes to new_sample method to use v3api in all cases
+- Refactored new_experiment documentation 
+- Fixed delete vocabulary term method
+- Fixed v1 dataset upload
+- Fixed PropertyAssignment data frame creation
+- Improved property data type validation 
+- Improved get_project method 
+
+## Changes with pybis-1.36.3
+
+- Refactored metaData and multiValue properties to be backwards-compatible.
+- Refactored get_children/get_parents methods
+- Refactored property formatting functionality 
+
+
 ## Changes with pybis-1.36.2
 
 - Refactoring of the set_token method.

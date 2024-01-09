@@ -17,6 +17,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces;
 
 import java.io.Serializable;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
@@ -41,13 +42,9 @@ public interface IPropertiesHolder
 
     void setIntegerProperty(String propertyName, Long propertyValue);
 
-    String getVarcharProperty(String propertyName);
+    String getStringProperty(String propertyName);
 
-    void setVarcharProperty(String propertyName, String propertyValue);
-
-    String getMultilineVarcharProperty(String propertyName);
-
-    void setMultilineVarcharProperty(String propertyName, String propertyValue);
+    void setStringProperty(String propertyName, String propertyValue);
 
     Double getRealProperty(String propertyName);
 
@@ -61,13 +58,13 @@ public interface IPropertiesHolder
 
     void setBooleanProperty(String propertyName, Boolean propertyValue);
 
-    String[] getControlledVocabularyProperty(String propertyName);
+    String getControlledVocabularyProperty(String propertyName);
 
-    void setControlledVocabularyProperty(String propertyName, String[] propertyValue);
+    void setControlledVocabularyProperty(String propertyName, String propertyValue);
 
-    SamplePermId[] getSampleProperty(String propertyName);
+    SamplePermId getSampleProperty(String propertyName);
 
-    void setSampleProperty(String propertyName, SamplePermId[] propertyValue);
+    void setSampleProperty(String propertyName, SamplePermId propertyValue);
 
     String getHyperlinkProperty(String propertyName);
 
@@ -96,5 +93,63 @@ public interface IPropertiesHolder
     String getJsonProperty(String propertyName);
 
     void setJsonProperty(String propertyName, String propertyValue);
+
+    // Multi-value properties
+
+    List<Long> getMultiValueIntegerProperty(String propertyName);
+
+    void setMultiValueIntegerProperty(String propertyName, List<Long> propertyValues);
+
+    List<String> getMultiValueStringProperty(String propertyName);
+
+    void setMultiValueStringProperty(String propertyName, List<String> propertyValues);
+
+    List<Double> getMultiValueRealProperty(String propertyName);
+
+    void setMultiValueRealProperty(String propertyName, List<Double> propertyValue);
+
+    List<ZonedDateTime> getMultiValueTimestampProperty(String propertyName);
+
+    void setMultiValueTimestampProperty(String propertyName, List<ZonedDateTime> propertyValue);
+
+    List<Boolean> getMultiValueBooleanProperty(String propertyName);
+
+    void setMultiValueBooleanProperty(String propertyName, List<Boolean> propertyValue);
+
+    List<String> getMultiValueHyperlinkProperty(String propertyName);
+
+    void setMultiValueHyperlinkProperty(String propertyName, List<String> propertyValue);
+
+    List<String> getMultiValueXmlProperty(String propertyName);
+
+    void setMultiValueXmlProperty(String propertyName, List<String> propertyValue);
+
+    List<String> getMultiValueControlledVocabularyProperty(String propertyName);
+
+    void setMultiValueControlledVocabularyProperty(String propertyName, List<String> propertyValue);
+
+    List<SamplePermId> getMultiValueSampleProperty(String propertyName);
+
+    void setMultiValueSampleProperty(String propertyName, List<SamplePermId> propertyValue);
+
+    List<Long[]> getMultiValueIntegerArrayProperty(String propertyName);
+
+    void setMultiValueIntegerArrayProperty(String propertyName, List<Long[]> propertyValue);
+
+    List<Double[]> getMultiValueRealArrayProperty(String propertyName);
+
+    void setMultiValueRealArrayProperty(String propertyName, List<Double[]> propertyValue);
+
+    List<String[]> getMultiValueStringArrayProperty(String propertyName);
+
+    void setMultiValueStringArrayProperty(String propertyName, List<String[]> propertyValue);
+
+    List<ZonedDateTime[]> getMultiValueTimestampArrayProperty(String propertyName);
+
+    void setMultiValueTimestampArrayProperty(String propertyName, List<ZonedDateTime[]> propertyValue);
+
+    List<String> getMultiValueJsonProperty(String propertyName);
+
+    void setMultiValueJsonProperty(String propertyName, List<String> propertyValue);
 
 }

@@ -23,16 +23,10 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
         prototype.setIntegerProperty = function(propertyName, propertyValue) {
             this.setProperty(propertyName, propertyValue);
         };
-        prototype.getVarcharProperty = function(propertyName) {
+        prototype.getStringProperty = function(propertyName) {
             return this.getProperty(propertyName);
         };
-        prototype.setVarcharProperty = function(propertyName, propertyValue) {
-            this.setProperty(propertyName, propertyValue);
-        };
-        prototype.getMultilineVarcharProperty = function(propertyName) {
-            return this.getProperty(propertyName);
-        };
-        prototype.setMultilineVarcharProperty = function(propertyName, propertyValue) {
+        prototype.setStringProperty = function(propertyName, propertyValue) {
             this.setProperty(propertyName, propertyValue);
         };
         prototype.getRealProperty = function(propertyName) {
@@ -108,6 +102,92 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
             this.setProperty(propertyName, propertyValue);
         };
 
+
+
+        prototype.getMultiValueIntegerProperty = function(propertyName) {
+            return this.getProperty(propertyName);
+        };
+        prototype.setMultiValueIntegerProperty = function(propertyName, propertyValue) {
+            this.setProperty(propertyName, propertyValue);
+        };
+        prototype.getMultiValueStringProperty = function(propertyName) {
+            return this.getProperty(propertyName);
+        };
+        prototype.setMultiValueStringProperty = function(propertyName, propertyValue) {
+            this.setProperty(propertyName, propertyValue);
+        };
+        prototype.getMultiValueRealProperty = function(propertyName) {
+            return this.getProperty(propertyName);
+        };
+        prototype.setMultiValueRealProperty = function(propertyName, propertyValue) {
+            this.setProperty(propertyName, propertyValue);
+        };
+        prototype.getMultiValueTimestampProperty = function(propertyName) {
+            return this.getProperty(propertyName);
+        };
+        prototype.setMultiValueTimestampProperty = function(propertyName, propertyValue) {
+            this.setProperty(propertyName, propertyValue);
+        };
+        prototype.getMultiValueBooleanProperty = function(propertyName) {
+            return this.getProperty(propertyName);
+        };
+        prototype.setMultiValueBooleanProperty = function(propertyName, propertyValue) {
+            this.setProperty(propertyName, propertyValue);
+        };
+        prototype.getMultiValueControlledVocabularyProperty = function(propertyName) {
+            return this.getProperty(propertyName);
+        };
+        prototype.setMultiValueControlledVocabularyProperty = function(propertyName, propertyValue) {
+            this.setProperty(propertyName, propertyValue);
+        };
+        prototype.getMultiValueSampleProperty = function(propertyName) {
+            return this.getProperty(propertyName);
+        };
+        prototype.setMultiValueSampleProperty = function(propertyName, propertyValue) {
+            this.setProperty(propertyName, propertyValue);
+        };
+        prototype.getMultiValueHyperlinkProperty = function(propertyName) {
+            return this.getProperty(propertyName);
+        };
+        prototype.setMultiValueHyperlinkProperty = function(propertyName, propertyValue) {
+            this.setProperty(propertyName, propertyValue);
+        };
+        prototype.getMultiValueXmlProperty = function(propertyName) {
+            return this.getProperty(propertyName);
+        };
+        prototype.setMultiValueXmlProperty = function(propertyName, propertyValue) {
+            this.setProperty(propertyName, propertyValue);
+        };
+        prototype.getMultiValueIntegerArrayProperty = function(propertyName) {
+            return this.getProperty(propertyName);
+        };
+        prototype.setMultiValueIntegerArrayProperty = function(propertyName, propertyValue) {
+            this.setProperty(propertyName, propertyValue);
+        };
+        prototype.getMultiValueRealArrayProperty = function(propertyName) {
+            return this.getProperty(propertyName);
+        };
+        prototype.setMultiValueRealArrayProperty = function(propertyName, propertyValue) {
+            this.setProperty(propertyName, propertyValue);
+        };
+        prototype.getMultiValueStringArrayProperty = function(propertyName) {
+            return this.getProperty(propertyName);
+        };
+        prototype.setMultiValueStringArrayProperty = function(propertyName, propertyValue) {
+            this.setProperty(propertyName, propertyValue);
+        };
+        prototype.getMultiValueTimestampArrayProperty = function(propertyName) {
+            return this.getProperty(propertyName);
+        };
+        prototype.setMultiValueTimestampArrayProperty = function(propertyName, propertyValue) {
+            this.setProperty(propertyName, propertyValue);
+        };
+        prototype.getMultiValueJsonProperty = function(propertyName) {
+            return this.getProperty(propertyName);
+        };
+        prototype.setMultiValueJsonProperty = function(propertyName, propertyValue) {
+            this.setProperty(propertyName, propertyValue);
+        };
 
 
 

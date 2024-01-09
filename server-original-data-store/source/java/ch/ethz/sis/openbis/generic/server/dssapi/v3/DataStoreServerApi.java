@@ -32,6 +32,10 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.CustomDSSServiceExecutionOptions;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.id.ICustomDSSServiceId;
+import ch.ethz.sis.openbis.generic.server.dssapi.v3.executor.IExecuteCustomDSSServiceExecutor;
+
 import org.apache.commons.collections4.iterators.IteratorChain;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -105,6 +109,9 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
 
     @Autowired
     private ICreateUploadedDataSetExecutor createUploadedDataSetExecutor;
+
+    @Autowired
+    private IExecuteCustomDSSServiceExecutor executor;
 
     /**
      * The designated constructor.
@@ -197,10 +204,20 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
             {
                 IHierarchicalContent content =
                         getHierarchicalContentProvider(sessionToken).asContent(code);
-                for (IHierarchicalContentNode node : iterate(content.getRootNode()))
+
+                try
                 {
-                    DataSet dataSet = dataSetMap.get(code);
-                    result.add(Utils.createDataSetFile(code, node, dataSet.getDataStore()));
+                    for (IHierarchicalContentNode node : iterate(content.getRootNode()))
+                    {
+                        DataSet dataSet = dataSetMap.get(code);
+                        result.add(Utils.createDataSetFile(code, node, dataSet.getDataStore()));
+                    }
+                } finally
+                {
+                    if (content != null)
+                    {
+                        content.close();
+                    }
                 }
             }
         }
@@ -427,6 +444,16 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
         return as.createDataSets(sessionToken, metadata);
     }
 
+    @Override
+    @Transactional
+    public Object executeCustomDSSService(String sessionToken, ICustomDSSServiceId serviceId,
+            CustomDSSServiceExecutionOptions options)
+    {
+        getOpenBISService().checkSession(sessionToken);
+
+        return executor.execute(sessionToken, serviceId, options);
+    }
+
     private void injectDataStoreIdAndCodesIfNeeded(List<FullDataSetCreation> newDataSets)
     {
         String dataStoreCode = configProvider.getDataStoreCode();
@@ -443,7 +470,8 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
                 if (dataStoreCode.equals(code) == false)
                 {
                     throw new UserFailureException(
-                            "Data store id specified for creation object with index " + i + " is '" + code + "' instead of '" + dataStoreCode + "' or undefined.");
+                            "Data store id specified for creation object with index " + i + " is '" + code + "' instead of '" + dataStoreCode
+                                    + "' or undefined.");
                 }
             }
             metadataCreation.setDataStoreId(dataStoreId);

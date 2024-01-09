@@ -892,6 +892,16 @@ class DataSet(
                     "permId": DSpermId,
                     "@type": "as.dto.datastore.id.DataStorePermId",
                 }
+
+                version = self.openbis.get_server_information().openbis_version
+                if version is not None:
+                    if 'SNAPSHOT' not in version and not version.startswith(
+                            '7') and 'UNKNOWN' not in version:
+                        if (request['method'] in ('createDataSetTypes', 'createDataSets')
+                                and 'metaData' in request['params'][1][0]):
+                            del request['params'][1][0]['metaData']
+
+
                 resp = self.openbis._post_request(self.openbis.as_v3, request)
 
                 if VERBOSE:
@@ -907,6 +917,14 @@ class DataSet(
             request = self._up_attrs()
             props = self.formatter.format(self.p._all_props())
             request["params"][1][0]["properties"] = props
+
+            version = self.openbis.get_server_information().openbis_version
+            if version is not None:
+                if 'SNAPSHOT' not in version and not version.startswith(
+                        '7') and 'UNKNOWN' not in version:
+                    if (request['method'] in ('updateDataSetTypes', 'updateDataSets')
+                            and 'metaData' in request['params'][1][0]):
+                        del request['params'][1][0]['metaData']
 
             self.openbis._post_request(self.openbis.as_v3, request)
             if VERBOSE:
@@ -1398,7 +1416,7 @@ class DataSetUploadQueue:
                 break
             upload_url, filename, verify_certificates = queue_item
 
-            file_size = os.path.getsize(filename[1])
+            file_size = os.path.getsize(filename)
 
             if self.multipart is True:
                 file = {filename: open(filename, "rb")}
@@ -1406,7 +1424,7 @@ class DataSetUploadQueue:
                 resp.raise_for_status()
             else:
                 # upload the file to our DSS session workspace
-                with open(filename[1], "rb") as f:
+                with open(filename, "rb") as f:
                     resp = requests.post(upload_url, data=f, verify=verify_certificates)
                     resp.raise_for_status()
                     data = resp.json()

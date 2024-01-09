@@ -664,7 +664,6 @@ test("getDataStoreBaseURLs()", function() {
 test("listDataSetTypes()", function() {
 	createFacadeAndLogin(function(facade) {
 		facade.listDataSetTypes(function(response) {
-		    debugger;
 			assertObjectsCount(response.result, 38);
 			facade.close();
 		});
@@ -1082,10 +1081,10 @@ test("searchForExperiments() withModifierUserId", function() {
 test("listProjects()", function() {
 	createFacadeAndLogin(function(facade) {
 		facade.listProjects(function(response) {
-			assertObjectsCount(response.result, 19);
+			assertObjectsCount(response.result, 20);
 			assertObjectsWithCodes(response.result, [ "BACTERIA" ,"CELL_LINES" ,"DEFAULT_PROJECT" ,"FLIES" ,"ORDERS"
 			,"PLANTS" ,"PLASMIDS" ,"POLYNUCLEOTIDES" ,"PRODUCTS" ,"PROTOCOLS" ,"PUBLIC_REPOSITORIES" ,"REAGENTS"
-			,"REQUESTS" ,"SCREENING-EXAMPLES" ,"STORAGES" ,"SUPPLIERS" ,"TEMPLATES" ,"TEST-PROJECT" ,"YEASTS" ]);
+			,"REQUESTS" ,"SCREENING-EXAMPLES" ,"STORAGES" ,"STORAGE_POSITIONS", "SUPPLIERS" ,"TEMPLATES" ,"TEST-PROJECT" ,"YEASTS" ]);
 			facade.close();
 		});
 	});

@@ -15,13 +15,19 @@
  */
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
-import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.*;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.CODE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.DESCRIPTION;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MODIFICATION_DATE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.REGISTRATION_DATE;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.REGISTRATOR;
+import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.valueOf;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -43,24 +49,15 @@ import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.FieldType;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
-import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportTypes;
-import ch.ethz.sis.openbis.generic.server.xls.importer.utils.VersionUtils;
 
 public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityType>
 {
 
-    protected static final String[] VOCABULARY_ASSIGNMENT_COLUMNS = new String[] { "Version", "Code", "Label", "Description" };
-
-    protected static Map<String, Integer> allVersions = VersionUtils.loadAllVersions();
+    protected static final String[] VOCABULARY_ASSIGNMENT_COLUMNS = new String[] { "Code", "Label", "Description" };
 
     public XLSVocabularyExportHelper(final Workbook wb)
     {
         super(wb);
-    }
-
-    public static void setAllVersions(final Map<String, Integer> allVersions)
-    {
-        XLSVocabularyExportHelper.allVersions = allVersions;
     }
 
     @Override
@@ -75,12 +72,13 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityTy
         }
         final Vocabulary vocabulary = getVocabulary(api, sessionToken, permIds.get(0));
         final Collection<String> warnings = new ArrayList<>();
+        final Map<String, String> valueFiles = new HashMap<>();
 
         if (vocabulary != null)
         {
             final String permId = vocabulary.getPermId().toString();
             final ExportableKind exportableKind = getExportableKind();
-            warnings.addAll(addRow(rowNumber++, true, exportableKind, permId, exportableKind.name()));
+            addRow(rowNumber++, true, exportableKind, permId, warnings, valueFiles, exportableKind.name());
 
             final Attribute[] possibleAttributes = getAttributes();
             if (entityTypeExportFieldsMap == null || entityTypeExportFieldsMap.isEmpty() ||
@@ -96,11 +94,11 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityTy
                 final Attribute[] attributes = compatibleWithImport ? importableAttributes : defaultPossibleAttributes;
                 final String[] attributeHeaders = Arrays.stream(attributes).map(Attribute::getName).toArray(String[]::new);
 
-                warnings.addAll(addRow(rowNumber++, true, exportableKind, permId, attributeHeaders));
+                addRow(rowNumber++, true, exportableKind, permId, warnings, valueFiles, attributeHeaders);
 
                 // Values
                 final String[] values = Arrays.stream(attributes).map(attribute -> getAttributeValue(vocabulary, attribute)).toArray(String[]::new);
-                warnings.addAll(addRow(rowNumber++, false, exportableKind, permId, values));
+                addRow(rowNumber++, false, exportableKind, permId, warnings, valueFiles, values);
             } else
             {
                 // Export selected attributes in predefined order
@@ -137,7 +135,7 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityTy
                 final String[] allAttributeNames = Stream.concat(Arrays.stream(selectedAttributeHeaders), requiredForImportAttributeNameStream)
                         .toArray(String[]::new);
 
-                warnings.addAll(addRow(rowNumber++, true, exportableKind, permId, allAttributeNames));
+                addRow(rowNumber++, true, exportableKind, permId, warnings, valueFiles, allAttributeNames);
 
                 // Values
                 final Set<Map<String, String>> selectedExportFieldSet = new HashSet<>(selectedExportAttributes);
@@ -160,46 +158,37 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityTy
                             }
                         }).toArray(String[]::new);
 
-                warnings.addAll(addRow(rowNumber++, false, exportableKind, permId, entityValues));
+                addRow(rowNumber++, false, exportableKind, permId, warnings, valueFiles, entityValues);
             }
 
 
-            warnings.addAll(addRow(rowNumber++, true, ExportableKind.VOCABULARY_TYPE, permId, compatibleWithImport
-                    ? VOCABULARY_ASSIGNMENT_COLUMNS
-                    : Arrays.copyOfRange(VOCABULARY_ASSIGNMENT_COLUMNS, 1, VOCABULARY_ASSIGNMENT_COLUMNS.length)));
+            addRow(rowNumber++, true, ExportableKind.VOCABULARY_TYPE, permId, warnings, valueFiles, VOCABULARY_ASSIGNMENT_COLUMNS);
 
             for (final VocabularyTerm vocabularyTerm : vocabulary.getTerms())
             {
                 final String[] values = {
-                        String.valueOf(VersionUtils.getStoredVersion(allVersions, ImportTypes.VOCABULARY_TYPE, vocabularyTerm.getCode(),
-                                vocabulary.getCode())),
                         vocabularyTerm.getCode(),
                         vocabularyTerm.getLabel(),
                         vocabularyTerm.getDescription() };
-                warnings.addAll(addRow(rowNumber++, false, ExportableKind.VOCABULARY_TYPE, permId,
-                        compatibleWithImport ? values : Arrays.copyOfRange(values, 1, values.length)));
+                addRow(rowNumber++, false, ExportableKind.VOCABULARY_TYPE, permId, warnings, valueFiles, values);
             }
 
-            return new AdditionResult(rowNumber + 1, warnings);
+            return new AdditionResult(rowNumber + 1, warnings, valueFiles);
         } else
         {
-            return new AdditionResult(rowNumber, warnings);
+            return new AdditionResult(rowNumber, warnings, valueFiles);
         }
     }
 
     protected Attribute[] getAttributes()
     {
-        return new Attribute[] { VERSION, CODE, DESCRIPTION, REGISTRATOR, REGISTRATION_DATE, MODIFICATION_DATE };
+        return new Attribute[] { CODE, DESCRIPTION, REGISTRATOR, REGISTRATION_DATE, MODIFICATION_DATE };
     }
 
     protected String getAttributeValue(final Vocabulary vocabulary, final Attribute attribute)
     {
         switch (attribute)
         {
-            case VERSION:
-            {
-                return String.valueOf(VersionUtils.getStoredVersion(allVersions, ImportTypes.VOCABULARY_TYPE, null, vocabulary.getCode()));
-            }
             case CODE:
             {
                 return vocabulary.getCode();
