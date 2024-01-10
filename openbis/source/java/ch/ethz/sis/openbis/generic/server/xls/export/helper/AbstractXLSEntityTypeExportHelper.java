@@ -40,22 +40,13 @@ import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.FieldType;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
-import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportTypes;
-import ch.ethz.sis.openbis.generic.server.xls.importer.utils.VersionUtils;
 
 public abstract class AbstractXLSEntityTypeExportHelper<ENTITY_TYPE extends IEntityType> extends AbstractXLSExportHelper<ENTITY_TYPE>
 {
 
-    protected static Map<String, Integer> allVersions = VersionUtils.loadAllVersions();
-
     public AbstractXLSEntityTypeExportHelper(final Workbook wb)
     {
         super(wb);
-    }
-
-    public static void setAllVersions(final Map<String, Integer> allVersions)
-    {
-        AbstractXLSEntityTypeExportHelper.allVersions = allVersions;
     }
 
     @Override
@@ -176,9 +167,7 @@ public abstract class AbstractXLSEntityTypeExportHelper<ENTITY_TYPE extends IEnt
             final String permId, final boolean compatibleWithImport)
     {
         final Collection<String> warnings = new ArrayList<>(
-                addRow(rowNumber++, true, exportableKind, permId, compatibleWithImport
-                        ? ENTITY_ASSIGNMENT_COLUMNS
-                        : Arrays.copyOfRange(ENTITY_ASSIGNMENT_COLUMNS, 1, ENTITY_ASSIGNMENT_COLUMNS.length)));
+                addRow(rowNumber++, true, exportableKind, permId, ENTITY_ASSIGNMENT_COLUMNS));
         for (final PropertyAssignment propertyAssignment : propertyAssignments)
         {
             final PropertyType propertyType = propertyAssignment.getPropertyType();
@@ -187,8 +176,7 @@ public abstract class AbstractXLSEntityTypeExportHelper<ENTITY_TYPE extends IEnt
 
             final String code = propertyType.getCode();
             final String[] values = {
-                    String.valueOf(VersionUtils.getStoredVersion(allVersions, ImportTypes.PROPERTY_TYPE, null, code)),
-                    code,
+                    propertyType.getCode(),
                     String.valueOf(propertyAssignment.isMandatory()).toUpperCase(),
                     String.valueOf(propertyAssignment.isShowInEditView()).toUpperCase(),
                     propertyAssignment.getSection(),
@@ -198,8 +186,8 @@ public abstract class AbstractXLSEntityTypeExportHelper<ENTITY_TYPE extends IEnt
                     propertyType.getDescription(),
                     mapToJSON(propertyType.getMetaData()),
                     plugin != null ? (plugin.getName() != null ? plugin.getName() + ".py" : "") : "" };
-            warnings.addAll(addRow(rowNumber++, false, exportableKind, permId,
-                    compatibleWithImport ? values : Arrays.copyOfRange(values, 1, values.length)));
+                String.valueOf(propertyType.isMultiValue() != null && propertyType.isMultiValue()).toUpperCase() };
+            warnings.addAll(addRow(rowNumber++, false, exportableKind, permId, values));
         }
         return new AdditionResult(rowNumber, warnings);
     }
