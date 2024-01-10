@@ -16,13 +16,72 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.search.mapper;
 
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.CHILD_SAMPLE_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.CODE_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.DATA_CHILD_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.DATA_ID_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.DATA_PARENT_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.DATA_SET_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.DATA_SET_TYPE_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.DATA_SET_TYPE_PROPERTY_TYPE_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.DATA_TYPE_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.DESCRIPTION_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.EXPERIMENT_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.EXPERIMENT_TYPE_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.EXPERIMENT_TYPE_PROPERTY_TYPE_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.ID_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.MATERIAL_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.MATERIAL_TYPE_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.MATERIAL_TYPE_PROPERTY_TYPE_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.MODIFICATION_TIMESTAMP_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.PARENT_SAMPLE_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.PERM_ID_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.PROPERTY_TYPE_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.REGISTRATION_TIMESTAMP_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.SAMPLE_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.SAMPLE_TYPE_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.SAMPLE_TYPE_PROPERTY_TYPE_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.USER_COLUMN;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.CONTENT_COPIES_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.CONTROLLED_VOCABULARY_TERM_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.DATA_SET_PROPERTIES_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.DATA_SET_RELATIONSHIPS_VIEW;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.DATA_SET_TYPES_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.DATA_SET_TYPE_PROPERTY_TYPE_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.DATA_VIEW;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.EVENTS_SEARCH_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.EXPERIMENTS_VIEW;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.EXPERIMENT_PROPERTIES_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.EXPERIMENT_TYPES_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.EXPERIMENT_TYPE_PROPERTY_TYPE_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.EXTERNAL_DATA_MANAGEMENT_SYSTEMS_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.EXTERNAL_DATA_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.FILE_FORMAT_TYPES_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.LOCATOR_TYPES_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.MATERIALS_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.MATERIAL_PROPERTIES_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.MATERIAL_TYPES_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.MATERIAL_TYPE_PROPERTY_TYPE_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.METAPROJECTS_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.PERSONS_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.PROJECTS_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.PROPERTY_TYPES_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.SAMPLES_VIEW;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.SAMPLE_PROPERTIES_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.SAMPLE_RELATIONSHIPS_VIEW;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.SAMPLE_TYPES_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.SAMPLE_TYPE_PROPERTY_TYPE_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.SEMANTIC_ANNOTATIONS_TABLE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.SPACES_TABLE;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.PSQLTypes;
-
-import java.util.*;
-
-import static ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames.*;
-import static ch.systemsx.cisd.openbis.generic.shared.dto.TableNames.*;
 
 /**
  * Extension of enum {@link EntityKind} to contain extra information about tables related to the entities which can
@@ -86,6 +145,15 @@ public enum TableMapper
 
     SAMPLE_PROPERTY_ASSIGNMENT(SAMPLE_TYPE_PROPERTY_TYPE_TABLE, null, null, null, null, null, SAMPLE_TYPE_COLUMN, null,
             null, null, null, null, null, null, null, null, null, EntityKind.SAMPLE, true, false),
+
+    EXPERIMENT_PROPERTY_ASSIGNMENT(EXPERIMENT_TYPE_PROPERTY_TYPE_TABLE, null, null, null, null, null, EXPERIMENT_TYPE_COLUMN, null,
+            null, null, null, null, null, null, null, null, null, EntityKind.EXPERIMENT, true, false),
+
+    DATA_SET_PROPERTY_ASSIGNMENT(DATA_SET_TYPE_PROPERTY_TYPE_TABLE, null, null, null, null, null, DATA_SET_TYPE_COLUMN, null,
+            null, null, null, null, null, null, null, null, null, EntityKind.DATA_SET, true, false),
+
+    MATERIAL_PROPERTY_ASSIGNMENT(MATERIAL_TYPE_PROPERTY_TYPE_TABLE, null, null, null, null, null, MATERIAL_TYPE_COLUMN, null,
+            null, null, null, null, null, null, null, null, null, EntityKind.MATERIAL, true, false),
 
     CONTENT_COPIES(CONTENT_COPIES_TABLE, null, null, null, null, null, null, null, null, null, null, null, null, null,
             null, null, null, null, true, false),
