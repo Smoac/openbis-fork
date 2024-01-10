@@ -124,7 +124,7 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
                 cell.setCellValue(value);
             } else
             {
-                final String kindDisplayName = null;
+                String kindDisplayName = null;
                 if (exportableKind == ExportableKind.SAMPLE)
                 {
                     kindDisplayName = "OBJECT";

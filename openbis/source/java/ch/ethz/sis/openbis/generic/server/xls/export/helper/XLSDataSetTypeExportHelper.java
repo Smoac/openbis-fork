@@ -22,7 +22,6 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MAIN_DATA_
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MAIN_DATA_SET_PATTERN;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.MODIFICATION_DATE;
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.VALIDATION_SCRIPT;
-import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.VERSION;
 
 import java.util.Collections;
 import java.util.Iterator;
