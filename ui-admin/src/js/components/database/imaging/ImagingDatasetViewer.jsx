@@ -220,6 +220,7 @@ class ImagingDataSetViewer extends React.PureComponent {
                             for (const condition of input.visibility) {
                                 if (condition.values.includes(activeConfig[condition.label])) {
                                     input.range = condition.range;
+                                    input.unit = condition.unit;
                                 }
                             }
                         }
@@ -236,6 +237,7 @@ class ImagingDataSetViewer extends React.PureComponent {
                             for (const condition of input.visibility) {
                                 if (condition.values.includes(activeConfig[condition.label])) {
                                     input.range = condition.range;
+                                    input.unit = condition.unit;
                                 }
                             }
                         }
@@ -272,7 +274,7 @@ class ImagingDataSetViewer extends React.PureComponent {
     handleUpload = async (file) => {
         this.handleOpen();
         const base64 = await convertToBase64(file);
-        const {imagingDataset, activeImageIdx, activePreviewIdx} = this.state;
+        const {imagingDataset, activeImageIdx} = this.state;
         try {
             let toUpdateImgDs = {...imagingDataset};
             let newLastIdx = toUpdateImgDs.images[activeImageIdx].previews.length;
@@ -319,7 +321,7 @@ class ImagingDataSetViewer extends React.PureComponent {
             <React.Fragment>
                 <LoadingDialog loading={open} />
                 <ErrorDialog open={error.state} error={error.error} onClose={this.handleErrorCancel} />
-                {this.renderImageSection(imagingDataset.images, activeImageIdx)}
+                {this.renderImageSection(imagingDataset.images, activeImageIdx, imagingDataset.config.exports)}
                 {this.renderPreviewsSection(imagingDataset.images[activeImageIdx].previews, imagingDataset.config.exports, activeImageIdx, activePreviewIdx, isSaved)}
                 <PaperBox>
                     <Grid container className={classes.gridDirection}>
@@ -332,20 +334,30 @@ class ImagingDataSetViewer extends React.PureComponent {
         )
     };
 
-    renderImageSection(images, activeImageIdx) {
+    renderImageSection(images, activeImageIdx, configExports) {
         return (
             <PaperBox>
-                <ImageListItemSection title={messages.get(messages.IMAGES)}
-                                      cols={3} rowHeight={150}
-                                      type={constants.IMAGE_TYPE}
-                                      items={images}
-                                      activeImageIdx={activeImageIdx}
-                                      onActiveItemChange={this.handleActiveImageChange}/>
+                <Grid container direction='row' spacing={1}>
+                    <Grid item xs={9} sm={10}>
+                        <ImageListItemSection title={messages.get(messages.IMAGES)}
+                                              cols={3} rowHeight={150}
+                                              type={constants.IMAGE_TYPE}
+                                              items={images}
+                                              activeImageIdx={activeImageIdx}
+                                              onActiveItemChange={this.handleActiveImageChange}/>
+                    </Grid>
+                    <Grid item xs={3} sm={2} container direction='column' justifyContent="space-around">
+                        {configExports.length > 0 ?
+                            <Export handleExport={this.onExport}
+                                    config={configExports}/> : <></>}
+                    </Grid>
+                </Grid>
             </PaperBox>
         )
     };
 
     renderPreviewsSection(previews, configExports, activeImageIdx, activePreviewIdx, isSaved) {
+        const nPreviews = previews.length;
         return (
             <PaperBox>
                 <Grid container direction='row' spacing={1}>
@@ -359,56 +371,38 @@ class ImagingDataSetViewer extends React.PureComponent {
                                               onActiveItemChange={this.handleActivePreviewChange}
                                               onMove={this.onMove}/>
                     </Grid>
-                    {this.renderActionButtonSection(previews, configExports, isSaved)}
+                    <Grid item xs={3} sm={2} container direction='column' justifyContent="space-around">
+                        {!isSaved && (
+                            <Message type='warning'>
+                                {messages.get(messages.UNSAVED_CHANGES)}
+                            </Message>
+                        )}
+                        <Button name="btn-save-preview"
+                                label={messages.get(messages.SAVE)}
+                                variant='outlined'
+                                type='final'
+                                startIcon={<SaveIcon/>}
+                                disabled={isSaved}
+                                onClick={this.saveDataset}/>
+
+                        <AlertDialog label={messages.get(messages.REMOVE)} icon={<DeleteIcon/>}
+                                     title={messages.get(messages.CONFIRMATION_REMOVE, 'current preview')}
+                                     content={messages.get(messages.CONTENT_REMOVE_PREVIEW)}
+                                     disabled={nPreviews === 1}
+                                     onHandleYes={this.deletePreview}/>
+
+                        <Button name='btn-new-preview'
+                                label={messages.get(messages.NEW)}
+                                type='final'
+                                variant='outlined'
+                                color='default'
+                                startIcon={<AddToQueueIcon/>}
+                                onClick={this.createNewPreview}/>
+
+                        <InputFileUpload onInputFile={this.handleUpload}/>
+                    </Grid>
                 </Grid>
             </PaperBox>
-        )
-    };
-
-    renderActionButtonSection(previews, configExports, isSaved) {
-        const nPreviews = previews.length;
-        const initExportState = Object.fromEntries(configExports.map(config => {
-            switch (config.type) {
-                case constants.DROPDOWN:
-                    return [config.label, config.multiselect ? [config.values[0]] : config.values[0]];
-            }
-        }))
-        return (
-            <Grid item xs={3} sm={2} container direction='column' justifyContent="space-around">
-                {!isSaved && (
-                    <Message type='warning'>
-                        {messages.get(messages.UNSAVED_CHANGES)}
-                    </Message>
-                )}
-                <Button name="btn-save-preview"
-                        label={messages.get(messages.SAVE)}
-                        variant='outlined'
-                        type='final'
-                        startIcon={<SaveIcon/>}
-                        disabled={isSaved}
-                        onClick={this.saveDataset}/>
-
-                <AlertDialog label={messages.get(messages.REMOVE)} icon={<DeleteIcon/>}
-                             title={messages.get(messages.CONFIRMATION_REMOVE, 'current preview')}
-                             content={messages.get(messages.CONTENT_REMOVE_PREVIEW)}
-                             disabled={nPreviews === 1}
-                             onHandleYes={this.deletePreview}/>
-
-                <Button name='btn-new-preview'
-                        label={messages.get(messages.NEW)}
-                        type='final'
-                        variant='outlined'
-                        color='default'
-                        startIcon={<AddToQueueIcon/>}
-                        onClick={this.createNewPreview}/>
-
-                <InputFileUpload onInputFile={this.handleUpload}/>
-
-                {configExports.length > 0 ?
-                    <Export handleExport={this.onExport}
-                            initValue={initExportState}
-                            config={configExports}/> : <></>}
-            </Grid>
         )
     };
 
