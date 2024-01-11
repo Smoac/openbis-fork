@@ -15,8 +15,12 @@
  */
 package ch.ethz.sis.openbis.generic.server.xls.importer.helper;
 
+import static ch.ethz.sis.openbis.generic.server.xls.importer.utils.PropertyTypeSearcher.getPropertyValue;
+
+import java.util.List;
+import java.util.Map;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
@@ -34,11 +38,6 @@ import ch.ethz.sis.openbis.generic.server.xls.importer.utils.AttributeValidator;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.IAttribute;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.PropertyTypeSearcher;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-
-import java.util.List;
-import java.util.Map;
-
-import static ch.ethz.sis.openbis.generic.server.xls.importer.utils.PropertyTypeSearcher.getPropertyValue;
 
 public class ExperimentImportHelper extends BasicImportHelper
 {
@@ -74,10 +73,13 @@ public class ExperimentImportHelper extends BasicImportHelper
 
     private final AttributeValidator<Attribute> attributeValidator;
 
-    public ExperimentImportHelper(DelayedExecutionDecorator delayedExecutor, ImportModes mode, ImportOptions options)
+    private final Map<String, String> importValues;
+
+    public ExperimentImportHelper(DelayedExecutionDecorator delayedExecutor, ImportModes mode, ImportOptions options, Map<String, String> importValues)
     {
         super(mode, options);
         this.delayedExecutor = delayedExecutor;
+        this.importValues = importValues;
         this.attributeValidator = new AttributeValidator<>(Attribute.class);
     }
 
@@ -162,7 +164,7 @@ public class ExperimentImportHelper extends BasicImportHelper
             {
                 String value = getValueByColumnName(header, values, key);
                 PropertyType propertyType = propertyTypeSearcher.findPropertyType(key);
-                creation.setProperty(propertyType.getCode(), getPropertyValue(propertyType, value));
+                creation.setProperty(propertyType.getCode(), getPropertyValue(propertyType, getFinalValue(importValues, value)));
             }
         }
 

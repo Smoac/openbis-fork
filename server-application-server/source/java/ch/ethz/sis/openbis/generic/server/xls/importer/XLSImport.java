@@ -93,7 +93,8 @@ public class XLSImport
 
     private final boolean shouldCheckVersionsOnDatabase;
 
-    public XLSImport(String sessionToken, IApplicationServerApi api, Map<String, String> scripts, ImportModes mode, ImportOptions options, String xlsName)
+    public XLSImport(String sessionToken, IApplicationServerApi api, Map<String, String> scripts, Map<String, String> importValues,
+            ImportModes mode, ImportOptions options, String xlsName)
     {
         this.sessionToken = sessionToken;
         this.api = api;
@@ -110,8 +111,8 @@ public class XLSImport
         this.datasetTypeHelper = new DatasetTypeImportHelper(this.delayedExecutor, mode, options, afterVersions);
         this.spaceHelper = new SpaceImportHelper(this.delayedExecutor, mode, options);
         this.projectHelper = new ProjectImportHelper(this.delayedExecutor, mode, options);
-        this.experimentHelper = new ExperimentImportHelper(this.delayedExecutor, mode, options);
-        this.sampleHelper = new SampleImportHelper(this.delayedExecutor, mode, options);
+        this.experimentHelper = new ExperimentImportHelper(this.delayedExecutor, mode, options, importValues);
+        this.sampleHelper = new SampleImportHelper(this.delayedExecutor, mode, options, importValues);
         this.propertyHelper = new PropertyTypeImportHelper(this.delayedExecutor, mode, options, afterVersions);
         this.propertyAssignmentHelper = new PropertyAssignmentImportHelper(this.delayedExecutor, mode, options, beforeVersions);
         this.scriptHelper = new ScriptImportHelper(this.delayedExecutor, mode, options, scripts);

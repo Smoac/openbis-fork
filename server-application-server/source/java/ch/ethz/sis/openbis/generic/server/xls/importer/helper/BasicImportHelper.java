@@ -15,6 +15,11 @@
  */
 package ch.ethz.sis.openbis.generic.server.xls.importer.helper;
 
+import java.util.List;
+import java.util.Map;
+
+import org.apache.log4j.Logger;
+
 import ch.ethz.sis.openbis.generic.server.xls.importer.ImportOptions;
 import ch.ethz.sis.openbis.generic.server.xls.importer.XLSImport;
 import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportModes;
@@ -22,10 +27,6 @@ import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportTypes;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import org.apache.log4j.Logger;
-
-import java.util.List;
-import java.util.Map;
 
 public abstract class BasicImportHelper extends AbstractImportHelper
 {
@@ -57,30 +58,18 @@ public abstract class BasicImportHelper extends AbstractImportHelper
 
     protected abstract void createObject(Map<String, Integer> header, List<String> values, int page, int line);
 
-    protected abstract void updateObject(Map<String, Integer> header, List<String> values, int page, int line);
-
-    public boolean isNewVersion(List<List<String>> page, int pageIndex, int start, int end)
+    protected static String getFinalValue(final Map<String, String> importValues, final String value)
     {
-        int lineIndex = start;
-        try
+        if (value != null && value.startsWith("__") && value.endsWith("__"))
         {
-            Map<String, Integer> header = parseHeader(page.get(lineIndex), true);
-            lineIndex++;
-            if (lineIndex < end)
-            {
-                validateLine(header, page.get(lineIndex));
-                return isNewVersion(header, page.get(lineIndex));
-            } else {
-                throw new Exception("Version can't be obtained: lineIndex < end");
-            }
-        } catch (Exception e)
+            return importValues.get(value.substring(2, value.length() - 2));
+        } else
         {
-            UserFailureException userFailureException = new UserFailureException(
-                    "sheet: " + (pageIndex + 1) + " line: " + (lineIndex + 1) + " message: " + e.getMessage());
-            userFailureException.setStackTrace(e.getStackTrace());
-            throw userFailureException;
+            return null;
         }
     }
+
+    protected abstract void updateObject(Map<String, Integer> header, List<String> values, int page, int line);
 
     public void importBlock(List<List<String>> page, int pageIndex, int start, int end)
     {

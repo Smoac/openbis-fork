@@ -909,6 +909,7 @@ getIgnoreVersioning
 getImportData
 getImportMode
 getImportOptions
+getImportValues
 getInitialValueForExistingEntities
 getInputs
 getInputStream
@@ -1298,6 +1299,7 @@ ImportOperation
 ImportOperationResult
 ImportOptions
 ImportScript
+ImportValue
 indent
 indexOf
 INSTANCE
@@ -2178,6 +2180,7 @@ setIgnoreVersioning
 setImportData
 setImportMode
 setImportOptions
+setImportValues
 setInitialValueForExistingEntities
 setInputs
 setIntegerArrayProperty
