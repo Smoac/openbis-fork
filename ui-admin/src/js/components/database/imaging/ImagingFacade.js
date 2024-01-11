@@ -38,6 +38,10 @@ export default class ImagingFacade {
         return await this.openbis.updateDataSets([ update ]);
     };
 
+    updateShowInGalleryView = async (permId, imageIdx, preview) => {
+
+    }
+
     updateImagingDataset = async (objId, activeImageIdx, preview) => {
         const serviceId = new this.openbis.CustomDssServiceCode(constants.IMAGING_CODE);
         const options = new this.openbis.CustomDSSServiceExecutionOptions();
@@ -97,32 +101,35 @@ export default class ImagingFacade {
         /*const {totalCount, datasetStats} = await this.preLoadGalleryDatasetsMetadata(objId);
         console.log("loadPaginatedGalleryDatasets - preLoadGalleryDatasetsMetadata: ", totalCount, datasetStats);*/
         const datasetCodeList = await this.preLoadGalleryDatasetsCodeList(objId);
+        const totalCount =  datasetCodeList.length;
         console.log("loadPaginatedGalleryDatasets - preLoadGalleryDatasetsCodeList: ", datasetCodeList.length, datasetCodeList);
-        const startIdx = page * pageSize;
+        let startIdx = page * pageSize;
         const offset = startIdx + pageSize;
         let prevDatasetId = null;
         let loadedImgDS = null;
-        let previewList = [];
-        for (let i = startIdx; i < offset; i++){
-            let currDatasetId = datasetCodeList[i].id;
+        let previewContainerList = [];
+        while (startIdx < datasetCodeList.length && startIdx < offset) {
+            let currDatasetId = datasetCodeList[startIdx].id;
             if (currDatasetId !== prevDatasetId) {
                 prevDatasetId = currDatasetId;
                 loadedImgDS = await this.loadImagingDataset(currDatasetId);
-                previewList.push(loadedImgDS.images[0].previews[datasetCodeList[i].previewIdx])
-            } else {
-                previewList.push(loadedImgDS.images[0].previews[datasetCodeList[i].previewIdx])
+            }
+            let partialIdxCount = 0
+            for (let imageIdx = 0; imageIdx < loadedImgDS.images.length; imageIdx++){
+                let hypoteticalPreviewIdx = datasetCodeList[startIdx].previewIdx;
+                for (let previewIdx = hypoteticalPreviewIdx - partialIdxCount;
+                     previewIdx < loadedImgDS.images[imageIdx].previews.length && startIdx < offset;
+                     previewIdx++, startIdx++) {
+                    previewContainerList.push({datasetId: currDatasetId,
+                        preview: loadedImgDS.images[imageIdx].previews[previewIdx],
+                        imageIdx: imageIdx,
+                        select: false});
+                }
+                partialIdxCount += loadedImgDS.images[imageIdx].previews.length
             }
         }
-        /*const codesSet = new Set(datasetCodeList.slice(startIdx, offset+1))
-        console.log(codesSet);
-        let datasets = [];
-        for (const {id, previewIdx} of codesSet){
-            const img = await this.loadImagingDataset(id);
-            datasets.push({'permId': id, 'imagingDataset': img})
-        }*/
-        console.log("loadPaginatedGalleryDatasets - datasets: ", previewList);
-        const totalCount =  datasetCodeList.length;
-        return {previewList, totalCount};
+        console.log("loadPaginatedGalleryDatasets - previewContainerList: ", previewContainerList);
+        return {previewContainerList, totalCount};
     }
 
     loadGalleryDatasets = async (objId) => {

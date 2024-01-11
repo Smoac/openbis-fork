@@ -48,7 +48,7 @@ const styles = theme => ({
     }
 })
 
-class GridPaging extends React.PureComponent {
+class GalleryPaging extends React.PureComponent {
     constructor(props) {
         super(props)
         this.handlePageSizeChange = this.handlePageSizeChange.bind(this)
@@ -59,31 +59,31 @@ class GridPaging extends React.PureComponent {
     }
 
     handlePageSizeChange(event) {
-        this.props.onPageSizeChange(event.target.value)
+        this.props.onPageSizeChange(event.target.value);
     }
 
     handleFirstPageButtonClick() {
-        this.props.onPageChange(0)
+        this.props.onPageChange(0);
     }
 
     handleBackButtonClick() {
-        this.props.onPageChange(this.props.page - 1)
+        this.props.onPageChange(this.props.page - 1);
     }
 
     handleNextButtonClick() {
-        this.props.onPageChange(this.props.page + 1)
+        this.props.onPageChange(this.props.page + 1);
     }
 
     handleLastPageButtonClick() {
         this.props.onPageChange(
             Math.max(0, Math.ceil(this.props.count / this.props.pageSize) - 1)
-        )
+        );
     }
 
     render() {
         logger.log(logger.DEBUG, 'GridPaging.render')
 
-        const { id, classes, count, page, pageSize, pageColumns, onColumnChange, options } = this.props
+        const { id, classes, count, page, pageSize, pageColumns, onColumnChange, options, isGridView } = this.props
 
         return (
             <Grid container spacing={2} className={classes.container}>
@@ -136,7 +136,6 @@ class GridPaging extends React.PureComponent {
                 </Grid>
 
                 <Grid item xs={6} sm id={id + '.page-size-id'} className={classes.pageSize}>
-
                     <FormControlLabel
                         control={
                             <SelectField
@@ -174,6 +173,7 @@ class GridPaging extends React.PureComponent {
                         }}
                         label={messages.get(messages.COLUMNS)}
                         labelPlacement='start'
+                        disabled={!isGridView}
                     />
                 </Grid>
             </Grid>
@@ -200,4 +200,4 @@ class GridPaging extends React.PureComponent {
     }
 }
 
-export default withStyles(styles)(GridPaging)
+export default withStyles(styles)(GalleryPaging)
