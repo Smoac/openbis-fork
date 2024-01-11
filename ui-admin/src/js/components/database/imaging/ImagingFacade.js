@@ -39,7 +39,12 @@ export default class ImagingFacade {
     };
 
     updateShowInGalleryView = async (permId, imageIdx, preview) => {
-
+        let toUpdateImgDS = await this.loadImagingDataset(permId);
+        toUpdateImgDS.images[imageIdx].previews[preview.index] = preview;
+        let update = new this.openbis.DataSetUpdate();
+        update.setDataSetId(new this.openbis.DataSetPermId(permId));
+        update.setProperty(constants.IMAGING_DATA_CONFIG, JSON.stringify(toUpdateImgDS));
+        return await this.openbis.updateDataSets([ update ]);
     }
 
     updateImagingDataset = async (objId, activeImageIdx, preview) => {
@@ -58,26 +63,6 @@ export default class ImagingFacade {
         return await exportedImagingDataset.url;
     }
 
-    preLoadGalleryDatasetsMetadata = async (objId) => {
-        const fetchOptions = new this.openbis.ExperimentFetchOptions();
-        fetchOptions.withProperties();
-        fetchOptions.withDataSets();
-        const experiments = await this.openbis.getExperiments(
-            [new this.openbis.ExperimentPermId(objId)],
-            fetchOptions
-        );
-        let totalCount = 0;
-        const datasetStats = await experiments[objId].dataSets.map(dataset => {
-            if (constants.METADATA_PREVIEW_COUNT in dataset.metaData) {
-                const nDatasets = parseInt(dataset.metaData[constants.METADATA_PREVIEW_COUNT])
-                totalCount += nDatasets;
-                return {'permId': dataset.code, 'nDatasets': nDatasets}
-            }
-        })
-        console.log("preLoadGalleryDatasetsMetadata: ", totalCount, datasetStats);
-        return {totalCount, datasetStats};
-    }
-
     preLoadGalleryDatasetsCodeList = async (objId) => {
         const fetchOptions = new this.openbis.ExperimentFetchOptions();
         fetchOptions.withProperties();
@@ -91,7 +76,7 @@ export default class ImagingFacade {
                 const nDatasets = parseInt(dataset.metaData[constants.METADATA_PREVIEW_COUNT])
                 //return Array(nDatasets).fill({'id': dataset.code, 'previewIdx':})
                 return Array.from(Array(nDatasets), (_, i) => {
-                    return {'id': dataset.code, 'previewIdx': i}
+                    return {datasetId: dataset.code, sortingId: i, metadata: dataset.metaData}
                 });
             }
         }).flat();
@@ -109,21 +94,22 @@ export default class ImagingFacade {
         let loadedImgDS = null;
         let previewContainerList = [];
         while (startIdx < datasetCodeList.length && startIdx < offset) {
-            let currDatasetId = datasetCodeList[startIdx].id;
+            let currDatasetId = datasetCodeList[startIdx].datasetId;
             if (currDatasetId !== prevDatasetId) {
                 prevDatasetId = currDatasetId;
                 loadedImgDS = await this.loadImagingDataset(currDatasetId);
             }
             let partialIdxCount = 0
             for (let imageIdx = 0; imageIdx < loadedImgDS.images.length; imageIdx++){
-                let hypoteticalPreviewIdx = datasetCodeList[startIdx].previewIdx;
+                let hypoteticalPreviewIdx = datasetCodeList[startIdx].sortingId;
                 for (let previewIdx = hypoteticalPreviewIdx - partialIdxCount;
                      previewIdx < loadedImgDS.images[imageIdx].previews.length && startIdx < offset;
                      previewIdx++, startIdx++) {
                     previewContainerList.push({datasetId: currDatasetId,
                         preview: loadedImgDS.images[imageIdx].previews[previewIdx],
                         imageIdx: imageIdx,
-                        select: false});
+                        select: false,
+                        datasetMetadata: datasetCodeList[startIdx].metadata});
                 }
                 partialIdxCount += loadedImgDS.images[imageIdx].previews.length
             }

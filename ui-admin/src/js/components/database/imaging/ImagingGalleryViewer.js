@@ -4,7 +4,7 @@ import OutlinedBox from "@src/js/components/database/imaging/components/common/O
 import {
     CardActionArea, CardActions, CardContent, CardMedia,
     ImageList,
-    ImageListItem
+    ImageListItem, TextareaAutosize
 } from "@material-ui/core";
 import ImagingFacade from "@src/js/components/database/imaging/ImagingFacade";
 import LoadingDialog from "@src/js/components/common/loading/LoadingDialog.jsx";
@@ -121,25 +121,20 @@ const ImagingGalleryViewer = ({objId, extOpenbis, onOpenPreview}) => {
         }
         setSelectAll(val);
     }
-    const saveDataset = async () => {
-        this.handleOpen();
+
+    const handleShowPreview = async (previewContainer) => {
+        handleOpen();
+        let selectedPreview = previewContainer.preview;
+        selectedPreview.show = !selectedPreview.show;
         try {
-            const isSaved = await new ImagingFacade(extOpenbis).saveImagingDataset(objId, imagingDataset);
+            const isSaved = await new ImagingFacade(extOpenbis).updateShowInGalleryView(previewContainer.datasetId, previewContainer.imageIdx, selectedPreview);
             if (isSaved === null) {
-                this.setState({open: false, isChanged: false, isSaved: true});
-                onUnsavedChanges(this.props.objId, false);
+                setOpen(false);
             }
         } catch (error) {
-            this.setState({open: false, isChanged: false, isSaved: false});
-            this.handleError(error);
+            setOpen(false);
+            handleError(error);
         }
-    }
-
-    const handleShowPreview = (idx) => {
-        let updatedList = [...previewsInfo.previewContainerList];
-        updatedList[idx].show = !updatedList[idx].show;
-        updatedList = updatedList.map(preview => delete preview.select);
-        setPreviewsInfo({...previewsInfo, previewContainerList: updatedList});
     }
 
     const handleSelectPreview = (idx) => {
@@ -233,7 +228,7 @@ const ImagingGalleryViewer = ({objId, extOpenbis, onOpenPreview}) => {
                                                   label="Show"
                                                   labelPlacement="start"
                                                   isChecked={previewContainer.preview.show}
-                                                  onChange={() => alert('To change visibility please open the relative preview in the Imaging Dataset Viewer.')}/>
+                                                  onChange={() => handleShowPreview(previewContainer)}/>
                                     <FormControlLabel
                                         value="start"
                                         control={<Checkbox value={previewContainer.select} onChange={() => handleSelectPreview(idx)} color="primary" />}
@@ -264,13 +259,22 @@ const ImagingGalleryViewer = ({objId, extOpenbis, onOpenPreview}) => {
                                 />
                             </CardActionArea>
                             <CardContent className={classes.content}>
-                                <Typography key={`card-content-metadata-h2-${idx}`} gutterBottom variant="h5" component="h2">
+                                <Typography key={`card-content-metadata-h2-${idx}`} gutterBottom
+                                            variant="h5">
                                     Metadata - {previewContainer.datasetId}
                                 </Typography>
-                                <Typography key={`card-content-metadata-p-${idx}`} variant="body2" color="textSecondary" component="p">
+                                <Typography key={`card-content-dataset-metadata-p-${idx}`}
+                                            variant="body2" color="textSecondary" component="p">
+                                    {JSON.stringify(previewContainer.datasetMetadata)}
+                                </Typography>
+                                <Typography key={`card-content-metadata-p-${idx}`} variant="body2"
+                                            color="textSecondary" component="p">
                                     {JSON.stringify(previewContainer.preview.metadata)}
                                 </Typography>
-                                <TextField/>
+                                <Typography key={`card-content-comments-${idx}`} gutterBottom variant="h6">
+                                    Comments:
+                                </Typography>
+                                <TextareaAutosize aria-label="empty textarea" placeholder="TODO: missing comment field in data model" />
                             </CardContent>
                         </div>
                     </Card>
