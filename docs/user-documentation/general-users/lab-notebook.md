@@ -1,5 +1,5 @@
 Lab Notebook
-====
+============
 
 In the most common use-cases, the **Lab Notebook** part of the openBIS ELN-LIMS contains a personal Space (i.e. folder) for each scientist. Within this *Space*, scientists can organise their work using the openBIS *Projects, Experiments and Objects.*
 
@@ -374,9 +374,9 @@ This table shows the metadata of the datasets. The content of the datasets can b
 
 ![image info](img/data-navigation-driver-icon.png)
 
-To navigate and open data registered in openBIS via Finder or Explorer, open the *Dataset* folder and click on the drive icon next to the Dataset type name (see above). *If* SFTP has been configured by a system admin, you will be provided with a link to copy/paste in an application such as [Cyberduck](https://cyberduck.io/) or other.
+To navigate and open data registered in openBIS via Finder or Explorer, open the *Dataset* folder and click on the drive icon next to the Dataset type name (see above). *If* SFTP has been configured on system level, you will be provided with a link to copy/paste in an application such as [Cyberduck](https://cyberduck.io/) or other.
 
-Please check our documentation for SFTP server configuration: [Installation and Administrators Guide of the openBIS Data Store Server](../../system-admin-documentation/installation/optional-datastore-server-configuration.md)
+Please check our documentation for SFTP server configuration: [Installation and Administrators Guide of the openBIS Data Store Server](../../system-documentation/standalone/optional-datastore-server-configuration.md)
 
  
 
@@ -647,9 +647,9 @@ the *Experiments* they contain.
 
 Please be aware that, by default, only users with *Space Admin and
 Instance Admin*  role have permission to delete. Default permissions can
-be modified only by a *system admin* (see [Changing the openBIS
+be modified on *system level* (see [Changing the openBIS
 capability role
-map](../../system-admin-documentation/installation/installation-and-configuration-guide.md#changing-the-capability-role-map))
+map](../../system-documentation/standalone/installation-and-configuration-guide.md#changing-the-capability-role-map))
 
 Updated on April 25, 2023
  

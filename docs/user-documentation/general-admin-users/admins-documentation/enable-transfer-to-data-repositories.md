@@ -8,9 +8,9 @@ repository ([https://zenodo.org/). ](https://zenodo.org/)
 
 This enables data direct data transfer from openBIS to Zenodo.
 
-This feature needs to be configured by a *system admin* as explained
+This feature needs to be configured on *system level* as explained
 here: [openBIS DSS configuration
-file](../../../system-admin-documentation/installation/installation-and-configuration-guide.md#installation-steps). 
+file](../../../system-documentation/standalone/installation-and-configuration-guide.md#installation-steps). 
 
 If this is done, the Zenodo Export needs to be made visible in the ELN
 UI by a lab manager, who has should have admin rights for the
