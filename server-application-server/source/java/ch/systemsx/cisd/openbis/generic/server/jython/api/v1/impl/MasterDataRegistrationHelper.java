@@ -129,6 +129,34 @@ public class MasterDataRegistrationHelper {
         return result;
     }
 
+    public Map<String, String> getAllLargeValues()
+    {
+        final Map<String, String> result = new TreeMap<>();
+        final File valuesFolder = new File(masterDataFolder, "values");
+        if (valuesFolder.isDirectory())
+        {
+            gatherFileValues(result, valuesFolder, valuesFolder);
+        }
+        return result;
+    }
+
+    private static void gatherFileValues(final Map<String, String> values, final File rootFolder, final File file) {
+        if (file.isFile())
+        {
+            final String filePath = FileUtilities.getRelativeFilePath(rootFolder, file);
+            values.put(filePath, FileUtilities.loadToString(file));
+            operationLog.info("File " + filePath + " loaded");
+        }
+        if (file.isDirectory())
+        {
+            final File[] files = file.listFiles();
+            for (final File child : files)
+            {
+                gatherScripts(values, rootFolder, child);
+            }
+        }
+    }
+
     public static List<byte[]> getByteArrays(Path path, String findName) {
         List<byte[]> byteArrays = new ArrayList<>();
         for (File file : path.toFile().listFiles()) {

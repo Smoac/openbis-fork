@@ -58,17 +58,6 @@ public abstract class BasicImportHelper extends AbstractImportHelper
 
     protected abstract void createObject(Map<String, Integer> header, List<String> values, int page, int line);
 
-    protected static String getFinalValue(final Map<String, String> importValues, final String value)
-    {
-        if (value != null && value.startsWith("__") && value.endsWith("__"))
-        {
-            return importValues.get(value.substring(2, value.length() - 2));
-        } else
-        {
-            return null;
-        }
-    }
-
     protected abstract void updateObject(Map<String, Integer> header, List<String> values, int page, int line);
 
     public void importBlock(List<List<String>> page, int pageIndex, int start, int end)

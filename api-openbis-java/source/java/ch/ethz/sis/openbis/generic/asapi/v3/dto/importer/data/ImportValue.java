@@ -74,7 +74,18 @@ public class ImportValue implements Serializable
     @Override
     public String toString()
     {
-        return new ObjectToString(this).append("name", name).append("value", value).toString();
+        final ObjectToString builder = new ObjectToString(this).append("name", name);
+        if (value == null)
+        {
+            builder.append("value", null);
+        } else if (value.length() <= 255)
+        {
+            builder.append("value", value);
+        } else
+        {
+            builder.append("value", value.substring(0, 255) + "...");
+        }
+        return builder.toString();
     }
 
 }

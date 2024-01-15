@@ -93,6 +93,8 @@ public class XLSImport
 
     private final boolean shouldCheckVersionsOnDatabase;
 
+    private final Map<String, String> importValues;
+
     public XLSImport(String sessionToken, IApplicationServerApi api, Map<String, String> scripts, Map<String, String> importValues,
             ImportModes mode, ImportOptions options, String xlsName)
     {
@@ -103,6 +105,7 @@ public class XLSImport
         this.afterVersions = VersionInfoHandler.loadAllVersions(options);
         this.dbChecker = new DatabaseConsistencyChecker(this.sessionToken, this.api, this.afterVersions);
         this.delayedExecutor = new DelayedExecutionDecorator(this.sessionToken, this.api);
+        this.importValues = importValues;
 
         this.vocabularyHelper = new VocabularyImportHelper(this.delayedExecutor, mode, options, afterVersions);
         this.vocabularyTermHelper = new VocabularyTermImportHelper(this.delayedExecutor, mode, options, afterVersions);
@@ -111,8 +114,8 @@ public class XLSImport
         this.datasetTypeHelper = new DatasetTypeImportHelper(this.delayedExecutor, mode, options, afterVersions);
         this.spaceHelper = new SpaceImportHelper(this.delayedExecutor, mode, options);
         this.projectHelper = new ProjectImportHelper(this.delayedExecutor, mode, options);
-        this.experimentHelper = new ExperimentImportHelper(this.delayedExecutor, mode, options, importValues);
-        this.sampleHelper = new SampleImportHelper(this.delayedExecutor, mode, options, importValues);
+        this.experimentHelper = new ExperimentImportHelper(this.delayedExecutor, mode, options);
+        this.sampleHelper = new SampleImportHelper(this.delayedExecutor, mode, options);
         this.propertyHelper = new PropertyTypeImportHelper(this.delayedExecutor, mode, options, afterVersions);
         this.propertyAssignmentHelper = new PropertyAssignmentImportHelper(this.delayedExecutor, mode, options, beforeVersions);
         this.scriptHelper = new ScriptImportHelper(this.delayedExecutor, mode, options, scripts);
@@ -127,7 +130,7 @@ public class XLSImport
             this.dbChecker.checkVersionsOnDataBase();
         }
 
-        List<List<List<String>>> lines = ExcelParser.parseExcel(xls);
+        List<List<List<String>>> lines = ExcelParser.parseExcel(xls, importValues);
         int pageNumber = 0;
         int lineNumber;
 

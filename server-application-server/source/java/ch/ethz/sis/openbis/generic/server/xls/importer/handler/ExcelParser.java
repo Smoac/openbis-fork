@@ -28,12 +28,13 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ExcelParser
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, ExcelParser.class);
 
-    public static List<List<List<String>>> parseExcel(byte xls[])
+    public static List<List<List<String>>> parseExcel(byte[] xls, final Map<String, String> importValues)
     {
         List<List<List<String>>> lines = new ArrayList<>();
 
@@ -59,7 +60,7 @@ public class ExcelParser
                             Cell cell = row.getCell(cellIndex);
                             if (cell != null)
                             {
-                                String value = extractCellValue(cell, sheetIndex, rowIndex, cellIndex);
+                                String value = getFinalValue(importValues, extractCellValue(cell, sheetIndex, rowIndex, cellIndex));
                                 columns.add(value);
                             } else
                             {
@@ -79,6 +80,17 @@ public class ExcelParser
         }
 
         return lines;
+    }
+
+    private static String getFinalValue(final Map<String, String> importValues, final String value)
+    {
+        if (value != null && value.startsWith("__") && value.endsWith("__"))
+        {
+            return importValues.get(value.substring(2, value.length() - 2));
+        } else
+        {
+            return value;
+        }
     }
 
     private static String extractCellValue(Cell cell, int sheet, int row, int column)

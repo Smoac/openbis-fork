@@ -66,13 +66,14 @@ def process(context, parameters):
     xls_base64_string = parameters.get('xls_base64', None)
     xls_name = parameters.get('xls_name', None)
     scripts = parameters.get('scripts', {})
+    values = parameters.get('values', {})
     mode = get_update_mode(parameters)
     options = get_import_options(parameters)
 
     if xls_byte_arrays is None and xls_base64_string is not None:
         xls_byte_arrays = [ base64.b64decode(xls_base64_string) ]
 
-    importXls = XLSImport(session_token, api, scripts, mode, options, xls_name)
+    importXls = XLSImport(session_token, api, scripts, values, mode, options, xls_name)
 
     ids = ArrayList()
     for xls_byte_array in xls_byte_arrays:

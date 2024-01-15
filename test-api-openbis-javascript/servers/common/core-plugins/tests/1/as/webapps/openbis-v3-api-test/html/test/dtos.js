@@ -61,6 +61,7 @@ var fullTypes = [
 "as/dto/importer/data/ImportFormat",
 "as/dto/importer/data/ZipImportData",
 "as/dto/importer/data/UncompressedImportData",
+"as/dto/importer/data/ImportValue",
 "as/dto/importer/data/ImportScript",
 "as/dto/importer/data/IImportData",
 "as/dto/entitytype/update/IEntityTypeUpdate",

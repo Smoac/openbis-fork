@@ -73,13 +73,10 @@ public class ExperimentImportHelper extends BasicImportHelper
 
     private final AttributeValidator<Attribute> attributeValidator;
 
-    private final Map<String, String> importValues;
-
-    public ExperimentImportHelper(DelayedExecutionDecorator delayedExecutor, ImportModes mode, ImportOptions options, Map<String, String> importValues)
+    public ExperimentImportHelper(DelayedExecutionDecorator delayedExecutor, ImportModes mode, ImportOptions options)
     {
         super(mode, options);
         this.delayedExecutor = delayedExecutor;
-        this.importValues = importValues;
         this.attributeValidator = new AttributeValidator<>(Attribute.class);
     }
 
@@ -164,7 +161,7 @@ public class ExperimentImportHelper extends BasicImportHelper
             {
                 String value = getValueByColumnName(header, values, key);
                 PropertyType propertyType = propertyTypeSearcher.findPropertyType(key);
-                creation.setProperty(propertyType.getCode(), getPropertyValue(propertyType, getFinalValue(importValues, value)));
+                creation.setProperty(propertyType.getCode(), getPropertyValue(propertyType, value));
             }
         }
 
