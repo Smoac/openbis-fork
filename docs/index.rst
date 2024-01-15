@@ -29,12 +29,11 @@ The complete solution for managing your research data.
 .. toctree::
    :maxdepth: 4
    :hidden:
-   :caption: System Admin Documentation
+   :caption: System Documentation
 
-   Installation </system-admin-documentation/installation/index>
-   Configuration </system-admin-documentation/configuration/index>
-   Docker Installation </system-admin-documentation/docker-installation/index>
-   Advanced Features </system-admin-documentation/advanced-features/index>
+   Standalone </system-documentation/standalone/index>
+   Docker </system-documentation/docker/index>
+   Configuration </system-documentation/configuration/index>
 
 User Documentation
 ^^^^^^^^^^^^^^^^^^
@@ -51,10 +50,8 @@ Software Developer Documentation
    - :doc:`Client-Side Extensions </software-developer-documentation/client-side-extensions/index>`
    - :doc:`Legacy Server-Side Extensions </software-developer-documentation/legacy-server-side-extensions/index>`
    
-System Admin Documentation
+System Documentation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-   - :doc:`Installation </system-admin-documentation/installation/index>`
-   - :doc:`Configuration </system-admin-documentation/configuration/index>`
-   - :doc:`Docker Installation </system-admin-documentation/docker-installation/index>`
-   - :doc:`Advanced Features </system-admin-documentation/advanced-features/index>`
-
+   - :doc:`Standalone </system-documentation/standalone/index>`
+   - :doc:`Docker </system-documentation/docker/index>`
+   - :doc:`Configuration </system-documentation/configuration/index>`

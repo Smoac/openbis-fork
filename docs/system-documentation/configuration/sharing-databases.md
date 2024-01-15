@@ -24,7 +24,7 @@ and module code.
 
 ## Share Databases without Mapping File
 
-Without a mapping file specified data sources are independently defined for DSS and AS. For details see [DSS Data Sources](https://unlimited.ethz.ch/display/openBISDoc2010/Installation+and+Administrators+Guide+of+the+openBIS+Data+Store+Server#InstallationandAdministratorsGuideoftheopenBISDataStoreServer-DataSources) and [AS Data Sources](../system-admin-documentation/installation/installation-and-configuration-guide.md#configuring-dss-data-sources), respectively. Note, that the roperties `database-driver` and `database-url` are mandatory for AS.
+Without a mapping file specified data sources are independently defined for DSS and AS. For details see [DSS Data Sources](https://unlimited.ethz.ch/display/openBISDoc2010/Installation+and+Administrators+Guide+of+the+openBIS+Data+Store+Server#InstallationandAdministratorsGuideoftheopenBISDataStoreServer-DataSources) and [AS Data Sources](../system-documentation/standalone/installation-and-configuration-guide.md#configuring-dss-data-sources), respectively. Note, that the roperties `database-driver` and `database-url` are mandatory for AS.
 
 ## Share Databases with Mapping File
 

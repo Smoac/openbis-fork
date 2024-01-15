@@ -1,5 +1,5 @@
-Docker Installation
-===================
+Docker
+======
 
 .. toctree::
    :maxdepth: 4

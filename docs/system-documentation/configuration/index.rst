@@ -1,9 +1,12 @@
-Advanced Features
-=================
+Configuration
+=============
 
 .. toctree::
    :maxdepth: 4
 
+   required-configuration
+   optional-application-server-configuration
+   optional-datastore-server-configuration
    authentication-systems
    authorization
    maintenance-tasks

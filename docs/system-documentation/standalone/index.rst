@@ -1,4 +1,4 @@
-Installation
+Standalone
 ============
 
 .. toctree::
@@ -8,4 +8,3 @@ Installation
    installation
    starting-and-stopping
    troubleshooting
-
