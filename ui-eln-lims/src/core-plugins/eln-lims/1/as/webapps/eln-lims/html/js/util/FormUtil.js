@@ -2892,32 +2892,29 @@ var FormUtil = new function() {
                                     action : function() {
                                         var $window = $('<form>', { 'action' : 'javascript:void(0);' });
                                         $window.append($('<legend>').append('Export'));
-                                        var $compatible = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("COMPATIBLE-IMPORT", null, false, false), 'Make import compatible');
+                                        var $compatible = $("<span class='checkbox'><label><input type='checkbox' id='COMPATIBLE-IMPORT'>Make import compatible</label></span>");
                                         $window.append($compatible);
-                                        var $info_formats = $("<span>")
-                                                            .append($("<span>", { class: "glyphicon glyphicon-info-sign" }))
-                                                            .append(" File formats");
+
+                                        var $info_formats = $("<span>").append($("<b>").append("File formats"));
                                         $window.append($info_formats);
-                                        var $pdf = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("PDF-EXPORT", null, false, false), 'Export metadata as PDF');
+                                        var $pdf = $("<span class='checkbox'><label><input type='checkbox' id='PDF-EXPORT'>Export metadata as PDF</label></span>");
                                         $window.append($pdf);
-                                        var $xlsx = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("XLSX-EXPORT", null, false, false), 'Export metadata as XLSX');
+                                        var $xlsx = $("<span class='checkbox'><label><input type='checkbox' id='XLSX-EXPORT'>Export metadata as XLSX</label></span>");
                                         $window.append($xlsx);
-                                        var $data = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("DATA-EXPORT", null, false, false), 'Export data');
+                                        var $data = $("<span class='checkbox'><label><input type='checkbox' id='DATA-EXPORT'>Export data</label></span>");
                                         $window.append($data);
-                                        var $hierarchyInclusions = $("<span>")
-                                                              .append($("<span>", { class: "glyphicon glyphicon-info-sign" }))
-                                                              .append(" Hierarchy Inclusions");
+
+                                        var $hierarchyInclusions = $("<span>").append($("<b>").append("Hierarchy Inclusions"));
+
                                         $window.append($hierarchyInclusions);
-                                        var $levelsBelow = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("LEVELS-BELOW-EXPORT", null, false, false), 'Include levels below from same space');
+                                        var $levelsBelow = $("<span class='checkbox'><label><input type='checkbox' id='LEVELS-BELOW-EXPORT'>Include levels below from same space</label></span>");
                                         $window.append($levelsBelow);
-                                        var $includeParents = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("PARENTS-EXPORT", null, false, false), 'Include Object and Dataset parents from same space');
+                                        var $includeParents = $("<span class='checkbox'><label><input type='checkbox' id='PARENTS-EXPORT'>Include Object and Dataset parents from same space</label></span>");
                                         $window.append($includeParents);
-                                        var $includeOtherSpaces = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("OTHER-SPACES-EXPORT", null, false, false), 'Include Objects and Datasets from different spaces');
+                                        var $includeOtherSpaces = $("<span class='checkbox'><label><input type='checkbox' id='OTHER-SPACES-EXPORT'>Include Objects and Datasets from different spaces</label></span>");
                                         $window.append($includeOtherSpaces);
 
-                                        var $exportOptions = $("<span>")
-                                                              .append($("<span>", { class: "glyphicon glyphicon-info-sign" }))
-                                                              .append(" Export Options");
+                                        var $exportOptions = $("<span>").append($("<b>").append("Export Options"));
                                         $window.append($exportOptions);
 
                                         var $waitOrEmail = $('<div/>');
