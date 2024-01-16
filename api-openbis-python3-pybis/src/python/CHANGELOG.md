@@ -7,6 +7,8 @@
 - Fixed PropertyAssignment data frame creation
 - Improved property data type validation 
 - Improved get_project method 
+- Added missing description parameter to new sample type method
+- Added missing DATE property type
 
 ## Changes with pybis-1.36.3
 
