@@ -5230,6 +5230,7 @@ class Openbis:
             showParents=True,
             showParentMetadata=False,
             validationPlugin=None,
+            description=None
     ):
         """Creates a new sample type."""
 
@@ -5244,6 +5245,7 @@ class Openbis:
             showParentMetadata=showParentMetadata,
             validationPlugin=validationPlugin,
             method=self.get_sample_type,
+            description=description,
         )
 
     new_object_type = new_sample_type
