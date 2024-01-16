@@ -55,6 +55,14 @@ export default class ImagingFacade {
         return await this.openbis.fromJson(null, updatedImagingDataset);
     }
 
+    multiExportImagingDataset = async (exportConfig, exportList) => {
+        const serviceId = new this.openbis.CustomDssServiceCode(constants.IMAGING_CODE);
+        const options = new this.openbis.CustomDSSServiceExecutionOptions();
+        options.parameters = new ImagingMapper(this.openbis).mapToImagingMultiExportParams(exportConfig, exportList);
+        const exportedImagingDataset = await this.openbis.executeCustomDSSService(serviceId, options);
+        return await exportedImagingDataset.url;
+    }
+
     exportImagingDataset = async (objId, activeImageIdx, exportConfig, metadata) => {
         const serviceId = new this.openbis.CustomDssServiceCode(constants.IMAGING_CODE);
         const options = new this.openbis.CustomDSSServiceExecutionOptions();
@@ -87,7 +95,7 @@ export default class ImagingFacade {
         console.log("loadPaginatedGalleryDatasets - preLoadGalleryDatasetsMetadata: ", totalCount, datasetStats);*/
         const datasetCodeList = await this.preLoadGalleryDatasetsCodeList(objId);
         const totalCount =  datasetCodeList.length;
-        console.log("loadPaginatedGalleryDatasets - preLoadGalleryDatasetsCodeList: ", datasetCodeList.length, datasetCodeList);
+        //console.log("loadPaginatedGalleryDatasets - preLoadGalleryDatasetsCodeList: ", datasetCodeList.length, datasetCodeList);
         let startIdx = page * pageSize;
         const offset = startIdx + pageSize;
         let prevDatasetId = null;
@@ -98,6 +106,7 @@ export default class ImagingFacade {
             if (currDatasetId !== prevDatasetId) {
                 prevDatasetId = currDatasetId;
                 loadedImgDS = await this.loadImagingDataset(currDatasetId);
+                //console.log(loadedImgDS);
             }
             let partialIdxCount = 0
             for (let imageIdx = 0; imageIdx < loadedImgDS.images.length; imageIdx++){
@@ -109,12 +118,13 @@ export default class ImagingFacade {
                         preview: loadedImgDS.images[imageIdx].previews[previewIdx],
                         imageIdx: imageIdx,
                         select: false,
-                        datasetMetadata: datasetCodeList[startIdx].metadata});
+                        datasetMetadata: datasetCodeList[startIdx].metadata,
+                        exportConfig: loadedImgDS.config.exports});
                 }
                 partialIdxCount += loadedImgDS.images[imageIdx].previews.length
             }
         }
-        console.log("loadPaginatedGalleryDatasets - previewContainerList: ", previewContainerList);
+        //console.log("loadPaginatedGalleryDatasets - previewContainerList: ", previewContainerList);
         return {previewContainerList, totalCount};
     }
 

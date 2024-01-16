@@ -22,6 +22,7 @@ const IMAGE_TYPE = 'image';
 const IMAGING_CODE = 'imaging';
 const IMAGING_DATA_CONFIG = '$IMAGING_DATA_CONFIG';
 const METADATA_PREVIEW_COUNT = 'preview-total-count';
+const MULTI_EXPORT_TYPE = 'multi-export';
 const PREVIEW_TYPE = 'preview';
 const RANGE = 'Range';
 const SLIDER = 'Slider';
@@ -38,6 +39,7 @@ export default {
     IMAGING_CODE,
     IMAGING_DATA_CONFIG,
     METADATA_PREVIEW_COUNT,
+    MULTI_EXPORT_TYPE,
     PREVIEW_TYPE,
     RANGE,
     SLIDER,

@@ -53,14 +53,6 @@ export default class ImagingMapper{
         let imagingDataSetExport = new this.openbis.ImagingDataSetExport();
         imagingDataSetExport.config = exportConfig;
         imagingDataSetExport.metadata = metadata;
-        /*let imagingExportContainer = new this.openbis.ImagingExportContainer();
-        imagingExportContainer.permId = objId;
-        imagingExportContainer.type = constants.EXPORT_TYPE;
-        imagingExportContainer.error = null;
-        imagingExportContainer.index = activeImageIdx;
-        imagingExportContainer.export = imagingDataSetExport;
-        imagingExportContainer.url = null;
-        return imagingExportContainer;*/
         return {
             "type" : constants.EXPORT_TYPE,
             "permId" : objId,
@@ -70,4 +62,23 @@ export default class ImagingMapper{
             "export" :  imagingDataSetExport
         };
     }
+
+    mapToImagingMultiExportParams(exportConfig, exportList) {
+        const imagingDataSetMultiExportList = exportList.map(previewObj => {
+            let imagingDataSetMultiExport = new this.openbis.ImagingDataSetMultiExport();
+            imagingDataSetMultiExport.config = exportConfig;
+            imagingDataSetMultiExport.metadata = previewObj.metadata;
+            imagingDataSetMultiExport.permId = previewObj.datasetId;
+            imagingDataSetMultiExport.imageIndex = previewObj.imageIdx;
+            imagingDataSetMultiExport.previewIndex = previewObj.preview.index;
+            return imagingDataSetMultiExport;
+        });
+        return {
+            "type" : constants.MULTI_EXPORT_TYPE,
+            "error" : null,
+            "url" : null,
+            "exports" :  imagingDataSetMultiExportList
+        };
+    }
+
 }

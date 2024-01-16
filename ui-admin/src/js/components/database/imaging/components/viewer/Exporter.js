@@ -37,7 +37,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-const Export = ({ config, handleExport }) => {
+const Export = ({ config, handleExport, disabled = false }) => {
     const classes = useStyles();
     const [open, setOpen] = React.useState(false);
     const [exportState, setExportState] = React.useState(Object.fromEntries(config.map(c => {
@@ -72,6 +72,7 @@ const Export = ({ config, handleExport }) => {
                     type='final'
                     color='default'
                     variant='outlined'
+                    disabled={disabled}
                     onClick={handleOpen}
                     startIcon={<CloudDownloadIcon/>}/>
 

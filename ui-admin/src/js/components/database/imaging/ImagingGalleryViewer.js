@@ -17,18 +17,13 @@ import CustomSwitch from "@src/js/components/database/imaging/components/common/
 import Card from "@material-ui/core/Card";
 import constants from "@src/js/components/database/imaging/constants.js"
 import ViewListIcon from '@material-ui/icons/ViewList';
-import Button from "@src/js/components/common/form/Button.jsx";
 import GridOnIcon from '@material-ui/icons/GridOn';
 import GalleryPaging from "@src/js/components/database/imaging/components/gallery/GalleryPaging.jsx";
 import GridPagingOptions from "@src/js/components/common/grid/GridPagingOptions";
 import IconButton from "@material-ui/core/IconButton";
-import CloudDownloadIcon from "@material-ui/icons/CloudDownload";
 import Export from "@src/js/components/database/imaging/components/viewer/Exporter";
 import Checkbox from "@material-ui/core/Checkbox";
-import CheckboxFormField from "@src/js/components/common/form/CheckboxField.jsx";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
-import EditableField from "@src/js/components/common/form/EditableField.jsx";
-import TextField from "@src/js/components/common/form/TextField.jsx";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -111,7 +106,7 @@ const ImagingGalleryViewer = ({objId, extOpenbis, onOpenPreview}) => {
     }
 
     const handleSelectAll = (val) => {
-        console.log('handleSelectAll: ', val, previewContainerList.map(previewContainer => previewContainer.select === false));
+        //console.log('handleSelectAll: ', val, previewContainerList.map(previewContainer => previewContainer.select === false));
         if (!val) {
             let updatedContainerList = [...previewsInfo.previewContainerList];
             updatedContainerList = updatedContainerList.map(previewContainer => {
@@ -143,12 +138,22 @@ const ImagingGalleryViewer = ({objId, extOpenbis, onOpenPreview}) => {
         setPreviewsInfo({...previewsInfo, previewContainerList: updatedList});
     }
 
-    const handleExport = () => {
+    const handleExport = async (currentConfigExport) => {
+        setOpen(true);
         const exportList = previewsInfo.previewContainerList.filter(previewObj => previewObj.select);
-        console.log('exportList: ', exportList);
+        try {
+            const downloadableURL = await new ImagingFacade(extOpenbis)
+                .multiExportImagingDataset(currentConfigExport, exportList);
+            if (downloadableURL)
+                window.open(downloadableURL, '_blank');
+            setOpen(false);
+        } catch (error) {
+            setOpen(false);
+            handleError(error);
+        }
     }
 
-    const renderControlsBar = (isExportDisable) => {
+    const renderControlsBar = (isExportDisable, configExports = []) => {
         const options = GridPagingOptions.GALLERY_PAGE_SIZE_OPTIONS[paging.pageColumns - 1].map(pageSize => ({
             label: pageSize,
             value: pageSize
@@ -195,13 +200,8 @@ const ImagingGalleryViewer = ({objId, extOpenbis, onOpenPreview}) => {
                         </OutlinedBox>
                     </Grid>
                     <Grid item xs>
-                        <Button label={messages.get(messages.EXPORT)}
-                                type='final'
-                                color='default'
-                                variant='outlined'
-                                disabled={isExportDisable}
-                                onClick={handleExport}
-                                startIcon={<CloudDownloadIcon/>}/>
+                        {configExports.length > 0 &&
+                            <Export config={configExports} handleExport={handleExport} disabled={isExportDisable}/>}
                     </Grid>
                 </Grid>
             </PaperBox>
@@ -211,7 +211,7 @@ const ImagingGalleryViewer = ({objId, extOpenbis, onOpenPreview}) => {
     const renderGallery = (previewContainerList) => {
         return (
             <div className={classes.root}>
-                <ImageList className={classes.imageList} cols={paging.pageColumns} gap={10}>
+                <ImageList className={classes.imageList} cols={paging.pageColumns} gap={5}>
                     {previewContainerList.map((previewContainer, idx) => (
                         <ImageListItem style={{height: 'unset'}} key={`ImageListItem-${idx}`} >
                             <Card className={classes.card}>
@@ -283,16 +283,33 @@ const ImagingGalleryViewer = ({objId, extOpenbis, onOpenPreview}) => {
         );
     }
 
+    const extractCommonExportsConfig = () => {
+        const commonConfig = [];
+        previewsInfo.previewContainerList.flatMap(previewContainer => previewContainer.exportConfig)
+            .map(exportConfig => {
+                let evalIdx = commonConfig.findIndex(x => x.label === exportConfig.label);
+                if(evalIdx === -1){
+                    commonConfig.push(exportConfig);
+                } else {
+                    commonConfig[evalIdx].values = commonConfig[evalIdx].values.filter(value => exportConfig.values.includes(value));
+                }
+            });
+        //console.log('exports - loadedExportConfig: ', commonConfig);
+        return commonConfig
+    }
+
     if (!isLoaded) return null;
     if (previewsInfo.previewContainerList.length === 0) return <Grid item xs={12}> No Datasets to display </Grid>
     console.log("RENDER.ImagingGalleryViewer - previewsInfo: ", previewsInfo);
     const previewContainerList = showAll ? previewsInfo.previewContainerList : previewsInfo.previewContainerList.filter(previewContainer => previewContainer.preview.show);
     const isExportDisable = !(previewContainerList.filter(previewContainer => previewContainer.select === true).length > 0)
+    const commonExportConfig = extractCommonExportsConfig();
+    //console.log('loadedExportConfig: ', commonExportConfig);
     return (
         <>
             <LoadingDialog loading={open}/>
             <ErrorDialog open={error.state} error={error.error} onClose={handleErrorCancel}/>
-            {renderControlsBar(isExportDisable)}
+            {renderControlsBar(isExportDisable, commonExportConfig)}
             {gridView ? renderGallery(previewContainerList) :  renderListView(previewContainerList)}
         </>
     );
