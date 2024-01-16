@@ -645,7 +645,8 @@ class EntityTypeFormParametersProperty extends React.PureComponent {
 
    if (!visible || [openbis.DataType.ARRAY_STRING, openbis.DataType.ARRAY_INTEGER,
                       openbis.DataType.ARRAY_REAL, openbis.DataType.ARRAY_TIMESTAMP,
-                      openbis.DataType.JSON, null].includes(property.dataType.value)) {
+                      openbis.DataType.JSON, openbis.DataType.XML, openbis.DataType.BOOLEAN,
+                      openbis.DataType.MULTILINE_VARCHAR, null].includes(property.dataType.value)) {
        return null
    }
 
