@@ -22,26 +22,20 @@ import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 public class TransactionCoordinatorApi implements ITransactionCoordinatorApi
 {
 
-    private static final String TRANSACTION_COORDINATOR_KEY = "test-transaction-coordinator-key";
-
-    private static final String INTERACTIVE_SESSION_KEY = "test-interactive-session-key";
-
-    private static final String TRANSACTION_LOG_PATH = "transaction-logs";
-
     private final ITransactionCoordinator transactionCoordinator;
 
     @Autowired
-    public TransactionCoordinatorApi(final IApplicationServerApi applicationServerApi, final ITransactionParticipantApi participantApi)
+    public TransactionCoordinatorApi(final TransactionConfiguration transactionConfiguration, IApplicationServerApi applicationServerApi, final ITransactionParticipantApi participantApi)
     {
         List<ITransactionParticipant> participants =
                 Arrays.asList(new ApplicationServerApiParticipant(ITransactionCoordinatorApi.APPLICATION_SERVER_PARTICIPANT_ID, participantApi));
 
         this.transactionCoordinator = new TransactionCoordinator(
-                TRANSACTION_COORDINATOR_KEY,
-                INTERACTIVE_SESSION_KEY,
+                transactionConfiguration.getCoordinatorKey(),
+                transactionConfiguration.getInteractiveSessionKey(),
                 new ApplicationServerSessionTokenProvider(applicationServerApi),
                 participants,
-                new TransactionLog(new File(TRANSACTION_LOG_PATH)));
+                new TransactionLog(new File(transactionConfiguration.getLogFolderPath())));
     }
 
     @Override public void beginTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)

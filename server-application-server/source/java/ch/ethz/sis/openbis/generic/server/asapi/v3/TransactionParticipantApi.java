@@ -36,26 +36,20 @@ public class TransactionParticipantApi implements ITransactionParticipantApi
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, TransactionParticipant.class);
 
-    private static final String TRANSACTION_COORDINATOR_KEY = "test-transaction-coordinator-key";
-
-    private static final String INTERACTIVE_SESSION_KEY = "test-interactive-session-key";
-
-    private static final String TRANSACTION_LOG_PATH = "transaction-logs";
-
     private final ITransactionParticipant transactionParticipant;
 
     @Autowired
-    public TransactionParticipantApi(final PlatformTransactionManager transactionManager, final IDAOFactory daoFactory,
-            final DatabaseConfigurationContext databaseContext, final IApplicationServerApi applicationServerApi)
+    public TransactionParticipantApi(final TransactionConfiguration transactionConfiguration, final PlatformTransactionManager transactionManager,
+            final IDAOFactory daoFactory, final DatabaseConfigurationContext databaseContext, final IApplicationServerApi applicationServerApi)
     {
         this.transactionParticipant = new TransactionParticipant(
                 ITransactionCoordinatorApi.APPLICATION_SERVER_PARTICIPANT_ID,
-                TRANSACTION_COORDINATOR_KEY,
-                INTERACTIVE_SESSION_KEY,
+                transactionConfiguration.getCoordinatorKey(),
+                transactionConfiguration.getInteractiveSessionKey(),
                 new ApplicationServerSessionTokenProvider(applicationServerApi),
                 new ApplicationServerDatabaseTransactionProvider(transactionManager, daoFactory, databaseContext),
                 new ApplicationServerTransactionOperationExecutor(applicationServerApi),
-                new TransactionLog(new File(TRANSACTION_LOG_PATH))
+                new TransactionLog(new File(transactionConfiguration.getLogFolderPath()))
         );
     }
 
