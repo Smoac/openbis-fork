@@ -70,7 +70,8 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
         OntologyId("Ontology Id", false),
         OntologyVersion("Ontology Version", false),
         OntologyAnnotationId("Ontology Annotation Id", false),
-        MultiValued("Multivalued", false),;
+        MultiValued("Multivalued", false),
+        Unique("Unique", false);
 
         private final String headerName;
 
@@ -142,6 +143,7 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
         String showInEditViews = getValueByColumnName(headers, values, Attribute.ShowInEditViews);
         String section = getValueByColumnName(headers, values, Attribute.Section);
         String script = getValueByColumnName(headers, values, Attribute.DynamicScript);
+        String unique = getValueByColumnName(headers, values, Attribute.Unique);
 
         PropertyAssignmentCreation creation = new PropertyAssignmentCreation();
         creation.setPropertyTypeId(new PropertyTypePermId(code));
@@ -149,6 +151,8 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
         creation.setInitialValueForExistingEntities(defaultValue);
         creation.setShowInEditView(Boolean.parseBoolean(showInEditViews));
         creation.setSection(section);
+        creation.setUnique(Boolean.parseBoolean(unique));
+
         if (script != null && !script.isEmpty())
         {
             creation.setPluginId(new PluginPermId(ImportUtils.getScriptName(code, script)));

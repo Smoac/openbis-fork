@@ -68,7 +68,8 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         OntologyId("Ontology Id", false),
         OntologyVersion("Ontology Version", false),
         OntologyAnnotationId("Ontology Annotation Id", false),
-        MultiValued("Multivalued", false);
+        MultiValued("Multivalued", false),
+        Unique("Unique", false);
 
         private final String headerName;
 
