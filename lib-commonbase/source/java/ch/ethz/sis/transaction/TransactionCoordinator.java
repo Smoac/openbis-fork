@@ -147,7 +147,6 @@ public class TransactionCoordinator implements ITransactionCoordinator
         checkTransactionId(transactionId);
         checkSessionToken(sessionToken);
         checkInteractiveSessionKey(interactiveSessionKey);
-        checkParticipantId(participantId);
 
         operationLog.info("Transaction '" + transactionId + "' execute operation '" + operationName + "' started.");
 
@@ -359,27 +358,6 @@ public class TransactionCoordinator implements ITransactionCoordinator
         {
             throw new IllegalArgumentException("Invalid interactive session key");
         }
-    }
-
-    private void checkTransactionCoordinatorKey(final String transactionCoordinatorKey)
-    {
-        if (!this.transactionCoordinatorKey.equals(transactionCoordinatorKey))
-        {
-            throw new IllegalArgumentException("Invalid transaction coordinator key");
-        }
-    }
-
-    private void checkParticipantId(final String participantId)
-    {
-        for (ITransactionParticipant participant : participants)
-        {
-            if (Objects.equals(participant.getParticipantId(), participantId))
-            {
-                return;
-            }
-        }
-
-        throw new IllegalArgumentException("Invalid participant id");
     }
 
 }
