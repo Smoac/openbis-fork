@@ -16,7 +16,6 @@ import ch.ethz.sis.transaction.ITransactionCoordinator;
 import ch.ethz.sis.transaction.ITransactionParticipant;
 import ch.ethz.sis.transaction.TransactionCoordinator;
 import ch.ethz.sis.transaction.TransactionLog;
-import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 
 @Component
 public class TransactionCoordinatorApi implements ITransactionCoordinatorApi
@@ -27,8 +26,7 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi
     @Autowired
     public TransactionCoordinatorApi(final TransactionConfiguration transactionConfiguration, IApplicationServerApi applicationServerApi, final ITransactionParticipantApi participantApi)
     {
-        List<ITransactionParticipant> participants =
-                Arrays.asList(new ApplicationServerApiParticipant(ITransactionCoordinatorApi.APPLICATION_SERVER_PARTICIPANT_ID, participantApi));
+        List<ITransactionParticipant> participants = Arrays.asList(participantApi);
 
         this.transactionCoordinator = new TransactionCoordinator(
                 transactionConfiguration.getCoordinatorKey(),
@@ -68,67 +66,6 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi
     @Override public int getMinorVersion()
     {
         return 0;
-    }
-
-    private static class ApplicationServerApiParticipant implements ITransactionParticipant
-    {
-
-        private final String participantId;
-
-        private final ITransactionParticipantApi participantApi;
-
-        public ApplicationServerApiParticipant(String participantId, ITransactionParticipantApi participantApi)
-        {
-            this.participantId = participantId;
-            this.participantApi = participantApi;
-        }
-
-        @Override public String getParticipantId()
-        {
-            return participantId;
-        }
-
-        @Override public void beginTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
-        {
-            participantApi.beginTransaction(transactionId, sessionToken, interactiveSessionKey);
-        }
-
-        @Override public <T> T executeOperation(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
-                final String operationName, final Object[] operationArguments)
-        {
-            return participantApi.executeOperation(transactionId, sessionToken, interactiveSessionKey, operationName, operationArguments);
-        }
-
-        @Override public void prepareTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
-                final String transactionCoordinatorKey)
-        {
-            participantApi.prepareTransaction(transactionId, sessionToken, interactiveSessionKey, transactionCoordinatorKey);
-        }
-
-        @Override public List<UUID> getTransactions(final String transactionCoordinatorKey)
-        {
-            return participantApi.getTransactions(transactionCoordinatorKey);
-        }
-
-        @Override public void commitTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
-        {
-            participantApi.commitTransaction(transactionId, sessionToken, interactiveSessionKey);
-        }
-
-        @Override public void commitTransaction(final UUID transactionId, final String transactionCoordinatorKey)
-        {
-            participantApi.commitTransaction(transactionId, transactionCoordinatorKey);
-        }
-
-        @Override public void rollbackTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
-        {
-            participantApi.rollbackTransaction(transactionId, sessionToken, interactiveSessionKey);
-        }
-
-        @Override public void rollbackTransaction(final UUID transactionId, final String transactionCoordinatorKey)
-        {
-            participantApi.rollbackTransaction(transactionId, transactionCoordinatorKey);
-        }
     }
 
     private static class ApplicationServerSessionTokenProvider implements ISessionTokenProvider
