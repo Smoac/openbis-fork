@@ -34,7 +34,10 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportableKind;
+
+import java.io.PrintWriter;
 import java.io.Serializable;
+import java.io.StringWriter;
 import java.util.*;
 
 public class XLSExportExtendedService
@@ -138,12 +141,23 @@ public class XLSExportExtendedService
         }
 
         private void sentEmail() {
-            String downloadURL = exportResult.getDownloadURL();
+            String content = null;
+            if (exportResult != null)
+            {
+                content = exportResult.getDownloadURL();
+            }
+            if (exportException != null)
+            {
+                StringWriter sw = new StringWriter();
+                PrintWriter pw = new PrintWriter(sw);
+                exportException.printStackTrace(pw);
+                content = sw.toString();
+            }
             SessionInformation sessionInformation = api.getSessionInformation(sessionToken);
             EMailAddress eMailAddress = new EMailAddress(sessionInformation.getPerson().getEmail());
             IMailClient eMailClient = CommonServiceProvider.createEMailClient();
             String subject = "openBIS Export Download Ready";
-            eMailClient.sendEmailMessage(subject, downloadURL, null, null, eMailAddress);
+            eMailClient.sendEmailMessage(subject, content, null, null, eMailAddress);
         }
 
         public ExportResult getExportResult() {
