@@ -9,39 +9,32 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
-import ch.ethz.sis.openbis.generic.server.transaction.ISessionTokenProvider;
-import ch.ethz.sis.openbis.generic.server.transaction.ITransactionCoordinator;
-import ch.ethz.sis.openbis.generic.server.transaction.ITransactionParticipant;
-import ch.ethz.sis.openbis.generic.server.transaction.TransactionCoordinator;
-import ch.ethz.sis.openbis.generic.server.transaction.TransactionLog;
+import ch.ethz.sis.openbis.generic.asapi.v3.ITransactionCoordinatorApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.ITransactionParticipantApi;
+import ch.ethz.sis.transaction.ISessionTokenProvider;
+import ch.ethz.sis.transaction.ITransactionCoordinator;
+import ch.ethz.sis.transaction.ITransactionParticipant;
+import ch.ethz.sis.transaction.TransactionCoordinator;
+import ch.ethz.sis.transaction.TransactionLog;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 
 @Component
-public class TransactionCoordinatorService implements ITransactionCoordinatorService
+public class TransactionCoordinatorApi implements ITransactionCoordinatorApi
 {
 
     private static final String TRANSACTION_COORDINATOR_KEY = "test-transaction-coordinator-key";
 
     private static final String INTERACTIVE_SESSION_KEY = "test-interactive-session-key";
 
-    private static final String APPLICATION_SERVER_URL = "http://127.0.0.1:8888";
-
-    private static final String APPLICATION_SERVER_URL_2 = "http://127.0.0.1:9999";
-
     private static final String TRANSACTION_LOG_PATH = "transaction-logs";
-
-    private static final long TIMEOUT = 10000000;
 
     private final ITransactionCoordinator transactionCoordinator;
 
     @Autowired
-    public TransactionCoordinatorService(final IApplicationServerApi applicationServerApi)
+    public TransactionCoordinatorApi(final IApplicationServerApi applicationServerApi, final ITransactionParticipantApi participantApi)
     {
-        List<ITransactionParticipant> participants = Arrays.asList(
-                new ApplicationServerApiParticipant(ITransactionParticipantService.PARTICIPANT_ID, APPLICATION_SERVER_URL,
-                        TIMEOUT),
-                new ApplicationServerApiParticipant(ITransactionParticipantService.PARTICIPANT_ID_2, APPLICATION_SERVER_URL_2,
-                        TIMEOUT));
+        List<ITransactionParticipant> participants =
+                Arrays.asList(new ApplicationServerApiParticipant(ITransactionCoordinatorApi.APPLICATION_SERVER_PARTICIPANT_ID, participantApi));
 
         this.transactionCoordinator = new TransactionCoordinator(
                 TRANSACTION_COORDINATOR_KEY,
@@ -56,7 +49,7 @@ public class TransactionCoordinatorService implements ITransactionCoordinatorSer
         transactionCoordinator.beginTransaction(transactionId, sessionToken, interactiveSessionKey);
     }
 
-    @Override public Object executeOperation(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
+    @Override public <T> T executeOperation(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
             final String participantId, final String operationName, final Object[] operationArguments)
     {
         return transactionCoordinator.executeOperation(transactionId, sessionToken, interactiveSessionKey, participantId, operationName,
@@ -88,13 +81,12 @@ public class TransactionCoordinatorService implements ITransactionCoordinatorSer
 
         private final String participantId;
 
-        private final ITransactionParticipant participantApi;
+        private final ITransactionParticipantApi participantApi;
 
-        public ApplicationServerApiParticipant(String participantId, String participantServerUrl, long timeout)
+        public ApplicationServerApiParticipant(String participantId, ITransactionParticipantApi participantApi)
         {
             this.participantId = participantId;
-            this.participantApi = HttpInvokerUtils.createServiceStub(ITransactionParticipant.class,
-                    participantServerUrl + "/openbis/openbis" + ITransactionParticipantService.SERVICE_URL, timeout, null);
+            this.participantApi = participantApi;
         }
 
         @Override public String getParticipantId()

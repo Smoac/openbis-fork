@@ -1,4 +1,4 @@
-package ch.ethz.sis.openbis.generic.server.transaction;
+package ch.ethz.sis.transaction;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;

@@ -16,20 +16,22 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
-import ch.ethz.sis.openbis.generic.server.transaction.IDatabaseTransactionProvider;
-import ch.ethz.sis.openbis.generic.server.transaction.ISessionTokenProvider;
-import ch.ethz.sis.openbis.generic.server.transaction.ITransactionOperationExecutor;
-import ch.ethz.sis.openbis.generic.server.transaction.ITransactionParticipant;
-import ch.ethz.sis.openbis.generic.server.transaction.TransactionLog;
-import ch.ethz.sis.openbis.generic.server.transaction.TransactionOperationException;
-import ch.ethz.sis.openbis.generic.server.transaction.TransactionParticipant;
+import ch.ethz.sis.openbis.generic.asapi.v3.ITransactionCoordinatorApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.ITransactionParticipantApi;
+import ch.ethz.sis.transaction.IDatabaseTransactionProvider;
+import ch.ethz.sis.transaction.ISessionTokenProvider;
+import ch.ethz.sis.transaction.ITransactionOperationExecutor;
+import ch.ethz.sis.transaction.ITransactionParticipant;
+import ch.ethz.sis.transaction.TransactionLog;
+import ch.ethz.sis.transaction.TransactionOperationException;
+import ch.ethz.sis.transaction.TransactionParticipant;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 
 @Component
-public class TransactionParticipantService implements ITransactionParticipantService
+public class TransactionParticipantApi implements ITransactionParticipantApi
 {
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, TransactionParticipant.class);
@@ -43,11 +45,11 @@ public class TransactionParticipantService implements ITransactionParticipantSer
     private final ITransactionParticipant transactionParticipant;
 
     @Autowired
-    public TransactionParticipantService(final PlatformTransactionManager transactionManager, final IDAOFactory daoFactory,
+    public TransactionParticipantApi(final PlatformTransactionManager transactionManager, final IDAOFactory daoFactory,
             final DatabaseConfigurationContext databaseContext, final IApplicationServerApi applicationServerApi)
     {
         this.transactionParticipant = new TransactionParticipant(
-                PARTICIPANT_ID,
+                ITransactionCoordinatorApi.APPLICATION_SERVER_PARTICIPANT_ID,
                 TRANSACTION_COORDINATOR_KEY,
                 INTERACTIVE_SESSION_KEY,
                 new ApplicationServerSessionTokenProvider(applicationServerApi),

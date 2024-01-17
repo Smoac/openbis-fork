@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.ITransactionCoordinatorApi;
 import ch.systemsx.cisd.openbis.common.api.server.AbstractApiServiceExporter;
 
 @Controller
@@ -17,19 +18,19 @@ public class TransactionCoordinatorServer extends AbstractApiServiceExporter
 {
 
     @Autowired
-    private ITransactionCoordinatorService transactionCoordinatorService;
+    private ITransactionCoordinatorApi transactionCoordinatorApi;
 
     @Override
     public void afterPropertiesSet()
     {
-        establishService(ITransactionCoordinatorService.class, transactionCoordinatorService, ITransactionCoordinatorService.SERVICE_NAME,
-                ITransactionCoordinatorService.SERVICE_URL);
+        establishService(ITransactionCoordinatorApi.class, transactionCoordinatorApi, ITransactionCoordinatorApi.SERVICE_NAME,
+                ITransactionCoordinatorApi.SERVICE_URL);
         super.afterPropertiesSet();
     }
 
     @RequestMapping(
-            { ITransactionCoordinatorService.SERVICE_URL, "/openbis" + ITransactionCoordinatorService.SERVICE_URL,
-                    "/openbis/openbis" + ITransactionCoordinatorService.SERVICE_URL })
+            { ITransactionCoordinatorApi.SERVICE_URL, "/openbis" + ITransactionCoordinatorApi.SERVICE_URL,
+                    "/openbis/openbis" + ITransactionCoordinatorApi.SERVICE_URL })
     @Override
     public void handleRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException

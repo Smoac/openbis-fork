@@ -16,6 +16,26 @@
  */
 package ch.ethz.sis.openbis.generic;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
+
+import org.eclipse.jetty.client.api.ContentResponse;
+import org.eclipse.jetty.client.api.Request;
+import org.eclipse.jetty.client.util.BytesContentProvider;
+import org.eclipse.jetty.http.HttpMethod;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.AuthorizationGroup;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.create.AuthorizationGroupCreation;
@@ -202,15 +222,29 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.id.SemanticAn
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.search.SemanticAnnotationSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.update.SemanticAnnotationUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.server.ServerInformation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.*;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.AggregationService;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASService;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASServiceExecutionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.ProcessingService;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.ReportingService;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.SearchDomainService;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.SearchDomainServiceExecutionResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.execute.AggregationServiceExecutionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.execute.ProcessingServiceExecutionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.execute.ReportingServiceExecutionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.execute.SearchDomainServiceExecutionOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.*;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.AggregationServiceFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.CustomASServiceFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.ProcessingServiceFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.ReportingServiceFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.SearchDomainServiceFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.ICustomASServiceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.IDssServiceId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.*;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.AggregationServiceSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.CustomASServiceSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.ProcessingServiceSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.ReportingServiceSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.SearchDomainServiceSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.SessionInformation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.fetchoptions.SessionInformationFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.search.SessionInformationSearchCriteria;
@@ -256,36 +290,29 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fastdownload.FastDo
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSetFileFetchOptions;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.ITransactionCoordinatorApi;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.http.JettyHttpClientFactory;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
-
-import org.eclipse.jetty.client.api.ContentResponse;
-import org.eclipse.jetty.client.api.Request;
-import org.eclipse.jetty.client.util.BytesContentProvider;
-import org.eclipse.jetty.http.HttpMethod;
-
-public class OpenBIS {
+public class OpenBIS
+{
 
     private static final int DEFAULT_TIMEOUT_IN_MILLIS = 30000; //30 seconds
 
     private static final int CHUNK_SIZE = 1048576; // 1 MiB
 
+    private final ITransactionCoordinatorApi transactionCoordinator;
+
     private final IApplicationServerApi asFacade;
 
     private final IDataStoreServerApi dssFacade;
 
+    private String interactiveSessionKey;
+
     private String sessionToken;
+
+    private UUID transactionId;
 
     private final String asURL;
 
@@ -293,12 +320,14 @@ public class OpenBIS {
 
     private final int timeout;
 
-    public OpenBIS(final String url) {
+    public OpenBIS(final String url)
+    {
         this(url, DEFAULT_TIMEOUT_IN_MILLIS);
     }
 
-    public OpenBIS(final String url, final int timeout) {
-        this(url + "/openbis/openbis", url + "/datastore_server", 30000);
+    public OpenBIS(final String url, final int timeout)
+    {
+        this(url + "/openbis/openbis", url + "/datastore_server", timeout);
     }
 
     public OpenBIS(final String asURL, final String dssURL)
@@ -308,6 +337,8 @@ public class OpenBIS {
 
     public OpenBIS(final String asURL, final String dssURL, final int timeout)
     {
+        this.transactionCoordinator =
+                HttpInvokerUtils.createServiceStub(ITransactionCoordinatorApi.class, asURL + ITransactionCoordinatorApi.SERVICE_URL, timeout);
         this.asFacade = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, asURL + IApplicationServerApi.SERVICE_URL, timeout);
         this.dssFacade = HttpInvokerUtils.createServiceStub(IDataStoreServerApi.class, dssURL + IDataStoreServerApi.SERVICE_URL, timeout);
         this.asURL = asURL;
@@ -319,621 +350,875 @@ public class OpenBIS {
     // AS Facade methods
     //
 
-    public String login(String userId, String password) {
+    public String login(String userId, String password)
+    {
         String sessionToken = asFacade.login(userId, password);
         setSessionToken(sessionToken);
         return sessionToken;
     }
 
-    public String loginAs(String userId, String password, String asUserId) {
+    public String loginAs(String userId, String password, String asUserId)
+    {
         String sessionToken = asFacade.loginAs(userId, password, asUserId);
         setSessionToken(sessionToken);
         return sessionToken;
     }
 
-    public String loginAsAnonymousUser() {
+    public String loginAsAnonymousUser()
+    {
         String sessionToken = asFacade.loginAsAnonymousUser();
         setSessionToken(sessionToken);
         return sessionToken;
     }
 
-    public void logout() {
+    public void logout()
+    {
         asFacade.logout(sessionToken);
     }
 
-    public SessionInformation getSessionInformation() {
+    public void beginTransaction()
+    {
+        if (sessionToken == null)
+        {
+            throw new IllegalStateException("Session token hasn't been set yet");
+        }
+
+        if (interactiveSessionKey == null)
+        {
+            throw new IllegalStateException("Interactive session token hasn't been set yet");
+        }
+
+        if (transactionId != null)
+        {
+            throw new IllegalStateException("Transaction has been already started");
+        }
+
+        transactionId = UUID.randomUUID();
+        transactionCoordinator.beginTransaction(transactionId, sessionToken, interactiveSessionKey);
+    }
+
+    public void commitTransaction()
+    {
+        if (sessionToken == null)
+        {
+            throw new IllegalStateException("Session token hasn't been set yet");
+        }
+
+        if (interactiveSessionKey == null)
+        {
+            throw new IllegalStateException("Interactive session token hasn't been set yet");
+        }
+
+        if (transactionId == null)
+        {
+            throw new IllegalStateException("Transaction hasn't started yet");
+        }
+
+        transactionCoordinator.commitTransaction(transactionId, sessionToken, interactiveSessionKey);
+        transactionId = null;
+    }
+
+    public void rollbackTransaction()
+    {
+        if (sessionToken == null)
+        {
+            throw new IllegalStateException("Session token hasn't been set yet");
+        }
+
+        if (interactiveSessionKey == null)
+        {
+            throw new IllegalStateException("Interactive session token hasn't been set yet");
+        }
+
+        if (transactionId == null)
+        {
+            throw new IllegalStateException("Transaction hasn't started yet");
+        }
+
+        transactionCoordinator.rollbackTransaction(transactionId, sessionToken, interactiveSessionKey);
+        transactionId = null;
+    }
+
+    public SessionInformation getSessionInformation()
+    {
         return asFacade.getSessionInformation(sessionToken);
     }
 
-    public boolean isSessionActive() {
+    public boolean isSessionActive()
+    {
         return asFacade.isSessionActive(sessionToken);
     }
 
-    public List<SpacePermId> createSpaces(List<SpaceCreation> newSpaces) {
-        return asFacade.createSpaces(sessionToken, newSpaces);
+    public List<SpacePermId> createSpaces(List<SpaceCreation> newSpaces)
+    {
+        if (transactionId != null)
+        {
+            return transactionCoordinator.executeOperation(transactionId, sessionToken, interactiveSessionKey,
+                    ITransactionCoordinatorApi.APPLICATION_SERVER_PARTICIPANT_ID, "createSpaces", new Object[] { sessionToken, newSpaces });
+        } else
+        {
+            return asFacade.createSpaces(sessionToken, newSpaces);
+        }
     }
 
-    public List<ProjectPermId> createProjects(List<ProjectCreation> newProjects) {
+    public List<ProjectPermId> createProjects(List<ProjectCreation> newProjects)
+    {
         return asFacade.createProjects(sessionToken, newProjects);
     }
 
-    public List<ExperimentPermId> createExperiments(List<ExperimentCreation> newExperiments) {
+    public List<ExperimentPermId> createExperiments(List<ExperimentCreation> newExperiments)
+    {
         return asFacade.createExperiments(sessionToken, newExperiments);
     }
 
-    public List<EntityTypePermId> createExperimentTypes(List<ExperimentTypeCreation> newExperimentTypes) {
+    public List<EntityTypePermId> createExperimentTypes(List<ExperimentTypeCreation> newExperimentTypes)
+    {
         return asFacade.createExperimentTypes(sessionToken, newExperimentTypes);
     }
 
-    public List<SamplePermId> createSamples(List<SampleCreation> newSamples) {
+    public List<SamplePermId> createSamples(List<SampleCreation> newSamples)
+    {
         return asFacade.createSamples(sessionToken, newSamples);
     }
 
-    public List<EntityTypePermId> createSampleTypes(List<SampleTypeCreation> newSampleTypes) {
+    public List<EntityTypePermId> createSampleTypes(List<SampleTypeCreation> newSampleTypes)
+    {
         return asFacade.createSampleTypes(sessionToken, newSampleTypes);
     }
 
-    public List<DataSetPermId> createDataSetsAS(List<DataSetCreation> newDataSets) {
+    public List<DataSetPermId> createDataSetsAS(List<DataSetCreation> newDataSets)
+    {
         return asFacade.createDataSets(sessionToken, newDataSets);
     }
 
-    public List<EntityTypePermId> createDataSetTypes(List<DataSetTypeCreation> newDataSetTypes) {
+    public List<EntityTypePermId> createDataSetTypes(List<DataSetTypeCreation> newDataSetTypes)
+    {
         return asFacade.createDataSetTypes(sessionToken, newDataSetTypes);
     }
 
-    public List<MaterialPermId> createMaterials(List<MaterialCreation> newMaterials) {
+    public List<MaterialPermId> createMaterials(List<MaterialCreation> newMaterials)
+    {
         return asFacade.createMaterials(sessionToken, newMaterials);
     }
 
-    public List<EntityTypePermId> createMaterialTypes(List<MaterialTypeCreation> newMaterialTypes) {
+    public List<EntityTypePermId> createMaterialTypes(List<MaterialTypeCreation> newMaterialTypes)
+    {
         return asFacade.createMaterialTypes(sessionToken, newMaterialTypes);
     }
 
-    public List<PropertyTypePermId> createPropertyTypes(List<PropertyTypeCreation> newPropertyTypes) {
+    public List<PropertyTypePermId> createPropertyTypes(List<PropertyTypeCreation> newPropertyTypes)
+    {
         return asFacade.createPropertyTypes(sessionToken, newPropertyTypes);
     }
 
-    public List<PluginPermId> createPlugins(List<PluginCreation> newPlugins) {
+    public List<PluginPermId> createPlugins(List<PluginCreation> newPlugins)
+    {
         return asFacade.createPlugins(sessionToken, newPlugins);
     }
 
-    public List<VocabularyPermId> createVocabularies(List<VocabularyCreation> newVocabularies) {
+    public List<VocabularyPermId> createVocabularies(List<VocabularyCreation> newVocabularies)
+    {
         return asFacade.createVocabularies(sessionToken, newVocabularies);
     }
 
-    public List<VocabularyTermPermId> createVocabularyTerms(List<VocabularyTermCreation> newVocabularyTerms) {
+    public List<VocabularyTermPermId> createVocabularyTerms(List<VocabularyTermCreation> newVocabularyTerms)
+    {
         return asFacade.createVocabularyTerms(sessionToken, newVocabularyTerms);
     }
 
-    public List<TagPermId> createTags(List<TagCreation> newTags) {
+    public List<TagPermId> createTags(List<TagCreation> newTags)
+    {
         return asFacade.createTags(sessionToken, newTags);
     }
 
-    public List<AuthorizationGroupPermId> createAuthorizationGroups(List<AuthorizationGroupCreation> newAuthorizationGroups) {
+    public List<AuthorizationGroupPermId> createAuthorizationGroups(List<AuthorizationGroupCreation> newAuthorizationGroups)
+    {
         return asFacade.createAuthorizationGroups(sessionToken, newAuthorizationGroups);
     }
 
-    public List<RoleAssignmentTechId> createRoleAssignments(List<RoleAssignmentCreation> newRoleAssignments) {
+    public List<RoleAssignmentTechId> createRoleAssignments(List<RoleAssignmentCreation> newRoleAssignments)
+    {
         return asFacade.createRoleAssignments(sessionToken, newRoleAssignments);
     }
 
-    public List<PersonPermId> createPersons(List<PersonCreation> newPersons) {
+    public List<PersonPermId> createPersons(List<PersonCreation> newPersons)
+    {
         return asFacade.createPersons(sessionToken, newPersons);
     }
 
-    public List<ExternalDmsPermId> createExternalDataManagementSystems(List<ExternalDmsCreation> newExternalDataManagementSystems) {
+    public List<ExternalDmsPermId> createExternalDataManagementSystems(List<ExternalDmsCreation> newExternalDataManagementSystems)
+    {
         return asFacade.createExternalDataManagementSystems(sessionToken, newExternalDataManagementSystems);
     }
 
-    public List<QueryTechId> createQueries(List<QueryCreation> newQueries) {
+    public List<QueryTechId> createQueries(List<QueryCreation> newQueries)
+    {
         return asFacade.createQueries(sessionToken, newQueries);
     }
 
-    public List<SemanticAnnotationPermId> createSemanticAnnotations(List<SemanticAnnotationCreation> newAnnotations) {
+    public List<SemanticAnnotationPermId> createSemanticAnnotations(List<SemanticAnnotationCreation> newAnnotations)
+    {
         return asFacade.createSemanticAnnotations(sessionToken, newAnnotations);
     }
 
-    public List<PersonalAccessTokenPermId> createPersonalAccessTokens(List<PersonalAccessTokenCreation> newPersonalAccessTokens) {
+    public List<PersonalAccessTokenPermId> createPersonalAccessTokens(List<PersonalAccessTokenCreation> newPersonalAccessTokens)
+    {
         return asFacade.createPersonalAccessTokens(sessionToken, newPersonalAccessTokens);
     }
 
-    public void updateSpaces(List<SpaceUpdate> spaceUpdates) {
+    public void updateSpaces(List<SpaceUpdate> spaceUpdates)
+    {
         asFacade.updateSpaces(sessionToken, spaceUpdates);
     }
 
-    public void updateProjects(List<ProjectUpdate> projectUpdates) {
+    public void updateProjects(List<ProjectUpdate> projectUpdates)
+    {
         asFacade.updateProjects(sessionToken, projectUpdates);
     }
 
-    public void updateExperiments(List<ExperimentUpdate> experimentUpdates) {
+    public void updateExperiments(List<ExperimentUpdate> experimentUpdates)
+    {
         asFacade.updateExperiments(sessionToken, experimentUpdates);
     }
 
-    public void updateExperimentTypes(List<ExperimentTypeUpdate> experimentTypeUpdates) {
+    public void updateExperimentTypes(List<ExperimentTypeUpdate> experimentTypeUpdates)
+    {
         asFacade.updateExperimentTypes(sessionToken, experimentTypeUpdates);
     }
 
-    public void updateSamples(List<SampleUpdate> sampleUpdates) {
+    public void updateSamples(List<SampleUpdate> sampleUpdates)
+    {
         asFacade.updateSamples(sessionToken, sampleUpdates);
     }
 
-    public void updateSampleTypes(List<SampleTypeUpdate> sampleTypeUpdates) {
+    public void updateSampleTypes(List<SampleTypeUpdate> sampleTypeUpdates)
+    {
         asFacade.updateSampleTypes(sessionToken, sampleTypeUpdates);
     }
 
-    public void updateDataSets(List<DataSetUpdate> dataSetUpdates) {
+    public void updateDataSets(List<DataSetUpdate> dataSetUpdates)
+    {
         asFacade.updateDataSets(sessionToken, dataSetUpdates);
     }
 
-    public void updateDataSetTypes(List<DataSetTypeUpdate> dataSetTypeUpdates) {
+    public void updateDataSetTypes(List<DataSetTypeUpdate> dataSetTypeUpdates)
+    {
         asFacade.updateDataSetTypes(sessionToken, dataSetTypeUpdates);
     }
 
-    public void updateMaterials(List<MaterialUpdate> materialUpdates) {
+    public void updateMaterials(List<MaterialUpdate> materialUpdates)
+    {
         asFacade.updateMaterials(sessionToken, materialUpdates);
     }
 
-    public void updateMaterialTypes(List<MaterialTypeUpdate> materialTypeUpdates) {
+    public void updateMaterialTypes(List<MaterialTypeUpdate> materialTypeUpdates)
+    {
         asFacade.updateMaterialTypes(sessionToken, materialTypeUpdates);
     }
 
-    public void updateExternalDataManagementSystems(List<ExternalDmsUpdate> externalDmsUpdates) {
+    public void updateExternalDataManagementSystems(List<ExternalDmsUpdate> externalDmsUpdates)
+    {
         asFacade.updateExternalDataManagementSystems(sessionToken, externalDmsUpdates);
     }
 
-    public void updatePropertyTypes(List<PropertyTypeUpdate> propertyTypeUpdates) {
+    public void updatePropertyTypes(List<PropertyTypeUpdate> propertyTypeUpdates)
+    {
         asFacade.updatePropertyTypes(sessionToken, propertyTypeUpdates);
     }
 
-    public void updatePlugins(List<PluginUpdate> pluginUpdates) {
+    public void updatePlugins(List<PluginUpdate> pluginUpdates)
+    {
         asFacade.updatePlugins(sessionToken, pluginUpdates);
     }
 
-    public void updateVocabularies(List<VocabularyUpdate> vocabularyUpdates) {
+    public void updateVocabularies(List<VocabularyUpdate> vocabularyUpdates)
+    {
         asFacade.updateVocabularies(sessionToken, vocabularyUpdates);
     }
 
-    public void updateVocabularyTerms(List<VocabularyTermUpdate> vocabularyTermUpdates) {
+    public void updateVocabularyTerms(List<VocabularyTermUpdate> vocabularyTermUpdates)
+    {
         asFacade.updateVocabularyTerms(sessionToken, vocabularyTermUpdates);
     }
 
-    public void updateTags(List<TagUpdate> tagUpdates) {
+    public void updateTags(List<TagUpdate> tagUpdates)
+    {
         asFacade.updateTags(sessionToken, tagUpdates);
     }
 
-    public void updateAuthorizationGroups(List<AuthorizationGroupUpdate> authorizationGroupUpdates) {
+    public void updateAuthorizationGroups(List<AuthorizationGroupUpdate> authorizationGroupUpdates)
+    {
         asFacade.updateAuthorizationGroups(sessionToken, authorizationGroupUpdates);
     }
 
-    public void updatePersons(List<PersonUpdate> personUpdates) {
+    public void updatePersons(List<PersonUpdate> personUpdates)
+    {
         asFacade.updatePersons(sessionToken, personUpdates);
     }
 
-    public void updateOperationExecutions(List<OperationExecutionUpdate> executionUpdates) {
+    public void updateOperationExecutions(List<OperationExecutionUpdate> executionUpdates)
+    {
         asFacade.updateOperationExecutions(sessionToken, executionUpdates);
     }
 
-    public void updateSemanticAnnotations(List<SemanticAnnotationUpdate> annotationUpdates) {
+    public void updateSemanticAnnotations(List<SemanticAnnotationUpdate> annotationUpdates)
+    {
         asFacade.updateSemanticAnnotations(sessionToken, annotationUpdates);
     }
 
-    public void updateQueries(List<QueryUpdate> queryUpdates) {
+    public void updateQueries(List<QueryUpdate> queryUpdates)
+    {
         asFacade.updateQueries(sessionToken, queryUpdates);
     }
 
-    public void updatePersonalAccessTokens(List<PersonalAccessTokenUpdate> personalAccessTokenUpdates) {
+    public void updatePersonalAccessTokens(List<PersonalAccessTokenUpdate> personalAccessTokenUpdates)
+    {
         asFacade.updatePersonalAccessTokens(sessionToken, personalAccessTokenUpdates);
     }
 
-    public Map<IObjectId, Rights> getRights(List<? extends IObjectId> ids, RightsFetchOptions fetchOptions) {
+    public Map<IObjectId, Rights> getRights(List<? extends IObjectId> ids, RightsFetchOptions fetchOptions)
+    {
         return asFacade.getRights(sessionToken, ids, fetchOptions);
     }
 
-    public Map<ISpaceId, Space> getSpaces(List<? extends ISpaceId> spaceIds, SpaceFetchOptions fetchOptions) {
+    public Map<ISpaceId, Space> getSpaces(List<? extends ISpaceId> spaceIds, SpaceFetchOptions fetchOptions)
+    {
         return asFacade.getSpaces(sessionToken, spaceIds, fetchOptions);
     }
 
-    public Map<IProjectId, Project> getProjects(List<? extends IProjectId> projectIds, ProjectFetchOptions fetchOptions) {
+    public Map<IProjectId, Project> getProjects(List<? extends IProjectId> projectIds, ProjectFetchOptions fetchOptions)
+    {
         return asFacade.getProjects(sessionToken, projectIds, fetchOptions);
     }
 
-    public Map<IExperimentId, Experiment> getExperiments(List<? extends IExperimentId> experimentIds, ExperimentFetchOptions fetchOptions) {
+    public Map<IExperimentId, Experiment> getExperiments(List<? extends IExperimentId> experimentIds, ExperimentFetchOptions fetchOptions)
+    {
         return asFacade.getExperiments(sessionToken, experimentIds, fetchOptions);
     }
 
-    public Map<IEntityTypeId, ExperimentType> getExperimentTypes(List<? extends IEntityTypeId> experimentTypeIds, ExperimentTypeFetchOptions fetchOptions) {
+    public Map<IEntityTypeId, ExperimentType> getExperimentTypes(List<? extends IEntityTypeId> experimentTypeIds,
+            ExperimentTypeFetchOptions fetchOptions)
+    {
         return asFacade.getExperimentTypes(sessionToken, experimentTypeIds, fetchOptions);
     }
 
-    public Map<ISampleId, Sample> getSamples(List<? extends ISampleId> sampleIds, SampleFetchOptions fetchOptions) {
+    public Map<ISampleId, Sample> getSamples(List<? extends ISampleId> sampleIds, SampleFetchOptions fetchOptions)
+    {
         return asFacade.getSamples(sessionToken, sampleIds, fetchOptions);
     }
 
-    public Map<IEntityTypeId, SampleType> getSampleTypes(List<? extends IEntityTypeId> sampleTypeIds, SampleTypeFetchOptions fetchOptions) {
+    public Map<IEntityTypeId, SampleType> getSampleTypes(List<? extends IEntityTypeId> sampleTypeIds, SampleTypeFetchOptions fetchOptions)
+    {
         return asFacade.getSampleTypes(sessionToken, sampleTypeIds, fetchOptions);
     }
 
-    public Map<IDataSetId, DataSet> getDataSets(List<? extends IDataSetId> dataSetIds, DataSetFetchOptions fetchOptions) {
+    public Map<IDataSetId, DataSet> getDataSets(List<? extends IDataSetId> dataSetIds, DataSetFetchOptions fetchOptions)
+    {
         return asFacade.getDataSets(sessionToken, dataSetIds, fetchOptions);
     }
 
-    public Map<IEntityTypeId, DataSetType> getDataSetTypes(List<? extends IEntityTypeId> dataSetTypeIds, DataSetTypeFetchOptions fetchOptions) {
+    public Map<IEntityTypeId, DataSetType> getDataSetTypes(List<? extends IEntityTypeId> dataSetTypeIds, DataSetTypeFetchOptions fetchOptions)
+    {
         return asFacade.getDataSetTypes(sessionToken, dataSetTypeIds, fetchOptions);
     }
 
-    public Map<IMaterialId, Material> getMaterials(List<? extends IMaterialId> materialIds, MaterialFetchOptions fetchOptions) {
+    public Map<IMaterialId, Material> getMaterials(List<? extends IMaterialId> materialIds, MaterialFetchOptions fetchOptions)
+    {
         return asFacade.getMaterials(sessionToken, materialIds, fetchOptions);
     }
 
-    public Map<IEntityTypeId, MaterialType> getMaterialTypes(List<? extends IEntityTypeId> materialTypeIds, MaterialTypeFetchOptions fetchOptions) {
+    public Map<IEntityTypeId, MaterialType> getMaterialTypes(List<? extends IEntityTypeId> materialTypeIds, MaterialTypeFetchOptions fetchOptions)
+    {
         return asFacade.getMaterialTypes(sessionToken, materialTypeIds, fetchOptions);
     }
 
-    public Map<IPropertyTypeId, PropertyType> getPropertyTypes(List<? extends IPropertyTypeId> typeIds, PropertyTypeFetchOptions fetchOptions) {
+    public Map<IPropertyTypeId, PropertyType> getPropertyTypes(List<? extends IPropertyTypeId> typeIds, PropertyTypeFetchOptions fetchOptions)
+    {
         return asFacade.getPropertyTypes(sessionToken, typeIds, fetchOptions);
     }
 
-    public Map<IPluginId, Plugin> getPlugins(List<? extends IPluginId> pluginIds, PluginFetchOptions fetchOptions) {
+    public Map<IPluginId, Plugin> getPlugins(List<? extends IPluginId> pluginIds, PluginFetchOptions fetchOptions)
+    {
         return asFacade.getPlugins(sessionToken, pluginIds, fetchOptions);
     }
 
-    public Map<IVocabularyId, Vocabulary> getVocabularies(List<? extends IVocabularyId> vocabularyIds, VocabularyFetchOptions fetchOptions) {
+    public Map<IVocabularyId, Vocabulary> getVocabularies(List<? extends IVocabularyId> vocabularyIds, VocabularyFetchOptions fetchOptions)
+    {
         return asFacade.getVocabularies(sessionToken, vocabularyIds, fetchOptions);
     }
 
-    public Map<IVocabularyTermId, VocabularyTerm> getVocabularyTerms(List<? extends IVocabularyTermId> vocabularyTermIds, VocabularyTermFetchOptions fetchOptions) {
+    public Map<IVocabularyTermId, VocabularyTerm> getVocabularyTerms(List<? extends IVocabularyTermId> vocabularyTermIds,
+            VocabularyTermFetchOptions fetchOptions)
+    {
         return asFacade.getVocabularyTerms(sessionToken, vocabularyTermIds, fetchOptions);
     }
 
-    public Map<ITagId, Tag> getTags(List<? extends ITagId> tagIds, TagFetchOptions fetchOptions) {
+    public Map<ITagId, Tag> getTags(List<? extends ITagId> tagIds, TagFetchOptions fetchOptions)
+    {
         return asFacade.getTags(sessionToken, tagIds, fetchOptions);
     }
 
-    public Map<IAuthorizationGroupId, AuthorizationGroup> getAuthorizationGroups(List<? extends IAuthorizationGroupId> groupIds, AuthorizationGroupFetchOptions fetchOptions) {
+    public Map<IAuthorizationGroupId, AuthorizationGroup> getAuthorizationGroups(List<? extends IAuthorizationGroupId> groupIds,
+            AuthorizationGroupFetchOptions fetchOptions)
+    {
         return asFacade.getAuthorizationGroups(sessionToken, groupIds, fetchOptions);
     }
 
-    public Map<IRoleAssignmentId, RoleAssignment> getRoleAssignments(List<? extends IRoleAssignmentId> ids, RoleAssignmentFetchOptions fetchOptions) {
+    public Map<IRoleAssignmentId, RoleAssignment> getRoleAssignments(List<? extends IRoleAssignmentId> ids, RoleAssignmentFetchOptions fetchOptions)
+    {
         return asFacade.getRoleAssignments(sessionToken, ids, fetchOptions);
     }
 
-    public Map<IPersonId, Person> getPersons(List<? extends IPersonId> ids, PersonFetchOptions fetchOptions) {
+    public Map<IPersonId, Person> getPersons(List<? extends IPersonId> ids, PersonFetchOptions fetchOptions)
+    {
         return asFacade.getPersons(sessionToken, ids, fetchOptions);
     }
 
-    public Map<IExternalDmsId, ExternalDms> getExternalDataManagementSystems(List<? extends IExternalDmsId> externalDmsIds, ExternalDmsFetchOptions fetchOptions) {
+    public Map<IExternalDmsId, ExternalDms> getExternalDataManagementSystems(List<? extends IExternalDmsId> externalDmsIds,
+            ExternalDmsFetchOptions fetchOptions)
+    {
         return asFacade.getExternalDataManagementSystems(sessionToken, externalDmsIds, fetchOptions);
     }
 
-    public Map<ISemanticAnnotationId, SemanticAnnotation> getSemanticAnnotations(List<? extends ISemanticAnnotationId> annotationIds, SemanticAnnotationFetchOptions fetchOptions) {
+    public Map<ISemanticAnnotationId, SemanticAnnotation> getSemanticAnnotations(List<? extends ISemanticAnnotationId> annotationIds,
+            SemanticAnnotationFetchOptions fetchOptions)
+    {
         return asFacade.getSemanticAnnotations(sessionToken, annotationIds, fetchOptions);
     }
 
-    public Map<IOperationExecutionId, OperationExecution> getOperationExecutions(List<? extends IOperationExecutionId> executionIds, OperationExecutionFetchOptions fetchOptions) {
+    public Map<IOperationExecutionId, OperationExecution> getOperationExecutions(List<? extends IOperationExecutionId> executionIds,
+            OperationExecutionFetchOptions fetchOptions)
+    {
         return asFacade.getOperationExecutions(sessionToken, executionIds, fetchOptions);
     }
 
-    public Map<IQueryId, Query> getQueries(List<? extends IQueryId> queryIds, QueryFetchOptions fetchOptions) {
+    public Map<IQueryId, Query> getQueries(List<? extends IQueryId> queryIds, QueryFetchOptions fetchOptions)
+    {
         return asFacade.getQueries(sessionToken, queryIds, fetchOptions);
     }
 
-    public Map<IQueryDatabaseId, QueryDatabase> getQueryDatabases(List<? extends IQueryDatabaseId> queryDatabaseIds, QueryDatabaseFetchOptions fetchOptions) {
+    public Map<IQueryDatabaseId, QueryDatabase> getQueryDatabases(List<? extends IQueryDatabaseId> queryDatabaseIds,
+            QueryDatabaseFetchOptions fetchOptions)
+    {
         return asFacade.getQueryDatabases(sessionToken, queryDatabaseIds, fetchOptions);
     }
 
-    public Map<IPersonalAccessTokenId, PersonalAccessToken> getPersonalAccessTokens(List<? extends IPersonalAccessTokenId> personalAccessTokenIds, PersonalAccessTokenFetchOptions fetchOptions) {
+    public Map<IPersonalAccessTokenId, PersonalAccessToken> getPersonalAccessTokens(List<? extends IPersonalAccessTokenId> personalAccessTokenIds,
+            PersonalAccessTokenFetchOptions fetchOptions)
+    {
         return asFacade.getPersonalAccessTokens(sessionToken, personalAccessTokenIds, fetchOptions);
     }
 
-    public SearchResult<Space> searchSpaces(SpaceSearchCriteria searchCriteria, SpaceFetchOptions fetchOptions) {
-        return asFacade.searchSpaces(sessionToken, searchCriteria, fetchOptions);
+    public SearchResult<Space> searchSpaces(SpaceSearchCriteria searchCriteria, SpaceFetchOptions fetchOptions)
+    {
+        if (transactionId != null)
+        {
+            return transactionCoordinator.executeOperation(transactionId, sessionToken, interactiveSessionKey,
+                    ITransactionCoordinatorApi.APPLICATION_SERVER_PARTICIPANT_ID, "searchSpaces",
+                    new Object[] { sessionToken, searchCriteria, fetchOptions });
+        } else
+        {
+            return asFacade.searchSpaces(sessionToken, searchCriteria, fetchOptions);
+        }
     }
 
-    public SearchResult<Project> searchProjects(ProjectSearchCriteria searchCriteria, ProjectFetchOptions fetchOptions) {
+    public SearchResult<Project> searchProjects(ProjectSearchCriteria searchCriteria, ProjectFetchOptions fetchOptions)
+    {
         return asFacade.searchProjects(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<Experiment> searchExperiments(ExperimentSearchCriteria searchCriteria, ExperimentFetchOptions fetchOptions) {
+    public SearchResult<Experiment> searchExperiments(ExperimentSearchCriteria searchCriteria, ExperimentFetchOptions fetchOptions)
+    {
         return asFacade.searchExperiments(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<ExperimentType> searchExperimentTypes(ExperimentTypeSearchCriteria searchCriteria, ExperimentTypeFetchOptions fetchOptions) {
+    public SearchResult<ExperimentType> searchExperimentTypes(ExperimentTypeSearchCriteria searchCriteria, ExperimentTypeFetchOptions fetchOptions)
+    {
         return asFacade.searchExperimentTypes(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<Sample> searchSamples(SampleSearchCriteria searchCriteria, SampleFetchOptions fetchOptions) {
+    public SearchResult<Sample> searchSamples(SampleSearchCriteria searchCriteria, SampleFetchOptions fetchOptions)
+    {
         return asFacade.searchSamples(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<SampleType> searchSampleTypes(SampleTypeSearchCriteria searchCriteria, SampleTypeFetchOptions fetchOptions) {
+    public SearchResult<SampleType> searchSampleTypes(SampleTypeSearchCriteria searchCriteria, SampleTypeFetchOptions fetchOptions)
+    {
         return asFacade.searchSampleTypes(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<DataSet> searchDataSets(DataSetSearchCriteria searchCriteria, DataSetFetchOptions fetchOptions) {
+    public SearchResult<DataSet> searchDataSets(DataSetSearchCriteria searchCriteria, DataSetFetchOptions fetchOptions)
+    {
         return asFacade.searchDataSets(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<DataSetType> searchDataSetTypes(DataSetTypeSearchCriteria searchCriteria, DataSetTypeFetchOptions fetchOptions) {
+    public SearchResult<DataSetType> searchDataSetTypes(DataSetTypeSearchCriteria searchCriteria, DataSetTypeFetchOptions fetchOptions)
+    {
         return asFacade.searchDataSetTypes(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<Material> searchMaterials(MaterialSearchCriteria searchCriteria, MaterialFetchOptions fetchOptions) {
+    public SearchResult<Material> searchMaterials(MaterialSearchCriteria searchCriteria, MaterialFetchOptions fetchOptions)
+    {
         return asFacade.searchMaterials(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<ExternalDms> searchExternalDataManagementSystems(ExternalDmsSearchCriteria searchCriteria, ExternalDmsFetchOptions fetchOptions) {
+    public SearchResult<ExternalDms> searchExternalDataManagementSystems(ExternalDmsSearchCriteria searchCriteria,
+            ExternalDmsFetchOptions fetchOptions)
+    {
         return asFacade.searchExternalDataManagementSystems(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<MaterialType> searchMaterialTypes(MaterialTypeSearchCriteria searchCriteria, MaterialTypeFetchOptions fetchOptions) {
+    public SearchResult<MaterialType> searchMaterialTypes(MaterialTypeSearchCriteria searchCriteria, MaterialTypeFetchOptions fetchOptions)
+    {
         return asFacade.searchMaterialTypes(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<Plugin> searchPlugins(PluginSearchCriteria searchCriteria, PluginFetchOptions fetchOptions) {
+    public SearchResult<Plugin> searchPlugins(PluginSearchCriteria searchCriteria, PluginFetchOptions fetchOptions)
+    {
         return asFacade.searchPlugins(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<Vocabulary> searchVocabularies(VocabularySearchCriteria searchCriteria, VocabularyFetchOptions fetchOptions) {
+    public SearchResult<Vocabulary> searchVocabularies(VocabularySearchCriteria searchCriteria, VocabularyFetchOptions fetchOptions)
+    {
         return asFacade.searchVocabularies(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<VocabularyTerm> searchVocabularyTerms(VocabularyTermSearchCriteria searchCriteria, VocabularyTermFetchOptions fetchOptions) {
+    public SearchResult<VocabularyTerm> searchVocabularyTerms(VocabularyTermSearchCriteria searchCriteria, VocabularyTermFetchOptions fetchOptions)
+    {
         return asFacade.searchVocabularyTerms(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<Tag> searchTags(TagSearchCriteria searchCriteria, TagFetchOptions fetchOptions) {
+    public SearchResult<Tag> searchTags(TagSearchCriteria searchCriteria, TagFetchOptions fetchOptions)
+    {
         return asFacade.searchTags(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<AuthorizationGroup> searchAuthorizationGroups(AuthorizationGroupSearchCriteria searchCriteria, AuthorizationGroupFetchOptions fetchOptions) {
+    public SearchResult<AuthorizationGroup> searchAuthorizationGroups(AuthorizationGroupSearchCriteria searchCriteria,
+            AuthorizationGroupFetchOptions fetchOptions)
+    {
         return asFacade.searchAuthorizationGroups(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<RoleAssignment> searchRoleAssignments(RoleAssignmentSearchCriteria searchCriteria, RoleAssignmentFetchOptions fetchOptions) {
+    public SearchResult<RoleAssignment> searchRoleAssignments(RoleAssignmentSearchCriteria searchCriteria, RoleAssignmentFetchOptions fetchOptions)
+    {
         return asFacade.searchRoleAssignments(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<Person> searchPersons(PersonSearchCriteria searchCriteria, PersonFetchOptions fetchOptions) {
+    public SearchResult<Person> searchPersons(PersonSearchCriteria searchCriteria, PersonFetchOptions fetchOptions)
+    {
         return asFacade.searchPersons(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<CustomASService> searchCustomASServices(CustomASServiceSearchCriteria searchCriteria, CustomASServiceFetchOptions fetchOptions) {
+    public SearchResult<CustomASService> searchCustomASServices(CustomASServiceSearchCriteria searchCriteria,
+            CustomASServiceFetchOptions fetchOptions)
+    {
         return asFacade.searchCustomASServices(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<SearchDomainService> searchSearchDomainServices(SearchDomainServiceSearchCriteria searchCriteria, SearchDomainServiceFetchOptions fetchOptions) {
+    public SearchResult<SearchDomainService> searchSearchDomainServices(SearchDomainServiceSearchCriteria searchCriteria,
+            SearchDomainServiceFetchOptions fetchOptions)
+    {
         return asFacade.searchSearchDomainServices(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<AggregationService> searchAggregationServices(AggregationServiceSearchCriteria searchCriteria, AggregationServiceFetchOptions fetchOptions) {
+    public SearchResult<AggregationService> searchAggregationServices(AggregationServiceSearchCriteria searchCriteria,
+            AggregationServiceFetchOptions fetchOptions)
+    {
         return asFacade.searchAggregationServices(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<ReportingService> searchReportingServices(ReportingServiceSearchCriteria searchCriteria, ReportingServiceFetchOptions fetchOptions) {
+    public SearchResult<ReportingService> searchReportingServices(ReportingServiceSearchCriteria searchCriteria,
+            ReportingServiceFetchOptions fetchOptions)
+    {
         return asFacade.searchReportingServices(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<ProcessingService> searchProcessingServices(ProcessingServiceSearchCriteria searchCriteria, ProcessingServiceFetchOptions fetchOptions) {
+    public SearchResult<ProcessingService> searchProcessingServices(ProcessingServiceSearchCriteria searchCriteria,
+            ProcessingServiceFetchOptions fetchOptions)
+    {
         return asFacade.searchProcessingServices(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<ObjectKindModification> searchObjectKindModifications(ObjectKindModificationSearchCriteria searchCriteria, ObjectKindModificationFetchOptions fetchOptions) {
+    public SearchResult<ObjectKindModification> searchObjectKindModifications(ObjectKindModificationSearchCriteria searchCriteria,
+            ObjectKindModificationFetchOptions fetchOptions)
+    {
         return asFacade.searchObjectKindModifications(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<GlobalSearchObject> searchGlobally(GlobalSearchCriteria searchCriteria, GlobalSearchObjectFetchOptions fetchOptions) {
+    public SearchResult<GlobalSearchObject> searchGlobally(GlobalSearchCriteria searchCriteria, GlobalSearchObjectFetchOptions fetchOptions)
+    {
         return asFacade.searchGlobally(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<OperationExecution> searchOperationExecutions(OperationExecutionSearchCriteria searchCriteria, OperationExecutionFetchOptions fetchOptions) {
+    public SearchResult<OperationExecution> searchOperationExecutions(OperationExecutionSearchCriteria searchCriteria,
+            OperationExecutionFetchOptions fetchOptions)
+    {
         return asFacade.searchOperationExecutions(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<DataStore> searchDataStores(DataStoreSearchCriteria searchCriteria, DataStoreFetchOptions fetchOptions) {
+    public SearchResult<DataStore> searchDataStores(DataStoreSearchCriteria searchCriteria, DataStoreFetchOptions fetchOptions)
+    {
         return asFacade.searchDataStores(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<SemanticAnnotation> searchSemanticAnnotations(SemanticAnnotationSearchCriteria searchCriteria, SemanticAnnotationFetchOptions fetchOptions) {
+    public SearchResult<SemanticAnnotation> searchSemanticAnnotations(SemanticAnnotationSearchCriteria searchCriteria,
+            SemanticAnnotationFetchOptions fetchOptions)
+    {
         return asFacade.searchSemanticAnnotations(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<PropertyType> searchPropertyTypes(PropertyTypeSearchCriteria searchCriteria, PropertyTypeFetchOptions fetchOptions) {
+    public SearchResult<PropertyType> searchPropertyTypes(PropertyTypeSearchCriteria searchCriteria, PropertyTypeFetchOptions fetchOptions)
+    {
         return asFacade.searchPropertyTypes(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<PropertyAssignment> searchPropertyAssignments(PropertyAssignmentSearchCriteria searchCriteria, PropertyAssignmentFetchOptions fetchOptions) {
+    public SearchResult<PropertyAssignment> searchPropertyAssignments(PropertyAssignmentSearchCriteria searchCriteria,
+            PropertyAssignmentFetchOptions fetchOptions)
+    {
         return asFacade.searchPropertyAssignments(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<Query> searchQueries(QuerySearchCriteria searchCriteria, QueryFetchOptions fetchOptions) {
+    public SearchResult<Query> searchQueries(QuerySearchCriteria searchCriteria, QueryFetchOptions fetchOptions)
+    {
         return asFacade.searchQueries(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<QueryDatabase> searchQueryDatabases(QueryDatabaseSearchCriteria searchCriteria, QueryDatabaseFetchOptions fetchOptions) {
+    public SearchResult<QueryDatabase> searchQueryDatabases(QueryDatabaseSearchCriteria searchCriteria, QueryDatabaseFetchOptions fetchOptions)
+    {
         return asFacade.searchQueryDatabases(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public void deleteSpaces(List<? extends ISpaceId> spaceIds, SpaceDeletionOptions deletionOptions) {
+    public void deleteSpaces(List<? extends ISpaceId> spaceIds, SpaceDeletionOptions deletionOptions)
+    {
         asFacade.deleteSpaces(sessionToken, spaceIds, deletionOptions);
     }
 
-    public void deleteProjects(List<? extends IProjectId> projectIds, ProjectDeletionOptions deletionOptions) {
+    public void deleteProjects(List<? extends IProjectId> projectIds, ProjectDeletionOptions deletionOptions)
+    {
         asFacade.deleteProjects(sessionToken, projectIds, deletionOptions);
     }
 
-    public IDeletionId deleteExperiments(List<? extends IExperimentId> experimentIds, ExperimentDeletionOptions deletionOptions) {
+    public IDeletionId deleteExperiments(List<? extends IExperimentId> experimentIds, ExperimentDeletionOptions deletionOptions)
+    {
         return asFacade.deleteExperiments(sessionToken, experimentIds, deletionOptions);
     }
 
-    public IDeletionId deleteSamples(List<? extends ISampleId> sampleIds, SampleDeletionOptions deletionOptions) {
+    public IDeletionId deleteSamples(List<? extends ISampleId> sampleIds, SampleDeletionOptions deletionOptions)
+    {
         return asFacade.deleteSamples(sessionToken, sampleIds, deletionOptions);
     }
 
-    public IDeletionId deleteDataSets(List<? extends IDataSetId> dataSetIds, DataSetDeletionOptions deletionOptions) {
+    public IDeletionId deleteDataSets(List<? extends IDataSetId> dataSetIds, DataSetDeletionOptions deletionOptions)
+    {
         return asFacade.deleteDataSets(sessionToken, dataSetIds, deletionOptions);
     }
 
-    public void deleteMaterials(List<? extends IMaterialId> materialIds, MaterialDeletionOptions deletionOptions) {
+    public void deleteMaterials(List<? extends IMaterialId> materialIds, MaterialDeletionOptions deletionOptions)
+    {
         asFacade.deleteMaterials(sessionToken, materialIds, deletionOptions);
     }
 
-    public void deletePlugins(List<? extends IPluginId> pluginIds, PluginDeletionOptions deletionOptions) {
+    public void deletePlugins(List<? extends IPluginId> pluginIds, PluginDeletionOptions deletionOptions)
+    {
         asFacade.deletePlugins(sessionToken, pluginIds, deletionOptions);
     }
 
-    public void deletePropertyTypes(List<? extends IPropertyTypeId> propertyTypeIds, PropertyTypeDeletionOptions deletionOptions) {
+    public void deletePropertyTypes(List<? extends IPropertyTypeId> propertyTypeIds, PropertyTypeDeletionOptions deletionOptions)
+    {
         asFacade.deletePropertyTypes(sessionToken, propertyTypeIds, deletionOptions);
     }
 
-    public void deleteVocabularies(List<? extends IVocabularyId> ids, VocabularyDeletionOptions deletionOptions) {
+    public void deleteVocabularies(List<? extends IVocabularyId> ids, VocabularyDeletionOptions deletionOptions)
+    {
         asFacade.deleteVocabularies(sessionToken, ids, deletionOptions);
     }
 
-    public void deleteVocabularyTerms(List<? extends IVocabularyTermId> termIds, VocabularyTermDeletionOptions deletionOptions) {
+    public void deleteVocabularyTerms(List<? extends IVocabularyTermId> termIds, VocabularyTermDeletionOptions deletionOptions)
+    {
         asFacade.deleteVocabularyTerms(sessionToken, termIds, deletionOptions);
     }
 
-    public void deleteExperimentTypes(List<? extends IEntityTypeId> experimentTypeIds, ExperimentTypeDeletionOptions deletionOptions) {
+    public void deleteExperimentTypes(List<? extends IEntityTypeId> experimentTypeIds, ExperimentTypeDeletionOptions deletionOptions)
+    {
         asFacade.deleteExperimentTypes(sessionToken, experimentTypeIds, deletionOptions);
     }
 
-    public void deleteSampleTypes(List<? extends IEntityTypeId> sampleTypeIds, SampleTypeDeletionOptions deletionOptions) {
+    public void deleteSampleTypes(List<? extends IEntityTypeId> sampleTypeIds, SampleTypeDeletionOptions deletionOptions)
+    {
         asFacade.deleteSampleTypes(sessionToken, sampleTypeIds, deletionOptions);
     }
 
-    public void deleteDataSetTypes(List<? extends IEntityTypeId> dataSetTypeIds, DataSetTypeDeletionOptions deletionOptions) {
+    public void deleteDataSetTypes(List<? extends IEntityTypeId> dataSetTypeIds, DataSetTypeDeletionOptions deletionOptions)
+    {
         asFacade.deleteDataSetTypes(sessionToken, dataSetTypeIds, deletionOptions);
     }
 
-    public void deleteMaterialTypes(List<? extends IEntityTypeId> materialTypeIds, MaterialTypeDeletionOptions deletionOptions) {
+    public void deleteMaterialTypes(List<? extends IEntityTypeId> materialTypeIds, MaterialTypeDeletionOptions deletionOptions)
+    {
         asFacade.deleteMaterialTypes(sessionToken, materialTypeIds, deletionOptions);
     }
 
-    public void deleteExternalDataManagementSystems(List<? extends IExternalDmsId> externalDmsIds, ExternalDmsDeletionOptions deletionOptions) {
+    public void deleteExternalDataManagementSystems(List<? extends IExternalDmsId> externalDmsIds, ExternalDmsDeletionOptions deletionOptions)
+    {
         asFacade.deleteExternalDataManagementSystems(sessionToken, externalDmsIds, deletionOptions);
     }
 
-    public void deleteTags(List<? extends ITagId> tagIds, TagDeletionOptions deletionOptions) {
+    public void deleteTags(List<? extends ITagId> tagIds, TagDeletionOptions deletionOptions)
+    {
         asFacade.deleteTags(sessionToken, tagIds, deletionOptions);
     }
 
-    public void deleteAuthorizationGroups(List<? extends IAuthorizationGroupId> groupIds, AuthorizationGroupDeletionOptions deletionOptions) {
+    public void deleteAuthorizationGroups(List<? extends IAuthorizationGroupId> groupIds, AuthorizationGroupDeletionOptions deletionOptions)
+    {
         asFacade.deleteAuthorizationGroups(sessionToken, groupIds, deletionOptions);
     }
 
-    public void deleteRoleAssignments(List<? extends IRoleAssignmentId> assignmentIds, RoleAssignmentDeletionOptions deletionOptions) {
+    public void deleteRoleAssignments(List<? extends IRoleAssignmentId> assignmentIds, RoleAssignmentDeletionOptions deletionOptions)
+    {
         asFacade.deleteRoleAssignments(sessionToken, assignmentIds, deletionOptions);
     }
 
-    public void deleteOperationExecutions(List<? extends IOperationExecutionId> executionIds, OperationExecutionDeletionOptions deletionOptions) {
+    public void deleteOperationExecutions(List<? extends IOperationExecutionId> executionIds, OperationExecutionDeletionOptions deletionOptions)
+    {
         asFacade.deleteOperationExecutions(sessionToken, executionIds, deletionOptions);
     }
 
-    public void deleteSemanticAnnotations(List<? extends ISemanticAnnotationId> annotationIds, SemanticAnnotationDeletionOptions deletionOptions) {
+    public void deleteSemanticAnnotations(List<? extends ISemanticAnnotationId> annotationIds, SemanticAnnotationDeletionOptions deletionOptions)
+    {
         asFacade.deleteSemanticAnnotations(sessionToken, annotationIds, deletionOptions);
     }
 
-    public void deleteQueries(List<? extends IQueryId> queryIds, QueryDeletionOptions deletionOptions) {
+    public void deleteQueries(List<? extends IQueryId> queryIds, QueryDeletionOptions deletionOptions)
+    {
         asFacade.deleteQueries(sessionToken, queryIds, deletionOptions);
     }
 
-    public void deletePersons(List<? extends IPersonId> personIds, PersonDeletionOptions deletionOptions) {
+    public void deletePersons(List<? extends IPersonId> personIds, PersonDeletionOptions deletionOptions)
+    {
         asFacade.deletePersons(sessionToken, personIds, deletionOptions);
     }
 
-    public void deletePersonalAccessTokens(List<? extends IPersonalAccessTokenId> personalAccessTokenIds, PersonalAccessTokenDeletionOptions deletionOptions) {
+    public void deletePersonalAccessTokens(List<? extends IPersonalAccessTokenId> personalAccessTokenIds,
+            PersonalAccessTokenDeletionOptions deletionOptions)
+    {
         asFacade.deletePersonalAccessTokens(sessionToken, personalAccessTokenIds, deletionOptions);
     }
 
-    public SearchResult<Deletion> searchDeletions(DeletionSearchCriteria searchCriteria, DeletionFetchOptions fetchOptions) {
+    public SearchResult<Deletion> searchDeletions(DeletionSearchCriteria searchCriteria, DeletionFetchOptions fetchOptions)
+    {
         return asFacade.searchDeletions(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<Event> searchEvents(EventSearchCriteria searchCriteria, EventFetchOptions fetchOptions) {
+    public SearchResult<Event> searchEvents(EventSearchCriteria searchCriteria, EventFetchOptions fetchOptions)
+    {
         return asFacade.searchEvents(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<PersonalAccessToken> searchPersonalAccessTokens(PersonalAccessTokenSearchCriteria searchCriteria, PersonalAccessTokenFetchOptions fetchOptions) {
+    public SearchResult<PersonalAccessToken> searchPersonalAccessTokens(PersonalAccessTokenSearchCriteria searchCriteria,
+            PersonalAccessTokenFetchOptions fetchOptions)
+    {
         return asFacade.searchPersonalAccessTokens(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<SessionInformation> searchSessionInformation(SessionInformationSearchCriteria searchCriteria, SessionInformationFetchOptions fetchOptions) {
+    public SearchResult<SessionInformation> searchSessionInformation(SessionInformationSearchCriteria searchCriteria,
+            SessionInformationFetchOptions fetchOptions)
+    {
         return asFacade.searchSessionInformation(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public void revertDeletions(List<? extends IDeletionId> deletionIds) {
+    public void revertDeletions(List<? extends IDeletionId> deletionIds)
+    {
         asFacade.revertDeletions(sessionToken, deletionIds);
     }
 
-    public void confirmDeletions(List<? extends IDeletionId> deletionIds) {
+    public void confirmDeletions(List<? extends IDeletionId> deletionIds)
+    {
         asFacade.confirmDeletions(sessionToken, deletionIds);
     }
 
-    public Object executeCustomASService(ICustomASServiceId serviceId, CustomASServiceExecutionOptions options) {
+    public Object executeCustomASService(ICustomASServiceId serviceId, CustomASServiceExecutionOptions options)
+    {
         return asFacade.executeCustomASService(sessionToken, serviceId, options);
     }
 
-    public SearchResult<SearchDomainServiceExecutionResult> executeSearchDomainService(SearchDomainServiceExecutionOptions options) {
+    public SearchResult<SearchDomainServiceExecutionResult> executeSearchDomainService(SearchDomainServiceExecutionOptions options)
+    {
         return asFacade.executeSearchDomainService(sessionToken, options);
     }
 
-    public TableModel executeAggregationService(IDssServiceId serviceId, AggregationServiceExecutionOptions options) {
+    public TableModel executeAggregationService(IDssServiceId serviceId, AggregationServiceExecutionOptions options)
+    {
         return asFacade.executeAggregationService(sessionToken, serviceId, options);
     }
 
-    public TableModel executeReportingService(IDssServiceId serviceId, ReportingServiceExecutionOptions options) {
+    public TableModel executeReportingService(IDssServiceId serviceId, ReportingServiceExecutionOptions options)
+    {
         return asFacade.executeReportingService(sessionToken, serviceId, options);
     }
 
-    public void executeProcessingService(IDssServiceId serviceId, ProcessingServiceExecutionOptions options) {
+    public void executeProcessingService(IDssServiceId serviceId, ProcessingServiceExecutionOptions options)
+    {
         asFacade.executeProcessingService(sessionToken, serviceId, options);
     }
 
-    public TableModel executeQuery(IQueryId queryId, QueryExecutionOptions options) {
+    public TableModel executeQuery(IQueryId queryId, QueryExecutionOptions options)
+    {
         return asFacade.executeQuery(sessionToken, queryId, options);
     }
 
-    public TableModel executeSql(String sql, SqlExecutionOptions options) {
+    public TableModel executeSql(String sql, SqlExecutionOptions options)
+    {
         return asFacade.executeSql(sessionToken, sql, options);
     }
 
-    public PluginEvaluationResult evaluatePlugin(PluginEvaluationOptions options) {
+    public PluginEvaluationResult evaluatePlugin(PluginEvaluationOptions options)
+    {
         return asFacade.evaluatePlugin(sessionToken, options);
     }
 
-    public void archiveDataSets(List<? extends IDataSetId> dataSetIds, DataSetArchiveOptions options) {
+    public void archiveDataSets(List<? extends IDataSetId> dataSetIds, DataSetArchiveOptions options)
+    {
         asFacade.archiveDataSets(sessionToken, dataSetIds, options);
     }
 
-    public void unarchiveDataSets(List<? extends IDataSetId> dataSetIds, DataSetUnarchiveOptions options) {
+    public void unarchiveDataSets(List<? extends IDataSetId> dataSetIds, DataSetUnarchiveOptions options)
+    {
         asFacade.unarchiveDataSets(sessionToken, dataSetIds, options);
     }
 
-    public void lockDataSets(List<? extends IDataSetId> dataSetIds, DataSetLockOptions options) {
+    public void lockDataSets(List<? extends IDataSetId> dataSetIds, DataSetLockOptions options)
+    {
         asFacade.lockDataSets(sessionToken, dataSetIds, options);
     }
 
-    public void unlockDataSets(List<? extends IDataSetId> dataSetIds, DataSetUnlockOptions options) {
+    public void unlockDataSets(List<? extends IDataSetId> dataSetIds, DataSetUnlockOptions options)
+    {
         asFacade.unlockDataSets(sessionToken, dataSetIds, options);
     }
 
-    public IOperationExecutionResults executeOperations(String sessionToken, List<? extends IOperation> operations, IOperationExecutionOptions options) {
+    public IOperationExecutionResults executeOperations(String sessionToken, List<? extends IOperation> operations,
+            IOperationExecutionOptions options)
+    {
         return asFacade.executeOperations(sessionToken, operations, options);
     }
 
-    public Map<String, String> getServerInformation() {
+    public Map<String, String> getServerInformation()
+    {
         return asFacade.getServerInformation(sessionToken);
     }
 
-    public Map<String, String> getServerPublicInformation() {
+    public Map<String, String> getServerPublicInformation()
+    {
         return asFacade.getServerPublicInformation();
     }
 
-    public List<String> createPermIdStrings(int count) {
+    public List<String> createPermIdStrings(int count)
+    {
         return asFacade.createPermIdStrings(sessionToken, count);
     }
 
-    public List<String> createCodes(String prefix, EntityKind entityKind, int count) {
+    public List<String> createCodes(String prefix, EntityKind entityKind, int count)
+    {
         return asFacade.createCodes(sessionToken, prefix, entityKind, count);
     }
 
@@ -941,15 +1226,18 @@ public class OpenBIS {
     // DSS Facade methods
     //
 
-    public SearchResult<DataSetFile> searchFiles(DataSetFileSearchCriteria searchCriteria, DataSetFileFetchOptions fetchOptions) {
+    public SearchResult<DataSetFile> searchFiles(DataSetFileSearchCriteria searchCriteria, DataSetFileFetchOptions fetchOptions)
+    {
         return dssFacade.searchFiles(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public InputStream downloadFiles(List<? extends IDataSetFileId> fileIds, DataSetFileDownloadOptions downloadOptions) {
+    public InputStream downloadFiles(List<? extends IDataSetFileId> fileIds, DataSetFileDownloadOptions downloadOptions)
+    {
         return dssFacade.downloadFiles(sessionToken, fileIds, downloadOptions);
     }
 
-    public FastDownloadSession createFastDownloadSession(List<? extends IDataSetFileId> fileIds, FastDownloadSessionOptions options) {
+    public FastDownloadSession createFastDownloadSession(List<? extends IDataSetFileId> fileIds, FastDownloadSessionOptions options)
+    {
         return dssFacade.createFastDownloadSession(sessionToken, fileIds, options);
     }
 
@@ -958,7 +1246,8 @@ public class OpenBIS {
         return dssFacade.createUploadedDataSet(sessionToken, newDataSet);
     }
 
-    public List<DataSetPermId> createDataSetsDSS(List<FullDataSetCreation> newDataSets) {
+    public List<DataSetPermId> createDataSetsDSS(List<FullDataSetCreation> newDataSets)
+    {
         return dssFacade.createDataSets(sessionToken, newDataSets);
     }
 
@@ -974,6 +1263,16 @@ public class OpenBIS {
     public void setSessionToken(final String sessionToken)
     {
         this.sessionToken = sessionToken;
+    }
+
+    public void setInteractiveSessionKey(final String interactiveSessionKey)
+    {
+        this.interactiveSessionKey = interactiveSessionKey;
+    }
+
+    public String getInteractiveSessionKey()
+    {
+        return interactiveSessionKey;
     }
 
     public String uploadFileWorkspaceDSS(final Path fileOrFolder)
@@ -995,9 +1294,11 @@ public class OpenBIS {
 
         // Obtain servers renewal information
         Map<String, String> information = asFacade.getServerInformation(sessionToken);
-        int personalAccessTokensRenewalPeriodInSeconds = Integer.parseInt(information.get(ServerInformation.PERSONAL_ACCESS_TOKENS_VALIDITY_WARNING_PERIOD));
+        int personalAccessTokensRenewalPeriodInSeconds =
+                Integer.parseInt(information.get(ServerInformation.PERSONAL_ACCESS_TOKENS_VALIDITY_WARNING_PERIOD));
         int personalAccessTokensRenewalPeriodInDays = personalAccessTokensRenewalPeriodInSeconds / SECONDS_PER_DAY;
-        int personalAccessTokensMaxValidityPeriodInSeconds = Integer.parseInt(information.get(ServerInformation.PERSONAL_ACCESS_TOKENS_MAX_VALIDITY_PERIOD));
+        int personalAccessTokensMaxValidityPeriodInSeconds =
+                Integer.parseInt(information.get(ServerInformation.PERSONAL_ACCESS_TOKENS_MAX_VALIDITY_PERIOD));
         int personalAccessTokensMaxValidityPeriodInDays = personalAccessTokensMaxValidityPeriodInSeconds / SECONDS_PER_DAY;
 
         // Obtain user id
@@ -1009,7 +1310,8 @@ public class OpenBIS {
         personalAccessTokenSearchCriteria.withSessionName().thatEquals(sessionName);
         personalAccessTokenSearchCriteria.withOwner().withUserId().thatEquals(sessionInformation.getPerson().getUserId());
 
-        SearchResult<PersonalAccessToken> personalAccessTokenSearchResult = asFacade.searchPersonalAccessTokens(sessionToken, personalAccessTokenSearchCriteria, new PersonalAccessTokenFetchOptions());
+        SearchResult<PersonalAccessToken> personalAccessTokenSearchResult =
+                asFacade.searchPersonalAccessTokens(sessionToken, personalAccessTokenSearchCriteria, new PersonalAccessTokenFetchOptions());
         PersonalAccessToken bestTokenFound = null;
         PersonalAccessTokenPermId bestTokenFoundPermId = null;
 
@@ -1053,13 +1355,13 @@ public class OpenBIS {
 
     /**
      * This utility method provides a simplified API to create subject semantic annotations
-     *
      */
-    public static SemanticAnnotationCreation getSemanticSubjectCreation(    EntityKind subjectEntityKind,
-                                                                            String subjectClass,
-                                                                            String subjectClassOntologyId,
-                                                                            String subjectClassOntologyVersion,
-                                                                            String subjectClassId) {
+    public static SemanticAnnotationCreation getSemanticSubjectCreation(EntityKind subjectEntityKind,
+            String subjectClass,
+            String subjectClassOntologyId,
+            String subjectClassOntologyVersion,
+            String subjectClassId)
+    {
         SemanticAnnotationCreation semanticAnnotationCreation = new SemanticAnnotationCreation();
         // Subject: Type matching an ontology class
         semanticAnnotationCreation.setEntityTypeId(new EntityTypePermId(subjectClass, subjectEntityKind));
@@ -1077,14 +1379,14 @@ public class OpenBIS {
 
     /**
      * This utility method provides a simplified API to create predicate semantic annotations
-     *
      */
-    public static SemanticAnnotationCreation getSemanticPredicateWithSubjectCreation( EntityKind subjectEntityKind,
-                                                                                      String subjectClass,
-                                                                                      String predicateProperty,
-                                                                                      String predicatePropertyOntologyId,
-                                                                                      String predicatePropertyOntologyVersion,
-                                                                                      String predicatePropertyId) {
+    public static SemanticAnnotationCreation getSemanticPredicateWithSubjectCreation(EntityKind subjectEntityKind,
+            String subjectClass,
+            String predicateProperty,
+            String predicatePropertyOntologyId,
+            String predicatePropertyOntologyVersion,
+            String predicatePropertyId)
+    {
         SemanticAnnotationCreation semanticAnnotationCreation = new SemanticAnnotationCreation();
         // Subject: Type matching an ontology class
         // Predicate: Property matching an ontology class property
@@ -1102,12 +1404,12 @@ public class OpenBIS {
 
     /**
      * This utility method provides a simplified API to create predicate semantic annotations
-     *
      */
-    public static SemanticAnnotationCreation getSemanticPredicateCreation( String predicateProperty,
-                                                                           String predicatePropertyOntologyId,
-                                                                           String predicatePropertyOntologyVersion,
-                                                                           String predicatePropertyId) {
+    public static SemanticAnnotationCreation getSemanticPredicateCreation(String predicateProperty,
+            String predicatePropertyOntologyId,
+            String predicatePropertyOntologyVersion,
+            String predicatePropertyId)
+    {
         SemanticAnnotationCreation semanticAnnotationCreation = new SemanticAnnotationCreation();
         // Predicate: Property matching an ontology class property
         semanticAnnotationCreation.setPropertyTypeId(new PropertyTypePermId(predicateProperty));
@@ -1125,7 +1427,7 @@ public class OpenBIS {
     //
 
     private PersonalAccessTokenPermId createManagedPersonalAccessToken(String applicationName,
-                                                                       int personalAccessTokensMaxValidityPeriodInDays)
+            int personalAccessTokensMaxValidityPeriodInDays)
     {
         final long SECONDS_PER_DAY = 24 * 60 * 60;
         final long MILLIS_PER_DAY = SECONDS_PER_DAY * 1000;
@@ -1162,17 +1464,19 @@ public class OpenBIS {
         if (fileOrFolder.isDirectory())
         {
             uploadFileWorkspaceDSSEmptyDir(fileNameOrFolderName);
-            for (File file:fileOrFolder.listFiles())
+            for (File file : fileOrFolder.listFiles())
             {
                 uploadFileWorkspaceDSS(file, fileNameOrFolderName);
             }
-        } else {
+        } else
+        {
             uploadFileWorkspaceDSSFile(fileNameOrFolderName, fileOrFolder);
         }
         return fileNameOrFolderName;
     }
 
-    private String uploadFileWorkspaceDSSEmptyDir(String pathToDir) {
+    private String uploadFileWorkspaceDSSEmptyDir(String pathToDir)
+    {
         final org.eclipse.jetty.client.HttpClient client = JettyHttpClientFactory.getHttpClient();
         final Request httpRequest = client.newRequest(dssURL + "/session_workspace_file_upload")
                 .method(HttpMethod.POST);
@@ -1184,7 +1488,8 @@ public class OpenBIS {
         httpRequest.param("size", Long.toString(0));
         httpRequest.param("emptyFolder", Boolean.TRUE.toString());
 
-        try {
+        try
+        {
             final ContentResponse response = httpRequest.send();
             final int status = response.getStatus();
             if (status != 200)
@@ -1198,10 +1503,13 @@ public class OpenBIS {
         return pathToDir;
     }
 
-    private String uploadFileWorkspaceDSSFile(String pathToFile, File file) {
-        try {
+    private String uploadFileWorkspaceDSSFile(String pathToFile, File file)
+    {
+        try
+        {
             long start = 0;
-            for (byte[] chunk : streamFile(file, CHUNK_SIZE)) {
+            for (byte[] chunk : streamFile(file, CHUNK_SIZE))
+            {
                 final long end = start + chunk.length;
 
                 final org.eclipse.jetty.client.HttpClient client = JettyHttpClientFactory.getHttpClient();
@@ -1216,12 +1524,14 @@ public class OpenBIS {
                 httpRequest.content(new BytesContentProvider(chunk));
                 final ContentResponse response = httpRequest.send();
                 final int status = response.getStatus();
-                if (status != 200) {
+                if (status != 200)
+                {
                     throw new IOException(response.getContentAsString());
                 }
                 start += CHUNK_SIZE;
             }
-        } catch (final IOException | TimeoutException | InterruptedException | ExecutionException e) {
+        } catch (final IOException | TimeoutException | InterruptedException | ExecutionException e)
+        {
             throw new RuntimeException(e);
         }
         return pathToFile;
@@ -1231,28 +1541,38 @@ public class OpenBIS {
     {
         final InputStream inputStream = new FileInputStream(file);
 
-        return new Iterable<byte[]>() {
+        return new Iterable<byte[]>()
+        {
             @Override
-            public Iterator<byte[]> iterator() {
-                return new Iterator<byte[]>() {
+            public Iterator<byte[]> iterator()
+            {
+                return new Iterator<byte[]>()
+                {
                     public boolean hasMore = true;
 
-                    public boolean hasNext() {
+                    public boolean hasNext()
+                    {
                         return hasMore;
                     }
 
-                    public byte[] next() {
-                        try {
+                    public byte[] next()
+                    {
+                        try
+                        {
                             byte[] bytes = inputStream.readNBytes(chunkSize);
-                            if (bytes.length < chunkSize) {
+                            if (bytes.length < chunkSize)
+                            {
                                 hasMore = false;
                                 inputStream.close();
                             }
                             return bytes;
-                        } catch (final IOException e) {
-                            try {
+                        } catch (final IOException e)
+                        {
+                            try
+                            {
                                 inputStream.close();
-                            } catch (final IOException ex) {
+                            } catch (final IOException ex)
+                            {
                                 throw new RuntimeException(ex);
                             }
                             throw new RuntimeException(e);

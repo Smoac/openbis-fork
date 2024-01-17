@@ -1,4 +1,4 @@
-package ch.ethz.sis.openbis.generic.server.transaction;
+package ch.ethz.sis.transaction;
 
 import java.util.ArrayList;
 import java.util.Arrays;
