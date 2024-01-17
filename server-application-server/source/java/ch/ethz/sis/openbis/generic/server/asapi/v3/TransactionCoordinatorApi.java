@@ -93,7 +93,7 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi
             participantApi.beginTransaction(transactionId, sessionToken, interactiveSessionKey);
         }
 
-        @Override public Object executeOperation(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
+        @Override public <T> T executeOperation(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
                 final String operationName, final Object[] operationArguments)
         {
             return participantApi.executeOperation(transactionId, sessionToken, interactiveSessionKey, operationName, operationArguments);

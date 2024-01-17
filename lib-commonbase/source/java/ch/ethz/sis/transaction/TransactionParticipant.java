@@ -47,6 +47,41 @@ public class TransactionParticipant implements ITransactionParticipant
             ISessionTokenProvider sessionTokenProvider, IDatabaseTransactionProvider databaseTransactionProvider,
             ITransactionOperationExecutor operationExecutor, ITransactionLog transactionLog)
     {
+        if (participantId == null)
+        {
+            throw new IllegalArgumentException("Participant id cannot be null");
+        }
+
+        if (transactionCoordinatorKey == null)
+        {
+            throw new IllegalArgumentException("Transaction coordinator key cannot be null");
+        }
+
+        if (interactiveSessionKey == null)
+        {
+            throw new IllegalArgumentException("Interactive session key cannot be null");
+        }
+
+        if (sessionTokenProvider == null)
+        {
+            throw new IllegalArgumentException("Session token provider cannot be null");
+        }
+
+        if (databaseTransactionProvider == null)
+        {
+            throw new IllegalArgumentException("Database transaction provider cannot be null");
+        }
+
+        if (operationExecutor == null)
+        {
+            throw new IllegalArgumentException("Operation executor cannot be null");
+        }
+
+        if (transactionLog == null)
+        {
+            throw new IllegalArgumentException("Transaction log cannot be null");
+        }
+
         this.participantId = participantId;
         this.transactionCoordinatorKey = transactionCoordinatorKey;
         this.interactiveSessionKey = interactiveSessionKey;

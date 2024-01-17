@@ -28,6 +28,31 @@ public class TransactionCoordinator implements ITransactionCoordinator
     public TransactionCoordinator(final String transactionCoordinatorKey, final String interactiveSessionKey,
             final ISessionTokenProvider sessionTokenProvider, final List<ITransactionParticipant> participants, final ITransactionLog transactionLog)
     {
+        if (transactionCoordinatorKey == null)
+        {
+            throw new IllegalArgumentException("Transaction coordinator key cannot be null");
+        }
+
+        if (interactiveSessionKey == null)
+        {
+            throw new IllegalArgumentException("Interactive session key cannot be null");
+        }
+
+        if (sessionTokenProvider == null)
+        {
+            throw new IllegalArgumentException("Session token provider cannot be null");
+        }
+
+        if (participants == null || participants.isEmpty())
+        {
+            throw new IllegalArgumentException("Participants cannot be null or empty");
+        }
+
+        if (transactionLog == null)
+        {
+            throw new IllegalArgumentException("Transaction log cannot be null");
+        }
+
         this.transactionCoordinatorKey = transactionCoordinatorKey;
         this.interactiveSessionKey = interactiveSessionKey;
         this.sessionTokenProvider = sessionTokenProvider;
@@ -80,6 +105,10 @@ public class TransactionCoordinator implements ITransactionCoordinator
 
     @Override public void beginTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
     {
+        checkTransactionId(transactionId);
+        checkSessionToken(sessionToken);
+        checkInteractiveSessionKey(interactiveSessionKey);
+
         operationLog.info("Begin transaction '" + transactionId + "' started.");
 
         transactionLog.logStatus(transactionId, TransactionStatus.BEGIN_STARTED);
@@ -112,16 +141,21 @@ public class TransactionCoordinator implements ITransactionCoordinator
         operationLog.info("Begin transaction '" + transactionId + "' finished successfully.");
     }
 
-    @Override public Object executeOperation(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
+    @Override public <T> T executeOperation(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
             final String participantId, final String operationName, final Object[] operationArguments)
     {
+        checkTransactionId(transactionId);
+        checkSessionToken(sessionToken);
+        checkInteractiveSessionKey(interactiveSessionKey);
+        checkParticipantId(participantId);
+
         operationLog.info("Transaction '" + transactionId + "' execute operation '" + operationName + "' started.");
 
         for (ITransactionParticipant participant : participants)
         {
             if (Objects.equals(participant.getParticipantId(), participantId))
             {
-                Object result = participant.executeOperation(transactionId, sessionToken, interactiveSessionKey, operationName, operationArguments);
+                T result = participant.executeOperation(transactionId, sessionToken, interactiveSessionKey, operationName, operationArguments);
 
                 operationLog.info("Transaction '" + transactionId + "' execute operation '" + operationName + "' finished successfully.");
 
@@ -134,6 +168,10 @@ public class TransactionCoordinator implements ITransactionCoordinator
 
     @Override public void commitTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
     {
+        checkTransactionId(transactionId);
+        checkSessionToken(sessionToken);
+        checkInteractiveSessionKey(interactiveSessionKey);
+
         operationLog.info("Commit transaction '" + transactionId + "' started.");
 
         prepareTransaction(transactionId, sessionToken, interactiveSessionKey);
@@ -234,6 +272,10 @@ public class TransactionCoordinator implements ITransactionCoordinator
 
     @Override public void rollbackTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
     {
+        checkTransactionId(transactionId);
+        checkSessionToken(sessionToken);
+        checkInteractiveSessionKey(interactiveSessionKey);
+
         rollbackTransaction(transactionId, sessionToken, interactiveSessionKey, false);
     }
 
@@ -288,6 +330,56 @@ public class TransactionCoordinator implements ITransactionCoordinator
             operationLog.info("Rollback transaction '" + transactionId + "' failed.");
             throw exception;
         }
+    }
+
+    private void checkTransactionId(final UUID transactionId)
+    {
+        if (transactionId == null)
+        {
+            throw new IllegalArgumentException("Transaction id cannot be null");
+        }
+    }
+
+    private void checkSessionToken(final String sessionToken)
+    {
+        if (sessionToken == null)
+        {
+            throw new IllegalArgumentException("Session token cannot be null");
+        }
+
+        if (!sessionTokenProvider.isValid(sessionToken))
+        {
+            throw new IllegalArgumentException("Invalid session token");
+        }
+    }
+
+    private void checkInteractiveSessionKey(final String interactiveSessionKey)
+    {
+        if (!this.interactiveSessionKey.equals(interactiveSessionKey))
+        {
+            throw new IllegalArgumentException("Invalid interactive session key");
+        }
+    }
+
+    private void checkTransactionCoordinatorKey(final String transactionCoordinatorKey)
+    {
+        if (!this.transactionCoordinatorKey.equals(transactionCoordinatorKey))
+        {
+            throw new IllegalArgumentException("Invalid transaction coordinator key");
+        }
+    }
+
+    private void checkParticipantId(final String participantId)
+    {
+        for (ITransactionParticipant participant : participants)
+        {
+            if (Objects.equals(participant.getParticipantId(), participantId))
+            {
+                return;
+            }
+        }
+
+        throw new IllegalArgumentException("Invalid participant id");
     }
 
 }

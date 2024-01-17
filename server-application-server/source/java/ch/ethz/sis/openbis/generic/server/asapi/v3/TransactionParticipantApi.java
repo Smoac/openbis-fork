@@ -63,7 +63,7 @@ public class TransactionParticipantApi implements ITransactionParticipantApi
         transactionParticipant.beginTransaction(transactionId, sessionToken, interactiveSessionKey);
     }
 
-    @Override public Object executeOperation(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
+    @Override public <T> T executeOperation(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
             final String operationName, final Object[] operationArguments)
     {
         return transactionParticipant.executeOperation(transactionId, sessionToken, interactiveSessionKey, operationName, operationArguments);
