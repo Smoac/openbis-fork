@@ -191,36 +191,46 @@ public class OpenBISExtension extends Extension
 
                 List<TsMethodModel> tsConstructors = new ArrayList<>();
 
-                for (Constructor<?> constructor : bean.getOrigin().getDeclaredConstructors())
+                if (OpenBIS.class.equals(bean.getOrigin()))
                 {
-                    try
+                    tsConstructors.add(new TsMethodModel("new ", TsModifierFlags.None, Collections.emptyList(), Collections.emptyList(),
+                            new TsType.ReferenceType(bean.getName()), null, null));
+                    tsConstructors.add(new TsMethodModel("new ", TsModifierFlags.None, Collections.emptyList(),
+                            Collections.singletonList(new TsParameterModel("url", TsType.String)),
+                            new TsType.ReferenceType(bean.getName()), null, null));
+                } else
+                {
+                    for (Constructor<?> constructor : bean.getOrigin().getDeclaredConstructors())
                     {
-                        List<TsParameterModel> tsConstructorParameter = new ArrayList<>();
-
-                        for (Parameter constructorParameter : constructor.getParameters())
+                        try
                         {
-                            TsType tsConstructorParameterType = resolveType(processingContext, bean, constructorParameter.getParameterizedType());
-                            tsConstructorParameter.add(new TsParameterModel(constructorParameter.getName(), tsConstructorParameterType));
+                            List<TsParameterModel> tsConstructorParameter = new ArrayList<>();
+
+                            for (Parameter constructorParameter : constructor.getParameters())
+                            {
+                                TsType tsConstructorParameterType = resolveType(processingContext, bean, constructorParameter.getParameterizedType());
+                                tsConstructorParameter.add(new TsParameterModel(constructorParameter.getName(), tsConstructorParameterType));
+                            }
+
+                            TsType tsConstructorReturnType;
+
+                            if (tsBeanTypeParametersWithoutBounds.isEmpty())
+                            {
+                                tsConstructorReturnType = new TsType.ReferenceType(bean.getName());
+                            } else
+                            {
+                                tsConstructorReturnType = new TsType.GenericReferenceType(bean.getName(), tsBeanTypeParametersWithoutBounds);
+                            }
+
+                            tsConstructors.add(new TsMethodModel("new ", TsModifierFlags.None, tsBeanTypeParametersWithBounds, tsConstructorParameter,
+                                    tsConstructorReturnType, null, null));
+
+                        } catch (UnresolvedTypeException e)
+                        {
+                            logger.warning(
+                                    "Skipping method " + constructor.getDeclaringClass() + "." + constructor.getName()
+                                            + " as it contains unresolved type: " + e.getType());
                         }
-
-                        TsType tsConstructorReturnType;
-
-                        if (tsBeanTypeParametersWithoutBounds.isEmpty())
-                        {
-                            tsConstructorReturnType = new TsType.ReferenceType(bean.getName());
-                        } else
-                        {
-                            tsConstructorReturnType = new TsType.GenericReferenceType(bean.getName(), tsBeanTypeParametersWithoutBounds);
-                        }
-
-                        tsConstructors.add(new TsMethodModel("new ", TsModifierFlags.None, tsBeanTypeParametersWithBounds, tsConstructorParameter,
-                                tsConstructorReturnType, null, null));
-
-                    } catch (UnresolvedTypeException e)
-                    {
-                        logger.warning(
-                                "Skipping method " + constructor.getDeclaringClass() + "." + constructor.getName()
-                                        + " as it contains unresolved type: " + e.getType());
                     }
                 }
 
