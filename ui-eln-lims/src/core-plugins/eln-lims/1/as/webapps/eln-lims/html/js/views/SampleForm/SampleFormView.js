@@ -637,11 +637,12 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 
         // Toolbar extension
-		if(sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension.extraToolbar) {
-		    toolbarModel = toolbarModel.concat(sampleTypeDefinitionsExtension.extraToolbar(_this._sampleFormModel.mode, _this._sampleFormModel.sample));
+        // TODO Include method extensions in a different plugin method
+		if(profile.sampleTypeDefinitionsExtension[sampleType.code] && profile.sampleTypeDefinitionsExtension[sampleType.code].extraToolbar) {
+		    toolbarModel = toolbarModel.concat(profile.sampleTypeDefinitionsExtension[sampleType.code].extraToolbar(_this._sampleFormModel.mode, _this._sampleFormModel.sample));
 		}
-		if(sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension.extraToolbarDropdown) {
-		    dropdownOptionsModel = dropdownOptionsModel.concat(sampleTypeDefinitionsExtension.extraToolbarDropdown(_this._sampleFormModel.mode, _this._sampleFormModel.sample));
+		if(profile.sampleTypeDefinitionsExtension[sampleType.code] && profile.sampleTypeDefinitionsExtension[sampleType.code].extraToolbarDropdown) {
+		    dropdownOptionsModel = dropdownOptionsModel.concat(profile.sampleTypeDefinitionsExtension[sampleType.code].extraToolbarDropdown(_this._sampleFormModel.mode, _this._sampleFormModel.sample));
 		}
 
 		FormUtil.addOptionsToToolbar(toolbarModel, dropdownOptionsModel, hideShowOptionsModel,
