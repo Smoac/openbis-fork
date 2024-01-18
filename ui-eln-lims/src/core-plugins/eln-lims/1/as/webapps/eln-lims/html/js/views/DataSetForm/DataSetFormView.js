@@ -32,221 +32,16 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			$wrapper.css('background-color', '#f8f8f8');
 		}
 		$wrapper.submit(function(event) {_this._dataSetFormController.submitDataSet(); event.preventDefault();});
-		
-		//
-		// Title
-		//
-		var titleText = null;
-		if(this._dataSetFormModel.mode === FormMode.CREATE) {
-			titleText = 'Create Dataset';
-		} else {
-		    var nameLabel = FormUtil.getDataSetName(this._dataSetFormModel.dataSetV3.code, this._dataSetFormModel.dataSetV3.properties)
-            if(this._dataSetFormModel.mode === FormMode.EDIT) {
-                titleText = 'Update Dataset: ' + nameLabel;
-            } else if(this._dataSetFormModel.mode === FormMode.VIEW) {
-                titleText = 'Dataset: ' + nameLabel;
-            }
-		}
-		var $title = $('<div>');
-		$title.append($("<h2>").append(titleText));
-		
-		//
-		// Toolbar
-		//
-		var toolbarModel = [];
-		var dropdownOptionsModel = [];
-		if(this._dataSetFormModel.mode === FormMode.VIEW && !this._dataSetFormModel.isMini) {
-			var toolbarConfig = profile.getDataSetTypeToolbarConfiguration(this._getTypeCode());
-			if (_this._allowedToEdit()) {
-				//Edit Button
-				var $editBtn = FormUtil.getButtonWithIcon("glyphicon-edit", function () {
-				    Util.blockUI();
-					mainController.changeView('showEditDataSetPageFromPermId', _this._dataSetFormModel.dataSetV3.code);
-				}, "Edit", null, "dataset-edit-btn");
-				if(toolbarConfig.EDIT) {
-					toolbarModel.push({ component : $editBtn });
-				}
-			}
-			
-			this._addArchivingButton(toolbarModel, toolbarConfig);
-			
-			if(_this._allowedToMove()) {
-				//Move
-				if(toolbarConfig.MOVE) {
-                    dropdownOptionsModel.push({
-                        label : "Move",
-                        action : function() {
-                                var moveEntityController = new MoveEntityController("DATASET", _this._dataSetFormModel.dataSetV3.code);
-                                moveEntityController.init();
-                        }
-                    });
-				}
-			}
-			if(_this._allowedToDelete()) {
-				//Delete Button
-				if(toolbarConfig.DELETE) {
-                    dropdownOptionsModel.push({
-                        label : "Delete",
-                        action : function() {
-                            var modalView = new DeleteEntityController(function(reason) {
-					            _this._dataSetFormController.deleteDataSet(reason);
-                            }, true);
-                            modalView.init();
-                        }
-                    });
-				}
-			}
-			
-            //Print
-            dropdownOptionsModel.push(FormUtil.getPrintPDFButtonModel("DATASET",  _this._dataSetFormModel.dataSetV3.code));
+		hideShowOptionsModel = [];
+        $wrapper.append(this._createIdentificationInfoSection(hideShowOptionsModel, views));
 
-			//Hierarchy Table
-			if(toolbarConfig.HIERARCHY_TABLE) {
-				dropdownOptionsModel.push({
-                    label : "Hierarchy Table",
-                    action : function() {
-                        mainController.changeView('showDatasetHierarchyTablePage', _this._dataSetFormModel.dataSetV3.code);
-                    }
-                });
-			}
-			
-			//Export
-			dropdownOptionsModel.push(FormUtil.getExportButtonModel("DATASET", _this._dataSetFormModel.dataSetV3.code));
+        this._repaintHeader(views);
 
-			if(profile.legacyExports.enable) {
-                if(toolbarConfig.EXPORT_METADATA) {
-                    dropdownOptionsModel.push({
-                        label : "Export Metadata",
-                        action : FormUtil.getExportAction([{ type: "DATASET", permId : _this._dataSetFormModel.dataSetV3.code, expand : true }], true)
-                    });
-                }
-
-                if(toolbarConfig.EXPORT_ALL) {
-                    dropdownOptionsModel.push({
-                        label : "Export Metadata & Data",
-                        action : FormUtil.getExportAction([{ type: "DATASET", permId : _this._dataSetFormModel.dataSetV3.code, expand : true }], false)
-                    });
-                }
-			}
-
-            if (this._dataSetFormModel.availableProcessingServices.length > 0) {
-                dropdownOptionsModel.push({
-                    label : "Process",
-                    action : function() {
-                        var $window = $('<form>', {
-                            'action' : 'javascript:void(0);'
-                        });
-                        
-                        $window.append($('<legend>').append("Process Data Set"));
-                        var services = [];
-                        var servicesById = {};
-                        _this._dataSetFormModel.availableProcessingServices.forEach(function(service) {
-                            var id = service.getPermId().toString();
-                            services.push({value:id, label:service.getLabel()});
-                            servicesById[id] = service;
-                        });
-                        var $serviceDropdown = FormUtil.getDropdown(services, "Select a processing service");
-                        $window.append($serviceDropdown);
-                        var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' });
-                        var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
-                        $btnCancel.click(function() {
-                            Util.unblockUI();
-                        });
-                        $window.append($('<br>'));
-                        $window.append($btnAccept).append('&nbsp;').append($btnCancel);
-                        $window.submit(function() {
-                            Util.blockUI();
-                            var service = servicesById[$serviceDropdown.val()];
-                            var dataSetCode = _this._dataSetFormModel.dataSetV3.getCode();
-                            mainController.serverFacade.processDataSets(service.getPermId(), [dataSetCode], function() {
-                                Util.unblockUI();
-                                Util.showInfo("Processing task '" + service.getLabel() 
-                                        + "' successfully submitted for data set " + dataSetCode + ".");
-                            });
-                        });
-                        var css = {
-                                'text-align' : 'left',
-                                'top' : '15%',
-                                'width' : '50%',
-                                'left' : '15%',
-                                'right' : '20%',
-                                'overflow' : 'auto'
-                        };
-                        Util.blockUI($window, css);
-                    }
-                });
-            }
-
-			//Jupyter Button
-			if(profile.jupyterIntegrationServerEndpoint) {
-                dropdownOptionsModel.push({
-                    label : "New Jupyter notebook",
-                    action : function () {
-                        var jupyterNotebook = new JupyterNotebookController(_this._dataSetFormModel.dataSetV3);
-                        jupyterNotebook.init();
-                    }
-                });
-			}
-
-            //Freeze
-            if(_this._dataSetFormModel.v3_dataset && _this._dataSetFormModel.v3_dataset.frozen !== undefined) { //Freezing available on the API
-                var isEntityFrozen = _this._dataSetFormModel.v3_dataset.frozen;
-                if(toolbarConfig.FREEZE) {
-                    if(isEntityFrozen) {
-                        var $freezeButton = FormUtil.getFreezeButton("DATASET", this._dataSetFormModel.v3_dataset.permId.permId, isEntityFrozen);
-                        toolbarModel.push({ component : $freezeButton, tooltip: "Entity Frozen" });
-                    } else {
-                        dropdownOptionsModel.push({
-                            label : "Freeze Entity (Disable further modifications)",
-                            action : function () {
-                                FormUtil.showFreezeForm("DATASET", _this._dataSetFormModel.v3_dataset.permId.permId);
-                            }
-                        });
-                    }
-                }
-            }
-
-            //History
-            if(toolbarConfig.HISTORY) {
-                dropdownOptionsModel.push({
-                    label : "History",
-                    action : function() {
-                        mainController.changeView('showDatasetHistoryPage', _this._dataSetFormModel.dataSetV3.code);
-                    }
-                });
-            }
-		} else if(!this._dataSetFormModel.isMini) {
-			var $saveBtn = FormUtil.getButtonWithIcon("glyphicon-floppy-disk", function() {
-				_this._dataSetFormController.submitDataSet();
-			}, "Save", null, "save-btn");
-			$saveBtn.removeClass("btn-default");
-			$saveBtn.addClass("btn-primary");
-			toolbarModel.push({ component : $saveBtn });
-		}
-		
 		// Plugin Hook
 		if (!this._dataSetFormModel.isMini) {
 			var $datasetFormTop = new $('<div>');
 			$wrapper.append($datasetFormTop);
 			profile.dataSetFormTop($datasetFormTop, this._dataSetFormModel);
-		}
-		
-		hideShowOptionsModel = [];
-		$wrapper.append(this._createIdentificationInfoSection(hideShowOptionsModel));
-		if (!this._dataSetFormModel.isMini) {
-			var $header = views.header;
-			$header.append($title);
-
-			// Toolbar extension
-			if(dataSetTypeDefinitionsExtension && dataSetTypeDefinitionsExtension.extraToolbar) {
-				toolbarModel = toolbarModel.concat(dataSetTypeDefinitionsExtension.extraToolbar(_this._dataSetFormModel.mode, _this._dataSetFormModel.dataSetV3));
-			}
-            if(dataSetTypeDefinitionsExtension && dataSetTypeDefinitionsExtension.extraToolbarDropdown) {
-                dropdownOptionsModel = dropdownOptionsModel.concat(dataSetTypeDefinitionsExtension.extraToolbarDropdown(_this._dataSetFormModel.mode, _this._dataSetFormModel.dataSetV3));
-            }
-
-			FormUtil.addOptionsToToolbar(toolbarModel, dropdownOptionsModel, hideShowOptionsModel, "DATA-SET-VIEW");
-			$header.append(FormUtil.getToolbar(toolbarModel));
 		}
 		
 		//Metadata Container
@@ -449,8 +244,223 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		}
 		
 	}
-	
-	this._createIdentificationInfoSection = function(hideShowOptionsModel) {
+
+	this._repaintHeader = function(views) {
+	    var _this = this;
+		//
+		// Title
+		//
+		var titleText = null;
+		if(this._dataSetFormModel.mode === FormMode.CREATE) {
+			titleText = 'Create Dataset';
+		} else {
+		    var nameLabel = FormUtil.getDataSetName(this._dataSetFormModel.dataSetV3.code, this._dataSetFormModel.dataSetV3.properties)
+            if(this._dataSetFormModel.mode === FormMode.EDIT) {
+                titleText = 'Update Dataset: ' + nameLabel;
+            } else if(this._dataSetFormModel.mode === FormMode.VIEW) {
+                titleText = 'Dataset: ' + nameLabel;
+            }
+		}
+		var $title = $('<div>');
+		$title.append($("<h2>").append(titleText));
+
+		//
+		// Toolbar
+		//
+		var toolbarModel = [];
+		var dropdownOptionsModel = [];
+		if(this._dataSetFormModel.mode === FormMode.VIEW && !this._dataSetFormModel.isMini) {
+			var toolbarConfig = profile.getDataSetTypeToolbarConfiguration(this._getTypeCode());
+			if (_this._allowedToEdit()) {
+				//Edit Button
+				var $editBtn = FormUtil.getButtonWithIcon("glyphicon-edit", function () {
+				    Util.blockUI();
+					mainController.changeView('showEditDataSetPageFromPermId', _this._dataSetFormModel.dataSetV3.code);
+				}, "Edit", null, "dataset-edit-btn");
+				if(toolbarConfig.EDIT) {
+					toolbarModel.push({ component : $editBtn });
+				}
+			}
+
+			this._addArchivingButton(toolbarModel, toolbarConfig);
+
+			if(_this._allowedToMove()) {
+				//Move
+				if(toolbarConfig.MOVE) {
+                    dropdownOptionsModel.push({
+                        label : "Move",
+                        action : function() {
+                                var moveEntityController = new MoveEntityController("DATASET", _this._dataSetFormModel.dataSetV3.code);
+                                moveEntityController.init();
+                        }
+                    });
+				}
+			}
+			if(_this._allowedToDelete()) {
+				//Delete Button
+				if(toolbarConfig.DELETE) {
+                    dropdownOptionsModel.push({
+                        label : "Delete",
+                        action : function() {
+                            var modalView = new DeleteEntityController(function(reason) {
+					            _this._dataSetFormController.deleteDataSet(reason);
+                            }, true);
+                            modalView.init();
+                        }
+                    });
+				}
+			}
+
+            //Print
+            dropdownOptionsModel.push(FormUtil.getPrintPDFButtonModel("DATASET",  _this._dataSetFormModel.dataSetV3.code));
+
+			//Hierarchy Table
+			if(toolbarConfig.HIERARCHY_TABLE) {
+				dropdownOptionsModel.push({
+                    label : "Hierarchy Table",
+                    action : function() {
+                        mainController.changeView('showDatasetHierarchyTablePage', _this._dataSetFormModel.dataSetV3.code);
+                    }
+                });
+			}
+
+			//Export
+			dropdownOptionsModel.push(FormUtil.getExportButtonModel("DATASET", _this._dataSetFormModel.dataSetV3.code));
+
+			if(profile.legacyExports.enable) {
+                if(toolbarConfig.EXPORT_METADATA) {
+                    dropdownOptionsModel.push({
+                        label : "Export Metadata",
+                        action : FormUtil.getExportAction([{ type: "DATASET", permId : _this._dataSetFormModel.dataSetV3.code, expand : true }], true)
+                    });
+                }
+
+                if(toolbarConfig.EXPORT_ALL) {
+                    dropdownOptionsModel.push({
+                        label : "Export Metadata & Data",
+                        action : FormUtil.getExportAction([{ type: "DATASET", permId : _this._dataSetFormModel.dataSetV3.code, expand : true }], false)
+                    });
+                }
+			}
+
+            if (this._dataSetFormModel.availableProcessingServices.length > 0) {
+                dropdownOptionsModel.push({
+                    label : "Process",
+                    action : function() {
+                        var $window = $('<form>', {
+                            'action' : 'javascript:void(0);'
+                        });
+
+                        $window.append($('<legend>').append("Process Data Set"));
+                        var services = [];
+                        var servicesById = {};
+                        _this._dataSetFormModel.availableProcessingServices.forEach(function(service) {
+                            var id = service.getPermId().toString();
+                            services.push({value:id, label:service.getLabel()});
+                            servicesById[id] = service;
+                        });
+                        var $serviceDropdown = FormUtil.getDropdown(services, "Select a processing service");
+                        $window.append($serviceDropdown);
+                        var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' });
+                        var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
+                        $btnCancel.click(function() {
+                            Util.unblockUI();
+                        });
+                        $window.append($('<br>'));
+                        $window.append($btnAccept).append('&nbsp;').append($btnCancel);
+                        $window.submit(function() {
+                            Util.blockUI();
+                            var service = servicesById[$serviceDropdown.val()];
+                            var dataSetCode = _this._dataSetFormModel.dataSetV3.getCode();
+                            mainController.serverFacade.processDataSets(service.getPermId(), [dataSetCode], function() {
+                                Util.unblockUI();
+                                Util.showInfo("Processing task '" + service.getLabel()
+                                        + "' successfully submitted for data set " + dataSetCode + ".");
+                            });
+                        });
+                        var css = {
+                                'text-align' : 'left',
+                                'top' : '15%',
+                                'width' : '50%',
+                                'left' : '15%',
+                                'right' : '20%',
+                                'overflow' : 'auto'
+                        };
+                        Util.blockUI($window, css);
+                    }
+                });
+            }
+
+			//Jupyter Button
+			if(profile.jupyterIntegrationServerEndpoint) {
+                dropdownOptionsModel.push({
+                    label : "New Jupyter notebook",
+                    action : function () {
+                        var jupyterNotebook = new JupyterNotebookController(_this._dataSetFormModel.dataSetV3);
+                        jupyterNotebook.init();
+                    }
+                });
+			}
+
+            //Freeze
+            if(_this._dataSetFormModel.v3_dataset && _this._dataSetFormModel.v3_dataset.frozen !== undefined) { //Freezing available on the API
+                var isEntityFrozen = _this._dataSetFormModel.v3_dataset.frozen;
+                if(toolbarConfig.FREEZE) {
+                    if(isEntityFrozen) {
+                        var $freezeButton = FormUtil.getFreezeButton("DATASET", this._dataSetFormModel.v3_dataset.permId.permId, isEntityFrozen);
+                        toolbarModel.push({ component : $freezeButton, tooltip: "Entity Frozen" });
+                    } else {
+                        dropdownOptionsModel.push({
+                            label : "Freeze Entity (Disable further modifications)",
+                            action : function () {
+                                FormUtil.showFreezeForm("DATASET", _this._dataSetFormModel.v3_dataset.permId.permId);
+                            }
+                        });
+                    }
+                }
+            }
+
+            //History
+            if(toolbarConfig.HISTORY) {
+                dropdownOptionsModel.push({
+                    label : "History",
+                    action : function() {
+                        mainController.changeView('showDatasetHistoryPage', _this._dataSetFormModel.dataSetV3.code);
+                    }
+                });
+            }
+		} else if(!this._dataSetFormModel.isMini) {
+			var $saveBtn = FormUtil.getButtonWithIcon("glyphicon-floppy-disk", function() {
+				_this._dataSetFormController.submitDataSet();
+			}, "Save", null, "save-btn");
+			$saveBtn.removeClass("btn-default");
+			$saveBtn.addClass("btn-primary");
+			toolbarModel.push({ component : $saveBtn });
+		}
+
+		if (!this._dataSetFormModel.isMini) {
+		    views.header.empty();
+			var $header = views.header;
+			$header.append($title);
+
+			// Toolbar extension
+			debugger;
+			var datasetTypeCode = $("#DATASET_TYPE").val();
+			if(datasetTypeCode) {
+                if(profile.dataSetTypeDefinitionsExtension[datasetTypeCode] && profile.dataSetTypeDefinitionsExtension[datasetTypeCode].extraToolbar) {
+                    toolbarModel = toolbarModel.concat(profile.dataSetTypeDefinitionsExtension[datasetTypeCode].extraToolbar(_this._dataSetFormModel.mode, _this._dataSetFormModel.dataSetV3));
+                }
+                if(profile.dataSetTypeDefinitionsExtension[datasetTypeCode] && profile.dataSetTypeDefinitionsExtension[datasetTypeCode].extraToolbarDropdown) {
+                    dropdownOptionsModel = dropdownOptionsModel.concat(profile.dataSetTypeDefinitionsExtension[datasetTypeCode].extraToolbarDropdown(_this._dataSetFormModel.mode, _this._dataSetFormModel.dataSetV3));
+                }
+            }
+
+			FormUtil.addOptionsToToolbar(toolbarModel, dropdownOptionsModel, hideShowOptionsModel, "DATA-SET-VIEW");
+			$header.append(FormUtil.getToolbar(toolbarModel));
+		}
+	}
+
+	this._createIdentificationInfoSection = function(hideShowOptionsModel, views) {
 		hideShowOptionsModel.push({
 			forceToShow : this._dataSetFormModel.mode === FormMode.CREATE,
 			label : "Identification Info",
@@ -475,6 +485,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 					_this._repaintMetadata(
 							_this._dataSetFormController._getDataSetType($('#DATASET_TYPE').val())
 					);
+					_this._repaintHeader(views);
 				}
 				_this.isFormDirty = true;
 			});

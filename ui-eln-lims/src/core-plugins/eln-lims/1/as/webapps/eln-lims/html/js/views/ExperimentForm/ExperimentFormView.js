@@ -363,11 +363,11 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		//
 
 		// Toolbar extension
-		if(experimentTypeDefinitionsExtension && experimentTypeDefinitionsExtension.extraToolbar) {
-		    toolbarModel = toolbarModel.concat(experimentTypeDefinitionsExtension.extraToolbar(_this._experimentFormModel.mode, _this._experimentFormModel.experiment));
+		if(profile.experimentTypeDefinitionsExtension[experimentTypeCode] && profile.experimentTypeDefinitionsExtension[experimentTypeCode].extraToolbar) {
+		    toolbarModel = toolbarModel.concat(profile.experimentTypeDefinitionsExtension[experimentTypeCode].extraToolbar(_this._experimentFormModel.mode, _this._experimentFormModel.experiment));
 		}
-		if(experimentTypeDefinitionsExtension && experimentTypeDefinitionsExtension.extraToolbarDropdown) {
-		    dropdownOptionsModel = dropdownOptionsModel.concat(experimentTypeDefinitionsExtension.extraToolbarDropdown(_this._experimentFormModel.mode, _this._experimentFormModel.experiment));
+		if(profile.experimentTypeDefinitionsExtension[experimentTypeCode] && profile.experimentTypeDefinitionsExtension[experimentTypeCode].extraToolbarDropdown) {
+		    dropdownOptionsModel = dropdownOptionsModel.concat(profile.experimentTypeDefinitionsExtension[experimentTypeCode].extraToolbarDropdown(_this._experimentFormModel.mode, _this._experimentFormModel.experiment));
 		}
 
 		FormUtil.addOptionsToToolbar(toolbarModel, dropdownOptionsModel, hideShowOptionsModel,
