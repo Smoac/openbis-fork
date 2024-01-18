@@ -447,6 +447,9 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			var datasetTypeCode = null;
 			if(this._dataSetFormModel.mode === FormMode.EDIT) {
                 datasetTypeCode = $("#DATASET_TYPE").val();
+                if(!datasetTypeCode) {
+                    datasetTypeCode = this._getTypeCode();
+                }
             }
 			if(this._dataSetFormModel.mode === FormMode.VIEW) {
 			    datasetTypeCode = this._getTypeCode();
