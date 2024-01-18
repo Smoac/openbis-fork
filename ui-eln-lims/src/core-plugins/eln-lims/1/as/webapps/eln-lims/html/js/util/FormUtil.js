@@ -1,9 +1,3 @@
-var FormMode = {
-    CREATE : 0,
-    EDIT : 1,
-    VIEW : 2
-}
-
 var FormUtil = new function() {
 	this.profile = null;
 	
