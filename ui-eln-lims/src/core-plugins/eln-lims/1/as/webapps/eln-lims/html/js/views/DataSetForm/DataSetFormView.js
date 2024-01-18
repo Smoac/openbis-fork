@@ -445,13 +445,10 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 
 			// Toolbar extension
 			var datasetTypeCode = null;
-			if(this._dataSetFormModel.mode === FormMode.EDIT) {
-                datasetTypeCode = $("#DATASET_TYPE").val();
-                if(!datasetTypeCode) {
-                    datasetTypeCode = this._getTypeCode();
-                }
-            }
-			if(this._dataSetFormModel.mode === FormMode.VIEW) {
+			if(this._dataSetFormModel.mode === FormMode.CREATE) {
+			    datasetTypeCode = $("#DATASET_TYPE").val();
+			}
+			if(this._dataSetFormModel.mode === FormMode.EDIT || this._dataSetFormModel.mode === FormMode.VIEW) {
 			    datasetTypeCode = this._getTypeCode();
 			}
 			if(datasetTypeCode) {
