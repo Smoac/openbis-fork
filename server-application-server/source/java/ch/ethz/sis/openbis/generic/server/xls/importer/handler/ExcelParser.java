@@ -84,7 +84,7 @@ public class ExcelParser
 
     private static String getFinalValue(final Map<String, String> importValues, final String value)
     {
-        if (value != null && value.startsWith("__") && value.endsWith("__"))
+        if (value != null && value.startsWith("__value-") && value.endsWith(".txt__"))
         {
             return importValues.get(value.substring(2, value.length() - 2));
         } else
