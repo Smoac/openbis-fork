@@ -444,8 +444,13 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			$header.append($title);
 
 			// Toolbar extension
-			debugger;
-			var datasetTypeCode = $("#DATASET_TYPE").val();
+			var datasetTypeCode = null;
+			if(this._dataSetFormModel.mode === FormMode.EDIT) {
+                datasetTypeCode = $("#DATASET_TYPE").val();
+            }
+			if(this._dataSetFormModel.mode === FormMode.VIEW) {
+			    datasetTypeCode = this._getTypeCode();
+			}
 			if(datasetTypeCode) {
                 if(profile.dataSetTypeDefinitionsExtension[datasetTypeCode] && profile.dataSetTypeDefinitionsExtension[datasetTypeCode].extraToolbar) {
                     toolbarModel = toolbarModel.concat(profile.dataSetTypeDefinitionsExtension[datasetTypeCode].extraToolbar(_this._dataSetFormModel.mode, _this._dataSetFormModel.dataSetV3));
