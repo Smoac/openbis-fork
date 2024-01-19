@@ -664,7 +664,7 @@ test("getDataStoreBaseURLs()", function() {
 test("listDataSetTypes()", function() {
 	createFacadeAndLogin(function(facade) {
 		facade.listDataSetTypes(function(response) {
-			assertObjectsCount(response.result, 38);
+			assertObjectsCount(response.result, 37);
 			facade.close();
 		});
 	});
@@ -673,7 +673,7 @@ test("listDataSetTypes()", function() {
 test("listSampleTypes()", function() {
 	createFacadeAndLogin(function(facade) {
 		facade.listSampleTypes(function(response) {
-			assertObjectsCount(response.result, 40);
+			assertObjectsCount(response.result, 25);
 			facade.close();
 		});
 	});
@@ -691,7 +691,7 @@ test("listExperimentTypes()", function() {
 test("listVocabularies()", function() {
 	createFacadeAndLogin(function(facade) {
 		facade.listVocabularies(function(response) {
-			assertObjectsCount(response.result, 61);
+			assertObjectsCount(response.result, 33);
 			facade.close();
 		});
 	});
@@ -1081,7 +1081,7 @@ test("searchForExperiments() withModifierUserId", function() {
 test("listProjects()", function() {
 	createFacadeAndLogin(function(facade) {
 		facade.listProjects(function(response) {
-			assertObjectsCount(response.result, 20);
+			assertObjectsCount(response.result, 12);
 			assertObjectsWithCodes(response.result, [ "BACTERIA" ,"CELL_LINES" ,"DEFAULT_PROJECT" ,"FLIES" ,"ORDERS"
 			,"PLANTS" ,"PLASMIDS" ,"POLYNUCLEOTIDES" ,"PRODUCTS" ,"PROTOCOLS" ,"PUBLIC_REPOSITORIES" ,"REAGENTS"
 			,"REQUESTS" ,"SCREENING-EXAMPLES" ,"STORAGES" ,"STORAGE_POSITIONS", "SUPPLIERS" ,"TEMPLATES" ,"TEST-PROJECT" ,"YEASTS" ]);

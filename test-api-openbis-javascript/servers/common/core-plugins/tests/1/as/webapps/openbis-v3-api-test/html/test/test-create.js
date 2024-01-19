@@ -315,7 +315,7 @@ define(
                         propertyTypeCreation1.setDataType(dtos.DataType.CONTROLLEDVOCABULARY);
                         propertyTypeCreation1.setLabel("Test Property Type");
                         propertyTypeCreation1.setMultiValue(true);
-                        propertyTypeCreation1.setVocabularyId(new dtos.VocabularyPermId("ANTIBODY.HOST"));
+                        propertyTypeCreation1.setVocabularyId(new dtos.VocabularyPermId("$SUPPLIER.LANGUAGE"));
                         return facade.createPropertyTypes([ propertyTypeCreation1 ]).then(function(results) {
                             var assignmentCreation1 = new dtos.PropertyAssignmentCreation();
                             assignmentCreation1.setPropertyTypeId(new dtos.PropertyTypePermId(propertyTypeCodeVocab));
@@ -327,7 +327,7 @@ define(
                                 creation.setTypeId(new dtos.EntityTypePermId(experimentTypeCode));
                                 creation.setCode(code);
                                 creation.setProjectId(new dtos.ProjectIdentifier("/TEST/TEST-PROJECT"));
-                                creation.setProperty(propertyTypeCodeVocab, ["RAT", "MOUSE"]);
+                                creation.setProperty(propertyTypeCodeVocab, ["ENGLISH", "GERMAN"]);
                                 return facade.createExperiments([ creation ]);
                             });
                         });
@@ -338,7 +338,7 @@ define(
                         c.assertEqual(experiment.getType().getCode(), experimentTypeCode, "Type code");
                         c.assertEqual(experiment.getProject().getCode(), "TEST-PROJECT", "Project code");
                         c.assertEqual(experiment.getProject().getSpace().getCode(), "TEST", "Space code");
-                        c.assertEqual(experiment.getProperties()[propertyTypeCodeVocab].sort().toString(), ["MOUSE", "RAT"].toString(), "Vocabulary property ids");
+                        c.assertEqual(experiment.getProperties()[propertyTypeCodeVocab].sort().toString(), ["ENGLISH", "GERMAN"].toString(), "Vocabulary property ids");
                     }
 
                     testCreate(c, fCreate, c.findExperiment, fCheck);
@@ -625,7 +625,7 @@ define(
                         propertyTypeCreation.setDataType(dtos.DataType.CONTROLLEDVOCABULARY);
                         propertyTypeCreation.setLabel("Test Property Type");
                         propertyTypeCreation.setMultiValue(true);
-                        propertyTypeCreation.setVocabularyId(new dtos.VocabularyPermId("ANTIBODY.HOST"));
+                        propertyTypeCreation.setVocabularyId(new dtos.VocabularyPermId("$SUPPLIER.LANGUAGE"));
                         return facade.createPropertyTypes([ propertyTypeCreation ]).then(function(results) {
                             var assignmentCreation = new dtos.PropertyAssignmentCreation();
                             assignmentCreation.setPropertyTypeId(new dtos.PropertyTypePermId(propertyTypeCode));
@@ -637,7 +637,7 @@ define(
                                 creation.setTypeId(new dtos.EntityTypePermId(sampleTypeCode));
                                 creation.setCode(code);
                                 creation.setSpaceId(new dtos.SpacePermId("TEST"));
-                                creation.setProperty(propertyTypeCode, ["RAT", "MOUSE"]);
+                                creation.setProperty(propertyTypeCode, ["ENGLISH", "GERMAN"]);
                                 return facade.createSamples([ creation ]);
                             });
                         });
@@ -647,7 +647,7 @@ define(
                         c.assertEqual(sample.getCode(), code, "Sample code");
                         c.assertEqual(sample.getType().getCode(), sampleTypeCode, "Type code");
                         c.assertEqual(sample.getSpace().getCode(), "TEST", "Space code");
-                        c.assertEqual(sample.getProperties()[propertyTypeCode].sort().toString(), ["MOUSE", "RAT"].toString(), "Vocabulary property ids");
+                        c.assertEqual(sample.getProperties()[propertyTypeCode].sort().toString(), ["ENGLISH", "GERMAN"].toString(), "Vocabulary property ids");
                     }
                     testCreate(c, fCreate, c.findSample, fCheck);
                 });
@@ -952,7 +952,7 @@ define(
                         propertyTypeCreation.setDataType(dtos.DataType.CONTROLLEDVOCABULARY);
                         propertyTypeCreation.setLabel("Test Property Type");
                         propertyTypeCreation.setMultiValue(true);
-                        propertyTypeCreation.setVocabularyId(new dtos.VocabularyPermId("ANTIBODY.HOST"));
+                        propertyTypeCreation.setVocabularyId(new dtos.VocabularyPermId("$SUPPLIER.LANGUAGE"));
                         return facade.createPropertyTypes([ propertyTypeCreation ]).then(function(results) {
                             var assignmentCreation = new dtos.PropertyAssignmentCreation();
                             assignmentCreation.setPropertyTypeId(new dtos.PropertyTypePermId(propertyTypeCode));
@@ -966,7 +966,7 @@ define(
                                 creation.setDataSetKind(dtos.DataSetKind.CONTAINER);
                                 creation.setDataStoreId(new dtos.DataStorePermId("DSS1"));
                                 creation.setExperimentId(new dtos.ExperimentIdentifier("/TEST/TEST-PROJECT/TEST-EXPERIMENT"));
-                                creation.setProperty(propertyTypeCode, ["RAT", "MOUSE"]);
+                                creation.setProperty(propertyTypeCode, ["ENGLISH", "GERMAN"]);
                                 creation.setMetaData({"dataset_key":"dataset_value"});
                                 return facade.createDataSets([ creation ]);
                             });
@@ -976,7 +976,7 @@ define(
                     var fCheck = function(dataSet) {
                         c.assertEqual(dataSet.getCode(), code, "Data set code");
                         c.assertEqual(dataSet.getType().getCode(), dataSetTypeCode, "Type code");
-                        c.assertEqual(dataSet.getProperties()[propertyTypeCode].sort().toString(), ["MOUSE", "RAT"].toString(), "Vocabulary property ids");
+                        c.assertEqual(dataSet.getProperties()[propertyTypeCode].sort().toString(), ["ENGLISH", "GERMAN"].toString(), "Vocabulary property ids");
                         var metaData = dataSet.getMetaData();
                         c.assertEqual(metaData["dataset_key"], "dataset_value", "Metadata");
                     }
