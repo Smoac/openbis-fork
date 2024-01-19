@@ -11,7 +11,7 @@ CREATE DOMAIN authorization_role AS character varying(40)
 CREATE DOMAIN boolean_char AS boolean DEFAULT false;
 CREATE DOMAIN boolean_char_or_unknown AS character(1) DEFAULT 'U'::bpchar
 	CONSTRAINT boolean_char_or_unknown_check CHECK ((VALUE = ANY (ARRAY['F'::bpchar, 'T'::bpchar, 'U'::bpchar])));
-CREATE DOMAIN code AS character varying(100);
+CREATE DOMAIN code AS character varying(256);
 CREATE DOMAIN column_label AS character varying(128);
 CREATE DOMAIN data_set_kind AS character varying(40)
 	CONSTRAINT data_set_kind_check CHECK (((VALUE)::text = ANY (ARRAY[('PHYSICAL'::character varying)::text, ('LINK'::character varying)::text, ('CONTAINER'::character varying)::text])));
