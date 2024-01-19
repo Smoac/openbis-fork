@@ -129,10 +129,10 @@ public class MasterDataRegistrationHelper {
         return result;
     }
 
-    public Map<String, String> getAllLargeValues()
+    public static Map<String, String> getAllLargeValues(Path path)
     {
         final Map<String, String> result = new TreeMap<>();
-        final File valuesFolder = new File(masterDataFolder, "data");
+        final File valuesFolder = new File(path.toFile(), "data");
         if (valuesFolder.isDirectory())
         {
             gatherFileValues(result, valuesFolder, valuesFolder);
