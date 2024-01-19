@@ -67,7 +67,7 @@ public class ExportExecutorTest
             },
             {
                     SPACE_CODE, null, null, null, null, SAMPLE_CODE, null, null, EXTENSION,
-                    String.format("%s/%s%s", SPACE_CODE, SAMPLE_CODE, EXTENSION)
+                    String.format("%s/%s/%s%s", SPACE_CODE, SAMPLE_CODE, SAMPLE_CODE, EXTENSION)
             },
             {
                     SPACE_CODE, null, null, null, null, SAMPLE_CODE, SAMPLE_NAME, null, null,
@@ -75,7 +75,7 @@ public class ExportExecutorTest
             },
             {
                     SPACE_CODE, null, null, null, null, SAMPLE_CODE, SAMPLE_NAME, null, EXTENSION,
-                    String.format("%s/%s (%s)%s", SPACE_CODE, SAMPLE_NAME, SAMPLE_CODE, EXTENSION)
+                    String.format("%s/%s (%s)/%s (%s)%s", SPACE_CODE, SAMPLE_NAME, SAMPLE_CODE, SAMPLE_NAME, SAMPLE_CODE, EXTENSION)
             },
             {
                     SPACE_CODE, null, null, null, null, SAMPLE_CODE, null, DATA_SET_CODE, null,
@@ -99,7 +99,7 @@ public class ExportExecutorTest
             },
             {
                     SPACE_CODE, PROJECT_CODE, null, null, null, null, null, null, EXTENSION,
-                    String.format("%s/%s%s", SPACE_CODE, PROJECT_CODE, EXTENSION)
+                    String.format("%s/%s/%s%s", SPACE_CODE, PROJECT_CODE, PROJECT_CODE, EXTENSION)
             },
             {
                     SPACE_CODE, PROJECT_CODE, null, null, null, SAMPLE_CODE, SAMPLE_NAME, null, null,
@@ -107,7 +107,8 @@ public class ExportExecutorTest
             },
             {
                     SPACE_CODE, PROJECT_CODE, null, null, null, SAMPLE_CODE, SAMPLE_NAME, null, EXTENSION,
-                    String.format("%s/%s/%s (%s)%s", SPACE_CODE, PROJECT_CODE, SAMPLE_NAME, SAMPLE_CODE, EXTENSION)
+                    String.format("%s/%s/%s (%s)/%s (%s)%s", SPACE_CODE, PROJECT_CODE, SAMPLE_NAME, SAMPLE_CODE, SAMPLE_NAME, SAMPLE_CODE,
+                            EXTENSION)
             },
             {
                     SPACE_CODE, PROJECT_CODE, null, null, null, SAMPLE_CODE, null, null, null,
@@ -115,7 +116,7 @@ public class ExportExecutorTest
             },
             {
                     SPACE_CODE, PROJECT_CODE, null, null, null, SAMPLE_CODE, null, null, EXTENSION,
-                    String.format("%s/%s/%s%s", SPACE_CODE, PROJECT_CODE, SAMPLE_CODE, EXTENSION)
+                    String.format("%s/%s/%s/%s%s", SPACE_CODE, PROJECT_CODE, SAMPLE_CODE, SAMPLE_CODE, EXTENSION)
             },
             {
                     SPACE_CODE, PROJECT_CODE, null, null, null, SAMPLE_CODE, SAMPLE_NAME, DATA_SET_CODE, null,
@@ -140,7 +141,7 @@ public class ExportExecutorTest
             },
             {
                     SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, null, null, null, null, null, EXTENSION,
-                    String.format("%s/%s/%s%s", SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, EXTENSION)
+                    String.format("%s/%s/%s/%s%s", SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, EXPERIMENT_CODE, EXTENSION)
             },
             {
                     SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, EXPERIMENT_NAME, null, null, null, null, null,
@@ -148,7 +149,8 @@ public class ExportExecutorTest
             },
             {
                     SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, EXPERIMENT_NAME, null, null, null, null, EXTENSION,
-                    String.format("%s/%s/%s (%s)%s", SPACE_CODE, PROJECT_CODE, EXPERIMENT_NAME, EXPERIMENT_CODE, EXTENSION)
+                    String.format("%s/%s/%s (%s)/%s (%s)%s", SPACE_CODE, PROJECT_CODE, EXPERIMENT_NAME, EXPERIMENT_CODE,
+                            EXPERIMENT_NAME, EXPERIMENT_CODE, EXTENSION)
             },
             {
                     SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, EXPERIMENT_NAME, null, null, null, DATA_SET_CODE, null,
@@ -166,8 +168,8 @@ public class ExportExecutorTest
             },
             {
                     SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, EXPERIMENT_NAME, null, SAMPLE_CODE, SAMPLE_NAME, null, EXTENSION,
-                    String.format("%s/%s/%s (%s)/%s (%s)%s", SPACE_CODE, PROJECT_CODE, EXPERIMENT_NAME, EXPERIMENT_CODE,
-                            SAMPLE_NAME, SAMPLE_CODE, EXTENSION)
+                    String.format("%s/%s/%s (%s)/%s (%s)/%s (%s)%s", SPACE_CODE, PROJECT_CODE, EXPERIMENT_NAME, EXPERIMENT_CODE,
+                            SAMPLE_NAME, SAMPLE_CODE, SAMPLE_NAME, SAMPLE_CODE, EXTENSION)
             },
             {
                     SPACE_CODE, PROJECT_CODE, EXPERIMENT_CODE, EXPERIMENT_NAME, null, SAMPLE_CODE, SAMPLE_NAME, DATA_SET_CODE, null,
@@ -189,11 +191,11 @@ public class ExportExecutorTest
             },
             {
                     null, null, null, null, null, SAMPLE_CODE, null, null, EXTENSION,
-                    String.format("%s%s", SAMPLE_CODE, EXTENSION)
+                    String.format("%s/%s%s", SAMPLE_CODE, SAMPLE_CODE, EXTENSION)
             },
             {
                     null, null, null, null, null, SAMPLE_CODE, SAMPLE_NAME, null, EXTENSION,
-                    String.format("%s (%s)%s", SAMPLE_NAME, SAMPLE_CODE, EXTENSION)
+                    String.format("%s (%s)/%s (%s)%s", SAMPLE_NAME, SAMPLE_CODE, SAMPLE_NAME, SAMPLE_CODE, EXTENSION)
             },
     };
 
