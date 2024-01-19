@@ -55,7 +55,11 @@ def get_color_scale_range(img, channel):
         step = 0.01
     else:
         step = abs((maximum - minimum) / 100)
-        step = 10 ** math.floor(math.log10(step))
+        step = math.log10(step)
+        if math.isnan(step) or math.isinf(step):
+            step = 0.01
+        else:
+            step = 10 ** math.floor(step)
 
     return [str(minimum), str(maximum), str(step)]
 
@@ -150,7 +154,11 @@ def create_dat_dataset(openbis, folder_path, file_prefix='', sample=None, experi
             step = 0.01
         else:
             step = abs((maximum - minimum) / 100)
-            step = 10 ** math.floor(math.log10(step))
+            step = math.log10(step)
+            if math.isnan(step) or math.isinf(step):
+                step = 0.01
+            else:
+                step = 10 ** math.floor(step)
 
         color_scale_visibility_x += [imaging.ImagingDataSetControlVisibility(
             "Channel X",
