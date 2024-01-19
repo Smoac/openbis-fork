@@ -27,6 +27,7 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,9 +38,11 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 import cz.habarta.typescript.generator.DefaultTypeProcessor;
 import cz.habarta.typescript.generator.Extension;
 import cz.habarta.typescript.generator.Logger;
+import cz.habarta.typescript.generator.TsProperty;
 import cz.habarta.typescript.generator.TsType;
 import cz.habarta.typescript.generator.TypeProcessor;
 import cz.habarta.typescript.generator.TypeScriptGenerator;
+import cz.habarta.typescript.generator.compiler.EnumMemberModel;
 import cz.habarta.typescript.generator.compiler.ModelCompiler;
 import cz.habarta.typescript.generator.compiler.Symbol;
 import cz.habarta.typescript.generator.compiler.SymbolTable;
@@ -47,12 +50,14 @@ import cz.habarta.typescript.generator.compiler.TsModelTransformer;
 import cz.habarta.typescript.generator.emitter.EmitterExtensionFeatures;
 import cz.habarta.typescript.generator.emitter.TsBeanCategory;
 import cz.habarta.typescript.generator.emitter.TsBeanModel;
+import cz.habarta.typescript.generator.emitter.TsEnumModel;
 import cz.habarta.typescript.generator.emitter.TsHelper;
 import cz.habarta.typescript.generator.emitter.TsMethodModel;
 import cz.habarta.typescript.generator.emitter.TsModel;
 import cz.habarta.typescript.generator.emitter.TsModifierFlags;
 import cz.habarta.typescript.generator.emitter.TsParameterModel;
 import cz.habarta.typescript.generator.emitter.TsPropertyModel;
+import cz.habarta.typescript.generator.emitter.TsStringLiteral;
 
 /**
  * This extension for the typescript-generator ({@link cz.habarta.typescript.generator}) Gradle <a href="URL#https://github.com/vojtechhabarta/typescript-generator">plugin</a> adds method and constructor signatures to the generated typescript interfaces.
@@ -140,6 +145,57 @@ public class OpenBISExtension extends Extension
             List<TsBeanModel> tsBeans = new ArrayList<>();
             List<TsPropertyModel> tsBundleProperties = new ArrayList<>();
             List<TsHelper> tsHelpers = new ArrayList<>();
+
+            /*
+
+            For class "X" like:
+
+                @JsonObject("a.b.c.X")
+                class X<T> {
+                    public X(String p){}
+
+                    public String m(int p){}
+                }
+
+            Generate:
+
+                interface XConstructor {
+                    new <T>(p:string): X<T>
+                }
+
+                interface X<T> {
+                    m(p:number): string;
+                }
+
+                type a_b_c_X<T> = X<T>
+
+                bundle {
+                    ...
+                    X:XConstructor,
+                    a_b_c_X:XConstructor
+                    ...
+                }
+
+                export const X:XConstructor
+                export const a_b_c_X:XConstructor
+
+            To be able to do things like:
+
+                var test:openbis.X<string> = new openbis.X<string>("abc")
+                var test:openbis.X<string> = new openbis.a_b_c_X<string>("abc")
+
+                var test:openbis.a_b_c_X<string> = new openbis.X<string>("abc")
+                var test:openbis.a_b_c_X<string> = new openbis.a_b_c_X<string>("abc")
+
+                var bundle:openbis.bundle = ...;
+                var test:openbis.X<string> = new bundle.X<string>("abc")
+                var test:openbis.X<string> = new bundle.a_b_c_X<string>("abc")
+
+                var bundle:openbis.bundle = ...;
+                var test:openbis.a_b_c_X<string> = new bundle.X<string>("abc")
+                var test:openbis.a_b_c_X<string> = new bundle.a_b_c_X<string>("abc")
+
+            */
 
             for (TsBeanModel bean : model.getBeans())
             {
@@ -281,16 +337,134 @@ public class OpenBISExtension extends Extension
                     }
                 }
 
+                tsBeanMethods.sort(Comparator.comparing(TsMethodModel::getName).thenComparing(m -> m.getParameters().size()));
+
                 tsBeans.add(new TsBeanModel(bean.getOrigin(), bean.getCategory(), bean.isClass(), bean.getName(), tsBeanTypeParametersWithBounds,
                         bean.getParent(), bean.getExtendsList(), bean.getImplementsList(), Collections.emptyList(), bean.getConstructor(),
                         tsBeanMethods, bean.getComments()));
             }
 
+            /*
+
+             For enum "X" like:
+
+                @JsonObject("a.b.c.X")
+                enum X {
+                    VALUE1,
+                    VALUE2
+                }
+
+             Generate:
+
+                 const X = {
+                     VALUE1 : "VALUE1",
+                     VALUE2 : "VALUE2"
+                 } as const
+
+                 const a_b_c_X = {
+                     VALUE1 : "VALUE1",
+                     VALUE2 : "VALUE2"
+                 } as const
+
+                 type X = typeof X[keyof typeof X];
+                 type a_b_c_X = typeof a_b_c_X[keyof typeof a_b_c_X];
+
+                 interface XObject {
+                     VALUE1:X,
+                     VALUE2:X
+                 }
+
+                 bundle {
+                    ...
+                    X:XObject,
+                    a_b_c_X:XObject
+                    ...
+                 }
+
+             To be able to do things like:
+
+                 var test:openbis.X = openbis.X.VALUE1
+                 var test:openbis.X = openbis.a_b_c_X.VALUE1
+                 var test:openbis.X = "VALUE1"
+
+                 var test:openbis.a_b_c_X = openbis.X.VALUE1
+                 var test:openbis.a_b_c_X = openbis.a_b_c_X.VALUE1
+                 var test:openbis.a_b_c_X = "VALUE1"
+
+                 var bundle:openbis.bundle = ...;
+                 var test:openbis.X = bundle.X.VALUE1
+                 var test:openbis.X = bundle.a_b_c_X.VALUE1
+
+                 var bundle:openbis.bundle = ...;
+                 var test:openbis.a_b_c_X = bundle.X.VALUE1
+                 var test:openbis.a_b_c_X = bundle.a_b_c_X.VALUE1
+
+             But not things like:
+
+                 var test:openbis.X = "ILLEGAL_VALUE"
+                 var test:openbis.a_b_c_X = "ILLEGAL_VALUE"
+
+            */
+
+            for (TsEnumModel tsEnum : model.getOriginalStringEnums())
+            {
+                String tsEnumObjectBeanName = tsEnum.getName().getSimpleName() + "Object";
+                List<TsPropertyModel> tsEnumObjectBeanProperties = new ArrayList<>();
+                StringBuilder tsEnumConstProperties = new StringBuilder();
+
+                for (EnumMemberModel tsMember : tsEnum.getMembers())
+                {
+                    tsEnumObjectBeanProperties.add(
+                            new TsPropertyModel(tsMember.getPropertyName(), new TsType.GenericReferenceType(tsEnum.getName()),
+                                    Collections.emptyList(), TsModifierFlags.None, true,
+                                    new TsStringLiteral(tsMember.getPropertyName()), Collections.emptyList()));
+
+                    tsEnumConstProperties.append(tsMember.getPropertyName()).append(" : \"").append(tsMember.getPropertyName()).append("\",\n");
+                }
+
+                tsBeans.add(new TsBeanModel(tsEnum.getOrigin(), tsEnum.getCategory(), false, new Symbol(tsEnumObjectBeanName),
+                        Collections.emptyList(), null, Collections.emptyList(), Collections.emptyList(), tsEnumObjectBeanProperties, null, null,
+                        Collections.emptyList()));
+
+                tsBundleProperties.add(new TsPropertyModel(tsEnum.getName().getSimpleName(),
+                        new TsType.ReferenceType(new Symbol(tsEnumObjectBeanName)), null, true, null));
+
+                tsHelpers.add(new TsHelper(
+                        Collections.singletonList("const " + tsEnum.getName().getSimpleName() + " = {\n" + tsEnumConstProperties + "} as const")));
+                tsHelpers.add(new TsHelper(Collections.singletonList(
+                        "type " + tsEnum.getName().getSimpleName() + " = typeof " + tsEnum.getName().getSimpleName() + "[keyof typeof "
+                                + tsEnum.getName().getSimpleName() + "]")));
+
+                JsonObject tsEnumJsonObject = tsEnum.getOrigin().getAnnotation(JsonObject.class);
+
+                if (tsEnumJsonObject != null)
+                {
+                    String tsEnumJsonName = tsEnumJsonObject.value().replaceAll("\\.", "_");
+
+                    if (!tsEnumJsonName.equals(tsEnum.getName().getSimpleName()))
+                    {
+                        tsBundleProperties.add(new TsPropertyModel(tsEnumJsonName,
+                                new TsType.ReferenceType(new Symbol(tsEnumObjectBeanName)), null, true, null));
+
+                        tsHelpers.add(
+                                new TsHelper(Collections.singletonList("const " + tsEnumJsonName + " = {\n" + tsEnumConstProperties + "} as const")));
+                        tsHelpers.add(new TsHelper(Collections.singletonList(
+                                "type " + tsEnumJsonName + " = typeof " + tsEnumJsonName + "[keyof typeof "
+                                        + tsEnumJsonName + "]")));
+                    }
+                }
+            }
+
+            tsBundleProperties.sort(Comparator.comparing(TsProperty::getName));
+
             tsBeans.add(
                     new TsBeanModel(null, TsBeanCategory.Data, false, new Symbol("bundle"), null, null, null, null, tsBundleProperties, null, null,
                             null));
 
-            return new TsModel(tsBeans, model.getEnums(), model.getOriginalStringEnums(), model.getTypeAliases(), tsHelpers);
+            tsBeans.sort(Comparator.comparing(b -> b.getName().getSimpleName()));
+            tsHelpers.sort(Comparator.comparing(h -> h.getLines().toString()));
+
+            return new TsModel(tsBeans, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), tsHelpers);
         }));
     }
 
