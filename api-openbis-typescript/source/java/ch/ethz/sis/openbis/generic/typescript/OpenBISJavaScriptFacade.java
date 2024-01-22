@@ -254,6 +254,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyUpda
 public class OpenBISJavaScriptFacade implements IApplicationServerApi
 {
 
+    public OpenBISJavaScriptFacade(){}
+
     public OpenBISJavaScriptFacade(String url){}
 
     @TypeScriptMethod(sessionToken = false, async = false)

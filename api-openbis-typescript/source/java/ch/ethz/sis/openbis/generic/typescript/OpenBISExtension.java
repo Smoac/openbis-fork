@@ -308,6 +308,8 @@ public class OpenBISExtension extends Extension
                 {
                     String tsConstructorBeanName = tsBean.getName().getSimpleName() + "Constructor";
 
+                    tsConstructors.sort(Comparator.comparing(c -> c.getParameters().size()));
+
                     tsBeans.add(new TsBeanModel(tsBean.getOrigin(), tsBean.getCategory(), tsBean.isClass(),
                             new Symbol(tsConstructorBeanName),
                             Collections.emptyList(), null, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), null,
@@ -351,7 +353,7 @@ public class OpenBISExtension extends Extension
                 }
 
                 tsBeanMethods.sort(Comparator.comparing(TsMethodModel::getName).thenComparing(m -> m.getParameters().size())
-                        .thenComparing(m -> m.getParameters().toString()));
+                        .thenComparing(m -> m.getParameters().stream().map(p -> p.getTsType().toString()).collect(Collectors.toList()).toString()));
 
                 tsBeans.add(
                         new TsBeanModel(tsBean.getOrigin(), tsBean.getCategory(), tsBean.isClass(), tsBean.getName(), tsBeanTypeParametersWithBounds,
@@ -435,7 +437,7 @@ public class OpenBISExtension extends Extension
 
                 String tsEnumObjectBeanName = tsEnum.getName().getSimpleName() + "Object";
                 List<TsPropertyModel> tsEnumObjectBeanProperties = new ArrayList<>();
-                StringBuilder tsEnumConstProperties = new StringBuilder();
+                List<String> tsEnumConstProperties = new ArrayList<>();
 
                 for (EnumMemberModel tsMember : tsEnum.getMembers())
                 {
@@ -444,8 +446,11 @@ public class OpenBISExtension extends Extension
                                     Collections.emptyList(), TsModifierFlags.None, true,
                                     new TsStringLiteral(tsMember.getPropertyName()), Collections.emptyList()));
 
-                    tsEnumConstProperties.append(tsMember.getPropertyName()).append(" : \"").append(tsMember.getPropertyName()).append("\",\n");
+                    tsEnumConstProperties.add(tsMember.getPropertyName() + " : \"" + tsMember.getPropertyName() + "\"");
                 }
+
+                tsEnumObjectBeanProperties.sort(Comparator.comparing(TsProperty::getName));
+                tsEnumConstProperties.sort(Comparator.naturalOrder());
 
                 tsBeans.add(new TsBeanModel(tsEnum.getOrigin(), tsEnum.getCategory(), false, new Symbol(tsEnumObjectBeanName),
                         Collections.emptyList(), null, Collections.emptyList(), Collections.emptyList(), tsEnumObjectBeanProperties, null, null,
@@ -455,7 +460,7 @@ public class OpenBISExtension extends Extension
                         new TsType.ReferenceType(new Symbol(tsEnumObjectBeanName)), null, true, null));
 
                 tsHelpers.add(new TsHelper(
-                        Collections.singletonList("const " + tsEnum.getName().getSimpleName() + " = {\n" + tsEnumConstProperties + "} as const")));
+                        Collections.singletonList("const " + tsEnum.getName().getSimpleName() + " = {\n" + String.join(",\n", tsEnumConstProperties) + "} as const")));
                 tsHelpers.add(new TsHelper(Collections.singletonList(
                         "type " + tsEnum.getName().getSimpleName() + " = typeof " + tsEnum.getName().getSimpleName() + "[keyof typeof "
                                 + tsEnum.getName().getSimpleName() + "]")));
@@ -468,7 +473,7 @@ public class OpenBISExtension extends Extension
                             new TsType.ReferenceType(new Symbol(tsEnumObjectBeanName)), null, true, null));
 
                     tsHelpers.add(
-                            new TsHelper(Collections.singletonList("const " + tsEnumJsonName + " = {\n" + tsEnumConstProperties + "} as const")));
+                            new TsHelper(Collections.singletonList("const " + tsEnumJsonName + " = {\n" + String.join(",\n", tsEnumConstProperties) + "} as const")));
                     tsHelpers.add(new TsHelper(Collections.singletonList(
                             "type " + tsEnumJsonName + " = typeof " + tsEnumJsonName + "[keyof typeof "
                                     + tsEnumJsonName + "]")));
