@@ -54,4 +54,4 @@ System Documentation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
    - :doc:`Standalone </system-documentation/standalone/index>`
    - :doc:`Docker </system-documentation/docker/index>`
-   - :doc:`Configuration </system-documentation/configuration/index>`
+   - :doc:`Advanced configuration </system-documentation/configuration/index>`

@@ -1,8 +1,16 @@
 # Usage
 
+## Network
+
+Container networking `openbis-tier` refers to the ability for containers to connect to and **communicate with each other**. The following example creates a network using the bridge network driver. Running containers will be communicating across the created virtual network.
+
+```
+$ docker network create openbis-tier --driver bridge;
+```
+
 ## Database
 
-**Database container** provides relational database (PostgreSQL) server to persist users, authorization information, various entities and their metadata, as well as index information about all datasets. It is required to have database superuser privileges.
+**Database container** provides relational database - **PostgreSQL server** - to persist users, authorization information, various entities and their metadata, as well as index information about all datasets. It is required to have database superuser privileges.
 
 ```
 $ docker run -d \
@@ -15,9 +23,34 @@ $ docker run -d \
   postgres:15;
 ```
 
+Running database container can be inspected by fetching the logs to spot a message when database system is ready to accept connections.
+
+```
+$ docker logs openbis-database;
+2024-01-19 18:37:50.984 UTC [1] LOG:  database system is ready to accept connections
+```
+
+Created database volume can be inspected to spot a mountpoint where database data is physically stored.
+
+```
+$ docker volume inspect openbis-database-data;
+[
+    {
+        "CreatedAt": "2024-01-19T19:37:48+01:00",
+        "Driver": "local",
+        "Labels": null,
+        "Mountpoint": "/var/lib/docker/volumes/openbis-database-data/_data",
+        "Name": "openbis-database-data",
+        "Options": null,
+        "Scope": "local"
+    }
+]
+```
+
+
 ## Application
 
-**Application container** consists of two servers, the openBIS Application Server (AS) and the openBIS Data Store Server (DSS). openBIS AS manages the metadata and links to the data while the openBIS DSS manages the data itself operating on a managed part of the file system.
+**Application container** provides Java runtime and consists of two Java processes - the **openBIS Application Server** (openBIS AS) and the - **openBIS Data Store Server** (openBIS DSS). **openBIS AS** manages the metadata and links to the data while the **openBIS DSS** manages the data itself operating on a managed part of the file system.
 
 ```
 $ docker run --detach \
@@ -36,20 +69,64 @@ $ docker run --detach \
   -e OPENBIS_DB_ADMIN_USER="postgres" \
   -e OPENBIS_DB_APP_PASS="mysecretpassword" \
   -e OPENBIS_DB_APP_USER="openbis" \
-  -e OPENBIS_DB_HOST="postgres15" \
+  -e OPENBIS_DB_HOST="openbis-database" \
   -e OPENBIS_ETC="/etc/openbis" \
   -e OPENBIS_HOME="/home/openbis" \
   -e OPENBIS_LOG="/var/log/openbis" \
+  -e OPENBIS_FQDN="openbis.domain" \
   openbis/openbis-server:20.10.7;
 ```
 
+Running application container can be inspected by fetching the logs.
+
+```
+$ docker logs openbis-server;
+2024-01-19 18:37:50.984 UTC [1] LOG:  database system is ready to accept connections
+```
+
+Created openbis-server volumes can be inspected to spot a mountpoints where data files, configuration files and logs are physically stored.
+
+```
+$ docker volume inspect openbis-server-data openbis-server-etc openbis-server-logs;
+[
+    {
+        "CreatedAt": "2024-01-20T12:24:49+01:00",
+        "Driver": "local",
+        "Labels": null,
+        "Mountpoint": "/var/lib/docker/volumes/openbis-server-data/_data",
+        "Name": "openbis-server-data",
+        "Options": null,
+        "Scope": "local"
+    },
+    {
+        "CreatedAt": "2024-01-20T12:24:49+01:00",
+        "Driver": "local",
+        "Labels": null,
+        "Mountpoint": "/var/lib/docker/volumes/openbis-server-etc/_data",
+        "Name": "openbis-server-etc",
+        "Options": null,
+        "Scope": "local"
+    },
+    {
+        "CreatedAt": "2024-01-20T12:24:49+01:00",
+        "Driver": "local",
+        "Labels": null,
+        "Mountpoint": "/var/lib/docker/volumes/openbis-server-logs/_data",
+        "Name": "openbis-server-logs",
+        "Options": null,
+        "Scope": "local"
+    }
+]
+```
+
+
 ## Ingress
 
-**Ingress container** provides TLS termination and reverse proxy. It can be used for complex access control or web application firewall. Examples below are all functional. They configure Transport Layer Security, and reverse proxy based on path, where "/openbis" go to port 8080, and "/datastore_server" go to port 8081. 
+**Ingress container** provides TLS termination and reverse proxy. Examples below are easily functional. They should be extended for complex access control or web application firewall. They configure Transport Layer Security, and reverse proxy based on path, where "/openbis" is directed to port 8080, and "/datastore_server" is directed to port 8081. 
 
 ### Nginx
 
-Minimal functional example of server block which can be used as a template for the final configurations. 
+Easily functional example for server block of Nginx. 
 
 ```
     server {
@@ -82,7 +159,7 @@ Minimal functional example of server block which can be used as a template for t
 
 ### HAProxy
 
-Minimal functional example which can be used as a template for the final configuration.
+Easily functional example for HAProxy.
 
 ```
     global
@@ -124,7 +201,7 @@ Minimal functional example which can be used as a template for the final configu
 
 ### Apache httpd
 
-Minimal functional example of VirtualHost which can be used as a template for the final configuration.
+Easily functional example for VirtualHost of Apache HTTP Server.
 
 ```
     <VirtualHost _default_:443>

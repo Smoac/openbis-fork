@@ -7,4 +7,6 @@ Docker
    architecture
    usage
    configuration
+   compose
    verification
+   references
