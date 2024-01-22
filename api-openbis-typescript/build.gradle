@@ -27,18 +27,20 @@ generateTypeScript {
     classPatterns = [
             'ch.ethz.sis.openbis.generic.asapi.v3.dto.**',
             'ch.ethz.sis.openbis.generic.dssapi.v3.dto.**',
-            'ch.ethz.sis.openbis.generic.OpenBIS',
+            'ch.ethz.sis.openbis.generic.typescript.OpenBISJavaScriptFacade',
+            'ch.ethz.sis.openbis.generic.typescript.OpenBISJavaScriptDSSFacade'
     ]
     excludeClassPatterns = [
-            "ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdDeserializer",
-            "ch.ethz.sis.openbis.generic.asapi.v3.dto.common.property.PropertiesDeserializer"]
+            "ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi",
+            "ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi",
+    ]
     mapClasses = "asInterfaces"
     importDeclarations = ["export default openbis"]
     outputKind = 'module'
     outputFileType = 'declarationFile'
     namespace = 'openbis'
     customTypeNaming = [
-            "ch.ethz.sis.openbis.generic.OpenBIS:openbis",
+            "ch.ethz.sis.openbis.generic.typescript.OpenBISJavaScriptFacade:openbis",
             "ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.search.PersonalAccessTokenSessionNameSearchCriteria:as_dto_pat_search_PersonalAccessTokenSessionNameSearchCriteria",
             "ch.ethz.sis.openbis.generic.asapi.v3.dto.session.search.PersonalAccessTokenSessionNameSearchCriteria:as_dto_session_search_PersonalAccessTokenSessionNameSearchCriteria",
             "ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.ExternalDmsSearchCriteria:as_dto_externaldms_search_ExternalDmsSearchCriteria",

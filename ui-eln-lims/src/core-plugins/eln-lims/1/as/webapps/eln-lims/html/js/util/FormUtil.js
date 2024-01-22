@@ -2913,7 +2913,7 @@ var FormUtil = new function() {
 
                                         var $waitOrEmail = $('<div/>');
                                         $waitOrEmail.append("<span class='checkbox'><label><input type='radio' name='wait-for-export' value='Wait' checked> Wait for download to complete in browser. <span class='glyphicon glyphicon-warning-sign'></span> For large data to export choose receive results by email.</label></span>");
-                                        $waitOrEmail.append("<span class='checkbox'><label><input type='radio' name='wait-for-export' value='Sent Email' id='EXPORT-EMAIL'> Run in background. <span class='glyphicon glyphicon-info-sign'></span> Receive results by email.</label></span>");
+                                        $waitOrEmail.append("<span class='checkbox'><label><input type='radio' name='wait-for-export' value='Sent Email' id='EXPORT-EMAIL'> Receive results by email.</label></span>");
                                         $window.append($waitOrEmail.contents());
 
                                         var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' , 'id' : 'accept-btn'});
