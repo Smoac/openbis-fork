@@ -69,6 +69,9 @@ public class UpdatePropertyTypeExecutor
     @Autowired
     private IPropertiesConverter propertiesConverter;
 
+    @Autowired
+    private IPatternCompiler patternCompiler;
+
     @Override
     protected IPropertyTypeId getId(PropertyTypeUpdate update)
     {
@@ -134,6 +137,14 @@ public class UpdatePropertyTypeExecutor
                     CreatePropertyTypeExecutor.validateTransformationAndDataType(dataType, update.getTransformation().getValue());
                     propertyType.setTransformation(getNewValue(update.getTransformation(), propertyType.getTransformation()));
                     updateMetaData(propertyType, update);
+                    propertyType.setPattern(getNewValue(update.getPattern(), propertyType.getPattern()));
+                    propertyType.setPatternType(getNewValue(update.getPatternType(), propertyType.getPatternType()));
+
+                    String updateRegex = getNewValue(update.getPattern(), null) != null
+                            ? "UPDATE_REGEX:" + patternCompiler.compilePattern(propertyType.getPattern(), propertyType.getPatternType())
+                            : null;
+                    propertyType.setPatternRegex(updateRegex);
+
                 }
 
                 private void assertConversionAllowed(DataType currentDataType, DataType newDataType)

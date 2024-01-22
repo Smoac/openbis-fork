@@ -385,6 +385,12 @@ public final class ColumnNames
 
     public static final String IS_MULTI_VALUE = "is_multi_value";
 
+    public static final String PATTERN = "pattern";
+
+    public static final String PATTERN_TYPE = "pattern_type";
+
+    public static final String PATTERN_REGEX = "pattern_regex";
+
     public static final String SHOW_RAW_VALUE = "show_raw_value";
 
     public static final String MASTER_DATA_REGISTRATION_SCRIPT = "master_reg_script";

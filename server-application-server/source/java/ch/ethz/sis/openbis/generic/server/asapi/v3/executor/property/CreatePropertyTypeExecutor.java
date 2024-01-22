@@ -74,6 +74,9 @@ public class CreatePropertyTypeExecutor
     @Autowired
     private IPropertyTypeAuthorizationExecutor authorizationExecutor;
 
+    @Autowired
+    private IPatternCompiler patternCompiler;
+
     @Override
     protected IObjectId getId(PropertyTypePE entity)
     {
@@ -209,6 +212,10 @@ public class CreatePropertyTypeExecutor
                     propertyType.setMetaData(creation.getMetaData());
                     propertyType.setMultiValue(
                             creation.isMultiValue() != null && creation.isMultiValue());
+                    propertyType.setPattern(creation.getPattern());
+                    propertyType.setPatternType(creation.getPatternType());
+                    String pattern = patternCompiler.compilePattern(creation.getPattern(), creation.getPatternType());
+                    propertyType.setPatternRegex("CREATE_REGEX:"+pattern);
                     propertyTypes.add(propertyType);
                 }
 

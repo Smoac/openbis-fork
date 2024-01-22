@@ -99,6 +99,12 @@ public class PropertyType implements Serializable, ICodeHolder, IDescriptionHold
     @JsonProperty
     private Boolean multiValue;
 
+    @JsonProperty
+    private String pattern;
+
+    @JsonProperty
+    private String patternType;
+
     // Method automatically generated with DtoGenerator
     @JsonIgnore
     public PropertyTypeFetchOptions getFetchOptions()
@@ -371,6 +377,28 @@ public class PropertyType implements Serializable, ICodeHolder, IDescriptionHold
     public void setMultiValue(Boolean multiValue)
     {
         this.multiValue = multiValue;
+    }
+
+    @JsonIgnore
+    public String getPattern()
+    {
+        return pattern;
+    }
+
+    public void setPattern(String pattern)
+    {
+        this.pattern = pattern;
+    }
+
+    @JsonIgnore
+    public String getPatternType()
+    {
+        return patternType;
+    }
+
+    public void setPatternType(String patternType)
+    {
+        this.patternType = patternType;
     }
 
     // Method automatically generated with DtoGenerator
