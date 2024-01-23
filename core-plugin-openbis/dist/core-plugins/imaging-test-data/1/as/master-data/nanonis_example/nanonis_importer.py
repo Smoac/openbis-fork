@@ -30,6 +30,7 @@ SXM_ADAPTOR = "ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.adaptor.Na
 DAT_ADAPTOR = "ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.adaptor.NanonisDatAdaptor"
 VERBOSE = True
 
+
 def get_instance(url=None):
     base_url = "http://localhost:8888/openbis"
     if url == None:
@@ -55,7 +56,11 @@ def get_color_scale_range(img, channel):
         step = 0.01
     else:
         step = abs((maximum - minimum) / 100)
-        step = 10 ** math.floor(math.log10(step))
+        step = math.log10(step)
+        if math.isnan(step) or math.isinf(step):
+            step = 0.01
+        else:
+            step = 10 ** math.floor(step)
 
     return [str(minimum), str(maximum), str(step)]
 
@@ -150,19 +155,23 @@ def create_dat_dataset(openbis, folder_path, file_prefix='', sample=None, experi
             step = 0.01
         else:
             step = abs((maximum - minimum) / 100)
-            step = 10 ** math.floor(math.log10(step))
+            step = math.log10(step)
+            if math.isnan(step) or math.isinf(step):
+                step = 0.01
+            else:
+                step = 10 ** math.floor(step)
 
         color_scale_visibility_x += [imaging.ImagingDataSetControlVisibility(
             "Channel X",
             [channel],
-            [minimum, maximum, step],
+            [str(minimum), str(maximum), str(step)],
             unit
         )]
 
         color_scale_visibility_y += [imaging.ImagingDataSetControlVisibility(
             "Channel Y",
             [channel],
-            [minimum, maximum, step],
+            [str(minimum), str(maximum), str(step)],
             unit
         )]
 
