@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, SIS
+ * Copyright ETH 2014 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver;
 
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetArchiver.MAXIMUM_CONTAINER_SIZE_IN_BYTES;
@@ -546,7 +545,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                         + "replicated-file-path=" + replicate.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar, "
                         + "finalizer-polling-time=300000, start-time=yyyyMMdd-HHmmss, "
                         + "finalizer-max-waiting-time=172800000, finalizer-wait-for-t-flag=false, finalizer-sanity-check=false, status=ARCHIVED, "
-                        + "wait-for-sanity-check=false, wait-for-sanity-check-initial-waiting-time=10000, wait-for-sanity-check-max-waiting-time=1800000}",
+                        + "wait-for-sanity-check=false, wait-for-sanity-check-initial-waiting-time=10000, wait-for-sanity-check-max-waiting-time=1800000, sanity-check-verify-checksums=true}",
                 removeTimeInformationFromContent(parametersRecorder.recordedObject().toString()));
         assertEquals("[]\n", dataSetDeleter.toString());
         assertEquals("[" + staging.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar]",
@@ -569,15 +568,16 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         properties.setProperty(REPLICATED_DESTINATION_KEY, replicate.getAbsolutePath());
         properties.setProperty(MultiDataSetArchivingFinalizer.FINALIZER_POLLING_TIME_KEY, "5 min");
         properties.setProperty(MultiDataSetArchivingFinalizer.FINALIZER_MAX_WAITING_TIME_KEY, "2 days");
+
         final RecordingMatcher<Map<String, String>> parametersRecorder = new RecordingMatcher<Map<String, String>>();
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(dssService).scheduleTask(with(MultiDataSetArchiver.ARCHIVING_FINALIZER),
-                            with(any(MultiDataSetArchivingFinalizer.class)), with(parametersRecorder),
-                            with(Arrays.asList(ds2)), with((String) null), with((String) null), with((String) null));
-                }
-            });
+                one(dssService).scheduleTask(with(MultiDataSetArchiver.ARCHIVING_FINALIZER),
+                        with(any(MultiDataSetArchivingFinalizer.class)), with(parametersRecorder),
+                        with(Arrays.asList(ds2)), with((String) null), with((String) null), with((String) null));
+            }
+        });
 
         MultiDataSetArchiver archiver = createArchiver(null);
         ProcessingStatus status = archiver.archive(Arrays.asList(ds1, ds2), archiverContext, true);
@@ -635,7 +635,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                         + "replicated-file-path=" + replicate.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar, "
                         + "finalizer-polling-time=300000, start-time=yyyyMMdd-HHmmss, "
                         + "finalizer-max-waiting-time=172800000, finalizer-wait-for-t-flag=false, finalizer-sanity-check=false, status=ARCHIVED, "
-                        + "wait-for-sanity-check=false, wait-for-sanity-check-initial-waiting-time=10000, wait-for-sanity-check-max-waiting-time=1800000}",
+                        + "wait-for-sanity-check=false, wait-for-sanity-check-initial-waiting-time=10000, wait-for-sanity-check-max-waiting-time=1800000, sanity-check-verify-checksums=true}",
                 removeTimeInformationFromContent(parametersRecorder.recordedObject().toString()));
         assertEquals("[Dataset 'ds1']\n", dataSetDeleter.toString());
         assertEquals("[" + staging.getAbsolutePath() + "/ds2-yyyyMMdd-HHmmss.tar]",

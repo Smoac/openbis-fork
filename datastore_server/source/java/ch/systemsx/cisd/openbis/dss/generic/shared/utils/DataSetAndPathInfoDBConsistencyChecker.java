@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 ETH Zuerich, CISD
+ * Copyright ETH 2012 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 
 import java.util.ArrayList;
@@ -80,11 +79,18 @@ public class DataSetAndPathInfoDBConsistencyChecker
 
     private List<String> dataSets = new ArrayList<>();
 
+    private boolean forceChecksumVerification;
+
     public DataSetAndPathInfoDBConsistencyChecker(
             IHierarchicalContentProvider fileProvider, IHierarchicalContentProvider pathInfoProvider)
     {
         this.fileProvider = fileProvider;
         this.pathInfoProvider = pathInfoProvider;
+    }
+
+    public void setForceChecksumVerification(final boolean forceChecksumVerification)
+    {
+        this.forceChecksumVerification = forceChecksumVerification;
     }
 
     public void check(List<? extends IDatasetLocation> datasets)
@@ -107,7 +113,7 @@ public class DataSetAndPathInfoDBConsistencyChecker
     {
     	checkDataSet(dataSetCode, false, true);
     }
-    
+
     public void checkDataSet(String dataSetCode, boolean h5Folders, boolean h5arFolders)
     {
         dataSets.add(dataSetCode);
@@ -232,10 +238,10 @@ public class DataSetAndPathInfoDBConsistencyChecker
         if (fileRoot != null && pathInfoRoot != null)
         {
             compare(fileRoot, pathInfoRoot, diffs);
-        } else if (fileRoot == null && pathInfoRoot != null)
+        } else if (fileRoot == null ^ pathInfoRoot == null)
         {
-            diffs.add(new RootExistenceDifference());
-        } else if (fileRoot == null && pathInfoRoot == null)
+            diffs.add(new RootExistenceDifference(fileRoot != null));
+        } else
         {
             diffs.add(new RootExistence());
         }
@@ -315,6 +321,10 @@ public class DataSetAndPathInfoDBConsistencyChecker
                     .getFileLength(), pathInfoNode.getFileLength()));
         }
         // check CRC32 checksums if stored in path Info db
+        if (!pathInfoNode.isChecksumCRC32Precalculated() && forceChecksumVerification)
+        {
+            diffs.add(new CRC32ExistenceDifference(fileNode.getRelativePath()));
+        }
         if (pathInfoNode.isChecksumCRC32Precalculated()
                 && (fileNode.getChecksumCRC32() != pathInfoNode.getChecksumCRC32()))
         {
@@ -417,15 +427,25 @@ public class DataSetAndPathInfoDBConsistencyChecker
     private class RootExistenceDifference extends Difference
     {
 
-        public RootExistenceDifference()
+        private boolean existsInFS;
+
+        public RootExistenceDifference(boolean existsInFS)
         {
             super(null);
+            this.existsInFS = existsInFS;
         }
 
         @Override
         public String getDescription()
         {
-            return "exists in the path info database but does not exist in the file system";
+
+            if (existsInFS)
+            {
+                return "exists in the file system but does not exist in the path info database";
+            } else
+            {
+                return "exists in the path info database but does not exist in the file system";
+            }
         }
 
     }
@@ -505,6 +525,20 @@ public class DataSetAndPathInfoDBConsistencyChecker
         {
             return "'" + getPath() + "' size in the file system = " + sizeInFS
                     + " bytes but in the path info database = " + sizeInDB + " bytes.";
+        }
+    }
+
+    private class CRC32ExistenceDifference extends Difference
+    {
+        public CRC32ExistenceDifference(String path)
+        {
+            super(path);
+        }
+
+        @Override
+        public String getDescription()
+        {
+            return "'" + getPath() + "' CRC32 checksum is missing in the path info database";
         }
     }
 

@@ -1,4 +1,22 @@
+/*
+ * Copyright ETH 2021 - 2023 Zürich, Scientific IT Services
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver;
+
+import static org.apache.commons.io.FileUtils.ONE_KB;
+import static org.apache.commons.io.FileUtils.ONE_MB;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -50,9 +68,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
-
-import static org.apache.commons.io.FileUtils.ONE_KB;
-import static org.apache.commons.io.FileUtils.ONE_MB;
 
 public class MultiDataSetDeletionMaintenanceTask
         extends AbstractDataSetDeletionPostProcessingMaintenanceTaskWhichHandlesLastSeenEvent
@@ -328,7 +343,12 @@ public class MultiDataSetDeletionMaintenanceTask
         List<DatasetDescription> dataSets = convertToDataSetDescription(notDeletedDataSets);
         IHierarchicalContent archivedContent = getMultiDataSetFileOperationsManager().getContainerAsHierarchicalContent(containerPath, dataSets);
         ArchiverTaskContext context = new ArchiverTaskContext(dataSetDirectoryProvider, getHierarchicalContentProvider());
-        MultiDataSetArchivingUtils.sanityCheck(archivedContent, dataSets, context, getOperationLogAsSimpleLogger());
+        Properties archiverProperties = getDataStoreService().getArchiverProperties();
+        boolean verifyChecksums =
+                PropertyUtils.getBoolean(archiverProperties, MultiDataSetArchiver.SANITY_CHECK_VERIFY_CHECKSUMS_KEY,
+                        MultiDataSetArchiver.DEFAULT_SANITY_CHECK_VERIFY_CHECKSUMS);
+
+        MultiDataSetArchivingUtils.sanityCheck(archivedContent, dataSets, verifyChecksums, context, getOperationLogAsSimpleLogger());
     }
 
     private void updateDataSetsStatusAndFlags(List<SimpleDataSetInformationDTO> notDeletedDataSets)
