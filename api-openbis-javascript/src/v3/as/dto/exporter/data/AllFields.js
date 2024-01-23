@@ -28,6 +28,8 @@ define(["stjs", "as/dto/exporter/data/IExportableFields"], function (stjs, IExpo
 
       constructor.serialVersionUID = 1;
 
+      constructor.INSTANCE = new AllFields();
+
       prototype.getAttributes = function() {
         return null;
       };

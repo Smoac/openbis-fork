@@ -69,8 +69,7 @@ define(["stjs"], function (stjs) {
       };
     },
     {
-      exportableKind: "ExportableKind",
-      permId: "ObjectPermId"
+      exportableKind: "ExportableKind"
     }
   );
 

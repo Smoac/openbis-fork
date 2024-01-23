@@ -32,6 +32,9 @@ public class AllFields implements Serializable, IExportableFields
     private static final long serialVersionUID = 1L;
 
     @JsonIgnore
+    public static final AllFields INSTANCE = new AllFields();
+
+    @JsonIgnore
     public List<Attribute> getAttributes()
     {
         return null;

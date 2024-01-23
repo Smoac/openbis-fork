@@ -1,6 +1,14 @@
 package ch.ethz.sis.openbis.generic.server.xls.export;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
+import java.io.PrintWriter;
+import java.io.Serializable;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
@@ -12,6 +20,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.ExportResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.AllFields;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportableKind;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportFormat;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.XlsTextFormat;
@@ -32,13 +42,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi
 import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportableKind;
-
-import java.io.PrintWriter;
-import java.io.Serializable;
-import java.io.StringWriter;
-import java.util.*;
 
 public class XLSExportExtendedService
 {
@@ -65,7 +68,7 @@ public class XLSExportExtendedService
         IApplicationServerInternalApi api = CommonServiceProvider.getApplicationServerApi();
         ExportData exportData = new ExportData();
         ExportableKind rootKind = ExportableKind.valueOf(kind);
-        ExportablePermId root = new ExportablePermId(rootKind, new ObjectPermId(permId));
+        ExportablePermId root = new ExportablePermId(rootKind, permId);
         HashSet<ExportablePermId> collection = new HashSet<>();
         collectEntities(api, sessionToken, collection, root, withLevelsBelow, withObjectsAndDataSetsParents, withObjectsAndDataSetsOtherSpaces);
         exportData.setPermIds(new ArrayList<ExportablePermId>(collection));
@@ -192,7 +195,7 @@ public class XLSExportExtendedService
                     SpaceFetchOptions spaceFetchOptions = new SpaceFetchOptions();
                     spaceFetchOptions.withProjects();
                     Map<ISpaceId, Space> spaces = api.getSpaces(sessionToken,
-                            List.of(new SpacePermId(current.getPermId().getPermId())),
+                            List.of(new SpacePermId(current.getPermId())),
                             spaceFetchOptions);
                     for (Space space:spaces.values())
                     {
@@ -200,7 +203,7 @@ public class XLSExportExtendedService
                         {
                             collectEntities(api, sessionToken, collection,
                                     new ExportablePermId(ExportableKind.PROJECT,
-                                            new ObjectPermId(project.getPermId().getPermId())),
+                                            project.getPermId().getPermId()),
                                     withLevelsBelow, withObjectsAndDataSetsParents, withObjectsAndDataSetsOtherSpaces);
                         }
                     }
@@ -209,7 +212,7 @@ public class XLSExportExtendedService
                     ProjectFetchOptions projectFetchOptions = new ProjectFetchOptions();
                     projectFetchOptions.withExperiments();
                     Map<IProjectId, Project> projects = api.getProjects(sessionToken,
-                            List.of(new ProjectPermId(current.getPermId().getPermId())),
+                            List.of(new ProjectPermId(current.getPermId())),
                             projectFetchOptions);
                     for (Project project:projects.values())
                     {
@@ -217,7 +220,7 @@ public class XLSExportExtendedService
                         {
                             collectEntities(api, sessionToken, collection,
                                     new ExportablePermId(ExportableKind.EXPERIMENT,
-                                            new ObjectPermId(experiment.getPermId().getPermId())),
+                                            experiment.getPermId().getPermId()),
                                         withLevelsBelow, withObjectsAndDataSetsParents, withObjectsAndDataSetsOtherSpaces);
                         }
                     }
@@ -227,20 +230,20 @@ public class XLSExportExtendedService
                     experimentFetchOptions.withSamples();
                     experimentFetchOptions.withDataSets();
                     Map<IExperimentId, Experiment> experiments = api.getExperiments(sessionToken,
-                            List.of(new ExperimentPermId(current.getPermId().getPermId())),
+                            List.of(new ExperimentPermId(current.getPermId())),
                             experimentFetchOptions);
                     for (Experiment experiment:experiments.values()) {
                         String experimentSpaceCode = experiment.getIdentifier().getIdentifier().split("/")[1];
                         for (Sample sample:experiment.getSamples()) {
                             collectEntities(api, sessionToken, collection,
                                     new ExportablePermId(ExportableKind.SAMPLE,
-                                            new ObjectPermId(sample.getPermId().getPermId())),
+                                            sample.getPermId().getPermId()),
                                     withLevelsBelow, withObjectsAndDataSetsParents, withObjectsAndDataSetsOtherSpaces);
                         }
                         for (DataSet dataSet:experiment.getDataSets()) {
                             collectEntities(api, sessionToken, collection,
                                     new ExportablePermId(ExportableKind.DATASET,
-                                            new ObjectPermId(dataSet.getPermId().getPermId())),
+                                            dataSet.getPermId().getPermId()),
                                     withLevelsBelow, withObjectsAndDataSetsParents, withObjectsAndDataSetsOtherSpaces);
                         }
                     }
@@ -254,7 +257,7 @@ public class XLSExportExtendedService
                     }
 
                     Map<ISampleId, Sample> samples = api.getSamples(sessionToken,
-                            List.of(new SamplePermId(current.getPermId().getPermId())),
+                            List.of(new SamplePermId(current.getPermId())),
                             sampleFetchOptions);
 
                     for (Sample sample:samples.values()) {
@@ -266,7 +269,7 @@ public class XLSExportExtendedService
                                 {
                                     collectEntities(api, sessionToken, collection,
                                             new ExportablePermId(ExportableKind.SAMPLE,
-                                                    new ObjectPermId(parent.getPermId().getPermId())),
+                                                    parent.getPermId().getPermId()),
                                             withLevelsBelow, withObjectsAndDataSetsParents,
                                             withObjectsAndDataSetsOtherSpaces);
                                 }
@@ -278,7 +281,7 @@ public class XLSExportExtendedService
                             {
                                 collectEntities(api, sessionToken, collection,
                                         new ExportablePermId(ExportableKind.SAMPLE,
-                                                new ObjectPermId(child.getPermId().getPermId())),
+                                                child.getPermId().getPermId()),
                                         withLevelsBelow, withObjectsAndDataSetsParents,
                                         withObjectsAndDataSetsOtherSpaces);
                             }
@@ -286,7 +289,7 @@ public class XLSExportExtendedService
                         for (DataSet dataSet:sample.getDataSets()) {
                             collectEntities(api, sessionToken, collection,
                                     new ExportablePermId(ExportableKind.DATASET,
-                                            new ObjectPermId(dataSet.getPermId().getPermId())),
+                                            dataSet.getPermId().getPermId()),
                                     withLevelsBelow, withObjectsAndDataSetsParents, withObjectsAndDataSetsOtherSpaces);
                         }
                     }
@@ -299,7 +302,7 @@ public class XLSExportExtendedService
                         dataSetFetchOptions.withParents().withExperiment();
                     }
                     Map<IDataSetId, DataSet> dataSets = api.getDataSets(sessionToken,
-                            List.of(new DataSetPermId(current.getPermId().getPermId())),
+                            List.of(new DataSetPermId(current.getPermId())),
                             dataSetFetchOptions);
                     for (DataSet dataset:dataSets.values()) {
                         String datasetSpaceCode = dataset.getExperiment().getIdentifier().getIdentifier().split("/")[1];
@@ -311,7 +314,7 @@ public class XLSExportExtendedService
                                 {
                                     collectEntities(api, sessionToken, collection,
                                             new ExportablePermId(ExportableKind.DATASET,
-                                                    new ObjectPermId(parent.getPermId().getPermId())),
+                                                    parent.getPermId().getPermId()),
                                             withLevelsBelow, withObjectsAndDataSetsParents, withObjectsAndDataSetsOtherSpaces);
                                 }
                             }
@@ -323,7 +326,7 @@ public class XLSExportExtendedService
                             {
                                 collectEntities(api, sessionToken, collection,
                                         new ExportablePermId(ExportableKind.DATASET,
-                                                new ObjectPermId(child.getPermId().getPermId())),
+                                                child.getPermId().getPermId()),
                                         withLevelsBelow, withObjectsAndDataSetsParents, withObjectsAndDataSetsOtherSpaces);
                             }
                         }

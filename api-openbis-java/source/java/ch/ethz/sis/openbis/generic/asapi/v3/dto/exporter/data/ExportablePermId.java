@@ -23,7 +23,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.ObjectToString;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 @JsonObject("as.dto.exporter.data.ExportablePermId")
@@ -36,14 +35,14 @@ public class ExportablePermId implements Serializable
     private ExportableKind exportableKind;
 
     @JsonProperty
-    private ObjectPermId permId;
+    private String permId;
 
     @SuppressWarnings("unused")
     public ExportablePermId()
     {
     }
 
-    public ExportablePermId(final ExportableKind exportableKind, final ObjectPermId permId)
+    public ExportablePermId(final ExportableKind exportableKind, final String permId)
     {
         this.exportableKind = exportableKind;
         this.permId = permId;
@@ -62,13 +61,13 @@ public class ExportablePermId implements Serializable
     }
 
     @JsonIgnore
-    public ObjectPermId getPermId()
+    public String getPermId()
     {
         return permId;
     }
 
     @JsonIgnore
-    public void setPermId(final ObjectPermId permId)
+    public void setPermId(final String permId)
     {
         this.permId = permId;
     }

@@ -154,10 +154,6 @@ public class ExportTest extends AbstractTest
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     private ExposablePropertyPlaceholderConfigurer configurer;
 
-    private Mockery mockery;
-
-    private IDataStoreServerApi v3Dss;
-
     @DataProvider
     protected Object[][] exportData()
     {
@@ -167,8 +163,6 @@ public class ExportTest extends AbstractTest
     @BeforeClass
     public void beforeClass()
     {
-        mockery = new Mockery();
-
         configurer.getResolvedProps().setProperty(REPO_PATH_KEY, JAVA_FOLDER_PATH);
 
         sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -208,7 +202,8 @@ public class ExportTest extends AbstractTest
         richTextSamplePermId = samplePermsIds.get(0);
         bigCellSamplePermId = samplePermsIds.get(1);
 
-        registerDss();
+        final Mockery mockery = new Mockery();
+        registerDss(mockery);
 
         v3api.logout(sessionToken);
     }
@@ -276,10 +271,11 @@ public class ExportTest extends AbstractTest
         }
     }
 
-    private void registerDss()
+    private IDataStoreServerApi registerDss(final Mockery mockery)
     {
-        v3Dss = mockery.mock(IDataStoreServerApi.class);
+        final IDataStoreServerApi v3Dss = mockery.mock(IDataStoreServerApi.class);
         CommonServiceProvider.setDataStoreServerApi(v3Dss);
+        return v3Dss;
     }
 
 
@@ -324,12 +320,15 @@ public class ExportTest extends AbstractTest
             final IExportableFields fields, final XlsTextFormat xlsTextFormat, final boolean withReferredTypes,
             final boolean withImportCompatibility, final boolean zipSingleFiles) throws Exception
     {
+        final Mockery mockery = new Mockery();
+        final IDataStoreServerApi v3Dss = registerDss(mockery);
         processPermIds(permIds);
 
         if (formats.contains(ExportFormat.DATA))
         {
             // export-sample-data.zip refers to a test sample with more 2 datasets
-            final boolean with2FileContents = expectedResultFileName.startsWith("export-sample-data");
+            final boolean with2FileContents = expectedResultFileName.startsWith("export-sample-data") ||
+                    expectedResultFileName.startsWith("export-sample-all");
 
             final String fileContent1 = "This is some test data.";
             final DataSetFile dataSetFile1 = createDataSetFile("default/data1.txt", fileContent1.length());
@@ -389,8 +388,11 @@ public class ExportTest extends AbstractTest
             expectedExceptionsMessageRegExp = "Total data size 10485762 is larger than the data limit 10485760\\..*")
     public void testTooLargeDataExport()
     {
+        final Mockery mockery = new Mockery();
+        final IDataStoreServerApi v3Dss = registerDss(mockery);
         final Set<ExportFormat> formats = EnumSet.of(ExportFormat.DATA);
-        final List<ExportablePermId> permIds = List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("200902091225616-1027")));
+        final List<ExportablePermId> permIds = List.of(new ExportablePermId(ExportableKind.DATASET, "20081105092159333-3"),
+                new ExportablePermId(ExportableKind.DATASET, "20110805092359990-17"));
         final IExportableFields fields = new AllFields();
         final XlsTextFormat xlsTextFormat = XlsTextFormat.PLAIN;
         final boolean withReferredTypes = true;
@@ -423,8 +425,11 @@ public class ExportTest extends AbstractTest
     @Test()
     public void testNotTooLargeDataExport()
     {
+        final Mockery mockery = new Mockery();
+        final IDataStoreServerApi v3Dss = registerDss(mockery);
         final Set<ExportFormat> formats = EnumSet.of(ExportFormat.DATA);
-        final List<ExportablePermId> permIds = List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("200902091225616-1027")));
+        final List<ExportablePermId> permIds = List.of(new ExportablePermId(ExportableKind.DATASET, "20081105092159333-3"),
+                new ExportablePermId(ExportableKind.DATASET, "20110805092359990-17"));
         final IExportableFields fields = new AllFields();
         final XlsTextFormat xlsTextFormat = XlsTextFormat.PLAIN;
         final boolean withReferredTypes = true;
@@ -471,8 +476,8 @@ public class ExportTest extends AbstractTest
     @Test
     public void testLargeCellXlsExport() throws IOException
     {
-        final ExportData exportData = new ExportData(List.of(new ExportablePermId(ExportableKind.SAMPLE, bigCellSamplePermId)), new SelectedFields(
-                List.of(REGISTRATOR, CODE, IDENTIFIER, SPACE, DESCRIPTION),
+        final ExportData exportData = new ExportData(List.of(new ExportablePermId(ExportableKind.SAMPLE, bigCellSamplePermId.getPermId())),
+                new SelectedFields(List.of(REGISTRATOR, CODE, IDENTIFIER, SPACE, DESCRIPTION),
                 List.of(richTextPropertyTypePermId)));
         final ExportOptions exportOptions = new ExportOptions(EnumSet.of(ExportFormat.XLSX), XlsTextFormat.RICH, false, false, false);
         final ExportResult exportResult = v3api.executeExport(sessionToken, exportData, exportOptions);
@@ -542,7 +547,7 @@ public class ExportTest extends AbstractTest
         {
             if (exportablePermId.getPermId() == null)
             {
-                exportablePermId.setPermId(richTextSamplePermId);
+                exportablePermId.setPermId(richTextSamplePermId.getPermId());
             }
         });
     }
