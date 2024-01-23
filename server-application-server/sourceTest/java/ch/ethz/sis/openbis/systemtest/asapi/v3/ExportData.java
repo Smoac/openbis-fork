@@ -67,7 +67,7 @@ class ExportData
                     List.of(new ExportablePermId(ExportableKind.SAMPLE, "WrongPermId")),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     false, // withImportCompatibility
                     true
             },
@@ -78,7 +78,7 @@ class ExportData
                     List.of(new ExportablePermId(ExportableKind.SAMPLE, "WrongPermId")),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     false, // withImportCompatibility
                     false
             },
@@ -89,7 +89,7 @@ class ExportData
                     List.of(new ExportablePermId(ExportableKind.SPACE, "TEST-SPACE")),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     false, // withImportCompatibility
                     true
             },
@@ -100,7 +100,7 @@ class ExportData
                     List.of(new ExportablePermId(ExportableKind.PROJECT, "20120814110011738-105")),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     false, // withImportCompatibility
                     true
             },
@@ -111,7 +111,7 @@ class ExportData
                     List.of(new ExportablePermId(ExportableKind.EXPERIMENT, "201206190940555-1032")),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     false, // withImportCompatibility
                     true
             },
@@ -122,7 +122,7 @@ class ExportData
                     List.of(new ExportablePermId(ExportableKind.SAMPLE, "201206191219327-1055")),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     false, // withImportCompatibility
                     true
             },
@@ -133,7 +133,7 @@ class ExportData
                     List.of(new ExportablePermId(ExportableKind.SAMPLE, "201206191219327-1054")),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     true, // withImportCompatibility
                     true
             },
@@ -144,7 +144,7 @@ class ExportData
                     List.of(new ExportablePermId(ExportableKind.SAMPLE, "200811050947161-652")),
                     new AllFields(),
                     XlsTextFormat.RICH,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     false, // withImportCompatibility
                     true
             },
@@ -155,7 +155,7 @@ class ExportData
 //                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("200811050947161-653"))),
 //                    new AllFields(),
 //                    XlsTextFormat.RICH,
-//                    true, // withReferredTypes
+//                    false, // withReferredTypes
 //                    false, // withImportCompatibility
 //                    true
 //            },
@@ -166,7 +166,7 @@ class ExportData
                     List.of(new ExportablePermId(ExportableKind.DATASET, "ROOT_CONTAINER")),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     false, // withImportCompatibility
                     true
             },
@@ -236,7 +236,7 @@ class ExportData
                             List.of(REGISTRATOR, REGISTRATION_DATE, CODE, IDENTIFIER, SPACE, DESCRIPTION),
                             List.of()),
                     XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     false, // withImportCompatibility
                     true
             },
@@ -249,7 +249,7 @@ class ExportData
                             List.of(CODE, PERM_ID, IDENTIFIER, PROJECT, REGISTRATOR, MODIFIER),
                             List.of(new PropertyTypePermId("GENDER"), new PropertyTypePermId("DESCRIPTION"))),
                     XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     false, // withImportCompatibility
                     true
             },
@@ -276,7 +276,7 @@ class ExportData
                                     SAMPLE, EXPERIMENT),
                             List.of(new PropertyTypePermId("COMMENT"), new PropertyTypePermId("GENDER"))),
                     XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     false, // withImportCompatibility
                     true
             },
@@ -321,7 +321,7 @@ class ExportData
                     // null perm ID indicates that the newly created value in the setup of the test should be used.
                     new SelectedFields(List.of(IDENTIFIER, CODE), List.of(new PropertyTypePermId(RICH_TEXT_PROPERTY_NAME))),
                     XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     false, // withImportCompatibility
                     true
             },
@@ -333,7 +333,7 @@ class ExportData
                     // null perm ID indicates that the newly created value in the setup of the test should be used.
                     new SelectedFields(List.of(IDENTIFIER, CODE), List.of(new PropertyTypePermId(RICH_TEXT_PROPERTY_NAME))),
                     XlsTextFormat.RICH,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     false, // withImportCompatibility
                     true
             },
@@ -346,7 +346,7 @@ class ExportData
                     List.of(new ExportablePermId(ExportableKind.SPACE, "TEST-SPACE")),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     false, // withImportCompatibility
                     true
             },
@@ -357,7 +357,7 @@ class ExportData
                     List.of(new ExportablePermId(ExportableKind.SPACE, "TEST-SPACE")),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     false, // withImportCompatibility
                     false
             },
@@ -368,7 +368,7 @@ class ExportData
                     List.of(new ExportablePermId(ExportableKind.PROJECT, "20120814110011738-105")),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     false, // withImportCompatibility
                     true
             },
@@ -379,7 +379,7 @@ class ExportData
                     List.of(new ExportablePermId(ExportableKind.EXPERIMENT, "201206190940555-1032")),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     false, // withImportCompatibility
                     true
             },
@@ -390,7 +390,7 @@ class ExportData
                     List.of(new ExportablePermId(ExportableKind.SAMPLE, "201206191219327-1055")),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     false, // withImportCompatibility
                     true
             },
@@ -401,7 +401,7 @@ class ExportData
                     List.of(new ExportablePermId(ExportableKind.SAMPLE, "200811050947161-652")),
                     new AllFields(),
                     XlsTextFormat.RICH,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     false, // withImportCompatibility
                     true
             },
@@ -412,7 +412,7 @@ class ExportData
 //                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("200811050947161-653"))),
 //                    new AllFields(),
 //                    XlsTextFormat.RICH,
-//                    true, // withReferredTypes
+//                    false, // withReferredTypes
 //                    false, // withImportCompatibility
 //                    true
 //            },
@@ -423,7 +423,7 @@ class ExportData
                     List.of(new ExportablePermId(ExportableKind.DATASET, "ROOT_CONTAINER")),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     false, // withImportCompatibility
                     true
             },
@@ -436,7 +436,7 @@ class ExportData
                     List.of(new ExportablePermId(ExportableKind.SPACE, "TEST-SPACE")),
                     new SelectedFields(List.of(CODE, PERM_ID, MODIFICATION_DATE), List.of()),
                     XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     false, // withImportCompatibility
                     true
             },
@@ -447,7 +447,7 @@ class ExportData
                     List.of(new ExportablePermId(ExportableKind.PROJECT, "20120814110011738-105")),
                     new SelectedFields(List.of(PERM_ID, IDENTIFIER, REGISTRATOR, REGISTRATION_DATE), List.of()),
                     XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     false, // withImportCompatibility
                     true
             },
@@ -459,7 +459,7 @@ class ExportData
                     new SelectedFields(List.of(CODE, PARENTS, CHILDREN, REGISTRATOR, REGISTRATION_DATE),
                             List.of(new PropertyTypePermId("DESCRIPTION"))),
                     XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     false, // withImportCompatibility
                     true
             },
@@ -484,7 +484,7 @@ class ExportData
                     // null perm ID indicates that the newly created value in the setup of the test should be used.
                     new SelectedFields(List.of(IDENTIFIER, CODE), List.of(new PropertyTypePermId(RICH_TEXT_PROPERTY_NAME))),
                     XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     false, // withImportCompatibility
                     true
             },
@@ -496,7 +496,7 @@ class ExportData
                     // null perm ID indicates that the newly created value in the setup of the test should be used.
                     new SelectedFields(List.of(IDENTIFIER, CODE), List.of(new PropertyTypePermId(RICH_TEXT_PROPERTY_NAME))),
                     XlsTextFormat.RICH,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     false, // withImportCompatibility
                     true
             },
@@ -508,7 +508,7 @@ class ExportData
                     // null perm ID indicates that the newly created value in the setup of the test should be used.
                     new SelectedFields(List.of(IDENTIFIER, CODE), List.of(new PropertyTypePermId(RICH_TEXT_WITH_IMAGE_PROPERTY_NAME))),
                     XlsTextFormat.RICH,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     false, // withImportCompatibility
                     true
             },
@@ -520,7 +520,7 @@ class ExportData
                     // null perm ID indicates that the newly created value in the setup of the test should be used.
                     new SelectedFields(List.of(IDENTIFIER, CODE), List.of(new PropertyTypePermId(RICH_TEXT_WITH_SPREADSHEET_PROPERTY_NAME))),
                     XlsTextFormat.RICH,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     false, // withImportCompatibility
                     true
             },
@@ -533,7 +533,7 @@ class ExportData
                     List.of(new ExportablePermId(ExportableKind.SPACE, "TEST-SPACE")),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     false, // withImportCompatibility
                     true
             },
@@ -544,7 +544,7 @@ class ExportData
                     List.of(new ExportablePermId(ExportableKind.PROJECT, "20120814110011738-105")),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     false, // withImportCompatibility
                     true
             },
@@ -555,7 +555,7 @@ class ExportData
                     List.of(new ExportablePermId(ExportableKind.EXPERIMENT, "201206190940555-1032")),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     false, // withImportCompatibility
                     true
             },
@@ -566,7 +566,7 @@ class ExportData
                     List.of(new ExportablePermId(ExportableKind.SAMPLE, "200811050946559-980")),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     false, // withImportCompatibility
                     true
             },
@@ -577,7 +577,7 @@ class ExportData
                     List.of(new ExportablePermId(ExportableKind.SAMPLE, "200811050947161-652")),
                     new AllFields(),
                     XlsTextFormat.RICH,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     false, // withImportCompatibility
                     true
             },
@@ -588,7 +588,7 @@ class ExportData
                     List.of(new ExportablePermId(ExportableKind.DATASET, "ROOT_CONTAINER")),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     false, // withImportCompatibility
                     true
             },
@@ -599,7 +599,7 @@ class ExportData
                     List.of(new ExportablePermId(ExportableKind.DATASET, "20120628092259000-41")),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     false, // withImportCompatibility
                     true
             },
@@ -613,7 +613,7 @@ class ExportData
                             new ExportablePermId(ExportableKind.DATASET, "20110805092359990-17")),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     true, // withImportCompatibility
                     true
             },
@@ -625,7 +625,7 @@ class ExportData
                             new ExportablePermId(ExportableKind.DATASET, "20110805092359990-17")),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     false, // withImportCompatibility
                     true
             },
@@ -636,7 +636,7 @@ class ExportData
                     List.of(new ExportablePermId(ExportableKind.DATASET, "20081105092159188-3")),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     true, // withImportCompatibility
                     true
             },
@@ -647,7 +647,7 @@ class ExportData
                     List.of(new ExportablePermId(ExportableKind.DATASET, "20081105092159188-3")),
                     new AllFields(),
                     XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     false, // withImportCompatibility
                     true
             },
@@ -664,7 +664,7 @@ class ExportData
                             List.of(CODE, PARENTS, CHILDREN, REGISTRATOR, REGISTRATION_DATE),
                             List.of(new PropertyTypePermId("BACTERIUM"), new PropertyTypePermId("SIZE"), new PropertyTypePermId("ORGANISM"))),
                     XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     true, // withImportCompatibility
                     true
             },
@@ -679,7 +679,7 @@ class ExportData
                             List.of(CODE, PARENTS, CHILDREN, REGISTRATOR, REGISTRATION_DATE),
                             List.of(new PropertyTypePermId("BACTERIUM"), new PropertyTypePermId("SIZE"), new PropertyTypePermId("ORGANISM"))),
                     XlsTextFormat.PLAIN,
-                    true, // withReferredTypes
+                    false, // withReferredTypes
                     false, // withImportCompatibility
                     true
             },

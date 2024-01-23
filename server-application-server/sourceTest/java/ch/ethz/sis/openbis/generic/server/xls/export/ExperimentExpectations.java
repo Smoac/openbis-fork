@@ -51,6 +51,16 @@ class ExperimentExpectations extends Expectations
 
     public ExperimentExpectations(final IApplicationServerApi api, final boolean exportReferred)
     {
+        if (exportReferred)
+        {
+            allowing(api).getExperiments(with(XLSExportTest.SESSION_TOKEN), with(new CollectionMatcher<>(
+                    List.of(new ExperimentPermId("200001010000000-0001")))), with(any(ExperimentFetchOptions.class)));
+            allowing(api).getExperiments(with(XLSExportTest.SESSION_TOKEN), with(new CollectionMatcher<>(
+                    List.of(new ExperimentPermId("200001010000000-0002")))), with(any(ExperimentFetchOptions.class)));
+            allowing(api).getExperiments(with(XLSExportTest.SESSION_TOKEN), with(new CollectionMatcher<>(
+                    List.of(new ExperimentPermId("200001010000000-0003")))), with(any(ExperimentFetchOptions.class)));
+        }
+
         allowing(api).getExperiments(with(XLSExportTest.SESSION_TOKEN), with(new CollectionMatcher<>(
                         List.of(new ExperimentPermId("200001010000000-0001"),
                                 new ExperimentPermId("200001010000000-0002"),
