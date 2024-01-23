@@ -1,5 +1,7 @@
 import constants from '@src/js/components/database/imaging/constants.js';
 import ImagingMapper from "@src/js/components/database/imaging/ImagingMapper";
+import openbis from "@src/js/services/openbis";
+import messages from "@src/js/common/messages";
 
 export default class ImagingFacade {
 
@@ -7,13 +9,14 @@ export default class ImagingFacade {
         this.openbis = extOpenbis;
     }
 
-    multiFromJson = async (jsonObjArray) => {
-        console.log("multiFromJson: ", jsonObjArray);
-        const JSObjArray = [];
-        const all = jsonObjArray.map(async jsonObj => JSObjArray.push(await this.openbis.fromJson(null, jsonObj)));
-        console.log("all: ", all);
-        console.log("test: ", JSObjArray);
-        return JSObjArray;
+    async loadDataSetTypes() {
+        const result = await this.openbis.searchDataSetTypes(
+            new this.openbis.DataSetTypeSearchCriteria(),
+            new this.openbis.DataSetTypeFetchOptions()
+        )
+        return result.getObjects().map(dataSetType => {
+            return {label: dataSetType.description, value: dataSetType.code}
+        })
     }
 
     loadImagingDataset = async (objId) => {
@@ -35,6 +38,7 @@ export default class ImagingFacade {
         update.setProperty(constants.IMAGING_DATA_CONFIG, JSON.stringify(imagingDataset));
         const totalPreviews = imagingDataset.images.reduce((count, image) => count + image.previews.length, 0);
         update.getMetaData().put(constants.METADATA_PREVIEW_COUNT, totalPreviews.toString());
+        //update.getMetaData().put('filterTest', 'unique dataset to display');
         return await this.openbis.updateDataSets([ update ]);
     };
 
@@ -128,78 +132,48 @@ export default class ImagingFacade {
         return {previewContainerList, totalCount};
     }
 
-    loadGalleryDatasets = async (objId) => {
-        const fetchOptions = new this.openbis.ExperimentFetchOptions();
-        fetchOptions.withProperties();
-        fetchOptions.withDataSets().withProperties();
-        const experiments = await this.openbis.getExperiments(
-            [new this.openbis.ExperimentPermId(objId)],
-            fetchOptions
-        );
-        console.log("experiments: ", experiments[objId]);
-        const datasets = experiments[objId].dataSets;
-        const imagingDatasets = datasets.map(dataset => {
-            if (constants.IMAGING_DATA_CONFIG in dataset.properties)
-                return {'permId': dataset.code, 'metadata': dataset.metaData, 'imagingDataset': JSON.parse(dataset.properties[constants.IMAGING_DATA_CONFIG])};
-        });
-        return await imagingDatasets;
-    }
+    filterGallery = async (objId, operator, filterText, property, count) => {
+        // WHERE experID = 233444
+        //     AND/OR withProp = 'dsasa'
+        //      AND/OR with = 'adwad'
+        const criteria = new this.openbis.DataSetSearchCriteria();
+        criteria.withAndOperator();
+        criteria.withExperiment().withPermId().thatEquals(objId);
 
-    filterGallery = async () => {
-        const criteria = new this.openbis.DataSetSearchCriteria()
-        // Use these options
-        criteria.withAndOperator(); // If needed
-        criteria.withAnyStringProperty().thatContains(); // for every string split by space
-        // Use one of this two
-        criteria.withExperiment().withPermId().thatEquals("");
-        criteria.withSample().withPermId().thatEquals("");
-        // Don't need to fetch anything if previews are on metadata
-        const options = new this.openbis.DataSetFetchOptions();
-        // Imaging datasets are datasets that contain the metadata field indicating they have previews
-    }
-    async loadDataSets(value, count) {
-        const criteria = new openbis.DataSetSearchCriteria()
-        criteria.withOrOperator()
+        if (filterText && filterText.trim().length > 0) {
+            const subCriteria = criteria.withSubcriteria();
+            operator === messages.get(messages.OPERATOR_AND) ? subCriteria.withAndOperator() : subCriteria.withOrOperator();
 
-        if (value && value.trim().length > 0) {
-            criteria.withCode().thatContains(value)
-            criteria.withProperty(ENTITY_NAME_PROPERTY).thatContains(value)
-
-            const experimentCriteria = criteria.withExperiment()
-            experimentCriteria.withOrOperator()
-            //experimentCriteria.withCode().thatContains(value)
-            experimentCriteria.withIdentifier().thatContains(value)
-            experimentCriteria.withProperty(ENTITY_NAME_PROPERTY).thatContains(value)
-
-            const sampleCriteria = criteria.withSample()
-            sampleCriteria.withOrOperator()
-            //sampleCriteria.withCode().thatContains(value)
-            sampleCriteria.withIdentifier().thatContains(value)
-            sampleCriteria.withProperty(ENTITY_NAME_PROPERTY).thatContains(value)
-        }
-
-        const fo = new openbis.DataSetFetchOptions()
-        fo.withProperties()
-        fo.withExperiment()
-        fo.withSample()
-        fo.from(0).count(count)
-        fo.sortBy().code().asc()
-
-        const results = await openbis.searchDataSets(criteria, fo)
-
-        return {
-            options: results.getObjects().map(object => {
-                return {
-                    label: this.createOptionLabel(openbis.EntityKind.DATA_SET, object),
-                    fullLabel: this.createOptionFullLabel(
-                        openbis.EntityKind.DATA_SET,
-                        object
-                    ),
-                    entityKind: openbis.EntityKind.DATA_SET,
-                    entityId: object.code
+            const splittedText = filterText.split(' ');
+            for(const value in splittedText){
+                if (property === messages.get(messages.ALL)) {
+                    //subCriteria.withAnyStringProperty().thatContains(value);
+                    subCriteria.withAnyProperty().thatContains(value);
+                } else {
+                    //subCriteria.withStringProperty(property).thatContains(value);
+                    subCriteria.withProperty(property).thatContains(value);
                 }
-            }),
-            totalCount: results.totalCount
+            }
         }
+
+        // TODO add object type to distinguish
+        //criteria.withSample().withPermId().thatEquals(objId);
+
+        const fetchOptions = new this.openbis.DataSetFetchOptions();
+        fetchOptions.withProperties();
+        //fetchOptions.from(3).count(count);
+        //fo.sortBy().code().asc()
+
+        const dataSets = await this.openbis.searchDataSets(
+            criteria,
+            fetchOptions
+        )
+        console.log('searchDataSets: ', dataSets);
+        let loadedImg = []
+        dataSets.getObjects().forEach(dataSet => {
+            console.log("dataSet: ", dataSet);
+            //loadedImg.push(this.openbis.fromJson(null, JSON.parse(dataSet.properties[constants.IMAGING_DATA_CONFIG])));
+        })
+        //console.log(loadedImg);
     }
 }

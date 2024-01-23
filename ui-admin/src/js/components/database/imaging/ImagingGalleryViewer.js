@@ -19,11 +19,12 @@ import constants from "@src/js/components/database/imaging/constants.js"
 import ViewListIcon from '@material-ui/icons/ViewList';
 import GridOnIcon from '@material-ui/icons/GridOn';
 import GalleryPaging from "@src/js/components/database/imaging/components/gallery/GalleryPaging.jsx";
-import GridPagingOptions from "@src/js/components/common/grid/GridPagingOptions";
+import GridPagingOptions from "@src/js/components/common/grid/GridPagingOptions.js";
 import IconButton from "@material-ui/core/IconButton";
-import Export from "@src/js/components/database/imaging/components/viewer/Exporter";
+import Export from "@src/js/components/database/imaging/components/viewer/Exporter.js";
 import Checkbox from "@material-ui/core/Checkbox";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
+import GalleryFilter from "@src/js/components/database/imaging/components/gallery/GalleryFilter.jsx";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -78,6 +79,18 @@ const ImagingGalleryViewer = ({objId, extOpenbis, onOpenPreview}) => {
     const [paging, setPaging] = React.useState({page: 0, pageSize:8, pageColumns:4});
     const [showAll, setShowAll] = React.useState(true);
     const [selectAll, setSelectAll] = React.useState(true);
+    const [galleryFilter, setGalleryFilter] = React.useState({operator: 'AND', text: '', property: messages.get(messages.ALL)});
+    const [dataSetTypes, setDataSetTypes] = React.useState(new ImagingFacade(extOpenbis).loadDataSetTypes());
+
+    React.useEffect( ()=> {
+        async function loadDataSetTypes() {
+            const dataSetTypes = await new ImagingFacade(extOpenbis).loadDataSetTypes();
+            dataSetTypes.push({label: 'All Properties', value: messages.get(messages.ALL)});
+            console.log('dataSetTypes: ', dataSetTypes);
+            setDataSetTypes(dataSetTypes);
+        }
+        loadDataSetTypes();
+    }, [])
 
     React.useEffect( ()=> {
         async function load() {
@@ -153,6 +166,15 @@ const ImagingGalleryViewer = ({objId, extOpenbis, onOpenPreview}) => {
         }
     }
 
+    const onGalleryFilterChange = (newGalleryFilter) => {
+        console.log('onGalleryFilterChange - event: ', newGalleryFilter);
+        setGalleryFilter(newGalleryFilter);
+        if (newGalleryFilter.text.length > 3){
+            const result = new ImagingFacade(extOpenbis).filterGallery(objId, newGalleryFilter.operator, newGalleryFilter.text, newGalleryFilter.property, 5);
+            console.log('onGalleryFilterChange - result: ', result);
+        }
+    }
+
     const renderControlsBar = (isExportDisable, configExports = []) => {
         const options = GridPagingOptions.GALLERY_PAGE_SIZE_OPTIONS[paging.pageColumns - 1].map(pageSize => ({
             label: pageSize,
@@ -183,8 +205,10 @@ const ImagingGalleryViewer = ({objId, extOpenbis, onOpenPreview}) => {
                         <OutlinedBox style={{width: 'fit-content'}} label={messages.get(messages.SHOW)}>
                             <CustomSwitch isChecked={showAll} onChange={setShowAll}/>
                         </OutlinedBox>
+                    </Grid>
+                    <Grid item xs>
                         <OutlinedBox style={{width: 'fit-content'}} label='Select'>
-                            <CustomSwitch isChecked={selectAll} onChange={handleSelectAll}/>
+                            <CustomSwitch disabled={!gridView} isChecked={selectAll} onChange={handleSelectAll}/>
                         </OutlinedBox>
                     </Grid>
                     <Grid item xs>
@@ -197,6 +221,11 @@ const ImagingGalleryViewer = ({objId, extOpenbis, onOpenPreview}) => {
                                         onClick={() => handleViewChange(false)}>
                                 <ViewListIcon fontSize="large"/>
                             </IconButton>
+                        </OutlinedBox>
+                    </Grid>
+                    <Grid item xs={8}>
+                        <OutlinedBox label='Filter'>
+                            <GalleryFilter options={dataSetTypes} galleryFilter={galleryFilter} onGalleryFilterChange={onGalleryFilterChange}/>
                         </OutlinedBox>
                     </Grid>
                     <Grid item xs>
