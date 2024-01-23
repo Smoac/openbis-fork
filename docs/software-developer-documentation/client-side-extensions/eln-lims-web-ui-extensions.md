@@ -183,6 +183,15 @@ dollar sign '$' indicate they are jquery components:
                         toolbarModel.push({ component : $demoButton, tooltip: "Demo" });
                     }
                     return toolbarModel;
+                },
+                extraToolbarDropdown : function(mode, sample) {
+                    return { 
+                        label:"My label",
+                        title:"Title",
+                        action : function() {
+                            //This empty function could be a call to do something in particular
+                        }
+                    }
                 }
             },
        },

@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -75,7 +76,36 @@ public class ExportablePermId implements Serializable
     @Override
     public String toString()
     {
-        return new ObjectToString(this).append("exportableKind", exportableKind).append("permId", permId).toString();
+        return new ObjectToString(this).append("exportableKind", String.valueOf(exportableKind)).append("permId", String.valueOf(permId)).toString();
+    }
+
+    @Override
+    public boolean equals(final Object o)
+    {
+        if (this == o)
+        {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass())
+        {
+            return false;
+        }
+
+        final ExportablePermId that = (ExportablePermId) o;
+
+        if (exportableKind != that.exportableKind)
+        {
+            return false;
+        }
+        return Objects.equals(permId, that.permId);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result = exportableKind != null ? exportableKind.hashCode() : 0;
+        result = 31 * result + (permId != null ? permId.hashCode() : 0);
+        return result;
     }
 
 }

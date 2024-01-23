@@ -15,6 +15,11 @@
  */
 package ch.ethz.sis.openbis.generic.server.xls.importer.helper;
 
+import static ch.ethz.sis.openbis.generic.server.xls.importer.utils.PropertyTypeSearcher.getPropertyValue;
+
+import java.util.List;
+import java.util.Map;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCreation;
@@ -33,11 +38,6 @@ import ch.ethz.sis.openbis.generic.server.xls.importer.utils.AttributeValidator;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.IAttribute;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.PropertyTypeSearcher;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-
-import java.util.List;
-import java.util.Map;
-
-import static ch.ethz.sis.openbis.generic.server.xls.importer.utils.PropertyTypeSearcher.getPropertyValue;
 
 public class ExperimentImportHelper extends BasicImportHelper
 {
@@ -122,9 +122,18 @@ public class ExperimentImportHelper extends BasicImportHelper
 
     private ExperimentIdentifier getIdentifier(Map<String, Integer> header, List<String> values)
     {
+        String identifier = getValueByColumnName(header, values, Attribute.Identifier);
+
         String code = getValueByColumnName(header, values, Attribute.Code);
         String project = getValueByColumnName(header, values, Attribute.Project);
-        return new ExperimentIdentifier(project + "/" + code);
+
+        ExperimentIdentifier experimentIdentifier = null;
+        if (identifier != null && !identifier.isEmpty()) {
+            experimentIdentifier = new ExperimentIdentifier(identifier);
+        } else {
+            experimentIdentifier = new ExperimentIdentifier(project + "/" + code);
+        }
+        return experimentIdentifier;
     }
 
     @Override protected boolean isObjectExist(Map<String, Integer> header, List<String> values)

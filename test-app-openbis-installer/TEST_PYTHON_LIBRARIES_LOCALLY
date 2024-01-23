@@ -15,3 +15,11 @@ vim openbis/test-app-openbis-installer/source/test_pybis.py
     #self.installPybis()
 
 # is commented out, otherwise your installation is being overwritten
+
+Copy testData to targets/test-data (change folder name).
+Run app-openbis-installer build on the CI server and wait for its completion.
+Run the following
+
+pip3 install pandas==1.4.1
+python3 test.py -s http://openbis-sis-ci-master-jdk17.ethz.ch:8080
+(the URL points to the CI server)

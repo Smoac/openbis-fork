@@ -1,9 +1,3 @@
-var FormMode = {
-    CREATE : 0,
-    EDIT : 1,
-    VIEW : 2
-}
-
 var FormUtil = new function() {
 	this.profile = null;
 	
@@ -1049,7 +1043,9 @@ var FormUtil = new function() {
 
 		var $container = $('<div>', {'class' : 'checkbox'}).append($('<label>').append($('<input>', attr)));
 
-        $container.append($("<span>", { class: "glyphicon glyphicon-info-sign" })).append(alt ? " " + alt : "");
+        if(alt) {
+            $container.append($("<span>", { class: "glyphicon glyphicon-info-sign" })).append(alt ? " " + alt : "");
+        }
 
 		if (isRequired) {
             $container.attr('required', '');
@@ -1152,7 +1148,7 @@ var FormUtil = new function() {
 	this._getDatePickerField = function(id, alt, isRequired, isDateOnly, value) {
 		var $component = $('<div>', {'class' : 'form-group', 'style' : 'margin-left: 0px;', 'placeholder' : alt });
 		var $subComponent = $('<div>', {'class' : 'input-group date', 'id' : 'datetimepicker_' + id });
-		var $input = $('<input>', {'class' : 'form-control', 'type' : 'text', 'id' : id, 'placeholder' : (isDateOnly ? 'yyyy-MM-dd (YEAR-MONTH-DAY)' : 'yyyy-MM-dd HH:mm:ss (YEAR-MONTH-DAY : HOUR-MINUTE-SECOND)'),
+		var $input = $('<input>', {'class' : 'form-control', 'type' : 'text', 'id' : id, 'placeholder' : (isDateOnly ? 'yyyy-MM-dd (YEAR-MONTH-DAY)' : 'yyyy-MM-dd HH:mm:ss ZZ (YEAR-MONTH-DAY : HOUR-MINUTE-SECOND TIMEZONE)'),
 			'data-format' : isDateOnly ? 'yyyy-MM-dd' : 'yyyy-MM-dd HH:mm:ss'});
 		if (isRequired) {
 			$input.attr('required', '');
@@ -1168,12 +1164,12 @@ var FormUtil = new function() {
 		if(value) {
 			date = Util.parseDate(value);
 		}
-
 		var datetimepicker = $subComponent.datetimepicker({
-			format : isDateOnly ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm:ss',
-			useCurrent : false,
-			defaultDate : date
-		});
+            format : isDateOnly ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm:ss ZZ',
+            extraFormats: isDateOnly ? [] : [ 'YYYY-MM-DD HH:mm:ss' ],
+            useCurrent : false,
+            defaultDate : date
+        });
 
 		$component.append($subComponent);
 
@@ -2826,4 +2822,165 @@ var FormUtil = new function() {
             sample.getChildren().forEach(child => this.gatherAllDescendants(samplePermIds, child, samplesList));
         }
 
+        this.getPrintPDFButtonModel = function(entityKind, entityPermId) {
+            var printButtonModel = {
+                                    label : "Print PDF",
+                                    action : function() {
+                                         require([
+                                            "as/dto/exporter/data/ExportData",
+                                            "as/dto/exporter/data/ExportablePermId",
+                                            "as/dto/exporter/data/ExportableKind",
+                                            "as/dto/space/id/SpacePermId",
+                                            "as/dto/project/id/ProjectPermId",
+                                            "as/dto/experiment/id/ExperimentPermId",
+                                            "as/dto/sample/id/SamplePermId",
+                                            "as/dto/dataset/id/DataSetPermId",
+                                            "as/dto/exporter/data/AllFields",
+                                            "as/dto/exporter/options/ExportOptions",
+                                            "as/dto/exporter/options/ExportFormat",
+                                            "as/dto/exporter/options/XlsTextFormat"
+                                            ],
+                                            function(ExportData,
+                                                     ExportablePermId,
+                                                     ExportableKind,
+                                                     SpacePermId,
+                                                     ProjectPermId,
+                                                     ExperimentPermId,
+                                                     SamplePermId,
+                                                     DataSetPermId,
+                                                     AllFields,
+                                                     ExportOptions,
+                                                     ExportFormat,
+                                                     XlsTextFormat) {
+                                                            var exportablePermId = null;
+                                                            if(entityKind === "SPACE") {
+                                                                exportablePermId = new ExportablePermId(ExportableKind.SPACE, new SpacePermId(entityPermId));
+                                                            }
+                                                            if(entityKind === "PROJECT") {
+                                                                exportablePermId = new ExportablePermId(ExportableKind.PROJECT, new ProjectPermId(entityPermId));
+                                                            }
+                                                            if(entityKind === "EXPERIMENT") {
+                                                                exportablePermId = new ExportablePermId(ExportableKind.EXPERIMENT, new ExperimentPermId(entityPermId));
+                                                            }
+                                                            if(entityKind === "SAMPLE") {
+                                                                exportablePermId = new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId(entityPermId));
+                                                            }
+                                                            if(entityKind === "DATASET") {
+                                                                exportablePermId = new ExportablePermId(ExportableKind.DATASET, new DataSetPermId(entityPermId));
+                                                            }
+                                                            var exportData = new ExportData([exportablePermId], new AllFields());
+                                                            var exportOptions = new ExportOptions([ExportFormat.PDF], XlsTextFormat.RICH, false, false, false);
+                                                            mainController.openbisV3.executeExport(exportData, exportOptions).done(function(result) {
+                                                                window.open(result.downloadURL, "_blank");
+                                                            }).fail(function(result) {
+                                                                Util.showError("Failed print PDF: " + JSON.stringify(result), function() {Util.unblockUI();});
+                                                            });
+                                                     });
+             }};
+             return printButtonModel;
+        }
+
+        this.getExportButtonModel = function(entityKind, entityPermId) {
+            var exportButtonModel = {
+                                    label : "Export",
+                                    action : function() {
+                                        var $window = $('<form>', { 'action' : 'javascript:void(0);' });
+                                        $window.append($('<legend>').append('Export'));
+                                        var $compatible = $("<span class='checkbox'><label><input type='checkbox' id='COMPATIBLE-IMPORT'>Make import compatible</label></span>");
+                                        $window.append($compatible);
+
+                                        var $info_formats = $("<span>").append($("<b>").append("File formats"));
+                                        $window.append($info_formats);
+                                        var $pdf = $("<span class='checkbox'><label><input type='checkbox' id='PDF-EXPORT'>Export metadata as PDF</label></span>");
+                                        $window.append($pdf);
+                                        var $xlsx = $("<span class='checkbox'><label><input type='checkbox' id='XLSX-EXPORT'>Export metadata as XLSX</label></span>");
+                                        $window.append($xlsx);
+                                        var $data = $("<span class='checkbox'><label><input type='checkbox' id='DATA-EXPORT'>Export data</label></span>");
+                                        $window.append($data);
+
+                                        var $hierarchyInclusions = $("<span>").append($("<b>").append("Hierarchy Inclusions"));
+
+                                        $window.append($hierarchyInclusions);
+                                        var $levelsBelow = $("<span class='checkbox'><label><input type='checkbox' id='LEVELS-BELOW-EXPORT'>Include levels below from same space</label></span>");
+                                        $window.append($levelsBelow);
+                                        var $includeParents = $("<span class='checkbox'><label><input type='checkbox' id='PARENTS-EXPORT'>Include Object and Dataset parents from same space</label></span>");
+                                        $window.append($includeParents);
+                                        var $includeOtherSpaces = $("<span class='checkbox'><label><input type='checkbox' id='OTHER-SPACES-EXPORT'>Include Objects and Datasets from different spaces</label></span>");
+                                        $window.append($includeOtherSpaces);
+
+                                        var $exportOptions = $("<span>").append($("<b>").append("Export Options"));
+                                        $window.append($exportOptions);
+
+                                        var $waitOrEmail = $('<div/>');
+                                        $waitOrEmail.append("<span class='checkbox'><label><input type='radio' name='wait-for-export' value='Wait' checked> Wait for download to complete in browser. <span class='glyphicon glyphicon-warning-sign'></span> For large data to export choose receive results by email.</label></span>");
+                                        $waitOrEmail.append("<span class='checkbox'><label><input type='radio' name='wait-for-export' value='Sent Email' id='EXPORT-EMAIL'> Receive results by email.</label></span>");
+                                        $window.append($waitOrEmail.contents());
+
+                                        var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' , 'id' : 'accept-btn'});
+                                        $btnAccept.click(function() {
+                                            var exportModel = {
+                                                entity : {
+                                                    kind : entityKind,
+                                                    permId : entityPermId
+                                                },
+                                                withEmail : $("#EXPORT-EMAIL").is(":checked"),
+                                                withImportCompatibility : $("#COMPATIBLE-IMPORT").is(":checked"), //COMPATIBLE-IMPORT
+                                                formats : {
+                                                    pdf : $("#PDF-EXPORT").is(":checked"), //PDF-EXPORT
+                                                    xlsx : $("#XLSX-EXPORT").is(":checked"), //XLSX-EXPORT
+                                                    data : $("#DATA-EXPORT").is(":checked") //DATA-EXPORT
+                                                },
+                                                withLevelsBelow : $("#LEVELS-BELOW-EXPORT").is(":checked"), //LEVELS-BELOW-EXPORT
+                                                withObjectsAndDataSetsParents : $("#PARENTS-EXPORT").is(":checked"), //PARENTS-EXPORT
+                                                withObjectsAndDataSetsOtherSpaces: $("#OTHER-SPACES-EXPORT").is(":checked") //OTHER-SPACES-EXPORT
+                                            }
+                                            var numberOfFormats = 0;
+                                            if(exportModel.formats.pdf) {
+                                                numberOfFormats++;
+                                            }
+                                            if(exportModel.formats.xlsx) {
+                                                numberOfFormats++;
+                                            }
+                                            if(exportModel.formats.data) {
+                                                numberOfFormats++;
+                                            }
+                                            if(numberOfFormats === 0) {
+                                                Util.showError("No format selected.", function() {}, true, true, false, true);
+                                            } else {
+                                                Util.blockUI();
+                                                mainController.serverFacade.customELNASAPI({
+                                                    "method" : "getExport",
+                                                    "export-model" : exportModel
+                                                }, function(result) {
+                                                    if(exportModel.withEmail) {
+                                                        Util.showSuccess("Export scheduled, you will receive export by email");
+                                                        Util.unblockUI();
+                                                    } else {
+                                                        window.open(result.result, "_blank");
+                                                        Util.showSuccess("Downloading File");
+                                                        Util.unblockUI();
+                                                    }
+                                                }, true);
+                                            }
+                                        });
+                                        var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
+                                        $btnCancel.click(function() {
+                                            Util.unblockUI();
+                                        });
+
+                                        $window.append($btnAccept).append('&nbsp;').append($btnCancel);
+
+                                        var css = {
+                                                    'text-align' : 'left',
+                                                    'top' : '15%',
+                                                    'width' : '70%',
+                                                    'left' : '15%',
+                                                    'right' : '20%',
+                                                    'overflow' : 'hidden'
+                                        };
+
+                                        Util.blockUI($window, css);
+                                    }};
+             return exportButtonModel;
+        }
 }

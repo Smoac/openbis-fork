@@ -926,8 +926,8 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 			var fCheck = function(facade, samples) {
 				identifiers = c.extractIdentifiers(samples);
-				c.assertEqual(identifiers.length, 1);
-				c.assertEqual(identifiers.toString(), "/TEST/TEST-PROJECT/TEST-SAMPLE-2-PARENT");
+				c.assertEqual(identifiers.length, 2);
+				c.assertEqual(identifiers.toString(), "/ELN_SETTINGS/STORAGES/TEST_STORAGE,/TEST/TEST-PROJECT/TEST-SAMPLE-2-PARENT");
 			}
 
 			testSearch(c, fSearch, fCheck);
@@ -945,8 +945,8 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
 			var fCheck = function(facade, samples) {
 				identifiers = c.extractIdentifiers(samples);
-				c.assertEqual(identifiers.length, 2);
-				c.assertEqual(identifiers.toString(), "/TEST/TEST-PROJECT/TEST-SAMPLE-2-CHILD-2,/TEST/TEST-PROJECT/TEST-SAMPLE-2-PARENT");
+				c.assertEqual(identifiers.length, 3);
+				c.assertEqual(identifiers.toString(), "/ELN_SETTINGS/STORAGES/TEST_STORAGE,/TEST/TEST-PROJECT/TEST-SAMPLE-2-CHILD-2,/TEST/TEST-PROJECT/TEST-SAMPLE-2-PARENT");
 			}
 
 			testSearch(c, fSearch, fCheck);
@@ -2164,7 +2164,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			var c = new common(assert, dtos);
 
 			var fSearch = function(facade) {
-				var criteria = new dtos.as.dto.externaldms.search.ExternalDmsSearchCriteria();
+				var criteria = new dtos.as_dto_externaldms_search_ExternalDmsSearchCriteria();
 				criteria.withCode().thatEquals("DMS_2");
 				return facade.searchExternalDataManagementSystems(criteria, c.createExternalDmsFetchOptions());
 			}
@@ -2187,7 +2187,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 			var c = new common(assert, dtos);
 
 			var fSearch = function(facade) {
-				var criteria = new dtos.as.dto.externaldms.search.ExternalDmsSearchCriteria();
+				var criteria = new dtos.as_dto_externaldms_search_ExternalDmsSearchCriteria();
 				criteria.withCodes().thatIn(["DMS_2"]);
 				return facade.searchExternalDataManagementSystems(criteria, c.createExternalDmsFetchOptions());
 			}

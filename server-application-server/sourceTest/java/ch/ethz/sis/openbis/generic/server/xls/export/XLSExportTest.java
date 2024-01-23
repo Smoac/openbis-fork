@@ -52,15 +52,12 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
-import ch.ethz.sis.openbis.generic.server.xls.export.helper.AbstractXLSEntityTypeExportHelper;
-import ch.ethz.sis.openbis.generic.server.xls.export.helper.XLSVocabularyExportHelper;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 public class XLSExportTest
@@ -78,13 +75,6 @@ public class XLSExportTest
     protected Object[][] xlsExportData()
     {
         return XLSExportData.EXPORT_DATA;
-    }
-
-    @BeforeClass
-    public static void beforeClass()
-    {
-        AbstractXLSEntityTypeExportHelper.setAllVersions(XLSExportData.VERSIONS);
-        XLSVocabularyExportHelper.setAllVersions(XLSExportData.VERSIONS);
     }
 
     @BeforeMethod
@@ -290,7 +280,16 @@ public class XLSExportTest
         }
     }
 
-    private static void assertWorkbooksEqual(final Workbook actual, final Workbook expected)
+//    /**
+//     * Tests export of cells larger than 32k.
+//     */
+//    @Test
+//    public void testLargeCellExport()
+//    {
+//
+//    }
+
+    public static void assertWorkbooksEqual(final Workbook actual, final Workbook expected)
     {
         final int sheetsCount = expected.getNumberOfSheets();
         assertEquals(actual.getNumberOfSheets(), sheetsCount);

@@ -61,6 +61,7 @@ var fullTypes = [
 "as/dto/importer/data/ImportFormat",
 "as/dto/importer/data/ZipImportData",
 "as/dto/importer/data/UncompressedImportData",
+"as/dto/importer/data/ImportValue",
 "as/dto/importer/data/ImportScript",
 "as/dto/importer/data/IImportData",
 "as/dto/entitytype/update/IEntityTypeUpdate",
@@ -625,10 +626,12 @@ var fullTypes = [
 "as/dto/experiment/create/CreateExperimentsOperation",
 "as/dto/experiment/create/ExperimentTypeCreation",
 "as/dto/experiment/create/CreateExperimentsOperationResult",
+"as/dto/exporter/ExportResult",
+"as/dto/exporter/ExportOperation",
+"as/dto/exporter/ExportOperationResult",
 "as/dto/exporter/options/XlsTextFormat",
 "as/dto/exporter/options/ExportOptions",
 "as/dto/exporter/options/ExportFormat",
-"as/dto/exporter/ExportResult",
 "as/dto/exporter/data/AllFields",
 "as/dto/exporter/data/IExportableFields",
 "as/dto/exporter/data/ExportablePermId",
@@ -985,6 +988,17 @@ var fullTypes = [
 "dss/dto/service/CustomDSSServiceExecutionOptions",
 "dss/dto/service/id/CustomDssServiceCode",
 "dss/dto/service/id/ICustomDSSServiceId",
+"imaging/dto/ImagingPreviewContainer",
+"imaging/dto/ImagingDataSetConfig",
+"imaging/dto/ImagingDataSetControl",
+"imaging/dto/ImagingDataSetImage",
+"imaging/dto/ImagingDataSetPreview",
+"imaging/dto/ImagingMultiExportContainer",
+"imaging/dto/ImagingDataSetMultiExport",
+"imaging/dto/ImagingExportContainer",
+"imaging/dto/ImagingDataSetControlVisibility",
+"imaging/dto/ImagingDataSetPropertyConfig",
+"imaging/dto/ImagingDataSetExport",
 "util/DateFormat",
 "util/Json",
 "util/Exceptions",
@@ -996,16 +1010,7 @@ define(fullTypes, function () {
     var Dtos = function () {
         for (var i = 0; i < fullTypes.length; i++) {
             var typeName = fullTypes[i].split("/").slice(-1)[0]
-            var typePath = fullTypes[i].split("/").slice(0, -1)
-            
-            var package = this
-
-            typePath.forEach(part => {
-                if(!package[part]){
-                    package[part] = {}
-                }
-                package = package[part]
-            })
+            var typePath = fullTypes[i].split("/")
 
             if(this[typeName] === undefined){
                 this[typeName] = dtos[i]
@@ -1013,7 +1018,7 @@ define(fullTypes, function () {
                 this[typeName] = null
             }
 
-            package[typeName] = dtos[i]
+            this[typePath.join("_")] = dtos[i]
         }
     }
     return new Dtos()

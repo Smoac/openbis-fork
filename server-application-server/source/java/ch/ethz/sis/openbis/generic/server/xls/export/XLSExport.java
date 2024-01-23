@@ -24,6 +24,7 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.SPACE
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.VOCABULARY_TYPE;
 
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -42,7 +43,6 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -64,11 +64,33 @@ import ch.systemsx.cisd.openbis.generic.shared.ISessionWorkspaceProvider;
 public class XLSExport
 {
 
-    private static final String XLSX_EXTENSION = ".xlsx";
+    public static final String XLSX_EXTENSION = ".xlsx";
 
-    private static final String ZIP_EXTENSION = ".zip";
+    public static final String ZIP_EXTENSION = ".zip";
 
-    private static final String TYPE_KEY = "TYPE";
+    public static final String SCRIPTS_DIRECTORY = "scripts";
+
+    public static final String VALUES_DIRECTORY = "values";
+
+    private static final String TYPE_EXPORT_FIELD_KEY = "TYPE";
+
+    private XLSExport()
+    {
+        throw new UnsupportedOperationException("Instantiation of a utility class.");
+    }
+
+    private static File createDirectory(final File parentDirectory, final String directoryName) throws IOException
+    {
+        final File scriptsDirectory = new File(parentDirectory, directoryName);
+        final boolean directoryCreated = scriptsDirectory.mkdir();
+
+        if (!directoryCreated)
+        {
+            throw new IOException(String.format("Failed create directory %s.", scriptsDirectory.getAbsolutePath()));
+        }
+
+        return scriptsDirectory;
+    }
 
     public static ExportResult export(final String filePrefix, final IApplicationServerApi api,
             final String sessionToken, final List<ExportablePermId> exportablePermIds,
@@ -78,21 +100,23 @@ public class XLSExport
     {
         final PrepareWorkbookResult exportResult = prepareWorkbook(api, sessionToken, exportablePermIds,
                 exportReferredMasterData, exportFields, textFormatting, compatibleWithImport);
-        final Map<String, String> scripts = exportResult.getScripts();
         final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
+        final Map<String, String> scripts = exportResult.getScripts();
 
         final String fullFileName = filePrefix + "." +
                 new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS").format(new Date()) +
                 (scripts.isEmpty() ? XLSX_EXTENSION : ZIP_EXTENSION);
-        final FileOutputStream os = sessionWorkspaceProvider.getFileOutputStream(sessionToken, fullFileName);
-        writeToOutputStream(os, filePrefix, exportResult, scripts);
-        IOUtils.closeQuietly(os);
+        try (final FileOutputStream os = sessionWorkspaceProvider.getFileOutputStream(sessionToken, fullFileName))
+        {
+            writeToOutputStream(os, filePrefix, exportResult);
+        }
         return new ExportResult(fullFileName, exportResult.getWarnings());
     }
 
     private static void writeToOutputStream(final FileOutputStream os, final String filePrefix,
-            final PrepareWorkbookResult exportResult, final Map<String, String> scripts) throws IOException
+            final PrepareWorkbookResult exportResult) throws IOException
     {
+        final Map<String, String> scripts = exportResult.getScripts();
         if (scripts.isEmpty())
         {
             try
@@ -114,7 +138,7 @@ public class XLSExport
             {
                 for (final Map.Entry<String, String> script : scripts.entrySet())
                 {
-                    zos.putNextEntry(new ZipEntry(String.format("scripts/%s.py", script.getKey())));
+                    zos.putNextEntry(new ZipEntry(String.format("%s/%s.py", SCRIPTS_DIRECTORY, script.getKey())));
                     bos.write(script.getValue().getBytes());
                     bos.flush();
                     zos.closeEntry();
@@ -126,7 +150,7 @@ public class XLSExport
         }
     }
 
-    static PrepareWorkbookResult prepareWorkbook(final IApplicationServerApi api, final String sessionToken,
+    public static PrepareWorkbookResult prepareWorkbook(final IApplicationServerApi api, final String sessionToken,
             List<ExportablePermId> exportablePermIds, final boolean exportReferredMasterData,
             final Map<String, Map<String, List<Map<String, String>>>> exportFields,
             final TextFormatting textFormatting, final boolean compatibleWithImport)
@@ -152,6 +176,7 @@ public class XLSExport
         int rowNumber = 0;
         final Map<String, String> scripts = new HashMap<>();
         final Collection<String> warnings = new ArrayList<>();
+        final Map<String, String> valueFiles = new HashMap<>();
 
         for (final Collection<ExportablePermId> exportablePermIdGroup : groupedExportablePermIds)
         {
@@ -161,13 +186,11 @@ public class XLSExport
             final List<String> permIds = exportablePermIdGroup.stream()
                     .map(permId -> permId.getPermId().getPermId()).collect(Collectors.toList());
 
-            final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap = exportFields == null
-                    ? null
-                    : exportFields.get(MASTER_DATA_EXPORTABLE_KINDS.contains(exportableKind) || exportableKind == SPACE || exportableKind == PROJECT
-                            ? TYPE_KEY : exportableKind.toString());
+            final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap = getEntityTypeExportFieldsMap(exportFields, exportableKind);
             final IXLSExportHelper.AdditionResult additionResult = helper.add(api, sessionToken, wb, permIds, rowNumber,
                     entityTypeExportFieldsMap, textFormatting, compatibleWithImport);
             rowNumber = additionResult.getRowNumber();
+            valueFiles.putAll(additionResult.getValueFiles());
             warnings.addAll(additionResult.getWarnings());
 
             final IEntityType entityType = helper.getEntityType(api, sessionToken,
@@ -191,7 +214,16 @@ public class XLSExport
             }
         }
 
-        return new PrepareWorkbookResult(wb, scripts, warnings);
+        return new PrepareWorkbookResult(wb, scripts, warnings, valueFiles);
+    }
+
+    private static Map<String, List<Map<String, String>>> getEntityTypeExportFieldsMap(
+            final Map<String, Map<String, List<Map<String, String>>>> exportFields, final ExportableKind exportableKind)
+    {
+        return exportFields == null
+                ? null
+                : exportFields.get(MASTER_DATA_EXPORTABLE_KINDS.contains(exportableKind) || exportableKind == SPACE || exportableKind == PROJECT
+                ? TYPE_EXPORT_FIELD_KEY : exportableKind.toString());
     }
 
     private static List<ExportablePermId> expandReference(final IApplicationServerApi api,
@@ -210,7 +242,7 @@ public class XLSExport
             final String sessionToken, final ExportablePermId exportablePermId,
             final Set<ExportablePermId> processedIds, final ExportHelperFactory exportHelperFactory)
     {
-        final IXLSExportHelper helper = exportHelperFactory.getHelper(exportablePermId.getExportableKind());
+        final IXLSExportHelper<? extends IEntityType> helper = exportHelperFactory.getHelper(exportablePermId.getExportableKind());
         if (helper != null)
         {
             final IPropertyAssignmentsHolder propertyAssignmentsHolder = helper
@@ -390,14 +422,17 @@ public class XLSExport
 
         private final Map<String, String> scripts;
 
-        final Collection<String> warnings;
+        private final Collection<String> warnings;
+
+        private final Map<String, String> valueFiles;
 
         public PrepareWorkbookResult(final Workbook workbook, final Map<String, String> scripts,
-                final Collection<String> warnings)
+                final Collection<String> warnings, final Map<String, String> valueFiles)
         {
             this.workbook = workbook;
             this.scripts = scripts;
             this.warnings = warnings;
+            this.valueFiles = valueFiles;
         }
 
         public Workbook getWorkbook()
@@ -413,6 +448,11 @@ public class XLSExport
         public Collection<String> getWarnings()
         {
             return warnings;
+        }
+
+        public Map<String, String> getValueFiles()
+        {
+            return valueFiles;
         }
 
     }

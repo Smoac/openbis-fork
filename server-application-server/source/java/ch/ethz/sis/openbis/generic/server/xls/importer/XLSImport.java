@@ -93,7 +93,10 @@ public class XLSImport
 
     private final boolean shouldCheckVersionsOnDatabase;
 
-    public XLSImport(String sessionToken, IApplicationServerApi api, Map<String, String> scripts, ImportModes mode, ImportOptions options, String xlsName)
+    private final Map<String, String> importValues;
+
+    public XLSImport(String sessionToken, IApplicationServerApi api, Map<String, String> scripts, Map<String, String> importValues,
+            ImportModes mode, ImportOptions options, String xlsName)
     {
         this.sessionToken = sessionToken;
         this.api = api;
@@ -102,6 +105,7 @@ public class XLSImport
         this.afterVersions = VersionInfoHandler.loadAllVersions(options);
         this.dbChecker = new DatabaseConsistencyChecker(this.sessionToken, this.api, this.afterVersions);
         this.delayedExecutor = new DelayedExecutionDecorator(this.sessionToken, this.api);
+        this.importValues = importValues;
 
         this.vocabularyHelper = new VocabularyImportHelper(this.delayedExecutor, mode, options, afterVersions);
         this.vocabularyTermHelper = new VocabularyTermImportHelper(this.delayedExecutor, mode, options, afterVersions);
@@ -126,7 +130,7 @@ public class XLSImport
             this.dbChecker.checkVersionsOnDataBase();
         }
 
-        List<List<List<String>>> lines = ExcelParser.parseExcel(xls);
+        List<List<List<String>>> lines = ExcelParser.parseExcel(xls, importValues);
         int pageNumber = 0;
         int lineNumber;
 

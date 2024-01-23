@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
 import java.util.Arrays;
@@ -30,14 +31,18 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.IImportData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.ImportFormat;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.ImportScript;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.ImportValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.UncompressedImportData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options.ImportMode;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options.ImportOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
@@ -51,7 +56,7 @@ public class UncompressedImportTest extends AbstractImportTest
     @Test
     public void testDataImport()
     {
-        final IImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("import.xlsx"), null);
+        final IImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("import.xlsx"), null, null);
         final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
 
         v3api.executeImport(sessionToken, importData, importOptions);
@@ -73,9 +78,34 @@ public class UncompressedImportTest extends AbstractImportTest
     }
 
     @Test
+    public void testLargeDataImport()
+    {
+        final UncompressedImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("import_large_cell.xlsx"), null,
+                List.of(new ImportValue("value-M20.txt", new String(getFileContent("data/value-M20.txt")))));
+        final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
+
+        v3api.executeImport(sessionToken, importData, importOptions);
+
+        final SampleSearchCriteria sampleSearchCriteria = new SampleSearchCriteria();
+        sampleSearchCriteria.withCode().thatEquals("AAA");
+
+        final SampleFetchOptions sampleFetchOptions = new SampleFetchOptions();
+        sampleFetchOptions.withProperties();
+
+        final SearchResult<Sample> sampleSearchResult = v3api.searchSamples(sessionToken, sampleSearchCriteria, sampleFetchOptions);
+
+        assertEquals(sampleSearchResult.getTotalCount(), 1);
+
+        final String propertyValue = sampleSearchResult.getObjects().get(0).getStringProperty("NOTES");
+        assertNotNull(propertyValue);
+        assertTrue(propertyValue.startsWith("Lorem ipsum dolor sit amet"));
+        assertTrue(propertyValue.length() > Short.MAX_VALUE);
+    }
+
+    @Test
     public void testImportOptionsUpdateIfExists()
     {
-        final IImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("existing_vocabulary.xlsx"), null);
+        final IImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("existing_vocabulary.xlsx"), null, null);
         final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
 
         v3api.executeImport(sessionToken, importData, importOptions);
@@ -102,7 +132,7 @@ public class UncompressedImportTest extends AbstractImportTest
     @Test
     public void testImportOptionsIgnoreExisting()
     {
-        final IImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("existing_vocabulary.xlsx"), null);
+        final IImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("existing_vocabulary.xlsx"), null, null);
         final ImportOptions importOptions = new ImportOptions(ImportMode.IGNORE_EXISTING);
 
         v3api.executeImport(sessionToken, importData, importOptions);
@@ -129,7 +159,7 @@ public class UncompressedImportTest extends AbstractImportTest
     @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = ".*FAIL_IF_EXISTS.*")
     public void testImportOptionsFailIfExists()
     {
-        final IImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("existing_vocabulary.xlsx"), null);
+        final IImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("existing_vocabulary.xlsx"), null, null);
         final ImportOptions importOptions = new ImportOptions(ImportMode.FAIL_IF_EXISTS);
 
         v3api.executeImport(sessionToken, importData, importOptions);
@@ -141,7 +171,7 @@ public class UncompressedImportTest extends AbstractImportTest
         final String name = "valid.py";
         final String source = "print 'Test validation script'";
         final IImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("validation_script.xls"),
-                List.of(new ImportScript(name, source)));
+                List.of(new ImportScript(name, source)), null);
         final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
 
         v3api.executeImport(sessionToken, importData, importOptions);
@@ -171,7 +201,7 @@ public class UncompressedImportTest extends AbstractImportTest
         final String name = "dynamic.py";
         final String source = "1+1";
         final IImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("dynamic_script.xls"),
-                List.of(new ImportScript(name, source)));
+                List.of(new ImportScript(name, source)), null);
         final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
 
         v3api.executeImport(sessionToken, importData, importOptions);

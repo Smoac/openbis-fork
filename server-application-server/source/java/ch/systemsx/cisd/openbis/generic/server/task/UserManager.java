@@ -1553,6 +1553,54 @@ public class UserManager
             }
             if (roleCreations.isEmpty() == false)
             {
+                // Filter out already existing roles to not repeat creations
+                // This is to manage a corner case when a user role has been added manually unnecessarily.
+                List<RoleAssignmentCreation> filteredRoleCreations = new ArrayList<>();
+                for (RoleAssignmentCreation roleAssignmentCreationToCheck : roleCreations)
+                {
+                    IPersonId userId = roleAssignmentCreationToCheck.getUserId();
+                    IAuthorizationGroupId groupId = roleAssignmentCreationToCheck.getAuthorizationGroupId();
+                    ISpaceId spaceId = roleAssignmentCreationToCheck.getSpaceId();
+                    RoleAssignmentSearchCriteria roleAssignmentSearchCriteria =
+                            new RoleAssignmentSearchCriteria();
+                    if (userId != null)
+                    {
+                        roleAssignmentSearchCriteria.withUser().withId()
+                                .thatEquals(userId);
+                    }
+                    if (groupId != null)
+                    {
+                        roleAssignmentSearchCriteria.withAuthorizationGroup().withId()
+                                .thatEquals(groupId);
+                    }
+                    if (spaceId != null)
+                    {
+                        roleAssignmentSearchCriteria.withSpace().withId()
+                                .thatEquals(spaceId);
+                    }
+
+                    SearchResult<RoleAssignment> roleAssignmentSearchResult =
+                            service.searchRoleAssignments(sessionToken,
+                                    roleAssignmentSearchCriteria, new RoleAssignmentFetchOptions());
+
+                    boolean found = false;
+                    if (!roleAssignmentSearchResult.getObjects().isEmpty())
+                    {
+                        Role role = roleAssignmentCreationToCheck.getRole();
+                        for (RoleAssignment roleAssignment : roleAssignmentSearchResult.getObjects())
+                        {
+                            if (roleAssignment.getRole().equals(role))
+                            {
+                                found = true;
+                            }
+                        }
+                    }
+                    if (!found)
+                    {
+                        filteredRoleCreations.add(roleAssignmentCreationToCheck);
+                    }
+                }
+                roleCreations = filteredRoleCreations;
                 operations.add(new CreateRoleAssignmentsOperation(roleCreations));
             }
             if (roleDeletions.isEmpty() == false)

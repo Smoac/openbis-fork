@@ -162,6 +162,7 @@ def openbis_definitions(entity):
                 "MULTILINE_VARCHAR",
                 "REAL",
                 "TIMESTAMP",
+                "DATE",
                 "BOOLEAN",
                 "CONTROLLEDVOCABULARY",
                 "MATERIAL",

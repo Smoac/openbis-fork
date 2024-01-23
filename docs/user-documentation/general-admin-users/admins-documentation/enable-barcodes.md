@@ -1,10 +1,10 @@
-# Enable Barcodes
+# Enable Barcodes and QR codes
 
 
 
-In order to be able to add custom barcodes to *Objects*, an *Instance
+In order to be able to add custom barcodes and QR codes to *Objects*, an *Instance
 Admin* needs to add the $BARCODE property to the object type for which
-barcodes are needed.
+barcodes/QR codes are needed.
 
  
 
@@ -20,13 +20,13 @@ edit the **Settings**, as shown below.
 
  
 
-After enabling the option, please refresh your browser. The **Barcodes
-Generator** will be shown in the main menu under **Utilities** and a
+After enabling the option, please refresh your browser. The **Barcodes/QR Codes Generator** will be shown in the main menu under **Utilities** and a
 barcode icon will be added above the menu.
 
  
 
-![image info](img/Barcode-generator-1024x466.png)
+![image info](img/Generate-custom-barcodes-qrcodes.png)
+
 ![image info](img/barcode-scan-tablet.png)
 
  

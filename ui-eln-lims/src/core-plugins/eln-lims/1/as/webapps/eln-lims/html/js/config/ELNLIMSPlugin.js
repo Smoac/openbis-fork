@@ -14,6 +14,12 @@ var ViewType = {
     SAMPLE_TABLE : 5
 }
 
+var FormMode = {
+    CREATE : 0,
+    EDIT : 1,
+    VIEW : 2
+}
+
 $.extend(ELNLIMSPlugin.prototype, {
 	init: function() {
 	

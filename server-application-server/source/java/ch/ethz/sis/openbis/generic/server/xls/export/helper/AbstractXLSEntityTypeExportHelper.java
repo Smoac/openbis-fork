@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -40,22 +41,13 @@ import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.FieldType;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
-import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportTypes;
-import ch.ethz.sis.openbis.generic.server.xls.importer.utils.VersionUtils;
 
 public abstract class AbstractXLSEntityTypeExportHelper<ENTITY_TYPE extends IEntityType> extends AbstractXLSExportHelper<ENTITY_TYPE>
 {
 
-    protected static Map<String, Integer> allVersions = VersionUtils.loadAllVersions();
-
     public AbstractXLSEntityTypeExportHelper(final Workbook wb)
     {
         super(wb);
-    }
-
-    public static void setAllVersions(final Map<String, Integer> allVersions)
-    {
-        AbstractXLSEntityTypeExportHelper.allVersions = allVersions;
     }
 
     @Override
@@ -70,12 +62,13 @@ public abstract class AbstractXLSEntityTypeExportHelper<ENTITY_TYPE extends IEnt
         }
         final ENTITY_TYPE entityType = getEntityType(api, sessionToken, permIds.get(0));
         final Collection<String> warnings = new ArrayList<>();
+        final Map<String, String> valueFiles = new HashMap<>();
 
         if (entityType != null)
         {
             final String permId = entityType.getPermId().toString();
             final ExportableKind exportableKind = getExportableKind();
-            warnings.addAll(addRow(rowNumber++, true, exportableKind, permId, exportableKind.name()));
+            addRow(rowNumber++, true, exportableKind, permId, warnings, valueFiles, exportableKind.name());
 
             final Attribute[] possibleAttributes = getAttributes(entityType);
             if (entityTypeExportFieldsMap == null || entityTypeExportFieldsMap.isEmpty() ||
@@ -91,11 +84,11 @@ public abstract class AbstractXLSEntityTypeExportHelper<ENTITY_TYPE extends IEnt
                 final Attribute[] attributes = compatibleWithImport ? importableAttributes : defaultPossibleAttributes;
                 final String[] attributeHeaders = Arrays.stream(attributes).map(Attribute::getName).toArray(String[]::new);
 
-                warnings.addAll(addRow(rowNumber++, true, exportableKind, permId, attributeHeaders));
+                addRow(rowNumber++, true, exportableKind, permId, warnings, valueFiles, attributeHeaders);
 
                 // Values
                 final String[] values = Arrays.stream(attributes).map(attribute -> getAttributeValue(entityType, attribute)).toArray(String[]::new);
-                warnings.addAll(addRow(rowNumber++, false, exportableKind, permId, values));
+                addRow(rowNumber++, false, exportableKind, permId, warnings, valueFiles, values);
             } else
             {
                 // Export selected attributes in predefined order
@@ -132,7 +125,7 @@ public abstract class AbstractXLSEntityTypeExportHelper<ENTITY_TYPE extends IEnt
                 final String[] allAttributeNames = Stream.concat(Arrays.stream(selectedAttributeHeaders), requiredForImportAttributeNameStream)
                         .toArray(String[]::new);
 
-                warnings.addAll(addRow(rowNumber++, true, exportableKind, permId, allAttributeNames));
+                addRow(rowNumber++, true, exportableKind, permId, warnings, valueFiles, allAttributeNames);
 
                 // Values
                 final Set<Map<String, String>> selectedExportFieldSet = new HashSet<>(selectedExportAttributes);
@@ -155,7 +148,7 @@ public abstract class AbstractXLSEntityTypeExportHelper<ENTITY_TYPE extends IEnt
                             }
                         }).toArray(String[]::new);
 
-                warnings.addAll(addRow(rowNumber++, false, exportableKind, permId, entityValues));
+                addRow(rowNumber++, false, exportableKind, permId, warnings, valueFiles, entityValues);
             }
 
             final AdditionResult additionResult = addEntityTypePropertyAssignments(rowNumber,
@@ -164,10 +157,10 @@ public abstract class AbstractXLSEntityTypeExportHelper<ENTITY_TYPE extends IEnt
             warnings.addAll(additionResult.getWarnings());
             rowNumber = additionResult.getRowNumber();
 
-            return new AdditionResult(rowNumber + 1, warnings);
+            return new AdditionResult(rowNumber + 1, warnings, valueFiles);
         } else
         {
-            return new AdditionResult(rowNumber, warnings);
+            return new AdditionResult(rowNumber, warnings, valueFiles);
         }
     }
 
@@ -175,20 +168,17 @@ public abstract class AbstractXLSEntityTypeExportHelper<ENTITY_TYPE extends IEnt
             final Collection<PropertyAssignment> propertyAssignments, final ExportableKind exportableKind,
             final String permId, final boolean compatibleWithImport)
     {
-        final Collection<String> warnings = new ArrayList<>(
-                addRow(rowNumber++, true, exportableKind, permId, compatibleWithImport
-                        ? ENTITY_ASSIGNMENT_COLUMNS
-                        : Arrays.copyOfRange(ENTITY_ASSIGNMENT_COLUMNS, 1, ENTITY_ASSIGNMENT_COLUMNS.length)));
+        final Collection<String> warnings = new ArrayList<>();
+        final Map<String, String> valueFiles = new HashMap<>();
+        addRow(rowNumber++, true, exportableKind, permId, warnings, valueFiles, ENTITY_ASSIGNMENT_COLUMNS);
         for (final PropertyAssignment propertyAssignment : propertyAssignments)
         {
             final PropertyType propertyType = propertyAssignment.getPropertyType();
             final Plugin plugin = propertyAssignment.getPlugin();
             final Vocabulary vocabulary = propertyType.getVocabulary();
 
-            final String code = propertyType.getCode();
             final String[] values = {
-                    String.valueOf(VersionUtils.getStoredVersion(allVersions, ImportTypes.PROPERTY_TYPE, null, code)),
-                    code,
+                    propertyType.getCode(),
                     String.valueOf(propertyAssignment.isMandatory()).toUpperCase(),
                     String.valueOf(propertyAssignment.isShowInEditView()).toUpperCase(),
                     propertyAssignment.getSection(),
@@ -198,11 +188,11 @@ public abstract class AbstractXLSEntityTypeExportHelper<ENTITY_TYPE extends IEnt
                     propertyType.getDescription(),
                     mapToJSON(propertyType.getMetaData()),
                     plugin != null ? (plugin.getName() != null ? plugin.getName() + ".py" : "") : "",
-                    String.valueOf(propertyType.isMultiValue() != null && propertyType.isMultiValue()).toUpperCase() };
-            warnings.addAll(addRow(rowNumber++, false, exportableKind, permId,
-                    compatibleWithImport ? values : Arrays.copyOfRange(values, 1, values.length)));
+                    String.valueOf(propertyType.isMultiValue() != null && propertyType.isMultiValue()).toUpperCase(),
+                    String.valueOf(propertyAssignment.isUnique() != null && propertyAssignment.isUnique()).toUpperCase()};
+            addRow(rowNumber++, false, exportableKind, permId, warnings, valueFiles, values);
         }
-        return new AdditionResult(rowNumber, warnings);
+        return new AdditionResult(rowNumber, warnings, valueFiles);
     }
 
     private String getFullDataTypeString(final PropertyType propertyType)

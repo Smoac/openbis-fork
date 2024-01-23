@@ -80,6 +80,7 @@ ARCHIVED
 ArchiveDataSetsOperation
 ArchiveDataSetsOperationResult
 Archiving Requested Search Criteria
+ARCHIVING_STATUS
 ArchivingStatus
 are Matching
 arePartsEqual
@@ -110,6 +111,8 @@ Authorization Group Search Criteria
 Authorization Group Sort Options
 Authorization Group Update
 AUTHORIZATION_GROUP
+AUTO_GENERATE_CODE
+AUTO_GENERATE_CODES
 AVAILABLE
 BACKUP_PENDING
 BdsDirectoryStorageFormatPermId
@@ -395,6 +398,7 @@ DeletionSortOptions
 DeletionTechId
 DeletionType
 desc
+DESCRIPTION
 Description Search Criteria
 DescriptorAccessionIdSearchCriteria
 DescriptorOntologyIdSearchCriteria
@@ -402,6 +406,7 @@ DescriptorOntologyVersionSearchCriteria
 deserialize
 deserialize Key
 DISABLED
+DISALLOW_DELETION
 doImport
 download To
 DOWNLOAD_ITEM_IDS_PARAMETER
@@ -482,10 +487,11 @@ Execute Sql Operation
 Execute Sql Operation Result
 ExecuteCustomASServiceOperation
 ExecuteCustomASServiceOperationResult
-executeImport
-executeOperations
 executeCustomDSSService
 ExecuteCustomDSSServiceOperationResult
+executeExport
+executeImport
+executeOperations
 Execution Options
 EXPERIMENT
 Experiment
@@ -511,6 +517,8 @@ ExportableKind
 ExportablePermId
 ExportData
 ExportFormat
+ExportOperation
+ExportOperationResult
 ExportOptions
 ExportResult
 External Code Search Criteria
@@ -573,6 +581,8 @@ FULL_MATCH_PROPERTY_BOOST
 FULL_MATCH_TYPE_BOOST
 FullDataSetCreation
 general Import
+GENERATE_CODES
+GENERATED_CODE_PREFIX
 generateDTO
 generateDTOJS
 generateFetchOptions
@@ -852,6 +862,9 @@ getExperimentsByType
 GetExperimentsOperation
 GetExperimentsOperationResult
 getExportableKind
+getExportData
+getExportOptions
+getExportResult
 getExports
 getExternalCode
 getExternalDataManagementSystems
@@ -896,6 +909,7 @@ getIgnoreVersioning
 getImportData
 getImportMode
 getImportOptions
+getImportValues
 getInitialValueForExistingEntities
 getInputs
 getInputStream
@@ -944,7 +958,7 @@ getMultiValueSampleProperty
 getMultiValueStringArrayProperty
 getMultiValueTimestampArrayProperty
 getMultiValueTimestampProperty
-getMultiValueVarcharProperty
+getMultiValueStringProperty
 getMultiValueXmlProperty
 getNotification
 getNotificationOptions
@@ -1083,7 +1097,7 @@ getValidTo
 getValidToDate
 getValue
 getValues
-getVarcharProperty
+getStringProperty
 getVersion
 getVocabulary
 GetVocabularyTermsOperation
@@ -1195,6 +1209,7 @@ hasWebAppSettings
 HistoryEntry
 HistoryEntryFetchOptions
 HistoryEntrySortOptions
+HTML
 HYPERLINK
 I Creation
 I Custom AS Service Executor
@@ -1284,6 +1299,7 @@ ImportOperation
 ImportOperationResult
 ImportOptions
 ImportScript
+ImportValue
 indent
 indexOf
 INSTANCE
@@ -1383,9 +1399,11 @@ isShowParents
 isStorageConfirmation
 isSubcodeUnique
 IStorageFormatId
+isUnique
 isUseWildcards
 isWithImportCompatibility
 isWithReferredTypes
+isZipForSingleFiles
 ITagId
 ITagsHolder
 iterator
@@ -1432,6 +1450,8 @@ logout
 LONG_DATE_FORMAT
 LongDateFormat
 main
+MAIN_DATA_SET_PATH
+MAIN_DATA_SET_PATTERN
 MANAGED_PROPERTY
 mangleToplevel
 MATCH_VALUE
@@ -1461,6 +1481,7 @@ MODIFICATION_DATE
 modificationDate
 ModificationDateComparator
 ModificationDateSearchCriteria
+MODIFIER
 ModifierSearchCriteria
 MOVEMENT
 MULTILINE_VARCHAR
@@ -1513,6 +1534,9 @@ ObjectNotFoundException
 ObjectPermId
 ObjectTechId
 OBSERVER
+ONTOLOGY_ANNOTATION_ID
+ONTOLOGY_ID
+ONTOLOGY_VERSION
 OPENBIS
 Operation Kind
 OperationExecution
@@ -1606,6 +1630,7 @@ PredicateOntologyIdSearchCriteria
 PredicateOntologyVersionSearchCriteria
 PREFIX_MATCH_VALUE
 Present In Archive Search Criteria
+PRESENT_IN_ARCHIVE
 Processing Service
 Processing Service Execution Options
 Processing Service Fetch Options
@@ -1674,6 +1699,7 @@ REGISTRATION_DATE
 registrationDate
 RegistrationDateComparator
 RegistrationDateSearchCriteria
+REGISTRATOR
 RegistratorSearchCriteria
 RelationHistoryEntry
 Relationship
@@ -2115,7 +2141,8 @@ setExperimentId
 setExperiments
 setExperimentsByType
 setExportableKind
-setExports
+setExportData
+setExportOptions
 setExternalCode
 setExternalDms
 setExternalDmsAddress
@@ -2153,6 +2180,7 @@ setIgnoreVersioning
 setImportData
 setImportMode
 setImportOptions
+setImportValues
 setInitialValueForExistingEntities
 setInputs
 setIntegerArrayProperty
@@ -2198,7 +2226,7 @@ setMultiValueSampleProperty
 setMultiValueStringArrayProperty
 setMultiValueTimestampArrayProperty
 setMultiValueTimestampProperty
-setMultiValueVarcharProperty
+setMultiValueStringProperty
 setMultiValueXmlProperty
 setName
 setNegated
@@ -2306,6 +2334,7 @@ setup
 setUrlTemplate
 setUserId
 setUserName
+setUnique
 setValidationPluginId
 setValidFrom
 setValidFromDate
@@ -2313,7 +2342,7 @@ setValidTo
 setValidToDate
 setValue
 setValues
-setVarcharProperty
+setStringProperty
 setVersion
 SetView
 setVocabulary
@@ -2322,6 +2351,7 @@ setWithImportCompatibility
 setWithReferredTypes
 setXlsTextFormat
 setXmlProperty
+setZipSingleFiles
 Share Id Search Criteria
 SHORT_DATE_FORMAT
 ShortDateFormat
@@ -2335,6 +2365,7 @@ should Be Frozen For Parents
 should Be Frozen For Projects
 should Be Frozen For Samples
 size
+SIZE
 Size Search Criteria
 SortAndPage
 sortAndPage
@@ -2362,6 +2393,7 @@ START_DOWNLOAD_SESSION_METHOD
 Status Search Criteria
 Storage Confirmation Search Criteria
 Storage Format Search Criteria
+STORAGE_CONFIRMATION
 StorageFormat
 StorageFormatFetchOptions
 StorageFormatPermId
@@ -2460,6 +2492,7 @@ UnarchiveDataSetsOperationResult
 UnauthorizedObjectAccessException
 UncompressedImportData
 UNDEFINED
+UNIQUE_SUBCODES
 UNKNOWN
 Unknown Related Object Id
 unlock Data Sets
@@ -2539,15 +2572,18 @@ UpdateVocabularyTermsOperation
 UpdateVocabularyTermsOperationResult
 Uploaded Data Set Creation
 URL
+URL_TEMPLATE
 USER
 USER_SESSION_ID_PARAMETER
 UserIdSearchCriteria
 UserIdsSearchCriteria
 UserNameSearchCriteria
+VALIDATION_SCRIPT
 valueOf
 values
 VARCHAR
 verbose
+VERSION
 Vocabulary
 VOCABULARY
 Vocabulary Code Search Criteria
@@ -2859,6 +2895,7 @@ withWildcards
 XLS
 XLSTextFormat
 XlsTextFormat
+XLSX
 XML
 YES
 ZipImportData
