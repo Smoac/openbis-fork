@@ -1,36 +1,72 @@
 # Usage
 
-## Network
+## Docker Containers
 
-Container networking `openbis-tier` refers to the ability for containers to connect to and **communicate with each other**. The following example creates a network using the bridge network driver. Running containers will be communicating across the created virtual network.
+Our recommendation is to run openBIS within a **three-container setup**, in particular when aiming at [running openBIS in production](environments.md#production):
+1) **openbis-ingress**: Runs a reverse HTTP Proxy for managing and securing HTTP requests in between the client and the application.
+2) **openbis-app**: Runs a Java Runtime Environment, including the openBIS Application Server (AS) and openBIS Data Store Server (DSS).
+3) **openbis-database**: Runs a [PostgreSQL](https://www.postgresql.org/about/) database, to handle all data transactions.
 
-```
-$ docker network create openbis-tier --driver bridge;
-```
+
+| Container | Image | Port | Description |
+| ----------|------ | ---- | ----------- |
+|`openbis-database`|`postgres15`|`5432/tcp`|PostgreSQL database listens on port 5432 and accepts connection from openbis-app.|
+|`openbis-app`|`openbis-server`|`8080/tcp`|Java Virtual Machine with openBIS Application Server listens on port 8080.| 
+|`openbis-app`|`openbis-server`|`8081/tcp`|Java Virtual Machine with openBIS Data Store Server listens on port 8081.|
+|`openbis-ingress`|`apache2`|`443/tcp`|Apache HTTP server listens on port 443 and is configured as reverse proxy to ports 8080 and 8081.|
+
+
+## Docker Compose
+
+Docker Compose is a tool for defining and running multi-container applications. It simplifies the control of the entire openBIS service, making it easy to control the application workflow in a single, comprehensible YAML configuration file, allows to create, start and stop all services by issuing a single command.
+
+We are providing a pre-compiled `docker-compose.yml` available for download [here](../../_static/docker-compose.yml), which is ready to use out of the box. To run the application, just navigate to the sub-directory where you've downloaded the [`docker-compose.yml`](../../_static/docker-compose.yml) to, and then run `docker-compose up -d` (exact command depends on your OS, and the release of docker and docker-compose installed). For advanced use, consider to modify the file according to your needs ([more details](usage.md)).
+
+Below sections provide a brief description of the individual components used in the proposed multi-container setup.
+
+
+## Docker Network
+
+The virtual bridge network `openbis-network` allows all containers deployed with openBIS to connect to each other. The following example creates a network using the bridge network driver, which all running containers will be communicating accross.
+
+To manually create the network, use: `docker network create openbis-network --driver bridge`
+
+
+## Storage Volumes
+
+The use of Docker volumes is preferred for **persisting data** generated and utilized by containers. For proper operation, the data directory of openBIS, main configuration files and logs are to be mounted as  persistent volumes. This ensures that data can be accessed from different containers, and allows data to persist container restarts. By utilizing the option `-v openbis-data:/data`, a persistent storage named `openbis-data` is created and mounted as `/data` within the active container. This applies analogically to all other persistent volumes.
+
+| Container | Persistent volume | Mountpoint | Description |
+| --------- | ----------------- | ---------- | ----------- |
+|`openbis-database`|`openbis-database-data`|`/var/lib/postgresql/data`|PostgreSQL database configuration and data directory.|
+|`openbis-app`|`openbis-app-data`|`/data`|Application data directory for data store files.| 
+|`openbis-app`|`openbis-app-etc`|`/etc/openbis`|Application configuration files.|
+|`openbis-app`|`openbis-app-logs`|`/var/log/openbis`|Application log files.|
+
 
 ## Database
 
-**Database container** provides relational database - **PostgreSQL server** - to persist users, authorization information, various entities and their metadata, as well as index information about all datasets. It is required to have database superuser privileges.
+The **database container** `openbis-database` provides relational database through **PostgreSQL server** to provide persistancy for any data created while running openBIS. This includes user and authorization data, various entities and their metadata, as well as index information about all datasets. It is required to have database superuser privileges.
 
 ```
 $ docker run -d \
   --name openbis-database \
   --hostname openbis-database \
-  --network openbis-tier \
+  --network openbis-network \
   -v openbis-database-data:/var/lib/postgresql/data \
   -e POSTGRES_PASSWORD=mysecretpassword \
-  -e PGDATA=/var/lib/postgresql/data/pgdata \
+  -e PGDATA=/var/lib/postgresql/data \
   postgres:15;
 ```
 
-Running database container can be inspected by fetching the logs to spot a message when database system is ready to accept connections.
+The running database container can be inspected to fetch logs. The database has started up successfully when the openbis-database container logs the following message: "database system is ready to accept connections":
 
 ```
 $ docker logs openbis-database;
 2024-01-19 18:37:50.984 UTC [1] LOG:  database system is ready to accept connections
 ```
 
-Created database volume can be inspected to spot a mountpoint where database data is physically stored.
+The volume created (`openbis-database-data`) can be inspected to spot the mountpoint where database data is physically stored.
 
 ```
 $ docker volume inspect openbis-database-data;
@@ -50,19 +86,19 @@ $ docker volume inspect openbis-database-data;
 
 ## Application
 
-**Application container** provides Java runtime and consists of two Java processes - the **openBIS Application Server** (openBIS AS) and the - **openBIS Data Store Server** (openBIS DSS). **openBIS AS** manages the metadata and links to the data while the **openBIS DSS** manages the data itself operating on a managed part of the file system.
+The **application container** `openbis-app` provides Java runtime and consists of two Java processes - the **openBIS Application Server** (openBIS AS) and the - **openBIS Data Store Server** (openBIS DSS). The **openBIS AS** manages the metadata and links to the data while the **openBIS DSS** manages the data itself operating on a managed part of the file system.
 
 ```
 $ docker run --detach \
-  --name openbis-server \
-  --hostname openbis-server \
-  --network openbis-tier \
+  --name openbis-app \
+  --hostname openbis-app \
+  --network openbis-network \
   --pid host \
   -p 8080:8080 \
   -p 8081:8081 \
-  -v openbis-server-data:/data \
-  -v openbis-server-etc:/etc/openbis \
-  -v openbis-server-logs:/var/log/openbis \
+  -v openbis-app-data:/data \
+  -v openbis-app-etc:/etc/openbis \
+  -v openbis-app-logs:/var/log/openbis \
   -e OPENBIS_ADMIN_PASS="123456789" \
   -e OPENBIS_DATA="/data/openbis" \
   -e OPENBIS_DB_ADMIN_PASS="mysecretpassword" \
@@ -77,24 +113,24 @@ $ docker run --detach \
   openbis/openbis-server:20.10.7;
 ```
 
-Running application container can be inspected by fetching the logs.
+The state of the running application container can be inspected by fetching the container logs:
 
 ```
-$ docker logs openbis-server;
-2024-01-19 18:37:50.984 UTC [1] LOG:  database system is ready to accept connections
+$ docker logs openbis-app;
+2024-01-23 11:06:19,310 INFO  [main] OPERATION.ETLDaemon - Data Store Server ready and waiting for data.
 ```
 
-Created openbis-server volumes can be inspected to spot a mountpoints where data files, configuration files and logs are physically stored.
+Docker volumes mounted by `openbis-app` can be inspected to spot where data files, configuration files and logs are physically stored.
 
 ```
-$ docker volume inspect openbis-server-data openbis-server-etc openbis-server-logs;
+$ docker volume inspect openbis-app-data openbis-app-etc openbis-app-logs;
 [
     {
         "CreatedAt": "2024-01-20T12:24:49+01:00",
         "Driver": "local",
         "Labels": null,
-        "Mountpoint": "/var/lib/docker/volumes/openbis-server-data/_data",
-        "Name": "openbis-server-data",
+        "Mountpoint": "/var/lib/docker/volumes/openbis-app-data/_data",
+        "Name": "openbis-app-data",
         "Options": null,
         "Scope": "local"
     },
@@ -102,8 +138,8 @@ $ docker volume inspect openbis-server-data openbis-server-etc openbis-server-lo
         "CreatedAt": "2024-01-20T12:24:49+01:00",
         "Driver": "local",
         "Labels": null,
-        "Mountpoint": "/var/lib/docker/volumes/openbis-server-etc/_data",
-        "Name": "openbis-server-etc",
+        "Mountpoint": "/var/lib/docker/volumes/openbis-app-etc/_data",
+        "Name": "openbis-app-etc",
         "Options": null,
         "Scope": "local"
     },
@@ -111,8 +147,8 @@ $ docker volume inspect openbis-server-data openbis-server-etc openbis-server-lo
         "CreatedAt": "2024-01-20T12:24:49+01:00",
         "Driver": "local",
         "Labels": null,
-        "Mountpoint": "/var/lib/docker/volumes/openbis-server-logs/_data",
-        "Name": "openbis-server-logs",
+        "Mountpoint": "/var/lib/docker/volumes/openbis-app-logs/_data",
+        "Name": "openbis-app-logs",
         "Options": null,
         "Scope": "local"
     }
@@ -122,7 +158,7 @@ $ docker volume inspect openbis-server-data openbis-server-etc openbis-server-lo
 
 ## Ingress
 
-**Ingress container** provides TLS termination and reverse proxy. Examples below are easily functional. They should be extended for complex access control or web application firewall. They configure Transport Layer Security, and reverse proxy based on path, where "/openbis" is directed to port 8080, and "/datastore_server" is directed to port 8081. 
+An **ingress container** acts as reverse proxy and performs Transport Layer Security (TLS) termination. Examples below are easily functional. They should be extended to handle complex access control scenarios and to comply with firewall rules. In each of the examples below, the ingress controller configures TLS, and it is configured as a reverse proxy to handle requests to the path `/openbis` (directed to port 8080) and to `/datastore_server` (directed to port 8081).
 
 ### Nginx
 
