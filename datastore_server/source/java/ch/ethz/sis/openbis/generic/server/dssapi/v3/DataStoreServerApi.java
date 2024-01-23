@@ -32,10 +32,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.CustomDSSServiceExecutionOptions;
-import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.id.ICustomDSSServiceId;
-import ch.ethz.sis.openbis.generic.server.dssapi.v3.executor.IExecuteCustomDSSServiceExecutor;
-
 import org.apache.commons.collections4.iterators.IteratorChain;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -109,9 +105,6 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
 
     @Autowired
     private ICreateUploadedDataSetExecutor createUploadedDataSetExecutor;
-
-    @Autowired
-    private IExecuteCustomDSSServiceExecutor executor;
 
     /**
      * The designated constructor.
@@ -442,16 +435,6 @@ public class DataStoreServerApi extends AbstractDssServiceRpc<IDataStoreServerAp
         }
 
         return as.createDataSets(sessionToken, metadata);
-    }
-
-    @Override
-    @Transactional
-    public Object executeCustomDSSService(String sessionToken, ICustomDSSServiceId serviceId,
-            CustomDSSServiceExecutionOptions options)
-    {
-        getOpenBISService().checkSession(sessionToken);
-
-        return executor.execute(sessionToken, serviceId, options);
     }
 
     private void injectDataStoreIdAndCodesIfNeeded(List<FullDataSetCreation> newDataSets)
