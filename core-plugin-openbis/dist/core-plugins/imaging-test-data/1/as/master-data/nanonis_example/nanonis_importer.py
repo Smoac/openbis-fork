@@ -30,6 +30,7 @@ SXM_ADAPTOR = "ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.adaptor.Na
 DAT_ADAPTOR = "ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.adaptor.NanonisDatAdaptor"
 VERBOSE = True
 
+
 def get_instance(url=None):
     base_url = "http://localhost:8888/openbis"
     if url == None:
@@ -163,14 +164,14 @@ def create_dat_dataset(openbis, folder_path, file_prefix='', sample=None, experi
         color_scale_visibility_x += [imaging.ImagingDataSetControlVisibility(
             "Channel X",
             [channel],
-            [minimum, maximum, step],
+            [str(minimum), str(maximum), str(step)],
             unit
         )]
 
         color_scale_visibility_y += [imaging.ImagingDataSetControlVisibility(
             "Channel Y",
             [channel],
-            [minimum, maximum, step],
+            [str(minimum), str(maximum), str(step)],
             unit
         )]
 
