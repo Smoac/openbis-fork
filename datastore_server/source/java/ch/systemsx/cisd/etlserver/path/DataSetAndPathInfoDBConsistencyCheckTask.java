@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 ETH Zuerich, CISD
+ * Copyright ETH 2013 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.etlserver.path;
 
 import java.text.DateFormat;
@@ -234,6 +233,8 @@ public class DataSetAndPathInfoDBConsistencyCheckTask extends AbstractMaintenanc
 
                     private int index;
 
+                    private boolean canRestart = true;
+
                     @Override
                     public boolean hasNext()
                     {
@@ -241,8 +242,9 @@ public class DataSetAndPathInfoDBConsistencyCheckTask extends AbstractMaintenanc
                         {
                             String timestampAndCode = readTimestampAndCodeFromStateFile();
                             currentChunk = getNextDataSets(lastRegistrationDate, chunkSize, timestampAndCode);
-                            if (currentChunk.isEmpty())
+                            if (currentChunk.isEmpty() && canRestart)
                             {
+                                canRestart = false;
                                 lastRegistrationDate = originalStartingTime;
                                 currentChunk = getNextDataSets(lastRegistrationDate, chunkSize, null);
                             }
