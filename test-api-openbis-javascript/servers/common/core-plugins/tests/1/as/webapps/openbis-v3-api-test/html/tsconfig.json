@@ -1,0 +1,24 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "lib": ["dom", "esnext"],
+        "allowJs": true,
+        "skipLibCheck": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "strict": false,
+        "forceConsistentCasingInFileNames": true,
+        "noFallthroughCasesInSwitch": true,
+        "strictNullChecks": false,
+        "module": "amd",
+        "moduleResolution": "Node",
+        "isolatedModules": true,
+        "noImplicitAny": false,
+        "outDir": "test-compiled",
+        "sourceMap": true
+    },
+    "include": [
+        "index.d.ts",
+        "test/*.ts"
+    ]
+}
