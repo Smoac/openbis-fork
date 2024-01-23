@@ -6,7 +6,7 @@
 
 ![Docker Pulls](https://img.shields.io/docker/pulls/openbis/openbis-server)  
 
-We highly recommend to use the **openbis-prod** image for deploying openBIS in production. The openBIS service running in container **openbis-app** can be connected to a [containerized PostgreSQL database](usage.md), or to a managed or cloud-native PostgreSQL service. A reverse HTTP proxy is required in front, which can be [set up as a container](usage.md), as an independent ingress controller, or as a cloud-based content delivery service. We recommend to orchestrate all containers using Docker Compose, for which we're providing a [docker-compose.yml as a template](docker-setup.md#docker-compose).
+We highly recommend to use the **openbis-prod** image for deploying openBIS in production. The openBIS service running in container **openbis-app** can be connected to a [containerized PostgreSQL database](usage.md), or to a managed or cloud-native PostgreSQL service. A reverse HTTP proxy is required in front, which can be [set up as a container](usage.md), as an independent ingress controller, or as a cloud-based content delivery service. We recommend to orchestrate all containers using Docker Compose, for which we're providing a [docker-compose.yml](docker-setup.md#docker-compose) as a template.
 
 
 ## Development
