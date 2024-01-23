@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright ETH 2008 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.ArrayList;
@@ -360,8 +359,10 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(personDAO).listPersons();
                     will(returnValue(Arrays.asList(systemPerson))); // only 'system' in database
 
-                    one(personDAO).tryFindPersonByUserId(user); // first login
+                    allowing(personDAO).tryFindPersonByUserId(user); // first login
                     will(returnValue(null));
+
+                    one(personDAO).lock(null);
 
                     one(personDAO).tryFindPersonByUserId(PersonPE.SYSTEM_USER_ID);
                     will(returnValue(systemPerson));
@@ -406,8 +407,10 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(personDAO).listPersons();
                     will(returnValue(Arrays.asList(systemPerson, person)));
 
-                    one(personDAO).tryFindPersonByUserId(user); // first login
+                    allowing(personDAO).tryFindPersonByUserId(user); // first login
                     will(returnValue(null));
+
+                    one(personDAO).lock(null);
 
                     one(personDAO).tryFindPersonByUserId(PersonPE.SYSTEM_USER_ID);
                     will(returnValue(systemPerson));
@@ -444,8 +447,10 @@ public final class CommonServerTest extends AbstractServerTestCase
                     allowing(sessionManager).getSession(SESSION_TOKEN);
                     will(returnValue(mySession));
 
-                    one(personDAO).tryFindPersonByUserId(user);
+                    allowing(personDAO).tryFindPersonByUserId(user);
                     will(returnValue(person));
+
+                    one(personDAO).lock(person);
                 }
             });
         assertEquals(null, mySession.tryGetPerson());

@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 ETH Zuerich, CISD
+ * Copyright ETH 2008 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.math.BigInteger;
@@ -40,6 +39,7 @@ import ch.systemsx.cisd.common.reflection.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.deletion.EntityHistoryCreator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 
 /**
  * Implementation of {@link IPersonDAO} for databases.
@@ -288,7 +288,9 @@ public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implemen
     @Override
     public void lock(PersonPE person)
     {
-        PersonPE mergedPerson = (PersonPE) getHibernateTemplate().merge(person);
-        getHibernateTemplate().lock(mergedPerson, LockMode.PESSIMISTIC_WRITE);
+        if(person != null && person.getId() != null)
+        {
+            currentSession().createNativeQuery("SELECT * FROM " + TableNames.PERSONS_TABLE + " WHERE id = " + person.getId() + " FOR NO KEY UPDATE");
+        }
     }
 }

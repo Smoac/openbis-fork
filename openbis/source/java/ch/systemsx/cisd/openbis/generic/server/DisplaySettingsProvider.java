@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 ETH Zuerich, CISD
+ * Copyright ETH 2012 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.Collection;
@@ -196,9 +195,8 @@ public class DisplaySettingsProvider
             });
     }
 
-    public <T> T executeActionWithPersonLock(PersonPE person, IDelegatedActionWithResult<T> action)
-    {
-        Lock lock = getPersonLock(person);
+    public <T> T executeActionWithPersonLock(String userId, IDelegatedActionWithResult<T> action){
+        Lock lock = getPersonLock(userId);
         lock.lock();
         try
         {
@@ -209,13 +207,18 @@ public class DisplaySettingsProvider
         }
     }
 
-    private synchronized Lock getPersonLock(PersonPE person)
+    public <T> T executeActionWithPersonLock(PersonPE person, IDelegatedActionWithResult<T> action)
     {
-        Lock lock = locksMap.get(person.getUserId());
+        return executeActionWithPersonLock(person.getUserId(), action);
+    }
+
+    private synchronized Lock getPersonLock(String userId)
+    {
+        Lock lock = locksMap.get(userId);
         if (lock == null)
         {
             lock = new ReentrantLock();
-            locksMap.put(person.getUserId(), lock);
+            locksMap.put(userId, lock);
         }
         return lock;
     }

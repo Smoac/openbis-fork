@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 ETH Zuerich, CISD
+ * Copyright ETH 2011 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.openbis.generic.server.api.v1;
 
 import java.util.List;
@@ -25,6 +24,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.action.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
@@ -147,14 +147,21 @@ public class GeneralInformationChangingService extends
         try
         {
             final Session session = getSession(sessionToken);
-            PersonPE person = session.tryGetPerson();
+            final PersonPE person = session.tryGetPerson();
             if (person != null)
             {
-                synchronized (displaySettingsProvider)
+                PersonPE attachedPerson = getDAOFactory().getPersonDAO().tryFindPersonByUserId(person.getUserId());
+                getDAOFactory().getPersonDAO().lock(attachedPerson);
+
+                displaySettingsProvider.executeActionWithPersonLock(person, new IDelegatedActionWithResult<Object>()
                 {
-                    displaySettingsProvider.replaceWebAppSettings(person, webAppSettings);
-                    getDAOFactory().getPersonDAO().updatePerson(person);
-                }
+                    @Override public Object execute(final boolean didOperationSucceed)
+                    {
+                        displaySettingsProvider.replaceWebAppSettings(person, webAppSettings);
+                        getDAOFactory().getPersonDAO().updatePerson(person);
+                        return null;
+                    }
+                });
             }
         } catch (InvalidSessionException e)
         {
