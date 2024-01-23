@@ -15,4 +15,4 @@ We highly recommend to use the **openbis-prod** image for deploying openBIS in p
 
 ![Docker Pulls](https://img.shields.io/docker/pulls/openbis/debian-openbis)  
 
-For deveoplment purposes, it is possible to follow the production setup outlined above. To ease up development, rapid testing and debugging, we recommend to use the **debian-openbis** image, which provides an all-in-one container. Note that this setup is **not** optimized for persisting data, and should not be used for keeping services up in long-term.
+For deveoplment purposes, it is possible to follow the production setup outlined above. To ease up development, rapid testing and debugging, we recommend to use the **debian-openbis** image, which provides an all-in-one container. Note that this setup is **not** optimized for persisting data, and should not be used for running services in production.
