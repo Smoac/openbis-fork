@@ -484,7 +484,7 @@ class ImagingDataSetViewer extends React.PureComponent {
                                                              label={c.label}
                                                              initValue={inputValues[c.label]}
                                                              range={c.range}
-                                                             disabled={isUploadedPreview}
+                                                             disabled={isUploadedPreview || c.range.findIndex(n => n === 'nan') !== -1}
                                                              unit={c.unit}
                                                              playable={c.playable && !isUploadedPreview}
                                                              speeds={c.speeds}
