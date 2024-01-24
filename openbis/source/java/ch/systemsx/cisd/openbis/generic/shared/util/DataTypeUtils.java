@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 ETH Zuerich, CISD
+ * Copyright ETH 2010 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.openbis.generic.shared.util;
 
 import java.io.Serializable;
@@ -33,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
-import ch.systemsx.cisd.openbis.generic.shared.util.SimplePropertyValidator.SupportedDatePattern;
+import ch.systemsx.cisd.openbis.generic.shared.util.SupportedDateTimePattern;
 
 /**
  * Utility functions around data types.
@@ -60,7 +59,7 @@ public class DataTypeUtils
             {
                 try
                 {
-                    return new Long(value);
+                    return Long.valueOf(value);
                 } catch (NumberFormatException ex)
                 {
                     throw new IllegalArgumentException("Is not an integer number: " + value);
@@ -80,7 +79,7 @@ public class DataTypeUtils
             {
                 try
                 {
-                    return new Double(value);
+                    return Double.valueOf(value);
                 } catch (NumberFormatException ex)
                 {
                     throw new IllegalArgumentException("Is not a floating point number: " + value);
@@ -100,7 +99,7 @@ public class DataTypeUtils
             {
                 try
                 {
-                    String pattern = SupportedDatePattern.CANONICAL_DATE_PATTERN.getPattern();
+                    String pattern = SupportedDateTimePattern.CANONICAL_DATE_PATTERN.getPattern();
                     return DateUtils.parseDate(value, new String[]
                             { pattern });
                 } catch (ParseException ex)

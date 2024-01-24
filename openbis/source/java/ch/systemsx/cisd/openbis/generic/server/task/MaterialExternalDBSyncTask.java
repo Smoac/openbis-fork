@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 ETH Zuerich, CISD
+ * Copyright ETH 2012 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.openbis.generic.server.task;
 
 import java.io.File;
@@ -73,7 +72,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.util.DataTypeUtils;
-import ch.systemsx.cisd.openbis.generic.shared.util.SimplePropertyValidator.SupportedDatePattern;
+import ch.systemsx.cisd.openbis.generic.shared.util.SupportedDateTimePattern;
 
 /**
  * Task which feeds a reporting database with recently added/changed Materials.
@@ -658,7 +657,7 @@ public class MaterialExternalDBSyncTask implements IMaintenanceTask
     {
         Date timestamp = tryToReadTimestamp();
         return timestamp == null ? "1970-01-01" : DateFormatUtils.format(timestamp,
-                SupportedDatePattern.CANONICAL_DATE_PATTERN.getPattern());
+                SupportedDateTimePattern.CANONICAL_DATE_PATTERN.getPattern());
     }
 
     private Date tryToReadTimestamp()

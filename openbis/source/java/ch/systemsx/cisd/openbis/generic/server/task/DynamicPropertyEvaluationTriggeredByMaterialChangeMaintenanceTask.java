@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 ETH Zuerich, CISD
+ * Copyright ETH 2013 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.openbis.generic.server.task;
 
 import java.io.File;
@@ -52,7 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
-import ch.systemsx.cisd.openbis.generic.shared.util.SimplePropertyValidator.SupportedDatePattern;
+import ch.systemsx.cisd.openbis.generic.shared.util.SupportedDateTimePattern;
 
 /**
  * Maintenance task for re-evaluation of dynamic properties of entities which have material properties which have changed since the last run of the
@@ -178,7 +177,7 @@ public class DynamicPropertyEvaluationTriggeredByMaterialChangeMaintenanceTask i
             timestamp = FileUtilities.loadToString(timestampFile).trim();
             try
             {
-                DateUtils.parseDate(timestamp, new String[] { SupportedDatePattern.CANONICAL_DATE_PATTERN.getPattern() });
+                DateUtils.parseDate(timestamp, new String[] { SupportedDateTimePattern.CANONICAL_DATE_PATTERN.getPattern() });
             } catch (ParseException ex)
             {
                 operationLog.warn("Invalid timestamp in file '" + timestampFile + "': " + timestamp);
@@ -191,7 +190,7 @@ public class DynamicPropertyEvaluationTriggeredByMaterialChangeMaintenanceTask i
     private String createTimestamp()
     {
         return DateFormatUtils.format(new Date(timeProvider.getTimeInMilliseconds()),
-                SupportedDatePattern.CANONICAL_DATE_PATTERN.getPattern());
+                SupportedDateTimePattern.CANONICAL_DATE_PATTERN.getPattern());
     }
 
     private void saveTimestamp(String newTimestamp)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 ETH Zuerich, SIS
+ * Copyright ETH 2019 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.openbis.generic.shared.util;
 
 import static org.junit.Assert.fail;
@@ -155,18 +154,18 @@ public class SimplePropertyValidatorTest
         } catch (UserFailureException e)
         {
             assertEquals(e.getMessage(), "Date value '" + stringToParse + "' has improper format. " +
-                    "It must be one of '[yyyy-MM-dd\n" +
-                    "yyyy-MM-dd HH:mm\n" +
-                    "yyyy-MM-dd HH:mm:ss\n" +
-                    "yyyy-MM-dd'T'HH:mm\n" +
+                    "It must be one of '[yyyy-MM-dd'T'HH:mm:ssXXX\n" +
+                    "yyyy-MM-dd'T'HH:mm:ssX\n" +
                     "yyyy-MM-dd'T'HH:mm:ss\n" +
-                    "M/d/yy\n" +
+                    "yyyy-MM-dd'T'HH:mm\n" +
+                    "yyyy-MM-dd HH:mm:ss Z\n" +
+                    "yyyy-MM-dd HH:mm:ss Z\n" +
+                    "yyyy-MM-dd HH:mm:ss\n" +
+                    "yyyy-MM-dd HH:mm\n" +
+                    "yyyy-MM-dd\n" +
                     "M/d/yy h:mm a\n" +
                     "M/d/yy HH:mm\n" +
-                    "yyyy-MM-dd HH:mm:ss Z\n" +
-                    "yyyy-MM-dd'T'HH:mm:ssX\n" +
-                    "yyyy-MM-dd HH:mm:ss Z\n" +
-                    "yyyy-MM-dd'T'HH:mm:ssXXX]'.");
+                    "M/d/yy]'.");
         }
     }
 
