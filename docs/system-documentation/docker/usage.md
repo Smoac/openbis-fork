@@ -22,7 +22,7 @@ Docker Compose is a tool for defining and running multi-container applications. 
 
 We are providing a pre-compiled `docker-compose.yml` available for download [here](../../_static/docker-compose.yml), which is ready to use out of the box. To run the application, just navigate to the sub-directory where you've downloaded the [`docker-compose.yml`](../../_static/docker-compose.yml) to, and then run `docker-compose up -d` (exact command depends on your OS, and the release of docker and docker-compose installed). For advanced use, consider to modify the file according to your needs ([more details](usage.md)).
 
-Below sections provide a brief description of the individual components used in the proposed multi-container setup.
+The sections below provide a brief description of the individual components used in the proposed multi-container setup.
 
 
 ## Docker Network
@@ -46,7 +46,7 @@ The use of Docker volumes is preferred for **persisting data** generated and uti
 
 ## Database
 
-The **database container** `openbis-database` provides relational database through **PostgreSQL server** to provide persistancy for any data created while running openBIS. This includes user and authorization data, various entities and their metadata, as well as index information about all datasets. It is required to have database superuser privileges.
+The **database container** `openbis-database` provides a relational database through **PostgreSQL server** to guarantee persistence for any data created while running openBIS. This includes user and authorization data, openBIS entities and their metadata, as well as index information about all datasets. It is required to have database superuser privileges.
 
 ```
 $ docker run -d \
@@ -66,7 +66,7 @@ $ docker logs openbis-database;
 2024-01-19 18:37:50.984 UTC [1] LOG:  database system is ready to accept connections
 ```
 
-The volume created (`openbis-database-data`) can be inspected to spot the mountpoint where database data is physically stored.
+The volume created (`openbis-database-data`) can be inspected to check the mountpoint where the database data is physically stored.
 
 ```
 $ docker volume inspect openbis-database-data;
@@ -86,7 +86,7 @@ $ docker volume inspect openbis-database-data;
 
 ## Application
 
-The **application container** `openbis-app` provides Java runtime and consists of two Java processes - the **openBIS Application Server** (openBIS AS) and the - **openBIS Data Store Server** (openBIS DSS). The **openBIS AS** manages the metadata and links to the data while the **openBIS DSS** manages the data itself operating on a managed part of the file system.
+The **application container** `openbis-app` provides Java runtime and consists of two Java processes - the **openBIS Application Server** (openBIS AS) and the - **openBIS Data Store Server** (openBIS DSS). The **openBIS AS** manages the metadata and links to the data, while the **openBIS DSS** manages the data themselves operating on a managed part of the file system.
 
 ```
 $ docker run --detach \
@@ -120,7 +120,7 @@ $ docker logs openbis-app;
 2024-01-23 11:06:19,310 INFO  [main] OPERATION.ETLDaemon - Data Store Server ready and waiting for data.
 ```
 
-Docker volumes mounted by `openbis-app` can be inspected to spot where data files, configuration files and logs are physically stored.
+Docker volumes mounted by `openbis-app` can be inspected to check where data files, configuration files and logs are physically stored.
 
 ```
 $ docker volume inspect openbis-app-data openbis-app-etc openbis-app-logs;
