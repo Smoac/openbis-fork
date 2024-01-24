@@ -18,13 +18,16 @@ import Card from "@material-ui/core/Card";
 import constants from "@src/js/components/database/imaging/constants.js"
 import ViewListIcon from '@material-ui/icons/ViewList';
 import GridOnIcon from '@material-ui/icons/GridOn';
-import GalleryPaging from "@src/js/components/database/imaging/components/gallery/GalleryPaging.jsx";
+import GalleryPaging
+    from "@src/js/components/database/imaging/components/gallery/GalleryPaging.jsx";
 import GridPagingOptions from "@src/js/components/common/grid/GridPagingOptions.js";
 import IconButton from "@material-ui/core/IconButton";
 import Export from "@src/js/components/database/imaging/components/viewer/Exporter.js";
 import Checkbox from "@material-ui/core/Checkbox";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
-import GalleryFilter from "@src/js/components/database/imaging/components/gallery/GalleryFilter.jsx";
+import GalleryFilter
+    from "@src/js/components/database/imaging/components/gallery/GalleryFilter.jsx";
+import {isObjectEmpty} from "@src/js/components/database/imaging/utils";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -34,7 +37,7 @@ const useStyles = makeStyles((theme) => ({
         overflow: 'hidden',
         backgroundColor: theme.palette.background.paper,
     },
-    card:{
+    card: {
         margin: '5px',
     },
     details: {
@@ -75,35 +78,46 @@ const ImagingGalleryViewer = ({objId, extOpenbis, onOpenPreview}) => {
     const [isLoaded, setIsLoaded] = React.useState(false);
     const [open, setOpen] = React.useState(false);
     const [error, setError] = React.useState({open: false, error: null});
-    const [previewsInfo, setPreviewsInfo] = React.useState({previewContainerList: [], totalCount: 0});
-    const [paging, setPaging] = React.useState({page: 0, pageSize:8, pageColumns:4});
+    const [previewsInfo, setPreviewsInfo] = React.useState({
+        previewContainerList: [],
+        totalCount: 0
+    });
+    const [paging, setPaging] = React.useState({page: 0, pageSize: 8, pageColumns: 4});
     const [showAll, setShowAll] = React.useState(true);
     const [selectAll, setSelectAll] = React.useState(true);
-    const [galleryFilter, setGalleryFilter] = React.useState({operator: 'AND', text: '', property: messages.get(messages.ALL)});
+    const [galleryFilter, setGalleryFilter] = React.useState({
+        operator: 'AND',
+        text: '',
+        property: messages.get(messages.ALL)
+    });
     const [dataSetTypes, setDataSetTypes] = React.useState(new ImagingFacade(extOpenbis).loadDataSetTypes());
 
-    React.useEffect( ()=> {
+    React.useEffect(() => {
         async function loadDataSetTypes() {
             const dataSetTypes = await new ImagingFacade(extOpenbis).loadDataSetTypes();
             dataSetTypes.push({label: 'All Properties', value: messages.get(messages.ALL)});
             console.log('dataSetTypes: ', dataSetTypes);
             setDataSetTypes(dataSetTypes);
         }
+
         loadDataSetTypes();
     }, [])
 
-    React.useEffect( ()=> {
+    React.useEffect(() => {
         async function load() {
             const imagingFacade = new ImagingFacade(extOpenbis);
-            let {previewContainerList, totalCount} = await imagingFacade.loadPaginatedGalleryDatasets(objId, paging.page, paging.pageSize);
+            let {previewContainerList, totalCount} = galleryFilter.text.length >= 3 ?
+                await imagingFacade.filterGallery(objId, galleryFilter.operator, galleryFilter.text, galleryFilter.property, paging.page, paging.pageSize)
+                : await imagingFacade.loadPaginatedGalleryDatasets(objId, paging.page, paging.pageSize)
             setPreviewsInfo({previewContainerList, totalCount});
             setIsLoaded(true);
         }
+
         load();
-    }, [paging])
+    }, [paging, galleryFilter])
 
     const handleErrorCancel = () => {
-        setError( {open: false, error: null});
+        setError({open: false, error: null});
     }
 
     const handleError = (error) => {
@@ -167,12 +181,7 @@ const ImagingGalleryViewer = ({objId, extOpenbis, onOpenPreview}) => {
     }
 
     const onGalleryFilterChange = (newGalleryFilter) => {
-        console.log('onGalleryFilterChange - event: ', newGalleryFilter);
         setGalleryFilter(newGalleryFilter);
-        if (newGalleryFilter.text.length > 3){
-            const result = new ImagingFacade(extOpenbis).filterGallery(objId, newGalleryFilter.operator, newGalleryFilter.text, newGalleryFilter.property, 5);
-            console.log('onGalleryFilterChange - result: ', result);
-        }
     }
 
     const renderControlsBar = (isExportDisable, configExports = []) => {
@@ -195,20 +204,33 @@ const ImagingGalleryViewer = ({objId, extOpenbis, onOpenPreview}) => {
                                            pageColumns={paging.pageColumns}
                                            options={options}
                                            isGridView={gridView}
-                                           onColumnChange={(value) => setPaging({page:0, pageSize: value, pageColumns: value})}
-                                           onPageChange={(value) => setPaging({...paging, page: value})}
-                                           onPageSizeChange={(value) => setPaging({...paging, page:0, pageSize: value})}
+                                           onColumnChange={(value) => setPaging({
+                                               page: 0,
+                                               pageSize: value,
+                                               pageColumns: value
+                                           })}
+                                           onPageChange={(value) => setPaging({
+                                               ...paging,
+                                               page: value
+                                           })}
+                                           onPageSizeChange={(value) => setPaging({
+                                               ...paging,
+                                               page: 0,
+                                               pageSize: value
+                                           })}
                             />
                         </OutlinedBox>
                     </Grid>
                     <Grid item xs>
-                        <OutlinedBox style={{width: 'fit-content'}} label={messages.get(messages.SHOW)}>
+                        <OutlinedBox style={{width: 'fit-content'}}
+                                     label={messages.get(messages.SHOW)}>
                             <CustomSwitch isChecked={showAll} onChange={setShowAll}/>
                         </OutlinedBox>
                     </Grid>
                     <Grid item xs>
                         <OutlinedBox style={{width: 'fit-content'}} label='Select'>
-                            <CustomSwitch disabled={!gridView} isChecked={selectAll} onChange={handleSelectAll}/>
+                            <CustomSwitch disabled={!gridView} isChecked={selectAll}
+                                          onChange={handleSelectAll}/>
                         </OutlinedBox>
                     </Grid>
                     <Grid item xs>
@@ -225,12 +247,15 @@ const ImagingGalleryViewer = ({objId, extOpenbis, onOpenPreview}) => {
                     </Grid>
                     <Grid item xs={8}>
                         <OutlinedBox label='Filter'>
-                            <GalleryFilter options={dataSetTypes} galleryFilter={galleryFilter} onGalleryFilterChange={onGalleryFilterChange}/>
+                            <GalleryFilter options={dataSetTypes}
+                                           galleryFilter={galleryFilter}
+                                           onGalleryFilterChange={onGalleryFilterChange}/>
                         </OutlinedBox>
                     </Grid>
                     <Grid item xs>
                         {configExports.length > 0 &&
-                            <Export config={configExports} handleExport={handleExport} disabled={isExportDisable}/>}
+                            <Export config={configExports} handleExport={handleExport}
+                                    disabled={isExportDisable}/>}
                     </Grid>
                 </Grid>
             </PaperBox>
@@ -239,47 +264,54 @@ const ImagingGalleryViewer = ({objId, extOpenbis, onOpenPreview}) => {
 
     const renderGallery = (previewContainerList) => {
         return (
-            <div className={classes.root}>
-                <ImageList className={classes.imageList} cols={paging.pageColumns} gap={5}>
-                    {previewContainerList.map((previewContainer, idx) => (
-                        <ImageListItem style={{height: 'unset'}} key={`ImageListItem-${idx}`} >
-                            <Card className={classes.card}>
-                                <CardActionArea>
-                                    <CardMedia component="img"
-                                               alt={""}
-                                               className={classes.imgFullWidth}
-                                               src={previewContainer.preview.bytes ? `data:image/${previewContainer.preview.format};base64,${previewContainer.preview.bytes}` : constants.BLANK_IMG_SRC}
-                                               onClick={() => onOpenPreview(previewContainer.datasetId)}
-                                    />
-                                </CardActionArea>
-                                {selectAll && <CardActions style={{ justifyContent: 'space-evenly'}}>
-                                    <CustomSwitch size="small"
-                                                  label="Show"
-                                                  labelPlacement="start"
-                                                  isChecked={previewContainer.preview.show}
-                                                  onChange={() => handleShowPreview(previewContainer)}/>
-                                    <FormControlLabel
-                                        value="start"
-                                        control={<Checkbox value={previewContainer.select} onChange={() => handleSelectPreview(idx)} color="primary" />}
-                                        label="Export"
-                                        labelPlacement="start"
-                                    />
-                                </CardActions>}
-                            </Card>
-                        </ImageListItem>
-                    ))}
-                </ImageList>
-            </div>
+            <ImageList className={classes.imageList} cols={paging.pageColumns} gap={5}>
+                {previewContainerList.map((previewContainer, idx) => (
+                    <ImageListItem style={{height: 'unset'}} key={`ImageListItem-${idx}`}>
+                        <Card className={classes.card}>
+                            <CardActionArea>
+                                <CardMedia component="img"
+                                           alt={""}
+                                           className={classes.imgFullWidth}
+                                           src={previewContainer.preview.bytes ? `data:image/${previewContainer.preview.format};base64,${previewContainer.preview.bytes}` : constants.BLANK_IMG_SRC}
+                                           onClick={() => onOpenPreview(previewContainer.datasetId)}
+                                />
+                            </CardActionArea>
+                            {selectAll && <CardActions>
+                                <Grid container alignItems={"center"}
+                                      justifyContent={"space-evenly"}>
+                                    <Grid item sx>
+                                        <CustomSwitch
+                                            size="small"
+                                            label="Show"
+                                            labelPlacement="start"
+                                            isChecked={previewContainer.preview.show}
+                                            onChange={() => handleShowPreview(previewContainer)}/>
+                                    </Grid>
+                                    <Grid item sx>
+                                        <FormControlLabel
+                                            value="start"
+                                            control={<Checkbox value={previewContainer.select}
+                                                               onChange={() => handleSelectPreview(idx)}
+                                                               color="primary"/>}
+                                            label="Export"
+                                            labelPlacement="start"/>
+                                    </Grid>
+                                </Grid>
+                            </CardActions>}
+                        </Card>
+                    </ImageListItem>
+                ))}
+            </ImageList>
         );
     }
 
     const renderListView = (previewContainerList) => {
         return (
-            <div className={classes.root}>
+            <ImageList className={classes.imageList} cols={1} gap={5}>
                 {previewContainerList.map((previewContainer, idx) => (
-                    <Card className={classes.card} key={'card-'+idx}>
-                        <div className={classes.details}>
-                            <CardActionArea>
+                    <ImageListItem style={{height: 'unset'}} key={`ImageListItem-${idx}`}>
+                        <Card className={classes.card + ' ' + classes.details} key={'card-' + idx}>
+                            <CardActionArea style={{width: 'unset'}}>
                                 <CardMedia component="img"
                                            alt={""}
                                            className={classes.imageListView}
@@ -294,21 +326,31 @@ const ImagingGalleryViewer = ({objId, extOpenbis, onOpenPreview}) => {
                                 </Typography>
                                 <Typography key={`card-content-dataset-metadata-p-${idx}`}
                                             variant="body2" color="textSecondary" component="p">
-                                    {JSON.stringify(previewContainer.datasetMetadata)}
+                                    {isObjectEmpty(previewContainer.datasetProperties) ?
+                                        <p>No Property to display</p>
+                                        : Object.entries(previewContainer.datasetProperties).map(([key, value]) =>
+                                            <p><strong>{key}:</strong> {value}</p>)
+                                    }
                                 </Typography>
                                 <Typography key={`card-content-metadata-p-${idx}`} variant="body2"
                                             color="textSecondary" component="p">
-                                    {JSON.stringify(previewContainer.preview.metadata)}
+                                    {isObjectEmpty(previewContainer.preview.metadata) ?
+                                        <p>No Preview metadata to display</p>
+                                        : Object.entries(previewContainer.preview.metadata).map(([key, value]) =>
+                                            <p><strong>{key}:</strong> {value}</p>)
+                                    }
                                 </Typography>
-                                <Typography key={`card-content-comments-${idx}`} gutterBottom variant="h6">
+                                <Typography key={`card-content-comments-${idx}`} gutterBottom
+                                            variant="h6">
                                     Comments:
                                 </Typography>
-                                <TextareaAutosize aria-label="empty textarea" placeholder="TODO: missing comment field in data model" />
+                                <TextareaAutosize aria-label="empty textarea"
+                                                  placeholder="TODO: missing comment field in data model"/>
                             </CardContent>
-                        </div>
-                    </Card>
+                        </Card>
+                    </ImageListItem>
                 ))}
-            </div>
+            </ImageList>
         );
     }
 
@@ -317,7 +359,7 @@ const ImagingGalleryViewer = ({objId, extOpenbis, onOpenPreview}) => {
         previewsInfo.previewContainerList.flatMap(previewContainer => previewContainer.exportConfig)
             .map(exportConfig => {
                 let evalIdx = commonConfig.findIndex(x => x.label === exportConfig.label);
-                if(evalIdx === -1){
+                if (evalIdx === -1) {
                     commonConfig.push(exportConfig);
                 } else {
                     commonConfig[evalIdx].values = commonConfig[evalIdx].values.filter(value => exportConfig.values.includes(value));
@@ -328,18 +370,29 @@ const ImagingGalleryViewer = ({objId, extOpenbis, onOpenPreview}) => {
     }
 
     if (!isLoaded) return null;
-    if (previewsInfo.previewContainerList.length === 0) return <Grid item xs={12}> No Datasets to display </Grid>
+    if (previewsInfo.previewContainerList.length === 0)
+        return (
+        <>
+            <LoadingDialog loading={open}/>
+            <ErrorDialog open={error.state} error={error.error} onClose={handleErrorCancel}/>
+            {renderControlsBar(true, {})}
+            <Grid container xs={12} justifyContent={"space-evenly"}>
+                <Typography key="no-dataset-comment" gutterBottom variant="h6">
+                    No Datasets to display
+                </Typography>
+            </Grid>
+        </>
+    );
     console.log("RENDER.ImagingGalleryViewer - previewsInfo: ", previewsInfo);
     const previewContainerList = showAll ? previewsInfo.previewContainerList : previewsInfo.previewContainerList.filter(previewContainer => previewContainer.preview.show);
     const isExportDisable = !(previewContainerList.filter(previewContainer => previewContainer.select === true).length > 0)
     const commonExportConfig = extractCommonExportsConfig();
-    //console.log('loadedExportConfig: ', commonExportConfig);
     return (
         <>
             <LoadingDialog loading={open}/>
             <ErrorDialog open={error.state} error={error.error} onClose={handleErrorCancel}/>
             {renderControlsBar(isExportDisable, commonExportConfig)}
-            {gridView ? renderGallery(previewContainerList) :  renderListView(previewContainerList)}
+            {gridView ? renderGallery(previewContainerList) : renderListView(previewContainerList)}
         </>
     );
 }

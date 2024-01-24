@@ -10,16 +10,23 @@ export default class ImagingFacade {
     }
 
     async loadDataSetTypes() {
+        const fetchOptions = new this.openbis.DataSetTypeFetchOptions();
+        fetchOptions.withPropertyAssignments().withPropertyType();
+
         const result = await this.openbis.searchDataSetTypes(
             new this.openbis.DataSetTypeSearchCriteria(),
-            new this.openbis.DataSetTypeFetchOptions()
+            fetchOptions
         )
-        return result.getObjects().map(dataSetType => {
-            return {label: dataSetType.description, value: dataSetType.code}
-        })
+        let dataSetTypesSetMap = new Map()
+        result.getObjects().map(dataSetType =>
+            dataSetType.propertyAssignments.map(assignment =>
+                dataSetTypesSetMap.set(assignment.propertyType.label, assignment.propertyType.code)
+            )
+        );
+        return Array.from(dataSetTypesSetMap, ([label, code]) => ({ label: label, value: code }))
     }
 
-    loadImagingDataset = async (objId) => {
+    loadImagingDataset = async (objId, withProperties = false) => {
         const fetchOptions = new this.openbis.DataSetFetchOptions();
         fetchOptions.withExperiment();
         fetchOptions.withSample();
@@ -29,7 +36,11 @@ export default class ImagingFacade {
             [new this.openbis.DataSetPermId(objId)],
             fetchOptions
         )
-        return await this.openbis.fromJson(null, JSON.parse(dataset[objId].properties[constants.IMAGING_DATA_CONFIG]));
+        if (withProperties){
+            return dataset[objId].properties;
+        } else {
+            return await this.openbis.fromJson(null, JSON.parse(dataset[objId].properties[constants.IMAGING_DATA_CONFIG]));
+        }
     };
 
     saveImagingDataset = async (permId, imagingDataset) => {
@@ -38,7 +49,7 @@ export default class ImagingFacade {
         update.setProperty(constants.IMAGING_DATA_CONFIG, JSON.stringify(imagingDataset));
         const totalPreviews = imagingDataset.images.reduce((count, image) => count + image.previews.length, 0);
         update.getMetaData().put(constants.METADATA_PREVIEW_COUNT, totalPreviews.toString());
-        //update.getMetaData().put('filterTest', 'unique dataset to display');
+        //update.getMetaData().put('filterTest2', 'mmmmm i don\'t know');
         return await this.openbis.updateDataSets([ update ]);
     };
 
@@ -75,7 +86,7 @@ export default class ImagingFacade {
         return await exportedImagingDataset.url;
     }
 
-    preLoadGalleryDatasetsCodeList = async (objId) => {
+    fetchExperimentDataSets = async (objId) => {
         const fetchOptions = new this.openbis.ExperimentFetchOptions();
         fetchOptions.withProperties();
         fetchOptions.withDataSets();
@@ -83,10 +94,13 @@ export default class ImagingFacade {
             [new this.openbis.ExperimentPermId(objId)],
             fetchOptions
         );
-        return await experiments[objId].dataSets.map(dataset => {
+        return await experiments[objId].dataSets;
+    }
+
+    fetchDataSetsSortingInfo = (dataSets) => {
+        return dataSets.map(dataset => {
             if (constants.METADATA_PREVIEW_COUNT in dataset.metaData) {
                 const nDatasets = parseInt(dataset.metaData[constants.METADATA_PREVIEW_COUNT])
-                //return Array(nDatasets).fill({'id': dataset.code, 'previewIdx':})
                 return Array.from(Array(nDatasets), (_, i) => {
                     return {datasetId: dataset.code, sortingId: i, metadata: dataset.metaData}
                 });
@@ -94,22 +108,20 @@ export default class ImagingFacade {
         }).flat();
     }
 
-    loadPaginatedGalleryDatasets = async (objId, page, pageSize) => {
-        /*const {totalCount, datasetStats} = await this.preLoadGalleryDatasetsMetadata(objId);
-        console.log("loadPaginatedGalleryDatasets - preLoadGalleryDatasetsMetadata: ", totalCount, datasetStats);*/
-        const datasetCodeList = await this.preLoadGalleryDatasetsCodeList(objId);
-        const totalCount =  datasetCodeList.length;
-        //console.log("loadPaginatedGalleryDatasets - preLoadGalleryDatasetsCodeList: ", datasetCodeList.length, datasetCodeList);
+    paginateImagingDatasets = async (datasetCodeList, page, pageSize) => {
         let startIdx = page * pageSize;
         const offset = startIdx + pageSize;
         let prevDatasetId = null;
         let loadedImgDS = null;
+        let datasetProperties = null;
         let previewContainerList = [];
         while (startIdx < datasetCodeList.length && startIdx < offset) {
             let currDatasetId = datasetCodeList[startIdx].datasetId;
             if (currDatasetId !== prevDatasetId) {
                 prevDatasetId = currDatasetId;
-                loadedImgDS = await this.loadImagingDataset(currDatasetId);
+                datasetProperties = await this.loadImagingDataset(currDatasetId, true);
+                loadedImgDS = await this.openbis.fromJson(null, JSON.parse(datasetProperties[constants.IMAGING_DATA_CONFIG]));
+                delete datasetProperties[constants.IMAGING_DATA_CONFIG];
                 //console.log(loadedImgDS);
             }
             let partialIdxCount = 0
@@ -122,58 +134,61 @@ export default class ImagingFacade {
                         preview: loadedImgDS.images[imageIdx].previews[previewIdx],
                         imageIdx: imageIdx,
                         select: false,
-                        datasetMetadata: datasetCodeList[startIdx].metadata,
+                        datasetProperties: datasetProperties,
                         exportConfig: loadedImgDS.config.exports});
                 }
                 partialIdxCount += loadedImgDS.images[imageIdx].previews.length
             }
         }
+        return previewContainerList
+    }
+
+    loadPaginatedGalleryDatasets = async (objId, page, pageSize) => {
+        const dataSets = await this.fetchExperimentDataSets(objId);
+        const datasetCodeList = this.fetchDataSetsSortingInfo(dataSets);
+
+        const totalCount =  datasetCodeList.length;
+        const previewContainerList = await this.paginateImagingDatasets(datasetCodeList, page, pageSize);
         //console.log("loadPaginatedGalleryDatasets - previewContainerList: ", previewContainerList);
         return {previewContainerList, totalCount};
     }
 
-    filterGallery = async (objId, operator, filterText, property, count) => {
-        // WHERE experID = 233444
-        //     AND/OR withProp = 'dsasa'
-        //      AND/OR with = 'adwad'
+    filterGallery = async (objId, operator, filterText, property, page, pageSize) => {
+        console.log(objId, operator, filterText, property, page, pageSize);
         const criteria = new this.openbis.DataSetSearchCriteria();
         criteria.withAndOperator();
         criteria.withExperiment().withPermId().thatEquals(objId);
-
+        // TODO add object type to distinguish
+        //criteria.withSample().withPermId().thatEquals(objId);
         if (filterText && filterText.trim().length > 0) {
             const subCriteria = criteria.withSubcriteria();
             operator === messages.get(messages.OPERATOR_AND) ? subCriteria.withAndOperator() : subCriteria.withOrOperator();
-
             const splittedText = filterText.split(' ');
-            for(const value in splittedText){
+            for(const value of splittedText){
                 if (property === messages.get(messages.ALL)) {
-                    //subCriteria.withAnyStringProperty().thatContains(value);
-                    subCriteria.withAnyProperty().thatContains(value);
+                    subCriteria.withAnyStringProperty().thatContains(value);
+                    //subCriteria.withAnyProperty().thatContains(value);
                 } else {
-                    //subCriteria.withStringProperty(property).thatContains(value);
-                    subCriteria.withProperty(property).thatContains(value);
+                    subCriteria.withStringProperty(property).thatContains(value);
+                    //subCriteria.withProperty(property).thatContains(value);
                 }
             }
         }
 
-        // TODO add object type to distinguish
-        //criteria.withSample().withPermId().thatEquals(objId);
-
+        console.log('criteria: ', criteria);
         const fetchOptions = new this.openbis.DataSetFetchOptions();
         fetchOptions.withProperties();
-        //fetchOptions.from(3).count(count);
-        //fo.sortBy().code().asc()
 
         const dataSets = await this.openbis.searchDataSets(
             criteria,
             fetchOptions
         )
         console.log('searchDataSets: ', dataSets);
-        let loadedImg = []
-        dataSets.getObjects().forEach(dataSet => {
-            console.log("dataSet: ", dataSet);
-            //loadedImg.push(this.openbis.fromJson(null, JSON.parse(dataSet.properties[constants.IMAGING_DATA_CONFIG])));
-        })
-        //console.log(loadedImg);
+
+        const datasetCodeList = this.fetchDataSetsSortingInfo(dataSets.getObjects());
+        const totalCount =  datasetCodeList.length;
+
+        const previewContainerList = await this.paginateImagingDatasets(datasetCodeList, page, pageSize);
+        return {previewContainerList, totalCount};
     }
 }
