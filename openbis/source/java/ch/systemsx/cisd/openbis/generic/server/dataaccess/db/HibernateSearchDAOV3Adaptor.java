@@ -252,9 +252,7 @@ public class HibernateSearchDAOV3Adaptor implements IHibernateSearchDAO {
 
     @Override
     public void setProperties(Properties serviceProperties) {
-        for (String propertyName:serviceProperties.stringPropertyNames()) {
-            operationLog.warn("Configuration property ignored: " + propertyName);
-        }
+
     }
 
     @SuppressWarnings("rawtypes")
