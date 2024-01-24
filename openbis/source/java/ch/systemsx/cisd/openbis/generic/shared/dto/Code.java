@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright ETH 2008 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
@@ -41,7 +40,7 @@ public abstract class Code<T extends Code<T>> implements Serializable, Comparabl
 {
     private static final long serialVersionUID = IServer.VERSION;
 
-    public static final int CODE_LENGTH_MAX = 100;
+    public static final int CODE_LENGTH_MAX = 256;
 
     private String code;
 

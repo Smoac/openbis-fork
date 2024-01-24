@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 ETH Zuerich, CISD
+ * Copyright ETH 2008 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import static org.testng.AssertJUnit.assertEquals;
@@ -95,16 +94,33 @@ public final class PersonDAOTest extends AbstractDAOTest
     }
 
     @Test
-    public final void testCreatePersonWithValidationFailed()
+    public final void testCreatePersonWithValidationFailed_longUserId()
     {
         final IPersonDAO personDAO = daoFactory.getPersonDAO();
         final PersonPE testPerson = createPerson();
-        testPerson.setUserId(StringUtils.repeat("A", 51));
+        testPerson.setUserId(StringUtils.repeat("A", 257));
         // User id too long
         try
         {
             personDAO.createPerson(testPerson);
             fail("User id exceeds the maximum length");
+        } catch (final DataIntegrityViolationException ex)
+        {
+            assertTrue(ex.getMessage().indexOf("is too long") > -1);
+        }
+    }
+
+    @Test
+    public final void testCreatePersonWithValidationFailed_longEmail()
+    {
+        final IPersonDAO personDAO = daoFactory.getPersonDAO();
+        final PersonPE testPerson = createPerson();
+        testPerson.setEmail(StringUtils.repeat("A", 64) + "@" + StringUtils.repeat("A", 255) + ".ch");
+        // email too long
+        try
+        {
+            personDAO.createPerson(testPerson);
+            fail("Email exceeds the maximum length");
         } catch (final DataIntegrityViolationException ex)
         {
             assertTrue(ex.getMessage().indexOf("is too long") > -1);

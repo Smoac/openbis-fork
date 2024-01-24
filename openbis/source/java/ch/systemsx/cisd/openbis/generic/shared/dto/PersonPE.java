@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 ETH Zuerich, CISD
+ * Copyright ETH 2008 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
@@ -104,7 +103,6 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
     }
 
     @Column(name = ColumnNames.FIRST_NAME_COLUMN)
-    @Length(max = 30, message = ValidationMessages.FIRST_NAME_LENGTH_MESSAGE)
     public final String getFirstName()
     {
         return firstName;
@@ -116,7 +114,6 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
     }
 
     @Column(name = ColumnNames.LAST_NAME_COLUMN)
-    @Length(max = 30, message = ValidationMessages.LAST_NAME_LENGTH_MESSAGE)
     public final String getLastName()
     {
         return lastName;
@@ -128,7 +125,7 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
     }
 
     @Email(message = ValidationMessages.EMAIL_EMAIL_MESSAGE)
-    @Length(max = 50, message = ValidationMessages.EMAIL_LENGTH_MESSAGE)
+    @Length(max = 320, message = ValidationMessages.EMAIL_LENGTH_MESSAGE)
     public final String getEmail()
     {
         return email;
@@ -140,7 +137,7 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
     }
 
     @Column(name = ColumnNames.USER_COLUMN)
-    @Length(max = 50, message = ValidationMessages.USER_ID_LENGTH_MESSAGE)
+    @Length(max = 256, message = ValidationMessages.USER_ID_LENGTH_MESSAGE)
     @NotNull(message = ValidationMessages.USER_ID_NOT_NULL_MESSAGE)
     @Pattern(regexp = USER_CODE_REGEX, flags = Pattern.Flag.CASE_INSENSITIVE, message = ValidationMessages.VALID_USER_CODE_DESCRIPTION)
     public final String getUserId()
