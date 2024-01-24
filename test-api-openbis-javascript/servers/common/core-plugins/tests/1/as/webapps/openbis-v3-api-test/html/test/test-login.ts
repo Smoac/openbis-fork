@@ -4,7 +4,7 @@ exports.default = new Promise((resolve) => {
     require(["jquery", "underscore", "openbis", "test/common", "test/dtos"], function (
         $,
         _,
-        openbisRequireJS: openbis.openbisConstructor,
+        openbisRequireJS,
         common,
         dtos
     ) {

@@ -565,6 +565,9 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			});
 		}
 
+        /**
+         * @deprecated Use "createExternalDataManagementSystems" method instead.
+         */
 		this.createExternalDms = function(creations) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequest({
@@ -579,6 +582,21 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 				}
 			});
 		}
+
+        this.createExternalDataManagementSystems = function(creations) {
+            var thisFacade = this;
+            return thisFacade._private.ajaxRequest({
+                url : openbisUrl,
+                data : {
+                    "method" : "createExternalDataManagementSystems",
+                    "params" : [ thisFacade._private.sessionToken, creations ]
+                },
+                returnType : {
+                    name : "List",
+                    arguments : [ "ExternalDmsPermId" ]
+                }
+            });
+        }
 
 		this.createSamples = function(creations) {
 			var thisFacade = this;

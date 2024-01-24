@@ -27,8 +27,7 @@ generateTypeScript {
     classPatterns = [
             'ch.ethz.sis.openbis.generic.asapi.v3.dto.**',
             'ch.ethz.sis.openbis.generic.dssapi.v3.dto.**',
-            'ch.ethz.sis.openbis.generic.typescript.OpenBISJavaScriptFacade',
-            'ch.ethz.sis.openbis.generic.typescript.OpenBISJavaScriptDSSFacade'
+            'ch.ethz.sis.openbis.generic.typescript.dto.**'
     ]
     excludeClassPatterns = [
             "ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi",
@@ -39,8 +38,10 @@ generateTypeScript {
     outputKind = 'module'
     outputFileType = 'declarationFile'
     namespace = 'openbis'
+    customTypeMappings = [
+            "java.util.Date:number"
+    ]
     customTypeNaming = [
-            "ch.ethz.sis.openbis.generic.typescript.OpenBISJavaScriptFacade:openbis",
             "ch.ethz.sis.openbis.generic.asapi.v3.dto.pat.search.PersonalAccessTokenSessionNameSearchCriteria:as_dto_pat_search_PersonalAccessTokenSessionNameSearchCriteria",
             "ch.ethz.sis.openbis.generic.asapi.v3.dto.session.search.PersonalAccessTokenSessionNameSearchCriteria:as_dto_session_search_PersonalAccessTokenSessionNameSearchCriteria",
             "ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.search.ExternalDmsSearchCriteria:as_dto_externaldms_search_ExternalDmsSearchCriteria",

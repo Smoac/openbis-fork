@@ -119,6 +119,10 @@ define([], function() {
 			return this._executeCreateOperation(new dtos.CreateExternalDmsOperation(creations));
 		}
 
+		this.createExternalDataManagementSystems = function(creations) {
+			return this._executeCreateOperation(new dtos.CreateExternalDmsOperation(creations));
+		}
+
 		this.createSamples = function(creations) {
 			return this._executeCreateOperation(new dtos.CreateSamplesOperation(creations));
 		}

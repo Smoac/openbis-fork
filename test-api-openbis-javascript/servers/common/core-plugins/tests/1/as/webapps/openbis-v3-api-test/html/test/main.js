@@ -1,7 +1,7 @@
 define([
     "test-compiled/test-login",
     "test/test-jsVSjava",
-    "test/test-create",
+    "test-compiled/test-create",
     "test/test-update",
     "test/test-search",
 
