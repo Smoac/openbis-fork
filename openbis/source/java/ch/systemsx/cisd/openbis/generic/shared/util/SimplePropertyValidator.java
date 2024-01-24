@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 ETH Zuerich, CISD
+ * Copyright ETH 2008 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.openbis.generic.shared.util;
 
+import java.io.Serializable;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -37,50 +37,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 /**
  * This is a refactoring of {@link ch.systemsx.cisd.openbis.generic.server.dataaccess.PropertyValidator} that takes some simple validations that do
  * not require access to the PEs to a more accessible place.
- * 
+ *
  * @author Chandrasekhar Ramakrishnan
  */
 public class SimplePropertyValidator
 {
-
-    public enum SupportedDatePattern
-    {
-        DAYS_DATE_PATTERN("yyyy-MM-dd"),
-
-        MINUTES_DATE_PATTERN("yyyy-MM-dd HH:mm"),
-
-        SECONDS_DATE_PATTERN("yyyy-MM-dd HH:mm:ss"),
-
-        ISO_MINUTES_DATE_PATTERN("yyyy-MM-dd'T'HH:mm"),
-
-        ISO_SECONDS_DATE_PATTERN("yyyy-MM-dd'T'HH:mm:ss"),
-
-        US_DATE_PATTERN("M/d/yy"),
-
-        US_DATE_TIME_PATTERN("M/d/yy h:mm a"),
-
-        US_DATE_TIME_24_PATTERN("M/d/yy HH:mm"),
-
-        CANONICAL_DATE_PATTERN(BasicConstant.CANONICAL_DATE_FORMAT_PATTERN),
-
-        ISO_CANONICAL_DATE_PATTERN("yyyy-MM-dd'T'HH:mm:ssX"),
-
-        RENDERED_CANONICAL_DATE_PATTERN(BasicConstant.RENDERED_CANONICAL_DATE_FORMAT_PATTERN),
-
-        ISO_RENDERED_CANONICAL_DATE_PATTERN("yyyy-MM-dd'T'HH:mm:ssXXX");
-
-        private final String pattern;
-
-        SupportedDatePattern(String pattern)
-        {
-            this.pattern = pattern;
-        }
-
-        public String getPattern()
-        {
-            return pattern;
-        }
-    }
 
     public final static String[] DATE_PATTERNS = createDatePatterns();
 
@@ -106,7 +67,7 @@ public class SimplePropertyValidator
     {
         final List<String> datePatterns = new ArrayList<String>();
         // Order does not matter due to DateUtils implementation used.
-        for (SupportedDatePattern supportedPattern : SupportedDatePattern.values())
+        for (SupportedDateTimePattern supportedPattern : SupportedDateTimePattern.values())
         {
             datePatterns.add(supportedPattern.getPattern());
         }
@@ -122,20 +83,35 @@ public class SimplePropertyValidator
     // IPropertyValidator
     //
 
-    public final String validatePropertyValue(final DataTypeCode entityDataType, final String value)
+    public final String validatePropertyValue(final DataTypeCode entityDataType, final Serializable value)
             throws UserFailureException
     {
         assert value != null : "Unspecified value.";
 
-        // don't validate error messages and placeholders
-        if (value.startsWith(BasicConstant.ERROR_PROPERTY_PREFIX))
+        if(value.getClass().isArray()) {
+            Serializable[] values = (Serializable[]) value;
+            StringBuilder builder = new StringBuilder("[");
+            for(Serializable val : values) {
+                if(builder.length()>1) {
+                    builder.append(",");
+                }
+                builder.append((String) val);
+            }
+            builder.append("]");
+            return builder.toString();
+        } else
         {
-            return value;
+            String propertyValue = value.toString();
+            // don't validate error messages and placeholders
+            if (propertyValue.startsWith(BasicConstant.ERROR_PROPERTY_PREFIX))
+            {
+                return propertyValue;
+            }
+            final IDataTypeValidator dataTypeValidator = dataTypeValidators.get(entityDataType);
+            assert dataTypeValidator != null : String.format("No IDataTypeValidator implementation "
+                    + "specified for '%s'.", entityDataType);
+            return dataTypeValidator.validate(propertyValue);
         }
-        final IDataTypeValidator dataTypeValidator = dataTypeValidators.get(entityDataType);
-        assert dataTypeValidator != null : String.format("No IDataTypeValidator implementation "
-                + "specified for '%s'.", entityDataType);
-        return dataTypeValidator.validate(value);
     }
 
     //
@@ -146,7 +122,7 @@ public class SimplePropertyValidator
     {
         /**
          * Validates given <var>value</var> according to this data type.
-         * 
+         *
          * @return the validated value. Note that it can differ from the given one.
          * @throws UserFailureException if given <var>value</var> is not valid.
          */
@@ -193,8 +169,8 @@ public class SimplePropertyValidator
     {
         public DateValidator()
         {
-            super(SupportedDatePattern.DAYS_DATE_PATTERN, SupportedDatePattern.DAYS_DATE_PATTERN.getPattern(),
-                    SupportedDatePattern.US_DATE_PATTERN.getPattern());
+            super(SupportedDateTimePattern.DAYS_DATE_PATTERN, SupportedDateTimePattern.DAYS_DATE_PATTERN.getPattern(),
+                    SupportedDateTimePattern.US_DATE_PATTERN.getPattern());
         }
     }
 
@@ -202,16 +178,16 @@ public class SimplePropertyValidator
     {
         public TimestampValidator()
         {
-            super(SupportedDatePattern.CANONICAL_DATE_PATTERN, DATE_PATTERNS);
+            super(SupportedDateTimePattern.CANONICAL_DATE_PATTERN, DATE_PATTERNS);
         }
     }
-    
+
     private static class AbstractDateAndTimestampValidator implements IDataTypeValidator
     {
-        private SupportedDatePattern internalPattern;
+        private SupportedDateTimePattern internalPattern;
         private String[] patterns;
 
-        AbstractDateAndTimestampValidator(SupportedDatePattern internalPattern, String... patterns)
+        AbstractDateAndTimestampValidator(SupportedDateTimePattern internalPattern, String... patterns)
         {
             this.internalPattern = internalPattern;
             this.patterns = patterns;
@@ -239,7 +215,7 @@ public class SimplePropertyValidator
 
         /**
          * Manually validates the date value on cases which are omitted by DateUtils.
-         * 
+         *
          * @param value the date-time value to validate.
          * @throws UserFailureException thrown if the value is not considered as a well formatted date.
          */
@@ -260,7 +236,7 @@ public class SimplePropertyValidator
 
         /**
          * Throws UserFailureException.
-         * 
+         *
          * @param value the value to use in the description of the exception.
          * @throws UserFailureException always thrown.
          */
