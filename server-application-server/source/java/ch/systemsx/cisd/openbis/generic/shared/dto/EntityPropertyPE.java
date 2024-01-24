@@ -24,6 +24,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.PatternValue;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.*;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -53,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
         @TypeDef(name = "string_array_type", typeClass = StringArrayType.class),
         @TypeDef(name = "timestamp_array_type", typeClass = TimestampArrayType.class),
         @TypeDef(name = "json_string_type", typeClass = JsonStringType.class)})
+@PatternValue
 public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHolder implements
         IUntypedValueSetter, IEntityPropertyHolder
 {

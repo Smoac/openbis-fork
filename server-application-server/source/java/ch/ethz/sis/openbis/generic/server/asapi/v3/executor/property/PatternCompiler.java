@@ -18,10 +18,12 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import org.springframework.stereotype.Component;
 
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+@Component
 public final class PatternCompiler implements IPatternCompiler
 {
     private static final String SEPARATOR = ",";
@@ -37,7 +39,7 @@ public final class PatternCompiler implements IPatternCompiler
             case "VALUES":
                 return compileValues(pattern);
             case "RANGES":
-                return "BBBB";
+                return compileRanges(pattern);
             default:
                 throw new UserFailureException("Unknown pattern type specified!");
         }

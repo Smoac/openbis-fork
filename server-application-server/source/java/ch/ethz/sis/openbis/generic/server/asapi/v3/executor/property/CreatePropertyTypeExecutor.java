@@ -215,7 +215,10 @@ public class CreatePropertyTypeExecutor
                     propertyType.setPattern(creation.getPattern());
                     propertyType.setPatternType(creation.getPatternType());
                     String pattern = patternCompiler.compilePattern(creation.getPattern(), creation.getPatternType());
-                    propertyType.setPatternRegex("CREATE_REGEX:"+pattern);
+                    if(pattern != null) {
+                        pattern = "CREATE_REGEX:"+pattern;
+                    }
+                    propertyType.setPatternRegex(pattern);
                     propertyTypes.add(propertyType);
                 }
 

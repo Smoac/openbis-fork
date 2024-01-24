@@ -17,20 +17,37 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto.hibernate;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
+
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-public class PatternValueValidator implements ConstraintValidator<PatternValue, Boolean>
+public class PatternValueValidator implements ConstraintValidator<PatternValue, EntityPropertyPE>
 {
 
     @Override
     public final void initialize(final PatternValue annotation)
     {
+        System.out.println("||> INIT!!!!");
     }
 
     @Override
-    public final boolean isValid(final Boolean value, ConstraintValidatorContext constraintContext)
+    public boolean isValid(EntityPropertyPE entityPropertyPE, ConstraintValidatorContext constraintValidatorContext)
     {
+        if(entityPropertyPE.getValue() != null && entityPropertyPE.getEntityTypePropertyType() != null) {
+            EntityTypePropertyTypePE etpt = entityPropertyPE.getEntityTypePropertyType();
+            if(etpt.getPropertyType() != null) {
+                PropertyTypePE pt = etpt.getPropertyType();
+                if(pt.getPatternType() != null) {
+                    //do something
+                    return true;
+                }
+            }
+
+        }
         return true;
     }
+
 }
