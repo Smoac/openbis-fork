@@ -798,7 +798,7 @@ exports.default = new Promise((resolve) => {
                             f2.setFileLength(42)
                             f2.setChecksumCRC32(123456)
                             creation.setFileMetadata([f1, f2])
-                            return facade.getDataStoreFacade("DSS1", "DSS2").createDataSets([creation])
+                            return facade.getDataStoreFacade(["DSS1", "DSS2"]).createDataSets([creation])
                         })
                     })
                 }
@@ -816,7 +816,7 @@ exports.default = new Promise((resolve) => {
                         var criteria = new dtos.DataSetFileSearchCriteria()
                         criteria.withDataSet().withCode().thatEquals(dataSet.getCode())
                         facade
-                            .getDataStoreFacade("DSS1")
+                            .getDataStoreFacade(["DSS1"])
                             .searchFiles(criteria, c.createDataSetFileFetchOptions())
                             .then(function (result) {
                                 var files = result.getObjects()
@@ -1530,7 +1530,7 @@ exports.default = new Promise((resolve) => {
                         '------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name="file"; filename="filePath/file2.txt"\r\nContent-Type: text/plain\r\n\r\n\r\ncontent2\r\n' +
                         "------WebKitFormBoundary7MA4YWxkTrZu0gW--"
 
-                    var dataStoreFacade = facade.getDataStoreFacade("DSS1")
+                    var dataStoreFacade = facade.getDataStoreFacade(["DSS1"])
 
                     return dataStoreFacade.createDataSetUpload("UNKNOWN").then(function (upload) {
                         return $.ajax({
@@ -1557,7 +1557,7 @@ exports.default = new Promise((resolve) => {
 
                 var fCheck = function (dataSet: openbis.DataSet, facade: openbis.openbis) {
                     return c.waitUntilIndexed(facade, dataSet.getCode(), 10000).then(function () {
-                        var dataStoreFacade = facade.getDataStoreFacade("DSS1")
+                        var dataStoreFacade = facade.getDataStoreFacade(["DSS1"])
 
                         var criteria = new dtos.DataSetFileSearchCriteria()
                         criteria.withDataSet().withCode().thatEquals(dataSet.getCode())

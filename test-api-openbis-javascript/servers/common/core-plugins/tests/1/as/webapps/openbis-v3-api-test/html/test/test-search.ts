@@ -2709,7 +2709,7 @@ exports.default = new Promise((resolve) => {
 
                 var fSearch = function (facade: openbis.openbis) {
                     return facade
-                        .getDataStoreFacade("I_DONT_EXIST", "ME_NEITHER")
+                        .getDataStoreFacade(["I_DONT_EXIST", "ME_NEITHER"])
                         .searchFiles(new dtos.DataSetFileSearchCriteria(), c.createDataSetFileFetchOptions())
                 }
 
@@ -2733,7 +2733,7 @@ exports.default = new Promise((resolve) => {
                     // at DSS2
                     dataSetCriteria.withCode().thatEquals("20130415093804724-403")
 
-                    return facade.getDataStoreFacade("DSS1").searchFiles(criteria, c.createDataSetFileFetchOptions())
+                    return facade.getDataStoreFacade(["DSS1"]).searchFiles(criteria, c.createDataSetFileFetchOptions())
                 }
 
                 var fCheck = function (facade: openbis.openbis, files: openbis.DataSetFile[]) {
@@ -2761,7 +2761,7 @@ exports.default = new Promise((resolve) => {
                     // at DSS2
                     dataSetCriteria.withCode().thatEquals("20130415093804724-403")
 
-                    return facade.getDataStoreFacade("DSS1", "DSS2").searchFiles(criteria, c.createDataSetFileFetchOptions())
+                    return facade.getDataStoreFacade(["DSS1", "DSS2"]).searchFiles(criteria, c.createDataSetFileFetchOptions())
                 }
 
                 var fCheck = function (facade: openbis.openbis, files: openbis.DataSetFile[]) {

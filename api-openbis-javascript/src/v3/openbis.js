@@ -2412,7 +2412,12 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 		this.getDataStoreFacade = function() {
 			var dataStoreCodes = [];
 			for (var i = 0; i < arguments.length; i++) {
-				dataStoreCodes.push(arguments[i]);
+			    var argument = arguments[i]
+			    if(Array.isArray(argument)) {
+                    Array.prototype.push.apply(dataStoreCodes, argument)
+			    } else {
+				    dataStoreCodes.push(argument);
+				}
 			}
 			return new dataStoreFacade(this, dataStoreCodes);
 		}

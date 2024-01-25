@@ -286,14 +286,7 @@ public class OpenBISExtension extends Extension
                             }
 
                             TsType tsMethodParameterType = resolveType(processingContext, tsBean, methodParameter.getParameterizedType());
-
-                            if (method.isVarArgs() && methodParameterIndex == method.getParameters().length - 1)
-                            {
-                                tsMethodParameters.add(new TsParameterModel("..." + methodParameter.getName(), tsMethodParameterType));
-                            } else
-                            {
-                                tsMethodParameters.add(new TsParameterModel(methodParameter.getName(), tsMethodParameterType));
-                            }
+                            tsMethodParameters.add(new TsParameterModel(methodParameter.getName(), tsMethodParameterType));
                         }
 
                         TsType tsMethodReturnType = resolveType(processingContext, tsBean, method.getGenericReturnType());
