@@ -111,9 +111,10 @@ task copyTypeScriptDTS(type: Copy, dependsOn: [':api-openbis-typescript:generate
     into file('servers/common/core-plugins/tests/1/as/webapps/openbis-v3-api-test/html/test/lib/openbis/')
 }
 
-task compileTypeScript(type: Exec, dependsOn: copyTypeScriptDTS) {
+task compileTypeScript(type: NpxTask, dependsOn: copyTypeScriptDTS) {
     dependsOn 'npmInstall'
-    commandLine 'bash', '-c', "npx tsc --build servers/common/core-plugins/tests/1/as/webapps/openbis-v3-api-test/html/tsconfig.json"
+    command = 'tsc'
+    args = ['--build', 'servers/common/core-plugins/tests/1/as/webapps/openbis-v3-api-test/html/tsconfig.json']
 }
 
 test {
