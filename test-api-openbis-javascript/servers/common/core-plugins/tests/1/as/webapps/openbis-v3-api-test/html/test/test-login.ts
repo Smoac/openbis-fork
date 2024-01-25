@@ -1,13 +1,7 @@
 import openbis from "./lib/openbis/openbis.esm"
 
 exports.default = new Promise((resolve) => {
-    require(["jquery", "underscore", "openbis", "test/common", "test/dtos"], function (
-        $,
-        _,
-        openbisRequireJS,
-        common,
-        dtos
-    ) {
+    require(["jquery", "underscore", "openbis", "test/common", "test/dtos"], function ($, _, openbisRequireJS, common, dtos) {
         var executeModule = function (moduleName: string, facade: openbis.openbis, dtos: openbis.bundle) {
             QUnit.module(moduleName)
 
@@ -18,36 +12,42 @@ exports.default = new Promise((resolve) => {
                 var criteria = new dtos.SpaceSearchCriteria()
                 var fetchOptions = new dtos.SpaceFetchOptions()
 
-                try {
-                    await facade.login("openbis_test_js", "password")
-                    var spacesForInstanceAdmin = await facade.searchSpaces(criteria, fetchOptions)
-
-                    await facade.loginAs("openbis_test_js", "password", "test_space_admin")
-                    var spacesForSpaceAdmin = await facade.searchSpaces(criteria, fetchOptions)
-
-                    c.assertTrue(spacesForInstanceAdmin.getTotalCount() > spacesForSpaceAdmin.getTotalCount())
-                    c.assertObjectsWithValues(spacesForSpaceAdmin.getObjects(), "code", ["TEST"])
-                    c.finish()
-                } catch (error: any) {
-                    c.fail(error.message)
-                    c.finish()
-                }
+                facade.login("openbis_test_js", "password").then(
+                    function () {
+                        return facade.searchSpaces(criteria, fetchOptions).then(function (spacesForInstanceAdmin) {
+                            return facade.loginAs("openbis_test_js", "password", "test_space_admin").then(function () {
+                                return facade.searchSpaces(criteria, fetchOptions).then(function (spacesForSpaceAdmin) {
+                                    c.assertTrue(spacesForInstanceAdmin.getTotalCount() > spacesForSpaceAdmin.getTotalCount())
+                                    c.assertObjectsWithValues(spacesForSpaceAdmin.getObjects(), "code", ["TEST"])
+                                    c.finish()
+                                })
+                            })
+                        })
+                    },
+                    function (error) {
+                        c.fail(error.message)
+                        c.finish()
+                    }
+                )
             })
 
             QUnit.test("getSessionInformation()", async function (assert) {
                 var c = new common(assert, dtos)
                 c.start()
 
-                try {
-                    await facade.login("openbis_test_js", "password")
-                    var sessionInformation = await facade.getSessionInformation()
-                    c.assertTrue(sessionInformation != null)
-                    c.assertTrue(sessionInformation.getPerson() != null)
-                    c.finish()
-                } catch (error: any) {
-                    c.fail(error.message)
-                    c.finish()
-                }
+                facade.login("openbis_test_js", "password").then(
+                    function () {
+                        return facade.getSessionInformation().then(function (sessionInformation) {
+                            c.assertTrue(sessionInformation != null)
+                            c.assertTrue(sessionInformation.getPerson() != null)
+                            c.finish()
+                        })
+                    },
+                    function (error) {
+                        c.fail(error.message)
+                        c.finish()
+                    }
+                )
             })
 
             QUnit.test("loginAsAnonymousUser()", async function (assert) {
@@ -57,15 +57,18 @@ exports.default = new Promise((resolve) => {
                 var criteria = new dtos.SpaceSearchCriteria()
                 var fetchOptions = new dtos.SpaceFetchOptions()
 
-                try {
-                    await facade.loginAsAnonymousUser()
-                    var spaces = await facade.searchSpaces(criteria, fetchOptions)
-                    c.assertTrue(spaces.getTotalCount() == 1)
-                    c.finish()
-                } catch (error: any) {
-                    c.fail(error.message)
-                    c.finish()
-                }
+                facade.loginAsAnonymousUser().then(
+                    function () {
+                        return facade.searchSpaces(criteria, fetchOptions).then(function (spaces) {
+                            c.assertTrue(spaces.getTotalCount() == 1)
+                            c.finish()
+                        })
+                    },
+                    function (error) {
+                        c.fail(error.message)
+                        c.finish()
+                    }
+                )
             })
         }
 

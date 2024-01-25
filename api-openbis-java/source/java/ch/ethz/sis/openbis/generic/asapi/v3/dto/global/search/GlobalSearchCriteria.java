@@ -17,6 +17,7 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractCompositeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchCriteriaToStringBuilder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchOperator;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
@@ -42,6 +43,17 @@ public class GlobalSearchCriteria extends AbstractCompositeSearchCriteria
     {
         return with(new GlobalSearchWildCardsCriteria());
     }
+
+    public GlobalSearchCriteria withOrOperator()
+    {
+        return (GlobalSearchCriteria) withOperator(SearchOperator.OR);
+    }
+
+    public GlobalSearchCriteria withAndOperator()
+    {
+        return (GlobalSearchCriteria) withOperator(SearchOperator.AND);
+    }
+
 
     @Override
     protected SearchCriteriaToStringBuilder createBuilder()

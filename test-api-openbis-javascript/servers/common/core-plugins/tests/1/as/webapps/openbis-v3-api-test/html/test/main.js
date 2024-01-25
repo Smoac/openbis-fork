@@ -3,7 +3,7 @@ define([
     "test/test-jsVSjava",
     "test-compiled/test-create",
     "test/test-update",
-    "test/test-search",
+    "test-compiled/test-search",
 
     "test/test-freezing",
     "test/test-get",

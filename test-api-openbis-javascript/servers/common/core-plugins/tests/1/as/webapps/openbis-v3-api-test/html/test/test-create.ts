@@ -1,14 +1,14 @@
 import openbis from "./lib/openbis/openbis.esm"
 
 exports.default = new Promise((resolve) => {
-    require([
-        "jquery",
-        "underscore",
-        "openbis",
-        "test/openbis-execute-operations",
-        "test/common",
-        "test/dtos",
-    ], function ($, _, openbisRequireJS, openbisExecuteOperations, common, dtos) {
+    require(["jquery", "underscore", "openbis", "test/openbis-execute-operations", "test/common", "test/dtos"], function (
+        $,
+        _,
+        openbisRequireJS,
+        openbisExecuteOperations,
+        common,
+        dtos
+    ) {
         var executeModule = function (moduleName: string, facade: openbis.openbis, dtos: openbis.bundle) {
             QUnit.module(moduleName)
 
@@ -98,6 +98,7 @@ exports.default = new Promise((resolve) => {
                     projectCreation.setSpaceId(new dtos.SpacePermId("TEST"))
                     projectCreation.setCode(code)
                     projectCreation.setDescription("JS test project")
+
                     var attachmentCreation = new dtos.AttachmentCreation()
                     attachmentCreation.setFileName("test_file")
                     attachmentCreation.setTitle("test_title")
@@ -186,26 +187,24 @@ exports.default = new Promise((resolve) => {
                     propertyTypeCreation2.setDescription("hello")
                     propertyTypeCreation2.setDataType(dtos.DataType.DATE)
                     propertyTypeCreation2.setLabel("Test Property Type")
-                    return facade
-                        .createPropertyTypes([propertyTypeCreation1, propertyTypeCreation2])
-                        .then(function (results) {
-                            var assignmentCreation1 = new dtos.PropertyAssignmentCreation()
-                            assignmentCreation1.setPropertyTypeId(new dtos.PropertyTypePermId(propertyTypeCodeSample))
-                            var assignmentCreation2 = new dtos.PropertyAssignmentCreation()
-                            assignmentCreation2.setPropertyTypeId(new dtos.PropertyTypePermId(propertyTypeCodeDate))
-                            var experimentTypeCreation = new dtos.ExperimentTypeCreation()
-                            experimentTypeCreation.setCode(experimentTypeCode)
-                            experimentTypeCreation.setPropertyAssignments([assignmentCreation1, assignmentCreation2])
-                            return facade.createExperimentTypes([experimentTypeCreation]).then(function (results) {
-                                var creation = new dtos.ExperimentCreation()
-                                creation.setTypeId(new dtos.EntityTypePermId(experimentTypeCode))
-                                creation.setCode(code)
-                                creation.setProjectId(new dtos.ProjectIdentifier("/TEST/TEST-PROJECT"))
-                                creation.setProperty(propertyTypeCodeSample, "20130412140147735-20")
-                                creation.setProperty(propertyTypeCodeDate, "2013-04-12")
-                                return facade.createExperiments([creation])
-                            })
+                    return facade.createPropertyTypes([propertyTypeCreation1, propertyTypeCreation2]).then(function (results) {
+                        var assignmentCreation1 = new dtos.PropertyAssignmentCreation()
+                        assignmentCreation1.setPropertyTypeId(new dtos.PropertyTypePermId(propertyTypeCodeSample))
+                        var assignmentCreation2 = new dtos.PropertyAssignmentCreation()
+                        assignmentCreation2.setPropertyTypeId(new dtos.PropertyTypePermId(propertyTypeCodeDate))
+                        var experimentTypeCreation = new dtos.ExperimentTypeCreation()
+                        experimentTypeCreation.setCode(experimentTypeCode)
+                        experimentTypeCreation.setPropertyAssignments([assignmentCreation1, assignmentCreation2])
+                        return facade.createExperimentTypes([experimentTypeCreation]).then(function (results) {
+                            var creation = new dtos.ExperimentCreation()
+                            creation.setTypeId(new dtos.EntityTypePermId(experimentTypeCode))
+                            creation.setCode(code)
+                            creation.setProjectId(new dtos.ProjectIdentifier("/TEST/TEST-PROJECT"))
+                            creation.setProperty(propertyTypeCodeSample, "20130412140147735-20")
+                            creation.setProperty(propertyTypeCodeDate, "2013-04-12")
+                            return facade.createExperiments([creation])
                         })
+                    })
                 }
 
                 var fCheck = function (experiment: openbis.Experiment) {
@@ -213,11 +212,7 @@ exports.default = new Promise((resolve) => {
                     c.assertEqual(experiment.getType().getCode(), experimentTypeCode, "Type code")
                     c.assertEqual(experiment.getProject().getCode(), "TEST-PROJECT", "Project code")
                     c.assertEqual(experiment.getProject().getSpace().getCode(), "TEST", "Space code")
-                    c.assertEqual(
-                        experiment.getProperties()[propertyTypeCodeSample],
-                        "20130412140147735-20",
-                        "Sample property id"
-                    )
+                    c.assertEqual(experiment.getProperties()[propertyTypeCodeSample], "20130412140147735-20", "Sample property id")
                     c.assertEqual(experiment.getProperties()[propertyTypeCodeDate], "2013-04-12", "Date property")
                     c.assertEqual(
                         experiment.getSampleProperties()[propertyTypeCodeSample][0].getIdentifier().getIdentifier(),
@@ -269,18 +264,15 @@ exports.default = new Promise((resolve) => {
                 }
 
                 c.start()
-                c.login(facade).then(async function () {
-                    try {
-                        await fCreate(facade)
-                        c.fail()
-                    } catch (error) {
+                c.login(facade).then(function () {
+                    return fCreate(facade).then(null, function (error) {
                         c.assertEqual(
                             "Insert/Update of experiment failed because property contains value that is not unique! (value:  my_unique_value) (Context: [])",
                             error.message,
                             "Uniqueness error message"
                         )
                         c.finish()
-                    }
+                    })
                 })
             })
 
@@ -309,10 +301,7 @@ exports.default = new Promise((resolve) => {
                             creation.setTypeId(new dtos.EntityTypePermId(experimentTypeCode))
                             creation.setCode(code)
                             creation.setProjectId(new dtos.ProjectIdentifier("/TEST/TEST-PROJECT"))
-                            creation.setProperty(propertyTypeCodeSample, [
-                                "20130412140147735-20",
-                                "20130424134657597-433",
-                            ])
+                            creation.setProperty(propertyTypeCodeSample, ["20130412140147735-20", "20130424134657597-433"])
                             return facade.createExperiments([creation])
                         })
                     })
@@ -427,11 +416,7 @@ exports.default = new Promise((resolve) => {
 
                     c.assertEqual(assignment.getSection(), "test section", "Assignment section")
                     c.assertEqual(assignment.getOrdinal(), 10, "Assignment ordinal")
-                    c.assertEqual(
-                        assignment.getPropertyType().getCode(),
-                        "DESCRIPTION",
-                        "Assignment property type code"
-                    )
+                    c.assertEqual(assignment.getPropertyType().getCode(), "DESCRIPTION", "Assignment property type code")
                     c.assertEqual(assignment.isMandatory(), true, "Assignment mandatory")
                     c.assertEqual(assignment.isShowInEditView(), true, "Assignment ShowInEditView")
                     c.assertEqual(assignment.isShowRawValueInForms(), true, "Assignment ShowRawValueInForms")
@@ -448,7 +433,7 @@ exports.default = new Promise((resolve) => {
                 var c = new common(assert, dtos)
                 var code = c.generateId("SAMPLE")
 
-                var fCreate = function (facade: openbis.openbis) {
+                var fCreate = async function (facade: openbis.openbis) {
                     var creation = new dtos.SampleCreation()
                     creation.setTypeId(new dtos.EntityTypePermId("UNKNOWN"))
                     creation.setCode(code)
@@ -482,10 +467,7 @@ exports.default = new Promise((resolve) => {
                     creation.setCode(code)
                     creation.setSpaceId(new dtos.SpacePermId("TEST"))
                     creation.setChildIds([childId])
-                    creation
-                        .relationship(childId)
-                        .addParentAnnotation("type", "mother")
-                        .addChildAnnotation("type", "daughter")
+                    creation.relationship(childId).addParentAnnotation("type", "mother").addChildAnnotation("type", "daughter")
                     return facade.createSamples([creation])
                 }
 
@@ -496,16 +478,8 @@ exports.default = new Promise((resolve) => {
                     var child = sample.getChildren()[0]
                     c.assertEqual(child.getIdentifier().getIdentifier(), childId.getIdentifier(), "Child")
                     var relationship = sample.getChildRelationship(child.getPermId())
-                    c.assertEqualDictionary(
-                        relationship.getChildAnnotations(),
-                        { type: "daughter" },
-                        "Child annotations"
-                    )
-                    c.assertEqualDictionary(
-                        relationship.getParentAnnotations(),
-                        { type: "mother" },
-                        "Parent annotations"
-                    )
+                    c.assertEqualDictionary(relationship.getChildAnnotations(), { type: "daughter" }, "Child annotations")
+                    c.assertEqualDictionary(relationship.getParentAnnotations(), { type: "mother" }, "Parent annotations")
                 }
 
                 testCreate(c, fCreate, c.findSample, fCheck)
@@ -522,10 +496,7 @@ exports.default = new Promise((resolve) => {
                     creation.setCode(code)
                     creation.setSpaceId(new dtos.SpacePermId("TEST"))
                     creation.setParentIds([parentId])
-                    creation
-                        .relationship(parentId)
-                        .addParentAnnotation("type", "mother")
-                        .addChildAnnotation("type", "daughter")
+                    creation.relationship(parentId).addParentAnnotation("type", "mother").addChildAnnotation("type", "daughter")
                     return facade.createSamples([creation])
                 }
 
@@ -536,16 +507,8 @@ exports.default = new Promise((resolve) => {
                     var parent = sample.getParents()[0]
                     c.assertEqual(parent.getIdentifier().getIdentifier(), parentId.getIdentifier(), "Parent")
                     var relationship = sample.getParentRelationship(parent.getPermId())
-                    c.assertEqualDictionary(
-                        relationship.getChildAnnotations(),
-                        { type: "daughter" },
-                        "Child annotations"
-                    )
-                    c.assertEqualDictionary(
-                        relationship.getParentAnnotations(),
-                        { type: "mother" },
-                        "Parent annotations"
-                    )
+                    c.assertEqualDictionary(relationship.getChildAnnotations(), { type: "daughter" }, "Child annotations")
+                    c.assertEqualDictionary(relationship.getParentAnnotations(), { type: "mother" }, "Parent annotations")
                 }
 
                 testCreate(c, fCreate, c.findSample, fCheck)
@@ -589,11 +552,7 @@ exports.default = new Promise((resolve) => {
                         "/PLATONIC/SCREENING-EXAMPLES/PLATE-1",
                         "Sample property"
                     )
-                    c.assertEqual(
-                        sample.getProperties()[propertyTypeCode],
-                        "20130412140147735-20",
-                        "Sample property id"
-                    )
+                    c.assertEqual(sample.getProperties()[propertyTypeCode], "20130412140147735-20", "Sample property id")
                 }
 
                 testCreate(c, fCreate, c.findSample, fCheck)
@@ -638,18 +597,15 @@ exports.default = new Promise((resolve) => {
                 }
 
                 c.start()
-                c.login(facade).then(async function () {
-                    try {
-                        await fCreate(facade)
-                        c.fail()
-                    } catch (error) {
+                c.login(facade).then(function () {
+                    return fCreate(facade).then(null, function (error) {
                         c.assertEqual(
                             "Insert/Update of object failed because property contains value that is not unique! (value:  my_unique_value) (Context: [])",
                             error.message,
                             "Uniqueness error message"
                         )
                         c.finish()
-                    }
+                    })
                 })
             })
 
@@ -799,11 +755,7 @@ exports.default = new Promise((resolve) => {
 
                     c.assertEqual(assignment.getSection(), "test section", "Assignment section")
                     c.assertEqual(assignment.getOrdinal(), 10, "Assignment ordinal")
-                    c.assertEqual(
-                        assignment.getPropertyType().getCode(),
-                        "DESCRIPTION",
-                        "Assignment property type code"
-                    )
+                    c.assertEqual(assignment.getPropertyType().getCode(), "DESCRIPTION", "Assignment property type code")
                     c.assertEqual(assignment.isMandatory(), true, "Assignment mandatory")
                     c.assertEqual(assignment.isShowInEditView(), true, "Assignment ShowInEditView")
                     c.assertEqual(assignment.isShowRawValueInForms(), true, "Assignment ShowRawValueInForms")
@@ -856,11 +808,7 @@ exports.default = new Promise((resolve) => {
                     var contentCopies = dataSet.getLinkedData().getContentCopies()
                     c.assertEqual(contentCopies.length, 1, "Number of content copies")
                     var contentCopy = contentCopies[0]
-                    c.assertEqual(
-                        contentCopy.getExternalDms().getPermId().toString(),
-                        emdsId.toString(),
-                        "External data management system"
-                    )
+                    c.assertEqual(contentCopy.getExternalDms().getPermId().toString(), emdsId.toString(), "External data management system")
                     c.assertEqual(contentCopy.getPath(), "/my/path", "Content copy path")
                     var dfd = $.Deferred()
                     var dataSetCode = dataSet.getCode()
@@ -886,11 +834,7 @@ exports.default = new Promise((resolve) => {
                                     c.assertEqual(file.getDataSetPermId().toString(), dataSetCode, "Data set" + postfix)
                                     c.assertEqual(file.getDataStore().getCode(), "DSS1", "Data store" + postfix)
                                     c.assertEqual(file.getPath(), expectedPaths[i], "Path" + postfix)
-                                    c.assertEqual(
-                                        file.isDirectory(),
-                                        expectedDirectoryFlags[i],
-                                        "Directory flag" + postfix
-                                    )
+                                    c.assertEqual(file.isDirectory(), expectedDirectoryFlags[i], "Directory flag" + postfix)
                                     c.assertEqual(file.getChecksumCRC32(), expectedChecksums[i], "Checksum" + postfix)
                                 }
                                 dfd.resolve()
@@ -926,9 +870,7 @@ exports.default = new Promise((resolve) => {
                             creation.setCode(code)
                             creation.setDataSetKind(dtos.DataSetKind.CONTAINER)
                             creation.setDataStoreId(new dtos.DataStorePermId("DSS1"))
-                            creation.setExperimentId(
-                                new dtos.ExperimentIdentifier("/TEST/TEST-PROJECT/TEST-EXPERIMENT")
-                            )
+                            creation.setExperimentId(new dtos.ExperimentIdentifier("/TEST/TEST-PROJECT/TEST-EXPERIMENT"))
                             creation.setProperty(propertyTypeCode, "20130412140147735-20")
                             creation.setMetaData({ dataset_key: "dataset_value" })
                             return facade.createDataSets([creation])
@@ -939,11 +881,7 @@ exports.default = new Promise((resolve) => {
                 var fCheck = function (dataSet: openbis.DataSet) {
                     c.assertEqual(dataSet.getCode(), code, "Data set code")
                     c.assertEqual(dataSet.getType().getCode(), dataSetTypeCode, "Type code")
-                    c.assertEqual(
-                        dataSet.getProperties()[propertyTypeCode],
-                        "20130412140147735-20",
-                        "Sample property id"
-                    )
+                    c.assertEqual(dataSet.getProperties()[propertyTypeCode], "20130412140147735-20", "Sample property id")
                     c.assertEqual(
                         dataSet.getSampleProperties()[propertyTypeCode][0].getIdentifier().getIdentifier(),
                         "/PLATONIC/SCREENING-EXAMPLES/PLATE-1",
@@ -983,9 +921,7 @@ exports.default = new Promise((resolve) => {
                             creation.setCode(code)
                             creation.setDataSetKind(dtos.DataSetKind.CONTAINER)
                             creation.setDataStoreId(new dtos.DataStorePermId("DSS1"))
-                            creation.setExperimentId(
-                                new dtos.ExperimentIdentifier("/TEST/TEST-PROJECT/TEST-EXPERIMENT")
-                            )
+                            creation.setExperimentId(new dtos.ExperimentIdentifier("/TEST/TEST-PROJECT/TEST-EXPERIMENT"))
                             creation.setProperty(propertyTypeCode, "my_unique_value")
                             return facade.createDataSets([creation]).then(function (results) {
                                 var creation2 = new dtos.DataSetCreation()
@@ -993,9 +929,7 @@ exports.default = new Promise((resolve) => {
                                 creation2.setCode(code2)
                                 creation2.setDataSetKind(dtos.DataSetKind.CONTAINER)
                                 creation2.setDataStoreId(new dtos.DataStorePermId("DSS1"))
-                                creation2.setExperimentId(
-                                    new dtos.ExperimentIdentifier("/TEST/TEST-PROJECT/TEST-EXPERIMENT")
-                                )
+                                creation2.setExperimentId(new dtos.ExperimentIdentifier("/TEST/TEST-PROJECT/TEST-EXPERIMENT"))
                                 creation2.setProperty(propertyTypeCode, "my_unique_value")
                                 return facade.createDataSets([creation2])
                             })
@@ -1004,18 +938,15 @@ exports.default = new Promise((resolve) => {
                 }
 
                 c.start()
-                c.login(facade).then(async function () {
-                    try {
-                        await fCreate(facade)
-                        c.fail()
-                    } catch (error) {
+                c.login(facade).then(function () {
+                    return fCreate(facade).then(null, function (error) {
                         c.assertEqual(
                             "Insert/Update of dataset failed because property contains value that is not unique! (value:  my_unique_value) (Context: [])",
                             error.message,
                             "Uniqueness error message"
                         )
                         c.finish()
-                    }
+                    })
                 })
             })
 
@@ -1044,9 +975,7 @@ exports.default = new Promise((resolve) => {
                             creation.setCode(code)
                             creation.setDataSetKind(dtos.DataSetKind.CONTAINER)
                             creation.setDataStoreId(new dtos.DataStorePermId("DSS1"))
-                            creation.setExperimentId(
-                                new dtos.ExperimentIdentifier("/TEST/TEST-PROJECT/TEST-EXPERIMENT")
-                            )
+                            creation.setExperimentId(new dtos.ExperimentIdentifier("/TEST/TEST-PROJECT/TEST-EXPERIMENT"))
                             creation.setProperty(propertyTypeCode, ["20130412140147735-20", "20130424134657597-433"])
                             creation.setMetaData({ dataset_key: "dataset_value" })
                             return facade.createDataSets([creation])
@@ -1106,9 +1035,7 @@ exports.default = new Promise((resolve) => {
                             creation.setCode(code)
                             creation.setDataSetKind(dtos.DataSetKind.CONTAINER)
                             creation.setDataStoreId(new dtos.DataStorePermId("DSS1"))
-                            creation.setExperimentId(
-                                new dtos.ExperimentIdentifier("/TEST/TEST-PROJECT/TEST-EXPERIMENT")
-                            )
+                            creation.setExperimentId(new dtos.ExperimentIdentifier("/TEST/TEST-PROJECT/TEST-EXPERIMENT"))
                             creation.setProperty(propertyTypeCode, ["ENGLISH", "GERMAN"])
                             creation.setMetaData({ dataset_key: "dataset_value" })
                             return facade.createDataSets([creation])
@@ -1173,11 +1100,7 @@ exports.default = new Promise((resolve) => {
 
                     c.assertEqual(assignment.getSection(), "test section", "Assignment section")
                     c.assertEqual(assignment.getOrdinal(), 10, "Assignment ordinal")
-                    c.assertEqual(
-                        assignment.getPropertyType().getCode(),
-                        "DESCRIPTION",
-                        "Assignment property type code"
-                    )
+                    c.assertEqual(assignment.getPropertyType().getCode(), "DESCRIPTION", "Assignment property type code")
                     c.assertEqual(assignment.isMandatory(), true, "Assignment mandatory")
                     c.assertEqual(assignment.isShowInEditView(), true, "Assignment ShowInEditView")
                     c.assertEqual(assignment.isShowRawValueInForms(), true, "Assignment ShowRawValueInForms")
@@ -1247,11 +1170,7 @@ exports.default = new Promise((resolve) => {
 
                     c.assertEqual(assignment.getSection(), "test section", "Assignment section")
                     c.assertEqual(assignment.getOrdinal(), 10, "Assignment ordinal")
-                    c.assertEqual(
-                        assignment.getPropertyType().getCode(),
-                        "DESCRIPTION",
-                        "Assignment property type code"
-                    )
+                    c.assertEqual(assignment.getPropertyType().getCode(), "DESCRIPTION", "Assignment property type code")
                     c.assertEqual(assignment.isMandatory(), true, "Assignment mandatory")
                     c.assertEqual(assignment.isShowInEditView(), true, "Assignment ShowInEditView")
                     c.assertEqual(assignment.isShowRawValueInForms(), true, "Assignment ShowRawValueInForms")
@@ -1526,23 +1445,11 @@ exports.default = new Promise((resolve) => {
 
             var checkCreatedSemanticAnnotation = function (c, annotation: openbis.SemanticAnnotation) {
                 c.assertEqual(annotation.getPredicateOntologyId(), "jsPredicateOntologyId", "Predicate ontology id")
-                c.assertEqual(
-                    annotation.getPredicateOntologyVersion(),
-                    "jsPredicateOntologyVersion",
-                    "Predicate ontology version"
-                )
+                c.assertEqual(annotation.getPredicateOntologyVersion(), "jsPredicateOntologyVersion", "Predicate ontology version")
                 c.assertEqual(annotation.getPredicateAccessionId(), "jsPredicateAccessionId", "Predicate accession id")
                 c.assertEqual(annotation.getDescriptorOntologyId(), "jsDescriptorOntologyId", "Descriptor ontology id")
-                c.assertEqual(
-                    annotation.getDescriptorOntologyVersion(),
-                    "jsDescriptorOntologyVersion",
-                    "Descriptor ontology version"
-                )
-                c.assertEqual(
-                    annotation.getDescriptorAccessionId(),
-                    "jsDescriptorAccessionId",
-                    "Descriptor accession id"
-                )
+                c.assertEqual(annotation.getDescriptorOntologyVersion(), "jsDescriptorOntologyVersion", "Descriptor ontology version")
+                c.assertEqual(annotation.getDescriptorAccessionId(), "jsDescriptorAccessionId", "Descriptor accession id")
             }
 
             QUnit.test("createSemanticAnnotations() with entity type id", function (assert) {
@@ -1595,23 +1502,13 @@ exports.default = new Promise((resolve) => {
 
                 var fCheck = function (annotation: openbis.SemanticAnnotation) {
                     checkCreatedSemanticAnnotation(c, annotation)
+                    c.assertEqual(annotation.getPropertyAssignment().getEntityType().getCode(), "ILLUMINA_FLOW_CELL", "Entity type code")
                     c.assertEqual(
-                        annotation.getPropertyAssignment().getEntityType().getCode(),
-                        "ILLUMINA_FLOW_CELL",
-                        "Entity type code"
-                    )
-                    c.assertEqual(
-                        (<openbis.EntityTypePermId>(
-                            annotation.getPropertyAssignment().getEntityType().getPermId()
-                        )).getEntityKind(),
+                        (<openbis.EntityTypePermId>annotation.getPropertyAssignment().getEntityType().getPermId()).getEntityKind(),
                         "SAMPLE",
                         "Entity type kind"
                     )
-                    c.assertEqual(
-                        annotation.getPropertyAssignment().getPropertyType().getCode(),
-                        "RUNNINGTIME",
-                        "Property type code"
-                    )
+                    c.assertEqual(annotation.getPropertyAssignment().getPropertyType().getCode(), "RUNNINGTIME", "Property type code")
                 }
 
                 testCreate(c, fCreate, c.findSemanticAnnotation, fCheck)
@@ -1665,27 +1562,21 @@ exports.default = new Promise((resolve) => {
                         var criteria = new dtos.DataSetFileSearchCriteria()
                         criteria.withDataSet().withCode().thatEquals(dataSet.getCode())
 
-                        return dataStoreFacade
-                            .searchFiles(criteria, c.createDataSetFileFetchOptions())
-                            .then(function (result) {
-                                var files = result.getObjects()
-                                c.assertEqual(files.length, 6, "Number of files")
-                                c.assertEqual(files[0].getPath(), "", "Path 0")
-                                c.assertEqual(files[1].getPath(), "original", "Path 1")
-                                c.assertEqual(files[2].getPath(), "original/testFolder", "Path 2")
-                                c.assertEqual(files[3].getPath(), "original/testFolder/filePath", "Path 3")
-                                c.assertEqual(files[4].getPath(), "original/testFolder/filePath/file1.txt", "Path 4")
-                                c.assertEqual(files[5].getPath(), "original/testFolder/filePath/file2.txt", "Path 5")
+                        return dataStoreFacade.searchFiles(criteria, c.createDataSetFileFetchOptions()).then(function (result) {
+                            var files = result.getObjects()
+                            c.assertEqual(files.length, 6, "Number of files")
+                            c.assertEqual(files[0].getPath(), "", "Path 0")
+                            c.assertEqual(files[1].getPath(), "original", "Path 1")
+                            c.assertEqual(files[2].getPath(), "original/testFolder", "Path 2")
+                            c.assertEqual(files[3].getPath(), "original/testFolder/filePath", "Path 3")
+                            c.assertEqual(files[4].getPath(), "original/testFolder/filePath/file1.txt", "Path 4")
+                            c.assertEqual(files[5].getPath(), "original/testFolder/filePath/file2.txt", "Path 5")
 
-                                c.assertEqual(dataSet.getType().getCode(), "UNKNOWN", "Type code")
-                                c.assertEqual(
-                                    dataSet.getProperty("DESCRIPTION"),
-                                    "test description",
-                                    "'DESCRIPTION' property value"
-                                )
-                                c.assertEqual(dataSet.getParents().length, 1, "Number of parents")
-                                c.assertEqual(dataSet.getParents()[0].getCode(), "20130424111751432-431", "Parent code")
-                            })
+                            c.assertEqual(dataSet.getType().getCode(), "UNKNOWN", "Type code")
+                            c.assertEqual(dataSet.getProperty("DESCRIPTION"), "test description", "'DESCRIPTION' property value")
+                            c.assertEqual(dataSet.getParents().length, 1, "Number of parents")
+                            c.assertEqual(dataSet.getParents()[0].getCode(), "20130424111751432-431", "Parent code")
+                        })
                     })
                 }
 
@@ -1719,11 +1610,7 @@ exports.default = new Promise((resolve) => {
                     )
                     c.assertEqual(query.getDatabaseLabel(), "openBIS meta data", "Database label")
                     c.assertEqual(query.getQueryType(), queryCreation.getQueryType(), "Query type")
-                    c.assertEqual(
-                        query.getEntityTypeCodePattern(),
-                        queryCreation.getEntityTypeCodePattern(),
-                        "Entity type code pattern"
-                    )
+                    c.assertEqual(query.getEntityTypeCodePattern(), queryCreation.getEntityTypeCodePattern(), "Entity type code pattern")
                     c.assertEqual(query.getSql(), queryCreation.getSql(), "Sql")
                     c.assertEqual(query.isPublic(), queryCreation.isPublic(), "Is public")
                     c.assertNotNull(query.getRegistrator().getUserId(), "Registrator user id")
@@ -1767,11 +1654,7 @@ exports.default = new Promise((resolve) => {
 
         resolve(function () {
             executeModule("Create tests (RequireJS)", new openbisRequireJS(), dtos)
-            executeModule(
-                "Create tests (RequireJS - executeOperations)",
-                new openbisExecuteOperations(new openbisRequireJS(), dtos),
-                dtos
-            )
+            executeModule("Create tests (RequireJS - executeOperations)", new openbisExecuteOperations(new openbisRequireJS(), dtos), dtos)
             executeModule("Create tests (module VAR)", new window.openbis.openbis(), window.openbis)
             executeModule(
                 "Create tests (module VAR - executeOperations)",
