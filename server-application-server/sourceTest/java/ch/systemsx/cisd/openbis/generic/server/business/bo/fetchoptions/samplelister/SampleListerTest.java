@@ -70,12 +70,12 @@ public class SampleListerTest extends AssertJUnit
         user = ManagerTestTool.createPerson();
         lister = new SampleLister(query, user);
         context.checking(new Expectations()
+        {
             {
-                {
-                    atMost(1).of(query).getRelationshipTypeId("PARENT_CHILD", true);
-                    will(returnValue(RELATION_SHIP_TYPE));
-                }
-            });
+                atMost(1).of(query).getRelationshipTypeId("PARENT_CHILD", true);
+                will(returnValue(RELATION_SHIP_TYPE));
+            }
+        });
     }
 
     @AfterMethod
@@ -106,30 +106,31 @@ public class SampleListerTest extends AssertJUnit
     {
         final List<Long> sampleIDs = Arrays.asList(101L, 102L);
         context.checking(new Expectations()
+        {
             {
-                {
-                    SampleRecord r101 = record(101);
-                    SampleRecord r102 = record(102);
-                    LongOpenHashSet sampleIdSet = new LongOpenHashSet(new long[] { r101.s_id, r102.s_id });
-                    one(query).listSamplesByIds(sampleIdSet);
-                    will(returnValue(Arrays.asList(r101, r102)));
+                SampleRecord r101 = record(101);
+                SampleRecord r102 = record(102);
+                LongOpenHashSet sampleIdSet =
+                        new LongOpenHashSet(new long[] { r101.s_id, r102.s_id });
+                one(query).listSamplesByIds(sampleIdSet);
+                will(returnValue(Arrays.asList(r101, r102)));
 
-                    one(query).getProperties(sampleIdSet);
-                    will(returnValue(Arrays.asList(property(101, "A", "alpha"))));
+                one(query).getProperties(sampleIdSet);
+                will(returnValue(Arrays.asList(property(101, "A", "alpha"))));
 
-                    one(query).getMetaprojectAssignments(sampleIdSet, user.getId());
-                    will(returnValue(Arrays.asList(sampleMetaproject(102, 42))));
+                one(query).getMetaprojectAssignments(sampleIdSet, user.getId());
+                will(returnValue(Arrays.asList(sampleMetaproject(102, 42))));
 
-                    one(query).getMetaprojects(new LongOpenHashSet(new long[] { 42 }));
-                    will(returnValue(Arrays.asList(metaproject(42, "answer"))));
+                one(query).getMetaprojects(new LongOpenHashSet(new long[] { 42 }));
+                will(returnValue(Arrays.asList(metaproject(42, "answer"))));
 
-                    atLeast(1).of(filter).isValid(user, sample(r101));
-                    will(returnValue(true));
+                atLeast(1).of(filter).isValid(user, sample(r101));
+                will(returnValue(true));
 
-                    atLeast(1).of(filter).isValid(user, sample(r102));
-                    will(returnValue(true));
-                }
-            });
+                atLeast(1).of(filter).isValid(user, sample(r102));
+                will(returnValue(true));
+            }
+        });
 
         List<Sample> samples =
                 lister.getSamples(sampleIDs,
@@ -147,43 +148,44 @@ public class SampleListerTest extends AssertJUnit
     {
         final List<Long> sampleIDs = Arrays.asList(101L, 102L);
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(query).getParents(RELATION_SHIP_TYPE, new LongOpenHashSet(sampleIDs));
-                    will(returnValue(Arrays.asList(parentChild(1, 101), parentChild(2, 101),
-                            parentChild(3, 102))));
+                one(query).getParents(RELATION_SHIP_TYPE, new LongOpenHashSet(sampleIDs));
+                will(returnValue(Arrays.asList(parentChild(1, 101), parentChild(2, 101),
+                        parentChild(3, 102))));
 
-                    SampleRecord r1 = record(1);
-                    SampleRecord r2 = record(2);
-                    SampleRecord r3 = record(3);
-                    SampleRecord r101 = record(101);
-                    SampleRecord r102 = record(102);
-                    one(query).listSamplesByIds(new LongOpenHashSet(new long[] { r1.s_id, r2.s_id, r3.s_id, r101.s_id, r102.s_id }));
-                    will(returnValue(Arrays.asList(r1, r2, r3, r101, r102)));
+                SampleRecord r1 = record(1);
+                SampleRecord r2 = record(2);
+                SampleRecord r3 = record(3);
+                SampleRecord r101 = record(101);
+                SampleRecord r102 = record(102);
+                one(query).listSamplesByIds(new LongOpenHashSet(
+                        new long[] { r1.s_id, r2.s_id, r3.s_id, r101.s_id, r102.s_id }));
+                will(returnValue(Arrays.asList(r1, r2, r3, r101, r102)));
 
-                    atLeast(1).of(filter).isValid(user, sample(r1));
-                    will(returnValue(true));
+                atLeast(1).of(filter).isValid(user, sample(r1));
+                will(returnValue(true));
 
-                    atLeast(1).of(filter).isValid(user, sample(r2));
-                    will(returnValue(false));
+                atLeast(1).of(filter).isValid(user, sample(r2));
+                will(returnValue(false));
 
-                    atLeast(1).of(filter).isValid(user, sample(r3));
-                    will(returnValue(true));
+                atLeast(1).of(filter).isValid(user, sample(r3));
+                will(returnValue(true));
 
-                    atLeast(1).of(filter).isValid(user, sample(r101));
-                    will(returnValue(true));
+                atLeast(1).of(filter).isValid(user, sample(r101));
+                will(returnValue(true));
 
-                    atLeast(1).of(filter).isValid(user, sample(r102));
-                    will(returnValue(false));
-                }
-            });
+                atLeast(1).of(filter).isValid(user, sample(r102));
+                will(returnValue(false));
+            }
+        });
 
         List<Sample> samples =
                 lister.getSamples(sampleIDs, EnumSet.of(SampleFetchOption.PARENTS), filter);
 
         assertEquals(
-                "[Sample[/SPACE/S-101,MY-TYPE,properties=?,parents={Sample[/SPACE/S-1,"
-                        + "MY-TYPE,properties=?,parents=?,children=?]},children=?]]",
+                "[Sample[/SPACE/S-101,MY-TYPE,properties=?,parents=[Sample[/SPACE/S-1," +
+                        "MY-TYPE,properties=?,parents=?,children=?]],children=?]]",
                 samples.toString());
         assertEquals("[BASIC, PARENTS]", samples.get(0).getRetrievedFetchOptions().toString());
         assertEquals("[BASIC]", samples.get(0).getParents().get(0).getRetrievedFetchOptions()
@@ -195,53 +197,55 @@ public class SampleListerTest extends AssertJUnit
     {
         final List<Long> sampleIDs = Arrays.asList(201L, 202L);
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(query).getDescendants(RELATION_SHIP_TYPE, new LongOpenHashSet(sampleIDs));
-                    will(returnValue(Arrays.asList(parentChild(201, 301), parentChild(201, 302),
-                            parentChild(302, 401))));
-                    one(query).getAncestors(RELATION_SHIP_TYPE, new LongOpenHashSet(sampleIDs));
-                    will(returnValue(Arrays.asList(parentChild(1, 101), parentChild(2, 101),
-                            parentChild(3, 102), parentChild(101, 201), parentChild(102, 202))));
+                one(query).getDescendants(RELATION_SHIP_TYPE, new LongOpenHashSet(sampleIDs));
+                will(returnValue(Arrays.asList(parentChild(201, 301), parentChild(201, 302),
+                        parentChild(302, 401))));
+                one(query).getAncestors(RELATION_SHIP_TYPE, new LongOpenHashSet(sampleIDs));
+                will(returnValue(Arrays.asList(parentChild(1, 101), parentChild(2, 101),
+                        parentChild(3, 102), parentChild(101, 201), parentChild(102, 202))));
 
-                    SampleRecord r1 = record(1);
-                    SampleRecord r2 = record(2);
-                    SampleRecord r3 = record(3);
-                    SampleRecord r101 = record(101);
-                    SampleRecord r102 = record(102);
-                    SampleRecord r201 = record(201);
-                    SampleRecord r202 = record(202);
-                    SampleRecord r301 = record(301);
-                    SampleRecord r302 = record(302);
-                    SampleRecord r401 = record(401);
-                    one(query).listSamplesByIds(
-                            new LongOpenHashSet(new long[] { r1.s_id, r2.s_id, r3.s_id, r101.s_id, r102.s_id, r201.s_id,
-                                    r202.s_id, r301.s_id, r302.s_id, r401.s_id }));
-                    will(returnValue(Arrays.asList(r1, r2, r3, r101, r102, r201, r202, r301, r302,
-                            r401)));
+                SampleRecord r1 = record(1);
+                SampleRecord r2 = record(2);
+                SampleRecord r3 = record(3);
+                SampleRecord r101 = record(101);
+                SampleRecord r102 = record(102);
+                SampleRecord r201 = record(201);
+                SampleRecord r202 = record(202);
+                SampleRecord r301 = record(301);
+                SampleRecord r302 = record(302);
+                SampleRecord r401 = record(401);
+                one(query).listSamplesByIds(
+                        new LongOpenHashSet(
+                                new long[] { r1.s_id, r2.s_id, r3.s_id, r101.s_id, r102.s_id,
+                                        r201.s_id,
+                                        r202.s_id, r301.s_id, r302.s_id, r401.s_id }));
+                will(returnValue(Arrays.asList(r1, r2, r3, r101, r102, r201, r202, r301, r302,
+                        r401)));
 
-                    atLeast(1).of(filter).isValid(user, sample(r1));
-                    will(returnValue(true));
-                    atLeast(1).of(filter).isValid(user, sample(r2));
-                    will(returnValue(false));
-                    atLeast(1).of(filter).isValid(user, sample(r3));
-                    will(returnValue(true));
-                    atLeast(1).of(filter).isValid(user, sample(r101));
-                    will(returnValue(true));
-                    atLeast(1).of(filter).isValid(user, sample(r102));
-                    will(returnValue(false));
-                    atLeast(1).of(filter).isValid(user, sample(r201));
-                    will(returnValue(true));
-                    atLeast(1).of(filter).isValid(user, sample(r202));
-                    will(returnValue(false));
-                    atLeast(1).of(filter).isValid(user, sample(r301));
-                    will(returnValue(false));
-                    atLeast(1).of(filter).isValid(user, sample(r302));
-                    will(returnValue(true));
-                    atLeast(1).of(filter).isValid(user, sample(r401));
-                    will(returnValue(true));
-                }
-            });
+                atLeast(1).of(filter).isValid(user, sample(r1));
+                will(returnValue(true));
+                atLeast(1).of(filter).isValid(user, sample(r2));
+                will(returnValue(false));
+                atLeast(1).of(filter).isValid(user, sample(r3));
+                will(returnValue(true));
+                atLeast(1).of(filter).isValid(user, sample(r101));
+                will(returnValue(true));
+                atLeast(1).of(filter).isValid(user, sample(r102));
+                will(returnValue(false));
+                atLeast(1).of(filter).isValid(user, sample(r201));
+                will(returnValue(true));
+                atLeast(1).of(filter).isValid(user, sample(r202));
+                will(returnValue(false));
+                atLeast(1).of(filter).isValid(user, sample(r301));
+                will(returnValue(false));
+                atLeast(1).of(filter).isValid(user, sample(r302));
+                will(returnValue(true));
+                atLeast(1).of(filter).isValid(user, sample(r401));
+                will(returnValue(true));
+            }
+        });
 
         List<Sample> samples =
                 lister.getSamples(sampleIDs,
@@ -249,11 +253,11 @@ public class SampleListerTest extends AssertJUnit
                         filter);
 
         assertEquals(
-                "[Sample[/SPACE/S-201,MY-TYPE,properties=?,parents={Sample[/SPACE/S-101,MY-TYPE,"
-                        + "properties=?,parents={Sample[/SPACE/S-1,MY-TYPE,properties=?,parents=[],"
-                        + "children=?]},children=?]},children={Sample[/SPACE/S-302,MY-TYPE,"
-                        + "properties=?,parents=?,children={Sample[/SPACE/S-401,MY-TYPE,properties=?,"
-                        + "parents=?,children=[]]}]}]]",
+                "[Sample[/SPACE/S-201,MY-TYPE,properties=?,parents=[Sample[/SPACE/S-101," +
+                        "MY-TYPE,properties=?,parents=[Sample[/SPACE/S-1,MY-TYPE,properties=?," +
+                        "parents=[],children=?]],children=?]],children=[Sample[/SPACE/S-302,MY-TYPE," +
+                        "properties=?,parents=?,children=[Sample[/SPACE/S-401,MY-TYPE,properties=?" +
+                        ",parents=?,children=[]]]]]]]",
                 samples.toString());
         assertEquals("[BASIC, PARENTS, CHILDREN]", samples.get(0).getRetrievedFetchOptions()
                 .toString());

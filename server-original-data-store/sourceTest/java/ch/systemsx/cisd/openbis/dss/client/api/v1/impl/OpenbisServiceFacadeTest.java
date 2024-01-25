@@ -537,10 +537,10 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
         List<Sample> samples =
                 openbisFacade.listSamplesForExperimentAndSampleType("123-1", "MY-TYPE");
 
-        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,"
-                + "{SearchCriteria.AttributeMatchClause[ATTRIBUTE,TYPE,MY-TYPE,EQUALS]},"
-                + "{SearchSubCriteria[EXPERIMENT,SearchCriteria[MATCH_ALL_CLAUSES,"
-                + "{SearchCriteria.AttributeMatchClause[ATTRIBUTE,PERM_ID,123-1,EQUALS]},[]]]}]",
+        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES," +
+                        "[SearchCriteria.AttributeMatchClause[ATTRIBUTE,TYPE,MY-TYPE,EQUALS]]," +
+                        "[SearchSubCriteria[EXPERIMENT,SearchCriteria[MATCH_ALL_CLAUSES," +
+                        "[SearchCriteria.AttributeMatchClause[ATTRIBUTE,PERM_ID,123-1,EQUALS]],[]]]]]",
                 criteriaMatcher.recordedObject().toString());
         assertSame(result, samples);
     }
@@ -569,12 +569,12 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
         List<Sample> samples = openbisFacade.listSamplesOfSample("123-1");
 
         List<SearchCriteria> recordedCriterias = criteriaMatcher.getRecordedObjects();
-        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,"
-                + "{SearchCriteria.AttributeMatchClause[ATTRIBUTE,PERM_ID,123-1,EQUALS]},[]]",
+        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES," +
+                        "[SearchCriteria.AttributeMatchClause[ATTRIBUTE,PERM_ID,123-1,EQUALS]],[]]",
                 recordedCriterias.get(0).toString());
-        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,[],{SearchSubCriteria[SAMPLE_CONTAINER,"
-                + "SearchCriteria[MATCH_ALL_CLAUSES,{"
-                + "SearchCriteria.AttributeMatchClause[ATTRIBUTE,PERM_ID,123-1,EQUALS]},[]]]}]",
+        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,[],[SearchSubCriteria[SAMPLE_CONTAINER,"
+                + "SearchCriteria[MATCH_ALL_CLAUSES,["
+                + "SearchCriteria.AttributeMatchClause[ATTRIBUTE,PERM_ID,123-1,EQUALS]],[]]]]]",
                 recordedCriterias.get(1).toString());
         assertEquals(2, recordedCriterias.size());
         assertEquals("[Sample[/DB/S1,sample-type-code,properties=?,parents=?,children=?], "
@@ -604,12 +604,11 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
         List<Sample> samples = openbisFacade.listSamplesOfSample("123-1");
 
         List<SearchCriteria> recordedCriterias = criteriaMatcher.getRecordedObjects();
-        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,"
-                + "{SearchCriteria.AttributeMatchClause[ATTRIBUTE,PERM_ID,123-1,EQUALS]},[]]",
+        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,[SearchCriteria.AttributeMatchClause[ATTRIBUTE,PERM_ID,123-1,EQUALS]],[]]",
                 recordedCriterias.get(0).toString());
-        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,[],{SearchSubCriteria[SAMPLE_CONTAINER,"
-                + "SearchCriteria[MATCH_ALL_CLAUSES,{"
-                + "SearchCriteria.AttributeMatchClause[ATTRIBUTE,PERM_ID,123-1,EQUALS]},[]]]}]",
+        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,[],[SearchSubCriteria[SAMPLE_CONTAINER,"
+                + "SearchCriteria[MATCH_ALL_CLAUSES,["
+                + "SearchCriteria.AttributeMatchClause[ATTRIBUTE,PERM_ID,123-1,EQUALS]],[]]]]]",
                 recordedCriterias.get(1).toString());
         assertEquals(2, recordedCriterias.size());
         assertEquals("[Sample[/DB/S3,sample-type-code,properties=?,parents=?,children=?]]",
@@ -631,9 +630,9 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
 
         List<DataSet> dataSets = openbisFacade.listDataSetsForExperiment("abc-1");
 
-        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,[],{SearchSubCriteria[EXPERIMENT," +
-                "SearchCriteria[MATCH_ALL_CLAUSES,{SearchCriteria.AttributeMatchClause[" +
-                "ATTRIBUTE,PERM_ID,abc-1,EQUALS]},[]]]}]",
+        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,[]," +
+                        "[SearchSubCriteria[EXPERIMENT,SearchCriteria[MATCH_ALL_CLAUSES," +
+                        "[SearchCriteria.AttributeMatchClause[ATTRIBUTE,PERM_ID,abc-1,EQUALS]],[]]]]]",
                 criteriaMatcher.recordedObject().toString());
         assertEquals("[DataSet[ds1,e1,<null>,data-set-type,{}]]", dataSets.toString());
     }
@@ -653,9 +652,9 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
 
         List<DataSet> dataSets = openbisFacade.listDataSetsForSample("abc-1");
 
-        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,[],{SearchSubCriteria[SAMPLE,"
-                + "SearchCriteria[MATCH_ALL_CLAUSES,{SearchCriteria.AttributeMatchClause["
-                + "ATTRIBUTE,PERM_ID,abc-1,EQUALS]},[]]]}]", criteriaMatcher.recordedObject()
+        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,[]," +
+                "[SearchSubCriteria[SAMPLE,SearchCriteria[MATCH_ALL_CLAUSES," +
+                "[SearchCriteria.AttributeMatchClause[ATTRIBUTE,PERM_ID,abc-1,EQUALS]],[]]]]]", criteriaMatcher.recordedObject()
                 .toString());
         assertEquals("[DataSet[ds1,e1,<null>,data-set-type,{}]]", dataSets.toString());
     }

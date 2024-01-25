@@ -30,6 +30,7 @@ SXM_ADAPTOR = "ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.adaptor.Na
 DAT_ADAPTOR = "ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.adaptor.NanonisDatAdaptor"
 VERBOSE = True
 
+
 def get_instance(url=None):
     base_url = "http://localhost:8888/openbis"
     if url == None:
@@ -163,14 +164,14 @@ def create_dat_dataset(openbis, folder_path, file_prefix='', sample=None, experi
         color_scale_visibility_x += [imaging.ImagingDataSetControlVisibility(
             "Channel X",
             [channel],
-            [minimum, maximum, step],
+            [str(minimum), str(maximum), str(step)],
             unit
         )]
 
         color_scale_visibility_y += [imaging.ImagingDataSetControlVisibility(
             "Channel Y",
             [channel],
-            [minimum, maximum, step],
+            [str(minimum), str(maximum), str(step)],
             unit
         )]
 
@@ -245,6 +246,25 @@ def export_image(openbis: Openbis, perm_id: str, image_id: int, path_to_download
     }
     imaging_export = imaging.ImagingDataSetExport(export_config)
     imaging_control.single_export_download(perm_id, imaging_export, image_id, path_to_download)
+
+
+def multi_export_images(openbis: Openbis, perm_ids: list[str], image_ids: list[int], preview_ids: list[int],
+                        path_to_download: str, include=None, image_format='original',
+                        archive_format="zip", resolution='original'):
+    if include is None:
+        include = ['image', 'raw data']
+    imaging_control = imaging.ImagingControl(openbis)
+    export_config = {
+        "include": include,
+        "image-format": image_format,
+        "archive-format": archive_format,
+        "resolution": resolution
+    }
+    imaging_multi_exports = []
+    for i in range(len(perm_ids)):
+        imaging_multi_exports += [imaging.ImagingDataSetMultiExport(perm_ids[i], image_ids[i],
+                                                                   preview_ids[i], export_config)]
+    imaging_control.multi_export_download(imaging_multi_exports, path_to_download)
 
 
 def demo_sxm_flow(openbis, file_sxm, permId=None):
@@ -378,6 +398,11 @@ for sxm_file in sxm_files:
 
 demo_dat_flow(o, nanonis_data_folder)
 
-# export_image(o, '20240111103504018-34', 0, '/home/alaskowski/PREMISE')
+# export_image(o, '20240125135841740-40', 0, '/home/alaskowski/PREMISE')
 # export_image(o, '20240111135043750-39', 0, '/home/alaskowski/PREMISE')
+
+# multi_export_images(o, ['20240125135841740-40', '20240125135841740-40'],
+#                     [0, 0],
+#                     [0, 2],
+#                     '/home/alaskowski/PREMISE')
 

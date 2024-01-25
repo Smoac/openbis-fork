@@ -172,7 +172,7 @@ public class ToStringCheck
 
         TableModel o = new TableModel(columns, rows);
 
-        assertEquals(o.toString(), "TableModel[columns={col1,col2},rowCount=1]");
+        assertEquals(o.toString(), "TableModel[columns=[col1, col2],rowCount=1]");
     }
 
     @Test
@@ -228,7 +228,7 @@ public class ToStringCheck
         o.add(new SamplePermId("p1"), new SampleIdentifier("i1"));
         o.remove(new SamplePermId("p2"), new SampleIdentifier("i2"));
         o.set(new SamplePermId("p3"), new SampleIdentifier("i3"));
-        assertEquals(o.toString(), "IdListUpdateValue[added={P1,I1},removed={P2,I2},set={P3,I3}]");
+        assertEquals(o.toString(), "IdListUpdateValue[added=[P1, I1],removed=[P2, I2],set=[P3, I3]]");
     }
 
     @Test
@@ -360,7 +360,7 @@ public class ToStringCheck
         SynchronousOperationExecutionResults o =
                 new SynchronousOperationExecutionResults(Arrays.asList(result1, result2));
         assertEquals(o.toString(),
-                "SynchronousOperationExecutionResults[results={CreateSamplesOperationResult[TEST-PERM-ID-1],CreateExperimentsOperationResult[TEST-PERM-ID-2]}]");
+                "SynchronousOperationExecutionResults[results=[CreateSamplesOperationResult[TEST-PERM-ID-1], CreateExperimentsOperationResult[TEST-PERM-ID-2]]]");
     }
 
     @Test
@@ -437,7 +437,7 @@ public class ToStringCheck
         o.setFileMetadata(Arrays.asList(f));
 
         assertEquals(o.toString(),
-                "FullDataSetCreation[metadataCreation=DataSetCreation[experimentId=TEST-EXPERIMENT-ID,sampleId=<null>,code=test-code],fileMetadata={DataSetFileCreation[path=test-path]}]");
+                "FullDataSetCreation[metadataCreation=DataSetCreation[experimentId=TEST-EXPERIMENT-ID,sampleId=<null>,code=test-code],fileMetadata=[DataSetFileCreation[path=test-path]]]");
     }
 
     @Test

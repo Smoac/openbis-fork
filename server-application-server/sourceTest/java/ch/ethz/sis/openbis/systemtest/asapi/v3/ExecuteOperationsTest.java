@@ -940,7 +940,7 @@ public class ExecuteOperationsTest extends AbstractOperationExecutionTest
         v3api.executeOperations(sessionToken, Arrays.asList(new CreateSpacesOperation(spaceCreation())), o);
 
         assertAccessLog(
-                "execute-operations  OPERATIONS('[CreateSpacesOperation 1 creation(s)]') EXECUTION_OPTIONS('SynchronousOperationExecutionOptions[description=test-description,notification=OperationExecutionEmailNotification[emails={test@email.com}]]')");
+                "execute-operations  OPERATIONS('[CreateSpacesOperation 1 creation(s)]') EXECUTION_OPTIONS('SynchronousOperationExecutionOptions[description=test-description,notification=OperationExecutionEmailNotification[emails=[test@email.com]]]')");
     }
 
     @Test

@@ -564,8 +564,8 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 generalInformationService.searchForSamples(sessionToken, searchCriteria,
                         EnumSet.of(SampleFetchOption.DESCENDANTS));
         Collections.sort(samples, SAMPLE_COMPARATOR);
-        assertEquals("Sample[/CISD/3V-126,DILUTION_PLATE,properties=?,parents=?,children={Sample[/TEST-SPACE/S1,"
-                + "NORMAL,properties=?,parents=?,children=[]]}]", samples.get(1).toString());
+        assertEquals("Sample[/CISD/3V-126,DILUTION_PLATE,properties=?,parents=?," +
+                "children=[Sample[/TEST-SPACE/S1,NORMAL,properties=?,parents=?,children=[]]]]", samples.get(1).toString());
         assertEquals(8, samples.size());
         sessionToken = generalInformationService.tryToAuthenticateForAllServices("test_role", "a");
 
@@ -598,8 +598,8 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 generalInformationService.searchForSamples(sessionToken, searchCriteria,
                         EnumSet.of(SampleFetchOption.DESCENDANTS));
         Collections.sort(samples, SAMPLE_COMPARATOR);
-        assertEquals("Sample[/CISD/3V-126,DILUTION_PLATE,properties=?,parents=?,children={Sample[/TEST-SPACE/S1,"
-                + "NORMAL,properties=?,parents=?,children=[]]}]", samples.get(1).toString());
+        assertEquals("Sample[/CISD/3V-126,DILUTION_PLATE,properties=?,parents=?,children=" +
+                "[Sample[/TEST-SPACE/S1,NORMAL,properties=?,parents=?,children=[]]]]", samples.get(1).toString());
         assertEquals(8, samples.size());
 
         samples =
@@ -2016,11 +2016,10 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 }
             });
 
-        assertEquals("ExperimentType[COMPOUND_HCS,Compound High Content Screening,"
-                + "{PropertyTypeGroup[<null>,{PropertyType[VARCHAR,DESCRIPTION,Description,"
-                + "A Description,mandatory],PropertyType[VARCHAR,COMMENT,Comment,"
-                + "Any other comments,optional],PropertyType[MATERIAL,ANY_MATERIAL,"
-                + "any_material,any_material,optional]}]}]",
+        assertEquals("ExperimentType[COMPOUND_HCS,Compound High Content Screening," +
+                        "[PropertyTypeGroup[<null>,[PropertyType[VARCHAR,DESCRIPTION,Description,A Description,mandatory], " +
+                        "PropertyType[VARCHAR,COMMENT,Comment,Any other comments,optional], " +
+                        "PropertyType[MATERIAL,ANY_MATERIAL,any_material,any_material,optional]]]]]",
                 experimentTypes.get(0).toString());
         assertEquals(3, experimentTypes.size());
     }
@@ -2087,10 +2086,10 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 + "listable=false,showContainer=true,showParents=false,showParentMetaData=false,"
                 + "uniqueSubcodes=false,automaticCodeGeneration=false,codePrefix=S,[]]",
                 pick(types, "WELL").toString());
-        assertEquals("SampleType[DILUTION_PLATE,Dilution Plate,<null>,listable=true,showContainer=false,"
-                + "showParents=true,showParentMetaData=false,uniqueSubcodes=false,"
-                + "automaticCodeGeneration=false,codePrefix=S,{PropertyTypeGroup[<null>,"
-                + "{PropertyType[INTEGER,OFFSET,Offset,Offset from the start of the sequence,optional]}]}]",
+        assertEquals("SampleType[DILUTION_PLATE,Dilution Plate,<null>,listable=true,showContainer=false," +
+                        "showParents=true,showParentMetaData=false,uniqueSubcodes=false,automaticCodeGeneration=false," +
+                        "codePrefix=S,[PropertyTypeGroup[<null>,[PropertyType[INTEGER,OFFSET,Offset," +
+                        "Offset from the start of the sequence,optional]]]]]",
                 pick(types, "DILUTION_PLATE").toString());
         assertEquals(12, types.size());
     }
