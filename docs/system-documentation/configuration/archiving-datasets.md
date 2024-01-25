@@ -66,8 +66,8 @@ policy.grouping-keys = Space#DataSetType, Experiment#Sample:merge
 
 
 In this example the candidates are unarchived data sets which have been
-tag by the user `admin-user` with the tag `archive`. The policy tries to
-find a group of data set with total size between 30 Gb and 150 Gb. It
+tagged by the user `admin-user` with the tag `archive`. The policy tries to
+find a group of data sets with total size between 30 Gb and 150 Gb. It
 first looks for groups where all data sets are of the same type and from
 the same space. If no group is found it tries to find groups where all
 data sets are from the same experiment and sample (data set with no
