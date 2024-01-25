@@ -165,32 +165,43 @@ An **ingress container** acts as reverse proxy and performs Transport Layer Secu
 Easily functional example for server block of Nginx. 
 
 ```
-    server {
-        listen 443 ssl;
-        listen [::]:443 ssl;
-        server_name openbis.domain;
-        root /var/www/html;
+server {
+    listen 443 default_server ssl;
+    listen [::]:443 default_server ssl;
 
-        location /openbis/ {
-          proxy_set_header Host $host;
-          proxy_set_header X-Real-IP $remote_addr;
-          proxy_pass http://openbis:8080;
-        }
+    server_name openbis.domain;
 
-        location /datastore_server/ {
-          proxy_set_header Host $host;
-          proxy_set_header X-Real-IP $remote_addr;
-          proxy_pass http://openbis:8081;
-        }
+    ssl_certificate /etc/nginx/ssl/openbis.domain.pem;
+    ssl_certificate_key /etc/nginx/ssl/openbis.domain.key;
 
-        ssl_certificate /etc/ssl/openbis.domain.pem;
-        ssl_certificate_key /etc/ssl/private/openbis.domain.key;
+    ssl_protocols  TLSv1.1 TLSv1.2 TLSv1.3;
+    ssl_ciphers    HIGH:!aNULL:!MD5;
+    ssl_session_timeout 5m;
+    ssl_session_cache shared:SSL:1m;
 
-        ssl_session_timeout 5m;
-        ssl_session_cache shared:SSL:1m;
-        ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
-        ssl_ciphers HIGH:!aNULL:!MD5:!RC4;
+    proxy_set_header Host $host;
+    proxy_pass_request_headers      on;
+    proxy_set_header X-Forwarded-Port $server_port;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection $http_connection;
+
+    location / {
+        return 301 /openbis/webapp/eln-lims/;
     }
+
+    location /openbis {
+        proxy_pass http://openbis-app:8080;
+        proxy_redirect http://openbis-app:8080/ $scheme://$host/;
+    }
+
+    location /datastore_server {
+        proxy_pass http://openbis-app:8081;
+        proxy_redirect http://openbis-app:8081/ $scheme://$host/;
+    }
+}
 ```
 
 ### HAProxy
@@ -228,11 +239,11 @@ Easily functional example for HAProxy.
 
     backend openbis_as
         option forwardfor
-        server as openbis:8080 check
+        server as openbis-app:8080 check
 
      backend openbis_dss
         option forwardfor
-        server dss openbis:8081 check
+        server dss openbis-app:8081 check
 ```
 
 ### Apache httpd
@@ -262,9 +273,9 @@ Easily functional example for VirtualHost of Apache HTTP Server.
         RewriteRule ^/openbis$ /openbis/ [R,L]
         RewriteRule ^/datastore_server$ /datastore_server/ [R,L]
 
-        ProxyPass /openbis/ http://openbis:8080/openbis/ timeout=600 keepalive=off
-        ProxyPassReverse /openbis/ http://openbis:8080/openbis/
-        ProxyPass /datastore_server/ http://openbis:8081/datastore_server/
-        ProxyPassReverse /datastore_server/ http://openbis:8081/datastore_server/
+        ProxyPass /openbis/ http://openbis-app:8080/openbis/ timeout=600 keepalive=off
+        ProxyPassReverse /openbis/ http://openbis-app:8080/openbis/
+        ProxyPass /datastore_server/ http://openbis-app:8081/datastore_server/
+        ProxyPassReverse /datastore_server/ http://openbis-app:8081/datastore_server/
     </VirtualHost>
 ```
