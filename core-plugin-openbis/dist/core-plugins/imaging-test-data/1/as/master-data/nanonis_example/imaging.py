@@ -158,21 +158,24 @@ class ImagingDataSetExport(AbstractImagingRequest):
 
 class ImagingDataSetMultiExport(AbstractImagingRequest):
     permId: str
-    index: int
+    imageIndex: int
+    previewIndex: int
     config: dict
     metadata: dict
 
-    def __init__(self, permId, index, config, metadata=None):
+    def __init__(self, permId, imageIndex, previewIndex, config, metadata=None):
         self.__dict__["@type"] = "imaging.dto.ImagingDataSetMultiExport"
         self.permId = permId
-        self.index = index
+        self.imageIndex = imageIndex
+        self.previewIndex = previewIndex
         self.config = config
         self.metadata = metadata if metadata is not None else dict()
         self._validate_data()
 
     def _validate_data(self):
         assert self.permId is not None, "PermId can not be null"
-        assert self.index is not None, "Index can not be null"
+        assert self.imageIndex is not None, "imageIndex can not be null"
+        assert self.previewIndex is not None, "previewIndex can not be null"
         assert self.config is not None, "Config can not be null"
         required_keys = {"include", "archive-format", "image-format", "resolution"}
         for key in required_keys:

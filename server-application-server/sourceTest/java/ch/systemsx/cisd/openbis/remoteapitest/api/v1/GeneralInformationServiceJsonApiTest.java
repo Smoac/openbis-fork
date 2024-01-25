@@ -551,11 +551,10 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
                 }
             });
 
-        assertEquals("ExperimentType[COMPOUND_HCS,Compound High Content Screening,"
-                + "{PropertyTypeGroup[<null>,{PropertyType[VARCHAR,DESCRIPTION,Description,"
-                + "A Description,mandatory],PropertyType[VARCHAR,COMMENT,Comment,"
-                + "Any other comments,optional],PropertyType[MATERIAL,ANY_MATERIAL,"
-                + "any_material,any_material,optional]}]}]",
+        assertEquals("ExperimentType[COMPOUND_HCS,Compound High Content Screening," +
+                        "[PropertyTypeGroup[<null>,[PropertyType[VARCHAR,DESCRIPTION,Description," +
+                        "A Description,mandatory], PropertyType[VARCHAR,COMMENT,Comment,Any other comments,optional], " +
+                        "PropertyType[MATERIAL,ANY_MATERIAL,any_material,any_material,optional]]]]]",
                 experimentTypes.get(0).toString());
         assertEquals(3, experimentTypes.size());
     }
@@ -600,11 +599,10 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
                 + "listable=false,showContainer=true,showParents=false,showParentMetaData=false,"
                 + "uniqueSubcodes=false,automaticCodeGeneration=false,codePrefix=S,[]]",
                 pick(types, "WELL").toString());
-        assertEquals("SampleType[DILUTION_PLATE,Dilution Plate,<null>,listable=true,showContainer=false,"
-                + "showParents=true,showParentMetaData=false,uniqueSubcodes=false,"
-                + "automaticCodeGeneration=false,codePrefix=S,{PropertyTypeGroup[<null>,"
-                + "{PropertyType[INTEGER,OFFSET,Offset,Offset from the start of the sequence,"
-                + "optional]}]}]",
+        assertEquals("SampleType[DILUTION_PLATE,Dilution Plate,<null>,listable=true,showContainer=false," +
+                        "showParents=true,showParentMetaData=false,uniqueSubcodes=false,automaticCodeGeneration=false," +
+                        "codePrefix=S,[PropertyTypeGroup[<null>," +
+                        "[PropertyType[INTEGER,OFFSET,Offset,Offset from the start of the sequence,optional]]]]]",
                 pick(types, "DILUTION_PLATE").toString());
         assertEquals(12, types.size());
     }
@@ -826,11 +824,11 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
         List<Vocabulary> vocabularies = generalInformationService.listVocabularies(sessionToken);
 
         final Vocabulary gender = findVocabulary(vocabularies, "GENDER");
-        assertEquals("Vocabulary[GENDER,{VocabularyTerm[MALE,MALE],VocabularyTerm[FEMALE,FEMALE]}]",
+        assertEquals("Vocabulary[GENDER,[VocabularyTerm[MALE,MALE], VocabularyTerm[FEMALE,FEMALE]]]",
                 gender.toString());
         final Vocabulary human = findVocabulary(vocabularies, "HUMAN");
-        assertEquals("Vocabulary[HUMAN,{VocabularyTerm[MAN,MAN],VocabularyTerm[WOMAN,WOMAN],"
-                + "VocabularyTerm[CHILD,CHILD]}]",
+        assertEquals("Vocabulary[HUMAN,[VocabularyTerm[MAN,MAN], VocabularyTerm[WOMAN,WOMAN],"
+                + " VocabularyTerm[CHILD,CHILD]]]",
                 human.toString());
 
         Vocabulary organism = findVocabulary(vocabularies, "ORGANISM");
