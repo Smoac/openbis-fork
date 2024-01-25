@@ -35,7 +35,9 @@ public class ImagingDataSetMultiExport implements Serializable
     @JsonProperty
     private String permId;
     @JsonProperty
-    private int index;
+    private int imageIndex;
+    @JsonProperty
+    private int previewIndex;
 
     @JsonProperty
     @JsonDeserialize(contentUsing = PropertiesDeserializer.class)
@@ -56,13 +58,24 @@ public class ImagingDataSetMultiExport implements Serializable
     }
 
     @JsonIgnore
-    public int getIndex()
+    public int getImageIndex()
     {
-        return index;
+        return imageIndex;
     }
 
-    public void setIndex(int index) {
-        this.index = index;
+    public void setImageIndex(int imageIndex) {
+        this.imageIndex = imageIndex;
+    }
+
+    @JsonIgnore
+    public int getPreviewIndex()
+    {
+        return previewIndex;
+    }
+
+    public void setPreviewIndex(int previewIndex)
+    {
+        this.previewIndex = previewIndex;
     }
 
     @JsonIgnore

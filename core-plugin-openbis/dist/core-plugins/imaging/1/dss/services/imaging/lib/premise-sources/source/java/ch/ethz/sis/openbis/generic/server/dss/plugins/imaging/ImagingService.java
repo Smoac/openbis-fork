@@ -235,13 +235,21 @@ public class ImagingService implements ICustomDSSServiceExecutor
 
                 File rootFile = getRootFile(sessionToken, dataSet);
 
-                final int index = export.getIndex();
-                if (config.getImages().size() <= index)
+                final int imageIndex = export.getImageIndex();
+                if (config.getImages().size() <= imageIndex)
                 {
-                    throw new UserFailureException("There is no image with index:" + index);
+                    throw new UserFailureException("There is no image with index: " + imageIndex);
                 }
 
-                ImagingDataSetImage image = config.getImages().get(index);
+                ImagingDataSetImage image = config.getImages().get(imageIndex);
+
+                final int previewIndex = export.getPreviewIndex();
+                if(image.getPreviews().size() <= previewIndex)
+                {
+                    throw new UserFailureException("There is no preview with index: " + previewIndex);
+                }
+
+                ImagingDataSetPreview preview = image.getPreviews().get(previewIndex);
 
                 Map<String, Serializable> exportConfig = export.getConfig();
                 Validator.validateExportConfig(exportConfig);
@@ -257,7 +265,8 @@ public class ImagingService implements ICustomDSSServiceExecutor
                                 new ImagingServiceContext(sessionToken, getApplicationServerApi(),
                                         getDataStoreServerApi());
                         IImagingDataSetAdaptor adaptor = getAdaptor(config);
-                        archiveImage(context, adaptor, image, index, exportConfig, rootFile, export.getPermId(), archiver);
+                        archivePreview(context, adaptor, image, imageIndex, preview, previewIndex,
+                                exportConfig, rootFile, export.getPermId(), archiver);
                     } else if (exportType.toString().equalsIgnoreCase("raw data"))
                     {
                         archiveRawData(rootFile, export.getPermId(), archiver, dataSet);
@@ -352,24 +361,51 @@ public class ImagingService implements ICustomDSSServiceExecutor
             ImagingDataSetImage image, int imageIdx, Map<String, Serializable> exportConfig,
             File rootFile, String rootFolderName, ImagingArchiver archiver) {
 
-        String imageFormat = exportConfig.get("image-format").toString();
         int previewIdx = 0;
         for(ImagingDataSetPreview preview : image.getPreviews())
         {
-            String format = imageFormat;
-            if(imageFormat.equalsIgnoreCase("original")) {
+            archivePreview(context, adaptor, image, imageIdx, preview, previewIdx, exportConfig,
+                    rootFile, rootFolderName, archiver);
+            previewIdx++;
+        }
+    }
+
+    private void archivePreview(ImagingServiceContext context, IImagingDataSetAdaptor adaptor,
+            ImagingDataSetImage image, int imageIdx, ImagingDataSetPreview preview, int previewIdx,
+            Map<String, Serializable> exportConfig,
+            File rootFile, String rootFolderName, ImagingArchiver archiver) {
+
+        String imageFormat = exportConfig.get("image-format").toString();
+
+        String format = imageFormat;
+        if(imageFormat.equalsIgnoreCase("original")) {
+            format = preview.getFormat();
+        }
+
+        // check for a new "blank" images
+        if(preview.getBytes() != null && !preview.getBytes().trim().isEmpty())
+        {
+            String imgString;
+            Map<String, Serializable> imageConfig = image.getConfig();
+            Map<String, Serializable> previewConfig = preview.getConfig();
+
+            if((imageConfig != null && !imageConfig.isEmpty())
+                    || (previewConfig != null && !previewConfig.isEmpty()))
+            {
+                previewConfig.put("resolution", exportConfig.get("resolution"));
+                Map<String, Serializable> img = adaptor.process(context,
+                        rootFile, format, imageConfig, image.getMetadata(), previewConfig,
+                        preview.getMetadata());
+                imgString = img.get("bytes").toString();
+            } else {
+                // uploaded image case
+                imgString = preview.getBytes();
                 format = preview.getFormat();
             }
-            Map<String, Serializable> params = preview.getConfig();
-            params.put("resolution", exportConfig.get("resolution"));
-            Map<String, Serializable> img = adaptor.process(context,
-                    rootFile, format, image.getConfig(), image.getMetadata(), params, preview.getMetadata());
-            String imgString = img.get("bytes").toString();
             byte[] decoded = Base64.getDecoder().decode(imgString);
             String fileName = "image" + imageIdx +"_preview" + previewIdx + "." + format;
 
             archiver.addToArchive(rootFolderName, fileName, decoded);
-            previewIdx++;
         }
     }
 
