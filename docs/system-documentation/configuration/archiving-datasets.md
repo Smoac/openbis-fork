@@ -8,9 +8,9 @@ Archiving Datasets
 Archiving can be triggered by doing the following steps:
 
 - go to an experiment/collection or an object.
-- switch to the tab "Data Sets". There will be in ther lower right corner the button 'Archiving'.
+- switch to the tab "Data Sets". There will be in the lower right corner the button 'Archiving'.
 - click on the button and choose either 'Copy to Archive' or 'Move to Archive'.
-- if you did not select any data set all data sets will be archived. If you have selected some data sets you can choose if you want to archive only them or all the data sets accessible in the table.
+- if you did not select any data set, all data sets will be archived. If you have selected some data sets you can choose if you want to archive only them or all the data sets accessible in the table.
 
 Because archiving does not happens immediately the status (called 'Archiving Status' in data set tables) of the data sets will be changed to BACKUP\_PENDING or ARCHIVE\_PENDING.
 
@@ -22,22 +22,23 @@ If you want to disallow archiving, choose 'Lock'. Remember that you can do this 
 
 Instead of triggering archiving only requesting archiving is possible.
 The maintenance task [ArchivingByRequestTask](./maintenance-tasks.md#archivingbyrequesttask) is required. It triggers the actual archiving.
+For details on archiving and unarchiving via ELN UI see [archive](../docs/user-documentation/general-users/data-archiving.md)
 
 ## Automatic archiving
 
-Archiving can be automated by the Auto Archiver. This is a [maintenance task](./maintenance-tasks.md) which triggers archiving of data sets fullfulling some conditions (e.g. not accessed since a while). Note that the auto archiver doesn't archives itself. It just automates the selection of data sets to be archived. For all configuration parameters see [AutoArchiverTask](./maintenance-tasks.md#autoarchivertask).
+Archiving can be automated by the Auto Archiver. This is a [maintenance task](./maintenance-tasks.md) which triggers archiving of data sets fullfulling some conditions (e.g. not accessed since a while). Note that the auto archiver does not itself perform archiving. It only automates the selection of data sets to be archived. For all configuration parameters see [AutoArchiverTask](./maintenance-tasks.md#autoarchivertask).
 
 ### Archiving Policies
 
-An archiving policy selects from the unarchived data sets candidates (which are either data sets not accessed since some days or data sets marked by a tag) the data sets to be archived. If not specified all candidates will be archived.
+An archiving policy can be set up to select from all unarchived data sets candidates data sets to be archived. These are either data sets not accessed since some days or data sets marked by a tag. If nothing is specified, all candidates will be archived.
 
-The policy can be specified by `policy.class` property. It has to be the fully-qualified name of a Java class implementing` ch.systemsx.cisd.etlserver.IAutoArchiverPolicy`. All properties starting with `policy.` specifying the policy further.
+The policy can be specified by `policy.class` property. It has to be the fully-qualified name of a Java class implementing` ch.systemsx.cisd.etlserver.IAutoArchiverPolicy`. All properties starting with `policy.` specify the policy further.
 
 #### ch.systemsx.cisd.etlserver.plugins.GroupingPolicy
 
-**Description**: Policy which tries to find a group of data sets with a total size from a specified interval. This is important in case of [Multi Data Set Archiving](../../uncategorized/multi-data-set-archiving.md). Grouping can be defined by space, project, experiment, sample, data set type or a combination of those. Groups can be merged if they are too small. Several grouping keys can be specified.
+**Description**: Policy which tries to find a group of data sets with a total size from a specified interval. This is important in case of [Multi Data Set Archiving](../../uncategorized/multi-data-set-archiving.md). Grouping can be defined by space, project, collection, object, data set type or a combination of those. Groups can be merged if they are too small. Several grouping keys can be specified.
 
-Searching for an appropriate group of data sets for auto archiving is logged. If no group could be found an admin is notified via email (email address specified in `log.xml`). The email contains the searching log.
+Searching for an appropriate group of data sets for auto archiving is logged. If no group could be found an admin is notified via email (email address specified in `log.xml`). The email contains the search log.
 
 **Configuration**:
 
