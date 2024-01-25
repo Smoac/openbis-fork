@@ -1,33 +1,24 @@
 import React from 'react';
-import Grid from "@material-ui/core/Grid";
-import OutlinedBox from "@src/js/components/database/imaging/components/common/OutlinedBox";
-import {
-    CardActionArea, CardActions, CardContent, CardMedia,
-    ImageList,
-    ImageListItem, TextareaAutosize
+import { Grid,
+    Typography,
+    IconButton,
 } from "@material-ui/core";
-import ImagingFacade from "@src/js/components/database/imaging/ImagingFacade";
-import LoadingDialog from "@src/js/components/common/loading/LoadingDialog.jsx";
-import ErrorDialog from "@src/js/components/common/error/ErrorDialog.jsx";
-import Typography from "@material-ui/core/Typography";
-import messages from "@src/js/common/messages";
-import PaperBox from "@src/js/components/database/imaging/components/common/PaperBox";
 import {makeStyles} from "@material-ui/core/styles";
-import CustomSwitch from "@src/js/components/database/imaging/components/common/CustomSwitch.js";
-import Card from "@material-ui/core/Card";
-import constants from "@src/js/components/database/imaging/constants.js"
 import ViewListIcon from '@material-ui/icons/ViewList';
 import GridOnIcon from '@material-ui/icons/GridOn';
-import GalleryPaging
-    from "@src/js/components/database/imaging/components/gallery/GalleryPaging.jsx";
+import OutlinedBox from "@src/js/components/database/imaging/components/common/OutlinedBox.js";
+import ImagingFacade from "@src/js/components/database/imaging/ImagingFacade.js";
+import LoadingDialog from "@src/js/components/common/loading/LoadingDialog.jsx";
+import ErrorDialog from "@src/js/components/common/error/ErrorDialog.jsx";
+import messages from "@src/js/common/messages.js";
+import PaperBox from "@src/js/components/database/imaging/components/common/PaperBox.js";
+import CustomSwitch from "@src/js/components/database/imaging/components/common/CustomSwitch.js";
+import GalleryPaging from "@src/js/components/database/imaging/components/gallery/GalleryPaging.jsx";
 import GridPagingOptions from "@src/js/components/common/grid/GridPagingOptions.js";
-import IconButton from "@material-ui/core/IconButton";
 import Export from "@src/js/components/database/imaging/components/viewer/Exporter.js";
-import Checkbox from "@material-ui/core/Checkbox";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import GalleryFilter
-    from "@src/js/components/database/imaging/components/gallery/GalleryFilter.jsx";
-import {isObjectEmpty} from "@src/js/components/database/imaging/utils";
+import GalleryFilter from "@src/js/components/database/imaging/components/gallery/GalleryFilter.jsx";
+import GalleryGridView from "@src/js/components/database/imaging/components/gallery/GalleryGridView.js";
+import GalleryListView from "@src/js/components/database/imaging/components/gallery/GalleryListView.js";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -37,39 +28,9 @@ const useStyles = makeStyles((theme) => ({
         overflow: 'hidden',
         backgroundColor: theme.palette.background.paper,
     },
-    card: {
-        margin: '5px',
-    },
-    details: {
-        display: 'flex',
-        flexDirection: 'row',
-    },
-    content: {
-        flex: '1 0 auto',
-        alignSelf: 'center',
-    },
-    imageList: {
-        width: '100%',
-        /*height: 800,*/
-    },
-    imageListView: {
-        height: '350px',
-    },
-    paperFullHeight: {
-        height: '90%'
-    },
-    imgFullWidth: {
-        width: '100%',
-        height: 'unset'
-    },
     pageSize: {
         display: 'none'
-    },
-    /*sticky: {
-        position: 'sticky',
-        top: '0px',
-        zIndex: 1
-    },*/
+    }
 }));
 
 const ImagingGalleryViewer = ({objId, extOpenbis, onOpenPreview}) => {
@@ -96,7 +57,7 @@ const ImagingGalleryViewer = ({objId, extOpenbis, onOpenPreview}) => {
         async function loadDataSetTypes() {
             const dataSetTypes = await new ImagingFacade(extOpenbis).loadDataSetTypes();
             dataSetTypes.push({label: 'All Properties', value: messages.get(messages.ALL)});
-            console.log('dataSetTypes: ', dataSetTypes);
+            //console.log('dataSetTypes: ', dataSetTypes);
             setDataSetTypes(dataSetTypes);
         }
 
@@ -112,7 +73,6 @@ const ImagingGalleryViewer = ({objId, extOpenbis, onOpenPreview}) => {
             setPreviewsInfo({previewContainerList, totalCount});
             setIsLoaded(true);
         }
-
         load();
     }, [paging, galleryFilter])
 
@@ -190,7 +150,7 @@ const ImagingGalleryViewer = ({objId, extOpenbis, onOpenPreview}) => {
             value: pageSize
         }))
         return (
-            <PaperBox className={classes.sticky}>
+            <PaperBox>
                 <Typography variant='h6'>
                     Gallery View
                 </Typography>
@@ -262,98 +222,6 @@ const ImagingGalleryViewer = ({objId, extOpenbis, onOpenPreview}) => {
         );
     }
 
-    const renderGallery = (previewContainerList) => {
-        return (
-            <ImageList className={classes.imageList} cols={paging.pageColumns} gap={5}>
-                {previewContainerList.map((previewContainer, idx) => (
-                    <ImageListItem style={{height: 'unset'}} key={`ImageListItem-${idx}`}>
-                        <Card className={classes.card}>
-                            <CardActionArea>
-                                <CardMedia component="img"
-                                           alt={""}
-                                           className={classes.imgFullWidth}
-                                           src={previewContainer.preview.bytes ? `data:image/${previewContainer.preview.format};base64,${previewContainer.preview.bytes}` : constants.BLANK_IMG_SRC}
-                                           onClick={() => onOpenPreview(previewContainer.datasetId)}
-                                />
-                            </CardActionArea>
-                            {selectAll && <CardActions>
-                                <Grid container alignItems={"center"}
-                                      justifyContent={"space-evenly"}>
-                                    <Grid item sx>
-                                        <CustomSwitch
-                                            size="small"
-                                            label="Show"
-                                            labelPlacement="start"
-                                            isChecked={previewContainer.preview.show}
-                                            onChange={() => handleShowPreview(previewContainer)}/>
-                                    </Grid>
-                                    <Grid item sx>
-                                        <FormControlLabel
-                                            value="start"
-                                            control={<Checkbox value={previewContainer.select}
-                                                               onChange={() => handleSelectPreview(idx)}
-                                                               color="primary"/>}
-                                            label="Export"
-                                            labelPlacement="start"/>
-                                    </Grid>
-                                </Grid>
-                            </CardActions>}
-                        </Card>
-                    </ImageListItem>
-                ))}
-            </ImageList>
-        );
-    }
-
-    const renderListView = (previewContainerList) => {
-        return (
-            <ImageList className={classes.imageList} cols={1} gap={5}>
-                {previewContainerList.map((previewContainer, idx) => (
-                    <ImageListItem style={{height: 'unset'}} key={`ImageListItem-${idx}`}>
-                        <Card className={classes.card + ' ' + classes.details} key={'card-' + idx}>
-                            <CardActionArea style={{width: 'unset'}}>
-                                <CardMedia component="img"
-                                           alt={""}
-                                           className={classes.imageListView}
-                                           src={previewContainer.preview.bytes ? `data:image/${previewContainer.preview.format};base64,${previewContainer.preview.bytes}` : constants.BLANK_IMG_SRC}
-                                           onClick={() => onOpenPreview(previewContainer.datasetId)}
-                                />
-                            </CardActionArea>
-                            <CardContent className={classes.content}>
-                                <Typography key={`card-content-metadata-h2-${idx}`} gutterBottom
-                                            variant="h5">
-                                    Metadata - {previewContainer.datasetId}
-                                </Typography>
-                                <Typography key={`card-content-dataset-metadata-p-${idx}`}
-                                            variant="body2" color="textSecondary" component="p">
-                                    {isObjectEmpty(previewContainer.datasetProperties) ?
-                                        <p>No Property to display</p>
-                                        : Object.entries(previewContainer.datasetProperties).map(([key, value]) =>
-                                            <p><strong>{key}:</strong> {value}</p>)
-                                    }
-                                </Typography>
-                                <Typography key={`card-content-metadata-p-${idx}`} variant="body2"
-                                            color="textSecondary" component="p">
-                                    {isObjectEmpty(previewContainer.preview.metadata) ?
-                                        <p>No Preview metadata to display</p>
-                                        : Object.entries(previewContainer.preview.metadata).map(([key, value]) =>
-                                            <p><strong>{key}:</strong> {value}</p>)
-                                    }
-                                </Typography>
-                                <Typography key={`card-content-comments-${idx}`} gutterBottom
-                                            variant="h6">
-                                    Comments:
-                                </Typography>
-                                <TextareaAutosize aria-label="empty textarea"
-                                                  placeholder="TODO: missing comment field in data model"/>
-                            </CardContent>
-                        </Card>
-                    </ImageListItem>
-                ))}
-            </ImageList>
-        );
-    }
-
     const extractCommonExportsConfig = () => {
         const commonConfig = [];
         previewsInfo.previewContainerList.flatMap(previewContainer => previewContainer.exportConfig)
@@ -370,19 +238,20 @@ const ImagingGalleryViewer = ({objId, extOpenbis, onOpenPreview}) => {
     }
 
     if (!isLoaded) return null;
-    if (previewsInfo.previewContainerList.length === 0)
+    if (previewsInfo.previewContainerList.length === 0) {
         return (
-        <>
-            <LoadingDialog loading={open}/>
-            <ErrorDialog open={error.state} error={error.error} onClose={handleErrorCancel}/>
-            {renderControlsBar(true, {})}
-            <Grid container xs={12} justifyContent={"space-evenly"}>
-                <Typography key="no-dataset-comment" gutterBottom variant="h6">
-                    No Datasets to display
-                </Typography>
-            </Grid>
-        </>
-    );
+            <>
+                <LoadingDialog loading={open}/>
+                <ErrorDialog open={error.state} error={error.error} onClose={handleErrorCancel}/>
+                {renderControlsBar(true, {})}
+                <Grid container justifyContent={"space-evenly"}>
+                    <Typography key="no-dataset-comment" gutterBottom variant="h6">
+                        No Datasets to display
+                    </Typography>
+                </Grid>
+            </>
+        );
+    }
     console.log("RENDER.ImagingGalleryViewer - previewsInfo: ", previewsInfo);
     const previewContainerList = showAll ? previewsInfo.previewContainerList : previewsInfo.previewContainerList.filter(previewContainer => previewContainer.preview.show);
     const isExportDisable = !(previewContainerList.filter(previewContainer => previewContainer.select === true).length > 0)
@@ -392,7 +261,14 @@ const ImagingGalleryViewer = ({objId, extOpenbis, onOpenPreview}) => {
             <LoadingDialog loading={open}/>
             <ErrorDialog open={error.state} error={error.error} onClose={handleErrorCancel}/>
             {renderControlsBar(isExportDisable, commonExportConfig)}
-            {gridView ? renderGallery(previewContainerList) : renderListView(previewContainerList)}
+            {gridView ? <GalleryGridView previewContainerList={previewContainerList}
+                                         cols={paging.pageColumns}
+                                         selectAll={selectAll}
+                                         onOpenPreview={onOpenPreview}
+                                         handleShowPreview={handleShowPreview}
+                                         handleSelectPreview={handleSelectPreview} />
+                : <GalleryListView previewContainerList={previewContainerList} onOpenPreview={onOpenPreview} /> }
+
         </>
     );
 }
