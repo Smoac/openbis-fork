@@ -1,10 +1,11 @@
 Authentication Systems
 ======================
 
-Generic openBIS currently supports four authentication systems: a
+openBIS currently supports 3 authentication systems: a
 self-contained system based on a UNIX-like passwd file, LDAP, and Single Sign
-On (e.g., through SWITCHaai). Beside this there are also so called stacked
-authentication methods available. Stacked authentication methods use
+On (e.g., through SWITCHaai). Beside these, there are also so called _stacked
+authentication methods_
+ available. Stacked authentication methods use
 multiple authentication systems in the order indicated by the name. The
 first authentication system being able to provide an entry for a
 particular user id will be used. If you need full control over what
