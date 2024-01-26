@@ -39,12 +39,11 @@ const GalleryListView = ({previewContainerList, onOpenPreview}) => {
     return (
         <ImageList className={classes.imageList} cols={1} gap={5}>
             {previewContainerList.map((previewContainer, idx) => (
-                <ImageListItem style={{height: 'unset'}} key={'image-list-item-'+idx}>
+                <ImageListItem style={{height: 'unset'}} key={'image-list-item-' + idx}>
                     <Card className={classes.card} key={'card-list-item-' + idx}>
                         <CardActionArea style={{width: 'unset'}}>
                             <CardMedia component="img"
                                        alt={""}
-                                       className={classes.imgFixedWidth}
                                        src={previewContainer.preview.bytes ? `data:image/${previewContainer.preview.format};base64,${previewContainer.preview.bytes}` : constants.BLANK_IMG_SRC}
                                        onClick={() => onOpenPreview(previewContainer.datasetId)}
                             />
@@ -53,26 +52,23 @@ const GalleryListView = ({previewContainerList, onOpenPreview}) => {
                             <Typography key={`metadata-datasetid-${idx}`} gutterBottom variant="h5">
                                 Metadata - {previewContainer.datasetId}
                             </Typography>
-                            <Typography key={`dataset-properties-${idx}`} variant="body2" color="textSecondary" component={'span'}>
+                            <Typography key={`dataset-properties-${idx}`} variant="body2"
+                                        color="textSecondary" component={'span'}>
                                 {isObjectEmpty(previewContainer.datasetProperties) ?
                                     <p>No Property to display</p>
                                     : Object.entries(previewContainer.datasetProperties).map(([key, value], pos) =>
-                                        <p key={'property-'+idx+'-'+pos}><strong>{key}:</strong> {value}</p>)
+                                        <p key={'property-' + idx + '-' + pos}>
+                                            <strong>{key}:</strong> {value}</p>)
                                 }
                             </Typography>
-                            <Typography key={`preview-metadata-${idx}`} variant="body2" color="textSecondary" component={'span'}>
+                            <Typography key={`preview-metadata-${idx}`} variant="body2"
+                                        color="textSecondary" component={'span'}>
                                 {isObjectEmpty(previewContainer.preview.metadata) ?
                                     <p>No Preview metadata to display</p>
-                                    : Object.entries(previewContainer.preview.metadata).map(([key, value], pos) => {
-                                        console.log([key, value], pos);
-                                        return (< p
-                                        key = {'metadata-'+idx + '-' + pos} > < strong > {key}
-                                    :</strong>
-                                        {
-                                            JSON.stringify(value)
-                                        }
-                                    </p>)
-                                    })
+                                    : Object.entries(previewContainer.preview.metadata).map(([key, value], pos) =>
+                                        (<p key={'metadata-' + idx + '-' + pos}>
+                                            < strong> {key}:</strong>{JSON.stringify(value)}</p>)
+                                    )
                                 }
                             </Typography>
                             <Typography key={`preview-comments-${idx}`} gutterBottom variant="h6">

@@ -19,8 +19,10 @@ export default class ImagingFacade {
         )
         let dataSetTypesSetMap = new Map()
         result.getObjects().map(dataSetType =>
-            dataSetType.propertyAssignments.map(assignment =>
-                dataSetTypesSetMap.set(assignment.propertyType.label, assignment.propertyType.code)
+            dataSetType.propertyAssignments.map(assignment => {
+                if(assignment.propertyType.code !== constants.IMAGING_DATA_CONFIG)
+                    dataSetTypesSetMap.set(assignment.propertyType.label, assignment.propertyType.code);
+                }
             )
         );
         return Array.from(dataSetTypesSetMap, ([label, code]) => ({ label: label, value: code }))
@@ -175,7 +177,7 @@ export default class ImagingFacade {
             }
         }
 
-        console.log('criteria: ', criteria);
+        //console.log('criteria: ', criteria);
         const fetchOptions = new this.openbis.DataSetFetchOptions();
         fetchOptions.withProperties();
 
@@ -183,7 +185,7 @@ export default class ImagingFacade {
             criteria,
             fetchOptions
         )
-        console.log('searchDataSets: ', dataSets);
+        //console.log('searchDataSets: ', dataSets);
 
         const datasetCodeList = this.fetchDataSetsSortingInfo(dataSets.getObjects());
         const totalCount =  datasetCodeList.length;

@@ -43,7 +43,6 @@ const GalleryGridView = ({previewContainerList, cols, selectAll, onOpenPreview, 
                         <CardActionArea>
                             <CardMedia component="img"
                                        alt={""}
-                                       className={classes.imgFullWidth}
                                        src={previewContainer.preview.bytes ? `data:image/${previewContainer.preview.format};base64,${previewContainer.preview.bytes}` : constants.BLANK_IMG_SRC}
                                        onClick={() => onOpenPreview(previewContainer.datasetId)}
                             />
