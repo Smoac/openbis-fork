@@ -7,4 +7,3 @@ Standalone
    system-requirements
    installation
    starting-and-stopping
-   troubleshooting

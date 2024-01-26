@@ -18,11 +18,11 @@ To make archived data sets available again repeat the steps, but choose 'Unarchi
 
 If you want to disallow archiving, choose 'Lock'. Remember that you can do this only for available data sets. The 'Archiving Status' will change to 'AVAILABLE (LOCKED)'. To make archiving possible again, choose 'Unlock'.
 
+Note that the recommended way is to **not use** the core-UI for archiving, but to use the ELN-LIMS for this, as detailed below.
+
 ### ELN-LIMS
 
-Instead of triggering archiving only requesting archiving is possible.
-The maintenance task [ArchivingByRequestTask](./maintenance-tasks.md#archivingbyrequesttask) is required. It triggers the actual archiving.
-For details on archiving and unarchiving via ELN UI see [archive](../docs/user-documentation/general-users/data-archiving.md)
+Instead of triggering archiving direclty, via the ELN archiving can only be **requested**. The maintenance task [ArchivingByRequestTask](./maintenance-tasks.md#archivingbyrequesttask) is required. It triggers the actual archiving. For details on archiving and unarchiving via ELN UI see [archive](../docs/user-documentation/general-users/data-archiving.md)
 
 ## Automatic archiving
 
@@ -30,7 +30,7 @@ Archiving can be automated by the Auto Archiver. This is a [maintenance task](./
 
 ### Archiving Policies
 
-An archiving policy can be set up to select from all unarchived data sets candidates data sets to be archived. These are either data sets not accessed since some days or data sets marked by a tag. If nothing is specified, all candidates will be archived.
+An archiving policy can be set up to select from all non-archived data sets candidates data sets to be archived. These are either data sets not accessed since some days or data sets marked by a tag. If nothing is specified, all candidates will be archived.
 
 The policy can be specified by `policy.class` property. It has to be the fully-qualified name of a Java class implementing` ch.systemsx.cisd.etlserver.IAutoArchiverPolicy`. All properties starting with `policy.` specify the policy further.
 
