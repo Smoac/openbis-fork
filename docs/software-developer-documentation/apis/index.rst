@@ -8,3 +8,4 @@ APIS
    python-v3-api
    matlab-v3-api
    personal-access-tokens
+   semantic-annotations
