@@ -158,51 +158,29 @@ $ docker volume inspect openbis-app-data openbis-app-etc openbis-app-logs;
 
 ## Ingress
 
-An **ingress container** acts as reverse proxy and performs Transport Layer Security (TLS) termination. Examples below are easily functional. They should be extended to handle complex access control scenarios and to comply with firewall rules. In each of the examples below, the ingress controller configures TLS, and it is configured as a reverse proxy to handle requests to the path `/openbis` (directed to port 8080) and to `/datastore_server` (directed to port 8081).
+An **ingress container** acts as reverse proxy and performs Transport Layer Security (TLS) termination. The examples provided below only cover the base functionality. They should be extended to handle complex access control scenarios and to comply with firewall rules. In each of the examples below, the ingress controller configures TLS, and it is configured as a reverse proxy to handle requests to the path `/openbis` (directed to port 8080) and to `/datastore_server` (directed to port 8081).
 
 ### Nginx
 
-Easily functional example for server block of Nginx. 
+In order to use nginx as an ingress container, it is required to deploy the following files, as provided on our [source-repositories.md](source repository):
+- [https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/945c5cbc1925b9777b7ae05acd6ee61b00e7f2b0/hub/openbis-server/compose/docker-compose-nginx.yml](docker-compose-nginx.yml)
+- [https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/945c5cbc1925b9777b7ae05acd6ee61b00e7f2b0/hub/openbis-server/compose/nginx/my-nginx.conf](nginx config, to be placed in sub-directory `nginx`)
 
-```
-server {
-    listen 443 default_server ssl;
-    listen [::]:443 default_server ssl;
+To run the application, you need to:
+- have docker and docker-compose installed
+- ensure that valid certificate and key files are deployed in the sub-directory `certs`
+- from within the directory where you've deployed the `docker-compose-nginx.yml`, run `docker-compose -f docker-compose-nginx.yml up -d`
 
-    server_name openbis.domain;
+### Apache httpd
 
-    ssl_certificate /etc/nginx/ssl/openbis.domain.pem;
-    ssl_certificate_key /etc/nginx/ssl/openbis.domain.key;
+In order to use apache-httpd as an ingress container, it is required to deploy the following files, as provided on our [source-repositories.md](source repository):
+- [https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/945c5cbc1925b9777b7ae05acd6ee61b00e7f2b0/hub/openbis-server/compose/docker-compose-httpd.yml](docker-compose-httpd.yml)
+- [https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/945c5cbc1925b9777b7ae05acd6ee61b00e7f2b0/hub/openbis-server/compose/httpd/my-httpd.conf](apache-httpd config, to be placed in sub-directory `httpd`)
 
-    ssl_protocols  TLSv1.1 TLSv1.2 TLSv1.3;
-    ssl_ciphers    HIGH:!aNULL:!MD5;
-    ssl_session_timeout 5m;
-    ssl_session_cache shared:SSL:1m;
-
-    proxy_set_header Host $host;
-    proxy_pass_request_headers      on;
-    proxy_set_header X-Forwarded-Port $server_port;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection $http_connection;
-
-    location / {
-        return 301 /openbis/webapp/eln-lims/;
-    }
-
-    location /openbis {
-        proxy_pass http://openbis-app:8080;
-        proxy_redirect http://openbis-app:8080/ $scheme://$host/;
-    }
-
-    location /datastore_server {
-        proxy_pass http://openbis-app:8081;
-        proxy_redirect http://openbis-app:8081/ $scheme://$host/;
-    }
-}
-```
+To run the application, you need to:
+- have docker and docker-compose installed
+- ensure that valid certificate and key files are deployed in the sub-directory `certs`
+- from within the directory where you've deployed the `docker-compose-httpd.yml`, run `docker-compose -f docker-compose-httpd.yml up -d`
 
 ### HAProxy
 
@@ -244,38 +222,4 @@ Easily functional example for HAProxy.
      backend openbis_dss
         option forwardfor
         server dss openbis-app:8081 check
-```
-
-### Apache httpd
-
-Easily functional example for VirtualHost of Apache HTTP Server.
-
-```
-    <VirtualHost _default_:443>
-        ServerName openbis.domain
-        DocumentRoot "/var/www/html"
-
-        SSLEngine on
-        SSLCertificateFile /etc/ssl/openbis.domain.pem
-        SSLCertificateKeyFile /etc/ssl/private/openbis.domain.key
-        SSLProtocol all -SSLv2
-        SSLCipherSuite ALL:!ADH:!EXPORT:!SSLv2:RC4+RSA:+HIGH:+MEDIUM:+LOW
-
-        SSLProxyEngine on
-        SSLProxyCheckPeerCN off
-        SSLProxyCheckPeerExpire off
-        ProxyRequests off
-        ProxyPreserveHost on
-
-        AllowEncodedSlashes on
-
-        RewriteEngine on
-        RewriteRule ^/openbis$ /openbis/ [R,L]
-        RewriteRule ^/datastore_server$ /datastore_server/ [R,L]
-
-        ProxyPass /openbis/ http://openbis-app:8080/openbis/ timeout=600 keepalive=off
-        ProxyPassReverse /openbis/ http://openbis-app:8080/openbis/
-        ProxyPass /datastore_server/ http://openbis-app:8081/datastore_server/
-        ProxyPassReverse /datastore_server/ http://openbis-app:8081/datastore_server/
-    </VirtualHost>
 ```
