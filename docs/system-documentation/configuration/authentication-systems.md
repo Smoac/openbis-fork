@@ -180,8 +180,7 @@ authentication service which does not have `caching` in its name.
 
 ## Anonymous Login
 
-In order to allow anonymous login a certain user known by openBIS (not
-necessarily by the authentication system) has to be specified. This is
+In order to allow anonymous login a certain user known by openBIS has to be specified. This is
 done by the property `user-for-anonymous-login`. The value is the user
 ID. The display settings and the authorization settings of this user are
 used for the anonymous login.
