@@ -6,7 +6,7 @@ define([
     "test-compiled/test-search",
 
     "test/test-freezing",
-    "test/test-get",
+    "test-compiled/test-get",
     "test/test-delete",
     "test/test-execute",
     "test/test-evaluate",
