@@ -5,7 +5,8 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype['@type'] = 'imaging.dto.ImagingDataSetMultiExport';
 		constructor.serialVersionUID = 1;
 		prototype.permId = null;
-        prototype.index = null;
+        prototype.imageIndex = null;
+        prototype.previewIndex = null;
 		prototype.config = null;
 		prototype.metadata = null;
 
@@ -15,11 +16,17 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setPermId = function(permId) {
 			this.permId = permId;
 		};
-		prototype.getIndex = function() {
-            return this.index;
+		prototype.getImageIndex = function() {
+            return this.imageIndex;
         };
-        prototype.setIndex = function(index) {
-            this.index = index;
+        prototype.setImageIndex = function(imageIndex) {
+            this.imageIndex = imageIndex;
+        };
+        prototype.getPreviewIndex = function() {
+            return this.previewIndex;
+        };
+        prototype.setPreviewIndex = function(previewIndex) {
+            this.previewIndex = previewIndex;
         };
 		prototype.getConfig = function() {
 			return this.config;
