@@ -163,8 +163,8 @@ An **ingress container** acts as reverse proxy and performs Transport Layer Secu
 ### Nginx
 
 In order to use nginx as an ingress container, it is required to deploy the following files, as provided on our [source-repositories.md](source repository):
-- [docker-compose-nginx.yml](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/945c5cbc1925b9777b7ae05acd6ee61b00e7f2b0/hub/openbis-server/compose/docker-compose-nginx.yml)
-- [nginx config](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/945c5cbc1925b9777b7ae05acd6ee61b00e7f2b0/hub/openbis-server/compose/nginx/my-nginx.conf), to be placed in sub-directory `nginx`
+- [docker-compose-nginx.yml](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/323eaf03c002bc36cfcc0564687e81724aa1bf2a/hub/openbis-server/compose/docker-compose-nginx.yml)
+- [nginx config](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/323eaf03c002bc36cfcc0564687e81724aa1bf2a/hub/openbis-server/compose/nginx/my-nginx.conf), to be placed in sub-directory `nginx`
 
 To run the application, you need to:
 - have docker and docker-compose installed
@@ -174,8 +174,8 @@ To run the application, you need to:
 ### Apache httpd
 
 In order to use apache-httpd as an ingress container, it is required to deploy the following files, as provided on our [source-repositories.md](source repository):
-- [docker-compose-httpd.yml](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/945c5cbc1925b9777b7ae05acd6ee61b00e7f2b0/hub/openbis-server/compose/docker-compose-httpd.yml)
-- [apache-httpd config](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/945c5cbc1925b9777b7ae05acd6ee61b00e7f2b0/hub/openbis-server/compose/httpd/my-httpd.conf), to be placed in sub-directory `httpd`
+- [docker-compose-httpd.yml](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/323eaf03c002bc36cfcc0564687e81724aa1bf2a/hub/openbis-server/compose/docker-compose-httpd.yml)
+- [apache-httpd config](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/323eaf03c002bc36cfcc0564687e81724aa1bf2a/hub/openbis-server/compose/httpd/my-httpd.conf), to be placed in sub-directory `httpd`
 
 To run the application, you need to:
 - have docker and docker-compose installed
