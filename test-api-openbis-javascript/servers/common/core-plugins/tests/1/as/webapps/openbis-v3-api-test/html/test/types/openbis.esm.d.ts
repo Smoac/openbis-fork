@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-01-29 15:38:52.
+// Generated using typescript-generator version 3.2.1263 on 2024-01-29 16:21:05.
 
 export default openbis;
 
@@ -9173,11 +9173,11 @@ export namespace openbis {
 
         getExportableKind(): ExportableKind;
 
-        getPermId(): ObjectPermId;
+        getPermId(): string;
 
         setExportableKind(arg0: ExportableKind): void;
 
-        setPermId(arg0: ObjectPermId): void;
+        setPermId(arg0: string): void;
     }
 
     /**
@@ -9186,7 +9186,7 @@ export namespace openbis {
 
         new (): ExportablePermId;
 
-        new (arg0: ExportableKind, arg1: ObjectPermId): ExportablePermId;
+        new (arg0: ExportableKind, arg1: string): ExportablePermId;
     }
 
     interface ExternalCodeSearchCriteria extends StringFieldSearchCriteria {

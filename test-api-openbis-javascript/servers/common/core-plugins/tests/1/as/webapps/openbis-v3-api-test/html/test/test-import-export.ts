@@ -178,7 +178,7 @@ exports.default = new Promise((resolve) => {
                 var c = new common(assert, dtos)
 
                 var fAction = function (facade: openbis.openbis) {
-                    var exportablePermId = new dtos.ExportablePermId(dtos.ExportableKind.SAMPLE, new dtos.SamplePermId("200902091225616-1027"))
+                    var exportablePermId = new dtos.ExportablePermId(dtos.ExportableKind.SAMPLE, "200902091225616-1027")
                     var exportData = new dtos.ExportData([exportablePermId], new dtos.AllFields())
 
                     var exportOptions = new dtos.ExportOptions(
