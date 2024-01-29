@@ -30,6 +30,7 @@ import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -58,6 +59,7 @@ import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 public class XLSExportTest
@@ -280,14 +282,38 @@ public class XLSExportTest
         }
     }
 
-//    /**
-//     * Tests export of cells larger than 32k.
-//     */
-//    @Test
-//    public void testLargeCellExport()
-//    {
-//
-//    }
+    /**
+     * Tests export of cells larger than 32k.
+     */
+    @Test
+    public void testLargeCellExport() throws IOException
+    {
+        final Expectations expectations = new SampleLargeCellExpectations(api, false);
+        mockery.checking(expectations);
+
+        final XLSExport.PrepareWorkbookResult actualResult = XLSExport.prepareWorkbook(
+                api, SESSION_TOKEN, List.of(new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0001"))),
+                false, null, XLSExport.TextFormatting.PLAIN, false);
+        assertTrue(actualResult.getScripts().isEmpty());
+        assertTrue(actualResult.getWarnings().isEmpty());
+
+        final InputStream stream = getClass().getClassLoader().getResourceAsStream(
+                "ch/ethz/sis/openbis/generic/server/xls/export/resources/export-sample-large-cell.xlsx");
+        if (stream == null)
+        {
+            throw new IllegalArgumentException("File not found.");
+        }
+        final Workbook expectedResult = new XSSFWorkbook(stream);
+
+        assertWorkbooksEqual(actualResult.getWorkbook(), expectedResult);
+
+        final Map<String, String> valueFiles = actualResult.getValueFiles();
+        assertEquals(valueFiles.size(), 1);
+
+        final Map.Entry<String, String> entry = valueFiles.entrySet().iterator().next();
+        assertEquals(entry.getKey(), "value-M5.txt");
+        assertTrue(entry.getValue().length() > Short.MAX_VALUE);
+    }
 
     public static void assertWorkbooksEqual(final Workbook actual, final Workbook expected)
     {
