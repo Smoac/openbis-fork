@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-01-29 11:05:53.
+// Generated using typescript-generator version 3.2.1263 on 2024-01-29 15:38:52.
 
 export default openbis;
 
@@ -30304,6 +30304,10 @@ SAMPLE : "SAMPLE"} as const
 
     export const openbis:OpenBISJavaScriptFacadeConstructor
 
+    type  = CreateDataSetUploadResult
+
+    type  = OpenBISJavaScriptDSSFacade
+
     type ArchivingStatus = typeof ArchivingStatus[keyof typeof ArchivingStatus]
 
     type Attribute = typeof Attribute[keyof typeof Attribute]
@@ -30384,6 +30388,8 @@ SAMPLE : "SAMPLE"} as const
 
     type as_dto_attachment_id_AttachmentFileName = AttachmentFileName
 
+    type as_dto_attachment_id_IAttachmentId = IAttachmentId
+
     type as_dto_attachment_update_AttachmentListUpdateValue = AttachmentListUpdateValue
 
     type as_dto_authorizationgroup_AuthorizationGroup = AuthorizationGroup
@@ -30410,6 +30416,8 @@ SAMPLE : "SAMPLE"} as const
 
     type as_dto_authorizationgroup_id_AuthorizationGroupPermId = AuthorizationGroupPermId
 
+    type as_dto_authorizationgroup_id_IAuthorizationGroupId = IAuthorizationGroupId
+
     type as_dto_authorizationgroup_search_AuthorizationGroupSearchCriteria = AuthorizationGroupSearchCriteria
 
     type as_dto_authorizationgroup_search_SearchAuthorizationGroupsOperation = SearchAuthorizationGroupsOperation
@@ -30421,6 +30429,8 @@ SAMPLE : "SAMPLE"} as const
     type as_dto_authorizationgroup_update_UpdateAuthorizationGroupsOperation = UpdateAuthorizationGroupsOperation
 
     type as_dto_authorizationgroup_update_UpdateAuthorizationGroupsOperationResult = UpdateAuthorizationGroupsOperationResult
+
+    type as_dto_common_ITableCell = ITableCell
 
     type as_dto_common_Relationship = Relationship
 
@@ -30437,6 +30447,10 @@ SAMPLE : "SAMPLE"} as const
     type as_dto_common_create_CreateObjectsOperation<C extends IObjectCreation> = CreateObjectsOperation<C>
 
     type as_dto_common_create_CreateObjectsOperationResult<ID extends IObjectId> = CreateObjectsOperationResult<ID>
+
+    type as_dto_common_create_ICreation = ICreation
+
+    type as_dto_common_create_IObjectCreation = IObjectCreation
 
     type as_dto_common_delete_DeleteObjectsOperation<ID extends IObjectId,OPTIONS extends AbstractObjectDeletionOptions<OPTIONS>> = DeleteObjectsOperation<ID,OPTIONS>
 
@@ -30488,13 +30502,95 @@ SAMPLE : "SAMPLE"} as const
 
     type as_dto_common_id_CreationId = CreationId
 
+    type as_dto_common_id_IObjectId = IObjectId
+
     type as_dto_common_id_ObjectIdentifier = ObjectIdentifier
 
     type as_dto_common_id_ObjectPermId = ObjectPermId
 
     type as_dto_common_id_ObjectTechId = ObjectTechId
 
+    type as_dto_common_interfaces_IAttachmentsHolder = IAttachmentsHolder
+
+    type as_dto_common_interfaces_ICodeHolder = ICodeHolder
+
+    type as_dto_common_interfaces_ICreationIdHolder = ICreationIdHolder
+
+    type as_dto_common_interfaces_IDataSetCodesHolder = IDataSetCodesHolder
+
+    type as_dto_common_interfaces_IDataSetsHolder = IDataSetsHolder
+
+    type as_dto_common_interfaces_IDescriptionHolder = IDescriptionHolder
+
+    type as_dto_common_interfaces_IEntityType = IEntityType
+
+    type as_dto_common_interfaces_IEntityTypeHolder = IEntityTypeHolder
+
+    type as_dto_common_interfaces_IExperimentHolder = IExperimentHolder
+
+    type as_dto_common_interfaces_IExperimentsHolder = IExperimentsHolder
+
+    type as_dto_common_interfaces_IIdentifierHolder = IIdentifierHolder
+
+    type as_dto_common_interfaces_ILabelHolder = ILabelHolder
+
+    type as_dto_common_interfaces_IMaterialPropertiesHolder = IMaterialPropertiesHolder
+
+    type as_dto_common_interfaces_IMaterialsHolder = IMaterialsHolder
+
+    type as_dto_common_interfaces_IMetaDataUpdateHolder = IMetaDataUpdateHolder
+
+    type as_dto_common_interfaces_IModificationDateHolder = IModificationDateHolder
+
+    type as_dto_common_interfaces_IModifierHolder = IModifierHolder
+
+    type as_dto_common_interfaces_INameHolder = INameHolder
+
+    type as_dto_common_interfaces_IOwnerHolder = IOwnerHolder
+
+    type as_dto_common_interfaces_IParentChildrenHolder<T extends any> = IParentChildrenHolder<T>
+
+    type as_dto_common_interfaces_IPermIdHolder = IPermIdHolder
+
+    type as_dto_common_interfaces_IProjectHolder = IProjectHolder
+
+    type as_dto_common_interfaces_IProjectsHolder = IProjectsHolder
+
+    type as_dto_common_interfaces_IPropertiesHolder = IPropertiesHolder
+
+    type as_dto_common_interfaces_IPropertyAssignmentsHolder = IPropertyAssignmentsHolder
+
+    type as_dto_common_interfaces_IPropertyTypeHolder = IPropertyTypeHolder
+
+    type as_dto_common_interfaces_IRegistrationDateHolder = IRegistrationDateHolder
+
+    type as_dto_common_interfaces_IRegistratorHolder = IRegistratorHolder
+
+    type as_dto_common_interfaces_ISampleHolder = ISampleHolder
+
+    type as_dto_common_interfaces_ISamplesHolder = ISamplesHolder
+
+    type as_dto_common_interfaces_ISemanticAnnotationsHolder = ISemanticAnnotationsHolder
+
+    type as_dto_common_interfaces_ISpaceHolder = ISpaceHolder
+
+    type as_dto_common_interfaces_ITagsHolder = ITagsHolder
+
+    type as_dto_common_interfaces_IValidationPluginHolder = IValidationPluginHolder
+
+    type as_dto_common_operation_IOperation = IOperation
+
+    type as_dto_common_operation_IOperationExecutionError = IOperationExecutionError
+
+    type as_dto_common_operation_IOperationExecutionProgress = IOperationExecutionProgress
+
+    type as_dto_common_operation_IOperationResult = as_dto_common_operation_IOperationResult
+
     type as_dto_common_search_AbstractCompositeSearchCriteria = AbstractCompositeSearchCriteria
+
+    type as_dto_common_search_AbstractDateObjectValue = AbstractDateObjectValue
+
+    type as_dto_common_search_AbstractDateValue = AbstractDateValue
 
     type as_dto_common_search_AbstractEntitySearchCriteria<ID extends IObjectId> = AbstractEntitySearchCriteria<ID>
 
@@ -30506,7 +30602,27 @@ SAMPLE : "SAMPLE"} as const
 
     type as_dto_common_search_AbstractSearchCriteria = AbstractSearchCriteria
 
+    type as_dto_common_search_AbstractStringValue = AbstractStringValue
+
+    type as_dto_common_search_AbstractValue<T extends any> = AbstractValue<T>
+
+    type as_dto_common_search_AnyBooleanPropertySearchCriteria = AnyBooleanPropertySearchCriteria
+
+    type as_dto_common_search_AnyDatePropertySearchCriteria = AnyDatePropertySearchCriteria
+
+    type as_dto_common_search_AnyFieldSearchCriteria = AnyFieldSearchCriteria
+
+    type as_dto_common_search_AnyNumberPropertySearchCriteria = AnyNumberPropertySearchCriteria
+
+    type as_dto_common_search_AnyPropertySearchCriteria = AnyPropertySearchCriteria
+
+    type as_dto_common_search_AnyStringPropertySearchCriteria = AnyStringPropertySearchCriteria
+
     type as_dto_common_search_AnyStringValue = AnyStringValue
+
+    type as_dto_common_search_BooleanFieldSearchCriteria = BooleanFieldSearchCriteria
+
+    type as_dto_common_search_BooleanPropertySearchCriteria = BooleanPropertySearchCriteria
 
     type as_dto_common_search_CodeSearchCriteria = CodeSearchCriteria
 
@@ -30514,11 +30630,15 @@ SAMPLE : "SAMPLE"} as const
 
     type as_dto_common_search_CollectionFieldSearchCriteria<T extends any> = CollectionFieldSearchCriteria<T>
 
+    type as_dto_common_search_ControlledVocabularyPropertySearchCriteria = ControlledVocabularyPropertySearchCriteria
+
     type as_dto_common_search_DateEarlierThanOrEqualToValue = DateEarlierThanOrEqualToValue
 
     type as_dto_common_search_DateEarlierThanValue = DateEarlierThanValue
 
     type as_dto_common_search_DateEqualToValue = DateEqualToValue
+
+    type as_dto_common_search_DateFieldSearchCriteria = DateFieldSearchCriteria
 
     type as_dto_common_search_DateLaterThanOrEqualToValue = DateLaterThanOrEqualToValue
 
@@ -30534,7 +30654,19 @@ SAMPLE : "SAMPLE"} as const
 
     type as_dto_common_search_DateObjectLaterThanValue = DateObjectLaterThanValue
 
+    type as_dto_common_search_DatePropertySearchCriteria = DatePropertySearchCriteria
+
     type as_dto_common_search_DescriptionSearchCriteria = DescriptionSearchCriteria
+
+    type as_dto_common_search_EnumFieldSearchCriteria<T> = EnumFieldSearchCriteria<T>
+
+    type as_dto_common_search_IDate = IDate
+
+    type as_dto_common_search_IDateFormat = IDateFormat
+
+    type as_dto_common_search_ISearchCriteria = ISearchCriteria
+
+    type as_dto_common_search_ITimeZone = ITimeZone
 
     type as_dto_common_search_IdSearchCriteria<T extends IObjectId> = IdSearchCriteria<T>
 
@@ -30544,11 +30676,15 @@ SAMPLE : "SAMPLE"} as const
 
     type as_dto_common_search_LongDateFormat = LongDateFormat
 
+    type as_dto_common_search_ModificationDateSearchCriteria = ModificationDateSearchCriteria
+
     type as_dto_common_search_NameSearchCriteria = NameSearchCriteria
 
     type as_dto_common_search_NormalDateFormat = NormalDateFormat
 
     type as_dto_common_search_NumberEqualToValue = NumberEqualToValue
+
+    type as_dto_common_search_NumberFieldSearchCriteria = NumberFieldSearchCriteria
 
     type as_dto_common_search_NumberGreaterThanOrEqualToValue = NumberGreaterThanOrEqualToValue
 
@@ -30557,6 +30693,8 @@ SAMPLE : "SAMPLE"} as const
     type as_dto_common_search_NumberLessThanOrEqualToValue = NumberLessThanOrEqualToValue
 
     type as_dto_common_search_NumberLessThanValue = NumberLessThanValue
+
+    type as_dto_common_search_NumberPropertySearchCriteria = NumberPropertySearchCriteria
 
     type as_dto_common_search_PermIdSearchCriteria = PermIdSearchCriteria
 
@@ -30578,9 +30716,15 @@ SAMPLE : "SAMPLE"} as const
 
     type as_dto_common_search_ShortDateFormat = ShortDateFormat
 
+    type as_dto_common_search_StrictlyStringPropertySearchCriteria = StrictlyStringPropertySearchCriteria
+
     type as_dto_common_search_StringContainsExactlyValue = StringContainsExactlyValue
 
     type as_dto_common_search_StringContainsValue = StringContainsValue
+
+    type as_dto_common_search_StringEndsWithValue = StringEndsWithValue
+
+    type as_dto_common_search_StringEqualToValue = StringEqualToValue
 
     type as_dto_common_search_StringFieldSearchCriteria = StringFieldSearchCriteria
 
@@ -30594,6 +30738,8 @@ SAMPLE : "SAMPLE"} as const
 
     type as_dto_common_search_StringMatchesValue = StringMatchesValue
 
+    type as_dto_common_search_StringPropertySearchCriteria = StringPropertySearchCriteria
+
     type as_dto_common_search_StringStartsWithValue = StringStartsWithValue
 
     type as_dto_common_search_TechIdSearchCriteria = TechIdSearchCriteria
@@ -30603,6 +30749,10 @@ SAMPLE : "SAMPLE"} as const
     type as_dto_common_search_TimeZone = TimeZone
 
     type as_dto_common_update_FieldUpdateValue<T extends any> = FieldUpdateValue<T>
+
+    type as_dto_common_update_IObjectUpdate<ID extends IObjectId> = IObjectUpdate<ID>
+
+    type as_dto_common_update_IUpdate = IUpdate
 
     type as_dto_common_update_IdListUpdateValue<T extends any> = IdListUpdateValue<T>
 
@@ -30728,6 +30878,16 @@ SAMPLE : "SAMPLE"} as const
 
     type as_dto_dataset_id_FileFormatTypePermId = FileFormatTypePermId
 
+    type as_dto_dataset_id_IContentCopyId = IContentCopyId
+
+    type as_dto_dataset_id_IDataSetId = IDataSetId
+
+    type as_dto_dataset_id_IFileFormatTypeId = IFileFormatTypeId
+
+    type as_dto_dataset_id_ILocatorTypeId = ILocatorTypeId
+
+    type as_dto_dataset_id_IStorageFormatId = IStorageFormatId
+
     type as_dto_dataset_id_LocatorTypePermId = LocatorTypePermId
 
     type as_dto_dataset_id_ProprietaryStorageFormatPermId = ProprietaryStorageFormatPermId
@@ -30741,6 +30901,8 @@ SAMPLE : "SAMPLE"} as const
     type as_dto_dataset_lock_LockDataSetsOperation = LockDataSetsOperation
 
     type as_dto_dataset_lock_LockDataSetsOperationResult = LockDataSetsOperationResult
+
+    type as_dto_dataset_search_AbstractDataSetSearchCriteria<T extends AbstractDataSetSearchCriteria<T>> = AbstractDataSetSearchCriteria<T>
 
     type as_dto_dataset_search_ArchivingRequestedSearchCriteria = ArchivingRequestedSearchCriteria
 
@@ -30761,6 +30923,8 @@ SAMPLE : "SAMPLE"} as const
     type as_dto_dataset_search_DataSetTypeSearchCriteria = DataSetTypeSearchCriteria
 
     type as_dto_dataset_search_ExternalCodeSearchCriteria = ExternalCodeSearchCriteria
+
+    type as_dto_dataset_search_ExternalDmsSearchCriteria = as_dto_dataset_search_ExternalDmsSearchCriteria
 
     type as_dto_dataset_search_FileFormatTypeSearchCriteria = FileFormatTypeSearchCriteria
 
@@ -30838,6 +31002,8 @@ SAMPLE : "SAMPLE"} as const
 
     type as_dto_datastore_id_DataStorePermId = DataStorePermId
 
+    type as_dto_datastore_id_IDataStoreId = IDataStoreId
+
     type as_dto_datastore_search_DataStoreSearchCriteria = DataStoreSearchCriteria
 
     type as_dto_datastore_search_SearchDataStoresOperation = SearchDataStoresOperation
@@ -30862,6 +31028,8 @@ SAMPLE : "SAMPLE"} as const
 
     type as_dto_deletion_id_DeletionTechId = DeletionTechId
 
+    type as_dto_deletion_id_IDeletionId = IDeletionId
+
     type as_dto_deletion_revert_RevertDeletionsOperation = RevertDeletionsOperation
 
     type as_dto_deletion_revert_RevertDeletionsOperationResult = RevertDeletionsOperationResult
@@ -30882,17 +31050,23 @@ SAMPLE : "SAMPLE"} as const
 
     type as_dto_entitytype_EntityKind = typeof as_dto_entitytype_EntityKind[keyof typeof as_dto_entitytype_EntityKind]
 
+    type as_dto_entitytype_create_IEntityTypeCreation = IEntityTypeCreation
+
     type as_dto_entitytype_fetchoptions_EntityTypeFetchOptions = EntityTypeFetchOptions
 
     type as_dto_entitytype_fetchoptions_EntityTypeSortOptions = EntityTypeSortOptions
 
     type as_dto_entitytype_id_EntityTypePermId = EntityTypePermId
 
+    type as_dto_entitytype_id_IEntityTypeId = IEntityTypeId
+
     type as_dto_entitytype_search_AbstractEntityTypeSearchCriteria = AbstractEntityTypeSearchCriteria
 
     type as_dto_entitytype_search_EntityKindSearchCriteria = EntityKindSearchCriteria
 
     type as_dto_entitytype_search_EntityTypeSearchCriteria = EntityTypeSearchCriteria
+
+    type as_dto_entitytype_update_IEntityTypeUpdate = IEntityTypeUpdate
 
     type as_dto_entitytype_update_PropertyAssignmentListUpdateValue = PropertyAssignmentListUpdateValue
 
@@ -30907,6 +31081,8 @@ SAMPLE : "SAMPLE"} as const
     type as_dto_event_fetchoptions_EventSortOptions = EventSortOptions
 
     type as_dto_event_id_EventTechId = EventTechId
+
+    type as_dto_event_id_IEventId = IEventId
 
     type as_dto_event_search_EventDescriptionSearchCriteria = EventDescriptionSearchCriteria
 
@@ -30986,6 +31162,8 @@ SAMPLE : "SAMPLE"} as const
 
     type as_dto_experiment_id_ExperimentPermId = ExperimentPermId
 
+    type as_dto_experiment_id_IExperimentId = IExperimentId
+
     type as_dto_experiment_search_ExperimentSearchCriteria = ExperimentSearchCriteria
 
     type as_dto_experiment_search_ExperimentTypeSearchCriteria = ExperimentTypeSearchCriteria
@@ -31028,6 +31206,8 @@ SAMPLE : "SAMPLE"} as const
 
     type as_dto_exporter_data_ExportablePermId = ExportablePermId
 
+    type as_dto_exporter_data_IExportableFields = IExportableFields
+
     type as_dto_exporter_data_SelectedFields = SelectedFields
 
     type as_dto_exporter_options_ExportFormat = typeof as_dto_exporter_options_ExportFormat[keyof typeof as_dto_exporter_options_ExportFormat]
@@ -31062,7 +31242,11 @@ SAMPLE : "SAMPLE"} as const
 
     type as_dto_externaldms_id_ExternalDmsPermId = ExternalDmsPermId
 
+    type as_dto_externaldms_id_IExternalDmsId = IExternalDmsId
+
     type as_dto_externaldms_search_AddressSearchCriteria = AddressSearchCriteria
+
+    type as_dto_externaldms_search_ExternalDmsSearchCriteria = as_dto_externaldms_search_ExternalDmsSearchCriteria
 
     type as_dto_externaldms_search_ExternalDmsTypeSearchCriteria = ExternalDmsTypeSearchCriteria
 
@@ -31104,6 +31288,8 @@ SAMPLE : "SAMPLE"} as const
 
     type as_dto_history_HistoryEntry = HistoryEntry
 
+    type as_dto_history_IRelationType = IRelationType
+
     type as_dto_history_PropertyHistoryEntry = PropertyHistoryEntry
 
     type as_dto_history_RelationHistoryEntry = RelationHistoryEntry
@@ -31117,6 +31303,8 @@ SAMPLE : "SAMPLE"} as const
     type as_dto_importer_ImportOperation = ImportOperation
 
     type as_dto_importer_ImportOperationResult = ImportOperationResult
+
+    type as_dto_importer_data_IImportData = IImportData
 
     type as_dto_importer_data_ImportFormat = typeof as_dto_importer_data_ImportFormat[keyof typeof as_dto_importer_data_ImportFormat]
 
@@ -31176,6 +31364,8 @@ SAMPLE : "SAMPLE"} as const
 
     type as_dto_material_get_GetMaterialsOperationResult = GetMaterialsOperationResult
 
+    type as_dto_material_id_IMaterialId = IMaterialId
+
     type as_dto_material_id_MaterialPermId = MaterialPermId
 
     type as_dto_material_search_MaterialSearchCriteria = MaterialSearchCriteria
@@ -31228,6 +31418,12 @@ SAMPLE : "SAMPLE"} as const
 
     type as_dto_operation_AsynchronousOperationExecutionResults = AsynchronousOperationExecutionResults
 
+    type as_dto_operation_IOperationExecutionNotification = IOperationExecutionNotification
+
+    type as_dto_operation_IOperationExecutionOptions = IOperationExecutionOptions
+
+    type as_dto_operation_IOperationExecutionResults = IOperationExecutionResults
+
     type as_dto_operation_OperationExecution = OperationExecution
 
     type as_dto_operation_OperationExecutionAvailability = typeof as_dto_operation_OperationExecutionAvailability[keyof typeof as_dto_operation_OperationExecutionAvailability]
@@ -31274,6 +31470,8 @@ SAMPLE : "SAMPLE"} as const
 
     type as_dto_operation_get_GetOperationExecutionsOperationResult = GetOperationExecutionsOperationResult
 
+    type as_dto_operation_id_IOperationExecutionId = IOperationExecutionId
+
     type as_dto_operation_id_OperationExecutionPermId = OperationExecutionPermId
 
     type as_dto_operation_search_OperationExecutionSearchCriteria = OperationExecutionSearchCriteria
@@ -31310,11 +31508,15 @@ SAMPLE : "SAMPLE"} as const
 
     type as_dto_pat_get_GetPersonalAccessTokensOperationResult = GetPersonalAccessTokensOperationResult
 
+    type as_dto_pat_id_IPersonalAccessTokenId = IPersonalAccessTokenId
+
     type as_dto_pat_id_PersonalAccessTokenPermId = PersonalAccessTokenPermId
 
     type as_dto_pat_search_PersonalAccessTokenOwnerSearchCriteria = PersonalAccessTokenOwnerSearchCriteria
 
     type as_dto_pat_search_PersonalAccessTokenSearchCriteria = PersonalAccessTokenSearchCriteria
+
+    type as_dto_pat_search_PersonalAccessTokenSessionNameSearchCriteria = as_dto_pat_search_PersonalAccessTokenSessionNameSearchCriteria
 
     type as_dto_pat_search_SearchPersonalAccessTokensOperation = SearchPersonalAccessTokensOperation
 
@@ -31347,6 +31549,8 @@ SAMPLE : "SAMPLE"} as const
     type as_dto_person_get_GetPersonsOperation = GetPersonsOperation
 
     type as_dto_person_get_GetPersonsOperationResult = GetPersonsOperationResult
+
+    type as_dto_person_id_IPersonId = IPersonId
 
     type as_dto_person_id_Me = Me
 
@@ -31420,6 +31624,8 @@ SAMPLE : "SAMPLE"} as const
 
     type as_dto_plugin_get_GetPluginsOperationResult = GetPluginsOperationResult
 
+    type as_dto_plugin_id_IPluginId = IPluginId
+
     type as_dto_plugin_id_PluginPermId = PluginPermId
 
     type as_dto_plugin_search_PluginKindSearchCriteria = PluginKindSearchCriteria
@@ -31461,6 +31667,8 @@ SAMPLE : "SAMPLE"} as const
     type as_dto_project_get_GetProjectsOperationResult = GetProjectsOperationResult
 
     type as_dto_project_history_ProjectRelationType = typeof as_dto_project_history_ProjectRelationType[keyof typeof as_dto_project_history_ProjectRelationType]
+
+    type as_dto_project_id_IProjectId = IProjectId
 
     type as_dto_project_id_ProjectIdentifier = ProjectIdentifier
 
@@ -31513,6 +31721,10 @@ SAMPLE : "SAMPLE"} as const
     type as_dto_property_get_GetPropertyTypesOperation = GetPropertyTypesOperation
 
     type as_dto_property_get_GetPropertyTypesOperationResult = GetPropertyTypesOperationResult
+
+    type as_dto_property_id_IPropertyAssignmentId = IPropertyAssignmentId
+
+    type as_dto_property_id_IPropertyTypeId = IPropertyTypeId
 
     type as_dto_property_id_PropertyAssignmentPermId = PropertyAssignmentPermId
 
@@ -31582,6 +31794,10 @@ SAMPLE : "SAMPLE"} as const
 
     type as_dto_query_get_GetQueryDatabasesOperationResult = GetQueryDatabasesOperationResult
 
+    type as_dto_query_id_IQueryDatabaseId = IQueryDatabaseId
+
+    type as_dto_query_id_IQueryId = IQueryId
+
     type as_dto_query_id_QueryDatabaseName = QueryDatabaseName
 
     type as_dto_query_id_QueryName = QueryName
@@ -31650,6 +31866,8 @@ SAMPLE : "SAMPLE"} as const
 
     type as_dto_roleassignment_get_GetRoleAssignmentsOperationResult = GetRoleAssignmentsOperationResult
 
+    type as_dto_roleassignment_id_IRoleAssignmentId = IRoleAssignmentId
+
     type as_dto_roleassignment_id_RoleAssignmentTechId = RoleAssignmentTechId
 
     type as_dto_roleassignment_search_RoleAssignmentSearchCriteria = RoleAssignmentSearchCriteria
@@ -31704,9 +31922,13 @@ SAMPLE : "SAMPLE"} as const
 
     type as_dto_sample_history_SampleRelationType = typeof as_dto_sample_history_SampleRelationType[keyof typeof as_dto_sample_history_SampleRelationType]
 
+    type as_dto_sample_id_ISampleId = ISampleId
+
     type as_dto_sample_id_SampleIdentifier = SampleIdentifier
 
     type as_dto_sample_id_SamplePermId = SamplePermId
+
+    type as_dto_sample_search_AbstractSampleSearchCriteria<T extends AbstractSampleSearchCriteria<T>> = AbstractSampleSearchCriteria<T>
 
     type as_dto_sample_search_ListableSampleTypeSearchCriteria = ListableSampleTypeSearchCriteria
 
@@ -31768,6 +31990,8 @@ SAMPLE : "SAMPLE"} as const
 
     type as_dto_semanticannotation_get_GetSemanticAnnotationsOperationResult = GetSemanticAnnotationsOperationResult
 
+    type as_dto_semanticannotation_id_ISemanticAnnotationId = ISemanticAnnotationId
+
     type as_dto_semanticannotation_id_SemanticAnnotationPermId = SemanticAnnotationPermId
 
     type as_dto_semanticannotation_search_DescriptorAccessionIdSearchCriteria = DescriptorAccessionIdSearchCriteria
@@ -31794,6 +32018,8 @@ SAMPLE : "SAMPLE"} as const
 
     type as_dto_semanticannotation_update_UpdateSemanticAnnotationsOperationResult = UpdateSemanticAnnotationsOperationResult
 
+    type as_dto_server_ServerInformation = ServerInformation
+
     type as_dto_service_AggregationService = AggregationService
 
     type as_dto_service_CustomASService = CustomASService
@@ -31809,6 +32035,8 @@ SAMPLE : "SAMPLE"} as const
     type as_dto_service_SearchDomainServiceExecutionResult = SearchDomainServiceExecutionResult
 
     type as_dto_service_SearchDomainServiceSearchOption = SearchDomainServiceSearchOption
+
+    type as_dto_service_execute_AbstractExecutionOptionsWithParameters<EO extends as_dto_service_execute_AbstractExecutionOptionsWithParameters<EO, V>,V extends any> = as_dto_service_execute_AbstractExecutionOptionsWithParameters<EO,V>
 
     type as_dto_service_execute_AggregationServiceExecutionOptions = AggregationServiceExecutionOptions
 
@@ -31862,6 +32090,10 @@ SAMPLE : "SAMPLE"} as const
 
     type as_dto_service_id_DssServicePermId = DssServicePermId
 
+    type as_dto_service_id_ICustomASServiceId = ICustomASServiceId
+
+    type as_dto_service_id_IDssServiceId = IDssServiceId
+
     type as_dto_service_search_AggregationServiceSearchCriteria = AggregationServiceSearchCriteria
 
     type as_dto_service_search_CustomASServiceSearchCriteria = CustomASServiceSearchCriteria
@@ -31902,7 +32134,11 @@ SAMPLE : "SAMPLE"} as const
 
     type as_dto_session_get_GetSessionInformationOperationResult = GetSessionInformationOperationResult
 
+    type as_dto_session_id_ISessionInformationId = ISessionInformationId
+
     type as_dto_session_id_SessionInformationPermId = SessionInformationPermId
+
+    type as_dto_session_search_PersonalAccessTokenSessionNameSearchCriteria = as_dto_session_search_PersonalAccessTokenSessionNameSearchCriteria
 
     type as_dto_session_search_PersonalAccessTokenSessionSearchCriteria = PersonalAccessTokenSessionSearchCriteria
 
@@ -31935,6 +32171,8 @@ SAMPLE : "SAMPLE"} as const
     type as_dto_space_get_GetSpacesOperation = GetSpacesOperation
 
     type as_dto_space_get_GetSpacesOperationResult = GetSpacesOperationResult
+
+    type as_dto_space_id_ISpaceId = ISpaceId
 
     type as_dto_space_id_SpacePermId = SpacePermId
 
@@ -31975,6 +32213,8 @@ SAMPLE : "SAMPLE"} as const
     type as_dto_tag_get_GetTagsOperation = GetTagsOperation
 
     type as_dto_tag_get_GetTagsOperationResult = GetTagsOperationResult
+
+    type as_dto_tag_id_ITagId = ITagId
 
     type as_dto_tag_id_TagCode = TagCode
 
@@ -32038,6 +32278,10 @@ SAMPLE : "SAMPLE"} as const
 
     type as_dto_vocabulary_get_GetVocabularyTermsOperationResult = GetVocabularyTermsOperationResult
 
+    type as_dto_vocabulary_id_IVocabularyId = IVocabularyId
+
+    type as_dto_vocabulary_id_IVocabularyTermId = IVocabularyTermId
+
     type as_dto_vocabulary_id_VocabularyPermId = VocabularyPermId
 
     type as_dto_vocabulary_id_VocabularyTermPermId = VocabularyTermPermId
@@ -32078,6 +32322,8 @@ SAMPLE : "SAMPLE"} as const
 
     type as_dto_webapp_update_WebAppSettingsUpdateValue = WebAppSettingsUpdateValue
 
+    type dss_dto_common_operation_IOperationResult = dss_dto_common_operation_IOperationResult
+
     type dss_dto_dataset_create_FullDataSetCreation = FullDataSetCreation
 
     type dss_dto_dataset_create_UploadedDataSetCreation = UploadedDataSetCreation
@@ -32096,11 +32342,15 @@ SAMPLE : "SAMPLE"} as const
 
     type dss_dto_datasetfile_id_DataSetFilePermId = DataSetFilePermId
 
+    type dss_dto_datasetfile_id_IDataSetFileId = IDataSetFileId
+
     type dss_dto_datasetfile_search_DataSetFileSearchCriteria = DataSetFileSearchCriteria
 
     type dss_dto_service_CustomDSSService = CustomDSSService
 
     type dss_dto_service_CustomDSSServiceExecutionOptions = CustomDSSServiceExecutionOptions
+
+    type dss_dto_service_execute_AbstractExecutionOptionsWithParameters<EO extends dss_dto_service_execute_AbstractExecutionOptionsWithParameters<EO, V>,V extends any> = dss_dto_service_execute_AbstractExecutionOptionsWithParameters<EO,V>
 
     type dss_dto_service_execute_ExecuteCustomDSSServiceOperationResult = ExecuteCustomDSSServiceOperationResult
 
@@ -32109,6 +32359,8 @@ SAMPLE : "SAMPLE"} as const
     type dss_dto_service_fetchoptions_CustomDSSServiceSortOptions = CustomDSSServiceSortOptions
 
     type dss_dto_service_id_CustomDssServiceCode = CustomDssServiceCode
+
+    type dss_dto_service_id_ICustomDSSServiceId = ICustomDSSServiceId
 
     type openbis = OpenBISJavaScriptFacade
 

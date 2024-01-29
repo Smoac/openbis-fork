@@ -130,6 +130,7 @@ export namespace common {
         assertFalse(actual, msg?): void
         assertContains(actual, expected, msg?): void
         assertEqual(actual, expected, msg?): void
+        assertDeepEqual(actual, expected, msg?): void
         assertNotEqual(actual, expected, msg?): void
         assertDate(millis, msg, year, month, day, hour, minute): void
         assertToday(millis, msg?): void

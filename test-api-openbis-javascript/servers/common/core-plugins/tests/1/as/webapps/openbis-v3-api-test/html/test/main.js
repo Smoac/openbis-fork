@@ -18,6 +18,7 @@ define([
     "test-compiled/test-dss-services",
     "test-compiled/test-archive-unarchive",
     "test-compiled/test-import-export",
+    "test-compiled/test-typescript",
 ], function () {
     var testSuites = arguments
     return async function () {
