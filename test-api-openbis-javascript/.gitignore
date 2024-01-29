@@ -1,5 +1,8 @@
 /bin
 /build/
 /.idea/
+/node
+/node_modules
+package-lock.json
 *.iml
 *.eml

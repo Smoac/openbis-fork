@@ -32,6 +32,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.google.common.base.Strings;
 import com.google.common.reflect.TypeToken;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
@@ -73,6 +74,8 @@ public class OpenBISExtension extends Extension
 
     private static TsType resolveType(ProcessingContext processingContext, TsBeanModel bean, Type type)
     {
+        type = convertByteArrayToString(type);
+
         TypeToken<?> typeToken = TypeToken.of(bean.getOrigin()).resolveType(type);
         TypeProcessor.Context context = new TypeProcessor.Context(processingContext.getSymbolTable(), processingContext.getLocalProcessor(), null);
         TsType tsType = context.processType(typeToken.getType()).getTsType();
@@ -85,7 +88,7 @@ public class OpenBISExtension extends Extension
             }
         }
 
-        return tsType;
+        return convertDateToNumber(tsType);
     }
 
     private static List<TsType.GenericVariableType> resolveTypeParameters(ProcessingContext processingContext, TsBeanModel bean,
@@ -120,6 +123,49 @@ public class OpenBISExtension extends Extension
         }
 
         return tsTypeParameters;
+    }
+
+    private static Type convertByteArrayToString(Type type)
+    {
+        if (type instanceof Class<?>)
+        {
+            Class<?> clazz = (Class<?>) type;
+            if (clazz.isArray() && clazz.getComponentType().equals(byte.class))
+            {
+                return String.class;
+            }
+        }
+        return type;
+    }
+
+    private static TsType convertDateToNumber(TsType tsType)
+    {
+        if (TsType.Date.equals(tsType))
+        {
+            return TsType.Number;
+        }
+
+        if (tsType instanceof TsType.BasicArrayType)
+        {
+            TsType elementType = ((TsType.BasicArrayType) tsType).elementType;
+            return new TsType.BasicArrayType(convertDateToNumber(elementType));
+        }
+
+        if (tsType instanceof TsType.GenericReferenceType)
+        {
+            List<TsType> typeArguments = ((TsType.GenericReferenceType) tsType).typeArguments;
+            if (typeArguments != null && !typeArguments.isEmpty())
+            {
+                List<TsType> newTypeArguments = new ArrayList<>();
+                for (TsType typeArgument : typeArguments)
+                {
+                    newTypeArguments.add(convertDateToNumber(typeArgument));
+                }
+                return new TsType.GenericReferenceType(((TsType.GenericReferenceType) tsType).symbol, newTypeArguments);
+            }
+        }
+
+        return tsType;
     }
 
     @Override
@@ -200,12 +246,12 @@ public class OpenBISExtension extends Extension
             for (TsBeanModel tsBean : model.getBeans())
             {
                 JsonObject tsBeanJsonObject = tsBean.getOrigin().getAnnotation(JsonObject.class);
+                TypeScriptObject tsBeanTypeScriptObject = tsBean.getOrigin().getAnnotation(TypeScriptObject.class);
 
-                if (tsBeanJsonObject == null && !tsBean.getOrigin().equals(OpenBISJavaScriptFacade.class) && !tsBean.getOrigin()
-                        .equals(OpenBISJavaScriptDSSFacade.class))
+                if (tsBeanJsonObject == null && tsBeanTypeScriptObject == null)
                 {
-                    logger.info("Skipping bean " + tsBean.getOrigin().getName() + " as it is missing " + JsonObject.class.getSimpleName()
-                            + " annotation.");
+                    logger.info("Skipping bean " + tsBean.getOrigin().getName() + " as it is missing both " + JsonObject.class.getSimpleName()
+                            + " and " + TypeScriptObject.class + " annotations.");
                     continue;
                 }
 
@@ -213,6 +259,16 @@ public class OpenBISExtension extends Extension
                         resolveTypeParameters(processingContext, tsBean, tsBean.getOrigin().getTypeParameters(), true);
                 List<TsType.GenericVariableType> tsBeanTypeParametersWithoutBounds =
                         resolveTypeParameters(processingContext, tsBean, tsBean.getOrigin().getTypeParameters(), false);
+
+                String tsBeanAdditionalName = null;
+
+                if (tsBeanJsonObject != null)
+                {
+                    tsBeanAdditionalName = tsBeanJsonObject.value().replaceAll("\\.", "_");
+                } else
+                {
+                    tsBeanAdditionalName = tsBeanTypeScriptObject.value();
+                }
 
                 List<TsMethodModel> tsBeanMethods = new ArrayList<>();
 
@@ -304,6 +360,26 @@ public class OpenBISExtension extends Extension
                     }
                 }
 
+                /*
+
+                Generate part (if there are constructors):
+
+                    interface XConstructor {
+                        new <T>(p:string): X<T>
+                    }
+
+                    bundle {
+                        ...
+                        X:XConstructor,
+                        a_b_c_X:XConstructor
+                        ...
+                    }
+
+                    export const X:XConstructor
+                    export const a_b_c_X:XConstructor
+
+                 */
+
                 if (!tsConstructors.isEmpty())
                 {
                     String tsConstructorBeanName = tsBean.getName().getSimpleName() + "Constructor";
@@ -322,34 +398,37 @@ public class OpenBISExtension extends Extension
                             new TsHelper(
                                     Collections.singletonList("export const " + tsBean.getName().getSimpleName() + ":" + tsConstructorBeanName)));
 
-                    if (tsBeanJsonObject != null)
+                    if (!Strings.isNullOrEmpty(tsBeanAdditionalName) && !tsBeanAdditionalName.equals(tsBean.getName().getSimpleName()))
                     {
-                        String tsBeanJsonName = tsBeanJsonObject.value().replaceAll("\\.", "_");
+                        tsBundleProperties.add(new TsPropertyModel(tsBeanAdditionalName,
+                                new TsType.ReferenceType(new Symbol(tsConstructorBeanName)), null, true, null));
 
-                        if (!tsBeanJsonName.equals(tsBean.getName().getSimpleName()))
-                        {
-                            tsBundleProperties.add(new TsPropertyModel(tsBeanJsonName,
-                                    new TsType.ReferenceType(new Symbol(tsConstructorBeanName)), null, true, null));
-
-                            tsHelpers.add(new TsHelper(Collections.singletonList("export const " + tsBeanJsonName + ":" + tsConstructorBeanName)));
-
-                            if (tsBeanTypeParametersWithBounds.isEmpty())
-                            {
-                                tsHelpers.add(
-                                        new TsHelper(Collections.singletonList("type " + tsBeanJsonName + " = " + tsBean.getName().getSimpleName())));
-                            } else
-                            {
-                                String tsBeanTypeParametersWithBoundsString =
-                                        tsBeanTypeParametersWithBounds.stream().map(TsType::toString).collect(Collectors.joining(","));
-                                String tsBeanTypeParametersWithoutBoundsString =
-                                        tsBeanTypeParametersWithoutBounds.stream().map(TsType::toString).collect(Collectors.joining(","));
-
-                                tsHelpers.add(new TsHelper(Collections.singletonList(
-                                        "type " + tsBeanJsonName + "<" + tsBeanTypeParametersWithBoundsString + "> = " + tsBean.getName()
-                                                .getSimpleName() + "<" + tsBeanTypeParametersWithoutBoundsString + ">")));
-                            }
-                        }
+                        tsHelpers.add(new TsHelper(Collections.singletonList("export const " + tsBeanAdditionalName + ":" + tsConstructorBeanName)));
                     }
+                }
+
+                /*
+
+                Generate part (with or without generic parameters):
+
+                    type a_b_c_X<T> = X<T>
+
+                 */
+
+                if (tsBeanTypeParametersWithBounds.isEmpty())
+                {
+                    tsHelpers.add(
+                            new TsHelper(Collections.singletonList("type " + tsBeanAdditionalName + " = " + tsBean.getName().getSimpleName())));
+                } else
+                {
+                    String tsBeanTypeParametersWithBoundsString =
+                            tsBeanTypeParametersWithBounds.stream().map(TsType::toString).collect(Collectors.joining(","));
+                    String tsBeanTypeParametersWithoutBoundsString =
+                            tsBeanTypeParametersWithoutBounds.stream().map(TsType::toString).collect(Collectors.joining(","));
+
+                    tsHelpers.add(new TsHelper(Collections.singletonList(
+                            "type " + tsBeanAdditionalName + "<" + tsBeanTypeParametersWithBoundsString + "> = " + tsBean.getName()
+                                    .getSimpleName() + "<" + tsBeanTypeParametersWithoutBoundsString + ">")));
                 }
 
                 tsBeanMethods.sort(Comparator.comparing(TsMethodModel::getName).thenComparing(m -> m.getParameters().size())
@@ -427,13 +506,31 @@ public class OpenBISExtension extends Extension
             for (TsEnumModel tsEnum : model.getOriginalStringEnums())
             {
                 JsonObject tsEnumJsonObject = tsEnum.getOrigin().getAnnotation(JsonObject.class);
+                TypeScriptObject tsEnumTypeScriptObject = tsEnum.getOrigin().getAnnotation(TypeScriptObject.class);
 
-                if (tsEnumJsonObject == null)
+                if (tsEnumJsonObject == null && tsEnumTypeScriptObject == null)
                 {
-                    logger.info("Skipping enum " + tsEnum.getOrigin().getName() + " as it is missing " + JsonObject.class.getSimpleName()
-                            + " annotation.");
+                    logger.info("Skipping enum " + tsEnum.getOrigin().getName() + " as it is missing both " + JsonObject.class.getSimpleName()
+                            + " and " + TypeScriptObject.class + " annotations.");
                     continue;
                 }
+
+                /*
+
+                Generate part:
+
+                    interface XObject {
+                        VALUE1:X,
+                        VALUE2:X
+                    }
+
+                    bundle {
+                        ...
+                        X:XObject,
+                        ...
+                    }
+
+                */
 
                 String tsEnumObjectBeanName = tsEnum.getName().getSimpleName() + "Object";
                 List<TsPropertyModel> tsEnumObjectBeanProperties = new ArrayList<>();
@@ -459,24 +556,59 @@ public class OpenBISExtension extends Extension
                 tsBundleProperties.add(new TsPropertyModel(tsEnum.getName().getSimpleName(),
                         new TsType.ReferenceType(new Symbol(tsEnumObjectBeanName)), null, true, null));
 
+                /*
+
+                Generate part:
+
+                     const X = {
+                        VALUE1 : "VALUE1",
+                        VALUE2 : "VALUE2"
+                     } as const
+
+                     type X = typeof X[keyof typeof X];
+
+                 */
+
                 tsHelpers.add(new TsHelper(
-                        Collections.singletonList("const " + tsEnum.getName().getSimpleName() + " = {\n" + String.join(",\n", tsEnumConstProperties) + "} as const")));
+                        Collections.singletonList(
+                                "const " + tsEnum.getName().getSimpleName() + " = {\n" + String.join(",\n", tsEnumConstProperties) + "} as const")));
                 tsHelpers.add(new TsHelper(Collections.singletonList(
                         "type " + tsEnum.getName().getSimpleName() + " = typeof " + tsEnum.getName().getSimpleName() + "[keyof typeof "
                                 + tsEnum.getName().getSimpleName() + "]")));
 
-                String tsEnumJsonName = tsEnumJsonObject.value().replaceAll("\\.", "_");
+                String tsEnumAdditionalName = tsEnumJsonObject.value().replaceAll("\\.", "_");
 
-                if (!tsEnumJsonName.equals(tsEnum.getName().getSimpleName()))
+                /*
+
+                Generate part:
+
+                     const a_b_c_X = {
+                         VALUE1 : "VALUE1",
+                         VALUE2 : "VALUE2"
+                     } as const
+
+                     type a_b_c_X = typeof a_b_c_X[keyof typeof a_b_c_X];
+
+
+                     bundle {
+                        ...
+                        a_b_c_X:XObject
+                        ...
+                     }
+
+                 */
+
+                if (!tsEnumAdditionalName.equals(tsEnum.getName().getSimpleName()))
                 {
-                    tsBundleProperties.add(new TsPropertyModel(tsEnumJsonName,
+                    tsBundleProperties.add(new TsPropertyModel(tsEnumAdditionalName,
                             new TsType.ReferenceType(new Symbol(tsEnumObjectBeanName)), null, true, null));
 
                     tsHelpers.add(
-                            new TsHelper(Collections.singletonList("const " + tsEnumJsonName + " = {\n" + String.join(",\n", tsEnumConstProperties) + "} as const")));
+                            new TsHelper(Collections.singletonList(
+                                    "const " + tsEnumAdditionalName + " = {\n" + String.join(",\n", tsEnumConstProperties) + "} as const")));
                     tsHelpers.add(new TsHelper(Collections.singletonList(
-                            "type " + tsEnumJsonName + " = typeof " + tsEnumJsonName + "[keyof typeof "
-                                    + tsEnumJsonName + "]")));
+                            "type " + tsEnumAdditionalName + " = typeof " + tsEnumAdditionalName + "[keyof typeof "
+                                    + tsEnumAdditionalName + "]")));
                 }
             }
 

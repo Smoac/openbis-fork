@@ -1,4 +1,4 @@
-package ch.ethz.sis.openbis.generic.typescript;
+package ch.ethz.sis.openbis.generic.typescript.dto;
 
 import java.util.List;
 import java.util.Map;
@@ -250,7 +250,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularySear
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularyTermSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyTermUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyUpdate;
+import ch.ethz.sis.openbis.generic.typescript.TypeScriptMethod;
+import ch.ethz.sis.openbis.generic.typescript.TypeScriptObject;
 
+@TypeScriptObject("openbis")
 public class OpenBISJavaScriptFacade implements IApplicationServerApi
 {
 
@@ -264,7 +267,7 @@ public class OpenBISJavaScriptFacade implements IApplicationServerApi
     }
 
     @TypeScriptMethod(sessionToken = false, async = false)
-    public OpenBISJavaScriptDSSFacade getDataStoreFacade(String dataStoreCode){
+    public OpenBISJavaScriptDSSFacade getDataStoreFacade(String[] dataStoreCodes){
         return null;
     }
 

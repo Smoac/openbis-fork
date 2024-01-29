@@ -1,4 +1,4 @@
-package ch.ethz.sis.openbis.generic.typescript;
+package ch.ethz.sis.openbis.generic.typescript.dto;
 
 import java.io.InputStream;
 import java.util.List;
@@ -17,11 +17,16 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.CustomDSSServiceExecutionOptions;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.id.ICustomDSSServiceId;
+import ch.ethz.sis.openbis.generic.typescript.TypeScriptMethod;
+import ch.ethz.sis.openbis.generic.typescript.TypeScriptObject;
 
+@TypeScriptObject
 public class OpenBISJavaScriptDSSFacade implements IDataStoreServerApi
 {
 
-    private OpenBISJavaScriptDSSFacade(){}
+    private OpenBISJavaScriptDSSFacade()
+    {
+    }
 
     @TypeScriptMethod
     @Override public SearchResult<DataSetFile> searchFiles(final String sessionToken, final DataSetFileSearchCriteria searchCriteria,
@@ -64,7 +69,14 @@ public class OpenBISJavaScriptDSSFacade implements IDataStoreServerApi
     }
 
     @TypeScriptMethod(sessionToken = false)
-    public String uploadFilesWorkspaceDSS(List<Object> files){
+    public String uploadFilesWorkspaceDSS(List<Object> files)
+    {
+        return null;
+    }
+
+    @TypeScriptMethod(sessionToken = false)
+    public CreateDataSetUploadResult createDataSetUpload(String dataSetType)
+    {
         return null;
     }
 
@@ -78,5 +90,24 @@ public class OpenBISJavaScriptDSSFacade implements IDataStoreServerApi
     @Override public int getMinorVersion()
     {
         return 0;
+    }
+
+    @TypeScriptObject
+    public static class CreateDataSetUploadResult
+    {
+        public String getId()
+        {
+            return null;
+        }
+
+        public String getUrl(String folderPath, boolean ignoreFilePath)
+        {
+            return null;
+        }
+
+        public String getDataSetType()
+        {
+            return null;
+        }
     }
 }
