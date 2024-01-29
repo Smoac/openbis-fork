@@ -52,12 +52,7 @@ public class XLSSampleTypeExportHelper extends AbstractXLSEntityTypeExportHelper
     public SampleType getEntityType(final IApplicationServerApi api, final String sessionToken, final String permId)
     {
         final SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
-        fetchOptions.withValidationPlugin().withScript();
-        final PropertyAssignmentFetchOptions propertyAssignmentFetchOptions = fetchOptions.withPropertyAssignments();
-        propertyAssignmentFetchOptions.withPropertyType().withVocabulary();
-        propertyAssignmentFetchOptions.withPropertyType().withSampleType();
-        propertyAssignmentFetchOptions.withPropertyType().withMaterialType();
-        propertyAssignmentFetchOptions.withPlugin().withScript();
+        configureFetchOptions(fetchOptions);
         final Map<IEntityTypeId, SampleType> sampleTypes = api.getSampleTypes(sessionToken,
                 Collections.singletonList(new EntityTypePermId(permId, EntityKind.SAMPLE)), fetchOptions);
 
@@ -65,6 +60,16 @@ public class XLSSampleTypeExportHelper extends AbstractXLSEntityTypeExportHelper
 
         final Iterator<SampleType> iterator = sampleTypes.values().iterator();
         return iterator.hasNext() ? iterator.next() : null;
+    }
+
+    static void configureFetchOptions(final SampleTypeFetchOptions fetchOptions)
+    {
+        fetchOptions.withValidationPlugin().withScript();
+        final PropertyAssignmentFetchOptions propertyAssignmentFetchOptions = fetchOptions.withPropertyAssignments();
+        propertyAssignmentFetchOptions.withPropertyType().withVocabulary();
+        propertyAssignmentFetchOptions.withPropertyType().withSampleType();
+        propertyAssignmentFetchOptions.withPropertyType().withMaterialType();
+        propertyAssignmentFetchOptions.withPlugin().withScript();
     }
 
     @Override

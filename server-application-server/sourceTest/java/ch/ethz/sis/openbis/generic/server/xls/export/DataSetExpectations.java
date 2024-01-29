@@ -54,6 +54,15 @@ class DataSetExpectations extends Expectations
 
     public DataSetExpectations(final IApplicationServerApi api, final boolean exportReferred)
     {
+        if (exportReferred)
+        {
+            allowing(api).getDataSets(with(XLSExportTest.SESSION_TOKEN), with(new CollectionMatcher<>(
+                    List.of(new DataSetPermId("200001010000000-0001")))), with(any(DataSetFetchOptions.class)));
+            allowing(api).getDataSets(with(XLSExportTest.SESSION_TOKEN), with(new CollectionMatcher<>(
+                    List.of(new DataSetPermId("200001010000000-0002")))), with(any(DataSetFetchOptions.class)));
+            allowing(api).getDataSets(with(XLSExportTest.SESSION_TOKEN), with(new CollectionMatcher<>(
+                    List.of(new DataSetPermId("200001010000000-0003")))), with(any(DataSetFetchOptions.class)));
+        }
         allowing(api).getDataSets(with(XLSExportTest.SESSION_TOKEN), with(new CollectionMatcher<>(
                         List.of(new DataSetPermId("200001010000000-0001"),
                                 new DataSetPermId("200001010000000-0002"),

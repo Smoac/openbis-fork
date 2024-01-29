@@ -157,7 +157,7 @@ define([ 'jquery', 'underscore', 'openbis', 'test/openbis-execute-operations', '
 
         var fAction = function(facade) {
           var exportablePermId = new dtos.ExportablePermId(
-            dtos.ExportableKind.SAMPLE, new dtos.SamplePermId("200902091225616-1027"));
+            dtos.ExportableKind.SAMPLE, "200902091225616-1027");
           var exportData = new dtos.ExportData(exportablePermId,
             new dtos.AllFields());
 

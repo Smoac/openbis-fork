@@ -53,6 +53,24 @@ class SampleExpectations extends Expectations
 
     public SampleExpectations(final IApplicationServerApi api, final boolean exportReferred)
     {
+        if (exportReferred)
+        {
+            allowing(api).getSamples(with(XLSExportTest.SESSION_TOKEN),
+                    with(new CollectionMatcher<>(List.of(new SamplePermId("200001010000000-0001")))),
+                    with(any(SampleFetchOptions.class)));
+            allowing(api).getSamples(with(XLSExportTest.SESSION_TOKEN),
+                    with(new CollectionMatcher<>(List.of(new SamplePermId("200001010000000-0002")))),
+                    with(any(SampleFetchOptions.class)));
+            allowing(api).getSamples(with(XLSExportTest.SESSION_TOKEN),
+                    with(new CollectionMatcher<>(List.of(new SamplePermId("200001010000000-0003")))),
+                    with(any(SampleFetchOptions.class)));
+            allowing(api).getSamples(with(XLSExportTest.SESSION_TOKEN),
+                    with(new CollectionMatcher<>(List.of(new SamplePermId("200001010000000-0004")))),
+                    with(any(SampleFetchOptions.class)));
+            allowing(api).getSamples(with(XLSExportTest.SESSION_TOKEN),
+                    with(new CollectionMatcher<>(List.of(new SamplePermId("200001010000000-0005")))),
+                    with(any(SampleFetchOptions.class)));
+        }
         allowing(api).getSamples(with(XLSExportTest.SESSION_TOKEN), with(new CollectionMatcher<>(
                         List.of(
                                 new SamplePermId("200001010000000-0001"), new SamplePermId("200001010000000-0002"),
