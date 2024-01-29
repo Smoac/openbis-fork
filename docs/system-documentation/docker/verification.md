@@ -34,7 +34,7 @@ $ docker exec -it openbis-app pgrep -af DataStoreServer;
 
 Check connectivity to the database.
 ```
-$ docker exec -it openbis-database psql -U openbis openbis_prod -c "select id,user_id,email from persons";
+$ docker exec -it openbis-db psql -U openbis openbis_prod -c "select id,user_id,email from persons";
 Password for user openbis:
  id |  user_id  | email
 ----+-----------+-------

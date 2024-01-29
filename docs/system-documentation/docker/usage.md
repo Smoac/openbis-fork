@@ -5,12 +5,12 @@
 Our recommendation is to run openBIS within a **three-container setup**, in particular when aiming at [running openBIS in production](environments.md#production):
 1) **openbis-ingress**: Runs a reverse HTTP Proxy for managing and securing HTTP requests in between the client and the application.
 2) **openbis-app**: Runs a Java Runtime Environment, including the openBIS Application Server (AS) and openBIS Data Store Server (DSS).
-3) **openbis-database**: Runs a [PostgreSQL](https://www.postgresql.org/about/) database, to handle all data transactions.
+3) **openbis-db**: Runs a [PostgreSQL](https://www.postgresql.org/about/) database, to handle all data transactions.
 
 
 | Container | Image | Port | Description |
 | ----------|------ | ---- | ----------- |
-|`openbis-database`|`postgres15`|`5432/tcp`|PostgreSQL database listens on port 5432 and accepts connection from openbis-app.|
+|`openbis-db`|`postgres15`|`5432/tcp`|PostgreSQL database listens on port 5432 and accepts connection from openbis-app.|
 |`openbis-app`|`openbis-server`|`8080/tcp`|Java Virtual Machine with openBIS Application Server listens on port 8080.| 
 |`openbis-app`|`openbis-server`|`8081/tcp`|Java Virtual Machine with openBIS Data Store Server listens on port 8081.|
 |`openbis-ingress`|`apache2`|`443/tcp`|Apache HTTP server listens on port 443 and is configured as reverse proxy to ports 8080 and 8081.|
@@ -38,7 +38,7 @@ The use of Docker volumes is preferred for **persisting data** generated and uti
 
 | Container | Persistent volume | Mountpoint | Description |
 | --------- | ----------------- | ---------- | ----------- |
-|`openbis-database`|`openbis-database-data`|`/var/lib/postgresql/data`|PostgreSQL database configuration and data directory.|
+|`openbis-db`|`openbis-db-data`|`/var/lib/postgresql/data`|PostgreSQL database configuration and data directory.|
 |`openbis-app`|`openbis-app-data`|`/data`|Application data directory for data store files.| 
 |`openbis-app`|`openbis-app-etc`|`/etc/openbis`|Application configuration files.|
 |`openbis-app`|`openbis-app-logs`|`/var/log/openbis`|Application log files.|
@@ -46,37 +46,37 @@ The use of Docker volumes is preferred for **persisting data** generated and uti
 
 ## Database
 
-The **database container** `openbis-database` provides a relational database through **PostgreSQL server** to guarantee persistence for any data created while running openBIS. This includes user and authorization data, openBIS entities and their metadata, as well as index information about all datasets. It is required to have database superuser privileges.
+The **database container** `openbis-db` provides a relational database through **PostgreSQL server** to guarantee persistence for any data created while running openBIS. This includes user and authorization data, openBIS entities and their metadata, as well as index information about all datasets. It is required to have database superuser privileges.
 
 ```
 $ docker run -d \
-  --name openbis-database \
-  --hostname openbis-database \
+  --name openbis-db \
+  --hostname openbis-db \
   --network openbis-network \
-  -v openbis-database-data:/var/lib/postgresql/data \
+  -v openbis-db-data:/var/lib/postgresql/data \
   -e POSTGRES_PASSWORD=mysecretpassword \
   -e PGDATA=/var/lib/postgresql/data \
   postgres:15;
 ```
 
-The running database container can be inspected to fetch logs. The database has started up successfully when the openbis-database container logs the following message: "database system is ready to accept connections":
+The running database container can be inspected to fetch logs. The database has started up successfully when the openbis-db container logs the following message: "database system is ready to accept connections":
 
 ```
-$ docker logs openbis-database;
+$ docker logs openbis-db;
 2024-01-19 18:37:50.984 UTC [1] LOG:  database system is ready to accept connections
 ```
 
-The volume created (`openbis-database-data`) can be inspected to check the mountpoint where the database data is physically stored.
+The volume created (`openbis-db-data`) can be inspected to check the mountpoint where the database data is physically stored.
 
 ```
-$ docker volume inspect openbis-database-data;
+$ docker volume inspect openbis-db-data;
 [
     {
         "CreatedAt": "2024-01-19T19:37:48+01:00",
         "Driver": "local",
         "Labels": null,
-        "Mountpoint": "/var/lib/docker/volumes/openbis-database-data/_data",
-        "Name": "openbis-database-data",
+        "Mountpoint": "/var/lib/docker/volumes/openbis-db-data/_data",
+        "Name": "openbis-db-data",
         "Options": null,
         "Scope": "local"
     }
@@ -105,7 +105,7 @@ $ docker run --detach \
   -e OPENBIS_DB_ADMIN_USER="postgres" \
   -e OPENBIS_DB_APP_PASS="mysecretpassword" \
   -e OPENBIS_DB_APP_USER="openbis" \
-  -e OPENBIS_DB_HOST="openbis-database" \
+  -e OPENBIS_DB_HOST="openbis-db" \
   -e OPENBIS_ETC="/etc/openbis" \
   -e OPENBIS_HOME="/home/openbis" \
   -e OPENBIS_LOG="/var/log/openbis" \
