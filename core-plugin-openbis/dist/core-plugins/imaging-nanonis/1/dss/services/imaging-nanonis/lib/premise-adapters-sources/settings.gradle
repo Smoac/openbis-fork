@@ -1,0 +1,8 @@
+def includes = [
+// add openbis project names here, if needed
+]
+
+includes.forEach { name ->
+    includeFlat(name)
+    project(":${name}").projectDir = new File("../../../../../../../../../../${name}")
+}
