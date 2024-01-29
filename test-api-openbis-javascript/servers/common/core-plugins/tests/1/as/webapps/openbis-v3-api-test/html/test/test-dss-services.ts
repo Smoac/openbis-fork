@@ -1,21 +1,24 @@
 /**
  * Test searching and executing DSS services.
  */
-import openbis from "./lib/openbis/openbis.esm"
+import jquery from "./types/jquery"
+import underscore from "./types/underscore"
+import common from "./types/common"
+import openbis from "./types/openbis.esm"
 
 exports.default = new Promise((resolve) => {
-    require(["jquery", "underscore", "openbis", "test/openbis-execute-operations", "test/common", "test/dtos"], function (
-        $,
-        _,
-        openbis,
+    require(["jquery", "underscore", "openbis", "test/common", "test/openbis-execute-operations", "test/dtos"], function (
+        $: jquery.JQueryStatic,
+        _: underscore.UnderscoreStatic,
+        openbisRequireJS,
+        common: common.CommonConstructor,
         openbisExecuteOperations,
-        common,
         dtos
     ) {
         var executeModule = function (moduleName: string, facade: openbis.openbis, dtos: openbis.bundle) {
             QUnit.module(moduleName)
 
-            var testAction = function (c, fAction, fCheck) {
+            var testAction = function (c: common.CommonClass, fAction, fCheck) {
                 c.start()
 
                 c.login(facade)
@@ -39,7 +42,7 @@ exports.default = new Promise((resolve) => {
                     })
             }
 
-            var testActionWhichShouldFail = function (c, fAction, errorMessage) {
+            var testActionWhichShouldFail = function (c: common.CommonClass, fAction, errorMessage) {
                 c.start()
 
                 c.login(facade)
@@ -232,7 +235,7 @@ exports.default = new Promise((resolve) => {
                 var dataSetCode
 
                 var fAction = function (facade: openbis.openbis) {
-                    return $.when(c.createDataSet(facade)).then(function (permId) {
+                    return c.createDataSet(facade, "ALIGNMENT").then(function (permId) {
                         dataSetCode = permId.getPermId()
                         var serviceId = new dtos.DssServicePermId("test-reporting-service", new dtos.DataStorePermId("DSS1"))
                         var options = new dtos.ReportingServiceExecutionOptions()
@@ -277,7 +280,7 @@ exports.default = new Promise((resolve) => {
                 var dataSetCode
 
                 var fAction = function (facade: openbis.openbis) {
-                    return $.when(c.createDataSet(facade)).then(function (permId) {
+                    return c.createDataSet(facade, "ALIGNMENT").then(function (permId) {
                         dataSetCode = permId.getPermId()
                         var serviceId = new dtos.DssServicePermId("test-processing-service", new dtos.DataStorePermId("DSS1"))
                         var options = new dtos.ProcessingServiceExecutionOptions()
@@ -305,8 +308,8 @@ exports.default = new Promise((resolve) => {
         }
 
         resolve(function () {
-            executeModule("DSS service tests (RequireJS)", new openbis(), dtos)
-            executeModule("DSS service tests (RequireJS - executeOperations)", new openbisExecuteOperations(new openbis(), dtos), dtos)
+            executeModule("DSS service tests (RequireJS)", new openbisRequireJS(), dtos)
+            executeModule("DSS service tests (RequireJS - executeOperations)", new openbisExecuteOperations(new openbisRequireJS(), dtos), dtos)
             executeModule("DSS service tests (module VAR)", new window.openbis.openbis(), window.openbis)
             executeModule(
                 "DSS service tests (module VAR - executeOperations)",

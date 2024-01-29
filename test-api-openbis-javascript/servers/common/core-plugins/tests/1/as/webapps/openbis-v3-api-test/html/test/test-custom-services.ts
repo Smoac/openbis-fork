@@ -1,21 +1,24 @@
 /**
  * Test searching and executing custom AS services.
  */
-import openbis from "./lib/openbis/openbis.esm"
+import jquery from "./types/jquery"
+import underscore from "./types/underscore"
+import common from "./types/common"
+import openbis from "./types/openbis.esm"
 
 exports.default = new Promise((resolve) => {
-    require(["jquery", "underscore", "openbis", "test/openbis-execute-operations", "test/common", "test/dtos"], function (
-        $,
-        _,
-        openbis,
+    require(["jquery", "underscore", "openbis", "test/common", "test/openbis-execute-operations", "test/dtos"], function (
+        $: jquery.JQueryStatic,
+        _: underscore.UnderscoreStatic,
+        openbisRequireJS,
+        common: common.CommonConstructor,
         openbisExecuteOperations,
-        common,
         dtos
     ) {
         var executeModule = function (moduleName: string, facade: openbis.openbis, dtos: openbis.bundle) {
             QUnit.module(moduleName)
 
-            var testAction = function (c, fAction, fCheck) {
+            var testAction = function (c: common.CommonClass, fAction, fCheck) {
                 c.start()
 
                 c.login(facade)
@@ -76,8 +79,8 @@ exports.default = new Promise((resolve) => {
         }
 
         resolve(function () {
-            executeModule("Custom AS service tests (RequireJS)", new openbis(), dtos)
-            executeModule("Custom AS service tests (RequireJS - executeOperations)", new openbisExecuteOperations(new openbis(), dtos), dtos)
+            executeModule("Custom AS service tests (RequireJS)", new openbisRequireJS(), dtos)
+            executeModule("Custom AS service tests (RequireJS - executeOperations)", new openbisExecuteOperations(new openbisRequireJS(), dtos), dtos)
             executeModule("Custom AS service tests (module VAR)", new window.openbis.openbis(), window.openbis)
             executeModule(
                 "Custom AS service tests (module VAR - executeOperations)",

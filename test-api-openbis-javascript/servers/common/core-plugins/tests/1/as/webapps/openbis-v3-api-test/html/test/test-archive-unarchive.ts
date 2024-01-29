@@ -1,18 +1,21 @@
-import openbis from "./lib/openbis/openbis.esm"
+import jquery from "./types/jquery"
+import underscore from "./types/underscore"
+import common from "./types/common"
+import openbis from "./types/openbis.esm"
 
 exports.default = new Promise((resolve) => {
-    require(["jquery", "underscore", "openbis", "test/openbis-execute-operations", "test/common", "test/dtos"], function (
-        $,
-        _,
-        openbis,
+    require(["jquery", "underscore", "openbis", "test/common", "test/openbis-execute-operations", "test/dtos"], function (
+        $: jquery.JQueryStatic,
+        _: underscore.UnderscoreStatic,
+        openbisRequireJS,
+        common: common.CommonConstructor,
         openbisExecuteOperations,
-        common,
         dtos
     ) {
         var executeModule = function (moduleName: string, facade: openbis.openbis, dtos: openbis.bundle) {
             QUnit.module(moduleName)
 
-            var testAction = function (c, fAction, actionType) {
+            var testAction = function (c: common.CommonClass, fAction, actionType) {
                 c.start()
 
                 c.login(facade)
@@ -33,7 +36,7 @@ exports.default = new Promise((resolve) => {
                 var c = new common(assert, dtos)
 
                 var fAction = function (facade: openbis.openbis) {
-                    return $.when(c.createDataSet(facade), c.createDataSet(facade)).then(function (permId1, permId2) {
+                    return $.when(c.createDataSet(facade, "ALIGNMENT"), c.createDataSet(facade, "UNKNOWN")).then(function (permId1, permId2) {
                         var ids = [permId1, permId2]
                         return facade.archiveDataSets(ids, new dtos.DataSetArchiveOptions())
                     })
@@ -46,7 +49,7 @@ exports.default = new Promise((resolve) => {
                 var c = new common(assert, dtos)
 
                 var fAction = function (facade: openbis.openbis) {
-                    return $.when(c.createDataSet(facade), c.createDataSet(facade)).then(function (permId1, permId2) {
+                    return $.when(c.createDataSet(facade, "ALIGNMENT"), c.createDataSet(facade, "UNKNOWN")).then(function (permId1, permId2) {
                         var ids = [permId1, permId2]
                         return facade.archiveDataSets(ids, new dtos.DataSetArchiveOptions()).then(function () {
                             return facade.unarchiveDataSets(ids, new dtos.DataSetUnarchiveOptions())
@@ -61,7 +64,7 @@ exports.default = new Promise((resolve) => {
                 var c = new common(assert, dtos)
 
                 var fAction = function (facade: openbis.openbis) {
-                    return $.when(c.createDataSet(facade), c.createDataSet(facade)).then(function (permId1, permId2) {
+                    return $.when(c.createDataSet(facade, "ALIGNMENT"), c.createDataSet(facade, "UNKNOWN")).then(function (permId1, permId2) {
                         var ids = [permId1, permId2]
                         return facade.lockDataSets(ids, new dtos.DataSetLockOptions())
                     })
@@ -74,7 +77,7 @@ exports.default = new Promise((resolve) => {
                 var c = new common(assert, dtos)
 
                 var fAction = function (facade: openbis.openbis) {
-                    return $.when(c.createDataSet(facade), c.createDataSet(facade)).then(function (permId1, permId2) {
+                    return $.when(c.createDataSet(facade, "ALIGNMENT"), c.createDataSet(facade, "UNKNOWN")).then(function (permId1, permId2) {
                         var ids = [permId1, permId2]
                         return facade.lockDataSets(ids, new dtos.DataSetLockOptions()).then(function () {
                             return facade.unlockDataSets(ids, new dtos.DataSetUnlockOptions())
@@ -87,8 +90,8 @@ exports.default = new Promise((resolve) => {
         }
 
         resolve(function () {
-            executeModule("Archive/Unarchive (RequireJS)", new openbis(), dtos)
-            executeModule("Archive/Unarchive (RequireJS - executeOperations)", new openbisExecuteOperations(new openbis(), dtos), dtos)
+            executeModule("Archive/Unarchive (RequireJS)", new openbisRequireJS(), dtos)
+            executeModule("Archive/Unarchive (RequireJS - executeOperations)", new openbisExecuteOperations(new openbisRequireJS(), dtos), dtos)
             executeModule("Archive/Unarchive (module VAR)", new window.openbis.openbis(), window.openbis)
             executeModule(
                 "Archive/Unarchive (module VAR - executeOperations)",

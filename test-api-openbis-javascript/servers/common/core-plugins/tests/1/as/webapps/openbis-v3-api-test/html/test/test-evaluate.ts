@@ -1,12 +1,15 @@
-import openbis from "./lib/openbis/openbis.esm"
+import jquery from "./types/jquery"
+import underscore from "./types/underscore"
+import common from "./types/common"
+import openbis from "./types/openbis.esm"
 
 exports.default = new Promise((resolve) => {
-    require(["jquery", "underscore", "openbis", "test/openbis-execute-operations", "test/common", "test/dtos"], function (
-        $,
-        _,
-        openbis,
+    require(["jquery", "underscore", "openbis", "test/common", "test/openbis-execute-operations", "test/dtos"], function (
+        $: jquery.JQueryStatic,
+        _: underscore.UnderscoreStatic,
+        openbisRequireJS,
+        common: common.CommonConstructor,
         openbisExecuteOperations,
-        common,
         dtos
     ) {
         var executeModule = function (moduleName: string, facade: openbis.openbis, dtos: openbis.bundle) {
@@ -23,7 +26,7 @@ exports.default = new Promise((resolve) => {
                         creation.setPluginType(dtos.PluginType.DYNAMIC_PROPERTY)
                         creation.setScript("def calculate():\n  return 'testValue'")
 
-                        return $.when(facade.createPlugins([creation]), c.createSample(facade)).then(function (pluginIds, sampleId) {
+                        return Promise.all([facade.createPlugins([creation]), c.createSample(facade)]).then(function ([pluginIds, sampleId]) {
                             var options = new dtos.DynamicPropertyPluginEvaluationOptions()
                             if (databasePlugin) {
                                 options.setPluginId(pluginIds[0])
@@ -61,7 +64,7 @@ exports.default = new Promise((resolve) => {
                             "def validate(entity, isNew):\n  requestValidation(entity)\n  if isNew:\n    return 'testError'\n  else:\n    return None"
                         )
 
-                        return $.when(facade.createPlugins([creation]), c.createSample(facade)).then(function (pluginIds, sampleId) {
+                        return Promise.all([facade.createPlugins([creation]), c.createSample(facade)]).then(function ([pluginIds, sampleId]) {
                             var options = new dtos.EntityValidationPluginEvaluationOptions()
                             if (databasePlugin) {
                                 options.setPluginId(pluginIds[0])
@@ -71,9 +74,17 @@ exports.default = new Promise((resolve) => {
                             options.setNew(true)
                             options.setObjectId(sampleId)
 
-                            return $.when(facade.evaluatePlugin(options), c.findSample(facade, sampleId)).then(function (result, sample) {
-                                c.assertEqual(result.getError(), "testError", "Evaluation result error")
-                                c.assertObjectsWithValues(result.getRequestedValidations(), "identifier", [sample.getIdentifier().getIdentifier()])
+                            return Promise.all([facade.evaluatePlugin(options), c.findSample(facade, sampleId)]).then(function ([result, sample]) {
+                                c.assertEqual(
+                                    (<openbis.EntityValidationPluginEvaluationResult>result).getError(),
+                                    "testError",
+                                    "Evaluation result error"
+                                )
+                                c.assertObjectsWithValues(
+                                    (<openbis.EntityValidationPluginEvaluationResult>result).getRequestedValidations(),
+                                    "identifier",
+                                    [sample.getIdentifier().getIdentifier()]
+                                )
 
                                 c.finish()
                             })
@@ -103,8 +114,8 @@ exports.default = new Promise((resolve) => {
         }
 
         resolve(function () {
-            executeModule("Evaluate tests (RequireJS)", new openbis(), dtos)
-            executeModule("Evaluate tests (RequireJS - executeOperations)", new openbisExecuteOperations(new openbis(), dtos), dtos)
+            executeModule("Evaluate tests (RequireJS)", new openbisRequireJS(), dtos)
+            executeModule("Evaluate tests (RequireJS - executeOperations)", new openbisExecuteOperations(new openbisRequireJS(), dtos), dtos)
             executeModule("Evaluate tests (module VAR)", new window.openbis.openbis(), window.openbis)
             executeModule(
                 "Evaluate tests (module VAR - executeOperations)",

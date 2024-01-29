@@ -1,18 +1,21 @@
-import openbis from "./lib/openbis/openbis.esm"
+import jquery from "./types/jquery"
+import underscore from "./types/underscore"
+import common from "./types/common"
+import openbis from "./types/openbis.esm"
 
 exports.default = new Promise((resolve) => {
-    require(["jquery", "underscore", "openbis", "test/openbis-execute-operations", "test/common", "test/dtos"], function (
-        $,
-        _,
+    require(["jquery", "underscore", "openbis", "test/common", "test/openbis-execute-operations", "test/dtos"], function (
+        $: jquery.JQueryStatic,
+        _: underscore.UnderscoreStatic,
         openbisRequireJS,
+        common: common.CommonConstructor,
         openbisExecuteOperations,
-        common,
         dtos
     ) {
         var executeModule = function (moduleName: string, facade: openbis.openbis, dtos: openbis.bundle) {
             QUnit.module(moduleName)
 
-            var testCreate = function (c, fCreate, fFind, fCheck) {
+            var testCreate = function (c: common.CommonClass, fCreate, fFind, fCheck) {
                 c.start()
 
                 c.login(facade)

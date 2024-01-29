@@ -15,15 +15,18 @@
  *
  */
 
-import openbis from "./lib/openbis/openbis.esm"
+import jquery from "./types/jquery"
+import underscore from "./types/underscore"
+import common from "./types/common"
+import openbis from "./types/openbis.esm"
 
 exports.default = new Promise((resolve) => {
-    require(["jquery", "underscore", "openbis", "test/openbis-execute-operations", "test/common", "test/dtos"], function (
-        $,
-        _,
-        openbis,
+    require(["jquery", "underscore", "openbis", "test/common", "test/openbis-execute-operations", "test/dtos"], function (
+        $: jquery.JQueryStatic,
+        _: underscore.UnderscoreStatic,
+        openbisRequireJS,
+        common: common.CommonConstructor,
         openbisExecuteOperations,
-        common,
         dtos
     ) {
         var fileContent =
@@ -86,7 +89,7 @@ exports.default = new Promise((resolve) => {
         var executeModule = function (moduleName: string, facade: openbis.openbis, dtos: openbis.bundle) {
             QUnit.module(moduleName)
 
-            var testAction = function (c, fAction, fCheck) {
+            var testAction = function (c: common.CommonClass, fAction, fCheck) {
                 c.start()
 
                 c.login(facade)
@@ -96,7 +99,7 @@ exports.default = new Promise((resolve) => {
                             c.ok("Got results")
                             var checkPromise = fCheck(facade, result)
                             if (checkPromise) {
-                                checkPromise.then(function () {
+                                return checkPromise.then(function () {
                                     c.finish()
                                 })
                             } else {
@@ -200,8 +203,8 @@ exports.default = new Promise((resolve) => {
         }
 
         resolve(function () {
-            executeModule("Export/import tests (RequireJS)", new openbis(), dtos)
-            executeModule("Export/import tests (RequireJS - executeOperations)", new openbisExecuteOperations(new openbis(), dtos), dtos)
+            executeModule("Export/import tests (RequireJS)", new openbisRequireJS(), dtos)
+            executeModule("Export/import tests (RequireJS - executeOperations)", new openbisExecuteOperations(new openbisRequireJS(), dtos), dtos)
             executeModule("Export/import tests (module VAR)", new window.openbis.openbis(), window.openbis)
             executeModule(
                 "Export/import tests (module VAR - executeOperations)",

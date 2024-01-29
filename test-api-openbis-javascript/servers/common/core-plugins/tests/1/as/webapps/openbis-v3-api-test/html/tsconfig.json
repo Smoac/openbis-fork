@@ -4,7 +4,6 @@
         "lib": ["dom", "esnext"],
         "allowJs": true,
         "skipLibCheck": true,
-        "esModuleInterop": true,
         "allowSyntheticDefaultImports": true,
         "strict": false,
         "forceConsistentCasingInFileNames": true,

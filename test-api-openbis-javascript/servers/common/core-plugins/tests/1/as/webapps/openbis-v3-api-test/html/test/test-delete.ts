@@ -1,18 +1,21 @@
-import openbis from "./lib/openbis/openbis.esm"
+import jquery from "./types/jquery"
+import underscore from "./types/underscore"
+import common from "./types/common"
+import openbis from "./types/openbis.esm"
 
 exports.default = new Promise((resolve) => {
-    require(["jquery", "underscore", "openbis", "test/openbis-execute-operations", "test/common", "test/dtos"], function (
-        $,
-        _,
-        openbis,
+    require(["jquery", "underscore", "openbis", "test/common", "test/openbis-execute-operations", "test/dtos"], function (
+        $: jquery.JQueryStatic,
+        _: underscore.UnderscoreStatic,
+        openbisRequireJS,
+        common: common.CommonConstructor,
         openbisExecuteOperations,
-        common,
         dtos
     ) {
         var executeModule = function (moduleName: string, facade: openbis.openbis, dtos: openbis.bundle) {
             QUnit.module(moduleName)
 
-            var testDeleteWithoutTrash = function (c, fCreate, fFind, fDelete) {
+            var testDeleteWithoutTrash = function (c: common.CommonClass, fCreate, fFind, fDelete) {
                 c.start()
 
                 c.login(facade)
@@ -52,7 +55,7 @@ exports.default = new Promise((resolve) => {
                     })
             }
 
-            var testDeleteWithTrashAndRevert = function (c, fCreate, fFind, fDelete) {
+            var testDeleteWithTrashAndRevert = function (c: common.CommonClass, fCreate, fFind, fDelete) {
                 c.start()
 
                 c.login(facade)
@@ -118,7 +121,7 @@ exports.default = new Promise((resolve) => {
                     })
             }
 
-            var testDeleteWithTrashAndConfirm = function (c, fCreate, fFind, fDelete) {
+            var testDeleteWithTrashAndConfirm = function (c: common.CommonClass, fCreate, fFind, fDelete) {
                 c.start()
 
                 c.login(facade)
@@ -204,7 +207,7 @@ exports.default = new Promise((resolve) => {
                             var fo = new dtos.ExperimentFetchOptions()
                             fo.withType()
                             return facade.getExperiments([permId], fo).then(function (map) {
-                                var experiment = map[permId]
+                                var experiment = map[permId.toString()]
                                 return {
                                     permId: permId,
                                     identifier: experiment.getIdentifier(),
@@ -233,7 +236,7 @@ exports.default = new Promise((resolve) => {
                             var fo = new dtos.SampleFetchOptions()
                             fo.withType()
                             return facade.getSamples([permId], fo).then(function (map) {
-                                var sample = map[permId]
+                                var sample = map[permId.toString()]
                                 return {
                                     permId: permId,
                                     identifier: sample.getIdentifier(),
@@ -258,11 +261,11 @@ exports.default = new Promise((resolve) => {
                 testDeleteWithTrashAndRevert(
                     c,
                     function (facade: openbis.openbis) {
-                        return c.createDataSet(facade).then(function (permId) {
+                        return c.createDataSet(facade, "ALIGNMENT").then(function (permId) {
                             var fo = new dtos.DataSetFetchOptions()
                             fo.withType()
                             return facade.getDataSets([permId], fo).then(function (map) {
-                                var dataSet = map[permId]
+                                var dataSet = map[permId.toString()]
                                 return {
                                     permId: permId,
                                     identifier: dataSet.getCode(),
@@ -289,7 +292,7 @@ exports.default = new Promise((resolve) => {
 
                 c.login(facade)
                     .then(function () {
-                        return c.createDataSetType(facade, "DELETION-TEST").then(function (typeId) {
+                        return c.createDataSetType(facade).then(function (typeId) {
                             c.assertNotNull(typeId, "Data set type created")
                             return c.createDataSet(facade, typeId.getPermId()).then(function (permId) {
                                 c.assertNotNull(permId, "Entity was created")
@@ -326,7 +329,7 @@ exports.default = new Promise((resolve) => {
 
                 c.login(facade)
                     .then(function () {
-                        return c.createDataSetType(facade, "DELETION-TEST").then(function (typeId) {
+                        return c.createDataSetType(facade).then(function (typeId) {
                             c.assertNotNull(typeId, "Data set type created")
                             return c.createDataSet(facade, typeId.getPermId()).then(function (permId) {
                                 c.assertNotNull(permId, "Entity was created")
@@ -462,8 +465,8 @@ exports.default = new Promise((resolve) => {
         }
 
         resolve(function () {
-            executeModule("Deletion tests (RequireJS)", new openbis(), dtos)
-            executeModule("Deletion tests (RequireJS - executeOperations)", new openbisExecuteOperations(new openbis(), dtos), dtos)
+            executeModule("Deletion tests (RequireJS)", new openbisRequireJS(), dtos)
+            executeModule("Deletion tests (RequireJS - executeOperations)", new openbisExecuteOperations(new openbisRequireJS(), dtos), dtos)
             executeModule("Deletion tests (module VAR)", new window.openbis.openbis(), window.openbis)
             executeModule(
                 "Deletion tests (module VAR - executeOperations)",

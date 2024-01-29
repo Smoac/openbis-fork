@@ -1,19 +1,22 @@
-import openbis from "./lib/openbis/openbis.esm"
+import jquery from "./types/jquery"
+import underscore from "./types/underscore"
+import common from "./types/common"
+import openbis from "./types/openbis.esm"
 
 exports.default = new Promise((resolve) => {
-    require(["jquery", "underscore", "openbis", "test/openbis-execute-operations", "test/common", "test/dtos", "test/naturalsort"], function (
-        $,
-        _,
-        openbis,
+    require(["jquery", "underscore", "openbis", "test/common", "test/openbis-execute-operations", "test/dtos", "test/naturalsort"], function (
+        $: jquery.JQueryStatic,
+        _: underscore.UnderscoreStatic,
+        openbisRequireJS,
+        common: common.CommonConstructor,
         openbisExecuteOperations,
-        common,
         dtos,
         naturalsort
     ) {
         var executeModule = function (moduleName: string, facade: openbis.openbis, dtos: openbis.bundle) {
             QUnit.module(moduleName)
 
-            var testSearch = function (c, fSearch, fCheck, fCheckError?) {
+            var testSearch = function (c: common.CommonClass, fSearch, fCheck, fCheckError?) {
                 c.start()
 
                 c.login(facade)
@@ -46,14 +49,14 @@ exports.default = new Promise((resolve) => {
                     })
             }
 
-            var testSearchWithPagingAndSortingByAll = function (c, fSearch, fetchOptions) {
+            var testSearchWithPagingAndSortingByAll = function (c: common.CommonClass, fSearch, fetchOptions) {
                 testSearchWithPagingAndSorting(c, fSearch, fetchOptions, "code").then(function () {
                     testSearchWithPagingAndSorting(c, fSearch, fetchOptions, "registrationDate")
                 })
             }
 
             var testSearchWithPagingAndGenericSorting = function (
-                c,
+                c: common.CommonClass,
                 fSearch,
                 fetchOptions,
                 fieldName,
@@ -138,7 +141,7 @@ exports.default = new Promise((resolve) => {
             }
 
             var testSearchWithPagingAndSorting = function (
-                c,
+                c: common.CommonClass,
                 fSearch,
                 fetchOptions,
                 fieldName,
@@ -159,7 +162,7 @@ exports.default = new Promise((resolve) => {
             }
 
             var testSearchWithPagingAndStringSorting = function (
-                c,
+                c: common.CommonClass,
                 fSearch,
                 fetchOptions,
                 fieldName,
@@ -196,10 +199,10 @@ exports.default = new Promise((resolve) => {
                     c.assertEqual(space.getDescription(), null, "Description")
                     c.assertDate(space.getRegistrationDate(), "Registration date", 2013, 4, 12, 12, 59)
                     c.assertEqual(space.getRegistrator().getUserId(), "admin", "Registrator userId")
-                    c.assertObjectsWithCollections(space, function (object) {
+                    c.assertObjectsWithCollections([space], function (object) {
                         return object.getSamples()
                     })
-                    c.assertObjectsWithCollections(space, function (object) {
+                    c.assertObjectsWithCollections([space], function (object) {
                         return object.getProjects()
                     })
                 }
@@ -264,13 +267,13 @@ exports.default = new Promise((resolve) => {
                     c.assertEqual(project.getCode(), "SCREENING-EXAMPLES", "Code")
                     c.assertEqual(project.getDescription(), null, "Description")
                     c.assertDate(project.getRegistrationDate(), "Registration date", 2013, 4, 12, 8, 39)
-                    c.assertObjectsWithCollections(project, function (object) {
+                    c.assertObjectsWithCollections([project], function (object) {
                         return object.getExperiments()
                     })
                     c.assertEqual(project.getSpace().getCode(), "PLATONIC", "Space code")
                     c.assertEqual(project.getRegistrator().getUserId(), "admin", "Registrator userId")
                     c.assertEqual(project.getLeader(), null, "Leader")
-                    c.assertObjectsWithoutCollections(project, function (object) {
+                    c.assertObjectsWithoutCollections([project], function (object) {
                         return object.getAttachments()
                     })
                 }
@@ -2624,7 +2627,7 @@ exports.default = new Promise((resolve) => {
 
                 c.login(facade)
                     .then(function () {
-                        $.when(c.createOperationExecution(facade)).then(function (permId) {
+                        return c.createOperationExecution(facade).then(function (permId) {
                             var fSearch = function (facade: openbis.openbis) {
                                 var criteria = new dtos.OperationExecutionSearchCriteria()
                                 return facade.searchOperationExecutions(criteria, new dtos.OperationExecutionFetchOptions())
@@ -4144,8 +4147,8 @@ exports.default = new Promise((resolve) => {
         }
 
         resolve(function () {
-            executeModule("Search tests (RequireJS)", new openbis(), dtos)
-            executeModule("Search tests (RequireJS - executeOperations)", new openbisExecuteOperations(new openbis(), dtos), dtos)
+            executeModule("Search tests (RequireJS)", new openbisRequireJS(), dtos)
+            executeModule("Search tests (RequireJS - executeOperations)", new openbisExecuteOperations(new openbisRequireJS(), dtos), dtos)
             executeModule("Search tests (module VAR)", new window.openbis.openbis(), window.openbis)
             executeModule(
                 "Search tests (module VAR - executeOperations)",

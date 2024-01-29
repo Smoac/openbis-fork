@@ -1,4 +1,4 @@
-import openbis from "./test/lib/openbis/openbis.esm"
+import openbis from "./test/types/openbis.esm"
 
 declare global {
     interface Window {

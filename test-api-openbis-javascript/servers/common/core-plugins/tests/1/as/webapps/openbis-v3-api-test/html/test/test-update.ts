@@ -1,18 +1,21 @@
-import openbis from "./lib/openbis/openbis.esm"
+import jquery from "./types/jquery"
+import underscore from "./types/underscore"
+import common from "./types/common"
+import openbis from "./types/openbis.esm"
 
 exports.default = new Promise((resolve) => {
-    require(["jquery", "underscore", "openbis", "test/openbis-execute-operations", "test/common", "test/dtos"], function (
-        $,
-        _,
-        openbis,
+    require(["jquery", "underscore", "openbis", "test/common", "test/openbis-execute-operations", "test/dtos"], function (
+        $: jquery.JQueryStatic,
+        _: underscore.UnderscoreStatic,
+        openbisRequireJS,
+        common: common.CommonConstructor,
         openbisExecuteOperations,
-        common,
         dtos
     ) {
         var executeModule = function (moduleName: string, facade: openbis.openbis, dtos: openbis.bundle) {
             QUnit.module(moduleName)
 
-            var testUpdate = function (c, fCreate, fUpdate, fFind, fCheck, fCheckError?) {
+            var testUpdate = function (c: common.CommonClass, fCreate, fUpdate, fFind, fCheck, fCheckError?) {
                 c.start()
 
                 var ctx = {
@@ -280,8 +283,8 @@ exports.default = new Promise((resolve) => {
                     c.assertEqual(experiment.getProject().getCode(), "SCREENING-EXAMPLES", "Project code")
                     c.assertEqual(experiment.getProject().getSpace().getCode(), "PLATONIC", "Space code")
                     var tags = _.sortBy(experiment.getTags(), "code")
-                    c.assertEqual(tags[0].code, "CREATE_ANOTHER_JSON_TAG", "tags")
-                    c.assertEqual(tags[1].code, "CREATE_JSON_TAG", "tags")
+                    c.assertEqual(tags[0].getCode(), "CREATE_ANOTHER_JSON_TAG", "tags")
+                    c.assertEqual(tags[1].getCode(), "CREATE_JSON_TAG", "tags")
                     c.assertEqual(tags.length, 2, "Number of tags")
                     var attachments = experiment.getAttachments()
                     c.assertEqual(attachments[0].getFileName(), "test_file", "Attachment file name")
@@ -989,7 +992,7 @@ exports.default = new Promise((resolve) => {
                 var code = null
 
                 var fCreate = function (facade: openbis.openbis) {
-                    return c.createDataSet(facade).then(function (permId) {
+                    return c.createDataSet(facade, "ALIGNMENT").then(function (permId) {
                         code = permId.getPermId()
                         return [permId]
                     })
@@ -1882,8 +1885,8 @@ exports.default = new Promise((resolve) => {
         }
 
         resolve(function () {
-            executeModule("Update tests (RequireJS)", new openbis(), dtos)
-            executeModule("Update tests (RequireJS - executeOperations)", new openbisExecuteOperations(new openbis(), dtos), dtos)
+            executeModule("Update tests (RequireJS)", new openbisRequireJS(), dtos)
+            executeModule("Update tests (RequireJS - executeOperations)", new openbisExecuteOperations(new openbisRequireJS(), dtos), dtos)
             executeModule("Update tests (module VAR)", new window.openbis.openbis(), window.openbis)
             executeModule(
                 "Update tests (module VAR - executeOperations)",

@@ -707,15 +707,18 @@ define([], function() {
 			return facade.getDataStoreFacade.apply(facade, arguments);
 		}
 
-		this.executeImport = function(importData, importOptions) {
-			return this._executeOperation(new dtos.ImportOperation(importData, importOptions));
-		}
+        this.executeImport = function (importData, importOptions) {
+            return this._executeOperation(new dtos.ImportOperation(importData, importOptions)).then(function (results) {
+                return results.getResults()[0]
+            })
+        }
 
-		this.executeExport = function(exportData, exportOptions) {
-			return this._executeOperation(new dtos.ExportOperation(exportData, exportOptions));
-		}
-
-	}
+        this.executeExport = function (exportData, exportOptions) {
+            return this._executeOperation(new dtos.ExportOperation(exportData, exportOptions)).then(function (results) {
+                return results.getResults()[0].getExportResult()
+            })
+        }
+    }
 
 	return executeOperationsFacade;
 

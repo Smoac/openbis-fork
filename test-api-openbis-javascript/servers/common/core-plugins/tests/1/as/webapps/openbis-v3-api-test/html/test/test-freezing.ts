@@ -1,18 +1,21 @@
-import openbis from "./lib/openbis/openbis.esm"
+import jquery from "./types/jquery"
+import underscore from "./types/underscore"
+import common from "./types/common"
+import openbis from "./types/openbis.esm"
 
 exports.default = new Promise((resolve) => {
-    require(["jquery", "underscore", "openbis", "test/openbis-execute-operations", "test/common", "test/dtos"], function (
-        $,
-        _,
-        openbis,
+    require(["jquery", "underscore", "openbis", "test/common", "test/openbis-execute-operations", "test/dtos"], function (
+        $: jquery.JQueryStatic,
+        _: underscore.UnderscoreStatic,
+        openbisRequireJS,
+        common: common.CommonConstructor,
         openbisExecuteOperations,
-        common,
         dtos
     ) {
         var executeModule = function (moduleName: string, facade: openbis.openbis, dtos: openbis.bundle) {
             QUnit.module(moduleName)
 
-            var testUpdate = function (c, entityKind, fCreate, fUpdate, fFind, freezings) {
+            var testUpdate = function (c: common.CommonClass, entityKind, fCreate, fUpdate, fFind, freezings) {
                 c.start()
 
                 var ctx = {
@@ -299,8 +302,8 @@ exports.default = new Promise((resolve) => {
         }
 
         resolve(function () {
-            executeModule("Freezing tests (RequireJS)", new openbis(), dtos)
-            executeModule("Freezing tests (RequireJS - executeOperations)", new openbisExecuteOperations(new openbis(), dtos), dtos)
+            executeModule("Freezing tests (RequireJS)", new openbisRequireJS(), dtos)
+            executeModule("Freezing tests (RequireJS - executeOperations)", new openbisExecuteOperations(new openbisRequireJS(), dtos), dtos)
             executeModule("Freezing tests (module VAR)", new window.openbis.openbis(), window.openbis)
             executeModule(
                 "Freezing tests (module VAR - executeOperations)",

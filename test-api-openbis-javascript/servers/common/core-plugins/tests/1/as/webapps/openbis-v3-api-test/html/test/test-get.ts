@@ -1,18 +1,21 @@
-import openbis from "./lib/openbis/openbis.esm"
+import jquery from "./types/jquery"
+import underscore from "./types/underscore"
+import common from "./types/common"
+import openbis from "./types/openbis.esm"
 
 exports.default = new Promise((resolve) => {
-    require(["jquery", "underscore", "openbis", "test/openbis-execute-operations", "test/common", "test/dtos"], function (
-        $,
-        _,
-        openbis,
+    require(["jquery", "underscore", "openbis", "test/common", "test/openbis-execute-operations", "test/dtos"], function (
+        $: jquery.JQueryStatic,
+        _: underscore.UnderscoreStatic,
+        openbisRequireJS,
+        common: common.CommonConstructor,
         openbisExecuteOperations,
-        common,
         dtos
     ) {
         var executeModule = function (moduleName: string, facade: openbis.openbis, dtos: openbis.bundle) {
             QUnit.module(moduleName)
 
-            var testGet = function (c, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig) {
+            var testGet = function (c: common.CommonClass, fCreate, fGet, fGetEmptyFetchOptions, fechOptionsTestConfig) {
                 c.start()
                 c.login(facade)
                     .then(function () {
@@ -43,7 +46,7 @@ exports.default = new Promise((resolve) => {
                     })
             }
 
-            var testGetManual = function (c, fCreate, fGet, fCheck) {
+            var testGetManual = function (c: common.CommonClass, fCreate, fGet, fCheck) {
                 c.start()
                 c.login(facade)
                     .then(function () {
@@ -60,7 +63,7 @@ exports.default = new Promise((resolve) => {
                     })
             }
 
-            var testFetchOptionsAssignation = function (c, fo, toTest) {
+            var testFetchOptionsAssignation = function (c: common.CommonClass, fo, toTest) {
                 for (var component in toTest) {
                     if (component === "SortBy") {
                         fo.sortBy().code()
@@ -90,7 +93,7 @@ exports.default = new Promise((resolve) => {
                 }
             }
 
-            var testFetchOptionsResults = function (c, toTest, expectedShouldSucceed, entity) {
+            var testFetchOptionsResults = function (c: common.CommonClass, toTest, expectedShouldSucceed, entity) {
                 for (var property in toTest) {
                     if (property !== "SortBy") {
                         var methodName = "get" + property
@@ -244,7 +247,7 @@ exports.default = new Promise((resolve) => {
                 fechOptionsTestConfig.SortBy = null
 
                 var fCreate = function (facade: openbis.openbis) {
-                    return $.when(c.createDataSet(facade), c.createDataSet(facade)).then(function (permId1, permId2) {
+                    return $.when(c.createDataSet(facade, "ALIGNMENT"), c.createDataSet(facade, "UNKNOWN")).then(function (permId1, permId2) {
                         return [permId1, permId2]
                     })
                 }
@@ -941,8 +944,8 @@ exports.default = new Promise((resolve) => {
         }
 
         resolve(function () {
-            executeModule("Get tests (RequireJS)", new openbis(), dtos)
-            executeModule("Get tests (RequireJS - executeOperations)", new openbisExecuteOperations(new openbis(), dtos), dtos)
+            executeModule("Get tests (RequireJS)", new openbisRequireJS(), dtos)
+            executeModule("Get tests (RequireJS - executeOperations)", new openbisExecuteOperations(new openbisRequireJS(), dtos), dtos)
             executeModule("Get tests (module VAR)", new window.openbis.openbis(), window.openbis)
             executeModule(
                 "Get tests (module VAR - executeOperations)",
