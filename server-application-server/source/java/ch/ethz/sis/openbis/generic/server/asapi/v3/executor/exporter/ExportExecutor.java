@@ -1430,6 +1430,18 @@ public class ExportExecutor implements IExportExecutor
             }
         }
 
+        // Description
+
+        if (entityObj instanceof IDescriptionHolder && allowsValue(selectedExportAttributes, Attribute.DESCRIPTION.name()))
+        {
+            final String description = ((IDescriptionHolder) entityObj).getDescription();
+            if (description != null)
+            {
+                documentBuilder.addHeader("Description");
+                documentBuilder.addParagraph(description);
+            }
+        }
+
         // Parents / Children
 
         if (entityObj instanceof IParentChildrenHolder<?>)
@@ -1498,6 +1510,8 @@ public class ExportExecutor implements IExportExecutor
             }
         }
 
+        // Registration / Modification
+
         if (entityObj instanceof IRegistratorHolder && allowsValue(selectedExportAttributes, Attribute.REGISTRATOR.name()))
         {
             final Person registrator = ((IRegistratorHolder) entityObj).getRegistrator();
@@ -1531,16 +1545,6 @@ public class ExportExecutor implements IExportExecutor
             if (modificationDate != null)
             {
                 documentBuilder.addProperty("Modification Date", String.valueOf(modificationDate));
-            }
-        }
-
-        if (entityObj instanceof IDescriptionHolder && allowsValue(selectedExportAttributes, Attribute.DESCRIPTION.name()))
-        {
-            final String description = ((IDescriptionHolder) entityObj).getDescription();
-            if (description != null)
-            {
-                documentBuilder.addHeader("Description");
-                documentBuilder.addParagraph(description);
             }
         }
 
