@@ -213,23 +213,28 @@ class EntitiesFinder
         final List<SamplePermId> samplePermIds = permIds.stream().map(SamplePermId::new)
                 .collect(Collectors.toList());
         final SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        final ExperimentFetchOptions experimentFetchOptions = fetchOptions.withExperiment();
-        experimentFetchOptions.withProperties();
-        experimentFetchOptions.withProject().withSpace();
-        fetchOptions.withSpace();
-        fetchOptions.withProject().withSpace();
-        fetchOptions.withParents().withProperties();
-        fetchOptions.withChildren().withProperties();
-        fetchOptions.withType().withPropertyAssignments().withPropertyType();
-        fetchOptions.withProperties();
-        fetchOptions.withRegistrator();
-        fetchOptions.withModifier();
-        fetchOptions.withContainer();
+        configureFetchOptions(fetchOptions);
+        configureFetchOptions(fetchOptions.withParents());
+        configureFetchOptions(fetchOptions.withChildren());
 
         final DataSetFetchOptions dataSetFetchOptions = fetchOptions.withDataSets();
         configureFetchOptions(dataSetFetchOptions);
 
         return api.getSamples(sessionToken, samplePermIds, fetchOptions).values();
+    }
+
+    private static void configureFetchOptions(final SampleFetchOptions fetchOptions)
+    {
+        final ExperimentFetchOptions experimentFetchOptions = fetchOptions.withExperiment();
+        experimentFetchOptions.withProperties();
+        experimentFetchOptions.withProject().withSpace();
+        fetchOptions.withSpace();
+        fetchOptions.withProject().withSpace();
+        fetchOptions.withType().withPropertyAssignments().withPropertyType();
+        fetchOptions.withProperties();
+        fetchOptions.withRegistrator();
+        fetchOptions.withModifier();
+        fetchOptions.withContainer();
     }
 
     private static void configureFetchOptions(final DataSetFetchOptions dataSetFetchOptions)
