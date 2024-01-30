@@ -554,7 +554,7 @@ public class XLSExportData
                                             new ExportablePermId(EXPERIMENT, new ExperimentPermId("200001010000000-0002")),
                                             new ExportablePermId(EXPERIMENT, new ExperimentPermId("200001010000000-0003"))
                                     ),
-                                    true,
+                                    false,
                                     null,
                                     XLSExport.TextFormatting.PLAIN,
                                     List.of(),
@@ -569,7 +569,7 @@ public class XLSExportData
                                             new ExportablePermId(EXPERIMENT, new ExperimentPermId("200001010000000-0002")),
                                             new ExportablePermId(EXPERIMENT, new ExperimentPermId("200001010000000-0003"))
                                     ),
-                                    true,
+                                    false,
                                     Map.of(
                                             DATASET.toString(), Map.of(
                                                     "ATTACHMENT", List.of(
@@ -601,7 +601,7 @@ public class XLSExportData
                                             new ExportablePermId(EXPERIMENT, new ExperimentPermId("200001010000000-0002")),
                                             new ExportablePermId(EXPERIMENT, new ExperimentPermId("200001010000000-0003"))
                                     ),
-                                    true,
+                                    false,
                                     Map.of(
                                             DATASET.toString(), Map.of(
                                                     "ATTACHMENT", List.of(
@@ -632,7 +632,7 @@ public class XLSExportData
                                             new ExportablePermId(EXPERIMENT, new ExperimentPermId("200001010000000-0002")),
                                             new ExportablePermId(EXPERIMENT, new ExperimentPermId("200001010000000-0003"))
                                     ),
-                                    true,
+                                    false,
                                     EXPORT_FIELDS,
                                     XLSExport.TextFormatting.PLAIN,
                                     List.of(),
@@ -647,7 +647,7 @@ public class XLSExportData
                                             new ExportablePermId(EXPERIMENT, new ExperimentPermId("200001010000000-0002")),
                                             new ExportablePermId(EXPERIMENT, new ExperimentPermId("200001010000000-0003"))
                                     ),
-                                    true,
+                                    false,
                                     Map.of(
                                             EXPERIMENT.toString(), Map.of(
                                                     "COLLECTION", List.of(
@@ -679,7 +679,7 @@ public class XLSExportData
                                             new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0004")),
                                             new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0005"))
                                     ),
-                                    true,
+                                    false,
                                     null,
                                     XLSExport.TextFormatting.PLAIN,
                                     List.of(),
@@ -696,14 +696,14 @@ public class XLSExportData
                                             new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0004")),
                                             new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0005"))
                                     ),
-                                    true,
+                                    false,
                                     EXPORT_FIELDS,
                                     XLSExport.TextFormatting.PLAIN,
                                     List.of(),
                                     true
                             },
                             {
-                                    "export-sample.xlsx",
+                                    "export-sample-with-referred-types.xlsx",
                                     Map.of(),
                                     SampleExpectations.class,
                                     List.of(
@@ -730,7 +730,24 @@ public class XLSExportData
                                             new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0004")),
                                             new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0005"))
                                     ),
-                                    true,
+                                    false,
+                                    null,
+                                    XLSExport.TextFormatting.PLAIN,
+                                    List.of(),
+                                    false
+                            },
+                            {
+                                    "export-sample.xlsx",
+                                    Map.of(),
+                                    SampleExpectations.class,
+                                    List.of(
+                                            new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0001")),
+                                            new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0002")),
+                                            new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0003")),
+                                            new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0004")),
+                                            new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0005"))
+                                    ),
+                                    false,
                                     Map.of(
                                             DATASET.toString(), Map.of(
                                                     "ATTACHMENT", List.of(
@@ -766,7 +783,7 @@ public class XLSExportData
                                             new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0004")),
                                             new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0005"))
                                     ),
-                                    true,
+                                    false,
                                     Map.of(
                                             DATASET.toString(), Map.of(
                                                     "ATTACHMENT", List.of(
@@ -804,7 +821,7 @@ public class XLSExportData
                                             new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0004")),
                                             new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0005"))
                                     ),
-                                    true,
+                                    false,
                                     Map.of(
                                             DATASET.toString(), Map.of(
                                                     "ATTACHMENT", List.of(
@@ -838,7 +855,7 @@ public class XLSExportData
                                             new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0004")),
                                             new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0005"))
                                     ),
-                                    true,
+                                    false,
                                     EXPORT_FIELDS,
                                     XLSExport.TextFormatting.PLAIN,
                                     List.of(),
@@ -905,7 +922,7 @@ public class XLSExportData
                                             new ExportablePermId(DATASET, new DataSetPermId("200001010000000-0002")),
                                             new ExportablePermId(DATASET, new DataSetPermId("200001010000000-0003"))
                                     ),
-                                    true,
+                                    false,
                                     null,
                                     XLSExport.TextFormatting.RICH,
                                     List.of(),
@@ -920,7 +937,7 @@ public class XLSExportData
                                             new ExportablePermId(DATASET, new DataSetPermId("200001010000000-0002")),
                                             new ExportablePermId(DATASET, new DataSetPermId("200001010000000-0003"))
                                     ),
-                                    true,
+                                    false,
                                     null,
                                     XLSExport.TextFormatting.PLAIN,
                                     List.of(),
@@ -935,7 +952,7 @@ public class XLSExportData
                                             new ExportablePermId(DATASET, new DataSetPermId("200001010000000-0002")),
                                             new ExportablePermId(DATASET, new DataSetPermId("200001010000000-0003"))
                                     ),
-                                    true,
+                                    false,
                                     Map.of(
                                             DATASET.toString(), Map.of(),
                                             EXPERIMENT.toString(), Map.of(
@@ -965,7 +982,7 @@ public class XLSExportData
                                             new ExportablePermId(DATASET, new DataSetPermId("200001010000000-0002")),
                                             new ExportablePermId(DATASET, new DataSetPermId("200001010000000-0003"))
                                     ),
-                                    true,
+                                    false,
                                     Map.of(
                                             EXPERIMENT.toString(), Map.of(
                                                     "COLLECTION", List.of(
@@ -995,7 +1012,7 @@ public class XLSExportData
                                             new ExportablePermId(DATASET, new DataSetPermId("200001010000000-0002")),
                                             new ExportablePermId(DATASET, new DataSetPermId("200001010000000-0003"))
                                     ),
-                                    true,
+                                    false,
                                     EXPORT_FIELDS,
                                     XLSExport.TextFormatting.PLAIN,
                                     List.of(),
