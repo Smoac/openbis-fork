@@ -109,13 +109,11 @@ const ImagingGalleryViewer = ({objId, extOpenbis, onOpenPreview}) => {
         let selectedPreview = previewContainer.preview;
         selectedPreview.show = !selectedPreview.show;
         try {
-            const isSaved = await new ImagingFacade(extOpenbis).updateShowInGalleryView(previewContainer.datasetId, previewContainer.imageIdx, selectedPreview);
-            if (isSaved === null) {
-                setOpen(false);
-            }
+            await new ImagingFacade(extOpenbis).updatePreview(previewContainer.datasetId, previewContainer.imageIdx, selectedPreview);
         } catch (error) {
-            setOpen(false);
             handleError(error);
+        } finally {
+            setOpen(false);
         }
     }
 
@@ -137,6 +135,24 @@ const ImagingGalleryViewer = ({objId, extOpenbis, onOpenPreview}) => {
         } catch (error) {
             setOpen(false);
             handleError(error);
+        }
+    }
+
+    const handleEditComment = async (comment, previewContainer, idx) => {
+        handleOpen();
+        let selectedPreviewContainer = previewContainer;
+        selectedPreviewContainer.preview.metadata['comment'] = comment;
+        try {
+            const isSaved = await new ImagingFacade(extOpenbis).updatePreview(previewContainer.datasetId, previewContainer.imageIdx, selectedPreviewContainer.preview);
+            if (isSaved === null) {
+                let updatedContainerList = [...previewsInfo.previewContainerList];
+                updatedContainerList[idx] = selectedPreviewContainer;
+                setPreviewsInfo({...previewsInfo, previewContainerList: updatedContainerList});
+            }
+        } catch (error) {
+            handleError(error);
+        } finally {
+            setOpen(false);
         }
     }
 
@@ -267,7 +283,7 @@ const ImagingGalleryViewer = ({objId, extOpenbis, onOpenPreview}) => {
                                          onOpenPreview={onOpenPreview}
                                          handleShowPreview={handleShowPreview}
                                          handleSelectPreview={handleSelectPreview} />
-                : <GalleryListView previewContainerList={previewContainerList} onOpenPreview={onOpenPreview} /> }
+                : <GalleryListView previewContainerList={previewContainerList} onOpenPreview={onOpenPreview} onEditComment={handleEditComment}/> }
 
         </>
     );

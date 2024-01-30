@@ -55,7 +55,7 @@ export default class ImagingFacade {
         return await this.openbis.updateDataSets([ update ]);
     };
 
-    updateShowInGalleryView = async (permId, imageIdx, preview) => {
+    updatePreview = async (permId, imageIdx, preview) => {
         let toUpdateImgDS = await this.loadImagingDataset(permId);
         toUpdateImgDS.images[imageIdx].previews[preview.index] = preview;
         let update = new this.openbis.DataSetUpdate();
