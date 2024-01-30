@@ -1193,7 +1193,11 @@ function ServerFacade(openbisServer) {
             } else if (data && data.result && data.result.columns) {
                 var rows = data.result.rows;
                 if (data.result.columns.length > 1 && data.result.columns[1].title === "Error") {
-                    Util.showStacktraceAsError(rows[0][1].value);
+                    if(rows[0][1].value === "Read-only file system") {
+                        callback(rows);
+                    } else {
+                        Util.showStacktraceAsError(rows[0][1].value);
+                    }
                 } else {
                     callback(rows);
                 }

@@ -1,3 +1,7 @@
+plugins {
+    id "com.github.node-gradle.node" version "3.2.1"
+}
+
 evaluationDependsOn(':lib-commonbase')
 evaluationDependsOn(':lib-common')
 evaluationDependsOn(':api-openbis-java')
@@ -9,7 +13,6 @@ evaluationDependsOn(':server-application-server')
 evaluationDependsOn(':server-original-data-store')
 evaluationDependsOn(':test-ui-core')
 evaluationDependsOn(':server-screening')
-
 
 apply from: '../build/javaproject.gradle'
 
@@ -96,6 +99,24 @@ clean.dependsOn deleteFullTextSearchDocumentVersion
 
 import org.gradle.internal.os.OperatingSystem
 
+node {
+    download = true
+    version = '18.12.1'
+    workDir = file("${projectDir}/node/nodejs")
+    nodeModulesDir = file("${projectDir}")
+}
+
+task copyTypeScriptDTS(type: Copy, dependsOn: [':api-openbis-typescript:generateTypeScript']) {
+    from project(':api-openbis-javascript').file('src/v3/openbis.esm.d.ts')
+    into file('servers/common/core-plugins/tests/1/as/webapps/openbis-v3-api-test/html/test/types/')
+}
+
+task compileTypeScript(type: NpxTask, dependsOn: copyTypeScriptDTS) {
+    dependsOn 'npmInstall'
+    command = 'tsc'
+    args = ['--build', 'servers/common/core-plugins/tests/1/as/webapps/openbis-v3-api-test/html/tsconfig.json']
+}
+
 test {
     useTestNG()
     def eln = System.getProperty("eln") == "yes" ? "-eln" : ""
@@ -129,6 +150,7 @@ test {
 test.dependsOn clean
 test.dependsOn copyWar
 test.dependsOn copyBlast
+test.dependsOn compileTypeScript
 
 test.finalizedBy deleteBlast
 

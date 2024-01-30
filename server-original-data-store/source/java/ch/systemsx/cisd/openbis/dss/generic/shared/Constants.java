@@ -44,7 +44,7 @@ public class Constants
     public static final String PLUGIN_SERVICES_LIST_KEY = "plugin-services";
 
     /** Key of service property which is a list of custom services. */
-    public static final String CUSTOM_SERVICES_LIST_KEY = "custom-services";
+    public static final String CUSTOM_SERVICES_LIST_KEY = "services";
 
     public static String OVERVIEW_PLUGINS_SERVICES_LIST_KEY = "overview-plugins";
 

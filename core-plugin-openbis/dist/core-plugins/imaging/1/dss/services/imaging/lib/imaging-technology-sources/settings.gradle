@@ -1,0 +1,9 @@
+def includes = ['lib-common', 'lib-commonbase', 'api-openbis-java',
+'api-openbis-javascript', 'lib-openbis-common', 'lib-dbmigration', 'lib-authentication',
+'server-original-data-store', 'server-application-server'
+]
+
+includes.forEach { name ->
+    includeFlat(name)
+    project(":${name}").projectDir = new File("../../../../../../../../../../${name}")
+}
