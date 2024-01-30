@@ -2854,19 +2854,19 @@ var FormUtil = new function() {
                                                      XlsTextFormat) {
                                                             var exportablePermId = null;
                                                             if(entityKind === "SPACE") {
-                                                                exportablePermId = new ExportablePermId(ExportableKind.SPACE, new SpacePermId(entityPermId));
+                                                                exportablePermId = new ExportablePermId(ExportableKind.SPACE, entityPermId);
                                                             }
                                                             if(entityKind === "PROJECT") {
-                                                                exportablePermId = new ExportablePermId(ExportableKind.PROJECT, new ProjectPermId(entityPermId));
+                                                                exportablePermId = new ExportablePermId(ExportableKind.PROJECT, entityPermId);
                                                             }
                                                             if(entityKind === "EXPERIMENT") {
-                                                                exportablePermId = new ExportablePermId(ExportableKind.EXPERIMENT, new ExperimentPermId(entityPermId));
+                                                                exportablePermId = new ExportablePermId(ExportableKind.EXPERIMENT, entityPermId);
                                                             }
                                                             if(entityKind === "SAMPLE") {
-                                                                exportablePermId = new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId(entityPermId));
+                                                                exportablePermId = new ExportablePermId(ExportableKind.SAMPLE, entityPermId);
                                                             }
                                                             if(entityKind === "DATASET") {
-                                                                exportablePermId = new ExportablePermId(ExportableKind.DATASET, new DataSetPermId(entityPermId));
+                                                                exportablePermId = new ExportablePermId(ExportableKind.DATASET, entityPermId);
                                                             }
                                                             var exportData = new ExportData([exportablePermId], new AllFields());
                                                             var exportOptions = new ExportOptions([ExportFormat.PDF], XlsTextFormat.RICH, false, false, false);
