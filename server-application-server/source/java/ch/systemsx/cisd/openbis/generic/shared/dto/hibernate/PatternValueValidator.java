@@ -17,20 +17,29 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto.hibernate;
 
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.IPatternCompiler;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property.PatternCompiler;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 
 public class PatternValueValidator implements ConstraintValidator<PatternValue, EntityPropertyPE>
 {
 
+    private Map<String, Pattern> propertyTypeToPatternMap;
+    private IPatternCompiler compiler;
+
     @Override
     public final void initialize(final PatternValue annotation)
     {
-        System.out.println("||> INIT!!!!");
+        propertyTypeToPatternMap = new ConcurrentHashMap<>();
+        compiler = new PatternCompiler();
     }
 
     @Override
@@ -41,13 +50,35 @@ public class PatternValueValidator implements ConstraintValidator<PatternValue, 
             if(etpt.getPropertyType() != null) {
                 PropertyTypePE pt = etpt.getPropertyType();
                 if(pt.getPatternType() != null) {
-                    //do something
-                    return true;
+                    Pattern pattern;
+                    if(propertyTypeToPatternMap.containsKey(pt.getCode())) {
+                        pattern = propertyTypeToPatternMap.get(pt.getCode());
+                        if(!pt.getPatternRegex().equals(pattern.pattern())) {
+                            pattern = updatePattern(pt.getCode(), pt.getPattern(), pt.getPatternType());
+                        }
+                    } else {
+                        pattern = updatePattern(pt.getCode(), pt.getPattern(), pt.getPatternType());
+                    }
+                    boolean valid = pattern.matcher(entityPropertyPE.getValue()).matches();
+                    if(!valid) {
+                        constraintValidatorContext.disableDefaultConstraintViolation();
+                        constraintValidatorContext
+                                .buildConstraintViolationWithTemplate("Value: '" + entityPropertyPE.getValue() + "' is not matching defined pattern!")
+                                .addConstraintViolation();
+                        return false;
+                    }
                 }
             }
 
         }
         return true;
+    }
+
+    private Pattern updatePattern(String propertyTypeCode, String pattern, String patternType)
+    {
+        Pattern compiledPattern = compiler.compilePattern(pattern, patternType);
+        propertyTypeToPatternMap.put(propertyTypeCode, compiledPattern);
+        return compiledPattern;
     }
 
 }

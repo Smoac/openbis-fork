@@ -27,10 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
+import javax.validation.*;
 
 import org.hibernate.HibernateException;
 import org.hibernate.LockMode;
@@ -362,7 +359,22 @@ public abstract class AbstractDAO extends HibernateDaoSupport
         } catch (UncategorizedSQLException e)
         {
             translateUncategorizedSQLException(e);
+        } catch(ConstraintViolationException e)
+        {
+            translateConstraintViolationException(e);
         }
+    }
+
+    protected static void translateConstraintViolationException(ConstraintViolationException exception) throws DataAccessException
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Insert/Update failed - ");
+        for(ConstraintViolation<?> violation : exception.getConstraintViolations())
+        {
+            builder.append(violation.getMessage());
+            builder.append("\n");
+        }
+        throw new DataIntegrityViolationException(builder.toString());
     }
 
     protected static void translateUncategorizedSQLException(UncategorizedSQLException exception)
