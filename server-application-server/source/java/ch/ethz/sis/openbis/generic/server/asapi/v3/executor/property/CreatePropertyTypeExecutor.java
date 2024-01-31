@@ -129,6 +129,12 @@ public class CreatePropertyTypeExecutor
         {
             throw new UserFailureException("Vocabulary id has been specified but data type is " + dataType + ".");
         }
+        //if only one element out of pair (pattern, patternType) is empty, throw exception
+        if(((creation.getPattern() == null || creation.getPattern().trim().isEmpty()) && (creation.getPatternType() != null && !creation.getPatternType().trim().isEmpty()))
+        || ((creation.getPattern() != null && !creation.getPattern().trim().isEmpty()) && (creation.getPatternType() == null || creation.getPatternType().trim().isEmpty())))
+        {
+            throw new UserFailureException("Pattern and Pattern Type must be both either empty or non-empty!");
+        }
         validateMaterialType(creation, dataType);
         validateSampleType(creation, dataType);
         validateSchemaAndDataType(dataType.name(), creation.getSchema());

@@ -100,6 +100,11 @@ public class UpdatePropertyTypeExecutor
         {
             throw new UserFailureException("Description cannot be empty.");
         }
+        if(update.getPattern().isModified() && update.getPatternType().isModified() && ((StringUtils.isEmpty(update.getPattern().getValue()) && !StringUtils.isEmpty(update.getPatternType().getValue()))
+        || (!StringUtils.isEmpty(update.getPattern().getValue()) && StringUtils.isEmpty(update.getPatternType().getValue()))))
+        {
+            throw new UserFailureException("Pattern and Pattern Type must be both either empty or non-empty!");
+        }
     }
 
     @Override

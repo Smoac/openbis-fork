@@ -471,7 +471,7 @@ public class CreatePropertyTypeTest extends AbstractTest
         creation.setPatternType("PATTERN");
 
 
-        assertUserFailureException(creation, "Data type not specified.");
+        assertUserFailureException(creation, "Pattern and Pattern Type must be both either empty or non-empty!");
     }
 
     @Test
@@ -481,7 +481,7 @@ public class CreatePropertyTypeTest extends AbstractTest
         creation.setPattern("SomePattern");
 
 
-        assertUserFailureException(creation, "Data type not specified.");
+        assertUserFailureException(creation, "Pattern and Pattern Type must be both either empty or non-empty!");
     }
 
     @Test
