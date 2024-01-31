@@ -18,8 +18,8 @@ The folder structure is organized as follows:
 - Each module folder has children which are numbered folders. The number denotes the version of the plugins of that module. The version with the largest number will be used. Different modules can have different largest version numbers.
 - Every version folder has the subfolder `as` and/or` dss `which have subfolders for the various types of plugins. The types are different for AS and DSS:  
     - AS:  
-        - `maintenance-tasks`: Maintenance tasks triggered by some time schedule. Property `class` denotes fully-qualified class name of a class implementing `ch.systemsx.cisd.common.maintenance.IMaintenanceTask`. For more details see [Maintenance Tasks](../../system-admin-documentation/advanced-features/maintenance-tasks.md).
-        - `dss-data-sources`: Definition of data sources with corresponding data source definitions for DSS. For more details see [Installation and Administrator Guide of the openBIS Server](../../system-admin-documentation/installation/installation-and-configuration-guide.md).
+        - `maintenance-tasks`: Maintenance tasks triggered by some time schedule. Property `class` denotes fully-qualified class name of a class implementing `ch.systemsx.cisd.common.maintenance.IMaintenanceTask`. For more details see [Maintenance Tasks](../../system-documentation/configuration/maintenance-tasks.md).
+        - `dss-data-sources`: Definition of data sources with corresponding data source definitions for DSS. For more details see [Installation and Administrator Guide of the openBIS Server](../../system-documentation/standalone/installation-and-configuration-guide.md).
         - `query-databases`: Databases for SQL queries. For more details see [Custom Database Queries](../../user-documentation/general-admin-users/custom-database-queries.md).
         - `custom-imports`: Custom file imports to DSS via Web interface. For more details see [Custom Import](../legacy-server-side-extensions/custom-import.md).
         - `services`: Custom services. For more details see [Custom Application Server Services](./as-services.md).
@@ -29,7 +29,7 @@ The folder structure is organized as follows:
         - `drop-boxes`: ETL server threads for registration of data sets.                            `
         - `reporting-plugins`: Reports visible in openBIS. Property `class` denotes fully-qualified class name of a class implementing `ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask`. For more details see [Reporting Plugins](../legacy-server-side-extensions/reporting-plugins.md).
         - `processing-plugins`: Processing tasks triggered by users. Property `class` denotes fully-qualified class name of a class implementing `ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask`. For more details see [Processing Plugins](../legacy-server-side-extensions/processing-plugins.md).`                            `
-        - `maintenance-tasks`: Maintenance tasks triggered by some time schedule. Property `class` denotes fully-qualified class name of a class implementing `ch.systemsx.cisd.common.maintenance.IMaintenanceTask`. For more details see [Maintenance Tasks](../../system-admin-documentation/advanced-features/maintenance-tasks.md).
+        - `maintenance-tasks`: Maintenance tasks triggered by some time schedule. Property `class` denotes fully-qualified class name of a class implementing `ch.systemsx.cisd.common.maintenance.IMaintenanceTask`. For more details see [Maintenance Tasks](../../system-documentation/configuration/maintenance-tasks.md).
         - `search-domain-services`: Services for variaous search domains (e.g. search on sequence databases using BLAST). Property `class` denotes fully-qualified class name of a class implementing `ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISearchDomainService`.
         - `data-sources`: Internal or external database sources.
         - `services`: Custom services. For more details see [Custom Datastore Server Services](./dss-services.md).
@@ -81,7 +81,7 @@ core-plugins
 ```
 
 
-You might noticed the file `initialize-master-data.py` in AS core plugins sections  in this example. It is a script to register master data in the openBIS core database. For more details see [Installation and Administrator Guide of the openBIS Server](../../system-admin-documentation/installation/installation-and-configuration-guide.md).
+You might noticed the file `initialize-master-data.py` in AS core plugins sections  in this example. It is a script to register master data in the openBIS core database. For more details see [Installation and Administrator Guide of the openBIS Server](../../system-documentation/standalone/installation-and-configuration-guide.md).
 
 Each plugin can refer to any number of files. These files are part of
 the plugin folder. In `plugin.properties` they are referred relative to

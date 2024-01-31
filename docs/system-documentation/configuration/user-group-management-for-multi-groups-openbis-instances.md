@@ -157,7 +157,7 @@ post-registration.eager-shuffling.share-finder.mapping-file = ../../data/shares-
 ```
 
 
-Eager shuffling moves the just registered data set from share 1 to the share of the group as specified in `<installation path>/data/shares-mapping.txt`. For more details about share mapping see [Mapping File for Share Ids and Archiving Folders](../system-admin-documentation/advanced-features/share-ids.md)
+Eager shuffling moves the just registered data set from share 1 to the share of the group as specified in `<installation path>/data/shares-mapping.txt`. For more details about share mapping see [Mapping File for Share Ids and Archiving Folders](../system-documentation/configuration/share-ids.md)
 
 
 ### Dynamic Configurations
@@ -377,7 +377,7 @@ sections:
 -   `users`: An explicit list of user ids.
 -   `admins`: A list of user ids. All admin users have SPACE\_ADMIN rights to all spaces (common and user ones) which belong to the group.
 -   `shareIds`: This is a list of ids of data store shares. This list is only needed if `shares-mapping-file-path` has been specified.
--   `useEmailAsUserId`: (since 20.10.1) If `true` the email address will be used instead of the user ID to determine the code of the user's space. Note, that the '@' symbol in the email address will be replaced by '\_AT\_'. This flag should be used if [Single Sign On](../system-admin-documentation/installation/installation-and-configuration-guide.md#single-sign-on-authentication) is used for authentication but LDAP for managing the users of a group. Default: `false.`
+-   `useEmailAsUserId`: (since 20.10.1) If `true` the email address will be used instead of the user ID to determine the code of the user's space. Note, that the '@' symbol in the email address will be replaced by '\_AT\_'. This flag should be used if [Single Sign On](../system-documentation/standalone/installation-and-configuration-guide.md#single-sign-on-authentication) is used for authentication but LDAP for managing the users of a group. Default: `false.`
 -   `createUserSpace`: (since 20.10.1) This is a flag that controls a creation of personal user spaces for the users of this group. By default it is set to true, i.e. the personal user spaces will be created. If set to false, then the personal user spaces won't be created for this group.
 -   `userSpaceRole`: Optional access role (either ADMIN, USER, POWER\_USER, or OBSERVER) for all users of the group on all personal user spaces. (since version 20.10.3)
 

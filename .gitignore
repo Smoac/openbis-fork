@@ -17,3 +17,5 @@ ivy-repository
 *.iml
 *.eml
 .metadata
+docs/.python-version
+docs/_build
