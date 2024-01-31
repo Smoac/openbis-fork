@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Pattern;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import org.apache.commons.lang3.StringUtils;
@@ -140,10 +141,8 @@ public class UpdatePropertyTypeExecutor
                     propertyType.setPattern(getNewValue(update.getPattern(), propertyType.getPattern()));
                     propertyType.setPatternType(getNewValue(update.getPatternType(), propertyType.getPatternType()));
 
-                    String updateRegex = getNewValue(update.getPattern(), null) != null
-                            ? "UPDATE_REGEX:" + patternCompiler.compilePattern(propertyType.getPattern(), propertyType.getPatternType()).pattern()
-                            : null;
-                    propertyType.setPatternRegex(updateRegex);
+                    Pattern updateRegex = patternCompiler.compilePattern(propertyType.getPattern(), propertyType.getPatternType());
+                    propertyType.setPatternRegex(updateRegex == null ? null : updateRegex.pattern());
 
                 }
 

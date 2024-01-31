@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -214,8 +215,8 @@ public class CreatePropertyTypeExecutor
                             creation.isMultiValue() != null && creation.isMultiValue());
                     propertyType.setPattern(creation.getPattern());
                     propertyType.setPatternType(creation.getPatternType());
-                    String pattern = patternCompiler.compilePattern(creation.getPattern(), creation.getPatternType()).pattern();
-                    propertyType.setPatternRegex(pattern);
+                    Pattern pattern = patternCompiler.compilePattern(creation.getPattern(), creation.getPatternType());
+                    propertyType.setPatternRegex(pattern == null ? null : pattern.pattern());
                     propertyTypes.add(propertyType);
                 }
 
