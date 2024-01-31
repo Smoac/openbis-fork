@@ -50,6 +50,7 @@ public class ImportPropertyTypesTest extends AbstractImportTest
     private IApplicationServerInternalApi v3api;
 
     private static final String PROPERTY_TYPES_XLS = "property_types/normal_property_type.xls";
+    private static final String PROPERTY_TYPES_WITH_PATTERN_XLS = "property_types/normal_property_type_with_pattern.xls";
 
     private static final String PROPERTY_NO_CODE = "property_types/no_code.xls";
 
@@ -94,6 +95,28 @@ public class ImportPropertyTypesTest extends AbstractImportTest
         assertEquals(notes.getDescription(), "Notes Descripton");
         assertFalse(notes.isManagedInternally());
         assertNull(notes.getVocabulary());
+    }
+
+    @Test
+    @DirtiesContext
+    public void testNormalPropertyTypesWithPatternsAreCreated() throws IOException
+    {
+        // the Excel contains internally managed property types which can be only manipulated by the system user
+        sessionToken = v3api.loginAsSystem();
+
+        // GIVEN
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, PROPERTY_TYPES_WITH_PATTERN_XLS)));
+        // WHEN
+        PropertyType notes = TestUtils.getPropertyType(v3api, sessionToken, "PATTERN_PATTERN");
+        // THEN
+        assertEquals(notes.getCode(), "PATTERN_PATTERN");
+        assertEquals(notes.getLabel(), "Pattern");
+        assertEquals(notes.getDataType(), DataType.VARCHAR);
+        assertEquals(notes.getDescription(), "Regexp pattern");
+        assertFalse(notes.isManagedInternally());
+        assertNull(notes.getVocabulary());
+        assertEquals(notes.getPattern(), ".*");
+        assertEquals(notes.getPatternType(), "PATTERN");
     }
 
     @Test
