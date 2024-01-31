@@ -141,7 +141,7 @@ public class UpdatePropertyTypeExecutor
                     propertyType.setPatternType(getNewValue(update.getPatternType(), propertyType.getPatternType()));
 
                     String updateRegex = getNewValue(update.getPattern(), null) != null
-                            ? "UPDATE_REGEX:" + patternCompiler.compilePattern(propertyType.getPattern(), propertyType.getPatternType())
+                            ? "UPDATE_REGEX:" + patternCompiler.compilePattern(propertyType.getPattern(), propertyType.getPatternType()).pattern()
                             : null;
                     propertyType.setPatternRegex(updateRegex);
 

@@ -28,14 +28,14 @@ public final class PatternCompiler implements IPatternCompiler
 {
     private static final String SEPARATOR = ",";
     @Override
-    public String compilePattern(String pattern, String patternType)
+    public Pattern compilePattern(String pattern, String patternType)
     {
         if(patternType == null || patternType.trim().isEmpty()) {
             return null;
         }
         switch (patternType.trim().toUpperCase()) {
             case "PATTERN":
-                return pattern;
+                return Pattern.compile(pattern);
             case "VALUES":
                 return compileValues(pattern);
             case "RANGES":
@@ -45,23 +45,23 @@ public final class PatternCompiler implements IPatternCompiler
         }
     }
 
-    private String compileValues(String pattern){
+    private Pattern compileValues(String pattern){
         final String regex = "(?<!\\\\)" + Pattern.quote(SEPARATOR);
         String result = Stream.of(pattern.split(regex))
                 .map(String::trim)
                 .map(Pattern::quote)
                 .reduce("", (a,b) -> a + "|" + b);
-        return "VALUES:" + result;
+        return Pattern.compile(result);
     }
 
 
-    private String compileRanges(String pattern) {
+    private Pattern compileRanges(String pattern) {
         final String regex = "(?<!\\\\)" + Pattern.quote(SEPARATOR);
         String result = Stream.of(pattern.split(regex))
                 .map(String::trim)
                 .map(this::convertRange)
                 .reduce("", (a,b) -> a + "|" + b);
-        return "RANGES:" + result;
+        return Pattern.compile(result);
     }
 
     private String convertRange(String range) {

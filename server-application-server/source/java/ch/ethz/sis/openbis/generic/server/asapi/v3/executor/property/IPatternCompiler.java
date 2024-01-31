@@ -17,7 +17,9 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property;
 
+import java.util.regex.Pattern;
+
 public interface IPatternCompiler
 {
-    String compilePattern(String pattern, String patternType);
+    Pattern compilePattern(String pattern, String patternType);
 }
