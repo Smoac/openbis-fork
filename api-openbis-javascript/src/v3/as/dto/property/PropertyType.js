@@ -21,6 +21,8 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.registrationDate = null;
 		prototype.metaData = null;
 		prototype.multiValue = null;
+		prototype.pattern = null;
+		prototype.patternType = null;
 
 		prototype.getFetchOptions = function() {
 			return this.fetchOptions;
@@ -150,6 +152,18 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setMultiValue = function(multiValue) {
 			this.multiValue = multiValue;
 		};
+		prototype.getPattern = function() {
+            return this.pattern;
+        };
+        prototype.setPattern = function(pattern) {
+            this.pattern = pattern;
+        };
+        prototype.getPatternType = function() {
+            return this.patternType;
+        };
+        prototype.setPatternType = function(patternType) {
+            this.patternType = patternType;
+        };
 	}, {
 		fetchOptions : "PropertyTypeFetchOptions",
 		permId : "PropertyTypePermId",
