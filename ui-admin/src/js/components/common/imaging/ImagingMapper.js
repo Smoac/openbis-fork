@@ -1,4 +1,4 @@
-import constants from "@src/js/components/database/imaging/constants";
+import constants from "@src/js/components/common/imaging/constants";
 
 export default class ImagingMapper{
 

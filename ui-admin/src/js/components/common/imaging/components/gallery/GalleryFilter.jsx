@@ -5,7 +5,6 @@ import TextField from '@src/js/components/common/form/TextField.jsx'
 import SelectField from '@src/js/components/common/form/SelectField.jsx'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
-import CustomSwitch from "@src/js/components/database/imaging/components/common/CustomSwitch";
 
 const styles = theme => ({
     container: {

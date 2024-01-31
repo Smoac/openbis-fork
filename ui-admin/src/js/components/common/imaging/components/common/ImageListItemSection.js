@@ -1,11 +1,10 @@
 import React from "react";
-import Typography from "@material-ui/core/Typography";
-import {ImageList, ImageListItem} from "@material-ui/core";
-import BlankImage from "@src/js/components/database/imaging/components/common/BlankImage";
+import {ImageList, ImageListItem, Typography} from "@material-ui/core";
+import BlankImage from "@src/js/components/common/imaging/components/common/BlankImage.js";
 import {makeStyles} from "@material-ui/core/styles";
 import ImageListItemBarAction
-    from "@src/js/components/database/imaging/components/common/ImageListItemBarAction";
-import constants from "@src/js/components/database/imaging/constants";
+    from "@src/js/components/common/imaging/components/common/ImageListItemBarAction.js";
+import constants from "@src/js/components/common/imaging/constants.js";
 
 const useStyles = makeStyles(() => ({
     imgFullWidth: {
@@ -53,16 +52,6 @@ const ImageListItemSection = ({title, cols, rowHeight, type, items, activeImageI
                                         classNames={'actionBarR'} position={'right'}
                                         onMove={() => onMove(1)}/>];
         }
-    };
-
-    const buildImageListItem = (key, className, index, preview) => {
-        return (<ImageListItem key={key}
-                       className={className}
-                       onClick={() => onActiveItemChange(index)}>
-            {preview.bytes ?
-                <img alt={""} className={classes.imgFullWidth} src={`data:image/${preview.format};base64,${preview.bytes}`}/>
-                : <BlankImage className={classes.imgFullWidth}/>}
-        </ImageListItem>)
     };
 
     const renderImageListItems = () => {

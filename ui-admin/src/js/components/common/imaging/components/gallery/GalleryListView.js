@@ -9,11 +9,11 @@ import {
     Card, Divider
 } from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
-import constants from "@src/js/components/database/imaging/constants.js";
-import {isObjectEmpty} from "@src/js/components/database/imaging/utils.js";
-import CommentMetadataField from "@src/js/components/database/imaging/components/gallery/CommentMetadataField.js";
+import constants from "@src/js/components/common/imaging/constants.js";
+import {isObjectEmpty} from "@src/js/components/common/imaging/utils.js";
+import CommentMetadataField from "@src/js/components/common/imaging/components/gallery/CommentMetadataField.jsx";
 import DefaultMetadaField
-    from "@src/js/components/database/imaging/components/gallery/DefaultMetadaField.js";
+    from "@src/js/components/common/imaging/components/gallery/DefaultMetadaField.js";
 
 const useStyles = makeStyles((theme) => ({
     card: {

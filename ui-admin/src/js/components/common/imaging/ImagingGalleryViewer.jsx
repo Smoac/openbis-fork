@@ -3,38 +3,23 @@ import { Grid,
     Typography,
     IconButton,
 } from "@material-ui/core";
-import {makeStyles} from "@material-ui/core/styles";
 import ViewListIcon from '@material-ui/icons/ViewList';
 import GridOnIcon from '@material-ui/icons/GridOn';
-import OutlinedBox from "@src/js/components/database/imaging/components/common/OutlinedBox.js";
-import ImagingFacade from "@src/js/components/database/imaging/ImagingFacade.js";
+import OutlinedBox from "@src/js/components/common/imaging/components/common/OutlinedBox.js";
+import ImagingFacade from "@src/js/components/common/imaging/ImagingFacade.js";
 import LoadingDialog from "@src/js/components/common/loading/LoadingDialog.jsx";
 import ErrorDialog from "@src/js/components/common/error/ErrorDialog.jsx";
 import messages from "@src/js/common/messages.js";
-import PaperBox from "@src/js/components/database/imaging/components/common/PaperBox.js";
-import CustomSwitch from "@src/js/components/database/imaging/components/common/CustomSwitch.js";
-import GalleryPaging from "@src/js/components/database/imaging/components/gallery/GalleryPaging.jsx";
+import PaperBox from "@src/js/components/common/imaging/components/common/PaperBox.js";
+import CustomSwitch from "@src/js/components/common/imaging/components/common/CustomSwitch.jsx";
+import GalleryPaging from "@src/js/components/common/imaging/components/gallery/GalleryPaging.jsx";
 import GridPagingOptions from "@src/js/components/common/grid/GridPagingOptions.js";
-import Export from "@src/js/components/database/imaging/components/viewer/Exporter.js";
-import GalleryFilter from "@src/js/components/database/imaging/components/gallery/GalleryFilter.jsx";
-import GalleryGridView from "@src/js/components/database/imaging/components/gallery/GalleryGridView.js";
-import GalleryListView from "@src/js/components/database/imaging/components/gallery/GalleryListView.js";
-
-const useStyles = makeStyles((theme) => ({
-    root: {
-        display: 'flex',
-        flexWrap: 'wrap',
-        justifyContent: 'space-around',
-        overflow: 'hidden',
-        backgroundColor: theme.palette.background.paper,
-    },
-    pageSize: {
-        display: 'none'
-    }
-}));
+import Export from "@src/js/components/common/imaging/components/viewer/Exporter.jsx";
+import GalleryFilter from "@src/js/components/common/imaging/components/gallery/GalleryFilter.jsx";
+import GalleryGridView from "@src/js/components/common/imaging/components/gallery/GalleryGridView.js";
+import GalleryListView from "@src/js/components/common/imaging/components/gallery/GalleryListView.js";
 
 const ImagingGalleryViewer = ({objId, extOpenbis, onOpenPreview}) => {
-    const classes = useStyles();
     const [gridView, setGridView] = React.useState(true);
     const [isLoaded, setIsLoaded] = React.useState(false);
     const [open, setOpen] = React.useState(false);

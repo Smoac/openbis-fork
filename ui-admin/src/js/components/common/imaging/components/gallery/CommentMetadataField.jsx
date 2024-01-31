@@ -4,7 +4,7 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import SaveIcon from "@material-ui/icons/Save";
 import React from "react";
 import DefaultMetadaField
-    from "@src/js/components/database/imaging/components/gallery/DefaultMetadaField.js";
+    from "@src/js/components/common/imaging/components/gallery/DefaultMetadaField.js";
 
 const CommentMetadataField = ({keyProp, valueProp, idx, pos, onEditComment}) => {
     const [editMode, setEditMode] = React.useState(false);

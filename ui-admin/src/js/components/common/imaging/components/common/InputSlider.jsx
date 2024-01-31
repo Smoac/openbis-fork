@@ -1,11 +1,7 @@
 import * as React from 'react';
-import Grid from "@material-ui/core/Grid";
-import Slider from "@material-ui/core/Slider";
-import Input from "@material-ui/core/Input";
-import Player from "@src/js/components/database/imaging/components/common/Player";
-import OutlinedBox from "@src/js/components/database/imaging/components/common/OutlinedBox";
-import InputAdornment from "@material-ui/core/InputAdornment";
-
+import {InputAdornment, Input, Grid, Slider} from "@material-ui/core";
+import Player from "@src/js/components/common/imaging/components/common/Player.jsx";
+import OutlinedBox from "@src/js/components/common/imaging/components/common/OutlinedBox.js";
 
 const InputSlider = ({ label, range, initValue, playable, speeds, disabled = false, onChange, unit= null }) => {
     const min = Number(range[0])

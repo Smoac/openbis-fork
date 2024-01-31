@@ -11,8 +11,8 @@ import {
     FormControlLabel
 } from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
-import constants from "@src/js/components/database/imaging/constants.js";
-import CustomSwitch from "@src/js/components/database/imaging/components/common/CustomSwitch.js";
+import constants from "@src/js/components/common/imaging/constants.js";
+import CustomSwitch from "@src/js/components/common/imaging/components/common/CustomSwitch.jsx";
 
 const useStyles = makeStyles((theme) => ({
     card: {

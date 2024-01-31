@@ -1,6 +1,5 @@
-import constants from '@src/js/components/database/imaging/constants.js';
-import ImagingMapper from "@src/js/components/database/imaging/ImagingMapper";
-import openbis from "@src/js/services/openbis";
+import constants from '@src/js/components/common/imaging/constants.js';
+import ImagingMapper from "@src/js/components/common/imaging/ImagingMapper";
 import messages from "@src/js/common/messages";
 
 export default class ImagingFacade {
@@ -156,7 +155,7 @@ export default class ImagingFacade {
     }
 
     filterGallery = async (objId, operator, filterText, property, page, pageSize) => {
-        console.log(objId, operator, filterText, property, page, pageSize);
+        //console.log(objId, operator, filterText, property, page, pageSize);
         const criteria = new this.openbis.DataSetSearchCriteria();
         criteria.withAndOperator();
         criteria.withExperiment().withPermId().thatEquals(objId);

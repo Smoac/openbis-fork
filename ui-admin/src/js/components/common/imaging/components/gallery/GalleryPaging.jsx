@@ -1,17 +1,14 @@
-import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
-import Typography from '@material-ui/core/Typography'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import IconButton from '@material-ui/core/IconButton'
-import FirstPageIcon from '@material-ui/icons/FirstPage'
-import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft'
-import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight'
-import LastPageIcon from '@material-ui/icons/LastPage'
-import SelectField from '@src/js/components/common/form/SelectField.jsx'
-import GridPagingOptions from '@src/js/components/common/grid/GridPagingOptions.js'
-import messages from '@src/js/common/messages.js'
-import logger from '@src/js/common/logger.js'
-import Grid from "@material-ui/core/Grid";
+import React from 'react';
+import { withStyles } from '@material-ui/core/styles';
+import {Typography, FormControlLabel, IconButton, Grid} from '@material-ui/core';
+import FirstPageIcon from '@material-ui/icons/FirstPage';
+import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
+import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
+import LastPageIcon from '@material-ui/icons/LastPage';
+import SelectField from '@src/js/components/common/form/SelectField.jsx';
+import GridPagingOptions from '@src/js/components/common/grid/GridPagingOptions.js';
+import messages from '@src/js/common/messages.js';
+import logger from '@src/js/common/logger.js';
 
 const styles = theme => ({
     container: {

@@ -1,5 +1,5 @@
 import React from "react";
-import constants from "@src/js/components/database/imaging/constants.js";
+import constants from "@src/js/components/common/imaging/constants.js";
 const BlankImage = ({className}) => {
     return(
         <img className={className}

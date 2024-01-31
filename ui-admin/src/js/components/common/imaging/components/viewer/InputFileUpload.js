@@ -18,16 +18,9 @@ const VisuallyHiddenInput = styled('input')({
 
 export default function InputFileUpload({onInputFile}) {
 
-    const [file, setFile] = React.useState(null);
-    const [flag, setFlag] = React.useState(false);
-
     const fileChangedHandler = async (event) => {
         let file = event.target.files[0];
         let reader = new FileReader();
-        reader.onload = function (e) {
-            setFile(e.target.result);
-            setFlag(true);
-        };
         reader.readAsArrayBuffer(event.target.files[0]);
         onInputFile(file);
     };

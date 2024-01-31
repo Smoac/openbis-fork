@@ -1,23 +1,27 @@
 import React from 'react'
 import {withStyles} from "@material-ui/core/styles";
-import {Box, Grid, Typography} from "@material-ui/core";
+import {
+    Box,
+    Divider,
+    Grid,
+    Typography
+} from "@material-ui/core";
 
-import {convertToBase64, inRange, isObjectEmpty} from "@src/js/components/database/imaging/utils.js";
-import PaperBox from "@src/js/components/database/imaging/components/common/PaperBox.js";
-import InputFileUpload from "@src/js/components/database/imaging/components/viewer/InputFileUpload.js";
-import AlertDialog from "@src/js/components/database/imaging/components/common/AlertDialog.js";
-import Export from "@src/js/components/database/imaging/components/viewer/Exporter.js";
-import Dropdown from "@src/js/components/database/imaging/components/common/Dropdown.js";
-import OutlinedBox from "@src/js/components/database/imaging/components/common/OutlinedBox.js";
-import InputSlider from "@src/js/components/database/imaging/components/common/InputSlider.js";
-import InputRangeSlider from "@src/js/components/database/imaging/components/common/InputRangeSlider.js";
-import ColorMap from "@src/js/components/database/imaging/components/viewer/ColorMap.js";
-import MetadataViewer from "@src/js/components/database/imaging/components/viewer/MetadataViewer.js";
-import ImagingFacade from "@src/js/components/database/imaging/ImagingFacade.js";
-import constants from "@src/js/components/database/imaging/constants.js";
-import ImagingMapper from "@src/js/components/database/imaging/ImagingMapper.js";
-import CustomSwitch from "@src/js/components/database/imaging/components/common/CustomSwitch.js";
-import ImageListItemSection from "@src/js/components/database/imaging/components/common/ImageListItemSection.js";
+import {convertToBase64, inRange, isObjectEmpty} from "@src/js/components/common/imaging/utils.js";
+import PaperBox from "@src/js/components/common/imaging/components/common/PaperBox.js";
+import InputFileUpload from "@src/js/components/common/imaging/components/viewer/InputFileUpload.js";
+import AlertDialog from "@src/js/components/common/imaging/components/common/AlertDialog.jsx";
+import Export from "@src/js/components/common/imaging/components/viewer/Exporter.jsx";
+import Dropdown from "@src/js/components/common/imaging/components/common/Dropdown.jsx";
+import OutlinedBox from "@src/js/components/common/imaging/components/common/OutlinedBox.js";
+import InputSlider from "@src/js/components/common/imaging/components/common/InputSlider.jsx";
+import InputRangeSlider from "@src/js/components/common/imaging/components/common/InputRangeSlider.jsx";
+import ColorMap from "@src/js/components/common/imaging/components/viewer/ColorMap.jsx";
+import ImagingFacade from "@src/js/components/common/imaging/ImagingFacade.js";
+import constants from "@src/js/components/common/imaging/constants.js";
+import ImagingMapper from "@src/js/components/common/imaging/ImagingMapper.js";
+import CustomSwitch from "@src/js/components/common/imaging/components/common/CustomSwitch.jsx";
+import ImageListItemSection from "@src/js/components/common/imaging/components/common/ImageListItemSection.js";
 
 import AddToQueueIcon from "@material-ui/icons/AddToQueue";
 import SaveIcon from "@material-ui/icons/Save";
@@ -29,6 +33,8 @@ import LoadingDialog from "@src/js/components/common/loading/LoadingDialog.jsx";
 import Message from '@src/js/components/common/form/Message.jsx'
 import ErrorDialog from "@src/js/components/common/error/ErrorDialog.jsx";
 import Button from '@src/js/components/common/form/Button.jsx'
+import DefaultMetadaField
+    from "@src/js/components/common/imaging/components/gallery/DefaultMetadaField.js";
 
 const styles = theme => ({
     imgContainer: {
@@ -316,7 +322,7 @@ class ImagingDataSetViewer extends React.PureComponent {
         const {imagingDataset, activeImageIdx, activePreviewIdx, resolution, isSaved, isChanged} = this.state;
         const {classes} = this.props;
         const activePreview = imagingDataset.images[activeImageIdx].previews[activePreviewIdx];
-        //console.log('ImagingDataSetViewer.render: ', this.state);
+        console.log('ImagingDataSetViewer.render: ', this.state);
         return (
             <React.Fragment>
                 <LoadingDialog loading={open} />
@@ -329,7 +335,7 @@ class ImagingDataSetViewer extends React.PureComponent {
                         {this.renderInputControls(classes, activePreview, imagingDataset.config.inputs, imagingDataset.config.resolutions, resolution, isChanged)}
                     </Grid>
                 </PaperBox>
-                {this.renderMetadataSection()}
+                {this.renderMetadataSection(classes, activePreview, imagingDataset.images[activeImageIdx], imagingDataset.config.metadata)}
             </React.Fragment>
         )
     };
@@ -505,16 +511,55 @@ class ImagingDataSetViewer extends React.PureComponent {
         );
     };
 
-    renderMetadataSection() {
-        const {imagingDataset, activeImageIdx, activePreviewIdx} = this.state;
-        if (!isObjectEmpty(imagingDataset.images[activeImageIdx].previews[activePreviewIdx].metadata))
-            return JSON.stringify(imagingDataset.images[activeImageIdx].previews[activePreviewIdx].metadata)
-        if (isObjectEmpty(imagingDataset.config.metadata))
-            return null;
+    renderMetadataSection(classes, activePreview, activeImage, configMetadata) {
+        const currPreviewMetadata = activePreview.metadata;
+        /*if (!isObjectEmpty(currPreviewMetadata))
+            return JSON.stringify(currPreviewMetadata)*/
+        if (isObjectEmpty(configMetadata) && isObjectEmpty(currPreviewMetadata))
+            return (
+                <PaperBox>
+                    <Typography gutterBottom variant='h6'>
+                        No Metadata to display
+                    </Typography>
+                </PaperBox>
+            );
         return (
             <PaperBox>
-                <MetadataViewer configMetadata={imagingDataset.config.metadata}
-                                previews={imagingDataset.images[activeImageIdx].previews}/>
+                <Typography gutterBottom variant='h6'>
+                    Preview Metadata Section
+                </Typography>
+                <Typography key={`preview-metadata-${activePreview.index}`} variant="body2"
+                            color="textSecondary" component={'span'}>
+                    {isObjectEmpty(currPreviewMetadata) ?
+                        <p>No preview metadata to display</p>
+                        : Object.entries(currPreviewMetadata).map(([key, value], pos) =>
+                            <DefaultMetadaField key={'preview-property-' + pos} keyProp={key} valueProp={value} idx={activeImage.index} pos={pos}/>)
+                    }
+                </Typography>
+                <Divider/>
+                <Typography gutterBottom variant='h6'>
+                    Image Metadata Section
+                </Typography>
+                <Typography key={`image-metadata-${activeImage.index}`} variant="body2"
+                            color="textSecondary" component={'span'}>
+                    {isObjectEmpty(activeImage.metadata) ?
+                        <p>No image metadata to display</p>
+                        : Object.entries(activeImage.metadata).map(([key, value], pos) =>
+                            <DefaultMetadaField key={'image-property-' + pos} keyProp={key} valueProp={value} idx={activePreview.index} pos={pos}/>)
+                    }
+                </Typography>
+                <Divider/>
+                    <Typography gutterBottom variant='h6'>
+                        Config Metadata section
+                    </Typography>
+                <Typography key={`config-metadata`} variant="body2"
+                            color="textSecondary" component={'span'}>
+                    {isObjectEmpty(configMetadata) ?
+                        <p>No config metadata to display</p>
+                        : Object.entries(configMetadata).map(([key, value], pos) =>
+                            <DefaultMetadaField key={'config-property-' + pos} keyProp={key} valueProp={value} idx={activePreview.index} pos={pos}/>)
+                    }
+                </Typography>
             </PaperBox>
         )
     };

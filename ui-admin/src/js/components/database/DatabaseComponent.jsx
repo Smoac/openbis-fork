@@ -4,11 +4,11 @@ import AppController from '@src/js/components/AppController.js'
 import openbis from '@src/js/services/openbis.js'
 import objectType from '@src/js/common/consts/objectType.js'
 import logger from '@src/js/common/logger.js'
-import ImagingDataSetViewer from "@src/js/components/database/imaging/ImagingDatasetViewer.jsx";
-import constants from "@src/js/components/database/imaging/constants.js";
-import ImagingGalleryViewer from "@src/js/components/database/imaging/ImagingGalleryViewer.js";
+import constants from "@src/js/components/common/imaging/constants.js";
 import pages from "@src/js/common/consts/pages";
-import objectTypes from "@src/js/common/consts/objectType";
+import objectTypes from "@src/js/common/consts/objectType.js";
+import ImagingGalleryViewer from "@src/js/components/common/imaging/ImagingGalleryViewer.jsx";
+import ImagingDatasetViewer from "@src/js/components/common/imaging/ImagingDatasetViewer.jsx";
 
 class DatabaseComponent extends React.PureComponent {
   constructor(props) {
@@ -101,7 +101,7 @@ class DatabaseComponent extends React.PureComponent {
     const { object } = this.props
     return (
       <Container>
-        {(object.type === objectType.DATA_SET && constants.IMAGING_DATA_CONFIG in this.state.json.properties) && <ImagingDataSetViewer onUnsavedChanges={this.imagingDatasetChange} objId={object.id} extOpenbis={openbis}/>}
+        {(object.type === objectType.DATA_SET && constants.IMAGING_DATA_CONFIG in this.state.json.properties) && <ImagingDatasetViewer onUnsavedChanges={this.imagingDatasetChange} objId={object.id} extOpenbis={openbis}/>}
         {object.type === objectType.COLLECTION && <ImagingGalleryViewer onOpenPreview={this.datasetOpenTab} objId={object.id} extOpenbis={openbis}/>}
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         <pre>{JSON.stringify(this.state.json || {}, null, 2)}</pre>

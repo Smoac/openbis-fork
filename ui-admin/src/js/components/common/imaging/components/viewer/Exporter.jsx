@@ -1,12 +1,12 @@
 import {Box, Modal, Typography} from "@material-ui/core";
 import React from "react";
-import Dropdown from "@src/js/components/database/imaging/components/common/Dropdown";
+import Dropdown from "@src/js/components/common/imaging/components/common/Dropdown.jsx";
 import { makeStyles } from "@material-ui/core/styles";
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 import messages from "@src/js/common/messages.js";
-import constants from "@src/js/components/database/imaging/constants.js";
+import constants from "@src/js/components/common/imaging/constants.js";
 import Button from "@src/js/components/common/form/Button.jsx";
-import {isObjectEmpty} from "@src/js/components/database/imaging/utils";
+import {isObjectEmpty} from "@src/js/components/common/imaging/utils.js";
 
 const style = {
     position: 'absolute',
