@@ -459,7 +459,27 @@ public class CreatePropertyTypeTest extends AbstractTest
     {
         PropertyTypeCreation creation = createBasic();
         creation.setDataType(null);
-        ;
+
+
+        assertUserFailureException(creation, "Data type not specified.");
+    }
+
+    @Test
+    public void testMissingPatternWithPatternTypeFilled()
+    {
+        PropertyTypeCreation creation = createBasic();
+        creation.setPatternType("PATTERN");
+
+
+        assertUserFailureException(creation, "Data type not specified.");
+    }
+
+    @Test
+    public void testMissingPatternTypeWithPatternFilled()
+    {
+        PropertyTypeCreation creation = createBasic();
+        creation.setPattern("SomePattern");
+
 
         assertUserFailureException(creation, "Data type not specified.");
     }
