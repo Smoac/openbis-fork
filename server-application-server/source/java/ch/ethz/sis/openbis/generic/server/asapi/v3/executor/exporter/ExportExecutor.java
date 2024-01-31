@@ -67,6 +67,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -144,6 +146,7 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFil
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSetFileFetchOptions;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
+import ch.ethz.sis.openbis.generic.server.FileServiceServlet;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.sharedapi.v3.json.ObjectMapperResource;
@@ -240,6 +243,8 @@ public class ExportExecutor implements IExportExecutor
 
     /** All characters except the ones we consider safe as a directory name. */
     private static final String UNSAFE_CHARACTERS_REGEXP = "[^\\w $!#%'()+,\\-.;=@\\[\\]^{}_~]";
+
+    private static final Pattern FILE_SERVICE_PATTERN = Pattern.compile("/openbis/" + FileServiceServlet.FILE_SERVICE_PATH + "/");
 
     @Resource(name = ObjectMapperResource.NAME)
     private ObjectMapper objectMapper;
@@ -1645,7 +1650,8 @@ public class ExportExecutor implements IExportExecutor
         final String extension = imageSrc.substring(imageSrc.lastIndexOf('.'));
         final String mediaType = MEDIA_TYPE_BY_EXTENSION.getOrDefault(extension, DEFAULT_MEDIA_TYPE);
         final String dataPrefix = String.format(DATA_PREFIX_TEMPLATE, mediaType);
-        final String filePath = getFilesRepository().getCanonicalPath() + "/" + imageSrc;
+
+        final String filePath = getFilesRepository().getCanonicalPath() + "/" + extractFileServicePath(imageSrc);
 
         final StringBuilder result = new StringBuilder(dataPrefix);
         final FileInputStream fileInputStream = new FileInputStream(filePath);
@@ -1664,6 +1670,13 @@ public class ExportExecutor implements IExportExecutor
         }
 
         return result.toString();
+    }
+
+    protected String extractFileServicePath(final String value)
+    {
+        final Matcher matcher = FILE_SERVICE_PATTERN.matcher(value);
+        final boolean found = matcher.find();
+        return found ? value.substring(matcher.end()) : null;
     }
 
     /**
