@@ -1676,7 +1676,9 @@ public class ExportExecutor implements IExportExecutor
     {
         final Matcher matcher = FILE_SERVICE_PATTERN.matcher(value);
         final boolean found = matcher.find();
-        return found ? value.substring(matcher.end()) : null;
+
+        // If not match is found, it would normally mean we are in testing.
+        return found ? value.substring(matcher.end()) : value;
     }
 
     /**
