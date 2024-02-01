@@ -20,7 +20,7 @@ Our recommendation is to run openBIS within a **three-container setup**, in part
 
 Docker Compose is a tool for defining and running multi-container applications. It simplifies the control of the entire openBIS service, making it easy to control the application workflow in a single, comprehensible YAML configuration file, allows to create, start and stop all services by issuing a single command.
 
-We are providing a pre-compiled `docker-compose.yml` available for download [here](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/04c237df3a7c92c75c9c64242ddfa9dc150d72f7/hub/openbis-server/compose/docker-compose.yml), which is ready to use out of the box. To run the application, just navigate to the sub-directory where you've downloaded the `docker-compose.yml` to, and then run `docker-compose up -d` (exact command depends on your OS, and the release of docker and docker-compose installed). For advanced use, consider to modify the file according to your needs ([more details](usage.md)). Note that this example does not include an ingress controler. For full examples, proceed to [Ingress](#ingress).
+We are providing a pre-compiled `docker-compose.yml` available for download [here](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/master/hub/openbis-server/compose/docker-compose.yml), which is ready to use out of the box. To run the application, just navigate to the sub-directory where you've downloaded the `docker-compose.yml` to, and then run `docker-compose up -d` (exact command depends on your OS, and the release of docker and docker-compose installed). For advanced use, consider to modify the file according to your needs ([more details](usage.md)). Note that this example does not include an ingress controler. For full examples, proceed to [Ingress](#ingress).
 
 The sections below provide a brief description of the individual components used in the proposed multi-container setup.
 
@@ -163,8 +163,8 @@ An **ingress container** acts as reverse proxy and performs Transport Layer Secu
 ### Nginx
 
 In order to use nginx as an ingress container, it is required to deploy the following files, as provided on our [source-repositories.md](source repository):
-- [docker-compose-nginx.yml](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/323eaf03c002bc36cfcc0564687e81724aa1bf2a/hub/openbis-server/compose/docker-compose-nginx.yml)
-- [nginx config](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/323eaf03c002bc36cfcc0564687e81724aa1bf2a/hub/openbis-server/compose/nginx/my-nginx.conf), to be placed in sub-directory `nginx`
+- [docker-compose-nginx.yml](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/master/hub/openbis-server/compose/docker-compose-nginx.yml)
+- [nginx config](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/master/hub/openbis-server/compose/nginx/my-nginx.conf), to be placed in sub-directory `nginx`
 
 To run the application, you need to:
 - have docker and docker-compose installed
@@ -174,8 +174,8 @@ To run the application, you need to:
 ### Apache httpd
 
 In order to use apache-httpd as an ingress container, it is required to deploy the following files, as provided on our [source-repositories.md](source repository):
-- [docker-compose-httpd.yml](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/323eaf03c002bc36cfcc0564687e81724aa1bf2a/hub/openbis-server/compose/docker-compose-httpd.yml)
-- [apache-httpd config](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/323eaf03c002bc36cfcc0564687e81724aa1bf2a/hub/openbis-server/compose/httpd/my-httpd.conf), to be placed in sub-directory `httpd`
+- [docker-compose-httpd.yml](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/master/hub/openbis-server/compose/docker-compose-httpd.yml)
+- [apache-httpd config](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/master/hub/openbis-server/compose/httpd/my-httpd.conf), to be placed in sub-directory `httpd`
 
 To run the application, you need to:
 - have docker and docker-compose installed
