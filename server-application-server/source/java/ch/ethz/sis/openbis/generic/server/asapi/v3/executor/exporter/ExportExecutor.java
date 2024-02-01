@@ -1404,15 +1404,7 @@ public class ExportExecutor implements IExportExecutor
                         if (propertyType.getDataType() == DataType.MULTILINE_VARCHAR &&
                                 Objects.equals(propertyType.getMetaData().get("custom_widget"), "Word Processor"))
                         {
-                            final StringBuilder propertyValueBuilder = new StringBuilder(initialPropertyValue);
-                            final Document doc = Jsoup.parse(initialPropertyValue);
-                            final Elements imageElements = doc.select("img");
-                            for (final Element imageElement : imageElements)
-                            {
-                                final String imageSrc = imageElement.attr("src");
-                                replaceAll(propertyValueBuilder, imageSrc, encodeImageContentToString(imageSrc));
-                            }
-                            propertyValue = propertyValueBuilder.toString();
+                            propertyValue = encodeImages(initialPropertyValue);
                         } else if (propertyType.getDataType() == DataType.XML
                                 && Objects.equals(propertyType.getMetaData().get("custom_widget"), "Spreadsheet")
                                 && initialPropertyValue.toUpperCase().startsWith(DATA_TAG_START) && initialPropertyValue.toUpperCase()
@@ -1446,7 +1438,7 @@ public class ExportExecutor implements IExportExecutor
             if (description != null)
             {
                 documentBuilder.addHeader("Description");
-                documentBuilder.addParagraph(description);
+                documentBuilder.addParagraph(encodeImages(description));
             }
         }
 
@@ -1557,6 +1549,21 @@ public class ExportExecutor implements IExportExecutor
         }
 
         return documentBuilder.getHtml();
+    }
+
+    private String encodeImages(final String initialPropertyValue) throws IOException
+    {
+        final String propertyValue;
+        final StringBuilder propertyValueBuilder = new StringBuilder(initialPropertyValue);
+        final Document doc = Jsoup.parse(initialPropertyValue);
+        final Elements imageElements = doc.select("img");
+        for (final Element imageElement : imageElements)
+        {
+            final String imageSrc = imageElement.attr("src");
+            replaceAll(propertyValueBuilder, imageSrc, encodeImageContentToString(imageSrc));
+        }
+        propertyValue = propertyValueBuilder.toString();
+        return propertyValue;
     }
 
     private static IEntityType getEntityType(final IApplicationServerInternalApi v3, final String sessionToken, final ICodeHolder entityObj)
