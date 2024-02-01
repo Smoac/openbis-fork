@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
 import java.util.Arrays;
@@ -35,8 +36,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options.ImportOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
@@ -68,6 +72,30 @@ public class ZipImportTest extends AbstractImportTest
 
         final List<VocabularyTerm> vocabularyTerms = vocabularySearchResult.getObjects().get(0).getTerms();
         assertEquals(vocabularyTerms.stream().map(VocabularyTerm::getCode).collect(Collectors.toSet()), Set.of("HRP", "AAA"));
+    }
+
+    @Test
+    public void testLargeDataImport()
+    {
+        final IImportData importData = new ZipImportData(ImportFormat.XLS, getFileContent("import_large_cell.zip"));
+        final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
+
+        v3api.executeImport(sessionToken, importData, importOptions);
+
+        final SampleSearchCriteria sampleSearchCriteria = new SampleSearchCriteria();
+        sampleSearchCriteria.withCode().thatEquals("AAA");
+
+        final SampleFetchOptions sampleFetchOptions = new SampleFetchOptions();
+        sampleFetchOptions.withProperties();
+
+        final SearchResult<Sample> sampleSearchResult = v3api.searchSamples(sessionToken, sampleSearchCriteria, sampleFetchOptions);
+
+        assertEquals(sampleSearchResult.getTotalCount(), 1);
+
+        final String propertyValue = sampleSearchResult.getObjects().get(0).getProperty("NOTES");
+        assertNotNull(propertyValue);
+        assertTrue(propertyValue.startsWith("Lorem ipsum dolor sit amet"));
+        assertTrue(propertyValue.length() > Short.MAX_VALUE);
     }
 
     @Test

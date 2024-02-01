@@ -17,13 +17,78 @@
 
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.CODE;
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.DESCRIPTION;
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.IDENTIFIER;
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.REGISTRATOR;
+import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.SPACE;
+import static ch.ethz.sis.openbis.generic.server.FileServiceServlet.REPO_PATH_KEY;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter.ExportExecutor.HTML_EXTENSION;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter.ExportExecutor.JSON_EXTENSION;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter.ExportExecutor.METADATA_FILE_NAME;
+import static ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter.ExportExecutor.PDF_EXTENSION;
+import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.XLSX_EXTENSION;
+import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.ZIP_EXTENSION;
+import static ch.ethz.sis.openbis.systemtest.asapi.v3.ExportData.RICH_TEXT_PROPERTY_NAME;
+import static ch.ethz.sis.openbis.systemtest.asapi.v3.ExportData.RICH_TEXT_WITH_IMAGE_PROPERTY_NAME;
+import static ch.ethz.sis.openbis.systemtest.asapi.v3.ExportData.RICH_TEXT_WITH_SPREADSHEET_PROPERTY_NAME;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.ObjectOutputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.io.filefilter.NameFileFilter;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.deletion.id.IDeletionId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.ExportResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.AllFields;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportData;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.*;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportableKind;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.IExportableFields;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.SelectedFields;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportFormat;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.XlsTextFormat;
@@ -49,32 +114,6 @@ import ch.ethz.sis.openbis.generic.server.xls.export.XLSExportTest;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
-import org.apache.commons.io.filefilter.NameFileFilter;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.testng.annotations.*;
-
-import javax.annotation.Resource;
-import java.io.*;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-
-import static ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.Attribute.*;
-import static ch.ethz.sis.openbis.generic.server.FileServiceServlet.REPO_PATH_KEY;
-import static ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter.ExportExecutor.*;
-import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.XLSX_EXTENSION;
-import static ch.ethz.sis.openbis.generic.server.xls.export.XLSExport.ZIP_EXTENSION;
-import static ch.ethz.sis.openbis.systemtest.asapi.v3.ExportData.*;
-import static org.testng.Assert.*;
 
 public class ExportTest extends AbstractTest
 {
@@ -439,7 +478,7 @@ public class ExportTest extends AbstractTest
     {
         final ExportData exportData = new ExportData(List.of(new ExportablePermId(ExportableKind.SAMPLE, bigCellSamplePermId.getPermId())),
                 new SelectedFields(List.of(REGISTRATOR, CODE, IDENTIFIER, SPACE, DESCRIPTION),
-                List.of(richTextPropertyTypePermId)));
+                        List.of(richTextPropertyTypePermId)));
         final ExportOptions exportOptions = new ExportOptions(EnumSet.of(ExportFormat.XLSX), XlsTextFormat.RICH, false, false, false);
         final ExportResult exportResult = v3api.executeExport(sessionToken, exportData, exportOptions);
 
@@ -488,8 +527,8 @@ public class ExportTest extends AbstractTest
     private static byte[] getObjectBytes(final Object obj) throws IOException
     {
         try (
-            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            final ObjectOutputStream oos = new ObjectOutputStream(baos)
+                final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                final ObjectOutputStream oos = new ObjectOutputStream(baos)
         )
         {
             oos.writeObject(obj);
@@ -697,7 +736,7 @@ public class ExportTest extends AbstractTest
         assertNotNull(files);
         assertEquals(1, files.length,
                 String.format("Session workspace should contain only one file with the download URL '%s' but in contains the following files: %s",
-                actualResultFilePath, Arrays.toString(files)));
+                        actualResultFilePath, Arrays.toString(files)));
 
         return files[0];
     }
