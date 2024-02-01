@@ -87,12 +87,7 @@ public class XLSExperimentTypeExportHelper extends AbstractXLSEntityTypeExportHe
             final String permId)
     {
         final ExperimentTypeFetchOptions fetchOptions = new ExperimentTypeFetchOptions();
-        fetchOptions.withValidationPlugin().withScript();
-        final PropertyAssignmentFetchOptions propertyAssignmentFetchOptions = fetchOptions.withPropertyAssignments();
-        propertyAssignmentFetchOptions.withPropertyType().withVocabulary();
-        propertyAssignmentFetchOptions.withPropertyType().withSampleType();
-        propertyAssignmentFetchOptions.withPropertyType().withMaterialType();
-        propertyAssignmentFetchOptions.withPlugin().withScript();
+        configureFetchOptions(fetchOptions);
         final Map<IEntityTypeId, ExperimentType> experimentTypes = api.getExperimentTypes(sessionToken,
                 Collections.singletonList(new EntityTypePermId(permId, EntityKind.EXPERIMENT)), fetchOptions);
 
@@ -100,6 +95,16 @@ public class XLSExperimentTypeExportHelper extends AbstractXLSEntityTypeExportHe
 
         final Iterator<ExperimentType> iterator = experimentTypes.values().iterator();
         return iterator.hasNext() ? iterator.next() : null;
+    }
+
+    static void configureFetchOptions(final ExperimentTypeFetchOptions fetchOptions)
+    {
+        fetchOptions.withValidationPlugin().withScript();
+        final PropertyAssignmentFetchOptions propertyAssignmentFetchOptions = fetchOptions.withPropertyAssignments();
+        propertyAssignmentFetchOptions.withPropertyType().withVocabulary();
+        propertyAssignmentFetchOptions.withPropertyType().withSampleType();
+        propertyAssignmentFetchOptions.withPropertyType().withMaterialType();
+        propertyAssignmentFetchOptions.withPlugin().withScript();
     }
 
     @Override

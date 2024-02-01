@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright ETH 2012 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.openbis.common.spring;
 
 import java.io.Serializable;
@@ -31,7 +30,7 @@ import ch.systemsx.cisd.openbis.common.logging.ServiceCallLogConfiguration;
 
 /**
  * Interceptor for objects which provide their own logger.
- * 
+ *
  * @author Franz-Josef Elmer
  */
 public final class LogInterceptor implements MethodInterceptor, Serializable
@@ -109,7 +108,13 @@ public final class LogInterceptor implements MethodInterceptor, Serializable
 
             if (ServiceCallLogConfiguration.getInstance().isLogServiceCallStartEnabled())
             {
-                method.invoke(logger, arguments);
+                try
+                {
+                    method.invoke(logger, arguments);
+                } catch (IllegalArgumentException ex)
+                {
+                    // ignored if 'method' isn't a method of 'logger'
+                }
             }
 
             final Object result = invocation.proceed();

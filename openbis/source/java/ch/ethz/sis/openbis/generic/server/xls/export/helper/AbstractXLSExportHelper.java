@@ -15,19 +15,30 @@
  */
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
+import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
+import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.ClientAnchor;
+import org.apache.poi.ss.usermodel.CreationHelper;
+import org.apache.poi.ss.usermodel.Drawing;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Hyperlink;
+import org.apache.poi.ss.usermodel.Picture;
+import org.apache.poi.ss.usermodel.PictureData;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -48,7 +59,7 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
 
     protected static final String[] ENTITY_ASSIGNMENT_COLUMNS = new String[] { "Code", "Mandatory",
             "Show in edit views", "Section", "Property label", "Data type", "Vocabulary code", "Description",
-            "Metadata", "Dynamic script" };
+            "Metadata", "Dynamic script", "Multivalued", "Unique" };
 
     protected static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(BasicConstant.DATE_HOURS_MINUTES_SECONDS_PATTERN);
 
@@ -56,13 +67,13 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
 
     public static final String FIELD_ID_KEY = "id";
 
-    final Workbook wb;
+    private final Workbook wb;
     
-    final CellStyle normalCellStyle;
+    private final CellStyle normalCellStyle;
     
-    final CellStyle boldCellStyle;
+    private final CellStyle boldCellStyle;
 
-    final CellStyle errorCellStyle;
+    private final CellStyle errorCellStyle;
 
     public AbstractXLSExportHelper(final Workbook wb)
     {
@@ -107,10 +118,11 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
         }
     }
 
-    protected Collection<String> addRow(final int rowNumber, final boolean bold,
+    protected AddRowResult addRow(final int rowNumber, final boolean bold,
             final ExportableKind exportableKind, final String idForWarningsOrErrors, final String... values)
     {
         final Collection<String> warnings = new ArrayList<>();
+        final Map<String, String> valueFiles = new HashMap<>();
 
         final Row row = wb.getSheetAt(0).createRow(rowNumber);
         for (int i = 0; i < values.length; i++)
@@ -124,31 +136,22 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
                 cell.setCellValue(value);
             } else
             {
-                String kindDisplayName = null;
-                if (exportableKind == ExportableKind.SAMPLE)
-                {
-                    kindDisplayName = "OBJECT";
-                } else if (exportableKind == ExportableKind.SAMPLE_TYPE)
-                {
-                    kindDisplayName = "OBJECT_TYPE";
-                } else if (exportableKind == ExportableKind.EXPERIMENT)
-                {
-                    kindDisplayName = "COLLECTION";
-                } else if (exportableKind == ExportableKind.EXPERIMENT_TYPE)
-                {
-                    kindDisplayName = "COLLECTION_TYPE";
-                } else
-                {
-                    kindDisplayName = exportableKind.toString();
-                }
-                warnings.add(String.format("Line: %d Kind: %s ID: '%s' - Value exceeds " +
-                        "the maximum size supported by Excel: %d.", rowNumber + 1, idForWarningsOrErrors,
-                        kindDisplayName, Short.MAX_VALUE));
-                cell.setCellStyle(errorCellStyle);
+                final String fileName = String.format("value-%c%d.txt", (char) ('A' + i), rowNumber + 1);
+
+                cell.setCellValue(String.format("__%s__", fileName));
+                valueFiles.put(fileName, value);
             }
         }
 
-        return warnings;
+        return new AddRowResult(warnings, valueFiles);
+    }
+
+    protected void addRow(int rowNumber, boolean bold, final ExportableKind exportableKind, final String idForWarningsOrErrors,
+            final Collection<String> warnings, final Map<String, String> valueFiles, final String... values)
+    {
+        final AddRowResult addRowResult = addRow(rowNumber, bold, exportableKind, idForWarningsOrErrors, values);
+        warnings.addAll(addRowResult.getWarnings());
+        valueFiles.putAll(addRowResult.getValueFiles());
     }
 
     @Override
@@ -163,7 +166,7 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
         return textFormatting == XLSExport.TextFormatting.PLAIN
                 ? propertyType -> propertyType.getDataType() == DataType.MULTILINE_VARCHAR
                         ? getProperty(properties, propertyType) != null
-                                ? properties.get(propertyType.getCode()).replaceAll("<[^>]+>", "")
+                                ? ((String)properties.get(propertyType.getCode())).replaceAll("<[^>]+>", "")
                                 : null
                         : getProperty(properties, propertyType)
                 : propertyType -> getProperty(properties, propertyType);
@@ -172,6 +175,32 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
     private static String getProperty(final Map<String, String> properties, final PropertyType propertyType)
     {
         return properties.get(propertyType.getCode());
+    }
+
+
+    protected static class AddRowResult
+    {
+
+        private final Collection<String> warnings;
+
+        private final Map<String, String> valueFiles;
+
+        protected AddRowResult(final Collection<String> warnings, final Map<String, String> valueFiles)
+        {
+            this.warnings = warnings;
+            this.valueFiles = valueFiles;
+        }
+
+        public Collection<String> getWarnings()
+        {
+            return warnings;
+        }
+
+        public Map<String, String> getValueFiles()
+        {
+            return valueFiles;
+        }
+
     }
 
 }

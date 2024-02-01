@@ -474,6 +474,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         conversationClient.setDataStoreInformation(dssURL, info.getTimeoutInMinutes());
         conversationServer.setDataStoreInformation(info.getDataStoreCode(), dssURL,
                 info.getTimeoutInMinutes());
+        CommonServiceProvider.setDataStoreServerApi(dssURL, info.getTimeoutInMinutes());
     }
 
     private String checkVersion(DataStoreServerInfo info, Session session, String dssSessionToken)

@@ -76,6 +76,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentSear
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentTypeUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.ExportResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.ExternalDms;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.create.ExternalDmsCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.delete.ExternalDmsDeletionOptions;
@@ -271,7 +274,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
  * @author pkupczyk
  */
 public class ApplicationServerApiLogger extends AbstractServerLogger implements
-        IApplicationServerApi
+        IApplicationServerInternalApi
 {
     public ApplicationServerApiLogger(ISessionManager<Session> sessionManager,
             IInvocationLoggerContext context)
@@ -311,6 +314,11 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
 
     @Override
     public String loginAs(String userId, String password, String asUser)
+    {
+        return null;
+    }
+
+    @Override public String loginAsSystem()
     {
         return null;
     }
@@ -1371,4 +1379,14 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
         logAccess(sessionToken, "execute-import", "IImportData(%s) ImportOptions(%s)", importData, importOptions);
     }
 
+    @Override
+    public ExportResult executeExport(final String sessionToken, final ExportData exportData, final ExportOptions exportOptions)
+    {
+        logAccess(sessionToken, "execute-export", "ExportData(%s) ExportOptions(%s)", exportData, exportOptions);
+        return null;
+    }
+
+    @Override public void registerUser(final String sessionToken)
+    {
+    }
 }

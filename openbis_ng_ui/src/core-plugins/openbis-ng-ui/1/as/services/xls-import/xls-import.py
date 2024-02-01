@@ -66,6 +66,8 @@ def process(context, parameters):
             parameters.put('xls', byteArrays)
             allScripts = MasterDataRegistrationHelper.getAllScripts(Path.of(tempPath))
             parameters.put('scripts', allScripts)
+            largeValues = MasterDataRegistrationHelper.getAllLargeValues(Path.of(tempPath))
+            parameters.put('values', largeValues)
         else:
             # Check if xls_base64 is used for a single XLS
             xls_base64_string = parameters.get('xls_base64', None)
@@ -107,11 +109,12 @@ def _import(context, parameters):
     session_token = context.sessionToken
     api = context.applicationService
     scripts = parameters.get('scripts', {})
+    values = parameters.get('values', {})
     mode = get_update_mode(parameters)
     options = get_import_options(parameters)
     xls_name = parameters.get('xls_name', None)
 
-    importXls = XLSImport(session_token, api, scripts, mode, options, xls_name)
+    importXls = XLSImport(session_token, api, scripts, values, mode, options, xls_name)
 
     ids = ArrayList()
     xls_byte_arrays = parameters.get('xls', None)

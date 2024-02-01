@@ -31,6 +31,7 @@ define(["stjs", "as/dto/importer/data/IImportData"],
         prototype.format = null;
         prototype.file = null;
         prototype.scripts = null;
+        prototype.importValues = null;
 
         prototype.getFormat = function() {
           return this.format;
@@ -55,6 +56,14 @@ define(["stjs", "as/dto/importer/data/IImportData"],
         prototype.setScripts = function(scripts) {
           this.scripts = scripts;
         };
+
+        prototype.getImportValues = function() {
+          return this.importValues;
+        };
+
+        prototype.setImportValues = function(importValues) {
+          this.importValues = importValues;
+        };
       },
       {
         format: "ImportFormat",
@@ -62,6 +71,10 @@ define(["stjs", "as/dto/importer/data/IImportData"],
         scripts: {
           name: "Collection",
           arguments: ["ImportScript"]
+        },
+        importValues: {
+          name: "Collection",
+          arguments: ["ImportValue"]
         }
       }
     );

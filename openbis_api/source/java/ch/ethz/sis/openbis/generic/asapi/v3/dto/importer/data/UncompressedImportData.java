@@ -39,16 +39,21 @@ public class UncompressedImportData implements Serializable, IImportData
     @JsonProperty
     private Collection<ImportScript> scripts;
 
+    @JsonProperty
+    private Collection<ImportValue> importValues;
+
     @SuppressWarnings("unused")
     public UncompressedImportData()
     {
     }
 
-    public UncompressedImportData(final ImportFormat format, final byte[] file, final Collection<ImportScript> scripts)
+    public UncompressedImportData(final ImportFormat format, final byte[] file, final Collection<ImportScript> scripts,
+            final Collection<ImportValue> importValues)
     {
         this.format = format;
         this.file = file;
         this.scripts = scripts;
+        this.importValues = importValues;
     }
 
     @JsonIgnore
@@ -85,6 +90,18 @@ public class UncompressedImportData implements Serializable, IImportData
     public void setScripts(final Collection<ImportScript> scripts)
     {
         this.scripts = scripts;
+    }
+
+    @JsonIgnore
+    public Collection<ImportValue> getImportValues()
+    {
+        return importValues;
+    }
+
+    @JsonIgnore
+    public void setImportValues(final Collection<ImportValue> importValues)
+    {
+        this.importValues = importValues;
     }
 
     @Override

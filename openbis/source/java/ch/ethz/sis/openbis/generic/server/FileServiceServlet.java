@@ -62,21 +62,21 @@ public class FileServiceServlet extends AbstractServlet
 
     private static final String APP_PREFIX = "/" + FILE_SERVICE_PATH + "/";
     private static final String KEY_PREFIX = "file-server.";
-    
-    private static final String REPO_PATH_KEY = KEY_PREFIX + "repository-path";
-    private static final String DEFAULT_REPO_PATH = "../../../data/file-server";
-    
+
+    public static final String REPO_PATH_KEY = KEY_PREFIX + "repository-path";
+    public static final String DEFAULT_REPO_PATH = "../../../data/file-server";
+
     private static final String MAX_SIZE_KEY = KEY_PREFIX + "maximum-file-size-in-MB";
     private static final int DEFAULT_MAX_SIZE = 10;
-    
+
     private static final String DOWNLOAD_CHECK_KEY = KEY_PREFIX + "download-check";
     private static final boolean DEFAULT_DOWNLOAD_CHECK = true;
-    
+
     private static final String DOWNLOAD_URL_PLACE_HOLDER = "download-url";
     private static final String ERROR_MESSAGE_PLACE_HOLDER = "error-message";
-    
+
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, FileServiceServlet.class);
-    
+
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     private ExposablePropertyPlaceholderConfigurer configurer;
 
@@ -87,7 +87,7 @@ public class FileServiceServlet extends AbstractServlet
     @RequestMapping({ "/" + FileServiceServlet.FILE_SERVICE_PATH_MAPPING,
         "/openbis/" + FileServiceServlet.FILE_SERVICE_PATH_MAPPING,
         "/openbis/openbis/" + FileServiceServlet.FILE_SERVICE_PATH_MAPPING})
-    protected void respondToRequest(HttpServletRequest request, HttpServletResponse response) 
+    protected void respondToRequest(HttpServletRequest request, HttpServletResponse response)
             throws Exception, IOException
     {
         String fullPath = request.getPathInfo();
@@ -96,7 +96,7 @@ public class FileServiceServlet extends AbstractServlet
         {
             return;
         }
-        
+
         PathInfo pathInfo = new PathInfo(fullPath.substring(indexOfPrefix + APP_PREFIX.length()));
         File filesRepository = getFilesRepository();
         operationLog.info(fullPath);
@@ -107,10 +107,10 @@ public class FileServiceServlet extends AbstractServlet
         {
             handleDownload(request, response, filesRepository, pathInfo);
         }
-        
+
     }
 
-    private void handleDownload(HttpServletRequest request, HttpServletResponse response, File filesRepository, 
+    private void handleDownload(HttpServletRequest request, HttpServletResponse response, File filesRepository,
             PathInfo pathInfo) throws IOException
     {
         if (canDownload(request) == false)
@@ -147,7 +147,7 @@ public class FileServiceServlet extends AbstractServlet
             IOUtils.closeQuietly(outputStream);
         }
     }
-    
+
     private boolean canDownload(HttpServletRequest request)
     {
         Properties props = configurer.getResolvedProps();
@@ -158,7 +158,7 @@ public class FileServiceServlet extends AbstractServlet
         return isSessionActive(request);
     }
 
-    private void handleUpload(MultipartHttpServletRequest multipartRequest, HttpServletResponse response, 
+    private void handleUpload(MultipartHttpServletRequest multipartRequest, HttpServletResponse response,
             File filesRepository, PathInfo pathInfo) throws IOException
     {
         if (isSessionActive(multipartRequest) == false)
@@ -182,7 +182,7 @@ public class FileServiceServlet extends AbstractServlet
         long maxSize = maxSizeInMB * FileUtils.ONE_MB;
         if (multipartFile.getSize() > maxSize)
         {
-            writeError(multipartRequest, response, pathInfo, "File " + originalFilename 
+            writeError(multipartRequest, response, pathInfo, "File " + originalFilename
                     + " is to large. Maximum allowed size is  " + maxSizeInMB + "MB.");
             return;
         }
@@ -205,23 +205,23 @@ public class FileServiceServlet extends AbstractServlet
     {
         return service.isSessionActive(getSessionToken(request));
     }
-    
-    private void writeDownloadUrl(MultipartHttpServletRequest multipartRequest, HttpServletResponse response, 
+
+    private void writeDownloadUrl(MultipartHttpServletRequest multipartRequest, HttpServletResponse response,
             PathInfo pathInfo, String downloadUrl) throws IOException
     {
-        writeResponse(multipartRequest, response, pathInfo, "download-url-template", 
+        writeResponse(multipartRequest, response, pathInfo, "download-url-template",
                 DOWNLOAD_URL_PLACE_HOLDER, downloadUrl);
     }
 
-    private void writeError(MultipartHttpServletRequest multipartRequest, HttpServletResponse response, 
+    private void writeError(MultipartHttpServletRequest multipartRequest, HttpServletResponse response,
             PathInfo pathInfo, String errorMessage) throws IOException
     {
         operationLog.warn("Return the following error message for '" + pathInfo + "': " + errorMessage);
-        writeResponse(multipartRequest, response, pathInfo, "error-message-template", 
+        writeResponse(multipartRequest, response, pathInfo, "error-message-template",
                 ERROR_MESSAGE_PLACE_HOLDER, errorMessage);
     }
-    
-    private void writeResponse(MultipartHttpServletRequest multipartRequest, HttpServletResponse response, 
+
+    private void writeResponse(MultipartHttpServletRequest multipartRequest, HttpServletResponse response,
             PathInfo pathInfo, String type, String placeHolder, String placeHolderValue) throws IOException
     {
         Template template = getTemplate(pathInfo, type, "${" + placeHolder + "}");
@@ -241,7 +241,7 @@ public class FileServiceServlet extends AbstractServlet
             }
         }
     }
-    
+
     private Template getTemplate(PathInfo pathInfo, String type, String defaultValue)
     {
         String key = KEY_PREFIX + "section_" + pathInfo.getSection() + "." + type;
@@ -253,7 +253,7 @@ public class FileServiceServlet extends AbstractServlet
         }
         return new Template(template);
     }
-    
+
     private File getFilesRepository()
     {
         return new File(configurer.getResolvedProps().getProperty(REPO_PATH_KEY, DEFAULT_REPO_PATH));

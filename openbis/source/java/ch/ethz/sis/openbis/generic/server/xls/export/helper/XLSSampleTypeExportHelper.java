@@ -35,6 +35,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyAssignmentFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.fetchoptions.PropertyTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
@@ -52,12 +53,7 @@ public class XLSSampleTypeExportHelper extends AbstractXLSEntityTypeExportHelper
     public SampleType getEntityType(final IApplicationServerApi api, final String sessionToken, final String permId)
     {
         final SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
-        fetchOptions.withValidationPlugin().withScript();
-        final PropertyAssignmentFetchOptions propertyAssignmentFetchOptions = fetchOptions.withPropertyAssignments();
-        propertyAssignmentFetchOptions.withPropertyType().withVocabulary();
-        propertyAssignmentFetchOptions.withPropertyType().withSampleType();
-        propertyAssignmentFetchOptions.withPropertyType().withMaterialType();
-        propertyAssignmentFetchOptions.withPlugin().withScript();
+        configureFetchOptions(fetchOptions);
         final Map<IEntityTypeId, SampleType> sampleTypes = api.getSampleTypes(sessionToken,
                 Collections.singletonList(new EntityTypePermId(permId, EntityKind.SAMPLE)), fetchOptions);
 
@@ -65,6 +61,17 @@ public class XLSSampleTypeExportHelper extends AbstractXLSEntityTypeExportHelper
 
         final Iterator<SampleType> iterator = sampleTypes.values().iterator();
         return iterator.hasNext() ? iterator.next() : null;
+    }
+
+    static void configureFetchOptions(final SampleTypeFetchOptions fetchOptions)
+    {
+        fetchOptions.withValidationPlugin().withScript();
+        final PropertyAssignmentFetchOptions propertyAssignmentFetchOptions = fetchOptions.withPropertyAssignments();
+        final PropertyTypeFetchOptions propertyTypeFetchOptions = propertyAssignmentFetchOptions.withPropertyType();
+        propertyTypeFetchOptions.withVocabulary();
+        propertyTypeFetchOptions.withSampleType();
+        propertyTypeFetchOptions.withMaterialType();
+        propertyAssignmentFetchOptions.withPlugin().withScript();
     }
 
     @Override

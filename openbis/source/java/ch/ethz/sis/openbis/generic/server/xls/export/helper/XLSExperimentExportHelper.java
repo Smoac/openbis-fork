@@ -25,8 +25,11 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.REGISTRATI
 import static ch.ethz.sis.openbis.generic.server.xls.export.Attribute.REGISTRATOR;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -36,7 +39,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.person.Person;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
@@ -153,6 +158,21 @@ public class XLSExperimentExportHelper extends AbstractXLSEntityExportHelper<Exp
     protected String typePermIdToString(final ExperimentType experimentType)
     {
         return experimentType.getPermId().getPermId();
+    }
+
+    @Override
+    public ExperimentType getEntityType(final IApplicationServerApi api, final String sessionToken, final String permId)
+    {
+        final ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
+        final ExperimentTypeFetchOptions experimentTypeFetchOptions = fetchOptions.withType();
+        XLSExperimentTypeExportHelper.configureFetchOptions(experimentTypeFetchOptions);
+        final Map<IExperimentId, Experiment> experiments = api.getExperiments(sessionToken, Collections.singletonList(
+                new ExperimentPermId(permId)), fetchOptions);
+
+        assert experiments.size() <= 1;
+
+        final Iterator<Experiment> iterator = experiments.values().iterator();
+        return iterator.hasNext() ? iterator.next().getType() : null;
     }
 
 }
