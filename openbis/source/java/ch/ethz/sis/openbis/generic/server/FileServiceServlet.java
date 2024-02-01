@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ETH Zuerich, SIS
+ * Copyright ETH 2017 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.ethz.sis.openbis.generic.server;
 
 import java.io.File;
@@ -46,7 +45,6 @@ import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.common.string.Template;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractServlet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.GenericSharedConstants;
 
 
 /**
@@ -60,11 +58,11 @@ public class FileServiceServlet extends AbstractServlet
     public static final String FILE_SERVICE_PATH = "file-service";
     public static final String FILE_SERVICE_PATH_MAPPING = FILE_SERVICE_PATH + "/**/*";
 
-    private static final String APP_PREFIX = "/" + FILE_SERVICE_PATH + "/";
     private static final String KEY_PREFIX = "file-server.";
-
     public static final String REPO_PATH_KEY = KEY_PREFIX + "repository-path";
+
     public static final String DEFAULT_REPO_PATH = "../../../data/file-server";
+    private static final String APP_PREFIX = "/" + FILE_SERVICE_PATH + "/";
 
     private static final String MAX_SIZE_KEY = KEY_PREFIX + "maximum-file-size-in-MB";
     private static final int DEFAULT_MAX_SIZE = 10;
@@ -72,7 +70,7 @@ public class FileServiceServlet extends AbstractServlet
     private static final String DOWNLOAD_CHECK_KEY = KEY_PREFIX + "download-check";
     private static final boolean DEFAULT_DOWNLOAD_CHECK = true;
 
-    private static final String DOWNLOAD_URL_PLACE_HOLDER = "download-url";
+    private static final String DOWNLOAD_URL_PLACE_HOLDER = "download-url-file-server";
     private static final String ERROR_MESSAGE_PLACE_HOLDER = "error-message";
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, FileServiceServlet.class);
@@ -85,8 +83,8 @@ public class FileServiceServlet extends AbstractServlet
 
     @Override
     @RequestMapping({ "/" + FileServiceServlet.FILE_SERVICE_PATH_MAPPING,
-        "/openbis/" + FileServiceServlet.FILE_SERVICE_PATH_MAPPING,
-        "/openbis/openbis/" + FileServiceServlet.FILE_SERVICE_PATH_MAPPING})
+            "/openbis/" + FileServiceServlet.FILE_SERVICE_PATH_MAPPING,
+            "/openbis/openbis/" + FileServiceServlet.FILE_SERVICE_PATH_MAPPING})
     protected void respondToRequest(HttpServletRequest request, HttpServletResponse response)
             throws Exception, IOException
     {
