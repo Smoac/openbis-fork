@@ -59,7 +59,7 @@ public class ExportExecutorTest
             },
             {
                     SPACE_CODE, null, null, null, null, null, null, null, EXTENSION,
-                    String.format("%s%s", SPACE_CODE, EXTENSION)
+                    String.format("%s/%s%s", SPACE_CODE, SPACE_CODE, EXTENSION)
             },
             {
                     SPACE_CODE, null, null, null, null, SAMPLE_CODE, null, null, null,

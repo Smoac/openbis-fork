@@ -1155,6 +1155,9 @@ public class ExportExecutor implements IExportExecutor
         } else if (experimentCode != null || (dataSetCode != null && sampleCode == null))
         {
             throw new IllegalArgumentException();
+        } else if (experimentCode == null && sampleCode == null && dataSetCode == null && extension != null)
+        {
+            entryBuilder.append('/').append(spaceCode);
         }
 
         if (sampleCode != null)
