@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 ETH Zuerich, CISD
+ * Copyright ETH 2019 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.condition;
 
 import java.util.Collection;
@@ -22,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CodesSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.CollectionFieldSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.IdsSearchCriteria;
@@ -37,7 +37,7 @@ import static ch.ethz.sis.openbis.generic.server.asapi.v3.search.translator.SQLL
 public class CollectionFieldSearchConditionTranslator implements IConditionTranslator<CollectionFieldSearchCriteria<?>>
 {
 
-    private static final Map<Class, Object[]> ARRAY_CASTING = new HashMap<>();
+    private static final Map<Class<?>, Object[]> ARRAY_CASTING = new HashMap<>();
 
     static
     {
@@ -88,10 +88,10 @@ public class CollectionFieldSearchConditionTranslator implements IConditionTrans
                 {
                     final Collection<?> fieldValue;
                     if (!initialFieldValue.isEmpty() && initialFieldValue.stream().anyMatch(
-                            (o) -> o instanceof EntityTypePermId))
+                            (o) -> o instanceof ObjectPermId))
                     {
                         fieldValue = initialFieldValue.stream().map(
-                                (o) -> ((EntityTypePermId) o).getPermId()).collect(Collectors.toList());
+                                (o) -> ((ObjectPermId) o).getPermId()).collect(Collectors.toList());
                     } else
                     {
                         fieldValue = initialFieldValue;
