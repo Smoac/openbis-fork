@@ -75,6 +75,11 @@ class Things:
     def is_objects_initialised(self):
         return self.__objects is not None
 
+    def _clear_df(self):
+        self.__df = self.__df_initializer(
+                attrs=self.__attrs, props=self.__props, response=self.response
+        )
+
     @property
     def df(self):
         if self.__df is None and self.__df_initializer is not None:

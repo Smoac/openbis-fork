@@ -249,8 +249,8 @@ def extract_attr(attr):
 
 def extract_identifier(ident):
     if not isinstance(ident, dict):
-        return str(ident)
-    return ident["identifier"]
+        return "" if ident is None else str(ident)
+    return "" if ident["identifier"] is None else ident["identifier"]
 
 
 def extract_identifiers(items):
@@ -269,8 +269,8 @@ def extract_identifiers(items):
 
 def extract_nested_identifier(ident):
     if not isinstance(ident, dict):
-        return str(ident)
-    return ident["identifier"]["identifier"]
+        return "" if ident is None else str(ident)
+    return "" if ident["identifier"]["identifier"] is None else ident["identifier"]["identifier"]
 
 
 def extract_nested_permid(permid):

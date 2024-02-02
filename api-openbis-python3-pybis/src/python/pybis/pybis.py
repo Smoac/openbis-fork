@@ -1791,8 +1791,10 @@ class Openbis:
                 roles["techId"] = roles["id"].map(extract_id)
                 roles["user"] = roles["user"].map(extract_userId)
                 roles["group"] = roles["authorizationGroup"].map(extract_code)
-                roles["space"] = roles["space"].map(extract_code)
-                roles["project"] = roles["project"].map(extract_code)
+                spaces_s = roles["space"].map(extract_code)
+                spaces_p = roles["project"].map(lambda x: x['space']['code'] if x is not None else '')
+                roles["space"] = spaces_s + spaces_p
+                roles["project"] = roles["project"].map(extract_nested_identifier)
             return roles[roles.columns.intersection(attrs)]
 
         return Things(
