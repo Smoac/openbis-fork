@@ -12,9 +12,21 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
+from itertools import chain
+
+from pandas import DataFrame
+
 from .attribute import AttrHolder
 from .openbis_object import OpenBisObject
-from .utils import VERBOSE
+from .things import Things
+from .utils import (
+    VERBOSE,
+    extract_code,
+    extract_id,
+    extract_nested_identifier,
+    extract_userId,
+    parse_jackson,
+)
 
 
 class Person(OpenBisObject):
@@ -58,7 +70,40 @@ class Person(OpenBisObject):
             person.get_roles()
             person.get_roles(space='TEST_SPACE')
         """
-        return self.openbis.get_role_assignments(person=self, **search_args)
+        roles = self.openbis.get_role_assignments(person=self, **search_args)
+        groups = self.openbis.get_groups(userId=self.userId, **search_args)
+
+        group_roles = chain.from_iterable(map(lambda x: x["roleAssignments"], groups.response["objects"]))
+        count = len(roles) + groups.response["totalCount"]
+        response_combined = roles.response["objects"] + list(group_roles)
+
+        return Things(
+            openbis_obj=self,
+            entity="role_assignment",
+            identifier_name="techId",
+            start_with=0,
+            count=count,
+            totalCount=count,
+            response=response_combined,
+            df_initializer=self._create_role_assigment_data_frame,
+        )
+
+    def _create_role_assigment_data_frame(self, attrs, props, response):
+        attrs = ["techId", "role", "roleLevel", "user", "group", "space", "project"]
+        if len(response) == 0:
+            roles = DataFrame(columns=attrs)
+        else:
+            objects = response
+            parse_jackson(objects)
+            roles = DataFrame(objects)
+            roles["techId"] = roles["id"].map(extract_id)
+            roles["user"] = roles["user"].map(extract_userId)
+            roles["group"] = roles["authorizationGroup"].map(extract_code)
+            spaces_s = roles["space"].map(extract_code)
+            spaces_p = roles["project"].map(lambda x: x['space']['code'] if x is not None else '')
+            roles["space"] = spaces_s + spaces_p
+            roles["project"] = roles["project"].map(extract_nested_identifier)
+        return roles[roles.columns.intersection(attrs)]
 
     def assign_role(self, role, **kwargs):
         try:

@@ -335,9 +335,9 @@ def extract_userId(user):
     if isinstance(user, list):
         return ", ".join([u["userId"] for u in user])
     elif isinstance(user, dict):
-        return user["userId"]
+        return "" if user["userId"] is None else user["userId"]
     else:
-        return str(user)
+        return "" if user is None else str(user)
 
 
 def is_number(value):
