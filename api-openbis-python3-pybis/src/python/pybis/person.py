@@ -78,11 +78,11 @@ class Person(OpenBisObject):
         response_combined = roles.response["objects"] + list(group_roles)
 
         return Things(
-            openbis_obj=self,
+            openbis_obj=self.openbis,
             entity="role_assignment",
             identifier_name="techId",
             start_with=0,
-            count=count,
+            count=0,
             totalCount=count,
             response=response_combined,
             df_initializer=self._create_role_assigment_data_frame,
