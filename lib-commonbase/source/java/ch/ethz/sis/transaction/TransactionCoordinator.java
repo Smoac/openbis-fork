@@ -119,7 +119,7 @@ public class TransactionCoordinator implements ITransactionCoordinator
             {
                 operationLog.info("Begin transaction '" + transactionId + "' for participant '" + participant.getParticipantId() + "'.");
 
-                participant.beginTransaction(transactionId, sessionToken, interactiveSessionKey);
+                participant.beginTransaction(transactionId, sessionToken, interactiveSessionKey, transactionCoordinatorKey);
             } catch (Exception e)
             {
                 operationLog.info(

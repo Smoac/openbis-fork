@@ -13,7 +13,7 @@ public interface ITransactionParticipant
      * - coordinator flow
      * - participant interactive flow
      */
-    void beginTransaction(UUID transactionId, String sessionToken, String interactiveSessionKey);
+    void beginTransaction(UUID transactionId, String sessionToken, String interactiveSessionKey, String transactionCoordinatorKey);
 
     /**
      * Used in:

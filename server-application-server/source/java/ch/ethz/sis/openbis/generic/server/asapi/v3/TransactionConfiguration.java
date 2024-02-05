@@ -20,9 +20,15 @@ public class TransactionConfiguration
 
     private static final String INTERACTIVE_SESSION_KEY_PROPERTY_NAME = "api.v3.two-phase-commit.interactive-session-key";
 
-    private static final String LOG_FOLDER_PATH_PROPERTY_NAME = "api.v3.two-phase-commit.log-folder-path";
+    private static final String LOG_FOLDER_PATH_PROPERTY_NAME = "api.v3.two-phase-commit.transaction-log-folder-path";
 
-    private static final String LOG_FOLDER_PATH_DEFAULT_VALUE = "api.v3.two-phase-commit-log";
+    private static final String LOG_FOLDER_PATH_DEFAULT = "two-phase-commit-log";
+
+    private static final String TRANSACTION_COUNT_LIMIT_PROPERTY_NAME = "api.v3.two-phase-commit.transaction-count-limit";
+
+    private static final int TRANSACTION_COUNT_LIMIT_DEFAULT = 10;
+
+    private static final String DATASTORE_SERVER_URL_PROPERTY_NAME = "api.v3.two-phase-commit.datastore-server-url";
 
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     private ExposablePropertyPlaceholderConfigurer configurer;
@@ -31,14 +37,21 @@ public class TransactionConfiguration
 
     private String interactiveSessionKey;
 
-    private String logFolderPath;
+    private String transactionLogFolderPath;
+
+    private int transactionCountLimit;
+
+    private String dataStoreServerUrl;
 
     @PostConstruct
-    private void init(){
+    private void init()
+    {
         Properties properties = configurer.getResolvedProps();
         coordinatorKey = PropertyUtils.getProperty(properties, COORDINATOR_KEY_PROPERTY_NAME, generateRandomKey());
         interactiveSessionKey = PropertyUtils.getProperty(properties, INTERACTIVE_SESSION_KEY_PROPERTY_NAME, generateRandomKey());
-        logFolderPath = PropertyUtils.getProperty(properties, LOG_FOLDER_PATH_PROPERTY_NAME, LOG_FOLDER_PATH_DEFAULT_VALUE);
+        transactionLogFolderPath = PropertyUtils.getProperty(properties, LOG_FOLDER_PATH_PROPERTY_NAME, LOG_FOLDER_PATH_DEFAULT);
+        transactionCountLimit = PropertyUtils.getInt(properties, TRANSACTION_COUNT_LIMIT_PROPERTY_NAME, TRANSACTION_COUNT_LIMIT_DEFAULT);
+        dataStoreServerUrl = PropertyUtils.getMandatoryProperty(properties, DATASTORE_SERVER_URL_PROPERTY_NAME);
     }
 
     public String getCoordinatorKey()
@@ -51,12 +64,23 @@ public class TransactionConfiguration
         return interactiveSessionKey;
     }
 
-    public String getLogFolderPath()
+    public String getTransactionLogFolderPath()
     {
-        return logFolderPath;
+        return transactionLogFolderPath;
     }
 
-    private String generateRandomKey(){
+    public int getTransactionCountLimit()
+    {
+        return transactionCountLimit;
+    }
+
+    public String getDataStoreServerUrl()
+    {
+        return dataStoreServerUrl;
+    }
+
+    private String generateRandomKey()
+    {
         return RandomStringUtils.random(16, 0, 0, true, true, null, new SecureRandom());
     }
 }

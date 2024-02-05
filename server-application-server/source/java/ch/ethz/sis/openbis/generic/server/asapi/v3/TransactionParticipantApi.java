@@ -49,7 +49,8 @@ public class TransactionParticipantApi implements ITransactionParticipantApi
                 new ApplicationServerSessionTokenProvider(applicationServerApi),
                 new ApplicationServerDatabaseTransactionProvider(transactionManager, daoFactory, databaseContext),
                 new ApplicationServerTransactionOperationExecutor(applicationServerApi),
-                new TransactionLog(new File(transactionConfiguration.getLogFolderPath()))
+                new TransactionLog(new File(transactionConfiguration.getTransactionLogFolderPath())),
+                transactionConfiguration.getTransactionCountLimit()
         );
     }
 
@@ -58,9 +59,9 @@ public class TransactionParticipantApi implements ITransactionParticipantApi
         return transactionParticipant.getParticipantId();
     }
 
-    @Override public void beginTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
+    @Override public void beginTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey, final String transactionCoordinatorKey)
     {
-        transactionParticipant.beginTransaction(transactionId, sessionToken, interactiveSessionKey);
+        transactionParticipant.beginTransaction(transactionId, sessionToken, interactiveSessionKey, transactionCoordinatorKey);
     }
 
     @Override public <T> T executeOperation(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,

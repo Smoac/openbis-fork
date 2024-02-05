@@ -25,8 +25,6 @@ public class TransactionParticipant implements ITransactionParticipant
 
     private static final String ROLLBACK_TRANSACTION_METHOD = "rollbackTransaction";
 
-    private static final int THREAD_COUNT_LIMIT = 10;
-
     private final Map<UUID, TransactionThread> threadMap = new HashMap<>();
 
     private final String participantId;
@@ -43,9 +41,11 @@ public class TransactionParticipant implements ITransactionParticipant
 
     private final ITransactionLog transactionLog;
 
+    private final int transactionCountLimit;
+
     public TransactionParticipant(String participantId, String transactionCoordinatorKey, String interactiveSessionKey,
             ISessionTokenProvider sessionTokenProvider, IDatabaseTransactionProvider databaseTransactionProvider,
-            ITransactionOperationExecutor operationExecutor, ITransactionLog transactionLog)
+            ITransactionOperationExecutor operationExecutor, ITransactionLog transactionLog, int transactionCountLimit)
     {
         if (participantId == null)
         {
@@ -82,6 +82,11 @@ public class TransactionParticipant implements ITransactionParticipant
             throw new IllegalArgumentException("Transaction log cannot be null");
         }
 
+        if (transactionCountLimit <= 0)
+        {
+            throw new IllegalArgumentException("Transaction count cannot be <= 0");
+        }
+
         this.participantId = participantId;
         this.transactionCoordinatorKey = transactionCoordinatorKey;
         this.interactiveSessionKey = interactiveSessionKey;
@@ -89,6 +94,7 @@ public class TransactionParticipant implements ITransactionParticipant
         this.databaseTransactionProvider = databaseTransactionProvider;
         this.operationExecutor = operationExecutor;
         this.transactionLog = transactionLog;
+        this.transactionCountLimit = transactionCountLimit;
     }
 
     @Override public String getParticipantId()
@@ -96,23 +102,31 @@ public class TransactionParticipant implements ITransactionParticipant
         return participantId;
     }
 
-    @Override public void beginTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
+    @Override public void beginTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
+            final String transactionCoordinatorKey)
     {
         checkTransactionId(transactionId);
         checkSessionToken(sessionToken);
         checkInteractiveSessionKey(interactiveSessionKey);
 
-        executeInTransactionThread(transactionId, sessionToken, interactiveSessionKey, null, BEGIN_TRANSACTION_METHOD, null);
+        if (transactionCoordinatorKey != null)
+        {
+            checkTransactionCoordinatorKey(transactionCoordinatorKey);
+        }
+
+        executeInTransactionThread(transactionId, sessionToken, interactiveSessionKey, transactionCoordinatorKey, BEGIN_TRANSACTION_METHOD, null);
     }
 
-    @Override public Object executeOperation(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
+    @Override public <T> T executeOperation(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
             final String operationName, final Object[] operationArguments)
     {
         checkTransactionId(transactionId);
         checkSessionToken(sessionToken);
         checkInteractiveSessionKey(interactiveSessionKey);
+        checkOperationName(operationName);
+        checkOperationArguments(operationArguments);
 
-        return executeInTransactionThread(transactionId, sessionToken, interactiveSessionKey, null, operationName, operationArguments);
+        return (T) executeInTransactionThread(transactionId, sessionToken, interactiveSessionKey, null, operationName, operationArguments);
     }
 
     @Override public void prepareTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
@@ -123,7 +137,7 @@ public class TransactionParticipant implements ITransactionParticipant
         checkInteractiveSessionKey(interactiveSessionKey);
         checkTransactionCoordinatorKey(transactionCoordinatorKey);
 
-        executeInTransactionThread(transactionId, sessionToken, interactiveSessionKey, null, PREPARE_TRANSACTION_METHOD, null);
+        executeInTransactionThread(transactionId, sessionToken, interactiveSessionKey, transactionCoordinatorKey, PREPARE_TRANSACTION_METHOD, null);
     }
 
     @Override public List<UUID> getTransactions(final String transactionCoordinatorKey)
@@ -196,7 +210,7 @@ public class TransactionParticipant implements ITransactionParticipant
 
             if (thread == null)
             {
-                if (threadMap.size() >= THREAD_COUNT_LIMIT)
+                if (threadMap.size() >= transactionCountLimit)
                 {
                     throw new RuntimeException(
                             "Cannot handle transaction '" + transactionId + "' as there are too many other transactions running already.");
@@ -204,7 +218,7 @@ public class TransactionParticipant implements ITransactionParticipant
 
                 operationLog.info("Creating a new thread for transaction '" + transactionId + "'.");
 
-                thread = new TransactionThread(transactionId);
+                thread = new TransactionThread(transactionId, interactiveSessionKey, transactionCoordinatorKey);
                 threadMap.put(transactionId, thread);
                 thread.startThread();
             } else
@@ -215,8 +229,7 @@ public class TransactionParticipant implements ITransactionParticipant
 
         try
         {
-            Object result =
-                    thread.executeOperation(sessionToken, interactiveSessionKey, transactionCoordinatorKey, operationName, operationArguments);
+            Object result = thread.executeOperation(sessionToken, operationName, operationArguments);
             operationLog.info("Transaction '" + transactionId + "' execute operation '" + operationName + "' finished successfully.");
             return result;
         } catch (Exception e)
@@ -260,6 +273,10 @@ public class TransactionParticipant implements ITransactionParticipant
 
         private final UUID transactionId;
 
+        private final String interactiveSessionKey;
+
+        private final String transactionCoordinatorKey;
+
         private String sessionToken;
 
         private String operationName;
@@ -270,9 +287,11 @@ public class TransactionParticipant implements ITransactionParticipant
 
         private Throwable operationException;
 
-        public TransactionThread(UUID transactionId)
+        public TransactionThread(UUID transactionId, String interactiveSessionKey, String transactionCoordinatorKey)
         {
             this.transactionId = transactionId;
+            this.interactiveSessionKey = interactiveSessionKey;
+            this.transactionCoordinatorKey = transactionCoordinatorKey;
             this.thread = new Thread(new Runnable()
             {
                 @Override public void run()
@@ -298,12 +317,19 @@ public class TransactionParticipant implements ITransactionParticipant
                                     {
                                         checkTransactionStatus(transactionStatus, TransactionStatus.BEGIN_FINISHED);
 
+                                        if (transactionCoordinatorKey == null)
+                                        {
+                                            throw new IllegalStateException("Transaction " + transactionId
+                                                    + " was started without transaction coordinator key, therefore calling prepare is not allowed.");
+                                        }
+
                                         changeTransactionStatus(TransactionStatus.PREPARE_STARTED);
                                         databaseTransactionProvider.prepareTransaction(transactionId, transactionObject);
                                         changeTransactionStatus(TransactionStatus.PREPARE_FINISHED);
                                     } else if (COMMIT_TRANSACTION_METHOD.equals(operationName))
                                     {
-                                        checkTransactionStatus(transactionStatus, TransactionStatus.NEW, TransactionStatus.PREPARE_FINISHED);
+                                        checkTransactionStatus(transactionStatus, TransactionStatus.NEW, TransactionStatus.BEGIN_FINISHED,
+                                                TransactionStatus.PREPARE_FINISHED);
 
                                         if (transactionStatus != TransactionStatus.NEW)
                                         {
@@ -401,8 +427,7 @@ public class TransactionParticipant implements ITransactionParticipant
             thread.start();
         }
 
-        public Object executeOperation(String newSessionToken, String newInteractiveSessionKey, String newTransactionCoordinatorKey,
-                String newOperationName, Object[] newOperationArguments)
+        public Object executeOperation(String newSessionToken, String newOperationName, Object[] newOperationArguments)
         {
             synchronized (lock)
             {
@@ -459,6 +484,15 @@ public class TransactionParticipant implements ITransactionParticipant
             return threadFinished;
         }
 
+        public String getInteractiveSessionKey()
+        {
+            return interactiveSessionKey;
+        }
+
+        public String getTransactionCoordinatorKey()
+        {
+            return transactionCoordinatorKey;
+        }
     }
 
     private void checkTransactionId(final UUID transactionId)
@@ -484,6 +518,11 @@ public class TransactionParticipant implements ITransactionParticipant
 
     private void checkInteractiveSessionKey(final String interactiveSessionKey)
     {
+        if (interactiveSessionKey == null)
+        {
+            throw new IllegalArgumentException("Interactive session key cannot be null");
+        }
+
         if (!this.interactiveSessionKey.equals(interactiveSessionKey))
         {
             throw new IllegalArgumentException("Invalid interactive session key");
@@ -492,10 +531,30 @@ public class TransactionParticipant implements ITransactionParticipant
 
     private void checkTransactionCoordinatorKey(final String transactionCoordinatorKey)
     {
+        if (transactionCoordinatorKey == null)
+        {
+            throw new IllegalArgumentException("Transaction coordinator key cannot be null");
+        }
+
         if (!this.transactionCoordinatorKey.equals(transactionCoordinatorKey))
         {
             throw new IllegalArgumentException("Invalid transaction coordinator key");
         }
     }
 
+    private void checkOperationName(final String operationName)
+    {
+        if (operationName == null)
+        {
+            throw new IllegalArgumentException("Operation name cannot be null");
+        }
+    }
+
+    private void checkOperationArguments(final Object[] operationArguments)
+    {
+        if (operationArguments == null)
+        {
+            throw new IllegalArgumentException("Operation arguments cannot be null");
+        }
+    }
 }

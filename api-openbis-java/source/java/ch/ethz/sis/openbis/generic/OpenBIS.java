@@ -21,6 +21,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.file.Path;
 import java.util.Calendar;
 import java.util.Date;
@@ -36,6 +37,7 @@ import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.util.BytesContentProvider;
 import org.eclipse.jetty.http.HttpMethod;
 
+import ch.ethz.sis.afsclient.client.AfsClient;
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.AuthorizationGroup;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.create.AuthorizationGroupCreation;
@@ -308,6 +310,8 @@ public class OpenBIS
 
     private final IDataStoreServerApi dssFacade;
 
+    private final AfsClient afsClient;
+
     private String interactiveSessionKey;
 
     private String sessionToken;
@@ -335,12 +339,17 @@ public class OpenBIS
         this(asURL, dssURL, DEFAULT_TIMEOUT_IN_MILLIS);
     }
 
-    public OpenBIS(final String asURL, final String dssURL, final int timeout)
+    public OpenBIS(final String asURL, final String dssURL, final int timeout){
+        this(asURL, dssURL, null, timeout);
+    }
+
+    public OpenBIS(final String asURL, final String dssURL, final String afsURL, final int timeout)
     {
         this.transactionCoordinator =
                 HttpInvokerUtils.createServiceStub(ITransactionCoordinatorApi.class, asURL + ITransactionCoordinatorApi.SERVICE_URL, timeout);
         this.asFacade = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, asURL + IApplicationServerApi.SERVICE_URL, timeout);
         this.dssFacade = HttpInvokerUtils.createServiceStub(IDataStoreServerApi.class, dssURL + IDataStoreServerApi.SERVICE_URL, timeout);
+        this.afsClient = new AfsClient(URI.create(afsURL));
         this.asURL = asURL;
         this.dssURL = dssURL;
         this.timeout = timeout;
@@ -1581,5 +1590,41 @@ public class OpenBIS
                 };
             }
         };
+    }
+
+    public List<ch.ethz.sis.afsapi.dto.File> list(String owner, String source, Boolean recursively){
+        if (transactionId != null)
+        {
+            return transactionCoordinator.executeOperation(transactionId, sessionToken, interactiveSessionKey,
+                    ITransactionCoordinatorApi.DATASTORE_SERVER_PARTICIPANT_ID, "list",
+                    new Object[] { owner, source, recursively });
+        } else
+        {
+            try
+            {
+                afsClient.setSessionToken(sessionToken);
+                return afsClient.list(owner, source, recursively);
+            } catch (Exception e){
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    public Boolean write(String owner, String source, Long offset, byte[] data, byte[] md5Hash){
+        if (transactionId != null)
+        {
+            return transactionCoordinator.executeOperation(transactionId, sessionToken, interactiveSessionKey,
+                    ITransactionCoordinatorApi.DATASTORE_SERVER_PARTICIPANT_ID, "write",
+                    new Object[] { owner, source, offset, data, md5Hash });
+        } else
+        {
+            try
+            {
+                afsClient.setSessionToken(sessionToken);
+                return afsClient.write(owner, source, offset, data, md5Hash);
+            } catch (Exception e){
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

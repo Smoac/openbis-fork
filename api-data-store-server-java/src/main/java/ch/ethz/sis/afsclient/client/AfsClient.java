@@ -224,7 +224,7 @@ public final class AfsClient implements PublicAPI
     {
         validateSessionToken();
         Map<String, Object> parameters =
-                Map.of("interactiveSessionKey", getInteractiveSessionKey(),
+                Map.of("sessionToken", getSessionToken(),"interactiveSessionKey", getInteractiveSessionKey(),
                         "transactionManagerKey", getTransactionManagerKey());
         return request("POST", "prepare", Map.of(), jsonObjectMapper.writeValue(parameters));
     }
@@ -234,7 +234,7 @@ public final class AfsClient implements PublicAPI
     {
         validateSessionToken();
         Map<String, Object> parameters =
-                Map.of("interactiveSessionKey", getInteractiveSessionKey());
+                Map.of("sessionToken", getSessionToken(), "interactiveSessionKey", getInteractiveSessionKey());
         request("POST", "commit", Map.of(), jsonObjectMapper.writeValue(parameters));
     }
 
@@ -243,7 +243,7 @@ public final class AfsClient implements PublicAPI
     {
         validateSessionToken();
         Map<String, Object> parameters =
-                Map.of("interactiveSessionKey", getInteractiveSessionKey());
+                Map.of("sessionToken", getSessionToken(), "interactiveSessionKey", getInteractiveSessionKey());
         request("POST", "rollback", Map.of(), jsonObjectMapper.writeValue(parameters));
     }
 
