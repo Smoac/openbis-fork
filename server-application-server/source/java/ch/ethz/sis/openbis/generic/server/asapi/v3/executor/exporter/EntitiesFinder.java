@@ -141,6 +141,8 @@ class EntitiesFinder
         final DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
 
         configureFetchOptions(fetchOptions);
+        configureFetchOptions(fetchOptions.withParents());
+        configureFetchOptions(fetchOptions.withChildren());
 
         final SampleFetchOptions sampleFetchOptions = fetchOptions.withSample();
         sampleFetchOptions.withSpace();
@@ -173,6 +175,8 @@ class EntitiesFinder
 
         final DataSetFetchOptions dataSetFetchOptions = fetchOptions.withDataSets();
         configureFetchOptions(dataSetFetchOptions);
+        configureFetchOptions(dataSetFetchOptions.withParents());
+        configureFetchOptions(dataSetFetchOptions.withChildren());
 
         return api.getExperiments(sessionToken, experimentPermIds, fetchOptions).values();
     }
@@ -213,23 +217,30 @@ class EntitiesFinder
         final List<SamplePermId> samplePermIds = permIds.stream().map(SamplePermId::new)
                 .collect(Collectors.toList());
         final SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        configureFetchOptions(fetchOptions);
+        configureFetchOptions(fetchOptions.withParents());
+        configureFetchOptions(fetchOptions.withChildren());
+
+        final DataSetFetchOptions dataSetFetchOptions = fetchOptions.withDataSets();
+        configureFetchOptions(dataSetFetchOptions);
+        configureFetchOptions(dataSetFetchOptions.withParents());
+        configureFetchOptions(dataSetFetchOptions.withChildren());
+
+        return api.getSamples(sessionToken, samplePermIds, fetchOptions).values();
+    }
+
+    private static void configureFetchOptions(final SampleFetchOptions fetchOptions)
+    {
         final ExperimentFetchOptions experimentFetchOptions = fetchOptions.withExperiment();
         experimentFetchOptions.withProperties();
         experimentFetchOptions.withProject().withSpace();
         fetchOptions.withSpace();
         fetchOptions.withProject().withSpace();
-        fetchOptions.withParents().withProperties();
-        fetchOptions.withChildren().withProperties();
         fetchOptions.withType().withPropertyAssignments().withPropertyType();
         fetchOptions.withProperties();
         fetchOptions.withRegistrator();
         fetchOptions.withModifier();
         fetchOptions.withContainer();
-
-        final DataSetFetchOptions dataSetFetchOptions = fetchOptions.withDataSets();
-        configureFetchOptions(dataSetFetchOptions);
-
-        return api.getSamples(sessionToken, samplePermIds, fetchOptions).values();
     }
 
     private static void configureFetchOptions(final DataSetFetchOptions dataSetFetchOptions)
@@ -240,8 +251,6 @@ class EntitiesFinder
         dataSetFetchOptions.withRegistrator();
         dataSetFetchOptions.withModifier();
         dataSetFetchOptions.withPhysicalData();
-        dataSetFetchOptions.withParents().withProperties();
-        dataSetFetchOptions.withChildren().withProperties();
     }
 
     public static Collection<SampleType> getSampleTypes(final String sessionToken, final Collection<String> permIds)

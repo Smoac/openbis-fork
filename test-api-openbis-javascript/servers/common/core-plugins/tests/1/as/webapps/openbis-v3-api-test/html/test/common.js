@@ -1059,6 +1059,10 @@ define([ 'jquery', 'underscore'], function($, _) {
 			this.assert.equal(actual, expected, msg);
 		};
 
+		this.assertDeepEqual = function(actual, expected, msg) {
+			this.assert.deepEqual(actual, expected, msg);
+		};
+
 		this.assertNotEqual = function(actual, expected, msg) {
 			this.assert.notEqual(actual, expected, msg);
 		};

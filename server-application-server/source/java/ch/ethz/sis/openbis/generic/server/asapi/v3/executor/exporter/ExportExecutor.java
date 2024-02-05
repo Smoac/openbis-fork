@@ -67,6 +67,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -144,6 +146,7 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFil
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSetFileFetchOptions;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
+import ch.ethz.sis.openbis.generic.server.FileServiceServlet;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.IApplicationServerInternalApi;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.sharedapi.v3.json.ObjectMapperResource;
@@ -240,6 +243,16 @@ public class ExportExecutor implements IExportExecutor
 
     /** All characters except the ones we consider safe as a directory name. */
     private static final String UNSAFE_CHARACTERS_REGEXP = "[^\\w $!#%'()+,\\-.;=@\\[\\]^{}_~]";
+
+    private static final Pattern FILE_SERVICE_PATTERN = Pattern.compile("/openbis/" + FileServiceServlet.FILE_SERVICE_PATH + "/");
+
+    /** Used to replace possible illegal characters in the HTML. */
+    private static final String XML_10_REGEXP = "[^"
+            + "\u0009\r\n"
+            + "\u0020-\uD7FF"
+            + "\uE000-\uFFFD"
+            + "\uD800\uDC00-\uDBFF\uDFFF"
+            + "]";
 
     @Resource(name = ObjectMapperResource.NAME)
     private ObjectMapper objectMapper;
@@ -1063,7 +1076,7 @@ public class ExportExecutor implements IExportExecutor
             try (final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(pdfFile), BUFFER_SIZE))
             {
                 final PdfRendererBuilder builder = new PdfRendererBuilder();
-                builder.withHtmlContent(html, null);
+                builder.withHtmlContent(html.replaceAll(XML_10_REGEXP, ""), null);
                 builder.toStream(bos);
                 builder.run();
             }
@@ -1150,6 +1163,9 @@ public class ExportExecutor implements IExportExecutor
         } else if (experimentCode != null || (dataSetCode != null && sampleCode == null))
         {
             throw new IllegalArgumentException();
+        } else if (experimentCode == null && sampleCode == null && dataSetCode == null && extension != null)
+        {
+            entryBuilder.append('/').append(spaceCode);
         }
 
         if (sampleCode != null)
@@ -1396,15 +1412,7 @@ public class ExportExecutor implements IExportExecutor
                         if (propertyType.getDataType() == DataType.MULTILINE_VARCHAR &&
                                 Objects.equals(propertyType.getMetaData().get("custom_widget"), "Word Processor"))
                         {
-                            final StringBuilder propertyValueBuilder = new StringBuilder(initialPropertyValue);
-                            final Document doc = Jsoup.parse(initialPropertyValue);
-                            final Elements imageElements = doc.select("img");
-                            for (final Element imageElement : imageElements)
-                            {
-                                final String imageSrc = imageElement.attr("src");
-                                replaceAll(propertyValueBuilder, imageSrc, encodeImageContentToString(imageSrc));
-                            }
-                            propertyValue = propertyValueBuilder.toString();
+                            propertyValue = encodeImages(initialPropertyValue);
                         } else if (propertyType.getDataType() == DataType.XML
                                 && Objects.equals(propertyType.getMetaData().get("custom_widget"), "Spreadsheet")
                                 && initialPropertyValue.toUpperCase().startsWith(DATA_TAG_START) && initialPropertyValue.toUpperCase()
@@ -1427,6 +1435,18 @@ public class ExportExecutor implements IExportExecutor
                         }
                     }
                 }
+            }
+        }
+
+        // Description
+
+        if (entityObj instanceof IDescriptionHolder && allowsValue(selectedExportAttributes, Attribute.DESCRIPTION.name()))
+        {
+            final String description = ((IDescriptionHolder) entityObj).getDescription();
+            if (description != null)
+            {
+                documentBuilder.addHeader("Description");
+                documentBuilder.addParagraph(encodeImages(description));
             }
         }
 
@@ -1498,6 +1518,8 @@ public class ExportExecutor implements IExportExecutor
             }
         }
 
+        // Registration / Modification
+
         if (entityObj instanceof IRegistratorHolder && allowsValue(selectedExportAttributes, Attribute.REGISTRATOR.name()))
         {
             final Person registrator = ((IRegistratorHolder) entityObj).getRegistrator();
@@ -1534,17 +1556,22 @@ public class ExportExecutor implements IExportExecutor
             }
         }
 
-        if (entityObj instanceof IDescriptionHolder && allowsValue(selectedExportAttributes, Attribute.DESCRIPTION.name()))
-        {
-            final String description = ((IDescriptionHolder) entityObj).getDescription();
-            if (description != null)
-            {
-                documentBuilder.addHeader("Description");
-                documentBuilder.addParagraph(description);
-            }
-        }
-
         return documentBuilder.getHtml();
+    }
+
+    private String encodeImages(final String initialPropertyValue) throws IOException
+    {
+        final String propertyValue;
+        final StringBuilder propertyValueBuilder = new StringBuilder(initialPropertyValue);
+        final Document doc = Jsoup.parse(initialPropertyValue);
+        final Elements imageElements = doc.select("img");
+        for (final Element imageElement : imageElements)
+        {
+            final String imageSrc = imageElement.attr("src");
+            replaceAll(propertyValueBuilder, imageSrc, encodeImageContentToString(imageSrc));
+        }
+        propertyValue = propertyValueBuilder.toString();
+        return propertyValue;
     }
 
     private static IEntityType getEntityType(final IApplicationServerInternalApi v3, final String sessionToken, final ICodeHolder entityObj)
@@ -1641,7 +1668,8 @@ public class ExportExecutor implements IExportExecutor
         final String extension = imageSrc.substring(imageSrc.lastIndexOf('.'));
         final String mediaType = MEDIA_TYPE_BY_EXTENSION.getOrDefault(extension, DEFAULT_MEDIA_TYPE);
         final String dataPrefix = String.format(DATA_PREFIX_TEMPLATE, mediaType);
-        final String filePath = getFilesRepository().getCanonicalPath() + "/" + imageSrc;
+
+        final String filePath = getFilesRepository().getCanonicalPath() + "/" + extractFileServicePath(imageSrc);
 
         final StringBuilder result = new StringBuilder(dataPrefix);
         final FileInputStream fileInputStream = new FileInputStream(filePath);
@@ -1660,6 +1688,15 @@ public class ExportExecutor implements IExportExecutor
         }
 
         return result.toString();
+    }
+
+    protected String extractFileServicePath(final String value)
+    {
+        final Matcher matcher = FILE_SERVICE_PATTERN.matcher(value);
+        final boolean found = matcher.find();
+
+        // If not match is found, it would normally mean we are in testing, so we return the value back to make it work - Volkswagen's approach :).
+        return found ? value.substring(matcher.end()) : value;
     }
 
     /**

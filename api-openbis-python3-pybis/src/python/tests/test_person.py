@@ -12,14 +12,6 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
-import json
-import random
-import re
-
-import pytest
-import time
-from pybis import DataSet
-from pybis import Openbis
 
 
 def test_admin_person_roles(openbis_instance):

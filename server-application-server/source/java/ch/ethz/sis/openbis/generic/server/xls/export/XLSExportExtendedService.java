@@ -296,10 +296,15 @@ public class XLSExportExtendedService
                     break;
                 case DATASET:
                     DataSetFetchOptions dataSetFetchOptions = new DataSetFetchOptions();
-                    dataSetFetchOptions.withChildren();
+                    final DataSetFetchOptions childrenDataSetFetchOptions = dataSetFetchOptions.withChildren();
+                    childrenDataSetFetchOptions.withExperiment();
+                    childrenDataSetFetchOptions.withSample();
+                    dataSetFetchOptions.withSample();
                     dataSetFetchOptions.withExperiment();
                     if (withObjectsAndDataSetsParents) {
-                        dataSetFetchOptions.withParents().withExperiment();
+                        final DataSetFetchOptions parentDataSetFetchOptions = dataSetFetchOptions.withParents();
+                        parentDataSetFetchOptions.withExperiment();
+                        parentDataSetFetchOptions.withSample();
                     }
                     Map<IDataSetId, DataSet> dataSets = api.getDataSets(sessionToken,
                             List.of(new DataSetPermId(current.getPermId())),

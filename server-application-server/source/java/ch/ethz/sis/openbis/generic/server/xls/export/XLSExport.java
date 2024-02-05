@@ -191,10 +191,10 @@ public class XLSExport
             valueFiles.putAll(additionResult.getValueFiles());
             warnings.addAll(additionResult.getWarnings());
 
-            final IEntityType entityType = helper.getEntityType(api, sessionToken,
-                    exportablePermId.getPermId().getPermId());
+            final IEntityType entityType = exportReferredMasterData ? helper.getEntityType(api, sessionToken,
+                    exportablePermId.getPermId().getPermId()) : null;
 
-            if (exportReferredMasterData && entityType != null)
+            if (entityType != null)
             {
                 final Plugin validationPlugin = entityType.getValidationPlugin();
                 if (validationPlugin != null && validationPlugin.getScript() != null)
