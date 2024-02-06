@@ -691,7 +691,7 @@ test("listExperimentTypes()", function() {
 test("listVocabularies()", function() {
 	createFacadeAndLogin(function(facade) {
 		facade.listVocabularies(function(response) {
-			assertObjectsCount(response.result, 33);
+			assertObjectsCount(response.result, 35);
 			facade.close();
 		});
 	});
