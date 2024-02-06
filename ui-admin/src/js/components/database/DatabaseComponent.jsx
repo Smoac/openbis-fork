@@ -95,14 +95,15 @@ class DatabaseComponent extends React.PureComponent {
   }
 
   render() {
-    //TODO: remove imagingDataset component
     logger.log(logger.DEBUG, 'DatabaseComponent.render')
     if(!this.state.json) return null;
     const { object } = this.props
     return (
       <Container>
-        {(object.type === objectType.DATA_SET && constants.IMAGING_DATA_CONFIG in this.state.json.properties) && <ImagingDatasetViewer onUnsavedChanges={this.imagingDatasetChange} objId={object.id} extOpenbis={openbis}/>}
-        {object.type === objectType.COLLECTION && <ImagingGalleryViewer onOpenPreview={this.datasetOpenTab} objId={object.id} extOpenbis={openbis}/>}
+        {(object.type === objectType.DATA_SET && constants.IMAGING_DATA_CONFIG in this.state.json.properties)
+            && <ImagingDatasetViewer onUnsavedChanges={this.imagingDatasetChange} objId={object.id} objType={object.type} extOpenbis={openbis}/>}
+        {(object.type === objectType.COLLECTION || object.type === objectType.OBJECT)
+            && <ImagingGalleryViewer onOpenPreview={this.datasetOpenTab} objId={object.id} objType={object.type} extOpenbis={openbis}/>}
         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         <pre>{JSON.stringify(this.state.json || {}, null, 2)}</pre>
       </Container>

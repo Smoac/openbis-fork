@@ -19,7 +19,7 @@ import GalleryFilter from "@src/js/components/common/imaging/components/gallery/
 import GalleryGridView from "@src/js/components/common/imaging/components/gallery/GalleryGridView.js";
 import GalleryListView from "@src/js/components/common/imaging/components/gallery/GalleryListView.js";
 
-const ImagingGalleryViewer = ({objId, extOpenbis, onOpenPreview}) => {
+const ImagingGalleryViewer = ({objId, objType, extOpenbis, onOpenPreview}) => {
     const [gridView, setGridView] = React.useState(true);
     const [isLoaded, setIsLoaded] = React.useState(false);
     const [open, setOpen] = React.useState(false);
@@ -53,8 +53,8 @@ const ImagingGalleryViewer = ({objId, extOpenbis, onOpenPreview}) => {
         async function load() {
             const imagingFacade = new ImagingFacade(extOpenbis);
             let {previewContainerList, totalCount} = galleryFilter.text.length >= 3 ?
-                await imagingFacade.filterGallery(objId, galleryFilter.operator, galleryFilter.text, galleryFilter.property, paging.page, paging.pageSize)
-                : await imagingFacade.loadPaginatedGalleryDatasets(objId, paging.page, paging.pageSize)
+                await imagingFacade.filterGallery(objId, objType, galleryFilter.operator, galleryFilter.text, galleryFilter.property, paging.page, paging.pageSize)
+                : await imagingFacade.loadPaginatedGalleryDatasets(objId, objType, paging.page, paging.pageSize)
             setPreviewsInfo({previewContainerList, totalCount});
             setIsLoaded(true);
         }

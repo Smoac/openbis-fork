@@ -1,6 +1,7 @@
 import constants from '@src/js/components/common/imaging/constants.js';
 import ImagingMapper from "@src/js/components/common/imaging/ImagingMapper";
 import messages from "@src/js/common/messages";
+import ObjectType from "@src/js/common/consts/objectType";
 
 export default class ImagingFacade {
 
@@ -98,6 +99,17 @@ export default class ImagingFacade {
         return await experiments[objId].dataSets;
     }
 
+    fetchSampleDataSets = async (objId) => {
+        const fetchOptions = new this.openbis.SampleFetchOptions();
+        fetchOptions.withProperties();
+        fetchOptions.withDataSets();
+        const samples = await this.openbis.getSamples(
+            [new this.openbis.SamplePermId(objId)],
+            fetchOptions
+        );
+        return await samples[objId].dataSets;
+    }
+
     fetchDataSetsSortingInfo = (dataSets) => {
         return dataSets.map(dataset => {
             if (constants.METADATA_PREVIEW_COUNT in dataset.metaData) {
@@ -144,8 +156,13 @@ export default class ImagingFacade {
         return previewContainerList
     }
 
-    loadPaginatedGalleryDatasets = async (objId, page, pageSize) => {
-        const dataSets = await this.fetchExperimentDataSets(objId);
+    loadPaginatedGalleryDatasets = async (objId, objType, page, pageSize) => {
+        //console.log("loadPaginatedGalleryDatasets: ", objType);
+        let dataSets = []
+        if (objType === ObjectType.COLLECTION)
+            dataSets = await this.fetchExperimentDataSets(objId);
+        if (objType === ObjectType.OBJECT)
+            dataSets = await this.fetchSampleDataSets(objId);
         const datasetCodeList = this.fetchDataSetsSortingInfo(dataSets);
 
         const totalCount =  datasetCodeList.length;
@@ -154,13 +171,15 @@ export default class ImagingFacade {
         return {previewContainerList, totalCount};
     }
 
-    filterGallery = async (objId, operator, filterText, property, page, pageSize) => {
-        //console.log(objId, operator, filterText, property, page, pageSize);
+    filterGallery = async (objId, objType, operator, filterText, property, page, pageSize) => {
+        //console.log(objId, objType, operator, filterText, property, page, pageSize);
         const criteria = new this.openbis.DataSetSearchCriteria();
         criteria.withAndOperator();
-        criteria.withExperiment().withPermId().thatEquals(objId);
-        // TODO add object type to distinguish
-        //criteria.withSample().withPermId().thatEquals(objId);
+        if (objType === ObjectType.COLLECTION)
+            criteria.withExperiment().withPermId().thatEquals(objId);
+        else if (objType === ObjectType.OBJECT)
+            criteria.withSample().withPermId().thatEquals(objId);
+
         if (filterText && filterText.trim().length > 0) {
             const subCriteria = criteria.withSubcriteria();
             operator === messages.get(messages.OPERATOR_AND) ? subCriteria.withAndOperator() : subCriteria.withOrOperator();
