@@ -89,7 +89,7 @@ public class PatternCompilerTest
     @Test
     public void testValues_specialCharacters()
     {
-        Pattern pattern = compiler.compilePattern("\"Ali\"ce\",  \"B\\nob\"   ,    \"\\t Cynthia \"", "VALUES");
+        Pattern pattern = compiler.compilePattern("\"Ali\"ce\",  \"B\nob\"   ,    \"\t Cynthia \"", "VALUES");
         assertTrue(pattern.matcher("Ali\"ce").matches());
         assertFalse(pattern.matcher("Alice").matches());
 
