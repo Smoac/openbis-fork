@@ -247,7 +247,7 @@ public class ExportExecutor implements IExportExecutor
     private static final Pattern FILE_SERVICE_PATTERN = Pattern.compile("/openbis/" + FileServiceServlet.FILE_SERVICE_PATH + "/");
 
     /** Used to replace possible illegal characters in the HTML. */
-    private static final String XML_10_REGEXP = "[^\\u0009\\u000A\\u000D\\u0020-\\uD7FF\\uE000-\\uFFFD]";
+    private static final String XML_10_REGEXP = "[^\\u0009\\u000A\\u000D\\u0020-\\uD7FF\\uE000-\\uFFFC]";
 
     @Resource(name = ObjectMapperResource.NAME)
     private ObjectMapper objectMapper;
@@ -1925,14 +1925,6 @@ public class ExportExecutor implements IExportExecutor
             return dataSets;
         }
 
-    }
-
-    public static void main(String[] args)
-    {
-        final String originalValue = "Value: '�'";
-        final String value = originalValue.replaceAll(XML_10_REGEXP, "");
-        System.out.println(originalValue);
-        System.out.println(value);
     }
 
 }
