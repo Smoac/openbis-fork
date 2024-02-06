@@ -97,8 +97,10 @@ export default class DataBrowserController extends ComponentController {
   }
 
   async _copy(file, newLocation){
-    const cleanNewLocation = this._removeLeadingSlash(newLocation) + file.name
-    await this.component.datastoreServer.copy(this.owner, file.path, this.owner, cleanNewLocation)
+    if (!this.isSubdirectory(file.path, newLocation)) {
+      const cleanNewLocation = this._removeLeadingSlash(newLocation) + file.name
+      await this.component.datastoreServer.copy(this.owner, file.path, this.owner, cleanNewLocation)
+    }
   }
 
   async move(files, newLocation) {
@@ -112,9 +114,25 @@ export default class DataBrowserController extends ComponentController {
   }
 
   async _move(file, newLocation){
-    const cleanNewLocation = this._removeLeadingSlash(newLocation) + file.name
-    await this.component.datastoreServer.move(this.owner, file.path, this.owner, cleanNewLocation)
+    if (!this.isSubdirectory(file.path, newLocation)) {
+      const cleanNewLocation = this._removeLeadingSlash(newLocation) + file.name
+      await this.component.datastoreServer.move(this.owner, file.path, this.owner, cleanNewLocation)
+    }
   }
+
+  isSubdirectory(parentPath, childPath) {
+    // Normalize paths to remove trailing slashes and ensure uniformity
+    const normalizedParentPath = parentPath.replace(/\/+$/, "")
+    const normalizedChildPath = childPath.replace(/\/+$/, "")
+
+    // Check if the child path starts with the parent path and has a directory separator after it
+    return (
+      normalizedChildPath.startsWith(normalizedParentPath) &&
+      (normalizedChildPath[normalizedParentPath.length] === "/" ||
+        normalizedParentPath.length === normalizedChildPath.length)
+    )
+  }
+
 
   async download(file) {
     let offset = 0
