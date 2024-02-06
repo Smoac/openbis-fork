@@ -342,13 +342,8 @@ function SettingsManager(serverFacade) {
                         if(isMergeGroup) {
                             if(key in sampleTypeDefinitionBooleans) { // Merge with logic OR
                                 targetProfile.sampleTypeDefinitionsExtension[sampleTypeCode][key] = targetProfile.sampleTypeDefinitionsExtension[sampleTypeCode][key] || settings.sampleTypeDefinitionsExtension[sampleTypeCode][key]
-                            } else { // Random to keep or to use new one
-                                var keep = Math.random() < 0.5;
-                                if(keep) {
-                                    // Keep current
-                                } else { // Replace
-                                    targetProfile.sampleTypeDefinitionsExtension[sampleTypeCode][key] = settings.sampleTypeDefinitionsExtension[sampleTypeCode][key];
-                                }
+                            } else { // Replace
+                                targetProfile.sampleTypeDefinitionsExtension[sampleTypeCode][key] = settings.sampleTypeDefinitionsExtension[sampleTypeCode][key];
                             }
                         } else { // Replace
                             targetProfile.sampleTypeDefinitionsExtension[sampleTypeCode][key] = settings.sampleTypeDefinitionsExtension[sampleTypeCode][key];

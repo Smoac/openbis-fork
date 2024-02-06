@@ -1193,7 +1193,11 @@ function ServerFacade(openbisServer) {
             } else if (data && data.result && data.result.columns) {
                 var rows = data.result.rows;
                 if (data.result.columns.length > 1 && data.result.columns[1].title === "Error") {
-                    Util.showStacktraceAsError(rows[0][1].value);
+                    if(rows[0][1].value === "Read-only file system") {
+                        callback(rows);
+                    } else {
+                        Util.showStacktraceAsError(rows[0][1].value);
+                    }
                 } else {
                     callback(rows);
                 }
@@ -3751,7 +3755,7 @@ function ServerFacade(openbisServer) {
 		mainController.openbisV3.getSessionInformation().done(function(sessionInfo) {
             _this.sessionInfo = sessionInfo;
 			callbackFunction(sessionInfo);
-        }).fail(function(result) {
+		}).fail(function(result) {
 			Util.showFailedServerCallError(result);
 			callbackFunction(false);
 		});
@@ -3808,7 +3812,7 @@ function ServerFacade(openbisServer) {
 				searchCriteria.withCode().thatEquals(code);
 				mainController.openbisV3.searchCustomASServices(searchCriteria, fetchOptions).done(function(result) {
 					callbackFunction(result);
-		        }).fail(function(result) {
+		    }).fail(function(result) {
 					Util.showFailedServerCallError(result);
 					callbackFunction(false);
 				});
@@ -3927,5 +3931,4 @@ function ServerFacade(openbisServer) {
 		}
 		this.callSearchStoreService(parameters, callbackFunction);
 	}
-
 }

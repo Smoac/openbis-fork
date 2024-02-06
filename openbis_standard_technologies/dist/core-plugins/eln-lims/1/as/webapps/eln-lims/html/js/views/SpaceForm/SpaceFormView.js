@@ -72,18 +72,25 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
                     }
                 });
             }
-            
+
+            //Print
+            dropdownOptionsModel.push(FormUtil.getPrintPDFButtonModel("SPACE", _this._spaceFormModel.v3_space.permId.permId));
+
             //Export
-            dropdownOptionsModel.push({
-                label : "Export Metadata",
-                action : FormUtil.getExportAction([{ type: "SPACE", permId : _this._spaceFormModel.space, expand : true }], true)
-            });
-            
-            dropdownOptionsModel.push({
-                label : "Export Metadata & Data",
-                action : FormUtil.getExportAction([{ type: "SPACE", permId : _this._spaceFormModel.space, expand : true }], false)
-            });
-            
+            dropdownOptionsModel.push(FormUtil.getExportButtonModel("SPACE", _this._spaceFormModel.v3_space.permId.permId));
+
+            if(profile.legacyExports.enable) {
+                dropdownOptionsModel.push({
+                    label : "Export Metadata",
+                    action : FormUtil.getExportAction([{ type: "SPACE", permId : _this._spaceFormModel.space, expand : true }], true)
+                });
+
+                dropdownOptionsModel.push({
+                    label : "Export Metadata & Data",
+                    action : FormUtil.getExportAction([{ type: "SPACE", permId : _this._spaceFormModel.space, expand : true }], false)
+                });
+            }
+
             //Jupyter Button
             if(profile.jupyterIntegrationServerEndpoint) {
                 dropdownOptionsModel.push({
@@ -196,7 +203,7 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
                 $identificationInfo.append(FormUtil.getFieldForComponentWithLabel($fullCodeField, "Full Code"));
             }
             if (_this._spaceFormModel.isInventory) {
-                var $readOnlyField = FormUtil._getBooleanField("readOnlyInventory", "Indicates if writing the she space should be disabled for non admin users.");
+                var $readOnlyField = FormUtil._getBooleanField("readOnlyInventory", "Indicates if the space should be read-only for non admin users.");
                 $readOnlyField.change(function() {
                     _this._spaceFormModel.isReadOnly = $($(this).children()[0]).children()[0].checked;
                 });
