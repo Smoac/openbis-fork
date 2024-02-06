@@ -57,6 +57,7 @@ public final class PatternCompiler implements IPatternCompiler
         final String regex = "(?<!\\\\)" + Pattern.quote(SEPARATOR);
         String result = Stream.of(pattern.split(regex))
                 .map(String::trim)
+                .map(s -> s.substring(1, s.length()-2))
                 .map(Pattern::quote)
                 .reduce("", (a,b) -> a + "|" + b);
         return Pattern.compile(result);
@@ -214,7 +215,6 @@ public final class PatternCompiler implements IPatternCompiler
         }
 
         return result;
-//        return patterns.stream().reduce("|", S)
     }
 
     private String joinRegexp(List<String> parts, String prefix, String suffix)
@@ -239,34 +239,13 @@ public final class PatternCompiler implements IPatternCompiler
         List<Long> ranges = splitToRanges(minimum, maximum);
         List<String> tokens = new ArrayList<>();
         long start = minimum;
-        Triple<String, List<Long>, Long> prev = null;
-        String prevString = null;
         for(Long max : ranges)
         {
             Triple<String, List<Long>, Long> obj = rangeToPattern(String.valueOf(start), String.valueOf(max));
-//            String zeros = "";
-//            if(prev != null && prev.first.equals(obj.first)){ //is this needed?
-//                if(prev.second.size() > 1) {
-//                    prev.second.remove(0);
-//                }
-//
-//                prev.second.add(obj.second.get(0));
-//                // toQuantifier
-//                prevString = prev.first + (prev.second.get(0) > 0 ?"{" + prev.second.get(0) + "}" : "");
-//                start = max + 1;
-//                continue;
-//            }
-////            zeros = String.valueOf(max);
             String objs = obj.first + (obj.second.get(0) > 0 ?"{" + obj.second.get(0) + "}" : "");
             tokens.add(objs);
             start = max + 1;
-            prev = obj;
-            prevString = objs;
-
         }
-
-
-
         return tokens;
     }
 
