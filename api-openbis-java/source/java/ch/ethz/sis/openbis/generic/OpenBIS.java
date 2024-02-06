@@ -349,7 +349,7 @@ public class OpenBIS
                 HttpInvokerUtils.createServiceStub(ITransactionCoordinatorApi.class, asURL + ITransactionCoordinatorApi.SERVICE_URL, timeout);
         this.asFacade = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, asURL + IApplicationServerApi.SERVICE_URL, timeout);
         this.dssFacade = HttpInvokerUtils.createServiceStub(IDataStoreServerApi.class, dssURL + IDataStoreServerApi.SERVICE_URL, timeout);
-        this.afsClient = new AfsClient(URI.create(afsURL));
+        this.afsClient = new AfsClient(URI.create(afsURL), timeout);
         this.asURL = asURL;
         this.dssURL = dssURL;
         this.timeout = timeout;

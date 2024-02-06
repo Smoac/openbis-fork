@@ -50,10 +50,14 @@ public final class AfsClient implements PublicAPI
         this(serverUri, DEFAULT_PACKAGE_SIZE_IN_BYTES, DEFAULT_TIMEOUT_IN_MILLIS);
     }
 
-    public AfsClient(final URI serverUri, final int maxReadSizeInBytes, final int timeout)
+    public AfsClient(final URI serverUri, final int timeoutInMillis){
+        this(serverUri, DEFAULT_PACKAGE_SIZE_IN_BYTES, timeoutInMillis);
+    }
+
+    public AfsClient(final URI serverUri, final int maxReadSizeInBytes, final int timeoutInMillis)
     {
         this.maxReadSizeInBytes = maxReadSizeInBytes;
-        this.timeout = timeout;
+        this.timeout = timeoutInMillis;
         this.serverUri = serverUri;
         this.jsonObjectMapper = new JacksonObjectMapper();
     }
@@ -138,7 +142,7 @@ public final class AfsClient implements PublicAPI
         validateSessionToken();
         return request("GET", "list",
                 Map.of("owner", owner, "source", source, "recursively",
-                        recursively.toString(), "sessionToken", getSessionToken()));
+                        recursively.toString(), "sessionToken", getSessionToken(), "interactiveSessionKey", getInteractiveSessionKey()));
     }
 
     @Override
@@ -149,7 +153,7 @@ public final class AfsClient implements PublicAPI
         return request("GET", "read",
                 Map.of("owner", owner, "source", source, "offset",
                         offset.toString(), "limit", limit.toString(), "sessionToken",
-                        getSessionToken()));
+                        getSessionToken(), "interactiveSessionKey", getInteractiveSessionKey()));
     }
 
     @Override
@@ -161,7 +165,7 @@ public final class AfsClient implements PublicAPI
         Map<String, Object> parameters =
                 Map.of("owner", owner, "source", source,
                         "offset", offset, "data", data, "md5Hash", md5Hash,
-                        "sessionToken", getSessionToken());
+                        "sessionToken", getSessionToken(), "interactiveSessionKey", getInteractiveSessionKey());
 
         return request("POST", "write", Map.of(), jsonObjectMapper.writeValue(parameters));
     }
@@ -173,7 +177,7 @@ public final class AfsClient implements PublicAPI
         validateSessionToken();
         Map<String, Object> parameters =
                 Map.of("owner", owner, "source", source,
-                        "sessionToken", getSessionToken());
+                        "sessionToken", getSessionToken(), "interactiveSessionKey", getInteractiveSessionKey());
 
         return request("DELETE", "delete", Map.of(), jsonObjectMapper.writeValue(parameters));
     }
@@ -188,7 +192,7 @@ public final class AfsClient implements PublicAPI
         Map<String, Object> parameters =
                 Map.of("sourceOwner", sourceOwner, "source", source,
                         "targetOwner", targetOwner, "target", target,
-                        "sessionToken", getSessionToken());
+                        "sessionToken", getSessionToken(), "interactiveSessionKey", getInteractiveSessionKey());
 
         return request("POST", "copy", Map.of(), jsonObjectMapper.writeValue(parameters));
     }
@@ -203,7 +207,7 @@ public final class AfsClient implements PublicAPI
         Map<String, Object> parameters =
                 Map.of("sourceOwner", sourceOwner, "source", source,
                         "targetOwner", targetOwner, "target", target,
-                        "sessionToken", getSessionToken());
+                        "sessionToken", getSessionToken(), "interactiveSessionKey", getInteractiveSessionKey());
 
         return request("POST", "move", Map.of(), jsonObjectMapper.writeValue(parameters));
     }
@@ -215,7 +219,7 @@ public final class AfsClient implements PublicAPI
         Map<String, Object> parameters =
                 Map.of("transactionId", transactionId.toString(),
                         "sessionToken", getSessionToken(),
-                        "interactiveSessionKey", getInteractiveSessionKey());
+                        "interactiveSessionKey", getInteractiveSessionKey(), "transactionManagerKey", getTransactionManagerKey());
         request("POST", "begin", Map.of(), jsonObjectMapper.writeValue(parameters));
     }
 

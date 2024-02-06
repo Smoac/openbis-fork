@@ -28,7 +28,11 @@ public class TransactionConfiguration
 
     private static final int TRANSACTION_COUNT_LIMIT_DEFAULT = 10;
 
-    private static final String DATASTORE_SERVER_URL_PROPERTY_NAME = "api.v3.two-phase-commit.datastore-server-url";
+    private static final String DATASTORE_SERVER_URL_PROPERTY_NAME = "api.v3.two-phase-commit.datastore-server.url";
+
+    private static final String DATASTORE_SERVER_TIMEOUT_PROPERTY_NAME = "api.v3.two-phase-commit.datastore-server.timeout";
+
+    private static final int DATASTORE_SERVER_TIMEOUT_DEFAULT = 300;
 
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     private ExposablePropertyPlaceholderConfigurer configurer;
@@ -43,6 +47,8 @@ public class TransactionConfiguration
 
     private String dataStoreServerUrl;
 
+    private int dataStoreServerTimeoutInSeconds;
+
     @PostConstruct
     private void init()
     {
@@ -52,6 +58,7 @@ public class TransactionConfiguration
         transactionLogFolderPath = PropertyUtils.getProperty(properties, LOG_FOLDER_PATH_PROPERTY_NAME, LOG_FOLDER_PATH_DEFAULT);
         transactionCountLimit = PropertyUtils.getInt(properties, TRANSACTION_COUNT_LIMIT_PROPERTY_NAME, TRANSACTION_COUNT_LIMIT_DEFAULT);
         dataStoreServerUrl = PropertyUtils.getMandatoryProperty(properties, DATASTORE_SERVER_URL_PROPERTY_NAME);
+        dataStoreServerTimeoutInSeconds = PropertyUtils.getInt(properties, DATASTORE_SERVER_TIMEOUT_PROPERTY_NAME, DATASTORE_SERVER_TIMEOUT_DEFAULT);
     }
 
     public String getCoordinatorKey()
@@ -77,6 +84,11 @@ public class TransactionConfiguration
     public String getDataStoreServerUrl()
     {
         return dataStoreServerUrl;
+    }
+
+    public int getDataStoreServerTimeoutInSeconds()
+    {
+        return dataStoreServerTimeoutInSeconds;
     }
 
     private String generateRandomKey()

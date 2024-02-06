@@ -30,7 +30,8 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi
             final ITransactionParticipantApi participantApi)
     {
         List<ITransactionParticipant> participants =
-                Arrays.asList(participantApi, new DataStoreServerParticipant(transactionConfiguration.getDataStoreServerUrl()));
+                Arrays.asList(participantApi, new DataStoreServerParticipant(transactionConfiguration.getDataStoreServerUrl(),
+                        transactionConfiguration.getDataStoreServerTimeoutInSeconds()));
 
         this.transactionCoordinator = new TransactionCoordinator(
                 transactionConfiguration.getCoordinatorKey(),
@@ -93,9 +94,12 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi
 
         private final String dataStoreServerUrl;
 
-        public DataStoreServerParticipant(String dataStoreServerUrl)
+        private final int timeoutInSeconds;
+
+        public DataStoreServerParticipant(String dataStoreServerUrl, int timeoutInSeconds)
         {
             this.dataStoreServerUrl = dataStoreServerUrl;
+            this.timeoutInSeconds = timeoutInSeconds;
         }
 
         @Override public String getParticipantId()
@@ -196,7 +200,7 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi
         private AfsClient getDataStoreClient(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
                 final String transactionCoordinatorKey)
         {
-            AfsClient afsClient = new AfsClient(URI.create(dataStoreServerUrl));
+            AfsClient afsClient = new AfsClient(URI.create(dataStoreServerUrl), timeoutInSeconds * 1000);
             afsClient.setSessionToken(sessionToken);
             afsClient.setInteractiveSessionKey(interactiveSessionKey);
             afsClient.setTransactionManagerKey(transactionCoordinatorKey);

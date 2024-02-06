@@ -419,6 +419,7 @@ public class TransactionParticipant implements ITransactionParticipant
                 }
 
             });
+            this.thread.setName("Transaction-" + transactionId + "-participant-" + getParticipantId());
         }
 
         public void startThread()
