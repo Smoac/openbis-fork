@@ -56,11 +56,20 @@ public final class PatternCompiler implements IPatternCompiler
     private Pattern compileValues(String pattern){
         final String regex = "(?<!\\\\)" + Pattern.quote(SEPARATOR);
         String result = Stream.of(pattern.split(regex))
-                .map(String::trim)
-                .map(s -> s.substring(1, s.length()-2))
+                .map(this::prepareValue)
                 .map(Pattern::quote)
                 .reduce("", (a,b) -> a + "|" + b);
         return Pattern.compile(result);
+    }
+
+    private String prepareValue(String value)
+    {
+        String result = value.strip();
+        if(result.charAt(0) != '"' || result.charAt(result.length()-1) != '"')
+        {
+            throw new UserFailureException("Wrong value format: '" + value + "'");
+        }
+        return result.substring(1, result.length()-1);
     }
 
 
@@ -73,42 +82,69 @@ public final class PatternCompiler implements IPatternCompiler
         return Pattern.compile(result);
     }
 
+    private boolean isParenthesis(char character)
+    {
+        return character == '[' || character == ']' || character == '(' || character == ')';
+    }
+
+    private boolean isNumber(char character)
+    {
+        return character >= '0' && character <= '9';
+    }
+
+    private boolean isSign(char character)
+    {
+        return character == '-';
+    }
+
+    private void throwWrongRangeException(String range)
+    {
+        throw new UserFailureException("Wrong range format: '" + range + "'");
+    }
+
     private Pair<Long> stringToPair(String range)
     {
         if(range.length() < 3)
         {
             // minimal range has at least 3 characters, e.g. 1-1
-            throw new UserFailureException("Wrong range format: '" + range + "'");
+            throwWrongRangeException(range);
         }
 
         char[] characters = range.toCharArray();
-        boolean negative = false;
+        boolean negative;
         int i = 0;
         for(;i<characters.length;i++)
         {
-            if(characters[i] == '-' || (characters[i] >= '0' && characters[i] <= '9'))
+            if(isSign(characters[i]) || isNumber(characters[i]))
             {
                 break;
+            } else if(!isParenthesis(characters[i]))
+            {
+                throwWrongRangeException(range);
             }
         }
         // first number
         long first = 0L;
-        negative = characters[i] == '-';
+        negative = isSign(characters[i]);
         if(negative) {
             i++;
         }
         if(i >= characters.length) {
-            throw new UserFailureException("Wrong range format: '" + range + "'");
+            throwWrongRangeException(range);
         }
         for(;i<characters.length;i++)
         {
-            if(characters[i] >= '0' && characters[i] <= '9')
+            if(isNumber(characters[i]))
             {
                 first *= 10;
                 first += (characters[i] - '0');
             }
             else
             {
+                if(!isParenthesis(characters[i]) && !isSign(characters[i]))
+                {
+                    throwWrongRangeException(range);
+                }
                 break;
             }
         }
@@ -117,47 +153,58 @@ public final class PatternCompiler implements IPatternCompiler
             first = -first;
         }
         if(i >= characters.length) {
-            throw new UserFailureException("Wrong range format: '" + range + "'");
+            throwWrongRangeException(range);
         }
         // scroll to '-' separator
         for(;i<characters.length;i++)
         {
-            if(characters[i] == '-'){
+            if(isSign(characters[i])){
                 i++;
                 break;
             }
+            if(!isParenthesis(characters[i]))
+            {
+                throwWrongRangeException(range);
+            }
         }
         if(i >= characters.length) {
-            throw new UserFailureException("Wrong range format: '" + range + "'");
+            throwWrongRangeException(range);
         }
         // second number
         long second = 0L;
         for(;i<characters.length;i++)
         {
-            if(characters[i] == '-' || (characters[i] >= '0' && characters[i] <= '9'))
+            if(isSign(characters[i]) || isNumber(characters[i]))
             {
                 break;
+            } else if(!isParenthesis(characters[i]))
+            {
+                throwWrongRangeException(range);
             }
         }
         if(i >= characters.length) {
-            throw new UserFailureException("Wrong range format: '" + range + "'");
+            throwWrongRangeException(range);
         }
-        negative = characters[i] == '-';
+        negative = isSign(characters[i]);
         if(negative) {
             i++;
         }
         if(i >= characters.length) {
-            throw new UserFailureException("Wrong range format: '" + range + "'");
+            throwWrongRangeException(range);
         }
         for(;i<characters.length;i++)
         {
-            if(characters[i] >= '0' && characters[i] <= '9')
+            if(isNumber(characters[i]))
             {
                 second *= 10;
                 second += (characters[i] - '0');
             }
             else
             {
+                if(!isParenthesis(characters[i]) && !isSign(characters[i]))
+                {
+                    throwWrongRangeException(range);
+                }
                 break;
             }
         }
@@ -165,18 +212,17 @@ public final class PatternCompiler implements IPatternCompiler
         {
             second = -second;
         }
+        if(i != characters.length) {
+            throwWrongRangeException(range);
+        }
        return new Pair<>(first, second);
     }
 
     private String convertRange(String range) {
-        if(range.charAt(0) == '[' && range.charAt(range.length()-1) == ']') {
-            range = range.substring(1, range.length()-2);
+        if(isParenthesis(range.charAt(0)) && isParenthesis(range.charAt(range.length()-1))) {
+            range = range.substring(1, range.length()-1);
         }
 
-        for(char a : range.toCharArray())
-        {
-
-        }
         Pair<Long> pair = stringToPair(range);
         long from = pair.first;
         long to = pair.second;
@@ -295,30 +341,6 @@ public final class PatternCompiler implements IPatternCompiler
         return result;
     }
 
-    private static class Pair<T>
-    {
-        T first;
-        T second;
-        Pair(T a, T b)
-        {
-            first = a;
-            second = b;
-        }
-    }
-
-    private static class Triple<T, X, Y>
-    {
-        T first;
-        X second;
-        Y third;
-        Triple(T a, X b, Y c)
-        {
-            first = a;
-            second = b;
-            third = c;
-        }
-    }
-
     private List<Long> splitToRanges(long min, long max)
     {
         long nines = 1;
@@ -361,6 +383,30 @@ public final class PatternCompiler implements IPatternCompiler
     private long countZeros(long max, long zeros)
     {
         return (long)(max - (max % Math.pow(10, zeros)));
+    }
+
+    private static class Pair<T>
+    {
+        T first;
+        T second;
+        Pair(T a, T b)
+        {
+            first = a;
+            second = b;
+        }
+    }
+
+    private static class Triple<T, X, Y>
+    {
+        T first;
+        X second;
+        Y third;
+        Triple(T a, X b, Y c)
+        {
+            first = a;
+            second = b;
+            third = c;
+        }
     }
 
 
