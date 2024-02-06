@@ -253,7 +253,7 @@ public class UpdatePropertyTypesTest extends AbstractTest
         v3api.updatePropertyTypes(sessionToken, Arrays.asList(update));
         fetchOptions = new PropertyTypeFetchOptions();
         propertyType = v3api.getPropertyTypes(sessionToken, Arrays.asList(id), fetchOptions).get(id);
-        assertEquals(propertyType.getPattern(), "1,2,3");
+        assertEquals(propertyType.getPattern(), "1-3");
         assertEquals(propertyType.getPatternType(), "RANGES");
 
         update.getPattern().setValue("\"a\",\"b\",\"c\"");
