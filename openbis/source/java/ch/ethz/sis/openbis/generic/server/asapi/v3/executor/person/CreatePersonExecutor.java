@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ETH Zuerich, SIS
+ * Copyright ETH 2017 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.person;
 
 import java.util.ArrayList;
@@ -112,42 +111,42 @@ public class CreatePersonExecutor
                 ALLOW_MISSING_USER_CREATION_PROPERTY, false);
         final IAuthenticationService authenticationService = authenticationServiceHolder.getAuthenticationService();
         new CollectionBatchProcessor<PersonCreation>(context, batch)
+        {
+            @Override
+            public void process(PersonCreation personCreation)
             {
-                @Override
-                public void process(PersonCreation personCreation)
+                String userId = personCreation.getUserId();
+                PersonPE person = new PersonPE();
+                person.setDisplaySettings(displaySettings);
+                person.setActive(true);
+                person.setRegistrator(registrator);
+                try
                 {
-                    String userId = personCreation.getUserId();
-                    PersonPE person = new PersonPE();
-                    person.setDisplaySettings(displaySettings);
-                    person.setActive(true);
-                    person.setRegistrator(registrator);
-                    try
+                    Principal principal = authenticationService.getPrincipal(userId);
+                    person.setUserId(principal.getUserId());
+                    person.setFirstName(principal.getFirstName());
+                    person.setLastName(principal.getLastName());
+                    person.setEmail(principal.getEmail());
+                    persons.add(person);
+                } catch (IllegalArgumentException ex)
+                {
+                    if (allowMissingUserCreation)
                     {
-                        Principal principal = authenticationService.getPrincipal(userId);
-                        person.setUserId(principal.getUserId());
-                        person.setFirstName(principal.getFirstName());
-                        person.setLastName(principal.getLastName());
-                        person.setEmail(principal.getEmail());
+                        person.setUserId(normalizeUserId(userId));
                         persons.add(person);
-                    } catch (IllegalArgumentException ex)
+                    } else
                     {
-                        if (allowMissingUserCreation)
-                        {
-                            person.setUserId(normalizeUserId(userId));
-                            persons.add(person);
-                        } else
-                        {
-                            unknownUsers.add(userId);
-                        }
+                        unknownUsers.add(userId);
                     }
                 }
+            }
 
-                @Override
-                public IProgress createProgress(PersonCreation object, int objectIndex, int totalObjectCount)
-                {
-                    return new CreateProgress(object, objectIndex, totalObjectCount);
-                }
-            };
+            @Override
+            public IProgress createProgress(PersonCreation object, int objectIndex, int totalObjectCount)
+            {
+                return new CreateProgress(object, objectIndex, totalObjectCount);
+            }
+        };
         if (unknownUsers.size() > 0)
         {
             throw UserFailureException.fromTemplate(
@@ -203,6 +202,19 @@ public class CreatePersonExecutor
         {
             try
             {
+                PersonPE systemUser = daoFactory.getPersonDAO().tryFindPersonByUserId(PersonPE.SYSTEM_USER_ID);
+                if (systemUser == null)
+                {
+                    throw new UserFailureException(
+                            "Couldn't find system user with default settings in the DB.");
+                }
+
+                PersonPE existingPerson = daoFactory.getPersonDAO().tryFindPersonByUserId(person.getUserId());
+                if (existingPerson != null){
+                    throw new UserFailureException(
+                            "User with User Id [" + person.getUserId() + "] already exists!"
+                    );
+                }
                 daoFactory.getPersonDAO().createPerson(person);
             } catch (final DataAccessException e)
             {

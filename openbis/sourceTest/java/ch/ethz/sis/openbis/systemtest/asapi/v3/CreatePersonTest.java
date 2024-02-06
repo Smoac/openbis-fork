@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ETH Zuerich, SIS
+ * Copyright ETH 2017 - 2023 Zürich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
@@ -21,6 +20,7 @@ import static org.testng.Assert.assertEquals;
 import java.util.Arrays;
 import java.util.List;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -59,20 +59,52 @@ public class CreatePersonTest extends AbstractTest
         assertEquals(person.getSpace().getCode(), "CISD");
     }
 
+    @Test
+    public void testCreateExistingPerson()
+    {
+        // Given
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        PersonCreation personCreation = new PersonCreation();
+        personCreation.setUserId("user-existing");
+        // When
+        List<PersonPermId> persons = v3api.createPersons(sessionToken, List.of(personCreation));
+
+        // Then
+        assertEquals(persons.toString(), "[" + personCreation.getUserId() + "]");
+        PersonFetchOptions fetchOptions = new PersonFetchOptions();
+        fetchOptions.withRegistrator();
+        Person person = v3api.getPersons(sessionToken, persons, fetchOptions).get(persons.get(0));
+        assertEquals(person.getUserId(), personCreation.getUserId());
+        assertEquals(person.getRegistrator().getUserId(), TEST_USER);
+
+        // Given
+        PersonCreation existingPersonCreation = new PersonCreation();
+        existingPersonCreation.setUserId("user-existing");
+        // When
+
+        try
+        {
+            List<PersonPermId> existingPersons = v3api.createPersons(sessionToken, List.of(existingPersonCreation));
+        } catch (UserFailureException e)
+        {
+            assertEquals("User with User Id [" + existingPersonCreation.getUserId() + "] already exists! (Context: [])", e.getMessage());
+        }
+    }
+
     @Test(dataProvider = "usersNotAllowedToCreatePersons")
     public void testCreateWithUserCausingAuthorizationFailure(final String user)
     {
         assertAuthorizationFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
             {
-                @Override
-                public void execute()
-                {
-                    String sessionToken = v3api.login(user, PASSWORD);
-                    PersonCreation newPerson = new PersonCreation();
-                    newPerson.setUserId("newuser");
-                    v3api.createPersons(sessionToken, Arrays.asList(newPerson));
-                }
-            });
+                String sessionToken = v3api.login(user, PASSWORD);
+                PersonCreation newPerson = new PersonCreation();
+                newPerson.setUserId("newuser");
+                v3api.createPersons(sessionToken, Arrays.asList(newPerson));
+            }
+        });
     }
 
     @Test
