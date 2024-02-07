@@ -247,12 +247,7 @@ public class ExportExecutor implements IExportExecutor
     private static final Pattern FILE_SERVICE_PATTERN = Pattern.compile("/openbis/" + FileServiceServlet.FILE_SERVICE_PATH + "/");
 
     /** Used to replace possible illegal characters in the HTML. */
-    private static final String XML_10_REGEXP = "[^"
-            + "\u0009\r\n"
-            + "\u0020-\uD7FF"
-            + "\uE000-\uFFFD"
-            + "\uD800\uDC00-\uDBFF\uDFFF"
-            + "]";
+    private static final String XML_10_REGEXP = "[^\\u0009\\u000A\\u000D\\u0020-\\uD7FF\\uE000-\\uFFFC]";
 
     @Resource(name = ObjectMapperResource.NAME)
     private ObjectMapper objectMapper;
@@ -680,7 +675,7 @@ public class ExportExecutor implements IExportExecutor
                     try (final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(pdfFile), BUFFER_SIZE))
                     {
                         final PdfRendererBuilder builder = new PdfRendererBuilder();
-                        builder.withHtmlContent(html, null);
+                        builder.withHtmlContent(html.replaceAll(XML_10_REGEXP, ""), null);
                         builder.toStream(bos);
                         builder.run();
                     }
@@ -1108,7 +1103,7 @@ public class ExportExecutor implements IExportExecutor
             try (final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(pdfFile), BUFFER_SIZE))
             {
                 final PdfRendererBuilder builder = new PdfRendererBuilder();
-                builder.withHtmlContent(html, null);
+                builder.withHtmlContent(html.replaceAll(XML_10_REGEXP, ""), null);
                 builder.toStream(bos);
                 builder.run();
             }
@@ -1665,7 +1660,8 @@ public class ExportExecutor implements IExportExecutor
     private String encodeImageContentToString(final String imageSrc) throws IOException
     {
         final Base64.Encoder encoder = Base64.getEncoder();
-        final String extension = imageSrc.substring(imageSrc.lastIndexOf('.'));
+        final int extensionIndex = imageSrc.lastIndexOf('.');
+        final String extension = extensionIndex > 0 ? imageSrc.substring(extensionIndex) : "";
         final String mediaType = MEDIA_TYPE_BY_EXTENSION.getOrDefault(extension, DEFAULT_MEDIA_TYPE);
         final String dataPrefix = String.format(DATA_PREFIX_TEMPLATE, mediaType);
 
