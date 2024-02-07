@@ -3,11 +3,7 @@ package ch.ethz.sis.openbis.generic.server.xls.export;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
@@ -69,8 +65,7 @@ public class XLSExportExtendedService
         ExportData exportData = new ExportData();
         ExportableKind rootKind = ExportableKind.valueOf(kind);
         ExportablePermId root = new ExportablePermId(rootKind, permId);
-        HashSet<ExportablePermId> collection = new HashSet<>();
-        collectEntities(api, sessionToken, collection, root, withLevelsBelow, withObjectsAndDataSetsParents, withObjectsAndDataSetsOtherSpaces);
+        Set<ExportablePermId> collection = collectEntities(api, sessionToken, root, withLevelsBelow, withObjectsAndDataSetsParents, withObjectsAndDataSetsOtherSpaces);
         exportData.setPermIds(new ArrayList<ExportablePermId>(collection));
         exportData.setFields(new AllFields());
         ExportOptions exportOptions = new ExportOptions();
@@ -172,173 +167,202 @@ public class XLSExportExtendedService
         }
     }
 
-    private static void collectEntities(
+    private static  Set<ExportablePermId> collectEntities(
             IApplicationServerInternalApi api,
             String sessionToken,
-            HashSet<ExportablePermId> collection,
-            ExportablePermId current,
+            ExportablePermId root,
             boolean withLevelsBelow,
             boolean withObjectsAndDataSetsParents,
             boolean withObjectsAndDataSetsOtherSpaces)
     {
-        if (collection.contains(current)) { // Check to avoid loops
-            return;
-        }
+        Set<ExportablePermId> collection = new HashSet<>();
+        Deque<ExportablePermId> todo = new LinkedList<>();
+        todo.add(root);
 
-        collection.add(current);
-
-        if (withLevelsBelow)
+        while(todo.isEmpty() == false)
         {
-            switch (current.getExportableKind())
+            ExportablePermId current = todo.removeFirst();
+
+            if (collection.contains(current))
+            { // Check to avoid loops
+                continue;
+            }
+
+            collection.add(current);
+
+            if (withLevelsBelow)
             {
-                case SPACE:
-                    SpaceFetchOptions spaceFetchOptions = new SpaceFetchOptions();
-                    spaceFetchOptions.withProjects();
-                    Map<ISpaceId, Space> spaces = api.getSpaces(sessionToken,
-                            List.of(new SpacePermId(current.getPermId())),
-                            spaceFetchOptions);
-                    for (Space space:spaces.values())
-                    {
-                        for (Project project:space.getProjects())
+                switch (current.getExportableKind())
+                {
+                    case SPACE:
+                        SpaceFetchOptions spaceFetchOptions = new SpaceFetchOptions();
+                        spaceFetchOptions.withProjects();
+                        Map<ISpaceId, Space> spaces = api.getSpaces(sessionToken,
+                                List.of(new SpacePermId(current.getPermId())),
+                                spaceFetchOptions);
+                        for (Space space : spaces.values())
                         {
-                            collectEntities(api, sessionToken, collection,
-                                    new ExportablePermId(ExportableKind.PROJECT,
-                                            project.getPermId().getPermId()),
-                                    withLevelsBelow, withObjectsAndDataSetsParents, withObjectsAndDataSetsOtherSpaces);
+                            for (Project project : space.getProjects())
+                            {
+                                ExportablePermId next = new ExportablePermId(ExportableKind.PROJECT,
+                                        project.getPermId().getPermId());
+                                todo.add(next);
+                            }
                         }
-                    }
-                    break;
-                case PROJECT:
-                    ProjectFetchOptions projectFetchOptions = new ProjectFetchOptions();
-                    projectFetchOptions.withExperiments();
-                    Map<IProjectId, Project> projects = api.getProjects(sessionToken,
-                            List.of(new ProjectPermId(current.getPermId())),
-                            projectFetchOptions);
-                    for (Project project:projects.values())
-                    {
-                        for (Experiment experiment : project.getExperiments())
+                        break;
+                    case PROJECT:
+                        ProjectFetchOptions projectFetchOptions = new ProjectFetchOptions();
+                        projectFetchOptions.withExperiments();
+                        Map<IProjectId, Project> projects = api.getProjects(sessionToken,
+                                List.of(new ProjectPermId(current.getPermId())),
+                                projectFetchOptions);
+                        for (Project project : projects.values())
                         {
-                            collectEntities(api, sessionToken, collection,
-                                    new ExportablePermId(ExportableKind.EXPERIMENT,
-                                            experiment.getPermId().getPermId()),
-                                        withLevelsBelow, withObjectsAndDataSetsParents, withObjectsAndDataSetsOtherSpaces);
+                            for (Experiment experiment : project.getExperiments())
+                            {
+                                ExportablePermId next = new ExportablePermId(ExportableKind.EXPERIMENT,
+                                        experiment.getPermId().getPermId());
+                                todo.add(next);
+                            }
                         }
-                    }
-                    break;
-                case EXPERIMENT:
-                    ExperimentFetchOptions experimentFetchOptions = new ExperimentFetchOptions();
-                    experimentFetchOptions.withSamples();
-                    experimentFetchOptions.withDataSets();
-                    Map<IExperimentId, Experiment> experiments = api.getExperiments(sessionToken,
-                            List.of(new ExperimentPermId(current.getPermId())),
-                            experimentFetchOptions);
-                    for (Experiment experiment:experiments.values()) {
-                        String experimentSpaceCode = experiment.getIdentifier().getIdentifier().split("/")[1];
-                        for (Sample sample:experiment.getSamples()) {
-                            collectEntities(api, sessionToken, collection,
-                                    new ExportablePermId(ExportableKind.SAMPLE,
-                                            sample.getPermId().getPermId()),
-                                    withLevelsBelow, withObjectsAndDataSetsParents, withObjectsAndDataSetsOtherSpaces);
+                        break;
+                    case EXPERIMENT:
+                        ExperimentFetchOptions experimentFetchOptions =
+                                new ExperimentFetchOptions();
+                        experimentFetchOptions.withSamples();
+                        experimentFetchOptions.withDataSets();
+                        Map<IExperimentId, Experiment> experiments =
+                                api.getExperiments(sessionToken,
+                                        List.of(new ExperimentPermId(current.getPermId())),
+                                        experimentFetchOptions);
+                        for (Experiment experiment : experiments.values())
+                        {
+                            for (Sample sample : experiment.getSamples())
+                            {
+                                ExportablePermId next = new ExportablePermId(ExportableKind.SAMPLE,
+                                        sample.getPermId().getPermId());
+                                todo.add(next);
+                            }
+                            for (DataSet dataSet : experiment.getDataSets())
+                            {
+                                ExportablePermId next = new ExportablePermId(ExportableKind.DATASET,
+                                        dataSet.getPermId().getPermId());
+                                todo.add(next);
+                            }
                         }
-                        for (DataSet dataSet:experiment.getDataSets()) {
-                            collectEntities(api, sessionToken, collection,
-                                    new ExportablePermId(ExportableKind.DATASET,
-                                            dataSet.getPermId().getPermId()),
-                                    withLevelsBelow, withObjectsAndDataSetsParents, withObjectsAndDataSetsOtherSpaces);
+                        break;
+                    case SAMPLE:
+                        SampleFetchOptions sampleFetchOptions = new SampleFetchOptions();
+                        sampleFetchOptions.withChildren();
+                        sampleFetchOptions.withDataSets();
+                        if (withObjectsAndDataSetsParents)
+                        {
+                            sampleFetchOptions.withParents();
                         }
-                    }
-                    break;
-                case SAMPLE:
-                    SampleFetchOptions sampleFetchOptions = new SampleFetchOptions();
-                    sampleFetchOptions.withChildren();
-                    sampleFetchOptions.withDataSets();
-                    if (withObjectsAndDataSetsParents) {
-                        sampleFetchOptions.withParents();
-                    }
 
-                    Map<ISampleId, Sample> samples = api.getSamples(sessionToken,
-                            List.of(new SamplePermId(current.getPermId())),
-                            sampleFetchOptions);
+                        Map<ISampleId, Sample> samples = api.getSamples(sessionToken,
+                                List.of(new SamplePermId(current.getPermId())),
+                                sampleFetchOptions);
 
-                    for (Sample sample:samples.values()) {
-                        String sampleSpaceCode = sample.getIdentifier().getIdentifier().split("/")[1];
-                        if (withObjectsAndDataSetsParents) {
-                            for (Sample parent:sample.getParents()) {
-                                String parentSpaceCode = parent.getIdentifier().getIdentifier().split("/")[1];
-                                if (sampleSpaceCode.equals(parentSpaceCode) || withObjectsAndDataSetsOtherSpaces)
+                        for (Sample sample : samples.values())
+                        {
+                            String sampleSpaceCode =
+                                    sample.getIdentifier().getIdentifier().split("/")[1];
+                            if (withObjectsAndDataSetsParents)
+                            {
+                                for (Sample parent : sample.getParents())
                                 {
-                                    collectEntities(api, sessionToken, collection,
-                                            new ExportablePermId(ExportableKind.SAMPLE,
-                                                    parent.getPermId().getPermId()),
-                                            withLevelsBelow, withObjectsAndDataSetsParents,
-                                            withObjectsAndDataSetsOtherSpaces);
+                                    String parentSpaceCode =
+                                            parent.getIdentifier().getIdentifier().split("/")[1];
+                                    if (sampleSpaceCode.equals(
+                                            parentSpaceCode) || withObjectsAndDataSetsOtherSpaces)
+                                    {
+                                        ExportablePermId next = new ExportablePermId(ExportableKind.SAMPLE,
+                                                parent.getPermId().getPermId());
+                                        todo.add(next);
+                                    }
                                 }
                             }
-                        }
-                        for (Sample child:sample.getChildren()) {
-                            String childSpaceCode = child.getIdentifier().getIdentifier().split("/")[1];
-                            if (sampleSpaceCode.equals(childSpaceCode) || withObjectsAndDataSetsOtherSpaces)
+                            for (Sample child : sample.getChildren())
                             {
-                                collectEntities(api, sessionToken, collection,
-                                        new ExportablePermId(ExportableKind.SAMPLE,
-                                                child.getPermId().getPermId()),
-                                        withLevelsBelow, withObjectsAndDataSetsParents,
-                                        withObjectsAndDataSetsOtherSpaces);
-                            }
-                        }
-                        for (DataSet dataSet:sample.getDataSets()) {
-                            collectEntities(api, sessionToken, collection,
-                                    new ExportablePermId(ExportableKind.DATASET,
-                                            dataSet.getPermId().getPermId()),
-                                    withLevelsBelow, withObjectsAndDataSetsParents, withObjectsAndDataSetsOtherSpaces);
-                        }
-                    }
-                    break;
-                case DATASET:
-                    DataSetFetchOptions dataSetFetchOptions = new DataSetFetchOptions();
-                    final DataSetFetchOptions childrenDataSetFetchOptions = dataSetFetchOptions.withChildren();
-                    childrenDataSetFetchOptions.withExperiment();
-                    childrenDataSetFetchOptions.withSample();
-                    dataSetFetchOptions.withSample();
-                    dataSetFetchOptions.withExperiment();
-                    if (withObjectsAndDataSetsParents) {
-                        final DataSetFetchOptions parentDataSetFetchOptions = dataSetFetchOptions.withParents();
-                        parentDataSetFetchOptions.withExperiment();
-                        parentDataSetFetchOptions.withSample();
-                    }
-                    Map<IDataSetId, DataSet> dataSets = api.getDataSets(sessionToken,
-                            List.of(new DataSetPermId(current.getPermId())),
-                            dataSetFetchOptions);
-                    for (DataSet dataset:dataSets.values()) {
-                        String datasetSpaceCode = dataset.getExperiment().getIdentifier().getIdentifier().split("/")[1];
-
-                        if (withObjectsAndDataSetsParents) {
-                            for (DataSet parent:dataset.getParents()) {
-                                String parentDatasetSpaceCode = parent.getExperiment().getIdentifier().getIdentifier().split("/")[1];
-                                if (datasetSpaceCode.equals(parentDatasetSpaceCode) || withObjectsAndDataSetsOtherSpaces)
+                                String childSpaceCode =
+                                        child.getIdentifier().getIdentifier().split("/")[1];
+                                if (sampleSpaceCode.equals(
+                                        childSpaceCode) || withObjectsAndDataSetsOtherSpaces)
                                 {
-                                    collectEntities(api, sessionToken, collection,
-                                            new ExportablePermId(ExportableKind.DATASET,
-                                                    parent.getPermId().getPermId()),
-                                            withLevelsBelow, withObjectsAndDataSetsParents, withObjectsAndDataSetsOtherSpaces);
+                                    ExportablePermId next = new ExportablePermId(ExportableKind.SAMPLE,
+                                            child.getPermId().getPermId());
+                                    todo.add(next);
                                 }
                             }
-                        }
-
-                        for (DataSet child:dataset.getChildren()) {
-                            String childDatasetSpaceCode = child.getExperiment().getIdentifier().getIdentifier().split("/")[1];
-                            if (datasetSpaceCode.equals(childDatasetSpaceCode) || withObjectsAndDataSetsOtherSpaces)
+                            for (DataSet dataSet : sample.getDataSets())
                             {
-                                collectEntities(api, sessionToken, collection,
-                                        new ExportablePermId(ExportableKind.DATASET,
-                                                child.getPermId().getPermId()),
-                                        withLevelsBelow, withObjectsAndDataSetsParents, withObjectsAndDataSetsOtherSpaces);
+                                ExportablePermId next = new ExportablePermId(ExportableKind.DATASET,
+                                        dataSet.getPermId().getPermId());
+                                todo.add(next);
                             }
                         }
+                        break;
+                    case DATASET:
+                        DataSetFetchOptions dataSetFetchOptions = new DataSetFetchOptions();
+                        final DataSetFetchOptions childrenDataSetFetchOptions =
+                                dataSetFetchOptions.withChildren();
+                        childrenDataSetFetchOptions.withExperiment();
+                        childrenDataSetFetchOptions.withSample();
+                        dataSetFetchOptions.withSample();
+                        dataSetFetchOptions.withExperiment();
+                        if (withObjectsAndDataSetsParents)
+                        {
+                            final DataSetFetchOptions parentDataSetFetchOptions =
+                                    dataSetFetchOptions.withParents();
+                            parentDataSetFetchOptions.withExperiment();
+                            parentDataSetFetchOptions.withSample();
+                        }
+                        Map<IDataSetId, DataSet> dataSets = api.getDataSets(sessionToken,
+                                List.of(new DataSetPermId(current.getPermId())),
+                                dataSetFetchOptions);
+                        for (DataSet dataset : dataSets.values())
+                        {
+                            String datasetSpaceCode =
+                                    dataset.getExperiment().getIdentifier().getIdentifier()
+                                            .split("/")[1];
 
-                    }
-                    break;
+                            if (withObjectsAndDataSetsParents)
+                            {
+                                for (DataSet parent : dataset.getParents())
+                                {
+                                    String parentDatasetSpaceCode =
+                                            parent.getExperiment().getIdentifier().getIdentifier()
+                                                    .split("/")[1];
+                                    if (datasetSpaceCode.equals(
+                                            parentDatasetSpaceCode) || withObjectsAndDataSetsOtherSpaces)
+                                    {
+                                        ExportablePermId next = new ExportablePermId(ExportableKind.DATASET,
+                                                parent.getPermId().getPermId());
+                                        todo.add(next);
+                                    }
+                                }
+                            }
+
+                            for (DataSet child : dataset.getChildren())
+                            {
+                                String childDatasetSpaceCode =
+                                        child.getExperiment().getIdentifier().getIdentifier()
+                                                .split("/")[1];
+                                if (datasetSpaceCode.equals(
+                                        childDatasetSpaceCode) || withObjectsAndDataSetsOtherSpaces)
+                                {
+                                    ExportablePermId next = new ExportablePermId(ExportableKind.DATASET,
+                                            child.getPermId().getPermId());
+                                    todo.add(next);
+                                }
+                            }
+
+                        }
+                        break;
+                }
             }
         }
+        return collection;
     }
 }
