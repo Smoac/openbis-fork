@@ -45,6 +45,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -154,6 +156,7 @@ import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportablePermId;
 import ch.ethz.sis.openbis.generic.server.xls.export.FieldType;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
+import ch.ethz.sis.openbis.generic.server.xls.export.helper.AbstractXLSExportHelper;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -1424,7 +1427,7 @@ public class ExportExecutor implements IExportExecutor
                             propertyValue = initialPropertyValue;
                         }
 
-                        if (!Objects.equals(propertyValue, "\uFFFD(undefined)"))
+                        if (!Objects.equals(propertyValue, "\uFFFD(undefined)") && !Objects.equals(propertyValue, "<p>\uFFFD(undefined)</p>"))
                         {
                             documentBuilder.addProperty(propertyType.getLabel(), propertyValue);
                         }
@@ -1438,7 +1441,7 @@ public class ExportExecutor implements IExportExecutor
         if (entityObj instanceof IDescriptionHolder && allowsValue(selectedExportAttributes, Attribute.DESCRIPTION.name()))
         {
             final String description = ((IDescriptionHolder) entityObj).getDescription();
-            if (description != null)
+            if (description != null && !Objects.equals(description, "\uFFFD(undefined)") && !Objects.equals(description, "<p>\uFFFD(undefined)</p>"))
             {
                 documentBuilder.addHeader("Description");
                 documentBuilder.addParagraph(encodeImages(description));
@@ -1665,7 +1668,7 @@ public class ExportExecutor implements IExportExecutor
         final Base64.Encoder encoder = Base64.getEncoder();
         final int extensionIndex = imageSrc.lastIndexOf('.');
 
-        if (extensionIndex >= 0)
+        if (extensionIndex >= 0 && !isAbsoluteUrl(imageSrc))
         {
             final String extension = imageSrc.substring(extensionIndex);
             final String mediaType = MEDIA_TYPE_BY_EXTENSION.getOrDefault(extension, DEFAULT_MEDIA_TYPE);
@@ -1694,7 +1697,7 @@ public class ExportExecutor implements IExportExecutor
             return result.toString();
         } else
         {
-            // Invalid image file. We just return the initial reference. This means that the image tag is probably pointing to an unrecognized location.
+            // Invalid image file or the path is absolute. We just return the initial reference.
             return imageSrc;
         }
     }
@@ -1732,7 +1735,7 @@ public class ExportExecutor implements IExportExecutor
             tableBody.append("<tr>\n");
             for (int j = 0; j < dataRow.size(); j++)
             {
-                final String stylesKey = convertNumericToAlphanumeric(i, j);
+                final String stylesKey = AbstractXLSExportHelper.convertNumericToAlphanumeric(i, j);
                 final String style = ((TextNode) styles.get(stylesKey)).textValue();
                 final TextNode cell = (TextNode) dataRow.get(j);
                 tableBody.append("  <td style='").append(COMMON_STYLE).append(" ").append(style).append("'> ").append(cell.textValue())
@@ -1741,16 +1744,6 @@ public class ExportExecutor implements IExportExecutor
             tableBody.append("</tr>\n");
         }
         return String.format("<table style='%s'>\n%s\n%s", TABLE_STYLE, tableBody, "</table>");
-    }
-
-    private static String convertNumericToAlphanumeric(final int row, final int col)
-    {
-        final int aCharCode = (int) 'A';
-        final int ord0 = col % 26;
-        final int ord1 = col / 26;
-        final char char0 = (char) (aCharCode + ord0);
-        final char char1 = (char) (aCharCode + ord1 - 1);
-        return String.valueOf(ord1 > 0 ? char1 : "") + char0 + (row + 1);
     }
 
     private static void replaceAll(final StringBuilder sb, final String target, final String replacement)
@@ -1853,6 +1846,15 @@ public class ExportExecutor implements IExportExecutor
         {
             final List<Path> filePaths = stream.filter(path -> path.toFile().isFile()).limit(2).collect(Collectors.toList());
             return filePaths.size() == 1 ? filePaths.get(0).toFile() : null;
+        }
+    }
+
+    public static boolean isAbsoluteUrl(final String url) {
+        try {
+            new URL(url);
+            return true;
+        } catch (final MalformedURLException e) {
+            return false;
         }
     }
 
