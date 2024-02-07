@@ -1424,7 +1424,7 @@ public class ExportExecutor implements IExportExecutor
                             propertyValue = initialPropertyValue;
                         }
 
-                        if (!Objects.equals(propertyValue, "\uFFFD(undefined)"))
+                        if (!Objects.equals(propertyValue, "\uFFFD(undefined)") && !Objects.equals(propertyValue, "<p>\uFFFD(undefined)</p>"))
                         {
                             documentBuilder.addProperty(propertyType.getLabel(), propertyValue);
                         }
@@ -1438,7 +1438,7 @@ public class ExportExecutor implements IExportExecutor
         if (entityObj instanceof IDescriptionHolder && allowsValue(selectedExportAttributes, Attribute.DESCRIPTION.name()))
         {
             final String description = ((IDescriptionHolder) entityObj).getDescription();
-            if (description != null)
+            if (description != null && !Objects.equals(description, "\uFFFD(undefined)") && !Objects.equals(description, "<p>\uFFFD(undefined)</p>"))
             {
                 documentBuilder.addHeader("Description");
                 documentBuilder.addParagraph(encodeImages(description));
