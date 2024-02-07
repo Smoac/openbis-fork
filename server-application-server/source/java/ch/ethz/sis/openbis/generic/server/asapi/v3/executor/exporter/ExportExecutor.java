@@ -45,6 +45,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -245,8 +247,6 @@ public class ExportExecutor implements IExportExecutor
     private static final String UNSAFE_CHARACTERS_REGEXP = "[^\\w $!#%'()+,\\-.;=@\\[\\]^{}_~]";
 
     private static final Pattern FILE_SERVICE_PATTERN = Pattern.compile("/openbis/" + FileServiceServlet.FILE_SERVICE_PATH + "/");
-
-    private static final Pattern ABSOLUTE_URL_PATTERN = Pattern.compile("^[a-zA-Z][a-zA-Z0-9+-.]*:(//)?[^\\s/$.?#].\\S*$");
 
     /** Used to replace possible illegal characters in the HTML. */
     private static final String XML_10_REGEXP = "[^\\u0009\\u000A\\u000D\\u0020-\\uD7FF\\uE000-\\uFFFC]";
@@ -1858,9 +1858,13 @@ public class ExportExecutor implements IExportExecutor
         }
     }
 
-    public static boolean isAbsoluteUrl(final String url)
-    {
-        return ABSOLUTE_URL_PATTERN.matcher(url).matches();
+    public static boolean isAbsoluteUrl(final String url) {
+        try {
+            new URL(url);
+            return true;
+        } catch (final MalformedURLException e) {
+            return false;
+        }
     }
 
     private static class EntitiesVo
