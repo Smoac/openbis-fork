@@ -156,6 +156,7 @@ import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportablePermId;
 import ch.ethz.sis.openbis.generic.server.xls.export.FieldType;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
+import ch.ethz.sis.openbis.generic.server.xls.export.helper.AbstractXLSExportHelper;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -1734,7 +1735,7 @@ public class ExportExecutor implements IExportExecutor
             tableBody.append("<tr>\n");
             for (int j = 0; j < dataRow.size(); j++)
             {
-                final String stylesKey = convertNumericToAlphanumeric(i, j);
+                final String stylesKey = AbstractXLSExportHelper.convertNumericToAlphanumeric(i, j);
                 final String style = ((TextNode) styles.get(stylesKey)).textValue();
                 final TextNode cell = (TextNode) dataRow.get(j);
                 tableBody.append("  <td style='").append(COMMON_STYLE).append(" ").append(style).append("'> ").append(cell.textValue())
@@ -1743,16 +1744,6 @@ public class ExportExecutor implements IExportExecutor
             tableBody.append("</tr>\n");
         }
         return String.format("<table style='%s'>\n%s\n%s", TABLE_STYLE, tableBody, "</table>");
-    }
-
-    private static String convertNumericToAlphanumeric(final int row, final int col)
-    {
-        final int aCharCode = (int) 'A';
-        final int ord0 = col % 26;
-        final int ord1 = col / 26;
-        final char char0 = (char) (aCharCode + ord0);
-        final char char1 = (char) (aCharCode + ord1 - 1);
-        return String.valueOf(ord1 > 0 ? char1 : "") + char0 + (row + 1);
     }
 
     private static void replaceAll(final StringBuilder sb, final String target, final String replacement)
