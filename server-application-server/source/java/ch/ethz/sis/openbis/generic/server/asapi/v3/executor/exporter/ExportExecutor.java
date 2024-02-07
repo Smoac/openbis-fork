@@ -1071,12 +1071,17 @@ public class ExportExecutor implements IExportExecutor
         {
             final File pdfFile = createNextDocFile(docDirectory, spaceCode, projectCode, experimentCode, experimentName, containerCode, sampleCode,
                     sampleName, dataSetCode, PDF_EXTENSION);
+            String replacedHtml = "";
             try (final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(pdfFile), BUFFER_SIZE))
             {
                 final PdfRendererBuilder builder = new PdfRendererBuilder();
-                builder.withHtmlContent(html.replaceAll(XML_10_REGEXP, ""), null);
+                replacedHtml = html.replaceAll(XML_10_REGEXP, "");
+                builder.withHtmlContent(replacedHtml, null);
                 builder.toStream(bos);
                 builder.run();
+            } catch (final Exception e)
+            {
+                throw new RuntimeException(String.format("Original HTML: %s%nReplacedHtml: %s", html, replacedHtml), e);
             }
         }
     }
