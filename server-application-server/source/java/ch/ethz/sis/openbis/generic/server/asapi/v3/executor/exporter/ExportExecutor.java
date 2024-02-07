@@ -1563,7 +1563,10 @@ public class ExportExecutor implements IExportExecutor
         for (final Element imageElement : imageElements)
         {
             final String imageSrc = imageElement.attr("src");
-            replaceAll(propertyValueBuilder, imageSrc, encodeImageContentToString(imageSrc));
+            if (!imageSrc.isEmpty())
+            {
+                replaceAll(propertyValueBuilder, imageSrc, encodeImageContentToString(imageSrc));
+            }
         }
         propertyValue = propertyValueBuilder.toString();
         return propertyValue;
@@ -1661,29 +1664,39 @@ public class ExportExecutor implements IExportExecutor
     {
         final Base64.Encoder encoder = Base64.getEncoder();
         final int extensionIndex = imageSrc.lastIndexOf('.');
-        final String extension = extensionIndex > 0 ? imageSrc.substring(extensionIndex) : "";
-        final String mediaType = MEDIA_TYPE_BY_EXTENSION.getOrDefault(extension, DEFAULT_MEDIA_TYPE);
-        final String dataPrefix = String.format(DATA_PREFIX_TEMPLATE, mediaType);
 
-        final String filePath = getFilesRepository().getCanonicalPath() + "/" + extractFileServicePath(imageSrc);
-
-        final StringBuilder result = new StringBuilder(dataPrefix);
-        final FileInputStream fileInputStream = new FileInputStream(filePath);
-        try (final BufferedInputStream in = new BufferedInputStream(fileInputStream, BUFFER_SIZE))
+        if (extensionIndex >= 0)
         {
-            byte[] chunk = new byte[BUFFER_SIZE];
-            int len;
-            while ((len = in.read(chunk)) == BUFFER_SIZE) {
-                result.append(encoder.encodeToString(chunk));
+            final String extension = imageSrc.substring(extensionIndex);
+            final String mediaType = MEDIA_TYPE_BY_EXTENSION.getOrDefault(extension, DEFAULT_MEDIA_TYPE);
+            final String dataPrefix = String.format(DATA_PREFIX_TEMPLATE, mediaType);
+
+            final String filePath = getFilesRepository().getCanonicalPath() + "/" + extractFileServicePath(imageSrc);
+
+            final StringBuilder result = new StringBuilder(dataPrefix);
+            final FileInputStream fileInputStream = new FileInputStream(filePath);
+            try (final BufferedInputStream in = new BufferedInputStream(fileInputStream, BUFFER_SIZE))
+            {
+                byte[] chunk = new byte[BUFFER_SIZE];
+                int len;
+                while ((len = in.read(chunk)) == BUFFER_SIZE)
+                {
+                    result.append(encoder.encodeToString(chunk));
+                }
+
+                if (len > 0)
+                {
+                    chunk = Arrays.copyOf(chunk, len);
+                    result.append(encoder.encodeToString(chunk));
+                }
             }
 
-            if (len > 0) {
-                chunk = Arrays.copyOf(chunk, len);
-                result.append(encoder.encodeToString(chunk));
-            }
+            return result.toString();
+        } else
+        {
+            // Invalid image file. We just return the initial reference. This means that the image tag is probably pointing to an unrecognized location.
+            return imageSrc;
         }
-
-        return result.toString();
     }
 
     protected String extractFileServicePath(final String value)
