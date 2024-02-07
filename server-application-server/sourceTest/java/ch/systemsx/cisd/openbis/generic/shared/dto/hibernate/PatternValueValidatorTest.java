@@ -71,6 +71,7 @@ public class PatternValueValidatorTest
     private EntityPropertyPE getPropertyForTest(String value, String pattern, String patternType)
     {
         PropertyTypePE pt = new PropertyTypePE();
+        pt.setCode("TEST_CODE");
 
         EntityTypePropertyTypePE etpt = new SampleTypePropertyTypePE();
         etpt.setPropertyType(pt);
