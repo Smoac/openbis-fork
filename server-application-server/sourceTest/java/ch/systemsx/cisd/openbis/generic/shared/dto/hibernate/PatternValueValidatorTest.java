@@ -108,7 +108,20 @@ public class PatternValueValidatorTest
         public ConstraintViolationBuilder buildConstraintViolationWithTemplate(String s)
         {
             constraints.add(s);
-            return null;
+            return new ConstraintViolationBuilder()
+            {
+                @Override
+                public NodeBuilderDefinedContext addNode(String s)
+                {
+                    return null;
+                }
+
+                @Override
+                public ConstraintValidatorContext addConstraintViolation()
+                {
+                    return null;
+                }
+            };
         }
 
     }
