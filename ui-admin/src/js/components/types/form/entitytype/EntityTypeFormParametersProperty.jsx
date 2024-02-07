@@ -757,8 +757,12 @@ class EntityTypeFormParametersProperty extends React.PureComponent {
   renderPattern(property) {
     const { visible, enabled, error, value } = { ...property.pattern }
 
-    if (!visible) {
-    return null
+    if (!visible || [openbis.DataType.ARRAY_STRING, openbis.DataType.ARRAY_INTEGER,
+                      openbis.DataType.ARRAY_REAL, openbis.DataType.ARRAY_TIMESTAMP,
+                      openbis.DataType.JSON, openbis.DataType.XML, openbis.DataType.BOOLEAN,
+                      openbis.DataType.CONTROLLEDVOCABULARY, openbis.DataType.MATERIAL,
+                      openbis.DataType.SAMPLE, null].includes(property.dataType.value)) {
+        return null
     }
 
     const { mode, classes } = this.props
@@ -783,8 +787,13 @@ class EntityTypeFormParametersProperty extends React.PureComponent {
   renderPatternType(property) {
     const { visible, enabled, error, value } = { ...property.patternType }
 
-    if (!visible) {
-    return null
+    if (!visible || [openbis.DataType.ARRAY_STRING, openbis.DataType.ARRAY_INTEGER,
+                          openbis.DataType.ARRAY_REAL, openbis.DataType.ARRAY_TIMESTAMP,
+                          openbis.DataType.JSON, openbis.DataType.XML, openbis.DataType.BOOLEAN,
+                          openbis.DataType.CONTROLLEDVOCABULARY, openbis.DataType.MATERIAL,
+                          openbis.DataType.SAMPLE,
+                          null].includes(property.dataType.value)) {
+        return null
     }
 
     const { mode, classes, controller } = this.props
