@@ -246,6 +246,8 @@ public class ExportExecutor implements IExportExecutor
 
     private static final Pattern FILE_SERVICE_PATTERN = Pattern.compile("/openbis/" + FileServiceServlet.FILE_SERVICE_PATH + "/");
 
+    private static final Pattern ABSOLUTE_URL_PATTERN = Pattern.compile("^[a-zA-Z][a-zA-Z0-9+-.]*:(//)?[^\\s/$.?#].\\S*$");
+
     /** Used to replace possible illegal characters in the HTML. */
     private static final String XML_10_REGEXP = "[^\\u0009\\u000A\\u000D\\u0020-\\uD7FF\\uE000-\\uFFFC]";
 
@@ -1665,7 +1667,7 @@ public class ExportExecutor implements IExportExecutor
         final Base64.Encoder encoder = Base64.getEncoder();
         final int extensionIndex = imageSrc.lastIndexOf('.');
 
-        if (extensionIndex >= 0)
+        if (extensionIndex >= 0 && !isAbsoluteUrl(imageSrc))
         {
             final String extension = imageSrc.substring(extensionIndex);
             final String mediaType = MEDIA_TYPE_BY_EXTENSION.getOrDefault(extension, DEFAULT_MEDIA_TYPE);
@@ -1694,7 +1696,7 @@ public class ExportExecutor implements IExportExecutor
             return result.toString();
         } else
         {
-            // Invalid image file. We just return the initial reference. This means that the image tag is probably pointing to an unrecognized location.
+            // Invalid image file or the path is absolute. We just return the initial reference.
             return imageSrc;
         }
     }
@@ -1854,6 +1856,11 @@ public class ExportExecutor implements IExportExecutor
             final List<Path> filePaths = stream.filter(path -> path.toFile().isFile()).limit(2).collect(Collectors.toList());
             return filePaths.size() == 1 ? filePaths.get(0).toFile() : null;
         }
+    }
+
+    public static boolean isAbsoluteUrl(final String url)
+    {
+        return ABSOLUTE_URL_PATTERN.matcher(url).matches();
     }
 
     private static class EntitiesVo
