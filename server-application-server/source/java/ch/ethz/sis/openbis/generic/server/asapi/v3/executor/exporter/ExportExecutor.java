@@ -1563,7 +1563,10 @@ public class ExportExecutor implements IExportExecutor
         for (final Element imageElement : imageElements)
         {
             final String imageSrc = imageElement.attr("src");
-            replaceAll(propertyValueBuilder, imageSrc, encodeImageContentToString(imageSrc));
+            if (!imageSrc.isEmpty())
+            {
+                replaceAll(propertyValueBuilder, imageSrc, encodeImageContentToString(imageSrc));
+            }
         }
         propertyValue = propertyValueBuilder.toString();
         return propertyValue;
