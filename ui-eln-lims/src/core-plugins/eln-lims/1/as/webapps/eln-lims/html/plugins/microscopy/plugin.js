@@ -65,14 +65,15 @@ $.extend(MicroscopyTechnology.prototype, ELNLIMSPlugin.prototype, {
             let isCollectionAndGalleryView = (model.experiment.experimentTypeCode === "COLLECTION" && model.experiment.properties["$DEFAULT_COLLECTION_VIEW"] === "IMAGING_GALLERY_VIEW");
             let isDefaultExp = model.experiment.experimentTypeCode === "DEFAULT_EXPERIMENT";
             if (isCollectionAndGalleryView || (isDefaultExp && model.v3_experiment.dataSets.length > 0)){
-                this.displayImagingTechViewer($container, false, model.experiment.permId, 'collection',(event) => console.log(event));
+                this.displayImagingTechViewer($container, false, model.experiment.permId, 'collection',
+                    function(objId){mainController.changeView('showViewDataSetPageFromPermId', objId)});
             }
         }
     },
 
     sampleFormTop: function ($container, model) {
         if (model.mode === FormMode.VIEW && model.sample && model.datasets.length > 0){
-            this.displayImagingTechViewer($container, false, model.sample.permId, 'object', (event) => console.log(event))
+            this.displayImagingTechViewer($container, false, model.sample.permId, 'object', function(objId){mainController.changeView('showViewDataSetPageFromPermId', objId)})
         }
         if (model.sample && model.sample.sampleTypeCode === "MICROSCOPY_EXPERIMENT") {
             this.displayExperimentThumbnails($container, model, model.sample);
@@ -140,7 +141,7 @@ $.extend(MicroscopyTechnology.prototype, ELNLIMSPlugin.prototype, {
             // Potentially any DataSet Type can be an Imaging DataSet Type. The system will know what DataSet Types
             // are an Imaging DataSet by convention, those Types SHOULD end with IMAGING_DATA on their Type Code.
             if (model.dataSetV3 && model.dataSetV3.type.code.endsWith("IMAGING_DATA")) {
-                this.displayImagingTechViewer($container, true, model.dataSetV3.permId.permId, (event) => console.log(event))
+                this.displayImagingTechViewer($container, true, model.dataSetV3.permId.permId, '',function(objId, changed){mainController.changeView('showViewDataSetPageFromPermId', objId)});
             }
         }
         if (model.dataSetV3 && profile.isImageViewerDataSetCode(model.dataSetV3.type.code)) {
