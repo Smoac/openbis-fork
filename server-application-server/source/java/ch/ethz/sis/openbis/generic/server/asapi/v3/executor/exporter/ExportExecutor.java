@@ -250,7 +250,7 @@ public class ExportExecutor implements IExportExecutor
     private static final Pattern FILE_SERVICE_PATTERN = Pattern.compile("/openbis/" + FileServiceServlet.FILE_SERVICE_PATH + "/");
 
     /** Used to replace possible illegal characters in the HTML. */
-    private static final String XML_10_REGEXP = "[^\\u0009\\u000A\\u000D\\u0020-\\uD7FF\\uE000-\\uFFFC]";
+    private static final String XML_10_REGEXP = "[^\\u0009\\u000A\\u000D\\u0020-\\uD7FF\\uE000-\\uFFFD]";
 
     @Resource(name = ObjectMapperResource.NAME)
     private ObjectMapper objectMapper;
@@ -1420,7 +1420,7 @@ public class ExportExecutor implements IExportExecutor
                             propertyValue = initialPropertyValue;
                         }
 
-                        if (!Objects.equals(propertyValue, "\uFFFD(undefined)") && !Objects.equals(propertyValue, "<p>\uFFFD(undefined)</p>"))
+                        if (!Objects.equals(propertyValue, "\uFFFD(undefined)"))
                         {
                             documentBuilder.addProperty(propertyType.getLabel(), propertyValue);
                         }
@@ -1434,7 +1434,7 @@ public class ExportExecutor implements IExportExecutor
         if (entityObj instanceof IDescriptionHolder && allowsValue(selectedExportAttributes, Attribute.DESCRIPTION.name()))
         {
             final String description = ((IDescriptionHolder) entityObj).getDescription();
-            if (description != null && !Objects.equals(description, "\uFFFD(undefined)") && !Objects.equals(description, "<p>\uFFFD(undefined)</p>"))
+            if (description != null && !Objects.equals(description, "\uFFFD(undefined)"))
             {
                 documentBuilder.addHeader("Description");
                 documentBuilder.addParagraph(encodeImages(description));
