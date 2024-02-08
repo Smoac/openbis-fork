@@ -1097,17 +1097,12 @@ public class ExportExecutor implements IExportExecutor
 
     private static void buildPdf(final File pdfFile, final String html) throws IOException
     {
-        String replacedHtml = "";
         try (final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(pdfFile), BUFFER_SIZE))
         {
             final PdfRendererBuilder builder = new PdfRendererBuilder();
-            replacedHtml = html.replaceAll(XML_10_REGEXP, "");
-            builder.withHtmlContent(replacedHtml, null);
-            builder.toStream(bos);
-            builder.run();
-        } catch (final Exception e)
-        {
-            throw new RuntimeException(String.format("Original HTML: %s%nReplacedHtml: %s", html, replacedHtml), e);
+            final String unescapedHtml = org.apache.commons.text.StringEscapeUtils.unescapeHtml4(html);
+            final String replacedHtml = unescapedHtml.replaceAll(XML_10_REGEXP, "");
+            builder.useFastMode().withHtmlContent(replacedHtml, null).toStream(bos).run();
         }
     }
 
