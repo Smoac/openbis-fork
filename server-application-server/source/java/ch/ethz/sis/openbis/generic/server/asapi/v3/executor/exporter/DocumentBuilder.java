@@ -15,18 +15,12 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter;
 
-import java.util.Base64;
-
 import org.apache.log4j.Logger;
-import org.eclipse.jetty.client.HttpClient;
-import org.eclipse.jetty.client.api.ContentResponse;
-import org.eclipse.jetty.client.api.Request;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import ch.systemsx.cisd.common.http.JettyHttpClientFactory;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
@@ -159,14 +153,6 @@ class DocumentBuilder
         }
 
         return jsoupDoc.html();
-    }
-
-    private static String getDataUriFromUri(final String url) throws Exception
-    {
-        final HttpClient client = JettyHttpClientFactory.getHttpClient();
-        final Request requestEntity = client.newRequest(url).method("GET");
-        final ContentResponse contentResponse = requestEntity.send();
-        return "data:" + contentResponse.getMediaType() + ";base64," + Base64.getEncoder().encodeToString(contentResponse.getContent());
     }
 
 }

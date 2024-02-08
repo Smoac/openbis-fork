@@ -675,13 +675,7 @@ public class ExportExecutor implements IExportExecutor
                 if (hasPdfFormat)
                 {
                     final File pdfFile = createNextDocFile(docDirectory, space.getCode(), null, null, null, null, null, null, null, PDF_EXTENSION);
-                    try (final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(pdfFile), BUFFER_SIZE))
-                    {
-                        final PdfRendererBuilder builder = new PdfRendererBuilder();
-                        builder.withHtmlContent(html.replaceAll(XML_10_REGEXP, ""), null);
-                        builder.toStream(bos);
-                        builder.run();
-                    }
+                    buildPdf(pdfFile, html);
                 }
             } else
             {
@@ -1071,13 +1065,7 @@ public class ExportExecutor implements IExportExecutor
         {
             final File pdfFile = createNextDocFile(docDirectory, spaceCode, projectCode, experimentCode, experimentName, containerCode, sampleCode,
                     sampleName, dataSetCode, PDF_EXTENSION);
-            try (final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(pdfFile), BUFFER_SIZE))
-            {
-                final PdfRendererBuilder builder = new PdfRendererBuilder();
-                builder.withHtmlContent(html.replaceAll(XML_10_REGEXP, ""), null);
-                builder.toStream(bos);
-                builder.run();
-            }
+            buildPdf(pdfFile, html);
         }
     }
 
@@ -1103,13 +1091,18 @@ public class ExportExecutor implements IExportExecutor
         if (hasPdfFormat)
         {
             final File pdfFile = new File(docDirectory, dataSet.getCode() + PDF_EXTENSION);
-            try (final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(pdfFile), BUFFER_SIZE))
-            {
-                final PdfRendererBuilder builder = new PdfRendererBuilder();
-                builder.withHtmlContent(html.replaceAll(XML_10_REGEXP, ""), null);
-                builder.toStream(bos);
-                builder.run();
-            }
+            buildPdf(pdfFile, html);
+        }
+    }
+
+    private static void buildPdf(final File pdfFile, final String html) throws IOException
+    {
+        try (final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(pdfFile), BUFFER_SIZE))
+        {
+            final PdfRendererBuilder builder = new PdfRendererBuilder();
+            final String unescapedHtml = org.apache.commons.text.StringEscapeUtils.unescapeHtml4(html);
+            final String replacedHtml = unescapedHtml.replaceAll(XML_10_REGEXP, "");
+            builder.useFastMode().withHtmlContent(replacedHtml, null).toStream(bos).run();
         }
     }
 

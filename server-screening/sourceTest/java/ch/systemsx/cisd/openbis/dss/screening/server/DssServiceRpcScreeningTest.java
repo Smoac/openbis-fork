@@ -540,14 +540,13 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         List<DatasetImageRepresentationFormats> formats =
                 screeningService.listAvailableImageRepresentationFormats(SESSION_TOKEN,
                         dataSetIdentifiers);
-
-        assertEquals("[DatasetImageRepresentationFormats[ds1,{"
-                + "ImageRepresentationFormat[true,10,20,8,png,[]],"
-                + "ImageRepresentationFormat[false,11,21,16,blub,"
-                + "{ImageRepresentationFormat.ImageRepresentationTransformation[ch1,100,TR1],"
-                + "ImageRepresentationFormat.ImageRepresentationTransformation[ch2,101,TR2],"
-                + "ImageRepresentationFormat.ImageRepresentationTransformation[ch3,102,TR3]}]}], "
-                + "DatasetImageRepresentationFormats[ds2,[]]]", formats.toString());
+        assertEquals("[DatasetImageRepresentationFormats[ds1,[" +
+                "ImageRepresentationFormat[true,10,20,8,png,[]], " +
+                "ImageRepresentationFormat[false,11,21,16,blub," +
+                "[ImageRepresentationFormat.ImageRepresentationTransformation[ch1,100,TR1], " +
+                "ImageRepresentationFormat.ImageRepresentationTransformation[ch2,101,TR2], " +
+                "ImageRepresentationFormat.ImageRepresentationTransformation[ch3,102,TR3]]]]], " +
+                "DatasetImageRepresentationFormats[ds2,[]]]", formats.toString());
         context.assertIsSatisfied();
     }
 
