@@ -238,6 +238,10 @@ class OpenBisObject:
                                               'createDataSetTypes', 'createDataSets')
                             and 'metaData' in request['params'][1][0]):
                         del request['params'][1][0]['metaData']
+                    if "pattern" in request['params'][1][0]:
+                        del request['params'][1][0]['pattern']
+                    if "patternType" in request['params'][1][0]:
+                        del request['params'][1][0]['patternType']
 
             if props:
                 request["params"][1][0]["properties"] = props
@@ -262,6 +266,10 @@ class OpenBisObject:
                                               'updateDataSetTypes', 'updateDataSets')
                             and 'metaData' in request['params'][1][0]):
                         del request['params'][1][0]['metaData']
+                    if "pattern" in request['params'][1][0]:
+                        del request['params'][1][0]['pattern']
+                    if "patternType" in request['params'][1][0]:
+                        del request['params'][1][0]['patternType']
 
             if props:
                 request["params"][1][0]["properties"] = props

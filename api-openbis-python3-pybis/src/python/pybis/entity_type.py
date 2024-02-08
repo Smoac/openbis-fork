@@ -12,7 +12,10 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
+import copy
+
 from pandas import DataFrame
+from tabulate import tabulate
 
 from .definitions import (
     get_method_for_entity,
@@ -28,6 +31,7 @@ from .utils import (
     extract_data_type,
     extract_name,
     VERBOSE,
+    nvl,
 )
 
 
@@ -116,6 +120,7 @@ class EntityType:
             "registrator",
             "registrationDate",
             "plugin",
+            "unique"
         ]
 
         pas = self.__dict__["_propertyAssignments"]
@@ -137,6 +142,17 @@ class EntityType:
 
             return df
 
+        def create_objects(response):
+            result = []
+            for element in response:
+                obj = copy.deepcopy(element)
+                obj["dataType"] = extract_data_type(obj["propertyType"])
+                obj["propertyType"] = extract_code(obj["propertyType"])
+                obj["plugin"] = extract_name(obj["plugin"])
+                obj["registrationDate"] = format_timestamp(obj["registrationDate"])
+                result += [PropertyAssignment(openbis_obj=self.openbis, data=obj)]
+            return result
+
         return Things(
             openbis_obj=self.openbis,
             entity="propertyType",
@@ -147,6 +163,7 @@ class EntityType:
             totalCount=len(pas),
             response=pas,
             df_initializer=create_data_frame,
+            objects_initializer=create_objects,
             attrs=attrs
         )
 
@@ -160,6 +177,7 @@ class EntityType:
         initialValueForExistingEntities=None,
         showInEditView=True,
         showRawValueInForms=True,
+        unique=False
     ):
         """The «section» groups certain properties.
         The «ordinal» is defining the rank in the list where the property appears.
@@ -187,6 +205,7 @@ class EntityType:
                 "permId": property_type.permId,
             },
             "@type": "as.dto.property.create.PropertyAssignmentCreation",
+            "unique": unique
         }
 
         # assign plugin
@@ -445,3 +464,46 @@ class ExperimentType(
 
     def __dir__(self):
         return [] + EntityType.__dir__(self) + OpenBisObject.__dir__(self)
+
+
+class PropertyAssignment:
+    def __init__(
+            self, openbis_obj, data=None, **kwargs
+    ):
+        self.openbis = openbis_obj
+        self.data = data
+
+    def __getattr__(self, name):
+        if name in self._attrs():
+            if name in self.data:
+                return self.data[name]
+            else:
+                return ""
+
+    def __repr__(self):
+        """same thing as _repr_html_() but for IPython"""
+        headers = ["attribute", "value"]
+        lines = []
+        for attr in self._attrs():
+            lines.append([attr, nvl(getattr(self, attr, ""))])
+
+        return tabulate(lines, headers=headers)
+
+    def get_property_type(self):
+        return self.openbis.get_property_type(getattr(self, "propertyType"))
+
+    def _attrs(self):
+        return [
+            "propertyType",
+            "dataType",
+            "section",
+            "ordinal",
+            "mandatory",
+            "initialValueForExistingEntities",
+            "showInEditView",
+            "showRawValueInForms",
+            "registrator",
+            "registrationDate",
+            "plugin",
+            "unique"
+        ]
