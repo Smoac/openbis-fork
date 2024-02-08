@@ -1020,13 +1020,12 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
             });
         List<Plate> plates =
                 facade.listPlates(new ExperimentIdentifier("E", "P", "S", null), "ap-42");
-
-        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,"
-                + "{SearchCriteria.AttributeMatchClause[ATTRIBUTE,TYPE,PLATE,EQUALS]},"
-                + "{SearchSubCriteria[EXPERIMENT,SearchCriteria[MATCH_ALL_CLAUSES,"
-                + "{SearchCriteria.AttributeMatchClause[ATTRIBUTE,CODE,E,EQUALS],"
-                + "SearchCriteria.AttributeMatchClause[ATTRIBUTE,PROJECT,P,EQUALS],"
-                + "SearchCriteria.AttributeMatchClause[ATTRIBUTE,SPACE,S,EQUALS]},[]]]}]",
+        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES," +
+                "[SearchCriteria.AttributeMatchClause[ATTRIBUTE,TYPE,PLATE,EQUALS]]," +
+                "[SearchSubCriteria[EXPERIMENT,SearchCriteria[MATCH_ALL_CLAUSES," +
+                "[SearchCriteria.AttributeMatchClause[ATTRIBUTE,CODE,E,EQUALS], " +
+                "SearchCriteria.AttributeMatchClause[ATTRIBUTE,PROJECT,P,EQUALS], " +
+                "SearchCriteria.AttributeMatchClause[ATTRIBUTE,SPACE,S,EQUALS]],[]]]]]",
                 searchCriteriaMatcher.recordedObject().toString());
         assertEquals("/s/p1 [s-1] { Experiment: /S/P/E }", plates.get(0).toString());
         assertEquals(1, plates.size());
@@ -1148,11 +1147,11 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
         List<String> procedures = facade.listAnalysisProcedures(experimentIdentifier);
 
         assertEquals("[ALPHA-42, FZ-87]", procedures.toString());
-        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,[],"
-                + "{SearchSubCriteria[EXPERIMENT,SearchCriteria[MATCH_ALL_CLAUSES,"
-                + "{SearchCriteria.AttributeMatchClause[ATTRIBUTE,CODE,E,EQUALS],"
-                + "SearchCriteria.AttributeMatchClause[ATTRIBUTE,PROJECT,P,EQUALS],"
-                + "SearchCriteria.AttributeMatchClause[ATTRIBUTE,SPACE,S,EQUALS]},[]]]}]",
+        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,[]," +
+                "[SearchSubCriteria[EXPERIMENT,SearchCriteria[MATCH_ALL_CLAUSES," +
+                "[SearchCriteria.AttributeMatchClause[ATTRIBUTE,CODE,E,EQUALS], " +
+                "SearchCriteria.AttributeMatchClause[ATTRIBUTE,PROJECT,P,EQUALS], " +
+                "SearchCriteria.AttributeMatchClause[ATTRIBUTE,SPACE,S,EQUALS]],[]]]]]",
                 searchCriteriaMatcher.recordedObject().toString());
         context.assertIsSatisfied();
     }
