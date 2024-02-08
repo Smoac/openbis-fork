@@ -96,7 +96,8 @@ class ImagingDataSetViewer extends React.PureComponent {
             const isSaved = await new ImagingFacade(extOpenbis).saveImagingDataset(objId, imagingDataset);
             if (isSaved === null) {
                 this.setState({open: false, isChanged: false, isSaved: true});
-                onUnsavedChanges(this.props.objId, false);
+                if (onUnsavedChanges !== null)
+                    onUnsavedChanges(this.props.objId, false);
             }
         } catch (error) {
             this.setState({open: false, isChanged: false, isSaved: false});
@@ -119,7 +120,8 @@ class ImagingDataSetViewer extends React.PureComponent {
             let toUpdateImgDs = { ...imagingDataset };
             toUpdateImgDs.images[activeImageIdx].previews[activePreviewIdx] = updatedImagingDataset.preview;
             this.setState({open: false, imagingDataset : toUpdateImgDs, isChanged: false, isSaved: false});
-            onUnsavedChanges(this.props.objId, true);
+            if (onUnsavedChanges !== null)
+                onUnsavedChanges(this.props.objId, true);
         } catch (error) {
             this.setState({open: false, isChanged: true, isSaved: false});
             this.handleError(error);
@@ -322,7 +324,7 @@ class ImagingDataSetViewer extends React.PureComponent {
         const {imagingDataset, activeImageIdx, activePreviewIdx, resolution, isSaved, isChanged} = this.state;
         const {classes} = this.props;
         const activePreview = imagingDataset.images[activeImageIdx].previews[activePreviewIdx];
-        console.log('ImagingDataSetViewer.render: ', this.state);
+        //console.log('ImagingDataSetViewer.render: ', this.state);
         return (
             <React.Fragment>
                 <LoadingDialog loading={open} />

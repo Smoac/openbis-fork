@@ -141,7 +141,7 @@ $.extend(MicroscopyTechnology.prototype, ELNLIMSPlugin.prototype, {
             // Potentially any DataSet Type can be an Imaging DataSet Type. The system will know what DataSet Types
             // are an Imaging DataSet by convention, those Types SHOULD end with IMAGING_DATA on their Type Code.
             if (model.dataSetV3 && model.dataSetV3.type.code.endsWith("IMAGING_DATA")) {
-                this.displayImagingTechViewer($container, true, model.dataSetV3.permId.permId, '',function(objId, changed){mainController.changeView('showViewDataSetPageFromPermId', objId)});
+                this.displayImagingTechViewer($container, true, model.dataSetV3.permId.permId, '',null);
             }
         }
         if (model.dataSetV3 && profile.isImageViewerDataSetCode(model.dataSetV3.type.code)) {
