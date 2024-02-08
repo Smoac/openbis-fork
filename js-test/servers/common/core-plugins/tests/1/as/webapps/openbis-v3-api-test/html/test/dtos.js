@@ -974,6 +974,7 @@ var fullTypes = [
 "dss/dto/datasetfile/id/IDataSetFileId",
 "dss/dto/datasetfile/create/DataSetFileCreation",
 "dss/dto/common/operation/IOperationResult",
+"dss/dto/service/execute/AbstractExecutionOptionsWithParameters",
 "util/DateFormat",
 "util/Json",
 "util/Exceptions",
