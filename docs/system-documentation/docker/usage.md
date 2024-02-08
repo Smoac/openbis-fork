@@ -186,42 +186,12 @@ To run the application, you need to:
 
 ### HAProxy
 
-Easily functional example for HAProxy.
+In order to use haproxy as an ingress container, it is required to deploy the following files, as provided on our [source repository](source-repositories.md):
+- [docker-compose-haproxy.yml](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/master/hub/openbis-server/compose/docker-compose-haproxy.yml)
+- [haproxy config](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/master/hub/openbis-server/compose/haproxy/my-haproxy.conf), to be placed in sub-directory `haproxy`
 
-```
-    global
-        maxconn 1024
-        chroot /var/haproxy
-        uid 604
-        gid 604
-        daemon
-        pidfile /var/run/haproxy.pid
-        ssl-default-bind-ciphers ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:RSA+AESGCM:RSA+AES:!aNULL:!MD5:!DSS
-        ssl-default-bind-options no-sslv3
-        tune.ssl.default-dh-param 2048
+To run the application, you need to:
+- have docker and docker-compose installed
+- ensure that valid certificate and key files are deployed in the sub-directory `certs`
+- from within the directory where you've deployed the `docker-compose-haproxy.yml`, run `docker-compose -f docker-compose-haproxy.yml up -d`
 
-    defaults
-        log global
-        mode http
-        option httplog
-        option dontlognull
-        option redispatch
-        retries 3
-        maxconn 2000
-
-    frontend openbis_ingress
-        bind *:443 ssl crt /etc/haproxy/ssl
-        acl is_as path_beg /openbis
-        acl is_dss path_beg /datastore_server
-        use_backend openbis_as if is_as
-        use_backend openbis_dss if is_dss
-        default_backend openbis_as
-
-    backend openbis_as
-        option forwardfor
-        server as openbis-app:8080 check
-
-     backend openbis_dss
-        option forwardfor
-        server dss openbis-app:8081 check
-```
