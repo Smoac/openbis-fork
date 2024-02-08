@@ -252,6 +252,8 @@ public class ExportExecutor implements IExportExecutor
     /** Used to replace possible illegal characters in the HTML. */
     private static final String XML_10_REGEXP = "[^\\u0009\\u000A\\u000D\\u0020-\\uD7FF\\uE000-\\uFFFD]";
 
+    private static final String UNPRINTABLE_CHARACTER_REFERENCES_REGEXP = "&#x[0-1]?[0-9A-Fa-f];";
+
     @Resource(name = ObjectMapperResource.NAME)
     private ObjectMapper objectMapper;
 
@@ -1100,8 +1102,7 @@ public class ExportExecutor implements IExportExecutor
         try (final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(pdfFile), BUFFER_SIZE))
         {
             final PdfRendererBuilder builder = new PdfRendererBuilder();
-            final String unescapedHtml = org.apache.commons.text.StringEscapeUtils.unescapeHtml4(html);
-            final String replacedHtml = unescapedHtml.replaceAll(XML_10_REGEXP, "");
+            final String replacedHtml = html.replaceAll(XML_10_REGEXP, "").replaceAll(UNPRINTABLE_CHARACTER_REFERENCES_REGEXP, "");
             builder.useFastMode().withHtmlContent(replacedHtml, null).toStream(bos).run();
         }
     }
