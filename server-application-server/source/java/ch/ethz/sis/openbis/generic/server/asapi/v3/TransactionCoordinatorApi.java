@@ -1,6 +1,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3;
 
 import java.io.File;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ch.ethz.sis.afsapi.api.OperationsAPI;
 import ch.ethz.sis.afsclient.client.AfsClient;
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.ITransactionCoordinatorApi;
@@ -120,28 +122,21 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi
         }
 
         @Override public <T> T executeOperation(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
-                final String operationName,
-                final Object[] operationArguments)
+                final String operationName, final Object[] operationArguments)
         {
             try
             {
                 AfsClient afsClient = getDataStoreClient(transactionId, sessionToken, interactiveSessionKey, null);
 
-                Object result = null;
-
-                if (operationName.equals("list"))
+                for (Method method : OperationsAPI.class.getDeclaredMethods())
                 {
-                    result = afsClient.list((String) operationArguments[0], (String) operationArguments[1], (Boolean) operationArguments[2]);
-                } else if (operationName.equals("write"))
-                {
-                    result = afsClient.write((String) operationArguments[0], (String) operationArguments[1], (Long) operationArguments[2],
-                            (byte[]) operationArguments[3], (byte[]) operationArguments[4]);
-                } else
-                {
-                    throw new UnsupportedOperationException(operationName);
+                    if (method.getName().equals(operationName) && method.getParameters().length == operationArguments.length)
+                    {
+                        return (T) method.invoke(afsClient, operationArguments);
+                    }
                 }
 
-                return (T) result;
+                throw new UnsupportedOperationException(operationName);
             } catch (Exception e)
             {
                 throw new RuntimeException(e);
