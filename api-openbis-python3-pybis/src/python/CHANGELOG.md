@@ -10,6 +10,7 @@
 - Added missing description parameter to new sample type method
 - Added missing DATE property type
 - Improvement to user.get_roles() method to present proper project identification
+- Improvements to property assignment display
 
 ## Changes with pybis-1.36.3
 
