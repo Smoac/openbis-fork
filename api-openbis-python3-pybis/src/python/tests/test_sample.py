@@ -150,6 +150,7 @@ def test_empty_data_frame(openbis_instance):
         "registrator",
         "registrationDate",
         "plugin",
+        "unique"
     ]
 
     pd.testing.assert_frame_equal(pa.df, pd.DataFrame(columns=attrs))
