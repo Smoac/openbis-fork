@@ -3,6 +3,7 @@ package ch.ethz.sis.openbis.systemtest.asapi.v3;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -12,9 +13,11 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.ITransactionCoordinatorApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.ITransactionParticipantApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IIdentifierHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
@@ -28,14 +31,39 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
+import ch.ethz.sis.transaction.ISessionTokenProvider;
+import ch.ethz.sis.transaction.ITransactionCoordinator;
+import ch.ethz.sis.transaction.TransactionCoordinator;
+import ch.ethz.sis.transaction.TransactionLog;
 
 public class TransactionTest extends AbstractTest
 {
 
+    /* These keys need to match keys defined in service.properties */
+    private static final String TEST_COORDINATOR_KEY = "test-transaction-coordinator-key";
+
     private static final String TEST_INTERACTIVE_SESSION_KEY = "test-interactive-session-key";
 
+    private ITransactionCoordinator coordinator;
+
     @Autowired
-    private ITransactionCoordinatorApi coordinator;
+    private ITransactionParticipantApi participantApi;
+
+    @BeforeClass
+    private void init()
+    {
+        /*
+        The default coordinator is configured to have both AS and DSS as participants and call them via RPC. In this kind of test there is no
+        DSS running and RPC calls do not work, therefore let's create our test instance of the coordinator with just a single AS participant called directly without RPC
+        */
+        coordinator = new TransactionCoordinator(TEST_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, new ISessionTokenProvider()
+        {
+            @Override public boolean isValid(final String sessionToken)
+            {
+                return v3api.isSessionActive(sessionToken);
+            }
+        }, Collections.singletonList(participantApi), new TransactionLog(new File("targets/transaction-logs"), "coordinator"));
+    }
 
     @Test
     public void testTransactionWithCommit()

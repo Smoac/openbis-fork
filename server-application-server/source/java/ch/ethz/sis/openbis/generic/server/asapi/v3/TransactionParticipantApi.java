@@ -49,7 +49,7 @@ public class TransactionParticipantApi implements ITransactionParticipantApi
                 new ApplicationServerSessionTokenProvider(applicationServerApi),
                 new ApplicationServerDatabaseTransactionProvider(transactionManager, daoFactory, databaseContext),
                 new ApplicationServerTransactionOperationExecutor(applicationServerApi),
-                new TransactionLog(new File(transactionConfiguration.getTransactionLogFolderPath())),
+                new TransactionLog(new File(transactionConfiguration.getTransactionLogFolderPath()), "application-server"),
                 transactionConfiguration.getTransactionCountLimit()
         );
     }

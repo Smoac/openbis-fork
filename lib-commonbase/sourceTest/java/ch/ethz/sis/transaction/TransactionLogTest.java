@@ -50,19 +50,29 @@ public class TransactionLogTest
     @Test
     public void testCreateWithNonExistentFolder()
     {
-        File nonExistentFolder = new File(testWorkspace, UUID.randomUUID().toString());
-        assertFalse(nonExistentFolder.exists());
+        File nonExistentRootLogFolder = new File(testWorkspace, UUID.randomUUID().toString());
+        File nonExistentLogFolder = new File(nonExistentRootLogFolder, UUID.randomUUID().toString());
 
-        new TransactionLog(nonExistentFolder);
+        assertFalse(nonExistentRootLogFolder.exists());
+        assertFalse(nonExistentLogFolder.exists());
 
-        assertTrue(nonExistentFolder.exists());
-        assertTrue(nonExistentFolder.isDirectory());
+        new TransactionLog(nonExistentRootLogFolder, nonExistentLogFolder.getName());
+
+        assertTrue(nonExistentRootLogFolder.exists());
+        assertTrue(nonExistentRootLogFolder.isDirectory());
+
+        assertTrue(nonExistentLogFolder.exists());
+        assertTrue(nonExistentLogFolder.isDirectory());
     }
 
     @Test
     public void testCreateWithExistingFolderAndStatuses() throws IOException
     {
-        File existingLogFolder = new File(testWorkspace, UUID.randomUUID().toString());
+        File existingRootLogFolder = new File(testWorkspace, UUID.randomUUID().toString());
+        Files.createDirectory(existingRootLogFolder.toPath());
+        assertTrue(existingRootLogFolder.exists());
+
+        File existingLogFolder = new File(existingRootLogFolder, UUID.randomUUID().toString());
         Files.createDirectory(existingLogFolder.toPath());
         assertTrue(existingLogFolder.exists());
 
@@ -83,7 +93,7 @@ public class TransactionLogTest
         createFolder(new File(existingLogFolder, "some_folder"));
         createFile(new File(existingLogFolder, "some_file"));
 
-        ITransactionLog transactionLog = new TransactionLog(existingLogFolder);
+        ITransactionLog transactionLog = new TransactionLog(existingRootLogFolder, existingLogFolder.getName());
 
         Map<UUID, TransactionStatus> expectedLastStatuses = new HashMap<>();
         expectedLastStatuses.put(TEST_TRANSACTION_ID, TransactionStatus.PREPARE_STARTED);
@@ -101,7 +111,7 @@ public class TransactionLogTest
 
         try
         {
-            new TransactionLog(existingFile);
+            new TransactionLog(existingFile, UUID.randomUUID().toString());
         } catch (Exception e)
         {
             assertEquals(e.getCause().getMessage(), "Folder '" + existingFile.getAbsolutePath() + "' is not a directory");
@@ -111,8 +121,10 @@ public class TransactionLogTest
     @Test
     public void testLogStatus() throws IOException
     {
-        File logFolder = new File(testWorkspace, UUID.randomUUID().toString());
-        ITransactionLog transactionLog = new TransactionLog(logFolder);
+        File rootLogFolder = new File(testWorkspace, UUID.randomUUID().toString());
+        File logFolder = new File(rootLogFolder, UUID.randomUUID().toString());
+
+        ITransactionLog transactionLog = new TransactionLog(rootLogFolder, logFolder.getName());
 
         assertTransactionFolders(logFolder);
 

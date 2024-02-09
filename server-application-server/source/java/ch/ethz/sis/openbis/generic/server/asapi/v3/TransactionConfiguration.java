@@ -16,34 +16,51 @@ import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 public class TransactionConfiguration
 {
 
-    private static final String COORDINATOR_KEY_PROPERTY_NAME = "api.v3.two-phase-commit.coordinator-key";
+    private static final String TRANSACTION_TIMEOUT_PROPERTY_NAME = "api.v3.transaction.common.transaction-timeout";
 
-    private static final String INTERACTIVE_SESSION_KEY_PROPERTY_NAME = "api.v3.two-phase-commit.interactive-session-key";
+    private static final int TRANSACTION_TIMEOUT_DEFAULT = 3600;
 
-    private static final String LOG_FOLDER_PATH_PROPERTY_NAME = "api.v3.two-phase-commit.transaction-log-folder-path";
+    private static final String INTERACTIVE_SESSION_KEY_PROPERTY_NAME = "api.v3.transaction.common.interactive-session-key";
 
-    private static final String LOG_FOLDER_PATH_DEFAULT = "two-phase-commit-log";
+    private static final String COORDINATOR_KEY_PROPERTY_NAME = "api.v3.transaction.two-phase-commit.coordinator-key";
 
-    private static final String TRANSACTION_COUNT_LIMIT_PROPERTY_NAME = "api.v3.two-phase-commit.transaction-count-limit";
+    private static final String TRANSACTION_LOG_FOLDER_PATH_PROPERTY_NAME = "api.v3.transaction.two-phase-commit.transaction-log-folder-path";
+
+    private static final String TRANSACTION_LOG_FOLDER_PATH_DEFAULT = "transaction-logs";
+
+    private static final String TRANSACTION_COUNT_LIMIT_PROPERTY_NAME = "api.v3.transaction.two-phase-commit.transaction-count-limit";
 
     private static final int TRANSACTION_COUNT_LIMIT_DEFAULT = 10;
 
-    private static final String DATASTORE_SERVER_URL_PROPERTY_NAME = "api.v3.two-phase-commit.datastore-server.url";
+    private static final String APPLICATION_SERVER_URL_PROPERTY_NAME = "api.v3.transaction.two-phase-commit.participant.application-server.url";
 
-    private static final String DATASTORE_SERVER_TIMEOUT_PROPERTY_NAME = "api.v3.two-phase-commit.datastore-server.timeout";
+    private static final String APPLICATION_SERVER_TIMEOUT_PROPERTY_NAME =
+            "api.v3.transaction.two-phase-commit.participant.application-server.timeout";
 
-    private static final int DATASTORE_SERVER_TIMEOUT_DEFAULT = 300;
+    private static final int APPLICATION_SERVER_TIMEOUT_DEFAULT = 3600;
+
+    private static final String DATASTORE_SERVER_URL_PROPERTY_NAME = "api.v3.transaction.two-phase-commit.participant.datastore-server.url";
+
+    private static final String DATASTORE_SERVER_TIMEOUT_PROPERTY_NAME = "api.v3.transaction.two-phase-commit.participant.datastore-server.timeout";
+
+    private static final int DATASTORE_SERVER_TIMEOUT_DEFAULT = 3600;
 
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     private ExposablePropertyPlaceholderConfigurer configurer;
 
-    private String coordinatorKey;
+    private int transactionTimeoutInSeconds;
 
     private String interactiveSessionKey;
+
+    private String coordinatorKey;
 
     private String transactionLogFolderPath;
 
     private int transactionCountLimit;
+
+    private String applicationServerUrl;
+
+    private int applicationServerTimeoutInSeconds;
 
     private String dataStoreServerUrl;
 
@@ -53,22 +70,32 @@ public class TransactionConfiguration
     private void init()
     {
         Properties properties = configurer.getResolvedProps();
-        coordinatorKey = PropertyUtils.getProperty(properties, COORDINATOR_KEY_PROPERTY_NAME, generateRandomKey());
+        transactionTimeoutInSeconds = PropertyUtils.getInt(properties, TRANSACTION_TIMEOUT_PROPERTY_NAME, TRANSACTION_TIMEOUT_DEFAULT);
         interactiveSessionKey = PropertyUtils.getProperty(properties, INTERACTIVE_SESSION_KEY_PROPERTY_NAME, generateRandomKey());
-        transactionLogFolderPath = PropertyUtils.getProperty(properties, LOG_FOLDER_PATH_PROPERTY_NAME, LOG_FOLDER_PATH_DEFAULT);
+        coordinatorKey = PropertyUtils.getProperty(properties, COORDINATOR_KEY_PROPERTY_NAME, generateRandomKey());
+        transactionLogFolderPath = PropertyUtils.getProperty(properties, TRANSACTION_LOG_FOLDER_PATH_PROPERTY_NAME,
+                TRANSACTION_LOG_FOLDER_PATH_DEFAULT);
         transactionCountLimit = PropertyUtils.getInt(properties, TRANSACTION_COUNT_LIMIT_PROPERTY_NAME, TRANSACTION_COUNT_LIMIT_DEFAULT);
+        applicationServerUrl = PropertyUtils.getMandatoryProperty(properties, APPLICATION_SERVER_URL_PROPERTY_NAME);
+        applicationServerTimeoutInSeconds =
+                PropertyUtils.getInt(properties, APPLICATION_SERVER_TIMEOUT_PROPERTY_NAME, APPLICATION_SERVER_TIMEOUT_DEFAULT);
         dataStoreServerUrl = PropertyUtils.getMandatoryProperty(properties, DATASTORE_SERVER_URL_PROPERTY_NAME);
         dataStoreServerTimeoutInSeconds = PropertyUtils.getInt(properties, DATASTORE_SERVER_TIMEOUT_PROPERTY_NAME, DATASTORE_SERVER_TIMEOUT_DEFAULT);
     }
 
-    public String getCoordinatorKey()
+    public int getTransactionTimeoutInSeconds()
     {
-        return coordinatorKey;
+        return transactionTimeoutInSeconds;
     }
 
     public String getInteractiveSessionKey()
     {
         return interactiveSessionKey;
+    }
+
+    public String getCoordinatorKey()
+    {
+        return coordinatorKey;
     }
 
     public String getTransactionLogFolderPath()
@@ -79,6 +106,16 @@ public class TransactionConfiguration
     public int getTransactionCountLimit()
     {
         return transactionCountLimit;
+    }
+
+    public String getApplicationServerUrl()
+    {
+        return applicationServerUrl;
+    }
+
+    public int getApplicationServerTimeoutInSeconds()
+    {
+        return applicationServerTimeoutInSeconds;
     }
 
     public String getDataStoreServerUrl()

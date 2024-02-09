@@ -21,12 +21,27 @@ public class TransactionLog implements ITransactionLog
 
     private final Map<UUID, TransactionStatus> lastStatuses;
 
-    public TransactionLog(File logFolder)
+    public TransactionLog(File rootLogFolder, String subFolderName)
     {
-        if (logFolder == null)
+        if (rootLogFolder == null)
         {
             throw new IllegalArgumentException("Transactions log folder cannot be null");
         }
+
+        if (subFolderName == null)
+        {
+            throw new IllegalArgumentException("Transaction log subfolder cannot be null");
+        }
+
+        try
+        {
+            createOrCheckFolder(rootLogFolder);
+        } catch (Exception e)
+        {
+            throw new RuntimeException("Could not prepare transactions log folder '" + rootLogFolder + "'.", e);
+        }
+
+        File logFolder = new File(rootLogFolder, subFolderName);
 
         try
         {
