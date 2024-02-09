@@ -102,6 +102,51 @@ public class TransactionParticipant implements ITransactionParticipant
         return participantId;
     }
 
+    public void restoreTransactions()
+    {
+        Map<UUID, TransactionStatus> lastStatuses = transactionLog.getLastStatuses();
+
+        if (lastStatuses != null && !lastStatuses.isEmpty())
+        {
+            for (UUID transactionId : lastStatuses.keySet())
+            {
+                TransactionStatus lastStatus = lastStatuses.get(transactionId);
+
+                operationLog.info("Restoring transaction '" + transactionId + "' with last status '" + lastStatus + "'");
+
+                try
+                {
+                    switch (lastStatus)
+                    {
+                        case BEGIN_STARTED:
+                        case BEGIN_FINISHED:
+                        case PREPARE_STARTED:
+                        case ROLLBACK_STARTED:
+                            rollbackTransaction(transactionId, transactionCoordinatorKey);
+                            break;
+                        case PREPARE_FINISHED:
+                            // wait for the coordinator to decide whether to commit or rollback
+                            break;
+                        case COMMIT_STARTED:
+                            commitTransaction(transactionId, transactionCoordinatorKey);
+                            break;
+                        case COMMIT_FINISHED:
+                        case ROLLBACK_FINISHED:
+                            // nothing to do
+                            break;
+                        default:
+                            operationLog.error(
+                                    "Transaction '" + transactionId + "' restore failed because of an unknown transaction last status '" + lastStatus
+                                            + "'");
+                    }
+                } catch (Exception e)
+                {
+                    operationLog.info("Restore of transaction '" + transactionId + "' with last status '" + lastStatus + "' failed.", e);
+                }
+            }
+        }
+    }
+
     @Override public void beginTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
             final String transactionCoordinatorKey)
     {
