@@ -118,21 +118,21 @@ public class XLSExport
         if (scripts.isEmpty())
         {
             try
-            (
-                    final Workbook wb = exportResult.getWorkbook();
-                    final BufferedOutputStream bos = new BufferedOutputStream(os)
-            )
+                    (
+                            final Workbook wb = exportResult.getWorkbook();
+                            final BufferedOutputStream bos = new BufferedOutputStream(os)
+                    )
             {
                 wb.write(bos);
             }
         } else
         {
             try
-            (
-                    final Workbook wb = exportResult.getWorkbook();
-                    final ZipOutputStream zos = new ZipOutputStream(os);
-                    final BufferedOutputStream bos = new BufferedOutputStream(zos)
-            )
+                    (
+                            final Workbook wb = exportResult.getWorkbook();
+                            final ZipOutputStream zos = new ZipOutputStream(os);
+                            final BufferedOutputStream bos = new BufferedOutputStream(zos)
+                    )
             {
                 for (final Map.Entry<String, String> script : scripts.entrySet())
                 {
@@ -260,27 +260,27 @@ public class XLSExport
                 }
 
                 return Stream.concat(entityType.getPropertyAssignments().stream().flatMap(propertyAssignment ->
+                {
+                    final PropertyType propertyType = propertyAssignment.getPropertyType();
+                    switch (propertyType.getDataType())
+                    {
+                        case CONTROLLEDVOCABULARY:
                         {
-                            final PropertyType propertyType = propertyAssignment.getPropertyType();
-                            switch (propertyType.getDataType())
-                            {
-                                case CONTROLLEDVOCABULARY:
-                                {
-                                    return Stream.of(new ExportablePermId(ExportableKind.VOCABULARY_TYPE,
-                                            propertyType.getVocabulary().getPermId()));
-                                }
-                                case SAMPLE:
-                                {
-                                    return getExportablePermIdStreamForEntityType(api, sessionToken, processedIds,
-                                            exportHelperFactory, propertyType.getSampleType(),
-                                            ExportableKind.SAMPLE_TYPE, SAMPLE);
-                                }
-                                default:
-                                {
-                                    return Stream.empty();
-                                }
-                            }
-                        }), entityTypeRelatedExportablePermIdStream);
+                            return Stream.of(new ExportablePermId(ExportableKind.VOCABULARY_TYPE,
+                                    propertyType.getVocabulary().getPermId()));
+                        }
+                        case SAMPLE:
+                        {
+                            return getExportablePermIdStreamForEntityType(api, sessionToken, processedIds,
+                                    exportHelperFactory, propertyType.getSampleType(),
+                                    ExportableKind.SAMPLE_TYPE, SAMPLE);
+                        }
+                        default:
+                        {
+                            return Stream.empty();
+                        }
+                    }
+                }), entityTypeRelatedExportablePermIdStream);
             }
         }
 

@@ -490,7 +490,7 @@ public class ExportTest extends AbstractTest
         return url.substring(url.lastIndexOf("=") + 1);
     }
 
-    private static DataSetFile createDataSetFile(final String filePath, final int fileLength)
+    private static DataSetFile createDataSetFile(final String filePath, final long fileLength)
     {
         final DataSetFilePermId dataSetFilePermId = new DataSetFilePermId(new DataSetPermId("20230904175944612-1"), filePath);
         final DataSetFile dataSetFile = new DataSetFile();

@@ -45,6 +45,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -154,6 +156,7 @@ import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportablePermId;
 import ch.ethz.sis.openbis.generic.server.xls.export.FieldType;
 import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
+import ch.ethz.sis.openbis.generic.server.xls.export.helper.AbstractXLSExportHelper;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -245,6 +248,11 @@ public class ExportExecutor implements IExportExecutor
     private static final String UNSAFE_CHARACTERS_REGEXP = "[^\\w $!#%'()+,\\-.;=@\\[\\]^{}_~]";
 
     private static final Pattern FILE_SERVICE_PATTERN = Pattern.compile("/openbis/" + FileServiceServlet.FILE_SERVICE_PATH + "/");
+
+    /** Used to replace possible illegal characters in the HTML. */
+    private static final String XML_10_REGEXP = "[^\\u0009\\u000A\\u000D\\u0020-\\uD7FF\\uE000-\\uFFFD]";
+
+    private static final String UNPRINTABLE_CHARACTER_REFERENCES_REGEXP = "&#x[0-1]?[0-9A-Fa-f];";
 
     @Resource(name = ObjectMapperResource.NAME)
     private ObjectMapper objectMapper;
@@ -669,13 +677,7 @@ public class ExportExecutor implements IExportExecutor
                 if (hasPdfFormat)
                 {
                     final File pdfFile = createNextDocFile(docDirectory, space.getCode(), null, null, null, null, null, null, null, PDF_EXTENSION);
-                    try (final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(pdfFile), BUFFER_SIZE))
-                    {
-                        final PdfRendererBuilder builder = new PdfRendererBuilder();
-                        builder.withHtmlContent(html, null);
-                        builder.toStream(bos);
-                        builder.run();
-                    }
+                    buildPdf(pdfFile, html);
                 }
             } else
             {
@@ -1065,13 +1067,7 @@ public class ExportExecutor implements IExportExecutor
         {
             final File pdfFile = createNextDocFile(docDirectory, spaceCode, projectCode, experimentCode, experimentName, containerCode, sampleCode,
                     sampleName, dataSetCode, PDF_EXTENSION);
-            try (final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(pdfFile), BUFFER_SIZE))
-            {
-                final PdfRendererBuilder builder = new PdfRendererBuilder();
-                builder.withHtmlContent(html, null);
-                builder.toStream(bos);
-                builder.run();
-            }
+            buildPdf(pdfFile, html);
         }
     }
 
@@ -1097,13 +1093,17 @@ public class ExportExecutor implements IExportExecutor
         if (hasPdfFormat)
         {
             final File pdfFile = new File(docDirectory, dataSet.getCode() + PDF_EXTENSION);
-            try (final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(pdfFile), BUFFER_SIZE))
-            {
-                final PdfRendererBuilder builder = new PdfRendererBuilder();
-                builder.withHtmlContent(html, null);
-                builder.toStream(bos);
-                builder.run();
-            }
+            buildPdf(pdfFile, html);
+        }
+    }
+
+    private static void buildPdf(final File pdfFile, final String html) throws IOException
+    {
+        try (final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(pdfFile), BUFFER_SIZE))
+        {
+            final PdfRendererBuilder builder = new PdfRendererBuilder();
+            final String replacedHtml = html.replaceAll(XML_10_REGEXP, "").replaceAll(UNPRINTABLE_CHARACTER_REFERENCES_REGEXP, "");
+            builder.useFastMode().withHtmlContent(replacedHtml, null).toStream(bos).run();
         }
     }
 
@@ -1155,6 +1155,9 @@ public class ExportExecutor implements IExportExecutor
         } else if (experimentCode != null || (dataSetCode != null && sampleCode == null))
         {
             throw new IllegalArgumentException();
+        } else if (experimentCode == null && sampleCode == null && dataSetCode == null && extension != null)
+        {
+            entryBuilder.append('/').append(spaceCode);
         }
 
         if (sampleCode != null)
@@ -1401,15 +1404,7 @@ public class ExportExecutor implements IExportExecutor
                         if (propertyType.getDataType() == DataType.MULTILINE_VARCHAR &&
                                 Objects.equals(propertyType.getMetaData().get("custom_widget"), "Word Processor"))
                         {
-                            final StringBuilder propertyValueBuilder = new StringBuilder(initialPropertyValue);
-                            final Document doc = Jsoup.parse(initialPropertyValue);
-                            final Elements imageElements = doc.select("img");
-                            for (final Element imageElement : imageElements)
-                            {
-                                final String imageSrc = imageElement.attr("src");
-                                replaceAll(propertyValueBuilder, imageSrc, encodeImageContentToString(imageSrc));
-                            }
-                            propertyValue = propertyValueBuilder.toString();
+                            propertyValue = encodeImages(initialPropertyValue);
                         } else if (propertyType.getDataType() == DataType.XML
                                 && Objects.equals(propertyType.getMetaData().get("custom_widget"), "Spreadsheet")
                                 && initialPropertyValue.toUpperCase().startsWith(DATA_TAG_START) && initialPropertyValue.toUpperCase()
@@ -1440,10 +1435,10 @@ public class ExportExecutor implements IExportExecutor
         if (entityObj instanceof IDescriptionHolder && allowsValue(selectedExportAttributes, Attribute.DESCRIPTION.name()))
         {
             final String description = ((IDescriptionHolder) entityObj).getDescription();
-            if (description != null)
+            if (description != null && !Objects.equals(description, "\uFFFD(undefined)"))
             {
                 documentBuilder.addHeader("Description");
-                documentBuilder.addParagraph(description);
+                documentBuilder.addParagraph(encodeImages(description));
             }
         }
 
@@ -1493,7 +1488,7 @@ public class ExportExecutor implements IExportExecutor
         }
 
         documentBuilder.addProperty(entityObj instanceof Project || entityObj instanceof Space
-                ? KIND_DOCUMENT_PROPERTY_ID : TYPE_DOCUMENT_PROPERTY_ID,
+                        ? KIND_DOCUMENT_PROPERTY_ID : TYPE_DOCUMENT_PROPERTY_ID,
                 kindOrType);
 
         if (allowsValue(selectedExportAttributes, Attribute.CODE.name()))
@@ -1554,6 +1549,24 @@ public class ExportExecutor implements IExportExecutor
         }
 
         return documentBuilder.getHtml();
+    }
+
+    private String encodeImages(final String initialPropertyValue) throws IOException
+    {
+        final String propertyValue;
+        final StringBuilder propertyValueBuilder = new StringBuilder(initialPropertyValue);
+        final Document doc = Jsoup.parse(initialPropertyValue);
+        final Elements imageElements = doc.select("img");
+        for (final Element imageElement : imageElements)
+        {
+            final String imageSrc = imageElement.attr("src");
+            if (!imageSrc.isEmpty())
+            {
+                replaceAll(propertyValueBuilder, imageSrc, encodeImageContentToString(imageSrc));
+            }
+        }
+        propertyValue = propertyValueBuilder.toString();
+        return propertyValue;
     }
 
     private static IEntityType getEntityType(final IApplicationServerInternalApi v3, final String sessionToken, final ICodeHolder entityObj)
@@ -1647,29 +1660,40 @@ public class ExportExecutor implements IExportExecutor
     private String encodeImageContentToString(final String imageSrc) throws IOException
     {
         final Base64.Encoder encoder = Base64.getEncoder();
-        final String extension = imageSrc.substring(imageSrc.lastIndexOf('.'));
-        final String mediaType = MEDIA_TYPE_BY_EXTENSION.getOrDefault(extension, DEFAULT_MEDIA_TYPE);
-        final String dataPrefix = String.format(DATA_PREFIX_TEMPLATE, mediaType);
+        final int extensionIndex = imageSrc.lastIndexOf('.');
 
-        final String filePath = getFilesRepository().getCanonicalPath() + "/" + extractFileServicePath(imageSrc);
-
-        final StringBuilder result = new StringBuilder(dataPrefix);
-        final FileInputStream fileInputStream = new FileInputStream(filePath);
-        try (final BufferedInputStream in = new BufferedInputStream(fileInputStream, BUFFER_SIZE))
+        if (extensionIndex >= 0 && !isAbsoluteUrl(imageSrc))
         {
-            byte[] chunk = new byte[BUFFER_SIZE];
-            int len;
-            while ((len = in.read(chunk)) == BUFFER_SIZE) {
-                result.append(encoder.encodeToString(chunk));
+            final String extension = imageSrc.substring(extensionIndex);
+            final String mediaType = MEDIA_TYPE_BY_EXTENSION.getOrDefault(extension, DEFAULT_MEDIA_TYPE);
+            final String dataPrefix = String.format(DATA_PREFIX_TEMPLATE, mediaType);
+
+            final String filePath = getFilesRepository().getCanonicalPath() + "/" + extractFileServicePath(imageSrc);
+
+            final StringBuilder result = new StringBuilder(dataPrefix);
+            final FileInputStream fileInputStream = new FileInputStream(filePath);
+            try (final BufferedInputStream in = new BufferedInputStream(fileInputStream, BUFFER_SIZE))
+            {
+                byte[] chunk = new byte[BUFFER_SIZE];
+                int len;
+                while ((len = in.read(chunk)) == BUFFER_SIZE)
+                {
+                    result.append(encoder.encodeToString(chunk));
+                }
+
+                if (len > 0)
+                {
+                    chunk = Arrays.copyOf(chunk, len);
+                    result.append(encoder.encodeToString(chunk));
+                }
             }
 
-            if (len > 0) {
-                chunk = Arrays.copyOf(chunk, len);
-                result.append(encoder.encodeToString(chunk));
-            }
+            return result.toString();
+        } else
+        {
+            // Invalid image file or the path is absolute. We just return the initial reference.
+            return imageSrc;
         }
-
-        return result.toString();
     }
 
     protected String extractFileServicePath(final String value)
@@ -1677,7 +1701,7 @@ public class ExportExecutor implements IExportExecutor
         final Matcher matcher = FILE_SERVICE_PATTERN.matcher(value);
         final boolean found = matcher.find();
 
-        // If not match is found, it would normally mean we are in testing.
+        // If not match is found, it would normally mean we are in testing, so we return the value back to make it work - Volkswagen's approach :).
         return found ? value.substring(matcher.end()) : value;
     }
 
@@ -1705,7 +1729,7 @@ public class ExportExecutor implements IExportExecutor
             tableBody.append("<tr>\n");
             for (int j = 0; j < dataRow.size(); j++)
             {
-                final String stylesKey = convertNumericToAlphanumeric(i, j);
+                final String stylesKey = AbstractXLSExportHelper.convertNumericToAlphanumeric(i, j);
                 final String style = ((TextNode) styles.get(stylesKey)).textValue();
                 final TextNode cell = (TextNode) dataRow.get(j);
                 tableBody.append("  <td style='").append(COMMON_STYLE).append(" ").append(style).append("'> ").append(cell.textValue())
@@ -1714,16 +1738,6 @@ public class ExportExecutor implements IExportExecutor
             tableBody.append("</tr>\n");
         }
         return String.format("<table style='%s'>\n%s\n%s", TABLE_STYLE, tableBody, "</table>");
-    }
-
-    private static String convertNumericToAlphanumeric(final int row, final int col)
-    {
-        final int aCharCode = (int) 'A';
-        final int ord0 = col % 26;
-        final int ord1 = col / 26;
-        final char char0 = (char) (aCharCode + ord0);
-        final char char1 = (char) (aCharCode + ord1 - 1);
-        return String.valueOf(ord1 > 0 ? char1 : "") + char0 + (row + 1);
     }
 
     private static void replaceAll(final StringBuilder sb, final String target, final String replacement)
@@ -1826,6 +1840,15 @@ public class ExportExecutor implements IExportExecutor
         {
             final List<Path> filePaths = stream.filter(path -> path.toFile().isFile()).limit(2).collect(Collectors.toList());
             return filePaths.size() == 1 ? filePaths.get(0).toFile() : null;
+        }
+    }
+
+    public static boolean isAbsoluteUrl(final String url) {
+        try {
+            new URL(url);
+            return true;
+        } catch (final MalformedURLException e) {
+            return false;
         }
     }
 

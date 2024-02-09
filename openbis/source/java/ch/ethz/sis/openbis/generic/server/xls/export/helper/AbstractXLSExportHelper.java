@@ -15,7 +15,6 @@
  */
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
-import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -68,9 +67,9 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
     public static final String FIELD_ID_KEY = "id";
 
     private final Workbook wb;
-    
+
     private final CellStyle normalCellStyle;
-    
+
     private final CellStyle boldCellStyle;
 
     private final CellStyle errorCellStyle;
@@ -78,19 +77,19 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
     public AbstractXLSExportHelper(final Workbook wb)
     {
         this.wb = wb;
-        
+
         normalCellStyle = wb.createCellStyle();
         boldCellStyle = wb.createCellStyle();
         errorCellStyle = wb.createCellStyle();
-        
+
         final Font boldFont = wb.createFont();
         boldFont.setBold(true);
         boldCellStyle.setFont(boldFont);
-        
+
         final Font normalFont = wb.createFont();
         normalFont.setBold(false);
         normalCellStyle.setFont(normalFont);
-        
+
         errorCellStyle.setFillForegroundColor(HSSFColor.HSSFColorPredefined.RED.getIndex());
         errorCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
     }
@@ -125,10 +124,10 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
         final Map<String, String> valueFiles = new HashMap<>();
 
         final Row row = wb.getSheetAt(0).createRow(rowNumber);
-        for (int i = 0; i < values.length; i++)
+        for (int j = 0; j < values.length; j++)
         {
-            final Cell cell = row.createCell(i);
-            final String value = values[i] != null ? values[i] : "";
+            final Cell cell = row.createCell(j);
+            final String value = values[j] != null ? values[j] : "";
 
             if (value.length() <= Short.MAX_VALUE)
             {
@@ -136,14 +135,23 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
                 cell.setCellValue(value);
             } else
             {
-                final String fileName = String.format("value-%c%d.txt", (char) ('A' + i), rowNumber + 1);
-
+                final String fileName = String.format("value-%s.txt", convertNumericToAlphanumeric(rowNumber, j));
                 cell.setCellValue(String.format("__%s__", fileName));
                 valueFiles.put(fileName, value);
             }
         }
 
         return new AddRowResult(warnings, valueFiles);
+    }
+
+    public static String convertNumericToAlphanumeric(final int row, final int col)
+    {
+        final int aCharCode = 'A';
+        final int ord0 = col % 26;
+        final int ord1 = col / 26;
+        final char char0 = (char) (aCharCode + ord0);
+        final char char1 = (char) (aCharCode + ord1 - 1);
+        return String.valueOf(ord1 > 0 ? char1 : "") + char0 + (row + 1);
     }
 
     protected void addRow(int rowNumber, boolean bold, final ExportableKind exportableKind, final String idForWarningsOrErrors,
@@ -165,10 +173,10 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
     {
         return textFormatting == XLSExport.TextFormatting.PLAIN
                 ? propertyType -> propertyType.getDataType() == DataType.MULTILINE_VARCHAR
-                        ? getProperty(properties, propertyType) != null
-                                ? ((String)properties.get(propertyType.getCode())).replaceAll("<[^>]+>", "")
-                                : null
-                        : getProperty(properties, propertyType)
+                ? getProperty(properties, propertyType) != null
+                ? ((String)properties.get(propertyType.getCode())).replaceAll("<[^>]+>", "")
+                : null
+                : getProperty(properties, propertyType)
                 : propertyType -> getProperty(properties, propertyType);
     }
 

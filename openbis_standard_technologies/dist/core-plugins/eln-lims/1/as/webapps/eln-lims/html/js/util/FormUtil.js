@@ -2905,7 +2905,7 @@ var FormUtil = new function() {
                                         $window.append($levelsBelow);
                                         var $includeParents = $("<span class='checkbox'><label><input type='checkbox' id='PARENTS-EXPORT'>Include Object and Dataset parents from same space</label></span>");
                                         $window.append($includeParents);
-                                        var $includeOtherSpaces = $("<span class='checkbox'><label><input type='checkbox' id='OTHER-SPACES-EXPORT'>Include Objects and Datasets from different spaces</label></span>");
+                                        var $includeOtherSpaces = $("<span class='checkbox'><label><input type='checkbox' id='OTHER-SPACES-EXPORT'>Include Objects and Datasets parents and children from different spaces</label></span>");
                                         $window.append($includeOtherSpaces);
 
                                         var $exportOptions = $("<span>").append($("<b>").append("Export Options"));

@@ -106,7 +106,7 @@ class SampleExpectations extends Expectations
 
                 final SampleTypeFetchOptions fetchOptions = (SampleTypeFetchOptions) invocation.getParameter(2);
                 fetchOptions.withValidationPlugin().withScript();
-                
+
                 final PropertyAssignmentFetchOptions propertyAssignmentFetchOptions = fetchOptions.withPropertyAssignments();
                 propertyAssignmentFetchOptions.withPlugin().withScript();
                 propertyAssignmentFetchOptions.withPropertyType().withVocabulary();

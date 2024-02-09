@@ -17,10 +17,10 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.exporter;
 
+import static org.testng.Assert.assertEquals;
+
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-
-import static org.testng.Assert.assertEquals;
 
 public class ExportExecutorTest
 {
@@ -59,7 +59,7 @@ public class ExportExecutorTest
             },
             {
                     SPACE_CODE, null, null, null, null, null, null, null, EXTENSION,
-                    String.format("%s%s", SPACE_CODE, EXTENSION)
+                    String.format("%s/%s%s", SPACE_CODE, SPACE_CODE, EXTENSION)
             },
             {
                     SPACE_CODE, null, null, null, null, SAMPLE_CODE, null, null, null,
@@ -342,7 +342,7 @@ public class ExportExecutorTest
 
     @Test(dataProvider = NEXT_ZIP_ENTRY_DATA_PROVIDER)
     public void testGetNextDirectoryName(final String spaceCode, final String projectCode, final String experimentCode, final String experimentName,
-             final String containerCode, final String sampleCode, final String sampleName, final String dataSetCode, final String extension,
+            final String containerCode, final String sampleCode, final String sampleName, final String dataSetCode, final String extension,
             final String expectedResult)
     {
         assertEquals(ExportExecutor.getNextDocDirectoryName(spaceCode, projectCode, experimentCode, experimentName, containerCode, sampleCode,
