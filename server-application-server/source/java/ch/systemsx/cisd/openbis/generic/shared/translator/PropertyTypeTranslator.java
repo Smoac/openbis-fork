@@ -89,6 +89,8 @@ public final class PropertyTypeTranslator
         result.setSchema(propertyType.getSchema());
         result.setTransformation(propertyType.getTransformation());
         result.setMultiValue(propertyType.isMultiValue());
+        result.setPattern(propertyType.getPattern());
+        result.setPatternType(propertyType.getPatternType());
 
         return result;
     }

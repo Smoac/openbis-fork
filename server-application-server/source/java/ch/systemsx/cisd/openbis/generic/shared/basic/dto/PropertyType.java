@@ -72,6 +72,10 @@ public class PropertyType extends Code<PropertyType> implements IPropertyTypeUpd
 
     private boolean multiValue;
 
+    private String pattern;
+
+    private String patternType;
+
     @Override
     public Long getId()
     {
@@ -270,5 +274,25 @@ public class PropertyType extends Code<PropertyType> implements IPropertyTypeUpd
     public void setMultiValue(boolean multiValue)
     {
         this.multiValue = multiValue;
+    }
+
+    public String getPattern()
+    {
+        return pattern;
+    }
+
+    public void setPattern(String pattern)
+    {
+        this.pattern = pattern;
+    }
+
+    public String getPatternType()
+    {
+        return patternType;
+    }
+
+    public void setPatternType(String patternType)
+    {
+        this.patternType = patternType;
     }
 }

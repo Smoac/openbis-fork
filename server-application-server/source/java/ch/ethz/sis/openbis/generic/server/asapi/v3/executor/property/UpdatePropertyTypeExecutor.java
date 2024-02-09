@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Pattern;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import org.apache.commons.lang3.StringUtils;
@@ -69,6 +70,9 @@ public class UpdatePropertyTypeExecutor
     @Autowired
     private IPropertiesConverter propertiesConverter;
 
+    @Autowired
+    private IPatternCompiler patternCompiler;
+
     @Override
     protected IPropertyTypeId getId(PropertyTypeUpdate update)
     {
@@ -95,6 +99,11 @@ public class UpdatePropertyTypeExecutor
         if (update.getDescription().isModified() && StringUtils.isEmpty(update.getDescription().getValue()))
         {
             throw new UserFailureException("Description cannot be empty.");
+        }
+        if(update.getPattern().isModified() && update.getPatternType().isModified() && ((StringUtils.isEmpty(update.getPattern().getValue()) && !StringUtils.isEmpty(update.getPatternType().getValue()))
+        || (!StringUtils.isEmpty(update.getPattern().getValue()) && StringUtils.isEmpty(update.getPatternType().getValue()))))
+        {
+            throw new UserFailureException("Pattern and Pattern Type must be both either empty or non-empty!");
         }
     }
 
@@ -134,6 +143,12 @@ public class UpdatePropertyTypeExecutor
                     CreatePropertyTypeExecutor.validateTransformationAndDataType(dataType, update.getTransformation().getValue());
                     propertyType.setTransformation(getNewValue(update.getTransformation(), propertyType.getTransformation()));
                     updateMetaData(propertyType, update);
+                    propertyType.setPattern(getNewValue(update.getPattern(), propertyType.getPattern()));
+                    propertyType.setPatternType(getNewValue(update.getPatternType(), propertyType.getPatternType()));
+
+                    Pattern updateRegex = patternCompiler.compilePattern(propertyType.getPattern(), propertyType.getPatternType());
+                    propertyType.setPatternRegex(updateRegex == null ? null : updateRegex.pattern());
+
                 }
 
                 private void assertConversionAllowed(DataType currentDataType, DataType newDataType)

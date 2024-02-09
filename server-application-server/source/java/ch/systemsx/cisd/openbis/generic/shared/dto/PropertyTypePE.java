@@ -127,6 +127,12 @@ public final class PropertyTypePE extends HibernateAbstractRegistrationHolder im
 
     private boolean multiValue;
 
+    private String pattern;
+
+    private String patternType;
+
+    private String patternRegex;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.CONTROLLED_VOCABULARY_COLUMN, updatable = true)
     public VocabularyPE getVocabulary()
@@ -326,6 +332,39 @@ public final class PropertyTypePE extends HibernateAbstractRegistrationHolder im
     public void setMultiValue(final boolean multiValue)
     {
         this.multiValue = multiValue;
+    }
+
+    @Column(name = ColumnNames.PATTERN)
+    public String getPattern()
+    {
+        return pattern;
+    }
+
+    public void setPattern(String pattern)
+    {
+        this.pattern = pattern;
+    }
+
+    @Column(name = ColumnNames.PATTERN_TYPE)
+    public String getPatternType()
+    {
+        return patternType;
+    }
+
+    public void setPatternType(String patternType)
+    {
+        this.patternType = patternType;
+    }
+
+    @Column(name = ColumnNames.PATTERN_REGEX)
+    public String getPatternRegex()
+    {
+        return patternRegex;
+    }
+
+    public void setPatternRegex(String patternRegex)
+    {
+        this.patternRegex = patternRegex;
     }
 
     @Override

@@ -44,5 +44,7 @@ public class PropertyTypeDataObjectBinding extends NonUpdateCapableDataObjectBin
         final DataType dataType = new DataType();
         dataType.setCode(DataTypeCode.valueOf(row.getString("dt_code")));
         into.setDataType(dataType);
+        into.setPattern(row.getString("pattern"));
+        into.setPatternType(row.getString("pattern_type"));
     }
 }

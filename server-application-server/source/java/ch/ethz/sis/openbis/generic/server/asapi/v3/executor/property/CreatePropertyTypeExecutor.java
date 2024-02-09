@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -74,6 +75,9 @@ public class CreatePropertyTypeExecutor
     @Autowired
     private IPropertyTypeAuthorizationExecutor authorizationExecutor;
 
+    @Autowired
+    private IPatternCompiler patternCompiler;
+
     @Override
     protected IObjectId getId(PropertyTypePE entity)
     {
@@ -124,6 +128,12 @@ public class CreatePropertyTypeExecutor
         if (creation.getVocabularyId() != null && dataType != DataType.CONTROLLEDVOCABULARY)
         {
             throw new UserFailureException("Vocabulary id has been specified but data type is " + dataType + ".");
+        }
+        //if only one element out of pair (pattern, patternType) is empty, throw exception
+        if(((creation.getPattern() == null || creation.getPattern().trim().isEmpty()) && (creation.getPatternType() != null && !creation.getPatternType().trim().isEmpty()))
+        || ((creation.getPattern() != null && !creation.getPattern().trim().isEmpty()) && (creation.getPatternType() == null || creation.getPatternType().trim().isEmpty())))
+        {
+            throw new UserFailureException("Pattern and Pattern Type must be both either empty or non-empty!");
         }
         validateMaterialType(creation, dataType);
         validateSampleType(creation, dataType);
@@ -209,6 +219,10 @@ public class CreatePropertyTypeExecutor
                     propertyType.setMetaData(creation.getMetaData());
                     propertyType.setMultiValue(
                             creation.isMultiValue() != null && creation.isMultiValue());
+                    propertyType.setPattern(creation.getPattern());
+                    propertyType.setPatternType(creation.getPatternType());
+                    Pattern pattern = patternCompiler.compilePattern(creation.getPattern(), creation.getPatternType());
+                    propertyType.setPatternRegex(pattern == null ? null : pattern.pattern());
                     propertyTypes.add(propertyType);
                 }
 
