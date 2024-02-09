@@ -77,7 +77,7 @@ $.extend(DefaultProfile.prototype, {
 		}
 
         this.legacyExports = {
-            enable : true
+            enable : false
         }
 
 		this.MainMenuNodeNames = {
