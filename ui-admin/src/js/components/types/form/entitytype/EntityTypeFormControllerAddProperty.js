@@ -63,6 +63,8 @@ export default class EntityTypeFormControllerAddProperty {
         visible: false
       }),
       plugin: FormUtil.createField(),
+      pattern: FormUtil.createField(),
+      patternType: FormUtil.createField(),
       mandatory: FormUtil.createField({
         value: false
       }),

@@ -178,6 +178,11 @@ public class ImagingService implements ICustomDSSServiceExecutor
 
         Serializable[] exportTypes = (Serializable[]) exportConfig.get("include");
 
+        if(exportTypes == null)
+        {
+            throw new UserFailureException("At least single export needs to be configured!");
+        }
+
         ImagingArchiver archiver;
 
         // Prepare archiver
@@ -255,6 +260,11 @@ public class ImagingService implements ICustomDSSServiceExecutor
                 Validator.validateExportConfig(exportConfig);
 
                 Serializable[] exportTypes = (Serializable[]) exportConfig.get("include");
+
+                if(exportTypes == null)
+                {
+                    throw new UserFailureException("At least single export needs to be configured!");
+                }
 
                 // For each export type, perform adequate action
                 for (Serializable exportType : exportTypes)

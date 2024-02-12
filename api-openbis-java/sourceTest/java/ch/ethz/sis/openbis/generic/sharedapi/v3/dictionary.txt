@@ -983,6 +983,8 @@ getOwnerId
 getParentIds
 getParents
 getPath
+getPattern
+getPatternType
 getPermId
 getPermIds
 getPermlink
@@ -2245,6 +2247,8 @@ setParentActions
 setParentIds
 setParents
 setPath
+setPattern
+setPatternType
 setPermId
 setPermIds
 setPermlink

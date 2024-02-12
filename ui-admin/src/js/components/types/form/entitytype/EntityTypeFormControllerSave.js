@@ -102,7 +102,9 @@ export default class EntityTypeFormControllerSave extends PageControllerSave {
       'label',
       'description',
       'schema',
-      'transformation'
+      'transformation',
+      'pattern',
+      'patternType'
     ])
   }
 
@@ -133,6 +135,12 @@ export default class EntityTypeFormControllerSave extends PageControllerSave {
     creation.setSchema(property.schema.value)
     creation.setTransformation(property.transformation.value)
     creation.setMultiValue(property.isMultiValue.value)
+    if(property.patternType.value != 'NONE')
+    {
+        creation.setPattern(property.pattern.value)
+        creation.setPatternType(property.patternType.value)
+    }
+
 
     if (
       property.dataType.value === openbis.DataType.CONTROLLEDVOCABULARY &&
@@ -177,6 +185,15 @@ export default class EntityTypeFormControllerSave extends PageControllerSave {
     update.setSchema(property.schema.value)
     update.setTransformation(property.transformation.value)
     update.convertToDataType(property.dataType.value)
+    console.log(property)
+    if(property.patternType.value != 'NONE')
+    {
+        update.setPattern(property.pattern.value)
+        update.setPatternType(property.patternType.value)
+    } else {
+        update.setPattern(null)
+        update.setPatternType(null)
+    }
     return new openbis.UpdatePropertyTypesOperation([update])
   }
 
