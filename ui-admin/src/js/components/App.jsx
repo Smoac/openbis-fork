@@ -92,7 +92,7 @@ class App extends React.Component {
     if (AppController.getInstance().getSession()) {
       return (
         <div className={classes.container}>
-          <Menu />
+          <Menu userName={AppController.getInstance().getSession().userName}/>
           {_.map(pageToComponent, (PageComponent, page) => {
             let visible = AppController.getInstance().getCurrentPage() === page
             return (
