@@ -120,7 +120,7 @@ class ImagingArchiver
                 {
                     packager.addEntry(path,
                             file.lastModified(),
-                            file.getTotalSpace(),
+                            Files.size(file.toPath()),
                             checksumFunction.apply(new FileInputStream(file)),
                             new FileInputStream(file));
                 } catch (IOException exc)
