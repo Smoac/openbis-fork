@@ -32,7 +32,14 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
-const GalleryGridView = ({previewContainerList, cols, selectAll, onOpenPreview, handleShowPreview, handleSelectPreview }) => {
+const GalleryGridView = ({
+                             previewContainerList,
+                             cols,
+                             selectAll,
+                             onOpenPreview,
+                             handleShowPreview,
+                             handleSelectPreview
+                         }) => {
     const classes = useStyles();
 
     return (
@@ -58,15 +65,17 @@ const GalleryGridView = ({previewContainerList, cols, selectAll, onOpenPreview, 
                                         isChecked={previewContainer.preview.show}
                                         onChange={() => handleShowPreview(previewContainer)}/>
                                 </Grid>
-                                <Grid item>
-                                    <FormControlLabel
-                                        value="start"
-                                        control={<Checkbox value={previewContainer.select}
-                                                           onChange={() => handleSelectPreview(idx)}
-                                                           color="primary"/>}
-                                        label="Export"
-                                        labelPlacement="start"/>
-                                </Grid>
+                                {previewContainer.preview.bytes &&
+                                    <Grid item>
+                                        <FormControlLabel
+                                            value="start"
+                                            control={<Checkbox value={previewContainer.select}
+                                                               onChange={() => handleSelectPreview(idx)}
+                                                               color="primary"/>}
+                                            label="Export"
+                                            labelPlacement="start"/>
+                                    </Grid>
+                                }
                             </Grid>
                         </CardActions>}
                     </Card>
