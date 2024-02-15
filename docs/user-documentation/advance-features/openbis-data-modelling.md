@@ -9,7 +9,7 @@ openBIS has the following data structure:
 2.  **Project**: entity with *Code* and *Description*
 3.  **Experiment/Collection:** entity with *user-defined properties*
 4.  **Object**: entity with *user-defined properties* 
-5.  **Dataset**: folder where data files are stored. A data set has *user-defined properties*      
+5.  **Dataset**: folder where data files are stored. A dataset has *user-defined properties*      
       
 ![image info](img/openbis-data-model.png)
 
