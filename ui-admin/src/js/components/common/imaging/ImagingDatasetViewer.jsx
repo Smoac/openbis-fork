@@ -436,6 +436,7 @@ class ImagingDataSetViewer extends React.PureComponent {
 
     renderInputControls(classes, activePreview, configInputs, configResolutions, resolution, isChanged) {
         const inputValues = this.createInitValues(configInputs, activePreview.config);
+        activePreview.config = inputValues;
         const currentMetadata = activePreview.metadata;
         const isUploadedPreview = isObjectEmpty(currentMetadata) ?  false : ("file" in currentMetadata);
         return (
