@@ -9,7 +9,7 @@ openBIS has the following data structure:
 2.  **Project**: entity with *Code* and *Description*
 3.  **Experiment/Collection:** entity with *user-defined properties*
 4.  **Object**: entity with *user-defined properties* 
-5.  **Dataset**: folder where data files are stored. A data set has *user-defined properties*  
+5.  **Dataset**: folder where data files are stored. A data set has *user-defined properties*      
       
 ![image info](img/openbis-data-model.png)
 
@@ -21,7 +21,7 @@ In the general openBIS data model, *Objects* can:
 - belong to a *Project*
 - belong to an *Experiment/Collection*
   
-*Datasets* can be associated only to *Experiments/Collections* or to *Objects*.
+*Datasets* can be associated only to *Experiments/Collections* or to *Objects*.  
 
 Access to openBIS is controlled either at the *Space* level or *Project* level (see [openBIS roles ](../general-admin-users/admin-documentation/user-registration.md#openbis-roles)).
 
@@ -30,9 +30,9 @@ Access to openBIS is controlled either at the *Space* level or *Project* level (
 ## Data model in openBIS ELN-LIMS 
 -------------------------------
 
-In the openBIS ELN-LIMS a simplified data model is used, as shown below.
+In the openBIS ELN-LIMS a simplified data model is used, as shown below.  
 
-![image info](img/ELN-data-model.png)
+![image info](img/ELN-data-model.png). 
 
 In this case, *Objects* can only belong to *Experiments/Collections*.
 
@@ -46,7 +46,7 @@ inventory is used to store all materials and protocols (i.e. standard
 operating procedures) used in the lab. It is possible to create
 additional inventories, for example of instruments and equipment.
 
-The picture below shows an example of an Inventory with the different openBIS levels.
+The picture below shows an example of an Inventory with the different openBIS levels.  
 
 ![image info](img/inventory-data-model.png)
 
@@ -82,25 +82,31 @@ and *children*.
 
   
 
-![image info](img/objects-parents-children.png)
+![image info](img/objects-parents-children.png) | ![image info](img/dataset-parents-children.png)
 
 
-![image info](img/dataset-parents-children.png)
+
   
 
 ## Examples of parent-child relationships
 
 1.  One or more samples are derived from one main sample. This is the
     parent of the other samples:  
+
+
 ![image info](img/sample-vials.png)
       
 2.  One Experimental step is written following a protocol stored in the
-    Inventory and using a sample stored in the inventory. The protocol
-    and the sample are the parents of the Experimental
+    Inventory, on a sample stored in the inventory, using a given equipment. The protocol, the sample and the equipment are the parents of the Experimental step
+
+
 ![image info](img/exp-step-parents.png)
+
       
 3.  One Experimental Step is done after another and we want to keep
-    track of the links between the steps:  
+    track of the links between the steps: 
+    
+     
 ![image info](img/exp-step-parents-children.png)
       
 
