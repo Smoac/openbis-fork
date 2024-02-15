@@ -97,7 +97,7 @@ and *children*.
 2.  One Experimental step is written following a protocol stored in the
     Inventory and using a sample stored in the inventory. The protocol
     and the sample are the parents of the Experimental
-![image info](img/exp-ste-parents.png)
+![image info](img/exp-step-parents.png)
       
 3.  One Experimental Step is done after another and we want to keep
     track of the links between the steps:  
