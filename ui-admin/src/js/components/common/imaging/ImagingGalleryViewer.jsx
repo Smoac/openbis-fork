@@ -255,7 +255,7 @@ const ImagingGalleryViewer = ({objId, objType, extOpenbis, onOpenPreview}) => {
     }
     console.log("RENDER.ImagingGalleryViewer - previewsInfo: ", previewsInfo);
     const previewContainerList = showAll ? previewsInfo.previewContainerList : previewsInfo.previewContainerList.filter(previewContainer => previewContainer.preview.show);
-    const isExportDisable = !(previewContainerList.filter(previewContainer => previewContainer.select === true).length > 0)
+    const isExportDisable = (!(previewContainerList.filter(previewContainer => previewContainer.select === true).length > 0) || !gridView)
     const commonExportConfig = extractCommonExportsConfig();
     return (
         <>
