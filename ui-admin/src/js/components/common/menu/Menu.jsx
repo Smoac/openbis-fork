@@ -17,6 +17,7 @@ import Button from '@src/js/components/common/form/Button.jsx'
 import pages from '@src/js/common/consts/pages.js'
 import messages from '@src/js/common/messages.js'
 import logger from '@src/js/common/logger.js'
+import Typography from "@material-ui/core/Typography";
 
 const styles = theme => ({
   appBar: {
@@ -54,6 +55,9 @@ const styles = theme => ({
   },
   searchClear: {
     cursor: 'pointer'
+  },
+  userInfo: {
+    margin: '0px 10px 0px 5px'
   }
 })
 
@@ -94,8 +98,7 @@ class Menu extends React.PureComponent {
   render() {
     logger.log(logger.DEBUG, 'Menu.render')
 
-    const { classes, searchText } = this.props
-
+    const { classes, searchText, userName } = this.props
     return (
       <AppBar position='static' classes={{ root: classes.appBar }}>
         <Toolbar variant='dense' classes={{ root: classes.toolBar }}>
@@ -127,6 +130,9 @@ class Menu extends React.PureComponent {
               }
             }}
           />
+          <Typography variant="body1" classes={{ root: classes.userInfo }}>
+            {userName}
+          </Typography>
           <Button
             label={<LogoutIcon fontSize='small' />}
             type='final'
