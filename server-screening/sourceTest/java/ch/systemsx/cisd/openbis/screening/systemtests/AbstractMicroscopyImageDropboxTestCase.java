@@ -38,7 +38,7 @@ public abstract class AbstractMicroscopyImageDropboxTestCase extends AbstractIma
     {
         commonServer = (ICommonServer) applicationContext
                 .getBean(ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER);
-        sessionToken = commonServer.tryAuthenticate("test", "a").getSessionToken();
+        sessionToken = commonServer.tryAuthenticate("admin", "a").getSessionToken();
         ExperimentType experimentType = new ExperimentType();
         experimentType.setCode("MICROSCOPY_EXPERIMENT");
         registerExperimentType(commonServer, experimentType);
