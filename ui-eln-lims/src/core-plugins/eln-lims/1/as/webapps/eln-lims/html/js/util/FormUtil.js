@@ -2884,10 +2884,8 @@ var FormUtil = new function() {
             var exportButtonModel = {
                                     label : "Export",
                                     action : function() {
-                                        var $window = $('<form>', { 'action' : 'javascript:void(0);' });
+                                        var $window = $('<form>', { 'action' : 'javascript:void(0);', 'id' : 'export-v2' });
                                         $window.append($('<legend>').append('Export'));
-                                        var $compatible = $("<span class='checkbox'><label><input type='checkbox' id='COMPATIBLE-IMPORT'>Make import compatible</label></span>");
-                                        $window.append($compatible);
 
                                         var $info_formats = $("<span>").append($("<b>").append("File formats"));
                                         $window.append($info_formats);
@@ -2934,6 +2932,7 @@ var FormUtil = new function() {
                                                 withObjectsAndDataSetsParents : $("#PARENTS-EXPORT").is(":checked"), //PARENTS-EXPORT
                                                 withObjectsAndDataSetsOtherSpaces: $("#OTHER-SPACES-EXPORT").is(":checked") //OTHER-SPACES-EXPORT
                                             }
+                                            console.log(exportModel);
                                             var numberOfFormats = 0;
                                             if(exportModel.formats.pdf) {
                                                 numberOfFormats++;
@@ -2980,6 +2979,18 @@ var FormUtil = new function() {
                                         };
 
                                         Util.blockUI($window, css);
+
+                                        $data.change(function() {
+                                                var isChecked = $("#DATA-EXPORT").is(":checked");
+                                                if(isChecked) {
+                                                    var $compatible = $("<span class='checkbox' id='COMPATIBLE-IMPORT-CONTAINER'><label><input type='checkbox' id='COMPATIBLE-IMPORT'>Make data export compatible with ELN-LIMS Dropbox</label></span>");
+                                                    $($compatible).insertAfter($data);
+                                                } else {
+                                                    $('#COMPATIBLE-IMPORT-CONTAINER').remove();
+                                                }
+                                        });
+
+
                                     }};
              return exportButtonModel;
         }
