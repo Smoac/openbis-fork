@@ -104,7 +104,7 @@ material_type_GENE = tr.getOrCreateNewMaterialType('GENE')
 material_type_GENE.setDescription('Gene')
 
 # This is to get around a weird bug running the test in Jenkins when the database populating twice
-isMaterial_type_SIRNAAvailable = tr.getMaterialType('SIRNA') not None
+isMaterial_type_SIRNAAvailable = tr.getMaterialType('SIRNA') is not None
 
 material_type_SIRNA = tr.getOrCreateNewMaterialType('SIRNA')
 material_type_SIRNA.setDescription('Oligo nucleotide')
