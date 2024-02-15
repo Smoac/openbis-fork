@@ -57,8 +57,7 @@ The picture below shows an example of an Inventory with the different openBIS le
 
 By default, the lab notebook is organised per user. Each user has a
 personal folder (=*Space*), where to create *Projects*, *Experiments*
-and *Experimental Steps (*=Objects). Data files can be uploaded to *Data
-Sets*. Example structure:
+and Experimental Steps (=*Objects*). Data files can be uploaded to *Dataets*. Example structure:
 
   
 ![image info](img/labnotebook-data-model.png)
@@ -82,7 +81,7 @@ and *children*.
 
   
 
-![image info](img/objects-parents-children.png) | ![image info](img/dataset-parents-children.png)
+![image info](img/objects-parents-children.png)|![image info](img/dataset-parents-children.png)
 
 
 
@@ -96,8 +95,8 @@ and *children*.
 
 ![image info](img/sample-vials.png)
       
-2.  One Experimental step is written following a protocol stored in the
-    Inventory, on a sample stored in the inventory, using a given equipment. The protocol, the sample and the equipment are the parents of the Experimental step
+2.  One Experimental step is performed following a protocol stored in the
+    inventory, on a sample stored in the inventory, using a given equipment. The protocol, the sample and the equipment are the parents of the Experimental step
 
 
 ![image info](img/exp-step-parents.png)
