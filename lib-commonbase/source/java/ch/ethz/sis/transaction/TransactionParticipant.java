@@ -2,6 +2,8 @@ package ch.ethz.sis.transaction;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,11 +43,14 @@ public class TransactionParticipant implements ITransactionParticipant
 
     private final ITransactionLog transactionLog;
 
+    private final int transactionTimeoutInSeconds;
+
     private final int transactionCountLimit;
 
     public TransactionParticipant(String participantId, String transactionCoordinatorKey, String interactiveSessionKey,
             ISessionTokenProvider sessionTokenProvider, IDatabaseTransactionProvider databaseTransactionProvider,
-            ITransactionOperationExecutor operationExecutor, ITransactionLog transactionLog, int transactionCountLimit)
+            ITransactionOperationExecutor operationExecutor, ITransactionLog transactionLog, int transactionTimeoutInSeconds,
+            int transactionCountLimit)
     {
         if (participantId == null)
         {
@@ -82,6 +87,11 @@ public class TransactionParticipant implements ITransactionParticipant
             throw new IllegalArgumentException("Transaction log cannot be null");
         }
 
+        if (transactionTimeoutInSeconds <= 0)
+        {
+            throw new IllegalArgumentException("Transaction timeout cannot be <= 0");
+        }
+
         if (transactionCountLimit <= 0)
         {
             throw new IllegalArgumentException("Transaction count cannot be <= 0");
@@ -94,6 +104,7 @@ public class TransactionParticipant implements ITransactionParticipant
         this.databaseTransactionProvider = databaseTransactionProvider;
         this.operationExecutor = operationExecutor;
         this.transactionLog = transactionLog;
+        this.transactionTimeoutInSeconds = transactionTimeoutInSeconds;
         this.transactionCountLimit = transactionCountLimit;
     }
 
@@ -116,6 +127,18 @@ public class TransactionParticipant implements ITransactionParticipant
 
                 try
                 {
+                    synchronized (threadMap)
+                    {
+                        TransactionThread thread = threadMap.get(transactionId);
+
+                        if (thread == null)
+                        {
+                            thread = new TransactionThread(transactionId, lastStatus, transactionCoordinatorKey);
+                            threadMap.put(transactionId, thread);
+                            thread.startThread();
+                        }
+                    }
+
                     switch (lastStatus)
                     {
                         case BEGIN_STARTED:
@@ -144,6 +167,21 @@ public class TransactionParticipant implements ITransactionParticipant
                     operationLog.info("Restore of transaction '" + transactionId + "' with last status '" + lastStatus + "' failed.", e);
                 }
             }
+        }
+    }
+
+    public void cleanupTransactions()
+    {
+        Collection<TransactionThread> threads;
+
+        synchronized (threadMap)
+        {
+            threads = threadMap.values();
+        }
+
+        for (TransactionThread thread : threads)
+        {
+            thread.finishIfIdle(transactionTimeoutInSeconds);
         }
     }
 
@@ -263,7 +301,7 @@ public class TransactionParticipant implements ITransactionParticipant
 
                 operationLog.info("Creating a new thread for transaction '" + transactionId + "'.");
 
-                thread = new TransactionThread(transactionId, interactiveSessionKey, transactionCoordinatorKey);
+                thread = new TransactionThread(transactionId, TransactionStatus.NEW, transactionCoordinatorKey);
                 threadMap.put(transactionId, thread);
                 thread.startThread();
             } else
@@ -314,11 +352,9 @@ public class TransactionParticipant implements ITransactionParticipant
 
         private Object transactionObject;
 
-        private TransactionStatus transactionStatus = TransactionStatus.NEW;
+        private TransactionStatus transactionStatus;
 
         private final UUID transactionId;
-
-        private final String interactiveSessionKey;
 
         private final String transactionCoordinatorKey;
 
@@ -332,10 +368,12 @@ public class TransactionParticipant implements ITransactionParticipant
 
         private Throwable operationException;
 
-        public TransactionThread(UUID transactionId, String interactiveSessionKey, String transactionCoordinatorKey)
+        private Date lastAccessedDate = new Date();
+
+        public TransactionThread(UUID transactionId, TransactionStatus initialTransactionStatus, String transactionCoordinatorKey)
         {
             this.transactionId = transactionId;
-            this.interactiveSessionKey = interactiveSessionKey;
+            this.transactionStatus = initialTransactionStatus;
             this.transactionCoordinatorKey = transactionCoordinatorKey;
             this.thread = new Thread(new Runnable()
             {
@@ -492,6 +530,8 @@ public class TransactionParticipant implements ITransactionParticipant
                     operationArguments = newOperationArguments;
                     operationResult = null;
                     operationException = null;
+                    lastAccessedDate = new Date();
+
                     lock.notifyAll();
 
                     operationLog.info("Transaction '" + transactionId + "' thread scheduled operation '" + newOperationName + "' execution.");
@@ -504,7 +544,7 @@ public class TransactionParticipant implements ITransactionParticipant
                 } catch (Exception e)
                 {
                     operationLog.error(
-                            "Scheduling of transaction '" + operationName + "' operation '" + operationName
+                            "Scheduling of transaction '" + transactionId + "' operation '" + operationName
                                     + "' execution in thread failed or got interrupted.", e);
                     throw new RuntimeException(e);
                 }
@@ -530,14 +570,30 @@ public class TransactionParticipant implements ITransactionParticipant
             return threadFinished;
         }
 
-        public String getInteractiveSessionKey()
+        private void finishIfIdle(long timeoutInSeconds)
         {
-            return interactiveSessionKey;
-        }
+            if (transactionCoordinatorKey != null)
+            {
+                return;
+            }
 
-        public String getTransactionCoordinatorKey()
-        {
-            return transactionCoordinatorKey;
+            Date timeoutDate = new Date(lastAccessedDate.getTime() + timeoutInSeconds * 1000);
+
+            if (timeoutDate.before(new Date()))
+            {
+                return;
+            }
+
+            synchronized (lock)
+            {
+                if (!threadFinished)
+                {
+                    operationLog.info("Transaction '" + transactionId + "' thread has been idle since + " + lastAccessedDate
+                            + " which is longer than the configured transaction timeout of " + timeoutInSeconds
+                            + " seconds. The transaction is not a two-phase-commit transaction therefore it will be rolled back.");
+                    executeOperation(null, ROLLBACK_TRANSACTION_METHOD, null);
+                }
+            }
         }
     }
 

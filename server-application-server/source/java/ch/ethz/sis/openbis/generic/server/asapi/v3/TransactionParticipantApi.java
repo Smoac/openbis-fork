@@ -50,6 +50,7 @@ public class TransactionParticipantApi implements ITransactionParticipantApi
                 new ApplicationServerDatabaseTransactionProvider(transactionManager, daoFactory, databaseContext),
                 new ApplicationServerTransactionOperationExecutor(applicationServerApi),
                 new TransactionLog(new File(transactionConfiguration.getTransactionLogFolderPath()), "application-server"),
+                transactionConfiguration.getTransactionTimeoutInSeconds(),
                 transactionConfiguration.getTransactionCountLimit()
         );
     }

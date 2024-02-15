@@ -64,6 +64,8 @@ public class TransactionParticipantTest
 
     public static final Error TEST_ERROR = new Error("Test error");
 
+    public static final int TEST_TRANSACTION_TIMEOUT = 60;
+
     public static final int TEST_THREAD_COUNT_LIMIT = 5;
 
     private Mockery mockery;
@@ -97,7 +99,7 @@ public class TransactionParticipantTest
     {
         TransactionParticipant participant =
                 new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_THREAD_COUNT_LIMIT);
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_TRANSACTION_TIMEOUT, TEST_THREAD_COUNT_LIMIT);
 
         MutableObject<String> transaction1BeginThreadName = new MutableObject<>();
         MutableObject<String> transaction1PrepareThreadName = new MutableObject<>();
@@ -208,11 +210,11 @@ public class TransactionParticipantTest
         participant.beginTransaction(TEST_TRANSACTION_ID_2, TEST_SESSION_TOKEN, interactiveSessionKey, transactionCoordinatorKey);
         // execute 1
         String transaction1OperationThreadName =
-                (String) participant.executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, interactiveSessionKey, TEST_OPERATION_NAME,
+                participant.executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, interactiveSessionKey, TEST_OPERATION_NAME,
                         TEST_OPERATION_ARGUMENTS);
         // execute 2
         String transaction2OperationThreadName =
-                (String) participant.executeOperation(TEST_TRANSACTION_ID_2, TEST_SESSION_TOKEN, interactiveSessionKey, TEST_OPERATION_NAME_2,
+                participant.executeOperation(TEST_TRANSACTION_ID_2, TEST_SESSION_TOKEN, interactiveSessionKey, TEST_OPERATION_NAME_2,
                         TEST_OPERATION_ARGUMENTS_2);
 
         if (transactionCoordinatorKey != null)
@@ -268,7 +270,7 @@ public class TransactionParticipantTest
     {
         TransactionParticipant participant =
                 new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_THREAD_COUNT_LIMIT);
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_TRANSACTION_TIMEOUT, TEST_THREAD_COUNT_LIMIT);
 
         mockery.checking(new Expectations()
         {
@@ -312,7 +314,7 @@ public class TransactionParticipantTest
     {
         TransactionParticipant participant =
                 new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_THREAD_COUNT_LIMIT);
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_TRANSACTION_TIMEOUT, TEST_THREAD_COUNT_LIMIT);
 
         mockery.checking(new Expectations()
         {
@@ -377,7 +379,7 @@ public class TransactionParticipantTest
     {
         TransactionParticipant participant =
                 new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_THREAD_COUNT_LIMIT);
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_TRANSACTION_TIMEOUT, TEST_THREAD_COUNT_LIMIT);
 
         mockery.checking(new Expectations()
         {
@@ -430,7 +432,7 @@ public class TransactionParticipantTest
     {
         TransactionParticipant participant =
                 new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_THREAD_COUNT_LIMIT);
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_TRANSACTION_TIMEOUT, TEST_THREAD_COUNT_LIMIT);
 
         mockery.checking(new Expectations()
         {
@@ -483,7 +485,7 @@ public class TransactionParticipantTest
     {
         TransactionParticipant participant =
                 new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_THREAD_COUNT_LIMIT);
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_TRANSACTION_TIMEOUT, TEST_THREAD_COUNT_LIMIT);
 
         mockery.checking(new Expectations()
         {
@@ -580,7 +582,7 @@ public class TransactionParticipantTest
     {
         TransactionParticipant participant =
                 new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_THREAD_COUNT_LIMIT);
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_TRANSACTION_TIMEOUT, TEST_THREAD_COUNT_LIMIT);
 
         mockery.checking(new Expectations()
         {
@@ -629,7 +631,7 @@ public class TransactionParticipantTest
     {
         TransactionParticipant participant =
                 new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_THREAD_COUNT_LIMIT);
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_TRANSACTION_TIMEOUT, TEST_THREAD_COUNT_LIMIT);
 
         mockery.checking(new Expectations()
         {
@@ -733,7 +735,7 @@ public class TransactionParticipantTest
     {
         TransactionParticipant participant =
                 new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_THREAD_COUNT_LIMIT);
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_TRANSACTION_TIMEOUT, TEST_THREAD_COUNT_LIMIT);
 
         mockery.checking(new Expectations()
         {
@@ -804,7 +806,7 @@ public class TransactionParticipantTest
     {
         TransactionParticipant participant =
                 new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_THREAD_COUNT_LIMIT);
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_TRANSACTION_TIMEOUT, TEST_THREAD_COUNT_LIMIT);
 
         mockery.checking(new Expectations()
         {
@@ -925,7 +927,7 @@ public class TransactionParticipantTest
     {
         TransactionParticipant participant =
                 new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_THREAD_COUNT_LIMIT);
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_TRANSACTION_TIMEOUT, TEST_THREAD_COUNT_LIMIT);
 
         mockery.checking(new Expectations()
         {
@@ -998,7 +1000,7 @@ public class TransactionParticipantTest
     {
         TransactionParticipant participant =
                 new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_THREAD_COUNT_LIMIT);
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_TRANSACTION_TIMEOUT, TEST_THREAD_COUNT_LIMIT);
 
         mockery.checking(new Expectations()
         {
@@ -1047,7 +1049,7 @@ public class TransactionParticipantTest
     {
         TransactionParticipant participant =
                 new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_THREAD_COUNT_LIMIT);
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_TRANSACTION_TIMEOUT, TEST_THREAD_COUNT_LIMIT);
 
         mockery.checking(new Expectations()
         {
@@ -1071,7 +1073,7 @@ public class TransactionParticipantTest
     {
         TransactionParticipant participant =
                 new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_THREAD_COUNT_LIMIT);
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_TRANSACTION_TIMEOUT, TEST_THREAD_COUNT_LIMIT);
 
         mockery.checking(new Expectations()
         {
@@ -1098,7 +1100,7 @@ public class TransactionParticipantTest
     {
         TransactionParticipant participant =
                 new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_THREAD_COUNT_LIMIT);
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_TRANSACTION_TIMEOUT, TEST_THREAD_COUNT_LIMIT);
 
         mockery.checking(new Expectations()
         {
@@ -1126,7 +1128,7 @@ public class TransactionParticipantTest
     {
         TransactionParticipant participant =
                 new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_THREAD_COUNT_LIMIT);
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_TRANSACTION_TIMEOUT, TEST_THREAD_COUNT_LIMIT);
 
         mockery.checking(new Expectations()
         {
@@ -1145,7 +1147,7 @@ public class TransactionParticipantTest
     {
         TransactionParticipant participant =
                 new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_THREAD_COUNT_LIMIT);
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_TRANSACTION_TIMEOUT, TEST_THREAD_COUNT_LIMIT);
 
         mockery.checking(new Expectations()
         {
@@ -1164,7 +1166,7 @@ public class TransactionParticipantTest
     {
         TransactionParticipant participant =
                 new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_THREAD_COUNT_LIMIT);
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_TRANSACTION_TIMEOUT, TEST_THREAD_COUNT_LIMIT);
 
         mockery.checking(new Expectations()
         {
@@ -1199,7 +1201,7 @@ public class TransactionParticipantTest
     {
         TransactionParticipant participant =
                 new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_THREAD_COUNT_LIMIT);
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_TRANSACTION_TIMEOUT, TEST_THREAD_COUNT_LIMIT);
 
         mockery.checking(new Expectations()
         {
@@ -1242,7 +1244,7 @@ public class TransactionParticipantTest
     {
         TransactionParticipant participant =
                 new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_THREAD_COUNT_LIMIT);
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_TRANSACTION_TIMEOUT, TEST_THREAD_COUNT_LIMIT);
 
         mockery.checking(new Expectations()
         {
@@ -1295,7 +1297,7 @@ public class TransactionParticipantTest
     {
         TransactionParticipant participant =
                 new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_THREAD_COUNT_LIMIT);
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_TRANSACTION_TIMEOUT, TEST_THREAD_COUNT_LIMIT);
 
         mockery.checking(new Expectations()
         {
@@ -1329,7 +1331,7 @@ public class TransactionParticipantTest
     {
         TransactionParticipant participant =
                 new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_THREAD_COUNT_LIMIT);
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_TRANSACTION_TIMEOUT, TEST_THREAD_COUNT_LIMIT);
 
         mockery.checking(new Expectations()
         {
@@ -1364,7 +1366,7 @@ public class TransactionParticipantTest
     {
         TransactionParticipant participant =
                 new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_THREAD_COUNT_LIMIT);
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_TRANSACTION_TIMEOUT, TEST_THREAD_COUNT_LIMIT);
 
         mockery.checking(new Expectations()
         {
@@ -1408,7 +1410,7 @@ public class TransactionParticipantTest
     {
         TransactionParticipant participant =
                 new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_THREAD_COUNT_LIMIT);
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_TRANSACTION_TIMEOUT, TEST_THREAD_COUNT_LIMIT);
 
         mockery.checking(new Expectations()
         {
@@ -1453,7 +1455,7 @@ public class TransactionParticipantTest
     {
         TransactionParticipant participant =
                 new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_THREAD_COUNT_LIMIT);
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_TRANSACTION_TIMEOUT, TEST_THREAD_COUNT_LIMIT);
 
         mockery.checking(new Expectations()
         {
@@ -1499,7 +1501,7 @@ public class TransactionParticipantTest
     {
         TransactionParticipant participant =
                 new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_THREAD_COUNT_LIMIT);
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_TRANSACTION_TIMEOUT, TEST_THREAD_COUNT_LIMIT);
 
         mockery.checking(new Expectations()
         {
@@ -1540,7 +1542,7 @@ public class TransactionParticipantTest
     {
         TransactionParticipant participant =
                 new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_THREAD_COUNT_LIMIT);
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_TRANSACTION_TIMEOUT, TEST_THREAD_COUNT_LIMIT);
 
         mockery.checking(new Expectations()
         {
@@ -1581,7 +1583,7 @@ public class TransactionParticipantTest
     {
         TransactionParticipant participant =
                 new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_THREAD_COUNT_LIMIT);
+                        databaseTransactionProvider, transactionOperationExecutor, transactionLog, TEST_TRANSACTION_TIMEOUT, TEST_THREAD_COUNT_LIMIT);
 
         mockery.checking(new Expectations()
         {

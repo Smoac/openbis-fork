@@ -44,6 +44,10 @@ public class TransactionCoordinatorTest
 
     public static final Object[] TEST_OPERATION_ARGUMENTS = new Object[] { 1, "abc" };
 
+    public static final int TEST_TIMEOUT = 60;
+
+    public static final int TEST_COUNT_LIMIT = 10;
+
     private Mockery mockery;
 
     private ITransactionParticipant participant1;
@@ -78,7 +82,7 @@ public class TransactionCoordinatorTest
     {
         TransactionCoordinator coordinator =
                 new TransactionCoordinator(TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        List.of(participant1, participant2), transactionLog);
+                        List.of(participant1, participant2), transactionLog, TEST_TIMEOUT, TEST_COUNT_LIMIT);
 
         mockery.checking(new Expectations()
         {
@@ -106,7 +110,7 @@ public class TransactionCoordinatorTest
     {
         TransactionCoordinator coordinator =
                 new TransactionCoordinator(TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        List.of(participant1, participant2), transactionLog);
+                        List.of(participant1, participant2), transactionLog, TEST_TIMEOUT, TEST_COUNT_LIMIT);
 
         Exception beginException = new RuntimeException();
         Exception rollbackException = new RuntimeException();
@@ -132,6 +136,8 @@ public class TransactionCoordinatorTest
                 // test that a failing rollback won't prevent other rollbacks from being called
                 will(throwException(rollbackException));
                 one(participant2).rollbackTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
+
+                one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_FAILED);
             }
         });
 
@@ -149,7 +155,7 @@ public class TransactionCoordinatorTest
     {
         TransactionCoordinator coordinator =
                 new TransactionCoordinator(TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        List.of(participant1, participant2), transactionLog);
+                        List.of(participant1, participant2), transactionLog, TEST_TIMEOUT, TEST_COUNT_LIMIT);
 
         mockery.checking(new Expectations()
         {
@@ -184,7 +190,7 @@ public class TransactionCoordinatorTest
     {
         TransactionCoordinator coordinator =
                 new TransactionCoordinator(TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        List.of(participant1, participant2), transactionLog);
+                        List.of(participant1, participant2), transactionLog, TEST_TIMEOUT, TEST_COUNT_LIMIT);
 
         Exception executeOperationException = new RuntimeException();
 
@@ -231,7 +237,7 @@ public class TransactionCoordinatorTest
     {
         TransactionCoordinator coordinator =
                 new TransactionCoordinator(TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        List.of(participant1, participant2), transactionLog);
+                        List.of(participant1, participant2), transactionLog, TEST_TIMEOUT, TEST_COUNT_LIMIT);
 
         mockery.checking(new Expectations()
         {
@@ -271,7 +277,7 @@ public class TransactionCoordinatorTest
     {
         TransactionCoordinator coordinator =
                 new TransactionCoordinator(TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        List.of(participant1, participant2), transactionLog);
+                        List.of(participant1, participant2), transactionLog, TEST_TIMEOUT, TEST_COUNT_LIMIT);
 
         mockery.checking(new Expectations()
         {
@@ -314,7 +320,7 @@ public class TransactionCoordinatorTest
     {
         TransactionCoordinator coordinator =
                 new TransactionCoordinator(TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        List.of(participant1, participant2, participant3), transactionLog);
+                        List.of(participant1, participant2, participant3), transactionLog, TEST_TIMEOUT, TEST_COUNT_LIMIT);
 
         Exception prepareException = new RuntimeException();
         Exception rollbackException = new RuntimeException();
@@ -351,6 +357,8 @@ public class TransactionCoordinatorTest
                 will(throwException(rollbackException));
                 one(participant2).rollbackTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
                 one(participant3).rollbackTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
+
+                one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_FAILED);
             }
         });
 
@@ -371,7 +379,7 @@ public class TransactionCoordinatorTest
     {
         TransactionCoordinator coordinator =
                 new TransactionCoordinator(TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        List.of(participant1, participant2, participant3), transactionLog);
+                        List.of(participant1, participant2, participant3), transactionLog, TEST_TIMEOUT, TEST_COUNT_LIMIT);
 
         Exception commitException1 = new RuntimeException();
         Exception commitException2 = new RuntimeException();
@@ -411,20 +419,13 @@ public class TransactionCoordinatorTest
                 one(participant2).commitTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
                 will(throwException(commitException2));
                 one(participant3).commitTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
+
+                one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.COMMIT_FAILED);
             }
         });
 
         coordinator.beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
-
-        try
-        {
-            coordinator.commitTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
-            Assert.fail();
-        } catch (Exception e)
-        {
-            // first commit exception is exposed
-            assertEquals(e, commitException1);
-        }
+        coordinator.commitTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
     }
 
     @Test
@@ -432,7 +433,7 @@ public class TransactionCoordinatorTest
     {
         TransactionCoordinator coordinator =
                 new TransactionCoordinator(TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        List.of(participant1, participant2), transactionLog);
+                        List.of(participant1, participant2), transactionLog, TEST_TIMEOUT, TEST_COUNT_LIMIT);
 
         mockery.checking(new Expectations()
         {
@@ -467,7 +468,7 @@ public class TransactionCoordinatorTest
     {
         TransactionCoordinator coordinator =
                 new TransactionCoordinator(TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        List.of(participant1, participant2, participant3), transactionLog);
+                        List.of(participant1, participant2, participant3), transactionLog, TEST_TIMEOUT, TEST_COUNT_LIMIT);
 
         Exception rollbackException1 = new RuntimeException();
         Exception rollbackException2 = new RuntimeException();
@@ -497,20 +498,13 @@ public class TransactionCoordinatorTest
                 one(participant2).rollbackTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
                 will(throwException(rollbackException2));
                 one(participant3).rollbackTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
+
+                one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_FAILED);
             }
         });
 
         coordinator.beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
-
-        try
-        {
-            coordinator.rollbackTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
-            fail();
-        } catch (Exception e)
-        {
-            // first rollback exception is exposed
-            assertEquals(e, rollbackException1);
-        }
+        coordinator.rollbackTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
     }
 
     @Test(dataProvider = "provideTestRestoreTransactionWithStatus")
@@ -518,7 +512,7 @@ public class TransactionCoordinatorTest
     {
         TransactionCoordinator coordinator =
                 new TransactionCoordinator(TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        List.of(participant1, participant2, participant3), transactionLog);
+                        List.of(participant1, participant2, participant3), transactionLog, TEST_TIMEOUT, TEST_COUNT_LIMIT);
 
         Map<UUID, TransactionStatus> lastStatuses = new HashMap<>();
         lastStatuses.put(TEST_TRANSACTION_ID, transactionStatus);
@@ -541,6 +535,7 @@ public class TransactionCoordinatorTest
                     case BEGIN_FINISHED:
                     case PREPARE_STARTED:
                     case ROLLBACK_STARTED:
+                    case ROLLBACK_FAILED:
                         // only participant 1 and 2 know the transaction
                         one(participant1).getTransactions(TEST_TRANSACTION_COORDINATOR_KEY);
                         will(returnValue(Collections.singletonList(TEST_TRANSACTION_ID)));
@@ -556,6 +551,7 @@ public class TransactionCoordinatorTest
                         {
                             // test that a failing rollback won't prevent other rollbacks from being called
                             will(throwException(exception));
+                            one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_FAILED);
                         }
 
                         one(participant2).rollbackTransaction(TEST_TRANSACTION_ID, TEST_TRANSACTION_COORDINATOR_KEY);
@@ -567,6 +563,7 @@ public class TransactionCoordinatorTest
                         break;
                     case PREPARE_FINISHED:
                     case COMMIT_STARTED:
+                    case COMMIT_FAILED:
                         // only participant 1 and 2 know the transaction
                         one(participant1).getTransactions(TEST_TRANSACTION_COORDINATOR_KEY);
                         will(returnValue(Collections.singletonList(TEST_TRANSACTION_ID)));
@@ -582,6 +579,7 @@ public class TransactionCoordinatorTest
                         {
                             // test that a failing commit won't prevent other commits from being called
                             will(throwException(exception));
+                            one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.COMMIT_FAILED);
                         }
 
                         one(participant2).commitTransaction(TEST_TRANSACTION_ID, TEST_TRANSACTION_COORDINATOR_KEY);
@@ -605,7 +603,7 @@ public class TransactionCoordinatorTest
     {
         TransactionCoordinator coordinator =
                 new TransactionCoordinator(TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
-                        List.of(participant1, participant2), transactionLog);
+                        List.of(participant1, participant2), transactionLog, TEST_TIMEOUT, TEST_COUNT_LIMIT);
 
         Map<UUID, TransactionStatus> lastStatuses = new HashMap<>();
         lastStatuses.put(TEST_TRANSACTION_ID, TransactionStatus.PREPARE_FINISHED);
@@ -635,6 +633,7 @@ public class TransactionCoordinatorTest
                 one(participant1).commitTransaction(TEST_TRANSACTION_ID, TEST_TRANSACTION_COORDINATOR_KEY);
                 will(throwException(exception));
                 one(participant2).commitTransaction(TEST_TRANSACTION_ID, TEST_TRANSACTION_COORDINATOR_KEY);
+                one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.COMMIT_FAILED);
 
                 // restore transaction 2 (only participant 1)
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID_2, TransactionStatus.COMMIT_STARTED);

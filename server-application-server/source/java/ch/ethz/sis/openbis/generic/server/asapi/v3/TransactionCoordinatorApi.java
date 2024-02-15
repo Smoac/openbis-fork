@@ -42,7 +42,9 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi
                 transactionConfiguration.getInteractiveSessionKey(),
                 new ApplicationServerSessionTokenProvider(applicationServerApi),
                 participants,
-                new TransactionLog(new File(transactionConfiguration.getTransactionLogFolderPath()), "coordinator"));
+                new TransactionLog(new File(transactionConfiguration.getTransactionLogFolderPath()), "coordinator"),
+                transactionConfiguration.getTransactionTimeoutInSeconds(),
+                transactionConfiguration.getTransactionCountLimit());
     }
 
     @Override public void beginTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)

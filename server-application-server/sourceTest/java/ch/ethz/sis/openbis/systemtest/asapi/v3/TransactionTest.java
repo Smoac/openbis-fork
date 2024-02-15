@@ -62,7 +62,7 @@ public class TransactionTest extends AbstractTest
             {
                 return v3api.isSessionActive(sessionToken);
             }
-        }, Collections.singletonList(participantApi), new TransactionLog(new File("targets/transaction-logs"), "coordinator"));
+        }, Collections.singletonList(participantApi), new TransactionLog(new File("targets/transaction-logs"), "coordinator"), 60, 10);
     }
 
     @Test
@@ -206,8 +206,7 @@ public class TransactionTest extends AbstractTest
             fail();
         } catch (Exception e)
         {
-            assertEquals(e.getMessage(), "java.lang.IllegalStateException: Transaction '" + tr1Id
-                    + "' unexpected status 'NEW'. Expected statuses '[BEGIN_FINISHED]'.");
+            assertEquals(e.getMessage(), "Transaction '" + tr1Id + "' does not exist.");
         }
 
         // after tr1 commit, tr2 sees space1 and space2, noTr sees space1 and space3
@@ -228,8 +227,7 @@ public class TransactionTest extends AbstractTest
             fail();
         } catch (Exception e)
         {
-            assertEquals(e.getMessage(), "java.lang.IllegalStateException: Transaction '" + tr2Id
-                    + "' unexpected status 'NEW'. Expected statuses '[BEGIN_FINISHED]'.");
+            assertEquals(e.getMessage(), "Transaction '" + tr2Id + "' does not exist.");
         }
 
         // after tr1 commit and tr2 rollback, noTr sees space1 and space3
