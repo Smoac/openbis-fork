@@ -64,7 +64,7 @@ public final class DBMigrationEngine
                 new SqlScriptProvider(context.getSqlScriptFolders(), databaseEngineCode);
         final DBMigrationEngine migrationEngine =
                 new DBMigrationEngine(migrationDAOFactory, sqlScriptProvider, context
-                        .isCreateFromScratch());
+                        .isCreateFromScratch(), context.isForceCreateWithInitialData());
         migrationEngine.migrateTo(databaseVersion);
         if (Integer.parseInt(databaseVersion) >= 180)
         {
@@ -81,6 +81,8 @@ public final class DBMigrationEngine
     }
 
     private final boolean shouldCreateFromScratch;
+
+    private final boolean forceCreateWithInitialData;
 
     private final ISqlScriptProvider scriptProvider;
 
@@ -102,6 +104,12 @@ public final class DBMigrationEngine
     public DBMigrationEngine(final IDAOFactory daoFactory, final ISqlScriptProvider scriptProvider,
             final boolean shouldCreateFromScratch)
     {
+        this(daoFactory, scriptProvider, shouldCreateFromScratch, false);
+    }
+
+    public DBMigrationEngine(final IDAOFactory daoFactory, final ISqlScriptProvider scriptProvider,
+            final boolean shouldCreateFromScratch, final boolean forceCreateWithInitialData)
+    {
         adminDAO = daoFactory.getDatabaseDAO();
         logDAO = daoFactory.getDatabaseVersionLogDAO();
         scriptExecutor = daoFactory.getSqlScriptExecutor();
@@ -109,6 +117,7 @@ public final class DBMigrationEngine
         migrationStepExecutorAdmin = daoFactory.getMigrationStepExecutorAdmin();
         this.scriptProvider = scriptProvider;
         this.shouldCreateFromScratch = shouldCreateFromScratch;
+        this.forceCreateWithInitialData = forceCreateWithInitialData;
     }
 
     /**
@@ -286,7 +295,7 @@ public final class DBMigrationEngine
     {
         adminDAO.createOwner();
         adminDAO.createGroups();
-        if (scriptProvider.isDumpRestore(version))
+        if (scriptProvider.isDumpRestore(version) && !forceCreateWithInitialData)
         {
             operationLog.info(String.format("Restoring from dump the database of the version %s.", version));
             adminDAO.restoreDatabaseFromDump(scriptProvider.getDumpFolder(version), version);
