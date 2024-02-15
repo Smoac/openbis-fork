@@ -136,8 +136,6 @@ public class TransactionCoordinatorTest
                 // test that a failing rollback won't prevent other rollbacks from being called
                 will(throwException(rollbackException));
                 one(participant2).rollbackTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
-
-                one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_FAILED);
             }
         });
 
@@ -357,8 +355,6 @@ public class TransactionCoordinatorTest
                 will(throwException(rollbackException));
                 one(participant2).rollbackTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
                 one(participant3).rollbackTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
-
-                one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_FAILED);
             }
         });
 
@@ -419,8 +415,6 @@ public class TransactionCoordinatorTest
                 one(participant2).commitTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
                 will(throwException(commitException2));
                 one(participant3).commitTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
-
-                one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.COMMIT_FAILED);
             }
         });
 
@@ -498,8 +492,6 @@ public class TransactionCoordinatorTest
                 one(participant2).rollbackTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
                 will(throwException(rollbackException2));
                 one(participant3).rollbackTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
-
-                one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_FAILED);
             }
         });
 
@@ -507,8 +499,8 @@ public class TransactionCoordinatorTest
         coordinator.rollbackTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
     }
 
-    @Test(dataProvider = "provideTestRestoreTransactionWithStatus")
-    public void testRestoreTransactionWithStatus(TransactionStatus transactionStatus, boolean throwException)
+    @Test(dataProvider = "provideTestRecoverTransactionWithStatus")
+    public void testRecoverTransactionWithStatus(TransactionStatus transactionStatus, boolean throwException)
     {
         TransactionCoordinator coordinator =
                 new TransactionCoordinator(TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
@@ -535,15 +527,6 @@ public class TransactionCoordinatorTest
                     case BEGIN_FINISHED:
                     case PREPARE_STARTED:
                     case ROLLBACK_STARTED:
-                    case ROLLBACK_FAILED:
-                        // only participant 1 and 2 know the transaction
-                        one(participant1).getTransactions(TEST_TRANSACTION_COORDINATOR_KEY);
-                        will(returnValue(Collections.singletonList(TEST_TRANSACTION_ID)));
-                        one(participant2).getTransactions(TEST_TRANSACTION_COORDINATOR_KEY);
-                        will(returnValue(Collections.singletonList(TEST_TRANSACTION_ID)));
-                        one(participant3).getTransactions(TEST_TRANSACTION_COORDINATOR_KEY);
-                        will(returnValue(Collections.emptyList()));
-
                         one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_STARTED);
                         one(participant1).rollbackTransaction(TEST_TRANSACTION_ID, TEST_TRANSACTION_COORDINATOR_KEY);
 
@@ -551,7 +534,6 @@ public class TransactionCoordinatorTest
                         {
                             // test that a failing rollback won't prevent other rollbacks from being called
                             will(throwException(exception));
-                            one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_FAILED);
                         }
 
                         one(participant2).rollbackTransaction(TEST_TRANSACTION_ID, TEST_TRANSACTION_COORDINATOR_KEY);
@@ -560,10 +542,11 @@ public class TransactionCoordinatorTest
                         {
                             one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_FINISHED);
                         }
+
+                        one(participant3).rollbackTransaction(TEST_TRANSACTION_ID, TEST_TRANSACTION_COORDINATOR_KEY);
                         break;
                     case PREPARE_FINISHED:
                     case COMMIT_STARTED:
-                    case COMMIT_FAILED:
                         // only participant 1 and 2 know the transaction
                         one(participant1).getTransactions(TEST_TRANSACTION_COORDINATOR_KEY);
                         will(returnValue(Collections.singletonList(TEST_TRANSACTION_ID)));
@@ -579,7 +562,6 @@ public class TransactionCoordinatorTest
                         {
                             // test that a failing commit won't prevent other commits from being called
                             will(throwException(exception));
-                            one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.COMMIT_FAILED);
                         }
 
                         one(participant2).commitTransaction(TEST_TRANSACTION_ID, TEST_TRANSACTION_COORDINATOR_KEY);
@@ -595,11 +577,11 @@ public class TransactionCoordinatorTest
             }
         });
 
-        coordinator.restoreTransactions();
+        coordinator.recoverTransactions();
     }
 
     @Test
-    public void testRestoreMultipleTransactions()
+    public void testRecoverMultipleTransactions()
     {
         TransactionCoordinator coordinator =
                 new TransactionCoordinator(TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
@@ -628,34 +610,36 @@ public class TransactionCoordinatorTest
                 allowing(participant2).getTransactions(TEST_TRANSACTION_COORDINATOR_KEY);
                 will(returnValue(Arrays.asList(TEST_TRANSACTION_ID, TEST_TRANSACTION_ID_3)));
 
-                // restore transaction 1 (participant 1 and 2)
+                // recover transaction 1 (participant 1 and 2)
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.COMMIT_STARTED);
                 one(participant1).commitTransaction(TEST_TRANSACTION_ID, TEST_TRANSACTION_COORDINATOR_KEY);
                 will(throwException(exception));
                 one(participant2).commitTransaction(TEST_TRANSACTION_ID, TEST_TRANSACTION_COORDINATOR_KEY);
-                one(transactionLog).logStatus(TEST_TRANSACTION_ID, TransactionStatus.COMMIT_FAILED);
 
-                // restore transaction 2 (only participant 1)
+                // recover transaction 2 (only participant 1)
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID_2, TransactionStatus.COMMIT_STARTED);
                 one(participant1).commitTransaction(TEST_TRANSACTION_ID_2, TEST_TRANSACTION_COORDINATOR_KEY);
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID_2, TransactionStatus.COMMIT_FINISHED);
 
-                // restore transaction 3 (only participant 2)
+                // recover transaction 3
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID_3, TransactionStatus.ROLLBACK_STARTED);
+                one(participant1).rollbackTransaction(TEST_TRANSACTION_ID_3, TEST_TRANSACTION_COORDINATOR_KEY);
                 one(participant2).rollbackTransaction(TEST_TRANSACTION_ID_3, TEST_TRANSACTION_COORDINATOR_KEY);
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID_3, TransactionStatus.ROLLBACK_FINISHED);
 
-                // restore transaction 4 (no participants)
+                // recover transaction 4
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID_4, TransactionStatus.ROLLBACK_STARTED);
+                one(participant1).rollbackTransaction(TEST_TRANSACTION_ID_4, TEST_TRANSACTION_COORDINATOR_KEY);
+                one(participant2).rollbackTransaction(TEST_TRANSACTION_ID_4, TEST_TRANSACTION_COORDINATOR_KEY);
                 one(transactionLog).logStatus(TEST_TRANSACTION_ID_4, TransactionStatus.ROLLBACK_FINISHED);
             }
         });
 
-        coordinator.restoreTransactions();
+        coordinator.recoverTransactions();
     }
 
-    @DataProvider(name = "provideTestRestoreTransactionWithStatus")
-    public Object[][] provideTestRestoreTransactionWithStatus()
+    @DataProvider(name = "testRecoverTransactionWithStatus")
+    public Object[][] provideTestRecoverTransactionWithStatus()
     {
         List<Object[]> statuses = new ArrayList<>();
         Arrays.stream(TransactionStatus.values()).forEach(s ->

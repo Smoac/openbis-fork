@@ -84,9 +84,9 @@ public class TransactionCoordinator implements ITransactionCoordinator
         this.transactionCountLimit = transactionCountLimit;
     }
 
-    public void restoreTransactions()
+    public void recoverTransactions()
     {
-        operationLog.info("Starting restore of unfinished transactions");
+        operationLog.info("Started recovering transactions");
 
         Map<UUID, TransactionStatus> lastStatuses = transactionLog.getLastStatuses();
 
@@ -103,98 +103,113 @@ public class TransactionCoordinator implements ITransactionCoordinator
 
                 Transaction existingTransaction = getTransaction(transactionId);
 
-                try
+                if (existingTransaction == null)
                 {
-                    if (existingTransaction == null)
-                    {
-                        operationLog.info(
-                                "Restoring transaction '" + transactionId + "' with last status '" + lastStatus + "' from the transaction log.");
-
-                        Transaction transaction = createTransaction(transactionId, lastStatus);
-
-                        transaction.lockOrSkip(() ->
-                        {
-                            switch (lastStatus)
-                            {
-                                case BEGIN_STARTED:
-                                case BEGIN_FINISHED:
-                                case PREPARE_STARTED:
-                                case ROLLBACK_STARTED:
-                                case ROLLBACK_FAILED:
-                                    rollbackTransaction(transaction, null, null, true);
-                                    break;
-                                case PREPARE_FINISHED:
-                                case COMMIT_STARTED:
-                                case COMMIT_FAILED:
-                                    commitPreparedTransaction(transaction, null, null, true);
-                                    break;
-                                default:
-                                    throw new IllegalStateException(
-                                            "Transaction '" + transactionId + "' has an unsupported last status '" + lastStatus + "'");
-                            }
-                        });
-                    } else
-                    {
-                        operationLog.info("Another attempt to finish transaction '" + transactionId + "' with last status '" + lastStatus + "'");
-
-                        existingTransaction.lockOrSkip(() ->
-                        {
-                            if (TransactionStatus.COMMIT_FAILED.equals(lastStatus))
-                            {
-
-                                commitPreparedTransaction(existingTransaction, null, null, true);
-                            } else if (TransactionStatus.ROLLBACK_FAILED.equals(lastStatus))
-                            {
-                                rollbackTransaction(existingTransaction, null, null, true);
-                            }
-                        });
-                    }
-                } catch (Exception e)
+                    recoverTransactionFromTransactionLog(transactionId, lastStatus);
+                } else
                 {
-                    if (existingTransaction == null)
-                    {
-                        operationLog.warn("Restore of transaction '" + transactionId + "' with last status '" + lastStatus + "' failed.", e);
-                    } else
-                    {
-                        operationLog.warn(
-                                "Another attempt to finish a transaction '" + transactionId + "' with last status '" + lastStatus + "' failed.");
-                    }
+                    recoverFailedOrAbandonedTransaction(existingTransaction);
                 }
             }
         } else
         {
-            operationLog.info("No unfinished transactions found in the transaction log");
+            operationLog.info("No transactions found in the transaction log");
         }
 
-        operationLog.info("Finished restore of unfinished transactions");
+        operationLog.info("Finished recovering transactions");
     }
 
-    public void cleanupTransactions()
+    private void recoverTransactionFromTransactionLog(UUID transactionId, TransactionStatus lastStatus)
     {
-        operationLog.info("Starting cleanup of abandoned transactions");
+        try
+        {
+            Transaction transaction = createTransaction(transactionId, lastStatus);
 
-        for (Transaction transaction : transactionMap.values())
+            transaction.lockOrSkip(() ->
+            {
+                operationLog.info(
+                        "Recovering transaction '" + transactionId + "' found in the transaction log with last status '" + lastStatus + "' .");
+
+                switch (lastStatus)
+                {
+                    case BEGIN_STARTED:
+                    case BEGIN_FINISHED:
+                    case PREPARE_STARTED:
+                    case ROLLBACK_STARTED:
+                        rollbackTransaction(transaction, null, null, true);
+                        break;
+                    case PREPARE_FINISHED:
+                    case COMMIT_STARTED:
+                        commitPreparedTransaction(transaction, null, null, true);
+                        break;
+                    default:
+                        throw new IllegalStateException(
+                                "Transaction '" + transactionId + "' has an unsupported last status '" + lastStatus + "'");
+                }
+            });
+        } catch (Exception e)
+        {
+            operationLog.warn(
+                    "Recovering transaction '" + transactionId + "' found in the transaction log with last status '" + lastStatus + "' has failed.",
+                    e);
+        }
+    }
+
+    private void recoverFailedOrAbandonedTransaction(Transaction transaction)
+    {
+        try
         {
             transaction.lockOrSkip(() ->
             {
-                boolean timedOut = System.currentTimeMillis() - transaction.getLastAccessedDate().getTime() > transactionTimeoutInSeconds * 1000L;
+                operationLog.info(
+                        "Recovering failed or abandoned transaction '" + transaction.getTransactionId() + "' with last status '"
+                                + transaction.getTransactionStatus()
+                                + "'");
 
-                if (timedOut && TransactionStatus.BEGIN_FINISHED.equals(transaction.getTransactionStatus()))
+                switch (transaction.getTransactionStatus())
                 {
-                    try
-                    {
-                        operationLog.info("Cleaning up abandoned transaction '" + transaction.getTransactionId() + "' with last status '"
-                                + transaction.getTransactionStatus() + "' and last accessed date '" + transaction.getLastAccessedDate() + "'.");
-                        rollbackTransaction(transaction, null, null, false);
-                    } catch (Exception e)
-                    {
-                        operationLog.warn("Cleanup of abandoned transaction '" + transaction.getTransactionId() + "' failed.", e);
-                    }
+                    case BEGIN_STARTED:
+                    case PREPARE_STARTED:
+                    case ROLLBACK_STARTED:
+                        /*
+                          If we are able to lock the transaction with the last state XXX_STARTED,
+                          then XXX operation either failed in the middle or was unable to log XXX_FINISHED
+                          state at the end. We can roll back the transaction without waiting for timeout.
+                        */
+                        rollbackTransaction(transaction, null, null, true);
+                        break;
+                    case NEW:
+                        /*
+                          If we are able to lock the transaction with the last state NEW then
+                          either we have just created a new transaction and didn't lock it yet
+                          or the transaction was unable to log BEGIN_STARTED status and failed.
+                          To handle both cases correctly we should roll back after a timeout.
+                         */
+                    case BEGIN_FINISHED:
+                        /*
+                          The transaction in BEGIN_FINISHED state should be receiving operation executions.
+                          If the operations are not coming then after a timeout we need to roll back.
+                         */
+                        boolean timedOut =
+                                System.currentTimeMillis() - transaction.getLastAccessedDate().getTime()
+                                        > transactionTimeoutInSeconds * 1000L;
+                        if (timedOut)
+                        {
+                            rollbackTransaction(transaction, null, null, true);
+                        }
+                        break;
+                    case PREPARE_FINISHED:
+                    case COMMIT_STARTED:
+                        commitPreparedTransaction(transaction, null, null, true);
+                        break;
                 }
             });
+        } catch (Exception e)
+        {
+            operationLog.warn(
+                    "Recovering failed or abandoned transaction '" + transaction.getTransactionId() + "' with last status '"
+                            + transaction.getTransactionStatus() + "' has failed.", e);
         }
-
-        operationLog.info("Finished cleanup of abandoned transactions");
     }
 
     @Override public void beginTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
@@ -266,6 +281,10 @@ public class TransactionCoordinator implements ITransactionCoordinator
             {
                 if (Objects.equals(participant.getParticipantId(), participantId))
                 {
+                    /*
+                      An exception thrown by the executed operation does not trigger an automatic rollback.
+                      The client has the freedom to decide whether to rollback or keep on working with the current transaction.
+                     */
                     T result =
                             participant.executeOperation(transactionId, sessionToken, interactiveSessionKey, operationName, operationArguments);
 
@@ -305,8 +324,10 @@ public class TransactionCoordinator implements ITransactionCoordinator
                 commitPreparedTransaction(transaction, sessionToken, interactiveSessionKey, false);
             } catch (Exception ignore)
             {
-                // do not throw the exception to the client as there is nothing it can do,
-                // the commit will be retried automatically by the coordinator
+                /*
+                  Do not throw the exception to the client as there is nothing it can do,
+                  the commit will be retried automatically by the coordinator
+                 */
             }
 
             operationLog.info("Commit transaction '" + transactionId + "' finished successfully.");
@@ -341,7 +362,7 @@ public class TransactionCoordinator implements ITransactionCoordinator
                 {
                 }
 
-                operationLog.info("Prepare transaction '" + transaction.getTransactionId() + "' failed.");
+                operationLog.info("Prepare transaction '" + transaction.getTransactionId() + "' has failed.");
 
                 throw e;
             }
@@ -353,7 +374,7 @@ public class TransactionCoordinator implements ITransactionCoordinator
     }
 
     private void commitPreparedTransaction(Transaction transaction, final String sessionToken, final String interactiveSessionKey,
-            final boolean restore)
+            final boolean recovery)
     {
         operationLog.info("Commit prepared transaction '" + transaction.getTransactionId() + "' started.");
 
@@ -365,7 +386,7 @@ public class TransactionCoordinator implements ITransactionCoordinator
         {
             try
             {
-                if (restore)
+                if (recovery)
                 {
                     List<UUID> transactions = participant.getTransactions(transactionCoordinatorKey);
 
@@ -392,7 +413,7 @@ public class TransactionCoordinator implements ITransactionCoordinator
                 }
             } catch (RuntimeException e)
             {
-                operationLog.error(
+                operationLog.warn(
                         "Commit prepared transaction '" + transaction.getTransactionId() + "' failed for participant '"
                                 + participant.getParticipantId() + "'.", e);
                 if (exception == null)
@@ -409,8 +430,7 @@ public class TransactionCoordinator implements ITransactionCoordinator
             operationLog.info("Commit prepared transaction '" + transaction.getTransactionId() + "' finished successfully.");
         } else
         {
-            transaction.setTransactionStatus(TransactionStatus.COMMIT_FAILED);
-            operationLog.info("Commit prepared transaction '" + transaction.getTransactionId() + "' failed.");
+            operationLog.info("Commit prepared transaction '" + transaction.getTransactionId() + "' has failed.");
             throw exception;
         }
     }
@@ -439,8 +459,10 @@ public class TransactionCoordinator implements ITransactionCoordinator
                 rollbackTransaction(transaction, sessionToken, interactiveSessionKey, false);
             } catch (Exception ignore)
             {
-                // do not throw the exception to the client as there is nothing it can do,
-                // the rollback will be retried automatically by the coordinator
+                /*
+                  Do not throw the exception to the client as there is nothing it can do,
+                  the rollback will be retried automatically by the coordinator
+                 */
             }
 
             return null;
@@ -448,7 +470,7 @@ public class TransactionCoordinator implements ITransactionCoordinator
     }
 
     private void rollbackTransaction(final Transaction transaction, final String sessionToken, final String interactiveSessionKey,
-            final boolean restore)
+            final boolean recovery)
     {
         operationLog.info("Rollback transaction '" + transaction.getTransactionId() + "' started.");
 
@@ -460,28 +482,15 @@ public class TransactionCoordinator implements ITransactionCoordinator
         {
             try
             {
-                if (restore)
-                {
-                    List<UUID> transactions = participant.getTransactions(transactionCoordinatorKey);
+                operationLog.info(
+                        "Rollback transaction '" + transaction.getTransactionId() + "' for participant '" + participant.getParticipantId()
+                                + "'.");
 
-                    if (transactions != null && transactions.contains(transaction.getTransactionId()))
-                    {
-                        operationLog.info(
-                                "Rollback transaction '" + transaction.getTransactionId() + "' for participant '" + participant.getParticipantId()
-                                        + "'.");
-                        participant.rollbackTransaction(transaction.getTransactionId(), transactionCoordinatorKey);
-                    } else
-                    {
-                        operationLog.info(
-                                "Skipping rollback of transaction '" + transaction.getTransactionId() + "' for participant '"
-                                        + participant.getParticipantId()
-                                        + "'. The transaction has been already rolled back at that participant before.");
-                    }
+                if (recovery)
+                {
+                    participant.rollbackTransaction(transaction.getTransactionId(), transactionCoordinatorKey);
                 } else
                 {
-                    operationLog.info(
-                            "Rollback transaction '" + transaction.getTransactionId() + "' for participant '" + participant.getParticipantId()
-                                    + "'.");
                     participant.rollbackTransaction(transaction.getTransactionId(), sessionToken, interactiveSessionKey);
                 }
             } catch (RuntimeException e)
@@ -503,8 +512,7 @@ public class TransactionCoordinator implements ITransactionCoordinator
             operationLog.info("Rollback transaction '" + transaction.getTransactionId() + "' finished successfully.");
         } else
         {
-            transaction.setTransactionStatus(TransactionStatus.ROLLBACK_FAILED);
-            operationLog.info("Rollback transaction '" + transaction.getTransactionId() + "' failed.");
+            operationLog.info("Rollback transaction '" + transaction.getTransactionId() + "' has failed.");
             throw exception;
         }
     }
@@ -646,6 +654,7 @@ public class TransactionCoordinator implements ITransactionCoordinator
                     throw new RuntimeException(e);
                 } finally
                 {
+                    setLastAccessedDate(new Date());
                     lock.unlock();
                 }
             } else
@@ -664,6 +673,7 @@ public class TransactionCoordinator implements ITransactionCoordinator
                     action.run();
                 } finally
                 {
+                    setLastAccessedDate(new Date());
                     lock.unlock();
                 }
             } else
