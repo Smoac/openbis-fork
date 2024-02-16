@@ -57,7 +57,7 @@ The picture below shows an example of an Inventory with the different openBIS le
 
 By default, the lab notebook is organised per user. Each user has a
 personal folder (=*Space*), where to create *Projects*, *Experiments*
-and Experimental Steps (=*Objects*). Data files can be uploaded to *Dataets*. Example structure:
+and Experimental Steps (=*Objects*). Data files can be uploaded to *Datasets*. Example structure:
 
   
 ![image info](img/labnotebook-data-model.png)
@@ -66,10 +66,10 @@ and Experimental Steps (=*Objects*). Data files can be uploaded to *Dataets*. Ex
 
   
 
-Some labs prefer to organise their lab notebook using a classification
+Some labs prefer to organise their lab notebook using an organization
 per project rather than per user. In this case an openBIS *Space* would
 correspond to a lab Project and an openBIS *Project* could be a
-sub-project. 
+sub-project or a user folder (one folder per user working on the same project). 
   
 
 # openBIS parents and children
