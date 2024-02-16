@@ -178,6 +178,7 @@ public class DBMigrationEngineTest
         assertEquals("INFO  OPERATION.DBMigrationEngine - Dropping database."
                 + OSUtilities.LINE_SEPARATOR + "INFO  OPERATION.DBMigrationEngine - "
                 + "Database 'my 1. database' does not exist." + OSUtilities.LINE_SEPARATOR
+                + "INFO  OPERATION.DBMigrationEngine - Force create with initial data flag is set to false." + OSUtilities.LINE_SEPARATOR
                 + "INFO  OPERATION.DBMigrationEngine - Creating a new database with the version 042 "
                 + "and populating it with data." + OSUtilities.LINE_SEPARATOR
                 + "INFO  OPERATION.DBMigrationEngine - Creation and populating of the database finished."
@@ -231,6 +232,7 @@ public class DBMigrationEngineTest
         assertEquals("INFO  OPERATION.DBMigrationEngine - Dropping database."
                 + OSUtilities.LINE_SEPARATOR + "INFO  OPERATION.DBMigrationEngine - "
                 + "Database 'my 1. database' does not exist." + OSUtilities.LINE_SEPARATOR
+                + "INFO  OPERATION.DBMigrationEngine - Force create with initial data flag is set to false." + OSUtilities.LINE_SEPARATOR
                 + "INFO  OPERATION.DBMigrationEngine - Restoring from dump the database of the version 042."
                 + OSUtilities.LINE_SEPARATOR
                 + "INFO  OPERATION.DBMigrationEngine - Restoring from dump finished." + OSUtilities.LINE_SEPARATOR
@@ -334,6 +336,7 @@ public class DBMigrationEngineTest
         migrationEngine.migrateTo(version);
         assertEquals("INFO  OPERATION.DBMigrationEngine - "
                 + "Database 'my 1. database' does not exist." + OSUtilities.LINE_SEPARATOR
+                + "INFO  OPERATION.DBMigrationEngine - Force create with initial data flag is set to false." + OSUtilities.LINE_SEPARATOR
                 + "INFO  OPERATION.DBMigrationEngine - Creating a new database with the version 042 "
                 + "and populating it with data." + OSUtilities.LINE_SEPARATOR
                 + "INFO  OPERATION.DBMigrationEngine - Creation and populating of the database finished."
@@ -393,6 +396,7 @@ public class DBMigrationEngineTest
         migrationEngine.migrateTo(version);
         assertEquals("INFO  OPERATION.DBMigrationEngine - "
                 + "Database 'my 1. database' does not exist." + OSUtilities.LINE_SEPARATOR
+                + "INFO  OPERATION.DBMigrationEngine - Force create with initial data flag is set to false." + OSUtilities.LINE_SEPARATOR
                 + "INFO  OPERATION.DBMigrationEngine - Creating a new database with the version 042 "
                 + "and populating it with data." + OSUtilities.LINE_SEPARATOR
                 + "DEBUG OPERATION.DBMigrationEngine - No domains script found for version 042"
@@ -453,6 +457,7 @@ public class DBMigrationEngineTest
         }
         assertEquals("INFO  OPERATION.DBMigrationEngine - "
                 + "Database 'my 1. database' does not exist." + OSUtilities.LINE_SEPARATOR
+                + "INFO  OPERATION.DBMigrationEngine - Force create with initial data flag is set to false." + OSUtilities.LINE_SEPARATOR
                 + "INFO  OPERATION.DBMigrationEngine - Creating a new database with the version 042 "
                 + "and populating it with data." + OSUtilities.LINE_SEPARATOR
                 + "ERROR OPERATION.DBMigrationEngine - " + message, logRecorder.getLogContent());
