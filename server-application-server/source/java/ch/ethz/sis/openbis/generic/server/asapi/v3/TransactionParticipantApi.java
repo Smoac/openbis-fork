@@ -224,7 +224,7 @@ public class TransactionParticipantApi implements ITransactionParticipantApi
             this.applicationServerApi = applicationServerApi;
         }
 
-        @Override public Object executeOperation(String sessionToken, String operationName, Object[] operationArguments)
+        @Override public <T> T executeOperation(String sessionToken, String operationName, Object[] operationArguments)
         {
             for (Method method : applicationServerApi.getClass().getMethods())
             {
@@ -232,7 +232,7 @@ public class TransactionParticipantApi implements ITransactionParticipantApi
                 {
                     try
                     {
-                        return method.invoke(applicationServerApi, operationArguments);
+                        return (T) method.invoke(applicationServerApi, operationArguments);
                     } catch (Exception e)
                     {
                         throw new TransactionOperationException(e);

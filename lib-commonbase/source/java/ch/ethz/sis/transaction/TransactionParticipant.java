@@ -2,12 +2,18 @@ package ch.ethz.sis.transaction;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
 
@@ -19,15 +25,7 @@ public class TransactionParticipant implements ITransactionParticipant
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, TransactionParticipant.class);
 
-    private static final String BEGIN_TRANSACTION_METHOD = "beginTransaction";
-
-    private static final String PREPARE_TRANSACTION_METHOD = "prepareTransaction";
-
-    private static final String COMMIT_TRANSACTION_METHOD = "commitTransaction";
-
-    private static final String ROLLBACK_TRANSACTION_METHOD = "rollbackTransaction";
-
-    private final Map<UUID, TransactionThread> threadMap = new HashMap<>();
+    private final Map<UUID, Transaction> transactionMap = new ConcurrentHashMap<>();
 
     private final String participantId;
 
@@ -113,8 +111,10 @@ public class TransactionParticipant implements ITransactionParticipant
         return participantId;
     }
 
-    public void restoreTransactions()
+    public void recoverTransactions()
     {
+        operationLog.info("Started recovering transactions");
+
         Map<UUID, TransactionStatus> lastStatuses = transactionLog.getLastStatuses();
 
         if (lastStatuses != null && !lastStatuses.isEmpty())
@@ -123,65 +123,123 @@ public class TransactionParticipant implements ITransactionParticipant
             {
                 TransactionStatus lastStatus = lastStatuses.get(transactionId);
 
-                operationLog.info("Restoring transaction '" + transactionId + "' with last status '" + lastStatus + "'");
-
-                try
+                if (TransactionStatus.COMMIT_FINISHED.equals(lastStatus) || TransactionStatus.ROLLBACK_FINISHED.equals(lastStatus))
                 {
-                    synchronized (threadMap)
-                    {
-                        TransactionThread thread = threadMap.get(transactionId);
+                    continue;
+                }
 
-                        if (thread == null)
-                        {
-                            thread = new TransactionThread(transactionId, lastStatus, transactionCoordinatorKey);
-                            threadMap.put(transactionId, thread);
-                            thread.startThread();
-                        }
-                    }
+                Transaction existingTransaction = getTransaction(transactionId);
 
-                    switch (lastStatus)
-                    {
-                        case BEGIN_STARTED:
-                        case BEGIN_FINISHED:
-                        case PREPARE_STARTED:
-                        case ROLLBACK_STARTED:
-                            rollbackTransaction(transactionId, transactionCoordinatorKey);
-                            break;
-                        case PREPARE_FINISHED:
-                            // wait for the coordinator to decide whether to commit or rollback
-                            break;
-                        case COMMIT_STARTED:
-                            commitTransaction(transactionId, transactionCoordinatorKey);
-                            break;
-                        case COMMIT_FINISHED:
-                        case ROLLBACK_FINISHED:
-                            // nothing to do
-                            break;
-                        default:
-                            operationLog.error(
-                                    "Transaction '" + transactionId + "' restore failed because of an unknown transaction last status '" + lastStatus
-                                            + "'");
-                    }
-                } catch (Exception e)
+                if (existingTransaction == null)
                 {
-                    operationLog.info("Restore of transaction '" + transactionId + "' with last status '" + lastStatus + "' failed.", e);
+                    recoverTransactionFromTransactionLog(transactionId, lastStatus);
+                } else
+                {
+                    recoverFailedOrAbandonedTransaction(existingTransaction);
                 }
             }
+        } else
+        {
+            operationLog.info("No transactions found in the transaction log");
+        }
+
+        operationLog.info("Finished recovering transactions");
+    }
+
+    private void recoverTransactionFromTransactionLog(UUID transactionId, TransactionStatus lastStatus)
+    {
+        try
+        {
+            Transaction transaction = createTransaction(transactionId, lastStatus);
+
+            transaction.lockOrSkip(() ->
+            {
+                operationLog.info(
+                        "Recovering transaction '" + transactionId + "' found in the transaction log with last status '" + lastStatus + "' .");
+
+                switch (lastStatus)
+                {
+                    case BEGIN_STARTED:
+                    case BEGIN_FINISHED:
+                    case PREPARE_STARTED:
+                    case ROLLBACK_STARTED:
+                        rollbackTransaction(transaction);
+                        break;
+                    case PREPARE_FINISHED:
+                        // wait for the coordinator to decide whether to commit or rollback
+                        break;
+                    case COMMIT_STARTED:
+                        commitTransaction(transaction);
+                        break;
+                    default:
+                        throw new IllegalStateException(
+                                "Transaction '" + transactionId + "' has an unsupported last status '" + lastStatus + "'");
+                }
+            });
+        } catch (Exception e)
+        {
+            operationLog.warn(
+                    "Recovering transaction '" + transactionId + "' found in the transaction log with last status '" + lastStatus + "' has failed.",
+                    e);
         }
     }
 
-    public void cleanupTransactions()
+    private void recoverFailedOrAbandonedTransaction(Transaction transaction)
     {
-        Collection<TransactionThread> threads;
-
-        synchronized (threadMap)
+        try
         {
-            threads = threadMap.values();
-        }
+            transaction.lockOrSkip(() ->
+            {
+                operationLog.info(
+                        "Recovering failed or abandoned transaction '" + transaction.getTransactionId() + "' with last status '"
+                                + transaction.getTransactionStatus()
+                                + "'");
 
-        for (TransactionThread thread : threads)
+                switch (transaction.getTransactionStatus())
+                {
+                    case BEGIN_STARTED:
+                    case PREPARE_STARTED:
+                    case ROLLBACK_STARTED:
+                        /*
+                          If we are able to lock the transaction with the last state XXX_STARTED,
+                          then XXX operation either failed in the middle or was unable to log XXX_FINISHED
+                          state at the end. We can roll back the transaction without waiting for timeout.
+                        */
+                        rollbackTransaction(transaction);
+                        break;
+                    case NEW:
+                        /*
+                          If we are able to lock the transaction with the last state NEW then
+                          either we have just created a new transaction and didn't lock it yet
+                          or the transaction was unable to log BEGIN_STARTED status and failed.
+                          To handle both cases correctly we should roll back after a timeout.
+                         */
+                    case BEGIN_FINISHED:
+                        /*
+                          The transaction in BEGIN_FINISHED state should be receiving operation executions.
+                          If the operations are not coming then after a timeout we need to roll back.
+                         */
+                        boolean timedOut =
+                                System.currentTimeMillis() - transaction.getLastAccessedDate().getTime()
+                                        > transactionTimeoutInSeconds * 1000L;
+                        if (timedOut)
+                        {
+                            rollbackTransaction(transaction);
+                        }
+                        break;
+                    case PREPARE_FINISHED:
+                        // wait for the coordinator to decide whether to commit or rollback
+                        break;
+                    case COMMIT_STARTED:
+                        commitTransaction(transaction);
+                        break;
+                }
+            });
+        } catch (Exception e)
         {
-            thread.finishIfIdle(transactionTimeoutInSeconds);
+            operationLog.warn(
+                    "Recovering failed or abandoned transaction '" + transaction.getTransactionId() + "' with last status '"
+                            + transaction.getTransactionStatus() + "' has failed.", e);
         }
     }
 
@@ -197,7 +255,31 @@ public class TransactionParticipant implements ITransactionParticipant
             checkTransactionCoordinatorKey(transactionCoordinatorKey);
         }
 
-        executeInTransactionThread(transactionId, sessionToken, interactiveSessionKey, transactionCoordinatorKey, BEGIN_TRANSACTION_METHOD, null);
+        Transaction transaction = createTransaction(transactionId, TransactionStatus.NEW);
+        transaction.setTwoPhaseCommit(transactionCoordinatorKey != null);
+
+        transaction.lockOrFail(() ->
+        {
+            transaction.setTransactionStatus(TransactionStatus.BEGIN_STARTED);
+
+            operationLog.info("Begin transaction '" + transactionId + "' started.");
+
+            try
+            {
+                Object databaseTransaction = databaseTransactionProvider.beginTransaction(transactionId);
+                transaction.setDatabaseTransaction(databaseTransaction);
+            } catch (Exception e)
+            {
+                operationLog.error("Begin transaction '" + transactionId + "' failed", e);
+                throw new RuntimeException(e);
+            }
+
+            transaction.setTransactionStatus(TransactionStatus.BEGIN_FINISHED);
+
+            operationLog.info("Begin transaction '" + transactionId + "' finished successfully.");
+
+            return null;
+        });
     }
 
     @Override public <T> T executeOperation(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
@@ -209,7 +291,23 @@ public class TransactionParticipant implements ITransactionParticipant
         checkOperationName(operationName);
         checkOperationArguments(operationArguments);
 
-        return (T) executeInTransactionThread(transactionId, sessionToken, interactiveSessionKey, null, operationName, operationArguments);
+        Transaction transaction = getTransaction(transactionId);
+
+        if (transaction == null)
+        {
+            throw new IllegalStateException("Transaction '" + transactionId + "' does not exist.");
+        }
+
+        return transaction.lockOrFail(() ->
+        {
+            checkTransactionStatus(transaction, TransactionStatus.BEGIN_FINISHED);
+
+            operationLog.info("Transaction '" + transactionId + "' execute operation '" + operationName + "' started.");
+            T result = operationExecutor.executeOperation(sessionToken, operationName, operationArguments);
+            operationLog.info("Transaction '" + transactionId + "' execute operation '" + operationName + "' finished successfully.");
+
+            return result;
+        });
     }
 
     @Override public void prepareTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
@@ -220,7 +318,33 @@ public class TransactionParticipant implements ITransactionParticipant
         checkInteractiveSessionKey(interactiveSessionKey);
         checkTransactionCoordinatorKey(transactionCoordinatorKey);
 
-        executeInTransactionThread(transactionId, sessionToken, interactiveSessionKey, transactionCoordinatorKey, PREPARE_TRANSACTION_METHOD, null);
+        Transaction transaction = getTransaction(transactionId);
+
+        if (transaction == null)
+        {
+            throw new IllegalStateException("Transaction '" + transactionId + "' does not exist.");
+        }
+
+        transaction.lockOrFail(() ->
+        {
+            checkTransactionStatus(transaction, TransactionStatus.BEGIN_FINISHED);
+
+            if (!transaction.isTwoPhaseCommit())
+            {
+                throw new IllegalStateException("Transaction '" + transactionId
+                        + "' was started without transaction coordinator key, therefore calling prepare is not allowed.");
+            }
+
+            operationLog.info("Prepare transaction '" + transactionId + "' started.");
+
+            transaction.setTransactionStatus(TransactionStatus.PREPARE_STARTED);
+            databaseTransactionProvider.prepareTransaction(transactionId, transaction.getDatabaseTransaction());
+            transaction.setTransactionStatus(TransactionStatus.PREPARE_FINISHED);
+
+            operationLog.info("Prepare transaction '" + transactionId + "' finished successfully.");
+
+            return null;
+        });
     }
 
     @Override public List<UUID> getTransactions(final String transactionCoordinatorKey)
@@ -247,7 +371,14 @@ public class TransactionParticipant implements ITransactionParticipant
         checkSessionToken(sessionToken);
         checkInteractiveSessionKey(interactiveSessionKey);
 
-        executeInTransactionThread(transactionId, sessionToken, interactiveSessionKey, null, COMMIT_TRANSACTION_METHOD, null);
+        Transaction transaction = getTransaction(transactionId);
+
+        if (transaction == null)
+        {
+            throw new IllegalStateException("Transaction '" + transactionId + "' does not exist.");
+        }
+
+        commitTransaction(transaction);
     }
 
     @Override public void commitTransaction(final UUID transactionId, final String transactionCoordinatorKey)
@@ -255,7 +386,37 @@ public class TransactionParticipant implements ITransactionParticipant
         checkTransactionId(transactionId);
         checkTransactionCoordinatorKey(transactionCoordinatorKey);
 
-        executeInTransactionThread(transactionId, null, null, transactionCoordinatorKey, COMMIT_TRANSACTION_METHOD, null);
+        Transaction transaction = getTransaction(transactionId);
+
+        if (transaction == null)
+        {
+            throw new IllegalStateException("Transaction '" + transactionId + "' does not exist.");
+        }
+
+        commitTransaction(transaction);
+    }
+
+    private void commitTransaction(Transaction transaction)
+    {
+        transaction.lockOrFail(() ->
+        {
+            checkTransactionStatus(transaction, TransactionStatus.NEW, TransactionStatus.BEGIN_FINISHED, TransactionStatus.PREPARE_FINISHED);
+
+            operationLog.info("Commit transaction '" + transaction.getTransactionId() + "' started.");
+
+            if (transaction.getTransactionStatus() != TransactionStatus.NEW)
+            {
+                transaction.setTransactionStatus(TransactionStatus.COMMIT_STARTED);
+                databaseTransactionProvider.commitTransaction(transaction.getTransactionId(), transaction.getDatabaseTransaction());
+                transaction.setTransactionStatus(TransactionStatus.COMMIT_FINISHED);
+            }
+
+            closeTransaction(transaction);
+
+            operationLog.info("Commit transaction '" + transaction.getTransactionId() + "' finished successfully.");
+
+            return null;
+        });
     }
 
     @Override public void rollbackTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
@@ -264,7 +425,14 @@ public class TransactionParticipant implements ITransactionParticipant
         checkSessionToken(sessionToken);
         checkInteractiveSessionKey(interactiveSessionKey);
 
-        executeInTransactionThread(transactionId, sessionToken, interactiveSessionKey, null, ROLLBACK_TRANSACTION_METHOD, null);
+        Transaction transaction = getTransaction(transactionId);
+
+        if (transaction == null)
+        {
+            return;
+        }
+
+        rollbackTransaction(transaction);
     }
 
     @Override public void rollbackTransaction(final UUID transactionId, final String transactionCoordinatorKey)
@@ -272,328 +440,47 @@ public class TransactionParticipant implements ITransactionParticipant
         checkTransactionId(transactionId);
         checkTransactionCoordinatorKey(transactionCoordinatorKey);
 
-        executeInTransactionThread(transactionId, null, null, transactionCoordinatorKey, ROLLBACK_TRANSACTION_METHOD, null);
+        Transaction transaction = getTransaction(transactionId);
+
+        if (transaction == null)
+        {
+            return;
+        }
+
+        rollbackTransaction(transaction);
     }
 
-    private Object executeInTransactionThread(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
-            final String transactionCoordinatorKey, final String operationName, final Object[] operationArguments)
+    private void rollbackTransaction(Transaction transaction)
     {
-        if (transactionId == null)
+        transaction.lockOrFail(() ->
         {
-            throw new IllegalArgumentException("Transaction id cannot be null");
-        }
+            checkTransactionStatus(transaction, TransactionStatus.NEW, TransactionStatus.BEGIN_STARTED,
+                    TransactionStatus.BEGIN_FINISHED, TransactionStatus.PREPARE_STARTED,
+                    TransactionStatus.PREPARE_FINISHED, TransactionStatus.COMMIT_STARTED);
 
-        TransactionThread thread;
+            operationLog.info("Rollback transaction '" + transaction.getTransactionId() + "' started.");
 
-        operationLog.info("Transaction '" + transactionId + "' execute operation '" + operationName + "' started.");
-
-        synchronized (this)
-        {
-            thread = threadMap.get(transactionId);
-
-            if (thread == null)
+            if (transaction.getTransactionStatus() != TransactionStatus.NEW)
             {
-                if (threadMap.size() >= transactionCountLimit)
-                {
-                    throw new RuntimeException(
-                            "Cannot handle transaction '" + transactionId + "' as there are too many other transactions running already.");
-                }
-
-                operationLog.info("Creating a new thread for transaction '" + transactionId + "'.");
-
-                thread = new TransactionThread(transactionId, TransactionStatus.NEW, transactionCoordinatorKey);
-                threadMap.put(transactionId, thread);
-                thread.startThread();
-            } else
-            {
-                operationLog.info("Found existing thread for transaction '" + transactionId + "'.");
+                transaction.setTransactionStatus(TransactionStatus.ROLLBACK_STARTED);
+                databaseTransactionProvider.rollbackTransaction(transaction.getTransactionId(), transaction.getDatabaseTransaction());
+                transaction.setTransactionStatus(TransactionStatus.ROLLBACK_FINISHED);
             }
-        }
 
-        try
-        {
-            Object result = thread.executeOperation(sessionToken, operationName, operationArguments);
-            operationLog.info("Transaction '" + transactionId + "' execute operation '" + operationName + "' finished successfully.");
-            return result;
-        } catch (Exception e)
-        {
-            operationLog.info("Transaction '" + transactionId + "' execute operation '" + operationName + "' failed.", e);
-            throw e;
-        } finally
-        {
-            synchronized (this)
-            {
-                if (thread.isThreadFinished())
-                {
-                    operationLog.info("Transaction '" + transactionId + "' finished. Removing its thread.");
-                    threadMap.remove(transactionId);
-                }
-            }
-        }
+            closeTransaction(transaction);
+
+            operationLog.info("Rollback transaction '" + transaction.getTransactionId() + "' finished successfully.");
+
+            return null;
+        });
     }
 
     public boolean isRunningTransaction(UUID transactionId)
     {
-        synchronized (this)
+        synchronized (transactionMap)
         {
-            TransactionThread thread = threadMap.get(transactionId);
-            return thread != null && !thread.isThreadFinished();
-        }
-    }
-
-    class TransactionThread
-    {
-
-        private final Object lock = new Object();
-
-        private final Thread thread;
-
-        private boolean threadFinished;
-
-        private Object transactionObject;
-
-        private TransactionStatus transactionStatus;
-
-        private final UUID transactionId;
-
-        private final String transactionCoordinatorKey;
-
-        private String sessionToken;
-
-        private String operationName;
-
-        private Object[] operationArguments;
-
-        private Object operationResult;
-
-        private Throwable operationException;
-
-        private Date lastAccessedDate = new Date();
-
-        public TransactionThread(UUID transactionId, TransactionStatus initialTransactionStatus, String transactionCoordinatorKey)
-        {
-            this.transactionId = transactionId;
-            this.transactionStatus = initialTransactionStatus;
-            this.transactionCoordinatorKey = transactionCoordinatorKey;
-            this.thread = new Thread(new Runnable()
-            {
-                @Override public void run()
-                {
-                    synchronized (lock)
-                    {
-                        while (true)
-                        {
-                            try
-                            {
-                                if (operationName != null)
-                                {
-                                    operationLog.info("Transaction '" + transactionId + "' thread executing operation '" + operationName + "'.");
-
-                                    if (BEGIN_TRANSACTION_METHOD.equals(operationName))
-                                    {
-                                        checkTransactionStatus(transactionStatus, TransactionStatus.NEW);
-
-                                        changeTransactionStatus(TransactionStatus.BEGIN_STARTED);
-                                        operationResult = transactionObject = databaseTransactionProvider.beginTransaction(transactionId);
-                                        changeTransactionStatus(TransactionStatus.BEGIN_FINISHED);
-                                    } else if (PREPARE_TRANSACTION_METHOD.equals(operationName))
-                                    {
-                                        checkTransactionStatus(transactionStatus, TransactionStatus.BEGIN_FINISHED);
-
-                                        if (transactionCoordinatorKey == null)
-                                        {
-                                            throw new IllegalStateException("Transaction " + transactionId
-                                                    + " was started without transaction coordinator key, therefore calling prepare is not allowed.");
-                                        }
-
-                                        changeTransactionStatus(TransactionStatus.PREPARE_STARTED);
-                                        databaseTransactionProvider.prepareTransaction(transactionId, transactionObject);
-                                        changeTransactionStatus(TransactionStatus.PREPARE_FINISHED);
-                                    } else if (COMMIT_TRANSACTION_METHOD.equals(operationName))
-                                    {
-                                        checkTransactionStatus(transactionStatus, TransactionStatus.NEW, TransactionStatus.BEGIN_FINISHED,
-                                                TransactionStatus.PREPARE_FINISHED);
-
-                                        if (transactionStatus != TransactionStatus.NEW)
-                                        {
-                                            changeTransactionStatus(TransactionStatus.COMMIT_STARTED);
-                                            databaseTransactionProvider.commitTransaction(transactionId, transactionObject);
-                                            changeTransactionStatus(TransactionStatus.COMMIT_FINISHED);
-                                        }
-                                    } else if (ROLLBACK_TRANSACTION_METHOD.equals(operationName))
-                                    {
-                                        checkTransactionStatus(transactionStatus, TransactionStatus.NEW, TransactionStatus.BEGIN_STARTED,
-                                                TransactionStatus.BEGIN_FINISHED, TransactionStatus.PREPARE_STARTED,
-                                                TransactionStatus.PREPARE_FINISHED, TransactionStatus.COMMIT_STARTED);
-
-                                        if (transactionStatus != TransactionStatus.NEW)
-                                        {
-                                            changeTransactionStatus(TransactionStatus.ROLLBACK_STARTED);
-                                            databaseTransactionProvider.rollbackTransaction(transactionId, transactionObject);
-                                            changeTransactionStatus(TransactionStatus.ROLLBACK_FINISHED);
-                                        }
-                                    } else
-                                    {
-                                        checkTransactionStatus(transactionStatus, TransactionStatus.BEGIN_FINISHED);
-                                        try
-                                        {
-                                            operationResult = operationExecutor.executeOperation(sessionToken, operationName, operationArguments);
-                                        } catch (Throwable e)
-                                        {
-                                            throw new TransactionOperationException(e);
-                                        }
-                                    }
-
-                                    operationName = null;
-                                    operationArguments = null;
-                                    operationException = null;
-
-                                    if (transactionStatus == TransactionStatus.NEW || transactionStatus == TransactionStatus.COMMIT_FINISHED
-                                            || transactionStatus == TransactionStatus.ROLLBACK_FINISHED)
-                                    {
-                                        threadFinished = true;
-                                        return;
-                                    }
-                                } else
-                                {
-                                    operationLog.info("Transaction '" + transactionId + "' thread waiting for the next call.");
-                                    lock.wait();
-                                }
-
-                            } catch (Throwable e)
-                            {
-                                operationName = null;
-                                operationArguments = null;
-                                operationResult = null;
-                                operationException = e;
-
-                                if (transactionStatus == TransactionStatus.NEW)
-                                {
-                                    threadFinished = true;
-                                    return;
-                                }
-                            } finally
-                            {
-                                lock.notifyAll();
-                            }
-                        }
-                    }
-                }
-
-                private void checkTransactionStatus(TransactionStatus actualStatus, TransactionStatus... expectedStatuses)
-                {
-                    for (final TransactionStatus expectedStatus : expectedStatuses)
-                    {
-                        if (actualStatus == expectedStatus)
-                        {
-                            return;
-                        }
-                    }
-
-                    throw new IllegalStateException(
-                            "Transaction '" + transactionId + "' unexpected status '" + actualStatus + "'. Expected statuses '"
-                                    + Arrays.toString(expectedStatuses) + "'.");
-                }
-
-                private void changeTransactionStatus(TransactionStatus status)
-                {
-                    transactionLog.logStatus(transactionId, status);
-                    TransactionThread.this.transactionStatus = status;
-                }
-
-            });
-            this.thread.setName("Transaction-" + transactionId + "-participant-" + getParticipantId());
-        }
-
-        public void startThread()
-        {
-            operationLog.info("Transaction '" + transactionId + "' thread '" + thread.getName() + "' started.");
-            thread.start();
-        }
-
-        public Object executeOperation(String newSessionToken, String newOperationName, Object[] newOperationArguments)
-        {
-            synchronized (lock)
-            {
-                try
-                {
-                    if (operationName != null)
-                    {
-                        throw new IllegalStateException(
-                                "Cannot schedule transaction '" + transactionId + "' operation '" + newOperationName
-                                        + "' execution as the previous operation '"
-                                        + operationName + "' hasn't finished yet.");
-                    }
-
-                    sessionToken = newSessionToken;
-                    operationName = newOperationName;
-                    operationArguments = newOperationArguments;
-                    operationResult = null;
-                    operationException = null;
-                    lastAccessedDate = new Date();
-
-                    lock.notifyAll();
-
-                    operationLog.info("Transaction '" + transactionId + "' thread scheduled operation '" + newOperationName + "' execution.");
-
-                    while (operationName != null)
-                    {
-                        lock.wait();
-                    }
-
-                } catch (Exception e)
-                {
-                    operationLog.error(
-                            "Scheduling of transaction '" + transactionId + "' operation '" + operationName
-                                    + "' execution in thread failed or got interrupted.", e);
-                    throw new RuntimeException(e);
-                }
-
-                if (operationException != null)
-                {
-                    if (operationException instanceof TransactionOperationException)
-                    {
-                        throw (TransactionOperationException) operationException;
-                    } else
-                    {
-                        throw new RuntimeException(operationException);
-                    }
-                } else
-                {
-                    return operationResult;
-                }
-            }
-        }
-
-        private boolean isThreadFinished()
-        {
-            return threadFinished;
-        }
-
-        private void finishIfIdle(long timeoutInSeconds)
-        {
-            if (transactionCoordinatorKey != null)
-            {
-                return;
-            }
-
-            Date timeoutDate = new Date(lastAccessedDate.getTime() + timeoutInSeconds * 1000);
-
-            if (timeoutDate.before(new Date()))
-            {
-                return;
-            }
-
-            synchronized (lock)
-            {
-                if (!threadFinished)
-                {
-                    operationLog.info("Transaction '" + transactionId + "' thread has been idle since + " + lastAccessedDate
-                            + " which is longer than the configured transaction timeout of " + timeoutInSeconds
-                            + " seconds. The transaction is not a two-phase-commit transaction therefore it will be rolled back.");
-                    executeOperation(null, ROLLBACK_TRANSACTION_METHOD, null);
-                }
-            }
+            Transaction transaction = transactionMap.get(transactionId);
+            return transaction != null;
         }
     }
 
@@ -644,6 +531,22 @@ public class TransactionParticipant implements ITransactionParticipant
         }
     }
 
+    private void checkTransactionStatus(final Transaction transaction, final TransactionStatus... expectedStatuses)
+    {
+        for (final TransactionStatus expectedStatus : expectedStatuses)
+        {
+            if (transaction.getTransactionStatus() == expectedStatus)
+            {
+                return;
+            }
+        }
+
+        throw new IllegalStateException(
+                "Transaction '" + transaction.getTransactionId() + "' unexpected status '" + transaction.getTransactionStatus()
+                        + "'. Expected statuses '"
+                        + Arrays.toString(expectedStatuses) + "'.");
+    }
+
     private void checkOperationName(final String operationName)
     {
         if (operationName == null)
@@ -658,5 +561,197 @@ public class TransactionParticipant implements ITransactionParticipant
         {
             throw new IllegalArgumentException("Operation arguments cannot be null");
         }
+    }
+
+    private Transaction createTransaction(UUID transactionId, TransactionStatus initialTransactionStatus)
+    {
+        synchronized (transactionMap)
+        {
+            Transaction transaction = transactionMap.get(transactionId);
+
+            if (transaction == null)
+            {
+                if (transactionMap.size() < transactionCountLimit)
+                {
+                    transaction = new Transaction(transactionId, initialTransactionStatus);
+                    transactionMap.put(transactionId, transaction);
+                    return transaction;
+                } else
+                {
+                    throw new IllegalStateException(
+                            "Cannot create transaction '" + transactionId + "' because transaction count limit (" + transactionCountLimit
+                                    + ") has been reached.");
+                }
+            } else
+            {
+                throw new IllegalStateException("Transaction '" + transactionId + "' already exists.");
+            }
+        }
+    }
+
+    private Transaction getTransaction(UUID transactionId)
+    {
+        synchronized (transactionMap)
+        {
+            Transaction transaction = transactionMap.get(transactionId);
+
+            if (transaction == null)
+            {
+                return null;
+            } else
+            {
+                transaction.setLastAccessedDate(new Date());
+                return transaction;
+            }
+
+        }
+    }
+
+    private void closeTransaction(Transaction transaction)
+    {
+        transaction.close();
+        transactionMap.remove(transaction.getTransactionId());
+    }
+
+    private class Transaction
+    {
+
+        private final UUID transactionId;
+
+        private TransactionStatus transactionStatus;
+
+        private Object databaseTransaction;
+
+        private boolean isTwoPhaseCommit;
+
+        private Date lastAccessedDate = new Date();
+
+        private final ExecutorService executor = Executors.newSingleThreadExecutor();
+
+        private final ReentrantLock lock = new ReentrantLock();
+
+        public Transaction(UUID transactionId, TransactionStatus initialTransactionStatus)
+        {
+            this.transactionId = transactionId;
+            this.transactionStatus = initialTransactionStatus;
+        }
+
+        public UUID getTransactionId()
+        {
+            return transactionId;
+        }
+
+        public TransactionStatus getTransactionStatus()
+        {
+            return transactionStatus;
+        }
+
+        public void setTransactionStatus(final TransactionStatus transactionStatus)
+        {
+            transactionLog.logStatus(transactionId, transactionStatus);
+            this.transactionStatus = transactionStatus;
+        }
+
+        public Object getDatabaseTransaction()
+        {
+            return databaseTransaction;
+        }
+
+        public void setDatabaseTransaction(final Object databaseTransaction)
+        {
+            this.databaseTransaction = databaseTransaction;
+        }
+
+        public boolean isTwoPhaseCommit()
+        {
+            return isTwoPhaseCommit;
+        }
+
+        public void setTwoPhaseCommit(final boolean twoPhaseCommit)
+        {
+            isTwoPhaseCommit = twoPhaseCommit;
+        }
+
+        public Date getLastAccessedDate()
+        {
+            return lastAccessedDate;
+        }
+
+        public void setLastAccessedDate(final Date lastAccessedDate)
+        {
+            this.lastAccessedDate = lastAccessedDate;
+        }
+
+        public void close()
+        {
+            this.executor.shutdown();
+        }
+
+        public <T> T lockOrFail(Callable<T> action)
+        {
+            if (lock.tryLock())
+            {
+                try
+                {
+                    Future<T> future = executor.submit(action);
+                    return future.get();
+                } catch (ExecutionException e)
+                {
+                    Throwable originalException = e.getCause();
+                    if (originalException instanceof RuntimeException)
+                    {
+                        throw (RuntimeException) originalException;
+                    } else
+                    {
+                        throw new RuntimeException(originalException);
+                    }
+                } catch (Exception e)
+                {
+                    throw new RuntimeException(e);
+                } finally
+                {
+                    setLastAccessedDate(new Date());
+                    lock.unlock();
+                }
+            } else
+            {
+                throw new RuntimeException(
+                        "Cannot execute a new action on transaction '" + transactionId + "' as it is still busy executing a previous action.");
+            }
+        }
+
+        public void lockOrSkip(Runnable action)
+        {
+            if (lock.tryLock())
+            {
+                try
+                {
+                    Future<?> future = executor.submit(action);
+                    future.get();
+                } catch (ExecutionException e)
+                {
+                    Throwable originalException = e.getCause();
+                    if (originalException instanceof RuntimeException)
+                    {
+                        throw (RuntimeException) originalException;
+                    } else
+                    {
+                        throw new RuntimeException(originalException);
+                    }
+                } catch (Exception e)
+                {
+                    throw new RuntimeException(e);
+                } finally
+                {
+                    setLastAccessedDate(new Date());
+                    lock.unlock();
+                }
+            } else
+            {
+                operationLog.info(
+                        "Cannot execute a new action on transaction '" + transactionId + "' as it is still busy executing a previous action.");
+            }
+        }
+
     }
 }

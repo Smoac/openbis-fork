@@ -470,7 +470,13 @@ public class TransactionParticipantTest
             Assert.fail();
         } catch (Throwable t)
         {
-            assertEquals(t.getCause(), throwable);
+            if (throwable instanceof RuntimeException)
+            {
+                assertEquals(t, throwable);
+            } else
+            {
+                assertEquals(t.getCause(), throwable);
+            }
 
             assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
             // rollback
@@ -535,7 +541,14 @@ public class TransactionParticipantTest
             Assert.fail();
         } catch (Throwable t)
         {
-            assertEquals(t.getCause(), throwable);
+            if (throwable instanceof RuntimeException)
+            {
+                assertEquals(t, throwable);
+            } else
+            {
+                assertEquals(t.getCause(), throwable);
+            }
+
             assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
 
             // execute
@@ -675,7 +688,13 @@ public class TransactionParticipantTest
             Assert.fail();
         } catch (Throwable t)
         {
-            assertEquals(t.getCause(), throwable);
+            if (throwable instanceof RuntimeException)
+            {
+                assertEquals(t, throwable);
+            } else
+            {
+                assertEquals(t.getCause(), throwable);
+            }
 
             assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
             // rollback
@@ -866,7 +885,13 @@ public class TransactionParticipantTest
             Assert.fail();
         } catch (Throwable t)
         {
-            assertEquals(t.getCause(), throwable);
+            if (throwable instanceof RuntimeException)
+            {
+                assertEquals(t, throwable);
+            } else
+            {
+                assertEquals(t.getCause(), throwable);
+            }
 
             assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
             // rollback
@@ -1039,7 +1064,14 @@ public class TransactionParticipantTest
             Assert.fail();
         } catch (Throwable t)
         {
-            assertEquals(t.getCause(), throwable);
+            if (throwable instanceof RuntimeException)
+            {
+                assertEquals(t, throwable);
+            } else
+            {
+                assertEquals(t.getCause(), throwable);
+            }
+
             assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
         }
     }
@@ -1090,8 +1122,8 @@ public class TransactionParticipantTest
             Assert.fail();
         } catch (Exception e)
         {
-            assertEquals(e.getCause().getMessage(),
-                    "Transaction '" + TEST_TRANSACTION_ID + "' unexpected status 'NEW'. Expected statuses '[BEGIN_FINISHED]'.");
+            assertEquals(e.getMessage(),
+                    "Transaction '" + TEST_TRANSACTION_ID + "' does not exist.");
         }
     }
 
@@ -1118,13 +1150,12 @@ public class TransactionParticipantTest
         } catch (Exception e)
         {
             assertEquals(e.getMessage(),
-                    "java.lang.IllegalStateException: Transaction '" + TEST_TRANSACTION_ID
-                            + "' unexpected status 'NEW'. Expected statuses '[BEGIN_FINISHED]'.");
+                    "Transaction '" + TEST_TRANSACTION_ID + "' does not exist.");
         }
     }
 
     @Test
-    public void testNewTransactionCanBeCommitted()
+    public void testNewTransactionCannotBeCommitted()
     {
         TransactionParticipant participant =
                 new TransactionParticipant(TEST_PARTICIPANT_ID, TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
@@ -1138,8 +1169,14 @@ public class TransactionParticipantTest
             }
         });
 
-        // the call is possible and does nothing (used in recovery process)
-        participant.commitTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
+        try
+        {
+            participant.commitTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
+        } catch (Exception e)
+        {
+            assertEquals(e.getMessage(),
+                    "Transaction '" + TEST_TRANSACTION_ID + "' does not exist.");
+        }
     }
 
     @Test
@@ -1191,8 +1228,8 @@ public class TransactionParticipantTest
             Assert.fail();
         } catch (Exception e)
         {
-            assertEquals(e.getCause().getMessage(),
-                    "Transaction '" + TEST_TRANSACTION_ID + "' unexpected status 'BEGIN_FINISHED'. Expected statuses '[NEW]'.");
+            assertEquals(e.getMessage(),
+                    "Transaction '" + TEST_TRANSACTION_ID + "' already exists.");
         }
     }
 
@@ -1287,8 +1324,8 @@ public class TransactionParticipantTest
             {
                 Assert.fail();
             }
-            assertEquals(e.getMessage(), "java.lang.IllegalStateException: Transaction " + TEST_TRANSACTION_ID
-                    + " was started without transaction coordinator key, therefore calling prepare is not allowed.");
+            assertEquals(e.getMessage(), "Transaction '" + TEST_TRANSACTION_ID
+                    + "' was started without transaction coordinator key, therefore calling prepare is not allowed.");
         }
     }
 
@@ -1400,8 +1437,8 @@ public class TransactionParticipantTest
             Assert.fail();
         } catch (Exception e)
         {
-            assertEquals(e.getCause().getMessage(),
-                    "Transaction '" + TEST_TRANSACTION_ID + "' unexpected status 'PREPARE_FINISHED'. Expected statuses '[NEW]'.");
+            assertEquals(e.getMessage(),
+                    "Transaction '" + TEST_TRANSACTION_ID + "' already exists.");
         }
     }
 
@@ -1444,7 +1481,7 @@ public class TransactionParticipantTest
             Assert.fail();
         } catch (Exception e)
         {
-            assertEquals(e.getCause().getMessage(),
+            assertEquals(e.getMessage(),
                     "Transaction '" + TEST_TRANSACTION_ID
                             + "' unexpected status 'PREPARE_FINISHED'. Expected statuses '[BEGIN_FINISHED]'.");
         }
@@ -1490,7 +1527,7 @@ public class TransactionParticipantTest
             Assert.fail();
         } catch (Exception e)
         {
-            assertEquals(e.getCause().getMessage(),
+            assertEquals(e.getMessage(),
                     "Transaction '" + TEST_TRANSACTION_ID
                             + "' unexpected status 'PREPARE_FINISHED'. Expected statuses '[BEGIN_FINISHED]'.");
         }
