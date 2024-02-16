@@ -235,7 +235,7 @@ public class DBMigrationEngineTest
                 + "INFO  OPERATION.DBMigrationEngine - Force create with initial data flag is set to false." + OSUtilities.LINE_SEPARATOR
                 + "INFO  OPERATION.DBMigrationEngine - Restoring from dump the database of the version 042."
                 + OSUtilities.LINE_SEPARATOR
-                + "INFO  OPERATION.DBMigrationEngine -  Dump folder = ." + OSUtilities.LINE_SEPARATOR
+                + "INFO  OPERATION.DBMigrationEngine -  Dump folder = The Dump Folder." + OSUtilities.LINE_SEPARATOR
                 + "INFO  OPERATION.DBMigrationEngine - Restoring from dump finished." + OSUtilities.LINE_SEPARATOR
                 + "INFO  OPERATION.DBMigrationEngine - "
                 + "Database 'my 2. database' version 042 has been successfully created.",
