@@ -88,24 +88,22 @@ public class TransactionCoordinator implements ITransactionCoordinator
     {
         operationLog.info("Started recovering transactions");
 
-        Map<UUID, TransactionStatus> lastStatuses = transactionLog.getLastStatuses();
+        Map<UUID, TransactionLogEntry> logEntries = transactionLog.getTransactions();
 
-        if (lastStatuses != null && !lastStatuses.isEmpty())
+        if (logEntries != null && !logEntries.isEmpty())
         {
-            for (UUID transactionId : lastStatuses.keySet())
+            for (TransactionLogEntry logEntry : logEntries.values())
             {
-                TransactionStatus lastStatus = lastStatuses.get(transactionId);
-
-                if (TransactionStatus.COMMIT_FINISHED.equals(lastStatus) || TransactionStatus.ROLLBACK_FINISHED.equals(lastStatus))
+                if (TransactionStatus.COMMIT_FINISHED.equals(logEntry.getTransactionStatus()) || TransactionStatus.ROLLBACK_FINISHED.equals(logEntry.getTransactionStatus()))
                 {
                     continue;
                 }
 
-                Transaction existingTransaction = getTransaction(transactionId);
+                Transaction existingTransaction = getTransaction(logEntry.getTransactionId());
 
                 if (existingTransaction == null)
                 {
-                    recoverTransactionFromTransactionLog(transactionId, lastStatus);
+                    recoverTransactionFromTransactionLog(logEntry);
                 } else
                 {
                     recoverFailedOrAbandonedTransaction(existingTransaction);
@@ -119,18 +117,18 @@ public class TransactionCoordinator implements ITransactionCoordinator
         operationLog.info("Finished recovering transactions");
     }
 
-    private void recoverTransactionFromTransactionLog(UUID transactionId, TransactionStatus lastStatus)
+    private void recoverTransactionFromTransactionLog(TransactionLogEntry logEntry)
     {
         try
         {
-            Transaction transaction = createTransaction(transactionId, lastStatus);
+            Transaction transaction = createTransaction(logEntry.getTransactionId(), logEntry.getTransactionStatus());
 
             transaction.lockOrSkip(() ->
             {
                 operationLog.info(
-                        "Recovering transaction '" + transactionId + "' found in the transaction log with last status '" + lastStatus + "' .");
+                        "Recovering transaction '" + transaction.getTransactionId() + "' found in the transaction log with last status '" + transaction.getTransactionStatus() + "' .");
 
-                switch (lastStatus)
+                switch (transaction.getTransactionStatus())
                 {
                     case BEGIN_STARTED:
                     case BEGIN_FINISHED:
@@ -144,13 +142,13 @@ public class TransactionCoordinator implements ITransactionCoordinator
                         break;
                     default:
                         throw new IllegalStateException(
-                                "Transaction '" + transactionId + "' has an unsupported last status '" + lastStatus + "'");
+                                "Transaction '" + transaction.getTransactionId() + "' has an unsupported last status '" + transaction.getTransactionStatus() + "'");
                 }
             });
         } catch (Exception e)
         {
             operationLog.warn(
-                    "Recovering transaction '" + transactionId + "' found in the transaction log with last status '" + lastStatus + "' has failed.",
+                    "Recovering transaction '" + logEntry.getTransactionId() + "' found in the transaction log with last status '" + logEntry.getTransactionStatus() + "' has failed.",
                     e);
         }
     }
@@ -190,10 +188,7 @@ public class TransactionCoordinator implements ITransactionCoordinator
                           The transaction in BEGIN_FINISHED state should be receiving operation executions.
                           If the operations are not coming then after a timeout we need to roll back.
                          */
-                        boolean timedOut =
-                                System.currentTimeMillis() - transaction.getLastAccessedDate().getTime()
-                                        > transactionTimeoutInSeconds * 1000L;
-                        if (timedOut)
+                        if (transaction.hasTimedOut())
                         {
                             rollbackTransaction(transaction, null, null, true);
                         }
@@ -635,7 +630,13 @@ public class TransactionCoordinator implements ITransactionCoordinator
 
         public void setTransactionStatus(final TransactionStatus transactionStatus)
         {
-            transactionLog.logStatus(transactionId, transactionStatus);
+            TransactionLogEntry entry = new TransactionLogEntry();
+            entry.setTransactionId(transactionId);
+            entry.setTransactionStatus(transactionStatus);
+            entry.setTwoPhaseTransaction(true);
+            entry.setLastAccessedDate(lastAccessedDate);
+            transactionLog.logTransaction(entry);
+
             this.transactionStatus = transactionStatus;
         }
 
@@ -693,6 +694,10 @@ public class TransactionCoordinator implements ITransactionCoordinator
             this.lastAccessedDate = lastAccessedDate;
         }
 
+        public boolean hasTimedOut()
+        {
+            return System.currentTimeMillis() - getLastAccessedDate().getTime() > transactionTimeoutInSeconds * 1000L;
+        }
     }
 
 }

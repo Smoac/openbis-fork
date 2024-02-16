@@ -6,8 +6,8 @@ import java.util.UUID;
 public interface ITransactionLog
 {
 
-    void logStatus(final UUID transactionId, TransactionStatus transactionStatus);
+    void logTransaction(final TransactionLogEntry transaction);
 
-    Map<UUID, TransactionStatus> getLastStatuses();
+    Map<UUID, TransactionLogEntry> getTransactions();
 
 }

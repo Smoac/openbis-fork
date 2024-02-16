@@ -8,18 +8,17 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
@@ -29,6 +28,8 @@ public class TransactionLogTest
     public static final UUID TEST_TRANSACTION_ID = UUID.randomUUID();
 
     public static final UUID TEST_TRANSACTION_ID_2 = UUID.randomUUID();
+
+    public static final ObjectMapper objectMapper = new ObjectMapper();
 
     private File testWorkspace;
 
@@ -76,30 +77,26 @@ public class TransactionLogTest
         Files.createDirectory(existingLogFolder.toPath());
         assertTrue(existingLogFolder.exists());
 
-        File transaction1Folder = createFolder(new File(existingLogFolder, TEST_TRANSACTION_ID.toString()));
-        createFile(new File(transaction1Folder, TransactionStatus.BEGIN_STARTED.name()));
-        createFile(new File(transaction1Folder, TransactionStatus.BEGIN_FINISHED.name()));
-        createFile(new File(transaction1Folder, TransactionStatus.PREPARE_STARTED.name()));
-        createFolder(new File(transaction1Folder, "some_folder"));
-        createFile(new File(transaction1Folder, "some_file_with_name_which_is_not_status"));
+        TransactionLogEntry transaction1LogEntry = new TransactionLogEntry();
+        transaction1LogEntry.setTransactionId(TEST_TRANSACTION_ID);
+        transaction1LogEntry.setTransactionStatus(TransactionStatus.PREPARE_STARTED);
+        createFile(new File(existingLogFolder, TEST_TRANSACTION_ID.toString()), objectMapper.writeValueAsString(transaction1LogEntry));
 
-        File transaction2Folder = createFolder(new File(existingLogFolder, TEST_TRANSACTION_ID_2.toString()));
-        createFile(new File(transaction2Folder, TransactionStatus.BEGIN_STARTED.name()));
-        createFile(new File(transaction2Folder, TransactionStatus.BEGIN_FINISHED.name()));
-        createFile(new File(transaction2Folder, TransactionStatus.PREPARE_STARTED.name()));
-        createFile(new File(transaction2Folder, TransactionStatus.ROLLBACK_STARTED.name()));
-        createFile(new File(transaction2Folder, TransactionStatus.ROLLBACK_FINISHED.name()));
+        TransactionLogEntry transaction2LogEntry = new TransactionLogEntry();
+        transaction2LogEntry.setTransactionId(TEST_TRANSACTION_ID_2);
+        transaction2LogEntry.setTransactionStatus(TransactionStatus.ROLLBACK_FINISHED);
+        createFile(new File(existingLogFolder, TEST_TRANSACTION_ID_2.toString()), objectMapper.writeValueAsString(transaction2LogEntry));
 
         createFolder(new File(existingLogFolder, "some_folder"));
-        createFile(new File(existingLogFolder, "some_file"));
+        createFile(new File(existingLogFolder, "some_file_with_name_which_is_not_status"), "some_content");
 
         ITransactionLog transactionLog = new TransactionLog(existingRootLogFolder, existingLogFolder.getName());
 
-        Map<UUID, TransactionStatus> expectedLastStatuses = new HashMap<>();
-        expectedLastStatuses.put(TEST_TRANSACTION_ID, TransactionStatus.PREPARE_STARTED);
-        expectedLastStatuses.put(TEST_TRANSACTION_ID_2, TransactionStatus.ROLLBACK_FINISHED);
+        Map<UUID, TransactionLogEntry> logEntries = transactionLog.getTransactions();
+        assertEquals(logEntries.size(), 2);
 
-        assertEquals(transactionLog.getLastStatuses(), expectedLastStatuses);
+        assertEquals(logEntries.get(TEST_TRANSACTION_ID), transaction1LogEntry);
+        assertEquals(logEntries.get(TEST_TRANSACTION_ID_2), transaction2LogEntry);
     }
 
     @Test
@@ -126,55 +123,53 @@ public class TransactionLogTest
 
         ITransactionLog transactionLog = new TransactionLog(rootLogFolder, logFolder.getName());
 
-        assertTransactionFolders(logFolder);
+        assertTransactionFiles(logFolder);
 
-        transactionLog.logStatus(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED);
-        transactionLog.logStatus(TEST_TRANSACTION_ID_2, TransactionStatus.PREPARE_STARTED);
-        transactionLog.logStatus(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED);
+        TransactionLogEntry transaction1ALogEntry = new TransactionLogEntry();
+        transaction1ALogEntry.setTransactionId(TEST_TRANSACTION_ID);
+        transaction1ALogEntry.setTransactionStatus(TransactionStatus.BEGIN_STARTED);
+        transactionLog.logTransaction(transaction1ALogEntry);
 
-        assertTransactionFolders(logFolder, TEST_TRANSACTION_ID.toString(), TEST_TRANSACTION_ID_2.toString());
-        assertTransactionStatusFiles(logFolder, TEST_TRANSACTION_ID.toString(), TransactionStatus.BEGIN_STARTED, TransactionStatus.BEGIN_FINISHED);
-        assertTransactionStatusFiles(logFolder, TEST_TRANSACTION_ID_2.toString(), TransactionStatus.PREPARE_STARTED);
+        TransactionLogEntry transaction2LogEntry = new TransactionLogEntry();
+        transaction2LogEntry.setTransactionId(TEST_TRANSACTION_ID_2);
+        transaction2LogEntry.setTransactionStatus(TransactionStatus.PREPARE_STARTED);
+        transactionLog.logTransaction(transaction2LogEntry);
+
+        TransactionLogEntry transaction1BLogEntry = new TransactionLogEntry();
+        transaction1BLogEntry.setTransactionId(TEST_TRANSACTION_ID);
+        transaction1BLogEntry.setTransactionStatus(TransactionStatus.BEGIN_FINISHED);
+        transactionLog.logTransaction(transaction1BLogEntry);
+
+        assertTransactionFiles(logFolder, transaction1BLogEntry, transaction2LogEntry);
     }
 
-    private void assertTransactionFolders(File logFolder, String... expectedFolderNames) throws IOException
+    private void assertTransactionFiles(File logFolder, TransactionLogEntry... expectedLogEntries) throws IOException
     {
-        Set<String> expectedFolderNamesSet = new HashSet<>(Arrays.asList(expectedFolderNames));
-        Set<String> actualFolderNamesSet = new HashSet<>();
+        Map<String, TransactionLogEntry> expectedLogEntriesMap = new HashMap<>();
+        Map<String, TransactionLogEntry> actualLogEntriesMap = new HashMap<>();
 
-        List<File> transactionFolders = list(logFolder);
-        for (File transactionFolder : transactionFolders)
+        for (TransactionLogEntry expectedLogEntry : expectedLogEntries)
         {
-            assertTrue(transactionFolder.isDirectory());
-            actualFolderNamesSet.add(transactionFolder.getName());
+            expectedLogEntriesMap.put(expectedLogEntry.getTransactionId().toString(), expectedLogEntry);
         }
 
-        assertEquals(expectedFolderNamesSet, actualFolderNamesSet);
-    }
-
-    private void assertTransactionStatusFiles(File logFolder, String transactionId, TransactionStatus... expectedStatuses) throws IOException
-    {
-        Set<String> expectedFileNamesSet = Arrays.stream(expectedStatuses).map(Enum::name).collect(Collectors.toSet());
-        Set<String> actualFileNamesSet = new HashSet<>();
-
-        List<File> statusFiles = list(new File(logFolder, transactionId));
-        for (File statusFile : statusFiles)
+        for (File actualLogFile : list(logFolder))
         {
-            assertTrue(statusFile.isFile());
-            actualFileNamesSet.add(statusFile.getName());
+            String actualFileContent = FileUtilities.loadToString(actualLogFile);
+            actualLogEntriesMap.put(actualLogFile.getName(), objectMapper.readValue(actualFileContent, TransactionLogEntry.class));
         }
 
-        assertEquals(expectedFileNamesSet, actualFileNamesSet);
+        assertEquals(actualLogEntriesMap, expectedLogEntriesMap);
     }
 
-    private static File createFolder(File folder) throws IOException
+    private static void createFolder(File folder) throws IOException
     {
-        return Files.createDirectory(folder.toPath()).toFile();
+        Files.createDirectory(folder.toPath());
     }
 
-    private static File createFile(File file) throws IOException
+    private static void createFile(File file, String content)
     {
-        return Files.createFile(file.toPath()).toFile();
+        FileUtilities.writeToFile(file, content);
     }
 
     private static List<File> list(File folder) throws IOException

@@ -3,7 +3,6 @@ package ch.ethz.sis.transaction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -115,24 +114,23 @@ public class TransactionParticipant implements ITransactionParticipant
     {
         operationLog.info("Started recovering transactions");
 
-        Map<UUID, TransactionStatus> lastStatuses = transactionLog.getLastStatuses();
+        Map<UUID, TransactionLogEntry> logEntries = transactionLog.getTransactions();
 
-        if (lastStatuses != null && !lastStatuses.isEmpty())
+        if (logEntries != null && !logEntries.isEmpty())
         {
-            for (UUID transactionId : lastStatuses.keySet())
+            for (TransactionLogEntry logEntry : logEntries.values())
             {
-                TransactionStatus lastStatus = lastStatuses.get(transactionId);
-
-                if (TransactionStatus.COMMIT_FINISHED.equals(lastStatus) || TransactionStatus.ROLLBACK_FINISHED.equals(lastStatus))
+                if (TransactionStatus.COMMIT_FINISHED.equals(logEntry.getTransactionStatus()) || TransactionStatus.ROLLBACK_FINISHED.equals(
+                        logEntry.getTransactionStatus()))
                 {
                     continue;
                 }
 
-                Transaction existingTransaction = getTransaction(transactionId);
+                Transaction existingTransaction = getTransaction(logEntry.getTransactionId());
 
                 if (existingTransaction == null)
                 {
-                    recoverTransactionFromTransactionLog(transactionId, lastStatus);
+                    recoverTransactionFromTransactionLog(logEntry);
                 } else
                 {
                     recoverFailedOrAbandonedTransaction(existingTransaction);
@@ -146,24 +144,32 @@ public class TransactionParticipant implements ITransactionParticipant
         operationLog.info("Finished recovering transactions");
     }
 
-    private void recoverTransactionFromTransactionLog(UUID transactionId, TransactionStatus lastStatus)
+    private void recoverTransactionFromTransactionLog(TransactionLogEntry logEntry)
     {
         try
         {
-            Transaction transaction = createTransaction(transactionId, lastStatus);
+            Transaction transaction = createTransaction(logEntry.getTransactionId(), logEntry.getTransactionStatus());
+            transaction.setTwoPhaseTransaction(logEntry.isTwoPhaseTransaction());
 
             transaction.lockOrSkip(() ->
             {
                 operationLog.info(
-                        "Recovering transaction '" + transactionId + "' found in the transaction log with last status '" + lastStatus + "' .");
+                        "Recovering transaction '" + transaction.getTransactionId() + "' found in the transaction log with last status '"
+                                + transaction.getTransactionStatus() + "' .");
 
-                switch (lastStatus)
+                switch (transaction.getTransactionStatus())
                 {
+                    case NEW:
                     case BEGIN_STARTED:
-                    case BEGIN_FINISHED:
                     case PREPARE_STARTED:
                     case ROLLBACK_STARTED:
                         rollbackTransaction(transaction);
+                        break;
+                    case BEGIN_FINISHED:
+                        if (!transaction.isTwoPhaseTransaction())
+                        {
+                            rollbackTransaction(transaction);
+                        }
                         break;
                     case PREPARE_FINISHED:
                         // wait for the coordinator to decide whether to commit or rollback
@@ -173,13 +179,15 @@ public class TransactionParticipant implements ITransactionParticipant
                         break;
                     default:
                         throw new IllegalStateException(
-                                "Transaction '" + transactionId + "' has an unsupported last status '" + lastStatus + "'");
+                                "Transaction '" + transaction.getTransactionId() + "' has an unsupported last status '"
+                                        + transaction.getTransactionStatus() + "'");
                 }
             });
         } catch (Exception e)
         {
             operationLog.warn(
-                    "Recovering transaction '" + transactionId + "' found in the transaction log with last status '" + lastStatus + "' has failed.",
+                    "Recovering transaction '" + logEntry.getTransactionId() + "' found in the transaction log with last status '"
+                            + logEntry.getTransactionStatus() + "' has failed.",
                     e);
         }
     }
@@ -219,10 +227,7 @@ public class TransactionParticipant implements ITransactionParticipant
                           The transaction in BEGIN_FINISHED state should be receiving operation executions.
                           If the operations are not coming then after a timeout we need to roll back.
                          */
-                        boolean timedOut =
-                                System.currentTimeMillis() - transaction.getLastAccessedDate().getTime()
-                                        > transactionTimeoutInSeconds * 1000L;
-                        if (timedOut)
+                        if (transaction.hasTimedOut())
                         {
                             rollbackTransaction(transaction);
                         }
@@ -256,7 +261,7 @@ public class TransactionParticipant implements ITransactionParticipant
         }
 
         Transaction transaction = createTransaction(transactionId, TransactionStatus.NEW);
-        transaction.setTwoPhaseCommit(transactionCoordinatorKey != null);
+        transaction.setTwoPhaseTransaction(transactionCoordinatorKey != null);
 
         transaction.lockOrFail(() ->
         {
@@ -329,7 +334,7 @@ public class TransactionParticipant implements ITransactionParticipant
         {
             checkTransactionStatus(transaction, TransactionStatus.BEGIN_FINISHED);
 
-            if (!transaction.isTwoPhaseCommit())
+            if (!transaction.isTwoPhaseTransaction())
             {
                 throw new IllegalStateException("Transaction '" + transactionId
                         + "' was started without transaction coordinator key, therefore calling prepare is not allowed.");
@@ -351,14 +356,13 @@ public class TransactionParticipant implements ITransactionParticipant
     {
         checkTransactionCoordinatorKey(transactionCoordinatorKey);
 
-        Map<UUID, TransactionStatus> lastStatuses = transactionLog.getLastStatuses();
-
         List<UUID> preparedTransactions = new ArrayList<>();
-        for (Map.Entry<UUID, TransactionStatus> lastStatusEntry : lastStatuses.entrySet())
+
+        for (TransactionLogEntry logEntry : transactionLog.getTransactions().values())
         {
-            if (TransactionStatus.PREPARE_FINISHED.equals(lastStatusEntry.getValue()))
+            if (TransactionStatus.PREPARE_FINISHED.equals(logEntry.getTransactionStatus()))
             {
-                preparedTransactions.add(lastStatusEntry.getKey());
+                preparedTransactions.add(logEntry.getTransactionId());
             }
         }
 
@@ -622,7 +626,7 @@ public class TransactionParticipant implements ITransactionParticipant
 
         private Object databaseTransaction;
 
-        private boolean isTwoPhaseCommit;
+        private boolean isTwoPhaseTransaction;
 
         private Date lastAccessedDate = new Date();
 
@@ -648,7 +652,13 @@ public class TransactionParticipant implements ITransactionParticipant
 
         public void setTransactionStatus(final TransactionStatus transactionStatus)
         {
-            transactionLog.logStatus(transactionId, transactionStatus);
+            TransactionLogEntry entry = new TransactionLogEntry();
+            entry.setTransactionId(transactionId);
+            entry.setTransactionStatus(transactionStatus);
+            entry.setTwoPhaseTransaction(isTwoPhaseTransaction);
+            entry.setLastAccessedDate(lastAccessedDate);
+            transactionLog.logTransaction(entry);
+
             this.transactionStatus = transactionStatus;
         }
 
@@ -662,14 +672,14 @@ public class TransactionParticipant implements ITransactionParticipant
             this.databaseTransaction = databaseTransaction;
         }
 
-        public boolean isTwoPhaseCommit()
+        public boolean isTwoPhaseTransaction()
         {
-            return isTwoPhaseCommit;
+            return isTwoPhaseTransaction;
         }
 
-        public void setTwoPhaseCommit(final boolean twoPhaseCommit)
+        public void setTwoPhaseTransaction(final boolean twoPhaseTransaction)
         {
-            isTwoPhaseCommit = twoPhaseCommit;
+            isTwoPhaseTransaction = twoPhaseTransaction;
         }
 
         public Date getLastAccessedDate()
@@ -680,6 +690,10 @@ public class TransactionParticipant implements ITransactionParticipant
         public void setLastAccessedDate(final Date lastAccessedDate)
         {
             this.lastAccessedDate = lastAccessedDate;
+        }
+
+        public boolean hasTimedOut(){
+            return System.currentTimeMillis() - getLastAccessedDate().getTime() > transactionTimeoutInSeconds * 1000L;
         }
 
         public void close()
