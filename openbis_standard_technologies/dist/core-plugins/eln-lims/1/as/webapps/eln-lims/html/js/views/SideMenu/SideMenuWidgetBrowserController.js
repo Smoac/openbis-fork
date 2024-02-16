@@ -2757,7 +2757,7 @@ class SideMenuWidgetBrowserController extends window.NgComponents.default.Browse
     }
 
     _createExportToZipNode() {
-        if (profile.mainMenu.showExports) {
+        if (profile.mainMenu.showExports && profile.legacyExports.enable) {
             return {
                 text: "Export to ZIP",
                 object: {

@@ -74,12 +74,16 @@ import java.util.regex.Pattern;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.log4j.Logger;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.jsoup.Jsoup;
@@ -1786,8 +1790,11 @@ public class ExportExecutor implements IExportExecutor
     private static void zipDirectory(final String sourceDirectory, final File targetZipFile) throws IOException
     {
         final Path sourceDir = Paths.get(sourceDirectory);
-        try (final ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(targetZipFile)))
+        try (final ZipArchiveOutputStream zipOutputStream = new ZipArchiveOutputStream(new FileOutputStream(targetZipFile)))
         {
+            zipOutputStream.setEncoding(StandardCharsets.ISO_8859_1.toString());
+            zipOutputStream.setMethod(ZipArchiveOutputStream.DEFLATED);
+            zipOutputStream.setLevel(5);
             try (final Stream<Path> stream = Files.walk(sourceDir))
             {
                 stream.filter(path -> !path.equals(sourceDir) && !path.toFile().equals(targetZipFile))
@@ -1796,14 +1803,15 @@ public class ExportExecutor implements IExportExecutor
                             final boolean isDirectory = Files.isDirectory(path);
                             final String entryName = sourceDir.relativize(path).toString();
                             final ZipEntry zipEntry = new ZipEntry(entryName + (isDirectory ? "/" : ""));
+                            zipEntry.setMethod(ZipArchiveOutputStream.DEFLATED);
                             try
                             {
-                                zipOutputStream.putNextEntry(zipEntry);
+                                zipOutputStream.putArchiveEntry(new ZipArchiveEntry(zipEntry));
                                 if (!isDirectory)
                                 {
                                     Files.copy(path, zipOutputStream);
                                 }
-                                zipOutputStream.closeEntry();
+                                zipOutputStream.closeArchiveEntry();
                             } catch (final IOException e)
                             {
                                 throw new RuntimeException(e);

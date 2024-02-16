@@ -96,12 +96,14 @@ public class VocabularyTermImportHelper extends BasicImportHelper
         boolean isSystem = delayedExecutor.isSystem();
         boolean canUpdate = (isInternalNamespace == false) || isSystem;
 
-        if (canUpdate && (version == null || version.isEmpty())) {
-            return true;
-        } else {
-            return VersionUtils.isNewVersion(version,
-                    VersionUtils.getStoredVersion(versions, ImportTypes.VOCABULARY_TERM.getType() + "-" + vocabularyCode, code));
-        }
+        if (canUpdate == false) {
+            return false;
+        } if (canUpdate && (version == null || version.isEmpty())) {
+        return true;
+    } else {
+        return VersionUtils.isNewVersion(version,
+                VersionUtils.getStoredVersion(versions, ImportTypes.VOCABULARY_TERM.getType() + "-" + vocabularyCode, code));
+    }
     }
 
     @Override protected void updateVersion(Map<String, Integer> header, List<String> values)
