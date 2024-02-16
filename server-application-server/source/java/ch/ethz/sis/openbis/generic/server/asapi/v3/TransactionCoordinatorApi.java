@@ -151,9 +151,9 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi
             getApplicationServer().rollbackTransaction(transactionId, transactionCoordinatorKey);
         }
 
-        @Override public List<UUID> getTransactions(final String transactionCoordinatorKey)
+        @Override public List<UUID> recoverTransactions(final String transactionCoordinatorKey)
         {
-            return getApplicationServer().getTransactions(transactionCoordinatorKey);
+            return getApplicationServer().recoverTransactions(transactionCoordinatorKey);
         }
 
         private ITransactionParticipantApi getApplicationServer()
@@ -258,7 +258,7 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi
 
         }
 
-        @Override public List<UUID> getTransactions(final String transactionCoordinatorKey)
+        @Override public List<UUID> recoverTransactions(final String transactionCoordinatorKey)
         {
             return null;
         }

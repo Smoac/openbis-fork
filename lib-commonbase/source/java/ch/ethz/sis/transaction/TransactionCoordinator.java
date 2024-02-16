@@ -88,30 +88,23 @@ public class TransactionCoordinator implements ITransactionCoordinator
     {
         operationLog.info("Started recovering transactions");
 
-        Map<UUID, TransactionLogEntry> logEntries = transactionLog.getTransactions();
-
-        if (logEntries != null && !logEntries.isEmpty())
+        for (TransactionLogEntry logEntry : transactionLog.getTransactions().values())
         {
-            for (TransactionLogEntry logEntry : logEntries.values())
+            if (TransactionStatus.COMMIT_FINISHED.equals(logEntry.getTransactionStatus()) || TransactionStatus.ROLLBACK_FINISHED.equals(
+                    logEntry.getTransactionStatus()))
             {
-                if (TransactionStatus.COMMIT_FINISHED.equals(logEntry.getTransactionStatus()) || TransactionStatus.ROLLBACK_FINISHED.equals(logEntry.getTransactionStatus()))
-                {
-                    continue;
-                }
-
-                Transaction existingTransaction = getTransaction(logEntry.getTransactionId());
-
-                if (existingTransaction == null)
-                {
-                    recoverTransactionFromTransactionLog(logEntry);
-                } else
-                {
-                    recoverFailedOrAbandonedTransaction(existingTransaction);
-                }
+                continue;
             }
-        } else
-        {
-            operationLog.info("No transactions found in the transaction log");
+
+            Transaction existingTransaction = getTransaction(logEntry.getTransactionId());
+
+            if (existingTransaction == null)
+            {
+                recoverTransactionFromTransactionLog(logEntry);
+            } else
+            {
+                recoverFailedOrAbandonedTransaction(existingTransaction);
+            }
         }
 
         operationLog.info("Finished recovering transactions");
@@ -126,7 +119,8 @@ public class TransactionCoordinator implements ITransactionCoordinator
             transaction.lockOrSkip(() ->
             {
                 operationLog.info(
-                        "Recovering transaction '" + transaction.getTransactionId() + "' found in the transaction log with last status '" + transaction.getTransactionStatus() + "' .");
+                        "Recovering transaction '" + transaction.getTransactionId() + "' found in the transaction log with last status '"
+                                + transaction.getTransactionStatus() + "' .");
 
                 switch (transaction.getTransactionStatus())
                 {
@@ -142,13 +136,15 @@ public class TransactionCoordinator implements ITransactionCoordinator
                         break;
                     default:
                         throw new IllegalStateException(
-                                "Transaction '" + transaction.getTransactionId() + "' has an unsupported last status '" + transaction.getTransactionStatus() + "'");
+                                "Transaction '" + transaction.getTransactionId() + "' has an unsupported last status '"
+                                        + transaction.getTransactionStatus() + "'");
                 }
             });
         } catch (Exception e)
         {
             operationLog.warn(
-                    "Recovering transaction '" + logEntry.getTransactionId() + "' found in the transaction log with last status '" + logEntry.getTransactionStatus() + "' has failed.",
+                    "Recovering transaction '" + logEntry.getTransactionId() + "' found in the transaction log with last status '"
+                            + logEntry.getTransactionStatus() + "' has failed.",
                     e);
         }
     }
@@ -383,7 +379,7 @@ public class TransactionCoordinator implements ITransactionCoordinator
             {
                 if (recovery)
                 {
-                    List<UUID> transactions = participant.getTransactions(transactionCoordinatorKey);
+                    List<UUID> transactions = participant.recoverTransactions(transactionCoordinatorKey);
 
                     if (transactions != null && transactions.contains(transaction.getTransactionId()))
                     {

@@ -97,7 +97,7 @@ public class TransactionParticipantApi implements ITransactionParticipantApi
         transactionParticipant.rollbackTransaction(transactionId, transactionCoordinatorKey);
     }
 
-    @Override public List<UUID> getTransactions(final String transactionCoordinatorKey)
+    @Override public List<UUID> recoverTransactions(final String transactionCoordinatorKey)
     {
         return null;
     }

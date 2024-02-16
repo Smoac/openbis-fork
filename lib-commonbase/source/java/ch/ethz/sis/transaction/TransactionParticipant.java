@@ -114,31 +114,23 @@ public class TransactionParticipant implements ITransactionParticipant
     {
         operationLog.info("Started recovering transactions");
 
-        Map<UUID, TransactionLogEntry> logEntries = transactionLog.getTransactions();
-
-        if (logEntries != null && !logEntries.isEmpty())
+        for (TransactionLogEntry logEntry : transactionLog.getTransactions().values())
         {
-            for (TransactionLogEntry logEntry : logEntries.values())
+            if (TransactionStatus.COMMIT_FINISHED.equals(logEntry.getTransactionStatus()) || TransactionStatus.ROLLBACK_FINISHED.equals(
+                    logEntry.getTransactionStatus()))
             {
-                if (TransactionStatus.COMMIT_FINISHED.equals(logEntry.getTransactionStatus()) || TransactionStatus.ROLLBACK_FINISHED.equals(
-                        logEntry.getTransactionStatus()))
-                {
-                    continue;
-                }
-
-                Transaction existingTransaction = getTransaction(logEntry.getTransactionId());
-
-                if (existingTransaction == null)
-                {
-                    recoverTransactionFromTransactionLog(logEntry);
-                } else
-                {
-                    recoverFailedOrAbandonedTransaction(existingTransaction);
-                }
+                continue;
             }
-        } else
-        {
-            operationLog.info("No transactions found in the transaction log");
+
+            Transaction existingTransaction = getTransaction(logEntry.getTransactionId());
+
+            if (existingTransaction == null)
+            {
+                recoverTransactionFromTransactionLog(logEntry);
+            } else
+            {
+                recoverFailedOrAbandonedTransaction(existingTransaction);
+            }
         }
 
         operationLog.info("Finished recovering transactions");
@@ -352,9 +344,11 @@ public class TransactionParticipant implements ITransactionParticipant
         });
     }
 
-    @Override public List<UUID> getTransactions(final String transactionCoordinatorKey)
+    @Override public List<UUID> recoverTransactions(final String transactionCoordinatorKey)
     {
         checkTransactionCoordinatorKey(transactionCoordinatorKey);
+
+        operationLog.info("Started recovering transactions (triggered by the coordinator)");
 
         List<UUID> preparedTransactions = new ArrayList<>();
 
@@ -362,9 +356,18 @@ public class TransactionParticipant implements ITransactionParticipant
         {
             if (TransactionStatus.PREPARE_FINISHED.equals(logEntry.getTransactionStatus()))
             {
-                preparedTransactions.add(logEntry.getTransactionId());
+                Transaction transaction = getTransaction(logEntry.getTransactionId());
+
+                if (transaction == null)
+                {
+                    transaction = createTransaction(logEntry.getTransactionId(), logEntry.getTransactionStatus());
+                }
+
+                preparedTransactions.add(transaction.getTransactionId());
             }
         }
+
+        operationLog.info("Finished recovering transactions (triggered by the coordinator)");
 
         return preparedTransactions;
     }
@@ -692,7 +695,8 @@ public class TransactionParticipant implements ITransactionParticipant
             this.lastAccessedDate = lastAccessedDate;
         }
 
-        public boolean hasTimedOut(){
+        public boolean hasTimedOut()
+        {
             return System.currentTimeMillis() - getLastAccessedDate().getTime() > transactionTimeoutInSeconds * 1000L;
         }
 

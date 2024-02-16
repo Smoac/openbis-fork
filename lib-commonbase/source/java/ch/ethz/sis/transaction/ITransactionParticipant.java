@@ -58,6 +58,6 @@ public interface ITransactionParticipant
      * Used in:
      * - coordinator recovery flow
      */
-    List<UUID> getTransactions(String transactionCoordinatorKey);
+    List<UUID> recoverTransactions(String transactionCoordinatorKey);
 
 }
