@@ -23,7 +23,7 @@ In the general openBIS data model, *Objects* can:
   
 *Datasets* can be associated only to *Experiments/Collections* or to *Objects*.  
 
-Access to openBIS is controlled either at the *Space* level or *Project* level (see [openBIS roles ](../general-admin-users/admins-documentation/user-registration.md#openbis-roles)).
+Access to openBIS is controlled at the *Space* level, *Project* level or openBIS instance level (see [openBIS roles ](../general-admin-users/admins-documentation/user-registration.md#openbis-roles)).
 
   
 
@@ -81,7 +81,7 @@ and *children*.
 
   
 
-![image info](img/objects-parents-children.png)|![image info](img/dataset-parents-children.png)
+![image info](img/objects-parents-children.png)![image info](img/dataset-parents-children.png)
 
 
 
