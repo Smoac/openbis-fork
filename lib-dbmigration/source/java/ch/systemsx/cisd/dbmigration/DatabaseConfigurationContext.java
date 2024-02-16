@@ -584,6 +584,14 @@ public class DatabaseConfigurationContext implements DisposableBean
         this.forceCreateWithInitialData = forceCreateWithInitialData;
     }
 
+    public final void setForceCreateWithInitialDataProp(final String forceCreateWithInitialData)
+    {
+        if (isSet(forceCreateWithInitialData))
+        {
+            setForceCreateWithInitialData(Boolean.parseBoolean(forceCreateWithInitialData));
+        }
+    }
+
     /**
      * Sets the database should be dropped and (re)created from scratch or not.
      */

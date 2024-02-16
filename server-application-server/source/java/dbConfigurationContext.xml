@@ -23,6 +23,7 @@
         class="ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext">
         <property name="basicDatabaseName" value="openbis" />
         <property name="createFromScratchProp" value="${database.create-from-scratch}" />
+        <property name="setForceCreateWithInitialDataProp" value="${database.force-create-with-initial-data}" />
         <property name="scriptSingleStepModeProp" value="${database.script-single-step-mode}" />
         <property name="sequenceNameMapper">
             <bean class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.SequenceNameMapper" />

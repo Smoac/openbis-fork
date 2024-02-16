@@ -33,6 +33,7 @@ public class TestInitializer
     private static String dbKind = "test";
 
     private static boolean createDBFromScratch = true;
+    private static boolean forceCreateWithInitialData = false;
 
     private static String scriptFolderForTestDB = "../server-application-server/sourceTest";
 
@@ -69,6 +70,8 @@ public class TestInitializer
 
         System.setProperty("database.create-from-scratch",
                 String.valueOf(getCreateDBFromScratch()));
+        System.setProperty("database.force-create-with-initial-data",
+                String.valueOf(getForceCreateWithInitialData()));
         System.setProperty("database.kind", getDBKind());
         System.setProperty("script-folder", scriptFolder);
 
@@ -83,6 +86,16 @@ public class TestInitializer
     public static void setCreateDBFromScratch(boolean createDBFromScratch)
     {
         TestInitializer.createDBFromScratch = createDBFromScratch;
+    }
+
+    public static boolean getForceCreateWithInitialData()
+    {
+        return forceCreateWithInitialData;
+    }
+
+    public static void setForceCreateWithInitialData(boolean forceCreateWithInitialData)
+    {
+        TestInitializer.forceCreateWithInitialData = forceCreateWithInitialData;
     }
 
     public static String getDBKind()
