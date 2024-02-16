@@ -295,9 +295,11 @@ public final class DBMigrationEngine
     {
         adminDAO.createOwner();
         adminDAO.createGroups();
+        operationLog.info(String.format("Force create with initial data flag is set to %s.", forceCreateWithInitialData));
         if (scriptProvider.isDumpRestore(version) && !forceCreateWithInitialData)
         {
             operationLog.info(String.format("Restoring from dump the database of the version %s.", version));
+            operationLog.info(String.format("Dump folder = %s.", scriptProvider.getDumpFolder(version)));
             adminDAO.restoreDatabaseFromDump(scriptProvider.getDumpFolder(version), version);
             operationLog.info("Restoring from dump finished.");
         } else
