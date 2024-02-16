@@ -68,6 +68,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
  */
 public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
 {
+    static
+    {
+        TestInitializer.setForceCreateWithInitialData(true);
+    }
 
     private static final String ADMIN_USER = "admin";
 
