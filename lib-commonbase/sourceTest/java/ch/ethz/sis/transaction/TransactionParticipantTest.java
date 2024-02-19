@@ -342,7 +342,14 @@ public class TransactionParticipantTest
             Assert.fail();
         } catch (Throwable t)
         {
-            assertEquals(t.getCause(), throwable);
+            if (throwable instanceof RuntimeException)
+            {
+                assertEquals(t, throwable);
+            } else
+            {
+                assertEquals(t.getCause(), throwable);
+            }
+
             assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
 
             // rollback

@@ -1,6 +1,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.Arrays;
@@ -186,6 +187,9 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi
             try
             {
                 getDataStoreServer(transactionId, sessionToken, interactiveSessionKey, transactionCoordinatorKey).begin(transactionId);
+            } catch (RuntimeException e)
+            {
+                throw e;
             } catch (Exception e)
             {
                 throw new RuntimeException(e);
@@ -208,6 +212,17 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi
                 }
 
                 throw new UnsupportedOperationException(operationName);
+            } catch (InvocationTargetException e)
+            {
+                Throwable originalException = e.getTargetException();
+
+                if (originalException instanceof RuntimeException)
+                {
+                    throw (RuntimeException) originalException;
+                } else
+                {
+                    throw new RuntimeException(originalException);
+                }
             } catch (Exception e)
             {
                 throw new RuntimeException(e);
@@ -220,6 +235,9 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi
             try
             {
                 getDataStoreServer(transactionId, sessionToken, interactiveSessionKey, transactionCoordinatorKey).prepare();
+            } catch (RuntimeException e)
+            {
+                throw e;
             } catch (Exception e)
             {
                 throw new RuntimeException(e);
@@ -231,6 +249,9 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi
             try
             {
                 getDataStoreServer(transactionId, sessionToken, interactiveSessionKey, null).commit();
+            } catch (RuntimeException e)
+            {
+                throw e;
             } catch (Exception e)
             {
                 throw new RuntimeException(e);
@@ -247,6 +268,9 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi
             try
             {
                 getDataStoreServer(transactionId, sessionToken, interactiveSessionKey, null).rollback();
+            } catch (RuntimeException e)
+            {
+                throw e;
             } catch (Exception e)
             {
                 throw new RuntimeException(e);

@@ -1,6 +1,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -21,9 +22,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.ITransactionParticipantApi;
 import ch.ethz.sis.transaction.IDatabaseTransactionProvider;
 import ch.ethz.sis.transaction.ISessionTokenProvider;
 import ch.ethz.sis.transaction.ITransactionOperationExecutor;
-import ch.ethz.sis.transaction.ITransactionParticipant;
 import ch.ethz.sis.transaction.TransactionLog;
-import ch.ethz.sis.transaction.TransactionOperationException;
 import ch.ethz.sis.transaction.TransactionParticipant;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -36,20 +35,28 @@ public class TransactionParticipantApi implements ITransactionParticipantApi
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, TransactionParticipant.class);
 
-    private final ITransactionParticipant transactionParticipant;
+    private TransactionParticipant transactionParticipant;
 
     @Autowired
     public TransactionParticipantApi(final TransactionConfiguration transactionConfiguration, final PlatformTransactionManager transactionManager,
             final IDAOFactory daoFactory, final DatabaseConfigurationContext databaseContext, final IApplicationServerApi applicationServerApi)
     {
+        this(transactionConfiguration, transactionManager, daoFactory, databaseContext, applicationServerApi,
+                ITransactionCoordinatorApi.APPLICATION_SERVER_PARTICIPANT_ID, "application-server");
+    }
+
+    public TransactionParticipantApi(final TransactionConfiguration transactionConfiguration, final PlatformTransactionManager transactionManager,
+            final IDAOFactory daoFactory, final DatabaseConfigurationContext databaseContext, final IApplicationServerApi applicationServerApi,
+            final String participantId, final String logFolderName)
+    {
         this.transactionParticipant = new TransactionParticipant(
-                ITransactionCoordinatorApi.APPLICATION_SERVER_PARTICIPANT_ID,
+                participantId,
                 transactionConfiguration.getCoordinatorKey(),
                 transactionConfiguration.getInteractiveSessionKey(),
                 new ApplicationServerSessionTokenProvider(applicationServerApi),
                 new ApplicationServerDatabaseTransactionProvider(transactionManager, daoFactory, databaseContext),
                 new ApplicationServerTransactionOperationExecutor(applicationServerApi),
-                new TransactionLog(new File(transactionConfiguration.getTransactionLogFolderPath()), "application-server"),
+                new TransactionLog(new File(transactionConfiguration.getTransactionLogFolderPath()), logFolderName),
                 transactionConfiguration.getTransactionTimeoutInSeconds(),
                 transactionConfiguration.getTransactionCountLimit()
         );
@@ -60,7 +67,8 @@ public class TransactionParticipantApi implements ITransactionParticipantApi
         return transactionParticipant.getParticipantId();
     }
 
-    @Override public void beginTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey, final String transactionCoordinatorKey)
+    @Override public void beginTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
+            final String transactionCoordinatorKey)
     {
         transactionParticipant.beginTransaction(transactionId, sessionToken, interactiveSessionKey, transactionCoordinatorKey);
     }
@@ -233,9 +241,20 @@ public class TransactionParticipantApi implements ITransactionParticipantApi
                     try
                     {
                         return (T) method.invoke(applicationServerApi, operationArguments);
+                    } catch (InvocationTargetException e)
+                    {
+                        Throwable originalException = e.getTargetException();
+
+                        if (originalException instanceof RuntimeException)
+                        {
+                            throw (RuntimeException) originalException;
+                        } else
+                        {
+                            throw new RuntimeException(originalException);
+                        }
                     } catch (Exception e)
                     {
-                        throw new TransactionOperationException(e);
+                        throw new RuntimeException(e);
                     }
                 }
             }
@@ -244,4 +263,13 @@ public class TransactionParticipantApi implements ITransactionParticipantApi
         }
     }
 
+    public TransactionParticipant getTransactionParticipant()
+    {
+        return transactionParticipant;
+    }
+
+    public void setTransactionParticipant(final TransactionParticipant transactionParticipant)
+    {
+        this.transactionParticipant = transactionParticipant;
+    }
 }

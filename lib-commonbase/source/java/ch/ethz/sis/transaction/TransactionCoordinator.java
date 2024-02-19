@@ -597,43 +597,31 @@ public class TransactionCoordinator implements ITransactionCoordinator
         }
     }
 
-    private class Transaction
+    public Map<UUID, Transaction> getTransactionMap()
     {
+        return transactionMap;
+    }
 
-        private final UUID transactionId;
-
-        private TransactionStatus transactionStatus;
-
-        private Date lastAccessedDate = new Date();
+    private class Transaction extends ch.ethz.sis.transaction.Transaction
+    {
 
         private final ReentrantLock lock = new ReentrantLock();
 
         public Transaction(UUID transactionId, TransactionStatus initialTransactionStatus)
         {
-            this.transactionId = transactionId;
-            this.transactionStatus = initialTransactionStatus;
-        }
-
-        public UUID getTransactionId()
-        {
-            return transactionId;
-        }
-
-        public TransactionStatus getTransactionStatus()
-        {
-            return transactionStatus;
+            super(transactionId, initialTransactionStatus);
         }
 
         public void setTransactionStatus(final TransactionStatus transactionStatus)
         {
             TransactionLogEntry entry = new TransactionLogEntry();
-            entry.setTransactionId(transactionId);
+            entry.setTransactionId(getTransactionId());
             entry.setTransactionStatus(transactionStatus);
             entry.setTwoPhaseTransaction(true);
-            entry.setLastAccessedDate(lastAccessedDate);
+            entry.setLastAccessedDate(getLastAccessedDate());
             transactionLog.logTransaction(entry);
 
-            this.transactionStatus = transactionStatus;
+            super.setTransactionStatus(transactionStatus);
         }
 
         public <T> T lockOrFail(Callable<T> action)
@@ -657,7 +645,7 @@ public class TransactionCoordinator implements ITransactionCoordinator
             } else
             {
                 throw new RuntimeException(
-                        "Cannot execute a new action on transaction '" + transactionId + "' as it is still busy executing a previous action.");
+                        "Cannot execute a new action on transaction '" + getTransactionId() + "' as it is still busy executing a previous action.");
             }
         }
 
@@ -676,18 +664,8 @@ public class TransactionCoordinator implements ITransactionCoordinator
             } else
             {
                 operationLog.info(
-                        "Cannot execute a new action on transaction '" + transactionId + "' as it is still busy executing a previous action.");
+                        "Cannot execute a new action on transaction '" + getTransactionId() + "' as it is still busy executing a previous action.");
             }
-        }
-
-        public Date getLastAccessedDate()
-        {
-            return lastAccessedDate;
-        }
-
-        public void setLastAccessedDate(final Date lastAccessedDate)
-        {
-            this.lastAccessedDate = lastAccessedDate;
         }
 
         public boolean hasTimedOut()

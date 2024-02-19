@@ -34,7 +34,7 @@ public class TransactionParticipant implements ITransactionParticipant
 
     private final ISessionTokenProvider sessionTokenProvider;
 
-    private final IDatabaseTransactionProvider databaseTransactionProvider;
+    private IDatabaseTransactionProvider databaseTransactionProvider;
 
     private final ITransactionOperationExecutor operationExecutor;
 
@@ -261,15 +261,8 @@ public class TransactionParticipant implements ITransactionParticipant
 
             operationLog.info("Begin transaction '" + transactionId + "' started.");
 
-            try
-            {
-                Object databaseTransaction = databaseTransactionProvider.beginTransaction(transactionId);
-                transaction.setDatabaseTransaction(databaseTransaction);
-            } catch (Exception e)
-            {
-                operationLog.error("Begin transaction '" + transactionId + "' failed", e);
-                throw new RuntimeException(e);
-            }
+            Object databaseTransaction = databaseTransactionProvider.beginTransaction(transactionId);
+            transaction.setDatabaseTransaction(databaseTransaction);
 
             transaction.setTransactionStatus(TransactionStatus.BEGIN_FINISHED);
 
@@ -620,18 +613,17 @@ public class TransactionParticipant implements ITransactionParticipant
         transactionMap.remove(transaction.getTransactionId());
     }
 
-    private class Transaction
+    public Map<UUID, Transaction> getTransactionMap()
     {
+        return transactionMap;
+    }
 
-        private final UUID transactionId;
-
-        private TransactionStatus transactionStatus;
+    private class Transaction extends ch.ethz.sis.transaction.Transaction
+    {
 
         private Object databaseTransaction;
 
         private boolean isTwoPhaseTransaction;
-
-        private Date lastAccessedDate = new Date();
 
         private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -639,30 +631,19 @@ public class TransactionParticipant implements ITransactionParticipant
 
         public Transaction(UUID transactionId, TransactionStatus initialTransactionStatus)
         {
-            this.transactionId = transactionId;
-            this.transactionStatus = initialTransactionStatus;
-        }
-
-        public UUID getTransactionId()
-        {
-            return transactionId;
-        }
-
-        public TransactionStatus getTransactionStatus()
-        {
-            return transactionStatus;
+            super(transactionId, initialTransactionStatus);
         }
 
         public void setTransactionStatus(final TransactionStatus transactionStatus)
         {
             TransactionLogEntry entry = new TransactionLogEntry();
-            entry.setTransactionId(transactionId);
+            entry.setTransactionId(getTransactionId());
             entry.setTransactionStatus(transactionStatus);
             entry.setTwoPhaseTransaction(isTwoPhaseTransaction);
-            entry.setLastAccessedDate(lastAccessedDate);
+            entry.setLastAccessedDate(getLastAccessedDate());
             transactionLog.logTransaction(entry);
 
-            this.transactionStatus = transactionStatus;
+            super.setTransactionStatus(transactionStatus);
         }
 
         public Object getDatabaseTransaction()
@@ -683,16 +664,6 @@ public class TransactionParticipant implements ITransactionParticipant
         public void setTwoPhaseTransaction(final boolean twoPhaseTransaction)
         {
             isTwoPhaseTransaction = twoPhaseTransaction;
-        }
-
-        public Date getLastAccessedDate()
-        {
-            return lastAccessedDate;
-        }
-
-        public void setLastAccessedDate(final Date lastAccessedDate)
-        {
-            this.lastAccessedDate = lastAccessedDate;
         }
 
         public boolean hasTimedOut()
@@ -734,7 +705,7 @@ public class TransactionParticipant implements ITransactionParticipant
             } else
             {
                 throw new RuntimeException(
-                        "Cannot execute a new action on transaction '" + transactionId + "' as it is still busy executing a previous action.");
+                        "Cannot execute a new action on transaction '" + getTransactionId() + "' as it is still busy executing a previous action.");
             }
         }
 
@@ -767,9 +738,19 @@ public class TransactionParticipant implements ITransactionParticipant
             } else
             {
                 operationLog.info(
-                        "Cannot execute a new action on transaction '" + transactionId + "' as it is still busy executing a previous action.");
+                        "Cannot execute a new action on transaction '" + getTransactionId() + "' as it is still busy executing a previous action.");
             }
         }
-
     }
+
+    public IDatabaseTransactionProvider getDatabaseTransactionProvider()
+    {
+        return databaseTransactionProvider;
+    }
+
+    public void setDatabaseTransactionProvider(final IDatabaseTransactionProvider databaseTransactionProvider)
+    {
+        this.databaseTransactionProvider = databaseTransactionProvider;
+    }
+
 }
