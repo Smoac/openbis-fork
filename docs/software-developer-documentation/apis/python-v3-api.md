@@ -109,6 +109,30 @@ o.logout()
 print(f"Session is active: {o.is_session_active()"}
 ```
 
+### Authentication without user/password
+In some configurations Openbis can be accessible via Single Sign On technology (SSO), in that case users may not have their own user/password.
+
+Upon login, Openbis generates a unique access token that can be used to allow pybis log into the active user session. You may find this token in cookies of the ELN UI.
+
+To log in with a session token, you need to use `set_token` method:
+
+```python
+from pybis import Openbis
+o = Openbis('https://test-openbis-instance.com')
+
+o.set_token("some_user-220808165456793xA3D0357C5DE66A5BAD647E502355FE2C")
+# logged into 'some_user' session!
+
+```
+
+```{note}
+Keep you access tokens safe and don't share it with others! They are invalidated when one of the following situations happen:
+- Explicit logout() call.
+- Number of sessions per user has reached beyond configured limit.
+- Session timeout is reached.
+- Openbis instance is restarted.
+```
+
 ### Personal access token (PAT)
 
 As an (new) alternative to login every time you run a script, you can create tokens which
