@@ -10,6 +10,7 @@ apply from: '../build/javaproject.gradle'
 
 configurations.create('testRuntimeFirst')
 configurations.create('devRuntime')
+configurations.create('asExecRuntime')
 
 dependencies {
     api project(':lib-common'),
@@ -50,6 +51,8 @@ dependencies {
 
     devRuntime 'eclipse:jetty-runner:9.4.44.v20210927'
 
+    asExecRuntime files("../core-plugin-openbis/dist/core-plugins/imaging/1/as/api-listener/imaging-dataset-interceptor/lib/imaging-dataset-interceptor.jar")
+
     testImplementation project(path: ':lib-commonbase', configuration: 'tests'),
             project(path: ':lib-common', configuration: 'tests'),
             project(path: ':lib-dbmigration', configuration: 'tests'),
@@ -82,6 +85,18 @@ sourceSets {
         resources {
             srcDirs = ['sourceTest/java']
         }
+    }
+
+    asExec {
+        java {
+            srcDirs = ['source/java']
+        }
+        resources {
+            srcDirs = ['source/java']
+        }
+
+        compileClasspath += sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.runtimeClasspath + configurations.asExecRuntime + configurations.devRuntime
     }
 }
 
@@ -134,7 +149,7 @@ task copyTestData(type: Copy, dependsOn: testClasses) {
 
 task openBISDevelopmentEnvironmentASStart(type: JavaExec) {
     main = 'org.eclipse.jetty.runner.Runner'
-    classpath = sourceSets.main.runtimeClasspath + configurations.devRuntime
+    classpath = sourceSets.asExec.runtimeClasspath
     jvmArgs(['-Dpython.path=../libraries/jython/jython-lib', '-Dlog4j.configuration=etc/log.xml',
              '-Djavax.net.ssl.trustStore=dist/server/openBIS.keystore',
              '-Dorg.mortbay.util.FileResource.checkAliases=false',

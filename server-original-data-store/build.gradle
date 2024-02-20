@@ -43,7 +43,8 @@ dependencies {
     runtimeOnly 'bioformats:bioformats:6.5.1'
 
     // eln-lims Jython APIs dependencies
-    datastoreExecRuntime files("../ui-eln-lims/src/core-plugins/eln-lims/1/dss/reporting-plugins/eln-lims-api/lib/zip4j_1.3.2.jar"),
+    datastoreExecRuntime files("../../../openbis-hvl.ethz.ch/deployed/core-plugins/hvl-dropbox/1/dss/dropboxes/hvl-dropbox/lib/jmatio-1.5.jar"),
+            /* eln-lims */ files("../ui-eln-lims/src/core-plugins/eln-lims/1/dss/reporting-plugins/eln-lims-api/lib/zip4j_1.3.2.jar"),
             files("../ui-eln-lims/src/core-plugins/eln-lims/1/dss/reporting-plugins/eln-lims-api/lib/plasmapper.jar"),
             files("../ui-eln-lims/src/core-plugins/eln-lims/1/dss/reporting-plugins/eln-lims-api/lib/htmlcleaner-2.23.jar"),
             files("../ui-eln-lims/src/core-plugins/eln-lims/1/dss/reporting-plugins/exports-api/lib/docx4j-3.3.3.jar"),
@@ -55,8 +56,9 @@ dependencies {
             files("../ui-eln-lims/src/core-plugins/eln-lims/1/dss/reporting-plugins/exports-api/lib/xalan-2.7.2.jar"),
             files("../ui-eln-lims/src/core-plugins/eln-lims/1/dss/reporting-plugins/zenodo-exports-api/lib/job-scheduler.jar"),
             files("../ui-eln-lims/src/core-plugins/eln-lims/1/dss/reporting-plugins/password-reset-api/lib/persistentkeyvaluestore.jar"),
-            files("../../../openbis-hvl.ethz.ch/deployed/core-plugins/hvl-dropbox/1/dss/dropboxes/hvl-dropbox/lib/jmatio-1.5.jar")
-//            files("../core-plugin-openbis/dist/core-plugins/imaging/1/dss/services/imaging/lib/openBIS-premise-imaging.jar")
+            /* Imaging */
+            files("../core-plugin-openbis/dist/core-plugins/imaging/1/dss/services/imaging/lib/openBIS-imaging-technology.jar"),
+            files("../core-plugin-openbis/dist/core-plugins/imaging-nanonis/1/dss/services/imaging-nanonis/lib/premise-adapters.jar")
 
     testImplementation project(path: ':lib-commonbase', configuration: 'tests'),
             project(path: ':lib-common', configuration: 'tests'),
