@@ -1658,7 +1658,15 @@ In[2]: type(experiments)
 
 Out[3]: pybis.things.Things
 ```
-Things class offers following functionalities:
+`Things` class offers three main ways to access the received data:
+- Json response
+- Objects
+- DataFrame
+
+Accessing the Json response (`things.response['objects']`) directly bypasses the need to build additional Python objects; its main use case is for integrations where there are numerous results returned.
+
+On the other hand, Objects (`things.objects`) and DataFrame (`things.df`) will build the needed Python objects the first time they are used; they offer a more pretty output, and their main use case is to be used in
+Interactive applications like Jupyter Notebooks.
 
 ### JSON response
 All `Things` objects contain parsed JSON response from the OpenBIS, it may help with advanced searches and validation schemes.
