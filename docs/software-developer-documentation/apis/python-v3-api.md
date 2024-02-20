@@ -1748,39 +1748,6 @@ unique                           False
 
 ```
 
-
-### Iteration
-Things object is iterable so it can be used in for-loops:
-
-```python
-for sample in o.get_samples():
-    print(sample.code)
-```
-
-Documentation regarding the Things object and the lazy loading of "df" and "objects"
-and how to access "json" directly from Things without triggering the lazy loading is 
-undocumented and needs to be added
-
-
-### Creation of Things object
-Constructor of `Things` objects looks like this 
-```python
-
-Things(
-        openbis_obj=self.openbis_instance, # openbis instance
-        entity="entity name", # (optional) name of the entity stored in this object, e.g. "dataset", "sampleType"
-        identifier_name="permId", # name of identifier, depends on the entity
-        single_item_method=self.openbis_instance.get_property_type, # (optional) reference to a function to be triggered when single object needs to be accessed, internal call would be self.single_item_method(self.identifier_name)
-        response=response_json_object, # Openbis json response
-        df_initializer=create_data_frame, # reference to a function to be used to change json to DataFrame, internal call: self.df_initializer(self.attrs, self.props, self.response)
-        objects_initializer=create_objects, # reference to a function to be used to change json to objects, internal call: self.objects_initializer(self.response)
-        attrs=attrs, # (optional) attrivutes required for df_initializer 
-        props=props, # (optional) properties required for df_initializer
-        )
-
-```
-
-
 ## Best practices
 
 ### Logout
