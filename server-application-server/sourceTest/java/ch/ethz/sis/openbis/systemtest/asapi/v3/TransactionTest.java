@@ -4,6 +4,10 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;
 
 import java.io.File;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -17,6 +21,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -31,24 +36,44 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.search.ProjectSearchCrit
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.TransactionConfiguration;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.TransactionParticipantApi;
 import ch.ethz.sis.transaction.IDatabaseTransactionProvider;
 import ch.ethz.sis.transaction.ISessionTokenProvider;
+import ch.ethz.sis.transaction.ITransactionLog;
 import ch.ethz.sis.transaction.ITransactionParticipant;
 import ch.ethz.sis.transaction.Transaction;
 import ch.ethz.sis.transaction.TransactionCoordinator;
 import ch.ethz.sis.transaction.TransactionLog;
+import ch.ethz.sis.transaction.TransactionLogEntry;
 import ch.ethz.sis.transaction.TransactionParticipant;
 import ch.ethz.sis.transaction.TransactionStatus;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 
 public class TransactionTest extends AbstractTest
 {
+
+    private static final String TEST_COORDINATOR_KEY = "test-transaction-coordinator-key";
+
+    private static final String TEST_INTERACTIVE_SESSION_KEY = "test-interactive-session-key";
+
+    private static final String TEST_PARTICIPANT_1_ID = "test-participant-1";
+
+    private static final String TEST_PARTICIPANT_2_ID = "test-participant-2";
+
+    private static final String TRANSACTION_LOG_ROOT_FOLDER = "targets/transaction-logs";
+
+    private static final String TRANSACTION_LOG_COORDINATOR_FOLDER = "test-coordinator";
+
+    private static final String TRANSACTION_LOG_PARTICIPANT_1_FOLDER = "test-participant-1";
+
+    private static final String TRANSACTION_LOG_PARTICIPANT_2_FOLDER = "test-participant-2";
 
     private static final String OPERATION_CREATE_SPACES = "createSpaces";
 
@@ -57,21 +82,6 @@ public class TransactionTest extends AbstractTest
     private static final String OPERATION_SEARCH_SPACES = "searchSpaces";
 
     private static final String OPERATION_SEARCH_PROJECTS = "searchProjects";
-
-    private static final String TEST_PARTICIPANT_1_ID = "test-participant-1";
-
-    private static final String TEST_PARTICIPANT_2_ID = "test-participant-2";
-
-    private static final String TEST_COORDINATOR_LOG_FOLDER_NAME = "test-coordinator";
-
-    private static final String TEST_PARTICIPANT_1_LOG_FOLDER_NAME = "test-participant-1";
-
-    private static final String TEST_PARTICIPANT_2_LOG_FOLDER_NAME = "test-participant-2";
-
-    /* These keys need to match keys defined in service.properties */
-    private static final String TEST_COORDINATOR_KEY = "test-transaction-coordinator-key";
-
-    private static final String TEST_INTERACTIVE_SESSION_KEY = "test-interactive-session-key";
 
     @Autowired
     private TransactionConfiguration transactionConfiguration;
@@ -95,16 +105,21 @@ public class TransactionTest extends AbstractTest
     private TestTransactionParticipant participant2;
 
     @BeforeMethod
-    private void init()
+    private void beforeMethod()
     {
+        FileUtilities.deleteRecursively(new File(TRANSACTION_LOG_ROOT_FOLDER, TRANSACTION_LOG_COORDINATOR_FOLDER));
+        FileUtilities.deleteRecursively(new File(TRANSACTION_LOG_ROOT_FOLDER, TRANSACTION_LOG_PARTICIPANT_1_FOLDER));
+        FileUtilities.deleteRecursively(new File(TRANSACTION_LOG_ROOT_FOLDER, TRANSACTION_LOG_PARTICIPANT_2_FOLDER));
+
         participant1 =
                 new TestTransactionParticipant(
                         new TransactionParticipantApi(transactionConfiguration, transactionManager, daoFactory, databaseContext, applicationServerApi,
-                                TEST_PARTICIPANT_1_ID, TEST_PARTICIPANT_1_LOG_FOLDER_NAME));
+                                TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER));
+
         participant2 =
                 new TestTransactionParticipant(
                         new TransactionParticipantApi(transactionConfiguration, transactionManager, daoFactory, databaseContext, applicationServerApi,
-                                TEST_PARTICIPANT_2_ID, TEST_PARTICIPANT_2_LOG_FOLDER_NAME));
+                                TEST_PARTICIPANT_2_ID, TRANSACTION_LOG_PARTICIPANT_2_FOLDER));
 
         coordinator = new TransactionCoordinator(TEST_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, new ISessionTokenProvider()
         {
@@ -112,8 +127,29 @@ public class TransactionTest extends AbstractTest
             {
                 return v3api.isSessionActive(sessionToken);
             }
-        }, Arrays.asList(participant1, participant2), new TransactionLog(new File("targets/transaction-logs"), TEST_COORDINATOR_LOG_FOLDER_NAME), 60,
+        }, Arrays.asList(participant1, participant2), new TransactionLog(new File(TRANSACTION_LOG_ROOT_FOLDER), TRANSACTION_LOG_COORDINATOR_FOLDER),
+                60,
                 10);
+    }
+
+    @AfterMethod
+    private void afterMethod() throws Exception
+    {
+        try (Connection connection = databaseContext.getDataSource().getConnection(); Statement statement = connection.createStatement())
+        {
+            List<String> preparedTransactionIds = new ArrayList<>();
+
+            ResultSet preparedTransactions = statement.executeQuery("SELECT gid FROM pg_prepared_xacts");
+            while (preparedTransactions.next())
+            {
+                preparedTransactionIds.add(preparedTransactions.getString(1));
+            }
+
+            for (String preparedTransactionId : preparedTransactionIds)
+            {
+                statement.execute("ROLLBACK PREPARED '" + preparedTransactionId + "'");
+            }
+        }
     }
 
     @Test
@@ -176,6 +212,10 @@ public class TransactionTest extends AbstractTest
         assertTransactions(coordinator.getTransactionMap(), new Transaction(trId, TransactionStatus.BEGIN_FINISHED));
         assertTransactions(participant1.getTransactionMap(), new Transaction(trId, TransactionStatus.BEGIN_FINISHED));
         assertTransactions(participant2.getTransactionMap(), new Transaction(trId, TransactionStatus.BEGIN_FINISHED));
+
+        Map<ISpaceId, Space> createdSpaces = applicationServerApi.getSpaces(sessionToken,
+                Collections.singletonList(new SpacePermId(spaceCreation1.getCode())), new SpaceFetchOptions());
+        assertEquals(createdSpaces.size(), 0);
     }
 
     @Test
@@ -218,6 +258,58 @@ public class TransactionTest extends AbstractTest
         assertTransactions(coordinator.getTransactionMap());
         assertTransactions(participant1.getTransactionMap());
         assertTransactions(participant2.getTransactionMap());
+
+        Map<ISpaceId, Space> createdSpaces = applicationServerApi.getSpaces(sessionToken,
+                Arrays.asList(new SpacePermId(spaceCreation1.getCode()), new SpacePermId(spaceCreation2.getCode())), new SpaceFetchOptions());
+        assertEquals(createdSpaces.size(), 0);
+    }
+
+    @Test
+    public void testCommitTransactionFailsAndRecovers()
+    {
+        // "commit" should fail
+        participant2.getDatabaseTransactionProvider().setCommitException(new RuntimeException("Test commit exception"));
+
+        assertTransactions(coordinator.getTransactionMap());
+        assertTransactions(participant1.getTransactionMap());
+        assertTransactions(participant2.getTransactionMap());
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        UUID trId = UUID.randomUUID();
+
+        coordinator.beginTransaction(trId, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
+
+        SpaceCreation spaceCreation1 = new SpaceCreation();
+        spaceCreation1.setCode(UUID.randomUUID().toString());
+
+        coordinator.executeOperation(trId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(), OPERATION_CREATE_SPACES,
+                new Object[] { sessionToken, Collections.singletonList(spaceCreation1) });
+
+        SpaceCreation spaceCreation2 = new SpaceCreation();
+        spaceCreation2.setCode(UUID.randomUUID().toString());
+
+        coordinator.executeOperation(trId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant2.getParticipantId(), OPERATION_CREATE_SPACES,
+                new Object[] { sessionToken, Collections.singletonList(spaceCreation2) });
+
+        coordinator.commitTransaction(trId, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
+
+        assertTransactions(coordinator.getTransactionMap(), new Transaction(trId, TransactionStatus.COMMIT_STARTED));
+        assertTransactions(participant1.getTransactionMap());
+        assertTransactions(participant2.getTransactionMap(), new Transaction(trId, TransactionStatus.COMMIT_STARTED));
+
+        // "commit" should succeed
+        participant2.getDatabaseTransactionProvider().setCommitException(null);
+
+        coordinator.recoverTransactions();
+
+        assertTransactions(coordinator.getTransactionMap());
+        assertTransactions(participant1.getTransactionMap());
+        assertTransactions(participant2.getTransactionMap());
+
+        Map<ISpaceId, Space> createdSpaces = applicationServerApi.getSpaces(sessionToken,
+                Arrays.asList(new SpacePermId(spaceCreation1.getCode()), new SpacePermId(spaceCreation2.getCode())), new SpaceFetchOptions());
+        assertEquals(createdSpaces.size(), 2);
     }
 
     @Test
@@ -492,17 +584,28 @@ public class TransactionTest extends AbstractTest
 
         private final TestDatabaseTransactionProvider databaseTransactionProvider;
 
+        private final TestTransactionLog transactionLog;
+
         public TestTransactionParticipant(TransactionParticipantApi participantApi)
         {
             // replace the original database transaction provider with a test counterpart that allows to throw test exceptions
 
             this.participant = participantApi.getTransactionParticipant();
-            this.databaseTransactionProvider = new TestDatabaseTransactionProvider(participantApi.getTransactionParticipant().getDatabaseTransactionProvider());
+            this.databaseTransactionProvider =
+                    new TestDatabaseTransactionProvider(participantApi.getTransactionParticipant().getDatabaseTransactionProvider());
+            this.transactionLog = new TestTransactionLog(participantApi.getTransactionParticipant().getTransactionLog());
             this.participant.setDatabaseTransactionProvider(databaseTransactionProvider);
+            this.participant.setTransactionLog(transactionLog);
         }
 
-        public TestDatabaseTransactionProvider getDatabaseTransactionProvider(){
+        public TestDatabaseTransactionProvider getDatabaseTransactionProvider()
+        {
             return this.databaseTransactionProvider;
+        }
+
+        public TestTransactionLog getTransactionLog()
+        {
+            return transactionLog;
         }
 
         private UUID mapTransactionId(UUID originalTransactionId)
@@ -583,26 +686,38 @@ public class TransactionTest extends AbstractTest
 
         @Override public List<UUID> recoverTransactions(final String transactionCoordinatorKey)
         {
-            return participant.recoverTransactions(transactionCoordinatorKey);
+            List<UUID> transactionIds = new ArrayList<>();
+
+            for (UUID internalTransactionId : participant.recoverTransactions(transactionCoordinatorKey))
+            {
+                transactionIds.add(internalToOriginalId.get(internalTransactionId));
+            }
+
+            return transactionIds;
         }
 
     }
 
-    private static class TestDatabaseTransactionProvider implements IDatabaseTransactionProvider {
+    private static class TestDatabaseTransactionProvider implements IDatabaseTransactionProvider
+    {
 
-        private IDatabaseTransactionProvider databaseTransactionProvider;
+        private final IDatabaseTransactionProvider databaseTransactionProvider;
 
         private RuntimeException beginException;
 
         private RuntimeException prepareException;
 
-        public TestDatabaseTransactionProvider(IDatabaseTransactionProvider databaseTransactionProvider){
+        private RuntimeException commitException;
+
+        public TestDatabaseTransactionProvider(IDatabaseTransactionProvider databaseTransactionProvider)
+        {
             this.databaseTransactionProvider = databaseTransactionProvider;
         }
 
         @Override public Object beginTransaction(final UUID transactionId) throws Exception
         {
-            if(beginException != null){
+            if (beginException != null)
+            {
                 throw beginException;
             }
             return databaseTransactionProvider.beginTransaction(transactionId);
@@ -610,7 +725,8 @@ public class TransactionTest extends AbstractTest
 
         @Override public void prepareTransaction(final UUID transactionId, final Object transaction) throws Exception
         {
-            if(prepareException != null){
+            if (prepareException != null)
+            {
                 throw prepareException;
             }
             databaseTransactionProvider.prepareTransaction(transactionId, transaction);
@@ -623,6 +739,10 @@ public class TransactionTest extends AbstractTest
 
         @Override public void commitTransaction(final UUID transactionId, final Object transaction) throws Exception
         {
+            if (commitException != null)
+            {
+                throw commitException;
+            }
             databaseTransactionProvider.commitTransaction(transactionId, transaction);
         }
 
@@ -644,6 +764,37 @@ public class TransactionTest extends AbstractTest
         public RuntimeException getPrepareException()
         {
             return prepareException;
+        }
+
+        public void setCommitException(final RuntimeException commitException)
+        {
+            this.commitException = commitException;
+        }
+
+        public RuntimeException getCommitException()
+        {
+            return commitException;
+        }
+    }
+
+    private static class TestTransactionLog implements ITransactionLog
+    {
+
+        private final ITransactionLog transactionLog;
+
+        TestTransactionLog(ITransactionLog transactionLog)
+        {
+            this.transactionLog = transactionLog;
+        }
+
+        @Override public void logTransaction(final TransactionLogEntry transaction)
+        {
+            transactionLog.logTransaction(transaction);
+        }
+
+        @Override public Map<UUID, TransactionLogEntry> getTransactions()
+        {
+            return transactionLog.getTransactions();
         }
     }
 

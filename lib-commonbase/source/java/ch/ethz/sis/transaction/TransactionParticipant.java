@@ -34,11 +34,11 @@ public class TransactionParticipant implements ITransactionParticipant
 
     private final ISessionTokenProvider sessionTokenProvider;
 
-    private IDatabaseTransactionProvider databaseTransactionProvider;
-
     private final ITransactionOperationExecutor operationExecutor;
 
-    private final ITransactionLog transactionLog;
+    private IDatabaseTransactionProvider databaseTransactionProvider;
+
+    private ITransactionLog transactionLog;
 
     private final int transactionTimeoutInSeconds;
 
@@ -347,7 +347,8 @@ public class TransactionParticipant implements ITransactionParticipant
 
         for (TransactionLogEntry logEntry : transactionLog.getTransactions().values())
         {
-            if (TransactionStatus.PREPARE_FINISHED.equals(logEntry.getTransactionStatus()))
+            if (logEntry.isTwoPhaseTransaction() && (TransactionStatus.PREPARE_FINISHED.equals(logEntry.getTransactionStatus())
+                    || TransactionStatus.COMMIT_STARTED.equals(logEntry.getTransactionStatus())))
             {
                 Transaction transaction = getTransaction(logEntry.getTransactionId());
 
@@ -356,7 +357,7 @@ public class TransactionParticipant implements ITransactionParticipant
                     transaction = createTransaction(logEntry.getTransactionId(), logEntry.getTransactionStatus());
                 }
 
-                preparedTransactions.add(transaction.getTransactionId());
+                transaction.lockOrSkip(() -> preparedTransactions.add(logEntry.getTransactionId()));
             }
         }
 
@@ -400,7 +401,7 @@ public class TransactionParticipant implements ITransactionParticipant
     {
         transaction.lockOrFail(() ->
         {
-            checkTransactionStatus(transaction, TransactionStatus.NEW, TransactionStatus.BEGIN_FINISHED, TransactionStatus.PREPARE_FINISHED);
+            checkTransactionStatus(transaction, TransactionStatus.NEW, TransactionStatus.BEGIN_FINISHED, TransactionStatus.PREPARE_FINISHED, TransactionStatus.COMMIT_STARTED);
 
             operationLog.info("Commit transaction '" + transaction.getTransactionId() + "' started.");
 
@@ -753,4 +754,13 @@ public class TransactionParticipant implements ITransactionParticipant
         this.databaseTransactionProvider = databaseTransactionProvider;
     }
 
+    public ITransactionLog getTransactionLog()
+    {
+        return transactionLog;
+    }
+
+    public void setTransactionLog(final ITransactionLog transactionLog)
+    {
+        this.transactionLog = transactionLog;
+    }
 }
