@@ -456,8 +456,8 @@ public class TransactionParticipant implements ITransactionParticipant
         transaction.lockOrFail(() ->
         {
             checkTransactionStatus(transaction, TransactionStatus.NEW, TransactionStatus.BEGIN_STARTED,
-                    TransactionStatus.BEGIN_FINISHED, TransactionStatus.PREPARE_STARTED,
-                    TransactionStatus.PREPARE_FINISHED, TransactionStatus.COMMIT_STARTED);
+                    TransactionStatus.BEGIN_FINISHED, TransactionStatus.PREPARE_STARTED, TransactionStatus.PREPARE_FINISHED,
+                    TransactionStatus.COMMIT_STARTED, TransactionStatus.ROLLBACK_STARTED);
 
             operationLog.info("Rollback transaction '" + transaction.getTransactionId() + "' started.");
 

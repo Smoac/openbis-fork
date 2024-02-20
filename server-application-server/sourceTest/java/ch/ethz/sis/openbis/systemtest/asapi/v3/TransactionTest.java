@@ -16,6 +16,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -313,6 +315,54 @@ public class TransactionTest extends AbstractTest
     }
 
     @Test
+    public void testRollbackTransactionFailsAndRecovers()
+    {
+        // "rollback" should fail
+        participant2.getDatabaseTransactionProvider().setRollbackException(new RuntimeException("Test rollback exception"));
+
+        assertTransactions(coordinator.getTransactionMap());
+        assertTransactions(participant1.getTransactionMap());
+        assertTransactions(participant2.getTransactionMap());
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        UUID trId = UUID.randomUUID();
+
+        coordinator.beginTransaction(trId, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
+
+        SpaceCreation spaceCreation1 = new SpaceCreation();
+        spaceCreation1.setCode(UUID.randomUUID().toString());
+
+        coordinator.executeOperation(trId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(), OPERATION_CREATE_SPACES,
+                new Object[] { sessionToken, Collections.singletonList(spaceCreation1) });
+
+        SpaceCreation spaceCreation2 = new SpaceCreation();
+        spaceCreation2.setCode(UUID.randomUUID().toString());
+
+        coordinator.executeOperation(trId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant2.getParticipantId(), OPERATION_CREATE_SPACES,
+                new Object[] { sessionToken, Collections.singletonList(spaceCreation2) });
+
+        coordinator.rollbackTransaction(trId, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
+
+        assertTransactions(coordinator.getTransactionMap(), new Transaction(trId, TransactionStatus.ROLLBACK_STARTED));
+        assertTransactions(participant1.getTransactionMap());
+        assertTransactions(participant2.getTransactionMap(), new Transaction(trId, TransactionStatus.ROLLBACK_STARTED));
+
+        // "rollback" should succeed
+        participant2.getDatabaseTransactionProvider().setRollbackException(null);
+
+        coordinator.recoverTransactions();
+
+        assertTransactions(coordinator.getTransactionMap());
+        assertTransactions(participant1.getTransactionMap());
+        assertTransactions(participant2.getTransactionMap());
+
+        Map<ISpaceId, Space> createdSpaces = applicationServerApi.getSpaces(sessionToken,
+                Arrays.asList(new SpacePermId(spaceCreation1.getCode()), new SpacePermId(spaceCreation2.getCode())), new SpaceFetchOptions());
+        assertEquals(createdSpaces.size(), 0);
+    }
+
+    @Test
     public void testTransactionWithCommit()
     {
         testTransaction(false);
@@ -537,20 +587,20 @@ public class TransactionTest extends AbstractTest
 
     private static void assertTransactions(Map<UUID, ? extends Transaction> actualTransactions, Transaction... expectedTransactions)
     {
-        Map<UUID, Transaction> expectedTransactionsMap = new HashMap<>();
-
-        for (Transaction expectedTransaction : expectedTransactions)
-        {
-            expectedTransactionsMap.put(expectedTransaction.getTransactionId(), expectedTransaction);
-        }
-
-        assertEquals(actualTransactions.keySet(), expectedTransactionsMap.keySet());
+        Map<String, String> actualTransactionsMap = new TreeMap<>();
+        Map<String, String> expectedTransactionsMap = new TreeMap<>();
 
         for (Transaction actualTransaction : actualTransactions.values())
         {
-            Transaction expectedTransaction = expectedTransactionsMap.get(actualTransaction.getTransactionId());
-            assertEquals(actualTransaction.getTransactionStatus(), expectedTransaction.getTransactionStatus());
+            actualTransactionsMap.put(actualTransaction.getTransactionId().toString(), actualTransaction.getTransactionStatus().toString());
         }
+
+        for (Transaction expectedTransaction : expectedTransactions)
+        {
+            expectedTransactionsMap.put(expectedTransaction.getTransactionId().toString(), expectedTransaction.getTransactionStatus().toString());
+        }
+
+        assertEquals(actualTransactionsMap.toString(), expectedTransactionsMap.toString());
     }
 
     private static Set<String> codes(Collection<? extends ICodeHolder> objectsWithCodes)
@@ -709,6 +759,8 @@ public class TransactionTest extends AbstractTest
 
         private RuntimeException commitException;
 
+        private RuntimeException rollbackException;
+
         public TestDatabaseTransactionProvider(IDatabaseTransactionProvider databaseTransactionProvider)
         {
             this.databaseTransactionProvider = databaseTransactionProvider;
@@ -734,6 +786,10 @@ public class TransactionTest extends AbstractTest
 
         @Override public void rollbackTransaction(final UUID transactionId, final Object transaction) throws Exception
         {
+            if (rollbackException != null)
+            {
+                throw rollbackException;
+            }
             databaseTransactionProvider.rollbackTransaction(transactionId, transaction);
         }
 
@@ -774,6 +830,16 @@ public class TransactionTest extends AbstractTest
         public RuntimeException getCommitException()
         {
             return commitException;
+        }
+
+        public void setRollbackException(final RuntimeException rollbackException)
+        {
+            this.rollbackException = rollbackException;
+        }
+
+        public RuntimeException getRollbackException()
+        {
+            return rollbackException;
         }
     }
 
