@@ -244,7 +244,7 @@ public class TransactionTest extends AbstractTest
 
         Thread.sleep(500);
 
-        coordinator.recoverTransactions();
+        coordinator.finishFailedOrAbandonedTransactions();
 
         assertTransactions(coordinator.getTransactionMap(), new Transaction(trId, TransactionStatus.BEGIN_FINISHED));
         assertTransactions(participant1.getTransactionMap(), new Transaction(trId, TransactionStatus.BEGIN_FINISHED));
@@ -252,7 +252,7 @@ public class TransactionTest extends AbstractTest
 
         Thread.sleep(500);
 
-        coordinator.recoverTransactions();
+        coordinator.finishFailedOrAbandonedTransactions();
 
         assertTransactions(coordinator.getTransactionMap());
         assertTransactions(participant1.getTransactionMap());
@@ -346,7 +346,7 @@ public class TransactionTest extends AbstractTest
         // "commit" should succeed
         participant2.getDatabaseTransactionProvider().setCommitException(null);
 
-        coordinator.recoverTransactions();
+        coordinator.finishFailedOrAbandonedTransactions();
 
         assertTransactions(coordinator.getTransactionMap());
         assertTransactions(participant1.getTransactionMap());
@@ -394,7 +394,7 @@ public class TransactionTest extends AbstractTest
         // "rollback" should succeed
         participant2.getDatabaseTransactionProvider().setRollbackException(null);
 
-        coordinator.recoverTransactions();
+        coordinator.finishFailedOrAbandonedTransactions();
 
         assertTransactions(coordinator.getTransactionMap());
         assertTransactions(participant1.getTransactionMap());

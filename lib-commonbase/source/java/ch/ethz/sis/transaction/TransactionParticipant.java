@@ -110,9 +110,9 @@ public class TransactionParticipant implements ITransactionParticipant
         return participantId;
     }
 
-    public void recoverTransactions()
+    public void recoverTransactionsFromTransactionLog()
     {
-        operationLog.info("Started recovering transactions");
+        operationLog.info("Started recovering transactions from transaction log");
 
         for (TransactionLogEntry logEntry : transactionLog.getTransactions().values())
         {
@@ -126,123 +126,124 @@ public class TransactionParticipant implements ITransactionParticipant
 
             if (existingTransaction == null)
             {
-                recoverTransactionFromTransactionLog(logEntry);
-            } else
-            {
-                recoverFailedOrAbandonedTransaction(existingTransaction);
+                try
+                {
+                    Transaction transaction = createTransaction(logEntry.getTransactionId(), logEntry.getTransactionStatus());
+                    transaction.setTwoPhaseTransaction(logEntry.isTwoPhaseTransaction());
+
+                    transaction.lockOrFail(() ->
+                    {
+                        operationLog.info(
+                                "Recovering transaction '" + transaction.getTransactionId() + "' found in the transaction log with last status '"
+                                        + transaction.getTransactionStatus() + "' .");
+
+                        switch (transaction.getTransactionStatus())
+                        {
+                            case NEW:
+                            case BEGIN_STARTED:
+                            case PREPARE_STARTED:
+                            case ROLLBACK_STARTED:
+                                rollbackTransaction(transaction);
+                                break;
+                            case BEGIN_FINISHED:
+                                if (!transaction.isTwoPhaseTransaction())
+                                {
+                                    rollbackTransaction(transaction);
+                                }
+                                break;
+                            case PREPARE_FINISHED:
+                                // wait for the coordinator to decide whether to commit or rollback
+                                break;
+                            case COMMIT_STARTED:
+                                commitTransaction(transaction);
+                                break;
+                            default:
+                                throw new IllegalStateException(
+                                        "Transaction '" + transaction.getTransactionId() + "' has an unsupported last status '"
+                                                + transaction.getTransactionStatus() + "'");
+                        }
+
+                        return null;
+                    });
+                } catch (Exception e)
+                {
+                    operationLog.warn(
+                            "Recovering transaction '" + logEntry.getTransactionId() + "' found in the transaction log with last status '"
+                                    + logEntry.getTransactionStatus() + "' has failed.",
+                            e);
+                }
             }
         }
 
-        operationLog.info("Finished recovering transactions");
+        operationLog.info("Finished recovering transactions from transaction log");
     }
 
-    private void recoverTransactionFromTransactionLog(TransactionLogEntry logEntry)
+    public void finishFailedOrAbandonedTransaction()
     {
-        try
-        {
-            Transaction transaction = createTransaction(logEntry.getTransactionId(), logEntry.getTransactionStatus());
-            transaction.setTwoPhaseTransaction(logEntry.isTwoPhaseTransaction());
+        operationLog.info("Started processing of failed or abandoned transactions");
 
-            transaction.lockOrSkip(() ->
+        for (Transaction transaction : transactionMap.values())
+        {
+            try
             {
-                operationLog.info(
-                        "Recovering transaction '" + transaction.getTransactionId() + "' found in the transaction log with last status '"
-                                + transaction.getTransactionStatus() + "' .");
 
-                switch (transaction.getTransactionStatus())
+                transaction.lockOrSkip(() ->
                 {
-                    case NEW:
-                    case BEGIN_STARTED:
-                    case PREPARE_STARTED:
-                    case ROLLBACK_STARTED:
-                        rollbackTransaction(transaction);
-                        break;
-                    case BEGIN_FINISHED:
-                        if (!transaction.isTwoPhaseTransaction())
-                        {
-                            rollbackTransaction(transaction);
-                        }
-                        break;
-                    case PREPARE_FINISHED:
-                        // wait for the coordinator to decide whether to commit or rollback
-                        break;
-                    case COMMIT_STARTED:
-                        commitTransaction(transaction);
-                        break;
-                    default:
-                        throw new IllegalStateException(
-                                "Transaction '" + transaction.getTransactionId() + "' has an unsupported last status '"
-                                        + transaction.getTransactionStatus() + "'");
-                }
-            });
-        } catch (Exception e)
-        {
-            operationLog.warn(
-                    "Recovering transaction '" + logEntry.getTransactionId() + "' found in the transaction log with last status '"
-                            + logEntry.getTransactionStatus() + "' has failed.",
-                    e);
-        }
-    }
+                    operationLog.info(
+                            "Finishing failed or abandoned transaction '" + transaction.getTransactionId() + "' with last status '"
+                                    + transaction.getTransactionStatus()
+                                    + "'");
 
-    private void recoverFailedOrAbandonedTransaction(Transaction transaction)
-    {
-        try
-        {
-
-            transaction.lockOrSkip(() ->
-            {
-                operationLog.info(
-                        "Recovering failed or abandoned transaction '" + transaction.getTransactionId() + "' with last status '"
-                                + transaction.getTransactionStatus()
-                                + "'");
-
-                switch (transaction.getTransactionStatus())
-                {
-                    case BEGIN_STARTED:
-                    case PREPARE_STARTED:
-                    case ROLLBACK_STARTED:
+                    switch (transaction.getTransactionStatus())
+                    {
+                        case BEGIN_STARTED:
+                        case PREPARE_STARTED:
+                        case ROLLBACK_STARTED:
                         /*
                           If we are able to lock the transaction with the last state XXX_STARTED,
                           then XXX operation either failed in the middle or was unable to log XXX_FINISHED
                           state at the end. We can roll back the transaction without waiting for timeout.
                         */
-                        rollbackTransaction(transaction);
-                        break;
-                    case NEW:
+                            rollbackTransaction(transaction);
+                            break;
+                        case NEW:
                         /*
                           If we are able to lock the transaction with the last state NEW then
                           either we have just created a new transaction and didn't lock it yet
                           or the transaction was unable to log BEGIN_STARTED status and failed.
                           To handle both cases correctly we should roll back after a timeout.
                          */
-                    case BEGIN_FINISHED:
+                        case BEGIN_FINISHED:
                         /*
                           The transaction in BEGIN_FINISHED state should be receiving operation executions.
                           If the operations are not coming then after a timeout we need to roll back.
                          */
-                        if (transaction.hasTimedOut())
-                        {
-                            operationLog.info("Transaction '" + transaction.getTransactionId() + "' has timed out.");
-                            rollbackTransaction(transaction);
-                        } else
-                        {
-                            operationLog.info("Transaction '" + transaction.getTransactionId() + "' hasn't timed out yet.");
-                        }
-                        break;
-                    case PREPARE_FINISHED:
-                        // wait for the coordinator to decide whether to commit or rollback
-                        break;
-                    case COMMIT_STARTED:
-                        commitTransaction(transaction);
-                        break;
-                }
-            });
-        } catch (Exception e)
-        {
-            operationLog.warn(
-                    "Recovering failed or abandoned transaction '" + transaction.getTransactionId() + "' with last status '"
-                            + transaction.getTransactionStatus() + "' has failed.", e);
+                            if (transaction.hasTimedOut())
+                            {
+                                operationLog.info("Transaction '" + transaction.getTransactionId() + "' has timed out.");
+                                rollbackTransaction(transaction);
+                            } else
+                            {
+                                operationLog.info("Transaction '" + transaction.getTransactionId() + "' hasn't timed out yet.");
+                            }
+                            break;
+                        case PREPARE_FINISHED:
+                            // wait for the coordinator to decide whether to commit or rollback
+                            break;
+                        case COMMIT_STARTED:
+                            commitTransaction(transaction);
+                            break;
+                    }
+                });
+            } catch (Exception e)
+            {
+                operationLog.warn(
+                        "Finishing failed or abandoned transaction '" + transaction.getTransactionId() + "' with last status '"
+                                + transaction.getTransactionStatus() + "' has failed.", e);
+            }
         }
+
+        operationLog.info("Finished processing of failed or abandoned transactions");
     }
 
     @Override public void beginTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
@@ -356,26 +357,17 @@ public class TransactionParticipant implements ITransactionParticipant
 
         List<UUID> preparedTransactions = new ArrayList<>();
 
-        for (TransactionLogEntry logEntry : transactionLog.getTransactions().values())
+        for (Transaction transaction : transactionMap.values())
         {
-            if (logEntry.isTwoPhaseTransaction() && (TransactionStatus.PREPARE_FINISHED.equals(logEntry.getTransactionStatus())
-                    || TransactionStatus.COMMIT_STARTED.equals(logEntry.getTransactionStatus())))
+            if (transaction.isTwoPhaseTransaction())
             {
-                final Transaction existingTransaction = getTransaction(logEntry.getTransactionId());
-                final Transaction transaction;
-
-                if (existingTransaction == null)
+                if (TransactionStatus.PREPARE_FINISHED.equals(transaction.getTransactionStatus()))
                 {
-                    transaction = createTransaction(logEntry.getTransactionId(), logEntry.getTransactionStatus());
-                }else{
-                    transaction = existingTransaction;
-                }
-
-                transaction.lockOrSkip(() ->
-                {
-                    transaction.setLastAccessedDate(new Date());
                     preparedTransactions.add(transaction.getTransactionId());
-                });
+                } else if (TransactionStatus.COMMIT_STARTED.equals(transaction.getTransactionStatus()))
+                {
+                    transaction.lockOrSkip(() -> preparedTransactions.add(transaction.getTransactionId()));
+                }
             }
         }
 

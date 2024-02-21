@@ -9,6 +9,8 @@ import java.sql.ResultSet;
 import java.util.List;
 import java.util.UUID;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +62,12 @@ public class TransactionParticipantApi implements ITransactionParticipantApi
                 transactionConfiguration.getTransactionTimeoutInSeconds(),
                 transactionConfiguration.getTransactionCountLimit()
         );
+    }
+
+    @PostConstruct
+    public void init()
+    {
+        this.transactionParticipant.recoverTransactionsFromTransactionLog();
     }
 
     @Override public String getParticipantId()

@@ -602,7 +602,7 @@ public class TransactionCoordinatorTest
             }
         });
 
-        coordinator.recoverTransactions();
+        coordinator.recoverTransactionsFromTransactionLog();
     }
 
     @Test
@@ -674,7 +674,7 @@ public class TransactionCoordinatorTest
             }
         });
 
-        coordinator.recoverTransactions();
+        coordinator.recoverTransactionsFromTransactionLog();
     }
 
     @DataProvider(name = "testRecoverTransactionWithStatus")

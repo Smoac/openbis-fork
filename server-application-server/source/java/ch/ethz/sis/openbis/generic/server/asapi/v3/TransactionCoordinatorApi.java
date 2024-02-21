@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +19,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.ITransactionCoordinatorApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.ITransactionParticipantApi;
 import ch.ethz.sis.transaction.ISessionTokenProvider;
-import ch.ethz.sis.transaction.ITransactionCoordinator;
 import ch.ethz.sis.transaction.ITransactionParticipant;
 import ch.ethz.sis.transaction.TransactionCoordinator;
 import ch.ethz.sis.transaction.TransactionLog;
@@ -27,7 +28,7 @@ import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 public class TransactionCoordinatorApi implements ITransactionCoordinatorApi
 {
 
-    private final ITransactionCoordinator transactionCoordinator;
+    private final TransactionCoordinator transactionCoordinator;
 
     @Autowired
     public TransactionCoordinatorApi(final TransactionConfiguration transactionConfiguration, IApplicationServerApi applicationServerApi)
@@ -46,6 +47,11 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi
                 new TransactionLog(new File(transactionConfiguration.getTransactionLogFolderPath()), "coordinator"),
                 transactionConfiguration.getTransactionTimeoutInSeconds(),
                 transactionConfiguration.getTransactionCountLimit());
+    }
+
+    @PostConstruct
+    public void init(){
+        this.transactionCoordinator.recoverTransactionsFromTransactionLog();
     }
 
     @Override public void beginTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
