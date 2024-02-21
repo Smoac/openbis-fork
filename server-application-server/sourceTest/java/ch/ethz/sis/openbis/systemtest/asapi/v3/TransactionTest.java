@@ -51,6 +51,7 @@ import ch.ethz.sis.transaction.TransactionLog;
 import ch.ethz.sis.transaction.TransactionLogEntry;
 import ch.ethz.sis.transaction.TransactionParticipant;
 import ch.ethz.sis.transaction.TransactionStatus;
+import ch.systemsx.cisd.common.concurrent.MessageChannel;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
@@ -155,7 +156,11 @@ public class TransactionTest extends AbstractTest
     public void testBeginTransactionFails()
     {
         // "begin" should fail
-        participant2.getDatabaseTransactionProvider().setBeginException(new RuntimeException("Test begin exception"));
+        RuntimeException exception = new RuntimeException("Test begin exception");
+        participant2.getDatabaseTransactionProvider().setBeginAction(() ->
+        {
+            throw exception;
+        });
 
         assertTransactions(coordinator.getTransactionMap());
         assertTransactions(participant1.getTransactionMap());
@@ -171,7 +176,7 @@ public class TransactionTest extends AbstractTest
             fail();
         } catch (Exception e)
         {
-            assertEquals(e, participant2.getDatabaseTransactionProvider().getBeginException());
+            assertEquals(e, exception);
         }
 
         assertTransactions(coordinator.getTransactionMap());
@@ -267,7 +272,11 @@ public class TransactionTest extends AbstractTest
     public void testPrepareTransactionFails()
     {
         // "prepare" should fail
-        participant2.getDatabaseTransactionProvider().setPrepareException(new RuntimeException("Test prepare exception"));
+        RuntimeException exception = new RuntimeException("Test prepare exception");
+        participant2.getDatabaseTransactionProvider().setPrepareAction(() ->
+        {
+            throw exception;
+        });
 
         assertTransactions(coordinator.getTransactionMap());
         assertTransactions(participant1.getTransactionMap());
@@ -297,7 +306,7 @@ public class TransactionTest extends AbstractTest
             fail();
         } catch (Exception e)
         {
-            assertEquals(e, participant2.getDatabaseTransactionProvider().getPrepareException());
+            assertEquals(e, exception);
         }
 
         assertTransactions(coordinator.getTransactionMap());
@@ -313,7 +322,11 @@ public class TransactionTest extends AbstractTest
     public void testCommitTransactionFailsAndRecovers()
     {
         // "commit" should fail
-        participant2.getDatabaseTransactionProvider().setCommitException(new RuntimeException("Test commit exception"));
+        RuntimeException exception = new RuntimeException("Test commit exception");
+        participant2.getDatabaseTransactionProvider().setCommitAction(() ->
+        {
+            throw exception;
+        });
 
         assertTransactions(coordinator.getTransactionMap());
         assertTransactions(participant1.getTransactionMap());
@@ -344,7 +357,7 @@ public class TransactionTest extends AbstractTest
         assertTransactions(participant2.getTransactionMap(), new Transaction(trId, TransactionStatus.COMMIT_STARTED));
 
         // "commit" should succeed
-        participant2.getDatabaseTransactionProvider().setCommitException(null);
+        participant2.getDatabaseTransactionProvider().setCommitAction(null);
 
         coordinator.finishFailedOrAbandonedTransactions();
 
@@ -361,7 +374,11 @@ public class TransactionTest extends AbstractTest
     public void testRollbackTransactionFailsAndRecovers()
     {
         // "rollback" should fail
-        participant2.getDatabaseTransactionProvider().setRollbackException(new RuntimeException("Test rollback exception"));
+        RuntimeException exception = new RuntimeException("Test rollback exception");
+        participant2.getDatabaseTransactionProvider().setRollbackAction(() ->
+        {
+            throw exception;
+        });
 
         assertTransactions(coordinator.getTransactionMap());
         assertTransactions(participant1.getTransactionMap());
@@ -392,7 +409,7 @@ public class TransactionTest extends AbstractTest
         assertTransactions(participant2.getTransactionMap(), new Transaction(trId, TransactionStatus.ROLLBACK_STARTED));
 
         // "rollback" should succeed
-        participant2.getDatabaseTransactionProvider().setRollbackException(null);
+        participant2.getDatabaseTransactionProvider().setRollbackAction(null);
 
         coordinator.finishFailedOrAbandonedTransactions();
 
@@ -628,6 +645,58 @@ public class TransactionTest extends AbstractTest
                 difference(codes(noTrSpacesAfterTr1Commit.getObjects()), codes(noTrSpacesAfterCreations.getObjects())));
     }
 
+    @Test
+    public void testMultipleConcurrentCallsToOneTransaction() throws InterruptedException
+    {
+        assertTransactions(coordinator.getTransactionMap());
+        assertTransactions(participant1.getTransactionMap());
+        assertTransactions(participant2.getTransactionMap());
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        UUID trId = UUID.randomUUID();
+
+        coordinator.beginTransaction(trId, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
+
+        SpaceCreation spaceCreation1 = new SpaceCreation();
+        spaceCreation1.setCode(UUID.randomUUID().toString());
+
+        coordinator.executeOperation(trId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(), OPERATION_CREATE_SPACES,
+                new Object[] { sessionToken, Collections.singletonList(spaceCreation1) });
+
+        MessageChannel messageChannel = new MessageChannel(1000);
+
+        participant1.getDatabaseTransactionProvider().setCommitAction(() ->
+        {
+            messageChannel.send("committing");
+            messageChannel.assertNextMessage("executed");
+        });
+
+        Thread committingThread = new Thread(() -> {
+            coordinator.commitTransaction(trId, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
+        });
+        committingThread.start();
+
+        SpaceCreation spaceCreation2 = new SpaceCreation();
+        spaceCreation2.setCode(UUID.randomUUID().toString());
+
+        messageChannel.assertNextMessage("committing");
+
+        try
+        {
+            // try to execute an operation while the commit is in progress
+            coordinator.executeOperation(trId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant2.getParticipantId(), OPERATION_CREATE_SPACES,
+                    new Object[] { sessionToken, Collections.singletonList(spaceCreation2) });
+            fail();
+        }catch(Exception e){
+            assertEquals(e.getMessage(), "Cannot execute a new action on transaction '" + trId + "' as it is still busy executing a previous action.");
+        }
+
+        messageChannel.send("executed");
+
+        committingThread.join();
+    }
+
     private static void assertTransactions(Map<UUID, ? extends Transaction> actualTransactions, Transaction... expectedTransactions)
     {
         Map<String, String> actualTransactionsMap = new TreeMap<>();
@@ -788,7 +857,6 @@ public class TransactionTest extends AbstractTest
 
             return transactionIds;
         }
-
     }
 
     private static class TestDatabaseTransactionProvider implements IDatabaseTransactionProvider
@@ -796,13 +864,13 @@ public class TransactionTest extends AbstractTest
 
         private final IDatabaseTransactionProvider databaseTransactionProvider;
 
-        private RuntimeException beginException;
+        private Runnable beginAction;
 
-        private RuntimeException prepareException;
+        private Runnable prepareAction;
 
-        private RuntimeException commitException;
+        private Runnable commitAction;
 
-        private RuntimeException rollbackException;
+        private Runnable rollbackAction;
 
         public TestDatabaseTransactionProvider(IDatabaseTransactionProvider databaseTransactionProvider)
         {
@@ -811,79 +879,60 @@ public class TransactionTest extends AbstractTest
 
         @Override public Object beginTransaction(final UUID transactionId) throws Exception
         {
-            if (beginException != null)
+            if (beginAction != null)
             {
-                throw beginException;
+                beginAction.run();
             }
             return databaseTransactionProvider.beginTransaction(transactionId);
         }
 
         @Override public void prepareTransaction(final UUID transactionId, final Object transaction) throws Exception
         {
-            if (prepareException != null)
+            if (prepareAction != null)
             {
-                throw prepareException;
+                prepareAction.run();
             }
             databaseTransactionProvider.prepareTransaction(transactionId, transaction);
         }
 
         @Override public void rollbackTransaction(final UUID transactionId, final Object transaction) throws Exception
         {
-            if (rollbackException != null)
+            if (rollbackAction != null)
             {
-                throw rollbackException;
+                rollbackAction.run();
             }
             databaseTransactionProvider.rollbackTransaction(transactionId, transaction);
         }
 
         @Override public void commitTransaction(final UUID transactionId, final Object transaction) throws Exception
         {
-            if (commitException != null)
+            if (commitAction != null)
             {
-                throw commitException;
+                commitAction.run();
             }
             databaseTransactionProvider.commitTransaction(transactionId, transaction);
         }
 
-        public void setBeginException(final RuntimeException beginException)
+        public void setBeginAction(final Runnable beginAction)
         {
-            this.beginException = beginException;
+            this.beginAction = beginAction;
         }
 
-        public RuntimeException getBeginException()
+        public void setPrepareAction(final Runnable prepareAction)
         {
-            return beginException;
+            this.prepareAction = prepareAction;
         }
 
-        public void setPrepareException(final RuntimeException prepareException)
+        public void setCommitAction(final Runnable commitAction)
         {
-            this.prepareException = prepareException;
+            this.commitAction = commitAction;
         }
 
-        public RuntimeException getPrepareException()
+        public void setRollbackAction(final Runnable rollbackAction)
         {
-            return prepareException;
+            this.rollbackAction = rollbackAction;
         }
 
-        public void setCommitException(final RuntimeException commitException)
-        {
-            this.commitException = commitException;
-        }
-
-        public RuntimeException getCommitException()
-        {
-            return commitException;
-        }
-
-        public void setRollbackException(final RuntimeException rollbackException)
-        {
-            this.rollbackException = rollbackException;
-        }
-
-        public RuntimeException getRollbackException()
-        {
-            return rollbackException;
-        }
     }
 
     private static class TestTransactionLog implements ITransactionLog
