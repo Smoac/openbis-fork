@@ -672,9 +672,7 @@ public class TransactionTest extends AbstractTest
             messageChannel.assertNextMessage("executed");
         });
 
-        Thread committingThread = new Thread(() -> {
-            coordinator.commitTransaction(trId, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
-        });
+        Thread committingThread = new Thread(() -> coordinator.commitTransaction(trId, sessionToken, TEST_INTERACTIVE_SESSION_KEY));
         committingThread.start();
 
         SpaceCreation spaceCreation2 = new SpaceCreation();
@@ -688,13 +686,42 @@ public class TransactionTest extends AbstractTest
             coordinator.executeOperation(trId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant2.getParticipantId(), OPERATION_CREATE_SPACES,
                     new Object[] { sessionToken, Collections.singletonList(spaceCreation2) });
             fail();
-        }catch(Exception e){
-            assertEquals(e.getMessage(), "Cannot execute a new action on transaction '" + trId + "' as it is still busy executing a previous action.");
+        } catch (Exception e)
+        {
+            assertEquals(e.getMessage(),
+                    "Cannot execute a new action on transaction '" + trId + "' as it is still busy executing a previous action.");
         }
 
         messageChannel.send("executed");
 
         committingThread.join();
+    }
+
+    @Test
+    public void testTooManyTransactions()
+    {
+        coordinator = createCoordinator(Arrays.asList(participant1, participant2), 60, 2);
+
+        assertTransactions(coordinator.getTransactionMap());
+        assertTransactions(participant1.getTransactionMap());
+        assertTransactions(participant2.getTransactionMap());
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        UUID tr1Id = UUID.randomUUID();
+        UUID tr2Id = UUID.randomUUID();
+        UUID tr3Id = UUID.randomUUID();
+
+        coordinator.beginTransaction(tr1Id, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
+        coordinator.beginTransaction(tr2Id, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
+
+        try
+        {
+            coordinator.beginTransaction(tr3Id, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
+        } catch (Exception e)
+        {
+            assertEquals(e.getMessage(), "Cannot create transaction '" + tr3Id + "' because transaction count limit (2) has been reached.");
+        }
     }
 
     private static void assertTransactions(Map<UUID, ? extends Transaction> actualTransactions, Transaction... expectedTransactions)
