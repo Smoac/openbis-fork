@@ -7,6 +7,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
@@ -37,20 +39,27 @@ public class TransactionParticipantApi implements ITransactionParticipantApi
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, TransactionParticipant.class);
 
-    private TransactionParticipant transactionParticipant;
+    private static final String TRANSACTION_LOG_FOLDER_NAME = "application-server";
+
+    private static final String FINISH_TRANSACTIONS_THREAD_NAME = "application-server-finish-transactions";
+
+    private final TransactionConfiguration transactionConfiguration;
+
+    private final TransactionParticipant transactionParticipant;
 
     @Autowired
     public TransactionParticipantApi(final TransactionConfiguration transactionConfiguration, final PlatformTransactionManager transactionManager,
             final IDAOFactory daoFactory, final DatabaseConfigurationContext databaseContext, final IApplicationServerApi applicationServerApi)
     {
         this(transactionConfiguration, transactionManager, daoFactory, databaseContext, applicationServerApi,
-                ITransactionCoordinatorApi.APPLICATION_SERVER_PARTICIPANT_ID, "application-server");
+                ITransactionCoordinatorApi.APPLICATION_SERVER_PARTICIPANT_ID, TRANSACTION_LOG_FOLDER_NAME);
     }
 
     public TransactionParticipantApi(final TransactionConfiguration transactionConfiguration, final PlatformTransactionManager transactionManager,
             final IDAOFactory daoFactory, final DatabaseConfigurationContext databaseContext, final IApplicationServerApi applicationServerApi,
             final String participantId, final String logFolderName)
     {
+        this.transactionConfiguration = transactionConfiguration;
         this.transactionParticipant = new TransactionParticipant(
                 participantId,
                 transactionConfiguration.getCoordinatorKey(),
@@ -68,6 +77,14 @@ public class TransactionParticipantApi implements ITransactionParticipantApi
     public void init()
     {
         this.transactionParticipant.recoverTransactionsFromTransactionLog();
+
+        new Timer(FINISH_TRANSACTIONS_THREAD_NAME, true).schedule(new TimerTask()
+        {
+            @Override public void run()
+            {
+                TransactionParticipantApi.this.transactionParticipant.finishFailedOrAbandonedTransaction();
+            }
+        }, transactionConfiguration.getFinishTransactionsIntervalInSeconds());
     }
 
     @Override public String getParticipantId()
@@ -276,8 +293,4 @@ public class TransactionParticipantApi implements ITransactionParticipantApi
         return transactionParticipant;
     }
 
-    public void setTransactionParticipant(final TransactionParticipant transactionParticipant)
-    {
-        this.transactionParticipant = transactionParticipant;
-    }
 }

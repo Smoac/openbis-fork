@@ -6,6 +6,8 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
@@ -28,6 +30,12 @@ import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 public class TransactionCoordinatorApi implements ITransactionCoordinatorApi
 {
 
+    private static final String TRANSACTION_LOG_FOLDER_NAME = "coordinator";
+
+    private static final String FINISH_TRANSACTIONS_THREAD_NAME = "coordinator-finish-transactions";
+
+    private final TransactionConfiguration transactionConfiguration;
+
     private final TransactionCoordinator transactionCoordinator;
 
     @Autowired
@@ -39,19 +47,29 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi
                 new DataStoreServerParticipant(transactionConfiguration.getDataStoreServerUrl(),
                         transactionConfiguration.getDataStoreServerTimeoutInSeconds()));
 
+        this.transactionConfiguration = transactionConfiguration;
         this.transactionCoordinator = new TransactionCoordinator(
                 transactionConfiguration.getCoordinatorKey(),
                 transactionConfiguration.getInteractiveSessionKey(),
                 new ApplicationServerSessionTokenProvider(applicationServerApi),
                 participants,
-                new TransactionLog(new File(transactionConfiguration.getTransactionLogFolderPath()), "coordinator"),
+                new TransactionLog(new File(transactionConfiguration.getTransactionLogFolderPath()), TRANSACTION_LOG_FOLDER_NAME),
                 transactionConfiguration.getTransactionTimeoutInSeconds(),
                 transactionConfiguration.getTransactionCountLimit());
     }
 
     @PostConstruct
-    public void init(){
+    public void init()
+    {
         this.transactionCoordinator.recoverTransactionsFromTransactionLog();
+
+        new Timer(FINISH_TRANSACTIONS_THREAD_NAME, true).schedule(new TimerTask()
+        {
+            @Override public void run()
+            {
+                TransactionCoordinatorApi.this.transactionCoordinator.finishFailedOrAbandonedTransactions();
+            }
+        }, transactionConfiguration.getFinishTransactionsIntervalInSeconds());
     }
 
     @Override public void beginTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)

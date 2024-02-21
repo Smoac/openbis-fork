@@ -20,6 +20,10 @@ public class TransactionConfiguration
 
     private static final int TRANSACTION_TIMEOUT_DEFAULT = 3600;
 
+    private static final String FINISH_TRANSACTIONS_INTERVAL_PROPERTY_NAME = "api.v3.transaction.common.finish-transactions-interval";
+
+    private static final int FINISH_TRANSACTIONS_INTERVAL_DEFAULT = 600;
+
     private static final String INTERACTIVE_SESSION_KEY_PROPERTY_NAME = "api.v3.transaction.common.interactive-session-key";
 
     private static final String COORDINATOR_KEY_PROPERTY_NAME = "api.v3.transaction.two-phase-commit.coordinator-key";
@@ -50,6 +54,8 @@ public class TransactionConfiguration
 
     private int transactionTimeoutInSeconds;
 
+    private int finishTransactionsIntervalInSeconds;
+
     private String interactiveSessionKey;
 
     private String coordinatorKey;
@@ -71,6 +77,7 @@ public class TransactionConfiguration
     {
         Properties properties = configurer.getResolvedProps();
         transactionTimeoutInSeconds = PropertyUtils.getInt(properties, TRANSACTION_TIMEOUT_PROPERTY_NAME, TRANSACTION_TIMEOUT_DEFAULT);
+        finishTransactionsIntervalInSeconds = PropertyUtils.getInt(properties, FINISH_TRANSACTIONS_INTERVAL_PROPERTY_NAME, FINISH_TRANSACTIONS_INTERVAL_DEFAULT);
         interactiveSessionKey = PropertyUtils.getProperty(properties, INTERACTIVE_SESSION_KEY_PROPERTY_NAME, generateRandomKey());
         coordinatorKey = PropertyUtils.getProperty(properties, COORDINATOR_KEY_PROPERTY_NAME, generateRandomKey());
         transactionLogFolderPath = PropertyUtils.getProperty(properties, TRANSACTION_LOG_FOLDER_PATH_PROPERTY_NAME,
@@ -86,6 +93,11 @@ public class TransactionConfiguration
     public int getTransactionTimeoutInSeconds()
     {
         return transactionTimeoutInSeconds;
+    }
+
+    public int getFinishTransactionsIntervalInSeconds()
+    {
+        return finishTransactionsIntervalInSeconds;
     }
 
     public String getInteractiveSessionKey()
