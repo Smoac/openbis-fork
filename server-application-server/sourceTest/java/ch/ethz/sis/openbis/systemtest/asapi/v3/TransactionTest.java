@@ -16,7 +16,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -44,7 +43,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria
 import ch.ethz.sis.openbis.generic.server.asapi.v3.TransactionConfiguration;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.TransactionParticipantApi;
 import ch.ethz.sis.transaction.IDatabaseTransactionProvider;
-import ch.ethz.sis.transaction.ISessionTokenProvider;
 import ch.ethz.sis.transaction.ITransactionLog;
 import ch.ethz.sis.transaction.ITransactionParticipant;
 import ch.ethz.sis.transaction.Transaction;
@@ -113,25 +111,24 @@ public class TransactionTest extends AbstractTest
         FileUtilities.deleteRecursively(new File(TRANSACTION_LOG_ROOT_FOLDER, TRANSACTION_LOG_PARTICIPANT_1_FOLDER));
         FileUtilities.deleteRecursively(new File(TRANSACTION_LOG_ROOT_FOLDER, TRANSACTION_LOG_PARTICIPANT_2_FOLDER));
 
-        participant1 =
-                new TestTransactionParticipant(
-                        new TransactionParticipantApi(transactionConfiguration, transactionManager, daoFactory, databaseContext, applicationServerApi,
-                                TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER));
+        participant1 = createParticipant(TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER);
+        participant2 = createParticipant(TEST_PARTICIPANT_2_ID, TRANSACTION_LOG_PARTICIPANT_2_FOLDER);
+        coordinator = createCoordinator(Arrays.asList(participant1, participant2), 60, 10);
+    }
 
-        participant2 =
-                new TestTransactionParticipant(
-                        new TransactionParticipantApi(transactionConfiguration, transactionManager, daoFactory, databaseContext, applicationServerApi,
-                                TEST_PARTICIPANT_2_ID, TRANSACTION_LOG_PARTICIPANT_2_FOLDER));
+    private TransactionCoordinator createCoordinator(List<ITransactionParticipant> participants, int transactionTimeoutInSeconds,
+            int transactionCountLimit)
+    {
+        return new TransactionCoordinator(TEST_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionToken -> v3api.isSessionActive(sessionToken),
+                participants, new TransactionLog(new File(TRANSACTION_LOG_ROOT_FOLDER), TRANSACTION_LOG_COORDINATOR_FOLDER),
+                transactionTimeoutInSeconds, transactionCountLimit);
+    }
 
-        coordinator = new TransactionCoordinator(TEST_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, new ISessionTokenProvider()
-        {
-            @Override public boolean isValid(final String sessionToken)
-            {
-                return v3api.isSessionActive(sessionToken);
-            }
-        }, Arrays.asList(participant1, participant2), new TransactionLog(new File(TRANSACTION_LOG_ROOT_FOLDER), TRANSACTION_LOG_COORDINATOR_FOLDER),
-                60,
-                10);
+    private TestTransactionParticipant createParticipant(String participantId, String logFolderName)
+    {
+        return new TestTransactionParticipant(
+                new TransactionParticipantApi(transactionConfiguration, transactionManager, daoFactory, databaseContext, applicationServerApi,
+                        participantId, logFolderName));
     }
 
     @AfterMethod
@@ -217,6 +214,52 @@ public class TransactionTest extends AbstractTest
 
         Map<ISpaceId, Space> createdSpaces = applicationServerApi.getSpaces(sessionToken,
                 Collections.singletonList(new SpacePermId(spaceCreation1.getCode())), new SpaceFetchOptions());
+        assertEquals(createdSpaces.size(), 0);
+    }
+
+    @Test
+    public void testExecuteOperationTimesOut() throws Exception
+    {
+        coordinator = createCoordinator(Arrays.asList(participant1, participant2), 1, 10);
+
+        assertTransactions(coordinator.getTransactionMap());
+        assertTransactions(participant1.getTransactionMap());
+        assertTransactions(participant2.getTransactionMap());
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        UUID trId = UUID.randomUUID();
+
+        coordinator.beginTransaction(trId, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
+
+        SpaceCreation spaceCreation = new SpaceCreation();
+        spaceCreation.setCode(UUID.randomUUID().toString());
+
+        coordinator.executeOperation(trId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(), OPERATION_CREATE_SPACES,
+                new Object[] { sessionToken, Collections.singletonList(spaceCreation) });
+
+        assertTransactions(coordinator.getTransactionMap(), new Transaction(trId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(participant1.getTransactionMap(), new Transaction(trId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(participant2.getTransactionMap(), new Transaction(trId, TransactionStatus.BEGIN_FINISHED));
+
+        Thread.sleep(500);
+
+        coordinator.recoverTransactions();
+
+        assertTransactions(coordinator.getTransactionMap(), new Transaction(trId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(participant1.getTransactionMap(), new Transaction(trId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(participant2.getTransactionMap(), new Transaction(trId, TransactionStatus.BEGIN_FINISHED));
+
+        Thread.sleep(500);
+
+        coordinator.recoverTransactions();
+
+        assertTransactions(coordinator.getTransactionMap());
+        assertTransactions(participant1.getTransactionMap());
+        assertTransactions(participant2.getTransactionMap());
+
+        Map<ISpaceId, Space> createdSpaces = applicationServerApi.getSpaces(sessionToken,
+                Collections.singletonList(new SpacePermId(spaceCreation.getCode())), new SpaceFetchOptions());
         assertEquals(createdSpaces.size(), 0);
     }
 

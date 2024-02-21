@@ -188,6 +188,7 @@ public class TransactionParticipant implements ITransactionParticipant
     {
         try
         {
+
             transaction.lockOrSkip(() ->
             {
                 operationLog.info(
@@ -221,7 +222,11 @@ public class TransactionParticipant implements ITransactionParticipant
                          */
                         if (transaction.hasTimedOut())
                         {
+                            operationLog.info("Transaction '" + transaction.getTransactionId() + "' has timed out.");
                             rollbackTransaction(transaction);
+                        } else
+                        {
+                            operationLog.info("Transaction '" + transaction.getTransactionId() + "' hasn't timed out yet.");
                         }
                         break;
                     case PREPARE_FINISHED:
@@ -258,6 +263,7 @@ public class TransactionParticipant implements ITransactionParticipant
         transaction.lockOrFail(() ->
         {
             transaction.setTransactionStatus(TransactionStatus.BEGIN_STARTED);
+            transaction.setLastAccessedDate(new Date());
 
             operationLog.info("Begin transaction '" + transactionId + "' started.");
 
@@ -265,6 +271,7 @@ public class TransactionParticipant implements ITransactionParticipant
             transaction.setDatabaseTransaction(databaseTransaction);
 
             transaction.setTransactionStatus(TransactionStatus.BEGIN_FINISHED);
+            transaction.setLastAccessedDate(new Date());
 
             operationLog.info("Begin transaction '" + transactionId + "' finished successfully.");
 
@@ -291,11 +298,13 @@ public class TransactionParticipant implements ITransactionParticipant
         return transaction.lockOrFail(() ->
         {
             checkTransactionStatus(transaction, TransactionStatus.BEGIN_FINISHED);
+            transaction.setLastAccessedDate(new Date());
 
             operationLog.info("Transaction '" + transactionId + "' execute operation '" + operationName + "' started.");
             T result = operationExecutor.executeOperation(sessionToken, operationName, operationArguments);
             operationLog.info("Transaction '" + transactionId + "' execute operation '" + operationName + "' finished successfully.");
 
+            transaction.setLastAccessedDate(new Date());
             return result;
         });
     }
@@ -318,6 +327,7 @@ public class TransactionParticipant implements ITransactionParticipant
         transaction.lockOrFail(() ->
         {
             checkTransactionStatus(transaction, TransactionStatus.BEGIN_FINISHED);
+            transaction.setLastAccessedDate(new Date());
 
             if (!transaction.isTwoPhaseTransaction())
             {
@@ -333,6 +343,7 @@ public class TransactionParticipant implements ITransactionParticipant
 
             operationLog.info("Prepare transaction '" + transactionId + "' finished successfully.");
 
+            transaction.setLastAccessedDate(new Date());
             return null;
         });
     }
@@ -350,14 +361,21 @@ public class TransactionParticipant implements ITransactionParticipant
             if (logEntry.isTwoPhaseTransaction() && (TransactionStatus.PREPARE_FINISHED.equals(logEntry.getTransactionStatus())
                     || TransactionStatus.COMMIT_STARTED.equals(logEntry.getTransactionStatus())))
             {
-                Transaction transaction = getTransaction(logEntry.getTransactionId());
+                final Transaction existingTransaction = getTransaction(logEntry.getTransactionId());
+                final Transaction transaction;
 
-                if (transaction == null)
+                if (existingTransaction == null)
                 {
                     transaction = createTransaction(logEntry.getTransactionId(), logEntry.getTransactionStatus());
+                }else{
+                    transaction = existingTransaction;
                 }
 
-                transaction.lockOrSkip(() -> preparedTransactions.add(logEntry.getTransactionId()));
+                transaction.lockOrSkip(() ->
+                {
+                    transaction.setLastAccessedDate(new Date());
+                    preparedTransactions.add(transaction.getTransactionId());
+                });
             }
         }
 
@@ -401,7 +419,10 @@ public class TransactionParticipant implements ITransactionParticipant
     {
         transaction.lockOrFail(() ->
         {
-            checkTransactionStatus(transaction, TransactionStatus.NEW, TransactionStatus.BEGIN_FINISHED, TransactionStatus.PREPARE_FINISHED, TransactionStatus.COMMIT_STARTED);
+            checkTransactionStatus(transaction, TransactionStatus.NEW, TransactionStatus.BEGIN_FINISHED, TransactionStatus.PREPARE_FINISHED,
+                    TransactionStatus.COMMIT_STARTED);
+
+            transaction.setLastAccessedDate(new Date());
 
             operationLog.info("Commit transaction '" + transaction.getTransactionId() + "' started.");
 
@@ -416,6 +437,7 @@ public class TransactionParticipant implements ITransactionParticipant
 
             operationLog.info("Commit transaction '" + transaction.getTransactionId() + "' finished successfully.");
 
+            transaction.setLastAccessedDate(new Date());
             return null;
         });
     }
@@ -459,6 +481,8 @@ public class TransactionParticipant implements ITransactionParticipant
                     TransactionStatus.BEGIN_FINISHED, TransactionStatus.PREPARE_STARTED, TransactionStatus.PREPARE_FINISHED,
                     TransactionStatus.COMMIT_STARTED, TransactionStatus.ROLLBACK_STARTED);
 
+            transaction.setLastAccessedDate(new Date());
+
             operationLog.info("Rollback transaction '" + transaction.getTransactionId() + "' started.");
 
             if (transaction.getTransactionStatus() != TransactionStatus.NEW)
@@ -472,6 +496,7 @@ public class TransactionParticipant implements ITransactionParticipant
 
             operationLog.info("Rollback transaction '" + transaction.getTransactionId() + "' finished successfully.");
 
+            transaction.setLastAccessedDate(new Date());
             return null;
         });
     }
@@ -594,17 +619,7 @@ public class TransactionParticipant implements ITransactionParticipant
     {
         synchronized (transactionMap)
         {
-            Transaction transaction = transactionMap.get(transactionId);
-
-            if (transaction == null)
-            {
-                return null;
-            } else
-            {
-                transaction.setLastAccessedDate(new Date());
-                return transaction;
-            }
-
+            return transactionMap.get(transactionId);
         }
     }
 
@@ -667,16 +682,6 @@ public class TransactionParticipant implements ITransactionParticipant
             isTwoPhaseTransaction = twoPhaseTransaction;
         }
 
-        public boolean hasTimedOut()
-        {
-            return System.currentTimeMillis() - getLastAccessedDate().getTime() > transactionTimeoutInSeconds * 1000L;
-        }
-
-        public void close()
-        {
-            this.executor.shutdown();
-        }
-
         public <T> T lockOrFail(Callable<T> action)
         {
             if (lock.tryLock())
@@ -700,7 +705,6 @@ public class TransactionParticipant implements ITransactionParticipant
                     throw new RuntimeException(e);
                 } finally
                 {
-                    setLastAccessedDate(new Date());
                     lock.unlock();
                 }
             } else
@@ -733,7 +737,6 @@ public class TransactionParticipant implements ITransactionParticipant
                     throw new RuntimeException(e);
                 } finally
                 {
-                    setLastAccessedDate(new Date());
                     lock.unlock();
                 }
             } else
@@ -741,6 +744,16 @@ public class TransactionParticipant implements ITransactionParticipant
                 operationLog.info(
                         "Cannot execute a new action on transaction '" + getTransactionId() + "' as it is still busy executing a previous action.");
             }
+        }
+
+        public boolean hasTimedOut()
+        {
+            return System.currentTimeMillis() - getLastAccessedDate().getTime() > transactionTimeoutInSeconds * 1000L;
+        }
+
+        public void close()
+        {
+            this.executor.shutdown();
         }
     }
 

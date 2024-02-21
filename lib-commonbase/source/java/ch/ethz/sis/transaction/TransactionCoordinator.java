@@ -186,7 +186,11 @@ public class TransactionCoordinator implements ITransactionCoordinator
                          */
                         if (transaction.hasTimedOut())
                         {
+                            operationLog.info("Transaction '" + transaction.getTransactionId() + "' has timed out.");
                             rollbackTransaction(transaction, null, null, true);
+                        } else
+                        {
+                            operationLog.info("Transaction '" + transaction.getTransactionId() + "' hasn't timed out yet.");
                         }
                         break;
                     case PREPARE_FINISHED:
@@ -214,6 +218,7 @@ public class TransactionCoordinator implements ITransactionCoordinator
         transaction.lockOrFail(() ->
         {
             transaction.setTransactionStatus(TransactionStatus.BEGIN_STARTED);
+            transaction.setLastAccessedDate(new Date());
 
             operationLog.info("Begin transaction '" + transactionId + "' started.");
 
@@ -241,6 +246,7 @@ public class TransactionCoordinator implements ITransactionCoordinator
             }
 
             transaction.setTransactionStatus(TransactionStatus.BEGIN_FINISHED);
+            transaction.setLastAccessedDate(new Date());
 
             operationLog.info("Begin transaction '" + transactionId + "' finished successfully.");
 
@@ -265,6 +271,7 @@ public class TransactionCoordinator implements ITransactionCoordinator
         return transaction.lockOrFail(() ->
         {
             checkTransactionStatus(transaction, TransactionStatus.BEGIN_FINISHED);
+            transaction.setLastAccessedDate(new Date());
 
             operationLog.info("Transaction '" + transactionId + "' execute operation '" + operationName + "' started.");
 
@@ -280,6 +287,8 @@ public class TransactionCoordinator implements ITransactionCoordinator
                             participant.executeOperation(transactionId, sessionToken, interactiveSessionKey, operationName, operationArguments);
 
                     operationLog.info("Transaction '" + transactionId + "' execute operation '" + operationName + "' finished successfully.");
+
+                    transaction.setLastAccessedDate(new Date());
 
                     return result;
                 }
@@ -305,6 +314,7 @@ public class TransactionCoordinator implements ITransactionCoordinator
         transaction.lockOrFail(() ->
         {
             checkTransactionStatus(transaction, TransactionStatus.BEGIN_FINISHED);
+            transaction.setLastAccessedDate(new Date());
 
             operationLog.info("Commit transaction '" + transactionId + "' started.");
 
@@ -321,6 +331,8 @@ public class TransactionCoordinator implements ITransactionCoordinator
                  */
             }
 
+            transaction.setLastAccessedDate(new Date());
+
             operationLog.info("Commit transaction '" + transactionId + "' finished successfully.");
 
             return null;
@@ -332,6 +344,7 @@ public class TransactionCoordinator implements ITransactionCoordinator
         operationLog.info("Prepare transaction '" + transaction.getTransactionId() + "' started.");
 
         transaction.setTransactionStatus(TransactionStatus.PREPARE_STARTED);
+        transaction.setLastAccessedDate(new Date());
 
         for (ITransactionParticipant participant : participants)
         {
@@ -360,6 +373,7 @@ public class TransactionCoordinator implements ITransactionCoordinator
         }
 
         transaction.setTransactionStatus(TransactionStatus.PREPARE_FINISHED);
+        transaction.setLastAccessedDate(new Date());
 
         operationLog.info("Prepare transaction '" + transaction.getTransactionId() + "' finished successfully.");
     }
@@ -370,6 +384,7 @@ public class TransactionCoordinator implements ITransactionCoordinator
         operationLog.info("Commit prepared transaction '" + transaction.getTransactionId() + "' started.");
 
         transaction.setTransactionStatus(TransactionStatus.COMMIT_STARTED);
+        transaction.setLastAccessedDate(new Date());
 
         RuntimeException exception = null;
 
@@ -414,6 +429,8 @@ public class TransactionCoordinator implements ITransactionCoordinator
             }
         }
 
+        transaction.setLastAccessedDate(new Date());
+
         if (exception == null)
         {
             transaction.setTransactionStatus(TransactionStatus.COMMIT_FINISHED);
@@ -445,6 +462,8 @@ public class TransactionCoordinator implements ITransactionCoordinator
                     TransactionStatus.PREPARE_STARTED, TransactionStatus.PREPARE_FINISHED, TransactionStatus.ROLLBACK_STARTED,
                     TransactionStatus.ROLLBACK_FINISHED);
 
+            transaction.setLastAccessedDate(new Date());
+
             try
             {
                 rollbackTransaction(transaction, sessionToken, interactiveSessionKey, false);
@@ -456,6 +475,8 @@ public class TransactionCoordinator implements ITransactionCoordinator
                  */
             }
 
+            transaction.setLastAccessedDate(new Date());
+
             return null;
         });
     }
@@ -466,6 +487,7 @@ public class TransactionCoordinator implements ITransactionCoordinator
         operationLog.info("Rollback transaction '" + transaction.getTransactionId() + "' started.");
 
         transaction.setTransactionStatus(TransactionStatus.ROLLBACK_STARTED);
+        transaction.setLastAccessedDate(new Date());
 
         RuntimeException exception = null;
 
@@ -495,6 +517,8 @@ public class TransactionCoordinator implements ITransactionCoordinator
                 }
             }
         }
+
+        transaction.setLastAccessedDate(new Date());
 
         if (exception == null)
         {
@@ -583,17 +607,7 @@ public class TransactionCoordinator implements ITransactionCoordinator
     {
         synchronized (transactionMap)
         {
-            Transaction transaction = transactionMap.get(transactionId);
-
-            if (transaction == null)
-            {
-                return null;
-            } else
-            {
-                transaction.setLastAccessedDate(new Date());
-                return transaction;
-            }
-
+            return transactionMap.get(transactionId);
         }
     }
 
@@ -639,7 +653,6 @@ public class TransactionCoordinator implements ITransactionCoordinator
                     throw new RuntimeException(e);
                 } finally
                 {
-                    setLastAccessedDate(new Date());
                     lock.unlock();
                 }
             } else
@@ -658,7 +671,6 @@ public class TransactionCoordinator implements ITransactionCoordinator
                     action.run();
                 } finally
                 {
-                    setLastAccessedDate(new Date());
                     lock.unlock();
                 }
             } else
@@ -667,7 +679,6 @@ public class TransactionCoordinator implements ITransactionCoordinator
                         "Cannot execute a new action on transaction '" + getTransactionId() + "' as it is still busy executing a previous action.");
             }
         }
-
         public boolean hasTimedOut()
         {
             return System.currentTimeMillis() - getLastAccessedDate().getTime() > transactionTimeoutInSeconds * 1000L;
