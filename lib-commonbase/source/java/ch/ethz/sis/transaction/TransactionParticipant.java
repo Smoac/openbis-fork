@@ -425,7 +425,8 @@ public class TransactionParticipant implements ITransactionParticipant
                 transaction.setTransactionStatus(TransactionStatus.COMMIT_FINISHED);
             }
 
-            closeTransaction(transaction);
+            transaction.close();
+            transactionMap.remove(transaction.getTransactionId());
 
             operationLog.info("Commit transaction '" + transaction.getTransactionId() + "' finished successfully.");
 
@@ -484,7 +485,8 @@ public class TransactionParticipant implements ITransactionParticipant
                 transaction.setTransactionStatus(TransactionStatus.ROLLBACK_FINISHED);
             }
 
-            closeTransaction(transaction);
+            transaction.close();
+            transactionMap.remove(transaction.getTransactionId());
 
             operationLog.info("Rollback transaction '" + transaction.getTransactionId() + "' finished successfully.");
 
@@ -495,11 +497,8 @@ public class TransactionParticipant implements ITransactionParticipant
 
     public boolean isRunningTransaction(UUID transactionId)
     {
-        synchronized (transactionMap)
-        {
-            Transaction transaction = transactionMap.get(transactionId);
-            return transaction != null;
-        }
+        Transaction transaction = transactionMap.get(transactionId);
+        return transaction != null;
     }
 
     private void checkTransactionId(final UUID transactionId)
@@ -609,21 +608,25 @@ public class TransactionParticipant implements ITransactionParticipant
 
     private Transaction getTransaction(UUID transactionId)
     {
-        synchronized (transactionMap)
-        {
-            return transactionMap.get(transactionId);
-        }
-    }
-
-    private void closeTransaction(Transaction transaction)
-    {
-        transaction.close();
-        transactionMap.remove(transaction.getTransactionId());
+        return transactionMap.get(transactionId);
     }
 
     public Map<UUID, Transaction> getTransactionMap()
     {
         return transactionMap;
+    }
+
+    public void close()
+    {
+        for (Transaction transaction : transactionMap.values())
+        {
+            transaction.lockOrFail(() ->
+            {
+                transaction.close();
+                transactionMap.remove(transaction.getTransactionId());
+                return null;
+            });
+        }
     }
 
     private class Transaction extends ch.ethz.sis.transaction.Transaction
@@ -745,7 +748,18 @@ public class TransactionParticipant implements ITransactionParticipant
 
         public void close()
         {
-            this.executor.shutdown();
+            executor.shutdown();
+
+            if (databaseTransaction != null && !TransactionStatus.ROLLBACK_FINISHED.equals(getTransactionStatus())
+                    && !TransactionStatus.COMMIT_FINISHED.equals(getTransactionStatus()))
+            {
+                try
+                {
+                    databaseTransactionProvider.rollbackTransaction(getTransactionId(), databaseTransaction);
+                } catch (Exception ignore)
+                {
+                }
+            }
         }
     }
 

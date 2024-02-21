@@ -150,6 +150,9 @@ public class TransactionTest extends AbstractTest
                 statement.execute("ROLLBACK PREPARED '" + preparedTransactionId + "'");
             }
         }
+
+        participant1.close();
+        participant2.close();
     }
 
     @Test
@@ -724,6 +727,106 @@ public class TransactionTest extends AbstractTest
         }
     }
 
+    @Test
+    public void testRecoveryOfCoordinatorWithTransactionToRollback()
+    {
+        TransactionCoordinator coordinatorBeforeCrash = createCoordinator(Arrays.asList(participant1, participant2), 60, 10);
+
+        assertTransactions(coordinatorBeforeCrash.getTransactionMap());
+        assertTransactions(participant1.getTransactionMap());
+        assertTransactions(participant2.getTransactionMap());
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        UUID trId = UUID.randomUUID();
+
+        coordinatorBeforeCrash.beginTransaction(trId, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
+
+        SpaceCreation spaceCreation = new SpaceCreation();
+        spaceCreation.setCode(UUID.randomUUID().toString());
+
+        coordinatorBeforeCrash.executeOperation(trId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(),
+                OPERATION_CREATE_SPACES, new Object[] { sessionToken, Collections.singletonList(spaceCreation) });
+
+        // new coordinator
+        TransactionCoordinator coordinatorAfterCrash = createCoordinator(Arrays.asList(participant1, participant2), 60, 10);
+
+        assertTransactions(coordinatorAfterCrash.getTransactionMap());
+        assertTransactions(participant1.getTransactionMap(), new Transaction(trId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(participant2.getTransactionMap(), new Transaction(trId, TransactionStatus.BEGIN_FINISHED));
+
+        coordinatorAfterCrash.recoverTransactionsFromTransactionLog();
+
+        assertTransactions(coordinatorAfterCrash.getTransactionMap());
+        assertTransactions(participant1.getTransactionMap());
+        assertTransactions(participant2.getTransactionMap());
+
+        Map<ISpaceId, Space> createdSpaces = applicationServerApi.getSpaces(sessionToken,
+                Collections.singletonList(new SpacePermId(spaceCreation.getCode())), new SpaceFetchOptions());
+        assertEquals(createdSpaces.size(), 0);
+    }
+
+    @Test
+    public void testRecoveryOfCoordinatorWithTransactionToCommit()
+    {
+        // "commit" for both participants should fail
+        RuntimeException exception = new RuntimeException("Test prepare exception");
+
+        participant1.getDatabaseTransactionProvider().setCommitAction(() ->
+        {
+            throw exception;
+        });
+        participant2.getDatabaseTransactionProvider().setCommitAction(() ->
+        {
+            throw exception;
+        });
+
+        TransactionCoordinator coordinatorBeforeCrash = createCoordinator(Arrays.asList(participant1, participant2), 60, 10);
+
+        assertTransactions(coordinatorBeforeCrash.getTransactionMap());
+        assertTransactions(participant1.getTransactionMap());
+        assertTransactions(participant2.getTransactionMap());
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        UUID trId = UUID.randomUUID();
+
+        coordinatorBeforeCrash.beginTransaction(trId, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
+
+        SpaceCreation spaceCreation = new SpaceCreation();
+        spaceCreation.setCode(UUID.randomUUID().toString());
+
+        coordinatorBeforeCrash.executeOperation(trId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(),
+                OPERATION_CREATE_SPACES, new Object[] { sessionToken, Collections.singletonList(spaceCreation) });
+
+        coordinatorBeforeCrash.commitTransaction(trId, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
+
+        // new coordinator
+        TransactionCoordinator coordinatorAfterCrash = createCoordinator(Arrays.asList(participant1, participant2), 60, 10);
+
+        // "commit" for both participants should succeed
+        participant1.getDatabaseTransactionProvider().setCommitAction(null);
+        participant2.getDatabaseTransactionProvider().setCommitAction(null);
+
+        assertTransactions(coordinatorAfterCrash.getTransactionMap());
+        assertTransactions(participant1.getTransactionMap(), new Transaction(trId, TransactionStatus.COMMIT_STARTED));
+        assertTransactions(participant2.getTransactionMap(), new Transaction(trId, TransactionStatus.COMMIT_STARTED));
+
+        Map<ISpaceId, Space> createdSpaces = applicationServerApi.getSpaces(sessionToken,
+                Collections.singletonList(new SpacePermId(spaceCreation.getCode())), new SpaceFetchOptions());
+        assertEquals(createdSpaces.size(), 0);
+
+        coordinatorAfterCrash.recoverTransactionsFromTransactionLog();
+
+        assertTransactions(coordinatorAfterCrash.getTransactionMap());
+        assertTransactions(participant1.getTransactionMap());
+        assertTransactions(participant2.getTransactionMap());
+
+        createdSpaces = applicationServerApi.getSpaces(sessionToken,
+                Collections.singletonList(new SpacePermId(spaceCreation.getCode())), new SpaceFetchOptions());
+        assertEquals(createdSpaces.size(), 1);
+    }
+
     private static void assertTransactions(Map<UUID, ? extends Transaction> actualTransactions, Transaction... expectedTransactions)
     {
         Map<String, String> actualTransactionsMap = new TreeMap<>();
@@ -883,6 +986,11 @@ public class TransactionTest extends AbstractTest
             }
 
             return transactionIds;
+        }
+
+        public void close()
+        {
+            participant.close();
         }
     }
 
