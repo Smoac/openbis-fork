@@ -143,13 +143,8 @@ public class TransactionParticipant implements ITransactionParticipant
                             case BEGIN_STARTED:
                             case PREPARE_STARTED:
                             case ROLLBACK_STARTED:
-                                rollbackTransaction(transaction);
-                                break;
                             case BEGIN_FINISHED:
-                                if (!transaction.isTwoPhaseTransaction())
-                                {
-                                    rollbackTransaction(transaction);
-                                }
+                                rollbackTransaction(transaction);
                                 break;
                             case PREPARE_FINISHED:
                                 // wait for the coordinator to decide whether to commit or rollback

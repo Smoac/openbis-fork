@@ -369,7 +369,7 @@ public class TransactionCoordinator implements ITransactionCoordinator
 
                 operationLog.info("Prepare transaction '" + transaction.getTransactionId() + "' has failed.");
 
-                throw e;
+                throw new RuntimeException("Prepare transaction '" + transaction.getTransactionId() + "' failed for participant '" + participant.getParticipantId() + "'", e);
             }
         }
 
@@ -425,7 +425,7 @@ public class TransactionCoordinator implements ITransactionCoordinator
                                 + participant.getParticipantId() + "'.", e);
                 if (exception == null)
                 {
-                    exception = e;
+                    exception = new RuntimeException("Commit prepared transaction '" + transaction.getTransactionId() + "' failed for participant '" + participant.getParticipantId() + "'", e);
                 }
             }
         }
