@@ -234,6 +234,8 @@ public class TransactionParticipant implements ITransactionParticipant
                             commitTransaction(transaction);
                             break;
                     }
+
+                    return null;
                 });
             } catch (Exception e)
             {
@@ -389,7 +391,11 @@ public class TransactionParticipant implements ITransactionParticipant
             throw new IllegalStateException("Transaction '" + transactionId + "' does not exist.");
         }
 
-        commitTransaction(transaction);
+        transaction.lockOrFail(() ->
+        {
+            commitTransaction(transaction);
+            return null;
+        });
     }
 
     @Override public void commitTransaction(final UUID transactionId, final String transactionCoordinatorKey)
@@ -404,35 +410,35 @@ public class TransactionParticipant implements ITransactionParticipant
             throw new IllegalStateException("Transaction '" + transactionId + "' does not exist.");
         }
 
-        commitTransaction(transaction);
-    }
-
-    private void commitTransaction(Transaction transaction)
-    {
         transaction.lockOrFail(() ->
         {
-            checkTransactionStatus(transaction, TransactionStatus.NEW, TransactionStatus.BEGIN_FINISHED, TransactionStatus.PREPARE_FINISHED,
-                    TransactionStatus.COMMIT_STARTED);
-
-            transaction.setLastAccessedDate(new Date());
-
-            operationLog.info("Commit transaction '" + transaction.getTransactionId() + "' started.");
-
-            if (transaction.getTransactionStatus() != TransactionStatus.NEW)
-            {
-                transaction.setTransactionStatus(TransactionStatus.COMMIT_STARTED);
-                databaseTransactionProvider.commitTransaction(transaction.getTransactionId(), transaction.getDatabaseTransaction());
-                transaction.setTransactionStatus(TransactionStatus.COMMIT_FINISHED);
-            }
-
-            transaction.close();
-            transactionMap.remove(transaction.getTransactionId());
-
-            operationLog.info("Commit transaction '" + transaction.getTransactionId() + "' finished successfully.");
-
-            transaction.setLastAccessedDate(new Date());
+            commitTransaction(transaction);
             return null;
         });
+    }
+
+    private void commitTransaction(Transaction transaction) throws Exception
+    {
+        checkTransactionStatus(transaction, TransactionStatus.NEW, TransactionStatus.BEGIN_FINISHED, TransactionStatus.PREPARE_FINISHED,
+                TransactionStatus.COMMIT_STARTED);
+
+        transaction.setLastAccessedDate(new Date());
+
+        operationLog.info("Commit transaction '" + transaction.getTransactionId() + "' started.");
+
+        if (transaction.getTransactionStatus() != TransactionStatus.NEW)
+        {
+            transaction.setTransactionStatus(TransactionStatus.COMMIT_STARTED);
+            databaseTransactionProvider.commitTransaction(transaction.getTransactionId(), transaction.getDatabaseTransaction());
+            transaction.setTransactionStatus(TransactionStatus.COMMIT_FINISHED);
+        }
+
+        transaction.close();
+        transactionMap.remove(transaction.getTransactionId());
+
+        operationLog.info("Commit transaction '" + transaction.getTransactionId() + "' finished successfully.");
+
+        transaction.setLastAccessedDate(new Date());
     }
 
     @Override public void rollbackTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
@@ -448,7 +454,11 @@ public class TransactionParticipant implements ITransactionParticipant
             return;
         }
 
-        rollbackTransaction(transaction);
+        transaction.lockOrFail(() ->
+        {
+            rollbackTransaction(transaction);
+            return null;
+        });
     }
 
     @Override public void rollbackTransaction(final UUID transactionId, final String transactionCoordinatorKey)
@@ -463,36 +473,36 @@ public class TransactionParticipant implements ITransactionParticipant
             return;
         }
 
-        rollbackTransaction(transaction);
-    }
-
-    private void rollbackTransaction(Transaction transaction)
-    {
         transaction.lockOrFail(() ->
         {
-            checkTransactionStatus(transaction, TransactionStatus.NEW, TransactionStatus.BEGIN_STARTED,
-                    TransactionStatus.BEGIN_FINISHED, TransactionStatus.PREPARE_STARTED, TransactionStatus.PREPARE_FINISHED,
-                    TransactionStatus.COMMIT_STARTED, TransactionStatus.ROLLBACK_STARTED);
-
-            transaction.setLastAccessedDate(new Date());
-
-            operationLog.info("Rollback transaction '" + transaction.getTransactionId() + "' started.");
-
-            if (transaction.getTransactionStatus() != TransactionStatus.NEW)
-            {
-                transaction.setTransactionStatus(TransactionStatus.ROLLBACK_STARTED);
-                databaseTransactionProvider.rollbackTransaction(transaction.getTransactionId(), transaction.getDatabaseTransaction());
-                transaction.setTransactionStatus(TransactionStatus.ROLLBACK_FINISHED);
-            }
-
-            transaction.close();
-            transactionMap.remove(transaction.getTransactionId());
-
-            operationLog.info("Rollback transaction '" + transaction.getTransactionId() + "' finished successfully.");
-
-            transaction.setLastAccessedDate(new Date());
+            rollbackTransaction(transaction);
             return null;
         });
+    }
+
+    private void rollbackTransaction(Transaction transaction) throws Exception
+    {
+        checkTransactionStatus(transaction, TransactionStatus.NEW, TransactionStatus.BEGIN_STARTED,
+                TransactionStatus.BEGIN_FINISHED, TransactionStatus.PREPARE_STARTED, TransactionStatus.PREPARE_FINISHED,
+                TransactionStatus.COMMIT_STARTED, TransactionStatus.ROLLBACK_STARTED);
+
+        transaction.setLastAccessedDate(new Date());
+
+        operationLog.info("Rollback transaction '" + transaction.getTransactionId() + "' started.");
+
+        if (transaction.getTransactionStatus() != TransactionStatus.NEW)
+        {
+            transaction.setTransactionStatus(TransactionStatus.ROLLBACK_STARTED);
+            databaseTransactionProvider.rollbackTransaction(transaction.getTransactionId(), transaction.getDatabaseTransaction());
+            transaction.setTransactionStatus(TransactionStatus.ROLLBACK_FINISHED);
+        }
+
+        transaction.close();
+        transactionMap.remove(transaction.getTransactionId());
+
+        operationLog.info("Rollback transaction '" + transaction.getTransactionId() + "' finished successfully.");
+
+        transaction.setLastAccessedDate(new Date());
     }
 
     public boolean isRunningTransaction(UUID transactionId)
@@ -709,7 +719,7 @@ public class TransactionParticipant implements ITransactionParticipant
             }
         }
 
-        public void lockOrSkip(Runnable action)
+        public void lockOrSkip(Callable<?> action)
         {
             if (lock.tryLock())
             {

@@ -43,6 +43,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria
 import ch.ethz.sis.openbis.generic.server.asapi.v3.TransactionConfiguration;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.TransactionParticipantApi;
 import ch.ethz.sis.transaction.IDatabaseTransactionProvider;
+import ch.ethz.sis.transaction.ITransactionCoordinator;
 import ch.ethz.sis.transaction.ITransactionLog;
 import ch.ethz.sis.transaction.ITransactionParticipant;
 import ch.ethz.sis.transaction.Transaction;
@@ -827,6 +828,78 @@ public class TransactionTest extends AbstractTest
         assertEquals(createdSpaces.size(), 1);
     }
 
+    @Test
+    public void testRecoveryOfParticipantWithTransactionToCommit()
+    {
+        List<ITransactionParticipant> participants = new ArrayList<>();
+        participants.add(participant1);
+        participants.add(participant2);
+
+        TransactionCoordinator coordinator = createCoordinator(participants, 60, 10);
+
+        assertTransactions(coordinator.getTransactionMap());
+        assertTransactions(participant1.getTransactionMap());
+        assertTransactions(participant2.getTransactionMap());
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        UUID trId = UUID.randomUUID();
+
+        coordinator.beginTransaction(trId, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
+
+        SpaceCreation spaceCreation = new SpaceCreation();
+        spaceCreation.setCode(UUID.randomUUID().toString());
+
+        coordinator.executeOperation(trId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(),
+                OPERATION_CREATE_SPACES, new Object[] { sessionToken, Collections.singletonList(spaceCreation) });
+
+        // "prepare" should fail
+        RuntimeException exception = new RuntimeException("Test commit exception");
+        participant1.getDatabaseTransactionProvider().setCommitAction(()->{
+            throw exception;
+        });
+
+        coordinator.commitTransaction(trId, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
+
+        assertTransactions(coordinator.getTransactionMap(), new Transaction(trId, TransactionStatus.COMMIT_STARTED));
+        assertTransactions(participant1.getTransactionMap(), new Transaction(trId, TransactionStatus.COMMIT_STARTED));
+        assertTransactions(participant2.getTransactionMap());
+
+        TestTransactionParticipant participant1AfterCrash = createParticipant(TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER);
+        // replace original participant with a new instance
+        participants.set(0, participant1AfterCrash);
+
+        assertTransactions(coordinator.getTransactionMap(), new Transaction(trId, TransactionStatus.COMMIT_STARTED));
+        assertTransactions(participant1AfterCrash.getTransactionMap());
+        assertTransactions(participant2.getTransactionMap());
+
+        Map<ISpaceId, Space> createdSpaces = applicationServerApi.getSpaces(sessionToken,
+                Collections.singletonList(new SpacePermId(spaceCreation.getCode())), new SpaceFetchOptions());
+        assertEquals(createdSpaces.size(), 0);
+
+        participant1AfterCrash.recoverTransactionsFromTransactionLog();
+
+        createdSpaces = applicationServerApi.getSpaces(sessionToken,
+                Collections.singletonList(new SpacePermId(spaceCreation.getCode())), new SpaceFetchOptions());
+        assertEquals(createdSpaces.size(), 1);
+
+        assertTransactions(coordinator.getTransactionMap(), new Transaction(trId, TransactionStatus.COMMIT_STARTED));
+        assertTransactions(participant1AfterCrash.getTransactionMap());
+        assertTransactions(participant2.getTransactionMap());
+
+        coordinator.finishFailedOrAbandonedTransactions();
+
+        assertTransactions(coordinator.getTransactionMap());
+        assertTransactions(participant1AfterCrash.getTransactionMap());
+        assertTransactions(participant2.getTransactionMap());
+
+        participant1AfterCrash.close();
+
+        createdSpaces = applicationServerApi.getSpaces(sessionToken,
+                Collections.singletonList(new SpacePermId(spaceCreation.getCode())), new SpaceFetchOptions());
+        assertEquals(createdSpaces.size(), 1);
+    }
+
     private static void assertTransactions(Map<UUID, ? extends Transaction> actualTransactions, Transaction... expectedTransactions)
     {
         Map<String, String> actualTransactionsMap = new TreeMap<>();
@@ -986,6 +1059,10 @@ public class TransactionTest extends AbstractTest
             }
 
             return transactionIds;
+        }
+
+        public void recoverTransactionsFromTransactionLog(){
+            participant.recoverTransactionsFromTransactionLog();
         }
 
         public void close()
