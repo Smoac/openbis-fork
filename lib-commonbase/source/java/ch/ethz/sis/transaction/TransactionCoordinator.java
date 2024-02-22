@@ -242,7 +242,8 @@ public class TransactionCoordinator implements ITransactionCoordinator
                     {
                     }
 
-                    throw e;
+                    throw new RuntimeException(
+                            "Begin transaction '" + transactionId + "' failed for participant '" + participant.getParticipantId() + "'.", e);
                 }
             }
 
@@ -283,15 +284,25 @@ public class TransactionCoordinator implements ITransactionCoordinator
                     /*
                       An exception thrown by the executed operation does not trigger an automatic rollback.
                       The client has the freedom to decide whether to rollback or keep on working with the current transaction.
+                      If the transaction gets abandoned by the client, then it will time out and be automatically rolled back by the coordinator.
                      */
-                    T result =
-                            participant.executeOperation(transactionId, sessionToken, interactiveSessionKey, operationName, operationArguments);
 
-                    operationLog.info("Transaction '" + transactionId + "' execute operation '" + operationName + "' finished successfully.");
+                    try
+                    {
+                        T result =
+                                participant.executeOperation(transactionId, sessionToken, interactiveSessionKey, operationName, operationArguments);
 
-                    transaction.setLastAccessedDate(new Date());
+                        operationLog.info("Transaction '" + transactionId + "' execute operation '" + operationName + "' finished successfully.");
 
-                    return result;
+                        transaction.setLastAccessedDate(new Date());
+
+                        return result;
+                    } catch (Exception e)
+                    {
+                        throw new RuntimeException(
+                                "Transaction '" + transactionId + "' execute operation '" + operationName + "' failed for participant '"
+                                        + participant.getParticipantId() + "'.", e);
+                    }
                 }
             }
 
@@ -369,7 +380,9 @@ public class TransactionCoordinator implements ITransactionCoordinator
 
                 operationLog.info("Prepare transaction '" + transaction.getTransactionId() + "' has failed.");
 
-                throw new RuntimeException("Prepare transaction '" + transaction.getTransactionId() + "' failed for participant '" + participant.getParticipantId() + "'", e);
+                throw new RuntimeException(
+                        "Prepare transaction '" + transaction.getTransactionId() + "' failed for participant '" + participant.getParticipantId()
+                                + "'.", e);
             }
         }
 
@@ -425,7 +438,8 @@ public class TransactionCoordinator implements ITransactionCoordinator
                                 + participant.getParticipantId() + "'.", e);
                 if (exception == null)
                 {
-                    exception = new RuntimeException("Commit prepared transaction '" + transaction.getTransactionId() + "' failed for participant '" + participant.getParticipantId() + "'", e);
+                    exception = new RuntimeException("Commit prepared transaction '" + transaction.getTransactionId() + "' failed for participant '"
+                            + participant.getParticipantId() + "'.", e);
                 }
             }
         }
@@ -514,7 +528,9 @@ public class TransactionCoordinator implements ITransactionCoordinator
                                 + "'.", e);
                 if (exception == null)
                 {
-                    exception = e;
+                    exception = new RuntimeException(
+                            "Rollback transaction '" + transaction.getTransactionId() + "' failed for participant '" + participant.getParticipantId()
+                                    + "'.", e);
                 }
             }
         }
@@ -680,6 +696,7 @@ public class TransactionCoordinator implements ITransactionCoordinator
                         "Cannot execute a new action on transaction '" + getTransactionId() + "' as it is still busy executing a previous action.");
             }
         }
+
         public boolean hasTimedOut()
         {
             return System.currentTimeMillis() - getLastAccessedDate().getTime() > transactionTimeoutInSeconds * 1000L;

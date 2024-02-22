@@ -187,7 +187,9 @@ public class TransactionTest extends AbstractTest
             fail();
         } catch (Exception e)
         {
-            assertEquals(e, exception);
+            assertEquals(e.getMessage(),
+                    "Begin transaction '" + coordinatorTrId + "' failed for participant '" + participant2.getParticipantId() + "'.");
+            assertEquals(e.getCause(), exception);
         }
 
         assertTransactions(coordinator.getTransactionMap());
@@ -209,17 +211,21 @@ public class TransactionTest extends AbstractTest
         SpaceCreation spaceCreation1 = new SpaceCreation();
         spaceCreation1.setCode(UUID.randomUUID().toString());
 
-        coordinator.executeOperation(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(), OPERATION_CREATE_SPACES,
+        coordinator.executeOperation(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(),
+                OPERATION_CREATE_SPACES,
                 new Object[] { sessionToken, Collections.singletonList(spaceCreation1) });
 
         try
         {
-            coordinator.executeOperation(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant2.getParticipantId(), OPERATION_CREATE_SPACES,
+            coordinator.executeOperation(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant2.getParticipantId(),
+                    OPERATION_CREATE_SPACES,
                     new Object[] { sessionToken, Collections.singletonList(new SpaceCreation()) });
             fail();
         } catch (Exception e)
         {
-            AssertionUtil.assertContains("Code cannot be empty", e.getMessage());
+            assertEquals(e.getMessage(), "Transaction '" + coordinatorTrId + "' execute operation 'createSpaces' failed for participant '"
+                    + participant2.getParticipantId() + "'.");
+            AssertionUtil.assertContains("Code cannot be empty", e.getCause().getMessage());
         }
 
         assertTransactions(coordinator.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
@@ -247,7 +253,8 @@ public class TransactionTest extends AbstractTest
         SpaceCreation spaceCreation = new SpaceCreation();
         spaceCreation.setCode(UUID.randomUUID().toString());
 
-        coordinator.executeOperation(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(), OPERATION_CREATE_SPACES,
+        coordinator.executeOperation(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(),
+                OPERATION_CREATE_SPACES,
                 new Object[] { sessionToken, Collections.singletonList(spaceCreation) });
 
         assertTransactions(coordinator.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
@@ -296,13 +303,15 @@ public class TransactionTest extends AbstractTest
         SpaceCreation spaceCreation1 = new SpaceCreation();
         spaceCreation1.setCode(UUID.randomUUID().toString());
 
-        coordinator.executeOperation(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(), OPERATION_CREATE_SPACES,
+        coordinator.executeOperation(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(),
+                OPERATION_CREATE_SPACES,
                 new Object[] { sessionToken, Collections.singletonList(spaceCreation1) });
 
         SpaceCreation spaceCreation2 = new SpaceCreation();
         spaceCreation2.setCode(UUID.randomUUID().toString());
 
-        coordinator.executeOperation(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant2.getParticipantId(), OPERATION_CREATE_SPACES,
+        coordinator.executeOperation(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant2.getParticipantId(),
+                OPERATION_CREATE_SPACES,
                 new Object[] { sessionToken, Collections.singletonList(spaceCreation2) });
 
         try
@@ -311,8 +320,9 @@ public class TransactionTest extends AbstractTest
             fail();
         } catch (Exception e)
         {
-            assertEquals(e.getMessage(), "Prepare transaction '" + coordinatorTrId + "' failed for participant '" + participant2.getParticipantId() + "'");
-            assertEquals(e.getCause().getMessage(), "Test prepare exception");
+            assertEquals(e.getMessage(),
+                    "Prepare transaction '" + coordinatorTrId + "' failed for participant '" + participant2.getParticipantId() + "'.");
+            assertEquals(e.getCause(), exception);
         }
 
         assertTransactions(coordinator.getTransactionMap());
@@ -345,13 +355,15 @@ public class TransactionTest extends AbstractTest
         SpaceCreation spaceCreation1 = new SpaceCreation();
         spaceCreation1.setCode(UUID.randomUUID().toString());
 
-        coordinator.executeOperation(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(), OPERATION_CREATE_SPACES,
+        coordinator.executeOperation(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(),
+                OPERATION_CREATE_SPACES,
                 new Object[] { sessionToken, Collections.singletonList(spaceCreation1) });
 
         SpaceCreation spaceCreation2 = new SpaceCreation();
         spaceCreation2.setCode(UUID.randomUUID().toString());
 
-        coordinator.executeOperation(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant2.getParticipantId(), OPERATION_CREATE_SPACES,
+        coordinator.executeOperation(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant2.getParticipantId(),
+                OPERATION_CREATE_SPACES,
                 new Object[] { sessionToken, Collections.singletonList(spaceCreation2) });
 
         coordinator.commitTransaction(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
@@ -395,13 +407,15 @@ public class TransactionTest extends AbstractTest
         SpaceCreation spaceCreation1 = new SpaceCreation();
         spaceCreation1.setCode(UUID.randomUUID().toString());
 
-        coordinator.executeOperation(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(), OPERATION_CREATE_SPACES,
+        coordinator.executeOperation(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(),
+                OPERATION_CREATE_SPACES,
                 new Object[] { sessionToken, Collections.singletonList(spaceCreation1) });
 
         SpaceCreation spaceCreation2 = new SpaceCreation();
         spaceCreation2.setCode(UUID.randomUUID().toString());
 
-        coordinator.executeOperation(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant2.getParticipantId(), OPERATION_CREATE_SPACES,
+        coordinator.executeOperation(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant2.getParticipantId(),
+                OPERATION_CREATE_SPACES,
                 new Object[] { sessionToken, Collections.singletonList(spaceCreation2) });
 
         coordinator.rollbackTransaction(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
@@ -666,7 +680,8 @@ public class TransactionTest extends AbstractTest
         SpaceCreation spaceCreation1 = new SpaceCreation();
         spaceCreation1.setCode(UUID.randomUUID().toString());
 
-        coordinator.executeOperation(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(), OPERATION_CREATE_SPACES,
+        coordinator.executeOperation(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(),
+                OPERATION_CREATE_SPACES,
                 new Object[] { sessionToken, Collections.singletonList(spaceCreation1) });
 
         MessageChannel messageChannel = new MessageChannel(1000);
@@ -688,7 +703,8 @@ public class TransactionTest extends AbstractTest
         try
         {
             // try to execute an operation while the commit is in progress
-            coordinator.executeOperation(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant2.getParticipantId(), OPERATION_CREATE_SPACES,
+            coordinator.executeOperation(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant2.getParticipantId(),
+                    OPERATION_CREATE_SPACES,
                     new Object[] { sessionToken, Collections.singletonList(spaceCreation2) });
             fail();
         } catch (Exception e)
@@ -717,8 +733,10 @@ public class TransactionTest extends AbstractTest
         UUID participant2Tr2Id = UUID.randomUUID();
         UUID participant2Tr3Id = UUID.randomUUID();
 
-        participant1.setTransactionMapping(Map.of(coordinatorTr1Id, participant1Tr1Id, coordinatorTr2Id, participant1Tr2Id, coordinatorTr3Id, participant1Tr3Id));
-        participant2.setTransactionMapping(Map.of(coordinatorTr1Id, participant2Tr1Id, coordinatorTr2Id, participant2Tr2Id, coordinatorTr3Id, participant2Tr3Id));
+        participant1.setTransactionMapping(
+                Map.of(coordinatorTr1Id, participant1Tr1Id, coordinatorTr2Id, participant1Tr2Id, coordinatorTr3Id, participant1Tr3Id));
+        participant2.setTransactionMapping(
+                Map.of(coordinatorTr1Id, participant2Tr1Id, coordinatorTr2Id, participant2Tr2Id, coordinatorTr3Id, participant2Tr3Id));
 
         coordinator = createCoordinator(Arrays.asList(participant1, participant2), 60, 2);
 
@@ -736,7 +754,8 @@ public class TransactionTest extends AbstractTest
             coordinator.beginTransaction(coordinatorTr3Id, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
         } catch (Exception e)
         {
-            assertEquals(e.getMessage(), "Cannot create transaction '" + coordinatorTr3Id + "' because transaction count limit (2) has been reached.");
+            assertEquals(e.getMessage(),
+                    "Cannot create transaction '" + coordinatorTr3Id + "' because transaction count limit (2) has been reached.");
         }
     }
 
@@ -904,7 +923,7 @@ public class TransactionTest extends AbstractTest
         {
             // thrown by coordinator
             assertEquals(e.getMessage(),
-                    "Prepare transaction '" + coordinatorTrId + "' failed for participant '" + participant1.getParticipantId() + "'");
+                    "Prepare transaction '" + coordinatorTrId + "' failed for participant '" + participant1.getParticipantId() + "'.");
             // thrown by participant
             assertEquals(e.getCause().getMessage(), "Transaction '" + participant1TrId + "' does not exist.");
         }
@@ -1143,7 +1162,7 @@ public class TransactionTest extends AbstractTest
 
         public void setTransactionMapping(Map<UUID, UUID> coordinatorIdToParticipantIdMap)
         {
-            for(Map.Entry<UUID, UUID> entry : coordinatorIdToParticipantIdMap.entrySet())
+            for (Map.Entry<UUID, UUID> entry : coordinatorIdToParticipantIdMap.entrySet())
             {
                 originalToInternalId.put(entry.getKey(), entry.getValue());
                 internalToOriginalId.put(entry.getValue(), entry.getKey());

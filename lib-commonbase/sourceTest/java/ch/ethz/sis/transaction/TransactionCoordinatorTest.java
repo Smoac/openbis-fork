@@ -33,6 +33,8 @@ public class TransactionCoordinatorTest
 
     public static final String TEST_PARTICIPANT_ID_2 = "participant-id-2";
 
+    public static final String TEST_PARTICIPANT_ID_3 = "participant-id-3";
+
     public static final String TEST_SESSION_TOKEN = "test-session-token";
 
     public static final String TEST_INTERACTIVE_SESSION_KEY = "test-interactive-session-key";
@@ -120,7 +122,9 @@ public class TransactionCoordinatorTest
         {
             {
                 allowing(participant1).getParticipantId();
+                will(returnValue(TEST_PARTICIPANT_ID));
                 allowing(participant2).getParticipantId();
+                will(returnValue(TEST_PARTICIPANT_ID_2));
 
                 allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
                 will(returnValue(true));
@@ -147,7 +151,8 @@ public class TransactionCoordinatorTest
             coordinator.beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
         } catch (Exception e)
         {
-            assertEquals(e, beginException);
+            assertEquals(e.getMessage(), "Begin transaction '" + TEST_TRANSACTION_ID + "' failed for participant '" + TEST_PARTICIPANT_ID_2 + "'.");
+            assertEquals(e.getCause(), beginException);
         }
     }
 
@@ -233,7 +238,10 @@ public class TransactionCoordinatorTest
             fail();
         } catch (Exception e)
         {
-            assertEquals(e, executeOperationException);
+            assertEquals(e.getMessage(),
+                    "Transaction '" + TEST_TRANSACTION_ID + "' execute operation '" + TEST_OPERATION_NAME + "' failed for participant '"
+                            + TEST_PARTICIPANT_ID + "'.");
+            assertEquals(e.getCause(), executeOperationException);
         }
     }
 
@@ -338,8 +346,11 @@ public class TransactionCoordinatorTest
         {
             {
                 allowing(participant1).getParticipantId();
+                will(returnValue(TEST_PARTICIPANT_ID));
                 allowing(participant2).getParticipantId();
+                will(returnValue(TEST_PARTICIPANT_ID_2));
                 allowing(participant3).getParticipantId();
+                will(returnValue(TEST_PARTICIPANT_ID_3));
 
                 allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
                 will(returnValue(true));
@@ -380,7 +391,8 @@ public class TransactionCoordinatorTest
             fail();
         } catch (Exception e)
         {
-            assertEquals(e, prepareException);
+            assertEquals(e.getMessage(), "Prepare transaction '" + TEST_TRANSACTION_ID + "' failed for participant '" + TEST_PARTICIPANT_ID_2 + "'.");
+            assertEquals(e.getCause(), prepareException);
         }
     }
 
