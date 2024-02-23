@@ -8,6 +8,8 @@ public interface ITransactionLog
 
     void logTransaction(final TransactionLogEntry transaction);
 
+    void deleteTransaction(UUID transactionId);
+
     Map<UUID, TransactionLogEntry> getTransactions();
 
 }

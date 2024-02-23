@@ -112,68 +112,46 @@ public class TransactionParticipant implements ITransactionParticipant
 
     public void recoverTransactionsFromTransactionLog()
     {
-        operationLog.info("Started recovering transactions from transaction log");
-
-        for (TransactionLogEntry logEntry : transactionLog.getTransactions().values())
+        try
         {
-            if (TransactionStatus.COMMIT_FINISHED.equals(logEntry.getTransactionStatus()) || TransactionStatus.ROLLBACK_FINISHED.equals(
-                    logEntry.getTransactionStatus()))
-            {
-                continue;
-            }
+            operationLog.info("Started recovering transactions from transaction log");
 
-            Transaction existingTransaction = getTransaction(logEntry.getTransactionId());
-
-            if (existingTransaction == null)
+            for (TransactionLogEntry logEntry : transactionLog.getTransactions().values())
             {
-                try
+                if (TransactionStatus.COMMIT_FINISHED.equals(logEntry.getTransactionStatus())
+                        || TransactionStatus.ROLLBACK_FINISHED.equals(logEntry.getTransactionStatus()))
                 {
-                    Transaction transaction = createTransaction(logEntry.getTransactionId(), logEntry.getTransactionStatus());
-                    transaction.setTwoPhaseTransaction(logEntry.isTwoPhaseTransaction());
-
-                    transaction.lockOrFail(() ->
+                    operationLog.info(
+                            "Nothing to recover for transaction '" + logEntry.getTransactionId() + "' found in the transaction log with last status '"
+                                    + logEntry.getTransactionStatus() + "'.");
+                    transactionLog.deleteTransaction(logEntry.getTransactionId());
+                } else
+                {
+                    synchronized (transactionMap)
                     {
-                        operationLog.info(
-                                "Recovering transaction '" + transaction.getTransactionId() + "' found in the transaction log with last status '"
-                                        + transaction.getTransactionStatus() + "' .");
+                        Transaction existingTransaction = getTransaction(logEntry.getTransactionId());
 
-                        switch (transaction.getTransactionStatus())
+                        if (existingTransaction == null)
                         {
-                            case NEW:
-                            case BEGIN_STARTED:
-                            case PREPARE_STARTED:
-                            case ROLLBACK_STARTED:
-                            case BEGIN_FINISHED:
-                                rollbackTransaction(transaction);
-                                break;
-                            case PREPARE_FINISHED:
-                                // wait for the coordinator to decide whether to commit or rollback
-                                break;
-                            case COMMIT_STARTED:
-                                commitTransaction(transaction);
-                                break;
-                            default:
-                                throw new IllegalStateException(
-                                        "Transaction '" + transaction.getTransactionId() + "' has an unsupported last status '"
-                                                + transaction.getTransactionStatus() + "'");
+                            Transaction transaction = createTransaction(logEntry.getTransactionId(), logEntry.getTransactionStatus());
+                            transaction.setTwoPhaseTransaction(logEntry.isTwoPhaseTransaction());
+                            operationLog.info(
+                                    "Recovered transaction '" + transaction.getTransactionId() + "' found in the transaction log with last status '"
+                                            + transaction.getTransactionStatus() + "' .");
                         }
-
-                        return null;
-                    });
-                } catch (Exception e)
-                {
-                    operationLog.warn(
-                            "Recovering transaction '" + logEntry.getTransactionId() + "' found in the transaction log with last status '"
-                                    + logEntry.getTransactionStatus() + "' has failed.",
-                            e);
+                    }
                 }
             }
-        }
 
-        operationLog.info("Finished recovering transactions from transaction log");
+            operationLog.info("Finished recovering transactions from transaction log");
+        } catch (Exception e)
+        {
+            operationLog.error("Recovering transactions from transaction log has failed.", e);
+            throw e;
+        }
     }
 
-    public void finishFailedOrAbandonedTransaction()
+    public void finishFailedOrAbandonedTransactions()
     {
         operationLog.info("Started processing of failed or abandoned transactions");
 
@@ -353,6 +331,8 @@ public class TransactionParticipant implements ITransactionParticipant
 
         operationLog.info("Started recovering transactions (triggered by the coordinator)");
 
+        recoverTransactionsFromTransactionLog();
+
         List<UUID> preparedTransactions = new ArrayList<>();
 
         for (Transaction transaction : transactionMap.values())
@@ -394,7 +374,8 @@ public class TransactionParticipant implements ITransactionParticipant
         });
     }
 
-    @Override public void commitRecoveredTransaction(final UUID transactionId, final String interactiveSessionKey, final String transactionCoordinatorKey)
+    @Override public void commitRecoveredTransaction(final UUID transactionId, final String interactiveSessionKey,
+            final String transactionCoordinatorKey)
     {
         checkTransactionId(transactionId);
         checkInteractiveSessionKey(interactiveSessionKey);
@@ -458,7 +439,8 @@ public class TransactionParticipant implements ITransactionParticipant
         });
     }
 
-    @Override public void rollbackRecoveredTransaction(final UUID transactionId, final String interactiveSessionKey, final String transactionCoordinatorKey)
+    @Override public void rollbackRecoveredTransaction(final UUID transactionId, final String interactiveSessionKey,
+            final String transactionCoordinatorKey)
     {
         checkTransactionId(transactionId);
         checkInteractiveSessionKey(interactiveSessionKey);
@@ -655,12 +637,19 @@ public class TransactionParticipant implements ITransactionParticipant
 
         public void setTransactionStatus(final TransactionStatus transactionStatus)
         {
-            TransactionLogEntry entry = new TransactionLogEntry();
-            entry.setTransactionId(getTransactionId());
-            entry.setTransactionStatus(transactionStatus);
-            entry.setTwoPhaseTransaction(isTwoPhaseTransaction);
-            entry.setLastAccessedDate(getLastAccessedDate());
-            transactionLog.logTransaction(entry);
+            if (TransactionStatus.COMMIT_FINISHED.equals(transactionStatus) || TransactionStatus.ROLLBACK_FINISHED.equals(transactionStatus))
+            {
+                transactionLog.deleteTransaction(getTransactionId());
+                transactionMap.remove(getTransactionId());
+            } else
+            {
+                TransactionLogEntry entry = new TransactionLogEntry();
+                entry.setTransactionId(getTransactionId());
+                entry.setTransactionStatus(transactionStatus);
+                entry.setTwoPhaseTransaction(isTwoPhaseTransaction);
+                entry.setLastAccessedDate(getLastAccessedDate());
+                transactionLog.logTransaction(entry);
+            }
 
             super.setTransactionStatus(transactionStatus);
         }

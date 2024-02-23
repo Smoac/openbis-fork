@@ -80,6 +80,21 @@ public class TransactionLog implements ITransactionLog
         operationLog.info("Logged transaction '" + transaction.getTransactionId() + "' with status '" + transaction.getTransactionStatus() + "'.");
     }
 
+    @Override public void deleteTransaction(final UUID transactionId)
+    {
+        File transactionLogFile = new File(logFolder, transactionId.toString());
+
+        boolean deleted = FileUtilities.delete(transactionLogFile);
+
+        if (deleted)
+        {
+            operationLog.info("Deleted transaction '" + transactionId + "' log stored in '" + transactionLogFile + "' file.");
+        } else
+        {
+            throw new RuntimeException("Could not delete transaction '" + transactionId + "' log stored in '" + transactionLogFile + "' file.");
+        }
+    }
+
     @Override public Map<UUID, TransactionLogEntry> getTransactions()
     {
         return Collections.unmodifiableMap(transactionsMap);

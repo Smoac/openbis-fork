@@ -86,61 +86,42 @@ public class TransactionCoordinator implements ITransactionCoordinator
 
     public void recoverTransactionsFromTransactionLog()
     {
-        operationLog.info("Started recovering transactions from transaction log");
-
-        for (TransactionLogEntry logEntry : transactionLog.getTransactions().values())
+        try
         {
-            if (TransactionStatus.COMMIT_FINISHED.equals(logEntry.getTransactionStatus()) || TransactionStatus.ROLLBACK_FINISHED.equals(
-                    logEntry.getTransactionStatus()))
-            {
-                continue;
-            }
+            operationLog.info("Started recovering transactions from transaction log");
 
-            Transaction existingTransaction = getTransaction(logEntry.getTransactionId());
-
-            if (existingTransaction == null)
+            for (TransactionLogEntry logEntry : transactionLog.getTransactions().values())
             {
-                try
+                if (TransactionStatus.COMMIT_FINISHED.equals(logEntry.getTransactionStatus())
+                        || TransactionStatus.ROLLBACK_FINISHED.equals(logEntry.getTransactionStatus()))
                 {
-                    Transaction transaction = createTransaction(logEntry.getTransactionId(), logEntry.getTransactionStatus());
-
-                    transaction.lockOrFail(() ->
+                    operationLog.info(
+                            "Nothing to recover for transaction '" + logEntry.getTransactionId() + "' found in the transaction log with last status '"
+                                    + logEntry.getTransactionStatus() + "'.");
+                    transactionLog.deleteTransaction(logEntry.getTransactionId());
+                } else
+                {
+                    synchronized (transactionMap)
                     {
-                        operationLog.info(
-                                "Recovering transaction '" + transaction.getTransactionId() + "' found in the transaction log with last status '"
-                                        + transaction.getTransactionStatus() + "' .");
+                        Transaction existingTransaction = getTransaction(logEntry.getTransactionId());
 
-                        switch (transaction.getTransactionStatus())
+                        if (existingTransaction == null)
                         {
-                            case BEGIN_STARTED:
-                            case BEGIN_FINISHED:
-                            case PREPARE_STARTED:
-                            case ROLLBACK_STARTED:
-                                rollbackTransaction(transaction, null, interactiveSessionKey, true);
-                                break;
-                            case PREPARE_FINISHED:
-                            case COMMIT_STARTED:
-                                commitPreparedTransaction(transaction, null, interactiveSessionKey, true);
-                                break;
-                            default:
-                                throw new IllegalStateException(
-                                        "Transaction '" + transaction.getTransactionId() + "' has an unsupported last status '"
-                                                + transaction.getTransactionStatus() + "'");
+                            Transaction transaction = createTransaction(logEntry.getTransactionId(), logEntry.getTransactionStatus());
+                            operationLog.info(
+                                    "Recovered transaction '" + transaction.getTransactionId() + "' found in the transaction log with last status '"
+                                            + transaction.getTransactionStatus() + "' .");
                         }
-
-                        return null;
-                    });
-                } catch (Exception e)
-                {
-                    operationLog.warn(
-                            "Recovering transaction '" + logEntry.getTransactionId() + "' found in the transaction log with last status '"
-                                    + logEntry.getTransactionStatus() + "' has failed.",
-                            e);
+                    }
                 }
             }
-        }
 
-        operationLog.info("Finished recovering transactions from transaction log");
+            operationLog.info("Finished recovering transactions from transaction log");
+        } catch (Exception e)
+        {
+            operationLog.error("Recovering transactions from transaction log has failed.", e);
+            throw e;
+        }
     }
 
     public void finishFailedOrAbandonedTransactions()
@@ -196,6 +177,8 @@ public class TransactionCoordinator implements ITransactionCoordinator
                             commitPreparedTransaction(transaction, null, interactiveSessionKey, true);
                             break;
                     }
+
+                    return null;
                 });
             } catch (Exception e)
             {
@@ -335,6 +318,8 @@ public class TransactionCoordinator implements ITransactionCoordinator
             try
             {
                 commitPreparedTransaction(transaction, sessionToken, interactiveSessionKey, false);
+
+                operationLog.info("Commit transaction '" + transactionId + "' finished successfully.");
             } catch (Exception ignore)
             {
                 /*
@@ -344,8 +329,6 @@ public class TransactionCoordinator implements ITransactionCoordinator
             }
 
             transaction.setLastAccessedDate(new Date());
-
-            operationLog.info("Commit transaction '" + transactionId + "' finished successfully.");
 
             return null;
         });
@@ -449,7 +432,6 @@ public class TransactionCoordinator implements ITransactionCoordinator
         if (exception == null)
         {
             transaction.setTransactionStatus(TransactionStatus.COMMIT_FINISHED);
-            transactionMap.remove(transaction.getTransactionId());
             operationLog.info("Commit prepared transaction '" + transaction.getTransactionId() + "' finished successfully.");
         } else
         {
@@ -476,7 +458,6 @@ public class TransactionCoordinator implements ITransactionCoordinator
             checkTransactionStatus(transaction, TransactionStatus.BEGIN_STARTED, TransactionStatus.BEGIN_FINISHED,
                     TransactionStatus.PREPARE_STARTED, TransactionStatus.PREPARE_FINISHED, TransactionStatus.ROLLBACK_STARTED,
                     TransactionStatus.ROLLBACK_FINISHED);
-
             transaction.setLastAccessedDate(new Date());
 
             try
@@ -540,7 +521,6 @@ public class TransactionCoordinator implements ITransactionCoordinator
         if (exception == null)
         {
             transaction.setTransactionStatus(TransactionStatus.ROLLBACK_FINISHED);
-            transactionMap.remove(transaction.getTransactionId());
             operationLog.info("Rollback transaction '" + transaction.getTransactionId() + "' finished successfully.");
         } else
         {
@@ -645,12 +625,19 @@ public class TransactionCoordinator implements ITransactionCoordinator
 
         public void setTransactionStatus(final TransactionStatus transactionStatus)
         {
-            TransactionLogEntry entry = new TransactionLogEntry();
-            entry.setTransactionId(getTransactionId());
-            entry.setTransactionStatus(transactionStatus);
-            entry.setTwoPhaseTransaction(true);
-            entry.setLastAccessedDate(getLastAccessedDate());
-            transactionLog.logTransaction(entry);
+            if (TransactionStatus.COMMIT_FINISHED.equals(transactionStatus) || TransactionStatus.ROLLBACK_FINISHED.equals(transactionStatus))
+            {
+                transactionLog.deleteTransaction(getTransactionId());
+                transactionMap.remove(getTransactionId());
+            } else
+            {
+                TransactionLogEntry entry = new TransactionLogEntry();
+                entry.setTransactionId(getTransactionId());
+                entry.setTransactionStatus(transactionStatus);
+                entry.setTwoPhaseTransaction(true);
+                entry.setLastAccessedDate(getLastAccessedDate());
+                transactionLog.logTransaction(entry);
+            }
 
             super.setTransactionStatus(transactionStatus);
         }
@@ -679,13 +666,19 @@ public class TransactionCoordinator implements ITransactionCoordinator
             }
         }
 
-        public void lockOrSkip(Runnable action)
+        public void lockOrSkip(Callable<?> action)
         {
             if (lock.tryLock())
             {
                 try
                 {
-                    action.run();
+                    action.call();
+                } catch (RuntimeException e)
+                {
+                    throw e;
+                } catch (Exception e)
+                {
+                    throw new RuntimeException(e);
                 } finally
                 {
                     lock.unlock();

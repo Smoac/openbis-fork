@@ -11,11 +11,14 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.ContextStartedEvent;
+import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
@@ -34,7 +37,7 @@ import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 
 @Component
-public class TransactionParticipantApi implements ITransactionParticipantApi
+public class TransactionParticipantApi implements ITransactionParticipantApi, ApplicationListener<ApplicationEvent>
 {
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, TransactionParticipant.class);
@@ -73,18 +76,30 @@ public class TransactionParticipantApi implements ITransactionParticipantApi
         );
     }
 
-    @PostConstruct
-    public void init()
+    @Override public void onApplicationEvent(final ApplicationEvent event)
     {
-        this.transactionParticipant.recoverTransactionsFromTransactionLog();
-
-        new Timer(FINISH_TRANSACTIONS_THREAD_NAME, true).schedule(new TimerTask()
+        Object source = event.getSource();
+        if (source instanceof AbstractApplicationContext)
         {
-            @Override public void run()
+            AbstractApplicationContext appContext = (AbstractApplicationContext) source;
+            if ((event instanceof ContextStartedEvent) || (event instanceof ContextRefreshedEvent))
             {
-                TransactionParticipantApi.this.transactionParticipant.finishFailedOrAbandonedTransaction();
+                if (appContext.getParent() != null)
+                {
+                    this.transactionParticipant.recoverTransactionsFromTransactionLog();
+
+                    new Timer(FINISH_TRANSACTIONS_THREAD_NAME, true).schedule(new TimerTask()
+                                                                              {
+                                                                                  @Override public void run()
+                                                                                  {
+                                                                                      TransactionParticipantApi.this.transactionParticipant.finishFailedOrAbandonedTransactions();
+                                                                                  }
+                                                                              },
+                            transactionConfiguration.getFinishTransactionsIntervalInSeconds() * 1000L,
+                            transactionConfiguration.getFinishTransactionsIntervalInSeconds() * 1000L);
+                }
             }
-        }, transactionConfiguration.getFinishTransactionsIntervalInSeconds());
+        }
     }
 
     @Override public String getParticipantId()
@@ -115,7 +130,8 @@ public class TransactionParticipantApi implements ITransactionParticipantApi
         transactionParticipant.commitTransaction(transactionId, sessionToken, interactiveSessionKey);
     }
 
-    @Override public void commitRecoveredTransaction(final UUID transactionId, final String interactiveSessionKey, final String transactionCoordinatorKey)
+    @Override public void commitRecoveredTransaction(final UUID transactionId, final String interactiveSessionKey,
+            final String transactionCoordinatorKey)
     {
         transactionParticipant.commitRecoveredTransaction(transactionId, interactiveSessionKey, transactionCoordinatorKey);
     }
@@ -125,7 +141,8 @@ public class TransactionParticipantApi implements ITransactionParticipantApi
         transactionParticipant.rollbackTransaction(transactionId, sessionToken, interactiveSessionKey);
     }
 
-    @Override public void rollbackRecoveredTransaction(final UUID transactionId, final String interactiveSessionKey, final String transactionCoordinatorKey)
+    @Override public void rollbackRecoveredTransaction(final UUID transactionId, final String interactiveSessionKey,
+            final String transactionCoordinatorKey)
     {
         transactionParticipant.rollbackRecoveredTransaction(transactionId, interactiveSessionKey, transactionCoordinatorKey);
     }

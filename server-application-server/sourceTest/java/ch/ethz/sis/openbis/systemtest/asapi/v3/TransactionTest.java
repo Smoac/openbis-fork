@@ -1266,6 +1266,11 @@ public class TransactionTest extends AbstractTest
             transactionLog.logTransaction(transaction);
         }
 
+        @Override public void deleteTransaction(final UUID transactionId)
+        {
+            transactionLog.deleteTransaction(transactionId);
+        }
+
         @Override public Map<UUID, TransactionLogEntry> getTransactions()
         {
             return transactionLog.getTransactions();

@@ -10,9 +10,12 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 
-import javax.annotation.PostConstruct;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.ContextStartedEvent;
+import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.afsapi.api.OperationsAPI;
@@ -27,7 +30,7 @@ import ch.ethz.sis.transaction.TransactionLog;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 
 @Component
-public class TransactionCoordinatorApi implements ITransactionCoordinatorApi
+public class TransactionCoordinatorApi implements ITransactionCoordinatorApi, ApplicationListener<ApplicationEvent>
 {
 
     private static final String TRANSACTION_LOG_FOLDER_NAME = "coordinator";
@@ -58,18 +61,30 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi
                 transactionConfiguration.getTransactionCountLimit());
     }
 
-    @PostConstruct
-    public void init()
+    @Override public void onApplicationEvent(final ApplicationEvent event)
     {
-        this.transactionCoordinator.recoverTransactionsFromTransactionLog();
-
-        new Timer(FINISH_TRANSACTIONS_THREAD_NAME, true).schedule(new TimerTask()
+        Object source = event.getSource();
+        if (source instanceof AbstractApplicationContext)
         {
-            @Override public void run()
+            AbstractApplicationContext appContext = (AbstractApplicationContext) source;
+            if ((event instanceof ContextStartedEvent) || (event instanceof ContextRefreshedEvent))
             {
-                TransactionCoordinatorApi.this.transactionCoordinator.finishFailedOrAbandonedTransactions();
+                if (appContext.getParent() != null)
+                {
+                    this.transactionCoordinator.recoverTransactionsFromTransactionLog();
+
+                    new Timer(FINISH_TRANSACTIONS_THREAD_NAME, true).schedule(new TimerTask()
+                                                                              {
+                                                                                  @Override public void run()
+                                                                                  {
+                                                                                      TransactionCoordinatorApi.this.transactionCoordinator.finishFailedOrAbandonedTransactions();
+                                                                                  }
+                                                                              },
+                            transactionConfiguration.getFinishTransactionsIntervalInSeconds() * 1000L,
+                            transactionConfiguration.getFinishTransactionsIntervalInSeconds() * 1000L);
+                }
             }
-        }, transactionConfiguration.getFinishTransactionsIntervalInSeconds());
+        }
     }
 
     @Override public void beginTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
@@ -296,7 +311,7 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi
             {
                 sessionToken = applicationServerApi.loginAsSystem();
 
-                AfsClient dataStoreServer = getDataStoreServer(transactionId, null, interactiveSessionKey, transactionCoordinatorKey);
+                AfsClient dataStoreServer = getDataStoreServer(transactionId, sessionToken, interactiveSessionKey, transactionCoordinatorKey);
                 dataStoreServer.begin(transactionId);
                 dataStoreServer.commit();
             } catch (RuntimeException e)
@@ -337,7 +352,7 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi
             {
                 sessionToken = applicationServerApi.loginAsSystem();
 
-                AfsClient dataStoreServer = getDataStoreServer(transactionId, null, interactiveSessionKey, transactionCoordinatorKey);
+                AfsClient dataStoreServer = getDataStoreServer(transactionId, sessionToken, interactiveSessionKey, transactionCoordinatorKey);
                 dataStoreServer.begin(transactionId);
                 dataStoreServer.rollback();
             } catch (RuntimeException e)
@@ -357,15 +372,26 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi
 
         @Override public List<UUID> recoverTransactions(final String interactiveSessionKey, final String transactionCoordinatorKey)
         {
+            String sessionToken = null;
+
             try
             {
-                return getDataStoreServer(null, null, interactiveSessionKey, transactionCoordinatorKey).recover();
+                sessionToken = applicationServerApi.loginAsSystem();
+
+                AfsClient dataStoreServer = getDataStoreServer(null, sessionToken, interactiveSessionKey, transactionCoordinatorKey);
+                return dataStoreServer.recover();
             } catch (RuntimeException e)
             {
                 throw e;
             } catch (Exception e)
             {
                 throw new RuntimeException(e);
+            } finally
+            {
+                if (sessionToken != null)
+                {
+                    applicationServerApi.logout(sessionToken);
+                }
             }
         }
 
