@@ -165,7 +165,7 @@ public class TransactionParticipantTest
                         return null;
                     }
                 });
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.COMMIT_FINISHED)));
+                one(transactionLog).deleteTransaction(TEST_TRANSACTION_ID);
 
                 // begin 2
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID_2, TransactionStatus.BEGIN_STARTED)));
@@ -201,7 +201,7 @@ public class TransactionParticipantTest
                         return null;
                     }
                 });
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID_2, TransactionStatus.ROLLBACK_FINISHED)));
+                one(transactionLog).deleteTransaction(TEST_TRANSACTION_ID_2);
             }
         });
 
@@ -331,7 +331,7 @@ public class TransactionParticipantTest
                 // rollback
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_STARTED)));
                 one(databaseTransactionProvider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(aNull(Object.class)));
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_FINISHED)));
+                one(transactionLog).deleteTransaction(TEST_TRANSACTION_ID);
             }
         });
 
@@ -461,7 +461,7 @@ public class TransactionParticipantTest
                 // rollback
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_STARTED)));
                 one(databaseTransactionProvider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_FINISHED)));
+                one(transactionLog).deleteTransaction(TEST_TRANSACTION_ID);
             }
         });
 
@@ -532,7 +532,7 @@ public class TransactionParticipantTest
                 // commit
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.COMMIT_STARTED)));
                 one(databaseTransactionProvider).commitTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.COMMIT_FINISHED)));
+                one(transactionLog).deleteTransaction(TEST_TRANSACTION_ID);
             }
         });
 
@@ -677,7 +677,7 @@ public class TransactionParticipantTest
                 // rollback
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_STARTED)));
                 one(databaseTransactionProvider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_FINISHED)));
+                one(transactionLog).deleteTransaction(TEST_TRANSACTION_ID);
             }
         });
 
@@ -868,7 +868,7 @@ public class TransactionParticipantTest
                 // rollback
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_STARTED)));
                 one(databaseTransactionProvider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_FINISHED)));
+                one(transactionLog).deleteTransaction(TEST_TRANSACTION_ID);
             }
         });
 
@@ -1365,7 +1365,7 @@ public class TransactionParticipantTest
                 // rollback
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_STARTED)));
                 one(databaseTransactionProvider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(transaction));
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_FINISHED)));
+                one(transactionLog).deleteTransaction(TEST_TRANSACTION_ID);
             }
         });
 
@@ -1399,7 +1399,7 @@ public class TransactionParticipantTest
                 // commit
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.COMMIT_STARTED)));
                 one(databaseTransactionProvider).commitTransaction(with(TEST_TRANSACTION_ID), with(transaction));
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.COMMIT_FINISHED)));
+                one(transactionLog).deleteTransaction(TEST_TRANSACTION_ID);
             }
         });
 
@@ -1574,7 +1574,7 @@ public class TransactionParticipantTest
                 // rollback
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_STARTED)));
                 one(databaseTransactionProvider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(transaction));
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_FINISHED)));
+                one(transactionLog).deleteTransaction(TEST_TRANSACTION_ID);
             }
         });
 
@@ -1615,7 +1615,7 @@ public class TransactionParticipantTest
                 // commit
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.COMMIT_STARTED)));
                 one(databaseTransactionProvider).commitTransaction(with(TEST_TRANSACTION_ID), with(transaction));
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.COMMIT_FINISHED)));
+                one(transactionLog).deleteTransaction(TEST_TRANSACTION_ID);
             }
         });
 
@@ -1659,7 +1659,7 @@ public class TransactionParticipantTest
                 // commit
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.COMMIT_STARTED)));
                 one(databaseTransactionProvider).commitTransaction(with(TEST_TRANSACTION_ID), with(transaction));
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.COMMIT_FINISHED)));
+                one(transactionLog).deleteTransaction(TEST_TRANSACTION_ID);
 
                 // another begin
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED)));

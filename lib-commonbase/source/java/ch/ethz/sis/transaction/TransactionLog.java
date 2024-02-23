@@ -88,6 +88,7 @@ public class TransactionLog implements ITransactionLog
 
         if (deleted)
         {
+            transactionsMap.remove(transactionId);
             operationLog.info("Deleted transaction '" + transactionId + "' log stored in '" + transactionLogFile + "' file.");
         } else
         {

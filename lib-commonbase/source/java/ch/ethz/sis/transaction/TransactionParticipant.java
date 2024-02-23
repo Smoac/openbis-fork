@@ -118,7 +118,8 @@ public class TransactionParticipant implements ITransactionParticipant
 
             for (TransactionLogEntry logEntry : transactionLog.getTransactions().values())
             {
-                if (TransactionStatus.COMMIT_FINISHED.equals(logEntry.getTransactionStatus())
+                if (TransactionStatus.NEW.equals(logEntry.getTransactionStatus())
+                        || TransactionStatus.COMMIT_FINISHED.equals(logEntry.getTransactionStatus())
                         || TransactionStatus.ROLLBACK_FINISHED.equals(logEntry.getTransactionStatus()))
                 {
                     operationLog.info(
@@ -135,6 +136,7 @@ public class TransactionParticipant implements ITransactionParticipant
                         {
                             Transaction transaction = createTransaction(logEntry.getTransactionId(), logEntry.getTransactionStatus());
                             transaction.setTwoPhaseTransaction(logEntry.isTwoPhaseTransaction());
+                            transaction.setLastAccessedDate(logEntry.getLastAccessedDate());
                             operationLog.info(
                                     "Recovered transaction '" + transaction.getTransactionId() + "' found in the transaction log with last status '"
                                             + transaction.getTransactionStatus() + "' .");

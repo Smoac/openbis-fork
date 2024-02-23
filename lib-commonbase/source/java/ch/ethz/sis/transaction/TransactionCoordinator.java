@@ -92,7 +92,8 @@ public class TransactionCoordinator implements ITransactionCoordinator
 
             for (TransactionLogEntry logEntry : transactionLog.getTransactions().values())
             {
-                if (TransactionStatus.COMMIT_FINISHED.equals(logEntry.getTransactionStatus())
+                if (TransactionStatus.NEW.equals(logEntry.getTransactionStatus())
+                        || TransactionStatus.COMMIT_FINISHED.equals(logEntry.getTransactionStatus())
                         || TransactionStatus.ROLLBACK_FINISHED.equals(logEntry.getTransactionStatus()))
                 {
                     operationLog.info(
@@ -108,6 +109,7 @@ public class TransactionCoordinator implements ITransactionCoordinator
                         if (existingTransaction == null)
                         {
                             Transaction transaction = createTransaction(logEntry.getTransactionId(), logEntry.getTransactionStatus());
+                            transaction.setLastAccessedDate(logEntry.getLastAccessedDate());
                             operationLog.info(
                                     "Recovered transaction '" + transaction.getTransactionId() + "' found in the transaction log with last status '"
                                             + transaction.getTransactionStatus() + "' .");
