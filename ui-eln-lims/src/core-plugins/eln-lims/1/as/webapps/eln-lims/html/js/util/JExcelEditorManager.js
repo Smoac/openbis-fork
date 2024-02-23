@@ -35,6 +35,14 @@ var JExcelEditorManager = new function() {
         }
     }
 
+    this.getOnCellCreate = function(guid, propertyCode, entity) {
+        var _this = this;
+        return function(worksheet, cell, x, y, value) {
+            console.log("Hello World!");
+            console.log(worksheet, cell, x, y, value);
+        }
+    }
+
     this.getObjectFunction = function(guid) {
         var _this = this;
         return function() {
@@ -119,6 +127,7 @@ var JExcelEditorManager = new function() {
 
 	this.createField = function($container, mode, propertyCode, entity) {
 	    $container.attr('style', 'width: 100%; height: 450px; overflow-y: scroll; overflow-x: scroll;');
+	    var _this = this;
 
         var headers = null;
 	    var data = [];
@@ -173,12 +182,28 @@ var JExcelEditorManager = new function() {
             options.allowDeleteColumn = false;
             options.allowRenameColumn = false;
             options.allowComments = false;
+            options.onload = function(container,spreadsheet) {
+                                    var data = spreadsheet.getData();
+                                    var headers = spreadsheet.getHeaders().split(',');
+                                    for (let i=0; i<data.length; i++ ) {
+                                        for(let j=0; j < data[i].length; j++) {
+                                            let cellData = data[i][j];
+                                            if(_this._isIdentifierCell(cellData)) {
+                                                let cellIndex = headers[j] + (i+1);
+                                                let cell = spreadsheet.getCell(cellIndex);
+                                                cell.innerHTML = _this._getProgressBarSVG();
+                                                _this._getEntity(cell, cellData)
+                                            }
+                                        }
+                                    }
+                                }
 
             options.contextMenu = function(obj, x, y, e) {
                 return [];
             }
         } else {
             var onChangeHandler = this.getOnChange(guid, propertyCode, entity);
+            var onCreateCellHandler = this.getOnCellCreate(guid, propertyCode, entity);
             options.onundo = onChangeHandler;
             options.onredo = onChangeHandler;
             options.onchange = onChangeHandler; //
@@ -198,6 +223,10 @@ var JExcelEditorManager = new function() {
             options.oneditionend = onChangeHandler;
             options.onchangestyle = onChangeHandler; //
             options.onchangemeta = onChangeHandler; //
+            options.oncreateeditor = onCreateCellHandler;
+            options.onevent = function(event,a,b,c,d,e,f) {
+                                    console.log(event,a,b,c,d,e,f);
+                                }
 
             options.toolbar = [
                     { type:'select', k:'font-family', v:['Arial','Verdana'] },
@@ -215,6 +244,109 @@ var JExcelEditorManager = new function() {
         var jexcelField = jspreadsheet($container[0], options);
         this.jExcelEditors[guid] = jexcelField;
 	}
+
+	this._isIdentifierCell = function(cellData) {
+	    if(!cellData || cellData == '') {
+	        return false;
+	    }
+	    var arr = cellData.split(/\s+/).filter(Boolean);
+        for(let element of cellData.split(/\s+/).filter(Boolean)) {
+            if(this._isIdentifier(element)) {
+                return true;
+            }
+        }
+        return false;
+	}
+
+	this._isIdentifier = function(data) {
+        var split = data.split('/');
+        return split[0] == '' && (split.length > 2 && split.length < 6);
+	}
+
+	this._getEntity = function(cell, cellData) {
+        let identifiers = cellData.split(/\s+/).filter(this._isIdentifier);
+
+
+        this._searchByIdentifiers(identifiers, function(results) {
+            var stringArray = cellData.split(/(\s+)/);
+            var cellText = "";
+            for (let word of stringArray) {
+                if(results[word]) {
+                    cellText += results[word][0].outerHTML;
+                } else {
+                    cellText += word;
+                }
+            }
+            cell.setHTML(cellText);
+
+            cell.onclick = function(event) {
+                    //TODO
+//                var aa2 = event.target.click();
+//                mainController.changeView(view, arg, true);
+            };
+        });
+
+
+	}
+
+	this._searchByIdentifiers = function(identifiers, callback) {
+
+	    require([ "as/dto/sample/id/SampleIdentifier", "as/dto/sample/fetchoptions/SampleFetchOptions",
+	     "as/dto/experiment/id/ExperimentIdentifier", "as/dto/experiment/fetchoptions/ExperimentFetchOptions"],
+                    function(SampleIdentifier, SampleFetchOptions, ExperimentIdentifier, ExperimentFetchOptions) {
+
+                        var sampleFetchOptions = new SampleFetchOptions();
+
+                        var ids = identifiers.map(id => new SampleIdentifier(id));
+
+                        mainController.openbisV3.getSamples(ids, sampleFetchOptions).done(function(sampleResults) {
+                            let links = {};
+                            let missing = []
+                            for(let id of identifiers) {
+                                if(sampleResults[id]) {
+                                    let sample = sampleResults[id];
+                                    links[id] = FormUtil.getFormLink(sample.identifier.identifier, 'Sample', sample.permId.permId, null);
+                                } else {
+                                    missing.push(id);
+                                }
+                            }
+                            if(missing.length == 0) {
+                                callback(links);
+                            } else {
+                                var experimentFetchOptions = new ExperimentFetchOptions();
+                                var ids = missing.map(id => new ExperimentIdentifier(id));
+                                mainController.openbisV3.getExperiments(ids, experimentFetchOptions).done(function(experimentResults) {
+                                    var experiments = Util.mapValuesToList(experimentResults);
+                                    for ( let experiment of experiments) {
+                                        links[experiment.identifier.identifier] = FormUtil.getFormLink(experiment.identifier.identifier, 'Experiment', experiment.permId.permId, null);
+                                    }
+                                    callback(links);
+                                })
+
+
+                            }
+
+                        })
+
+                    });
+
+
+	}
+
+    this._getProgressBarSVG = function() {
+        return '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="margin:auto;background:#fff;display:block;" width="60px" height="25px" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">'+
+             '<defs>'+
+             '  <clipPath id="progress-psvzl2e077-cp" x="0" y="0" width="100" height="100">'+
+             '    <rect x="0" y="0" width="0" height="100">'+
+             '      <animate attributeName="width" repeatCount="indefinite" dur="1s" values="0;100;100" keyTimes="0;0.5;1"></animate>'+
+             '      <animate attributeName="x" repeatCount="indefinite" dur="1s" values="0;0;100" keyTimes="0;0.5;1"></animate>'+
+             '    </rect>'+
+             '  </clipPath>'+
+             '</defs>'+
+             '<path fill="none" stroke="#f3f3f3" stroke-width="2.79" d="M18 36.895L81.99999999999999 36.895A13.104999999999999 13.104999999999999 0 0 1 95.10499999999999 50L95.10499999999999 50A13.104999999999999 13.104999999999999 0 0 1 81.99999999999999 63.105L18 63.105A13.104999999999999 13.104999999999999 0 0 1 4.895000000000003 50L4.895000000000003 50A13.104999999999999 13.104999999999999 0 0 1 18 36.895 Z"></path>'+
+             '<path fill="#ebebeb" clip-path="url(#progress-psvzl2e077-cp)" d="M18 40.99L82 40.99A9.009999999999998 9.009999999999998 0 0 1 91.00999999999999 50L91.00999999999999 50A9.009999999999998 9.009999999999998 0 0 1 82 59.01L18 59.01A9.009999999999998 9.009999999999998 0 0 1 8.990000000000004 50L8.990000000000004 50A9.009999999999998 9.009999999999998 0 0 1 18 40.99 Z"></path>'+
+             '</svg>';
+    }
 
 	this.getEntityAsTable = function(entity) {
 	    var tableModel = {
