@@ -11,7 +11,7 @@ dependencies {
 			'python:jython:2.5.2',
 			'python:jython27:2.7.2',
 			'apache:log4j:1.2.15',
-			'javax:mail:1.4.3',
+			'javax:mail:1.6.2',
 			'apache:poi:3.17',
 			'twmacinta:fast-md5:2.6.1',
 			'google:gwt-servlet:2.4',
