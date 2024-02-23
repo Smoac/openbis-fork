@@ -740,19 +740,21 @@ public class TransactionParticipantTest
     {
         return new Object[][]
                 {
-                        { null, TEST_TRANSACTION_COORDINATOR_KEY, "Transaction id cannot be null" },
-                        { TEST_TRANSACTION_ID, null, "Transaction coordinator key cannot be null" },
-                        { TEST_TRANSACTION_ID, INVALID_TRANSACTION_COORDINATOR_KEY, "Invalid transaction coordinator key" },
+                        { null, TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY, "Transaction id cannot be null" },
+                        { TEST_TRANSACTION_ID, null, TEST_TRANSACTION_COORDINATOR_KEY, "Interactive session key cannot be null" },
+                        { TEST_TRANSACTION_ID, TEST_INTERACTIVE_SESSION_KEY, null, "Transaction coordinator key cannot be null" },
+                        { TEST_TRANSACTION_ID, INVALID_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY, "Invalid interactive session key" },
+                        { TEST_TRANSACTION_ID, TEST_INTERACTIVE_SESSION_KEY, INVALID_TRANSACTION_COORDINATOR_KEY, "Invalid transaction coordinator key" },
                 };
     }
 
     @Test(dataProvider = "provideInvalidArgumentsForCommitRecovery")
-    public void testCommitTransactionRecoveryWithInvalidArguments(UUID transactionId, String transactionCoordinatorKey,
+    public void testCommitTransactionRecoveryWithInvalidArguments(UUID transactionId, String interactiveSessionKey, String transactionCoordinatorKey,
             String expectedException) throws Throwable
     {
         doTestCommitTransactionWithInvalidArguments(participant ->
         {
-            participant.commitTransaction(transactionId, transactionCoordinatorKey);
+            participant.commitRecoveredTransaction(transactionId, interactiveSessionKey, transactionCoordinatorKey);
             return null;
         }, expectedException);
     }
@@ -823,7 +825,7 @@ public class TransactionParticipantTest
     {
         doTestCommitTransactionFails(interactiveSessionKey, transactionCoordinatorKey, throwable, participant ->
         {
-            participant.commitTransaction(TEST_TRANSACTION_ID, TEST_TRANSACTION_COORDINATOR_KEY);
+            participant.commitRecoveredTransaction(TEST_TRANSACTION_ID, TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY);
             return null;
         });
     }
@@ -937,19 +939,21 @@ public class TransactionParticipantTest
     {
         return new Object[][]
                 {
-                        { null, TEST_TRANSACTION_COORDINATOR_KEY, "Transaction id cannot be null" },
-                        { TEST_TRANSACTION_ID, null, "Transaction coordinator key cannot be null" },
-                        { TEST_TRANSACTION_ID, INVALID_TRANSACTION_COORDINATOR_KEY, "Invalid transaction coordinator key" },
+                        { null, TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY, "Transaction id cannot be null" },
+                        { TEST_TRANSACTION_ID, null, TEST_TRANSACTION_COORDINATOR_KEY, "Interactive session key cannot be null" },
+                        { TEST_TRANSACTION_ID, TEST_INTERACTIVE_SESSION_KEY, null, "Transaction coordinator key cannot be null" },
+                        { TEST_TRANSACTION_ID, INVALID_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY, "Invalid interactive session key" },
+                        { TEST_TRANSACTION_ID, TEST_INTERACTIVE_SESSION_KEY, INVALID_TRANSACTION_COORDINATOR_KEY, "Invalid transaction coordinator key" },
                 };
     }
 
     @Test(dataProvider = "provideInvalidArgumentsForRollbackRecovery")
-    public void testRollbackTransactionRecoveryWithInvalidArguments(UUID transactionId, String transactionCoordinatorKeyOrNull,
+    public void testRollbackTransactionRecoveryWithInvalidArguments(UUID transactionId, String interactiveSessionKeyOrNull, String transactionCoordinatorKeyOrNull,
             String expectedException) throws Throwable
     {
         doTestRollbackTransactionWithInvalidArguments(participant ->
         {
-            participant.rollbackTransaction(transactionId, transactionCoordinatorKeyOrNull);
+            participant.rollbackRecoveredTransaction(transactionId, interactiveSessionKeyOrNull, transactionCoordinatorKeyOrNull);
             return null;
         }, expectedException);
     }
@@ -1023,7 +1027,7 @@ public class TransactionParticipantTest
     {
         doTestRollbackTransactionFails(interactiveSessionKey, transactionCoordinatorKey, throwable, participant ->
         {
-            participant.rollbackTransaction(TEST_TRANSACTION_ID, TEST_TRANSACTION_COORDINATOR_KEY);
+            participant.rollbackRecoveredTransaction(TEST_TRANSACTION_ID, TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY);
             return null;
         });
     }

@@ -346,8 +346,9 @@ public class TransactionParticipant implements ITransactionParticipant
         });
     }
 
-    @Override public List<UUID> recoverTransactions(final String transactionCoordinatorKey)
+    @Override public List<UUID> recoverTransactions(final String interactiveSessionKey, final String transactionCoordinatorKey)
     {
+        checkInteractiveSessionKey(interactiveSessionKey);
         checkTransactionCoordinatorKey(transactionCoordinatorKey);
 
         operationLog.info("Started recovering transactions (triggered by the coordinator)");
@@ -393,9 +394,10 @@ public class TransactionParticipant implements ITransactionParticipant
         });
     }
 
-    @Override public void commitTransaction(final UUID transactionId, final String transactionCoordinatorKey)
+    @Override public void commitRecoveredTransaction(final UUID transactionId, final String interactiveSessionKey, final String transactionCoordinatorKey)
     {
         checkTransactionId(transactionId);
+        checkInteractiveSessionKey(interactiveSessionKey);
         checkTransactionCoordinatorKey(transactionCoordinatorKey);
 
         Transaction transaction = getTransaction(transactionId);
@@ -456,9 +458,10 @@ public class TransactionParticipant implements ITransactionParticipant
         });
     }
 
-    @Override public void rollbackTransaction(final UUID transactionId, final String transactionCoordinatorKey)
+    @Override public void rollbackRecoveredTransaction(final UUID transactionId, final String interactiveSessionKey, final String transactionCoordinatorKey)
     {
         checkTransactionId(transactionId);
+        checkInteractiveSessionKey(interactiveSessionKey);
         checkTransactionCoordinatorKey(transactionCoordinatorKey);
 
         Transaction transaction = getTransaction(transactionId);

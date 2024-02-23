@@ -1113,9 +1113,9 @@ public class TransactionTest extends AbstractTest
             participant.commitTransaction(originalToInternalId.get(transactionId), sessionToken, interactiveSessionKey);
         }
 
-        @Override public void commitTransaction(final UUID transactionId, final String transactionCoordinatorKey)
+        @Override public void commitRecoveredTransaction(final UUID transactionId, final String interactiveSessionKey, final String transactionCoordinatorKey)
         {
-            participant.commitTransaction(originalToInternalId.get(transactionId), transactionCoordinatorKey);
+            participant.commitRecoveredTransaction(originalToInternalId.get(transactionId), interactiveSessionKey, transactionCoordinatorKey);
         }
 
         @Override public void rollbackTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
@@ -1123,16 +1123,16 @@ public class TransactionTest extends AbstractTest
             participant.rollbackTransaction(originalToInternalId.get(transactionId), sessionToken, interactiveSessionKey);
         }
 
-        @Override public void rollbackTransaction(final UUID transactionId, final String transactionCoordinatorKey)
+        @Override public void rollbackRecoveredTransaction(final UUID transactionId, final String interactiveSessionKey, final String transactionCoordinatorKey)
         {
-            participant.rollbackTransaction(originalToInternalId.get(transactionId), transactionCoordinatorKey);
+            participant.rollbackRecoveredTransaction(originalToInternalId.get(transactionId), interactiveSessionKey, transactionCoordinatorKey);
         }
 
-        @Override public List<UUID> recoverTransactions(final String transactionCoordinatorKey)
+        @Override public List<UUID> recoverTransactions(final String interactiveSessionKey, final String transactionCoordinatorKey)
         {
             List<UUID> transactionIds = new ArrayList<>();
 
-            for (UUID internalTransactionId : participant.recoverTransactions(transactionCoordinatorKey))
+            for (UUID internalTransactionId : participant.recoverTransactions(interactiveSessionKey, transactionCoordinatorKey))
             {
                 transactionIds.add(internalToOriginalId.get(internalTransactionId));
             }

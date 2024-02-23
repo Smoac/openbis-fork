@@ -39,12 +39,12 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi
     private final TransactionCoordinator transactionCoordinator;
 
     @Autowired
-    public TransactionCoordinatorApi(final TransactionConfiguration transactionConfiguration, IApplicationServerApi applicationServerApi)
+    public TransactionCoordinatorApi(final TransactionConfiguration transactionConfiguration, IApplicationServerInternalApi applicationServerApi)
     {
         List<ITransactionParticipant> participants = Arrays.asList(
                 new ApplicationServerParticipant(transactionConfiguration.getApplicationServerUrl(),
                         transactionConfiguration.getApplicationServerTimeoutInSeconds()),
-                new DataStoreServerParticipant(transactionConfiguration.getDataStoreServerUrl(),
+                new DataStoreServerParticipant(applicationServerApi, transactionConfiguration.getDataStoreServerUrl(),
                         transactionConfiguration.getDataStoreServerTimeoutInSeconds()));
 
         this.transactionConfiguration = transactionConfiguration;
@@ -161,9 +161,10 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi
             getApplicationServer().commitTransaction(transactionId, sessionToken, interactiveSessionKey);
         }
 
-        @Override public void commitTransaction(final UUID transactionId, final String transactionCoordinatorKey)
+        @Override public void commitRecoveredTransaction(final UUID transactionId, final String interactiveSessionKey,
+                final String transactionCoordinatorKey)
         {
-            getApplicationServer().commitTransaction(transactionId, transactionCoordinatorKey);
+            getApplicationServer().commitRecoveredTransaction(transactionId, interactiveSessionKey, transactionCoordinatorKey);
         }
 
         @Override public void rollbackTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
@@ -171,14 +172,15 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi
             getApplicationServer().rollbackTransaction(transactionId, sessionToken, interactiveSessionKey);
         }
 
-        @Override public void rollbackTransaction(final UUID transactionId, final String transactionCoordinatorKey)
+        @Override public void rollbackRecoveredTransaction(final UUID transactionId, final String interactiveSessionKey,
+                final String transactionCoordinatorKey)
         {
-            getApplicationServer().rollbackTransaction(transactionId, transactionCoordinatorKey);
+            getApplicationServer().rollbackRecoveredTransaction(transactionId, interactiveSessionKey, transactionCoordinatorKey);
         }
 
-        @Override public List<UUID> recoverTransactions(final String transactionCoordinatorKey)
+        @Override public List<UUID> recoverTransactions(final String interactiveSessionKey, final String transactionCoordinatorKey)
         {
-            return getApplicationServer().recoverTransactions(transactionCoordinatorKey);
+            return getApplicationServer().recoverTransactions(interactiveSessionKey, transactionCoordinatorKey);
         }
 
         private ITransactionParticipantApi getApplicationServer()
@@ -190,12 +192,15 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi
     private static class DataStoreServerParticipant implements ITransactionParticipant
     {
 
+        private final IApplicationServerInternalApi applicationServerApi;
+
         private final String dataStoreServerUrl;
 
         private final int timeoutInSeconds;
 
-        public DataStoreServerParticipant(String dataStoreServerUrl, int timeoutInSeconds)
+        public DataStoreServerParticipant(IApplicationServerInternalApi applicationServerApi, String dataStoreServerUrl, int timeoutInSeconds)
         {
+            this.applicationServerApi = applicationServerApi;
             this.dataStoreServerUrl = dataStoreServerUrl;
             this.timeoutInSeconds = timeoutInSeconds;
         }
@@ -282,9 +287,31 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi
             }
         }
 
-        @Override public void commitTransaction(final UUID transactionId, final String transactionCoordinatorKey)
+        @Override public void commitRecoveredTransaction(final UUID transactionId, final String interactiveSessionKey,
+                final String transactionCoordinatorKey)
         {
+            String sessionToken = null;
 
+            try
+            {
+                sessionToken = applicationServerApi.loginAsSystem();
+
+                AfsClient dataStoreServer = getDataStoreServer(transactionId, null, interactiveSessionKey, transactionCoordinatorKey);
+                dataStoreServer.begin(transactionId);
+                dataStoreServer.commit();
+            } catch (RuntimeException e)
+            {
+                throw e;
+            } catch (Exception e)
+            {
+                throw new RuntimeException(e);
+            } finally
+            {
+                if (sessionToken != null)
+                {
+                    applicationServerApi.logout(sessionToken);
+                }
+            }
         }
 
         @Override public void rollbackTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
@@ -301,14 +328,45 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi
             }
         }
 
-        @Override public void rollbackTransaction(final UUID transactionId, final String transactionCoordinatorKey)
+        @Override public void rollbackRecoveredTransaction(final UUID transactionId, final String interactiveSessionKey,
+                final String transactionCoordinatorKey)
         {
+            String sessionToken = null;
 
+            try
+            {
+                sessionToken = applicationServerApi.loginAsSystem();
+
+                AfsClient dataStoreServer = getDataStoreServer(transactionId, null, interactiveSessionKey, transactionCoordinatorKey);
+                dataStoreServer.begin(transactionId);
+                dataStoreServer.rollback();
+            } catch (RuntimeException e)
+            {
+                throw e;
+            } catch (Exception e)
+            {
+                throw new RuntimeException(e);
+            } finally
+            {
+                if (sessionToken != null)
+                {
+                    applicationServerApi.logout(sessionToken);
+                }
+            }
         }
 
-        @Override public List<UUID> recoverTransactions(final String transactionCoordinatorKey)
+        @Override public List<UUID> recoverTransactions(final String interactiveSessionKey, final String transactionCoordinatorKey)
         {
-            return null;
+            try
+            {
+                return getDataStoreServer(null, null, interactiveSessionKey, transactionCoordinatorKey).recover();
+            } catch (RuntimeException e)
+            {
+                throw e;
+            } catch (Exception e)
+            {
+                throw new RuntimeException(e);
+            }
         }
 
         private AfsClient getDataStoreServer(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,

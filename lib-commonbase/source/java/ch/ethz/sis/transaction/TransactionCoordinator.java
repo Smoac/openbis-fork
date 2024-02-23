@@ -116,11 +116,11 @@ public class TransactionCoordinator implements ITransactionCoordinator
                             case BEGIN_FINISHED:
                             case PREPARE_STARTED:
                             case ROLLBACK_STARTED:
-                                rollbackTransaction(transaction, null, null, true);
+                                rollbackTransaction(transaction, null, interactiveSessionKey, true);
                                 break;
                             case PREPARE_FINISHED:
                             case COMMIT_STARTED:
-                                commitPreparedTransaction(transaction, null, null, true);
+                                commitPreparedTransaction(transaction, null, interactiveSessionKey, true);
                                 break;
                             default:
                                 throw new IllegalStateException(
@@ -168,7 +168,7 @@ public class TransactionCoordinator implements ITransactionCoordinator
                           then XXX operation either failed in the middle or was unable to log XXX_FINISHED
                           state at the end. We can roll back the transaction without waiting for timeout.
                         */
-                            rollbackTransaction(transaction, null, null, true);
+                            rollbackTransaction(transaction, null, interactiveSessionKey, true);
                             break;
                         case NEW:
                         /*
@@ -185,7 +185,7 @@ public class TransactionCoordinator implements ITransactionCoordinator
                             if (transaction.hasTimedOut())
                             {
                                 operationLog.info("Transaction '" + transaction.getTransactionId() + "' has timed out.");
-                                rollbackTransaction(transaction, null, null, true);
+                                rollbackTransaction(transaction, null, interactiveSessionKey, true);
                             } else
                             {
                                 operationLog.info("Transaction '" + transaction.getTransactionId() + "' hasn't timed out yet.");
@@ -193,7 +193,7 @@ public class TransactionCoordinator implements ITransactionCoordinator
                             break;
                         case PREPARE_FINISHED:
                         case COMMIT_STARTED:
-                            commitPreparedTransaction(transaction, null, null, true);
+                            commitPreparedTransaction(transaction, null, interactiveSessionKey, true);
                             break;
                     }
                 });
@@ -408,14 +408,14 @@ public class TransactionCoordinator implements ITransactionCoordinator
             {
                 if (recovery)
                 {
-                    List<UUID> transactions = participant.recoverTransactions(transactionCoordinatorKey);
+                    List<UUID> transactions = participant.recoverTransactions(interactiveSessionKey, transactionCoordinatorKey);
 
                     if (transactions != null && transactions.contains(transaction.getTransactionId()))
                     {
                         operationLog.info(
                                 "Commit prepared transaction '" + transaction.getTransactionId() + "' for participant '"
                                         + participant.getParticipantId() + "'.");
-                        participant.commitTransaction(transaction.getTransactionId(), transactionCoordinatorKey);
+                        participant.commitRecoveredTransaction(transaction.getTransactionId(), interactiveSessionKey, transactionCoordinatorKey);
                     } else
                     {
                         operationLog.info(
@@ -516,7 +516,7 @@ public class TransactionCoordinator implements ITransactionCoordinator
 
                 if (recovery)
                 {
-                    participant.rollbackTransaction(transaction.getTransactionId(), transactionCoordinatorKey);
+                    participant.rollbackRecoveredTransaction(transaction.getTransactionId(), interactiveSessionKey, transactionCoordinatorKey);
                 } else
                 {
                     participant.rollbackTransaction(transaction.getTransactionId(), sessionToken, interactiveSessionKey);

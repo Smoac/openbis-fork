@@ -13,7 +13,7 @@ public interface ITransactionParticipant
      * - coordinator flow
      * - participant interactive flow
      */
-    void beginTransaction(UUID transactionId, String sessionToken, String interactiveSessionKey, String transactionCoordinatorKey);
+    void beginTransaction(UUID transactionId, String sessionToken, String interactiveSessionKey, String transactionCoordinatorKeyOrNull);
 
     /**
      * Used in:
@@ -37,12 +37,6 @@ public interface ITransactionParticipant
 
     /**
      * Used in:
-     * - coordinator recovery flow
-     */
-    void commitTransaction(UUID transactionId, String transactionCoordinatorKey);
-
-    /**
-     * Used in:
      * - coordinator flow
      * - participant interactive flow
      */
@@ -52,12 +46,18 @@ public interface ITransactionParticipant
      * Used in:
      * - coordinator recovery flow
      */
-    void rollbackTransaction(UUID transactionId, String transactionCoordinatorKey);
+    List<UUID> recoverTransactions(String interactiveSessionKey, String transactionCoordinatorKey);
 
     /**
      * Used in:
      * - coordinator recovery flow
      */
-    List<UUID> recoverTransactions(String transactionCoordinatorKey);
+    void commitRecoveredTransaction(UUID transactionId, String interactiveSessionKey, String transactionCoordinatorKey);
+
+    /**
+     * Used in:
+     * - coordinator recovery flow
+     */
+    void rollbackRecoveredTransaction(UUID transactionId, String interactiveSessionKey, String transactionCoordinatorKey);
 
 }

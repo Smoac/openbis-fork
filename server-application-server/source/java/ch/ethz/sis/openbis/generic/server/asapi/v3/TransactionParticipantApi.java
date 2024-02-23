@@ -115,9 +115,9 @@ public class TransactionParticipantApi implements ITransactionParticipantApi
         transactionParticipant.commitTransaction(transactionId, sessionToken, interactiveSessionKey);
     }
 
-    @Override public void commitTransaction(final UUID transactionId, final String transactionCoordinatorKey)
+    @Override public void commitRecoveredTransaction(final UUID transactionId, final String interactiveSessionKey, final String transactionCoordinatorKey)
     {
-        transactionParticipant.commitTransaction(transactionId, transactionCoordinatorKey);
+        transactionParticipant.commitRecoveredTransaction(transactionId, interactiveSessionKey, transactionCoordinatorKey);
     }
 
     @Override public void rollbackTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
@@ -125,14 +125,14 @@ public class TransactionParticipantApi implements ITransactionParticipantApi
         transactionParticipant.rollbackTransaction(transactionId, sessionToken, interactiveSessionKey);
     }
 
-    @Override public void rollbackTransaction(final UUID transactionId, final String transactionCoordinatorKey)
+    @Override public void rollbackRecoveredTransaction(final UUID transactionId, final String interactiveSessionKey, final String transactionCoordinatorKey)
     {
-        transactionParticipant.rollbackTransaction(transactionId, transactionCoordinatorKey);
+        transactionParticipant.rollbackRecoveredTransaction(transactionId, interactiveSessionKey, transactionCoordinatorKey);
     }
 
-    @Override public List<UUID> recoverTransactions(final String transactionCoordinatorKey)
+    @Override public List<UUID> recoverTransactions(final String interactiveSessionKey, final String transactionCoordinatorKey)
     {
-        return null;
+        return transactionParticipant.recoverTransactions(interactiveSessionKey, transactionCoordinatorKey);
     }
 
     @Override public int getMajorVersion()

@@ -565,7 +565,7 @@ public class TransactionCoordinatorTest
                     case PREPARE_STARTED:
                     case ROLLBACK_STARTED:
                         one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_STARTED)));
-                        one(participant1).rollbackTransaction(TEST_TRANSACTION_ID, TEST_TRANSACTION_COORDINATOR_KEY);
+                        one(participant1).rollbackRecoveredTransaction(TEST_TRANSACTION_ID, TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY);
 
                         if (throwException)
                         {
@@ -573,27 +573,27 @@ public class TransactionCoordinatorTest
                             will(throwException(exception));
                         }
 
-                        one(participant2).rollbackTransaction(TEST_TRANSACTION_ID, TEST_TRANSACTION_COORDINATOR_KEY);
+                        one(participant2).rollbackRecoveredTransaction(TEST_TRANSACTION_ID, TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY);
 
                         if (!throwException)
                         {
                             one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_FINISHED)));
                         }
 
-                        one(participant3).rollbackTransaction(TEST_TRANSACTION_ID, TEST_TRANSACTION_COORDINATOR_KEY);
+                        one(participant3).rollbackRecoveredTransaction(TEST_TRANSACTION_ID, TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY);
                         break;
                     case PREPARE_FINISHED:
                     case COMMIT_STARTED:
                         // only participant 1 and 2 know the transaction
-                        one(participant1).recoverTransactions(TEST_TRANSACTION_COORDINATOR_KEY);
+                        one(participant1).recoverTransactions(TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY);
                         will(returnValue(Collections.singletonList(TEST_TRANSACTION_ID)));
-                        one(participant2).recoverTransactions(TEST_TRANSACTION_COORDINATOR_KEY);
+                        one(participant2).recoverTransactions(TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY);
                         will(returnValue(Collections.singletonList(TEST_TRANSACTION_ID)));
-                        one(participant3).recoverTransactions(TEST_TRANSACTION_COORDINATOR_KEY);
+                        one(participant3).recoverTransactions(TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY);
                         will(returnValue(Collections.emptyList()));
 
                         one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.COMMIT_STARTED)));
-                        one(participant1).commitTransaction(TEST_TRANSACTION_ID, TEST_TRANSACTION_COORDINATOR_KEY);
+                        one(participant1).commitRecoveredTransaction(TEST_TRANSACTION_ID, TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY);
 
                         if (throwException)
                         {
@@ -601,7 +601,7 @@ public class TransactionCoordinatorTest
                             will(throwException(exception));
                         }
 
-                        one(participant2).commitTransaction(TEST_TRANSACTION_ID, TEST_TRANSACTION_COORDINATOR_KEY);
+                        one(participant2).commitRecoveredTransaction(TEST_TRANSACTION_ID, TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY);
 
                         if (!throwException)
                         {
@@ -656,32 +656,32 @@ public class TransactionCoordinatorTest
                 will(returnValue(logEntries));
 
                 // participant 1 (transactions 1, 2); participant 2 (transactions 1, 3)
-                allowing(participant1).recoverTransactions(TEST_TRANSACTION_COORDINATOR_KEY);
+                allowing(participant1).recoverTransactions(TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY);
                 will(returnValue(Arrays.asList(TEST_TRANSACTION_ID, TEST_TRANSACTION_ID_2)));
-                allowing(participant2).recoverTransactions(TEST_TRANSACTION_COORDINATOR_KEY);
+                allowing(participant2).recoverTransactions(TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY);
                 will(returnValue(Arrays.asList(TEST_TRANSACTION_ID, TEST_TRANSACTION_ID_3)));
 
                 // recover transaction 1 (participant 1 and 2)
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.COMMIT_STARTED)));
-                one(participant1).commitTransaction(TEST_TRANSACTION_ID, TEST_TRANSACTION_COORDINATOR_KEY);
+                one(participant1).commitRecoveredTransaction(TEST_TRANSACTION_ID, TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY);
                 will(throwException(exception));
-                one(participant2).commitTransaction(TEST_TRANSACTION_ID, TEST_TRANSACTION_COORDINATOR_KEY);
+                one(participant2).commitRecoveredTransaction(TEST_TRANSACTION_ID, TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY);
 
                 // recover transaction 2 (only participant 1)
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID_2, TransactionStatus.COMMIT_STARTED)));
-                one(participant1).commitTransaction(TEST_TRANSACTION_ID_2, TEST_TRANSACTION_COORDINATOR_KEY);
+                one(participant1).commitRecoveredTransaction(TEST_TRANSACTION_ID_2, TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY);
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID_2, TransactionStatus.COMMIT_FINISHED)));
 
                 // recover transaction 3
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID_3, TransactionStatus.ROLLBACK_STARTED)));
-                one(participant1).rollbackTransaction(TEST_TRANSACTION_ID_3, TEST_TRANSACTION_COORDINATOR_KEY);
-                one(participant2).rollbackTransaction(TEST_TRANSACTION_ID_3, TEST_TRANSACTION_COORDINATOR_KEY);
+                one(participant1).rollbackRecoveredTransaction(TEST_TRANSACTION_ID_3, TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY);
+                one(participant2).rollbackRecoveredTransaction(TEST_TRANSACTION_ID_3, TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY);
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID_3, TransactionStatus.ROLLBACK_FINISHED)));
 
                 // recover transaction 4
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID_4, TransactionStatus.ROLLBACK_STARTED)));
-                one(participant1).rollbackTransaction(TEST_TRANSACTION_ID_4, TEST_TRANSACTION_COORDINATOR_KEY);
-                one(participant2).rollbackTransaction(TEST_TRANSACTION_ID_4, TEST_TRANSACTION_COORDINATOR_KEY);
+                one(participant1).rollbackRecoveredTransaction(TEST_TRANSACTION_ID_4, TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY);
+                one(participant2).rollbackRecoveredTransaction(TEST_TRANSACTION_ID_4, TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY);
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID_4, TransactionStatus.ROLLBACK_FINISHED)));
             }
         });

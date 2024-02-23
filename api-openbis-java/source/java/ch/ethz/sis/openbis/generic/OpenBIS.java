@@ -331,16 +331,12 @@ public class OpenBIS
 
     public OpenBIS(final String url, final int timeout)
     {
-        this(url + "/openbis/openbis", url + "/datastore_server", timeout);
+        this(url + "/openbis/openbis", url + "/datastore_server", url + "/afs_server", timeout);
     }
 
-    public OpenBIS(final String asURL, final String dssURL)
+    public OpenBIS(final String asURL, final String dssURL, final String afsURL)
     {
-        this(asURL, dssURL, DEFAULT_TIMEOUT_IN_MILLIS);
-    }
-
-    public OpenBIS(final String asURL, final String dssURL, final int timeout){
-        this(asURL, dssURL, null, timeout);
+        this(asURL, dssURL, afsURL, DEFAULT_TIMEOUT_IN_MILLIS);
     }
 
     public OpenBIS(final String asURL, final String dssURL, final String afsURL, final int timeout)
