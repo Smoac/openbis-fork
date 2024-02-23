@@ -1336,7 +1336,7 @@ public class ExportExecutor implements IExportExecutor
     {
         try
         {
-            return escapeUnsafeCharacters(entity.getStringProperty(NAME_PROPERTY_NAME));
+            return escapeUnsafeCharacters(entity.getProperty(NAME_PROPERTY_NAME));
         } catch (final NotFetchedException e)
         {
             return null;
@@ -1347,7 +1347,7 @@ public class ExportExecutor implements IExportExecutor
     {
         try
         {
-            return entity.getStringProperty(NAME_PROPERTY_NAME);
+            return entity.getProperty(NAME_PROPERTY_NAME);
         } catch (final NotFetchedException e)
         {
             return null;
