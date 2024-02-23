@@ -1396,7 +1396,7 @@ public class ExportExecutor implements IExportExecutor
             final List<PropertyAssignment> propertyAssignments = typeObj.getPropertyAssignments();
             if (propertyAssignments != null)
             {
-                final Map<String, Serializable> properties = ((IPropertiesHolder) entityObj).getProperties();
+                final Map<String, String> properties = ((IPropertiesHolder) entityObj).getProperties();
                 for (final PropertyAssignment propertyAssignment : propertyAssignments)
                 {
                     System.out.println(selectedExportFields);
