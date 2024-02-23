@@ -786,6 +786,7 @@ public class TransactionTest extends AbstractTest
         assertTransactions(participant2.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
 
         coordinatorAfterCrash.recoverTransactionsFromTransactionLog();
+        coordinatorAfterCrash.finishFailedOrAbandonedTransactions();
 
         assertTransactions(coordinatorAfterCrash.getTransactionMap());
         assertTransactions(participant1.getTransactionMap());
@@ -849,6 +850,7 @@ public class TransactionTest extends AbstractTest
         assertEquals(createdSpaces.size(), 0);
 
         coordinatorAfterCrash.recoverTransactionsFromTransactionLog();
+        coordinatorAfterCrash.finishFailedOrAbandonedTransactions();
 
         assertTransactions(coordinatorAfterCrash.getTransactionMap());
         assertTransactions(participant1.getTransactionMap());
@@ -907,6 +909,7 @@ public class TransactionTest extends AbstractTest
         assertEquals(createdSpaces.size(), 0);
 
         participant1AfterCrash.recoverTransactionsFromTransactionLog();
+        participant1AfterCrash.finishFailedOrAbandonedTransactions();
 
         createdSpaces = applicationServerApi.getSpaces(sessionToken,
                 Collections.singletonList(new SpacePermId(spaceCreation.getCode())), new SpaceFetchOptions());
@@ -988,8 +991,9 @@ public class TransactionTest extends AbstractTest
         assertEquals(createdSpaces.size(), 0);
 
         participant1AfterCrash.recoverTransactionsFromTransactionLog();
+        participant1AfterCrash.finishFailedOrAbandonedTransactions();
 
-        createdSpaces = applicationServerApi.getSpaces(sessionToken,
+                createdSpaces = applicationServerApi.getSpaces(sessionToken,
                 Collections.singletonList(new SpacePermId(spaceCreation.getCode())), new SpaceFetchOptions());
         assertEquals(createdSpaces.size(), 1);
 
@@ -1113,7 +1117,8 @@ public class TransactionTest extends AbstractTest
             participant.commitTransaction(originalToInternalId.get(transactionId), sessionToken, interactiveSessionKey);
         }
 
-        @Override public void commitRecoveredTransaction(final UUID transactionId, final String interactiveSessionKey, final String transactionCoordinatorKey)
+        @Override public void commitRecoveredTransaction(final UUID transactionId, final String interactiveSessionKey,
+                final String transactionCoordinatorKey)
         {
             participant.commitRecoveredTransaction(originalToInternalId.get(transactionId), interactiveSessionKey, transactionCoordinatorKey);
         }
@@ -1123,7 +1128,8 @@ public class TransactionTest extends AbstractTest
             participant.rollbackTransaction(originalToInternalId.get(transactionId), sessionToken, interactiveSessionKey);
         }
 
-        @Override public void rollbackRecoveredTransaction(final UUID transactionId, final String interactiveSessionKey, final String transactionCoordinatorKey)
+        @Override public void rollbackRecoveredTransaction(final UUID transactionId, final String interactiveSessionKey,
+                final String transactionCoordinatorKey)
         {
             participant.rollbackRecoveredTransaction(originalToInternalId.get(transactionId), interactiveSessionKey, transactionCoordinatorKey);
         }
@@ -1143,6 +1149,11 @@ public class TransactionTest extends AbstractTest
         public void recoverTransactionsFromTransactionLog()
         {
             participant.recoverTransactionsFromTransactionLog();
+        }
+
+        public void finishFailedOrAbandonedTransactions()
+        {
+            participant.finishFailedOrAbandonedTransactions();
         }
 
         public Map<UUID, ? extends Transaction> getTransactionMap()

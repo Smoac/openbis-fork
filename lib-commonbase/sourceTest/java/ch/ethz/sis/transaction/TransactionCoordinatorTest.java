@@ -544,7 +544,6 @@ public class TransactionCoordinatorTest
         TransactionLogEntry logEntry = new TransactionLogEntry();
         logEntry.setTransactionId(TEST_TRANSACTION_ID);
         logEntry.setTransactionStatus(transactionStatus);
-        logEntry.setLastAccessedDate(new Date(System.currentTimeMillis() - TEST_TIMEOUT * 1000L - 1));
 
         Map<UUID, TransactionLogEntry> logEntries = Map.of(logEntry.getTransactionId(), logEntry);
 
