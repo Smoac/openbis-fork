@@ -19,12 +19,13 @@ package ch.ethz.sis.afsapi.dto;
 
 import lombok.*;
 
+import java.io.Serializable;
 import java.time.OffsetDateTime;
 
 @Value
 @Builder(toBuilder = true)
 @AllArgsConstructor(access = AccessLevel.PUBLIC)
-public class File {
+public class File implements Serializable {
     private String owner;
     private String path;
     private String name;

@@ -62,10 +62,14 @@ public final class AfsClient implements PublicAPI, ClientAPI
         this(serverUri, DEFAULT_PACKAGE_SIZE_IN_BYTES, DEFAULT_TIMEOUT_IN_MILLIS);
     }
 
-    public AfsClient(final URI serverUri, final int maxReadSizeInBytes, final int timeout)
+    public AfsClient(final URI serverUri, final int timeoutInMillis){
+        this(serverUri, DEFAULT_PACKAGE_SIZE_IN_BYTES, timeoutInMillis);
+    }
+
+    public AfsClient(final URI serverUri, final int maxReadSizeInBytes, final int timeoutInMillis)
     {
         this.maxReadSizeInBytes = maxReadSizeInBytes;
-        this.timeout = timeout;
+        this.timeout = timeoutInMillis;
         this.serverUri = serverUri;
     }
 
@@ -147,7 +151,7 @@ public final class AfsClient implements PublicAPI, ClientAPI
         validateSessionToken();
         return request("GET", "list", List.class,
                 Map.of("owner", owner, "source", source, "recursively",
-                        recursively.toString()));
+                        recursively.toString(), "sessionToken", getSessionToken(), "interactiveSessionKey", getInteractiveSessionKey()));
     }
 
     @Override
@@ -157,7 +161,8 @@ public final class AfsClient implements PublicAPI, ClientAPI
         validateSessionToken();
         return request("GET", "read", byte[].class,
                 Map.of("owner", owner, "source", source, "offset",
-                        offset.toString(), "limit", limit.toString()));
+                        offset.toString(), "limit", limit.toString(), "sessionToken",
+                        getSessionToken(), "interactiveSessionKey", getInteractiveSessionKey()));
     }
 
     @Override
@@ -168,7 +173,7 @@ public final class AfsClient implements PublicAPI, ClientAPI
         validateSessionToken();
         return request("POST", "write", Boolean.class, Map.of("owner", owner, "source", source,
                 "offset", offset.toString(), "data", Base64.getEncoder().encodeToString(data),
-                "md5Hash", Base64.getEncoder().encodeToString(md5Hash)));
+                "md5Hash", Base64.getEncoder().encodeToString(md5Hash), "sessionToken", getSessionToken(), "interactiveSessionKey", getInteractiveSessionKey()));
     }
 
     @Override
@@ -176,7 +181,7 @@ public final class AfsClient implements PublicAPI, ClientAPI
             throws Exception
     {
         validateSessionToken();
-        return request("DELETE", "delete", Boolean.class, Map.of("owner", owner, "source", source));
+        return request("DELETE", "delete", Boolean.class, Map.of("owner", owner, "source", source, "sessionToken", getSessionToken(), "interactiveSessionKey", getInteractiveSessionKey()));
     }
 
     @Override
@@ -188,7 +193,7 @@ public final class AfsClient implements PublicAPI, ClientAPI
         validateSessionToken();
         return request("POST", "copy", Boolean.class,
                 Map.of("sourceOwner", sourceOwner, "source", source,
-                        "targetOwner", targetOwner, "target", target));
+                        "targetOwner", targetOwner, "target", target, "sessionToken", getSessionToken(), "interactiveSessionKey", getInteractiveSessionKey()));
     }
 
     @Override
@@ -200,7 +205,7 @@ public final class AfsClient implements PublicAPI, ClientAPI
         validateSessionToken();
         return request("POST", "move", Boolean.class,
                 Map.of("sourceOwner", sourceOwner, "source", source,
-                        "targetOwner", targetOwner, "target", target));
+                        "targetOwner", targetOwner, "target", target, "sessionToken", getSessionToken(), "interactiveSessionKey", getInteractiveSessionKey()));
     }
 
     @Override
@@ -208,42 +213,56 @@ public final class AfsClient implements PublicAPI, ClientAPI
             throws Exception
     {
         validateSessionToken();
-        return request("POST", "create", Boolean.class, Map.of("owner", owner, "source", source, "directory", String.valueOf(directory)));
+        return request("POST", "create", Boolean.class, Map.of("owner", owner, "source", source, "directory", String.valueOf(directory), "sessionToken", getSessionToken(), "interactiveSessionKey", getInteractiveSessionKey()));
     }
 
     @Override
     public void begin(final UUID transactionId) throws Exception
     {
         validateSessionToken();
-        request("POST", "begin", null, Map.of("transactionId", transactionId.toString()));
+        Map<String, String> parameters =
+                Map.of("transactionId", transactionId.toString(),
+                        "sessionToken", getSessionToken(),
+                        "interactiveSessionKey", getInteractiveSessionKey(), "transactionManagerKey", getTransactionManagerKey());
+        request("POST", "begin", null, parameters);
     }
 
     @Override
     public Boolean prepare() throws Exception
     {
         validateSessionToken();
-        return request("POST", "prepare", Boolean.class, Map.of());
+        Map<String, String> parameters =
+                Map.of("sessionToken", getSessionToken(),"interactiveSessionKey", getInteractiveSessionKey(),
+                        "transactionManagerKey", getTransactionManagerKey());
+        return request("POST", "prepare", Boolean.class, parameters);
     }
 
     @Override
     public void commit() throws Exception
     {
         validateSessionToken();
-        request("POST", "commit", null, Map.of());
+        Map<String, String> parameters =
+                Map.of("sessionToken", getSessionToken(), "interactiveSessionKey", getInteractiveSessionKey());
+        request("POST", "commit", null, parameters);
     }
 
     @Override
     public void rollback() throws Exception
     {
         validateSessionToken();
-        request("POST", "rollback", null, Map.of());
+        Map<String, String> parameters =
+                Map.of("sessionToken", getSessionToken(), "interactiveSessionKey", getInteractiveSessionKey());
+        request("POST", "rollback", null, parameters);
     }
 
     @Override
     public List<UUID> recover() throws Exception
     {
         validateSessionToken();
-        return request("POST", "recover", List.class, Map.of());
+        Map<String, String> parameters =
+                Map.of("interactiveSessionKey", getInteractiveSessionKey(),
+                        "transactionManagerKey", getTransactionManagerKey());
+        return request("POST", "recover", List.class, parameters);
     }
 
 
@@ -296,7 +315,7 @@ public final class AfsClient implements PublicAPI, ClientAPI
 
                 fileChannel.write(byteBuffer, offset, byteBuffer, new ChannelWriteCompletionHandler(latch, hasError));
                 offset += bufferArray.length;
-        }
+            }
 
             latch.await();
 

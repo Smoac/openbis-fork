@@ -16,7 +16,30 @@
  */
 package ch.ethz.sis.openbis.generic;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.nio.file.Path;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
+
+import org.eclipse.jetty.client.api.ContentResponse;
+import org.eclipse.jetty.client.api.Request;
+import org.eclipse.jetty.client.util.BytesContentProvider;
+import org.eclipse.jetty.http.HttpMethod;
+
+import ch.ethz.sis.afsclient.client.AfsClient;
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.ITransactionCoordinatorApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.AuthorizationGroup;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.create.AuthorizationGroupCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.delete.AuthorizationGroupDeletionOptions;
@@ -202,16 +225,29 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.id.SemanticAn
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.search.SemanticAnnotationSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.update.SemanticAnnotationUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.server.ServerInformation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.*;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.AggregationService;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASService;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASServiceExecutionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.ProcessingService;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.ReportingService;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.SearchDomainService;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.SearchDomainServiceExecutionResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.execute.AggregationServiceExecutionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.execute.ProcessingServiceExecutionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.execute.ReportingServiceExecutionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.execute.SearchDomainServiceExecutionOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.*;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.AggregationServiceFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.CustomASServiceFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.ProcessingServiceFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.ReportingServiceFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.SearchDomainServiceFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.ICustomASServiceId;
-import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.id.ICustomDSSServiceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.IDssServiceId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.*;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.AggregationServiceSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.CustomASServiceSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.ProcessingServiceSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.ReportingServiceSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.SearchDomainServiceSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.SessionInformation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.fetchoptions.SessionInformationFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.search.SessionInformationSearchCriteria;
@@ -258,24 +294,10 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSe
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.CustomDSSServiceExecutionOptions;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.id.ICustomDSSServiceId;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.http.JettyHttpClientFactory;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
-
-import org.eclipse.jetty.client.api.ContentResponse;
-import org.eclipse.jetty.client.api.Request;
-import org.eclipse.jetty.client.util.BytesContentProvider;
-import org.eclipse.jetty.http.HttpMethod;
 
 public class OpenBIS {
 
@@ -283,11 +305,19 @@ public class OpenBIS {
 
     private static final int CHUNK_SIZE = 1048576; // 1 MiB
 
+    private final ITransactionCoordinatorApi transactionCoordinator;
+
     private final IApplicationServerApi asFacade;
 
     private final IDataStoreServerApi dssFacade;
 
+    private final AfsClient afsClient;
+
+    private String interactiveSessionKey;
+
     private String sessionToken;
+
+    private UUID transactionId;
 
     private final String asURL;
 
@@ -295,23 +325,28 @@ public class OpenBIS {
 
     private final int timeout;
 
-    public OpenBIS(final String url) {
+    public OpenBIS(final String url)
+    {
         this(url, DEFAULT_TIMEOUT_IN_MILLIS);
     }
 
-    public OpenBIS(final String url, final int timeout) {
-        this(url + "/openbis/openbis", url + "/datastore_server", 30000);
+    public OpenBIS(final String url, final int timeout)
+    {
+        this(url + "/openbis/openbis", url + "/datastore_server", url + "/afs_server", timeout);
     }
 
-    public OpenBIS(final String asURL, final String dssURL)
+    public OpenBIS(final String asURL, final String dssURL, final String afsURL)
     {
-        this(asURL, dssURL, DEFAULT_TIMEOUT_IN_MILLIS);
+        this(asURL, dssURL, afsURL, DEFAULT_TIMEOUT_IN_MILLIS);
     }
 
-    public OpenBIS(final String asURL, final String dssURL, final int timeout)
+    public OpenBIS(final String asURL, final String dssURL, final String afsURL, final int timeout)
     {
+        this.transactionCoordinator =
+                HttpInvokerUtils.createServiceStub(ITransactionCoordinatorApi.class, asURL + ITransactionCoordinatorApi.SERVICE_URL, timeout);
         this.asFacade = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, asURL + IApplicationServerApi.SERVICE_URL, timeout);
         this.dssFacade = HttpInvokerUtils.createServiceStub(IDataStoreServerApi.class, dssURL + IDataStoreServerApi.SERVICE_URL, timeout);
+        this.afsClient = new AfsClient(URI.create(afsURL), timeout);
         this.asURL = asURL;
         this.dssURL = dssURL;
         this.timeout = timeout;
@@ -351,8 +386,78 @@ public class OpenBIS {
         return asFacade.isSessionActive(sessionToken);
     }
 
+    public void beginTransaction()
+    {
+        if (sessionToken == null)
+        {
+            throw new IllegalStateException("Session token hasn't been set yet");
+        }
+
+        if (interactiveSessionKey == null)
+        {
+            throw new IllegalStateException("Interactive session token hasn't been set yet");
+        }
+
+        if (transactionId != null)
+        {
+            throw new IllegalStateException("Transaction has been already started");
+        }
+
+        transactionId = UUID.randomUUID();
+        transactionCoordinator.beginTransaction(transactionId, sessionToken, interactiveSessionKey);
+    }
+
+    public void commitTransaction()
+    {
+        if (sessionToken == null)
+        {
+            throw new IllegalStateException("Session token hasn't been set yet");
+        }
+
+        if (interactiveSessionKey == null)
+        {
+            throw new IllegalStateException("Interactive session token hasn't been set yet");
+        }
+
+        if (transactionId == null)
+        {
+            throw new IllegalStateException("Transaction hasn't started yet");
+        }
+
+        transactionCoordinator.commitTransaction(transactionId, sessionToken, interactiveSessionKey);
+        transactionId = null;
+    }
+
+    public void rollbackTransaction()
+    {
+        if (sessionToken == null)
+        {
+            throw new IllegalStateException("Session token hasn't been set yet");
+        }
+
+        if (interactiveSessionKey == null)
+        {
+            throw new IllegalStateException("Interactive session token hasn't been set yet");
+        }
+
+        if (transactionId == null)
+        {
+            throw new IllegalStateException("Transaction hasn't started yet");
+        }
+
+        transactionCoordinator.rollbackTransaction(transactionId, sessionToken, interactiveSessionKey);
+        transactionId = null;
+    }
+
     public List<SpacePermId> createSpaces(List<SpaceCreation> newSpaces) {
-        return asFacade.createSpaces(sessionToken, newSpaces);
+        if (transactionId != null)
+        {
+            return transactionCoordinator.executeOperation(transactionId, sessionToken, interactiveSessionKey,
+                    ITransactionCoordinatorApi.APPLICATION_SERVER_PARTICIPANT_ID, "createSpaces", new Object[] { sessionToken, newSpaces });
+        } else
+        {
+            return asFacade.createSpaces(sessionToken, newSpaces);
+        }
     }
 
     public List<ProjectPermId> createProjects(List<ProjectCreation> newProjects) {
@@ -628,7 +733,15 @@ public class OpenBIS {
     }
 
     public SearchResult<Space> searchSpaces(SpaceSearchCriteria searchCriteria, SpaceFetchOptions fetchOptions) {
-        return asFacade.searchSpaces(sessionToken, searchCriteria, fetchOptions);
+        if (transactionId != null)
+        {
+            return transactionCoordinator.executeOperation(transactionId, sessionToken, interactiveSessionKey,
+                    ITransactionCoordinatorApi.APPLICATION_SERVER_PARTICIPANT_ID, "searchSpaces",
+                    new Object[] { sessionToken, searchCriteria, fetchOptions });
+        } else
+        {
+            return asFacade.searchSpaces(sessionToken, searchCriteria, fetchOptions);
+        }
     }
 
     public SearchResult<Project> searchProjects(ProjectSearchCriteria searchCriteria, ProjectFetchOptions fetchOptions) {
@@ -982,6 +1095,16 @@ public class OpenBIS {
         this.sessionToken = sessionToken;
     }
 
+    public void setInteractiveSessionKey(final String interactiveSessionKey)
+    {
+        this.interactiveSessionKey = interactiveSessionKey;
+    }
+
+    public String getInteractiveSessionKey()
+    {
+        return interactiveSessionKey;
+    }
+
     public String uploadFileWorkspaceDSS(final Path fileOrFolder)
     {
         String uploadId = uploadFileWorkspaceDSSEmptyDir(UUID.randomUUID().toString());
@@ -1062,10 +1185,10 @@ public class OpenBIS {
      *
      */
     public static SemanticAnnotationCreation getSemanticSubjectCreation(    EntityKind subjectEntityKind,
-                                                                            String subjectClass,
-                                                                            String subjectClassOntologyId,
-                                                                            String subjectClassOntologyVersion,
-                                                                            String subjectClassId) {
+            String subjectClass,
+            String subjectClassOntologyId,
+            String subjectClassOntologyVersion,
+            String subjectClassId) {
         SemanticAnnotationCreation semanticAnnotationCreation = new SemanticAnnotationCreation();
         // Subject: Type matching an ontology class
         semanticAnnotationCreation.setEntityTypeId(new EntityTypePermId(subjectClass, subjectEntityKind));
@@ -1086,11 +1209,11 @@ public class OpenBIS {
      *
      */
     public static SemanticAnnotationCreation getSemanticPredicateWithSubjectCreation( EntityKind subjectEntityKind,
-                                                                                      String subjectClass,
-                                                                                      String predicateProperty,
-                                                                                      String predicatePropertyOntologyId,
-                                                                                      String predicatePropertyOntologyVersion,
-                                                                                      String predicatePropertyId) {
+            String subjectClass,
+            String predicateProperty,
+            String predicatePropertyOntologyId,
+            String predicatePropertyOntologyVersion,
+            String predicatePropertyId) {
         SemanticAnnotationCreation semanticAnnotationCreation = new SemanticAnnotationCreation();
         // Subject: Type matching an ontology class
         // Predicate: Property matching an ontology class property
@@ -1111,9 +1234,9 @@ public class OpenBIS {
      *
      */
     public static SemanticAnnotationCreation getSemanticPredicateCreation( String predicateProperty,
-                                                                           String predicatePropertyOntologyId,
-                                                                           String predicatePropertyOntologyVersion,
-                                                                           String predicatePropertyId) {
+            String predicatePropertyOntologyId,
+            String predicatePropertyOntologyVersion,
+            String predicatePropertyId) {
         SemanticAnnotationCreation semanticAnnotationCreation = new SemanticAnnotationCreation();
         // Predicate: Property matching an ontology class property
         semanticAnnotationCreation.setPropertyTypeId(new PropertyTypePermId(predicateProperty));
@@ -1131,7 +1254,7 @@ public class OpenBIS {
     //
 
     private PersonalAccessTokenPermId createManagedPersonalAccessToken(String applicationName,
-                                                                       int personalAccessTokensMaxValidityPeriodInDays)
+            int personalAccessTokensMaxValidityPeriodInDays)
     {
         final long SECONDS_PER_DAY = 24 * 60 * 60;
         final long MILLIS_PER_DAY = SECONDS_PER_DAY * 1000;
@@ -1267,5 +1390,41 @@ public class OpenBIS {
                 };
             }
         };
+    }
+
+    public List<ch.ethz.sis.afsapi.dto.File> list(String owner, String source, Boolean recursively){
+        if (transactionId != null)
+        {
+            return transactionCoordinator.executeOperation(transactionId, sessionToken, interactiveSessionKey,
+                    ITransactionCoordinatorApi.AFS_SERVER_PARTICIPANT_ID, "list",
+                    new Object[] { owner, source, recursively });
+        } else
+        {
+            try
+            {
+                afsClient.setSessionToken(sessionToken);
+                return afsClient.list(owner, source, recursively);
+            } catch (Exception e){
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    public Boolean write(String owner, String source, Long offset, byte[] data, byte[] md5Hash){
+        if (transactionId != null)
+        {
+            return transactionCoordinator.executeOperation(transactionId, sessionToken, interactiveSessionKey,
+                    ITransactionCoordinatorApi.AFS_SERVER_PARTICIPANT_ID, "write",
+                    new Object[] { owner, source, offset, data, md5Hash });
+        } else
+        {
+            try
+            {
+                afsClient.setSessionToken(sessionToken);
+                return afsClient.write(owner, source, offset, data, md5Hash);
+            } catch (Exception e){
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

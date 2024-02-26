@@ -17,7 +17,10 @@
 
 package ch.ethz.sis.afsapi.dto;
 
-public enum ExceptionType {
+import java.io.Serializable;
+
+public enum ExceptionType implements Serializable
+{
     UnknownError,
     UserUsageError,
     AdminConfigError,
