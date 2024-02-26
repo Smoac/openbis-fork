@@ -11,9 +11,10 @@ class Facade {
     return new Promise((resolve, reject) => {
       /* eslint-disable-next-line no-undef */
       requirejs(
-        ['openbis'],
-        openbis => {
+        ['openbis', 'util/Json'],
+        (openbis, stjs) => {
           _this.v3 = new openbis()
+          _this.stjs = stjs
           resolve()
         },
         error => {
@@ -191,6 +192,10 @@ class Facade {
     return this.promise(this.v3.updateExperimentTypes(updates))
   }
 
+  updateDataSets(updates) {
+    return this.promise(this.v3.updateDataSets(updates))
+  }
+
   updateDataSetTypes(updates) {
     return this.promise(this.v3.updateDataSetTypes(updates))
   }
@@ -233,6 +238,14 @@ class Facade {
 
   evaluatePlugin(options) {
     return this.promise(this.v3.evaluatePlugin(options))
+  }
+
+  executeCustomDSSService(serviceId, options) {
+    return this.promise(this.v3.getDataStoreFacade().executeCustomDSSService(serviceId, options));
+  }
+
+  fromJson(jsonType, jsonObject) {
+    return this.promise(this.stjs.fromJson(jsonType, jsonObject));
   }
 
   async executeService(id, options) {

@@ -3881,6 +3881,38 @@ function ServerFacade(openbisServer) {
 		});
 	}
 
+	this.customDSSService = function(parameters, callbackFunction, serviceCode, errorHandler) {
+        require(["dss/dto/service/id/CustomDssServiceCode","dss/dto/service/CustomDSSServiceExecutionOptions"],
+            function(CustomDssServiceCode, CustomDSSServiceExecutionOptions) {
+                var id = new CustomDssServiceCode(serviceCode);
+                var options = new CustomDSSServiceExecutionOptions();
+
+                if(parameters) {
+                   for(key in parameters) {
+                       options.withParameter(key, parameters[key]);
+                   }
+                }
+
+                var failureHander = function(result) {
+                    if (errorHandler) {
+                        errorHandler(result);
+                    } else {
+                        var msg = result.message;
+                        if (!msg) {
+                            msg = "Call failed to server: " + JSON.stringify(result);
+                        }
+                        Util.showError(msg);
+                    }
+                };
+
+
+               mainController.openbisV3.getDataStoreFacade().executeCustomDSSService(id, options).done(function(result) {
+                   callbackFunction(result);
+               }).fail(failureHander);
+
+        });
+    }
+
 	//
 	// search-store Functions
 	//
