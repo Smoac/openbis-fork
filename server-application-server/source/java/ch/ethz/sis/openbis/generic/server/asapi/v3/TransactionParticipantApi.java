@@ -42,9 +42,9 @@ public class TransactionParticipantApi implements ITransactionParticipantApi, Ap
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, TransactionParticipant.class);
 
-    private static final String TRANSACTION_LOG_FOLDER_NAME = "application-server";
+    private static final String TRANSACTION_LOG_FOLDER_NAME = "participant-application-server";
 
-    private static final String FINISH_TRANSACTIONS_THREAD_NAME = "application-server-finish-transactions";
+    private static final String FINISH_TRANSACTIONS_THREAD_NAME = "participant-application-server-finish-transactions";
 
     private final TransactionConfiguration transactionConfiguration;
 
