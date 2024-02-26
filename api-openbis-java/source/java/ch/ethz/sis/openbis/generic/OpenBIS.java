@@ -1592,7 +1592,7 @@ public class OpenBIS
         if (transactionId != null)
         {
             return transactionCoordinator.executeOperation(transactionId, sessionToken, interactiveSessionKey,
-                    ITransactionCoordinatorApi.DATASTORE_SERVER_PARTICIPANT_ID, "list",
+                    ITransactionCoordinatorApi.AFS_SERVER_PARTICIPANT_ID, "list",
                     new Object[] { owner, source, recursively });
         } else
         {
@@ -1610,7 +1610,7 @@ public class OpenBIS
         if (transactionId != null)
         {
             return transactionCoordinator.executeOperation(transactionId, sessionToken, interactiveSessionKey,
-                    ITransactionCoordinatorApi.DATASTORE_SERVER_PARTICIPANT_ID, "write",
+                    ITransactionCoordinatorApi.AFS_SERVER_PARTICIPANT_ID, "write",
                     new Object[] { owner, source, offset, data, md5Hash });
         } else
         {

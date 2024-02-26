@@ -47,8 +47,8 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi, Ap
         List<ITransactionParticipant> participants = Arrays.asList(
                 new ApplicationServerParticipant(transactionConfiguration.getApplicationServerUrl(),
                         transactionConfiguration.getApplicationServerTimeoutInSeconds()),
-                new DataStoreServerParticipant(applicationServerApi, transactionConfiguration.getDataStoreServerUrl(),
-                        transactionConfiguration.getDataStoreServerTimeoutInSeconds()));
+                new AfsServerParticipant(applicationServerApi, transactionConfiguration.getAfsServerUrl(),
+                        transactionConfiguration.getAfsServerTimeoutInSeconds()));
 
         this.transactionConfiguration = transactionConfiguration;
         this.transactionCoordinator = new TransactionCoordinator(
@@ -204,25 +204,25 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi, Ap
         }
     }
 
-    private static class DataStoreServerParticipant implements ITransactionParticipant
+    private static class AfsServerParticipant implements ITransactionParticipant
     {
 
         private final IApplicationServerInternalApi applicationServerApi;
 
-        private final String dataStoreServerUrl;
+        private final String afsServerUrl;
 
         private final int timeoutInSeconds;
 
-        public DataStoreServerParticipant(IApplicationServerInternalApi applicationServerApi, String dataStoreServerUrl, int timeoutInSeconds)
+        public AfsServerParticipant(IApplicationServerInternalApi applicationServerApi, String afsServerUrl, int timeoutInSeconds)
         {
             this.applicationServerApi = applicationServerApi;
-            this.dataStoreServerUrl = dataStoreServerUrl;
+            this.afsServerUrl = afsServerUrl;
             this.timeoutInSeconds = timeoutInSeconds;
         }
 
         @Override public String getParticipantId()
         {
-            return ITransactionCoordinatorApi.DATASTORE_SERVER_PARTICIPANT_ID;
+            return ITransactionCoordinatorApi.AFS_SERVER_PARTICIPANT_ID;
         }
 
         @Override public void beginTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
@@ -230,7 +230,7 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi, Ap
         {
             try
             {
-                getDataStoreServer(transactionId, sessionToken, interactiveSessionKey, transactionCoordinatorKey).begin(transactionId);
+                getAfsClient(transactionId, sessionToken, interactiveSessionKey, transactionCoordinatorKey).begin(transactionId);
             } catch (RuntimeException e)
             {
                 throw e;
@@ -245,7 +245,7 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi, Ap
         {
             try
             {
-                AfsClient afsClient = getDataStoreServer(transactionId, sessionToken, interactiveSessionKey, null);
+                AfsClient afsClient = getAfsClient(transactionId, sessionToken, interactiveSessionKey, null);
 
                 for (Method method : OperationsAPI.class.getDeclaredMethods())
                 {
@@ -278,7 +278,7 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi, Ap
         {
             try
             {
-                getDataStoreServer(transactionId, sessionToken, interactiveSessionKey, transactionCoordinatorKey).prepare();
+                getAfsClient(transactionId, sessionToken, interactiveSessionKey, transactionCoordinatorKey).prepare();
             } catch (RuntimeException e)
             {
                 throw e;
@@ -292,7 +292,7 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi, Ap
         {
             try
             {
-                getDataStoreServer(transactionId, sessionToken, interactiveSessionKey, null).commit();
+                getAfsClient(transactionId, sessionToken, interactiveSessionKey, null).commit();
             } catch (RuntimeException e)
             {
                 throw e;
@@ -311,7 +311,7 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi, Ap
             {
                 sessionToken = applicationServerApi.loginAsSystem();
 
-                AfsClient dataStoreServer = getDataStoreServer(transactionId, sessionToken, interactiveSessionKey, transactionCoordinatorKey);
+                AfsClient dataStoreServer = getAfsClient(transactionId, sessionToken, interactiveSessionKey, transactionCoordinatorKey);
                 dataStoreServer.begin(transactionId);
                 dataStoreServer.commit();
             } catch (RuntimeException e)
@@ -333,7 +333,7 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi, Ap
         {
             try
             {
-                getDataStoreServer(transactionId, sessionToken, interactiveSessionKey, null).rollback();
+                getAfsClient(transactionId, sessionToken, interactiveSessionKey, null).rollback();
             } catch (RuntimeException e)
             {
                 throw e;
@@ -352,7 +352,7 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi, Ap
             {
                 sessionToken = applicationServerApi.loginAsSystem();
 
-                AfsClient dataStoreServer = getDataStoreServer(transactionId, sessionToken, interactiveSessionKey, transactionCoordinatorKey);
+                AfsClient dataStoreServer = getAfsClient(transactionId, sessionToken, interactiveSessionKey, transactionCoordinatorKey);
                 dataStoreServer.begin(transactionId);
                 dataStoreServer.rollback();
             } catch (RuntimeException e)
@@ -378,7 +378,7 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi, Ap
             {
                 sessionToken = applicationServerApi.loginAsSystem();
 
-                AfsClient dataStoreServer = getDataStoreServer(null, sessionToken, interactiveSessionKey, transactionCoordinatorKey);
+                AfsClient dataStoreServer = getAfsClient(null, sessionToken, interactiveSessionKey, transactionCoordinatorKey);
                 return dataStoreServer.recover();
             } catch (RuntimeException e)
             {
@@ -395,10 +395,10 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi, Ap
             }
         }
 
-        private AfsClient getDataStoreServer(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
+        private AfsClient getAfsClient(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
                 final String transactionCoordinatorKey)
         {
-            AfsClient afsClient = new AfsClient(URI.create(dataStoreServerUrl), timeoutInSeconds * 1000);
+            AfsClient afsClient = new AfsClient(URI.create(afsServerUrl), timeoutInSeconds * 1000);
             afsClient.setSessionToken(sessionToken);
             afsClient.setInteractiveSessionKey(interactiveSessionKey);
             afsClient.setTransactionManagerKey(transactionCoordinatorKey);
