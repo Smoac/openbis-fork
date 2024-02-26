@@ -35,14 +35,6 @@ var JExcelEditorManager = new function() {
         }
     }
 
-    this.getOnCellCreate = function(guid, propertyCode, entity) {
-        var _this = this;
-        return function(worksheet, cell, x, y, value) {
-            console.log("Hello World!");
-            console.log(worksheet, cell, x, y, value);
-        }
-    }
-
     this.getObjectFunction = function(guid) {
         var _this = this;
         return function() {
@@ -203,7 +195,6 @@ var JExcelEditorManager = new function() {
             }
         } else {
             var onChangeHandler = this.getOnChange(guid, propertyCode, entity);
-            var onCreateCellHandler = this.getOnCellCreate(guid, propertyCode, entity);
             options.onundo = onChangeHandler;
             options.onredo = onChangeHandler;
             options.onchange = onChangeHandler; //
@@ -223,10 +214,6 @@ var JExcelEditorManager = new function() {
             options.oneditionend = onChangeHandler;
             options.onchangestyle = onChangeHandler; //
             options.onchangemeta = onChangeHandler; //
-            options.oncreateeditor = onCreateCellHandler;
-            options.onevent = function(event,a,b,c,d,e,f) {
-                                    console.log(event,a,b,c,d,e,f);
-                                }
 
             options.toolbar = [
                     { type:'select', k:'font-family', v:['Arial','Verdana'] },
@@ -280,10 +267,8 @@ var JExcelEditorManager = new function() {
             cell.setHTML(cellText);
 
             cell.onclick = function(event) {
-                    //TODO
-//                var aa2 = event.target.click();
-//                mainController.changeView(view, arg, true);
-            };
+                results[event.target.innerText].click();
+            }
         });
 
 
@@ -318,18 +303,15 @@ var JExcelEditorManager = new function() {
                                 mainController.openbisV3.getExperiments(ids, experimentFetchOptions).done(function(experimentResults) {
                                     var experiments = Util.mapValuesToList(experimentResults);
                                     for ( let experiment of experiments) {
-                                        links[experiment.identifier.identifier] = FormUtil.getFormLink(experiment.identifier.identifier, 'Experiment', experiment.permId.permId, null);
+                                        links[experiment.identifier.identifier] = FormUtil.getFormLink(experiment.identifier.identifier, 'Experiment', experiment.identifier.identifier, null);
                                     }
                                     callback(links);
-                                })
-
-
+                                }).fail(function(result) {
+                                    callback(links);
+                                });
                             }
-
                         })
-
                     });
-
 
 	}
 
