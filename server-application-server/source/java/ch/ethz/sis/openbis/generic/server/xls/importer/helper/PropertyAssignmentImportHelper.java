@@ -71,7 +71,9 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
         OntologyVersion("Ontology Version", false),
         OntologyAnnotationId("Ontology Annotation Id", false),
         MultiValued("Multivalued", false),
-        Unique("Unique", false);
+        Unique("Unique", false),
+        Pattern("Pattern", false),
+        PatternType("Pattern Type", false);
 
         private final String headerName;
 

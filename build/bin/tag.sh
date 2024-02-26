@@ -25,8 +25,8 @@ if [ $? -eq 0 ]; then echo "Tag already exists!"; exit 1; fi
 
 
 # set version for ELN
-echo $tag > core-plugin-openbis/dist/core-plugins/eln-lims/1/as/webapps/eln-lims/html/version.txt
-git add core-plugin-openbis/dist/core-plugins/eln-lims/1/as/webapps/eln-lims/html/version.txt
+echo $tag > ui-eln-lims/src/core-plugins/eln-lims/1/as/webapps/eln-lims/html/version.txt
+git add ui-eln-lims/src/core-plugins/eln-lims/1/as/webapps/eln-lims/html/version.txt
 git commit -m "Added ELN build info to tag $tag"
 git push
 

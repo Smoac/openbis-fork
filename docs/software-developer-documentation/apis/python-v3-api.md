@@ -109,6 +109,30 @@ o.logout()
 print(f"Session is active: {o.is_session_active()"}
 ```
 
+### Authentication without user/password
+In some configurations Openbis can be accessible via Single Sign On technology (SSO), in that case users may not have their own user/password.
+
+Upon login, Openbis generates a unique access token that can be used to allow pybis log into the active user session. You may find this token in cookies of the ELN UI.
+
+To log in with a session token, you need to use `set_token` method:
+
+```python
+from pybis import Openbis
+o = Openbis('https://test-openbis-instance.com')
+
+o.set_token("some_user-220808165456793xA3D0357C5DE66A5BAD647E502355FE2C")
+# logged into 'some_user' session!
+
+```
+
+```{note}
+Keep you access tokens safe and don't share it with others! They are invalidated when one of the following situations happen:
+- Explicit logout() call.
+- Number of sessions per user has reached beyond configured limit.
+- Session timeout is reached.
+- Openbis instance is restarted.
+```
+
 ### Personal access token (PAT)
 
 As an (new) alternative to login every time you run a script, you can create tokens which
@@ -1634,7 +1658,15 @@ In[2]: type(experiments)
 
 Out[3]: pybis.things.Things
 ```
-Things class offers following functionalities:
+`Things` class offers three main ways to access the received data:
+- Json response
+- Objects
+- DataFrame
+
+Accessing the Json response (`things.response['objects']`) directly bypasses the need to build additional Python objects; its main use case is for integrations where there are numerous results returned.
+
+On the other hand, Objects (`things.objects`) and DataFrame (`things.df`) will build the needed Python objects the first time they are used; they offer a more pretty output, and their main use case is to be used in
+Interactive applications like Jupyter Notebooks.
 
 ### JSON response
 All `Things` objects contain parsed JSON response from the OpenBIS, it may help with advanced searches and validation schemes.
@@ -1715,39 +1747,6 @@ plugin
 unique                           False
 
 ```
-
-
-### Iteration
-Things object is iterable so it can be used in for-loops:
-
-```python
-for sample in o.get_samples():
-    print(sample.code)
-```
-
-Documentation regarding the Things object and the lazy loading of "df" and "objects"
-and how to access "json" directly from Things without triggering the lazy loading is 
-undocumented and needs to be added
-
-
-### Creation of Things object
-Constructor of `Things` objects looks like this 
-```python
-
-Things(
-        openbis_obj=self.openbis_instance, # openbis instance
-        entity="entity name", # (optional) name of the entity stored in this object, e.g. "dataset", "sampleType"
-        identifier_name="permId", # name of identifier, depends on the entity
-        single_item_method=self.openbis_instance.get_property_type, # (optional) reference to a function to be triggered when single object needs to be accessed, internal call would be self.single_item_method(self.identifier_name)
-        response=response_json_object, # Openbis json response
-        df_initializer=create_data_frame, # reference to a function to be used to change json to DataFrame, internal call: self.df_initializer(self.attrs, self.props, self.response)
-        objects_initializer=create_objects, # reference to a function to be used to change json to objects, internal call: self.objects_initializer(self.response)
-        attrs=attrs, # (optional) attrivutes required for df_initializer 
-        props=props, # (optional) properties required for df_initializer
-        )
-
-```
-
 
 ## Best practices
 

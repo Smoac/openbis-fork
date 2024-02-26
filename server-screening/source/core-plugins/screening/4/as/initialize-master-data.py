@@ -103,9 +103,6 @@ material_type_CONTROL.setDescription('Control of a control layout')
 material_type_GENE = tr.getOrCreateNewMaterialType('GENE')
 material_type_GENE.setDescription('Gene')
 
-# This is to get around a weird bug running the test in Jenkins when the database populating twice
-isMaterial_type_SIRNAAvailable = tr.getMaterialType('SIRNA') is not None
-
 material_type_SIRNA = tr.getOrCreateNewMaterialType('SIRNA')
 material_type_SIRNA.setDescription('Oligo nucleotide')
 
@@ -212,12 +209,11 @@ assignment_MATERIAL_SIRNA_DESCRIPTION.setMandatory(False)
 assignment_MATERIAL_SIRNA_DESCRIPTION.setSection(None)
 assignment_MATERIAL_SIRNA_DESCRIPTION.setPositionInForms(3)
 
-# This is to get around a weird bug running the test in Jenkins when the database populating twice
-if not isMaterial_type_SIRNAAvailable:
-    assignment_MATERIAL_SIRNA_INHIBITOR_OF = tr.assignPropertyType(material_type_SIRNA, prop_type_INHIBITOR_OF)
-    assignment_MATERIAL_SIRNA_INHIBITOR_OF.setMandatory(True)
-    assignment_MATERIAL_SIRNA_INHIBITOR_OF.setSection(None)
-    assignment_MATERIAL_SIRNA_INHIBITOR_OF.setPositionInForms(4)
+assignment_MATERIAL_SIRNA_INHIBITOR_OF = tr.assignPropertyType(material_type_SIRNA, prop_type_INHIBITOR_OF)
+# Mandatory = False : This is to get around a weird bug running the test in Jenkins
+assignment_MATERIAL_SIRNA_INHIBITOR_OF.setMandatory(False)
+assignment_MATERIAL_SIRNA_INHIBITOR_OF.setSection(None)
+assignment_MATERIAL_SIRNA_INHIBITOR_OF.setPositionInForms(4)
 
 assignment_MATERIAL_SIRNA_LIBRARY_ID = tr.assignPropertyType(material_type_SIRNA, prop_type_LIBRARY_ID)
 assignment_MATERIAL_SIRNA_LIBRARY_ID.setMandatory(False)

@@ -16,6 +16,7 @@
 package ch.systemsx.cisd.openbis.screening.systemtests.authorization.predicate;
 
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.predicate.CommonPredicateSystemTest;
+import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.screening.systemtests.authorization.CommonAuthorizationScreeningSystemTest;
 
 /**
@@ -27,6 +28,7 @@ public abstract class CommonPredicateScreeningSystemTest<O> extends CommonPredic
     @Override
     protected void setUpDatabaseProperties()
     {
+        TestInitializer.setForceCreateWithInitialData(true);
         new CommonAuthorizationScreeningSystemTest().setUpDatabaseProperties();
     }
 

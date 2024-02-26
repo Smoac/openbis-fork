@@ -220,15 +220,10 @@ public class ImagingService implements ICustomDSSServiceExecutor
 
     private Serializable processMultiExportFlow(String sessionToken, ImagingMultiExportContainer data)
     {
-            // multi export case
-            final String archiveFormat = "zip";
-            ImagingArchiver archiver;
-            try
+            ImagingArchiver archiver = null;
+            if(data.getExports().isEmpty())
             {
-                archiver = new ImagingArchiver(sessionToken, archiveFormat);
-            } catch (IOException exception)
-            {
-                throw new UserFailureException("Could not export data!", exception);
+                throw new UserFailureException("There are no exports defined!");
             }
 
             for (ImagingDataSetMultiExport export : data.getExports())
@@ -266,6 +261,18 @@ public class ImagingService implements ICustomDSSServiceExecutor
                     throw new UserFailureException("At least single export needs to be configured!");
                 }
 
+                try
+                {
+                    if(archiver == null)
+                    {
+                        final String archiveFormat = exportConfig.get("archive-format").toString();
+                        archiver = new ImagingArchiver(sessionToken, archiveFormat);
+                    }
+                } catch (IOException exception)
+                {
+                    throw new UserFailureException("Could not export data!", exception);
+                }
+
                 // For each export type, perform adequate action
                 for (Serializable exportType : exportTypes)
                 {
@@ -287,6 +294,7 @@ public class ImagingService implements ICustomDSSServiceExecutor
 
                 }
             }
+        assert archiver != null;
         data.setUrl(archiver.build());
         return data;
     }
@@ -362,7 +370,7 @@ public class ImagingService implements ICustomDSSServiceExecutor
         properties.remove(IMAGING_CONFIG_PROPERTY_NAME);
         if(!properties.isEmpty()) {
             byte[] json = Util.mapToJson(properties).getBytes(StandardCharsets.UTF_8);
-            archiver.addToArchive(rootFolderName, "properties.txt", json);
+            archiver.addToArchive(rootFolderName, "properties_"+dataSet.getPermId().getPermId()+".txt", json);
         }
     }
 

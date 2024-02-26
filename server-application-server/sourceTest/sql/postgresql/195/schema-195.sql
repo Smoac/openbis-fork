@@ -1549,7 +1549,7 @@ CREATE SEQUENCE database_instance_id_seq
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
-CREATE TABLE database_version_logs (
+CREATE TABLE IF NOT EXISTS database_version_logs (
     db_version character varying(4) NOT NULL,
     module_name character varying(250),
     run_status character varying(10),

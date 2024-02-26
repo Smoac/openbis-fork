@@ -36,6 +36,7 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.helper.AbstractXLSEx
 import static ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME;
 import static ch.systemsx.cisd.openbis.generic.shared.Constants.DOWNLOAD_URL;
 
+import java.awt.*;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -69,17 +70,22 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.log4j.Logger;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.jsoup.Jsoup;
@@ -1102,7 +1108,10 @@ public class ExportExecutor implements IExportExecutor
         try (final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(pdfFile), BUFFER_SIZE))
         {
             final PdfRendererBuilder builder = new PdfRendererBuilder();
-            final String replacedHtml = html.replaceAll(XML_10_REGEXP, "").replaceAll(UNPRINTABLE_CHARACTER_REFERENCES_REGEXP, "");
+            String replacedHtml = html.replaceAll(XML_10_REGEXP, "").replaceAll(UNPRINTABLE_CHARACTER_REFERENCES_REGEXP, "");
+            replacedHtml = ExportPDFUtils.addStyleHeader(replacedHtml);
+            replacedHtml = ExportPDFUtils.replaceHSLToHex(replacedHtml, "color", ExportPDFUtils.hslColorPattern);
+            replacedHtml = ExportPDFUtils.insertPagePagebreak(replacedHtml, "<h2>Identification Info</h2>");
             builder.useFastMode().withHtmlContent(replacedHtml, null).toStream(bos).run();
         }
     }
@@ -1786,8 +1795,11 @@ public class ExportExecutor implements IExportExecutor
     private static void zipDirectory(final String sourceDirectory, final File targetZipFile) throws IOException
     {
         final Path sourceDir = Paths.get(sourceDirectory);
-        try (final ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(targetZipFile)))
+        try (final ZipArchiveOutputStream zipOutputStream = new ZipArchiveOutputStream(new FileOutputStream(targetZipFile)))
         {
+            zipOutputStream.setEncoding(StandardCharsets.ISO_8859_1.toString());
+            zipOutputStream.setMethod(ZipArchiveOutputStream.DEFLATED);
+            zipOutputStream.setLevel(5);
             try (final Stream<Path> stream = Files.walk(sourceDir))
             {
                 stream.filter(path -> !path.equals(sourceDir) && !path.toFile().equals(targetZipFile))
@@ -1796,14 +1808,15 @@ public class ExportExecutor implements IExportExecutor
                             final boolean isDirectory = Files.isDirectory(path);
                             final String entryName = sourceDir.relativize(path).toString();
                             final ZipEntry zipEntry = new ZipEntry(entryName + (isDirectory ? "/" : ""));
+                            zipEntry.setMethod(ZipArchiveOutputStream.DEFLATED);
                             try
                             {
-                                zipOutputStream.putNextEntry(zipEntry);
+                                zipOutputStream.putArchiveEntry(new ZipArchiveEntry(zipEntry));
                                 if (!isDirectory)
                                 {
                                     Files.copy(path, zipOutputStream);
                                 }
-                                zipOutputStream.closeEntry();
+                                zipOutputStream.closeArchiveEntry();
                             } catch (final IOException e)
                             {
                                 throw new RuntimeException(e);
