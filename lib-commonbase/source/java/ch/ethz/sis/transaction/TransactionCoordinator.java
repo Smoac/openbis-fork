@@ -167,11 +167,14 @@ public class TransactionCoordinator implements ITransactionCoordinator
                          */
                             if (transaction.hasTimedOut())
                             {
-                                operationLog.info("Transaction '" + transaction.getTransactionId() + "' has timed out.");
+                                operationLog.info("Transaction '" + transaction.getTransactionId() + "' has timed out. It was last accessed at '"
+                                        + transaction.getLastAccessedDate() + "'");
                                 rollbackTransaction(transaction, null, interactiveSessionKey, true);
                             } else
                             {
-                                operationLog.info("Transaction '" + transaction.getTransactionId() + "' hasn't timed out yet.");
+                                operationLog.info(
+                                        "Transaction '" + transaction.getTransactionId() + "' hasn't timed out yet. It was last accessed at '"
+                                                + transaction.getLastAccessedDate() + "'");
                             }
                             break;
                         case PREPARE_FINISHED:
@@ -496,7 +499,6 @@ public class TransactionCoordinator implements ITransactionCoordinator
                 operationLog.info(
                         "Rollback transaction '" + transaction.getTransactionId() + "' for participant '" + participant.getParticipantId()
                                 + "'.");
-
                 if (recovery)
                 {
                     participant.rollbackRecoveredTransaction(transaction.getTransactionId(), interactiveSessionKey, transactionCoordinatorKey);
@@ -646,49 +648,47 @@ public class TransactionCoordinator implements ITransactionCoordinator
 
         public <T> T lockOrFail(Callable<T> action)
         {
-            if (lock.tryLock())
-            {
-                try
-                {
-                    return action.call();
-                } catch (RuntimeException e)
-                {
-                    throw e;
-                } catch (Exception e)
-                {
-                    throw new RuntimeException(e);
-                } finally
-                {
-                    lock.unlock();
-                }
-            } else
+            return lock(lock::tryLock, action, () ->
             {
                 throw new RuntimeException(
                         "Cannot execute a new action on transaction '" + getTransactionId() + "' as it is still busy executing a previous action.");
-            }
+            });
         }
 
         public void lockOrSkip(Callable<?> action)
         {
-            if (lock.tryLock())
-            {
-                try
-                {
-                    action.call();
-                } catch (RuntimeException e)
-                {
-                    throw e;
-                } catch (Exception e)
-                {
-                    throw new RuntimeException(e);
-                } finally
-                {
-                    lock.unlock();
-                }
-            } else
+            lock(lock::tryLock, action, () ->
             {
                 operationLog.info(
                         "Cannot execute a new action on transaction '" + getTransactionId() + "' as it is still busy executing a previous action.");
+                return null;
+            });
+        }
+
+        private <T> T lock(Callable<Boolean> lockingAction, Callable<T> lockedAction, Callable<?> notLockedAction)
+        {
+            try
+            {
+                if (lockingAction.call())
+                {
+                    try
+                    {
+                        return lockedAction.call();
+                    } finally
+                    {
+                        lock.unlock();
+                    }
+                } else
+                {
+                    notLockedAction.call();
+                    return null;
+                }
+            } catch (RuntimeException e)
+            {
+                throw e;
+            } catch (Exception e)
+            {
+                throw new RuntimeException(e);
             }
         }
 

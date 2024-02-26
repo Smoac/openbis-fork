@@ -12,6 +12,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
@@ -195,11 +196,14 @@ public class TransactionParticipant implements ITransactionParticipant
                          */
                             if (transaction.hasTimedOut())
                             {
-                                operationLog.info("Transaction '" + transaction.getTransactionId() + "' has timed out.");
+                                operationLog.info("Transaction '" + transaction.getTransactionId() + "' has timed out. It was last accessed at '"
+                                        + transaction.getLastAccessedDate() + "'");
                                 rollbackTransaction(transaction);
                             } else
                             {
-                                operationLog.info("Transaction '" + transaction.getTransactionId() + "' hasn't timed out yet.");
+                                operationLog.info(
+                                        "Transaction '" + transaction.getTransactionId() + "' hasn't timed out yet. It was last accessed at '"
+                                                + transaction.getLastAccessedDate() + "'");
                             }
                             break;
                         case PREPARE_FINISHED:
@@ -390,7 +394,7 @@ public class TransactionParticipant implements ITransactionParticipant
             throw new IllegalStateException("Transaction '" + transactionId + "' does not exist.");
         }
 
-        transaction.lockOrFail(() ->
+        transaction.lockOrWait(() ->
         {
             commitTransaction(transaction);
             return null;
@@ -455,7 +459,7 @@ public class TransactionParticipant implements ITransactionParticipant
             return;
         }
 
-        transaction.lockOrFail(() ->
+        transaction.lockOrWait(() ->
         {
             rollbackTransaction(transaction);
             return null;
@@ -464,9 +468,21 @@ public class TransactionParticipant implements ITransactionParticipant
 
     private void rollbackTransaction(Transaction transaction) throws Exception
     {
-        checkTransactionStatus(transaction, TransactionStatus.NEW, TransactionStatus.BEGIN_STARTED,
-                TransactionStatus.BEGIN_FINISHED, TransactionStatus.PREPARE_STARTED, TransactionStatus.PREPARE_FINISHED,
-                TransactionStatus.COMMIT_STARTED, TransactionStatus.ROLLBACK_STARTED);
+        if (TransactionStatus.ROLLBACK_FINISHED.equals(transaction.getTransactionStatus()))
+        {
+            operationLog.info("Transaction '" + transaction.getTransactionId() + "' has been already rolled back before.");
+            return;
+        }
+
+        if (transaction.isTwoPhaseTransaction())
+        {
+            checkTransactionStatus(transaction, TransactionStatus.NEW, TransactionStatus.BEGIN_STARTED, TransactionStatus.BEGIN_FINISHED,
+                    TransactionStatus.PREPARE_STARTED, TransactionStatus.PREPARE_FINISHED, TransactionStatus.ROLLBACK_STARTED);
+        } else
+        {
+            checkTransactionStatus(transaction, TransactionStatus.NEW, TransactionStatus.BEGIN_STARTED,
+                    TransactionStatus.BEGIN_FINISHED, TransactionStatus.COMMIT_STARTED, TransactionStatus.ROLLBACK_STARTED);
+        }
 
         transaction.setLastAccessedDate(new Date());
 
@@ -628,7 +644,8 @@ public class TransactionParticipant implements ITransactionParticipant
 
         private boolean isTwoPhaseTransaction;
 
-        private final ExecutorService executor = Executors.newSingleThreadExecutor();
+        private final ExecutorService executor =
+                Executors.newSingleThreadExecutor(runnable -> new Thread(runnable, "transaction-" + getTransactionId()));
 
         private final ReentrantLock lock = new ReentrantLock();
 
@@ -678,65 +695,75 @@ public class TransactionParticipant implements ITransactionParticipant
 
         public <T> T lockOrFail(Callable<T> action)
         {
-            if (lock.tryLock())
-            {
-                try
-                {
-                    Future<T> future = executor.submit(action);
-                    return future.get();
-                } catch (ExecutionException e)
-                {
-                    Throwable originalException = e.getCause();
-                    if (originalException instanceof RuntimeException)
-                    {
-                        throw (RuntimeException) originalException;
-                    } else
-                    {
-                        throw new RuntimeException(originalException);
-                    }
-                } catch (Exception e)
-                {
-                    throw new RuntimeException(e);
-                } finally
-                {
-                    lock.unlock();
-                }
-            } else
+            return lock(lock::tryLock, action, () ->
             {
                 throw new RuntimeException(
                         "Cannot execute a new action on transaction '" + getTransactionId() + "' as it is still busy executing a previous action.");
-            }
+            });
         }
 
         public void lockOrSkip(Callable<?> action)
         {
-            if (lock.tryLock())
-            {
-                try
-                {
-                    Future<?> future = executor.submit(action);
-                    future.get();
-                } catch (ExecutionException e)
-                {
-                    Throwable originalException = e.getCause();
-                    if (originalException instanceof RuntimeException)
-                    {
-                        throw (RuntimeException) originalException;
-                    } else
-                    {
-                        throw new RuntimeException(originalException);
-                    }
-                } catch (Exception e)
-                {
-                    throw new RuntimeException(e);
-                } finally
-                {
-                    lock.unlock();
-                }
-            } else
+            lock(lock::tryLock, action, () ->
             {
                 operationLog.info(
                         "Cannot execute a new action on transaction '" + getTransactionId() + "' as it is still busy executing a previous action.");
+                return null;
+            });
+        }
+
+        public void lockOrWait(Callable<?> action)
+        {
+            long timestamp = System.currentTimeMillis();
+            lock(() -> lock.tryLock(transactionTimeoutInSeconds, TimeUnit.SECONDS), action, () ->
+            {
+                throw new RuntimeException(
+                        "Cannot execute a new action on transaction '" + getTransactionId()
+                                + "' as it is still busy executing a previous action. Waited since '" + new Date(timestamp) + "'.");
+            });
+        }
+
+        private <T> T lock(Callable<Boolean> lockingAction, Callable<T> lockedAction, Callable<?> notLockedAction)
+        {
+            try
+            {
+                if (lockingAction.call())
+                {
+                    if (executor.isShutdown())
+                    {
+                        operationLog.info("Cannot execute a new action on transaction '" + getTransactionId() + "' as it has been already closed.");
+                        return null;
+                    }
+
+                    try
+                    {
+                        Future<T> future = executor.submit(lockedAction);
+                        return future.get();
+                    } catch (ExecutionException e)
+                    {
+                        Throwable originalException = e.getCause();
+                        if (originalException instanceof RuntimeException)
+                        {
+                            throw (RuntimeException) originalException;
+                        } else
+                        {
+                            throw new RuntimeException(originalException);
+                        }
+                    } finally
+                    {
+                        lock.unlock();
+                    }
+                } else
+                {
+                    notLockedAction.call();
+                    return null;
+                }
+            } catch (RuntimeException e)
+            {
+                throw e;
+            } catch (Exception e)
+            {
+                throw new RuntimeException(e);
             }
         }
 

@@ -865,10 +865,13 @@ public class TransactionParticipantTest
                 one(databaseTransactionProvider).commitTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
                 will(throwException(throwable));
 
-                // rollback
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_STARTED)));
-                one(databaseTransactionProvider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
-                one(transactionLog).deleteTransaction(TEST_TRANSACTION_ID);
+                if(transactionCoordinatorKey == null)
+                {
+                    // rollback
+                    one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_STARTED)));
+                    one(databaseTransactionProvider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
+                    one(transactionLog).deleteTransaction(TEST_TRANSACTION_ID);
+                }
             }
         });
 
@@ -904,9 +907,13 @@ public class TransactionParticipantTest
             }
 
             assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
-            // rollback
-            participant.rollbackTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, interactiveSessionKey);
-            assertFalse(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+
+            if(transactionCoordinatorKey == null)
+            {
+                // rollback
+                participant.rollbackTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, interactiveSessionKey);
+                assertFalse(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+            }
         }
     }
 
