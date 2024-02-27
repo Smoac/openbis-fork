@@ -177,17 +177,42 @@ var JExcelEditorManager = new function() {
             options.onload = function(container,spreadsheet) {
                                     var data = spreadsheet.getData();
                                     var headers = spreadsheet.getHeaders().split(',');
+                                    var cellsWithIdentifiers = [];
+                                    var identifiers = new Set();
                                     for (let i=0; i<data.length; i++ ) {
                                         for(let j=0; j < data[i].length; j++) {
                                             let cellData = data[i][j];
                                             if(_this._isIdentifierCell(cellData)) {
                                                 let cellIndex = headers[j] + (i+1);
                                                 let cell = spreadsheet.getCell(cellIndex);
+                                                cellsWithIdentifiers.push({cell: cell, cellData: cellData});
+                                                cellData.split(/\s+/)
+                                                    .filter(_this._isIdentifier)
+                                                    .forEach(id => identifiers.add(id));
                                                 cell.innerHTML = _this._getProgressBarSVG();
-                                                _this._getEntity(cell, cellData)
                                             }
                                         }
                                     }
+                                    _this._searchByIdentifiers(Array.from(identifiers), function(results) {
+
+                                        for(cell of cellsWithIdentifiers) {
+                                            var stringArray = cell.cellData.split(/(\s+)/);
+                                            var cellText = "";
+                                            for (let word of stringArray) {
+                                                if(results[word]) {
+                                                    cellText += results[word][0].outerHTML;
+                                                } else {
+                                                    cellText += word;
+                                                }
+                                            }
+                                            cell.cell.setHTML(cellText);
+
+                                            cell.cell.onclick = function(event) {
+                                                results[event.target.innerText].click();
+                                            }
+                                        }
+
+                                    });
                                 }
 
             options.contextMenu = function(obj, x, y, e) {
@@ -248,30 +273,6 @@ var JExcelEditorManager = new function() {
 	this._isIdentifier = function(data) {
         var split = data.split('/');
         return split[0] == '' && (split.length > 2 && split.length < 6);
-	}
-
-	this._getEntity = function(cell, cellData) {
-        let identifiers = cellData.split(/\s+/).filter(this._isIdentifier);
-
-
-        this._searchByIdentifiers(identifiers, function(results) {
-            var stringArray = cellData.split(/(\s+)/);
-            var cellText = "";
-            for (let word of stringArray) {
-                if(results[word]) {
-                    cellText += results[word][0].outerHTML;
-                } else {
-                    cellText += word;
-                }
-            }
-            cell.setHTML(cellText);
-
-            cell.onclick = function(event) {
-                results[event.target.innerText].click();
-            }
-        });
-
-
 	}
 
 	this._searchByIdentifiers = function(identifiers, callback) {
