@@ -36,7 +36,6 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.helper.AbstractXLSEx
 import static ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME;
 import static ch.systemsx.cisd.openbis.generic.shared.Constants.DOWNLOAD_URL;
 
-import java.awt.*;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -70,16 +69,12 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
-import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-import java.util.zip.ZipOutputStream;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -1108,6 +1103,7 @@ public class ExportExecutor implements IExportExecutor
         try (final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(pdfFile), BUFFER_SIZE))
         {
             final PdfRendererBuilder builder = new PdfRendererBuilder();
+            builder.useFont(new File(ExportPDFUtils.class.getResource("OpenSans.ttf").getFile()), "Open Sans");
             String replacedHtml = html.replaceAll(XML_10_REGEXP, "").replaceAll(UNPRINTABLE_CHARACTER_REFERENCES_REGEXP, "");
             replacedHtml = ExportPDFUtils.addStyleHeader(replacedHtml);
             replacedHtml = ExportPDFUtils.replaceHSLToHex(replacedHtml, "color", ExportPDFUtils.hslColorPattern);

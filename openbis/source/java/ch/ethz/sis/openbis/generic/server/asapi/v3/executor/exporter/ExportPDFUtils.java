@@ -10,8 +10,8 @@ import java.util.regex.Pattern;
 public class ExportPDFUtils
 {
 
-    static final Pattern hslColorPattern = Pattern.compile("color:hsl(.*);");
-    static final Pattern hslBackgroundColorPattern = Pattern.compile("background-color:hsl(.*);");
+    static final Pattern hslColorPattern = Pattern.compile("color:hsl\\(.*\\);");
+    static final Pattern hslBackgroundColorPattern = Pattern.compile("background-color:hsl\\(.*\\);");
 
     /*
      * This algorithm to replace HSL to Hex colors has the benefit of having a complexity of O(n)
