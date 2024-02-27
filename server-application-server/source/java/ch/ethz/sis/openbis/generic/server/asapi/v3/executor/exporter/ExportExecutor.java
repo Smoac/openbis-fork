@@ -1108,6 +1108,7 @@ public class ExportExecutor implements IExportExecutor
         try (final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(pdfFile), BUFFER_SIZE))
         {
             final PdfRendererBuilder builder = new PdfRendererBuilder();
+            builder.useFont(new File(ExportPDFUtils.class.getResource("OpenSans.ttf").getFile()), "Open Sans");
             String replacedHtml = html.replaceAll(XML_10_REGEXP, "").replaceAll(UNPRINTABLE_CHARACTER_REFERENCES_REGEXP, "");
             replacedHtml = ExportPDFUtils.addStyleHeader(replacedHtml);
             replacedHtml = ExportPDFUtils.replaceHSLToHex(replacedHtml, "color", ExportPDFUtils.hslColorPattern);
