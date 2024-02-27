@@ -81,6 +81,11 @@ public class ListExperimentByIdentifier extends AbstractListObjectById<Experimen
 
         for (ExperimentIdentifier experimentIdentifier : experimentIdentifiers)
         {
+            if(!ExperimentIdentifierFactory.isValidIdentifier(experimentIdentifier.getIdentifier()))
+            {
+                //skip invalid identifiers
+                continue;
+            }
             ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier coreExperimentIdentifier =
                     ExperimentIdentifierFactory.parse(experimentIdentifier.getIdentifier());
 

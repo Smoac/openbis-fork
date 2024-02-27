@@ -85,6 +85,27 @@ public abstract class AbstractIdentifierFactory
                 ILLEGAL_PATTERN_CHARACTERS_TEMPLATE);
     }
 
+    public final static boolean isValidIdentifier(final String text)
+    {
+        if (text == null || StringUtils.isEmpty(text))
+        {
+            return false;
+        }
+        String[] codes = text.split(IDENTIFIER_SEPARARTOR_STRING);
+        if(codes.length == 0 || !codes[0].isEmpty()) {
+            return false;
+        }
+        for(int i=1;i<codes.length; i++)
+        {
+            String code = codes[i];
+            if(ALLOWED_CODE_REGEXP.matcher(code).matches() == false)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public final static String assertValidCode(final String textOrNull)
             throws UserFailureException
     {
