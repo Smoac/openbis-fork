@@ -30,12 +30,12 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 /**
- * Parses the given text in the constructor to extract the database instance, the group and the sample code.
- * 
+ * Parses the given text in the constructor to extract the database instance, the group and the
+ * sample code.
  * <pre>
  * /[&lt;space code&gt;/][&lt;project code&gt;/]&lt;sample code&gt;
  * </pre>
- * 
+ *
  * @author Tomasz Pylak
  */
 public final class SampleIdentifierFactory extends AbstractIdentifierFactory
@@ -87,23 +87,33 @@ public final class SampleIdentifierFactory extends AbstractIdentifierFactory
         return new SampleIdentifierFactory(textToParse).createPattern();
     }
 
-    public static boolean isValidIdentifier(final String text)
+    public static boolean isValidIdentifier(final String identifier)
     {
-        if (text == null || StringUtils.isEmpty(text))
+        if (identifier == null || StringUtils.isEmpty(identifier))
+        {
+            return false;
+        }
+        String text = identifier;
+        if (text.startsWith("//"))
+        {
+            text = text.substring(2);
+        } else if (text.startsWith("/"))
+        {
+            text = text.substring(1);
+        } else
         {
             return false;
         }
         String[] codes = text.split(IDENTIFIER_SEPARARTOR_STRING);
-        if(codes.length == 0 || !codes[0].isEmpty()) {
-            return false;
-        }
-        for(int i=1;i<codes.length; i++)
+        for (int i = 0; i < codes.length; i++)
         {
             String code = codes[i];
-            if(i == codes.length-1) {
+            if (i == codes.length - 1)
+            {
                 return validateLastCode(code);
-            } else {
-                if(!AbstractIdentifierFactory.ALLOWED_CODE_REGEXP.matcher(code).matches())
+            } else
+            {
+                if (!AbstractIdentifierFactory.ALLOWED_CODE_REGEXP.matcher(code).matches())
                 {
                     return false;
                 }
@@ -138,7 +148,8 @@ public final class SampleIdentifierFactory extends AbstractIdentifierFactory
         {
             return false;
         }
-        return tokens.stream().allMatch(AbstractIdentifierFactory.ALLOWED_CODE_REGEXP.asMatchPredicate());
+        return tokens.stream()
+                .allMatch(AbstractIdentifierFactory.ALLOWED_CODE_REGEXP.asMatchPredicate());
     }
 
     public SampleIdentifierFactory(final String textToParse)
