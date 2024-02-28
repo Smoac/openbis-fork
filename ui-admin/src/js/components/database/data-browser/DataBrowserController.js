@@ -17,7 +17,7 @@
 import ComponentController from '@src/js/components/common/ComponentController.js'
 import autoBind from 'auto-bind'
 
-const MAX_READ_SIZE_IN_BYTES = 1024
+const MAX_READ_SIZE_IN_BYTES = 1024 * 1024
 
 export default class DataBrowserController extends ComponentController {
 
