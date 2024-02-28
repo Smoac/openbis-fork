@@ -79,6 +79,7 @@ import java.util.zip.ZipEntry;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import com.openhtmltopdf.extend.FSSupplier;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.log4j.Logger;
@@ -1103,7 +1104,14 @@ public class ExportExecutor implements IExportExecutor
         try (final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(pdfFile), BUFFER_SIZE))
         {
             final PdfRendererBuilder builder = new PdfRendererBuilder();
-            builder.useFont(new File(ExportPDFUtils.class.getResource("OpenSans.ttf").getFile()), "Open Sans");
+            builder.useFont(new FSSupplier<InputStream>()
+            {
+                @Override
+                public InputStream supply()
+                {
+                    return ExportPDFUtils.class.getResourceAsStream("OpenSans.ttf");
+                }
+            }, "Open Sans");
             String replacedHtml = html.replaceAll(XML_10_REGEXP, "").replaceAll(UNPRINTABLE_CHARACTER_REFERENCES_REGEXP, "");
             replacedHtml = ExportPDFUtils.addStyleHeader(replacedHtml);
             replacedHtml = ExportPDFUtils.replaceHSLToHex(replacedHtml, "color", ExportPDFUtils.hslColorPattern);
