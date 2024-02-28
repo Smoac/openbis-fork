@@ -98,7 +98,6 @@ public class ImagingService implements ICustomDSSServiceExecutor
     private IImagingDataSetAdaptor getAdaptor(ImagingDataSetPropertyConfig config)
     {
         final String adaptorName = config.getConfig().getAdaptor();
-
         if (adaptorName == null || adaptorName.trim().isEmpty())
         {
             throw new UserFailureException("Adaptor name is missing from the config!");
@@ -108,6 +107,7 @@ public class ImagingService implements ICustomDSSServiceExecutor
             return ClassUtils.create(IImagingDataSetAdaptor.class, adaptorName, properties);
         } catch (Exception e)
         {
+            operationLog.error("Failed to load adapter:" + adaptorName, e);
             throw new UserFailureException("Could not load adapter: " + adaptorName, e);
         }
     }

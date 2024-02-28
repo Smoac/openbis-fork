@@ -406,3 +406,4 @@ demo_dat_flow(o, nanonis_data_folder)
 #                     [0, 2],
 #                     '/home/alaskowski/PREMISE')
 
+o.logout()
