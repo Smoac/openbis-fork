@@ -1715,7 +1715,7 @@ public class TransactionParticipantTest
 
     private Matcher<TransactionLogEntry> logEntry(UUID transactionId, TransactionStatus transactionStatus)
     {
-        return new TransactionLogEntryMatcher(transactionId, transactionStatus);
+        return new TransactionLogEntryMatcher(transactionId, transactionStatus, null);
     }
 
 }

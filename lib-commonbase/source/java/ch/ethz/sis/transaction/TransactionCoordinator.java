@@ -2,9 +2,11 @@ package ch.ethz.sis.transaction;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -109,6 +111,7 @@ public class TransactionCoordinator implements ITransactionCoordinator
                         if (existingTransaction == null)
                         {
                             Transaction transaction = createTransaction(logEntry.getTransactionId(), logEntry.getTransactionStatus());
+                            transaction.setParticipantIds(logEntry.getParticipantIds());
                             transaction.setLastAccessedDate(new Date(0));
                             operationLog.info(
                                     "Recovered transaction '" + transaction.getTransactionId() + "' found in the transaction log with last status '"
@@ -207,38 +210,11 @@ public class TransactionCoordinator implements ITransactionCoordinator
         transaction.lockOrFail(() ->
         {
             transaction.setTransactionStatus(TransactionStatus.BEGIN_STARTED);
+
             transaction.setLastAccessedDate(new Date());
-
-            operationLog.info("Begin transaction '" + transactionId + "' started.");
-
-            for (ITransactionParticipant participant : participants)
-            {
-                try
-                {
-                    operationLog.info("Begin transaction '" + transactionId + "' for participant '" + participant.getParticipantId() + "'.");
-
-                    participant.beginTransaction(transactionId, sessionToken, interactiveSessionKey, transactionCoordinatorKey);
-                } catch (Exception e)
-                {
-                    operationLog.info(
-                            "Begin transaction '" + transactionId + "' failed for participant '" + participant.getParticipantId() + "'.", e);
-
-                    try
-                    {
-                        rollbackTransaction(transactionId, sessionToken, interactiveSessionKey);
-                    } catch (Exception ignore)
-                    {
-                    }
-
-                    throw new RuntimeException(
-                            "Begin transaction '" + transactionId + "' failed for participant '" + participant.getParticipantId() + "'.", e);
-                }
-            }
+            operationLog.info("Begin transaction '" + transactionId + "'.");
 
             transaction.setTransactionStatus(TransactionStatus.BEGIN_FINISHED);
-            transaction.setLastAccessedDate(new Date());
-
-            operationLog.info("Begin transaction '" + transactionId + "' finished successfully.");
 
             return null;
         });
@@ -270,6 +246,36 @@ public class TransactionCoordinator implements ITransactionCoordinator
                 if (Objects.equals(participant.getParticipantId(), participantId))
                 {
                     /*
+                      Begin transaction for participant if this is the first operation executed on that participant.
+                     */
+
+                    if (transaction.getParticipantIds() == null || !transaction.getParticipantIds().contains(participantId))
+                    {
+                        operationLog.info("Begin transaction '" + transactionId + "' for participant '" + participant.getParticipantId() + "'.");
+
+                        try
+                        {
+                            participant.beginTransaction(transactionId, sessionToken, interactiveSessionKey, transactionCoordinatorKey);
+
+                            Set<String> newParticipantIds = new HashSet<>();
+                            if (transaction.getParticipantIds() != null)
+                            {
+                                newParticipantIds.addAll(transaction.getParticipantIds());
+                            }
+                            newParticipantIds.add(participantId);
+
+                            transaction.setParticipantIds(newParticipantIds);
+                            transaction.setTransactionStatus(TransactionStatus.BEGIN_FINISHED);
+                        } catch (Exception e)
+                        {
+                            RuntimeException exception = new RuntimeException(
+                                    "Begin transaction '" + transactionId + "' failed for participant '" + participant.getParticipantId() + "'.", e);
+                            operationLog.info(exception.getMessage(), e);
+                            throw exception;
+                        }
+                    }
+
+                    /*
                       An exception thrown by the executed operation does not trigger an automatic rollback.
                       The client has the freedom to decide whether to rollback or keep on working with the current transaction.
                       If the transaction gets abandoned by the client, then it will time out and be automatically rolled back by the coordinator.
@@ -287,9 +293,11 @@ public class TransactionCoordinator implements ITransactionCoordinator
                         return result;
                     } catch (Exception e)
                     {
-                        throw new RuntimeException(
+                        RuntimeException exception = new RuntimeException(
                                 "Transaction '" + transactionId + "' execute operation '" + operationName + "' failed for participant '"
                                         + participant.getParticipantId() + "'.", e);
+                        operationLog.info(exception.getMessage());
+                        throw exception;
                     }
                 }
             }
@@ -348,6 +356,14 @@ public class TransactionCoordinator implements ITransactionCoordinator
 
         for (ITransactionParticipant participant : participants)
         {
+            if (transaction.getParticipantIds() == null || !transaction.getParticipantIds().contains(participant.getParticipantId()))
+            {
+                operationLog.info(
+                        "Skipping prepare of transaction '" + transaction.getTransactionId() + "' for participant '" + participant.getParticipantId()
+                                + "' as no operations were executed on that participant.");
+                continue;
+            }
+
             try
             {
                 operationLog.info(
@@ -355,10 +371,6 @@ public class TransactionCoordinator implements ITransactionCoordinator
                 participant.prepareTransaction(transaction.getTransactionId(), sessionToken, interactiveSessionKey, transactionCoordinatorKey);
             } catch (Exception e)
             {
-                operationLog.info(
-                        "Prepare transaction '" + transaction.getTransactionId() + "' failed for participant '" + participant.getParticipantId()
-                                + "'.", e);
-
                 try
                 {
                     rollbackTransaction(transaction.getTransactionId(), sessionToken, interactiveSessionKey);
@@ -366,11 +378,11 @@ public class TransactionCoordinator implements ITransactionCoordinator
                 {
                 }
 
-                operationLog.info("Prepare transaction '" + transaction.getTransactionId() + "' has failed.");
-
-                throw new RuntimeException(
+                RuntimeException exception = new RuntimeException(
                         "Prepare transaction '" + transaction.getTransactionId() + "' failed for participant '" + participant.getParticipantId()
                                 + "'.", e);
+                operationLog.info(exception.getMessage());
+                throw exception;
             }
         }
 
@@ -388,10 +400,19 @@ public class TransactionCoordinator implements ITransactionCoordinator
         transaction.setTransactionStatus(TransactionStatus.COMMIT_STARTED);
         transaction.setLastAccessedDate(new Date());
 
-        RuntimeException exception = null;
+        RuntimeException firstException = null;
 
         for (ITransactionParticipant participant : participants)
         {
+            if (transaction.getParticipantIds() == null || !transaction.getParticipantIds().contains(participant.getParticipantId()))
+            {
+                operationLog.info(
+                        "Skipping commit of prepared transaction '" + transaction.getTransactionId() + "' for participant '"
+                                + participant.getParticipantId()
+                                + "' as no operations were executed on that participant.");
+                continue;
+            }
+
             try
             {
                 if (recovery)
@@ -421,27 +442,28 @@ public class TransactionCoordinator implements ITransactionCoordinator
                 }
             } catch (RuntimeException e)
             {
-                operationLog.warn(
-                        "Commit prepared transaction '" + transaction.getTransactionId() + "' failed for participant '"
+                RuntimeException exception =
+                        new RuntimeException("Commit prepared transaction '" + transaction.getTransactionId() + "' failed for participant '"
                                 + participant.getParticipantId() + "'.", e);
-                if (exception == null)
+                operationLog.warn(exception.getMessage());
+
+                if (firstException == null)
                 {
-                    exception = new RuntimeException("Commit prepared transaction '" + transaction.getTransactionId() + "' failed for participant '"
-                            + participant.getParticipantId() + "'.", e);
+                    firstException = exception;
                 }
             }
         }
 
         transaction.setLastAccessedDate(new Date());
 
-        if (exception == null)
+        if (firstException == null)
         {
             transaction.setTransactionStatus(TransactionStatus.COMMIT_FINISHED);
             operationLog.info("Commit prepared transaction '" + transaction.getTransactionId() + "' finished successfully.");
         } else
         {
             operationLog.info("Commit prepared transaction '" + transaction.getTransactionId() + "' has failed.");
-            throw exception;
+            throw firstException;
         }
     }
 
@@ -490,10 +512,18 @@ public class TransactionCoordinator implements ITransactionCoordinator
         transaction.setTransactionStatus(TransactionStatus.ROLLBACK_STARTED);
         transaction.setLastAccessedDate(new Date());
 
-        RuntimeException exception = null;
+        RuntimeException firstException = null;
 
         for (ITransactionParticipant participant : participants)
         {
+            if (transaction.getParticipantIds() == null || !transaction.getParticipantIds().contains(participant.getParticipantId()))
+            {
+                operationLog.info(
+                        "Skipping rollback of transaction '" + transaction.getTransactionId() + "' for participant '" + participant.getParticipantId()
+                                + "' as no operations were executed on that participant.");
+                continue;
+            }
+
             try
             {
                 operationLog.info(
@@ -508,28 +538,28 @@ public class TransactionCoordinator implements ITransactionCoordinator
                 }
             } catch (RuntimeException e)
             {
-                operationLog.info(
+                RuntimeException exception = new RuntimeException(
                         "Rollback transaction '" + transaction.getTransactionId() + "' failed for participant '" + participant.getParticipantId()
                                 + "'.", e);
-                if (exception == null)
+                operationLog.info(e.getMessage());
+
+                if (firstException == null)
                 {
-                    exception = new RuntimeException(
-                            "Rollback transaction '" + transaction.getTransactionId() + "' failed for participant '" + participant.getParticipantId()
-                                    + "'.", e);
+                    firstException = exception;
                 }
             }
         }
 
         transaction.setLastAccessedDate(new Date());
 
-        if (exception == null)
+        if (firstException == null)
         {
             transaction.setTransactionStatus(TransactionStatus.ROLLBACK_FINISHED);
             operationLog.info("Rollback transaction '" + transaction.getTransactionId() + "' finished successfully.");
         } else
         {
             operationLog.info("Rollback transaction '" + transaction.getTransactionId() + "' has failed.");
-            throw exception;
+            throw firstException;
         }
     }
 
@@ -622,6 +652,8 @@ public class TransactionCoordinator implements ITransactionCoordinator
 
         private final ReentrantLock lock = new ReentrantLock();
 
+        private Set<String> participantIds = new HashSet<>();
+
         public Transaction(UUID transactionId, TransactionStatus initialTransactionStatus)
         {
             super(transactionId, initialTransactionStatus);
@@ -638,12 +670,23 @@ public class TransactionCoordinator implements ITransactionCoordinator
                 TransactionLogEntry entry = new TransactionLogEntry();
                 entry.setTransactionId(getTransactionId());
                 entry.setTransactionStatus(transactionStatus);
+                entry.setParticipantIds(getParticipantIds());
                 entry.setTwoPhaseTransaction(true);
                 entry.setLastAccessedDate(getLastAccessedDate());
                 transactionLog.logTransaction(entry);
             }
 
             super.setTransactionStatus(transactionStatus);
+        }
+
+        public void setParticipantIds(final Set<String> participantIds)
+        {
+            this.participantIds = participantIds;
+        }
+
+        public Set<String> getParticipantIds()
+        {
+            return participantIds;
         }
 
         public <T> T lockOrFail(Callable<T> action)

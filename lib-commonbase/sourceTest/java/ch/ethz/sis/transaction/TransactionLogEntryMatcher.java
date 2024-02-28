@@ -1,6 +1,8 @@
 package ch.ethz.sis.transaction;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 import org.hamcrest.BaseMatcher;
@@ -12,9 +14,12 @@ public class TransactionLogEntryMatcher extends BaseMatcher<TransactionLogEntry>
 
     private final TransactionStatus transactionStatus;
 
-    public TransactionLogEntryMatcher(UUID transactionId, TransactionStatus transactionStatus){
+    private final Set<String> participantIds;
+
+    public TransactionLogEntryMatcher(UUID transactionId, TransactionStatus transactionStatus, Set<String> participantIds){
         this.transactionId = transactionId;
         this.transactionStatus = transactionStatus;
+        this.participantIds = participantIds;
     }
 
     @Override public boolean matches(final Object o)
@@ -22,13 +27,13 @@ public class TransactionLogEntryMatcher extends BaseMatcher<TransactionLogEntry>
         if (o instanceof TransactionLogEntry)
         {
             TransactionLogEntry entry = (TransactionLogEntry) o;
-            return Objects.equals(entry.getTransactionId(), transactionId) && Objects.equals(entry.getTransactionStatus(), transactionStatus);
+            return Objects.equals(entry.getTransactionId(), transactionId) && Objects.equals(entry.getTransactionStatus(), transactionStatus) && Objects.equals(entry.getParticipantIds(), participantIds);
         }
         return false;
     }
 
     @Override public void describeTo(final Description description)
     {
-        description.appendText(transactionId + ", " + transactionStatus);
+        description.appendText(transactionId + ", " + transactionStatus + ", " + participantIds);
     }
 }

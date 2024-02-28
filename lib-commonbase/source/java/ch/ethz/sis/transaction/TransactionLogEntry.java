@@ -1,9 +1,17 @@
 package ch.ethz.sis.transaction;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class TransactionLogEntry
 {
 
@@ -11,7 +19,9 @@ public class TransactionLogEntry
 
     private TransactionStatus transactionStatus;
 
-    private boolean isTwoPhaseTransaction;
+    private Boolean isTwoPhaseTransaction;
+
+    private Set<String> participantIds;
 
     private Date lastAccessedDate;
 
@@ -35,14 +45,24 @@ public class TransactionLogEntry
         this.transactionStatus = transactionStatus;
     }
 
-    public boolean isTwoPhaseTransaction()
+    public Boolean isTwoPhaseTransaction()
     {
         return isTwoPhaseTransaction;
     }
 
-    public void setTwoPhaseTransaction(final boolean twoPhaseTransaction)
+    public void setTwoPhaseTransaction(final Boolean twoPhaseTransaction)
     {
         isTwoPhaseTransaction = twoPhaseTransaction;
+    }
+
+    public Set<String> getParticipantIds()
+    {
+        return participantIds;
+    }
+
+    public void setParticipantIds(final Set<String> participantIds)
+    {
+        this.participantIds = participantIds;
     }
 
     public Date getLastAccessedDate()
@@ -57,13 +77,7 @@ public class TransactionLogEntry
 
     @Override public boolean equals(final Object o)
     {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-        final TransactionLogEntry that = (TransactionLogEntry) o;
-        return isTwoPhaseTransaction() == that.isTwoPhaseTransaction() && Objects.equals(getTransactionId(), that.getTransactionId())
-                && getTransactionStatus() == that.getTransactionStatus() && Objects.equals(getLastAccessedDate(), that.getLastAccessedDate());
+        return EqualsBuilder.reflectionEquals(this, o);
     }
 
     @Override public int hashCode()
@@ -73,11 +87,6 @@ public class TransactionLogEntry
 
     @Override public String toString()
     {
-        return "TransactionLogEntry{" +
-                "transactionId=" + transactionId +
-                ", transactionStatus=" + transactionStatus +
-                ", isTwoPhaseTransaction=" + isTwoPhaseTransaction +
-                ", lastAccessedDate=" + lastAccessedDate +
-                '}';
+        return ToStringBuilder.reflectionToString(this);
     }
 }
