@@ -21,10 +21,10 @@ import ComponentContext from '@src/js/components/common/ComponentContext.js'
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { fab } from '@fortawesome/free-brands-svg-icons'
-import { faFile, faFileAudio, faFileImage, faFileText, faFileVideo, faFolder } from '@fortawesome/free-solid-svg-icons'
+import { faFile, faFileArchive, faFileAudio, faFileImage, faFileText, faFileVideo, faFolder } from '@fortawesome/free-solid-svg-icons'
 
 library.add(fab, faFile, faFolder, faFileAudio, faFileText, faFileVideo,
-  faFileImage)
+  faFileImage, faFileArchive)
 
 const styles = {
   container: {

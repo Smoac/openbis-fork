@@ -67,22 +67,31 @@ const styles = theme => ({
 
 const configuration =
   [
-    // TODO: add archives.
     {
       icon: 'file-audio',
-      extensions: ['wav', 'mp3', 'acc', 'ogg']
+      extensions: ['wav', 'mp3', 'acc', 'ogg', 'flac', 'm4a', 'wma', 'opus',
+        'alac', 'aiff']
     },
     {
       icon: 'file-text',
-      extensions: ['txt', 'rtf', 'doc', 'pdf']
+      extensions: ['txt', 'rtf', 'doc', 'docx', 'pdf', 'xls', 'xlsx',
+        'ppt', 'pptx', 'odt', 'ods', 'odp', 'csv', 'tsv', 'html', 'htm',
+        'xml', 'epub', 'md', 'tex', 'pages', 'numbers', 'key', 'mobi', 'indd']
     },
     {
       icon: 'file-video',
-      extensions: ['mp4', 'mkv', 'avi']
+      extensions: ['mp4', 'mkv', 'avi', 'mov', 'wmv', 'flv', 'mkv', 'webm',
+        'mpeg', 'mpg', 'vob', 'm4v']
     },
     {
       icon: 'file-image',
-      extensions: ['tif', 'gif', 'jpg', 'jpeg', 'png']
+      extensions: ['tif', 'tiff', 'gif', 'jpg', 'jpeg', 'png', 'bmp', 'svg',
+        'webp', 'psd', 'raw', 'heif', 'heic']
+    },
+    {
+      icon: 'file-archive',
+      extensions:  ['zip', 'rar', '7z', 'tar', 'gz', 'bz2', 'xz', 'iso', 'zipx',
+        'cab', 'arj', 'lz', 'lzma', 'z', 'tgz', 'ace', 'dmg']
     }
   ]
 
