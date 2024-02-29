@@ -326,6 +326,7 @@ def demo_sxm_flow(openbis, file_sxm, permId=None):
 
 def demo_dat_flow(openbis, folder_path, permId=None):
 
+    print(f'Searching for .DAT files')
     perm_id = permId
     if permId is None:
         dataset_dat = create_dat_dataset(
