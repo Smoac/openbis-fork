@@ -166,6 +166,36 @@ class DataBrowser extends React.Component {
     return new Date(time).toLocaleString()
   }
 
+  sizeToString(bytes) {
+    if (!bytes) {
+      return null
+    }
+
+    if (typeof bytes == "string") {
+      bytes = parseInt(bytes)
+    }
+
+    let size
+    let unit
+    const kbytes = bytes / 1024.0
+    const mbytes = kbytes / 1024.0
+    const gbytes = mbytes / 1024.0
+    if (gbytes > 1.0) {
+      size = gbytes
+      unit = "Gb"
+    } else if (mbytes > 1.0) {
+      size = mbytes
+      unit = "Mb"
+    } else if (kbytes > 1.0) {
+      size = kbytes
+      unit = "kb"
+    } else {
+      size = bytes
+      unit = "bytes"
+    }
+    return size.toFixed(1) + " " + unit;
+  }
+
   render() {
     const { classes, sessionToken } = this.props
     const {
@@ -231,7 +261,7 @@ class DataBrowser extends React.Component {
                   name: 'size',
                   label: messages.get(messages.SIZE),
                   sortable: true,
-                  getValue: ({ row }) => row.size
+                  getValue: ({ row }) => this.sizeToString(row.size)
                 },
                 {
                   name: 'created',
