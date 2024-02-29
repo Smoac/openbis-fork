@@ -14,6 +14,7 @@ import java.util.UUID;
 import org.hamcrest.Matcher;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
@@ -43,6 +44,12 @@ public class TransactionCoordinatorTest
     public static final String TEST_INTERACTIVE_SESSION_KEY = "test-interactive-session-key";
 
     public static final String TEST_TRANSACTION_COORDINATOR_KEY = "test-transaction-coordinator-key";
+
+    public static final String INVALID_INTERACTIVE_SESSION_KEY = "invalid-interactive-session-key";
+
+    public static final String INVALID_SESSION_TOKEN = "invalid-session-token";
+
+    public static final String UNKNOWN_PARTICIPANT_ID = "unknown-participant-id";
 
     public static final String TEST_OPERATION_NAME = "test-operation";
 
@@ -114,6 +121,49 @@ public class TransactionCoordinatorTest
         coordinator.beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
     }
 
+    @DataProvider
+    protected Object[][] provideInvalidArgumentsForBegin()
+    {
+        return new Object[][]
+                {
+                        { null, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, "Transaction id cannot be null" },
+                        { TEST_TRANSACTION_ID, null, TEST_INTERACTIVE_SESSION_KEY, "Session token cannot be null" },
+                        { TEST_TRANSACTION_ID, INVALID_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, "Invalid session token" },
+                        { TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, null, "Interactive session key cannot be null" },
+                        { TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, INVALID_INTERACTIVE_SESSION_KEY, "Invalid interactive session key" }
+                };
+    }
+
+    @Test(dataProvider = "provideInvalidArgumentsForBegin")
+    public void testBeginTransactionWithInvalidArguments(UUID transactionId, String sessionToken, String interactiveSessionKey,
+            String expectedException)
+    {
+        TransactionCoordinator coordinator =
+                new TransactionCoordinator(TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        List.of(participant1, participant2), transactionLog, TEST_TIMEOUT, TEST_COUNT_LIMIT);
+
+        mockery.checking(new Expectations()
+        {
+            {
+                allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
+                will(returnValue(true));
+
+                allowing(sessionTokenProvider).isValid(INVALID_SESSION_TOKEN);
+                will(returnValue(false));
+            }
+        });
+
+        try
+        {
+            // begin (fails)
+            coordinator.beginTransaction(transactionId, sessionToken, interactiveSessionKey);
+            Assert.fail();
+        } catch (Throwable t)
+        {
+            assertEquals(t.getMessage(), expectedException);
+        }
+    }
+
     @Test
     public void testExecuteOperationSucceeds()
     {
@@ -140,7 +190,8 @@ public class TransactionCoordinatorTest
 
                 one(participant1).beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY,
                         TEST_TRANSACTION_COORDINATOR_KEY);
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED, Set.of(TEST_PARTICIPANT_ID))));
+                one(transactionLog).logTransaction(
+                        with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED, Set.of(TEST_PARTICIPANT_ID))));
                 one(participant1).executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_OPERATION_NAME,
                         TEST_OPERATION_ARGUMENTS);
             }
@@ -179,7 +230,8 @@ public class TransactionCoordinatorTest
 
                 one(participant1).beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY,
                         TEST_TRANSACTION_COORDINATOR_KEY);
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED, Set.of(TEST_PARTICIPANT_ID))));
+                one(transactionLog).logTransaction(
+                        with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED, Set.of(TEST_PARTICIPANT_ID))));
                 one(participant1).executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_OPERATION_NAME,
                         TEST_OPERATION_ARGUMENTS);
                 will(throwException(executeOperationException));
@@ -245,7 +297,7 @@ public class TransactionCoordinatorTest
             fail();
         } catch (Exception e)
         {
-            assertEquals(e.getMessage(),"Begin transaction '" + TEST_TRANSACTION_ID + "' failed for participant '" + TEST_PARTICIPANT_ID + "'.");
+            assertEquals(e.getMessage(), "Begin transaction '" + TEST_TRANSACTION_ID + "' failed for participant '" + TEST_PARTICIPANT_ID + "'.");
             assertEquals(e.getCause(), executeOperationException);
         }
     }
@@ -278,7 +330,8 @@ public class TransactionCoordinatorTest
 
                 one(participant1).beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY,
                         TEST_TRANSACTION_COORDINATOR_KEY);
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED, Set.of(TEST_PARTICIPANT_ID))));
+                one(transactionLog).logTransaction(
+                        with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED, Set.of(TEST_PARTICIPANT_ID))));
                 one(participant1).executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_OPERATION_NAME,
                         TEST_OPERATION_ARGUMENTS);
 
@@ -319,8 +372,36 @@ public class TransactionCoordinatorTest
         assertEquals(result, TEST_OPERATION_RESULT);
     }
 
-        @Test
-    public void testExecuteOperationWithUnknownParticipantId()
+    @DataProvider
+    protected Object[][] provideInvalidArgumentsForExecuteOperations()
+    {
+        return new Object[][]
+                {
+                        { null, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_PARTICIPANT_ID, TEST_OPERATION_NAME, TEST_OPERATION_ARGUMENTS,
+                                "Transaction id cannot be null" },
+                        { TEST_TRANSACTION_ID, null, TEST_INTERACTIVE_SESSION_KEY, TEST_PARTICIPANT_ID, TEST_OPERATION_NAME, TEST_OPERATION_ARGUMENTS,
+                                "Session token cannot be null" },
+                        { TEST_TRANSACTION_ID, INVALID_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_PARTICIPANT_ID, TEST_OPERATION_NAME,
+                                TEST_OPERATION_ARGUMENTS, "Invalid session token" },
+                        { TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, null, TEST_PARTICIPANT_ID, TEST_OPERATION_NAME,
+                                TEST_OPERATION_ARGUMENTS, "Interactive session key cannot be null" },
+                        { TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, INVALID_INTERACTIVE_SESSION_KEY, TEST_PARTICIPANT_ID, TEST_OPERATION_NAME,
+                                TEST_OPERATION_ARGUMENTS, "Invalid interactive session key" },
+                        { TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, null, TEST_OPERATION_NAME,
+                                TEST_OPERATION_ARGUMENTS, "Participant id cannot be null" },
+                        { TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, UNKNOWN_PARTICIPANT_ID, TEST_OPERATION_NAME,
+                                TEST_OPERATION_ARGUMENTS, "Unknown participant with id '" + UNKNOWN_PARTICIPANT_ID + "'" },
+                        { TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_PARTICIPANT_ID, null, TEST_OPERATION_ARGUMENTS,
+                                "Operation name cannot be null" },
+                        { TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_PARTICIPANT_ID, TEST_OPERATION_NAME, null,
+                                "Operation arguments cannot be null" },
+                };
+    }
+
+    @Test(dataProvider = "provideInvalidArgumentsForExecuteOperations")
+    public void testExecuteOperationWithInvalidArguments(UUID transactionId, String sessionToken, String interactiveSessionKeyOrNull,
+            String participantId,
+            String operationName, Object[] operationArguments, String expectedExceptionMessage)
     {
         TransactionCoordinator coordinator =
                 new TransactionCoordinator(TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
@@ -337,6 +418,9 @@ public class TransactionCoordinatorTest
                 allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
                 will(returnValue(true));
 
+                allowing(sessionTokenProvider).isValid(INVALID_SESSION_TOKEN);
+                will(returnValue(false));
+
                 allowing(sessionTokenProvider).isInstanceAdminOrSystem(TEST_SESSION_TOKEN);
                 will(returnValue(false));
 
@@ -349,15 +433,14 @@ public class TransactionCoordinatorTest
 
         try
         {
-            coordinator.executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, "unknown-participant-id",
-                    TEST_OPERATION_NAME, TEST_OPERATION_ARGUMENTS);
+            coordinator.executeOperation(transactionId, sessionToken, interactiveSessionKeyOrNull, participantId,
+                    operationName, operationArguments);
             fail();
         } catch (Exception e)
         {
-            assertEquals(e.getMessage(), "Unknown participant id: unknown-participant-id");
+            assertEquals(e.getMessage(), expectedExceptionMessage);
         }
     }
-
 
     @Test
     public void testCommitTransactionSucceeds()
@@ -387,25 +470,30 @@ public class TransactionCoordinatorTest
 
                 one(participant1).beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY,
                         TEST_TRANSACTION_COORDINATOR_KEY);
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED, Set.of(TEST_PARTICIPANT_ID))));
+                one(transactionLog).logTransaction(
+                        with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED, Set.of(TEST_PARTICIPANT_ID))));
                 one(participant1).executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_OPERATION_NAME,
                         TEST_OPERATION_ARGUMENTS);
 
                 one(participant2).beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY,
                         TEST_TRANSACTION_COORDINATOR_KEY);
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED, Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2))));
+                one(transactionLog).logTransaction(
+                        with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED, Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2))));
                 one(participant2).executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_OPERATION_NAME_2,
                         TEST_OPERATION_ARGUMENTS);
 
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.PREPARE_STARTED, Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2))));
+                one(transactionLog).logTransaction(
+                        with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.PREPARE_STARTED, Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2))));
 
                 one(participant1).prepareTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY,
                         TEST_TRANSACTION_COORDINATOR_KEY);
                 one(participant2).prepareTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY,
                         TEST_TRANSACTION_COORDINATOR_KEY);
 
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.PREPARE_FINISHED, Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2))));
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.COMMIT_STARTED, Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2))));
+                one(transactionLog).logTransaction(
+                        with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.PREPARE_FINISHED, Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2))));
+                one(transactionLog).logTransaction(
+                        with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.COMMIT_STARTED, Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2))));
 
                 one(participant1).commitTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
                 one(participant2).commitTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
@@ -415,8 +503,10 @@ public class TransactionCoordinatorTest
         });
 
         coordinator.beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
-        coordinator.executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_PARTICIPANT_ID, TEST_OPERATION_NAME, TEST_OPERATION_ARGUMENTS);
-        coordinator.executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_PARTICIPANT_ID_2, TEST_OPERATION_NAME_2, TEST_OPERATION_ARGUMENTS);
+        coordinator.executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_PARTICIPANT_ID, TEST_OPERATION_NAME,
+                TEST_OPERATION_ARGUMENTS);
+        coordinator.executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_PARTICIPANT_ID_2,
+                TEST_OPERATION_NAME_2, TEST_OPERATION_ARGUMENTS);
         coordinator.commitTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
     }
 
@@ -451,17 +541,20 @@ public class TransactionCoordinatorTest
 
                 one(participant1).beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY,
                         TEST_TRANSACTION_COORDINATOR_KEY);
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED, Set.of(TEST_PARTICIPANT_ID))));
+                one(transactionLog).logTransaction(
+                        with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED, Set.of(TEST_PARTICIPANT_ID))));
                 one(participant1).executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_OPERATION_NAME,
                         TEST_OPERATION_ARGUMENTS);
 
                 one(participant2).beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY,
                         TEST_TRANSACTION_COORDINATOR_KEY);
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED, Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2))));
+                one(transactionLog).logTransaction(
+                        with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED, Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2))));
                 one(participant2).executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_OPERATION_NAME_2,
                         TEST_OPERATION_ARGUMENTS);
 
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.PREPARE_STARTED, Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2))));
+                one(transactionLog).logTransaction(
+                        with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.PREPARE_STARTED, Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2))));
 
                 one(participant1).prepareTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY,
                         TEST_TRANSACTION_COORDINATOR_KEY);
@@ -469,7 +562,8 @@ public class TransactionCoordinatorTest
                         TEST_TRANSACTION_COORDINATOR_KEY);
                 will(throwException(prepareException));
 
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_STARTED, Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2))));
+                one(transactionLog).logTransaction(
+                        with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_STARTED, Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2))));
 
                 one(participant1).rollbackTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
                 // test that a failing rollback won't prevent other rollbacks from being called
@@ -479,8 +573,10 @@ public class TransactionCoordinatorTest
         });
 
         coordinator.beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
-        coordinator.executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_PARTICIPANT_ID, TEST_OPERATION_NAME, TEST_OPERATION_ARGUMENTS);
-        coordinator.executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_PARTICIPANT_ID_2, TEST_OPERATION_NAME_2, TEST_OPERATION_ARGUMENTS);
+        coordinator.executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_PARTICIPANT_ID, TEST_OPERATION_NAME,
+                TEST_OPERATION_ARGUMENTS);
+        coordinator.executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_PARTICIPANT_ID_2,
+                TEST_OPERATION_NAME_2, TEST_OPERATION_ARGUMENTS);
 
         try
         {
@@ -523,25 +619,30 @@ public class TransactionCoordinatorTest
 
                 one(participant1).beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY,
                         TEST_TRANSACTION_COORDINATOR_KEY);
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED, Set.of(TEST_PARTICIPANT_ID))));
+                one(transactionLog).logTransaction(
+                        with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED, Set.of(TEST_PARTICIPANT_ID))));
                 one(participant1).executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_OPERATION_NAME,
                         TEST_OPERATION_ARGUMENTS);
 
                 one(participant2).beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY,
                         TEST_TRANSACTION_COORDINATOR_KEY);
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED, Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2))));
+                one(transactionLog).logTransaction(
+                        with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED, Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2))));
                 one(participant2).executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_OPERATION_NAME_2,
                         TEST_OPERATION_ARGUMENTS);
 
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.PREPARE_STARTED, Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2))));
+                one(transactionLog).logTransaction(
+                        with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.PREPARE_STARTED, Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2))));
 
                 one(participant1).prepareTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY,
                         TEST_TRANSACTION_COORDINATOR_KEY);
                 one(participant2).prepareTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY,
                         TEST_TRANSACTION_COORDINATOR_KEY);
 
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.PREPARE_FINISHED, Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2))));
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.COMMIT_STARTED, Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2))));
+                one(transactionLog).logTransaction(
+                        with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.PREPARE_FINISHED, Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2))));
+                one(transactionLog).logTransaction(
+                        with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.COMMIT_STARTED, Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2))));
 
                 // test that a failing commit won't prevent other commits from being called
                 one(participant1).commitTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
@@ -551,9 +652,66 @@ public class TransactionCoordinatorTest
         });
 
         coordinator.beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
-        coordinator.executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_PARTICIPANT_ID, TEST_OPERATION_NAME, TEST_OPERATION_ARGUMENTS);
-        coordinator.executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_PARTICIPANT_ID_2, TEST_OPERATION_NAME_2, TEST_OPERATION_ARGUMENTS);
+        coordinator.executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_PARTICIPANT_ID, TEST_OPERATION_NAME,
+                TEST_OPERATION_ARGUMENTS);
+        coordinator.executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_PARTICIPANT_ID_2,
+                TEST_OPERATION_NAME_2, TEST_OPERATION_ARGUMENTS);
         coordinator.commitTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
+    }
+
+    @DataProvider
+    protected Object[][] provideInvalidArgumentsForCommit()
+    {
+        return new Object[][]
+                {
+                        { null, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, "Transaction id cannot be null" },
+                        { TEST_TRANSACTION_ID, null, TEST_INTERACTIVE_SESSION_KEY, "Session token cannot be null" },
+                        { TEST_TRANSACTION_ID, INVALID_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, "Invalid session token" },
+                        { TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, null, "Interactive session key cannot be null" },
+                        { TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, INVALID_INTERACTIVE_SESSION_KEY, "Invalid interactive session key" }
+                };
+    }
+
+    @Test(dataProvider = "provideInvalidArgumentsForCommit")
+    public void testCommitTransactionWithInvalidArguments(UUID transactionId, String sessionToken, String interactiveSessionKey,
+            String expectedException)
+    {
+        TransactionCoordinator coordinator =
+                new TransactionCoordinator(TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        List.of(participant1, participant2), transactionLog, TEST_TIMEOUT, TEST_COUNT_LIMIT);
+
+        mockery.checking(new Expectations()
+        {
+            {
+                allowing(participant1).getParticipantId();
+                will(returnValue(TEST_PARTICIPANT_ID));
+                allowing(participant2).getParticipantId();
+                will(returnValue(TEST_PARTICIPANT_ID_2));
+
+                allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
+                will(returnValue(true));
+
+                allowing(sessionTokenProvider).isValid(INVALID_SESSION_TOKEN);
+                will(returnValue(false));
+
+                allowing(sessionTokenProvider).isInstanceAdminOrSystem(TEST_SESSION_TOKEN);
+                will(returnValue(false));
+
+                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED, Set.of())));
+                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED, Set.of())));
+            }
+        });
+
+        coordinator.beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
+
+        try
+        {
+            coordinator.commitTransaction(transactionId, sessionToken, interactiveSessionKey);
+            Assert.fail();
+        } catch (Throwable t)
+        {
+            assertEquals(t.getMessage(), expectedException);
+        }
     }
 
     @Test
@@ -584,17 +742,20 @@ public class TransactionCoordinatorTest
 
                 one(participant1).beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY,
                         TEST_TRANSACTION_COORDINATOR_KEY);
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED, Set.of(TEST_PARTICIPANT_ID))));
+                one(transactionLog).logTransaction(
+                        with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED, Set.of(TEST_PARTICIPANT_ID))));
                 one(participant1).executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_OPERATION_NAME,
                         TEST_OPERATION_ARGUMENTS);
 
                 one(participant2).beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY,
                         TEST_TRANSACTION_COORDINATOR_KEY);
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED, Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2))));
+                one(transactionLog).logTransaction(
+                        with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED, Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2))));
                 one(participant2).executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_OPERATION_NAME_2,
                         TEST_OPERATION_ARGUMENTS);
 
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_STARTED, Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2))));
+                one(transactionLog).logTransaction(
+                        with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_STARTED, Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2))));
 
                 one(participant1).rollbackTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
                 one(participant2).rollbackTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
@@ -604,8 +765,10 @@ public class TransactionCoordinatorTest
         });
 
         coordinator.beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
-        coordinator.executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_PARTICIPANT_ID, TEST_OPERATION_NAME, TEST_OPERATION_ARGUMENTS);
-        coordinator.executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_PARTICIPANT_ID_2, TEST_OPERATION_NAME_2, TEST_OPERATION_ARGUMENTS);
+        coordinator.executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_PARTICIPANT_ID, TEST_OPERATION_NAME,
+                TEST_OPERATION_ARGUMENTS);
+        coordinator.executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_PARTICIPANT_ID_2,
+                TEST_OPERATION_NAME_2, TEST_OPERATION_ARGUMENTS);
         coordinator.rollbackTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
     }
 
@@ -639,17 +802,20 @@ public class TransactionCoordinatorTest
 
                 one(participant1).beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY,
                         TEST_TRANSACTION_COORDINATOR_KEY);
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED, Set.of(TEST_PARTICIPANT_ID))));
+                one(transactionLog).logTransaction(
+                        with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED, Set.of(TEST_PARTICIPANT_ID))));
                 one(participant1).executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_OPERATION_NAME,
                         TEST_OPERATION_ARGUMENTS);
 
                 one(participant2).beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY,
                         TEST_TRANSACTION_COORDINATOR_KEY);
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED, Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2))));
+                one(transactionLog).logTransaction(
+                        with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED, Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2))));
                 one(participant2).executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_OPERATION_NAME_2,
                         TEST_OPERATION_ARGUMENTS);
 
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_STARTED, Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2))));
+                one(transactionLog).logTransaction(
+                        with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_STARTED, Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2))));
 
                 // test that a failing rollback won't prevent other rollbacks from being called
                 one(participant1).rollbackTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
@@ -659,9 +825,66 @@ public class TransactionCoordinatorTest
         });
 
         coordinator.beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
-        coordinator.executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_PARTICIPANT_ID, TEST_OPERATION_NAME, TEST_OPERATION_ARGUMENTS);
-        coordinator.executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_PARTICIPANT_ID_2, TEST_OPERATION_NAME_2, TEST_OPERATION_ARGUMENTS);
+        coordinator.executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_PARTICIPANT_ID, TEST_OPERATION_NAME,
+                TEST_OPERATION_ARGUMENTS);
+        coordinator.executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_PARTICIPANT_ID_2,
+                TEST_OPERATION_NAME_2, TEST_OPERATION_ARGUMENTS);
         coordinator.rollbackTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
+    }
+
+    @DataProvider
+    protected Object[][] provideInvalidArgumentsForRollback()
+    {
+        return new Object[][]
+                {
+                        { null, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, "Transaction id cannot be null" },
+                        { TEST_TRANSACTION_ID, null, TEST_INTERACTIVE_SESSION_KEY, "Session token cannot be null" },
+                        { TEST_TRANSACTION_ID, INVALID_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, "Invalid session token" },
+                        { TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, null, "Interactive session key cannot be null" },
+                        { TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, INVALID_INTERACTIVE_SESSION_KEY, "Invalid interactive session key" }
+                };
+    }
+
+    @Test(dataProvider = "provideInvalidArgumentsForRollback")
+    public void testRollbackTransactionWithInvalidArguments(UUID transactionId, String sessionToken, String interactiveSessionKey,
+            String expectedException)
+    {
+        TransactionCoordinator coordinator =
+                new TransactionCoordinator(TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        List.of(participant1, participant2), transactionLog, TEST_TIMEOUT, TEST_COUNT_LIMIT);
+
+        mockery.checking(new Expectations()
+        {
+            {
+                allowing(participant1).getParticipantId();
+                will(returnValue(TEST_PARTICIPANT_ID));
+                allowing(participant2).getParticipantId();
+                will(returnValue(TEST_PARTICIPANT_ID_2));
+
+                allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
+                will(returnValue(true));
+
+                allowing(sessionTokenProvider).isValid(INVALID_SESSION_TOKEN);
+                will(returnValue(false));
+
+                allowing(sessionTokenProvider).isInstanceAdminOrSystem(TEST_SESSION_TOKEN);
+                will(returnValue(false));
+
+                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED, Set.of())));
+                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED, Set.of())));
+            }
+        });
+
+        coordinator.beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
+
+        try
+        {
+            coordinator.rollbackTransaction(transactionId, sessionToken, interactiveSessionKey);
+            Assert.fail();
+        } catch (Throwable t)
+        {
+            assertEquals(t.getMessage(), expectedException);
+        }
     }
 
     @Test(dataProvider = "provideTestRecoverTransactionWithStatus")
@@ -701,7 +924,8 @@ public class TransactionCoordinatorTest
                     case BEGIN_FINISHED:
                     case PREPARE_STARTED:
                     case ROLLBACK_STARTED:
-                        one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_STARTED, Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2, TEST_PARTICIPANT_ID_3))));
+                        one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_STARTED,
+                                Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2, TEST_PARTICIPANT_ID_3))));
                         one(participant1).rollbackRecoveredTransaction(TEST_TRANSACTION_ID, TEST_INTERACTIVE_SESSION_KEY,
                                 TEST_TRANSACTION_COORDINATOR_KEY);
 
@@ -732,7 +956,8 @@ public class TransactionCoordinatorTest
                         one(participant3).recoverTransactions(TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY);
                         will(returnValue(Collections.emptyList()));
 
-                        one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.COMMIT_STARTED, Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2, TEST_PARTICIPANT_ID_3))));
+                        one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.COMMIT_STARTED,
+                                Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2, TEST_PARTICIPANT_ID_3))));
 
                         one(participant1).commitRecoveredTransaction(TEST_TRANSACTION_ID, TEST_INTERACTIVE_SESSION_KEY,
                                 TEST_TRANSACTION_COORDINATOR_KEY);
@@ -818,24 +1043,28 @@ public class TransactionCoordinatorTest
                 will(returnValue(Collections.emptyList()));
 
                 // recover transaction 1 (participant 1 and 2 were involved, they are both waiting for coordinator's decision)
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.COMMIT_STARTED, Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2))));
+                one(transactionLog).logTransaction(
+                        with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.COMMIT_STARTED, Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2))));
                 one(participant1).commitRecoveredTransaction(TEST_TRANSACTION_ID, TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY);
                 will(throwException(exception));
                 one(participant2).commitRecoveredTransaction(TEST_TRANSACTION_ID, TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY);
 
                 // recover transaction 2 (participant 1 and 2 were involved, only participant 1 is waiting for coordinator's decision)
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID_2, TransactionStatus.COMMIT_STARTED, Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2))));
+                one(transactionLog).logTransaction(
+                        with(logEntry(TEST_TRANSACTION_ID_2, TransactionStatus.COMMIT_STARTED, Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2))));
                 one(participant1).commitRecoveredTransaction(TEST_TRANSACTION_ID_2, TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY);
                 one(transactionLog).deleteTransaction(TEST_TRANSACTION_ID_2);
 
                 // recover transaction 3 (participant 1 and 2 were involved)
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID_3, TransactionStatus.ROLLBACK_STARTED, Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2))));
+                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID_3, TransactionStatus.ROLLBACK_STARTED,
+                        Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2))));
                 one(participant1).rollbackRecoveredTransaction(TEST_TRANSACTION_ID_3, TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY);
                 one(participant2).rollbackRecoveredTransaction(TEST_TRANSACTION_ID_3, TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY);
                 one(transactionLog).deleteTransaction(TEST_TRANSACTION_ID_3);
 
                 // recover transaction 4 (participant 3 was involved)
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID_4, TransactionStatus.ROLLBACK_STARTED, Set.of(TEST_PARTICIPANT_ID_3))));
+                one(transactionLog).logTransaction(
+                        with(logEntry(TEST_TRANSACTION_ID_4, TransactionStatus.ROLLBACK_STARTED, Set.of(TEST_PARTICIPANT_ID_3))));
                 one(participant3).rollbackRecoveredTransaction(TEST_TRANSACTION_ID_4, TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY);
                 one(transactionLog).deleteTransaction(TEST_TRANSACTION_ID_4);
             }

@@ -226,6 +226,9 @@ public class TransactionCoordinator implements ITransactionCoordinator
         checkTransactionId(transactionId);
         checkSessionToken(sessionToken);
         checkInteractiveSessionKey(interactiveSessionKey);
+        checkParticipantId(participantId);
+        checkOperationName(operationName);
+        checkOperationArguments(operationArguments);
 
         Transaction transaction = getTransaction(transactionId);
 
@@ -304,7 +307,7 @@ public class TransactionCoordinator implements ITransactionCoordinator
                 }
             }
 
-            throw new IllegalArgumentException("Unknown participant id: " + participantId);
+            return null;
         });
     }
 
@@ -592,10 +595,33 @@ public class TransactionCoordinator implements ITransactionCoordinator
 
     private void checkInteractiveSessionKey(final String interactiveSessionKey)
     {
+        if (interactiveSessionKey == null)
+        {
+            throw new IllegalArgumentException("Interactive session key cannot be null");
+        }
+
         if (!this.interactiveSessionKey.equals(interactiveSessionKey))
         {
             throw new IllegalArgumentException("Invalid interactive session key");
         }
+    }
+
+    private void checkParticipantId(final String participantId)
+    {
+        if (participantId == null)
+        {
+            throw new IllegalArgumentException("Participant id cannot be null");
+        }
+
+        for (ITransactionParticipant participant : participants)
+        {
+            if (participantId.equals(participant.getParticipantId()))
+            {
+                return;
+            }
+        }
+
+        throw new IllegalArgumentException("Unknown participant with id '" + participantId + "'");
     }
 
     private void checkTransactionStatus(final Transaction transaction, final TransactionStatus... expectedStatuses)
@@ -624,6 +650,22 @@ public class TransactionCoordinator implements ITransactionCoordinator
         if (!Objects.equals(transaction.getSessionToken(), sessionToken))
         {
             throw new IllegalArgumentException("Access denied to transaction '" + transaction.getTransactionId() + "'");
+        }
+    }
+
+    private void checkOperationName(final String operationName)
+    {
+        if (operationName == null)
+        {
+            throw new IllegalArgumentException("Operation name cannot be null");
+        }
+    }
+
+    private void checkOperationArguments(final Object[] operationArguments)
+    {
+        if (operationArguments == null)
+        {
+            throw new IllegalArgumentException("Operation arguments cannot be null");
         }
     }
 
