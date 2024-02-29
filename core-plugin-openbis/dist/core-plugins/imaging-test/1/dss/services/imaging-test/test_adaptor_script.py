@@ -20,8 +20,9 @@ folder_dir = os.path.join(file, 'original')
 file_path = os.path.join(folder_dir, os.listdir(folder_dir)[0])
 
 def generate_random_image(height, width):
-    imarray = numpy.random.rand(height,width,3) * 255
+    imarray = numpy.random.rand(int(height/8),int(width/8),3) * 255
     im = Image.fromarray(imarray.astype('uint8')).convert('RGBA')
+    im = im.resize((height,width), resample=Image.BOX)
     img_byte_arr = io.BytesIO()
     im.save(img_byte_arr, format=format)
     img_byte_arr = img_byte_arr.getvalue()
@@ -33,4 +34,10 @@ def generate_random_image(height, width):
 
 params = preview_config
 print(params)
-generate_random_image(640, 640)
+x = float(params['X-axis'][0])
+y = float(params['Y-axis'][0])
+if x < 8 or x > 640:
+    x = 640
+if y < 8 or y > 640:
+    y = 640
+generate_random_image(int(x), int(y))
