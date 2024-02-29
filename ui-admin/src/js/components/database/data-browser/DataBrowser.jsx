@@ -222,8 +222,8 @@ class DataBrowser extends React.Component {
                   renderFilter: null
                 },
                 {
-                  name: 'kind',
-                  label: 'Kind',
+                  name: 'type',
+                  label: messages.get(messages.TYPE),
                   sortable: true,
                   getValue: ({ row }) => row.directory ? 'Directory' : 'File'
                 },
