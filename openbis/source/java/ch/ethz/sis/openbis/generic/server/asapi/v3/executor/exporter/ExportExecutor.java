@@ -1104,14 +1104,14 @@ public class ExportExecutor implements IExportExecutor
         try (final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(pdfFile), BUFFER_SIZE))
         {
             final PdfRendererBuilder builder = new PdfRendererBuilder();
-//            builder.useFont(new FSSupplier<InputStream>()
-//            {
-//                @Override
-//                public InputStream supply()
-//                {
-//                    return ExportPDFUtils.class.getResourceAsStream("OpenSans.ttf");
-//                }
-//            }, "Open Sans");
+            builder.useFont(new FSSupplier<InputStream>()
+            {
+                @Override
+                public InputStream supply()
+                {
+                    return ExportPDFUtils.class.getResourceAsStream("OpenSans-Regular.ttf");
+                }
+            }, "Open Sans");
             String replacedHtml = html.replaceAll(XML_10_REGEXP, "").replaceAll(UNPRINTABLE_CHARACTER_REFERENCES_REGEXP, "");
             replacedHtml = ExportPDFUtils.addStyleHeader(replacedHtml);
             replacedHtml = ExportPDFUtils.replaceHSLToHex(replacedHtml, "color", ExportPDFUtils.hslColorPattern);
