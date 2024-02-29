@@ -27,7 +27,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.ITransactionCoordinatorApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.ITransactionParticipantApi;
 import ch.ethz.sis.transaction.IDatabaseTransactionProvider;
-import ch.ethz.sis.transaction.ISessionTokenProvider;
 import ch.ethz.sis.transaction.ITransactionOperationExecutor;
 import ch.ethz.sis.transaction.TransactionLog;
 import ch.ethz.sis.transaction.TransactionParticipant;
@@ -35,6 +34,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 
 @Component
 public class TransactionParticipantApi implements ITransactionParticipantApi, ApplicationListener<ApplicationEvent>
@@ -52,14 +52,15 @@ public class TransactionParticipantApi implements ITransactionParticipantApi, Ap
 
     @Autowired
     public TransactionParticipantApi(final TransactionConfiguration transactionConfiguration, final PlatformTransactionManager transactionManager,
-            final IDAOFactory daoFactory, final DatabaseConfigurationContext databaseContext, final IApplicationServerApi applicationServerApi)
+            final IDAOFactory daoFactory, final DatabaseConfigurationContext databaseContext, final IApplicationServerApi applicationServerApi, final
+            IOpenBisSessionManager sessionManager)
     {
-        this(transactionConfiguration, transactionManager, daoFactory, databaseContext, applicationServerApi,
+        this(transactionConfiguration, transactionManager, daoFactory, databaseContext, applicationServerApi, sessionManager,
                 ITransactionCoordinatorApi.APPLICATION_SERVER_PARTICIPANT_ID, TRANSACTION_LOG_FOLDER_NAME);
     }
 
     public TransactionParticipantApi(final TransactionConfiguration transactionConfiguration, final PlatformTransactionManager transactionManager,
-            final IDAOFactory daoFactory, final DatabaseConfigurationContext databaseContext, final IApplicationServerApi applicationServerApi,
+            final IDAOFactory daoFactory, final DatabaseConfigurationContext databaseContext, final IApplicationServerApi applicationServerApi, final IOpenBisSessionManager sessionManager,
             final String participantId, final String logFolderName)
     {
         this.transactionConfiguration = transactionConfiguration;
@@ -67,7 +68,7 @@ public class TransactionParticipantApi implements ITransactionParticipantApi, Ap
                 participantId,
                 transactionConfiguration.getCoordinatorKey(),
                 transactionConfiguration.getInteractiveSessionKey(),
-                new ApplicationServerSessionTokenProvider(applicationServerApi),
+                new ApplicationServerSessionTokenProvider(sessionManager),
                 new ApplicationServerDatabaseTransactionProvider(transactionManager, daoFactory, databaseContext),
                 new ApplicationServerTransactionOperationExecutor(applicationServerApi),
                 new TransactionLog(new File(transactionConfiguration.getTransactionLogFolderPath()), logFolderName),
@@ -160,22 +161,6 @@ public class TransactionParticipantApi implements ITransactionParticipantApi, Ap
     @Override public int getMinorVersion()
     {
         return 0;
-    }
-
-    private static class ApplicationServerSessionTokenProvider implements ISessionTokenProvider
-    {
-
-        private final IApplicationServerApi applicationServerApi;
-
-        public ApplicationServerSessionTokenProvider(final IApplicationServerApi applicationServerApi)
-        {
-            this.applicationServerApi = applicationServerApi;
-        }
-
-        @Override public boolean isValid(final String sessionToken)
-        {
-            return applicationServerApi.isSessionActive(sessionToken);
-        }
     }
 
     private static class ApplicationServerDatabaseTransactionProvider implements IDatabaseTransactionProvider

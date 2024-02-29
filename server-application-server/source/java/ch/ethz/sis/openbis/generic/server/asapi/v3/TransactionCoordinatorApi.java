@@ -20,14 +20,17 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.afsapi.api.OperationsAPI;
 import ch.ethz.sis.afsclient.client.AfsClient;
-import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.ITransactionCoordinatorApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.ITransactionParticipantApi;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.roleassignment.RoleAssignmentUtils;
 import ch.ethz.sis.transaction.ISessionTokenProvider;
 import ch.ethz.sis.transaction.ITransactionParticipant;
 import ch.ethz.sis.transaction.TransactionCoordinator;
 import ch.ethz.sis.transaction.TransactionLog;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
+import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 @Component
 public class TransactionCoordinatorApi implements ITransactionCoordinatorApi, ApplicationListener<ApplicationEvent>
@@ -42,7 +45,8 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi, Ap
     private final TransactionCoordinator transactionCoordinator;
 
     @Autowired
-    public TransactionCoordinatorApi(final TransactionConfiguration transactionConfiguration, IApplicationServerInternalApi applicationServerApi)
+    public TransactionCoordinatorApi(final TransactionConfiguration transactionConfiguration, IApplicationServerInternalApi applicationServerApi,
+            IOpenBisSessionManager sessionManager)
     {
         List<ITransactionParticipant> participants = Arrays.asList(
                 new ApplicationServerParticipant(transactionConfiguration.getApplicationServerUrl(),
@@ -54,7 +58,7 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi, Ap
         this.transactionCoordinator = new TransactionCoordinator(
                 transactionConfiguration.getCoordinatorKey(),
                 transactionConfiguration.getInteractiveSessionKey(),
-                new ApplicationServerSessionTokenProvider(applicationServerApi),
+                new ApplicationServerSessionTokenProvider(sessionManager),
                 participants,
                 new TransactionLog(new File(transactionConfiguration.getTransactionLogFolderPath()), TRANSACTION_LOG_FOLDER_NAME),
                 transactionConfiguration.getTransactionTimeoutInSeconds(),
@@ -117,22 +121,6 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi, Ap
     @Override public int getMinorVersion()
     {
         return 0;
-    }
-
-    private static class ApplicationServerSessionTokenProvider implements ISessionTokenProvider
-    {
-
-        private final IApplicationServerApi applicationServerApi;
-
-        public ApplicationServerSessionTokenProvider(final IApplicationServerApi applicationServerApi)
-        {
-            this.applicationServerApi = applicationServerApi;
-        }
-
-        @Override public boolean isValid(final String sessionToken)
-        {
-            return applicationServerApi.isSessionActive(sessionToken);
-        }
     }
 
     private static class ApplicationServerParticipant implements ITransactionParticipant

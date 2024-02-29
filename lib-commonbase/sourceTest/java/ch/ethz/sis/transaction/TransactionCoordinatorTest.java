@@ -48,7 +48,11 @@ public class TransactionCoordinatorTest
 
     public static final String TEST_OPERATION_NAME_2 = "test-operation-2";
 
+    public static final String TEST_OPERATION_NAME_3 = "test-operation-3";
+
     public static final Object[] TEST_OPERATION_ARGUMENTS = new Object[] { 1, "abc" };
+
+    public static final String TEST_OPERATION_RESULT = "test-operation-result";
 
     public static final int TEST_TIMEOUT = 60;
 
@@ -128,6 +132,9 @@ public class TransactionCoordinatorTest
                 allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
                 will(returnValue(true));
 
+                allowing(sessionTokenProvider).isInstanceAdminOrSystem(TEST_SESSION_TOKEN);
+                will(returnValue(false));
+
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED, Set.of())));
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED, Set.of())));
 
@@ -163,6 +170,9 @@ public class TransactionCoordinatorTest
 
                 allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
                 will(returnValue(true));
+
+                allowing(sessionTokenProvider).isInstanceAdminOrSystem(TEST_SESSION_TOKEN);
+                will(returnValue(false));
 
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED, Set.of())));
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED, Set.of())));
@@ -213,6 +223,9 @@ public class TransactionCoordinatorTest
                 allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
                 will(returnValue(true));
 
+                allowing(sessionTokenProvider).isInstanceAdminOrSystem(TEST_SESSION_TOKEN);
+                will(returnValue(false));
+
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED, Set.of())));
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED, Set.of())));
 
@@ -237,6 +250,75 @@ public class TransactionCoordinatorTest
         }
     }
 
+    @Test
+    public void testExecuteMultipleOperations()
+    {
+        TransactionCoordinator coordinator =
+                new TransactionCoordinator(TEST_TRANSACTION_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionTokenProvider,
+                        List.of(participant1, participant2), transactionLog, TEST_TIMEOUT, TEST_COUNT_LIMIT);
+
+        Exception executeOperationException = new RuntimeException();
+
+        mockery.checking(new Expectations()
+        {
+            {
+                allowing(participant1).getParticipantId();
+                will(returnValue(TEST_PARTICIPANT_ID));
+                allowing(participant2).getParticipantId();
+                will(returnValue(TEST_PARTICIPANT_ID_2));
+
+                allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
+                will(returnValue(true));
+
+                allowing(sessionTokenProvider).isInstanceAdminOrSystem(TEST_SESSION_TOKEN);
+                will(returnValue(false));
+
+                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED, Set.of())));
+                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED, Set.of())));
+
+                one(participant1).beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY,
+                        TEST_TRANSACTION_COORDINATOR_KEY);
+                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED, Set.of(TEST_PARTICIPANT_ID))));
+                one(participant1).executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_OPERATION_NAME,
+                        TEST_OPERATION_ARGUMENTS);
+
+                one(participant1).executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_OPERATION_NAME_2,
+                        TEST_OPERATION_ARGUMENTS);
+                will(throwException(executeOperationException));
+
+                one(participant1).executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_OPERATION_NAME_3,
+                        TEST_OPERATION_ARGUMENTS);
+                will(returnValue(TEST_OPERATION_RESULT));
+            }
+        });
+
+        coordinator.beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
+
+        coordinator.executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_PARTICIPANT_ID,
+                TEST_OPERATION_NAME,
+                TEST_OPERATION_ARGUMENTS);
+
+        try
+        {
+            coordinator.executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_PARTICIPANT_ID,
+                    TEST_OPERATION_NAME_2,
+                    TEST_OPERATION_ARGUMENTS);
+            fail();
+        } catch (Exception e)
+        {
+            assertEquals(e.getMessage(),
+                    "Transaction '" + TEST_TRANSACTION_ID + "' execute operation '" + TEST_OPERATION_NAME_2 + "' failed for participant '"
+                            + TEST_PARTICIPANT_ID + "'.");
+            assertEquals(e.getCause(), executeOperationException);
+        }
+
+        Object result = coordinator.executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_PARTICIPANT_ID,
+                TEST_OPERATION_NAME_3,
+                TEST_OPERATION_ARGUMENTS);
+
+        assertEquals(result, TEST_OPERATION_RESULT);
+    }
+
         @Test
     public void testExecuteOperationWithUnknownParticipantId()
     {
@@ -254,6 +336,9 @@ public class TransactionCoordinatorTest
 
                 allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
                 will(returnValue(true));
+
+                allowing(sessionTokenProvider).isInstanceAdminOrSystem(TEST_SESSION_TOKEN);
+                will(returnValue(false));
 
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED, Set.of())));
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED, Set.of())));
@@ -293,6 +378,9 @@ public class TransactionCoordinatorTest
 
                 allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
                 will(returnValue(true));
+
+                allowing(sessionTokenProvider).isInstanceAdminOrSystem(TEST_SESSION_TOKEN);
+                will(returnValue(false));
 
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED, Set.of())));
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED, Set.of())));
@@ -354,6 +442,9 @@ public class TransactionCoordinatorTest
 
                 allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
                 will(returnValue(true));
+
+                allowing(sessionTokenProvider).isInstanceAdminOrSystem(TEST_SESSION_TOKEN);
+                will(returnValue(false));
 
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED, Set.of())));
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED, Set.of())));
@@ -424,6 +515,9 @@ public class TransactionCoordinatorTest
                 allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
                 will(returnValue(true));
 
+                allowing(sessionTokenProvider).isInstanceAdminOrSystem(TEST_SESSION_TOKEN);
+                will(returnValue(false));
+
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED, Set.of())));
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED, Set.of())));
 
@@ -482,6 +576,9 @@ public class TransactionCoordinatorTest
                 allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
                 will(returnValue(true));
 
+                allowing(sessionTokenProvider).isInstanceAdminOrSystem(TEST_SESSION_TOKEN);
+                will(returnValue(false));
+
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED, Set.of())));
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED, Set.of())));
 
@@ -533,6 +630,9 @@ public class TransactionCoordinatorTest
 
                 allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
                 will(returnValue(true));
+
+                allowing(sessionTokenProvider).isInstanceAdminOrSystem(TEST_SESSION_TOKEN);
+                will(returnValue(false));
 
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED, Set.of())));
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED, Set.of())));

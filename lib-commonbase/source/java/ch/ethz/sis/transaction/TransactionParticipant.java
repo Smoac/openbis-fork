@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -135,7 +136,7 @@ public class TransactionParticipant implements ITransactionParticipant
 
                         if (existingTransaction == null)
                         {
-                            Transaction transaction = createTransaction(logEntry.getTransactionId(), logEntry.getTransactionStatus());
+                            Transaction transaction = createTransaction(logEntry.getTransactionId(), logEntry.getTransactionStatus(), null);
                             transaction.setTwoPhaseTransaction(logEntry.isTwoPhaseTransaction());
                             transaction.setLastAccessedDate(new Date(0));
                             operationLog.info(
@@ -239,7 +240,7 @@ public class TransactionParticipant implements ITransactionParticipant
             checkTransactionCoordinatorKey(transactionCoordinatorKey);
         }
 
-        Transaction transaction = createTransaction(transactionId, TransactionStatus.NEW);
+        Transaction transaction = createTransaction(transactionId, TransactionStatus.NEW, sessionToken);
         transaction.setTwoPhaseTransaction(transactionCoordinatorKey != null);
 
         transaction.lockOrFail(() ->
@@ -279,7 +280,9 @@ public class TransactionParticipant implements ITransactionParticipant
 
         return transaction.lockOrFail(() ->
         {
+            checkTransactionAccess(transaction, sessionToken);
             checkTransactionStatus(transaction, TransactionStatus.BEGIN_FINISHED);
+
             transaction.setLastAccessedDate(new Date());
 
             operationLog.info("Transaction '" + transactionId + "' execute operation '" + operationName + "' started.");
@@ -308,7 +311,9 @@ public class TransactionParticipant implements ITransactionParticipant
 
         transaction.lockOrFail(() ->
         {
+            checkTransactionAccess(transaction, sessionToken);
             checkTransactionStatus(transaction, TransactionStatus.BEGIN_FINISHED);
+
             transaction.setLastAccessedDate(new Date());
 
             if (!transaction.isTwoPhaseTransaction())
@@ -375,6 +380,7 @@ public class TransactionParticipant implements ITransactionParticipant
 
         transaction.lockOrFail(() ->
         {
+            checkTransactionAccess(transaction, sessionToken);
             commitTransaction(transaction);
             return null;
         });
@@ -440,6 +446,7 @@ public class TransactionParticipant implements ITransactionParticipant
 
         transaction.lockOrFail(() ->
         {
+            checkTransactionAccess(transaction, sessionToken);
             rollbackTransaction(transaction);
             return null;
         });
@@ -572,6 +579,19 @@ public class TransactionParticipant implements ITransactionParticipant
                         + Arrays.toString(expectedStatuses) + "'.");
     }
 
+    private void checkTransactionAccess(final Transaction transaction, final String sessionToken)
+    {
+        if (sessionTokenProvider.isInstanceAdminOrSystem(sessionToken))
+        {
+            return;
+        }
+
+        if (!Objects.equals(transaction.getSessionToken(), sessionToken))
+        {
+            throw new IllegalArgumentException("Access denied to transaction '" + transaction.getTransactionId() + "'");
+        }
+    }
+
     private void checkOperationName(final String operationName)
     {
         if (operationName == null)
@@ -588,24 +608,39 @@ public class TransactionParticipant implements ITransactionParticipant
         }
     }
 
-    private Transaction createTransaction(UUID transactionId, TransactionStatus initialTransactionStatus)
+    private Transaction createTransaction(UUID transactionId, TransactionStatus transactionStatus, String sessionToken)
     {
         synchronized (transactionMap)
         {
-            Transaction transaction = transactionMap.get(transactionId);
+            Transaction existingTransaction = transactionMap.get(transactionId);
 
-            if (transaction == null)
+            if (existingTransaction == null)
             {
                 if (transactionMap.size() < transactionCountLimit)
                 {
-                    transaction = new Transaction(transactionId, initialTransactionStatus);
-                    transactionMap.put(transactionId, transaction);
-                    return transaction;
+                    if (sessionToken != null)
+                    {
+                        for (Transaction transaction : transactionMap.values())
+                        {
+                            if (sessionToken.equals(transaction.getSessionToken()))
+                            {
+                                throw new IllegalStateException(
+                                        "Cannot create more than one transaction for the same session token. Transaction that could not be created: '"
+                                                + transactionId + "'. The already existing and still active transaction: '"
+                                                + transaction.getTransactionId() + "'.");
+                            }
+                        }
+                    }
+
+                    Transaction newTransaction = new Transaction(transactionId, transactionStatus, sessionToken);
+                    transactionMap.put(transactionId, newTransaction);
+                    return newTransaction;
                 } else
                 {
                     throw new IllegalStateException(
-                            "Cannot create transaction '" + transactionId + "' because transaction count limit (" + transactionCountLimit
-                                    + ") has been reached.");
+                            "Cannot create transaction '" + transactionId
+                                    + "' because the transaction count limit has been reached. Number of existing transactions: "
+                                    + transactionMap.size());
                 }
             } else
             {
@@ -649,9 +684,9 @@ public class TransactionParticipant implements ITransactionParticipant
 
         private final ReentrantLock lock = new ReentrantLock();
 
-        public Transaction(UUID transactionId, TransactionStatus initialTransactionStatus)
+        public Transaction(UUID transactionId, TransactionStatus transactionStatus, String sessionToken)
         {
-            super(transactionId, initialTransactionStatus);
+            super(transactionId, transactionStatus, sessionToken);
         }
 
         public void setTransactionStatus(final TransactionStatus transactionStatus)

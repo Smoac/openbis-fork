@@ -9,12 +9,20 @@ public class Transaction
 
     private TransactionStatus transactionStatus;
 
+    private String sessionToken;
+
     private Date lastAccessedDate = new Date();
 
-    public Transaction(UUID transactionId, TransactionStatus initialTransactionStatus)
+    public Transaction(UUID transactionId, TransactionStatus transactionStatus)
+    {
+        this(transactionId, transactionStatus, null);
+    }
+
+    public Transaction(UUID transactionId, TransactionStatus transactionStatus, String sessionToken)
     {
         this.transactionId = transactionId;
-        this.transactionStatus = initialTransactionStatus;
+        this.transactionStatus = transactionStatus;
+        this.sessionToken = sessionToken;
     }
 
     public UUID getTransactionId()
@@ -35,6 +43,16 @@ public class Transaction
     public void setTransactionStatus(final TransactionStatus transactionStatus)
     {
         this.transactionStatus = transactionStatus;
+    }
+
+    public String getSessionToken()
+    {
+        return sessionToken;
+    }
+
+    public void setSessionToken(final String sessionToken)
+    {
+        this.sessionToken = sessionToken;
     }
 
     public Date getLastAccessedDate()

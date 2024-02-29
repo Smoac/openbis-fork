@@ -26,7 +26,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IIdentifierHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
@@ -40,6 +39,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOpt
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.ApplicationServerSessionTokenProvider;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.TransactionConfiguration;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.TransactionParticipantApi;
 import ch.ethz.sis.transaction.IDatabaseTransactionProvider;
@@ -56,6 +56,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 
 public class TransactionTest extends AbstractTest
 {
@@ -97,7 +98,7 @@ public class TransactionTest extends AbstractTest
     private DatabaseConfigurationContext databaseContext;
 
     @Autowired
-    private IApplicationServerApi applicationServerApi;
+    private IOpenBisSessionManager sessionManager;
 
     private TransactionCoordinator coordinator;
 
@@ -107,6 +108,22 @@ public class TransactionTest extends AbstractTest
 
     private UUID coordinatorTrId;
 
+    private UUID coordinatorTr2Id;
+
+    private UUID coordinatorTr3Id;
+
+    private UUID participant1TrId;
+
+    private UUID participant1Tr2Id;
+
+    private UUID participant1Tr3Id;
+
+    private UUID participant2TrId;
+
+    private UUID participant2Tr2Id;
+
+    private UUID participant2Tr3Id;
+
     @BeforeMethod
     private void beforeMethod()
     {
@@ -115,14 +132,24 @@ public class TransactionTest extends AbstractTest
         FileUtilities.deleteRecursively(new File(TRANSACTION_LOG_ROOT_FOLDER, TRANSACTION_LOG_PARTICIPANT_2_FOLDER));
 
         coordinatorTrId = UUID.randomUUID();
-        UUID participant1TrId = UUID.randomUUID();
-        UUID participant2TrId = UUID.randomUUID();
+        coordinatorTr2Id = UUID.randomUUID();
+        coordinatorTr3Id = UUID.randomUUID();
+
+        participant1TrId = UUID.randomUUID();
+        participant1Tr2Id = UUID.randomUUID();
+        participant1Tr3Id = UUID.randomUUID();
+
+        participant2TrId = UUID.randomUUID();
+        participant2Tr2Id = UUID.randomUUID();
+        participant2Tr3Id = UUID.randomUUID();
 
         participant1 = createParticipant(TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER);
-        participant1.setTransactionMapping(Map.of(coordinatorTrId, participant1TrId));
+        participant1.setTestTransactionMapping(
+                Map.of(coordinatorTrId, participant1TrId, coordinatorTr2Id, participant1Tr2Id, coordinatorTr3Id, participant1Tr3Id));
 
         participant2 = createParticipant(TEST_PARTICIPANT_2_ID, TRANSACTION_LOG_PARTICIPANT_2_FOLDER);
-        participant2.setTransactionMapping(Map.of(coordinatorTrId, participant2TrId));
+        participant2.setTestTransactionMapping(
+                Map.of(coordinatorTrId, participant2TrId, coordinatorTr2Id, participant2Tr2Id, coordinatorTr3Id, participant2Tr3Id));
 
         coordinator = createCoordinator(Arrays.asList(participant1, participant2), 60, 10);
     }
@@ -130,7 +157,8 @@ public class TransactionTest extends AbstractTest
     private TransactionCoordinator createCoordinator(List<ITransactionParticipant> participants, int transactionTimeoutInSeconds,
             int transactionCountLimit)
     {
-        return new TransactionCoordinator(TEST_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY, sessionToken -> v3api.isSessionActive(sessionToken),
+        return new TransactionCoordinator(TEST_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY,
+                new ApplicationServerSessionTokenProvider(sessionManager),
                 participants, new TransactionLog(new File(TRANSACTION_LOG_ROOT_FOLDER), TRANSACTION_LOG_COORDINATOR_FOLDER),
                 transactionTimeoutInSeconds, transactionCountLimit);
     }
@@ -138,7 +166,8 @@ public class TransactionTest extends AbstractTest
     private TestTransactionParticipant createParticipant(String participantId, String logFolderName)
     {
         return new TestTransactionParticipant(
-                new TransactionParticipantApi(transactionConfiguration, transactionManager, daoFactory, databaseContext, applicationServerApi,
+                new TransactionParticipantApi(transactionConfiguration, transactionManager, daoFactory, databaseContext, v3api,
+                        sessionManager,
                         participantId, logFolderName));
     }
 
@@ -159,6 +188,13 @@ public class TransactionTest extends AbstractTest
             {
                 statement.execute("ROLLBACK PREPARED '" + preparedTransactionId + "'");
             }
+        }
+
+        String sessionToken = v3api.loginAsSystem();
+
+        for (Transaction transaction : coordinator.getTransactionMap().values())
+        {
+            coordinator.rollbackTransaction(transaction.getTransactionId(), sessionToken, TEST_INTERACTIVE_SESSION_KEY);
         }
 
         participant1.close();
@@ -250,7 +286,7 @@ public class TransactionTest extends AbstractTest
         assertTransactions(participant1.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
         assertTransactions(participant2.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
 
-        Map<ISpaceId, Space> createdSpaces = applicationServerApi.getSpaces(sessionToken,
+        Map<ISpaceId, Space> createdSpaces = v3api.getSpaces(sessionToken,
                 Collections.singletonList(new SpacePermId(spaceCreation1.getCode())), new SpaceFetchOptions());
         assertEquals(createdSpaces.size(), 0);
     }
@@ -295,7 +331,7 @@ public class TransactionTest extends AbstractTest
         assertTransactions(participant1.getTransactionMap());
         assertTransactions(participant2.getTransactionMap());
 
-        Map<ISpaceId, Space> createdSpaces = applicationServerApi.getSpaces(sessionToken,
+        Map<ISpaceId, Space> createdSpaces = v3api.getSpaces(sessionToken,
                 Collections.singletonList(new SpacePermId(spaceCreation.getCode())), new SpaceFetchOptions());
         assertEquals(createdSpaces.size(), 0);
     }
@@ -359,7 +395,7 @@ public class TransactionTest extends AbstractTest
         assertTransactions(participant1.getTransactionMap());
         assertTransactions(participant2.getTransactionMap());
 
-        Map<ISpaceId, Space> createdSpaces = applicationServerApi.getSpaces(sessionToken,
+        Map<ISpaceId, Space> createdSpaces = v3api.getSpaces(sessionToken,
                 Arrays.asList(new SpacePermId(spaceCreation1.getCode()), new SpacePermId(spaceCreation2.getCode())), new SpaceFetchOptions());
         assertEquals(createdSpaces.size(), 0);
     }
@@ -423,7 +459,7 @@ public class TransactionTest extends AbstractTest
         assertTransactions(participant1.getTransactionMap());
         assertTransactions(participant2.getTransactionMap());
 
-        Map<ISpaceId, Space> createdSpaces = applicationServerApi.getSpaces(sessionToken,
+        Map<ISpaceId, Space> createdSpaces = v3api.getSpaces(sessionToken,
                 Arrays.asList(new SpacePermId(spaceCreation1.getCode()), new SpacePermId(spaceCreation2.getCode())), new SpaceFetchOptions());
         assertEquals(createdSpaces.size(), 2);
     }
@@ -487,7 +523,7 @@ public class TransactionTest extends AbstractTest
         assertTransactions(participant1.getTransactionMap());
         assertTransactions(participant2.getTransactionMap());
 
-        Map<ISpaceId, Space> createdSpaces = applicationServerApi.getSpaces(sessionToken,
+        Map<ISpaceId, Space> createdSpaces = v3api.getSpaces(sessionToken,
                 Arrays.asList(new SpacePermId(spaceCreation1.getCode()), new SpacePermId(spaceCreation2.getCode())), new SpaceFetchOptions());
         assertEquals(createdSpaces.size(), 0);
     }
@@ -646,56 +682,47 @@ public class TransactionTest extends AbstractTest
     @Test
     public void testMultipleTransactions()
     {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
-        UUID coordinatorTr1Id = UUID.randomUUID();
-        UUID coordinatorTr2Id = UUID.randomUUID();
-        UUID participant1Tr1Id = UUID.randomUUID();
-        UUID participant1Tr2Id = UUID.randomUUID();
-        UUID participant2Tr1Id = UUID.randomUUID();
-        UUID participant2Tr2Id = UUID.randomUUID();
-
-        participant1.setTransactionMapping(Map.of(coordinatorTr1Id, participant1Tr1Id, coordinatorTr2Id, participant1Tr2Id));
-        participant2.setTransactionMapping(Map.of(coordinatorTr1Id, participant2Tr1Id, coordinatorTr2Id, participant2Tr2Id));
+        String sessionToken1 = v3api.login(TEST_USER, PASSWORD);
+        String sessionToken2 = v3api.login(TEST_USER, PASSWORD);
 
         // begin tr1 and tr2
-        coordinator.beginTransaction(coordinatorTr1Id, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
-        coordinator.beginTransaction(coordinatorTr2Id, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
+        coordinator.beginTransaction(coordinatorTrId, sessionToken1, TEST_INTERACTIVE_SESSION_KEY);
+        coordinator.beginTransaction(coordinatorTr2Id, sessionToken2, TEST_INTERACTIVE_SESSION_KEY);
 
         SearchResult<Space> tr1SpacesBeforeCreations =
-                coordinator.executeOperation(coordinatorTr1Id, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(),
-                        OPERATION_SEARCH_SPACES, new Object[] { sessionToken, new SpaceSearchCriteria(), new SpaceFetchOptions() });
+                coordinator.executeOperation(coordinatorTrId, sessionToken1, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(),
+                        OPERATION_SEARCH_SPACES, new Object[] { sessionToken1, new SpaceSearchCriteria(), new SpaceFetchOptions() });
         SearchResult<Space> tr2SpacesBeforeCreations =
-                coordinator.executeOperation(coordinatorTr2Id, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(),
-                        OPERATION_SEARCH_SPACES, new Object[] { sessionToken, new SpaceSearchCriteria(), new SpaceFetchOptions() });
-        SearchResult<Space> noTrSpacesBeforeCreations = v3api.searchSpaces(sessionToken, new SpaceSearchCriteria(), new SpaceFetchOptions());
+                coordinator.executeOperation(coordinatorTr2Id, sessionToken2, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(),
+                        OPERATION_SEARCH_SPACES, new Object[] { sessionToken2, new SpaceSearchCriteria(), new SpaceFetchOptions() });
+        SearchResult<Space> noTrSpacesBeforeCreations = v3api.searchSpaces(sessionToken1, new SpaceSearchCriteria(), new SpaceFetchOptions());
 
         // create space1 in tr1
         SpaceCreation tr1Creation = new SpaceCreation();
         tr1Creation.setCode(UUID.randomUUID().toString());
 
-        coordinator.executeOperation(coordinatorTr1Id, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(),
-                OPERATION_CREATE_SPACES, new Object[] { sessionToken, Collections.singletonList(tr1Creation) });
+        coordinator.executeOperation(coordinatorTrId, sessionToken1, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(),
+                OPERATION_CREATE_SPACES, new Object[] { sessionToken1, Collections.singletonList(tr1Creation) });
 
         // create space2 in tr2
         SpaceCreation tr2Creation = new SpaceCreation();
         tr2Creation.setCode(UUID.randomUUID().toString());
 
-        coordinator.executeOperation(coordinatorTr2Id, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(),
-                OPERATION_CREATE_SPACES, new Object[] { sessionToken, Collections.singletonList(tr2Creation) });
+        coordinator.executeOperation(coordinatorTr2Id, sessionToken2, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(),
+                OPERATION_CREATE_SPACES, new Object[] { sessionToken2, Collections.singletonList(tr2Creation) });
 
         // create space3 in noTr
         SpaceCreation noTrCreation = new SpaceCreation();
         noTrCreation.setCode(UUID.randomUUID().toString());
-        v3api.createSpaces(sessionToken, Collections.singletonList(noTrCreation));
+        v3api.createSpaces(sessionToken1, Collections.singletonList(noTrCreation));
 
         SearchResult<Space> tr1SpacesAfterCreations =
-                coordinator.executeOperation(coordinatorTr1Id, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(),
-                        OPERATION_SEARCH_SPACES, new Object[] { sessionToken, new SpaceSearchCriteria(), new SpaceFetchOptions() });
+                coordinator.executeOperation(coordinatorTrId, sessionToken1, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(),
+                        OPERATION_SEARCH_SPACES, new Object[] { sessionToken1, new SpaceSearchCriteria(), new SpaceFetchOptions() });
         SearchResult<Space> tr2SpacesAfterCreations =
-                coordinator.executeOperation(coordinatorTr2Id, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(),
-                        OPERATION_SEARCH_SPACES, new Object[] { sessionToken, new SpaceSearchCriteria(), new SpaceFetchOptions() });
-        SearchResult<Space> noTrSpacesAfterCreations = v3api.searchSpaces(sessionToken, new SpaceSearchCriteria(), new SpaceFetchOptions());
+                coordinator.executeOperation(coordinatorTr2Id, sessionToken2, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(),
+                        OPERATION_SEARCH_SPACES, new Object[] { sessionToken2, new SpaceSearchCriteria(), new SpaceFetchOptions() });
+        SearchResult<Space> noTrSpacesAfterCreations = v3api.searchSpaces(sessionToken1, new SpaceSearchCriteria(), new SpaceFetchOptions());
 
         // check that tr1 sees only space1, tr2 sees only space2, noTr sees space3
         assertEquals(Collections.singleton(tr1Creation.getCode().toUpperCase()),
@@ -705,35 +732,35 @@ public class TransactionTest extends AbstractTest
         assertEquals(Collections.singleton(noTrCreation.getCode().toUpperCase()),
                 difference(codes(noTrSpacesAfterCreations.getObjects()), codes(noTrSpacesBeforeCreations.getObjects())));
 
-        coordinator.commitTransaction(coordinatorTr1Id, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
+        coordinator.commitTransaction(coordinatorTrId, sessionToken1, TEST_INTERACTIVE_SESSION_KEY);
 
         try
         {
-            coordinator.executeOperation(coordinatorTr1Id, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(),
-                    OPERATION_SEARCH_SPACES, new Object[] { sessionToken, new SpaceSearchCriteria(), new SpaceFetchOptions() });
+            coordinator.executeOperation(coordinatorTrId, sessionToken1, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(),
+                    OPERATION_SEARCH_SPACES, new Object[] { sessionToken1, new SpaceSearchCriteria(), new SpaceFetchOptions() });
             fail();
         } catch (Exception e)
         {
-            assertEquals(e.getMessage(), "Transaction '" + coordinatorTr1Id + "' does not exist.");
+            assertEquals(e.getMessage(), "Transaction '" + coordinatorTrId + "' does not exist.");
         }
 
         // after tr1 commit, tr2 sees space1 and space2, noTr sees space1 and space3
         SearchResult<Space> tr2SpacesAfterTr1Commit =
-                coordinator.executeOperation(coordinatorTr2Id, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(),
-                        OPERATION_SEARCH_SPACES, new Object[] { sessionToken, new SpaceSearchCriteria(), new SpaceFetchOptions() });
-        SearchResult<Space> noTrSpacesAfterTr1Commit = v3api.searchSpaces(sessionToken, new SpaceSearchCriteria(), new SpaceFetchOptions());
+                coordinator.executeOperation(coordinatorTr2Id, sessionToken2, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(),
+                        OPERATION_SEARCH_SPACES, new Object[] { sessionToken2, new SpaceSearchCriteria(), new SpaceFetchOptions() });
+        SearchResult<Space> noTrSpacesAfterTr1Commit = v3api.searchSpaces(sessionToken1, new SpaceSearchCriteria(), new SpaceFetchOptions());
 
         assertEquals(Collections.singleton(tr1Creation.getCode().toUpperCase()),
                 difference(codes(tr2SpacesAfterTr1Commit.getObjects()), codes(tr2SpacesAfterCreations.getObjects())));
         assertEquals(Collections.singleton(tr1Creation.getCode().toUpperCase()),
                 difference(codes(noTrSpacesAfterTr1Commit.getObjects()), codes(noTrSpacesAfterCreations.getObjects())));
 
-        coordinator.rollbackTransaction(coordinatorTr2Id, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
+        coordinator.rollbackTransaction(coordinatorTr2Id, sessionToken2, TEST_INTERACTIVE_SESSION_KEY);
 
         try
         {
-            coordinator.executeOperation(coordinatorTr2Id, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(),
-                    OPERATION_SEARCH_SPACES, new Object[] { sessionToken, new SpaceSearchCriteria(), new SpaceFetchOptions() });
+            coordinator.executeOperation(coordinatorTr2Id, sessionToken2, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(),
+                    OPERATION_SEARCH_SPACES, new Object[] { sessionToken2, new SpaceSearchCriteria(), new SpaceFetchOptions() });
             fail();
         } catch (Exception e)
         {
@@ -741,7 +768,7 @@ public class TransactionTest extends AbstractTest
         }
 
         // after tr1 commit and tr2 rollback, noTr sees space1 and space3
-        noTrSpacesAfterTr1Commit = v3api.searchSpaces(sessionToken, new SpaceSearchCriteria(), new SpaceFetchOptions());
+        noTrSpacesAfterTr1Commit = v3api.searchSpaces(sessionToken1, new SpaceSearchCriteria(), new SpaceFetchOptions());
         assertEquals(Collections.singleton(tr1Creation.getCode().toUpperCase()),
                 difference(codes(noTrSpacesAfterTr1Commit.getObjects()), codes(noTrSpacesAfterCreations.getObjects())));
     }
@@ -801,23 +828,6 @@ public class TransactionTest extends AbstractTest
     @Test
     public void testTooManyTransactions()
     {
-        UUID coordinatorTr1Id = UUID.randomUUID();
-        UUID coordinatorTr2Id = UUID.randomUUID();
-        UUID coordinatorTr3Id = UUID.randomUUID();
-
-        UUID participant1Tr1Id = UUID.randomUUID();
-        UUID participant1Tr2Id = UUID.randomUUID();
-        UUID participant1Tr3Id = UUID.randomUUID();
-
-        UUID participant2Tr1Id = UUID.randomUUID();
-        UUID participant2Tr2Id = UUID.randomUUID();
-        UUID participant2Tr3Id = UUID.randomUUID();
-
-        participant1.setTransactionMapping(
-                Map.of(coordinatorTr1Id, participant1Tr1Id, coordinatorTr2Id, participant1Tr2Id, coordinatorTr3Id, participant1Tr3Id));
-        participant2.setTransactionMapping(
-                Map.of(coordinatorTr1Id, participant2Tr1Id, coordinatorTr2Id, participant2Tr2Id, coordinatorTr3Id, participant2Tr3Id));
-
         coordinator = createCoordinator(Arrays.asList(participant1, participant2), 60, 2);
 
         assertTransactions(coordinator.getTransactionMap());
@@ -825,18 +835,80 @@ public class TransactionTest extends AbstractTest
         assertTransactions(participant2.getTransactionMap());
 
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        String sessionToken2 = v3api.login(TEST_USER, PASSWORD);
+        String sessionToken3 = v3api.login(TEST_USER, PASSWORD);
 
-        coordinator.beginTransaction(coordinatorTr1Id, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
-        coordinator.beginTransaction(coordinatorTr2Id, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
+        coordinator.beginTransaction(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
+        coordinator.beginTransaction(coordinatorTr2Id, sessionToken2, TEST_INTERACTIVE_SESSION_KEY);
 
         try
         {
-            coordinator.beginTransaction(coordinatorTr3Id, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
+            coordinator.beginTransaction(coordinatorTr3Id, sessionToken3, TEST_INTERACTIVE_SESSION_KEY);
         } catch (Exception e)
         {
             assertEquals(e.getMessage(),
-                    "Cannot create transaction '" + coordinatorTr3Id + "' because transaction count limit (2) has been reached.");
+                    "Cannot create transaction '" + coordinatorTr3Id
+                            + "' because the transaction count limit has been reached. Number of existing transactions: 2");
         }
+    }
+
+    @Test
+    public void testOneTransactionPerSessionToken()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        String sessionToken2 = v3api.login(TEST_USER, PASSWORD);
+
+        coordinator.beginTransaction(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
+
+        try
+        {
+            coordinator.beginTransaction(coordinatorTr2Id, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
+        } catch (Exception e)
+        {
+            assertEquals(e.getMessage(),
+                    "Cannot create more than one transaction for the same session token. Transaction that could not be created: '" + coordinatorTr2Id
+                            + "'. The already existing and still active transaction: '" + coordinatorTrId + "'.");
+        }
+
+        coordinator.beginTransaction(coordinatorTr2Id, sessionToken2, TEST_INTERACTIVE_SESSION_KEY);
+
+        assertTransactions(coordinator.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED),
+                new Transaction(coordinatorTr2Id, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(participant1.getTransactionMap());
+        assertTransactions(participant2.getTransactionMap());
+    }
+
+    @Test
+    public void testTransactionAccess()
+    {
+        String regularUserSessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+        String regularUserSessionToken2 = v3api.login(TEST_POWER_USER_CISD, PASSWORD);
+        String instanceAdminSessionToken = v3api.login(TEST_USER, PASSWORD);
+        String systemSessionToken = v3api.loginAsSystem();
+
+        coordinator.beginTransaction(coordinatorTrId, regularUserSessionToken, TEST_INTERACTIVE_SESSION_KEY);
+        coordinator.beginTransaction(coordinatorTr2Id, regularUserSessionToken2, TEST_INTERACTIVE_SESSION_KEY);
+
+        coordinator.executeOperation(coordinatorTrId, regularUserSessionToken, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(),
+                OPERATION_SEARCH_SPACES, new Object[] { regularUserSessionToken, new SpaceSearchCriteria(), new SpaceFetchOptions() });
+
+        try
+        {
+            // a different but regular user does not have access
+            coordinator.executeOperation(coordinatorTrId, regularUserSessionToken2, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(),
+                    OPERATION_SEARCH_SPACES, new Object[] { regularUserSessionToken2, new SpaceSearchCriteria(), new SpaceFetchOptions() });
+        } catch (Exception e)
+        {
+            assertEquals(e.getMessage(), "Access denied to transaction '" + coordinatorTrId + "'");
+        }
+
+        // instance admin user has access to any transaction
+        coordinator.executeOperation(coordinatorTrId, instanceAdminSessionToken, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(),
+                OPERATION_SEARCH_SPACES, new Object[] { instanceAdminSessionToken, new SpaceSearchCriteria(), new SpaceFetchOptions() });
+
+        // system user has access to any transaction
+        coordinator.executeOperation(coordinatorTrId, systemSessionToken, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(),
+                OPERATION_SEARCH_SPACES, new Object[] { systemSessionToken, new SpaceSearchCriteria(), new SpaceFetchOptions() });
     }
 
     @Test
@@ -877,7 +949,7 @@ public class TransactionTest extends AbstractTest
         assertTransactions(participant1.getTransactionMap());
         assertTransactions(participant2.getTransactionMap());
 
-        Map<ISpaceId, Space> createdSpaces = applicationServerApi.getSpaces(sessionToken,
+        Map<ISpaceId, Space> createdSpaces = v3api.getSpaces(sessionToken,
                 Collections.singletonList(new SpacePermId(spaceCreation.getCode())), new SpaceFetchOptions());
         assertEquals(createdSpaces.size(), 0);
     }
@@ -930,7 +1002,7 @@ public class TransactionTest extends AbstractTest
         assertTransactions(participant1.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
         assertTransactions(participant2.getTransactionMap());
 
-        Map<ISpaceId, Space> createdSpaces = applicationServerApi.getSpaces(sessionToken,
+        Map<ISpaceId, Space> createdSpaces = v3api.getSpaces(sessionToken,
                 Collections.singletonList(new SpacePermId(spaceCreation.getCode())), new SpaceFetchOptions());
         assertEquals(createdSpaces.size(), 0);
 
@@ -946,7 +1018,7 @@ public class TransactionTest extends AbstractTest
         assertTransactions(participant1.getTransactionMap());
         assertTransactions(participant2.getTransactionMap());
 
-        createdSpaces = applicationServerApi.getSpaces(sessionToken,
+        createdSpaces = v3api.getSpaces(sessionToken,
                 Collections.singletonList(new SpacePermId(spaceCreation.getCode())), new SpaceFetchOptions());
         assertEquals(createdSpaces.size(), 1);
     }
@@ -954,13 +1026,6 @@ public class TransactionTest extends AbstractTest
     @Test
     public void testRecoveryOfParticipantWithTransactionToRollback()
     {
-        UUID coordinatorTrId = UUID.randomUUID();
-        UUID participant1TrId = UUID.randomUUID();
-        UUID participant2TrId = UUID.randomUUID();
-
-        participant1.setTransactionMapping(Map.of(coordinatorTrId, participant1TrId));
-        participant2.setTransactionMapping(Map.of(coordinatorTrId, participant2TrId));
-
         List<ITransactionParticipant> participants = new ArrayList<>();
         participants.add(participant1);
         participants.add(participant2);
@@ -987,14 +1052,14 @@ public class TransactionTest extends AbstractTest
 
         // replace original participant with a new instance
         TestTransactionParticipant participant1AfterCrash = createParticipant(TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER);
-        participant1AfterCrash.setTransactionMapping(Map.of(coordinatorTrId, participant1TrId));
+        participant1AfterCrash.setTestTransactionMapping(participant1.getTestTransactionMapping());
         participants.set(0, participant1AfterCrash);
 
         assertTransactions(coordinator.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
         assertTransactions(participant1AfterCrash.getTransactionMap());
         assertTransactions(participant2.getTransactionMap());
 
-        Map<ISpaceId, Space> createdSpaces = applicationServerApi.getSpaces(sessionToken,
+        Map<ISpaceId, Space> createdSpaces = v3api.getSpaces(sessionToken,
                 Collections.singletonList(new SpacePermId(spaceCreation.getCode())), new SpaceFetchOptions());
         assertEquals(createdSpaces.size(), 0);
 
@@ -1006,7 +1071,7 @@ public class TransactionTest extends AbstractTest
 
         participant1AfterCrash.finishFailedOrAbandonedTransactions();
 
-        createdSpaces = applicationServerApi.getSpaces(sessionToken,
+        createdSpaces = v3api.getSpaces(sessionToken,
                 Collections.singletonList(new SpacePermId(spaceCreation.getCode())), new SpaceFetchOptions());
         assertEquals(createdSpaces.size(), 0);
 
@@ -1030,7 +1095,7 @@ public class TransactionTest extends AbstractTest
         assertTransactions(participant1AfterCrash.getTransactionMap());
         assertTransactions(participant2.getTransactionMap());
 
-        createdSpaces = applicationServerApi.getSpaces(sessionToken,
+        createdSpaces = v3api.getSpaces(sessionToken,
                 Collections.singletonList(new SpacePermId(spaceCreation.getCode())), new SpaceFetchOptions());
         assertEquals(createdSpaces.size(), 0);
 
@@ -1040,13 +1105,6 @@ public class TransactionTest extends AbstractTest
     @Test
     public void testRecoveryOfParticipantWithTransactionToCommit()
     {
-        UUID coordinatorTrId = UUID.randomUUID();
-        UUID participant1TrId = UUID.randomUUID();
-        UUID participant2TrId = UUID.randomUUID();
-
-        participant1.setTransactionMapping(Map.of(coordinatorTrId, participant1TrId));
-        participant2.setTransactionMapping(Map.of(coordinatorTrId, participant2TrId));
-
         List<ITransactionParticipant> participants = new ArrayList<>();
         participants.add(participant1);
         participants.add(participant2);
@@ -1081,7 +1139,7 @@ public class TransactionTest extends AbstractTest
         assertTransactions(participant2.getTransactionMap());
 
         TestTransactionParticipant participant1AfterCrash = createParticipant(TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER);
-        participant1AfterCrash.setTransactionMapping(Map.of(coordinatorTrId, participant1TrId));
+        participant1AfterCrash.setTestTransactionMapping(Map.of(coordinatorTrId, participant1TrId));
         // replace original participant with a new instance
         participants.set(0, participant1AfterCrash);
 
@@ -1089,7 +1147,7 @@ public class TransactionTest extends AbstractTest
         assertTransactions(participant1AfterCrash.getTransactionMap());
         assertTransactions(participant2.getTransactionMap());
 
-        Map<ISpaceId, Space> createdSpaces = applicationServerApi.getSpaces(sessionToken,
+        Map<ISpaceId, Space> createdSpaces = v3api.getSpaces(sessionToken,
                 Collections.singletonList(new SpacePermId(spaceCreation.getCode())), new SpaceFetchOptions());
         assertEquals(createdSpaces.size(), 0);
 
@@ -1101,7 +1159,7 @@ public class TransactionTest extends AbstractTest
 
         participant1AfterCrash.finishFailedOrAbandonedTransactions();
 
-                createdSpaces = applicationServerApi.getSpaces(sessionToken,
+        createdSpaces = v3api.getSpaces(sessionToken,
                 Collections.singletonList(new SpacePermId(spaceCreation.getCode())), new SpaceFetchOptions());
         assertEquals(createdSpaces.size(), 1);
 
@@ -1115,7 +1173,7 @@ public class TransactionTest extends AbstractTest
         assertTransactions(participant1AfterCrash.getTransactionMap());
         assertTransactions(participant2.getTransactionMap());
 
-        createdSpaces = applicationServerApi.getSpaces(sessionToken,
+        createdSpaces = v3api.getSpaces(sessionToken,
                 Collections.singletonList(new SpacePermId(spaceCreation.getCode())), new SpaceFetchOptions());
         assertEquals(createdSpaces.size(), 1);
 
@@ -1279,13 +1337,18 @@ public class TransactionTest extends AbstractTest
             return transactionMap;
         }
 
-        public void setTransactionMapping(Map<UUID, UUID> coordinatorIdToParticipantIdMap)
+        public void setTestTransactionMapping(Map<UUID, UUID> coordinatorIdToParticipantIdMap)
         {
             for (Map.Entry<UUID, UUID> entry : coordinatorIdToParticipantIdMap.entrySet())
             {
                 originalToInternalId.put(entry.getKey(), entry.getValue());
                 internalToOriginalId.put(entry.getValue(), entry.getKey());
             }
+        }
+
+        public Map<UUID, UUID> getTestTransactionMapping()
+        {
+            return originalToInternalId;
         }
 
         public void close()

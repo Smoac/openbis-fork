@@ -41,6 +41,8 @@ public class TransactionParticipantTest
 
     public static final String TEST_SESSION_TOKEN = "test-session-token";
 
+    public static final String TEST_SESSION_TOKEN_2 = "test-session-token-2";
+
     public static final String INVALID_TRANSACTION_COORDINATOR_KEY = "invalid-transaction-coordinator-key";
 
     public static final String INVALID_INTERACTIVE_SESSION_KEY = "invalid-interactive-session-key";
@@ -114,6 +116,13 @@ public class TransactionParticipantTest
             {
                 allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
                 will(returnValue(true));
+                allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN_2);
+                will(returnValue(true));
+
+                allowing(sessionTokenProvider).isInstanceAdminOrSystem(TEST_SESSION_TOKEN);
+                will(returnValue(false));
+                allowing(sessionTokenProvider).isInstanceAdminOrSystem(TEST_SESSION_TOKEN_2);
+                will(returnValue(false));
 
                 // begin 1
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED)));
@@ -181,7 +190,7 @@ public class TransactionParticipantTest
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID_2, TransactionStatus.BEGIN_FINISHED)));
 
                 // execute 2
-                one(transactionOperationExecutor).executeOperation(TEST_SESSION_TOKEN, TEST_OPERATION_NAME_2, TEST_OPERATION_ARGUMENTS_2);
+                one(transactionOperationExecutor).executeOperation(TEST_SESSION_TOKEN_2, TEST_OPERATION_NAME_2, TEST_OPERATION_ARGUMENTS_2);
                 will(new CustomAction("executeOperation")
                 {
                     @Override public Object invoke(final Invocation invocation)
@@ -208,14 +217,14 @@ public class TransactionParticipantTest
         // begin 1
         participant.beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, interactiveSessionKey, transactionCoordinatorKey);
         // begin 2
-        participant.beginTransaction(TEST_TRANSACTION_ID_2, TEST_SESSION_TOKEN, interactiveSessionKey, transactionCoordinatorKey);
+        participant.beginTransaction(TEST_TRANSACTION_ID_2, TEST_SESSION_TOKEN_2, interactiveSessionKey, transactionCoordinatorKey);
         // execute 1
         String transaction1OperationThreadName =
                 participant.executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, interactiveSessionKey, TEST_OPERATION_NAME,
                         TEST_OPERATION_ARGUMENTS);
         // execute 2
         String transaction2OperationThreadName =
-                participant.executeOperation(TEST_TRANSACTION_ID_2, TEST_SESSION_TOKEN, interactiveSessionKey, TEST_OPERATION_NAME_2,
+                participant.executeOperation(TEST_TRANSACTION_ID_2, TEST_SESSION_TOKEN_2, interactiveSessionKey, TEST_OPERATION_NAME_2,
                         TEST_OPERATION_ARGUMENTS_2);
 
         if (transactionCoordinatorKey != null)
@@ -227,7 +236,7 @@ public class TransactionParticipantTest
         // commit 1
         participant.commitTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, interactiveSessionKey);
         // rollback 2
-        participant.rollbackTransaction(TEST_TRANSACTION_ID_2, TEST_SESSION_TOKEN, interactiveSessionKey);
+        participant.rollbackTransaction(TEST_TRANSACTION_ID_2, TEST_SESSION_TOKEN_2, interactiveSessionKey);
 
         Set<String> transaction1ThreadNames = new HashSet<>(
                 List.of(transaction1BeginThreadName.getValue(), transaction1OperationThreadName, transaction1CommitThreadName.getValue()));
@@ -322,6 +331,9 @@ public class TransactionParticipantTest
             {
                 allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
                 will(returnValue(true));
+
+                allowing(sessionTokenProvider).isInstanceAdminOrSystem(TEST_SESSION_TOKEN);
+                will(returnValue(false));
 
                 // begin (fails)
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED)));
@@ -448,6 +460,9 @@ public class TransactionParticipantTest
                 allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
                 will(returnValue(true));
 
+                allowing(sessionTokenProvider).isInstanceAdminOrSystem(TEST_SESSION_TOKEN);
+                will(returnValue(false));
+
                 // begin
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED)));
                 one(databaseTransactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
@@ -506,6 +521,9 @@ public class TransactionParticipantTest
             {
                 allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
                 will(returnValue(true));
+
+                allowing(sessionTokenProvider).isInstanceAdminOrSystem(TEST_SESSION_TOKEN);
+                will(returnValue(false));
 
                 // begin
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED)));
@@ -660,6 +678,9 @@ public class TransactionParticipantTest
                 allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
                 will(returnValue(true));
 
+                allowing(sessionTokenProvider).isInstanceAdminOrSystem(TEST_SESSION_TOKEN);
+                will(returnValue(false));
+
                 // begin
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED)));
                 one(databaseTransactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
@@ -744,7 +765,8 @@ public class TransactionParticipantTest
                         { TEST_TRANSACTION_ID, null, TEST_TRANSACTION_COORDINATOR_KEY, "Interactive session key cannot be null" },
                         { TEST_TRANSACTION_ID, TEST_INTERACTIVE_SESSION_KEY, null, "Transaction coordinator key cannot be null" },
                         { TEST_TRANSACTION_ID, INVALID_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY, "Invalid interactive session key" },
-                        { TEST_TRANSACTION_ID, TEST_INTERACTIVE_SESSION_KEY, INVALID_TRANSACTION_COORDINATOR_KEY, "Invalid transaction coordinator key" },
+                        { TEST_TRANSACTION_ID, TEST_INTERACTIVE_SESSION_KEY, INVALID_TRANSACTION_COORDINATOR_KEY,
+                                "Invalid transaction coordinator key" },
                 };
     }
 
@@ -843,6 +865,9 @@ public class TransactionParticipantTest
                 allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
                 will(returnValue(true));
 
+                allowing(sessionTokenProvider).isInstanceAdminOrSystem(TEST_SESSION_TOKEN);
+                will(returnValue(false));
+
                 // begin
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED)));
                 one(databaseTransactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
@@ -865,7 +890,7 @@ public class TransactionParticipantTest
                 one(databaseTransactionProvider).commitTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
                 will(throwException(throwable));
 
-                if(transactionCoordinatorKey == null)
+                if (transactionCoordinatorKey == null)
                 {
                     // rollback
                     one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_STARTED)));
@@ -908,7 +933,7 @@ public class TransactionParticipantTest
 
             assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
 
-            if(transactionCoordinatorKey == null)
+            if (transactionCoordinatorKey == null)
             {
                 // rollback
                 participant.rollbackTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, interactiveSessionKey);
@@ -950,12 +975,14 @@ public class TransactionParticipantTest
                         { TEST_TRANSACTION_ID, null, TEST_TRANSACTION_COORDINATOR_KEY, "Interactive session key cannot be null" },
                         { TEST_TRANSACTION_ID, TEST_INTERACTIVE_SESSION_KEY, null, "Transaction coordinator key cannot be null" },
                         { TEST_TRANSACTION_ID, INVALID_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY, "Invalid interactive session key" },
-                        { TEST_TRANSACTION_ID, TEST_INTERACTIVE_SESSION_KEY, INVALID_TRANSACTION_COORDINATOR_KEY, "Invalid transaction coordinator key" },
+                        { TEST_TRANSACTION_ID, TEST_INTERACTIVE_SESSION_KEY, INVALID_TRANSACTION_COORDINATOR_KEY,
+                                "Invalid transaction coordinator key" },
                 };
     }
 
     @Test(dataProvider = "provideInvalidArgumentsForRollbackRecovery")
-    public void testRollbackTransactionRecoveryWithInvalidArguments(UUID transactionId, String interactiveSessionKeyOrNull, String transactionCoordinatorKeyOrNull,
+    public void testRollbackTransactionRecoveryWithInvalidArguments(UUID transactionId, String interactiveSessionKeyOrNull,
+            String transactionCoordinatorKeyOrNull,
             String expectedException) throws Throwable
     {
         doTestRollbackTransactionWithInvalidArguments(participant ->
@@ -1051,6 +1078,9 @@ public class TransactionParticipantTest
             {
                 allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
                 will(returnValue(true));
+
+                allowing(sessionTokenProvider).isInstanceAdminOrSystem(TEST_SESSION_TOKEN);
+                will(returnValue(false));
 
                 // begin
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED)));
@@ -1265,6 +1295,9 @@ public class TransactionParticipantTest
                 allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
                 will(returnValue(true));
 
+                allowing(sessionTokenProvider).isInstanceAdminOrSystem(TEST_SESSION_TOKEN);
+                will(returnValue(false));
+
                 // begin
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED)));
                 one(databaseTransactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
@@ -1309,6 +1342,9 @@ public class TransactionParticipantTest
 
                 allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
                 will(returnValue(true));
+
+                allowing(sessionTokenProvider).isInstanceAdminOrSystem(TEST_SESSION_TOKEN);
+                will(returnValue(false));
 
                 // begin
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED)));
@@ -1363,6 +1399,9 @@ public class TransactionParticipantTest
                 allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
                 will(returnValue(true));
 
+                allowing(sessionTokenProvider).isInstanceAdminOrSystem(TEST_SESSION_TOKEN);
+                will(returnValue(false));
+
                 // begin
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED)));
                 one(databaseTransactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
@@ -1396,6 +1435,9 @@ public class TransactionParticipantTest
 
                 allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
                 will(returnValue(true));
+
+                allowing(sessionTokenProvider).isInstanceAdminOrSystem(TEST_SESSION_TOKEN);
+                will(returnValue(false));
 
                 // begin
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED)));
@@ -1431,6 +1473,9 @@ public class TransactionParticipantTest
 
                 allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
                 will(returnValue(true));
+
+                allowing(sessionTokenProvider).isInstanceAdminOrSystem(TEST_SESSION_TOKEN);
+                will(returnValue(false));
 
                 // begin
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED)));
@@ -1476,6 +1521,9 @@ public class TransactionParticipantTest
                 allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
                 will(returnValue(true));
 
+                allowing(sessionTokenProvider).isInstanceAdminOrSystem(TEST_SESSION_TOKEN);
+                will(returnValue(false));
+
                 // begin
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED)));
                 one(databaseTransactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
@@ -1520,6 +1568,9 @@ public class TransactionParticipantTest
 
                 allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
                 will(returnValue(true));
+
+                allowing(sessionTokenProvider).isInstanceAdminOrSystem(TEST_SESSION_TOKEN);
+                will(returnValue(false));
 
                 // begin
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED)));
@@ -1567,6 +1618,9 @@ public class TransactionParticipantTest
                 allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
                 will(returnValue(true));
 
+                allowing(sessionTokenProvider).isInstanceAdminOrSystem(TEST_SESSION_TOKEN);
+                will(returnValue(false));
+
                 // begin
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED)));
                 one(databaseTransactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
@@ -1608,6 +1662,9 @@ public class TransactionParticipantTest
                 allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
                 will(returnValue(true));
 
+                allowing(sessionTokenProvider).isInstanceAdminOrSystem(TEST_SESSION_TOKEN);
+                will(returnValue(false));
+
                 // begin
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED)));
                 one(databaseTransactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
@@ -1648,6 +1705,9 @@ public class TransactionParticipantTest
 
                 allowing(sessionTokenProvider).isValid(TEST_SESSION_TOKEN);
                 will(returnValue(true));
+
+                allowing(sessionTokenProvider).isInstanceAdminOrSystem(TEST_SESSION_TOKEN);
+                will(returnValue(false));
 
                 // begin
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_STARTED)));
