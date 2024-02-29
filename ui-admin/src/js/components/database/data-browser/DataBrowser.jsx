@@ -14,7 +14,7 @@ import ItemIcon from '@src/js/components/database/data-browser/ItemIcon.jsx'
 import InfoPanel from '@src/js/components/database/data-browser/InfoPanel.jsx'
 import DataBrowserController from '@src/js/components/database/data-browser/DataBrowserController.js'
 import NavigationBar from '@src/js/components/database/data-browser/NavigationBar.jsx'
-import messages from "@src/js/common/messages.js";
+import messages from '@src/js/common/messages.js'
 
 const HTTP_SERVER_URI = '/data-store-server'
 
@@ -162,6 +162,10 @@ class DataBrowser extends React.Component {
     }
   }
 
+  timeToString(time) {
+    return new Date(time).toLocaleString()
+  }
+
   render() {
     const { classes, sessionToken } = this.props
     const {
@@ -218,16 +222,37 @@ class DataBrowser extends React.Component {
                   renderFilter: null
                 },
                 {
+                  name: 'kind',
+                  label: 'Kind',
+                  sortable: true,
+                  getValue: ({ row }) => row.directory ? 'Directory' : 'File'
+                },
+                {
                   name: 'size',
-                  label: 'Size',
+                  label: messages.get(messages.SIZE),
                   sortable: true,
                   getValue: ({ row }) => row.size
                 },
                 {
+                  name: 'created',
+                  label: messages.get(messages.CREATED),
+                  sortable: true,
+                  getValue: ({ row }) => row.creationTime,
+                  renderValue: ({ row }) => this.timeToString(row.creationTime)
+                },
+                {
                   name: 'modified',
-                  label: 'Modified',
-                  sortable: false,
-                  getValue: ({ row }) => row.lastModifiedTime.toLocaleString()
+                  label: messages.get(messages.MODIFIED),
+                  sortable: true,
+                  getValue: ({ row }) => row.lastModifiedTime,
+                  renderValue: ({ row }) => this.timeToString(row.lastModifiedTime)
+                },
+                {
+                  name: 'accessed',
+                  label: messages.get(messages.ACCESSED),
+                  sortable: true,
+                  getValue: ({ row }) => row.lastAccessTime,
+                  renderValue: ({ row }) => this.timeToString(row.lastAccessTime)
                 }
               ]}
               loadRows={this.controller.load}
