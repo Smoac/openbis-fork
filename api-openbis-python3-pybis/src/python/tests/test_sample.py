@@ -139,7 +139,7 @@ def test_empty_data_frame(openbis_instance):
     pa = s.get_property_assignments()
 
     attrs = [
-        "propertyType",
+        "code",
         "dataType",
         "section",
         "ordinal",
