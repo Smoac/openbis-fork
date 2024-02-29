@@ -1114,7 +1114,7 @@ public class ExportExecutor implements IExportExecutor
                 @Override
                 public InputStream supply()
                 {
-                    return ExportPDFUtils.class.getResourceAsStream("OpenSans.ttf");
+                    return ExportPDFUtils.class.getResourceAsStream("OpenSans-Regular.ttf");
                 }
             }, "Open Sans");
             String replacedHtml = html.replaceAll(XML_10_REGEXP, "").replaceAll(UNPRINTABLE_CHARACTER_REFERENCES_REGEXP, "");
