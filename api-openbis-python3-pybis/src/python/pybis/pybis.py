@@ -55,6 +55,7 @@ from .entity_type import (
     ExperimentType,
     MaterialType,
     SampleType,
+    PropertyType
 )
 from .experiment import Experiment
 from .group import Group
@@ -5514,11 +5515,6 @@ class ServerInformation:
         """
         return html
 
-
-class PropertyType(
-    OpenBisObject, entity="propertyType", single_item_method_name="get_property_type"
-):
-    pass
 
 
 class Plugin(OpenBisObject, entity="plugin", single_item_method_name="get_plugin"):

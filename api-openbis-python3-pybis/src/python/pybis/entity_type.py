@@ -132,7 +132,8 @@ class EntityType:
                 df["dataType"] = df["propertyType"].map(extract_data_type)
 
             if "propertyType" in df:
-                df["propertyType"] = df["propertyType"].map(extract_code)
+                df = df.rename(columns={"propertyType": "code"})
+                df["code"] = df["code"].map(extract_code)
 
             if "plugin" in df:
                 df["plugin"] = df["plugin"].map(extract_name)
@@ -147,7 +148,7 @@ class EntityType:
             for element in response:
                 obj = copy.deepcopy(element)
                 obj["dataType"] = extract_data_type(obj["propertyType"])
-                obj["propertyType"] = extract_code(obj["propertyType"])
+                obj["code"] = extract_code(obj["propertyType"])
                 obj["plugin"] = extract_name(obj["plugin"])
                 obj["registrationDate"] = format_timestamp(obj["registrationDate"])
                 result += [PropertyAssignment(openbis_obj=self.openbis, data=obj)]
@@ -466,6 +467,12 @@ class ExperimentType(
         return [] + EntityType.__dir__(self) + OpenBisObject.__dir__(self)
 
 
+class PropertyType(
+    OpenBisObject, entity="propertyType", single_item_method_name="get_property_type"
+):
+    pass
+
+
 class PropertyAssignment:
     def __init__(
             self, openbis_obj, data=None, **kwargs
@@ -490,11 +497,11 @@ class PropertyAssignment:
         return tabulate(lines, headers=headers)
 
     def get_property_type(self):
-        return self.openbis.get_property_type(getattr(self, "propertyType"))
+        return PropertyType(openbis_obj=self, data=self.data["propertyType"])
 
     def _attrs(self):
         return [
-            "propertyType",
+            "code",
             "dataType",
             "section",
             "ordinal",

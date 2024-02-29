@@ -206,6 +206,12 @@ def extract_data_type(obj):
     return "" if obj["dataType"] is None else obj["dataType"]
 
 
+def extract(obj, property_name):
+    if not isinstance(obj, dict):
+        return "" if obj is None else str(obj)
+    return "" if obj[property_name] is None else obj[property_name]
+
+
 def extract_code(obj):
     if not isinstance(obj, dict):
         return "" if obj is None else str(obj)
