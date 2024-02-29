@@ -25,6 +25,7 @@ from urllib.parse import urljoin
 
 DEFAULT_SERVICE_NAME = "imaging"
 IMAGING_CONFIG_PROP_NAME = "$IMAGING_DATA_CONFIG".lower()
+DEFAULT_DATASET_VIEW_PROP_NAME = "$default_dataset_view"
 
 
 class AtomicIncrementer:
@@ -440,6 +441,7 @@ class ImagingControl:
         assert config is not None
         props = other_properties
         props[IMAGING_CONFIG_PROP_NAME] = config.to_json()
+        props[DEFAULT_DATASET_VIEW_PROP_NAME] = 'IMAGING_DATASET_VIEWER'
         dataset = self._openbis.new_dataset(dataset_type, experiment=experiment, sample=sample, files=files, props=props)
         return dataset.save()
 

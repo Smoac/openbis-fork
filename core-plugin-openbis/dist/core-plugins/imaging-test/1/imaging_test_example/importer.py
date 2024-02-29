@@ -19,15 +19,14 @@ import imaging as imaging
 
 from pybis import Openbis
 
-
 TEST_ADAPTOR = "ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.adaptor.ImagingTestAdaptor"
-VERBOSE = True
+VERBOSE = False
+DEFAULT_URL = "http://localhost:8888/openbis"
 
 
 def get_instance(url=None):
-    base_url = "http://localhost:8888/openbis"
-    if url == None:
-        url = base_url
+    if url is None:
+        url = DEFAULT_URL
     openbis_instance = Openbis(
         url=url,
         verify_certificates=False,
@@ -39,7 +38,8 @@ def get_instance(url=None):
 
 
 def export_image(openbis: Openbis, perm_id: str, image_id: int, path_to_download: str,
-                 include=None, image_format='original', archive_format="zip", resolution='original'):
+                 include=None, image_format='original', archive_format="zip",
+                 resolution='original'):
     if include is None:
         include = ['image', 'raw data']
     imaging_control = imaging.ImagingControl(openbis)
@@ -53,23 +53,29 @@ def export_image(openbis: Openbis, perm_id: str, image_id: int, path_to_download
     imaging_control.single_export_download(perm_id, imaging_export, image_id, path_to_download)
 
 
-# openbis_url = 'https://localhost:8443/openbis/'
 openbis_url = None
 data_folder = 'data'
 
 if len(sys.argv) > 2:
     openbis_url = sys.argv[1]
-    nanonis_data_folder = sys.argv[2]
+    data_folder = sys.argv[2]
+else:
+    print(f'Usage: python3 importer.py <OPENBIS_URL> <PATH_TO_DATA_FOLDER>')
+    print(f'Using default parameters')
+    print(f'URL: {DEFAULT_URL}')
+    print(f'Data folder: {data_folder}')
 
 o = get_instance(openbis_url)
 
 files = [f for f in os.listdir(data_folder) if f.endswith('.json')]
+print(f'Found {len(files)} JSON files in {data_folder}')
 
 for file in files:
     file_path = os.path.join(data_folder, file)
     f = open(file_path, 'r')
     props = {
-        '$imaging_data_config': f.read()
+        '$imaging_data_config': f.read(),
+        '$default_dataset_view': 'IMAGING_DATASET_VIEWER'
     }
     data_set = o.new_dataset('IMAGING_DATA',
                              experiment='/IMAGING/TEST/TEST_COLLECTION',
@@ -77,7 +83,7 @@ for file in files:
                              files=file_path,
                              props=props)
     data_set.save()
-
+    print(f'Created dataset: {data_set.permId}')
 
 # export_image(o, 'permId', 0, 'path_to_download')
 

@@ -25,20 +25,17 @@ from urllib.parse import urljoin
 
 DEFAULT_SERVICE_NAME = "imaging"
 IMAGING_CONFIG_PROP_NAME = "$IMAGING_DATA_CONFIG".lower()
+DEFAULT_DATASET_VIEW_PROP_NAME = "$default_dataset_view"
 
 
 def get_instance(url="http://localhost:8888/openbis"):
-    base_url = url
-    # base_url = "http://localhost:8888/openbis"
-    base_url = "https://alaskowski:8443/openbis"
-    # base_url = "https://openbis-sis-ci-sprint.ethz.ch/"
     openbis_instance = Openbis(
-        url=base_url,
+        url=url,
         verify_certificates=False,
         allow_http_but_do_not_use_this_in_production_and_only_within_safe_networks=True
     )
     token = openbis_instance.login('admin', 'changeit')
-    print(f'Connected to {base_url} -> token: {token}')
+    print(f'Connected to {url} -> token: {token}')
     return openbis_instance
 
 
@@ -455,6 +452,7 @@ class ImagingControl:
         assert config is not None
         props = other_properties
         props[IMAGING_CONFIG_PROP_NAME] = config.to_json()
+        props[DEFAULT_DATASET_VIEW_PROP_NAME] = 'IMAGING_DATASET_VIEWER'
         dataset = self._openbis.new_dataset(dataset_type, experiment=experiment, sample=sample, files=files, props=props)
         return dataset.save()
 

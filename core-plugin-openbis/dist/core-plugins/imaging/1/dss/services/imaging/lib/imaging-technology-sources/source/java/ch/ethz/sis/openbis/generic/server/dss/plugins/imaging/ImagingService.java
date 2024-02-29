@@ -61,6 +61,7 @@ public class ImagingService implements ICustomDSSServiceExecutor
             operationLog = LogFactory.getLogger(LogCategory.OPERATION, ImagingService.class);
 
     static final String IMAGING_CONFIG_PROPERTY_NAME = "$IMAGING_DATA_CONFIG";
+    static final String DEFAULT_DATASET_VIEW_PROPERTY_NAME = "$DEFAULT_DATASET_VIEW";
 
     public ImagingService(Properties properties)
     {
@@ -368,6 +369,7 @@ public class ImagingService implements ICustomDSSServiceExecutor
         //Add dataset properties to archive
         Map<String, Serializable> properties = dataSet.getProperties();
         properties.remove(IMAGING_CONFIG_PROPERTY_NAME);
+        properties.remove(DEFAULT_DATASET_VIEW_PROPERTY_NAME);
         if(!properties.isEmpty()) {
             byte[] json = Util.mapToJson(properties).getBytes(StandardCharsets.UTF_8);
             archiver.addToArchive(rootFolderName, "properties_"+dataSet.getPermId().getPermId()+".txt", json);

@@ -12,7 +12,6 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
-# Hacky way to import imaging script
 import sys
 import os
 
@@ -28,13 +27,13 @@ from datetime import datetime
 
 SXM_ADAPTOR = "ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.adaptor.NanonisSxmAdaptor"
 DAT_ADAPTOR = "ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.adaptor.NanonisDatAdaptor"
-VERBOSE = True
+VERBOSE = False
+DEFAULT_URL = "http://localhost:8888/openbis"
 
 
 def get_instance(url=None):
-    base_url = "http://localhost:8888/openbis"
-    if url == None:
-        url = base_url
+    if url is None:
+        url = DEFAULT_URL
     openbis_instance = Openbis(
         url=url,
         verify_certificates=False,
@@ -279,6 +278,7 @@ def demo_sxm_flow(openbis, file_sxm, permId=None):
         perm_id = dataset_sxm.permId
         print(f'Created imaging .SXM dataset: {dataset_sxm.permId}')
 
+    print(f'Computing previews for dataset: {perm_id}')
     config_sxm_preview = {
         "Channel": "z",  # usually one of these: ['z', 'I', 'dIdV', 'dIdV_Y']
         "X-axis": ["0", "3.0"],  # file dependent
@@ -337,6 +337,7 @@ def demo_dat_flow(openbis, folder_path, permId=None):
         perm_id = dataset_dat.permId
         print(f'Created imaging .DAT dataset: {dataset_dat.permId}')
 
+    print(f'Computing previews for dataset: {perm_id}')
 
     config_dat_preview = {
         "Channel X": "V",
@@ -379,24 +380,28 @@ def demo_dat_flow(openbis, folder_path, permId=None):
 
 
 openbis_url = None
-nanonis_data_folder = None
+data_folder = 'data'
 
 if len(sys.argv) > 2:
     openbis_url = sys.argv[1]
-    nanonis_data_folder = sys.argv[2]
+    data_folder = sys.argv[2]
 else:
-    raise ValueError("Missing parameters!")
+    print(f'Usage: python3 nanonis_importer.py <OPENBIS_URL> <PATH_TO_DATA_FOLDER>')
+    print(f'Using default parameters')
+    print(f'URL: {DEFAULT_URL}')
+    print(f'Data folder: {data_folder}')
 
 o = get_instance(openbis_url)
 
-sxm_files = [f for f in os.listdir(nanonis_data_folder) if f.endswith('.sxm')]
+sxm_files = [f for f in os.listdir(data_folder) if f.endswith('.sxm')]
+print(f'Found {len(sxm_files)} Nanonis .SXM files in {data_folder}')
 
 for sxm_file in sxm_files:
     print(f"SXM file: {sxm_file}")
-    file_path = os.path.join(nanonis_data_folder, sxm_file)
+    file_path = os.path.join(data_folder, sxm_file)
     demo_sxm_flow(o, file_path)
 
-demo_dat_flow(o, nanonis_data_folder)
+demo_dat_flow(o, data_folder)
 
 # export_image(o, '20240125135841740-40', 0, '/home/alaskowski/PREMISE')
 # export_image(o, '20240111135043750-39', 0, '/home/alaskowski/PREMISE')
