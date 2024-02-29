@@ -3,10 +3,7 @@ import { withStyles } from '@material-ui/core/styles'
 import autoBind from 'auto-bind'
 import Toolbar from '@src/js/components/database/data-browser/Toolbar.jsx'
 import GridView from '@src/js/components/database/data-browser/GridView.jsx'
-import DescriptionIcon from '@material-ui/icons/DescriptionOutlined'
-import AudioIcon from '@material-ui/icons/MusicNoteOutlined'
-import VideoIcon from '@material-ui/icons/LocalMovies'
-import ImageIcon from '@material-ui/icons/Image'
+
 import Grid from '@src/js/components/common/grid/Grid.jsx'
 import GridFilterOptions from '@src/js/components/common/grid/GridFilterOptions.js'
 import AppController from '@src/js/components/AppController.js'
@@ -30,7 +27,7 @@ const styles = theme => ({
     backgroundColor: theme.palette.background.paper
   },
   icon: {
-    fontSize: '2rem',
+    fontSize: '1.5rem',
     paddingRight: '0.5rem'
   },
   flexContainer: {
@@ -70,20 +67,21 @@ const styles = theme => ({
 
 const configuration =
   [
+    // TODO: add archives.
     {
-      icon: AudioIcon,
+      icon: 'file-audio',
       extensions: ['wav', 'mp3', 'acc', 'ogg']
     },
     {
-      icon: DescriptionIcon,
+      icon: 'file-text',
       extensions: ['txt', 'rtf', 'doc', 'pdf']
     },
     {
-      icon: VideoIcon,
+      icon: 'file-video',
       extensions: ['mp4', 'mkv', 'avi']
     },
     {
-      icon: ImageIcon,
+      icon: 'file-image',
       extensions: ['tif', 'gif', 'jpg', 'jpeg', 'png']
     }
   ]

@@ -16,8 +16,7 @@
  */
 
 import React from 'react'
-import FolderIcon from '@material-ui/icons/FolderOpen.js'
-import FileIcon from '@material-ui/icons/InsertDriveFileOutlined.js'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import autoBind from 'auto-bind'
 import { withStyles } from '@material-ui/core/styles'
 
@@ -46,14 +45,14 @@ class ItemIcon extends React.Component {
     const { classes, file } = this.props
 
     if (file.directory) {
-      return <FolderIcon className={classes.icon} />
+      return <FontAwesomeIcon icon={['fas', 'folder']} className={classes.icon} />
     } else {
       const iconType = this.extensionToIconType.get(
         file.name.substring(file.name.lastIndexOf('.') + 1)
       )
-      return iconType
-        ? React.createElement(iconType, { className: classes.icon })
-        : <FileIcon className={classes.icon} />
+
+      return <FontAwesomeIcon icon={['fas', iconType ? iconType : 'file']}
+                              className={classes.icon} />
     }
   }
 }
