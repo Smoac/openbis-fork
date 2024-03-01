@@ -45,9 +45,9 @@ class LocationDialog extends React.Component {
     super(props)
     autoBind(this)
 
-    const { path, sessionToken, datastoreServer } = this.props
+    const { path, sessionToken, datastoreServer, owner } = this.props
 
-    this.controller = new DataBrowserController()
+    this.controller = new DataBrowserController(owner)
     this.controller.attach(this)
     this.datastoreServer = datastoreServer
     this.controller.setSessionToken(sessionToken)

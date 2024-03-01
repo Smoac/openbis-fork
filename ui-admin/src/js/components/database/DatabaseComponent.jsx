@@ -79,7 +79,7 @@ class DatabaseComponent extends React.PureComponent {
 
     return this.state.showDataBrowser ? (
       <DataBrowser
-        id={object.id}
+        id={object.type + '-' + object.id}
         viewType='list'
         sessionToken={AppController.getInstance().getSessionToken()}
       />

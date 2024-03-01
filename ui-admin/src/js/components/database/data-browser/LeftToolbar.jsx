@@ -234,6 +234,7 @@ class LeftToolbar extends React.Component {
       multiselectedFiles,
       datastoreServer,
       sessionToken,
+      owner,
       path
     } = this.props
     const {
@@ -372,6 +373,7 @@ class LeftToolbar extends React.Component {
           content={messages.get(messages.FILE_OR_FILES, multiselectedFiles.size)}
           datastoreServer={datastoreServer}
           sessionToken={sessionToken}
+          owner={owner}
           path={path}
           multiselectedFiles={multiselectedFiles}
           onCancel={this.handleLocationCancel}
@@ -411,7 +413,7 @@ class LeftToolbar extends React.Component {
   render() {
     logger.log(logger.DEBUG, 'LeftToolbar.render')
 
-    const { multiselectedFiles, classes } = this.props
+    const { multiselectedFiles, classes, owner } = this.props
     const { loading } = this.state
 
     return ([

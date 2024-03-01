@@ -123,9 +123,9 @@ class DataBrowser extends React.Component {
     super(props, context)
     autoBind(this)
 
-    const { sessionToken, controller } = this.props
+    const { sessionToken, controller, id } = this.props
 
-    this.controller = controller || new DataBrowserController()
+    this.controller = controller || new DataBrowserController(id)
     this.controller.attach(this)
     this.datastoreServer = new DataStoreServer(
       'http://localhost:8085',
@@ -142,6 +142,7 @@ class DataBrowser extends React.Component {
       path: '/'
     }
   }
+
   handleViewTypeChange(viewType) {
     this.setState({ viewType })
   }
@@ -212,13 +213,13 @@ class DataBrowser extends React.Component {
     const gbytes = mbytes / 1024.0
     if (gbytes > 1.0) {
       size = gbytes
-      unit = "Gb"
+      unit = "GB"
     } else if (mbytes > 1.0) {
       size = mbytes
-      unit = "Mb"
+      unit = "MB"
     } else if (kbytes > 1.0) {
       size = kbytes
-      unit = "kb"
+      unit = "kB"
     } else {
       size = bytes
       unit = "bytes"
@@ -227,7 +228,7 @@ class DataBrowser extends React.Component {
   }
 
   render() {
-    const { classes, sessionToken } = this.props
+    const { classes, sessionToken, id } = this.props
     const {
       viewType,
       files,
@@ -249,6 +250,7 @@ class DataBrowser extends React.Component {
           multiselectedFiles={multiselectedFiles}
           datastoreServer={this.datastoreServer}
           sessionToken={sessionToken}
+          owner={id}
           path={path}
         />
         <NavigationBar

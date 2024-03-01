@@ -21,12 +21,11 @@ const MAX_READ_SIZE_IN_BYTES = 1024 * 1024
 
 export default class DataBrowserController extends ComponentController {
 
-  constructor() {
+  constructor(owner) {
     super()
     autoBind(this)
 
-    // TODO: change it to sample permId
-    this.owner = 'demo-sample'
+    this.owner = owner
     this.gridController = null
     this.path = ''
     this.fileNames = []
@@ -37,6 +36,12 @@ export default class DataBrowserController extends ComponentController {
   }
 
   async listFiles() {
+    // TODO: resolve this problematic issue of having to create a folder just in case
+    try {
+      await this.component.datastoreServer.create(this.owner, this.path, true);
+    } catch (e) {
+    }
+
     const data = await this.component.datastoreServer.list(this.owner, this.path, false)
     if (!data.error) {
       const results = data.result[1]

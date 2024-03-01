@@ -59,6 +59,7 @@ class Toolbar extends React.Component {
       multiselectedFiles,
       datastoreServer,
       sessionToken,
+      owner,
       path
     } = this.props
     return (
@@ -68,6 +69,7 @@ class Toolbar extends React.Component {
           multiselectedFiles={multiselectedFiles}
           datastoreServer={datastoreServer}
           sessionToken={sessionToken}
+          owner={owner}
           path={path}
           controller={this.controller}
         />
