@@ -61,6 +61,7 @@
         text-align: center;
         margin: 16px auto;
         width: 100%;
+        clear: both;
     }
 
     img {
@@ -78,11 +79,13 @@
     .image-style-align-left {
         float: left;
         width: auto;
+        margin-right: 24px;
     }
 
     .image-style-align-right {
         float: right;
         width: auto;
+        margin-left: 24px;
     }
 
     /* Markers */
