@@ -66,7 +66,12 @@ class GridView extends React.Component {
 
   render() {
     logger.log(logger.DEBUG, 'GridView.render')
-    const { clickable, selectable, multiselectable, classes, configuration, files, selectedFile, multiselectedFiles } = this.props;
+    const {
+      classes,
+      files,
+      selectedFile,
+      multiselectedFiles
+    } = this.props
 
     return (
       <Grid container className={classes.container}>

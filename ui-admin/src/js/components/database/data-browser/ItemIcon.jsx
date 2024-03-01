@@ -45,13 +45,13 @@ class ItemIcon extends React.Component {
     const { classes, file } = this.props
 
     if (file.directory) {
-      return <FontAwesomeIcon icon={['fas', 'folder']} className={classes.icon} />
+      return <FontAwesomeIcon icon={['far', 'folder']} className={classes.icon} />
     } else {
       const iconType = this.extensionToIconType.get(
         file.name.substring(file.name.lastIndexOf('.') + 1)
       )
 
-      return <FontAwesomeIcon icon={['fas', iconType ? iconType : 'file']}
+      return <FontAwesomeIcon icon={['far', iconType ? iconType : 'file']}
                               className={classes.icon} />
     }
   }

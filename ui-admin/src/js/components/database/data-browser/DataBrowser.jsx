@@ -76,7 +76,7 @@ const configuration =
     {
       icon: 'file-text',
       extensions: ['txt', 'rtf', 'odt', 'ods', 'odp', 'html', 'htm', 'epub',
-        'md', 'tex', 'pages', 'numbers', 'key', 'mobi', 'indd']
+        'md', 'tex', 'pages', 'numbers', 'key', 'mobi', 'indd', 'csv', 'tsv']
     },
     {
       icon: 'file-video',
@@ -115,11 +115,7 @@ const configuration =
     {
       icon: 'file-powerpoint',
       extensions: ['ppt', 'pptx']
-    },
-    {
-      icon: 'file-csv',
-      extensions: ['csv', 'tsv']
-    },
+    }
   ]
 
 class DataBrowser extends React.Component {
