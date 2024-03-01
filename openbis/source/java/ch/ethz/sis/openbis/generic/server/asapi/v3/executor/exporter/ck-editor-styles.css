@@ -63,6 +63,25 @@
         font-weight:700;
     }
 
+    /* Set the styles for "Images". */
+    figure {
+        text-align: center;
+        margin: 16px;
+        width: 100%;
+    }
+
+    img {
+        vertical-align: middle;
+        max-width: 100%;
+        min-width: 50px;
+    }
+
+    figcaption {
+        text-align: center;
+        color: #333;
+        padding: 8px;
+    }
+
     /* Markers */
     .marker-yellow {
         background-color:#fdfd77;
