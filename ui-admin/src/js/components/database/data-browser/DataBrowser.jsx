@@ -67,6 +67,7 @@ const styles = theme => ({
 
 const configuration =
   [
+    // Coarse file formats
     {
       icon: 'file-audio',
       extensions: ['wav', 'mp3', 'acc', 'ogg', 'flac', 'm4a', 'wma', 'opus',
@@ -74,9 +75,8 @@ const configuration =
     },
     {
       icon: 'file-text',
-      extensions: ['txt', 'rtf', 'doc', 'docx', 'pdf', 'xls', 'xlsx',
-        'ppt', 'pptx', 'odt', 'ods', 'odp', 'csv', 'tsv', 'html', 'htm',
-        'xml', 'epub', 'md', 'tex', 'pages', 'numbers', 'key', 'mobi', 'indd']
+      extensions: ['txt', 'rtf', 'odt', 'ods', 'odp', 'html', 'htm', 'epub',
+        'md', 'tex', 'pages', 'numbers', 'key', 'mobi', 'indd']
     },
     {
       icon: 'file-video',
@@ -92,7 +92,34 @@ const configuration =
       icon: 'file-archive',
       extensions:  ['zip', 'rar', '7z', 'tar', 'gz', 'bz2', 'xz', 'iso', 'zipx',
         'cab', 'arj', 'lz', 'lzma', 'z', 'tgz', 'ace', 'dmg']
-    }
+    },
+    {
+      icon: 'file-code',
+      extensions:  ['xml', 'js', 'html', 'css', 'c', 'cpp', 'cs', 'php', 'rb',
+        'swift', 'go', 'rs', 'ts', 'json', 'sh', 'bat', 'sql', 'yaml', 'yml',
+        'jsx', 'tsx', 'pl', 'scala', 'kt']
+    },
+    // Fine-grained file formats
+    {
+      icon: 'file-pdf',
+      extensions: ['pdf']
+    },
+    {
+      icon: 'file-word',
+      extensions: ['doc', 'docx']
+    },
+    {
+      icon: 'file-excel',
+      extensions: ['xls', 'xlsx']
+    },
+    {
+      icon: 'file-powerpoint',
+      extensions: ['ppt', 'pptx']
+    },
+    {
+      icon: 'file-csv',
+      extensions: ['csv', 'tsv']
+    },
   ]
 
 class DataBrowser extends React.Component {
