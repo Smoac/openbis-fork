@@ -79,11 +79,13 @@ public class TransactionLogTest
 
         TransactionLogEntry transaction1LogEntry = new TransactionLogEntry();
         transaction1LogEntry.setTransactionId(TEST_TRANSACTION_ID);
+        transaction1LogEntry.setTwoPhaseTransaction(true);
         transaction1LogEntry.setTransactionStatus(TransactionStatus.PREPARE_STARTED);
         createFile(new File(existingLogFolder, TEST_TRANSACTION_ID.toString()), objectMapper.writeValueAsString(transaction1LogEntry));
 
         TransactionLogEntry transaction2LogEntry = new TransactionLogEntry();
         transaction2LogEntry.setTransactionId(TEST_TRANSACTION_ID_2);
+        transaction2LogEntry.setTwoPhaseTransaction(false);
         transaction2LogEntry.setTransactionStatus(TransactionStatus.ROLLBACK_FINISHED);
         createFile(new File(existingLogFolder, TEST_TRANSACTION_ID_2.toString()), objectMapper.writeValueAsString(transaction2LogEntry));
 
@@ -127,16 +129,19 @@ public class TransactionLogTest
 
         TransactionLogEntry transaction1ALogEntry = new TransactionLogEntry();
         transaction1ALogEntry.setTransactionId(TEST_TRANSACTION_ID);
+        transaction1ALogEntry.setTwoPhaseTransaction(true);
         transaction1ALogEntry.setTransactionStatus(TransactionStatus.BEGIN_STARTED);
         transactionLog.logTransaction(transaction1ALogEntry);
 
         TransactionLogEntry transaction2LogEntry = new TransactionLogEntry();
         transaction2LogEntry.setTransactionId(TEST_TRANSACTION_ID_2);
+        transaction2LogEntry.setTwoPhaseTransaction(false);
         transaction2LogEntry.setTransactionStatus(TransactionStatus.PREPARE_STARTED);
         transactionLog.logTransaction(transaction2LogEntry);
 
         TransactionLogEntry transaction1BLogEntry = new TransactionLogEntry();
         transaction1BLogEntry.setTransactionId(TEST_TRANSACTION_ID);
+        transaction1BLogEntry.setTwoPhaseTransaction(true);
         transaction1BLogEntry.setTransactionStatus(TransactionStatus.BEGIN_FINISHED);
         transactionLog.logTransaction(transaction1BLogEntry);
 
