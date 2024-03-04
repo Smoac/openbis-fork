@@ -4,30 +4,18 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;
 
 import java.io.File;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IIdentifierHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.ProjectCreation;
@@ -39,66 +27,16 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOpt
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.ApplicationServerSessionTokenProvider;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.TransactionConfiguration;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.TransactionParticipantApi;
-import ch.ethz.sis.transaction.IDatabaseTransactionProvider;
-import ch.ethz.sis.transaction.ITransactionLog;
 import ch.ethz.sis.transaction.ITransactionParticipant;
 import ch.ethz.sis.transaction.Transaction;
 import ch.ethz.sis.transaction.TransactionCoordinator;
-import ch.ethz.sis.transaction.TransactionLog;
-import ch.ethz.sis.transaction.TransactionLogEntry;
-import ch.ethz.sis.transaction.TransactionParticipant;
 import ch.ethz.sis.transaction.TransactionStatus;
 import ch.systemsx.cisd.common.concurrent.MessageChannel;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.test.AssertionUtil;
-import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 
-public class TransactionTest extends AbstractTest
+public class Transaction2PCTest extends AbstractTransactionTest
 {
-
-    private static final String TEST_COORDINATOR_KEY = "test-transaction-coordinator-key";
-
-    private static final String TEST_INTERACTIVE_SESSION_KEY = "test-interactive-session-key";
-
-    private static final String TEST_PARTICIPANT_1_ID = "test-participant-1";
-
-    private static final String TEST_PARTICIPANT_2_ID = "test-participant-2";
-
-    private static final String TRANSACTION_LOG_ROOT_FOLDER = "targets/transaction-logs";
-
-    private static final String TRANSACTION_LOG_COORDINATOR_FOLDER = "test-coordinator";
-
-    private static final String TRANSACTION_LOG_PARTICIPANT_1_FOLDER = "test-participant-1";
-
-    private static final String TRANSACTION_LOG_PARTICIPANT_2_FOLDER = "test-participant-2";
-
-    private static final String OPERATION_CREATE_SPACES = "createSpaces";
-
-    private static final String OPERATION_CREATE_PROJECTS = "createProjects";
-
-    private static final String OPERATION_SEARCH_SPACES = "searchSpaces";
-
-    private static final String OPERATION_SEARCH_PROJECTS = "searchProjects";
-
-    @Autowired
-    private TransactionConfiguration transactionConfiguration;
-
-    @Autowired
-    private PlatformTransactionManager transactionManager;
-
-    @Autowired
-    private IDAOFactory daoFactory;
-
-    @Autowired
-    private DatabaseConfigurationContext databaseContext;
-
-    @Autowired
-    private IOpenBisSessionManager sessionManager;
 
     private TransactionCoordinator coordinator;
 
@@ -114,16 +52,6 @@ public class TransactionTest extends AbstractTest
 
     private UUID participant1TrId;
 
-    private UUID participant1Tr2Id;
-
-    private UUID participant1Tr3Id;
-
-    private UUID participant2TrId;
-
-    private UUID participant2Tr2Id;
-
-    private UUID participant2Tr3Id;
-
     @BeforeMethod
     private void beforeMethod()
     {
@@ -136,59 +64,28 @@ public class TransactionTest extends AbstractTest
         coordinatorTr3Id = UUID.randomUUID();
 
         participant1TrId = UUID.randomUUID();
-        participant1Tr2Id = UUID.randomUUID();
-        participant1Tr3Id = UUID.randomUUID();
+        final UUID participant1Tr2Id = UUID.randomUUID();
+        final UUID participant1Tr3Id = UUID.randomUUID();
 
-        participant2TrId = UUID.randomUUID();
-        participant2Tr2Id = UUID.randomUUID();
-        participant2Tr3Id = UUID.randomUUID();
+        final UUID participant2TrId = UUID.randomUUID();
+        final UUID participant2Tr2Id = UUID.randomUUID();
+        final UUID participant2Tr3Id = UUID.randomUUID();
 
-        participant1 = createParticipant(TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER);
+        participant1 = createParticipant(transactionConfiguration, TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER);
         participant1.setTestTransactionMapping(
                 Map.of(coordinatorTrId, participant1TrId, coordinatorTr2Id, participant1Tr2Id, coordinatorTr3Id, participant1Tr3Id));
 
-        participant2 = createParticipant(TEST_PARTICIPANT_2_ID, TRANSACTION_LOG_PARTICIPANT_2_FOLDER);
+        participant2 = createParticipant(transactionConfiguration, TEST_PARTICIPANT_2_ID, TRANSACTION_LOG_PARTICIPANT_2_FOLDER);
         participant2.setTestTransactionMapping(
                 Map.of(coordinatorTrId, participant2TrId, coordinatorTr2Id, participant2Tr2Id, coordinatorTr3Id, participant2Tr3Id));
 
         coordinator = createCoordinator(Arrays.asList(participant1, participant2), 60, 10);
     }
 
-    private TransactionCoordinator createCoordinator(List<ITransactionParticipant> participants, int transactionTimeoutInSeconds,
-            int transactionCountLimit)
-    {
-        return new TransactionCoordinator(TEST_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY,
-                new ApplicationServerSessionTokenProvider(sessionManager),
-                participants, new TransactionLog(new File(TRANSACTION_LOG_ROOT_FOLDER), TRANSACTION_LOG_COORDINATOR_FOLDER),
-                transactionTimeoutInSeconds, transactionCountLimit);
-    }
-
-    private TestTransactionParticipant createParticipant(String participantId, String logFolderName)
-    {
-        return new TestTransactionParticipant(
-                new TransactionParticipantApi(transactionConfiguration, transactionManager, daoFactory, databaseContext, v3api,
-                        sessionManager,
-                        participantId, logFolderName));
-    }
-
     @AfterMethod
     private void afterMethod() throws Exception
     {
-        try (Connection connection = databaseContext.getDataSource().getConnection(); Statement statement = connection.createStatement())
-        {
-            List<String> preparedTransactionIds = new ArrayList<>();
-
-            ResultSet preparedTransactions = statement.executeQuery("SELECT gid FROM pg_prepared_xacts");
-            while (preparedTransactions.next())
-            {
-                preparedTransactionIds.add(preparedTransactions.getString(1));
-            }
-
-            for (String preparedTransactionId : preparedTransactionIds)
-            {
-                statement.execute("ROLLBACK PREPARED '" + preparedTransactionId + "'");
-            }
-        }
+        rollbackPreparedDatabaseTransactions();
 
         String sessionToken = v3api.loginAsSystem();
 
@@ -1051,7 +948,7 @@ public class TransactionTest extends AbstractTest
         assertTransactions(participant2.getTransactionMap());
 
         // replace original participant with a new instance
-        TestTransactionParticipant participant1AfterCrash = createParticipant(TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER);
+        TestTransactionParticipant participant1AfterCrash = createParticipant(transactionConfiguration, TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER);
         participant1AfterCrash.setTestTransactionMapping(participant1.getTestTransactionMapping());
         participants.set(0, participant1AfterCrash);
 
@@ -1138,7 +1035,7 @@ public class TransactionTest extends AbstractTest
         assertTransactions(participant1.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
         assertTransactions(participant2.getTransactionMap());
 
-        TestTransactionParticipant participant1AfterCrash = createParticipant(TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER);
+        TestTransactionParticipant participant1AfterCrash = createParticipant(transactionConfiguration, TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER);
         participant1AfterCrash.setTestTransactionMapping(Map.of(coordinatorTrId, participant1TrId));
         // replace original participant with a new instance
         participants.set(0, participant1AfterCrash);
@@ -1178,285 +1075,6 @@ public class TransactionTest extends AbstractTest
         assertEquals(createdSpaces.size(), 1);
 
         participant1AfterCrash.close();
-    }
-
-    private static void assertTransactions(Map<UUID, ? extends Transaction> actualTransactions, Transaction... expectedTransactions)
-    {
-        Map<String, String> actualTransactionsMap = new TreeMap<>();
-        Map<String, String> expectedTransactionsMap = new TreeMap<>();
-
-        for (Transaction actualTransaction : actualTransactions.values())
-        {
-            actualTransactionsMap.put(actualTransaction.getTransactionId().toString(), actualTransaction.getTransactionStatus().toString());
-        }
-
-        for (Transaction expectedTransaction : expectedTransactions)
-        {
-            expectedTransactionsMap.put(expectedTransaction.getTransactionId().toString(), expectedTransaction.getTransactionStatus().toString());
-        }
-
-        assertEquals(actualTransactionsMap.toString(), expectedTransactionsMap.toString());
-    }
-
-    private static Set<String> codes(Collection<? extends ICodeHolder> objectsWithCodes)
-    {
-        return objectsWithCodes.stream().map(ICodeHolder::getCode).collect(Collectors.toSet());
-    }
-
-    private static Set<String> identifiers(Collection<? extends IIdentifierHolder> objectsWithIdentifiers)
-    {
-        return objectsWithIdentifiers.stream().map(o -> o.getIdentifier().getIdentifier()).collect(Collectors.toSet());
-    }
-
-    private static <T> Set<T> difference(Set<T> s1, Set<T> s2)
-    {
-        Set<T> temp = new HashSet<>(s1);
-        temp.removeAll(s2);
-        return temp;
-    }
-
-    private static class TestTransactionParticipant implements ITransactionParticipant
-    {
-
-        // Map the original transaction id coming from the coordinator to a unique transaction id for each participant,
-        // this way we can have multiple participants preparing the transaction on the same test database.
-
-        private final Map<UUID, UUID> originalToInternalId = new HashMap<>();
-
-        private final Map<UUID, UUID> internalToOriginalId = new HashMap<>();
-
-        private final TransactionParticipant participant;
-
-        private final TestDatabaseTransactionProvider databaseTransactionProvider;
-
-        private final TestTransactionLog transactionLog;
-
-        public TestTransactionParticipant(TransactionParticipantApi participantApi)
-        {
-            // replace the original database transaction provider with a test counterpart that allows to throw test exceptions
-
-            this.participant = participantApi.getTransactionParticipant();
-            this.databaseTransactionProvider =
-                    new TestDatabaseTransactionProvider(participantApi.getTransactionParticipant().getDatabaseTransactionProvider());
-            this.transactionLog = new TestTransactionLog(participantApi.getTransactionParticipant().getTransactionLog());
-            this.participant.setDatabaseTransactionProvider(databaseTransactionProvider);
-            this.participant.setTransactionLog(transactionLog);
-        }
-
-        public TestDatabaseTransactionProvider getDatabaseTransactionProvider()
-        {
-            return this.databaseTransactionProvider;
-        }
-
-        public TestTransactionLog getTransactionLog()
-        {
-            return transactionLog;
-        }
-
-        @Override public String getParticipantId()
-        {
-            return participant.getParticipantId();
-        }
-
-        @Override public void beginTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
-                final String transactionCoordinatorKey)
-        {
-            this.participant.beginTransaction(originalToInternalId.get(transactionId), sessionToken, interactiveSessionKey,
-                    transactionCoordinatorKey);
-        }
-
-        @Override public <T> T executeOperation(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
-                final String operationName, final Object[] operationArguments)
-        {
-            return participant.executeOperation(originalToInternalId.get(transactionId), sessionToken, interactiveSessionKey, operationName,
-                    operationArguments);
-        }
-
-        @Override public void prepareTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
-                final String transactionCoordinatorKey)
-        {
-            participant.prepareTransaction(originalToInternalId.get(transactionId), sessionToken, interactiveSessionKey, transactionCoordinatorKey);
-        }
-
-        @Override public void commitTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
-        {
-            participant.commitTransaction(originalToInternalId.get(transactionId), sessionToken, interactiveSessionKey);
-        }
-
-        @Override public void commitRecoveredTransaction(final UUID transactionId, final String interactiveSessionKey,
-                final String transactionCoordinatorKey)
-        {
-            participant.commitRecoveredTransaction(originalToInternalId.get(transactionId), interactiveSessionKey, transactionCoordinatorKey);
-        }
-
-        @Override public void rollbackTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
-        {
-            participant.rollbackTransaction(originalToInternalId.get(transactionId), sessionToken, interactiveSessionKey);
-        }
-
-        @Override public void rollbackRecoveredTransaction(final UUID transactionId, final String interactiveSessionKey,
-                final String transactionCoordinatorKey)
-        {
-            participant.rollbackRecoveredTransaction(originalToInternalId.get(transactionId), interactiveSessionKey, transactionCoordinatorKey);
-        }
-
-        @Override public List<UUID> recoverTransactions(final String interactiveSessionKey, final String transactionCoordinatorKey)
-        {
-            List<UUID> transactionIds = new ArrayList<>();
-
-            for (UUID internalTransactionId : participant.recoverTransactions(interactiveSessionKey, transactionCoordinatorKey))
-            {
-                transactionIds.add(internalToOriginalId.get(internalTransactionId));
-            }
-
-            return transactionIds;
-        }
-
-        public void recoverTransactionsFromTransactionLog()
-        {
-            participant.recoverTransactionsFromTransactionLog();
-        }
-
-        public void finishFailedOrAbandonedTransactions()
-        {
-            participant.finishFailedOrAbandonedTransactions();
-        }
-
-        public Map<UUID, ? extends Transaction> getTransactionMap()
-        {
-            Map<UUID, Transaction> transactionMap = new HashMap<>();
-
-            for (Map.Entry<UUID, ? extends Transaction> entry : this.participant.getTransactionMap().entrySet())
-            {
-                Transaction internalTransaction = entry.getValue();
-                Transaction originalTransaction =
-                        new Transaction(internalToOriginalId.get(internalTransaction.getTransactionId()), internalTransaction.getTransactionStatus());
-                transactionMap.put(originalTransaction.getTransactionId(), originalTransaction);
-            }
-
-            return transactionMap;
-        }
-
-        public void setTestTransactionMapping(Map<UUID, UUID> coordinatorIdToParticipantIdMap)
-        {
-            for (Map.Entry<UUID, UUID> entry : coordinatorIdToParticipantIdMap.entrySet())
-            {
-                originalToInternalId.put(entry.getKey(), entry.getValue());
-                internalToOriginalId.put(entry.getValue(), entry.getKey());
-            }
-        }
-
-        public Map<UUID, UUID> getTestTransactionMapping()
-        {
-            return originalToInternalId;
-        }
-
-        public void close()
-        {
-            participant.close();
-        }
-    }
-
-    private static class TestDatabaseTransactionProvider implements IDatabaseTransactionProvider
-    {
-
-        private final IDatabaseTransactionProvider databaseTransactionProvider;
-
-        private Runnable beginAction;
-
-        private Runnable prepareAction;
-
-        private Runnable commitAction;
-
-        private Runnable rollbackAction;
-
-        public TestDatabaseTransactionProvider(IDatabaseTransactionProvider databaseTransactionProvider)
-        {
-            this.databaseTransactionProvider = databaseTransactionProvider;
-        }
-
-        @Override public Object beginTransaction(final UUID transactionId) throws Exception
-        {
-            if (beginAction != null)
-            {
-                beginAction.run();
-            }
-            return databaseTransactionProvider.beginTransaction(transactionId);
-        }
-
-        @Override public void prepareTransaction(final UUID transactionId, final Object transaction) throws Exception
-        {
-            if (prepareAction != null)
-            {
-                prepareAction.run();
-            }
-            databaseTransactionProvider.prepareTransaction(transactionId, transaction);
-        }
-
-        @Override public void rollbackTransaction(final UUID transactionId, final Object transaction) throws Exception
-        {
-            if (rollbackAction != null)
-            {
-                rollbackAction.run();
-            }
-            databaseTransactionProvider.rollbackTransaction(transactionId, transaction);
-        }
-
-        @Override public void commitTransaction(final UUID transactionId, final Object transaction) throws Exception
-        {
-            if (commitAction != null)
-            {
-                commitAction.run();
-            }
-            databaseTransactionProvider.commitTransaction(transactionId, transaction);
-        }
-
-        public void setBeginAction(final Runnable beginAction)
-        {
-            this.beginAction = beginAction;
-        }
-
-        public void setPrepareAction(final Runnable prepareAction)
-        {
-            this.prepareAction = prepareAction;
-        }
-
-        public void setCommitAction(final Runnable commitAction)
-        {
-            this.commitAction = commitAction;
-        }
-
-        public void setRollbackAction(final Runnable rollbackAction)
-        {
-            this.rollbackAction = rollbackAction;
-        }
-
-    }
-
-    private static class TestTransactionLog implements ITransactionLog
-    {
-
-        private final ITransactionLog transactionLog;
-
-        TestTransactionLog(ITransactionLog transactionLog)
-        {
-            this.transactionLog = transactionLog;
-        }
-
-        @Override public void logTransaction(final TransactionLogEntry transaction)
-        {
-            transactionLog.logTransaction(transaction);
-        }
-
-        @Override public void deleteTransaction(final UUID transactionId)
-        {
-            transactionLog.deleteTransaction(transactionId);
-        }
-
-        @Override public Map<UUID, TransactionLogEntry> getTransactions()
-        {
-            return transactionLog.getTransactions();
-        }
     }
 
 }

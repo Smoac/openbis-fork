@@ -120,12 +120,20 @@ public class TransactionParticipant implements ITransactionParticipant
 
             for (TransactionLogEntry logEntry : transactionLog.getTransactions().values())
             {
-                if (TransactionStatus.NEW.equals(logEntry.getTransactionStatus())
+                if (!logEntry.isTwoPhaseTransaction())
+                {
+                    operationLog.info(
+                            "Nothing to recover for one-phase transaction '" + logEntry.getTransactionId()
+                                    + "' found in the transaction log with last status '"
+                                    + logEntry.getTransactionStatus() + "'.");
+                    transactionLog.deleteTransaction(logEntry.getTransactionId());
+                } else if (TransactionStatus.NEW.equals(logEntry.getTransactionStatus())
                         || TransactionStatus.COMMIT_FINISHED.equals(logEntry.getTransactionStatus())
                         || TransactionStatus.ROLLBACK_FINISHED.equals(logEntry.getTransactionStatus()))
                 {
                     operationLog.info(
-                            "Nothing to recover for transaction '" + logEntry.getTransactionId() + "' found in the transaction log with last status '"
+                            "Nothing to recover for two-phase transaction '" + logEntry.getTransactionId()
+                                    + "' found in the transaction log with last status '"
                                     + logEntry.getTransactionStatus() + "'.");
                     transactionLog.deleteTransaction(logEntry.getTransactionId());
                 } else
@@ -285,12 +293,16 @@ public class TransactionParticipant implements ITransactionParticipant
 
             transaction.setLastAccessedDate(new Date());
 
-            operationLog.info("Transaction '" + transactionId + "' execute operation '" + operationName + "' started.");
-            T result = operationExecutor.executeOperation(sessionToken, operationName, operationArguments);
-            operationLog.info("Transaction '" + transactionId + "' execute operation '" + operationName + "' finished successfully.");
-
-            transaction.setLastAccessedDate(new Date());
-            return result;
+            try
+            {
+                operationLog.info("Transaction '" + transactionId + "' execute operation '" + operationName + "' started.");
+                T result = operationExecutor.executeOperation(sessionToken, operationName, operationArguments);
+                operationLog.info("Transaction '" + transactionId + "' execute operation '" + operationName + "' finished successfully.");
+                return result;
+            } finally
+            {
+                transaction.setLastAccessedDate(new Date());
+            }
         });
     }
 
@@ -419,7 +431,27 @@ public class TransactionParticipant implements ITransactionParticipant
         if (transaction.getTransactionStatus() != TransactionStatus.NEW)
         {
             transaction.setTransactionStatus(TransactionStatus.COMMIT_STARTED);
-            databaseTransactionProvider.commitTransaction(transaction.getTransactionId(), transaction.getDatabaseTransaction());
+
+            try
+            {
+                databaseTransactionProvider.commitTransaction(transaction.getTransactionId(), transaction.getDatabaseTransaction(),
+                        transaction.isTwoPhaseTransaction());
+            } catch (Exception commitException)
+            {
+                if (!transaction.isTwoPhaseTransaction())
+                {
+                    try
+                    {
+                        rollbackTransaction(transaction);
+                    } catch (Exception rollbackException)
+                    {
+                        operationLog.warn("Transaction '" + transaction.getTransactionId() + "' rollback failed.", rollbackException);
+                    }
+                }
+
+                throw commitException;
+            }
+
             transaction.setTransactionStatus(TransactionStatus.COMMIT_FINISHED);
         }
 
@@ -498,7 +530,8 @@ public class TransactionParticipant implements ITransactionParticipant
         if (transaction.getTransactionStatus() != TransactionStatus.NEW)
         {
             transaction.setTransactionStatus(TransactionStatus.ROLLBACK_STARTED);
-            databaseTransactionProvider.rollbackTransaction(transaction.getTransactionId(), transaction.getDatabaseTransaction());
+            databaseTransactionProvider.rollbackTransaction(transaction.getTransactionId(), transaction.getDatabaseTransaction(),
+                    transaction.isTwoPhaseTransaction());
             transaction.setTransactionStatus(TransactionStatus.ROLLBACK_FINISHED);
         }
 
@@ -816,7 +849,7 @@ public class TransactionParticipant implements ITransactionParticipant
             {
                 try
                 {
-                    databaseTransactionProvider.rollbackTransaction(getTransactionId(), databaseTransaction);
+                    databaseTransactionProvider.rollbackTransaction(getTransactionId(), databaseTransaction, isTwoPhaseTransaction());
                 } catch (Exception ignore)
                 {
                 }

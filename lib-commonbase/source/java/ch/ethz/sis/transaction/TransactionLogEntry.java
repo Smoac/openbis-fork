@@ -47,7 +47,7 @@ public class TransactionLogEntry
 
     public Boolean isTwoPhaseTransaction()
     {
-        return isTwoPhaseTransaction;
+        return Boolean.TRUE.equals(isTwoPhaseTransaction);
     }
 
     public void setTwoPhaseTransaction(final Boolean twoPhaseTransaction)

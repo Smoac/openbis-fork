@@ -896,6 +896,7 @@ public class TransactionCoordinatorTest
 
         TransactionLogEntry logEntry = new TransactionLogEntry();
         logEntry.setTransactionId(TEST_TRANSACTION_ID);
+        logEntry.setTwoPhaseTransaction(true);
         logEntry.setParticipantIds(Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2, TEST_PARTICIPANT_ID_3));
         logEntry.setTransactionStatus(transactionStatus);
 
@@ -997,21 +998,25 @@ public class TransactionCoordinatorTest
 
         TransactionLogEntry logEntry = new TransactionLogEntry();
         logEntry.setTransactionId(TEST_TRANSACTION_ID);
+        logEntry.setTwoPhaseTransaction(true);
         logEntry.setParticipantIds(Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2));
         logEntry.setTransactionStatus(TransactionStatus.PREPARE_FINISHED);
 
         TransactionLogEntry logEntry2 = new TransactionLogEntry();
         logEntry2.setTransactionId(TEST_TRANSACTION_ID_2);
+        logEntry2.setTwoPhaseTransaction(true);
         logEntry2.setParticipantIds(Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2));
         logEntry2.setTransactionStatus(TransactionStatus.COMMIT_STARTED);
 
         TransactionLogEntry logEntry3 = new TransactionLogEntry();
         logEntry3.setTransactionId(TEST_TRANSACTION_ID_3);
+        logEntry3.setTwoPhaseTransaction(true);
         logEntry3.setParticipantIds(Set.of(TEST_PARTICIPANT_ID, TEST_PARTICIPANT_ID_2));
         logEntry3.setTransactionStatus(TransactionStatus.ROLLBACK_STARTED);
 
         TransactionLogEntry logEntry4 = new TransactionLogEntry();
         logEntry4.setTransactionId(TEST_TRANSACTION_ID_4);
+        logEntry4.setTwoPhaseTransaction(true);
         logEntry4.setParticipantIds(Set.of(TEST_PARTICIPANT_ID_3));
         logEntry4.setTransactionStatus(TransactionStatus.ROLLBACK_STARTED);
 

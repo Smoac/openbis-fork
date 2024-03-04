@@ -65,8 +65,6 @@ public class TransactionParticipantTest
 
     public static final Exception TEST_CHECKED_EXCEPTION = new Exception("Test checked exception");
 
-    public static final Error TEST_ERROR = new Error("Test error");
-
     public static final int TEST_TRANSACTION_TIMEOUT = 60;
 
     public static final int TEST_THREAD_COUNT_LIMIT = 5;
@@ -165,7 +163,8 @@ public class TransactionParticipantTest
 
                 // commit 1
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.COMMIT_STARTED)));
-                one(databaseTransactionProvider).commitTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
+                one(databaseTransactionProvider).commitTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION),
+                        with(transactionCoordinatorKey != null));
                 will(new CustomAction("commitTransaction")
                 {
                     @Override public Object invoke(final Invocation invocation)
@@ -201,7 +200,8 @@ public class TransactionParticipantTest
 
                 // rollback 2
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID_2, TransactionStatus.ROLLBACK_STARTED)));
-                one(databaseTransactionProvider).rollbackTransaction(with(TEST_TRANSACTION_ID_2), with(TEST_TRANSACTION_2));
+                one(databaseTransactionProvider).rollbackTransaction(with(TEST_TRANSACTION_ID_2), with(TEST_TRANSACTION_2),
+                        with(transactionCoordinatorKey != null));
                 will(new CustomAction("rollbackTransaction")
                 {
                     @Override public Object invoke(final Invocation invocation)
@@ -312,10 +312,8 @@ public class TransactionParticipantTest
                 {
                         { TEST_INTERACTIVE_SESSION_KEY, null, TEST_UNCHECKED_EXCEPTION },
                         { TEST_INTERACTIVE_SESSION_KEY, null, TEST_CHECKED_EXCEPTION },
-                        { TEST_INTERACTIVE_SESSION_KEY, null, TEST_ERROR },
                         { TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY, TEST_UNCHECKED_EXCEPTION },
                         { TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY, TEST_CHECKED_EXCEPTION },
-                        { TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY, TEST_ERROR },
                 };
     }
 
@@ -342,7 +340,8 @@ public class TransactionParticipantTest
 
                 // rollback
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_STARTED)));
-                one(databaseTransactionProvider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(aNull(Object.class)));
+                one(databaseTransactionProvider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(aNull(Object.class)),
+                        with(transactionCoordinatorKey != null));
                 one(transactionLog).deleteTransaction(TEST_TRANSACTION_ID);
             }
         });
@@ -440,10 +439,8 @@ public class TransactionParticipantTest
                 {
                         { TEST_INTERACTIVE_SESSION_KEY, null, TEST_UNCHECKED_EXCEPTION },
                         { TEST_INTERACTIVE_SESSION_KEY, null, TEST_CHECKED_EXCEPTION },
-                        { TEST_INTERACTIVE_SESSION_KEY, null, TEST_ERROR },
                         { TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY, TEST_UNCHECKED_EXCEPTION },
                         { TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY, TEST_CHECKED_EXCEPTION },
-                        { TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY, TEST_ERROR },
                 };
     }
 
@@ -475,7 +472,8 @@ public class TransactionParticipantTest
 
                 // rollback
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_STARTED)));
-                one(databaseTransactionProvider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
+                one(databaseTransactionProvider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION),
+                        with(transactionCoordinatorKey != null));
                 one(transactionLog).deleteTransaction(TEST_TRANSACTION_ID);
             }
         });
@@ -549,7 +547,8 @@ public class TransactionParticipantTest
 
                 // commit
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.COMMIT_STARTED)));
-                one(databaseTransactionProvider).commitTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
+                one(databaseTransactionProvider).commitTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION),
+                        with(transactionCoordinatorKey != null));
                 one(transactionLog).deleteTransaction(TEST_TRANSACTION_ID);
             }
         });
@@ -661,7 +660,6 @@ public class TransactionParticipantTest
                 {
                         { TEST_UNCHECKED_EXCEPTION },
                         { TEST_CHECKED_EXCEPTION },
-                        { TEST_ERROR },
                 };
     }
 
@@ -697,7 +695,7 @@ public class TransactionParticipantTest
 
                 // rollback
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_STARTED)));
-                one(databaseTransactionProvider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
+                one(databaseTransactionProvider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION), with(true));
                 one(transactionLog).deleteTransaction(TEST_TRANSACTION_ID);
             }
         });
@@ -824,10 +822,8 @@ public class TransactionParticipantTest
                 {
                         { TEST_INTERACTIVE_SESSION_KEY, null, TEST_UNCHECKED_EXCEPTION },
                         { TEST_INTERACTIVE_SESSION_KEY, null, TEST_CHECKED_EXCEPTION },
-                        { TEST_INTERACTIVE_SESSION_KEY, null, TEST_ERROR },
                         { TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY, TEST_UNCHECKED_EXCEPTION },
                         { TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY, TEST_CHECKED_EXCEPTION },
-                        { TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY, TEST_ERROR },
                 };
     }
 
@@ -887,14 +883,15 @@ public class TransactionParticipantTest
 
                 // commit (fails)
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.COMMIT_STARTED)));
-                one(databaseTransactionProvider).commitTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
+                one(databaseTransactionProvider).commitTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION),
+                        with(transactionCoordinatorKey != null));
                 will(throwException(throwable));
 
                 if (transactionCoordinatorKey == null)
                 {
                     // rollback
                     one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_STARTED)));
-                    one(databaseTransactionProvider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
+                    one(databaseTransactionProvider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION), with(false));
                     one(transactionLog).deleteTransaction(TEST_TRANSACTION_ID);
                 }
             }
@@ -931,13 +928,12 @@ public class TransactionParticipantTest
                 assertEquals(t.getCause(), throwable);
             }
 
-            assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
-
             if (transactionCoordinatorKey == null)
             {
-                // rollback
-                participant.rollbackTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, interactiveSessionKey);
                 assertFalse(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+            } else
+            {
+                assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
             }
         }
     }
@@ -1038,10 +1034,8 @@ public class TransactionParticipantTest
                 {
                         { TEST_INTERACTIVE_SESSION_KEY, null, TEST_UNCHECKED_EXCEPTION },
                         { TEST_INTERACTIVE_SESSION_KEY, null, TEST_CHECKED_EXCEPTION },
-                        { TEST_INTERACTIVE_SESSION_KEY, null, TEST_ERROR },
                         { TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY, TEST_UNCHECKED_EXCEPTION },
                         { TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY, TEST_CHECKED_EXCEPTION },
-                        { TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY, TEST_ERROR },
                 };
     }
 
@@ -1093,7 +1087,8 @@ public class TransactionParticipantTest
 
                 // rollback (fails)
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_STARTED)));
-                one(databaseTransactionProvider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION));
+                one(databaseTransactionProvider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(TEST_TRANSACTION),
+                        with(transactionCoordinatorKey != null));
                 will(throwException(throwable));
             }
         });
@@ -1410,7 +1405,8 @@ public class TransactionParticipantTest
 
                 // rollback
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_STARTED)));
-                one(databaseTransactionProvider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(transaction));
+                one(databaseTransactionProvider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(transaction),
+                        with(transactionCoordinatorKey != null));
                 one(transactionLog).deleteTransaction(TEST_TRANSACTION_ID);
             }
         });
@@ -1447,7 +1443,8 @@ public class TransactionParticipantTest
 
                 // commit
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.COMMIT_STARTED)));
-                one(databaseTransactionProvider).commitTransaction(with(TEST_TRANSACTION_ID), with(transaction));
+                one(databaseTransactionProvider).commitTransaction(with(TEST_TRANSACTION_ID), with(transaction),
+                        with(transactionCoordinatorKey != null));
                 one(transactionLog).deleteTransaction(TEST_TRANSACTION_ID);
             }
         });
@@ -1634,7 +1631,7 @@ public class TransactionParticipantTest
 
                 // rollback
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_STARTED)));
-                one(databaseTransactionProvider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(transaction));
+                one(databaseTransactionProvider).rollbackTransaction(with(TEST_TRANSACTION_ID), with(transaction), with(true));
                 one(transactionLog).deleteTransaction(TEST_TRANSACTION_ID);
             }
         });
@@ -1678,7 +1675,7 @@ public class TransactionParticipantTest
 
                 // commit
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.COMMIT_STARTED)));
-                one(databaseTransactionProvider).commitTransaction(with(TEST_TRANSACTION_ID), with(transaction));
+                one(databaseTransactionProvider).commitTransaction(with(TEST_TRANSACTION_ID), with(transaction), with(true));
                 one(transactionLog).deleteTransaction(TEST_TRANSACTION_ID);
             }
         });
@@ -1725,7 +1722,8 @@ public class TransactionParticipantTest
 
                 // commit
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.COMMIT_STARTED)));
-                one(databaseTransactionProvider).commitTransaction(with(TEST_TRANSACTION_ID), with(transaction));
+                one(databaseTransactionProvider).commitTransaction(with(TEST_TRANSACTION_ID), with(transaction),
+                        with(transactionCoordinatorKey != null));
                 one(transactionLog).deleteTransaction(TEST_TRANSACTION_ID);
 
                 // another begin

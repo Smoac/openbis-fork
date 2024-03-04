@@ -94,12 +94,20 @@ public class TransactionCoordinator implements ITransactionCoordinator
 
             for (TransactionLogEntry logEntry : transactionLog.getTransactions().values())
             {
-                if (TransactionStatus.NEW.equals(logEntry.getTransactionStatus())
+                if (!logEntry.isTwoPhaseTransaction())
+                {
+                    operationLog.info(
+                            "Nothing to recover for one-phase transaction '" + logEntry.getTransactionId()
+                                    + "' found in the transaction log with last status '"
+                                    + logEntry.getTransactionStatus() + "'.");
+                    transactionLog.deleteTransaction(logEntry.getTransactionId());
+                } else if (TransactionStatus.NEW.equals(logEntry.getTransactionStatus())
                         || TransactionStatus.COMMIT_FINISHED.equals(logEntry.getTransactionStatus())
                         || TransactionStatus.ROLLBACK_FINISHED.equals(logEntry.getTransactionStatus()))
                 {
                     operationLog.info(
-                            "Nothing to recover for transaction '" + logEntry.getTransactionId() + "' found in the transaction log with last status '"
+                            "Nothing to recover for two-phase transaction '" + logEntry.getTransactionId()
+                                    + "' found in the transaction log with last status '"
                                     + logEntry.getTransactionStatus() + "'.");
                     transactionLog.deleteTransaction(logEntry.getTransactionId());
                 } else
@@ -293,8 +301,6 @@ public class TransactionCoordinator implements ITransactionCoordinator
 
                         operationLog.info("Transaction '" + transactionId + "' execute operation '" + operationName + "' finished successfully.");
 
-                        transaction.setLastAccessedDate(new Date());
-
                         return result;
                     } catch (Exception e)
                     {
@@ -303,6 +309,9 @@ public class TransactionCoordinator implements ITransactionCoordinator
                                         + participant.getParticipantId() + "'.", e);
                         operationLog.info(exception.getMessage());
                         throw exception;
+                    } finally
+                    {
+                        transaction.setLastAccessedDate(new Date());
                     }
                 }
             }

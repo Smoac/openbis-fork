@@ -1,7 +1,6 @@
 package ch.ethz.sis.transaction;
 
 import java.io.File;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -98,7 +97,7 @@ public class TransactionLog implements ITransactionLog
 
     @Override public Map<UUID, TransactionLogEntry> getTransactions()
     {
-        return Collections.unmodifiableMap(transactionsMap);
+        return new HashMap<>(transactionsMap);
     }
 
     private static Map<UUID, TransactionLogEntry> loadTransactions(File logFolder)

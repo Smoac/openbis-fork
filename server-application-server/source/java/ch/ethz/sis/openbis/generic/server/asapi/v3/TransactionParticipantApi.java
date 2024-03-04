@@ -21,6 +21,7 @@ import org.springframework.context.event.ContextStartedEvent;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
@@ -53,14 +54,15 @@ public class TransactionParticipantApi implements ITransactionParticipantApi, Ap
     @Autowired
     public TransactionParticipantApi(final TransactionConfiguration transactionConfiguration, final PlatformTransactionManager transactionManager,
             final IDAOFactory daoFactory, final DatabaseConfigurationContext databaseContext, final IApplicationServerApi applicationServerApi, final
-            IOpenBisSessionManager sessionManager)
+    IOpenBisSessionManager sessionManager)
     {
         this(transactionConfiguration, transactionManager, daoFactory, databaseContext, applicationServerApi, sessionManager,
                 ITransactionCoordinatorApi.APPLICATION_SERVER_PARTICIPANT_ID, TRANSACTION_LOG_FOLDER_NAME);
     }
 
     public TransactionParticipantApi(final TransactionConfiguration transactionConfiguration, final PlatformTransactionManager transactionManager,
-            final IDAOFactory daoFactory, final DatabaseConfigurationContext databaseContext, final IApplicationServerApi applicationServerApi, final IOpenBisSessionManager sessionManager,
+            final IDAOFactory daoFactory, final DatabaseConfigurationContext databaseContext, final IApplicationServerApi applicationServerApi,
+            final IOpenBisSessionManager sessionManager,
             final String participantId, final String logFolderName)
     {
         this.transactionConfiguration = transactionConfiguration;
@@ -198,13 +200,113 @@ public class TransactionParticipantApi implements ITransactionParticipantApi, Ap
             });
         }
 
-        @Override public void rollbackTransaction(final UUID transactionId, final Object transaction)
+        @Override public void rollbackTransaction(final UUID transactionId, final Object transaction, final boolean isTwoPhaseTransaction)
                 throws Exception
         {
+            if (isTwoPhaseTransaction)
+            {
+                try
+                {
+                    if (isTransactionPreparedInDatabase(transactionId))
+                    {
+                        try (Connection connection = databaseContext.getDataSource().getConnection();
+                                PreparedStatement rollbackStatement = connection.prepareStatement("ROLLBACK PREPARED '" + transactionId + "'"))
+                        {
+                            rollbackStatement.execute();
+                            operationLog.info("Prepared database transaction '" + transactionId + "' was rolled back.");
+                        }
+                    } else
+                    {
+                        operationLog.info(
+                                "Prepared database transaction '" + transactionId + "' was not found in the database. Nothing to roll back.");
+                    }
+                } finally
+                {
+                    if (transaction != null)
+                    {
+                        try
+                        {
+                            transactionManager.rollback((TransactionStatus) transaction);
+                        } catch (Exception e)
+                        {
+                            operationLog.warn(
+                                    "Prepared database transaction '" + transactionId + "' could not be rolled back in the transaction manager.",
+                                    e);
+                        }
+                    }
+                }
+            } else
+            {
+                if (transaction != null)
+                {
+                    transactionManager.rollback((TransactionStatus) transaction);
+                    operationLog.info("Database transaction '" + transactionId + "' was rolled back.");
+                } else
+                {
+                    RuntimeException exception = new IllegalStateException(
+                            "Database transaction '" + transactionId + "' could not be rolled back because of missing transaction status object.");
+                    operationLog.error(exception.getMessage());
+                    throw exception;
+                }
+            }
+        }
+
+        @Override public void commitTransaction(final UUID transactionId, final Object transaction, final boolean isTwoPhaseTransaction)
+                throws Exception
+        {
+            if (isTwoPhaseTransaction)
+            {
+                try
+                {
+                    if (isTransactionPreparedInDatabase(transactionId))
+                    {
+                        try (Connection connection = databaseContext.getDataSource().getConnection();
+                                PreparedStatement commitStatement = connection.prepareStatement("COMMIT PREPARED '" + transactionId + "'"))
+                        {
+                            commitStatement.execute();
+                            operationLog.info("Prepared database transaction '" + transactionId + "' was committed.");
+                        }
+                    } else
+                    {
+                        RuntimeException exception = new IllegalStateException(
+                                "Prepared database transaction '" + transactionId + "' was not found in the database and could not be committed.");
+                        operationLog.error(exception.getMessage());
+                        throw exception;
+                    }
+                }finally{
+                    if (transaction != null)
+                    {
+                        try
+                        {
+                            transactionManager.commit((TransactionStatus) transaction);
+                        } catch (Exception e)
+                        {
+                            operationLog.warn(
+                                    "Prepared database transaction '" + transactionId + "' could not be committed in the transaction manager.",
+                                    e);
+                        }
+                    }
+                }
+            } else
+            {
+                if (transaction != null)
+                {
+                    transactionManager.commit((TransactionStatus) transaction);
+                    operationLog.info("Database transaction '" + transactionId + "' was committed.");
+                } else
+                {
+                    RuntimeException exception = new IllegalStateException(
+                            "Database transaction '" + transactionId + "' could not be committed because of missing transaction status object.");
+                    operationLog.error(exception.getMessage());
+                    throw exception;
+                }
+            }
+        }
+
+        boolean isTransactionPreparedInDatabase(final UUID transactionId) throws Exception
+        {
             try (Connection connection = databaseContext.getDataSource().getConnection();
-                    PreparedStatement countStatement = connection.prepareStatement(
-                            "SELECT count(*) AS count FROM pg_prepared_xacts WHERE gid = ?");
-                    PreparedStatement rollbackStatement = connection.prepareStatement("ROLLBACK PREPARED '" + transactionId + "'"))
+                    PreparedStatement countStatement = connection.prepareStatement("SELECT count(*) AS count FROM pg_prepared_xacts WHERE gid = ?"))
             {
                 countStatement.setString(1, transactionId.toString());
 
@@ -213,39 +315,12 @@ public class TransactionParticipantApi implements ITransactionParticipantApi, Ap
                     if (countResult.next())
                     {
                         int count = countResult.getInt("count");
-
-                        if (count > 0)
-                        {
-                            rollbackStatement.execute();
-                            operationLog.info(
-                                    "Prepared database transaction '" + transactionId + "' was rolled back.");
-                        } else
-                        {
-                            operationLog.info(
-                                    "Nothing to rollback in the database. Prepared database transaction '" + transactionId + "' was not found.");
-                        }
+                        return count > 0;
                     }
                 }
-            } finally
-            {
-                try
-                {
-                    transactionManager.rollback((org.springframework.transaction.TransactionStatus) transaction);
-                } catch (Exception e)
-                {
-                    // nothing to do
-                }
             }
-        }
 
-        @Override public void commitTransaction(final UUID transactionId, final Object transaction) throws Exception
-        {
-            try (Connection connection = databaseContext.getDataSource().getConnection();
-                    PreparedStatement commitStatement = connection.prepareStatement("COMMIT PREPARED '" + transactionId + "'"))
-            {
-                commitStatement.execute();
-                operationLog.info("Database prepared transaction '" + transactionId + "' was committed.");
-            }
+            return false;
         }
     }
 

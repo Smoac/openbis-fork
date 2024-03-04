@@ -9,7 +9,7 @@ public interface IDatabaseTransactionProvider
 
     void prepareTransaction(UUID transactionId, Object transaction) throws Exception;
 
-    void rollbackTransaction(UUID transactionId, Object transaction) throws Exception;
+    void rollbackTransaction(UUID transactionId, Object transaction, boolean isTwoPhaseTransaction) throws Exception;
 
-    void commitTransaction(UUID transactionId, Object transaction) throws Exception;
+    void commitTransaction(UUID transactionId, Object transaction, boolean isTwoPhaseTransaction) throws Exception;
 }
