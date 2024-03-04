@@ -85,6 +85,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import com.openhtmltopdf.extend.FSSupplier;
+import org.apache.commons.compress.archivers.zip.Zip64Mode;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.log4j.Logger;
@@ -1801,36 +1802,50 @@ public class ExportExecutor implements IExportExecutor
         }
     }
 
-    private static void zipDirectory(final String sourceDirectory, final File targetZipFile) throws IOException
+    private static void zipDirectory(final String sourceDirectory, final File targetZipFile)
+            throws IOException
     {
         final Path sourceDir = Paths.get(sourceDirectory);
-        try (final ZipArchiveOutputStream zipOutputStream = new ZipArchiveOutputStream(new FileOutputStream(targetZipFile)))
+        try (final ZipArchiveOutputStream zipOutputStream = new ZipArchiveOutputStream(
+                new FileOutputStream(targetZipFile)))
         {
             zipOutputStream.setEncoding(StandardCharsets.ISO_8859_1.toString());
+            zipOutputStream.setUseLanguageEncodingFlag(true);
+            zipOutputStream.setCreateUnicodeExtraFields(
+                    ZipArchiveOutputStream.UnicodeExtraFieldPolicy.ALWAYS);
             zipOutputStream.setMethod(ZipArchiveOutputStream.DEFLATED);
             zipOutputStream.setLevel(5);
             try (final Stream<Path> stream = Files.walk(sourceDir))
             {
-                stream.filter(path -> !path.equals(sourceDir) && !path.toFile().equals(targetZipFile))
+                stream.filter(
+                                path -> !path.equals(sourceDir) && !path.toFile().equals(targetZipFile))
                         .forEach(path ->
                         {
-                            final boolean isDirectory = Files.isDirectory(path);
-                            final String entryName = sourceDir.relativize(path).toString();
-                            final ZipEntry zipEntry = new ZipEntry(entryName + (isDirectory ? "/" : ""));
-                            zipEntry.setMethod(ZipArchiveOutputStream.DEFLATED);
                             try
                             {
+                                final boolean isDirectory = Files.isDirectory(path);
+                                final String entryName = sourceDir.relativize(path).toString();
+                                final ZipEntry zipEntry =
+                                        new ZipEntry(entryName + (isDirectory ? "/" : ""));
+                                zipEntry.setMethod(ZipArchiveOutputStream.DEFLATED);
+                                if (!isDirectory)
+                                {
+                                    zipEntry.setSize(Files.size(path));
+                                }
                                 zipOutputStream.putArchiveEntry(new ZipArchiveEntry(zipEntry));
                                 if (!isDirectory)
                                 {
                                     Files.copy(path, zipOutputStream);
                                 }
                                 zipOutputStream.closeArchiveEntry();
-                            } catch (final IOException e)
+                            } catch (IOException e)
                             {
                                 throw new RuntimeException(e);
                             }
                         });
+            } catch (final IOException e)
+            {
+                throw new RuntimeException(e);
             }
         }
     }
