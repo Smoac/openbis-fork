@@ -253,20 +253,37 @@ public class TransactionParticipant implements ITransactionParticipant
 
         transaction.lockOrFail(() ->
         {
-            transaction.setTransactionStatus(TransactionStatus.BEGIN_STARTED);
-            transaction.setLastAccessedDate(new Date());
+            try
+            {
+                transaction.setTransactionStatus(TransactionStatus.BEGIN_STARTED);
+                transaction.setLastAccessedDate(new Date());
 
-            operationLog.info("Begin transaction '" + transactionId + "' started.");
+                operationLog.info("Begin transaction '" + transactionId + "' started.");
 
-            Object databaseTransaction = databaseTransactionProvider.beginTransaction(transactionId);
-            transaction.setDatabaseTransaction(databaseTransaction);
+                Object databaseTransaction = databaseTransactionProvider.beginTransaction(transactionId);
+                transaction.setDatabaseTransaction(databaseTransaction);
 
-            transaction.setTransactionStatus(TransactionStatus.BEGIN_FINISHED);
-            transaction.setLastAccessedDate(new Date());
+                transaction.setTransactionStatus(TransactionStatus.BEGIN_FINISHED);
+                transaction.setLastAccessedDate(new Date());
 
-            operationLog.info("Begin transaction '" + transactionId + "' finished successfully.");
+                operationLog.info("Begin transaction '" + transactionId + "' finished successfully.");
 
-            return null;
+                return null;
+            } catch (Exception beginException)
+            {
+                operationLog.error("Begin transaction '" + transactionId + "' failed.", beginException);
+
+                try
+                {
+                    transactionLog.deleteTransaction(transactionId);
+                    transactionMap.remove(transactionId);
+                } catch (Exception deleteException)
+                {
+                    operationLog.warn("Could not delete transaction '" + transactionId + "'.", deleteException);
+                }
+
+                throw beginException;
+            }
         });
     }
 

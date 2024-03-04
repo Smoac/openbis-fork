@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
@@ -116,7 +117,7 @@ public class TransactionLog implements ITransactionLog
             throw new RuntimeException("Could not load the contents of the transaction log folder '" + logFolder + "'.");
         }
 
-        Map<UUID, TransactionLogEntry> transactionsMap = new HashMap<>();
+        Map<UUID, TransactionLogEntry> transactionsMap = new ConcurrentHashMap<>();
 
         for (File transactionFile : transactionFiles)
         {

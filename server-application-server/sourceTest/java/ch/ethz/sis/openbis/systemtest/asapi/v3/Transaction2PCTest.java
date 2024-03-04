@@ -136,7 +136,7 @@ public class Transaction2PCTest extends AbstractTransactionTest
         }
 
         assertTransactions(coordinator.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
-        assertTransactions(participant1.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_STARTED));
+        assertTransactions(participant1.getTransactionMap());
         assertTransactions(participant2.getTransactionMap());
     }
 

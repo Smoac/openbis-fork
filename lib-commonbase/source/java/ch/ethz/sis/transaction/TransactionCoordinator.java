@@ -217,14 +217,31 @@ public class TransactionCoordinator implements ITransactionCoordinator
 
         transaction.lockOrFail(() ->
         {
-            transaction.setTransactionStatus(TransactionStatus.BEGIN_STARTED);
+            try
+            {
+                transaction.setTransactionStatus(TransactionStatus.BEGIN_STARTED);
 
-            transaction.setLastAccessedDate(new Date());
-            operationLog.info("Begin transaction '" + transactionId + "'.");
+                transaction.setLastAccessedDate(new Date());
+                operationLog.info("Begin transaction '" + transactionId + "'.");
 
-            transaction.setTransactionStatus(TransactionStatus.BEGIN_FINISHED);
+                transaction.setTransactionStatus(TransactionStatus.BEGIN_FINISHED);
 
-            return null;
+                return null;
+            } catch (Exception beginException)
+            {
+                operationLog.error("Begin transaction '" + transactionId + "' failed.", beginException);
+
+                try
+                {
+                    transactionLog.deleteTransaction(transactionId);
+                    transactionMap.remove(transactionId);
+                } catch (Exception deleteException)
+                {
+                    operationLog.warn("Could not delete transaction '" + transactionId + "'.", deleteException);
+                }
+
+                throw beginException;
+            }
         });
     }
 
