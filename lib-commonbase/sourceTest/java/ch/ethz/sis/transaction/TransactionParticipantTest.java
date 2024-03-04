@@ -3,6 +3,7 @@ package ch.ethz.sis.transaction;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 import java.util.HashSet;
 import java.util.List;
@@ -16,7 +17,6 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.api.Invocation;
 import org.jmock.lib.action.CustomAction;
-import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
@@ -297,7 +297,7 @@ public class TransactionParticipantTest
         {
             // begin (fails)
             participant.beginTransaction(transactionId, sessionToken, interactiveSessionKey, transactionCoordinatorKey);
-            Assert.fail();
+            fail();
         } catch (Throwable t)
         {
             assertEquals(t.getMessage(), expectedException);
@@ -346,7 +346,7 @@ public class TransactionParticipantTest
         {
             // begin (fails)
             participant.beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, interactiveSessionKey, transactionCoordinatorKey);
-            Assert.fail();
+            fail();
         } catch (Throwable t)
         {
             if (throwable instanceof RuntimeException)
@@ -416,7 +416,7 @@ public class TransactionParticipantTest
             // execute (fails)
             participant.executeOperation(transactionId, sessionToken, interactiveSessionKeyOrNull, operationName,
                     operationArguments);
-            Assert.fail();
+            fail();
         } catch (Throwable t)
         {
             assertEquals(t.getMessage(), expectedExceptionMessage);
@@ -480,7 +480,7 @@ public class TransactionParticipantTest
             // execute (fails)
             participant.executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, interactiveSessionKey, TEST_OPERATION_NAME,
                     TEST_OPERATION_ARGUMENTS);
-            Assert.fail();
+            fail();
         } catch (TransactionOperationException e)
         {
             assertEquals(e.getCause(), throwable);
@@ -548,7 +548,7 @@ public class TransactionParticipantTest
             // execute (fails)
             participant.executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, interactiveSessionKey, TEST_OPERATION_NAME,
                     TEST_OPERATION_ARGUMENTS);
-            Assert.fail();
+            fail();
         } catch (Throwable e)
         {
             assertEquals(e.getCause(), throwable);
@@ -623,7 +623,7 @@ public class TransactionParticipantTest
         {
             // prepare (fails)
             participant.prepareTransaction(transactionId, sessionToken, interactiveSessionKey, transactionCoordinatorKeyOrNull);
-            Assert.fail();
+            fail();
         } catch (Throwable t)
         {
             assertEquals(t.getMessage(), expectedExceptionMessage);
@@ -690,7 +690,7 @@ public class TransactionParticipantTest
         {
             // prepare (fails)
             participant.prepareTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY);
-            Assert.fail();
+            fail();
         } catch (Throwable t)
         {
             if (throwable instanceof RuntimeException)
@@ -786,7 +786,7 @@ public class TransactionParticipantTest
         try
         {
             commitTransaction.apply(participant);
-            Assert.fail();
+            fail();
         } catch (Throwable t)
         {
             assertEquals(t.getMessage(), expectedExceptionMessage);
@@ -895,7 +895,7 @@ public class TransactionParticipantTest
         {
             // commit (fails)
             commitTransaction.apply(participant);
-            Assert.fail();
+            fail();
         } catch (Throwable t)
         {
             if (throwable instanceof RuntimeException)
@@ -997,7 +997,7 @@ public class TransactionParticipantTest
         {
             // rollback (fails)
             rollbackTransaction.apply(participant);
-            Assert.fail();
+            fail();
         } catch (Throwable t)
         {
             assertEquals(t.getMessage(), expectedExceptionMessage);
@@ -1083,7 +1083,7 @@ public class TransactionParticipantTest
         {
             // rollback (fails)
             rollbackTransaction.apply(participant);
-            Assert.fail();
+            fail();
         } catch (Throwable t)
         {
             if (throwable instanceof RuntimeException)
@@ -1141,7 +1141,7 @@ public class TransactionParticipantTest
         {
             participant.executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_OPERATION_NAME,
                     TEST_OPERATION_ARGUMENTS);
-            Assert.fail();
+            fail();
         } catch (Exception e)
         {
             assertEquals(e.getMessage(),
@@ -1168,7 +1168,7 @@ public class TransactionParticipantTest
         {
             participant.prepareTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY,
                     TEST_TRANSACTION_COORDINATOR_KEY);
-            Assert.fail();
+            fail();
         } catch (Exception e)
         {
             assertEquals(e.getMessage(),
@@ -1247,7 +1247,7 @@ public class TransactionParticipantTest
         {
             // repeated begin (fails)
             participant.beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, interactiveSessionKey, transactionCoordinatorKey);
-            Assert.fail();
+            fail();
         } catch (Exception e)
         {
             assertEquals(e.getMessage(),
@@ -1344,13 +1344,13 @@ public class TransactionParticipantTest
 
             if (transactionCoordinatorKey == null)
             {
-                Assert.fail();
+                fail();
             }
         } catch (Exception e)
         {
             if (transactionCoordinatorKey != null)
             {
-                Assert.fail();
+                fail();
             }
             assertEquals(e.getMessage(), "Transaction '" + TEST_TRANSACTION_ID
                     + "' was started without transaction coordinator key, therefore calling prepare is not allowed.");
@@ -1419,19 +1419,39 @@ public class TransactionParticipantTest
                 will(returnValue(transaction));
                 one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.BEGIN_FINISHED)));
 
-                // commit
-                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.COMMIT_STARTED)));
-                one(databaseTransactionProvider).commitTransaction(with(TEST_TRANSACTION_ID), with(transaction),
-                        with(transactionCoordinatorKey != null));
-                one(transactionLog).deleteTransaction(TEST_TRANSACTION_ID);
+                if (transactionCoordinatorKey == null)
+                {
+                    // commit
+                    one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.COMMIT_STARTED)));
+                    one(databaseTransactionProvider).commitTransaction(with(TEST_TRANSACTION_ID), with(transaction), with(false));
+                    one(transactionLog).deleteTransaction(TEST_TRANSACTION_ID);
+                }
             }
         });
 
         // begin
         participant.beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, interactiveSessionKey, transactionCoordinatorKey);
 
-        // commit
-        participant.commitTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, interactiveSessionKey);
+        try
+        {
+            // commit
+            participant.commitTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, interactiveSessionKey);
+
+            if (transactionCoordinatorKey != null)
+            {
+                fail();
+            }
+        } catch (Exception e)
+        {
+            if (transactionCoordinatorKey == null)
+            {
+                fail();
+            } else
+            {
+                assertEquals(e.getMessage(), "Transaction '" + TEST_TRANSACTION_ID
+                        + "' unexpected status 'BEGIN_FINISHED'. Expected statuses '[PREPARE_FINISHED, COMMIT_STARTED]'.");
+            }
+        }
     }
 
     @Test
@@ -1473,7 +1493,7 @@ public class TransactionParticipantTest
         {
             // repeated begin (fails)
             participant.beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY);
-            Assert.fail();
+            fail();
         } catch (Exception e)
         {
             assertEquals(e.getMessage(),
@@ -1520,7 +1540,7 @@ public class TransactionParticipantTest
         {
             // repeated prepare (fails)
             participant.prepareTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY);
-            Assert.fail();
+            fail();
         } catch (Exception e)
         {
             assertEquals(e.getMessage(),
@@ -1569,7 +1589,7 @@ public class TransactionParticipantTest
             // execute (fails)
             participant.executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_OPERATION_NAME,
                     TEST_OPERATION_ARGUMENTS);
-            Assert.fail();
+            fail();
         } catch (Exception e)
         {
             assertEquals(e.getMessage(),
