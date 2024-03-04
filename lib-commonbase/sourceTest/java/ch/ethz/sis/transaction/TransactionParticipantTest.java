@@ -481,16 +481,9 @@ public class TransactionParticipantTest
             participant.executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, interactiveSessionKey, TEST_OPERATION_NAME,
                     TEST_OPERATION_ARGUMENTS);
             Assert.fail();
-        } catch (Throwable t)
+        } catch (TransactionOperationException e)
         {
-            if (throwable instanceof RuntimeException)
-            {
-                assertEquals(t, throwable);
-            } else
-            {
-                assertEquals(t.getCause(), throwable);
-            }
-
+            assertEquals(e.getCause(), throwable);
             assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
             // rollback
             participant.rollbackTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, interactiveSessionKey);
@@ -556,16 +549,9 @@ public class TransactionParticipantTest
             participant.executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, interactiveSessionKey, TEST_OPERATION_NAME,
                     TEST_OPERATION_ARGUMENTS);
             Assert.fail();
-        } catch (Throwable t)
+        } catch (Throwable e)
         {
-            if (throwable instanceof RuntimeException)
-            {
-                assertEquals(t, throwable);
-            } else
-            {
-                assertEquals(t.getCause(), throwable);
-            }
-
+            assertEquals(e.getCause(), throwable);
             assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
 
             // execute

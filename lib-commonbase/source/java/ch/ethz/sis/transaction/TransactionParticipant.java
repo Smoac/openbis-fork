@@ -277,6 +277,7 @@ public class TransactionParticipant implements ITransactionParticipant
                 {
                     transactionLog.deleteTransaction(transactionId);
                     transactionMap.remove(transactionId);
+                    transaction.close();
                 } catch (Exception deleteException)
                 {
                     operationLog.warn("Could not delete transaction '" + transactionId + "'.", deleteException);
@@ -316,6 +317,9 @@ public class TransactionParticipant implements ITransactionParticipant
                 T result = operationExecutor.executeOperation(sessionToken, operationName, operationArguments);
                 operationLog.info("Transaction '" + transactionId + "' execute operation '" + operationName + "' finished successfully.");
                 return result;
+            } catch (Exception e)
+            {
+                throw new TransactionOperationException(e);
             } finally
             {
                 transaction.setLastAccessedDate(new Date());

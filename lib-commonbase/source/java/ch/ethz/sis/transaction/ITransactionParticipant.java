@@ -20,7 +20,7 @@ public interface ITransactionParticipant
      * - coordinator flow
      * - participant interactive flow
      */
-    <T> T executeOperation(UUID transactionId, String sessionToken, String interactiveSessionKey, String operationName, Object[] operationArguments);
+    <T> T executeOperation(UUID transactionId, String sessionToken, String interactiveSessionKey, String operationName, Object[] operationArguments) throws TransactionOperationException;
 
     /**
      * Used in:

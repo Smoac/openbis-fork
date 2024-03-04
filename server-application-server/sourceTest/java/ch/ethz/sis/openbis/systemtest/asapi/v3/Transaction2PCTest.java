@@ -30,6 +30,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria
 import ch.ethz.sis.transaction.ITransactionParticipant;
 import ch.ethz.sis.transaction.Transaction;
 import ch.ethz.sis.transaction.TransactionCoordinator;
+import ch.ethz.sis.transaction.TransactionOperationException;
 import ch.ethz.sis.transaction.TransactionStatus;
 import ch.systemsx.cisd.common.concurrent.MessageChannel;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -172,10 +173,8 @@ public class Transaction2PCTest extends AbstractTransactionTest
                     OPERATION_CREATE_SPACES,
                     new Object[] { sessionToken, Collections.singletonList(new SpaceCreation()) });
             fail();
-        } catch (Exception e)
+        } catch (TransactionOperationException e)
         {
-            assertEquals(e.getMessage(), "Transaction '" + coordinatorTrId + "' execute operation 'createSpaces' failed for participant '"
-                    + participant2.getParticipantId() + "'.");
             AssertionUtil.assertContains("Code cannot be empty", e.getCause().getMessage());
         }
 

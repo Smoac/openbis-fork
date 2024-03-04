@@ -300,7 +300,7 @@ public class TransactionCoordinator implements ITransactionCoordinator
                         {
                             RuntimeException exception = new RuntimeException(
                                     "Begin transaction '" + transactionId + "' failed for participant '" + participant.getParticipantId() + "'.", e);
-                            operationLog.info(exception.getMessage(), e);
+                            operationLog.error(exception.getMessage(), e);
                             throw exception;
                         }
                     }
@@ -319,12 +319,15 @@ public class TransactionCoordinator implements ITransactionCoordinator
                         operationLog.info("Transaction '" + transactionId + "' execute operation '" + operationName + "' finished successfully.");
 
                         return result;
+                    } catch (TransactionOperationException e)
+                    {
+                        throw e;
                     } catch (Exception e)
                     {
                         RuntimeException exception = new RuntimeException(
                                 "Transaction '" + transactionId + "' execute operation '" + operationName + "' failed for participant '"
                                         + participant.getParticipantId() + "'.", e);
-                        operationLog.info(exception.getMessage());
+                        operationLog.error(exception.getMessage());
                         throw exception;
                     } finally
                     {

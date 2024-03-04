@@ -25,6 +25,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
 import ch.ethz.sis.transaction.Transaction;
+import ch.ethz.sis.transaction.TransactionOperationException;
 import ch.ethz.sis.transaction.TransactionStatus;
 import ch.systemsx.cisd.common.concurrent.MessageChannel;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -86,9 +87,9 @@ public class Transaction1PCTest extends AbstractTransactionTest
             participant.executeOperation(transactionId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, OPERATION_CREATE_SPACES,
                     new Object[] { sessionToken, Collections.singletonList(new SpaceCreation()) });
             fail();
-        } catch (Exception e)
+        } catch (TransactionOperationException e)
         {
-            AssertionUtil.assertContains("Code cannot be empty", e.getMessage());
+            AssertionUtil.assertContains("Code cannot be empty", e.getCause().getMessage());
         }
 
         assertTransactions(participant.getTransactionMap(),
