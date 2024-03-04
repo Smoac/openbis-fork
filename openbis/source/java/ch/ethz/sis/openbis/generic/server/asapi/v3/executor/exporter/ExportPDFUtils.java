@@ -55,7 +55,7 @@ public class ExportPDFUtils
     public static String addStyleHeader(String replacedHtml) throws IOException
     {
         if (styleCSS == null) {
-            InputStream is = ExportPDFUtils.class.getResourceAsStream("ck-editor-styles.css");
+            InputStream is = ExportPDFUtils.class.getResourceAsStream("content-styles-css-2.css");
             styleCSS = new String(readInputStream(is));
         }
 
