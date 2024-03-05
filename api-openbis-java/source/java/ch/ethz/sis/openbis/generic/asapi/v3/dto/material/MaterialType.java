@@ -62,6 +62,8 @@ public class MaterialType implements Serializable, ICodeHolder, IDescriptionHold
     @JsonProperty
     private Plugin validationPlugin;
 
+    @JsonProperty
+    private Boolean managedInternally;
     // Method automatically generated with DtoGenerator
     @JsonIgnore
     public MaterialTypeFetchOptions getFetchOptions()
@@ -168,6 +170,17 @@ public class MaterialType implements Serializable, ICodeHolder, IDescriptionHold
     public void setValidationPlugin(Plugin validationPlugin)
     {
         this.validationPlugin = validationPlugin;
+    }
+
+    @JsonIgnore
+    public Boolean isManagedInternally()
+    {
+        return managedInternally;
+    }
+
+    public void setManagedInternally(Boolean managedInternally)
+    {
+        this.managedInternally = managedInternally;
     }
 
     // Method automatically generated with DtoGenerator

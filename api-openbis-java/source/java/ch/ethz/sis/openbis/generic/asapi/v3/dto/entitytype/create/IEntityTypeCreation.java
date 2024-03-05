@@ -46,4 +46,8 @@ public interface IEntityTypeCreation extends ICreation, IObjectCreation
 
     public void setPropertyAssignments(List<PropertyAssignmentCreation> propertyAssignments);
 
+    public boolean isManagedInternally();
+
+    public void setManagedInternally(boolean managedInternally);
+
 }
