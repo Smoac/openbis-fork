@@ -76,6 +76,7 @@ public class CreateSampleTypesExecutor extends AbstractCreateEntityTypeExecutor<
         type.setShowParents(creation.isShowParents());
         type.setShowParentMetadata(creation.isShowParentMetadata());
         type.setMetaData(creation.getMetaData());
+        type.setManagedInternally(creation.isManagedInternally());
     }
 
     @Override
@@ -89,7 +90,12 @@ public class CreateSampleTypesExecutor extends AbstractCreateEntityTypeExecutor<
     @Override
     protected void checkAccess(IOperationContext context)
     {
-        authorizationExecutor.canCreate(context);
+    }
+
+    @Override
+    protected void checkAccess(IOperationContext context, SampleTypePE entityType)
+    {
+        authorizationExecutor.canCreate(context, entityType);
     }
 
 }

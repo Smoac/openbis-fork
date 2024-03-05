@@ -25,7 +25,10 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 import javax.persistence.Version;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -34,6 +37,7 @@ import ch.systemsx.cisd.common.reflection.ClassUtils;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
+import org.hibernate.validator.constraints.Length;
 
 /**
  * Persistence Entity representing entity type.
@@ -55,6 +59,10 @@ public abstract class EntityTypePE extends AbstractTypePE
     private Date modificationDate;
 
     private ScriptPE validationScript;
+
+    private String simpleCode;
+
+    private boolean managedInternally;
 
     @Version
     @Column(name = ColumnNames.MODIFICATION_TIMESTAMP_COLUMN, nullable = false)
@@ -78,6 +86,45 @@ public abstract class EntityTypePE extends AbstractTypePE
     public void setValidationScript(final ScriptPE validationScript)
     {
         this.validationScript = validationScript;
+    }
+
+    @NotNull
+    @Column(name = ColumnNames.IS_MANAGED_INTERNALLY)
+    public boolean isManagedInternally()
+    {
+        return managedInternally;
+    }
+
+    public void setManagedInternally(final boolean managedInternally)
+    {
+        this.managedInternally = managedInternally;
+    }
+
+    public void setSimpleCode(final String simpleCode)
+    {
+        this.simpleCode = simpleCode.toUpperCase();
+    }
+
+    @Column(name = ColumnNames.CODE_COLUMN)
+    @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
+    @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
+    @Pattern(regexp = AbstractIdAndCodeHolder.CODE_PATTERN, flags = Pattern.Flag.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
+    public String getSimpleCode()
+    {
+        return simpleCode;
+    }
+
+    public void setCode(final String fullCode)
+    {
+        setManagedInternally(CodeConverter.isInternalNamespace(fullCode));
+        setSimpleCode(CodeConverter.tryToDatabase(fullCode));
+    }
+
+    @Override
+    @Transient
+    public String getCode()
+    {
+        return CodeConverter.tryToBusinessLayer(getSimpleCode(), isManagedInternally());
     }
 
     @Transient

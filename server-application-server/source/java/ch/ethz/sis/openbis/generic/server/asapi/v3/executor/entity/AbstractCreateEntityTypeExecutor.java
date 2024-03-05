@@ -115,6 +115,7 @@ public abstract class AbstractCreateEntityTypeExecutor<CREATION extends IEntityT
         TYPE type = newType();
         type.setCode(typeCreation.getCode());
         type.setDescription(typeCreation.getDescription());
+        type.setManagedInternally(typeCreation.isManagedInternally());
 
         fillTypeSpecificFields(type, typeCreation);
 

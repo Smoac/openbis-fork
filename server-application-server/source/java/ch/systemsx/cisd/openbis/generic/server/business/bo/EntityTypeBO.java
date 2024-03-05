@@ -132,6 +132,7 @@ public final class EntityTypeBO extends AbstractBusinessObject implements IEntit
         sampleTypePE.setGeneratedCodePrefix(entityType.getGeneratedCodePrefix());
         sampleTypePE.setValidationScript(getValidationScriptPE(entityType));
         sampleTypePE.setMetaData(entityType.getMetaData());
+        sampleTypePE.setManagedInternally(entityType.isManagedInternally());
 
         this.entityKind = EntityKind.SAMPLE;
         this.entityTypePE = sampleTypePE;
@@ -152,6 +153,7 @@ public final class EntityTypeBO extends AbstractBusinessObject implements IEntit
         experimentTypePE.setDescription(entityType.getDescription());
         experimentTypePE.setValidationScript(getValidationScriptPE(entityType));
         experimentTypePE.setMetaData(entityType.getMetaData());
+        experimentTypePE.setManagedInternally(entityType.isManagedInternally());
 
         this.entityKind = EntityKind.EXPERIMENT;
         this.entityTypePE = experimentTypePE;
@@ -170,6 +172,7 @@ public final class EntityTypeBO extends AbstractBusinessObject implements IEntit
         dataSetTypePE.setDeletionDisallow(entityType.isDeletionDisallow());
         dataSetTypePE.setValidationScript(getValidationScriptPE(entityType));
         dataSetTypePE.setMetaData(entityType.getMetaData());
+        dataSetTypePE.setManagedInternally(entityType.isManagedInternally());
         this.entityKind = EntityKind.DATA_SET;
         this.entityTypePE = dataSetTypePE;
     }

@@ -48,6 +48,7 @@ public class ExperimentTypeTranslator
         result.setValidationScript(ScriptTranslator.translate(experimentTypePE
                 .getValidationScript()));
         result.setMetaData(experimentTypePE.getMetaData());
+        result.setManagedInternally(experimentTypePE.isManagedInternally());
         return result;
     }
 

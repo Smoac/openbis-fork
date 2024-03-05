@@ -71,7 +71,7 @@ public class UpdateExperimentTypeExecutor
     @Override
     protected void checkAccess(IOperationContext context, IEntityTypeId id, ExperimentTypePE entity)
     {
-        authorizationExecutor.canUpdate(context);
+        authorizationExecutor.canUpdate(context, entity);
     }
 
 }

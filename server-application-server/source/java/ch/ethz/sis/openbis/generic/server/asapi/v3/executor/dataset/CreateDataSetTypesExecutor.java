@@ -91,7 +91,12 @@ public class CreateDataSetTypesExecutor extends AbstractCreateEntityTypeExecutor
     @Override
     protected void checkAccess(IOperationContext context)
     {
-        authorizationExecutor.canCreate(context);
+    }
+
+    @Override
+    protected void checkAccess(IOperationContext context, DataSetTypePE entityType)
+    {
+        authorizationExecutor.canCreate(context, entityType);
     }
 
 }

@@ -127,6 +127,7 @@ public class ExperimentTypeImportHelper extends BasicImportHelper
         {
             creation.setValidationPluginId(new PluginPermId(ImportUtils.getScriptName(creation.getCode(), validationScript)));
         }
+        creation.setManagedInternally(ImportUtils.isInternalNamespace(creation.getCode()));
 
         delayedExecutor.createExperimentType(creation, page, line);
     }

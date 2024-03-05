@@ -19,6 +19,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -88,6 +92,7 @@ public class DeleteEntityTypeExecutor extends AbstractDeleteEntityExecutor<Void,
     @Override
     protected void checkAccess(IOperationContext context, IEntityTypeId entityId, EntityTypePE entity)
     {
+        checkEntityType(context.getSession(), entity);
         switch (entity.getEntityKind())
         {
             case DATA_SET:
@@ -120,6 +125,27 @@ public class DeleteEntityTypeExecutor extends AbstractDeleteEntityExecutor<Void,
             bo.delete();
         }
         return null;
+    }
+
+    private void checkEntityType(Session session, EntityTypePE entity)
+    {
+        if(entity.isManagedInternally() && isSystemUser(session) == false)
+        {
+            throw new AuthorizationFailureException("Internal entity types can be managed only by the system user.");
+        }
+    }
+
+    private boolean isSystemUser(Session session)
+    {
+        PersonPE user = session.tryGetPerson();
+
+        if (user == null)
+        {
+            throw new AuthorizationFailureException("Could not check access because the current session does not have any user assigned.");
+        } else
+        {
+            return user.isSystemUser();
+        }
     }
 
 }

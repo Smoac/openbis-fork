@@ -15,6 +15,10 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample;
 
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
@@ -36,8 +40,9 @@ public class SampleTypeAuthorizationExecutor implements ISampleTypeAuthorization
     @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
     @Capability("CREATE_SAMPLE_TYPE")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE_TYPE)
-    public void canCreate(IOperationContext context)
+    public void canCreate(IOperationContext context, SampleTypePE entityType)
     {
+        checkSampleType(context.getSession(), entityType);
     }
 
     @Override
@@ -58,8 +63,9 @@ public class SampleTypeAuthorizationExecutor implements ISampleTypeAuthorization
     @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN })
     @Capability("UPDATE_SAMPLE_TYPE")
     @DatabaseUpdateModification(value = ObjectKind.SAMPLE_TYPE)
-    public void canUpdate(IOperationContext context)
+    public void canUpdate(IOperationContext context, SampleTypePE entityType)
     {
+        checkSampleType(context.getSession(), entityType);
     }
 
     @Override
@@ -68,6 +74,27 @@ public class SampleTypeAuthorizationExecutor implements ISampleTypeAuthorization
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE_TYPE)
     public void canDelete(IOperationContext context)
     {
+    }
+
+    private void checkSampleType(Session session, SampleTypePE entityTypePE)
+    {
+        if(entityTypePE.isManagedInternally() && isSystemUser(session) == false)
+        {
+            throw new AuthorizationFailureException("Internal entity types can be managed only by the system user.");
+        }
+    }
+
+    private boolean isSystemUser(Session session)
+    {
+        PersonPE user = session.tryGetPerson();
+
+        if (user == null)
+        {
+            throw new AuthorizationFailureException("Could not check access because the current session does not have any user assigned.");
+        } else
+        {
+            return user.isSystemUser();
+        }
     }
 
 }

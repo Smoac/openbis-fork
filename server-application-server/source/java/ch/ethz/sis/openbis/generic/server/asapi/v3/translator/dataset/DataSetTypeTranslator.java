@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.List;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.CommonUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -83,14 +84,17 @@ public class DataSetTypeTranslator extends AbstractCachingTranslator<Long, DataS
         TranslationResults relations = (TranslationResults) objectRelations;
         DataSetTypeBaseRecord baseRecord = relations.get(IDataSetTypeBaseTranslator.class, typeId);
 
+        String businessCode = CodeConverter.tryToBusinessLayer(baseRecord.code, baseRecord.managedInternally);
+
         result.setPermId(new EntityTypePermId(baseRecord.code, EntityKind.DATA_SET));
-        result.setCode(baseRecord.code);
+        result.setCode(businessCode);
         result.setMainDataSetPattern(baseRecord.mainDataSetPattern);
         result.setMainDataSetPath(baseRecord.mainDataSetPath);
         result.setDisallowDeletion(baseRecord.disallowDeletion);
         result.setDescription(baseRecord.description);
         result.setModificationDate(baseRecord.modificationDate);
         result.setMetaData(CommonUtils.asMap(baseRecord.metaData));
+        result.setManagedInternally(baseRecord.managedInternally);
 
         if (fetchOptions.hasPropertyAssignments())
         {

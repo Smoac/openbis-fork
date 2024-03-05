@@ -136,6 +136,7 @@ public class SampleTypeImportHelper extends BasicImportHelper
         {
             creation.setGeneratedCodePrefix(generatedCodePrefix);
         }
+        creation.setManagedInternally(ImportUtils.isInternalNamespace(creation.getCode()));
 
         delayedExecutor.createSampleType(creation, page, line);
     }

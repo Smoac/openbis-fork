@@ -49,7 +49,7 @@ public interface ExperimentQuery extends ObjectQuery
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getTypeIds(LongSet experimentIds);
 
-    @Select(sql = "select et.id, et.code, et.description, et.modification_timestamp as modificationDate, et.meta_data as metaData "
+    @Select(sql = "select et.id, et.code, et.description, et.modification_timestamp as modificationDate, et.meta_data as metaData, et.is_managed_internally as managedInternally "
             + "from experiment_types et where et.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ExperimentTypeBaseRecord> getTypes(LongSet experimentTypeIds);
 

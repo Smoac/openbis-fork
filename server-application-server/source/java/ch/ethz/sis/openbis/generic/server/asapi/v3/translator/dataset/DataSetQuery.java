@@ -93,7 +93,7 @@ public interface DataSetQuery extends ObjectQuery
     public List<ObjectRelationRecord> getTypeIds(LongSet dataSetIds);
 
     @Select(sql = "select dt.id, dt.code, dt.description, dt.main_ds_pattern as mainDataSetPattern, dt.main_ds_path as mainDataSetPath, "
-            + "dt.deletion_disallow as disallowDeletion, dt.modification_timestamp as modificationDate, dt.meta_data as metaData from data_set_types dt where dt.id = any(?{1})", parameterBindings = {
+            + "dt.deletion_disallow as disallowDeletion, dt.modification_timestamp as modificationDate, dt.meta_data as metaData, dt.is_managed_internally as managedInternally from data_set_types dt where dt.id = any(?{1})", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<DataSetTypeBaseRecord> getTypes(LongSet dataSetTypeIds);
 
