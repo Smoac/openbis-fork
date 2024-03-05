@@ -137,6 +137,10 @@ $.extend(ImagingTechnology.prototype, ELNLIMSPlugin.prototype, {
 //                var viewDirty = function() {
 //                    model.isFormDirty = true;
 //                }
+//
+//                var viewClean = function() {
+//                    model.isFormDirty = false;
+//                }
                 this.displayImagingTechViewer($container, true, model.dataSetV3.permId.permId, '', null);
             }
         }
