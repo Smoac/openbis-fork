@@ -35,35 +35,25 @@ export default class DataBrowserController extends ComponentController {
     this.component.datastoreServer.useSession(sessionToken)
   }
 
-  async listFiles() {
-    let data
-    try {
-      data = await this.component.datastoreServer.list(this.owner, this.path, false)
-    } catch (error) {
-      let errorMessage
-      if (error && typeof error.message === 'string') {
-        // Standard error object
-        errorMessage = error.message
-      } else if (error && error.t0 && typeof error.t0.message === 'string') {
-        // Nested error object inside `t0`
-        errorMessage = error.t0.message
-      } else {
-        errorMessage = ''
-      }
-
-      if (errorMessage.includes('NoSuchFileException')) {
-        return []
-      } else {
-        throw error
-      }
-    }
-
-    if (!data.error) {
-      const results = data.result[1]
-      return results.map(result => result[1])
-    } else {
-      throw new Error(data.error)
-    }
+  listFiles() {
+    return new Promise((resolve, reject) => {
+      this.component.datastoreServer.list(this.owner, this.path, false)
+        .then((data) => {
+          if (!data.error) {
+            const results = data.result[1]
+            resolve(results.map(result => result[1]))
+          } else {
+            reject(data.error)
+          }
+        })
+        .catch((error) => {
+          if (error.message.includes('NoSuchFileException')) {
+            resolve([])
+          } else {
+            reject(error)
+          }
+        })
+    })
   }
 
   async load() {
