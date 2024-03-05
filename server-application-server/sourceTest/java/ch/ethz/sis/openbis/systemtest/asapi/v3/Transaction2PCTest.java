@@ -131,9 +131,11 @@ public class Transaction2PCTest extends AbstractTransactionTest
             fail();
         } catch (Exception e)
         {
-            assertEquals(e.getMessage(),
+            assertEquals(e.getMessage(), "Transaction '" + coordinatorTrId + "' execute operation '" + OPERATION_CREATE_SPACES + "' for participant '"
+                    + participant1.getParticipantId() + "' failed.");
+            assertEquals(e.getCause().getMessage(),
                     "Begin transaction '" + coordinatorTrId + "' failed for participant '" + participant1.getParticipantId() + "'.");
-            assertEquals(e.getCause(), exception);
+            assertEquals(e.getCause().getCause().getCause(), exception);
         }
 
         assertTransactions(coordinator.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
@@ -282,9 +284,11 @@ public class Transaction2PCTest extends AbstractTransactionTest
             fail();
         } catch (Exception e)
         {
-            assertEquals(e.getMessage(),
-                    "Prepare transaction '" + coordinatorTrId + "' failed for participant '" + participant2.getParticipantId() + "'.");
-            assertEquals(e.getCause(), exception);
+            assertEquals(e.getMessage(), "Commit transaction '" + coordinatorTrId + "' failed.");
+            assertEquals(e.getCause().getMessage(),
+                    "Prepare transaction '" + coordinatorTrId + "' failed for participant '" + participant2.getParticipantId()
+                            + "'. The transaction was rolled back.");
+            assertEquals(e.getCause().getCause().getCause(), exception);
         }
 
         assertTransactions(coordinator.getTransactionMap());
@@ -947,7 +951,8 @@ public class Transaction2PCTest extends AbstractTransactionTest
         assertTransactions(participant2.getTransactionMap());
 
         // replace original participant with a new instance
-        TestTransactionParticipant participant1AfterCrash = createParticipant(transactionConfiguration, TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER);
+        TestTransactionParticipant participant1AfterCrash =
+                createParticipant(transactionConfiguration, TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER);
         participant1AfterCrash.setTestTransactionMapping(participant1.getTestTransactionMapping());
         participants.set(0, participant1AfterCrash);
 
@@ -981,10 +986,12 @@ public class Transaction2PCTest extends AbstractTransactionTest
         } catch (Exception e)
         {
             // thrown by coordinator
-            assertEquals(e.getMessage(),
-                    "Prepare transaction '" + coordinatorTrId + "' failed for participant '" + participant1.getParticipantId() + "'.");
+            assertEquals(e.getMessage(), "Commit transaction '" + coordinatorTrId + "' failed.");
+            assertEquals(e.getCause().getMessage(),
+                    "Prepare transaction '" + coordinatorTrId + "' failed for participant '" + participant1.getParticipantId()
+                            + "'. The transaction was rolled back.");
             // thrown by participant
-            assertEquals(e.getCause().getMessage(), "Transaction '" + participant1TrId + "' does not exist.");
+            assertEquals(e.getCause().getCause().getMessage(), "Transaction '" + participant1TrId + "' does not exist.");
         }
 
         assertTransactions(coordinator.getTransactionMap());
@@ -1034,7 +1041,8 @@ public class Transaction2PCTest extends AbstractTransactionTest
         assertTransactions(participant1.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
         assertTransactions(participant2.getTransactionMap());
 
-        TestTransactionParticipant participant1AfterCrash = createParticipant(transactionConfiguration, TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER);
+        TestTransactionParticipant participant1AfterCrash =
+                createParticipant(transactionConfiguration, TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER);
         participant1AfterCrash.setTestTransactionMapping(Map.of(coordinatorTrId, participant1TrId));
         // replace original participant with a new instance
         participants.set(0, participant1AfterCrash);

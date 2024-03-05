@@ -249,8 +249,8 @@ public class TransactionCoordinatorTest
         } catch (Exception e)
         {
             assertEquals(e.getMessage(),
-                    "Transaction '" + TEST_TRANSACTION_ID + "' execute operation '" + TEST_OPERATION_NAME + "' failed for participant '"
-                            + TEST_PARTICIPANT_ID + "'.");
+                    "Transaction '" + TEST_TRANSACTION_ID + "' execute operation '" + TEST_OPERATION_NAME + "' for participant '"
+                            + TEST_PARTICIPANT_ID + "' failed.");
             assertEquals(e.getCause(), executeOperationException);
         }
     }
@@ -297,8 +297,11 @@ public class TransactionCoordinatorTest
             fail();
         } catch (Exception e)
         {
-            assertEquals(e.getMessage(), "Begin transaction '" + TEST_TRANSACTION_ID + "' failed for participant '" + TEST_PARTICIPANT_ID + "'.");
-            assertEquals(e.getCause(), executeOperationException);
+            assertEquals(e.getMessage(), "Transaction '" + TEST_TRANSACTION_ID + "' execute operation '" + TEST_OPERATION_NAME + "' for participant '"
+                    + TEST_PARTICIPANT_ID + "' failed.");
+            assertEquals(e.getCause().getMessage(),
+                    "Begin transaction '" + TEST_TRANSACTION_ID + "' failed for participant '" + TEST_PARTICIPANT_ID + "'.");
+            assertEquals(e.getCause().getCause(), executeOperationException);
         }
     }
 
@@ -360,8 +363,8 @@ public class TransactionCoordinatorTest
         } catch (Exception e)
         {
             assertEquals(e.getMessage(),
-                    "Transaction '" + TEST_TRANSACTION_ID + "' execute operation '" + TEST_OPERATION_NAME_2 + "' failed for participant '"
-                            + TEST_PARTICIPANT_ID + "'.");
+                    "Transaction '" + TEST_TRANSACTION_ID + "' execute operation '" + TEST_OPERATION_NAME_2 + "' for participant '"
+                            + TEST_PARTICIPANT_ID + "' failed.");
             assertEquals(e.getCause(), executeOperationException);
         }
 
@@ -584,8 +587,11 @@ public class TransactionCoordinatorTest
             fail();
         } catch (Exception e)
         {
-            assertEquals(e.getMessage(), "Prepare transaction '" + TEST_TRANSACTION_ID + "' failed for participant '" + TEST_PARTICIPANT_ID_2 + "'.");
-            assertEquals(e.getCause(), prepareException);
+            assertEquals(e.getMessage(), "Commit transaction '" + TEST_TRANSACTION_ID + "' failed.");
+            assertEquals(e.getCause().getMessage(),
+                    "Prepare transaction '" + TEST_TRANSACTION_ID + "' failed for participant '" + TEST_PARTICIPANT_ID_2
+                            + "'. The transaction was rolled back.");
+            assertEquals(e.getCause().getCause(), prepareException);
         }
     }
 

@@ -18,6 +18,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
@@ -171,7 +172,6 @@ public class TransactionParticipant implements ITransactionParticipant
         {
             try
             {
-
                 transaction.lockOrSkip(() ->
                 {
                     operationLog.info(
@@ -224,7 +224,7 @@ public class TransactionParticipant implements ITransactionParticipant
                     }
 
                     return null;
-                });
+                }, false);
             } catch (Exception e)
             {
                 operationLog.warn(
@@ -239,121 +239,124 @@ public class TransactionParticipant implements ITransactionParticipant
     @Override public void beginTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
             final String transactionCoordinatorKey)
     {
-        checkTransactionId(transactionId);
-        checkSessionToken(sessionToken);
-        checkInteractiveSessionKey(interactiveSessionKey);
-
-        if (transactionCoordinatorKey != null)
+        try
         {
-            checkTransactionCoordinatorKey(transactionCoordinatorKey);
-        }
+            checkTransactionId(transactionId);
+            checkSessionToken(sessionToken);
+            checkInteractiveSessionKey(interactiveSessionKey);
 
-        Transaction transaction = createTransaction(transactionId, TransactionStatus.NEW, sessionToken);
-        transaction.setTwoPhaseTransaction(transactionCoordinatorKey != null);
-
-        transaction.lockOrFail(() ->
-        {
-            try
+            if (transactionCoordinatorKey != null)
             {
-                transaction.setTransactionStatus(TransactionStatus.BEGIN_STARTED);
-                transaction.setLastAccessedDate(new Date());
+                checkTransactionCoordinatorKey(transactionCoordinatorKey);
+            }
 
-                operationLog.info("Begin transaction '" + transactionId + "' started.");
+            Transaction transaction = createTransaction(transactionId, TransactionStatus.NEW, sessionToken);
+            transaction.setTwoPhaseTransaction(transactionCoordinatorKey != null);
 
-                Object databaseTransaction = databaseTransactionProvider.beginTransaction(transactionId);
-                transaction.setDatabaseTransaction(databaseTransaction);
-
-                transaction.setTransactionStatus(TransactionStatus.BEGIN_FINISHED);
-                transaction.setLastAccessedDate(new Date());
-
-                operationLog.info("Begin transaction '" + transactionId + "' finished successfully.");
-
-                return null;
-            } catch (Exception beginException)
+            transaction.lockOrFail(() ->
             {
-                operationLog.error("Begin transaction '" + transactionId + "' failed.", beginException);
-
                 try
                 {
-                    transactionLog.deleteTransaction(transactionId);
-                    transactionMap.remove(transactionId);
-                    transaction.close();
-                } catch (Exception deleteException)
-                {
-                    operationLog.warn("Could not delete transaction '" + transactionId + "'.", deleteException);
-                }
+                    operationLog.info("Begin transaction '" + transactionId + "' started.");
 
-                throw beginException;
-            }
-        });
+                    transaction.setTransactionStatus(TransactionStatus.BEGIN_STARTED);
+
+                    Object databaseTransaction = databaseTransactionProvider.beginTransaction(transactionId);
+                    transaction.setDatabaseTransaction(databaseTransaction);
+
+                    transaction.setTransactionStatus(TransactionStatus.BEGIN_FINISHED);
+
+                    operationLog.info("Begin transaction '" + transactionId + "' finished successfully.");
+
+                    return null;
+                } catch (Exception beginException)
+                {
+                    try
+                    {
+                        transactionLog.deleteTransaction(transactionId);
+                        transactionMap.remove(transactionId);
+                        transaction.close();
+                    } catch (Exception deleteException)
+                    {
+                        operationLog.warn("Could not delete transaction '" + transactionId + "'.", deleteException);
+                    }
+
+                    throw beginException;
+                }
+            }, true);
+        } catch (Exception e)
+        {
+            throw logException("Begin transaction '" + transactionId + "' failed.", e);
+        }
     }
 
     @Override public <T> T executeOperation(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
             final String operationName, final Object[] operationArguments)
     {
-        checkTransactionId(transactionId);
-        checkSessionToken(sessionToken);
-        checkInteractiveSessionKey(interactiveSessionKey);
-        checkOperationName(operationName);
-        checkOperationArguments(operationArguments);
-
-        Transaction transaction = getTransaction(transactionId);
-
-        if (transaction == null)
+        try
         {
-            throw new IllegalStateException("Transaction '" + transactionId + "' does not exist.");
-        }
+            checkTransactionId(transactionId);
+            checkSessionToken(sessionToken);
+            checkInteractiveSessionKey(interactiveSessionKey);
+            checkOperationName(operationName);
+            checkOperationArguments(operationArguments);
 
-        return transaction.lockOrFail(() ->
-        {
-            checkTransactionAccess(transaction, sessionToken);
-            checkTransactionStatus(transaction, TransactionStatus.BEGIN_FINISHED);
+            Transaction transaction = getTransaction(transactionId);
 
-            transaction.setLastAccessedDate(new Date());
-
-            try
+            if (transaction == null)
             {
-                operationLog.info("Transaction '" + transactionId + "' execute operation '" + operationName + "' started.");
-                T result = operationExecutor.executeOperation(sessionToken, operationName, operationArguments);
-                operationLog.info("Transaction '" + transactionId + "' execute operation '" + operationName + "' finished successfully.");
-                return result;
-            } catch (Exception e)
-            {
-                throw new TransactionOperationException(e);
-            } finally
-            {
-                transaction.setLastAccessedDate(new Date());
+                throw new UserFailureException("Transaction '" + transactionId + "' does not exist.");
             }
-        });
+
+            return transaction.lockOrFail(() ->
+            {
+                checkTransactionAccess(transaction, sessionToken);
+                checkTransactionStatus(transaction, TransactionStatus.BEGIN_FINISHED);
+
+                try
+                {
+                    operationLog.info("Transaction '" + transactionId + "' execute operation '" + operationName + "' started.");
+                    T result = operationExecutor.executeOperation(sessionToken, operationName, operationArguments);
+                    operationLog.info("Transaction '" + transactionId + "' execute operation '" + operationName + "' finished successfully.");
+                    return result;
+                } catch (Exception operationException)
+                {
+                    throw new TransactionOperationException("Operation '" + operationName + "' failed.", operationException);
+                }
+            }, true);
+        } catch (Exception e)
+        {
+            throw logException("Transaction '" + transactionId + "' execute operation '" + operationName + "' failed.", e);
+        }
     }
 
     @Override public void prepareTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
             final String transactionCoordinatorKey)
     {
-        checkTransactionId(transactionId);
-        checkSessionToken(sessionToken);
-        checkInteractiveSessionKey(interactiveSessionKey);
-        checkTransactionCoordinatorKey(transactionCoordinatorKey);
-
-        Transaction transaction = getTransaction(transactionId);
-
-        if (transaction == null)
+        try
         {
-            throw new IllegalStateException("Transaction '" + transactionId + "' does not exist.");
-        }
+            checkTransactionId(transactionId);
+            checkSessionToken(sessionToken);
+            checkInteractiveSessionKey(interactiveSessionKey);
+            checkTransactionCoordinatorKey(transactionCoordinatorKey);
 
-        transaction.lockOrFail(() ->
-        {
-            checkTransactionAccess(transaction, sessionToken);
-            checkTransactionStatus(transaction, TransactionStatus.BEGIN_FINISHED);
+            Transaction transaction = getTransaction(transactionId);
 
-            transaction.setLastAccessedDate(new Date());
-
-            if (!transaction.isTwoPhaseTransaction())
+            if (transaction == null)
             {
-                throw new IllegalStateException("Transaction '" + transactionId
-                        + "' was started without transaction coordinator key, therefore calling prepare is not allowed.");
+                throw new UserFailureException("Transaction '" + transactionId + "' does not exist.");
             }
+
+            transaction.lockOrFail(() ->
+            {
+                checkTransactionAccess(transaction, sessionToken);
+                checkTransactionStatus(transaction, TransactionStatus.BEGIN_FINISHED);
+
+                if (!transaction.isTwoPhaseTransaction())
+                {
+                    throw new UserFailureException("Transaction '" + transactionId
+                            + "' was started without transaction coordinator key, therefore calling prepare is not allowed.");
+                }
 
                 operationLog.info("Prepare transaction '" + transactionId + "' started.");
 
@@ -363,81 +366,102 @@ public class TransactionParticipant implements ITransactionParticipant
 
                 operationLog.info("Prepare transaction '" + transactionId + "' finished successfully.");
 
-                transaction.setLastAccessedDate(new Date());
                 return null;
-        });
+            }, true);
+        } catch (Exception e)
+        {
+            throw logException("Prepare transaction '" + transactionId + "' failed.", e);
+        }
     }
 
     @Override public List<UUID> recoverTransactions(final String interactiveSessionKey, final String transactionCoordinatorKey)
     {
-        checkInteractiveSessionKey(interactiveSessionKey);
-        checkTransactionCoordinatorKey(transactionCoordinatorKey);
-
-        operationLog.info("Started recovering transactions (triggered by the coordinator)");
-
-        recoverTransactionsFromTransactionLog();
-
-        List<UUID> preparedTransactions = new ArrayList<>();
-
-        for (Transaction transaction : transactionMap.values())
+        try
         {
-            if (transaction.isTwoPhaseTransaction())
+            checkInteractiveSessionKey(interactiveSessionKey);
+            checkTransactionCoordinatorKey(transactionCoordinatorKey);
+
+            operationLog.info("Started recovering transactions (triggered by the coordinator)");
+
+            recoverTransactionsFromTransactionLog();
+
+            List<UUID> preparedTransactions = new ArrayList<>();
+
+            for (Transaction transaction : transactionMap.values())
             {
-                if (TransactionStatus.PREPARE_FINISHED.equals(transaction.getTransactionStatus()))
+                if (transaction.isTwoPhaseTransaction())
                 {
-                    preparedTransactions.add(transaction.getTransactionId());
-                } else if (TransactionStatus.COMMIT_STARTED.equals(transaction.getTransactionStatus()))
-                {
-                    transaction.lockOrSkip(() -> preparedTransactions.add(transaction.getTransactionId()));
+                    if (TransactionStatus.PREPARE_FINISHED.equals(transaction.getTransactionStatus()))
+                    {
+                        preparedTransactions.add(transaction.getTransactionId());
+                    } else if (TransactionStatus.COMMIT_STARTED.equals(transaction.getTransactionStatus()))
+                    {
+                        transaction.lockOrSkip(() -> preparedTransactions.add(transaction.getTransactionId()), false);
+                    }
                 }
             }
+
+            operationLog.info("Finished recovering transactions (triggered by the coordinator)");
+
+            return preparedTransactions;
+        } catch (Exception e)
+        {
+            throw logException("Recover transactions failed.", e);
         }
-
-        operationLog.info("Finished recovering transactions (triggered by the coordinator)");
-
-        return preparedTransactions;
     }
 
     @Override public void commitTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
     {
-        checkTransactionId(transactionId);
-        checkSessionToken(sessionToken);
-        checkInteractiveSessionKey(interactiveSessionKey);
-
-        Transaction transaction = getTransaction(transactionId);
-
-        if (transaction == null)
+        try
         {
-            throw new IllegalStateException("Transaction '" + transactionId + "' does not exist.");
+            checkTransactionId(transactionId);
+            checkSessionToken(sessionToken);
+            checkInteractiveSessionKey(interactiveSessionKey);
+
+            Transaction transaction = getTransaction(transactionId);
+
+            if (transaction == null)
+            {
+                throw new UserFailureException("Transaction '" + transactionId + "' does not exist.");
+            }
+
+            transaction.lockOrFail(() ->
+            {
+                checkTransactionAccess(transaction, sessionToken);
+                commitTransaction(transaction);
+                return null;
+            }, true);
+        } catch (Exception e)
+        {
+            throw logException("Commit transaction '" + transactionId + "' failed.", e);
         }
-
-        transaction.lockOrFail(() ->
-        {
-            checkTransactionAccess(transaction, sessionToken);
-            commitTransaction(transaction);
-            return null;
-        });
     }
 
     @Override public void commitRecoveredTransaction(final UUID transactionId, final String interactiveSessionKey,
             final String transactionCoordinatorKey)
     {
-        checkTransactionId(transactionId);
-        checkInteractiveSessionKey(interactiveSessionKey);
-        checkTransactionCoordinatorKey(transactionCoordinatorKey);
-
-        Transaction transaction = getTransaction(transactionId);
-
-        if (transaction == null)
+        try
         {
-            throw new IllegalStateException("Transaction '" + transactionId + "' does not exist.");
+            checkTransactionId(transactionId);
+            checkInteractiveSessionKey(interactiveSessionKey);
+            checkTransactionCoordinatorKey(transactionCoordinatorKey);
+
+            Transaction transaction = getTransaction(transactionId);
+
+            if (transaction == null)
+            {
+                throw new UserFailureException("Transaction '" + transactionId + "' does not exist.");
+            }
+
+            transaction.lockOrWait(() ->
+            {
+                commitTransaction(transaction);
+                return null;
+            }, true);
+        } catch (Exception e)
+        {
+            throw logException("Commit transaction '" + transactionId + "' failed.", e);
         }
-
-        transaction.lockOrWait(() ->
-        {
-            commitTransaction(transaction);
-            return null;
-        });
     }
 
     private void commitTransaction(Transaction transaction) throws Exception
@@ -450,9 +474,7 @@ public class TransactionParticipant implements ITransactionParticipant
             checkTransactionStatus(transaction, TransactionStatus.BEGIN_FINISHED);
         }
 
-            transaction.setLastAccessedDate(new Date());
-
-            operationLog.info("Commit transaction '" + transaction.getTransactionId() + "' started.");
+        operationLog.info("Commit transaction '" + transaction.getTransactionId() + "' started.");
 
         if (transaction.getTransactionStatus() != TransactionStatus.NEW)
         {
@@ -481,54 +503,64 @@ public class TransactionParticipant implements ITransactionParticipant
             transaction.setTransactionStatus(TransactionStatus.COMMIT_FINISHED);
         }
 
-            transaction.close();
-            transactionMap.remove(transaction.getTransactionId());
+        transaction.close();
+        transactionMap.remove(transaction.getTransactionId());
 
-            operationLog.info("Commit transaction '" + transaction.getTransactionId() + "' finished successfully.");
-
-            transaction.setLastAccessedDate(new Date());
+        operationLog.info("Commit transaction '" + transaction.getTransactionId() + "' finished successfully.");
     }
 
     @Override public void rollbackTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
     {
-        checkTransactionId(transactionId);
-        checkSessionToken(sessionToken);
-        checkInteractiveSessionKey(interactiveSessionKey);
-
-        Transaction transaction = getTransaction(transactionId);
-
-        if (transaction == null)
+        try
         {
-            return;
+            checkTransactionId(transactionId);
+            checkSessionToken(sessionToken);
+            checkInteractiveSessionKey(interactiveSessionKey);
+
+            Transaction transaction = getTransaction(transactionId);
+
+            if (transaction == null)
+            {
+                return;
+            }
+
+            transaction.lockOrFail(() ->
+            {
+                checkTransactionAccess(transaction, sessionToken);
+                rollbackTransaction(transaction);
+                return null;
+            }, true);
+        } catch (Exception e)
+        {
+            throw logException("Rollback transaction '" + transactionId + "' failed.", e);
         }
-
-        transaction.lockOrFail(() ->
-        {
-            checkTransactionAccess(transaction, sessionToken);
-            rollbackTransaction(transaction);
-            return null;
-        });
     }
 
     @Override public void rollbackRecoveredTransaction(final UUID transactionId, final String interactiveSessionKey,
             final String transactionCoordinatorKey)
     {
-        checkTransactionId(transactionId);
-        checkInteractiveSessionKey(interactiveSessionKey);
-        checkTransactionCoordinatorKey(transactionCoordinatorKey);
-
-        Transaction transaction = getTransaction(transactionId);
-
-        if (transaction == null)
+        try
         {
-            return;
+            checkTransactionId(transactionId);
+            checkInteractiveSessionKey(interactiveSessionKey);
+            checkTransactionCoordinatorKey(transactionCoordinatorKey);
+
+            Transaction transaction = getTransaction(transactionId);
+
+            if (transaction == null)
+            {
+                return;
+            }
+
+            transaction.lockOrWait(() ->
+            {
+                rollbackTransaction(transaction);
+                return null;
+            }, true);
+        } catch (Exception e)
+        {
+            throw logException("Rollback transaction '" + transactionId + "' failed.", e);
         }
-
-        transaction.lockOrWait(() ->
-        {
-            rollbackTransaction(transaction);
-            return null;
-        });
     }
 
     private void rollbackTransaction(Transaction transaction) throws Exception
@@ -549,24 +581,20 @@ public class TransactionParticipant implements ITransactionParticipant
                     TransactionStatus.BEGIN_FINISHED, TransactionStatus.COMMIT_STARTED, TransactionStatus.ROLLBACK_STARTED);
         }
 
-            transaction.setLastAccessedDate(new Date());
+        operationLog.info("Rollback transaction '" + transaction.getTransactionId() + "' started.");
 
-            operationLog.info("Rollback transaction '" + transaction.getTransactionId() + "' started.");
+        if (transaction.getTransactionStatus() != TransactionStatus.NEW)
+        {
+            transaction.setTransactionStatus(TransactionStatus.ROLLBACK_STARTED);
+            databaseTransactionProvider.rollbackTransaction(transaction.getTransactionId(), transaction.getDatabaseTransaction(),
+                    transaction.isTwoPhaseTransaction());
+            transaction.setTransactionStatus(TransactionStatus.ROLLBACK_FINISHED);
+        }
 
-            if (transaction.getTransactionStatus() != TransactionStatus.NEW)
-            {
-                transaction.setTransactionStatus(TransactionStatus.ROLLBACK_STARTED);
-                databaseTransactionProvider.rollbackTransaction(transaction.getTransactionId(), transaction.getDatabaseTransaction(),
-                        transaction.isTwoPhaseTransaction());
-                transaction.setTransactionStatus(TransactionStatus.ROLLBACK_FINISHED);
-            }
+        transaction.close();
+        transactionMap.remove(transaction.getTransactionId());
 
-            transaction.close();
-            transactionMap.remove(transaction.getTransactionId());
-
-            operationLog.info("Rollback transaction '" + transaction.getTransactionId() + "' finished successfully.");
-
-            transaction.setLastAccessedDate(new Date());
+        operationLog.info("Rollback transaction '" + transaction.getTransactionId() + "' finished successfully.");
     }
 
     public boolean isRunningTransaction(UUID transactionId)
@@ -579,7 +607,7 @@ public class TransactionParticipant implements ITransactionParticipant
     {
         if (transactionId == null)
         {
-            throw new IllegalArgumentException("Transaction id cannot be null");
+            throw new UserFailureException("Transaction id cannot be null");
         }
     }
 
@@ -587,12 +615,12 @@ public class TransactionParticipant implements ITransactionParticipant
     {
         if (sessionToken == null)
         {
-            throw new IllegalArgumentException("Session token cannot be null");
+            throw new UserFailureException("Session token cannot be null");
         }
 
         if (!sessionTokenProvider.isValid(sessionToken))
         {
-            throw new IllegalArgumentException("Invalid session token");
+            throw new UserFailureException("Invalid session token");
         }
     }
 
@@ -600,12 +628,12 @@ public class TransactionParticipant implements ITransactionParticipant
     {
         if (interactiveSessionKey == null)
         {
-            throw new IllegalArgumentException("Interactive session key cannot be null");
+            throw new UserFailureException("Interactive session key cannot be null");
         }
 
         if (!this.interactiveSessionKey.equals(interactiveSessionKey))
         {
-            throw new IllegalArgumentException("Invalid interactive session key");
+            throw new UserFailureException("Invalid interactive session key");
         }
     }
 
@@ -613,12 +641,12 @@ public class TransactionParticipant implements ITransactionParticipant
     {
         if (transactionCoordinatorKey == null)
         {
-            throw new IllegalArgumentException("Transaction coordinator key cannot be null");
+            throw new UserFailureException("Transaction coordinator key cannot be null");
         }
 
         if (!this.transactionCoordinatorKey.equals(transactionCoordinatorKey))
         {
-            throw new IllegalArgumentException("Invalid transaction coordinator key");
+            throw new UserFailureException("Invalid transaction coordinator key");
         }
     }
 
@@ -632,7 +660,7 @@ public class TransactionParticipant implements ITransactionParticipant
             }
         }
 
-        throw new IllegalStateException(
+        throw new UserFailureException(
                 "Transaction '" + transaction.getTransactionId() + "' unexpected status '" + transaction.getTransactionStatus()
                         + "'. Expected statuses '"
                         + Arrays.toString(expectedStatuses) + "'.");
@@ -647,7 +675,7 @@ public class TransactionParticipant implements ITransactionParticipant
 
         if (!Objects.equals(transaction.getSessionToken(), sessionToken))
         {
-            throw new IllegalArgumentException("Access denied to transaction '" + transaction.getTransactionId() + "'");
+            throw new UserFailureException("Access denied to transaction '" + transaction.getTransactionId() + "'");
         }
     }
 
@@ -655,7 +683,7 @@ public class TransactionParticipant implements ITransactionParticipant
     {
         if (operationName == null)
         {
-            throw new IllegalArgumentException("Operation name cannot be null");
+            throw new UserFailureException("Operation name cannot be null");
         }
     }
 
@@ -663,7 +691,7 @@ public class TransactionParticipant implements ITransactionParticipant
     {
         if (operationArguments == null)
         {
-            throw new IllegalArgumentException("Operation arguments cannot be null");
+            throw new UserFailureException("Operation arguments cannot be null");
         }
     }
 
@@ -683,7 +711,7 @@ public class TransactionParticipant implements ITransactionParticipant
                         {
                             if (sessionToken.equals(transaction.getSessionToken()))
                             {
-                                throw new IllegalStateException(
+                                throw new UserFailureException(
                                         "Cannot create more than one transaction for the same session token. Transaction that could not be created: '"
                                                 + transactionId + "'. The already existing and still active transaction: '"
                                                 + transaction.getTransactionId() + "'.");
@@ -696,14 +724,14 @@ public class TransactionParticipant implements ITransactionParticipant
                     return newTransaction;
                 } else
                 {
-                    throw new IllegalStateException(
+                    throw new UserFailureException(
                             "Cannot create transaction '" + transactionId
                                     + "' because the transaction count limit has been reached. Number of existing transactions: "
                                     + transactionMap.size());
                 }
             } else
             {
-                throw new IllegalStateException("Transaction '" + transactionId + "' already exists.");
+                throw new UserFailureException("Transaction '" + transactionId + "' already exists.");
             }
         }
     }
@@ -722,12 +750,18 @@ public class TransactionParticipant implements ITransactionParticipant
     {
         for (Transaction transaction : transactionMap.values())
         {
-            transaction.lockOrFail(() ->
+            try
             {
-                transaction.close();
-                transactionMap.remove(transaction.getTransactionId());
-                return null;
-            });
+                transaction.lockOrFail(() ->
+                {
+                    transaction.close();
+                    transactionMap.remove(transaction.getTransactionId());
+                    return null;
+                }, false);
+            } catch (Exception e)
+            {
+                operationLog.warn("Could not close transaction '" + transaction.getTransactionId() + "'.", e);
+            }
         }
     }
 
@@ -787,77 +821,78 @@ public class TransactionParticipant implements ITransactionParticipant
             isTwoPhaseTransaction = twoPhaseTransaction;
         }
 
-        public <T> T lockOrFail(Callable<T> action)
+        public <T> T lockOrFail(Callable<T> action, boolean touch) throws Exception
         {
             return lock(lock::tryLock, action, () ->
             {
-                throw new RuntimeException(
+                throw new UserFailureException(
                         "Cannot execute a new action on transaction '" + getTransactionId() + "' as it is still busy executing a previous action.");
-            });
+            }, touch);
         }
 
-        public void lockOrSkip(Callable<?> action)
+        public void lockOrSkip(Callable<?> action, boolean touch) throws Exception
         {
             lock(lock::tryLock, action, () ->
             {
                 operationLog.info(
                         "Cannot execute a new action on transaction '" + getTransactionId() + "' as it is still busy executing a previous action.");
                 return null;
-            });
+            }, touch);
         }
 
-        public void lockOrWait(Callable<?> action)
+        public void lockOrWait(Callable<?> action, boolean touch) throws Exception
         {
             long timestamp = System.currentTimeMillis();
             lock(() -> lock.tryLock(transactionTimeoutInSeconds, TimeUnit.SECONDS), action, () ->
             {
-                throw new RuntimeException(
+                throw new UserFailureException(
                         "Cannot execute a new action on transaction '" + getTransactionId()
                                 + "' as it is still busy executing a previous action. Waited since '" + new Date(timestamp) + "'.");
-            });
+            }, touch);
         }
 
-        private <T> T lock(Callable<Boolean> lockingAction, Callable<T> lockedAction, Callable<?> notLockedAction)
+        private <T> T lock(Callable<Boolean> lockingAction, Callable<T> lockedAction, Callable<?> notLockedAction, boolean touch) throws Exception
         {
-            try
+            if (lockingAction.call())
             {
-                if (lockingAction.call())
+                if (executor.isShutdown())
                 {
-                    if (executor.isShutdown())
-                    {
-                        operationLog.info("Cannot execute a new action on transaction '" + getTransactionId() + "' as it has been already closed.");
-                        return null;
-                    }
-
-                    try
-                    {
-                        Future<T> future = executor.submit(lockedAction);
-                        return future.get();
-                    } catch (ExecutionException e)
-                    {
-                        Throwable originalException = e.getCause();
-                        if (originalException instanceof RuntimeException)
-                        {
-                            throw (RuntimeException) originalException;
-                        } else
-                        {
-                            throw new RuntimeException(originalException);
-                        }
-                    } finally
-                    {
-                        lock.unlock();
-                    }
-                } else
-                {
-                    notLockedAction.call();
+                    operationLog.info("Cannot execute a new action on transaction '" + getTransactionId() + "' as it has been already closed.");
                     return null;
                 }
-            } catch (RuntimeException e)
+
+                if (touch)
+                {
+                    setLastAccessedDate(new Date());
+                }
+
+                try
+                {
+                    Future<T> future = executor.submit(lockedAction);
+                    return future.get();
+                } catch (ExecutionException e)
+                {
+                    Throwable originalException = e.getCause();
+                    if (originalException instanceof Exception)
+                    {
+                        throw (Exception) originalException;
+                    } else
+                    {
+                        throw new RuntimeException(originalException);
+                    }
+                } finally
+                {
+                    if (touch)
+                    {
+                        setLastAccessedDate(new Date());
+                    }
+
+                    lock.unlock();
+                }
+            } else
             {
-                throw e;
-            } catch (Exception e)
-            {
-                throw new RuntimeException(e);
+                notLockedAction.call();
+                return null;
             }
         }
 
@@ -876,8 +911,9 @@ public class TransactionParticipant implements ITransactionParticipant
                 try
                 {
                     databaseTransactionProvider.rollbackTransaction(getTransactionId(), databaseTransaction, isTwoPhaseTransaction());
-                } catch (Exception ignore)
+                } catch (Exception e)
                 {
+                    operationLog.warn("Transaction rollback '" + getTransactionId() + "' failed.", e);
                 }
             }
         }
@@ -903,4 +939,18 @@ public class TransactionParticipant implements ITransactionParticipant
     {
         this.transactionLog = transactionLog;
     }
+
+    private RuntimeException logException(String message, Exception exception)
+    {
+        if (exception instanceof UserFailureException || exception instanceof TransactionOperationException)
+        {
+            operationLog.info(message, exception);
+            return (RuntimeException) exception;
+        } else
+        {
+            operationLog.error(message, exception);
+            return new RuntimeException(message, exception);
+        }
+    }
+
 }

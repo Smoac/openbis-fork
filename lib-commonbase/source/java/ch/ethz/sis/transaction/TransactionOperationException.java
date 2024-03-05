@@ -3,9 +3,15 @@ package ch.ethz.sis.transaction;
 public class TransactionOperationException extends RuntimeException
 {
 
-    public TransactionOperationException(Exception cause)
+    // Needed for ExceptionUtil to avoid masquerading
+    public TransactionOperationException(String message)
     {
-        super(cause);
+        super(message);
+    }
+
+    public TransactionOperationException(String message, Exception cause)
+    {
+        super(message, cause);
     }
 
 }

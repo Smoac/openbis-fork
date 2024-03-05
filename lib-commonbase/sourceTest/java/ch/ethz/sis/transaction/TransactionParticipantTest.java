@@ -349,14 +349,8 @@ public class TransactionParticipantTest
             fail();
         } catch (Throwable t)
         {
-            if (throwable instanceof RuntimeException)
-            {
-                assertEquals(t, throwable);
-            } else
-            {
-                assertEquals(t.getCause(), throwable);
-            }
-
+            assertEquals(t.getMessage(), "Begin transaction '" + TEST_TRANSACTION_ID + "' failed.");
+            assertEquals(t.getCause(), throwable);
             assertFalse(participant.isRunningTransaction(TEST_TRANSACTION_ID));
         }
     }
@@ -693,15 +687,10 @@ public class TransactionParticipantTest
             fail();
         } catch (Throwable t)
         {
-            if (throwable instanceof RuntimeException)
-            {
-                assertEquals(t, throwable);
-            } else
-            {
-                assertEquals(t.getCause(), throwable);
-            }
-
+            assertEquals(t.getMessage(), "Prepare transaction '" + TEST_TRANSACTION_ID + "' failed.");
+            assertEquals(t.getCause(), throwable);
             assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+
             // rollback
             participant.rollbackTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
             assertFalse(participant.isRunningTransaction(TEST_TRANSACTION_ID));
@@ -898,13 +887,8 @@ public class TransactionParticipantTest
             fail();
         } catch (Throwable t)
         {
-            if (throwable instanceof RuntimeException)
-            {
-                assertEquals(t, throwable);
-            } else
-            {
-                assertEquals(t.getCause(), throwable);
-            }
+            assertEquals(t.getMessage(), "Commit transaction '" + TEST_TRANSACTION_ID + "' failed.");
+            assertEquals(t.getCause(), throwable);
 
             if (transactionCoordinatorKey == null)
             {
@@ -1086,14 +1070,8 @@ public class TransactionParticipantTest
             fail();
         } catch (Throwable t)
         {
-            if (throwable instanceof RuntimeException)
-            {
-                assertEquals(t, throwable);
-            } else
-            {
-                assertEquals(t.getCause(), throwable);
-            }
-
+            assertEquals(t.getMessage(), "Rollback transaction '" + TEST_TRANSACTION_ID + "' failed.");
+            assertEquals(t.getCause(), throwable);
             assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
         }
     }

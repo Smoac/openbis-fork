@@ -207,7 +207,8 @@ public class Transaction1PCTest extends AbstractTransactionTest
             fail();
         } catch (Exception e)
         {
-            assertEquals(e, exception);
+            assertEquals(e.getMessage(), "Commit transaction '" + transactionId + "' failed.");
+            assertEquals(e.getCause(), exception);
         }
 
         // transaction is rolled back
@@ -251,7 +252,8 @@ public class Transaction1PCTest extends AbstractTransactionTest
             fail();
         } catch (Exception e)
         {
-            assertEquals(e, exception);
+            assertEquals(e.getMessage(), "Rollback transaction '" + transactionId + "' failed.");
+            assertEquals(e.getCause(), exception);
         }
 
         assertTransactions(participant.getTransactionMap(), new Transaction(transactionId, TransactionStatus.ROLLBACK_STARTED));
@@ -671,7 +673,8 @@ public class Transaction1PCTest extends AbstractTransactionTest
             fail();
         } catch (Exception e)
         {
-            assertEquals(e.getMessage(), commitException.getMessage());
+            assertEquals(e.getMessage(), "Commit transaction '" + transactionId1 + "' failed.");
+            assertEquals(e.getCause(), commitException);
         }
 
         assertTransactions(participantBeforeCrash.getTransactionMap(), new Transaction(transactionId1, TransactionStatus.ROLLBACK_STARTED), new Transaction(transactionId2, TransactionStatus.BEGIN_FINISHED));
