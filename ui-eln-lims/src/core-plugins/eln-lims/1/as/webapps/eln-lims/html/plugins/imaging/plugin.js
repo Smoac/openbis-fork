@@ -93,6 +93,21 @@ $.extend(ImagingTechnology.prototype, ELNLIMSPlugin.prototype, {
                                 model.experiment.properties["$DEFAULT_COLLECTION_VIEW"] &&
                                 model.experiment.properties["$DEFAULT_COLLECTION_VIEW"] === "IMAGING_GALLERY_VIEW";
             if (isGalleryView) {
+
+// TODO
+//                var configKey = "IMAGING_GALLERY_VIEW-" + model.experiment.experimentTypeCode;
+//
+//                var readConfig = function(callback) {
+//                        mainController.serverFacade.getSetting(configKey, function(config) {
+//                        callback(config);
+//                    });
+//                }
+//
+//                var writeConfig = function(config, callback) {
+//                    mainController.serverFacade.setSetting(configKey, config);
+//                    callback();
+//                }
+
                 this.displayImagingTechViewer($container, false, model.experiment.permId, 'collection',
                     function(objId){mainController.changeView('showViewDataSetPageFromPermId', objId)});
             }
@@ -118,7 +133,11 @@ $.extend(ImagingTechnology.prototype, ELNLIMSPlugin.prototype, {
                                 model.dataSetV3.properties["$DEFAULT_DATASET_VIEW"] &&
                                 model.dataSetV3.properties["$DEFAULT_DATASET_VIEW"] === "IMAGING_DATASET_VIEWER";
             if (isImagingDatasetView) {
-                this.displayImagingTechViewer($container, true, model.dataSetV3.permId.permId, '',null);
+// TODO
+//                var viewDirty = function() {
+//                    model.isFormDirty = true;
+//                }
+                this.displayImagingTechViewer($container, true, model.dataSetV3.permId.permId, '', null);
             }
         }
     }
