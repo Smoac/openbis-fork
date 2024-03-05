@@ -216,12 +216,18 @@ public class APIServer<CONNECTION, INPUT extends Request, OUTPUT extends Respons
             } else if (exception instanceof InvocationTargetException) { // When calling methods using reflection the real cause is wrapped
                 Throwable originalException = exception.getCause();
                 ExceptionReason reason;
-                if ((originalException != null) && (originalException.getCause() instanceof ThrowableReason)) {
-                    ThrowableReason throwableReason = (ThrowableReason) originalException.getCause();
-                    reason = (ExceptionReason) throwableReason.getReason();
-                } else if(originalException != null) {
-                    reason = APIExceptions.UNKNOWN.getCause(originalException.getClass().getSimpleName(), originalException.getMessage());
-                } else { // This error branch has never been hit during testing
+                if (originalException != null)
+                {
+                    if (originalException.getCause() instanceof ThrowableReason)
+                    {
+                        ThrowableReason throwableReason = (ThrowableReason) originalException.getCause();
+                        reason = (ExceptionReason) throwableReason.getReason();
+                    } else
+                    {
+                        reason = APIExceptions.UNKNOWN.getCause(originalException.getClass().getSimpleName(), originalException.getMessage());
+                    }
+                } else
+                { // This error branch has never been hit during testing
                     reason = APIExceptions.UNKNOWN.getCause(exception.getClass().getSimpleName(), exception.getMessage());
                 }
                 apiException = new APIServerException(currentRequestId, APIServerErrorType.InternalError, reason);

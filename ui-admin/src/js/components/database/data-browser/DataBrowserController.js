@@ -36,13 +36,28 @@ export default class DataBrowserController extends ComponentController {
   }
 
   async listFiles() {
-    // TODO: resolve this problematic issue of having to create a folder just in case
+    let data
     try {
-      await this.component.datastoreServer.create(this.owner, this.path, true);
-    } catch (e) {
+      data = await this.component.datastoreServer.list(this.owner, this.path, false)
+    } catch (error) {
+      let errorMessage
+      if (error && typeof error.message === 'string') {
+        // Standard error object
+        errorMessage = error.message
+      } else if (error && error.t0 && typeof error.t0.message === 'string') {
+        // Nested error object inside `t0`
+        errorMessage = error.t0.message
+      } else {
+        errorMessage = ''
+      }
+
+      if (errorMessage.includes('NoSuchFileException')) {
+        return []
+      } else {
+        throw error
+      }
     }
 
-    const data = await this.component.datastoreServer.list(this.owner, this.path, false)
     if (!data.error) {
       const results = data.result[1]
       return results.map(result => result[1])
