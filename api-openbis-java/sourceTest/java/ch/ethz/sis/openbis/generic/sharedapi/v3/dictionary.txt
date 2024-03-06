@@ -2903,3 +2903,7 @@ XLSX
 XML
 YES
 ZipImportData
+I Transaction Coordinator Api
+I Transaction Participant Api
+APPLICATION_SERVER_PARTICIPANT_ID
+AFS_SERVER_PARTICIPANT_ID
