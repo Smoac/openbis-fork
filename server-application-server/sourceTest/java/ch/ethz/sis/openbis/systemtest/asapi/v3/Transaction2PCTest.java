@@ -92,7 +92,12 @@ public class Transaction2PCTest extends AbstractTransactionTest
 
         for (Transaction transaction : coordinator.getTransactionMap().values())
         {
-            coordinator.rollbackTransaction(transaction.getTransactionId(), sessionToken, TEST_INTERACTIVE_SESSION_KEY);
+            try
+            {
+                coordinator.rollbackTransaction(transaction.getTransactionId(), sessionToken, TEST_INTERACTIVE_SESSION_KEY);
+            } catch (Exception ignored)
+            {
+            }
         }
 
         deleteCreatedSpacesAndProjects();
@@ -693,12 +698,13 @@ public class Transaction2PCTest extends AbstractTransactionTest
                 OPERATION_CREATE_SPACES,
                 new Object[] { sessionToken, Collections.singletonList(spaceCreation1) });
 
-        MessageChannel messageChannel = new MessageChannel(1000);
+        MessageChannel messageChannel1 = new MessageChannel(1000);
+        MessageChannel messageChannel2 = new MessageChannel(1000);
 
         participant1.getDatabaseTransactionProvider().setCommitAction(() ->
         {
-            messageChannel.send("committing");
-            messageChannel.assertNextMessage("executed");
+            messageChannel1.send("committing");
+            messageChannel2.assertNextMessage("executed");
         });
 
         Thread committingThread = new Thread(() -> coordinator.commitTransaction(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY));
@@ -707,7 +713,7 @@ public class Transaction2PCTest extends AbstractTransactionTest
         SpaceCreation spaceCreation2 = new SpaceCreation();
         spaceCreation2.setCode(CODE_PREFIX + UUID.randomUUID());
 
-        messageChannel.assertNextMessage("committing");
+        messageChannel1.assertNextMessage("committing");
 
         try
         {
@@ -722,7 +728,7 @@ public class Transaction2PCTest extends AbstractTransactionTest
                     "Cannot execute a new action on transaction '" + coordinatorTrId + "' as it is still busy executing a previous action.");
         }
 
-        messageChannel.send("executed");
+        messageChannel2.send("executed");
 
         committingThread.join();
     }

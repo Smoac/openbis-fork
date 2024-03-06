@@ -495,12 +495,13 @@ public class Transaction1PCTest extends AbstractTransactionTest
         participant.executeOperation(transactionId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, OPERATION_CREATE_SPACES,
                 new Object[] { sessionToken, Collections.singletonList(spaceCreation1) });
 
-        MessageChannel messageChannel = new MessageChannel(1000);
+        MessageChannel messageChannel1 = new MessageChannel(1000);
+        MessageChannel messageChannel2 = new MessageChannel(1000);
 
         participant.getDatabaseTransactionProvider().setCommitAction(() ->
         {
-            messageChannel.send("committing");
-            messageChannel.assertNextMessage("executed");
+            messageChannel1.send("committing");
+            messageChannel2.assertNextMessage("executed");
         });
 
         Thread committingThread = new Thread(() -> participant.commitTransaction(transactionId, sessionToken, TEST_INTERACTIVE_SESSION_KEY));
@@ -509,7 +510,7 @@ public class Transaction1PCTest extends AbstractTransactionTest
         SpaceCreation spaceCreation2 = new SpaceCreation();
         spaceCreation2.setCode(CODE_PREFIX + UUID.randomUUID());
 
-        messageChannel.assertNextMessage("committing");
+        messageChannel1.assertNextMessage("committing");
 
         try
         {
@@ -523,7 +524,7 @@ public class Transaction1PCTest extends AbstractTransactionTest
                     "Cannot execute a new action on transaction '" + transactionId + "' as it is still busy executing a previous action.");
         }
 
-        messageChannel.send("executed");
+        messageChannel2.send("executed");
 
         committingThread.join();
     }
