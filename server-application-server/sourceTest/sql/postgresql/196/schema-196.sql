@@ -2054,7 +2054,8 @@ CREATE TABLE material_types (
     code code NOT NULL,
     description description_2000,
     modification_timestamp time_stamp DEFAULT now(),
-    validation_script_id tech_id
+    validation_script_id tech_id,
+    is_managed_internally boolean_char DEFAULT false NOT NULL
 );
 CREATE TABLE materials (
     id tech_id NOT NULL,
