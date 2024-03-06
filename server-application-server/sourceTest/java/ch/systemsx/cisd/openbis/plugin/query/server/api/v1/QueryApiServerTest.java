@@ -225,7 +225,7 @@ public class QueryApiServerTest extends AbstractServerTestCase
         assertEquals("DS", reportDescriptions.get(0).getDataStoreCode());
         assertEquals("S1", reportDescriptions.get(0).getKey());
         assertEquals("my service", reportDescriptions.get(0).getLabel());
-        assertEquals("[type1, type2]", reportDescriptions.get(0).getDataSetTypes().toString());
+        assertEquals("[TYPE1, TYPE2]", reportDescriptions.get(0).getDataSetTypes().toString());
         assertEquals(1, reportDescriptions.size());
         context.assertIsSatisfied();
     }

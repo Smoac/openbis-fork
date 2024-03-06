@@ -503,6 +503,7 @@ public abstract class CreateEntityTypeTest<CREATION extends IEntityTypeCreation,
         creation.setDescription("test description");
         creation.setValidationPluginId(new PluginPermId("validateOK"));
         creation.setPropertyAssignments(Arrays.asList(assignmentCreation));
+        creation.setManagedInternally(false);
         fillTypeSpecificFields(creation);
 
         createTypes(sessionToken, Arrays.asList(creation));
