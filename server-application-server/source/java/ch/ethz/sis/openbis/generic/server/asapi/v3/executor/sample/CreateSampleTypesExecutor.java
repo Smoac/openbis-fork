@@ -15,6 +15,8 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -96,6 +98,12 @@ public class CreateSampleTypesExecutor extends AbstractCreateEntityTypeExecutor<
     protected void checkAccess(IOperationContext context, SampleTypePE entityType)
     {
         authorizationExecutor.canCreate(context, entityType);
+    }
+
+    @Override
+    protected IObjectId getId(SampleTypePE entityType)
+    {
+        return new EntityTypePermId(entityType.getPermId());
     }
 
 }
