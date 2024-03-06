@@ -17,15 +17,25 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.utils;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
+import org.apache.log4j.Logger;
+
+import java.util.Arrays;
 
 public class ExceptionUtils
 {
+
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, ExceptionUtils.class);
+
     public static RuntimeException create(IOperationContext context, Throwable t)
     {
         if (t instanceof UserFailureException)
         {
             return new UserFailureException(createMessage(context, t), t);
         }
+        operationLog.error("||> ERROR", t);
+        operationLog.error(Arrays.toString(t.getStackTrace()));
         return new RuntimeException(createMessage(context, t), t);
     }
 
