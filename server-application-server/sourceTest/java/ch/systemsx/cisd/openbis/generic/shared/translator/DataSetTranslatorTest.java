@@ -158,7 +158,7 @@ public class DataSetTranslatorTest extends AssertJUnit
         assertEquals(1, translated.getProductionDate().getTime());
         assertEquals(2, translated.getRegistrationDate().getTime());
         assertEquals("/sample", translated.getSampleIdentifier());
-        assertEquals("sampleTypeCode", translated.getSampleType().getCode());
+        assertEquals("SAMPLETYPECODE", translated.getSampleType().getCode());
         assertEquals("sampleTypeDescription", translated.getSampleType().getDescription());
         assertEquals(false, translated.isDerived());
         assertEquals("reason", translated.getDeletion().getReason());

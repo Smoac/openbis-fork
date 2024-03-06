@@ -568,7 +568,7 @@ public class DataBOTest extends AbstractBOTest
         // then
         DataPE dataSet = dataBO.getData();
         assertEquals(DATA_SET_CODE, dataSet.getCode());
-        assertEquals("MY_TYPE", dataSet.getDataSetType().getCode());
+        assertEquals("MY-TYPE", dataSet.getDataSetType().getCode());
         assertEquals(true, dataSet.isLinkData());
         assertEquals(dms, dataSet.tryAsLinkData().getContentCopies().iterator().next().getExternalDataManagementSystem());
         assertEquals("x2", dataSet.tryAsLinkData().getContentCopies().iterator().next().getExternalCode());
