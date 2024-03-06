@@ -12,6 +12,7 @@ import InfoPanel from '@src/js/components/database/data-browser/InfoPanel.jsx'
 import DataBrowserController from '@src/js/components/database/data-browser/DataBrowserController.js'
 import NavigationBar from '@src/js/components/database/data-browser/NavigationBar.jsx'
 import messages from '@src/js/common/messages.js'
+import LinearProgressWithLabel from "@src/js/components/common/progress/LinearProgressWithLabel.jsx";
 
 const HTTP_SERVER_URI = '/data-store-server'
 
@@ -257,6 +258,7 @@ class DataBrowser extends React.Component {
           path={path}
           onPathChange={this.handlePathChange}
         />
+        <LinearProgressWithLabel value={90} />
         <div className={[classes.flexContainer, classes.boundary, classes.content].join(' ')}>
           {viewType === 'list' && (
             <Grid
