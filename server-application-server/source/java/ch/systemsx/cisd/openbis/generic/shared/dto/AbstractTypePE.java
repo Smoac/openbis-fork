@@ -63,7 +63,9 @@ public abstract class AbstractTypePE extends AbstractIdAndCodeHolder<AbstractTyp
         this.id = id;
     }
 
-    public abstract void setCode(final String code);
+    public void setCode(final String code) {
+        this.code = code;
+    };
 
     @Column(name = ColumnNames.DESCRIPTION_COLUMN)
     @org.hibernate.validator.constraints.Length(max = GenericConstants.DESCRIPTION_2000, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
@@ -83,7 +85,10 @@ public abstract class AbstractTypePE extends AbstractIdAndCodeHolder<AbstractTyp
 
     @Override
     @Column(name = ColumnNames.CODE_COLUMN, insertable = false, updatable = false)
-    public abstract String getCode();
+    public String getCode()
+    {
+        return code;
+    }
 
     @Override
     ToStringBuilder createStringBuilder()
