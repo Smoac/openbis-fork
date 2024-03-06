@@ -36,6 +36,7 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.helper.AbstractXLSEx
 import static ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME;
 import static ch.systemsx.cisd.openbis.generic.shared.Constants.DOWNLOAD_URL;
 
+import java.awt.*;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -69,17 +70,22 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipOutputStream;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import com.openhtmltopdf.extend.FSSupplier;
+import org.apache.commons.compress.archivers.zip.Zip64Mode;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.log4j.Logger;
@@ -344,8 +350,6 @@ public class ExportExecutor implements IExportExecutor
             final Set<ExportFormat> exportFormats, final boolean exportReferredMasterData,
             final boolean compatibleWithImport, final boolean zipSingleFiles) throws IOException
     {
-        final String zipFileName = String.format("%s.%s%s", EXPORT_FILE_PREFIX, new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS").format(new Date()),
-                ZIP_EXTENSION);
         final Collection<String> warnings = new ArrayList<>();
 
         final boolean hasXlsxFormat = exportFormats.contains(ExportFormat.XLSX);
@@ -389,6 +393,8 @@ public class ExportExecutor implements IExportExecutor
 
         final File file = getSingleFile(exportWorkspaceDirectoryPath);
         final String exportWorkspaceDirectoryPathString = exportWorkspaceDirectory.getPath();
+        final String timestamp = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS").format(new Date());
+        final String zipFileName = String.format("%s.%s%s", EXPORT_FILE_PREFIX, timestamp, ZIP_EXTENSION);
 
         final ExportResult exportResult;
         if (zipSingleFiles || file == null)
@@ -404,7 +410,8 @@ public class ExportExecutor implements IExportExecutor
         } else
         {
             final Path filePath = file.toPath();
-            final Path targetFilePath = Files.move(filePath, Path.of(sessionWorkspaceDirectory.getPath(), filePath.getFileName().toString()),
+            final Path targetFilePath = Files.move(filePath, Path.of(sessionWorkspaceDirectory.getPath(),
+                            String.format("%s.%s", removeExtension(filePath.getFileName().toString()), timestamp)),
                     StandardCopyOption.REPLACE_EXISTING);
             final String fileName = targetFilePath.getFileName().toString();
 
@@ -414,6 +421,18 @@ public class ExportExecutor implements IExportExecutor
         deleteDirectory(exportWorkspaceDirectoryPathString);
 
         return exportResult;
+    }
+
+    private static String removeExtension(final String fileName)
+    {
+        final int extensionIndex = fileName.lastIndexOf(".");
+        if (extensionIndex < 0)
+        {
+            // No extension found.
+            return fileName;
+        }
+
+        return fileName.substring(0, extensionIndex);
     }
 
     private String getDownloadPath(final String sessionToken, final String fileName)
