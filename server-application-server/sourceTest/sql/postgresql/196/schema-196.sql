@@ -1494,7 +1494,8 @@ CREATE TABLE data_set_types (
     main_ds_path character varying(1000),
     deletion_disallow boolean_char DEFAULT false,
     validation_script_id tech_id,
-    meta_data jsonb
+    meta_data jsonb,
+    is_managed_internally boolean_char DEFAULT false NOT NULL
 );
 CREATE SEQUENCE data_store_id_seq
     START WITH 1
@@ -1806,7 +1807,8 @@ CREATE TABLE experiment_types (
     description description_2000,
     modification_timestamp time_stamp DEFAULT now(),
     validation_script_id tech_id,
-    meta_data jsonb
+    meta_data jsonb,
+    is_managed_internally boolean_char DEFAULT false NOT NULL
 );
 CREATE TABLE experiments_all (
     id tech_id NOT NULL,
@@ -2522,7 +2524,8 @@ CREATE TABLE sample_types (
     inherit_properties boolean_char DEFAULT false NOT NULL,
     validation_script_id tech_id,
     show_parent_metadata boolean_char DEFAULT false NOT NULL,
-    meta_data jsonb
+    meta_data jsonb,
+    is_managed_internally boolean_char DEFAULT false NOT NULL
 );
 CREATE TABLE samples_all (
     id tech_id NOT NULL,
