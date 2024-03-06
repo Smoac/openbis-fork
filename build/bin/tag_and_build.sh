@@ -8,7 +8,7 @@ usage()
  	echo "For Sprints"
  	echo "Example: ./tag_and_build.sh master 175 1"
  	echo "For Releases"
- 	echo "Example: ./tag_and_build.sh 6.5 6.5 0"
+ 	echo "Example: ./tag_and_build.sh 6.5.x 6.5 0"
  	exit 1
 }
 
