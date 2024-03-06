@@ -64,6 +64,8 @@ public class AbstractTransactionTest extends AbstractTest
 
     public static final String OPERATION_SEARCH_PROJECTS = "searchProjects";
 
+    public static final String CODE_PREFIX = "TRANSACTION_TEST_";
+
     @Autowired
     public TransactionConfiguration transactionConfiguration;
 
@@ -167,6 +169,15 @@ public class AbstractTransactionTest extends AbstractTest
             {
                 statement.execute("ROLLBACK PREPARED '" + preparedTransactionId + "'");
             }
+        }
+    }
+
+    public void deleteCreatedSpacesAndProjects() throws Exception
+    {
+        try (Connection connection = databaseContext.getDataSource().getConnection(); Statement statement = connection.createStatement())
+        {
+            statement.execute("DELETE FROM projects WHERE code LIKE '" + CODE_PREFIX + "%'");
+            statement.execute("DELETE FROM spaces WHERE code LIKE '" + CODE_PREFIX + "%'");
         }
     }
 

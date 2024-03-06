@@ -47,6 +47,7 @@ public class Transaction1PCTest extends AbstractTransactionTest
     private void afterMethod() throws Exception
     {
         rollbackPreparedDatabaseTransactions();
+        deleteCreatedSpacesAndProjects();
 
         participant.close();
     }
@@ -77,7 +78,7 @@ public class Transaction1PCTest extends AbstractTransactionTest
                 new Transaction(transactionId, TransactionStatus.BEGIN_FINISHED));
 
         SpaceCreation spaceCreation = new SpaceCreation();
-        spaceCreation.setCode(UUID.randomUUID().toString());
+        spaceCreation.setCode(CODE_PREFIX + UUID.randomUUID());
 
         participant.executeOperation(transactionId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, OPERATION_CREATE_SPACES,
                 new Object[] { sessionToken, Collections.singletonList(spaceCreation) });
@@ -113,7 +114,7 @@ public class Transaction1PCTest extends AbstractTransactionTest
         participant.beginTransaction(transactionId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, null);
 
         SpaceCreation spaceCreation = new SpaceCreation();
-        spaceCreation.setCode(UUID.randomUUID().toString());
+        spaceCreation.setCode(CODE_PREFIX + UUID.randomUUID());
 
         participant.executeOperation(transactionId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, OPERATION_CREATE_SPACES,
                 new Object[] { sessionToken, Collections.singletonList(spaceCreation) });
@@ -152,7 +153,7 @@ public class Transaction1PCTest extends AbstractTransactionTest
         assertTransactions(participant.getTransactionMap(), new Transaction(transactionId, TransactionStatus.BEGIN_FINISHED));
 
         SpaceCreation spaceCreation = new SpaceCreation();
-        spaceCreation.setCode(UUID.randomUUID().toString());
+        spaceCreation.setCode(CODE_PREFIX + UUID.randomUUID());
 
         participant.executeOperation(transactionId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, OPERATION_CREATE_SPACES,
                 new Object[] { sessionToken, Collections.singletonList(spaceCreation) });
@@ -194,7 +195,7 @@ public class Transaction1PCTest extends AbstractTransactionTest
         assertTransactions(participant.getTransactionMap(), new Transaction(transactionId, TransactionStatus.BEGIN_FINISHED));
 
         SpaceCreation spaceCreation = new SpaceCreation();
-        spaceCreation.setCode(UUID.randomUUID().toString());
+        spaceCreation.setCode(CODE_PREFIX + UUID.randomUUID());
 
         participant.executeOperation(transactionId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, OPERATION_CREATE_SPACES,
                 new Object[] { sessionToken, Collections.singletonList(spaceCreation) });
@@ -239,7 +240,7 @@ public class Transaction1PCTest extends AbstractTransactionTest
         assertTransactions(participant.getTransactionMap(), new Transaction(transactionId, TransactionStatus.BEGIN_FINISHED));
 
         SpaceCreation spaceCreation = new SpaceCreation();
-        spaceCreation.setCode(UUID.randomUUID().toString());
+        spaceCreation.setCode(CODE_PREFIX + UUID.randomUUID());
 
         participant.executeOperation(transactionId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, OPERATION_CREATE_SPACES,
                 new Object[] { sessionToken, Collections.singletonList(spaceCreation) });
@@ -304,7 +305,7 @@ public class Transaction1PCTest extends AbstractTransactionTest
 
         // create a new space
         SpaceCreation spaceCreation = new SpaceCreation();
-        spaceCreation.setCode(UUID.randomUUID().toString());
+        spaceCreation.setCode(CODE_PREFIX + UUID.randomUUID());
 
         participant.executeOperation(transactionId, sessionToken, TEST_INTERACTIVE_SESSION_KEY,
                 OPERATION_CREATE_SPACES, new Object[] { sessionToken, Collections.singletonList(spaceCreation) });
@@ -331,7 +332,7 @@ public class Transaction1PCTest extends AbstractTransactionTest
 
         ProjectCreation projectCreation = new ProjectCreation();
         projectCreation.setSpaceId(new SpacePermId(spaceCreation.getCode()));
-        projectCreation.setCode(UUID.randomUUID().toString());
+        projectCreation.setCode(CODE_PREFIX + UUID.randomUUID());
 
         participant.executeOperation(transactionId, sessionToken, TEST_INTERACTIVE_SESSION_KEY,
                 OPERATION_CREATE_PROJECTS, new Object[] { sessionToken, Collections.singletonList(projectCreation) });
@@ -404,21 +405,21 @@ public class Transaction1PCTest extends AbstractTransactionTest
 
         // create space1 in tr1
         SpaceCreation tr1Creation = new SpaceCreation();
-        tr1Creation.setCode(UUID.randomUUID().toString());
+        tr1Creation.setCode(CODE_PREFIX + UUID.randomUUID());
 
         participant.executeOperation(transactionId1, sessionToken1, TEST_INTERACTIVE_SESSION_KEY,
                 OPERATION_CREATE_SPACES, new Object[] { sessionToken1, Collections.singletonList(tr1Creation) });
 
         // create space2 in tr2
         SpaceCreation tr2Creation = new SpaceCreation();
-        tr2Creation.setCode(UUID.randomUUID().toString());
+        tr2Creation.setCode(CODE_PREFIX + UUID.randomUUID());
 
         participant.executeOperation(transactionId2, sessionToken2, TEST_INTERACTIVE_SESSION_KEY,
                 OPERATION_CREATE_SPACES, new Object[] { sessionToken2, Collections.singletonList(tr2Creation) });
 
         // create space3 in noTr
         SpaceCreation noTrCreation = new SpaceCreation();
-        noTrCreation.setCode(UUID.randomUUID().toString());
+        noTrCreation.setCode(CODE_PREFIX + UUID.randomUUID());
         v3api.createSpaces(sessionToken1, Collections.singletonList(noTrCreation));
 
         SearchResult<Space> tr1SpacesAfterCreations =
@@ -489,7 +490,7 @@ public class Transaction1PCTest extends AbstractTransactionTest
         participant.beginTransaction(transactionId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, null);
 
         SpaceCreation spaceCreation1 = new SpaceCreation();
-        spaceCreation1.setCode(UUID.randomUUID().toString());
+        spaceCreation1.setCode(CODE_PREFIX + UUID.randomUUID());
 
         participant.executeOperation(transactionId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, OPERATION_CREATE_SPACES,
                 new Object[] { sessionToken, Collections.singletonList(spaceCreation1) });
@@ -506,7 +507,7 @@ public class Transaction1PCTest extends AbstractTransactionTest
         committingThread.start();
 
         SpaceCreation spaceCreation2 = new SpaceCreation();
-        spaceCreation2.setCode(UUID.randomUUID().toString());
+        spaceCreation2.setCode(CODE_PREFIX + UUID.randomUUID());
 
         messageChannel.assertNextMessage("committing");
 
@@ -654,14 +655,14 @@ public class Transaction1PCTest extends AbstractTransactionTest
 
         // create a space in tr1
         SpaceCreation spaceCreation1 = new SpaceCreation();
-        spaceCreation1.setCode(UUID.randomUUID().toString());
+        spaceCreation1.setCode(CODE_PREFIX + UUID.randomUUID());
 
         participantBeforeCrash.executeOperation(transactionId1, sessionToken1, TEST_INTERACTIVE_SESSION_KEY,
                 OPERATION_CREATE_SPACES, new Object[] { sessionToken2, Collections.singletonList(spaceCreation1) });
 
         // create a space in tr2
         SpaceCreation spaceCreation2 = new SpaceCreation();
-        spaceCreation2.setCode(UUID.randomUUID().toString());
+        spaceCreation2.setCode(CODE_PREFIX + UUID.randomUUID());
 
         participantBeforeCrash.executeOperation(transactionId2, sessionToken2, TEST_INTERACTIVE_SESSION_KEY,
                 OPERATION_CREATE_SPACES, new Object[] { sessionToken2, Collections.singletonList(spaceCreation2) });
