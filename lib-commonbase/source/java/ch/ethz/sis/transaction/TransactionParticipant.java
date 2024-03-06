@@ -476,32 +476,29 @@ public class TransactionParticipant implements ITransactionParticipant
 
         operationLog.info("Commit transaction '" + transaction.getTransactionId() + "' started.");
 
-        if (transaction.getTransactionStatus() != TransactionStatus.NEW)
+        transaction.setTransactionStatus(TransactionStatus.COMMIT_STARTED);
+
+        try
         {
-            transaction.setTransactionStatus(TransactionStatus.COMMIT_STARTED);
-
-            try
+            databaseTransactionProvider.commitTransaction(transaction.getTransactionId(), transaction.getDatabaseTransaction(),
+                    transaction.isTwoPhaseTransaction());
+        } catch (Exception commitException)
+        {
+            if (!transaction.isTwoPhaseTransaction())
             {
-                databaseTransactionProvider.commitTransaction(transaction.getTransactionId(), transaction.getDatabaseTransaction(),
-                        transaction.isTwoPhaseTransaction());
-            } catch (Exception commitException)
-            {
-                if (!transaction.isTwoPhaseTransaction())
+                try
                 {
-                    try
-                    {
-                        rollbackTransaction(transaction);
-                    } catch (Exception rollbackException)
-                    {
-                        operationLog.warn("Transaction '" + transaction.getTransactionId() + "' rollback failed.", rollbackException);
-                    }
+                    rollbackTransaction(transaction);
+                } catch (Exception rollbackException)
+                {
+                    operationLog.warn("Transaction '" + transaction.getTransactionId() + "' rollback failed.", rollbackException);
                 }
-
-                throw commitException;
             }
 
-            transaction.setTransactionStatus(TransactionStatus.COMMIT_FINISHED);
+            throw commitException;
         }
+
+        transaction.setTransactionStatus(TransactionStatus.COMMIT_FINISHED);
 
         transaction.close();
         transactionMap.remove(transaction.getTransactionId());
