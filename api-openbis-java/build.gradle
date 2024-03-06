@@ -1,5 +1,6 @@
 evaluationDependsOn(':lib-commonbase')
 evaluationDependsOn(':lib-common')
+evaluationDependsOn(':api-data-store-server-java')
 
 apply from: '../build/javaproject.gradle'
 
