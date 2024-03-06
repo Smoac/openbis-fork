@@ -77,7 +77,7 @@ ALTER TABLE ONLY data_set_types
 ALTER TABLE ONLY data_set_types
     ADD CONSTRAINT dsty_pk PRIMARY KEY (id);
 ALTER TABLE ONLY data_set_types
-    ADD CONSTRAINT dsty_bk_uk UNIQUE (code, is_managed_internally);
+    ADD CONSTRAINT dsty_cimi_uk UNIQUE (code, is_managed_internally);
 ALTER TABLE ONLY external_data_management_systems
     ADD CONSTRAINT edms_code_uk UNIQUE (code);
 ALTER TABLE ONLY external_data_management_systems
@@ -125,7 +125,7 @@ ALTER TABLE ONLY experiment_types
 ALTER TABLE ONLY experiment_types
     ADD CONSTRAINT exty_pk PRIMARY KEY (id);
 ALTER TABLE ONLY experiment_types
-    ADD CONSTRAINT exty_bk_uk UNIQUE (code, is_managed_internally);
+    ADD CONSTRAINT exty_cimi_uk UNIQUE (code, is_managed_internally);
 ALTER TABLE ONLY file_format_types
     ADD CONSTRAINT ffty_bk_uk UNIQUE (code);
 ALTER TABLE ONLY file_format_types
@@ -163,7 +163,7 @@ ALTER TABLE ONLY material_types
 ALTER TABLE ONLY material_types
     ADD CONSTRAINT maty_pk PRIMARY KEY (id);
 ALTER TABLE ONLY material_types
-    ADD CONSTRAINT maty_bk_uk UNIQUE (code, is_managed_internally);
+    ADD CONSTRAINT maty_cimi_uk UNIQUE (code, is_managed_internally);
 ALTER TABLE ONLY metaproject_assignments_all
     ADD CONSTRAINT metaproject_assignments_all_mepr_id_data_id_uk UNIQUE (mepr_id, data_id);
 ALTER TABLE ONLY metaproject_assignments_all
@@ -255,7 +255,7 @@ ALTER TABLE ONLY sample_types
 ALTER TABLE ONLY sample_types
     ADD CONSTRAINT saty_pk PRIMARY KEY (id);
 ALTER TABLE ONLY sample_types
-    ADD CONSTRAINT saty_bk_uk UNIQUE (code, is_managed_internally);
+    ADD CONSTRAINT saty_cimi_uk UNIQUE (code, is_managed_internally);
 ALTER TABLE ONLY scripts
     ADD CONSTRAINT scri_pk PRIMARY KEY (id);
 ALTER TABLE ONLY scripts
