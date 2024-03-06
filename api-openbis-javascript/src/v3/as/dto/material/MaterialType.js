@@ -18,6 +18,7 @@ define(['stjs', 'util/Exceptions'], function (stjs, exceptions) {
       prototype.modificationDate = null
       prototype.propertyAssignments = null
       prototype.validationPlugin = null
+      prototype.managedInternally = null
       prototype.getPropertyAssignments = function () {
         if (
           this.getFetchOptions() &&
@@ -78,6 +79,12 @@ define(['stjs', 'util/Exceptions'], function (stjs, exceptions) {
       prototype.setModificationDate = function (modificationDate) {
         this.modificationDate = modificationDate
       }
+      prototype.isManagedInternally = function() {
+          return this.managedInternally;
+      };
+      prototype.setManagedInternally = function(managedInternally) {
+          this.managedInternally = managedInternally;
+      };
       prototype.toString = function () {
         return this.getCode()
       }

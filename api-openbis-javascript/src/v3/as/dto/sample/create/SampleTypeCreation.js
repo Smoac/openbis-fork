@@ -19,6 +19,7 @@ define([ "stjs" ], function(stjs) {
 		prototype.validationPluginId = null;
 		prototype.propertyAssignments = null;
 		prototype.metaData = null;
+		prototype.managedInternally = null;
 
 		prototype.getCode = function() {
 			return this.code;
@@ -91,6 +92,12 @@ define([ "stjs" ], function(stjs) {
         };
         prototype.setMetaData = function(metaData) {
             this.metaData = metaData;
+        };
+        prototype.isManagedInternally = function() {
+            return this.managedInternally;
+        };
+        prototype.setManagedInternally = function(managedInternally) {
+            this.managedInternally = managedInternally;
         };
 
 	}, {
