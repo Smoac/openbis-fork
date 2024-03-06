@@ -37,6 +37,8 @@ public final class FileFormatTypePE extends AbstractTypePE
 {
     private static final long serialVersionUID = IServer.VERSION;
 
+    private String simpleCode;
+
     @Override
     @SequenceGenerator(name = SequenceNames.FILE_FORMAT_TYPE_SEQUENCE, sequenceName = SequenceNames.FILE_FORMAT_TYPE_SEQUENCE, allocationSize = 1)
     @Id
@@ -46,19 +48,30 @@ public final class FileFormatTypePE extends AbstractTypePE
         return id;
     }
 
-    public void setCode(final String code)
+    public void setSimpleCode(final String simpleCode)
     {
-        this.code = code;
+        this.simpleCode = simpleCode.toUpperCase();
     }
 
-    @Override
     @Column(name = ColumnNames.CODE_COLUMN)
     @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
     @Pattern(regexp = AbstractIdAndCodeHolder.CODE_PATTERN, flags = Pattern.Flag.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
-    public  String getCode()
+    public String getSimpleCode()
     {
-        return code;
+        return simpleCode;
+    }
+
+    public void setCode(final String fullCode)
+    {
+        setSimpleCode(fullCode);
+    }
+
+    @Override
+    @Transient
+    public String getCode()
+    {
+        return getSimpleCode();
     }
 
     public FileFormatTypePE()
