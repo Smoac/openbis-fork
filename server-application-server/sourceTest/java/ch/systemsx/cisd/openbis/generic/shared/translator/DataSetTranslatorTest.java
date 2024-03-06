@@ -147,7 +147,7 @@ public class DataSetTranslatorTest extends AssertJUnit
         assertEquals("dataProducerCode", translated.getDataProducerCode());
         assertEquals("DATASETTYPECODE", translated.getDataSetType().getCode());
         assertEquals("dataSetTypeDescription", translated.getDataSetType().getDescription());
-        assertEquals("fileFormatTypeCode", translated.getFileFormatType().getCode());
+        assertEquals("FILEFORMATTYPECODE", translated.getFileFormatType().getCode());
         assertEquals("fileFormatTypeDescription", translated.getFileFormatType().getDescription());
         assertEquals("location", translated.getLocation());
         assertEquals(4711L, translated.getSize().longValue());

@@ -474,14 +474,14 @@ public abstract class CreateEntityTypeTest<CREATION extends IEntityTypeCreation,
     @Test
     public void testCreateWithSpaceAdmin()
     {
-        assertAuthorizationFailureException(new IDelegatedAction()
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
                     testCreateWithUser(TEST_SPACE_USER);
                 }
-            });
+            }, null);
     }
 
     private void testCreateWithUser(String userId)
