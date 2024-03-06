@@ -8,9 +8,9 @@ $.extend(ImagingTechnology.prototype, ELNLIMSPlugin.prototype, {
     },
     forcedDisableRTF: [],
     forceMonospaceFont: [],
-    displayImagingTechViewer: function ($container, isDataset, objId, objType, onActionCallback) {
+    displayImagingTechViewer: function ($container, isDataset, objId, objType, onActionCallback, objTypeCode) {
         let $element = $("<div>")
-        require([ "dss/dto/service/id/CustomDssServiceCode",
+        require(["dss/dto/service/id/CustomDssServiceCode",
                 "dss/dto/service/CustomDSSServiceExecutionOptions",
                 "imaging/dto/ImagingPreviewContainer",
                 "imaging/dto/ImagingDataSetExport",
@@ -28,15 +28,15 @@ $.extend(ImagingTechnology.prototype, ELNLIMSPlugin.prototype, {
                 "as/dto/dataset/fetchoptions/DataSetFetchOptions",
                 "as/dto/dataset/fetchoptions/DataSetTypeFetchOptions",
                 "util/Json"],
-            function(CustomDssServiceCode, CustomDSSServiceExecutionOptions,
-                     ImagingPreviewContainer, ImagingDataSetExport,
-                     ImagingDataSetMultiExport, ImagingDataSetPreview,
-                     ExperimentFetchOptions, ExperimentPermId,
-                     SampleFetchOptions, SamplePermId,
-                     DataSetSearchCriteria, DataSetTypeSearchCriteria,
-                     SearchDataSetsOperation, DataSetUpdate, DataSetPermId,
-                     DataSetFetchOptions, DataSetTypeFetchOptions,
-                     utilJson) {
+            function (CustomDssServiceCode, CustomDSSServiceExecutionOptions,
+                      ImagingPreviewContainer, ImagingDataSetExport,
+                      ImagingDataSetMultiExport, ImagingDataSetPreview,
+                      ExperimentFetchOptions, ExperimentPermId,
+                      SampleFetchOptions, SamplePermId,
+                      DataSetSearchCriteria, DataSetTypeSearchCriteria,
+                      SearchDataSetsOperation, DataSetUpdate, DataSetPermId,
+                      DataSetFetchOptions, DataSetTypeFetchOptions,
+                      utilJson) {
                 let props = {
                     objId: objId,
                     objType: objType,
@@ -73,7 +73,19 @@ $.extend(ImagingTechnology.prototype, ELNLIMSPlugin.prototype, {
                     props['onUnsavedChanges'] = onActionCallback
                     reactImagingComponent = React.createElement(window.NgComponents.default.ImagingDatasetViewer, props)
                 } else {
-                    props['onOpenPreview'] = onActionCallback
+                    let configKey = "IMAGING_GALLERY_VIEW-" + objTypeCode;
+                    let loadDisplaySettings = function (callback) {
+                        mainController.serverFacade.getSetting(configKey, function (config) {
+                            callback(config);
+                        });
+                    }
+                    let storeDisplaySettings = function (config, callback) {
+                        mainController.serverFacade.setSetting(configKey, config);
+                        if (callback) callback();
+                    }
+                    props['onOpenPreview'] = onActionCallback;
+                    props['onStoreDisplaySettings'] = storeDisplaySettings;
+                    props['onLoadDisplaySettings'] = loadDisplaySettings;
                     reactImagingComponent = React.createElement(window.NgComponents.default.ImagingGalleryViewer, props)
                 }
                 ReactDOM.render(
@@ -87,40 +99,29 @@ $.extend(ImagingTechnology.prototype, ELNLIMSPlugin.prototype, {
         );
         $container.append($element);
     },
-    experimentFormTop : function($container, model) {
+    experimentFormTop: function ($container, model) {
         if (model.mode === FormMode.VIEW) {
             let isGalleryView = model.experiment &&
-                                model.experiment.properties["$DEFAULT_COLLECTION_VIEW"] &&
-                                model.experiment.properties["$DEFAULT_COLLECTION_VIEW"] === "IMAGING_GALLERY_VIEW";
+                model.experiment.properties["$DEFAULT_COLLECTION_VIEW"] &&
+                model.experiment.properties["$DEFAULT_COLLECTION_VIEW"] === "IMAGING_GALLERY_VIEW";
             if (isGalleryView) {
-
-// TODO
-//                var configKey = "IMAGING_GALLERY_VIEW-" + model.experiment.experimentTypeCode;
-//
-//                var readConfig = function(callback) {
-//                        mainController.serverFacade.getSetting(configKey, function(config) {
-//                        callback(config);
-//                    });
-//                }
-//
-//                var writeConfig = function(config, callback) {
-//                    mainController.serverFacade.setSetting(configKey, config);
-//                    callback();
-//                }
-
                 this.displayImagingTechViewer($container, false, model.experiment.permId, 'collection',
-                    function(objId){mainController.changeView('showViewDataSetPageFromPermId', objId)});
+                    function (objId) {
+                        mainController.changeView('showViewDataSetPageFromPermId', objId)
+                    }, model.experiment.experimentTypeCode);
             }
         }
     },
     sampleFormTop: function ($container, model) {
         if (model.mode === FormMode.VIEW) {
             let isGalleryView = model.sample &&
-                                model.sample.properties["$DEFAULT_OBJECT_VIEW"] &&
-                                model.sample.properties["$DEFAULT_OBJECT_VIEW"] === "IMAGING_GALLERY_VIEW";
+                model.sample.properties["$DEFAULT_OBJECT_VIEW"] &&
+                model.sample.properties["$DEFAULT_OBJECT_VIEW"] === "IMAGING_GALLERY_VIEW";
             if (isGalleryView) {
                 this.displayImagingTechViewer($container, false, model.sample.permId, 'object',
-                    function(objId){mainController.changeView('showViewDataSetPageFromPermId', objId)});
+                    function (objId) {
+                        mainController.changeView('showViewDataSetPageFromPermId', objId)
+                    }, model.sampleType.code);
             }
         }
     },
@@ -129,18 +130,17 @@ $.extend(ImagingTechnology.prototype, ELNLIMSPlugin.prototype, {
             // Potentially any DataSet Type can be an Imaging DataSet Type. The system will know what DataSet Types
             // are an Imaging DataSet by convention, those Types SHOULD end with IMAGING_DATA on their Type Code.
             let isImagingDatasetView = model.dataSetV3 &&
-                                model.dataSetV3.type.code.endsWith("IMAGING_DATA") &&
-                                model.dataSetV3.properties["$DEFAULT_DATASET_VIEW"] &&
-                                model.dataSetV3.properties["$DEFAULT_DATASET_VIEW"] === "IMAGING_DATASET_VIEWER";
+                model.dataSetV3.type.code.endsWith("IMAGING_DATA") &&
+                model.dataSetV3.properties["$DEFAULT_DATASET_VIEW"] &&
+                model.dataSetV3.properties["$DEFAULT_DATASET_VIEW"] === "IMAGING_DATASET_VIEWER";
             if (isImagingDatasetView) {
-// TODO
-//                var viewDirty = function() {
-//                    model.isFormDirty = true;
-//                }
-                this.displayImagingTechViewer($container, true, model.dataSetV3.permId.permId, '', null);
+                let viewDirty = function(objId, isDirty) {
+                    model.isFormDirty = isDirty;
+                }
+                this.displayImagingTechViewer($container, true, model.dataSetV3.permId.permId, '', viewDirty, null);
             }
         }
     }
 });
 
-profile.plugins.push( new ImagingTechnology());
+profile.plugins.push(new ImagingTechnology());

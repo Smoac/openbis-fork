@@ -9,19 +9,22 @@ import {
 
 import {convertToBase64, inRange, isObjectEmpty} from "@src/js/components/common/imaging/utils.js";
 import PaperBox from "@src/js/components/common/imaging/components/common/PaperBox.js";
-import InputFileUpload from "@src/js/components/common/imaging/components/viewer/InputFileUpload.js";
+import InputFileUpload
+    from "@src/js/components/common/imaging/components/viewer/InputFileUpload.js";
 import AlertDialog from "@src/js/components/common/imaging/components/common/AlertDialog.jsx";
 import Export from "@src/js/components/common/imaging/components/viewer/Exporter.jsx";
 import Dropdown from "@src/js/components/common/imaging/components/common/Dropdown.jsx";
 import OutlinedBox from "@src/js/components/common/imaging/components/common/OutlinedBox.js";
 import InputSlider from "@src/js/components/common/imaging/components/common/InputSlider.jsx";
-import InputRangeSlider from "@src/js/components/common/imaging/components/common/InputRangeSlider.jsx";
+import InputRangeSlider
+    from "@src/js/components/common/imaging/components/common/InputRangeSlider.jsx";
 import ColorMap from "@src/js/components/common/imaging/components/viewer/ColorMap.jsx";
 import ImagingFacade from "@src/js/components/common/imaging/ImagingFacade.js";
 import constants from "@src/js/components/common/imaging/constants.js";
 import ImagingMapper from "@src/js/components/common/imaging/ImagingMapper.js";
 import CustomSwitch from "@src/js/components/common/imaging/components/common/CustomSwitch.jsx";
-import ImageListItemSection from "@src/js/components/common/imaging/components/common/ImageListItemSection.js";
+import ImageListItemSection
+    from "@src/js/components/common/imaging/components/common/ImageListItemSection.js";
 
 import AddToQueueIcon from "@material-ui/icons/AddToQueue";
 import SaveIcon from "@material-ui/icons/Save";
@@ -77,12 +80,21 @@ class ImagingDataSetViewer extends React.PureComponent {
                 const imagingDataSetPropertyConfig = await new ImagingFacade(extOpenbis).loadImagingDataset(objId);
                 if (isObjectEmpty(imagingDataSetPropertyConfig.images[0].previews[0].config)) {
                     imagingDataSetPropertyConfig.images[0].previews[0].config = this.createInitValues(imagingDataSetPropertyConfig.config.inputs, {});
-                    this.setState({open: false, loaded: true, isChanged: true, imagingDataset: imagingDataSetPropertyConfig});
+                    this.setState({
+                        open: false,
+                        loaded: true,
+                        isChanged: true,
+                        imagingDataset: imagingDataSetPropertyConfig
+                    });
                 } else {
-                    this.setState({open: false, loaded: true, imagingDataset: imagingDataSetPropertyConfig});
+                    this.setState({
+                        open: false,
+                        loaded: true,
+                        imagingDataset: imagingDataSetPropertyConfig
+                    });
                 }
                 //console.log("componentDidMount: ", imagingDataSetPropertyConfig);
-            } catch(error) {
+            } catch (error) {
                 this.handleError(error);
             }
         }
@@ -112,14 +124,19 @@ class ImagingDataSetViewer extends React.PureComponent {
         try {
             const updatedImagingDataset = await new ImagingFacade(extOpenbis)
                 .updateImagingDataset(objId, activeImageIdx, imagingDataset.images[activeImageIdx].previews[activePreviewIdx]);
-            if (updatedImagingDataset.error){
+            if (updatedImagingDataset.error) {
                 this.setState({open: false, isChanged: true, isSaved: false});
                 this.handleError(updatedImagingDataset.error);
             }
             delete updatedImagingDataset.preview['@id']; //@id are duplicated across different previews on update, need to be deleted
-            let toUpdateImgDs = { ...imagingDataset };
+            let toUpdateImgDs = {...imagingDataset};
             toUpdateImgDs.images[activeImageIdx].previews[activePreviewIdx] = updatedImagingDataset.preview;
-            this.setState({open: false, imagingDataset : toUpdateImgDs, isChanged: false, isSaved: false});
+            this.setState({
+                open: false,
+                imagingDataset: toUpdateImgDs,
+                isChanged: false,
+                isSaved: false
+            });
             if (onUnsavedChanges !== null)
                 onUnsavedChanges(this.props.objId, true);
         } catch (error) {
@@ -194,23 +211,29 @@ class ImagingDataSetViewer extends React.PureComponent {
 
     handleShowPreview = () => {
         const {imagingDataset, activeImageIdx, activePreviewIdx} = this.state;
+        const {onUnsavedChanges} = this.props;
         let toUpdateIDS = {...imagingDataset};
         toUpdateIDS.images[activeImageIdx].previews[activePreviewIdx].show = !toUpdateIDS.images[activeImageIdx].previews[activePreviewIdx].show;
         this.setState({imagingDataset: toUpdateIDS, isSaved: false});
+        if (onUnsavedChanges !== null)
+            onUnsavedChanges(this.props.objId, true);
     }
 
     onMove = (position) => {
         const {imagingDataset, activeImageIdx, activePreviewIdx} = this.state;
+        const {onUnsavedChanges} = this.props;
         this.handleOpen();
-        let toUpdateImgDs = { ...imagingDataset };
+        let toUpdateImgDs = {...imagingDataset};
         let previewsList = toUpdateImgDs.images[activeImageIdx].previews;
         let tempMovedPreview = previewsList[activePreviewIdx];
         tempMovedPreview.index += position;
-        previewsList[activePreviewIdx] = previewsList[activePreviewIdx+position];
+        previewsList[activePreviewIdx] = previewsList[activePreviewIdx + position];
         previewsList[activePreviewIdx].index -= position;
-        previewsList[activePreviewIdx+position] = tempMovedPreview;
+        previewsList[activePreviewIdx + position] = tempMovedPreview;
         toUpdateImgDs.images[activeImageIdx].previews = previewsList;
         this.setState({open: false, imagingDataset: toUpdateImgDs, isSaved: false});
+        if (onUnsavedChanges !== null)
+            onUnsavedChanges(this.props.objId, true);
     }
 
     createInitValues = (inputsConfig, activeConfig) => {
@@ -269,20 +292,28 @@ class ImagingDataSetViewer extends React.PureComponent {
 
     createNewPreview = () => {
         const {imagingDataset, activeImageIdx, activePreviewIdx} = this.state;
-        const {extOpenbis} = this.props;
+        const {extOpenbis, onUnsavedChanges} = this.props;
         let toUpdateImgDs = {...imagingDataset};
         let newLastIdx = toUpdateImgDs.images[activeImageIdx].previews.length;
         let inputValues = this.createInitValues(imagingDataset.config.inputs, toUpdateImgDs.images[activeImageIdx].previews[activePreviewIdx].config);
         let imagingDataSetPreview = new ImagingMapper(extOpenbis)
             .getImagingDataSetPreview(inputValues, 'png', null, null, null, newLastIdx, false, {});
         toUpdateImgDs.images[activeImageIdx].previews = [...toUpdateImgDs.images[activeImageIdx].previews, imagingDataSetPreview];
-        this.setState({activePreviewIdx: newLastIdx, imagingDataset: toUpdateImgDs, isChanged:true, isSaved: false})
+        this.setState({
+            activePreviewIdx: newLastIdx,
+            imagingDataset: toUpdateImgDs,
+            isChanged: true,
+            isSaved: false
+        })
+        if (onUnsavedChanges !== null)
+            onUnsavedChanges(this.props.objId, true);
     };
 
     handleUpload = async (file) => {
         this.handleOpen();
         const base64 = await convertToBase64(file);
         const {imagingDataset, activeImageIdx} = this.state;
+        const {onUnsavedChanges} = this.props;
         try {
             let toUpdateImgDs = {...imagingDataset};
             let newLastIdx = toUpdateImgDs.images[activeImageIdx].previews.length;
@@ -298,6 +329,8 @@ class ImagingDataSetViewer extends React.PureComponent {
             )
             toUpdateImgDs.images[activeImageIdx].previews = [...toUpdateImgDs.images[activeImageIdx].previews, previewTemplate];
             this.setState({open: false, imagingDataset: toUpdateImgDs, isSaved: false})
+            if (onUnsavedChanges !== null)
+                onUnsavedChanges(this.props.objId, true);
         } catch (error) {
             this.setState({open: false});
             this.handleError(error);
@@ -308,7 +341,7 @@ class ImagingDataSetViewer extends React.PureComponent {
         this.handleOpen();
         const {imagingDataset, activeImageIdx, activePreviewIdx} = this.state;
         let toUpdateImgDs = {...imagingDataset};
-        toUpdateImgDs.images[activeImageIdx].previews.splice(activePreviewIdx,1);
+        toUpdateImgDs.images[activeImageIdx].previews.splice(activePreviewIdx, 1);
         toUpdateImgDs.images[activeImageIdx].previews = toUpdateImgDs.images[activeImageIdx].previews.map(p => {
             if (p.index > activePreviewIdx)
                 p.index -= 1;
@@ -319,16 +352,24 @@ class ImagingDataSetViewer extends React.PureComponent {
     };
 
     render() {
-        const { loaded, open, error } = this.state;
+        const {loaded, open, error} = this.state;
         if (!loaded) return null;
-        const {imagingDataset, activeImageIdx, activePreviewIdx, resolution, isSaved, isChanged} = this.state;
+        const {
+            imagingDataset,
+            activeImageIdx,
+            activePreviewIdx,
+            resolution,
+            isSaved,
+            isChanged
+        } = this.state;
         const {classes} = this.props;
         const activePreview = imagingDataset.images[activeImageIdx].previews[activePreviewIdx];
         //console.log('ImagingDataSetViewer.render: ', this.state);
         return (
             <React.Fragment>
-                <LoadingDialog loading={open} />
-                <ErrorDialog open={error.state} error={error.error} onClose={this.handleErrorCancel} />
+                <LoadingDialog loading={open}/>
+                <ErrorDialog open={error.state} error={error.error}
+                             onClose={this.handleErrorCancel}/>
                 {this.renderImageSection(imagingDataset.images, activeImageIdx, imagingDataset.config.exports)}
                 {this.renderPreviewsSection(imagingDataset.images[activeImageIdx].previews, imagingDataset.config.exports, activeImageIdx, activePreviewIdx, isSaved)}
                 <PaperBox>
@@ -354,7 +395,8 @@ class ImagingDataSetViewer extends React.PureComponent {
                                               activeImageIdx={activeImageIdx}
                                               onActiveItemChange={this.handleActiveImageChange}/>
                     </Grid>
-                    <Grid item xs={3} sm={2} container direction='column' justifyContent="space-around">
+                    <Grid item xs={3} sm={2} container direction='column'
+                          justifyContent="space-around">
                         {configExports.length > 0 ?
                             <Export handleExport={this.onExport}
                                     config={configExports}/> : <></>}
@@ -379,7 +421,8 @@ class ImagingDataSetViewer extends React.PureComponent {
                                               onActiveItemChange={this.handleActivePreviewChange}
                                               onMove={this.onMove}/>
                     </Grid>
-                    <Grid item xs={3} sm={2} container direction='column' justifyContent="space-around">
+                    <Grid item xs={3} sm={2} container direction='column'
+                          justifyContent="space-around">
                         {!isSaved && (
                             <Message type='warning'>
                                 {messages.get(messages.UNSAVED_CHANGES)}
@@ -424,10 +467,11 @@ class ImagingDataSetViewer extends React.PureComponent {
                         <Typography variant='body2'>
                             {messages.get(messages.NO_PREVIEW)}
                         </Typography>
-                        : <img src={`data:image/${activePreview.format};base64,${activePreview.bytes}`}
-                               alt={""}
-                               height={resolution[0]}
-                               width={resolution[1]}
+                        : <img
+                            src={`data:image/${activePreview.format};base64,${activePreview.bytes}`}
+                            alt={""}
+                            height={resolution[0]}
+                            width={resolution[1]}
                         />}
                 </Box>
             </Grid>
@@ -438,7 +482,7 @@ class ImagingDataSetViewer extends React.PureComponent {
         const inputValues = this.createInitValues(configInputs, activePreview.config);
         activePreview.config = inputValues;
         const currentMetadata = activePreview.metadata;
-        const isUploadedPreview = isObjectEmpty(currentMetadata) ?  false : ("file" in currentMetadata);
+        const isUploadedPreview = isObjectEmpty(currentMetadata) ? false : ("file" in currentMetadata);
         return (
             <Grid item xs={12} sm={4}>
                 <PaperBox className={classes.noBorderNoShadow}>
@@ -457,15 +501,16 @@ class ImagingDataSetViewer extends React.PureComponent {
                                 </Message>
                             )}
 
-                            <OutlinedBox style={{width: 'fit-content'}} label={messages.get(messages.SHOW)}>
+                            <OutlinedBox style={{width: 'fit-content'}}
+                                         label={messages.get(messages.SHOW)}>
                                 <CustomSwitch isChecked={activePreview.show}
-                                              onChange={this.handleShowPreview} />
+                                              onChange={this.handleShowPreview}/>
                             </OutlinedBox>
 
                             <Dropdown onSelectChange={this.handleResolutionChange}
-                                  label={messages.get(messages.RESOLUTIONS)}
-                                  values={configResolutions}
-                                  initValue={resolution.join('x')}/>
+                                      label={messages.get(messages.RESOLUTIONS)}
+                                      values={configResolutions}
+                                      initValue={resolution.join('x')}/>
                         </Grid>
 
                         {configInputs.map((c, idx) => {
@@ -536,7 +581,9 @@ class ImagingDataSetViewer extends React.PureComponent {
                     {isObjectEmpty(currPreviewMetadata) ?
                         <p>No preview metadata to display</p>
                         : Object.entries(currPreviewMetadata).map(([key, value], pos) =>
-                            <DefaultMetadaField key={'preview-property-' + pos} keyProp={key} valueProp={value} idx={activeImage.index} pos={pos}/>)
+                            <DefaultMetadaField key={'preview-property-' + pos} keyProp={key}
+                                                valueProp={value} idx={activeImage.index}
+                                                pos={pos}/>)
                     }
                 </Typography>
                 <Divider/>
@@ -548,19 +595,23 @@ class ImagingDataSetViewer extends React.PureComponent {
                     {isObjectEmpty(activeImage.metadata) ?
                         <p>No image metadata to display</p>
                         : Object.entries(activeImage.metadata).map(([key, value], pos) =>
-                            <DefaultMetadaField key={'image-property-' + pos} keyProp={key} valueProp={value} idx={activePreview.index} pos={pos}/>)
+                            <DefaultMetadaField key={'image-property-' + pos} keyProp={key}
+                                                valueProp={value} idx={activePreview.index}
+                                                pos={pos}/>)
                     }
                 </Typography>
                 <Divider/>
-                    <Typography gutterBottom variant='h6'>
-                        Config Metadata section
-                    </Typography>
+                <Typography gutterBottom variant='h6'>
+                    Config Metadata section
+                </Typography>
                 <Typography key={`config-metadata`} variant="body2"
                             color="textSecondary" component={'span'}>
                     {isObjectEmpty(configMetadata) ?
                         <p>No config metadata to display</p>
                         : Object.entries(configMetadata).map(([key, value], pos) =>
-                            <DefaultMetadaField key={'config-property-' + pos} keyProp={key} valueProp={value} idx={activePreview.index} pos={pos}/>)
+                            <DefaultMetadaField key={'config-property-' + pos} keyProp={key}
+                                                valueProp={value} idx={activePreview.index}
+                                                pos={pos}/>)
                     }
                 </Typography>
             </PaperBox>

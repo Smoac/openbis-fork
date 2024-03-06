@@ -19,7 +19,7 @@ import GalleryFilter from "@src/js/components/common/imaging/components/gallery/
 import GalleryGridView from "@src/js/components/common/imaging/components/gallery/GalleryGridView.js";
 import GalleryListView from "@src/js/components/common/imaging/components/gallery/GalleryListView.js";
 
-const ImagingGalleryViewer = ({objId, objType, extOpenbis, onOpenPreview}) => {
+const ImagingGalleryViewer = ({objId, objType, extOpenbis, onOpenPreview, onStoreDisplaySettings = null, onLoadDisplaySettings = null}) => {
     const [gridView, setGridView] = React.useState(true);
     const [isLoaded, setIsLoaded] = React.useState(false);
     const [open, setOpen] = React.useState(false);
@@ -42,12 +42,30 @@ const ImagingGalleryViewer = ({objId, objType, extOpenbis, onOpenPreview}) => {
         async function loadDataSetTypes() {
             const dataSetTypes = await new ImagingFacade(extOpenbis).loadDataSetTypes();
             dataSetTypes.push({label: 'All Properties', value: messages.get(messages.ALL)});
-            //console.log('dataSetTypes: ', dataSetTypes);
             setDataSetTypes(dataSetTypes);
+        }
+
+        // Set the config for the gallery view from previous store config in ELN-LIMS
+        if(onLoadDisplaySettings !== null){
+            const setDisplaySettings = (config) => {
+                if(config) {
+                    const objConfig = JSON.parse(config);
+                    setPaging(objConfig.paging);
+                    setShowAll(objConfig.showAll);
+                    setSelectAll(objConfig.selectAll);
+                }
+            }
+            onLoadDisplaySettings(setDisplaySettings)
         }
 
         loadDataSetTypes();
     }, [])
+
+    React.useEffect(() => {
+        if(onStoreDisplaySettings !== null){
+            onStoreDisplaySettings(JSON.stringify({paging: paging, showAll: showAll, selectAll: selectAll}), null)
+        }
+    }, [paging, showAll, selectAll])
 
     React.useEffect(() => {
         async function load() {
@@ -249,11 +267,12 @@ const ImagingGalleryViewer = ({objId, objType, extOpenbis, onOpenPreview}) => {
                     <Typography key="no-dataset-comment" gutterBottom variant="h6">
                         No Datasets to display
                     </Typography>
+                    .
                 </Grid>
             </>
         );
     }
-    console.log("RENDER.ImagingGalleryViewer - previewsInfo: ", previewsInfo);
+    //console.log("RENDER.ImagingGalleryViewer - previewsInfo: ", previewsInfo);
     const previewContainerList = showAll ? previewsInfo.previewContainerList : previewsInfo.previewContainerList.filter(previewContainer => previewContainer.preview.show);
     const isExportDisable = (!(previewContainerList.filter(previewContainer => previewContainer.select === true).length > 0) || !gridView)
     const commonExportConfig = extractCommonExportsConfig();
