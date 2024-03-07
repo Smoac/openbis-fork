@@ -115,7 +115,6 @@ Vocabulary
 
 |Headers|Mandatory|
 |--- |--- |
-|Version|Yes|
 |Code|Yes|
 |Description|Yes|
 
@@ -123,28 +122,26 @@ Vocabulary Term
 
 |Headers|Mandatory|
 |--- |--- |
-|Version|Yes|
 |Code|Yes|
 |Label|Yes|
 |Description|Yes|
 
 **Example**
 
-|VOCABULARY_TYPE||||
-|--- |--- |--- |--- |
-|Version|Code|Description||
-|1|$STORAGE.STORAGE_VALIDATION_LEVEL|Validation Level||
-|Version|Code|Label|Description|
-|1|RACK|Rack Validation||
-|1|BOX|Box Validation||
-|1|BOX_POSITION|Box Position Validation||
+|VOCABULARY_TYPE|||
+|--- |--- |--- |
+|Code|Description||
+|$STORAGE.STORAGE_VALIDATION_LEVEL|Validation Level||
+|Code|Label|Description|
+|RACK|Rack Validation||
+|BOX|Box Validation||
+|BOX_POSITION|Box Position Validation||
 
 Experiment Type
 ---------------
 
 |Headers|Mandatory|
 |--- |--- |
-|Version|Yes|
 |Code|Yes|
 |Description|Yes|
 |Validation script|Yes|
@@ -154,16 +151,15 @@ Experiment Type
 
 **Example**
 
-|EXPERIMENT_TYPE|||||||||||
-|--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |
-|Version|Code|Description|Validation script||||||||
-|2|DEFAULT_EXPERIMENT||date_range_validation.py||||||||
+|EXPERIMENT_TYPE||||||||||
+|--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |
+|Code|Description|Validation script||||||||
+|DEFAULT_EXPERIMENT||date_range_validation.py||||||||
 
 ### Sample Type
 
 |Headers|Mandatory|
 |--- |--- |
-|Version|Yes|
 |Code|Yes|
 |Description|Yes|
 |Auto generate codes|Yes|
@@ -175,16 +171,15 @@ Experiment Type
 
 **Example**
 
-|SAMPLE_TYPE||||||
-|--- |--- |--- |--- |--- |--- |
-|Version|Code|Description|Auto generate codes|Validation script|Generated code prefix|
-|2|STORAGE_POSITION||TRUE|storage_position_validation.py|STO|
+|SAMPLE_TYPE|||||
+|--- |--- |--- |--- |--- |
+|Code|Description|Auto generate codes|Validation script|Generated code prefix|
+|STORAGE_POSITION||TRUE|storage_position_validation.py|STO|
 
 ### Dataset Type
 
 |Headers|Mandatory|
 |--- |--- |
-|Version|Yes|
 |Code|Yes|
 |Description|Yes|
 |Validation script|Yes|
@@ -195,10 +190,10 @@ Experiment Type
 
 **Example**
 
-|DATASET_TYPE||||
-|--- |--- |--- |--- |
-|Version|Code|Description|Validation script|
-|1|RAW_DATA|||
+|DATASET_TYPE|||
+|--- |--- |--- |
+|Code|Description|Validation script|
+|RAW_DATA|||
 
 ### Property Type
 
@@ -207,7 +202,6 @@ entity type.
 
 |Headers|Mandatory Assigned|Mandatory Unassigned|
 |--- |--- |--- |
-|Version|Yes|Yes|
 |Code|Yes|Yes|
 |Mandatory|No|Yes|
 |Show in edit views|No|Yes|
@@ -245,13 +239,13 @@ are.
 In this case, the property is registered without being assigned to a
 type, and  the block of property types uses the PROPERTY\_TYPE block.
 
-|PROPERTY_TYPE|||||||||
-|--- |--- |--- |--- |--- |--- |--- |--- |--- |
-|Version|Code|Mandatory|Show in edit views|Section|Property label|Data type|Vocabulary code|Description|
-|1|$WELL.COLOR_ENCODED_ANNOTATION|FALSE|TRUE||Color Annotation|CONTROLLEDVOCABULARY|$WELL.COLOR_ENCODED_ANNOTATIONS|Color Annotation for plate wells|
-|1|ANNOTATION.SYSTEM.COMMENTS|FALSE|TRUE||Comments|VARCHAR||Comments|
-|1|ANNOTATION.REQUEST.QUANTITY_OF_ITEMS|FALSE|TRUE||Quantity of Items|INTEGER||Quantity of Items|
-|2|$BARCODE|FALSE|FALSE||Custom Barcode|VARCHAR||Custom Barcode|
+|PROPERTY_TYPE||||||||
+|--- |--- |--- |--- |--- |--- |--- |--- |
+|Code|Mandatory|Show in edit views|Section|Property label|Data type|Vocabulary code|Description|
+|$WELL.COLOR_ENCODED_ANNOTATION|FALSE|TRUE||Color Annotation|CONTROLLEDVOCABULARY|$WELL.COLOR_ENCODED_ANNOTATIONS|Color Annotation for plate wells|
+|ANNOTATION.SYSTEM.COMMENTS|FALSE|TRUE||Comments|VARCHAR||Comments|
+|ANNOTATION.REQUEST.QUANTITY_OF_ITEMS|FALSE|TRUE||Quantity of Items|INTEGER||Quantity of Items|
+|$BARCODE|FALSE|FALSE||Custom Barcode|VARCHAR||Custom Barcode|
 
 
 **Example Assigned**
@@ -260,15 +254,15 @@ In this case the property types are assigned to a sample type and the
 block of property types belong to the entity type block (SAMPLE\_TYPE in
 this case).
 
-|SAMPLE_TYPE|||||||||||
-|--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |
-|Version|Code|Description|Auto generate codes|Validation script|Generated code prefix||||||
-|1|ENTRY||TRUE||ENTRY||||||
-|Version|Code|Mandatory|Show in edit views|Section|Property label|Data type|Vocabulary code|Description|Metadata|Dynamic script|
-|1|$NAME|FALSE|TRUE|General info|Name|VARCHAR||Name|||
-|1|$SHOW_IN_PROJECT_OVERVIEW|FALSE|TRUE|General info|Show in project overview|BOOLEAN||Show in project overview page|||
-|1|$DOCUMENT|FALSE|TRUE|General info|Document|MULTILINE_VARCHAR||Document|{ "custom_widget" : "Word Processor" }||
-|1|$ANNOTATIONS_STATE|FALSE|FALSE||Annotations State|XML||Annotations State|||
+|SAMPLE_TYPE||||||||||
+|--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |
+|Code|Description|Auto generate codes|Validation script|Generated code prefix||||||
+|ENTRY||TRUE||ENTRY||||||
+|Code|Mandatory|Show in edit views|Section|Property label|Data type|Vocabulary code|Description|Metadata|Dynamic script|
+|$NAME|FALSE|TRUE|General info|Name|VARCHAR||Name|||
+|$SHOW_IN_PROJECT_OVERVIEW|FALSE|TRUE|General info|Show in project overview|BOOLEAN||Show in project overview page|||
+|$DOCUMENT|FALSE|TRUE|General info|Document|MULTILINE_VARCHAR||Document|{ "custom_widget" : "Word Processor" }||
+|$ANNOTATIONS_STATE|FALSE|FALSE||Annotations State|XML||Annotations State|||
 
 ### Entity Type Validation Script and Property Type Dynamic Script
 
@@ -286,43 +280,28 @@ column. See the example columns below.
 
 ![image info](img/932.png)
 
-|SAMPLE_TYPE|||||||||||
-|--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |
-|Version|Code|Description|Auto generate codes|Validation scriptƒgre|Generated code prefix||||||
-|2|STORAGE_POSITION||TRUE|storage_position_validation.py|STO||||||
-|Version|Code|Mandatory|Show in edit views|Section|Property label|Data type|Vocabulary code|Description|Metadata|Dynamic script|
-|1|$STORAGE_POSITION.STORAGE_CODE|FALSE|TRUE|Physical Storage|Storage Code|VARCHAR||Storage Code|||
-|1|$STORAGE_POSITION.STORAGE_RACK_ROW|FALSE|TRUE|Physical Storage|Storage Rack Row|INTEGER||Number of Rows|||
-|1|$STORAGE_POSITION.STORAGE_RACK_COLUMN|FALSE|TRUE|Physical Storage|Storage Rack Column|INTEGER||Number of Columns|||
-|1|$STORAGE_POSITION.STORAGE_BOX_NAME|FALSE|TRUE|Physical Storage|Storage Box Name|VARCHAR||Box Name|||
-|1|$STORAGE_POSITION.STORAGE_BOX_SIZE|FALSE|TRUE|Physical Storage|Storage Box Size|CONTROLLEDVOCABULARY|$STORAGE_POSITION.STORAGE_BOX_SIZE|Box Size|||
-|1|$STORAGE_POSITION.STORAGE_BOX_POSITION|FALSE|TRUE|Physical Storage|Storage Box Position|VARCHAR||Box Position|||
-|1|$STORAGE_POSITION.STORAGE_USER|FALSE|TRUE|Physical Storage|Storage User Id|VARCHAR||Storage User Id|||
-|1|$XMLCOMMENTS|FALSE|FALSE||Comments|XML||Comments log|||
-|1|$ANNOTATIONS_STATE|FALSE|FALSE||Annotations State|XML||Annotations State|||
+|SAMPLE_TYPE||||||||||
+|--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |
+|Code|Description|Auto generate codes|Validation scriptƒgre|Generated code prefix||||||
+|STORAGE_POSITION||TRUE|storage_position_validation.py|STO||||||
+|Code|Mandatory|Show in edit views|Section|Property label|Data type|Vocabulary code|Description|Metadata|Dynamic script|
+|$STORAGE_POSITION.STORAGE_CODE|FALSE|TRUE|Physical Storage|Storage Code|VARCHAR||Storage Code|||
+|$STORAGE_POSITION.STORAGE_RACK_ROW|FALSE|TRUE|Physical Storage|Storage Rack Row|INTEGER||Number of Rows|||
+|$STORAGE_POSITION.STORAGE_RACK_COLUMN|FALSE|TRUE|Physical Storage|Storage Rack Column|INTEGER||Number of Columns|||
+|$STORAGE_POSITION.STORAGE_BOX_NAME|FALSE|TRUE|Physical Storage|Storage Box Name|VARCHAR||Box Name|||
+|$STORAGE_POSITION.STORAGE_BOX_SIZE|FALSE|TRUE|Physical Storage|Storage Box Size|CONTROLLEDVOCABULARY|$STORAGE_POSITION.STORAGE_BOX_SIZE|Box Size|||
+|$STORAGE_POSITION.STORAGE_BOX_POSITION|FALSE|TRUE|Physical Storage|Storage Box Position|VARCHAR||Box Position|||
+|$STORAGE_POSITION.STORAGE_USER|FALSE|TRUE|Physical Storage|Storage User Id|VARCHAR||Storage User Id|||
+|$XMLCOMMENTS|FALSE|FALSE||Comments|XML||Comments log|||
+|$ANNOTATIONS_STATE|FALSE|FALSE||Annotations State|XML||Annotations State|||
 
-### Entity Types Versioning
+### Entity Types Update Algorithm
 
 #### General Usage 
-
-Version is a mandatory field for entity types, it just starts at 1; and
-during updating a type definition is expected to increment it;
-otherwise, the system will ignore the changes.
-
-#### Explanation
-
-Additionally, use the keyword FORCE to reinstall the type even if is
-present and has been deleted.
-
-The system keeps track of what versions of entities have been installed
-storing this information, so in the future when one updates their types,
-the version specified in the spreadsheet is checked against the stored
-version.
 
 For every TYPE found in the Excel sheet the next algorithm is performed:
 
 ```py
-IF ENTITY OR (TYPE.Version > STORED_VERSION) OR (TYPE.Version == FORCE): // If is a new version
     IF ITEM NOT EXISTS in openBIS:
         CREATE ITEM                             
     ELSE: // Doesn't exist branch
@@ -488,10 +467,6 @@ a variable '$' could be used instead for a sample declared at any point
 of the document, including cyclical dependencies. This is useful for
 scenarios where Sample codes are autogenerated and can't be known in
 advance.
-
-### Entity Versioning
-
-They don't have versioning, only entity types have versioning.
 
 ## Master Data as a Core Plugin
 
