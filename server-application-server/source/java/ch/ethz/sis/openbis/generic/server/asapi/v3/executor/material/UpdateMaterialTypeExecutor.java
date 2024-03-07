@@ -60,6 +60,6 @@ public class UpdateMaterialTypeExecutor
     @Override
     protected void checkAccess(IOperationContext context, IEntityTypeId id, MaterialTypePE entity)
     {
-        authorizationExecutor.canUpdate(context);
+        authorizationExecutor.canUpdate(context, entity);
     }
 }

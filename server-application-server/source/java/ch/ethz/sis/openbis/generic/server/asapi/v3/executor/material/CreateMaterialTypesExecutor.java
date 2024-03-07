@@ -15,6 +15,9 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -78,7 +81,18 @@ public class CreateMaterialTypesExecutor extends AbstractCreateEntityTypeExecuto
     @Override
     protected void checkAccess(IOperationContext context)
     {
-        authorizationExecutor.canCreate(context);
+    }
+
+    @Override
+    protected void checkAccess(IOperationContext context, MaterialTypePE materialTypePE)
+    {
+        authorizationExecutor.canCreate(context, materialTypePE);
+    }
+
+    @Override
+    protected IObjectId getId(MaterialTypePE materialTypePE)
+    {
+        return new EntityTypePermId(materialTypePE.getPermId());
     }
 
 }

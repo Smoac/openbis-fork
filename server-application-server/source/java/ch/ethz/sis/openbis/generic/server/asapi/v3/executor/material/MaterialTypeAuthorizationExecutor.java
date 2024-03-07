@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
@@ -36,7 +37,7 @@ public class MaterialTypeAuthorizationExecutor implements IMaterialTypeAuthoriza
     @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
     @Capability("CREATE_MATERIAL_TYPE")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL_TYPE)
-    public void canCreate(IOperationContext context)
+    public void canCreate(IOperationContext context, MaterialTypePE materialTypePE)
     {
     }
 
@@ -58,7 +59,7 @@ public class MaterialTypeAuthorizationExecutor implements IMaterialTypeAuthoriza
     @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN })
     @Capability("UPDATE_MATERIAL_TYPE")
     @DatabaseUpdateModification(value = ObjectKind.MATERIAL_TYPE)
-    public void canUpdate(IOperationContext context)
+    public void canUpdate(IOperationContext context, MaterialTypePE materialTypePE)
     {
     }
 

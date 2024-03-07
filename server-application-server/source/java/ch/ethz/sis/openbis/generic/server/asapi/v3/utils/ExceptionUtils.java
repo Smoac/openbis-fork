@@ -26,16 +26,12 @@ import java.util.Arrays;
 public class ExceptionUtils
 {
 
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, ExceptionUtils.class);
-
     public static RuntimeException create(IOperationContext context, Throwable t)
     {
         if (t instanceof UserFailureException)
         {
             return new UserFailureException(createMessage(context, t), t);
         }
-        operationLog.error("||> ERROR", t);
-        operationLog.error(Arrays.toString(t.getStackTrace()));
         return new RuntimeException(createMessage(context, t), t);
     }
 
