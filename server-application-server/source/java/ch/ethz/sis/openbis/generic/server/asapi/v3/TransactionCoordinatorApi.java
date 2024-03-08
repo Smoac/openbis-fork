@@ -23,6 +23,7 @@ import ch.ethz.sis.afsclient.client.AfsClient;
 import ch.ethz.sis.openbis.generic.asapi.v3.ITransactionCoordinatorApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.ITransactionParticipantApi;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.roleassignment.RoleAssignmentUtils;
+import ch.ethz.sis.transaction.AbstractTransactionNode;
 import ch.ethz.sis.transaction.ISessionTokenProvider;
 import ch.ethz.sis.transaction.ITransactionParticipant;
 import ch.ethz.sis.transaction.TransactionCoordinator;
@@ -33,14 +34,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 @Component
-public class TransactionCoordinatorApi implements ITransactionCoordinatorApi, ApplicationListener<ApplicationEvent>
+public class TransactionCoordinatorApi extends AbstractTransactionNodeApi implements ITransactionCoordinatorApi
 {
 
     private static final String TRANSACTION_LOG_FOLDER_NAME = "coordinator";
-
-    private static final String FINISH_TRANSACTIONS_THREAD_NAME = "coordinator-finish-transactions";
-
-    private final TransactionConfiguration transactionConfiguration;
 
     private final TransactionCoordinator transactionCoordinator;
 
@@ -48,13 +45,14 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi, Ap
     public TransactionCoordinatorApi(final TransactionConfiguration transactionConfiguration, IApplicationServerInternalApi applicationServerApi,
             IOpenBisSessionManager sessionManager)
     {
+        super(transactionConfiguration);
+
         List<ITransactionParticipant> participants = Arrays.asList(
                 new ApplicationServerParticipant(transactionConfiguration.getApplicationServerUrl(),
                         transactionConfiguration.getApplicationServerTimeoutInSeconds()),
                 new AfsServerParticipant(applicationServerApi, transactionConfiguration.getAfsServerUrl(),
                         transactionConfiguration.getAfsServerTimeoutInSeconds()));
 
-        this.transactionConfiguration = transactionConfiguration;
         this.transactionCoordinator = new TransactionCoordinator(
                 transactionConfiguration.getCoordinatorKey(),
                 transactionConfiguration.getInteractiveSessionKey(),
@@ -65,30 +63,9 @@ public class TransactionCoordinatorApi implements ITransactionCoordinatorApi, Ap
                 transactionConfiguration.getTransactionCountLimit());
     }
 
-    @Override public void onApplicationEvent(final ApplicationEvent event)
+    @Override protected AbstractTransactionNode<?> getTransactionNode()
     {
-        Object source = event.getSource();
-        if (source instanceof AbstractApplicationContext)
-        {
-            AbstractApplicationContext appContext = (AbstractApplicationContext) source;
-            if ((event instanceof ContextStartedEvent) || (event instanceof ContextRefreshedEvent))
-            {
-                if (appContext.getParent() != null)
-                {
-                    this.transactionCoordinator.recoverTransactionsFromTransactionLog();
-
-                    new Timer(FINISH_TRANSACTIONS_THREAD_NAME, true).schedule(new TimerTask()
-                                                                              {
-                                                                                  @Override public void run()
-                                                                                  {
-                                                                                      TransactionCoordinatorApi.this.transactionCoordinator.finishFailedOrAbandonedTransactions();
-                                                                                  }
-                                                                              },
-                            transactionConfiguration.getFinishTransactionsIntervalInSeconds() * 1000L,
-                            transactionConfiguration.getFinishTransactionsIntervalInSeconds() * 1000L);
-                }
-            }
-        }
+        return transactionCoordinator;
     }
 
     @Override public void beginTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)

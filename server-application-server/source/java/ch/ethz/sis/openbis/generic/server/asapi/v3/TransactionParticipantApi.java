@@ -7,18 +7,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.context.event.ContextStartedEvent;
-import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
@@ -27,6 +20,7 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.ITransactionCoordinatorApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.ITransactionParticipantApi;
+import ch.ethz.sis.transaction.AbstractTransactionNode;
 import ch.ethz.sis.transaction.IDatabaseTransactionProvider;
 import ch.ethz.sis.transaction.ITransactionOperationExecutor;
 import ch.ethz.sis.transaction.TransactionLog;
@@ -38,16 +32,12 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 
 @Component
-public class TransactionParticipantApi implements ITransactionParticipantApi, ApplicationListener<ApplicationEvent>
+public class TransactionParticipantApi extends AbstractTransactionNodeApi implements ITransactionParticipantApi
 {
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, TransactionParticipant.class);
 
     private static final String TRANSACTION_LOG_FOLDER_NAME = "participant-application-server";
-
-    private static final String FINISH_TRANSACTIONS_THREAD_NAME = "participant-application-server-finish-transactions";
-
-    private final TransactionConfiguration transactionConfiguration;
 
     private final TransactionParticipant transactionParticipant;
 
@@ -65,7 +55,8 @@ public class TransactionParticipantApi implements ITransactionParticipantApi, Ap
             final IOpenBisSessionManager sessionManager,
             final String participantId, final String logFolderName)
     {
-        this.transactionConfiguration = transactionConfiguration;
+        super(transactionConfiguration);
+
         this.transactionParticipant = new TransactionParticipant(
                 participantId,
                 transactionConfiguration.getCoordinatorKey(),
@@ -79,30 +70,9 @@ public class TransactionParticipantApi implements ITransactionParticipantApi, Ap
         );
     }
 
-    @Override public void onApplicationEvent(final ApplicationEvent event)
+    @Override protected AbstractTransactionNode<?> getTransactionNode()
     {
-        Object source = event.getSource();
-        if (source instanceof AbstractApplicationContext)
-        {
-            AbstractApplicationContext appContext = (AbstractApplicationContext) source;
-            if ((event instanceof ContextStartedEvent) || (event instanceof ContextRefreshedEvent))
-            {
-                if (appContext.getParent() != null)
-                {
-                    this.transactionParticipant.recoverTransactionsFromTransactionLog();
-
-                    new Timer(FINISH_TRANSACTIONS_THREAD_NAME, true).schedule(new TimerTask()
-                                                                              {
-                                                                                  @Override public void run()
-                                                                                  {
-                                                                                      TransactionParticipantApi.this.transactionParticipant.finishFailedOrAbandonedTransactions();
-                                                                                  }
-                                                                              },
-                            transactionConfiguration.getFinishTransactionsIntervalInSeconds() * 1000L,
-                            transactionConfiguration.getFinishTransactionsIntervalInSeconds() * 1000L);
-                }
-            }
-        }
+        return transactionParticipant;
     }
 
     @Override public String getParticipantId()
@@ -273,7 +243,8 @@ public class TransactionParticipantApi implements ITransactionParticipantApi, Ap
                         operationLog.error(exception.getMessage());
                         throw exception;
                     }
-                }finally{
+                } finally
+                {
                     if (transaction != null)
                     {
                         try
