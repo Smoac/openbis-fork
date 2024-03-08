@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.UUID;
 
 import ch.ethz.sis.afsapi.dto.File;
+import ch.ethz.sis.afsapi.dto.Space;
 import ch.ethz.sis.afsserver.server.performance.Event;
 import ch.ethz.sis.afsserver.worker.AbstractProxy;
 import lombok.NonNull;
@@ -121,6 +122,13 @@ public class AuditorProxy extends AbstractProxy {
     {
         auditBefore();
         return auditAfter(nextProxy.create(owner, source, directory));
+    }
+
+    @Override
+    public Space free(@NonNull final String owner, @NonNull final String source) throws Exception
+    {
+        auditBefore();
+        return auditAfter(nextProxy.free(owner, source));
     }
 
     private void auditBefore() {

@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.afsserver.server.impl;
 
+import ch.ethz.sis.afsapi.dto.DTO;
 import ch.ethz.sis.afsjson.JsonObjectMapper;
 import ch.ethz.sis.afsserver.exception.HTTPExceptions;
 import ch.ethz.sis.afsserver.http.HttpResponse;
@@ -63,6 +64,7 @@ public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler
         {
             case "list":
             case "read":
+            case "free":
             case "isSessionValid":
                 return GET; // all parameters from GET methods come on the query string
             case "create":
@@ -80,7 +82,7 @@ public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler
             case "delete":
                 return HttpMethod.DELETE; // all parameters from DELETE methods come on the body
         }
-        throw new UnsupportedOperationException("This line SHOULD NOT be unreachable!");
+        throw new UnsupportedOperationException(String.format("This line SHOULD be unreachable! apiMethod=\"%s\"", apiMethod));
     }
 
     public boolean isValidMethod(HttpMethod givenMethod, String apiMethod)
@@ -228,15 +230,19 @@ public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler
         if (error) {
             contentType = HttpResponse.CONTENT_TYPE_JSON;
             body = jsonObjectMapper.writeValue(response);
-        } else if (response.getResult() instanceof List) {
-            contentType = HttpResponse.CONTENT_TYPE_JSON;
-            body = jsonObjectMapper.writeValue(response);
-        } else if(response.getResult() instanceof byte[]) {
-            contentType = HttpResponse.CONTENT_TYPE_BINARY_DATA;
-            body = (byte[]) response.getResult();
-        } else {
-            contentType = HttpResponse.CONTENT_TYPE_TEXT;
-            body = String.valueOf(response.getResult()).getBytes(StandardCharsets.UTF_8);
+        } else
+        {
+            final Object result = response.getResult();
+            if (result instanceof List || result instanceof DTO) {
+                contentType = HttpResponse.CONTENT_TYPE_JSON;
+                body = jsonObjectMapper.writeValue(response);
+            } else if (result instanceof byte[]) {
+                contentType = HttpResponse.CONTENT_TYPE_BINARY_DATA;
+                body = (byte[]) result;
+            } else {
+                contentType = HttpResponse.CONTENT_TYPE_TEXT;
+                body = String.valueOf(result).getBytes(StandardCharsets.UTF_8);
+            }
         }
         return new HttpResponse(error, contentType, body);
     }

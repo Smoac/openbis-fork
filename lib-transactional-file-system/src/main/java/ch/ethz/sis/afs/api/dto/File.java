@@ -26,7 +26,8 @@ import java.time.OffsetDateTime;
 @Value
 @Builder(toBuilder = true)
 @AllArgsConstructor(access = AccessLevel.PUBLIC)
-public class File {
+public class File
+{
     private String path;
     private String name;
     private Boolean directory;
@@ -36,4 +37,7 @@ public class File {
 
     @EqualsAndHashCode.Exclude
     private OffsetDateTime lastAccessTime;
+
+    private Long totalSpace;
+    private Long freeSpace;
 }

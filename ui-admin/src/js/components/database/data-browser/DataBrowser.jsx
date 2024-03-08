@@ -140,7 +140,8 @@ class DataBrowser extends React.Component {
       selectedFile: null,
       multiselectedFiles: new Set([]),
       showInfo: false,
-      path: '/'
+      path: '/',
+      freeSpacePercentage: -1
     }
   }
 
@@ -228,6 +229,16 @@ class DataBrowser extends React.Component {
     return size.toFixed(1) + " " + unit;
   }
 
+  fetchPercentage() {
+    this.controller.free().then((space) => {
+      this.setState({freeSpacePercentage: space.free * 100 / space.total})
+    });
+  }
+
+  componentDidMount() {
+    this.fetchPercentage();
+  }
+
   render() {
     const { classes, sessionToken, id } = this.props
     const {
@@ -258,7 +269,8 @@ class DataBrowser extends React.Component {
           path={path}
           onPathChange={this.handlePathChange}
         />
-        <LinearProgressWithLabel value={90} />
+        <LinearProgressWithLabel value={this.state.freeSpacePercentage} />
+        {/*<LinearProgressWithLabel value={50} />*/}
         <div className={[classes.flexContainer, classes.boundary, classes.content].join(' ')}>
           {viewType === 'list' && (
             <Grid

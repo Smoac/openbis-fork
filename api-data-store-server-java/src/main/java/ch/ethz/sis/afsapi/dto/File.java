@@ -24,7 +24,8 @@ import java.time.OffsetDateTime;
 @Value
 @Builder(toBuilder = true)
 @AllArgsConstructor(access = AccessLevel.PUBLIC)
-public class File {
+public class File implements DTO
+{
     private String owner;
     private String path;
     private String name;

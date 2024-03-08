@@ -18,6 +18,7 @@ package ch.ethz.sis.afs.api;
 import java.util.List;
 
 import ch.ethz.sis.afs.api.dto.File;
+import ch.ethz.sis.afs.api.dto.Space;
 import lombok.NonNull;
 
 public interface OperationsAPI {
@@ -37,5 +38,7 @@ public interface OperationsAPI {
     boolean move(@NonNull String source, @NonNull String target) throws Exception;
 
     boolean create(@NonNull String source, boolean directory) throws Exception;
+
+    Space free(@NonNull String source) throws Exception;
 
 }

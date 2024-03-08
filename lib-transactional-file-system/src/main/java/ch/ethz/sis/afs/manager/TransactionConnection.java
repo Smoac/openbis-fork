@@ -27,6 +27,7 @@ import java.util.UUID;
 
 import ch.ethz.sis.afs.api.TransactionalFileSystem;
 import ch.ethz.sis.afs.api.dto.File;
+import ch.ethz.sis.afs.api.dto.Space;
 import ch.ethz.sis.afs.dto.Transaction;
 import ch.ethz.sis.afs.dto.operation.CopyOperation;
 import ch.ethz.sis.afs.dto.operation.CreateOperation;
@@ -52,6 +53,10 @@ import ch.ethz.sis.shared.io.IOUtils;
 import lombok.NonNull;
 
 public class TransactionConnection implements TransactionalFileSystem {
+
+    private static final String RELATIVE = "/../";
+
+    private static final String ROOT = "/";
 
     private static final Map<OperationName, NonModifyingOperationExecutor> nonModifyingOperationExecutor;
 
@@ -343,8 +348,15 @@ public class TransactionConnection implements TransactionalFileSystem {
         return prepared;
     }
 
-    private static final String RELATIVE = "/../";
-    private static final String ROOT = "/";
+    @Override
+    public Space free(@NonNull final String source) throws Exception
+    {
+        final String safeSource = getSafePath(OperationName.List, source);
+        validateOperationAndPaths(OperationName.Free, safeSource, null);
+        validateWritten(OperationName.Free, safeSource);
+        final File file = IOUtils.getFile(safeSource);
+        return new Space(file.getTotalSpace(), file.getFreeSpace());
+    }
 
     private boolean prepare(Operation operation, String source, String target) throws Exception {
         validateOperationAndPaths(operation.getName(), source, target);

@@ -23,7 +23,8 @@ import java.io.Serializable;
 import java.util.List;
 
 @Value
-public class ExceptionReason implements Serializable {
+public class ExceptionReason implements DTO, Serializable
+{
     private Integer componentCode;
     private Integer exceptionCode;
     private String javaClassName;

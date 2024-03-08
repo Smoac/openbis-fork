@@ -35,6 +35,26 @@ export default class DataBrowserController extends ComponentController {
     this.component.datastoreServer.useSession(sessionToken)
   }
 
+  free() {
+    return new Promise((resolve, reject) => {
+      this.component.datastoreServer.free(this.owner, this.path)
+        .then((data) => {
+          if (!data.error) {
+            resolve(data.result[1]);
+          } else {
+            reject(data.error)
+          }
+        })
+        .catch((error) => {
+          if (error.message.includes('NoSuchFileException')) {
+            resolve([])
+          } else {
+            reject(error)
+          }
+        })
+    })
+  }
+
   listFiles() {
     return new Promise((resolve, reject) => {
       this.component.datastoreServer.list(this.owner, this.path, false)

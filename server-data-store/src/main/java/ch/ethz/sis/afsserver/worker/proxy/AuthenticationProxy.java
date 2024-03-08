@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.UUID;
 
 import ch.ethz.sis.afsapi.dto.File;
+import ch.ethz.sis.afsapi.dto.Space;
 import ch.ethz.sis.afsserver.exception.FSExceptions;
 import ch.ethz.sis.afsserver.worker.AbstractProxy;
 import ch.ethz.sis.afsserver.worker.providers.AuthenticationInfoProvider;
@@ -143,6 +144,13 @@ public class AuthenticationProxy extends AbstractProxy {
     {
         validateSessionAvailable();
         return nextProxy.create(owner, source, directory);
+    }
+
+    @Override
+    public Space free(@NonNull final String owner, @NonNull final String source) throws Exception
+    {
+        validateSessionAvailable();
+        return nextProxy.free(owner, source);
     }
 
     //

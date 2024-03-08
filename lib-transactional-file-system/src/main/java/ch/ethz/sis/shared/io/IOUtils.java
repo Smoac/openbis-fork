@@ -174,7 +174,12 @@ public class IOUtils {
         FileTime lastAccessTime = fileAttributes.lastAccessTime();
         OffsetDateTime lastAccess = OffsetDateTime.ofInstant(lastAccessTime.toInstant(), ZoneId.systemDefault());
 
-        return new File(absolutePath, name, isDirectory, size, lastModified, creation, lastAccess);
+        final java.io.File ioFile = path.toFile();
+
+        final long totalSpace = ioFile.getTotalSpace();
+        final long freeSpace = ioFile.getFreeSpace();
+
+        return new File(absolutePath, name, isDirectory, size, lastModified, creation, lastAccess, totalSpace, freeSpace);
     }
 
     //

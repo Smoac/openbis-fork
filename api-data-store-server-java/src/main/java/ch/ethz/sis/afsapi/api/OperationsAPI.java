@@ -20,6 +20,7 @@ package ch.ethz.sis.afsapi.api;
 import java.util.List;
 
 import ch.ethz.sis.afsapi.dto.File;
+import ch.ethz.sis.afsapi.dto.Space;
 import lombok.NonNull;
 
 public interface OperationsAPI
@@ -50,5 +51,8 @@ public interface OperationsAPI
 
     @NonNull
     Boolean create(@NonNull String owner, @NonNull String source, @NonNull Boolean directory) throws Exception;
+
+    @NonNull
+    Space free(@NonNull String owner, @NonNull String source) throws Exception;
 
 }

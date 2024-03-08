@@ -29,6 +29,7 @@ import ch.ethz.sis.afsapi.api.ClientAPI;
 import ch.ethz.sis.afsapi.api.PublicAPI;
 import ch.ethz.sis.afsapi.dto.ApiResponse;
 import ch.ethz.sis.afsapi.dto.File;
+import ch.ethz.sis.afsapi.dto.Space;
 import ch.ethz.sis.afsclient.client.exception.ClientExceptions;
 import ch.ethz.sis.afsjson.JsonObjectMapper;
 import ch.ethz.sis.afsjson.jackson.JacksonObjectMapper;
@@ -209,6 +210,13 @@ public final class AfsClient implements PublicAPI, ClientAPI
     {
         validateSessionToken();
         return request("POST", "create", Boolean.class, Map.of("owner", owner, "source", source, "directory", String.valueOf(directory)));
+    }
+
+    @Override
+    public @NonNull Space free(@NonNull final String owner, @NonNull final String source) throws Exception
+    {
+        validateSessionToken();
+        return request("GET", "free", Space.class, Map.of("owner", owner, "source", source));
     }
 
     @Override

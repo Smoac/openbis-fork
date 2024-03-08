@@ -532,6 +532,22 @@ DataStoreServer.prototype.create = function(owner, source, directory){
 	);
 }
 
+/**
+ * Get the space information for given owner and source
+ */
+DataStoreServer.prototype.free = function(owner, source){
+	const data =  this.fillCommonParameters({
+		"method": "free",
+		"owner" :  owner,
+		"source":  source,
+	});
+	return this._internal.sendHttpRequest(
+		"GET",
+		"application/octet-stream",
+		this._internal.buildGetUrl(data),
+		{}
+	).then((response) => parseJsonResponse(response));
+}
 
 /**
  * ==================================================================================

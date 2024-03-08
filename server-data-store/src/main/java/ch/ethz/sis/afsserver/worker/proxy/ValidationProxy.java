@@ -18,6 +18,7 @@ package ch.ethz.sis.afsserver.worker.proxy;
 import java.util.List;
 
 import ch.ethz.sis.afsapi.dto.File;
+import ch.ethz.sis.afsapi.dto.Space;
 import ch.ethz.sis.afsserver.exception.FSExceptions;
 import ch.ethz.sis.afsserver.worker.AbstractProxy;
 import lombok.NonNull;
@@ -67,6 +68,12 @@ public class ValidationProxy extends AbstractProxy {
     public @NonNull Boolean create(@NonNull final String owner, @NonNull final String source, @NonNull final Boolean directory) throws Exception
     {
         return nextProxy.create(owner, source, directory);
+    }
+
+    @Override
+    public Space free(@NonNull final String owner, @NonNull final String source) throws Exception
+    {
+        return nextProxy.free(owner, source);
     }
 
     private void validateReadSize(String source, Integer limit) {
