@@ -10,9 +10,8 @@ import AppController from '@src/js/components/AppController.js'
 import ItemIcon from '@src/js/components/database/data-browser/ItemIcon.jsx'
 import InfoPanel from '@src/js/components/database/data-browser/InfoPanel.jsx'
 import DataBrowserController from '@src/js/components/database/data-browser/DataBrowserController.js'
-import NavigationBar from '@src/js/components/database/data-browser/NavigationBar.jsx'
 import messages from '@src/js/common/messages.js'
-import FreeSpaceBar from "@src/js/components/common/progress/FreeSpaceBar.jsx";
+import InfoBar from '@src/js/components/database/data-browser/InfoBar.jsx'
 
 const HTTP_SERVER_URI = '/data-store-server'
 
@@ -167,8 +166,9 @@ class DataBrowser extends React.Component {
 
   handleMultiselect(selectedRow) {
     this.setState({
-      multiselectedFiles: new Set(Object.values(selectedRow)
-        .map(value => value.data))
+      multiselectedFiles: new Set(
+        Object.values(selectedRow).map(value => value.data)
+      )
     })
   }
 
@@ -205,7 +205,7 @@ class DataBrowser extends React.Component {
       return null
     }
 
-    if (typeof bytes == "string") {
+    if (typeof bytes == 'string') {
       bytes = parseInt(bytes)
     }
 
@@ -216,28 +216,28 @@ class DataBrowser extends React.Component {
     const gbytes = mbytes / 1024.0
     if (gbytes > 1.0) {
       size = gbytes
-      unit = "GB"
+      unit = 'GB'
     } else if (mbytes > 1.0) {
       size = mbytes
-      unit = "MB"
+      unit = 'MB'
     } else if (kbytes > 1.0) {
       size = kbytes
-      unit = "kB"
+      unit = 'kB'
     } else {
       size = bytes
-      unit = "bytes"
+      unit = 'bytes'
     }
-    return size.toFixed(1) + " " + unit;
+    return size.toFixed(1) + '\xa0' + unit
   }
 
   fetchPercentage() {
-    this.controller.free().then((space) => {
-      this.setState({freeSpace: space.free, totalSpace: space.total})
-    });
+    this.controller.free().then(space => {
+      this.setState({ freeSpace: space.free, totalSpace: space.total })
+    })
   }
 
   componentDidMount() {
-    this.fetchPercentage();
+    this.fetchPercentage()
   }
 
   render() {
@@ -254,7 +254,9 @@ class DataBrowser extends React.Component {
     } = this.state
 
     return (
-      <div className={[classes.boundary, classes.columnFlexContainer].join(' ')}>
+      <div
+        className={[classes.boundary, classes.columnFlexContainer].join(' ')}
+      >
         <Toolbar
           controller={this.controller}
           viewType={viewType}
@@ -268,12 +270,19 @@ class DataBrowser extends React.Component {
           owner={id}
           path={path}
         />
-        <NavigationBar
+        <InfoBar
           path={path}
           onPathChange={this.handlePathChange}
+          free={freeSpace}
+          total={totalSpace}
         />
-        <FreeSpaceBar free={freeSpace} total={totalSpace} />
-        <div className={[classes.flexContainer, classes.boundary, classes.content].join(' ')}>
+        <div
+          className={[
+            classes.flexContainer,
+            classes.boundary,
+            classes.content
+          ].join(' ')}
+        >
           {viewType === 'list' && (
             <Grid
               id='data-browser-grid'
@@ -303,7 +312,7 @@ class DataBrowser extends React.Component {
                   name: 'type',
                   label: messages.get(messages.TYPE),
                   sortable: true,
-                  getValue: ({ row }) => row.directory ? 'Directory' : 'File'
+                  getValue: ({ row }) => (row.directory ? 'Directory' : 'File')
                 },
                 {
                   name: 'size',
@@ -323,14 +332,16 @@ class DataBrowser extends React.Component {
                   label: messages.get(messages.MODIFIED),
                   sortable: true,
                   getValue: ({ row }) => row.lastModifiedTime,
-                  renderValue: ({ row }) => this.timeToString(row.lastModifiedTime)
+                  renderValue: ({ row }) =>
+                    this.timeToString(row.lastModifiedTime)
                 },
                 {
                   name: 'accessed',
                   label: messages.get(messages.ACCESSED),
                   sortable: true,
                   getValue: ({ row }) => row.lastAccessTime,
-                  renderValue: ({ row }) => this.timeToString(row.lastAccessTime)
+                  renderValue: ({ row }) =>
+                    this.timeToString(row.lastAccessTime)
                 }
               ]}
               loadRows={this.controller.load}
@@ -362,7 +373,10 @@ class DataBrowser extends React.Component {
             />
           )}
           {showInfo && selectedFile && (
-            <InfoPanel selectedFile={selectedFile} configuration={configuration} />
+            <InfoPanel
+              selectedFile={selectedFile}
+              configuration={configuration}
+            />
           )}
         </div>
       </div>
