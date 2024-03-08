@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.time.DateTimeUtils;
 
 public abstract class AbstractTransactionNode<T extends AbstractTransaction>
 {
@@ -171,18 +172,23 @@ public abstract class AbstractTransactionNode<T extends AbstractTransaction>
                               If the operations are not coming then after a timeout we need to roll back.
                             */
 
-                            boolean hasTimedOut = System.currentTimeMillis() - transaction.getLastAccessedDate().getTime() > transactionTimeoutInSeconds * 1000L;
+                            boolean hasTimedOut =
+                                    System.currentTimeMillis() - transaction.getLastAccessedDate().getTime() > transactionTimeoutInSeconds * 1000L;
 
                             if (hasTimedOut)
                             {
                                 operationLog.info("Transaction '" + transaction.getTransactionId() + "' has timed out. It was last accessed at '"
-                                        + transaction.getLastAccessedDate() + "'");
+                                        + transaction.getLastAccessedDate() + "'.");
                                 finishFailedOrAbandonedTransactionViaRollback(transaction);
                             } else
                             {
+                                long timeTillTimeoutInMillis = Math.max(0,
+                                        transaction.getLastAccessedDate().getTime() + transactionTimeoutInSeconds * 1000L
+                                                - System.currentTimeMillis());
                                 operationLog.info(
                                         "Transaction '" + transaction.getTransactionId() + "' hasn't timed out yet. It was last accessed at '"
-                                                + transaction.getLastAccessedDate() + "'");
+                                                + transaction.getLastAccessedDate() + "'. It will timeout in '" + DateTimeUtils.renderDuration(
+                                                timeTillTimeoutInMillis) + "'.");
                             }
                             break;
                         case PREPARE_FINISHED:
