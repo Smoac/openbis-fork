@@ -1,2 +1,2 @@
 includeFlat 'lib-commonbase', 'lib-common', 'api-openbis-java', 'lib-openbis-common', 'lib-authentication',
-        'lib-dbmigration', 'api-openbis-javascript', 'api-data-store-server-java', 'lib-json'
+        'lib-dbmigration', 'lib-json', 'api-openbis-javascript', 'api-data-store-server-java'
