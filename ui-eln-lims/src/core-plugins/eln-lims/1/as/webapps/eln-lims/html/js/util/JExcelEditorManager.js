@@ -272,7 +272,7 @@ var JExcelEditorManager = new function() {
 
 	this._isIdentifier = function(data) {
         var split = data.split('/');
-        return split[0] == '' && (split.length > 1 && split.length < 7);
+        return split[0] == '' && (split.length > 2 && split.length < 6);
 	}
 
 	this._searchByIdentifiers = function(identifiers, callback) {
@@ -311,9 +311,7 @@ var JExcelEditorManager = new function() {
                                     callback(links);
                                 });
                             }
-                        }).fail(function(result) {
-                            callback({});
-                        });
+                        })
                     });
 
 	}
