@@ -24,11 +24,13 @@ import { withStyles } from "@material-ui/core/styles";
 const styles = theme => ({
   container: {
     display: 'flex',
-    width: '100%'
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1)
   },
 
   leftPanel: {
-    width: '80%'
+    width: '80%',
+    overflow: 'hidden'
   },
 
   rightPanel: {

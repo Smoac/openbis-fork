@@ -33,9 +33,8 @@ const styles = theme => ({
     flex: '0 0 auto',
     display: 'flex',
     whiteSpace: 'nowrap',
-    marginLeft: theme.spacing(1),
-    marginRight: theme.spacing(1),
     fontSize: '1.125rem',
+    padding: '0 0',
     alignItems: 'center',
     '&>*': {
       minWidth: 'auto',

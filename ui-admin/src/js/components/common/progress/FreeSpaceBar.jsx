@@ -23,7 +23,15 @@ import Box from '@material-ui/core/Box'
 
 const styles = theme => ({
   root: {
+    width: '100%'
+  },
+  progressRoot: {
+    width: '100%'
+  },
+  bar: {
     width: '100%',
+    borderRadius: '5px',
+    height: '10px',
   },
 })
 
@@ -65,15 +73,16 @@ class FreeSpaceBar extends React.Component {
 
   render() {
     const {free, total, classes} = this.props;
-    const value = Math.round(100 - free * 100 / total);
+    const used = total - free
+    const value = Math.round(used * 100 / total);
     return (
       <Box className={classes.root} alignItems='center'>
-        <Box width='100%' mr={1}>
-          <LinearProgress variant='determinate' value={value} />
+        <Box className={classes.progressRoot} mr={1}>
+          <LinearProgress className={classes.bar} variant='determinate' value={value} />
         </Box>
         <Box minWidth={35}>
           <Typography variant='body2' color='textSecondary'>
-            {`${this.sizeToString(free)} / ${this.sizeToString(total)}`}
+            {`${this.sizeToString(used)} / ${this.sizeToString(total)}`}
           </Typography>
         </Box>
       </Box>
