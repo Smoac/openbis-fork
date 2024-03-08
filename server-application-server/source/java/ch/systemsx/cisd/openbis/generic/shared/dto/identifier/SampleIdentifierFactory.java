@@ -105,6 +105,9 @@ public final class SampleIdentifierFactory extends AbstractIdentifierFactory
             return false;
         }
         String[] codes = text.split(IDENTIFIER_SEPARARTOR_STRING);
+        if(codes.length == 0 || codes.length > 4) {
+            return false;
+        }
         for (int i = 0; i < codes.length; i++)
         {
             String code = codes[i];
