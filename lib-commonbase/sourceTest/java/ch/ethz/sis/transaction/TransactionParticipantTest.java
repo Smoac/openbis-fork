@@ -2,8 +2,9 @@ package ch.ethz.sis.transaction;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.fail;
+import static org.testng.AssertJUnit.assertNull;
 
 import java.util.HashSet;
 import java.util.List;
@@ -301,7 +302,7 @@ public class TransactionParticipantTest
         } catch (Throwable t)
         {
             assertEquals(t.getMessage(), expectedException);
-            assertFalse(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+            assertNull(participant.getTransaction(TEST_TRANSACTION_ID));
         }
     }
 
@@ -338,6 +339,7 @@ public class TransactionParticipantTest
                 one(databaseTransactionProvider).beginTransaction(with(TEST_TRANSACTION_ID));
                 will(throwException(throwable));
 
+                one(transactionLog).logTransaction(with(logEntry(TEST_TRANSACTION_ID, TransactionStatus.ROLLBACK_STARTED)));
                 one(transactionLog).deleteTransaction(TEST_TRANSACTION_ID);
             }
         });
@@ -351,7 +353,7 @@ public class TransactionParticipantTest
         {
             assertEquals(t.getMessage(), "Begin transaction '" + TEST_TRANSACTION_ID + "' failed.");
             assertEquals(t.getCause(), throwable);
-            assertFalse(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+            assertNull(participant.getTransaction(TEST_TRANSACTION_ID));
         }
     }
 
@@ -414,7 +416,7 @@ public class TransactionParticipantTest
         } catch (Throwable t)
         {
             assertEquals(t.getMessage(), expectedExceptionMessage);
-            assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+            assertNotNull(participant.getTransaction(TEST_TRANSACTION_ID));
         }
     }
 
@@ -464,10 +466,10 @@ public class TransactionParticipantTest
             }
         });
 
-        assertFalse(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+        assertNull(participant.getTransaction(TEST_TRANSACTION_ID));
         // begin
         participant.beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, interactiveSessionKey, transactionCoordinatorKey);
-        assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+        assertNotNull(participant.getTransaction(TEST_TRANSACTION_ID));
 
         try
         {
@@ -478,10 +480,10 @@ public class TransactionParticipantTest
         } catch (TransactionOperationException e)
         {
             assertEquals(e.getCause(), throwable);
-            assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+            assertNotNull(participant.getTransaction(TEST_TRANSACTION_ID));
             // rollback
             participant.rollbackTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, interactiveSessionKey);
-            assertFalse(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+            assertNull(participant.getTransaction(TEST_TRANSACTION_ID));
         }
     }
 
@@ -532,10 +534,10 @@ public class TransactionParticipantTest
             }
         });
 
-        assertFalse(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+        assertNull(participant.getTransaction(TEST_TRANSACTION_ID));
         // begin
         participant.beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, interactiveSessionKey, transactionCoordinatorKey);
-        assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+        assertNotNull(participant.getTransaction(TEST_TRANSACTION_ID));
 
         try
         {
@@ -546,7 +548,7 @@ public class TransactionParticipantTest
         } catch (Throwable e)
         {
             assertEquals(e.getCause(), throwable);
-            assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+            assertNotNull(participant.getTransaction(TEST_TRANSACTION_ID));
 
             // execute
             Object result =
@@ -558,12 +560,12 @@ public class TransactionParticipantTest
             {
                 // prepare
                 participant.prepareTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, interactiveSessionKey, transactionCoordinatorKey);
-                assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+                assertNotNull(participant.getTransaction(TEST_TRANSACTION_ID));
             }
 
             // commit
             participant.commitTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, interactiveSessionKey);
-            assertFalse(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+            assertNull(participant.getTransaction(TEST_TRANSACTION_ID));
         }
     }
 
@@ -621,7 +623,7 @@ public class TransactionParticipantTest
         } catch (Throwable t)
         {
             assertEquals(t.getMessage(), expectedExceptionMessage);
-            assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+            assertNotNull(participant.getTransaction(TEST_TRANSACTION_ID));
         }
     }
 
@@ -672,10 +674,10 @@ public class TransactionParticipantTest
             }
         });
 
-        assertFalse(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+        assertNull(participant.getTransaction(TEST_TRANSACTION_ID));
         // begin
         participant.beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_TRANSACTION_COORDINATOR_KEY);
-        assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+        assertNotNull(participant.getTransaction(TEST_TRANSACTION_ID));
         // execute
         participant.executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY, TEST_OPERATION_NAME,
                 TEST_OPERATION_ARGUMENTS);
@@ -689,11 +691,11 @@ public class TransactionParticipantTest
         {
             assertEquals(t.getMessage(), "Prepare transaction '" + TEST_TRANSACTION_ID + "' failed.");
             assertEquals(t.getCause(), throwable);
-            assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+            assertNotNull(participant.getTransaction(TEST_TRANSACTION_ID));
 
             // rollback
             participant.rollbackTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, TEST_INTERACTIVE_SESSION_KEY);
-            assertFalse(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+            assertNull(participant.getTransaction(TEST_TRANSACTION_ID));
         }
     }
 
@@ -864,20 +866,20 @@ public class TransactionParticipantTest
             }
         });
 
-        assertFalse(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+        assertNull(participant.getTransaction(TEST_TRANSACTION_ID));
         // begin
         participant.beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, interactiveSessionKey, transactionCoordinatorKey);
-        assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+        assertNotNull(participant.getTransaction(TEST_TRANSACTION_ID));
         // execute
         participant.executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, interactiveSessionKey, TEST_OPERATION_NAME,
                 TEST_OPERATION_ARGUMENTS);
-        assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+        assertNotNull(participant.getTransaction(TEST_TRANSACTION_ID));
 
         if (transactionCoordinatorKey != null)
         {
             // prepare
             participant.prepareTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, interactiveSessionKey, transactionCoordinatorKey);
-            assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+            assertNotNull(participant.getTransaction(TEST_TRANSACTION_ID));
         }
 
         try
@@ -892,10 +894,10 @@ public class TransactionParticipantTest
 
             if (transactionCoordinatorKey == null)
             {
-                assertFalse(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+                assertNull(participant.getTransaction(TEST_TRANSACTION_ID));
             } else
             {
-                assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+                assertNotNull(participant.getTransaction(TEST_TRANSACTION_ID));
             }
         }
     }
@@ -985,7 +987,7 @@ public class TransactionParticipantTest
         } catch (Throwable t)
         {
             assertEquals(t.getMessage(), expectedExceptionMessage);
-            assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+            assertNotNull(participant.getTransaction(TEST_TRANSACTION_ID));
         }
     }
 
@@ -1055,13 +1057,13 @@ public class TransactionParticipantTest
             }
         });
 
-        assertFalse(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+        assertNull(participant.getTransaction(TEST_TRANSACTION_ID));
         // begin
         participant.beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, interactiveSessionKey, transactionCoordinatorKey);
-        assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+        assertNotNull(participant.getTransaction(TEST_TRANSACTION_ID));
         // execute
         participant.executeOperation(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, interactiveSessionKey, TEST_OPERATION_NAME, TEST_OPERATION_ARGUMENTS);
-        assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+        assertNotNull(participant.getTransaction(TEST_TRANSACTION_ID));
 
         try
         {
@@ -1072,7 +1074,7 @@ public class TransactionParticipantTest
         {
             assertEquals(t.getMessage(), "Rollback transaction '" + TEST_TRANSACTION_ID + "' failed.");
             assertEquals(t.getCause(), throwable);
-            assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+            assertNotNull(participant.getTransaction(TEST_TRANSACTION_ID));
         }
     }
 
@@ -1710,25 +1712,25 @@ public class TransactionParticipantTest
             }
         });
 
-        assertFalse(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+        assertNull(participant.getTransaction(TEST_TRANSACTION_ID));
         // begin
         participant.beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, interactiveSessionKey, transactionCoordinatorKey);
-        assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+        assertNotNull(participant.getTransaction(TEST_TRANSACTION_ID));
 
         if (transactionCoordinatorKey != null)
         {
             // prepare
             participant.prepareTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, interactiveSessionKey, transactionCoordinatorKey);
-            assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+            assertNotNull(participant.getTransaction(TEST_TRANSACTION_ID));
         }
 
         // commit
         participant.commitTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, interactiveSessionKey);
-        assertFalse(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+        assertNull(participant.getTransaction(TEST_TRANSACTION_ID));
 
         // another begin - this is treated as a new transaction as the previous transaction with the same id has been already committed and therefore forgotten
         participant.beginTransaction(TEST_TRANSACTION_ID, TEST_SESSION_TOKEN, interactiveSessionKey, transactionCoordinatorKey);
-        assertTrue(participant.isRunningTransaction(TEST_TRANSACTION_ID));
+        assertNotNull(participant.getTransaction(TEST_TRANSACTION_ID));
     }
 
     @DataProvider

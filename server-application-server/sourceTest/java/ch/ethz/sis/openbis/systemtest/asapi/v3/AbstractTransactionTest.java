@@ -17,6 +17,7 @@ import java.util.TreeMap;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.PlatformTransactionManager;
 
@@ -25,20 +26,23 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IIdentifierHol
 import ch.ethz.sis.openbis.generic.server.asapi.v3.ApplicationServerSessionTokenProvider;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.TransactionConfiguration;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.TransactionParticipantApi;
+import ch.ethz.sis.transaction.AbstractTransaction;
 import ch.ethz.sis.transaction.IDatabaseTransactionProvider;
-import ch.ethz.sis.transaction.ITransactionLog;
 import ch.ethz.sis.transaction.ITransactionParticipant;
-import ch.ethz.sis.transaction.Transaction;
 import ch.ethz.sis.transaction.TransactionCoordinator;
 import ch.ethz.sis.transaction.TransactionLog;
-import ch.ethz.sis.transaction.TransactionLogEntry;
 import ch.ethz.sis.transaction.TransactionParticipant;
+import ch.ethz.sis.transaction.TransactionStatus;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 
 public class AbstractTransactionTest extends AbstractTest
 {
+
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, AbstractTransactionTest.class);
 
     public static final String TEST_COORDINATOR_KEY = "test-transaction-coordinator-key";
 
@@ -197,28 +201,18 @@ public class AbstractTransactionTest extends AbstractTest
 
         private final TestDatabaseTransactionProvider databaseTransactionProvider;
 
-        private final TestTransactionLog transactionLog;
-
         public TestTransactionParticipant(TransactionParticipantApi participantApi)
         {
             // replace the original database transaction provider with a test counterpart that allows to throw test exceptions
-
             this.participant = participantApi.getTransactionParticipant();
             this.databaseTransactionProvider =
                     new TestDatabaseTransactionProvider(participantApi.getTransactionParticipant().getDatabaseTransactionProvider());
-            this.transactionLog = new TestTransactionLog(participantApi.getTransactionParticipant().getTransactionLog());
             this.participant.setDatabaseTransactionProvider(databaseTransactionProvider);
-            this.participant.setTransactionLog(transactionLog);
         }
 
         public TestDatabaseTransactionProvider getDatabaseTransactionProvider()
         {
             return this.databaseTransactionProvider;
-        }
-
-        public TestTransactionLog getTransactionLog()
-        {
-            return transactionLog;
         }
 
         @Override public String getParticipantId()
@@ -290,15 +284,18 @@ public class AbstractTransactionTest extends AbstractTest
             participant.finishFailedOrAbandonedTransactions();
         }
 
-        public Map<UUID, ? extends Transaction> getTransactionMap()
+        public Map<UUID, ? extends AbstractTransaction> getTransactionMap()
         {
-            Map<UUID, Transaction> transactionMap = new HashMap<>();
+            Map<UUID, AbstractTransaction> transactionMap = new HashMap<>();
 
-            for (Map.Entry<UUID, ? extends Transaction> entry : this.participant.getTransactionMap().entrySet())
+            for (Map.Entry<UUID, ? extends AbstractTransaction> entry : this.participant.getTransactionMap().entrySet())
             {
-                Transaction internalTransaction = entry.getValue();
-                Transaction originalTransaction =
-                        new Transaction(mapInternalToOriginalId(internalTransaction.getTransactionId()), internalTransaction.getTransactionStatus());
+                TransactionParticipant.Transaction internalTransaction = (TransactionParticipant.Transaction) entry.getValue();
+                AbstractTransaction originalTransaction =
+                        new TransactionParticipant.Transaction(mapInternalToOriginalId(internalTransaction.getTransactionId()),
+                                internalTransaction.getSessionToken());
+                originalTransaction.setTransactionStatus(internalTransaction.getTransactionStatus());
+                originalTransaction.setLastAccessedDate(internalTransaction.getLastAccessedDate());
                 transactionMap.put(originalTransaction.getTransactionId(), originalTransaction);
             }
 
@@ -345,7 +342,20 @@ public class AbstractTransactionTest extends AbstractTest
 
         public void close()
         {
-            participant.close();
+            for (TransactionParticipant.Transaction transaction : participant.getTransactionMap().values())
+            {
+                try
+                {
+                    transaction.lockOrFail(() ->
+                    {
+                        transaction.close();
+                        return null;
+                    }, false);
+                } catch (Exception e)
+                {
+                    operationLog.warn("Could not close transaction '" + transaction.getTransactionId() + "'.", e);
+                }
+            }
         }
     }
 
@@ -427,48 +437,46 @@ public class AbstractTransactionTest extends AbstractTest
 
     }
 
-    public static class TestTransactionLog implements ITransactionLog
-    {
-
-        private final ITransactionLog transactionLog;
-
-        TestTransactionLog(ITransactionLog transactionLog)
-        {
-            this.transactionLog = transactionLog;
-        }
-
-        @Override public void logTransaction(final TransactionLogEntry transaction)
-        {
-            transactionLog.logTransaction(transaction);
-        }
-
-        @Override public void deleteTransaction(final UUID transactionId)
-        {
-            transactionLog.deleteTransaction(transactionId);
-        }
-
-        @Override public Map<UUID, TransactionLogEntry> getTransactions()
-        {
-            return transactionLog.getTransactions();
-        }
-    }
-
-    public static void assertTransactions(Map<UUID, ? extends Transaction> actualTransactions, Transaction... expectedTransactions)
+    public static void assertTransactions(Map<UUID, ? extends AbstractTransaction> actualTransactions, TestTransaction... expectedTransactions)
     {
         Map<String, String> actualTransactionsMap = new TreeMap<>();
         Map<String, String> expectedTransactionsMap = new TreeMap<>();
 
-        for (Transaction actualTransaction : actualTransactions.values())
+        for (AbstractTransaction actualTransaction : actualTransactions.values())
         {
             actualTransactionsMap.put(actualTransaction.getTransactionId().toString(), actualTransaction.getTransactionStatus().toString());
         }
 
-        for (Transaction expectedTransaction : expectedTransactions)
+        for (TestTransaction expectedTransaction : expectedTransactions)
         {
             expectedTransactionsMap.put(expectedTransaction.getTransactionId().toString(), expectedTransaction.getTransactionStatus().toString());
         }
 
         assertEquals(actualTransactionsMap.toString(), expectedTransactionsMap.toString());
+    }
+
+    public static class TestTransaction
+    {
+
+        private final UUID transactionId;
+
+        private final TransactionStatus transactionStatus;
+
+        TestTransaction(final UUID transactionId, final TransactionStatus transactionStatus)
+        {
+            this.transactionId = transactionId;
+            this.transactionStatus = transactionStatus;
+        }
+
+        public UUID getTransactionId()
+        {
+            return transactionId;
+        }
+
+        public TransactionStatus getTransactionStatus()
+        {
+            return transactionStatus;
+        }
     }
 
     public static Set<String> codes(Collection<? extends ICodeHolder> objectsWithCodes)

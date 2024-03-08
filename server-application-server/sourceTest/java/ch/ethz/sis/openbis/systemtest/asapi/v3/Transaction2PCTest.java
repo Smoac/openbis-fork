@@ -28,7 +28,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
 import ch.ethz.sis.transaction.ITransactionParticipant;
-import ch.ethz.sis.transaction.Transaction;
+import ch.ethz.sis.transaction.AbstractTransaction;
 import ch.ethz.sis.transaction.TransactionCoordinator;
 import ch.ethz.sis.transaction.TransactionOperationException;
 import ch.ethz.sis.transaction.TransactionStatus;
@@ -90,7 +90,7 @@ public class Transaction2PCTest extends AbstractTransactionTest
 
         String sessionToken = v3api.loginAsSystem();
 
-        for (Transaction transaction : coordinator.getTransactionMap().values())
+        for (AbstractTransaction transaction : coordinator.getTransactionMap().values())
         {
             try
             {
@@ -124,7 +124,7 @@ public class Transaction2PCTest extends AbstractTransactionTest
 
         coordinator.beginTransaction(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
 
-        assertTransactions(coordinator.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
         assertTransactions(participant1.getTransactionMap());
         assertTransactions(participant2.getTransactionMap());
 
@@ -145,7 +145,7 @@ public class Transaction2PCTest extends AbstractTransactionTest
             assertEquals(e.getCause().getCause().getCause(), exception);
         }
 
-        assertTransactions(coordinator.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
         assertTransactions(participant1.getTransactionMap());
         assertTransactions(participant2.getTransactionMap());
     }
@@ -161,7 +161,7 @@ public class Transaction2PCTest extends AbstractTransactionTest
 
         coordinator.beginTransaction(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
 
-        assertTransactions(coordinator.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
         assertTransactions(participant1.getTransactionMap());
         assertTransactions(participant2.getTransactionMap());
 
@@ -172,8 +172,8 @@ public class Transaction2PCTest extends AbstractTransactionTest
                 OPERATION_CREATE_SPACES,
                 new Object[] { sessionToken, Collections.singletonList(spaceCreation1) });
 
-        assertTransactions(coordinator.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
-        assertTransactions(participant1.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(participant1.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
         assertTransactions(participant2.getTransactionMap());
 
         try
@@ -187,9 +187,9 @@ public class Transaction2PCTest extends AbstractTransactionTest
             AssertionUtil.assertContains("Code cannot be empty", e.getCause().getMessage());
         }
 
-        assertTransactions(coordinator.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
-        assertTransactions(participant1.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
-        assertTransactions(participant2.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(participant1.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(participant2.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
 
         Map<ISpaceId, Space> createdSpaces = v3api.getSpaces(sessionToken,
                 Collections.singletonList(new SpacePermId(spaceCreation1.getCode())), new SpaceFetchOptions());
@@ -216,16 +216,16 @@ public class Transaction2PCTest extends AbstractTransactionTest
                 OPERATION_CREATE_SPACES,
                 new Object[] { sessionToken, Collections.singletonList(spaceCreation) });
 
-        assertTransactions(coordinator.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
-        assertTransactions(participant1.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(participant1.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
         assertTransactions(participant2.getTransactionMap());
 
         Thread.sleep(500);
 
         coordinator.finishFailedOrAbandonedTransactions();
 
-        assertTransactions(coordinator.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
-        assertTransactions(participant1.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(participant1.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
         assertTransactions(participant2.getTransactionMap());
 
         Thread.sleep(500);
@@ -259,7 +259,7 @@ public class Transaction2PCTest extends AbstractTransactionTest
 
         coordinator.beginTransaction(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
 
-        assertTransactions(coordinator.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
         assertTransactions(participant1.getTransactionMap());
         assertTransactions(participant2.getTransactionMap());
 
@@ -270,8 +270,8 @@ public class Transaction2PCTest extends AbstractTransactionTest
                 OPERATION_CREATE_SPACES,
                 new Object[] { sessionToken, Collections.singletonList(spaceCreation1) });
 
-        assertTransactions(coordinator.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
-        assertTransactions(participant1.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(participant1.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
         assertTransactions(participant2.getTransactionMap());
 
         SpaceCreation spaceCreation2 = new SpaceCreation();
@@ -281,9 +281,9 @@ public class Transaction2PCTest extends AbstractTransactionTest
                 OPERATION_CREATE_SPACES,
                 new Object[] { sessionToken, Collections.singletonList(spaceCreation2) });
 
-        assertTransactions(coordinator.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
-        assertTransactions(participant1.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
-        assertTransactions(participant2.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(participant1.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(participant2.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
 
         try
         {
@@ -325,7 +325,7 @@ public class Transaction2PCTest extends AbstractTransactionTest
 
         coordinator.beginTransaction(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
 
-        assertTransactions(coordinator.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
         assertTransactions(participant1.getTransactionMap());
         assertTransactions(participant2.getTransactionMap());
 
@@ -336,8 +336,8 @@ public class Transaction2PCTest extends AbstractTransactionTest
                 OPERATION_CREATE_SPACES,
                 new Object[] { sessionToken, Collections.singletonList(spaceCreation1) });
 
-        assertTransactions(coordinator.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
-        assertTransactions(participant1.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(participant1.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
         assertTransactions(participant2.getTransactionMap());
 
         SpaceCreation spaceCreation2 = new SpaceCreation();
@@ -347,15 +347,15 @@ public class Transaction2PCTest extends AbstractTransactionTest
                 OPERATION_CREATE_SPACES,
                 new Object[] { sessionToken, Collections.singletonList(spaceCreation2) });
 
-        assertTransactions(coordinator.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
-        assertTransactions(participant1.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
-        assertTransactions(participant2.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(participant1.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(participant2.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
 
         coordinator.commitTransaction(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
 
-        assertTransactions(coordinator.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
+        assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
         assertTransactions(participant1.getTransactionMap());
-        assertTransactions(participant2.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
+        assertTransactions(participant2.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
 
         // "commit" should succeed
         participant2.getDatabaseTransactionProvider().setCommitAction(null);
@@ -389,7 +389,7 @@ public class Transaction2PCTest extends AbstractTransactionTest
 
         coordinator.beginTransaction(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
 
-        assertTransactions(coordinator.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
         assertTransactions(participant1.getTransactionMap());
         assertTransactions(participant2.getTransactionMap());
 
@@ -400,8 +400,8 @@ public class Transaction2PCTest extends AbstractTransactionTest
                 OPERATION_CREATE_SPACES,
                 new Object[] { sessionToken, Collections.singletonList(spaceCreation1) });
 
-        assertTransactions(coordinator.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
-        assertTransactions(participant1.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(participant1.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
         assertTransactions(participant2.getTransactionMap());
 
         SpaceCreation spaceCreation2 = new SpaceCreation();
@@ -411,15 +411,15 @@ public class Transaction2PCTest extends AbstractTransactionTest
                 OPERATION_CREATE_SPACES,
                 new Object[] { sessionToken, Collections.singletonList(spaceCreation2) });
 
-        assertTransactions(coordinator.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
-        assertTransactions(participant1.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
-        assertTransactions(participant2.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(participant1.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(participant2.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
 
         coordinator.rollbackTransaction(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
 
-        assertTransactions(coordinator.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.ROLLBACK_STARTED));
+        assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.ROLLBACK_STARTED));
         assertTransactions(participant1.getTransactionMap());
-        assertTransactions(participant2.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.ROLLBACK_STARTED));
+        assertTransactions(participant2.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.ROLLBACK_STARTED));
 
         // "rollback" should succeed
         participant2.getDatabaseTransactionProvider().setRollbackAction(null);
@@ -453,7 +453,7 @@ public class Transaction2PCTest extends AbstractTransactionTest
 
         coordinator.beginTransaction(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
 
-        assertTransactions(coordinator.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
         assertTransactions(participant1.getTransactionMap());
         assertTransactions(participant2.getTransactionMap());
 
@@ -462,17 +462,17 @@ public class Transaction2PCTest extends AbstractTransactionTest
                 coordinator.executeOperation(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(),
                         OPERATION_SEARCH_SPACES, new Object[] { sessionToken, new SpaceSearchCriteria(), new SpaceFetchOptions() });
 
-        assertTransactions(coordinator.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
-        assertTransactions(participant1.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(participant1.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
         assertTransactions(participant2.getTransactionMap());
 
         SearchResult<Space> participant2SpacesBeforeCreation =
                 coordinator.executeOperation(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant2.getParticipantId(),
                         OPERATION_SEARCH_SPACES, new Object[] { sessionToken, new SpaceSearchCriteria(), new SpaceFetchOptions() });
 
-        assertTransactions(coordinator.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
-        assertTransactions(participant1.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
-        assertTransactions(participant2.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(participant1.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(participant2.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
 
         SearchResult<Space> noTrSpacesBeforeCreation = v3api.searchSpaces(sessionToken, new SpaceSearchCriteria(), new SpaceFetchOptions());
 
@@ -488,9 +488,9 @@ public class Transaction2PCTest extends AbstractTransactionTest
         coordinator.executeOperation(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant2.getParticipantId(),
                 OPERATION_CREATE_SPACES, new Object[] { sessionToken, Collections.singletonList(spaceCreation2) });
 
-        assertTransactions(coordinator.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
-        assertTransactions(participant1.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
-        assertTransactions(participant2.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(participant1.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(participant2.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
 
         SearchResult<Space> participant1SpacesAfterCreation =
                 coordinator.executeOperation(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(),
@@ -531,9 +531,9 @@ public class Transaction2PCTest extends AbstractTransactionTest
         coordinator.executeOperation(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant2.getParticipantId(),
                 OPERATION_CREATE_PROJECTS, new Object[] { sessionToken, Collections.singletonList(projectCreation2) });
 
-        assertTransactions(coordinator.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
-        assertTransactions(participant1.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
-        assertTransactions(participant2.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(participant1.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(participant2.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
 
         SearchResult<Project> participant1ProjectsAfterCreation =
                 coordinator.executeOperation(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(),
@@ -780,8 +780,8 @@ public class Transaction2PCTest extends AbstractTransactionTest
 
         coordinator.beginTransaction(coordinatorTr2Id, sessionToken2, TEST_INTERACTIVE_SESSION_KEY);
 
-        assertTransactions(coordinator.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED),
-                new Transaction(coordinatorTr2Id, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED),
+                new TestTransaction(coordinatorTr2Id, TransactionStatus.BEGIN_FINISHED));
         assertTransactions(participant1.getTransactionMap());
         assertTransactions(participant2.getTransactionMap());
     }
@@ -842,13 +842,13 @@ public class Transaction2PCTest extends AbstractTransactionTest
         TransactionCoordinator coordinatorAfterCrash = createCoordinator(Arrays.asList(participant1, participant2), 60, 10);
 
         assertTransactions(coordinatorAfterCrash.getTransactionMap());
-        assertTransactions(participant1.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(participant1.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
         assertTransactions(participant2.getTransactionMap());
 
         coordinatorAfterCrash.recoverTransactionsFromTransactionLog();
 
-        assertTransactions(coordinatorAfterCrash.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
-        assertTransactions(participant1.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(coordinatorAfterCrash.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(participant1.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
         assertTransactions(participant2.getTransactionMap());
 
         coordinatorAfterCrash.finishFailedOrAbandonedTransactions();
@@ -895,8 +895,8 @@ public class Transaction2PCTest extends AbstractTransactionTest
 
         coordinatorBeforeCrash.commitTransaction(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
 
-        assertTransactions(coordinatorBeforeCrash.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
-        assertTransactions(participant1.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
+        assertTransactions(coordinatorBeforeCrash.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
+        assertTransactions(participant1.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
         assertTransactions(participant2.getTransactionMap());
 
         // new coordinator
@@ -907,7 +907,7 @@ public class Transaction2PCTest extends AbstractTransactionTest
         participant2.getDatabaseTransactionProvider().setCommitAction(null);
 
         assertTransactions(coordinatorAfterCrash.getTransactionMap());
-        assertTransactions(participant1.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
+        assertTransactions(participant1.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
         assertTransactions(participant2.getTransactionMap());
 
         Map<ISpaceId, Space> createdSpaces = v3api.getSpaces(sessionToken,
@@ -916,8 +916,8 @@ public class Transaction2PCTest extends AbstractTransactionTest
 
         coordinatorAfterCrash.recoverTransactionsFromTransactionLog();
 
-        assertTransactions(coordinatorAfterCrash.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
-        assertTransactions(participant1.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
+        assertTransactions(coordinatorAfterCrash.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
+        assertTransactions(participant1.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
         assertTransactions(participant2.getTransactionMap());
 
         coordinatorAfterCrash.finishFailedOrAbandonedTransactions();
@@ -954,8 +954,8 @@ public class Transaction2PCTest extends AbstractTransactionTest
         coordinator.executeOperation(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(),
                 OPERATION_CREATE_SPACES, new Object[] { sessionToken, Collections.singletonList(spaceCreation) });
 
-        assertTransactions(coordinator.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
-        assertTransactions(participant1.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(participant1.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
         assertTransactions(participant2.getTransactionMap());
 
         // replace original participant with a new instance
@@ -964,7 +964,7 @@ public class Transaction2PCTest extends AbstractTransactionTest
         participant1AfterCrash.setTestTransactionMapping(participant1.getTestTransactionMapping());
         participants.set(0, participant1AfterCrash);
 
-        assertTransactions(coordinator.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
         assertTransactions(participant1AfterCrash.getTransactionMap());
         assertTransactions(participant2.getTransactionMap());
 
@@ -974,8 +974,8 @@ public class Transaction2PCTest extends AbstractTransactionTest
 
         participant1AfterCrash.recoverTransactionsFromTransactionLog();
 
-        assertTransactions(coordinator.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
-        assertTransactions(participant1AfterCrash.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(participant1AfterCrash.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
         assertTransactions(participant2.getTransactionMap());
 
         participant1AfterCrash.finishFailedOrAbandonedTransactions();
@@ -984,7 +984,7 @@ public class Transaction2PCTest extends AbstractTransactionTest
                 Collections.singletonList(new SpacePermId(spaceCreation.getCode())), new SpaceFetchOptions());
         assertEquals(createdSpaces.size(), 0);
 
-        assertTransactions(coordinator.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
+        assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
         assertTransactions(participant1AfterCrash.getTransactionMap());
         assertTransactions(participant2.getTransactionMap());
 
@@ -1045,8 +1045,8 @@ public class Transaction2PCTest extends AbstractTransactionTest
 
         coordinator.commitTransaction(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
 
-        assertTransactions(coordinator.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
-        assertTransactions(participant1.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
+        assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
+        assertTransactions(participant1.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
         assertTransactions(participant2.getTransactionMap());
 
         TestTransactionParticipant participant1AfterCrash =
@@ -1055,7 +1055,7 @@ public class Transaction2PCTest extends AbstractTransactionTest
         // replace original participant with a new instance
         participants.set(0, participant1AfterCrash);
 
-        assertTransactions(coordinator.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
+        assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
         assertTransactions(participant1AfterCrash.getTransactionMap());
         assertTransactions(participant2.getTransactionMap());
 
@@ -1065,8 +1065,8 @@ public class Transaction2PCTest extends AbstractTransactionTest
 
         participant1AfterCrash.recoverTransactionsFromTransactionLog();
 
-        assertTransactions(coordinator.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
-        assertTransactions(participant1AfterCrash.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
+        assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
+        assertTransactions(participant1AfterCrash.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
         assertTransactions(participant2.getTransactionMap());
 
         participant1AfterCrash.finishFailedOrAbandonedTransactions();
@@ -1075,7 +1075,7 @@ public class Transaction2PCTest extends AbstractTransactionTest
                 Collections.singletonList(new SpacePermId(spaceCreation.getCode())), new SpaceFetchOptions());
         assertEquals(createdSpaces.size(), 1);
 
-        assertTransactions(coordinator.getTransactionMap(), new Transaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
+        assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
         assertTransactions(participant1AfterCrash.getTransactionMap());
         assertTransactions(participant2.getTransactionMap());
 
