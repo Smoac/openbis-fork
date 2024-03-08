@@ -196,7 +196,11 @@ public class TransactionParticipantApi extends AbstractTransactionNodeApi implem
                     {
                         try
                         {
-                            transactionManager.rollback((TransactionStatus) transaction);
+                            TransactionStatus transactionStatus = (TransactionStatus) transaction;
+                            if (!transactionStatus.isCompleted())
+                            {
+                                transactionManager.rollback((TransactionStatus) transaction);
+                            }
                         } catch (Exception e)
                         {
                             operationLog.warn(
@@ -213,10 +217,8 @@ public class TransactionParticipantApi extends AbstractTransactionNodeApi implem
                     operationLog.info("Database transaction '" + transactionId + "' was rolled back.");
                 } else
                 {
-                    RuntimeException exception = new IllegalStateException(
+                    throw new IllegalStateException(
                             "Database transaction '" + transactionId + "' could not be rolled back because of missing transaction status object.");
-                    operationLog.error(exception.getMessage());
-                    throw exception;
                 }
             }
         }
@@ -226,8 +228,6 @@ public class TransactionParticipantApi extends AbstractTransactionNodeApi implem
         {
             if (isTwoPhaseTransaction)
             {
-                try
-                {
                     if (isTransactionPreparedInDatabase(transactionId))
                     {
                         try (Connection connection = databaseContext.getDataSource().getConnection();
@@ -236,28 +236,13 @@ public class TransactionParticipantApi extends AbstractTransactionNodeApi implem
                             commitStatement.execute();
                             operationLog.info("Prepared database transaction '" + transactionId + "' was committed.");
                         }
+
+                        // Calling transactionManager.commit() after the prepared transaction got committed above is not allowed, therefore we skip it.
                     } else
                     {
-                        RuntimeException exception = new IllegalStateException(
+                        throw new IllegalStateException(
                                 "Prepared database transaction '" + transactionId + "' was not found in the database and could not be committed.");
-                        operationLog.error(exception.getMessage());
-                        throw exception;
                     }
-                } finally
-                {
-                    if (transaction != null)
-                    {
-                        try
-                        {
-                            transactionManager.commit((TransactionStatus) transaction);
-                        } catch (Exception e)
-                        {
-                            operationLog.warn(
-                                    "Prepared database transaction '" + transactionId + "' could not be committed in the transaction manager.",
-                                    e);
-                        }
-                    }
-                }
             } else
             {
                 if (transaction != null)
@@ -266,10 +251,8 @@ public class TransactionParticipantApi extends AbstractTransactionNodeApi implem
                     operationLog.info("Database transaction '" + transactionId + "' was committed.");
                 } else
                 {
-                    RuntimeException exception = new IllegalStateException(
+                    throw new IllegalStateException(
                             "Database transaction '" + transactionId + "' could not be committed because of missing transaction status object.");
-                    operationLog.error(exception.getMessage());
-                    throw exception;
                 }
             }
         }
