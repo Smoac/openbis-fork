@@ -12,7 +12,7 @@ import InfoPanel from '@src/js/components/database/data-browser/InfoPanel.jsx'
 import DataBrowserController from '@src/js/components/database/data-browser/DataBrowserController.js'
 import NavigationBar from '@src/js/components/database/data-browser/NavigationBar.jsx'
 import messages from '@src/js/common/messages.js'
-import LinearProgressWithLabel from "@src/js/components/common/progress/LinearProgressWithLabel.jsx";
+import FreeSpaceBar from "@src/js/components/common/progress/FreeSpaceBar.jsx";
 
 const HTTP_SERVER_URI = '/data-store-server'
 
@@ -141,7 +141,8 @@ class DataBrowser extends React.Component {
       multiselectedFiles: new Set([]),
       showInfo: false,
       path: '/',
-      freeSpacePercentage: -1
+      freeSpace: -1,
+      totalSpace: -1
     }
   }
 
@@ -231,7 +232,7 @@ class DataBrowser extends React.Component {
 
   fetchPercentage() {
     this.controller.free().then((space) => {
-      this.setState({freeSpacePercentage: space.free * 100 / space.total})
+      this.setState({freeSpace: space.free, totalSpace: space.total})
     });
   }
 
@@ -247,7 +248,9 @@ class DataBrowser extends React.Component {
       selectedFile,
       multiselectedFiles,
       showInfo,
-      path
+      path,
+      freeSpace,
+      totalSpace
     } = this.state
 
     return (
@@ -269,8 +272,7 @@ class DataBrowser extends React.Component {
           path={path}
           onPathChange={this.handlePathChange}
         />
-        <LinearProgressWithLabel value={this.state.freeSpacePercentage} />
-        {/*<LinearProgressWithLabel value={50} />*/}
+        <FreeSpaceBar free={freeSpace} total={totalSpace} />
         <div className={[classes.flexContainer, classes.boundary, classes.content].join(' ')}>
           {viewType === 'list' && (
             <Grid

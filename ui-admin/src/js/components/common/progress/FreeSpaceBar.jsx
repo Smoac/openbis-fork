@@ -28,29 +28,23 @@ const styles = theme => ({
   },
 })
 
-class LinearProgressWithLabel extends React.Component {
+class FreeSpaceBar extends React.Component {
   render() {
+    const {free, total} = this.props;
+    const value = Math.round(free * 100 / total);
     return (
       <Box display='flex' alignItems='center'>
         <Box width='100%' mr={1}>
-          <LinearProgress variant='determinate' {...this.props} />
+          <LinearProgress variant='determinate' value={value} />
         </Box>
         <Box minWidth={35}>
-          <Typography variant='body2' color='textSecondary'>{`${Math.round(
-            this.props.value
-          )}%`}</Typography>
+          <Typography variant='body2' color='textSecondary'>
+            {`${value}%`}
+          </Typography>
         </Box>
       </Box>
     )
   }
 }
 
-LinearProgressWithLabel.propTypes = {
-  /**
-   * The value of the progress indicator for the determinate and buffer variants.
-   * Value between 0 and 100.
-   */
-  value: PropTypes.number.isRequired
-}
-
-export default withStyles(styles)(LinearProgressWithLabel)
+export default withStyles(styles)(FreeSpaceBar)
