@@ -205,7 +205,7 @@ var JExcelEditorManager = new function() {
                                                     cellText += word;
                                                 }
                                             }
-                                            cell.cell.setHTML(cellText);
+                                            cell.cell.innerHTML = cellText;
 
                                             cell.cell.onclick = function(event) {
                                                 results[event.target.innerText].click();
@@ -272,7 +272,7 @@ var JExcelEditorManager = new function() {
 
 	this._isIdentifier = function(data) {
         var split = data.split('/');
-        return split[0] == '' && (split.length > 2 && split.length < 6);
+        return split[0] == '' && (split.length > 1 && split.length < 7);
 	}
 
 	this._searchByIdentifiers = function(identifiers, callback) {
@@ -311,7 +311,9 @@ var JExcelEditorManager = new function() {
                                     callback(links);
                                 });
                             }
-                        })
+                        }).fail(function(result) {
+                            callback({});
+                        });
                     });
 
 	}
