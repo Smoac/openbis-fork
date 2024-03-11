@@ -3,27 +3,33 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.ContextStartedEvent;
 import org.springframework.context.support.AbstractApplicationContext;
 
-import ch.ethz.sis.transaction.AbstractTransactionNode;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 
 public abstract class AbstractTransactionNodeApi implements ApplicationListener<ApplicationEvent>
 {
 
+    private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
+
     private static final String FINISH_TRANSACTIONS_THREAD_NAME = "finish-transactions";
 
-    private final TransactionConfiguration transactionConfiguration;
+    protected final TransactionConfiguration transactionConfiguration;
 
     public AbstractTransactionNodeApi(final TransactionConfiguration transactionConfiguration)
     {
         this.transactionConfiguration = transactionConfiguration;
     }
 
-    protected abstract AbstractTransactionNode<?> getTransactionNode();
+    protected abstract void recoverTransactionsFromTransactionLog();
+
+    protected abstract void finishFailedOrAbandonedTransactions();
 
     @Override public void onApplicationEvent(final ApplicationEvent event)
     {
@@ -35,21 +41,36 @@ public abstract class AbstractTransactionNodeApi implements ApplicationListener<
             {
                 if (appContext.getParent() != null)
                 {
-                    final AbstractTransactionNode<?> transactionNode = getTransactionNode();
+                    if (transactionConfiguration.isEnabled())
+                    {
+                        recoverTransactionsFromTransactionLog();
 
-                    transactionNode.recoverTransactionsFromTransactionLog();
-
-                    new Timer(FINISH_TRANSACTIONS_THREAD_NAME, true).schedule(new TimerTask()
-                                                                              {
-                                                                                  @Override public void run()
+                        new Timer(FINISH_TRANSACTIONS_THREAD_NAME, true).schedule(new TimerTask()
                                                                                   {
-                                                                                      transactionNode.finishFailedOrAbandonedTransactions();
-                                                                                  }
-                                                                              },
-                            transactionConfiguration.getFinishTransactionsIntervalInSeconds() * 1000L,
-                            transactionConfiguration.getFinishTransactionsIntervalInSeconds() * 1000L);
+                                                                                      @Override public void run()
+                                                                                      {
+                                                                                          finishFailedOrAbandonedTransactions();
+                                                                                      }
+                                                                                  },
+                                transactionConfiguration.getFinishTransactionsIntervalInSeconds() * 1000L,
+                                transactionConfiguration.getFinishTransactionsIntervalInSeconds() * 1000L);
+                    } else
+                    {
+                        operationLog.info(
+                                "Transactions are disabled in service.properties file. No transactions will be recovered from the transaction log. No tasks will be scheduled to periodically finish failed or abandoned transactions.");
+                    }
                 }
             }
+        }
+    }
+
+    protected void checkTransactionsEnabled()
+    {
+        if (!transactionConfiguration.isEnabled())
+        {
+            RuntimeException e = new RuntimeException("Transactions are disabled in service.properties file.");
+            operationLog.warn(e.getMessage(), e);
+            throw e;
         }
     }
 

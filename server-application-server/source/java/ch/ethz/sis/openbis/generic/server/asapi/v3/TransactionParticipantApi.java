@@ -20,7 +20,6 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.ITransactionCoordinatorApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.ITransactionParticipantApi;
-import ch.ethz.sis.transaction.AbstractTransactionNode;
 import ch.ethz.sis.transaction.IDatabaseTransactionProvider;
 import ch.ethz.sis.transaction.ITransactionOperationExecutor;
 import ch.ethz.sis.transaction.TransactionLog;
@@ -57,71 +56,93 @@ public class TransactionParticipantApi extends AbstractTransactionNodeApi implem
     {
         super(transactionConfiguration);
 
-        this.transactionParticipant = new TransactionParticipant(
-                participantId,
-                transactionConfiguration.getCoordinatorKey(),
-                transactionConfiguration.getInteractiveSessionKey(),
-                new ApplicationServerSessionTokenProvider(sessionManager),
-                new ApplicationServerDatabaseTransactionProvider(transactionManager, daoFactory, databaseContext),
-                new ApplicationServerTransactionOperationExecutor(applicationServerApi),
-                new TransactionLog(new File(transactionConfiguration.getTransactionLogFolderPath()), logFolderName),
-                transactionConfiguration.getTransactionTimeoutInSeconds(),
-                transactionConfiguration.getTransactionCountLimit()
-        );
+        if (transactionConfiguration.isEnabled())
+        {
+            this.transactionParticipant = new TransactionParticipant(
+                    participantId,
+                    transactionConfiguration.getCoordinatorKey(),
+                    transactionConfiguration.getInteractiveSessionKey(),
+                    new ApplicationServerSessionTokenProvider(sessionManager),
+                    new ApplicationServerDatabaseTransactionProvider(transactionManager, daoFactory, databaseContext),
+                    new ApplicationServerTransactionOperationExecutor(applicationServerApi),
+                    new TransactionLog(new File(transactionConfiguration.getTransactionLogFolderPath()), logFolderName),
+                    transactionConfiguration.getTransactionTimeoutInSeconds(),
+                    transactionConfiguration.getTransactionCountLimit()
+            );
+        } else
+        {
+            this.transactionParticipant = null;
+        }
     }
 
-    @Override protected AbstractTransactionNode<?> getTransactionNode()
+    @Override protected void recoverTransactionsFromTransactionLog()
     {
-        return transactionParticipant;
+        checkTransactionsEnabled();
+        transactionParticipant.recoverTransactionsFromTransactionLog();
+    }
+
+    @Override protected void finishFailedOrAbandonedTransactions()
+    {
+        checkTransactionsEnabled();
+        transactionParticipant.finishFailedOrAbandonedTransactions();
     }
 
     @Override public String getParticipantId()
     {
+        checkTransactionsEnabled();
         return transactionParticipant.getParticipantId();
     }
 
     @Override public void beginTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
             final String transactionCoordinatorKey)
     {
+        checkTransactionsEnabled();
         transactionParticipant.beginTransaction(transactionId, sessionToken, interactiveSessionKey, transactionCoordinatorKey);
     }
 
     @Override public <T> T executeOperation(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
             final String operationName, final Object[] operationArguments)
     {
+        checkTransactionsEnabled();
         return transactionParticipant.executeOperation(transactionId, sessionToken, interactiveSessionKey, operationName, operationArguments);
     }
 
     @Override public void prepareTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
             final String transactionCoordinatorKey)
     {
+        checkTransactionsEnabled();
         transactionParticipant.prepareTransaction(transactionId, sessionToken, interactiveSessionKey, transactionCoordinatorKey);
     }
 
     @Override public void commitTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
     {
+        checkTransactionsEnabled();
         transactionParticipant.commitTransaction(transactionId, sessionToken, interactiveSessionKey);
     }
 
     @Override public void commitRecoveredTransaction(final UUID transactionId, final String interactiveSessionKey,
             final String transactionCoordinatorKey)
     {
+        checkTransactionsEnabled();
         transactionParticipant.commitRecoveredTransaction(transactionId, interactiveSessionKey, transactionCoordinatorKey);
     }
 
     @Override public void rollbackTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
     {
+        checkTransactionsEnabled();
         transactionParticipant.rollbackTransaction(transactionId, sessionToken, interactiveSessionKey);
     }
 
     @Override public void rollbackRecoveredTransaction(final UUID transactionId, final String interactiveSessionKey,
             final String transactionCoordinatorKey)
     {
+        checkTransactionsEnabled();
         transactionParticipant.rollbackRecoveredTransaction(transactionId, interactiveSessionKey, transactionCoordinatorKey);
     }
 
     @Override public List<UUID> recoverTransactions(final String interactiveSessionKey, final String transactionCoordinatorKey)
     {
+        checkTransactionsEnabled();
         return transactionParticipant.recoverTransactions(interactiveSessionKey, transactionCoordinatorKey);
     }
 
@@ -228,21 +249,21 @@ public class TransactionParticipantApi extends AbstractTransactionNodeApi implem
         {
             if (isTwoPhaseTransaction)
             {
-                    if (isTransactionPreparedInDatabase(transactionId))
+                if (isTransactionPreparedInDatabase(transactionId))
+                {
+                    try (Connection connection = databaseContext.getDataSource().getConnection();
+                            PreparedStatement commitStatement = connection.prepareStatement("COMMIT PREPARED '" + transactionId + "'"))
                     {
-                        try (Connection connection = databaseContext.getDataSource().getConnection();
-                                PreparedStatement commitStatement = connection.prepareStatement("COMMIT PREPARED '" + transactionId + "'"))
-                        {
-                            commitStatement.execute();
-                            operationLog.info("Prepared database transaction '" + transactionId + "' was committed.");
-                        }
-
-                        // Calling transactionManager.commit() after the prepared transaction got committed above is not allowed, therefore we skip it.
-                    } else
-                    {
-                        throw new IllegalStateException(
-                                "Prepared database transaction '" + transactionId + "' was not found in the database and could not be committed.");
+                        commitStatement.execute();
+                        operationLog.info("Prepared database transaction '" + transactionId + "' was committed.");
                     }
+
+                    // Calling transactionManager.commit() after the prepared transaction got committed above is not allowed, therefore we skip it.
+                } else
+                {
+                    throw new IllegalStateException(
+                            "Prepared database transaction '" + transactionId + "' was not found in the database and could not be committed.");
+                }
             } else
             {
                 if (transaction != null)

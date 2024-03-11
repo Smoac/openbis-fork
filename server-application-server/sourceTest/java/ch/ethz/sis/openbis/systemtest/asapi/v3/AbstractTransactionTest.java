@@ -105,6 +105,11 @@ public class AbstractTransactionTest extends AbstractTest
     {
         return new TransactionConfiguration()
         {
+            @Override public boolean isEnabled()
+            {
+                return true;
+            }
+
             public int getTransactionTimeoutInSeconds()
             {
                 return transactionTimeoutInSeconds;

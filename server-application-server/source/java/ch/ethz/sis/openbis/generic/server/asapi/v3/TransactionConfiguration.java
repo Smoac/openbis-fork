@@ -16,6 +16,10 @@ import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 public class TransactionConfiguration
 {
 
+    private static final String TRANSACTION_ENABLED_PROPERTY_NAME = "api.v3.transaction.enabled";
+
+    private static final boolean TRANSACTION_ENABLED_DEFAULT = false;
+
     private static final String TRANSACTION_TIMEOUT_PROPERTY_NAME = "api.v3.transaction.transaction-timeout";
 
     private static final int TRANSACTION_TIMEOUT_DEFAULT = 3600;
@@ -52,6 +56,8 @@ public class TransactionConfiguration
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     private ExposablePropertyPlaceholderConfigurer configurer;
 
+    private boolean enabled;
+
     private int transactionTimeoutInSeconds;
 
     private int finishTransactionsIntervalInSeconds;
@@ -76,6 +82,7 @@ public class TransactionConfiguration
     private void init()
     {
         Properties properties = configurer.getResolvedProps();
+        enabled = PropertyUtils.getBoolean(properties, TRANSACTION_ENABLED_PROPERTY_NAME, TRANSACTION_ENABLED_DEFAULT);
         transactionTimeoutInSeconds = PropertyUtils.getInt(properties, TRANSACTION_TIMEOUT_PROPERTY_NAME, TRANSACTION_TIMEOUT_DEFAULT);
         finishTransactionsIntervalInSeconds = PropertyUtils.getInt(properties, FINISH_TRANSACTIONS_INTERVAL_PROPERTY_NAME, FINISH_TRANSACTIONS_INTERVAL_DEFAULT);
         interactiveSessionKey = PropertyUtils.getProperty(properties, INTERACTIVE_SESSION_KEY_PROPERTY_NAME, generateRandomKey());
@@ -88,6 +95,11 @@ public class TransactionConfiguration
                 PropertyUtils.getInt(properties, APPLICATION_SERVER_TIMEOUT_PROPERTY_NAME, APPLICATION_SERVER_TIMEOUT_DEFAULT);
         afsServerUrl = PropertyUtils.getMandatoryProperty(properties, AFS_SERVER_URL_PROPERTY_NAME);
         afsServerTimeoutInSeconds = PropertyUtils.getInt(properties, AFS_SERVER_TIMEOUT_PROPERTY_NAME, AFS_SERVER_TIMEOUT_DEFAULT);
+    }
+
+    public boolean isEnabled()
+    {
+        return enabled;
     }
 
     public int getTransactionTimeoutInSeconds()

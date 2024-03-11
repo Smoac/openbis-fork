@@ -6,32 +6,20 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.context.event.ContextStartedEvent;
-import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.afsapi.api.OperationsAPI;
 import ch.ethz.sis.afsclient.client.AfsClient;
 import ch.ethz.sis.openbis.generic.asapi.v3.ITransactionCoordinatorApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.ITransactionParticipantApi;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.roleassignment.RoleAssignmentUtils;
-import ch.ethz.sis.transaction.AbstractTransactionNode;
-import ch.ethz.sis.transaction.ISessionTokenProvider;
 import ch.ethz.sis.transaction.ITransactionParticipant;
 import ch.ethz.sis.transaction.TransactionCoordinator;
 import ch.ethz.sis.transaction.TransactionLog;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 @Component
 public class TransactionCoordinatorApi extends AbstractTransactionNodeApi implements ITransactionCoordinatorApi
@@ -47,46 +35,63 @@ public class TransactionCoordinatorApi extends AbstractTransactionNodeApi implem
     {
         super(transactionConfiguration);
 
-        List<ITransactionParticipant> participants = Arrays.asList(
-                new ApplicationServerParticipant(transactionConfiguration.getApplicationServerUrl(),
-                        transactionConfiguration.getApplicationServerTimeoutInSeconds()),
-                new AfsServerParticipant(applicationServerApi, transactionConfiguration.getAfsServerUrl(),
-                        transactionConfiguration.getAfsServerTimeoutInSeconds()));
+        if (transactionConfiguration.isEnabled())
+        {
+            List<ITransactionParticipant> participants = Arrays.asList(
+                    new ApplicationServerParticipant(transactionConfiguration.getApplicationServerUrl(),
+                            transactionConfiguration.getApplicationServerTimeoutInSeconds()),
+                    new AfsServerParticipant(applicationServerApi, transactionConfiguration.getAfsServerUrl(),
+                            transactionConfiguration.getAfsServerTimeoutInSeconds()));
 
-        this.transactionCoordinator = new TransactionCoordinator(
-                transactionConfiguration.getCoordinatorKey(),
-                transactionConfiguration.getInteractiveSessionKey(),
-                new ApplicationServerSessionTokenProvider(sessionManager),
-                participants,
-                new TransactionLog(new File(transactionConfiguration.getTransactionLogFolderPath()), TRANSACTION_LOG_FOLDER_NAME),
-                transactionConfiguration.getTransactionTimeoutInSeconds(),
-                transactionConfiguration.getTransactionCountLimit());
+            this.transactionCoordinator = new TransactionCoordinator(
+                    transactionConfiguration.getCoordinatorKey(),
+                    transactionConfiguration.getInteractiveSessionKey(),
+                    new ApplicationServerSessionTokenProvider(sessionManager),
+                    participants,
+                    new TransactionLog(new File(transactionConfiguration.getTransactionLogFolderPath()), TRANSACTION_LOG_FOLDER_NAME),
+                    transactionConfiguration.getTransactionTimeoutInSeconds(),
+                    transactionConfiguration.getTransactionCountLimit());
+        } else
+        {
+            this.transactionCoordinator = null;
+        }
     }
 
-    @Override protected AbstractTransactionNode<?> getTransactionNode()
+    @Override protected void recoverTransactionsFromTransactionLog()
     {
-        return transactionCoordinator;
+        checkTransactionsEnabled();
+        transactionCoordinator.recoverTransactionsFromTransactionLog();
+    }
+
+    @Override protected void finishFailedOrAbandonedTransactions()
+    {
+        checkTransactionsEnabled();
+        transactionCoordinator.finishFailedOrAbandonedTransactions();
     }
 
     @Override public void beginTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
     {
+        checkTransactionsEnabled();
         transactionCoordinator.beginTransaction(transactionId, sessionToken, interactiveSessionKey);
     }
 
     @Override public <T> T executeOperation(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
             final String participantId, final String operationName, final Object[] operationArguments)
     {
+        checkTransactionsEnabled();
         return transactionCoordinator.executeOperation(transactionId, sessionToken, interactiveSessionKey, participantId, operationName,
                 operationArguments);
     }
 
     @Override public void commitTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
     {
+        checkTransactionsEnabled();
         transactionCoordinator.commitTransaction(transactionId, sessionToken, interactiveSessionKey);
     }
 
     @Override public void rollbackTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
     {
+        checkTransactionsEnabled();
         transactionCoordinator.rollbackTransaction(transactionId, sessionToken, interactiveSessionKey);
     }
 
