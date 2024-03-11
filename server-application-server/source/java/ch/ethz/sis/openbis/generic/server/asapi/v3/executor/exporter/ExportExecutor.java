@@ -36,7 +36,6 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.helper.AbstractXLSEx
 import static ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME;
 import static ch.systemsx.cisd.openbis.generic.shared.Constants.DOWNLOAD_URL;
 
-import java.awt.*;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -70,22 +69,18 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
-import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-import java.util.zip.ZipOutputStream;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import com.openhtmltopdf.extend.FSSupplier;
-import org.apache.commons.compress.archivers.zip.Zip64Mode;
+
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.log4j.Logger;
@@ -410,8 +405,9 @@ public class ExportExecutor implements IExportExecutor
         } else
         {
             final Path filePath = file.toPath();
+            final String[] nameAndExtension = splitFileName(filePath.getFileName().toString());
             final Path targetFilePath = Files.move(filePath, Path.of(sessionWorkspaceDirectory.getPath(),
-                            String.format("%s.%s", removeExtension(filePath.getFileName().toString()), timestamp)),
+                            String.format("%s.%s%s", nameAndExtension[0], timestamp, nameAndExtension[1])),
                     StandardCopyOption.REPLACE_EXISTING);
             final String fileName = targetFilePath.getFileName().toString();
 
@@ -423,16 +419,16 @@ public class ExportExecutor implements IExportExecutor
         return exportResult;
     }
 
-    private static String removeExtension(final String fileName)
+    private static String[] splitFileName(final String fileName)
     {
         final int extensionIndex = fileName.lastIndexOf(".");
         if (extensionIndex < 0)
         {
             // No extension found.
-            return fileName;
+            return new String[] {fileName, ""};
         }
 
-        return fileName.substring(0, extensionIndex);
+        return new String[] {fileName.substring(0, extensionIndex), fileName.substring(extensionIndex)};
     }
 
     private String getDownloadPath(final String sessionToken, final String fileName)
