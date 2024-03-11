@@ -337,7 +337,7 @@ public class AfsClientTest
         login();
 
         httpServer.setNextResponse("{\"result\": null}");
-        afsClient.list("", "", true);
+        afsClient.free("", "");
 
         assertEquals("GET", httpServer.getHttpExchange().getRequestMethod());
         assertArrayEquals(httpServer.getLastRequestBody(), new byte[0]);
