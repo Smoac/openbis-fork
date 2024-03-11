@@ -331,6 +331,18 @@ public class AfsClientTest
         assertTrue(result);
     }
 
+    @Test
+    public void free_methodIsGet() throws Exception
+    {
+        login();
+
+        httpServer.setNextResponse("{\"result\": null}");
+        afsClient.list("", "", true);
+
+        assertEquals("GET", httpServer.getHttpExchange().getRequestMethod());
+        assertArrayEquals(httpServer.getLastRequestBody(), new byte[0]);
+    }
+
     private void login() throws Exception
     {
         afsClient.login("test", "test");

@@ -42,6 +42,7 @@ import org.junit.Test;
 
 import ch.ethz.sis.afs.manager.TransactionConnection;
 import ch.ethz.sis.afsapi.dto.File;
+import ch.ethz.sis.afsapi.dto.Space;
 import ch.ethz.sis.afsclient.client.AfsClient;
 import ch.ethz.sis.afsserver.server.Server;
 import ch.ethz.sis.shared.io.IOUtils;
@@ -169,6 +170,17 @@ public abstract class BaseApiClientTest
         List<File> list = afsClient.list(owner, "", Boolean.TRUE);
         assertEquals(2, list.size());
         assertEquals(FILE_A, list.get(0).getName());
+    }
+
+    @Test
+    public void free_returnsValue() throws Exception
+    {
+        login();
+
+        final Space space = afsClient.free(owner, "");
+        assertTrue(space.getFree() >= 0);
+        assertTrue(space.getTotal() > 0);
+        assertTrue(space.getFree() <= space.getTotal());
     }
 
     @Test

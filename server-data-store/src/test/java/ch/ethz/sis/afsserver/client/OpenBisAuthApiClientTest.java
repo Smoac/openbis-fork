@@ -115,6 +115,43 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
     }
 
     @Test
+    public void free_callFailsDueToMissingPermissions() throws Exception
+    {
+        login();
+
+        dummyOpenBisServer.setResponses(Map.of("getSamples", Map.of()));
+
+        try
+        {
+            afsClient.free(owner, "");
+            fail();
+        } catch (Exception e)
+        {
+            ThrowableReason reason = (ThrowableReason) e.getCause();
+            String message = ((ExceptionReason) reason.getReason()).getMessage();
+            assertTrue(message.matches(
+                    "(?s).*Session .* don't have rights \\[Read\\] over .*to perform the operation Free(?s).*"));
+        }
+    }
+
+    @Test
+    public void free_failsDueToExpiredSession() throws Exception
+    {
+        login();
+        dummyOpenBisServer.setResponses(Map.of("isSessionActive", false));
+        try
+        {
+            afsClient.free(owner, "");
+            fail();
+        } catch (Exception e)
+        {
+            ThrowableReason reason = (ThrowableReason) e.getCause();
+            String message = ((ExceptionReason) reason.getReason()).getMessage();
+            assertTrue(message.matches("(?s).*Session .* doesn't exist(?s).*"));
+        }
+    }
+
+    @Test
     public void write_failsDueToMissingPermission_noFileCreated() throws Exception
     {
         login();
