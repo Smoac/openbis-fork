@@ -74,4 +74,9 @@ public abstract class AbstractTransactionNodeApi implements ApplicationListener<
         }
     }
 
+    public TransactionConfiguration getTransactionConfiguration()
+    {
+        return transactionConfiguration;
+    }
+
 }

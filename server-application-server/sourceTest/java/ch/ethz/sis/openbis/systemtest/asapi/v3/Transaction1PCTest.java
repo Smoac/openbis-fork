@@ -33,22 +33,42 @@ import ch.systemsx.cisd.common.test.AssertionUtil;
 public class Transaction1PCTest extends AbstractTransactionTest
 {
 
-    private TestTransactionParticipant participant;
+    private TestTransactionParticipantApi participant;
 
     @BeforeMethod
     private void beforeMethod()
     {
         FileUtilities.deleteRecursively(new File(TRANSACTION_LOG_ROOT_FOLDER, TRANSACTION_LOG_PARTICIPANT_1_FOLDER));
-        participant = createParticipant(transactionConfiguration, TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER);
+        participant = createParticipant(createConfiguration(true, 60, 10), TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER);
     }
 
     @AfterMethod
     private void afterMethod() throws Exception
     {
-        rollbackPreparedDatabaseTransactions();
-        deleteCreatedSpacesAndProjects();
+        if (participant.getTransactionConfiguration().isEnabled())
+        {
+            rollbackPreparedDatabaseTransactions();
+            deleteCreatedSpacesAndProjects();
 
-        participant.close();
+            participant.close();
+        }
+    }
+
+    @Test
+    public void testTransactionsDisabled()
+    {
+        participant = createParticipant(createConfiguration(false, 60, 10), TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER);
+
+        assertTransactionsDisabled(() -> participant.recoverTransactionsFromTransactionLog());
+        assertTransactionsDisabled(() -> participant.finishFailedOrAbandonedTransactions());
+        assertTransactionsDisabled(() -> participant.getTransactionMap());
+        assertTransactionsDisabled(() -> participant.beginTransaction(null, null, null, null));
+        assertTransactionsDisabled(() -> participant.executeOperation(null, null, null, null, null));
+        assertTransactionsDisabled(() -> participant.prepareTransaction(null, null, null, null));
+        assertTransactionsDisabled(() -> participant.commitTransaction(null, null, null));
+        assertTransactionsDisabled(() -> participant.commitRecoveredTransaction(null, null, null));
+        assertTransactionsDisabled(() -> participant.rollbackTransaction(null, null, null));
+        assertTransactionsDisabled(() -> participant.rollbackRecoveredTransaction(null, null, null));
     }
 
     @Test
@@ -103,7 +123,7 @@ public class Transaction1PCTest extends AbstractTransactionTest
     @Test
     public void testExecuteOperationTimesOut() throws Exception
     {
-        participant = createParticipant(createConfiguration(1, 10), TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER);
+        participant = createParticipant(createConfiguration(true, 1, 10), TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER);
 
         assertTransactions(participant.getTransactionMap());
 
@@ -531,7 +551,7 @@ public class Transaction1PCTest extends AbstractTransactionTest
     @Test
     public void testTooManyTransactions()
     {
-        participant = createParticipant(createConfiguration(60, 2), TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER);
+        participant = createParticipant(createConfiguration(true, 60, 2), TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER);
 
         assertTransactions(participant.getTransactionMap());
 
@@ -625,8 +645,8 @@ public class Transaction1PCTest extends AbstractTransactionTest
     @Test
     public void testRecovery()
     {
-        TestTransactionParticipant participantBeforeCrash =
-                createParticipant(transactionConfiguration, TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER);
+        TestTransactionParticipantApi participantBeforeCrash =
+                createParticipant(createConfiguration(true, 60, 10), TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER);
 
         // "commit" and "rollback" should fail
         RuntimeException commitException = new RuntimeException("Test commit exception");
@@ -682,8 +702,8 @@ public class Transaction1PCTest extends AbstractTransactionTest
                 new TestTransaction(transactionId2, TransactionStatus.BEGIN_FINISHED));
 
         // new participant
-        TestTransactionParticipant participantAfterCrash =
-                createParticipant(transactionConfiguration, TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER);
+        TestTransactionParticipantApi participantAfterCrash =
+                createParticipant(createConfiguration(true, 60, 10), TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER);
 
         assertTransactions(participantAfterCrash.getTransactionMap());
 

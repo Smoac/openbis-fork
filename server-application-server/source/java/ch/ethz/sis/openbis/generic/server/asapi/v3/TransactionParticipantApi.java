@@ -7,7 +7,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+
+import javax.annotation.PostConstruct;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
@@ -20,7 +23,10 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.ITransactionCoordinatorApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.ITransactionParticipantApi;
+import ch.ethz.sis.transaction.AbstractTransaction;
 import ch.ethz.sis.transaction.IDatabaseTransactionProvider;
+import ch.ethz.sis.transaction.ISessionTokenProvider;
+import ch.ethz.sis.transaction.ITransactionLog;
 import ch.ethz.sis.transaction.ITransactionOperationExecutor;
 import ch.ethz.sis.transaction.TransactionLog;
 import ch.ethz.sis.transaction.TransactionParticipant;
@@ -38,7 +44,21 @@ public class TransactionParticipantApi extends AbstractTransactionNodeApi implem
 
     private static final String TRANSACTION_LOG_FOLDER_NAME = "participant-application-server";
 
-    private final TransactionParticipant transactionParticipant;
+    private final PlatformTransactionManager transactionManager;
+
+    private final IDAOFactory daoFactory;
+
+    private final DatabaseConfigurationContext databaseContext;
+
+    private final IApplicationServerApi applicationServerApi;
+
+    private final IOpenBisSessionManager sessionManager;
+
+    private final String participantId;
+
+    private final String logFolderName;
+
+    private TransactionParticipant transactionParticipant;
 
     @Autowired
     public TransactionParticipantApi(final TransactionConfiguration transactionConfiguration, final PlatformTransactionManager transactionManager,
@@ -50,15 +70,25 @@ public class TransactionParticipantApi extends AbstractTransactionNodeApi implem
     }
 
     public TransactionParticipantApi(final TransactionConfiguration transactionConfiguration, final PlatformTransactionManager transactionManager,
-            final IDAOFactory daoFactory, final DatabaseConfigurationContext databaseContext, final IApplicationServerApi applicationServerApi,
-            final IOpenBisSessionManager sessionManager,
-            final String participantId, final String logFolderName)
+            final IDAOFactory daoFactory, final DatabaseConfigurationContext databaseContext, final IApplicationServerApi applicationServerApi, final
+    IOpenBisSessionManager sessionManager, final String participantId, final String logFolderName)
     {
         super(transactionConfiguration);
+        this.transactionManager = transactionManager;
+        this.daoFactory = daoFactory;
+        this.databaseContext = databaseContext;
+        this.applicationServerApi = applicationServerApi;
+        this.sessionManager = sessionManager;
+        this.participantId = participantId;
+        this.logFolderName = logFolderName;
+    }
 
+    @PostConstruct
+    public void init()
+    {
         if (transactionConfiguration.isEnabled())
         {
-            this.transactionParticipant = new TransactionParticipant(
+            this.transactionParticipant = createParticipant(
                     participantId,
                     transactionConfiguration.getCoordinatorKey(),
                     transactionConfiguration.getInteractiveSessionKey(),
@@ -73,6 +103,25 @@ public class TransactionParticipantApi extends AbstractTransactionNodeApi implem
         {
             this.transactionParticipant = null;
         }
+    }
+
+    protected TransactionParticipant createParticipant(final String participantId, final String transactionCoordinatorKey,
+            final String interactiveSessionKey, final ISessionTokenProvider sessionTokenProvider,
+            final IDatabaseTransactionProvider databaseTransactionProvider,
+            final ITransactionOperationExecutor operationExecutor, final ITransactionLog transactionLog, final int transactionTimeoutInSeconds,
+            final int transactionCountLimit)
+    {
+        return new TransactionParticipant(
+                participantId,
+                transactionCoordinatorKey,
+                interactiveSessionKey,
+                sessionTokenProvider,
+                databaseTransactionProvider,
+                operationExecutor,
+                transactionLog,
+                transactionTimeoutInSeconds,
+                transactionCountLimit
+        );
     }
 
     @Override protected void recoverTransactionsFromTransactionLog()
@@ -144,6 +193,12 @@ public class TransactionParticipantApi extends AbstractTransactionNodeApi implem
     {
         checkTransactionsEnabled();
         return transactionParticipant.recoverTransactions(interactiveSessionKey, transactionCoordinatorKey);
+    }
+
+    public Map<UUID, TransactionParticipant.Transaction> getTransactionMap()
+    {
+        checkTransactionsEnabled();
+        return transactionParticipant.getTransactionMap();
     }
 
     @Override public int getMajorVersion()
@@ -338,11 +393,6 @@ public class TransactionParticipantApi extends AbstractTransactionNodeApi implem
 
             throw new IllegalArgumentException("Unknown operation  '" + operationName + "'.");
         }
-    }
-
-    public TransactionParticipant getTransactionParticipant()
-    {
-        return transactionParticipant;
     }
 
 }

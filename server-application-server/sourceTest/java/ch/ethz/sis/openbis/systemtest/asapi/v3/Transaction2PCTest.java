@@ -27,9 +27,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOpt
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
-import ch.ethz.sis.transaction.ITransactionParticipant;
 import ch.ethz.sis.transaction.AbstractTransaction;
-import ch.ethz.sis.transaction.TransactionCoordinator;
+import ch.ethz.sis.transaction.ITransactionParticipant;
 import ch.ethz.sis.transaction.TransactionOperationException;
 import ch.ethz.sis.transaction.TransactionStatus;
 import ch.systemsx.cisd.common.concurrent.MessageChannel;
@@ -39,11 +38,11 @@ import ch.systemsx.cisd.common.test.AssertionUtil;
 public class Transaction2PCTest extends AbstractTransactionTest
 {
 
-    private TransactionCoordinator coordinator;
+    private TestTransactionCoordinatorApi coordinator;
 
-    private TestTransactionParticipant participant1;
+    private TestTransactionParticipantApi participant1;
 
-    private TestTransactionParticipant participant2;
+    private TestTransactionParticipantApi participant2;
 
     private UUID coordinatorTrId;
 
@@ -72,38 +71,57 @@ public class Transaction2PCTest extends AbstractTransactionTest
         final UUID participant2Tr2Id = UUID.randomUUID();
         final UUID participant2Tr3Id = UUID.randomUUID();
 
-        participant1 = createParticipant(transactionConfiguration, TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER);
+        participant1 = createParticipant(createConfiguration(true, 60, 10), TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER);
         participant1.setTestTransactionMapping(
                 Map.of(coordinatorTrId, participant1TrId, coordinatorTr2Id, participant1Tr2Id, coordinatorTr3Id, participant1Tr3Id));
 
-        participant2 = createParticipant(transactionConfiguration, TEST_PARTICIPANT_2_ID, TRANSACTION_LOG_PARTICIPANT_2_FOLDER);
+        participant2 = createParticipant(createConfiguration(true, 60, 10), TEST_PARTICIPANT_2_ID, TRANSACTION_LOG_PARTICIPANT_2_FOLDER);
         participant2.setTestTransactionMapping(
                 Map.of(coordinatorTrId, participant2TrId, coordinatorTr2Id, participant2Tr2Id, coordinatorTr3Id, participant2Tr3Id));
 
-        coordinator = createCoordinator(Arrays.asList(participant1, participant2), 60, 10);
+        coordinator =
+                createCoordinator(createConfiguration(true, 60, 10), Arrays.asList(participant1, participant2), TRANSACTION_LOG_COORDINATOR_FOLDER);
     }
 
     @AfterMethod
     private void afterMethod() throws Exception
     {
-        rollbackPreparedDatabaseTransactions();
-
-        String sessionToken = v3api.loginAsSystem();
-
-        for (AbstractTransaction transaction : coordinator.getTransactionMap().values())
+        if (coordinator.getTransactionConfiguration().isEnabled())
         {
-            try
+            rollbackPreparedDatabaseTransactions();
+
+            String sessionToken = v3api.loginAsSystem();
+
+            for (AbstractTransaction transaction : coordinator.getTransactionMap().values())
             {
-                coordinator.rollbackTransaction(transaction.getTransactionId(), sessionToken, TEST_INTERACTIVE_SESSION_KEY);
-            } catch (Exception ignored)
-            {
+                try
+                {
+                    coordinator.rollbackTransaction(transaction.getTransactionId(), sessionToken, TEST_INTERACTIVE_SESSION_KEY);
+                } catch (Exception ignored)
+                {
+                }
             }
+
+            deleteCreatedSpacesAndProjects();
+
+            participant1.close();
+            participant2.close();
         }
+    }
 
-        deleteCreatedSpacesAndProjects();
+    @Test
+    public void testTransactionsDisabled()
+    {
+        coordinator =
+                createCoordinator(createConfiguration(false, 60, 10), Arrays.asList(participant1, participant2), TRANSACTION_LOG_COORDINATOR_FOLDER);
 
-        participant1.close();
-        participant2.close();
+        assertTransactionsDisabled(() -> coordinator.recoverTransactionsFromTransactionLog());
+        assertTransactionsDisabled(() -> coordinator.finishFailedOrAbandonedTransactions());
+        assertTransactionsDisabled(() -> coordinator.getTransactionMap());
+        assertTransactionsDisabled(() -> coordinator.beginTransaction(null, null, null));
+        assertTransactionsDisabled(() -> coordinator.executeOperation(null, null, null, null, null, null));
+        assertTransactionsDisabled(() -> coordinator.commitTransaction(null, null, null));
+        assertTransactionsDisabled(() -> coordinator.rollbackTransaction(null, null, null));
     }
 
     @Test
@@ -199,7 +217,8 @@ public class Transaction2PCTest extends AbstractTransactionTest
     @Test
     public void testExecuteOperationTimesOut() throws Exception
     {
-        coordinator = createCoordinator(Arrays.asList(participant1, participant2), 1, 10);
+        coordinator =
+                createCoordinator(createConfiguration(true, 1, 10), Arrays.asList(participant1, participant2), TRANSACTION_LOG_COORDINATOR_FOLDER);
 
         assertTransactions(coordinator.getTransactionMap());
         assertTransactions(participant1.getTransactionMap());
@@ -736,7 +755,8 @@ public class Transaction2PCTest extends AbstractTransactionTest
     @Test
     public void testTooManyTransactions()
     {
-        coordinator = createCoordinator(Arrays.asList(participant1, participant2), 60, 2);
+        coordinator =
+                createCoordinator(createConfiguration(true, 60, 2), Arrays.asList(participant1, participant2), TRANSACTION_LOG_COORDINATOR_FOLDER);
 
         assertTransactions(coordinator.getTransactionMap());
         assertTransactions(participant1.getTransactionMap());
@@ -822,7 +842,8 @@ public class Transaction2PCTest extends AbstractTransactionTest
     @Test
     public void testRecoveryOfCoordinatorWithTransactionToRollback()
     {
-        TransactionCoordinator coordinatorBeforeCrash = createCoordinator(Arrays.asList(participant1, participant2), 60, 10);
+        TestTransactionCoordinatorApi coordinatorBeforeCrash =
+                createCoordinator(createConfiguration(true, 60, 10), Arrays.asList(participant1, participant2), TRANSACTION_LOG_COORDINATOR_FOLDER);
 
         assertTransactions(coordinatorBeforeCrash.getTransactionMap());
         assertTransactions(participant1.getTransactionMap());
@@ -839,7 +860,8 @@ public class Transaction2PCTest extends AbstractTransactionTest
                 OPERATION_CREATE_SPACES, new Object[] { sessionToken, Collections.singletonList(spaceCreation) });
 
         // new coordinator
-        TransactionCoordinator coordinatorAfterCrash = createCoordinator(Arrays.asList(participant1, participant2), 60, 10);
+        TestTransactionCoordinatorApi coordinatorAfterCrash =
+                createCoordinator(createConfiguration(true, 60, 10), Arrays.asList(participant1, participant2), TRANSACTION_LOG_COORDINATOR_FOLDER);
 
         assertTransactions(coordinatorAfterCrash.getTransactionMap());
         assertTransactions(participant1.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.BEGIN_FINISHED));
@@ -877,7 +899,8 @@ public class Transaction2PCTest extends AbstractTransactionTest
             throw exception;
         });
 
-        TransactionCoordinator coordinatorBeforeCrash = createCoordinator(Arrays.asList(participant1, participant2), 60, 10);
+        TestTransactionCoordinatorApi coordinatorBeforeCrash =
+                createCoordinator(createConfiguration(true, 60, 10), Arrays.asList(participant1, participant2), TRANSACTION_LOG_COORDINATOR_FOLDER);
 
         assertTransactions(coordinatorBeforeCrash.getTransactionMap());
         assertTransactions(participant1.getTransactionMap());
@@ -900,7 +923,8 @@ public class Transaction2PCTest extends AbstractTransactionTest
         assertTransactions(participant2.getTransactionMap());
 
         // new coordinator
-        TransactionCoordinator coordinatorAfterCrash = createCoordinator(Arrays.asList(participant1, participant2), 60, 10);
+        TestTransactionCoordinatorApi coordinatorAfterCrash =
+                createCoordinator(createConfiguration(true, 60, 10), Arrays.asList(participant1, participant2), TRANSACTION_LOG_COORDINATOR_FOLDER);
 
         // "commit" for both participants should succeed
         participant1.getDatabaseTransactionProvider().setCommitAction(null);
@@ -938,7 +962,8 @@ public class Transaction2PCTest extends AbstractTransactionTest
         participants.add(participant1);
         participants.add(participant2);
 
-        TransactionCoordinator coordinator = createCoordinator(participants, 60, 10);
+        TestTransactionCoordinatorApi coordinator =
+                createCoordinator(createConfiguration(true, 60, 10), participants, TRANSACTION_LOG_COORDINATOR_FOLDER);
 
         assertTransactions(coordinator.getTransactionMap());
         assertTransactions(participant1.getTransactionMap());
@@ -959,8 +984,8 @@ public class Transaction2PCTest extends AbstractTransactionTest
         assertTransactions(participant2.getTransactionMap());
 
         // replace original participant with a new instance
-        TestTransactionParticipant participant1AfterCrash =
-                createParticipant(transactionConfiguration, TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER);
+        TestTransactionParticipantApi participant1AfterCrash =
+                createParticipant(createConfiguration(true, 60, 10), TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER);
         participant1AfterCrash.setTestTransactionMapping(participant1.getTestTransactionMapping());
         participants.set(0, participant1AfterCrash);
 
@@ -1020,7 +1045,8 @@ public class Transaction2PCTest extends AbstractTransactionTest
         participants.add(participant1);
         participants.add(participant2);
 
-        TransactionCoordinator coordinator = createCoordinator(participants, 60, 10);
+        TestTransactionCoordinatorApi coordinator =
+                createCoordinator(createConfiguration(true, 60, 10), participants, TRANSACTION_LOG_COORDINATOR_FOLDER);
 
         assertTransactions(coordinator.getTransactionMap());
         assertTransactions(participant1.getTransactionMap());
@@ -1049,8 +1075,8 @@ public class Transaction2PCTest extends AbstractTransactionTest
         assertTransactions(participant1.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
         assertTransactions(participant2.getTransactionMap());
 
-        TestTransactionParticipant participant1AfterCrash =
-                createParticipant(transactionConfiguration, TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER);
+        TestTransactionParticipantApi participant1AfterCrash =
+                createParticipant(createConfiguration(true, 60, 10), TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER);
         participant1AfterCrash.setTestTransactionMapping(Map.of(coordinatorTrId, participant1TrId));
         // replace original participant with a new instance
         participants.set(0, participant1AfterCrash);

@@ -6,7 +6,10 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+
+import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -15,6 +18,8 @@ import ch.ethz.sis.afsapi.api.OperationsAPI;
 import ch.ethz.sis.afsclient.client.AfsClient;
 import ch.ethz.sis.openbis.generic.asapi.v3.ITransactionCoordinatorApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.ITransactionParticipantApi;
+import ch.ethz.sis.transaction.ISessionTokenProvider;
+import ch.ethz.sis.transaction.ITransactionLog;
 import ch.ethz.sis.transaction.ITransactionParticipant;
 import ch.ethz.sis.transaction.TransactionCoordinator;
 import ch.ethz.sis.transaction.TransactionLog;
@@ -27,14 +32,33 @@ public class TransactionCoordinatorApi extends AbstractTransactionNodeApi implem
 
     private static final String TRANSACTION_LOG_FOLDER_NAME = "coordinator";
 
-    private final TransactionCoordinator transactionCoordinator;
+    private final IApplicationServerInternalApi applicationServerApi;
+
+    private final IOpenBisSessionManager sessionManager;
+
+    private final String logFolderName;
+
+    private TransactionCoordinator transactionCoordinator;
 
     @Autowired
     public TransactionCoordinatorApi(final TransactionConfiguration transactionConfiguration, IApplicationServerInternalApi applicationServerApi,
             IOpenBisSessionManager sessionManager)
     {
-        super(transactionConfiguration);
+        this(transactionConfiguration, applicationServerApi, sessionManager, TRANSACTION_LOG_FOLDER_NAME);
+    }
 
+    public TransactionCoordinatorApi(final TransactionConfiguration transactionConfiguration, IApplicationServerInternalApi applicationServerApi,
+            IOpenBisSessionManager sessionManager, String logFolderName)
+    {
+        super(transactionConfiguration);
+        this.applicationServerApi = applicationServerApi;
+        this.sessionManager = sessionManager;
+        this.logFolderName = logFolderName;
+    }
+
+    @PostConstruct
+    public void init()
+    {
         if (transactionConfiguration.isEnabled())
         {
             List<ITransactionParticipant> participants = Arrays.asList(
@@ -43,27 +67,37 @@ public class TransactionCoordinatorApi extends AbstractTransactionNodeApi implem
                     new AfsServerParticipant(applicationServerApi, transactionConfiguration.getAfsServerUrl(),
                             transactionConfiguration.getAfsServerTimeoutInSeconds()));
 
-            this.transactionCoordinator = new TransactionCoordinator(
-                    transactionConfiguration.getCoordinatorKey(),
-                    transactionConfiguration.getInteractiveSessionKey(),
-                    new ApplicationServerSessionTokenProvider(sessionManager),
-                    participants,
-                    new TransactionLog(new File(transactionConfiguration.getTransactionLogFolderPath()), TRANSACTION_LOG_FOLDER_NAME),
-                    transactionConfiguration.getTransactionTimeoutInSeconds(),
-                    transactionConfiguration.getTransactionCountLimit());
+            this.transactionCoordinator =
+                    createCoordinator(transactionConfiguration.getCoordinatorKey(), transactionConfiguration.getInteractiveSessionKey(),
+                            new ApplicationServerSessionTokenProvider(sessionManager), participants,
+                            new TransactionLog(new File(transactionConfiguration.getTransactionLogFolderPath()), logFolderName),
+                            transactionConfiguration.getTransactionTimeoutInSeconds(),
+                            transactionConfiguration.getTransactionCountLimit());
         } else
         {
             this.transactionCoordinator = null;
         }
     }
 
-    @Override protected void recoverTransactionsFromTransactionLog()
+    protected TransactionCoordinator createCoordinator(final String transactionCoordinatorKey, final String interactiveSessionKey,
+            final ISessionTokenProvider sessionTokenProvider, final List<ITransactionParticipant> participants, final ITransactionLog transactionLog,
+            int transactionTimeoutInSeconds, int transactionCountLimit)
+    {
+        return new TransactionCoordinator(
+                transactionCoordinatorKey,
+                interactiveSessionKey,
+                sessionTokenProvider,
+                participants,
+                transactionLog, transactionTimeoutInSeconds, transactionCountLimit);
+    }
+
+    @Override public void recoverTransactionsFromTransactionLog()
     {
         checkTransactionsEnabled();
         transactionCoordinator.recoverTransactionsFromTransactionLog();
     }
 
-    @Override protected void finishFailedOrAbandonedTransactions()
+    @Override public void finishFailedOrAbandonedTransactions()
     {
         checkTransactionsEnabled();
         transactionCoordinator.finishFailedOrAbandonedTransactions();
@@ -93,6 +127,12 @@ public class TransactionCoordinatorApi extends AbstractTransactionNodeApi implem
     {
         checkTransactionsEnabled();
         transactionCoordinator.rollbackTransaction(transactionId, sessionToken, interactiveSessionKey);
+    }
+
+    public Map<UUID, TransactionCoordinator.Transaction> getTransactionMap()
+    {
+        checkTransactionsEnabled();
+        return transactionCoordinator.getTransactionMap();
     }
 
     @Override public int getMajorVersion()

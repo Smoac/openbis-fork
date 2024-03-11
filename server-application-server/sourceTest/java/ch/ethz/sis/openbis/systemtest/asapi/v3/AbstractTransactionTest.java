@@ -1,8 +1,8 @@
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
 
-import java.io.File;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -23,14 +23,16 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.ICodeHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IIdentifierHolder;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.ApplicationServerSessionTokenProvider;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.TransactionConfiguration;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.TransactionCoordinatorApi;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.TransactionParticipantApi;
 import ch.ethz.sis.transaction.AbstractTransaction;
 import ch.ethz.sis.transaction.IDatabaseTransactionProvider;
+import ch.ethz.sis.transaction.ISessionTokenProvider;
+import ch.ethz.sis.transaction.ITransactionLog;
+import ch.ethz.sis.transaction.ITransactionOperationExecutor;
 import ch.ethz.sis.transaction.ITransactionParticipant;
 import ch.ethz.sis.transaction.TransactionCoordinator;
-import ch.ethz.sis.transaction.TransactionLog;
 import ch.ethz.sis.transaction.TransactionParticipant;
 import ch.ethz.sis.transaction.TransactionStatus;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -44,21 +46,21 @@ public class AbstractTransactionTest extends AbstractTest
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, AbstractTransactionTest.class);
 
-    public static final String TEST_COORDINATOR_KEY = "test-transaction-coordinator-key";
+    public static final String TEST_COORDINATOR_KEY = "system-test-transaction-coordinator-key";
 
-    public static final String TEST_INTERACTIVE_SESSION_KEY = "test-interactive-session-key";
+    public static final String TEST_INTERACTIVE_SESSION_KEY = "system-test-interactive-session-key";
 
-    public static final String TEST_PARTICIPANT_1_ID = "test-participant-1";
+    public static final String TEST_PARTICIPANT_1_ID = "system-test-participant-1";
 
-    public static final String TEST_PARTICIPANT_2_ID = "test-participant-2";
+    public static final String TEST_PARTICIPANT_2_ID = "system-test-participant-2";
 
-    public static final String TRANSACTION_LOG_ROOT_FOLDER = "targets/transaction-logs";
+    public static final String TRANSACTION_LOG_ROOT_FOLDER = "targets/system-test-transaction-logs";
 
-    public static final String TRANSACTION_LOG_COORDINATOR_FOLDER = "test-coordinator";
+    public static final String TRANSACTION_LOG_COORDINATOR_FOLDER = "system-test-coordinator";
 
-    public static final String TRANSACTION_LOG_PARTICIPANT_1_FOLDER = "test-participant-1";
+    public static final String TRANSACTION_LOG_PARTICIPANT_1_FOLDER = "system-test-participant-1";
 
-    public static final String TRANSACTION_LOG_PARTICIPANT_2_FOLDER = "test-participant-2";
+    public static final String TRANSACTION_LOG_PARTICIPANT_2_FOLDER = "system-test-participant-2";
 
     public static final String OPERATION_CREATE_SPACES = "createSpaces";
 
@@ -69,9 +71,6 @@ public class AbstractTransactionTest extends AbstractTest
     public static final String OPERATION_SEARCH_PROJECTS = "searchProjects";
 
     public static final String CODE_PREFIX = "TRANSACTION_TEST_";
-
-    @Autowired
-    public TransactionConfiguration transactionConfiguration;
 
     @Autowired
     public PlatformTransactionManager transactionManager;
@@ -85,29 +84,28 @@ public class AbstractTransactionTest extends AbstractTest
     @Autowired
     public IOpenBisSessionManager sessionManager;
 
-    public TransactionCoordinator createCoordinator(List<ITransactionParticipant> participants, int transactionTimeoutInSeconds,
-            int transactionCountLimit)
+    public TestTransactionCoordinatorApi createCoordinator(TransactionConfiguration configuration, List<ITransactionParticipant> participants,
+            String logFolderName)
     {
-        return new TransactionCoordinator(TEST_COORDINATOR_KEY, TEST_INTERACTIVE_SESSION_KEY,
-                new ApplicationServerSessionTokenProvider(sessionManager),
-                participants, new TransactionLog(new File(TRANSACTION_LOG_ROOT_FOLDER), TRANSACTION_LOG_COORDINATOR_FOLDER),
-                transactionTimeoutInSeconds, transactionCountLimit);
+        TestTransactionCoordinatorApi coordinatorApi = new TestTransactionCoordinatorApi(configuration, participants, logFolderName);
+        coordinatorApi.init();
+        return coordinatorApi;
     }
 
-    public TestTransactionParticipant createParticipant(TransactionConfiguration configuration, String participantId, String logFolderName)
+    public TestTransactionParticipantApi createParticipant(TransactionConfiguration configuration, String participantId, String logFolderName)
     {
-        return new TestTransactionParticipant(
-                new TransactionParticipantApi(configuration, transactionManager, daoFactory, databaseContext, v3api, sessionManager, participantId,
-                        logFolderName));
+        TestTransactionParticipantApi participantApi = new TestTransactionParticipantApi(configuration, participantId, logFolderName);
+        participantApi.init();
+        return participantApi;
     }
 
-    public TransactionConfiguration createConfiguration(final int transactionTimeoutInSeconds, final int transactionCountLimit)
+    public TransactionConfiguration createConfiguration(final boolean enabled, final int transactionTimeoutInSeconds, final int transactionCountLimit)
     {
         return new TransactionConfiguration()
         {
             @Override public boolean isEnabled()
             {
-                return true;
+                return enabled;
             }
 
             public int getTransactionTimeoutInSeconds()
@@ -117,22 +115,22 @@ public class AbstractTransactionTest extends AbstractTest
 
             public int getFinishTransactionsIntervalInSeconds()
             {
-                return transactionConfiguration.getFinishTransactionsIntervalInSeconds();
+                return 3600;
             }
 
             public String getInteractiveSessionKey()
             {
-                return transactionConfiguration.getInteractiveSessionKey();
+                return TEST_INTERACTIVE_SESSION_KEY;
             }
 
             public String getCoordinatorKey()
             {
-                return transactionConfiguration.getCoordinatorKey();
+                return TEST_COORDINATOR_KEY;
             }
 
             public String getTransactionLogFolderPath()
             {
-                return transactionConfiguration.getTransactionLogFolderPath();
+                return TRANSACTION_LOG_ROOT_FOLDER;
             }
 
             public int getTransactionCountLimit()
@@ -142,22 +140,22 @@ public class AbstractTransactionTest extends AbstractTest
 
             public String getApplicationServerUrl()
             {
-                return transactionConfiguration.getApplicationServerUrl();
+                return null;
             }
 
             public int getApplicationServerTimeoutInSeconds()
             {
-                return transactionConfiguration.getApplicationServerTimeoutInSeconds();
+                return -1;
             }
 
             public String getAfsServerUrl()
             {
-                return transactionConfiguration.getAfsServerUrl();
+                return null;
             }
 
             public int getAfsServerTimeoutInSeconds()
             {
-                return transactionConfiguration.getAfsServerTimeoutInSeconds();
+                return -1;
             }
         };
     }
@@ -190,7 +188,32 @@ public class AbstractTransactionTest extends AbstractTest
         }
     }
 
-    public static class TestTransactionParticipant implements ITransactionParticipant
+    public class TestTransactionCoordinatorApi extends TransactionCoordinatorApi
+    {
+
+        private final List<ITransactionParticipant> testParticipants;
+
+        public TestTransactionCoordinatorApi(final TransactionConfiguration transactionConfiguration,
+                final List<ITransactionParticipant> participants, final String logFolderName)
+        {
+            super(transactionConfiguration, v3api, sessionManager, logFolderName);
+            this.testParticipants = participants;
+        }
+
+        @Override protected TransactionCoordinator createCoordinator(final String transactionCoordinatorKey,
+                final String interactiveSessionKey, final ISessionTokenProvider sessionTokenProvider,
+                final List<ITransactionParticipant> participants, final ITransactionLog transactionLog, final int transactionTimeoutInSeconds,
+                final int transactionCountLimit)
+        {
+            return new TransactionCoordinator(transactionCoordinatorKey,
+                    interactiveSessionKey, sessionTokenProvider, this.testParticipants,
+                    transactionLog, transactionTimeoutInSeconds,
+                    transactionCountLimit);
+        }
+
+    }
+
+    public class TestTransactionParticipantApi extends TransactionParticipantApi
     {
 
         // Map the original transaction id coming from the coordinator to a unique transaction id for each participant,
@@ -202,76 +225,85 @@ public class AbstractTransactionTest extends AbstractTest
 
         private boolean mapTransactions = false;
 
-        private final TransactionParticipant participant;
+        private TestDatabaseTransactionProvider testDatabaseTransactionProvider;
 
-        private final TestDatabaseTransactionProvider databaseTransactionProvider;
-
-        public TestTransactionParticipant(TransactionParticipantApi participantApi)
+        public TestTransactionParticipantApi(final TransactionConfiguration transactionConfiguration, final String participantId,
+                final String logFolderName)
         {
-            // replace the original database transaction provider with a test counterpart that allows to throw test exceptions
-            this.participant = participantApi.getTransactionParticipant();
-            this.databaseTransactionProvider =
-                    new TestDatabaseTransactionProvider(participantApi.getTransactionParticipant().getDatabaseTransactionProvider());
-            this.participant.setDatabaseTransactionProvider(databaseTransactionProvider);
+            super(transactionConfiguration, transactionManager, daoFactory, databaseContext, v3api, sessionManager, participantId, logFolderName);
+        }
+
+        @Override protected TransactionParticipant createParticipant(final String participantId, final String transactionCoordinatorKey,
+                final String interactiveSessionKey, final ISessionTokenProvider sessionTokenProvider,
+                final IDatabaseTransactionProvider databaseTransactionProvider, final ITransactionOperationExecutor operationExecutor,
+                final ITransactionLog transactionLog, final int transactionTimeoutInSeconds, final int transactionCountLimit)
+        {
+            this.testDatabaseTransactionProvider = new TestDatabaseTransactionProvider(databaseTransactionProvider);
+            return new TransactionParticipant(
+                    participantId,
+                    transactionCoordinatorKey,
+                    interactiveSessionKey,
+                    sessionTokenProvider,
+                    this.testDatabaseTransactionProvider,
+                    operationExecutor,
+                    transactionLog,
+                    transactionTimeoutInSeconds,
+                    transactionCountLimit
+            );
         }
 
         public TestDatabaseTransactionProvider getDatabaseTransactionProvider()
         {
-            return this.databaseTransactionProvider;
-        }
-
-        @Override public String getParticipantId()
-        {
-            return participant.getParticipantId();
+            return this.testDatabaseTransactionProvider;
         }
 
         @Override public void beginTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
                 final String transactionCoordinatorKey)
         {
-            this.participant.beginTransaction(mapOriginalToInternalId(transactionId), sessionToken, interactiveSessionKey,
+            super.beginTransaction(mapOriginalToInternalId(transactionId), sessionToken, interactiveSessionKey,
                     transactionCoordinatorKey);
         }
 
         @Override public <T> T executeOperation(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
                 final String operationName, final Object[] operationArguments)
         {
-            return participant.executeOperation(mapOriginalToInternalId(transactionId), sessionToken, interactiveSessionKey, operationName,
+            return super.executeOperation(mapOriginalToInternalId(transactionId), sessionToken, interactiveSessionKey, operationName,
                     operationArguments);
         }
 
         @Override public void prepareTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
                 final String transactionCoordinatorKey)
         {
-            participant.prepareTransaction(mapOriginalToInternalId(transactionId), sessionToken, interactiveSessionKey, transactionCoordinatorKey);
+            super.prepareTransaction(mapOriginalToInternalId(transactionId), sessionToken, interactiveSessionKey, transactionCoordinatorKey);
         }
 
         @Override public void commitTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
         {
-            participant.commitTransaction(mapOriginalToInternalId(transactionId), sessionToken, interactiveSessionKey);
+            super.commitTransaction(mapOriginalToInternalId(transactionId), sessionToken, interactiveSessionKey);
         }
 
         @Override public void commitRecoveredTransaction(final UUID transactionId, final String interactiveSessionKey,
                 final String transactionCoordinatorKey)
         {
-            participant.commitRecoveredTransaction(mapOriginalToInternalId(transactionId), interactiveSessionKey, transactionCoordinatorKey);
+            super.commitRecoveredTransaction(mapOriginalToInternalId(transactionId), interactiveSessionKey, transactionCoordinatorKey);
         }
 
         @Override public void rollbackTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
         {
-            participant.rollbackTransaction(mapOriginalToInternalId(transactionId), sessionToken, interactiveSessionKey);
+            super.rollbackTransaction(mapOriginalToInternalId(transactionId), sessionToken, interactiveSessionKey);
         }
 
         @Override public void rollbackRecoveredTransaction(final UUID transactionId, final String interactiveSessionKey,
                 final String transactionCoordinatorKey)
         {
-            participant.rollbackRecoveredTransaction(mapOriginalToInternalId(transactionId), interactiveSessionKey, transactionCoordinatorKey);
+            super.rollbackRecoveredTransaction(mapOriginalToInternalId(transactionId), interactiveSessionKey, transactionCoordinatorKey);
         }
 
         @Override public List<UUID> recoverTransactions(final String interactiveSessionKey, final String transactionCoordinatorKey)
         {
             List<UUID> transactionIds = new ArrayList<>();
 
-            for (UUID internalTransactionId : participant.recoverTransactions(interactiveSessionKey, transactionCoordinatorKey))
+            for (UUID internalTransactionId : super.recoverTransactions(interactiveSessionKey, transactionCoordinatorKey))
             {
                 transactionIds.add(mapInternalToOriginalId(internalTransactionId));
             }
@@ -281,22 +313,22 @@ public class AbstractTransactionTest extends AbstractTest
 
         public void recoverTransactionsFromTransactionLog()
         {
-            participant.recoverTransactionsFromTransactionLog();
+            super.recoverTransactionsFromTransactionLog();
         }
 
         public void finishFailedOrAbandonedTransactions()
         {
-            participant.finishFailedOrAbandonedTransactions();
+            super.finishFailedOrAbandonedTransactions();
         }
 
-        public Map<UUID, ? extends AbstractTransaction> getTransactionMap()
+        public Map<UUID, TransactionParticipant.Transaction> getTransactionMap()
         {
-            Map<UUID, AbstractTransaction> transactionMap = new HashMap<>();
+            Map<UUID, TransactionParticipant.Transaction> transactionMap = new HashMap<>();
 
-            for (Map.Entry<UUID, ? extends AbstractTransaction> entry : this.participant.getTransactionMap().entrySet())
+            for (Map.Entry<UUID, ? extends AbstractTransaction> entry : super.getTransactionMap().entrySet())
             {
                 TransactionParticipant.Transaction internalTransaction = (TransactionParticipant.Transaction) entry.getValue();
-                AbstractTransaction originalTransaction =
+                TransactionParticipant.Transaction originalTransaction =
                         new TransactionParticipant.Transaction(mapInternalToOriginalId(internalTransaction.getTransactionId()),
                                 internalTransaction.getSessionToken());
                 originalTransaction.setTransactionStatus(internalTransaction.getTransactionStatus());
@@ -347,7 +379,7 @@ public class AbstractTransactionTest extends AbstractTest
 
         public void close()
         {
-            for (TransactionParticipant.Transaction transaction : participant.getTransactionMap().values())
+            for (TransactionParticipant.Transaction transaction : super.getTransactionMap().values())
             {
                 try
                 {
@@ -440,6 +472,18 @@ public class AbstractTransactionTest extends AbstractTest
             this.rollbackAction = rollbackAction;
         }
 
+    }
+
+    public static void assertTransactionsDisabled(Runnable action)
+    {
+        try
+        {
+            action.run();
+            fail();
+        } catch (Exception e)
+        {
+            assertEquals(e.getMessage(), "Transactions are disabled in service.properties file.");
+        }
     }
 
     public static void assertTransactions(Map<UUID, ? extends AbstractTransaction> actualTransactions, TestTransaction... expectedTransactions)
