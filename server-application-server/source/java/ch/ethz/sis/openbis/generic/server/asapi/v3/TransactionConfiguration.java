@@ -83,18 +83,23 @@ public class TransactionConfiguration
     {
         Properties properties = configurer.getResolvedProps();
         enabled = PropertyUtils.getBoolean(properties, TRANSACTION_ENABLED_PROPERTY_NAME, TRANSACTION_ENABLED_DEFAULT);
-        transactionTimeoutInSeconds = PropertyUtils.getInt(properties, TRANSACTION_TIMEOUT_PROPERTY_NAME, TRANSACTION_TIMEOUT_DEFAULT);
-        finishTransactionsIntervalInSeconds = PropertyUtils.getInt(properties, FINISH_TRANSACTIONS_INTERVAL_PROPERTY_NAME, FINISH_TRANSACTIONS_INTERVAL_DEFAULT);
-        interactiveSessionKey = PropertyUtils.getProperty(properties, INTERACTIVE_SESSION_KEY_PROPERTY_NAME, generateRandomKey());
-        coordinatorKey = PropertyUtils.getProperty(properties, COORDINATOR_KEY_PROPERTY_NAME, generateRandomKey());
-        transactionLogFolderPath = PropertyUtils.getProperty(properties, TRANSACTION_LOG_FOLDER_PATH_PROPERTY_NAME,
-                TRANSACTION_LOG_FOLDER_PATH_DEFAULT);
-        transactionCountLimit = PropertyUtils.getInt(properties, TRANSACTION_COUNT_LIMIT_PROPERTY_NAME, TRANSACTION_COUNT_LIMIT_DEFAULT);
-        applicationServerUrl = PropertyUtils.getMandatoryProperty(properties, APPLICATION_SERVER_URL_PROPERTY_NAME);
-        applicationServerTimeoutInSeconds =
-                PropertyUtils.getInt(properties, APPLICATION_SERVER_TIMEOUT_PROPERTY_NAME, APPLICATION_SERVER_TIMEOUT_DEFAULT);
-        afsServerUrl = PropertyUtils.getMandatoryProperty(properties, AFS_SERVER_URL_PROPERTY_NAME);
-        afsServerTimeoutInSeconds = PropertyUtils.getInt(properties, AFS_SERVER_TIMEOUT_PROPERTY_NAME, AFS_SERVER_TIMEOUT_DEFAULT);
+
+        if (enabled)
+        {
+            transactionTimeoutInSeconds = PropertyUtils.getInt(properties, TRANSACTION_TIMEOUT_PROPERTY_NAME, TRANSACTION_TIMEOUT_DEFAULT);
+            finishTransactionsIntervalInSeconds =
+                    PropertyUtils.getInt(properties, FINISH_TRANSACTIONS_INTERVAL_PROPERTY_NAME, FINISH_TRANSACTIONS_INTERVAL_DEFAULT);
+            interactiveSessionKey = PropertyUtils.getProperty(properties, INTERACTIVE_SESSION_KEY_PROPERTY_NAME, generateRandomKey());
+            coordinatorKey = PropertyUtils.getProperty(properties, COORDINATOR_KEY_PROPERTY_NAME, generateRandomKey());
+            transactionLogFolderPath = PropertyUtils.getProperty(properties, TRANSACTION_LOG_FOLDER_PATH_PROPERTY_NAME,
+                    TRANSACTION_LOG_FOLDER_PATH_DEFAULT);
+            transactionCountLimit = PropertyUtils.getInt(properties, TRANSACTION_COUNT_LIMIT_PROPERTY_NAME, TRANSACTION_COUNT_LIMIT_DEFAULT);
+            applicationServerUrl = PropertyUtils.getMandatoryProperty(properties, APPLICATION_SERVER_URL_PROPERTY_NAME);
+            applicationServerTimeoutInSeconds =
+                    PropertyUtils.getInt(properties, APPLICATION_SERVER_TIMEOUT_PROPERTY_NAME, APPLICATION_SERVER_TIMEOUT_DEFAULT);
+            afsServerUrl = PropertyUtils.getMandatoryProperty(properties, AFS_SERVER_URL_PROPERTY_NAME);
+            afsServerTimeoutInSeconds = PropertyUtils.getInt(properties, AFS_SERVER_TIMEOUT_PROPERTY_NAME, AFS_SERVER_TIMEOUT_DEFAULT);
+        }
     }
 
     public boolean isEnabled()
