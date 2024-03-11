@@ -240,7 +240,7 @@ public class TransactionCoordinatorApi extends AbstractTransactionNodeApi implem
         {
             try
             {
-                getAfsClient(transactionId, sessionToken, interactiveSessionKey, transactionCoordinatorKey).begin(transactionId);
+                getAfsClient(sessionToken, interactiveSessionKey, transactionCoordinatorKey).begin(transactionId);
             } catch (RuntimeException e)
             {
                 throw e;
@@ -255,7 +255,7 @@ public class TransactionCoordinatorApi extends AbstractTransactionNodeApi implem
         {
             try
             {
-                AfsClient afsClient = getAfsClient(transactionId, sessionToken, interactiveSessionKey, null);
+                AfsClient afsClient = getAfsClient(sessionToken, interactiveSessionKey, null);
 
                 for (Method method : OperationsAPI.class.getDeclaredMethods())
                 {
@@ -288,7 +288,7 @@ public class TransactionCoordinatorApi extends AbstractTransactionNodeApi implem
         {
             try
             {
-                getAfsClient(transactionId, sessionToken, interactiveSessionKey, transactionCoordinatorKey).prepare();
+                getAfsClient(sessionToken, interactiveSessionKey, transactionCoordinatorKey).prepare();
             } catch (RuntimeException e)
             {
                 throw e;
@@ -302,7 +302,7 @@ public class TransactionCoordinatorApi extends AbstractTransactionNodeApi implem
         {
             try
             {
-                getAfsClient(transactionId, sessionToken, interactiveSessionKey, null).commit();
+                getAfsClient(sessionToken, interactiveSessionKey, null).commit();
             } catch (RuntimeException e)
             {
                 throw e;
@@ -321,7 +321,7 @@ public class TransactionCoordinatorApi extends AbstractTransactionNodeApi implem
             {
                 sessionToken = applicationServerApi.loginAsSystem();
 
-                AfsClient dataStoreServer = getAfsClient(transactionId, sessionToken, interactiveSessionKey, transactionCoordinatorKey);
+                AfsClient dataStoreServer = getAfsClient(sessionToken, interactiveSessionKey, transactionCoordinatorKey);
                 dataStoreServer.begin(transactionId);
                 dataStoreServer.commit();
             } catch (RuntimeException e)
@@ -343,7 +343,7 @@ public class TransactionCoordinatorApi extends AbstractTransactionNodeApi implem
         {
             try
             {
-                getAfsClient(transactionId, sessionToken, interactiveSessionKey, null).rollback();
+                getAfsClient(sessionToken, interactiveSessionKey, null).rollback();
             } catch (RuntimeException e)
             {
                 throw e;
@@ -362,7 +362,7 @@ public class TransactionCoordinatorApi extends AbstractTransactionNodeApi implem
             {
                 sessionToken = applicationServerApi.loginAsSystem();
 
-                AfsClient dataStoreServer = getAfsClient(transactionId, sessionToken, interactiveSessionKey, transactionCoordinatorKey);
+                AfsClient dataStoreServer = getAfsClient(sessionToken, interactiveSessionKey, transactionCoordinatorKey);
                 dataStoreServer.begin(transactionId);
                 dataStoreServer.rollback();
             } catch (RuntimeException e)
@@ -388,7 +388,7 @@ public class TransactionCoordinatorApi extends AbstractTransactionNodeApi implem
             {
                 sessionToken = applicationServerApi.loginAsSystem();
 
-                AfsClient dataStoreServer = getAfsClient(null, sessionToken, interactiveSessionKey, transactionCoordinatorKey);
+                AfsClient dataStoreServer = getAfsClient(sessionToken, interactiveSessionKey, transactionCoordinatorKey);
                 return dataStoreServer.recover();
             } catch (RuntimeException e)
             {
@@ -405,8 +405,7 @@ public class TransactionCoordinatorApi extends AbstractTransactionNodeApi implem
             }
         }
 
-        private AfsClient getAfsClient(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
-                final String transactionCoordinatorKey)
+        private AfsClient getAfsClient(final String sessionToken, final String interactiveSessionKey, final String transactionCoordinatorKey)
         {
             AfsClient afsClient = new AfsClient(URI.create(afsServerUrl), timeoutInSeconds * 1000);
             afsClient.setSessionToken(sessionToken);
