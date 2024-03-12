@@ -16,6 +16,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment;
 
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -65,18 +66,17 @@ public class ExperimentTypeAuthorizationExecutor implements IExperimentTypeAutho
     @DatabaseUpdateModification(value = ObjectKind.EXPERIMENT_TYPE)
     public void canUpdate(IOperationContext context, ExperimentTypePE entity)
     {
-        checkExperimentType(context.getSession(), entity);
     }
 
     @Override
     @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN })
     @Capability("DELETE_EXPERIMENT_TYPE")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.EXPERIMENT_TYPE)
-    public void canDelete(IOperationContext context)
+    public void canDelete(IOperationContext context, EntityTypePE entityTypePE)
     {
     }
 
-    private void checkExperimentType(Session session, ExperimentTypePE experimentTypePE)
+    private void checkExperimentType(Session session, EntityTypePE experimentTypePE)
     {
         if(experimentTypePE.isManagedInternally() && isSystemUser(session) == false)
         {

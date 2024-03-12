@@ -86,7 +86,7 @@ public class ExperimentTypeTranslator extends AbstractCachingTranslator<Long, Ex
 
         String businessCode = CodeConverter.tryToBusinessLayer(baseRecord.code, baseRecord.managedInternally);
 
-        result.setPermId(new EntityTypePermId(baseRecord.code, EntityKind.EXPERIMENT));
+        result.setPermId(new EntityTypePermId(businessCode, EntityKind.EXPERIMENT));
         result.setCode(businessCode);
         result.setDescription(baseRecord.description);
         result.setModificationDate(baseRecord.modificationDate);

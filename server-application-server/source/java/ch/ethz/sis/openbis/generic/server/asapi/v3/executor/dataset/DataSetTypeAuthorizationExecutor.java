@@ -17,6 +17,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import org.springframework.stereotype.Component;
@@ -65,18 +66,17 @@ public class DataSetTypeAuthorizationExecutor implements IDataSetTypeAuthorizati
     @DatabaseUpdateModification(value = ObjectKind.DATASET_TYPE)
     public void canUpdate(IOperationContext context, DataSetTypePE entityTypePE)
     {
-        checkDataSetType(context.getSession(), entityTypePE);
     }
 
     @Override
     @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN })
     @Capability("DELETE_DATASET_TYPE")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.DATASET_TYPE)
-    public void canDelete(IOperationContext context)
+    public void canDelete(IOperationContext context, EntityTypePE entityTypePE)
     {
     }
 
-    private void checkDataSetType(Session session, DataSetTypePE entityTypePE)
+    private void checkDataSetType(Session session, EntityTypePE entityTypePE)
     {
         if(entityTypePE.isManagedInternally() && isSystemUser(session) == false)
         {

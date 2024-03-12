@@ -96,16 +96,16 @@ public class DeleteEntityTypeExecutor extends AbstractDeleteEntityExecutor<Void,
         switch (entity.getEntityKind())
         {
             case DATA_SET:
-                dataSetTypeAuthorizationExecutor.canDelete(context);
+                dataSetTypeAuthorizationExecutor.canDelete(context, entity);
                 break;
             case EXPERIMENT:
-                experimentTypeAuthorizationExecutor.canDelete(context);
+                experimentTypeAuthorizationExecutor.canDelete(context, entity);
                 break;
             case MATERIAL:
                 materialTypeAuthorizationExecutor.canDelete(context);
                 break;
             case SAMPLE:
-                sampleTypeAuthorizationExecutor.canDelete(context);
+                sampleTypeAuthorizationExecutor.canDelete(context, entity);
                 break;
         }
     }

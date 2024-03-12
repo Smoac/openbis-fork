@@ -86,7 +86,7 @@ public class DataSetTypeTranslator extends AbstractCachingTranslator<Long, DataS
 
         String businessCode = CodeConverter.tryToBusinessLayer(baseRecord.code, baseRecord.managedInternally);
 
-        result.setPermId(new EntityTypePermId(baseRecord.code, EntityKind.DATA_SET));
+        result.setPermId(new EntityTypePermId(businessCode, EntityKind.DATA_SET));
         result.setCode(businessCode);
         result.setMainDataSetPattern(baseRecord.mainDataSetPattern);
         result.setMainDataSetPath(baseRecord.mainDataSetPath);

@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IObjectAuthorizationExecutor;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 
 /**
@@ -34,6 +35,6 @@ public interface IExperimentTypeAuthorizationExecutor extends IObjectAuthorizati
 
     void canUpdate(IOperationContext context, ExperimentTypePE entity);
 
-    void canDelete(IOperationContext context);
+    void canDelete(IOperationContext context, EntityTypePE entityTypePE);
 
 }

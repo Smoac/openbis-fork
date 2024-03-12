@@ -55,7 +55,7 @@ public abstract class AbstractTypePE extends AbstractIdAndCodeHolder<AbstractTyp
     @Transient
     public String getIdentifier()
     {
-        return code;
+        return getCode();
     }
 
     public void setId(final Long id)

@@ -17,6 +17,7 @@ package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IObjectAuthorizationExecutor;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 
 /**
@@ -33,6 +34,6 @@ public interface ISampleTypeAuthorizationExecutor extends IObjectAuthorizationEx
 
     void canUpdate(IOperationContext context, SampleTypePE entityType);
 
-    void canDelete(IOperationContext context);
+    void canDelete(IOperationContext context, EntityTypePE entityTypePE);
 
 }

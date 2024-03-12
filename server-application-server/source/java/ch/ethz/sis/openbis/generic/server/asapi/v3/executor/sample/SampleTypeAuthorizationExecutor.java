@@ -16,9 +16,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample;
 
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.*;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
@@ -65,18 +63,17 @@ public class SampleTypeAuthorizationExecutor implements ISampleTypeAuthorization
     @DatabaseUpdateModification(value = ObjectKind.SAMPLE_TYPE)
     public void canUpdate(IOperationContext context, SampleTypePE entityType)
     {
-        checkSampleType(context.getSession(), entityType);
     }
 
     @Override
     @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN })
     @Capability("DELETE_SAMPLE_TYPE")
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE_TYPE)
-    public void canDelete(IOperationContext context)
+    public void canDelete(IOperationContext context, EntityTypePE entityTypePE)
     {
     }
 
-    private void checkSampleType(Session session, SampleTypePE entityTypePE)
+    private void checkSampleType(Session session, EntityTypePE entityTypePE)
     {
         if(entityTypePE.isManagedInternally() && isSystemUser(session) == false)
         {

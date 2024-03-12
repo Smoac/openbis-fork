@@ -87,7 +87,7 @@ public abstract class AbstractDeleteEntityExecutor<DELETION_ID, ENTITY_ID, ENTIT
                 checkAccess(context, entityId, entity);
             } catch (AuthorizationFailureException ex)
             {
-                throw new UnauthorizedObjectAccessException((IObjectId) entityId);
+                throw new UnauthorizedObjectAccessException((IObjectId) entityId, ex.getMessage());
             }
 
             updateModificationDateAndModifier(context, entity);
