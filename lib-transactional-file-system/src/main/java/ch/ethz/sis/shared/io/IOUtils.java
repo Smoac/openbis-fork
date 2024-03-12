@@ -54,13 +54,13 @@ public class IOUtils {
     // Reusable maps with permissions
     //
 
-    public static final Set<FilePermission> readPermissions = Set.of(FilePermission.Read);
-    public static final Set<FilePermission> writePermissions = Set.of(FilePermission.Write);
-    public static final Set<FilePermission> readWritePermissions = Set.of(FilePermission.Read, FilePermission.Write);
+    public static final Set<FilePermission> readPermissions = EnumSet.of(FilePermission.Read);
+    public static final Set<FilePermission> writePermissions = EnumSet.of(FilePermission.Write);
+    public static final Set<FilePermission> readWritePermissions = EnumSet.of(FilePermission.Read, FilePermission.Write);
 
-    public static final Set<FilePermission> noPermissions = Set.of();
+    public static final Set<FilePermission> noPermissions = EnumSet.noneOf(FilePermission.class);
 
-    private static final FileAttribute<Set<PosixFilePermission>> defaultPosixPermissions = PosixFilePermissions.asFileAttribute(Set.of(
+    private static final FileAttribute<Set<PosixFilePermission>> defaultPosixPermissions = PosixFilePermissions.asFileAttribute(EnumSet.of(
             PosixFilePermission.OWNER_READ,
             PosixFilePermission.OWNER_WRITE,
             PosixFilePermission.OWNER_EXECUTE));
@@ -280,6 +280,18 @@ public class IOUtils {
 
     public static void write(String source, long offset, byte[] data) throws IOException {
         Path sourceAsPath = getPathObject(source);
+        doWrite(source, offset, data, sourceAsPath);
+    }
+
+    public static void append(final String source, final byte[] data) throws IOException
+    {
+        final Path sourceAsPath = getPathObject(source);
+        final long offset = Files.readAttributes(sourceAsPath, BasicFileAttributes.class).size();
+        doWrite(source, offset, data, sourceAsPath);
+    }
+
+    private static void doWrite(final String source, final long offset, final byte[] data, final Path sourceAsPath) throws IOException
+    {
         boolean canModify = hasPermissions(sourceAsPath, writePermissions);
         if (!canModify) {
             throw new IOException("Can't be written: '" + source + "'.");

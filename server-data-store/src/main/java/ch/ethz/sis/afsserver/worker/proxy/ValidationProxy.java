@@ -25,7 +25,7 @@ import lombok.NonNull;
 
 public class ValidationProxy extends AbstractProxy {
 
-    private int maxReadSizeInBytes;
+    private final int maxReadSizeInBytes;
 
     public ValidationProxy(AbstractProxy nextProxy, int maxReadSizeInBytes) {
         super(nextProxy);
@@ -71,9 +71,16 @@ public class ValidationProxy extends AbstractProxy {
     }
 
     @Override
-    public Space free(@NonNull final String owner, @NonNull final String source) throws Exception
+    public @NonNull Space free(@NonNull final String owner, @NonNull final String source) throws Exception
     {
         return nextProxy.free(owner, source);
+    }
+
+    @Override
+    public @NonNull Boolean append(@NonNull final String owner, @NonNull final String source, final byte @NonNull [] data,
+            final byte @NonNull [] md5Hash) throws Exception
+    {
+        return nextProxy.append(owner, source, data, md5Hash);
     }
 
     private void validateReadSize(String source, Integer limit) {

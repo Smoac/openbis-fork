@@ -111,10 +111,18 @@ public class LogProxy extends AbstractProxy {
     }
 
     @Override
-    public Space free(@NonNull final String owner, @NonNull final String source) throws Exception
+    public @NonNull Space free(@NonNull final String owner, @NonNull final String source) throws Exception
     {
         logger.traceAccess(null, owner, source);
         return logger.traceExit(nextProxy.free(owner, source));
+    }
+
+    @Override
+    public @NonNull Boolean append(@NonNull final String owner, @NonNull final String source, final byte @NonNull [] data,
+            final byte @NonNull [] md5Hash) throws Exception
+    {
+        logger.traceAccess(null, owner, source);
+        return logger.traceExit(nextProxy.append(owner, source, data, md5Hash));
     }
 
 }

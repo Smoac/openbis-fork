@@ -121,4 +121,11 @@ public class ExecutorProxy extends AbstractProxy {
         return new Space(space.getTotal(), space.getFree());
     }
 
+    @Override
+    public @NonNull Boolean append(@NonNull final String owner, @NonNull final String source, final byte @NonNull [] data,
+            final byte @NonNull [] md5Hash) throws Exception
+    {
+        return workerContext.getConnection().append(source, data, md5Hash);
+    }
+
 }

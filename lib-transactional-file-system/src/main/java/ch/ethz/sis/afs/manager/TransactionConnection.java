@@ -29,6 +29,7 @@ import ch.ethz.sis.afs.api.TransactionalFileSystem;
 import ch.ethz.sis.afs.api.dto.File;
 import ch.ethz.sis.afs.api.dto.Space;
 import ch.ethz.sis.afs.dto.Transaction;
+import ch.ethz.sis.afs.dto.operation.AppendOperation;
 import ch.ethz.sis.afs.dto.operation.CopyOperation;
 import ch.ethz.sis.afs.dto.operation.CreateOperation;
 import ch.ethz.sis.afs.dto.operation.DeleteOperation;
@@ -291,6 +292,19 @@ public class TransactionConnection implements TransactionalFileSystem {
         return prepared;
     }
 
+    @Override
+    public boolean append(final String source, final byte[] data, final byte[] md5Hash) throws Exception
+    {
+        final String safeSource = getSafePath(OperationName.Append, source);
+        final AppendOperation operation = new AppendOperation(transaction.getUuid(), safeSource, data, md5Hash);
+        final boolean prepared = prepare(operation, safeSource, null);
+        if (prepared)
+        {
+            written.add(safeSource);
+        }
+        return prepared;
+    }
+
     private final Set<String> deleted = new HashSet<>();
 
     @Override
@@ -364,14 +378,28 @@ public class TransactionConnection implements TransactionalFileSystem {
         boolean prepared = false;
         try {
             locksObtained = lockManager.add(operation.getLocks());
+            final OperationName operationName = operation.getName();
             if (locksObtained) {
-                prepared = operationExecutors.get(operation.getName()).prepare(transaction, operation);
+                prepared = operationExecutors.get(operationName).prepare(transaction, operation);
             }
             if (prepared) {
-                if (operation.getName() == OperationName.Write) {
-                    transaction.getOperations().add(((WriteOperation) operation).toBuilder().data(null).md5Hash(null).build());
-                } else {
-                    transaction.getOperations().add(operation);
+                switch (operationName)
+                {
+                    case Write:
+                    {
+                        transaction.getOperations().add(((WriteOperation) operation).toBuilder().data(null).md5Hash(null).build());
+                        break;
+                    }
+                    case Append:
+                    {
+                        transaction.getOperations().add(((AppendOperation) operation).toBuilder().data(null).md5Hash(null).build());
+                        break;
+                    }
+                    default:
+                    {
+                        transaction.getOperations().add(operation);
+                        break;
+                    }
                 }
             }
         } catch (Exception ex) {

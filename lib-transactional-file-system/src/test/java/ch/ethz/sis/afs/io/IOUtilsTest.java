@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.List;
 
 import static ch.ethz.sis.shared.io.IOUtils.NEW_FILE_SIZE;
+import static ch.ethz.sis.shared.io.IOUtils.append;
 import static ch.ethz.sis.shared.io.IOUtils.copy;
 import static ch.ethz.sis.shared.io.IOUtils.copyFile;
 import static ch.ethz.sis.shared.io.IOUtils.createDirectories;
@@ -341,6 +342,29 @@ public class IOUtilsTest extends AbstractTest {
         String toCreateFileA = getPath(baseDir, FILE_A);
         write_fromStart_success();
         read(toCreateFileA, 0, 5);
+    }
+
+    @Test
+    public void append_fromStart_success() throws IOException
+    {
+        final String toCreateFileA = getPath(baseDir, FILE_A);
+        createFile(toCreateFileA);
+
+        append(toCreateFileA, DATA_BYTES);
+        final byte[] dataRead = read(toCreateFileA, 0, DATA_BYTES.length);
+        assertArrayEquals(DATA_BYTES, dataRead);
+        assertEquals(DATA_BYTES.length, (long) getFile(toCreateFileA).getSize());
+    }
+
+    @Test
+    public void append_success() throws IOException
+    {
+        append_fromStart_success();
+
+        final String toCreateFileA = getPath(baseDir, FILE_A);
+
+        append(toCreateFileA, DATA_BYTES);
+        assertEquals(DATA_BYTES.length * 2, (long) getFile(toCreateFileA).getSize());
     }
 
     @Test

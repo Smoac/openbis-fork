@@ -39,6 +39,9 @@ public interface OperationsAPI
             @NonNull byte[] data, @NonNull byte[] md5Hash) throws Exception;
 
     @NonNull
+    Boolean append(@NonNull String owner, @NonNull String source, byte @NonNull [] data, byte @NonNull [] md5Hash) throws Exception;
+
+    @NonNull
     Boolean delete(@NonNull String owner, @NonNull String source) throws Exception;
 
     @NonNull
