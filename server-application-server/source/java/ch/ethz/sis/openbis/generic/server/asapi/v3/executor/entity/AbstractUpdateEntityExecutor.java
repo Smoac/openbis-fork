@@ -138,7 +138,7 @@ public abstract class AbstractUpdateEntityExecutor<UPDATE extends IUpdate, PE ex
                         checkAccess(context, id, entity);
                     } catch (AuthorizationFailureException ex)
                     {
-                        throw new UnauthorizedObjectAccessException(id);
+                        throw new UnauthorizedObjectAccessException(id, ex.getMessage());
                     }
                 }
 
