@@ -1,0 +1,5 @@
+apply from: '../build/javaproject.gradle'
+
+dependencies {
+    testImplementation project(':server-application-server'), project(path : ':server-application-server', configuration: 'tests')
+}

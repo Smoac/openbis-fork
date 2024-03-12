@@ -1,0 +1,9 @@
+.gradle/
+.idea/
+build/
+targets/
+etc/full-text-search-document-version
+*.iml
+*.eml
+.shredder
+.dynamic_property_evaluator_queue
