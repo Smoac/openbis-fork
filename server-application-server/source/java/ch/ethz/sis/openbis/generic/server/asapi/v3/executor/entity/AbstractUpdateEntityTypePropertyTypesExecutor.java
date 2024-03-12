@@ -157,21 +157,21 @@ public abstract class AbstractUpdateEntityTypePropertyTypesExecutor<UPDATE exten
     {
         for (ListUpdateAction<Object> updateAction : updates.getActions())
         {
-            // Remove action
+            // Remove assignment action
             if (updateAction instanceof ListUpdateActionRemove<?>)
             {
-                Map<IPropertyAssignmentId, PropertyTypePE> assignments = new HashMap<>();
+                Map<IPropertyAssignmentId, EntityTypePropertyTypePE> assignments = new HashMap<>();
                 for(EntityTypePropertyTypePE etptPE : typePE.getEntityTypePropertyTypes())
                 {
                     EntityTypePermId entityTypePermId = new EntityTypePermId(typePE.getPermId(), EntityKindConverter.convert(typePE.getEntityKind()));
                     PropertyTypePermId propertyTypePermId = new PropertyTypePermId(etptPE.getPropertyType().getPermId());
                     PropertyAssignmentPermId pa = new PropertyAssignmentPermId(entityTypePermId, propertyTypePermId);
-                    assignments.put(pa, etptPE.getPropertyType());
+                    assignments.put(pa, etptPE);
                 }
                 Collection<IPropertyAssignmentId> items = (Collection<IPropertyAssignmentId>) updateAction.getItems();
                 for(IPropertyAssignmentId item : items) {
-                    PropertyTypePE propertyTypePE = assignments.getOrDefault(item, null);
-                    if(propertyTypePE != null && propertyTypePE.isManagedInternally() && propertyTypePE.getRegistrator().isSystemUser())
+                    EntityTypePropertyTypePE etptPE = assignments.getOrDefault(item, null);
+                    if(etptPE != null && etptPE.getRegistrator().isSystemUser() && etptPE.getPropertyType().isManagedInternally())
                     {
                         throw new UserFailureException("Only system user can delete initial internal property assignments from internal entity types");
                     }
@@ -201,7 +201,7 @@ public abstract class AbstractUpdateEntityTypePropertyTypesExecutor<UPDATE exten
                             throw new UserFailureException("Only system user can make properties scriptable for internal entity types! Property:" + creation.getPropertyTypeId());
                         }
                     } else {
-                        // add new property type
+                        // add new property assignment
                         if(creation.isMandatory()) {
                             throw new UserFailureException("Only system user can make properties mandatory for internal entity types! Property:" + creation.getPropertyTypeId());
                         }
@@ -211,7 +211,7 @@ public abstract class AbstractUpdateEntityTypePropertyTypesExecutor<UPDATE exten
                     }
                 }
             } else if(updateAction instanceof ListUpdateActionAdd<?>) {
-                // add action
+                // add new property assignment action
                 Collection<PropertyAssignmentCreation> items = (Collection<PropertyAssignmentCreation>) updateAction.getItems();
                 for(PropertyAssignmentCreation creation : items)
                 {
