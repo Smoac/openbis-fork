@@ -86,6 +86,7 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.log4j.Logger;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.jsoup.Jsoup;
+import org.jsoup.helper.W3CDom;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -1126,12 +1127,30 @@ public class ExportExecutor implements IExportExecutor
                 {
                     return ExportPDFUtils.class.getResourceAsStream("OpenSans-Regular.ttf");
                 }
-            }, "Open Sans");
-            String replacedHtml = html.replaceAll(XML_10_REGEXP, "").replaceAll(UNPRINTABLE_CHARACTER_REFERENCES_REGEXP, "");
-            replacedHtml = ExportPDFUtils.addStyleHeader(replacedHtml);
+            }, "OpenSans");
+            builder.useFont(new FSSupplier<InputStream>()
+            {
+                @Override
+                public InputStream supply()
+                {
+                    return ExportPDFUtils.class.getResourceAsStream("NotoSansMath-Regular.ttf");
+                }
+            }, "NotoSansMath");
+            builder.useFont(new FSSupplier<InputStream>()
+            {
+                @Override
+                public InputStream supply()
+                {
+                    return ExportPDFUtils.class.getResourceAsStream("NotoEmoji-Regular.ttf");
+                }
+            }, "NotoEmoji");
+
+            //String replacedHtml = html.replaceAll(XML_10_REGEXP, "").replaceAll(UNPRINTABLE_CHARACTER_REFERENCES_REGEXP, "");
+            String replacedHtml = ExportPDFUtils.addStyleHeader(html);
             replacedHtml = ExportPDFUtils.replaceHSLToHex(replacedHtml, "color", ExportPDFUtils.hslColorPattern);
             replacedHtml = ExportPDFUtils.insertPagePagebreak(replacedHtml, "<h2>Identification Info</h2>");
-            builder.useFastMode().withHtmlContent(replacedHtml, null).toStream(bos).run();
+            Document replacedHtmlDoc = Jsoup.parse(replacedHtml);
+            builder.useFastMode().withW3cDocument(new W3CDom().fromJsoup(replacedHtmlDoc), null).toStream(bos).run();
         }
     }
 
