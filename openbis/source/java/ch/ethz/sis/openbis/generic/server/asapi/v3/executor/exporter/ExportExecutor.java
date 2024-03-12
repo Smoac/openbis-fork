@@ -410,8 +410,9 @@ public class ExportExecutor implements IExportExecutor
         } else
         {
             final Path filePath = file.toPath();
+            final String[] nameAndExtension = splitFileName(filePath.getFileName().toString());
             final Path targetFilePath = Files.move(filePath, Path.of(sessionWorkspaceDirectory.getPath(),
-                            String.format("%s.%s", removeExtension(filePath.getFileName().toString()), timestamp)),
+                            String.format("%s.%s%s", nameAndExtension[0], timestamp, nameAndExtension[1])),
                     StandardCopyOption.REPLACE_EXISTING);
             final String fileName = targetFilePath.getFileName().toString();
 
@@ -423,16 +424,16 @@ public class ExportExecutor implements IExportExecutor
         return exportResult;
     }
 
-    private static String removeExtension(final String fileName)
+    private static String[] splitFileName(final String fileName)
     {
         final int extensionIndex = fileName.lastIndexOf(".");
         if (extensionIndex < 0)
         {
             // No extension found.
-            return fileName;
+            return new String[] {fileName, ""};
         }
 
-        return fileName.substring(0, extensionIndex);
+        return new String[] {fileName.substring(0, extensionIndex), fileName.substring(extensionIndex)};
     }
 
     private String getDownloadPath(final String sessionToken, final String fileName)
