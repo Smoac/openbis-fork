@@ -16,8 +16,8 @@
 package ch.ethz.sis.openbis.systemtests;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
-import org.apache.log4j.Level;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
@@ -33,45 +33,44 @@ import org.springframework.web.servlet.DispatcherServlet;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
-import org.testng.annotations.BeforeTest;
 
-import ch.systemsx.cisd.common.logging.BufferedAppender;
+import ch.ethz.sis.afsserver.server.observer.impl.DummyServerObserver;
+import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
+import ch.ethz.sis.shared.startup.Configuration;
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
-import ch.systemsx.cisd.openbis.util.LogRecordingUtils;
 
 /**
  * @author pkupczyk
  */
 public abstract class AbstractIntegrationTest
 {
-    protected static GenericWebApplicationContext applicationContext;
+    protected static GenericWebApplicationContext applicationServerSpringContext;
 
-    protected BufferedAppender logAppender;
-
-    @BeforeMethod
-    public void beforeTest(Method method)
-    {
-        System.out.println("BEFORE " + render(method));
-        getLogAppender().resetLogContent();
-    }
-
-    @AfterMethod
-    public void afterTest(Method method)
-    {
-        System.out.println("AFTER  " + render(method));
-    }
-
-    private String render(Method method)
-    {
-        return method.getDeclaringClass().getName() + "." + method.getName();
-    }
+    protected static TestLogger logger = new TestLogger();
 
     @BeforeSuite
     public void beforeSuite() throws Exception
     {
         TestInitializer.initWithIndex();
+        startApplicationServer();
+        startAfsServer();
+    }
 
+    @BeforeMethod
+    public void beforeTest(Method method)
+    {
+        logger.log("BEFORE " + method.getDeclaringClass().getName() + "." + method.getName());
+    }
+
+    @AfterMethod
+    public void afterTest(Method method)
+    {
+        logger.log("AFTER  " + method.getDeclaringClass().getName() + "." + method.getName());
+    }
+
+    private void startApplicationServer() throws Exception
+    {
         Server server = new Server();
         HttpConfiguration httpConfig = new HttpConfiguration();
         ServerConnector connector =
@@ -85,33 +84,27 @@ public abstract class AbstractIntegrationTest
             @Override
             protected WebApplicationContext findWebApplicationContext()
             {
-                XmlBeanFactory f =
+                XmlBeanFactory beanFactory =
                         new XmlBeanFactory(new FileSystemResource("../server-application-server/resource/server/spring-servlet.xml"));
-                applicationContext = new GenericWebApplicationContext(f);
-                applicationContext.setParent(new ClassPathXmlApplicationContext("classpath:applicationContext.xml"));
-                applicationContext.refresh();
-                return applicationContext;
+                applicationServerSpringContext = new GenericWebApplicationContext(beanFactory);
+                applicationServerSpringContext.setParent(new ClassPathXmlApplicationContext("classpath:applicationContext.xml"));
+                applicationServerSpringContext.refresh();
+                return applicationServerSpringContext;
             }
         };
-        ServletContextHandler sch =
+        ServletContextHandler servletContext =
                 new ServletContextHandler(server, "/", ServletContextHandler.SESSIONS);
-        sch.addServlet(new ServletHolder(dispatcherServlet), "/*");
+        servletContext.addServlet(new ServletHolder(dispatcherServlet), "/*");
         server.start();
     }
 
-    @BeforeTest
-    public void setUpLogAppender()
+    private void startAfsServer() throws Exception
     {
-        logAppender = LogRecordingUtils.createRecorder();
-    }
-
-    private BufferedAppender getLogAppender()
-    {
-        if (logAppender == null)
-        {
-            logAppender = LogRecordingUtils.createRecorder("%d %p [%t] %c - %m%n", Level.INFO);
-        }
-        return logAppender;
+        Configuration configuration = new Configuration(List.of(AtomicFileSystemServerParameter.class),
+                "../server-data-store/src/main/resources/server-data-store-config.properties");
+        configuration.setProperty(AtomicFileSystemServerParameter.logConfigFile, "etc/log4j2.xml");
+        DummyServerObserver dummyServerObserver = new DummyServerObserver();
+        new ch.ethz.sis.afsserver.server.Server<>(configuration, dummyServerObserver, dummyServerObserver);
     }
 
 }

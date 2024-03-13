@@ -61,6 +61,9 @@ public class TestInstanceHostUtils
         } else if (projectName.equals("openbis_oai_pmh"))
         {
             return 40;
+        } else if (projectName.equals("test-integration"))
+        {
+            return 50;
         }
 
         return 80;
