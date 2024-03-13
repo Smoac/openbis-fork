@@ -20,7 +20,7 @@ import { withStyles } from '@material-ui/core/styles'
 import autoBind from 'auto-bind'
 import LeftToolbar from '@src/js/components/database/data-browser/LeftToolbar.jsx'
 import RightToolbar from '@src/js/components/database/data-browser/RightToolbar.jsx'
-import logger from "@src/js/common/logger.js";
+import logger from '@src/js/common/logger.js'
 
 const buttonSize = 'small'
 
@@ -42,9 +42,12 @@ class Toolbar extends React.Component {
     this.controller = this.props.controller
   }
 
-  handleUploadFiles() {}
+  handleUploadFiles(event) {
+    // TODO: perform upload here.
+    //event.target.files[0]
+  }
 
-  handleUploadFolders() {}
+  handleUploadFolders(event) {}
 
   render() {
     logger.log(logger.DEBUG, 'Toolbar.render')

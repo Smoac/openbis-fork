@@ -34,6 +34,7 @@ class UploadButton extends React.Component {
     autoBind(this)
 
     // Using the callback ref approach to ensure we have access to the input element
+    // This is needed because 'webkitdirectory' and 'directory' are not considered acceptable HTML attributes by React.
     this.fileInputRef = React.createRef();
   }
 
