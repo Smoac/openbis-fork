@@ -31,8 +31,6 @@ public interface OperationsAPI {
 
     boolean write(@NonNull String source, @NonNull long offset, @NonNull byte[] data, @NonNull byte[] md5Hash) throws Exception;
 
-    boolean append(@NonNull String source, @NonNull byte[] data, @NonNull byte[] md5Hash) throws Exception;
-
     boolean delete(@NonNull String source) throws Exception;
 
     boolean copy(@NonNull String source, @NonNull String target) throws Exception;

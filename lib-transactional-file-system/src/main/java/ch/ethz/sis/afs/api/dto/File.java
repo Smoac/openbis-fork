@@ -15,13 +15,13 @@
  */
 package ch.ethz.sis.afs.api.dto;
 
+import java.time.OffsetDateTime;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
-
-import java.time.OffsetDateTime;
 
 @Value
 @Builder(toBuilder = true)
@@ -38,6 +38,9 @@ public class File
     @EqualsAndHashCode.Exclude
     private OffsetDateTime lastAccessTime;
 
+    @EqualsAndHashCode.Exclude
     private Long totalSpace;
+
+    @EqualsAndHashCode.Exclude
     private Long freeSpace;
 }

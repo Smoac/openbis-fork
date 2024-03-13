@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -29,7 +30,6 @@ import ch.ethz.sis.afs.api.TransactionalFileSystem;
 import ch.ethz.sis.afs.api.dto.File;
 import ch.ethz.sis.afs.api.dto.Space;
 import ch.ethz.sis.afs.dto.Transaction;
-import ch.ethz.sis.afs.dto.operation.AppendOperation;
 import ch.ethz.sis.afs.dto.operation.CopyOperation;
 import ch.ethz.sis.afs.dto.operation.CreateOperation;
 import ch.ethz.sis.afs.dto.operation.DeleteOperation;
@@ -284,23 +284,11 @@ public class TransactionConnection implements TransactionalFileSystem {
     @Override
     public boolean write(String source, long offset, byte[] data, byte[] md5Hash) throws Exception {
         source = getSafePath(OperationName.Write, source);
-        WriteOperation operation = new WriteOperation(transaction.getUuid(), source, offset, data, md5Hash);
+        String tempSource = OperationExecutor.getTempPath(transaction, source) + "." + UUID.randomUUID();
+        WriteOperation operation = new WriteOperation(transaction.getUuid(), source, tempSource, offset, data, md5Hash);
         boolean prepared = prepare(operation, source, null);
         if (prepared) {
             written.add(source);
-        }
-        return prepared;
-    }
-
-    @Override
-    public boolean append(final String source, final byte[] data, final byte[] md5Hash) throws Exception
-    {
-        final String safeSource = getSafePath(OperationName.Append, source);
-        final AppendOperation operation = new AppendOperation(transaction.getUuid(), safeSource, data, md5Hash);
-        final boolean prepared = prepare(operation, safeSource, null);
-        if (prepared)
-        {
-            written.add(safeSource);
         }
         return prepared;
     }
@@ -383,23 +371,12 @@ public class TransactionConnection implements TransactionalFileSystem {
                 prepared = operationExecutors.get(operationName).prepare(transaction, operation);
             }
             if (prepared) {
-                switch (operationName)
+                if (Objects.requireNonNull(operationName) == OperationName.Write)
                 {
-                    case Write:
-                    {
-                        transaction.getOperations().add(((WriteOperation) operation).toBuilder().data(null).md5Hash(null).build());
-                        break;
-                    }
-                    case Append:
-                    {
-                        transaction.getOperations().add(((AppendOperation) operation).toBuilder().data(null).md5Hash(null).build());
-                        break;
-                    }
-                    default:
-                    {
-                        transaction.getOperations().add(operation);
-                        break;
-                    }
+                    transaction.getOperations().add(((WriteOperation) operation).toBuilder().data(null).md5Hash(null).build());
+                } else
+                {
+                    transaction.getOperations().add(operation);
                 }
             }
         } catch (Exception ex) {

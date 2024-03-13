@@ -15,14 +15,19 @@
  */
 package ch.ethz.sis.afs.manager.operation;
 
-import ch.ethz.sis.shared.io.IOUtils;
+import static ch.ethz.sis.afs.exception.AFSExceptions.MD5NotMatch;
+import static ch.ethz.sis.afs.exception.AFSExceptions.PathIsDirectory;
+
+import java.util.Arrays;
+
+import ch.ethz.sis.afs.api.dto.File;
 import ch.ethz.sis.afs.dto.Transaction;
+import ch.ethz.sis.afs.dto.operation.OperationName;
 import ch.ethz.sis.afs.dto.operation.WriteOperation;
-import lombok.NonNull;
+import ch.ethz.sis.afs.exception.AFSExceptions;
+import ch.ethz.sis.shared.io.IOUtils;
 
-import java.io.IOException;
-
-public class WriteOperationExecutor extends AbstractModificationOperationExecutor<WriteOperation> {
+public class WriteOperationExecutor implements OperationExecutor<WriteOperation> {
 
     //
     // Singleton
@@ -34,7 +39,7 @@ public class WriteOperationExecutor extends AbstractModificationOperationExecuto
         instance = new WriteOperationExecutor();
     }
 
-    protected WriteOperationExecutor() {
+    private WriteOperationExecutor() {
     }
 
     public static WriteOperationExecutor getInstance() {
@@ -47,19 +52,44 @@ public class WriteOperationExecutor extends AbstractModificationOperationExecuto
 
 
     @Override
-    public boolean prepare(@NonNull final Transaction transaction, @NonNull final WriteOperation operation) throws Exception {
-        prepare(transaction, operation, operation.getSource(), operation.getData(), operation.getMd5Hash());
+    public boolean prepare(Transaction transaction, WriteOperation operation) throws Exception {
+        // 1. Check that if the file exists, is not a directory
+        boolean sourceExists = IOUtils.exists(operation.getSource());
+        if (sourceExists) {
+            File existingFile = IOUtils.getFile(operation.getSource());
+            if (existingFile.getDirectory()) {
+                AFSExceptions.throwInstance(PathIsDirectory, OperationName.Write.name(), operation.getSource());
+            }
+        }
+
+        // 1. Validate new data
+        byte[] md5Hash = IOUtils.getMD5(operation.getData());
+        if (!Arrays.equals(md5Hash, operation.getMd5Hash())) {
+            AFSExceptions.throwInstance(MD5NotMatch, OperationName.Write.name(), operation.getSource());
+        }
+        // 2. Create temporary file if it has not been created already
+        boolean tempSourceExists = IOUtils.exists(operation.getTempSource());
+        if (!tempSourceExists) {
+            IOUtils.createDirectories(IOUtils.getParentPath(operation.getTempSource()));
+            IOUtils.createFile(operation.getTempSource());
+        }
+
+        // 3. Flush bytes
+        IOUtils.write(operation.getTempSource(), 0, operation.getData());
         return true;
     }
 
-    protected void doWrite(final WriteOperation operation, final String tempFilePath) throws IOException
-    {
-        IOUtils.write(tempFilePath, operation.getOffset(), operation.getData());
-    }
-
     @Override
-    public boolean commit(final @NonNull Transaction transaction, final WriteOperation operation) throws Exception {
-        return super.commit(transaction, operation.getSource());
+    public boolean commit(Transaction transaction, WriteOperation operation) throws Exception {
+        if (!IOUtils.exists(operation.getSource())) {
+            IOUtils.createDirectories(IOUtils.getParentPath(operation.getSource()));
+            IOUtils.createFile(operation.getSource());
+        }
+        if (IOUtils.exists(operation.getTempSource())) { // Only copies if has not been done already
+            byte[] data = IOUtils.readFully(operation.getTempSource());
+            IOUtils.write(operation.getSource(), operation.getOffset(), data);
+            IOUtils.delete(operation.getTempSource());
+        }
+        return true;
     }
-
 }

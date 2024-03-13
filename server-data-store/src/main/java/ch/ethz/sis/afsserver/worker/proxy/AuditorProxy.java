@@ -131,14 +131,6 @@ public class AuditorProxy extends AbstractProxy {
         return auditAfter(nextProxy.free(owner, source));
     }
 
-    @Override
-    public @NonNull Boolean append(@NonNull final String owner, @NonNull final String source, final byte @NonNull [] data,
-            final byte @NonNull [] md5Hash) throws Exception
-    {
-        auditBefore();
-        return auditAfter(nextProxy.append(owner, source, data, md5Hash));
-    }
-
     private void auditBefore() {
         Class clazz = nextProxy.getClass();
         Event event = null;

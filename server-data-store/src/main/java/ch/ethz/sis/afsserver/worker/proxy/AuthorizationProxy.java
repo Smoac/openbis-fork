@@ -100,12 +100,4 @@ public class AuthorizationProxy extends AbstractProxy {
         return nextProxy.free(owner, source);
     }
 
-    @Override
-    public @NonNull Boolean append(@NonNull final String owner, @NonNull final String source, final byte @NonNull [] data,
-            final byte @NonNull [] md5Hash) throws Exception
-    {
-        validateUserRights(owner, source, IOUtils.writePermissions, OperationName.Append);
-        return nextProxy.append(owner, source, data, md5Hash);
-    }
-
 }

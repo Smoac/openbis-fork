@@ -76,13 +76,6 @@ public class ValidationProxy extends AbstractProxy {
         return nextProxy.free(owner, source);
     }
 
-    @Override
-    public @NonNull Boolean append(@NonNull final String owner, @NonNull final String source, final byte @NonNull [] data,
-            final byte @NonNull [] md5Hash) throws Exception
-    {
-        return nextProxy.append(owner, source, data, md5Hash);
-    }
-
     private void validateReadSize(String source, Integer limit) {
         if (limit > maxReadSizeInBytes) {
             throw FSExceptions.MAX_READ_SIZE_EXCEEDED.getInstance(workerContext.getSessionToken(), limit, source, maxReadSizeInBytes);

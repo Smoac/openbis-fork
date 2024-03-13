@@ -153,14 +153,6 @@ public class AuthenticationProxy extends AbstractProxy {
         return nextProxy.free(owner, source);
     }
 
-    @Override
-    public @NonNull Boolean append(@NonNull final String owner, @NonNull final String source, final byte @NonNull [] data,
-            final byte @NonNull [] md5Hash) throws Exception
-    {
-        validateSessionAvailable();
-        return nextProxy.append(owner, source, data, md5Hash);
-    }
-
     //
     //
     //

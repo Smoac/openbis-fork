@@ -15,12 +15,16 @@
  */
 package ch.ethz.sis.afs.manager.operation;
 
-import ch.ethz.sis.afs.api.dto.File;
-import ch.ethz.sis.shared.io.IOUtils;
-import org.junit.Test;
-
 import static ch.ethz.sis.shared.io.IOUtils.getMD5;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Arrays;
+
+import org.junit.Test;
+
+import ch.ethz.sis.afs.api.dto.File;
+import ch.ethz.sis.shared.io.IOUtils;
 
 public class WriteTransactionOperationTest extends AbstractTransactionOperationTest {
 
@@ -64,6 +68,10 @@ public class WriteTransactionOperationTest extends AbstractTransactionOperationT
         commit();
         File afterCommit = IOUtils.getFile(realPath);
         assertEquals(DATA.length * 2, (long) afterCommit.getSize());
+
+        final byte[] data = IOUtils.readFully(realPath);
+        assertTrue(Arrays.equals(data, 0, DATA.length, DATA, 0, DATA.length));
+        assertTrue(Arrays.equals(data, DATA.length, 2 * DATA.length, DATA, 0, DATA.length));
     }
 
 
