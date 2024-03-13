@@ -7,16 +7,16 @@ var JExcelEditorManager = new function() {
         return function(el, record, x, y, value) {
             var jExcelEditor = _this.jExcelEditors[guid];
             if(jExcelEditor) {
-                if(value) {
-                    // Change column width
-                    var columnWidth = parseInt(jExcelEditor.getWidth(x));
-                    var td = el.children[1].children[0].children[2].children[y].children[parseInt(x)+1];
-                    var columnScrollWidth = td.scrollWidth;
-
-                    if(columnScrollWidth > columnWidth) {
-                        jExcelEditor.setWidth(x, columnScrollWidth + 10);
-                    }
-                }
+//                if(value) {
+//                    // Change column width
+//                    var columnWidth = parseInt(jExcelEditor.getWidth(x));
+//                    var td = el.children[1].children[0].children[2].children[y].children[parseInt(x)+1];
+//                    var columnScrollWidth = td.scrollWidth;
+//
+//                    if(columnScrollWidth > columnWidth) {
+//                        jExcelEditor.setWidth(x, columnScrollWidth + 10);
+//                    }
+//                }
                 // Save Editor
                 var headers = jExcelEditor.getHeaders(true);
                 var data = jExcelEditor.getData();
@@ -30,7 +30,7 @@ var JExcelEditorManager = new function() {
                     meta : meta,
                     width : width
                 }
-                entity.properties[propertyCode] = "<DATA>" + window.btoa(JSON.stringify(jExcelEditorValue)) + "</DATA>";
+                entity.properties[propertyCode] = "<DATA>" + window.btoa(window.unescape(window.encodeURIComponent(JSON.stringify(jExcelEditorValue)))) + "</DATA>";
             }
         }
     }
@@ -131,7 +131,7 @@ var JExcelEditorManager = new function() {
 	        var jExcelEditorValue = null;
 	        if(jExcelEditorValueAsStringWithTags) {
 	            var jExcelEditorValueAsStringNoTags = jExcelEditorValueAsStringWithTags.substring(6, jExcelEditorValueAsStringWithTags.length - 7);
-                jExcelEditorValue = JSON.parse(window.atob(jExcelEditorValueAsStringNoTags));
+                jExcelEditorValue = JSON.parse(window.decodeURIComponent(window.escape(window.atob(jExcelEditorValueAsStringNoTags))));
 	        }
 	        if(jExcelEditorValue) {
 	            headers = jExcelEditorValue.headers;
@@ -149,7 +149,7 @@ var JExcelEditorManager = new function() {
                     style: style,
                     meta: meta,
                     editable : mode !== FormMode.VIEW,
-                    minDimensions:[30, 30],
+                    minDimensions:[10, 10],
                     toolbar: null,
                     onchangeheader: null,
                     onchange: null,
