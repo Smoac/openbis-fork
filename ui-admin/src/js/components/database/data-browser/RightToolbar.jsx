@@ -33,7 +33,7 @@ import autoBind from 'auto-bind'
 import UploadButton from '@src/js/components/database/data-browser/UploadButton.jsx'
 import FileIcon from '@material-ui/icons/InsertDriveFileOutlined'
 import FolderIcon from '@material-ui/icons/FolderOpen'
-import logger from "@src/js/common/logger.js";
+import logger from '@src/js/common/logger.js'
 
 const color = 'default'
 const uploadButtonsColor = 'secondary'
@@ -105,6 +105,7 @@ class RightToolbar extends React.Component {
           size={buttonSize}
           variant='contained'
           startIcon={<FileIcon />}
+          folderSelector={false}
           onClick={this.handleUploadFiles}
         >
           {messages.get(messages.FILE_UPLOAD)}
@@ -115,6 +116,7 @@ class RightToolbar extends React.Component {
           size={buttonSize}
           variant='contained'
           startIcon={<FolderIcon />}
+          folderSelector={true}
           onClick={this.handleUploadFolders}
         >
           {messages.get(messages.FOLDER_UPLOAD)}

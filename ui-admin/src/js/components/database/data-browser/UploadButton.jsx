@@ -15,9 +15,10 @@
  *
  */
 
-import React, { useRef } from "react";
-import { withStyles } from "@material-ui/core/styles";
-import Button from "@material-ui/core/Button";
+import React from 'react'
+import { withStyles } from '@material-ui/core/styles'
+import Button from '@material-ui/core/Button'
+import autoBind from 'auto-bind'
 
 const styles = () => ({
   invisible: {
@@ -27,16 +28,51 @@ const styles = () => ({
 
 class UploadButton extends React.Component {
 
+  constructor(props) {
+    super(props);
+
+    autoBind(this)
+
+    // Using the callback ref approach to ensure we have access to the input element
+    this.fileInputRef = React.createRef();
+  }
+
+  componentDidMount() {
+    this.updateDirectoryAttributes();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.folderSelector !== prevProps.folderSelector) {
+      this.updateDirectoryAttributes();
+    }
+  }
+
+  updateDirectoryAttributes() {
+    const { folderSelector } = this.props;
+    const input = this.fileInputRef.current;
+    if (input) {
+      if (folderSelector) {
+        // If folderSelector is true, add the attributes
+        input.setAttribute('webkitdirectory', '');
+        input.setAttribute('directory', '');
+      } else {
+        // If folderSelector is false, remove the attributes
+        input.removeAttribute('webkitdirectory');
+        input.removeAttribute('directory');
+      }
+    }
+  };
+
   render () {
-    const { children, classes, size, variant, color, onClick, startIcon } = this.props;
-    const fileInputRef = React.createRef();
+    const { children, classes, size, variant, color, onClick,
+      startIcon } = this.props;
 
     return (
       <>
         {/* Hidden file input */}
         <input
           type="file"
-          ref={fileInputRef}
+          ref={this.fileInputRef}
           className={classes.invisible}
           onChange={onClick}
         />
@@ -48,7 +84,7 @@ class UploadButton extends React.Component {
           size={size}
           variant={variant}
           startIcon={startIcon}
-          onClick={() => fileInputRef.current.click()}
+          onClick={() => this.fileInputRef.current && this.fileInputRef.current.click()}
         >
           {children}
         </Button>
