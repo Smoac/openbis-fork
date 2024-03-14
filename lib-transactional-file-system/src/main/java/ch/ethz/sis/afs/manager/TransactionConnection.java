@@ -26,6 +26,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.logging.log4j.util.Strings;
+
 import ch.ethz.sis.afs.api.TransactionalFileSystem;
 import ch.ethz.sis.afs.api.dto.File;
 import ch.ethz.sis.afs.api.dto.Space;
@@ -351,12 +353,17 @@ public class TransactionConnection implements TransactionalFileSystem {
     }
 
     @Override
-    public Space free(@NonNull final String source) throws Exception
+    public Space free(@NonNull String source) throws Exception
     {
-        final String safeSource = getSafePath(OperationName.List, source);
-        validateOperationAndPaths(OperationName.Free, safeSource, null);
-        validateWritten(OperationName.Free, safeSource);
-        final File file = IOUtils.getFile(safeSource);
+        source = getSafePath(OperationName.Free, source);
+        validateOperationAndPaths(OperationName.Free, source, null);
+        validateWritten(OperationName.Free, source);
+        String safeExistingSource = source;
+        while (Strings.isNotEmpty(safeExistingSource) && !IOUtils.exists(safeExistingSource))
+        {
+            safeExistingSource = IOUtils.getParentPath(safeExistingSource);
+        }
+        final File file = IOUtils.getFile(safeExistingSource);
         return new Space(file.getTotalSpace(), file.getFreeSpace());
     }
 
