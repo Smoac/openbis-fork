@@ -7,9 +7,3 @@ dependencies {
             project(path: ':server-application-server', configuration: 'tests'),
             project(':server-data-store')
 }
-
-test {
-    // log4j1.xml is used by the application server (config location is taken from system property below)
-    // log4j2.xml is used by the afs server (config location taken from afs server configuration)
-    jvmArgs += ['-Dlog4j.configuration=etc/log4j1.xml', '-Dlog4j.configurationFile=etc/log4j1.xml']
-}

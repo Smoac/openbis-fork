@@ -42,10 +42,10 @@ import org.testng.annotations.BeforeSuite;
 import ch.ethz.sis.afs.manager.TransactionConnection;
 import ch.ethz.sis.afsserver.server.observer.impl.DummyServerObserver;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
+import ch.ethz.sis.openbis.generic.OpenBIS;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.TransactionConfiguration;
 import ch.ethz.sis.shared.startup.Configuration;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
 
 /**
@@ -57,18 +57,20 @@ public abstract class AbstractIntegrationTest
 
     public static final String TEST_INTERACTIVE_SESSION_KEY = "integration-test-interactive-session-key";
 
+    public static final String USER = "test";
+
+    public static final String PASSWORD = "password";
+
     private static Server applicationServer;
 
     private static ch.ethz.sis.afsserver.server.Server<TransactionConnection, Object> afsServer;
 
     protected static GenericWebApplicationContext applicationServerSpringContext;
 
-    protected static IntegrationTestLogger logger = new IntegrationTestLogger();
-
     @BeforeSuite
     public void beforeSuite() throws Exception
     {
-        LogInitializer.init();
+        initLogging();
 
         cleanupApplicationServerFolders();
         cleanupAfsServerFolders();
@@ -87,25 +89,30 @@ public abstract class AbstractIntegrationTest
     private void shutdownApplicationServer()
     {
         applicationServer.setStopAtShutdown(true);
-        logger.log("Shut down application server.");
+        log("Shut down application server.");
     }
 
     private void shutdownAfsServer() throws Exception
     {
         afsServer.shutdown(false);
-        logger.log("Shut down afs server.");
+        log("Shut down afs server.");
     }
 
     @BeforeMethod
     public void beforeTest(Method method)
     {
-        logger.log("BEFORE " + method.getDeclaringClass().getName() + "." + method.getName());
+        log("BEFORE " + method.getDeclaringClass().getName() + "." + method.getName());
     }
 
     @AfterMethod
     public void afterTest(Method method)
     {
-        logger.log("AFTER  " + method.getDeclaringClass().getName() + "." + method.getName());
+        log("AFTER  " + method.getDeclaringClass().getName() + "." + method.getName());
+    }
+
+    private void initLogging(){
+        System.setProperty("log4j.configuration", "etc/log4j1.xml");
+        System.setProperty("log4j.configurationFile", "etc/log4j1.xml");
     }
 
     private void cleanupApplicationServerFolders() throws Exception
@@ -150,7 +157,7 @@ public abstract class AbstractIntegrationTest
         } else
         {
             FileUtilities.deleteRecursively(new File(folderPath));
-            logger.log("Deleted folder: " + new File(folderPath).getAbsolutePath());
+            log("Deleted folder: " + new File(folderPath).getAbsolutePath());
         }
     }
 
@@ -230,6 +237,18 @@ public abstract class AbstractIntegrationTest
         configuration.setProperty(AtomicFileSystemServerParameter.httpServerPort, String.valueOf(TestInstanceHostUtils.getAFSPort()));
         configuration.setProperty(AtomicFileSystemServerParameter.httpServerUri, TestInstanceHostUtils.getAFSPath());
         return configuration;
+    }
+
+    public static OpenBIS createOpenBIS()
+    {
+        return new OpenBIS(TestInstanceHostUtils.getOpenBISUrl() + TestInstanceHostUtils.getOpenBISPath(),
+                TestInstanceHostUtils.getDSSUrl() + TestInstanceHostUtils.getDSSPath(),
+                TestInstanceHostUtils.getAFSUrl() + TestInstanceHostUtils.getAFSPath());
+    }
+
+    public void log(String message)
+    {
+        System.out.println("[TEST] " + message);
     }
 
 }
