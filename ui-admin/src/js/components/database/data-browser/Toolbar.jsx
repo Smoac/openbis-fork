@@ -42,13 +42,6 @@ class Toolbar extends React.Component {
     this.controller = this.props.controller
   }
 
-  handleUploadFiles(event) {
-    // TODO: perform upload here.
-    //event.target.files[0]
-  }
-
-  handleUploadFolders(event) {}
-
   render() {
     logger.log(logger.DEBUG, 'Toolbar.render')
 

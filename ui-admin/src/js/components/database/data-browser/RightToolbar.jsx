@@ -78,10 +78,18 @@ class RightToolbar extends React.Component {
     super(props, context)
     autoBind(this)
 
+    this.controller = this.props.controller
+
     this.state = {
       uploadButtonsPopup: null
     }
   }
+
+  handleUploadFiles(event) {
+    this.controller.upload(event.target.files[0])
+  }
+
+  handleUploadFolders(event) {}
 
   handleUploadClick(event) {
     this.setState({

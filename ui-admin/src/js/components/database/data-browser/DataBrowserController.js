@@ -17,7 +17,7 @@
 import ComponentController from '@src/js/components/common/ComponentController.js'
 import autoBind from 'auto-bind'
 
-const MAX_READ_SIZE_IN_BYTES = 1024 * 1024
+const CHUNK_SIZE = 1024 * 1024 // 1MiB
 
 export default class DataBrowserController extends ComponentController {
 
@@ -163,6 +163,18 @@ export default class DataBrowserController extends ComponentController {
     )
   }
 
+  async upload(file) {
+    let offset = 0
+
+    while (offset < file.size) {
+      await this.uploadChunk(file, offset)
+      offset += CHUNK_SIZE
+    }
+  }
+
+  async uploadChunk(source, offset, data) {
+    return await this.component.datastoreServer.write(this.owner, source, offset, data)
+  }
 
   async download(file) {
     let offset = 0
@@ -171,14 +183,14 @@ export default class DataBrowserController extends ComponentController {
     while (offset < file.size) {
       const blob = await this._download(file, offset)
       dataArray.push(await blob.arrayBuffer())
-      offset += MAX_READ_SIZE_IN_BYTES
+      offset += CHUNK_SIZE
     }
 
     return dataArray
   }
 
   async _download(file, offset) {
-    const limit = Math.min(MAX_READ_SIZE_IN_BYTES, file.size - offset)
+    const limit = Math.min(CHUNK_SIZE, file.size - offset)
     return await this.component.datastoreServer.read(this.owner, file.path, offset, limit)
   }
 
