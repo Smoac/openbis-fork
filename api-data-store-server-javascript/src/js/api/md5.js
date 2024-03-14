@@ -23,7 +23,7 @@
 
 ;(function ($) {
     'use strict'
-  
+
     /**
      * Add integers, wrapping at 2^32.
      * This uses 16-bit operations internally to work around bugs in interpreters.
@@ -37,7 +37,7 @@
       var msw = (x >> 16) + (y >> 16) + (lsw >> 16)
       return (msw << 16) | (lsw & 0xffff)
     }
-  
+
     /**
      * Bitwise rotate a 32-bit number to the left.
      *
@@ -48,7 +48,7 @@
     function bitRotateLeft(num, cnt) {
       return (num << cnt) | (num >>> (32 - cnt))
     }
-  
+
     /**
      * Basic operation the algorithm uses.
      *
@@ -123,7 +123,7 @@
     function md5ii(a, b, c, d, x, s, t) {
       return md5cmn(c ^ (b | ~d), a, b, x, s, t)
     }
-  
+
     /**
      * Calculate the MD5 of an array of little-endian words, and a bit length.
      *
@@ -135,7 +135,7 @@
       /* append padding */
       x[len >> 5] |= 0x80 << len % 32
       x[(((len + 64) >>> 9) << 4) + 14] = len
-  
+
       var i
       var olda
       var oldb
@@ -145,13 +145,13 @@
       var b = -271733879
       var c = -1732584194
       var d = 271733878
-  
+
       for (i = 0; i < x.length; i += 16) {
         olda = a
         oldb = b
         oldc = c
         oldd = d
-  
+
         a = md5ff(a, b, c, d, x[i], 7, -680876936)
         d = md5ff(d, a, b, c, x[i + 1], 12, -389564586)
         c = md5ff(c, d, a, b, x[i + 2], 17, 606105819)
@@ -168,7 +168,7 @@
         d = md5ff(d, a, b, c, x[i + 13], 12, -40341101)
         c = md5ff(c, d, a, b, x[i + 14], 17, -1502002290)
         b = md5ff(b, c, d, a, x[i + 15], 22, 1236535329)
-  
+
         a = md5gg(a, b, c, d, x[i + 1], 5, -165796510)
         d = md5gg(d, a, b, c, x[i + 6], 9, -1069501632)
         c = md5gg(c, d, a, b, x[i + 11], 14, 643717713)
@@ -185,7 +185,7 @@
         d = md5gg(d, a, b, c, x[i + 2], 9, -51403784)
         c = md5gg(c, d, a, b, x[i + 7], 14, 1735328473)
         b = md5gg(b, c, d, a, x[i + 12], 20, -1926607734)
-  
+
         a = md5hh(a, b, c, d, x[i + 5], 4, -378558)
         d = md5hh(d, a, b, c, x[i + 8], 11, -2022574463)
         c = md5hh(c, d, a, b, x[i + 11], 16, 1839030562)
@@ -202,7 +202,7 @@
         d = md5hh(d, a, b, c, x[i + 12], 11, -421815835)
         c = md5hh(c, d, a, b, x[i + 15], 16, 530742520)
         b = md5hh(b, c, d, a, x[i + 2], 23, -995338651)
-  
+
         a = md5ii(a, b, c, d, x[i], 6, -198630844)
         d = md5ii(d, a, b, c, x[i + 7], 10, 1126891415)
         c = md5ii(c, d, a, b, x[i + 14], 15, -1416354905)
@@ -219,7 +219,7 @@
         d = md5ii(d, a, b, c, x[i + 11], 10, -1120210379)
         c = md5ii(c, d, a, b, x[i + 2], 15, 718787259)
         b = md5ii(b, c, d, a, x[i + 9], 21, -343485551)
-  
+
         a = safeAdd(a, olda)
         b = safeAdd(b, oldb)
         c = safeAdd(c, oldc)
@@ -227,7 +227,7 @@
       }
       return [a, b, c, d]
     }
-  
+
     /**
      * Convert an array of little-endian words to a string
      *
@@ -243,7 +243,7 @@
       }
       return output
     }
-  
+
     /**
      * Convert a raw string to an array of little-endian words
      * Characters >255 have their high-byte silently ignored.
@@ -264,7 +264,7 @@
       }
       return output
     }
-  
+
     /**
      * Calculate the MD5 of a raw string
      *
@@ -274,7 +274,7 @@
     function rstrMD5(s) {
       return binl2rstr(binlMD5(rstr2binl(s), s.length * 8))
     }
-  
+
     /**
      * Calculates the HMAC-MD5 of a key and some data (raw strings)
      *
@@ -299,7 +299,7 @@
       hash = binlMD5(ipad.concat(rstr2binl(data)), 512 + data.length * 8)
       return binl2rstr(binlMD5(opad.concat(hash), 512 + 128))
     }
-  
+
     /**
      * Convert a raw string to a hex string
      *
@@ -317,7 +317,7 @@
       }
       return output
     }
-  
+
     /**
      * Encode a string as UTF-8
      *
@@ -327,7 +327,7 @@
     function str2rstrUTF8(input) {
       return unescape(encodeURIComponent(input))
     }
-  
+
     /**
      * Encodes input string as raw MD5 string
      *
@@ -366,7 +366,7 @@
     function hexHMACMD5(k, d) {
       return rstr2hex(rawHMACMD5(k, d))
     }
-  
+
     /**
      * Calculates MD5 value for a given string.
      * If a key is provided, calculates the HMAC-MD5 value.
@@ -389,9 +389,9 @@
       }
       return rawHMACMD5(key, string)
     }
-  
+
     if (typeof define === 'function' && define.amd) {
-      define(function () {
+      define("md5", [], function () {
         return md5
       })
     } else if (typeof module === 'object' && module.exports) {
