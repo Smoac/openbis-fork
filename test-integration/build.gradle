@@ -1,7 +1,11 @@
 apply from: '../build/javaproject.gradle'
 
 dependencies {
-    implementation project(':lib-transactional-file-system'), project(':server-application-server'), project(path: ':server-application-server', configuration: 'tests'), project(':server-data-store')
+    implementation project(path: ':lib-commonbase', configuration: 'tests'),
+            project(':lib-transactional-file-system'),
+            project(':server-application-server'),
+            project(path: ':server-application-server', configuration: 'tests'),
+            project(':server-data-store')
 }
 
 test {

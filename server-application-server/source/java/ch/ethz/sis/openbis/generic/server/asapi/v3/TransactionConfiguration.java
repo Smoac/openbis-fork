@@ -16,42 +16,42 @@ import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 public class TransactionConfiguration
 {
 
-    private static final String TRANSACTION_ENABLED_PROPERTY_NAME = "api.v3.transaction.enabled";
+    public static final String TRANSACTION_ENABLED_PROPERTY_NAME = "api.v3.transaction.enabled";
 
-    private static final boolean TRANSACTION_ENABLED_DEFAULT = false;
+    public static final boolean TRANSACTION_ENABLED_DEFAULT = false;
 
-    private static final String TRANSACTION_TIMEOUT_PROPERTY_NAME = "api.v3.transaction.transaction-timeout";
+    public static final String TRANSACTION_TIMEOUT_PROPERTY_NAME = "api.v3.transaction.transaction-timeout";
 
-    private static final int TRANSACTION_TIMEOUT_DEFAULT = 3600;
+    public static final int TRANSACTION_TIMEOUT_DEFAULT = 3600;
 
-    private static final String FINISH_TRANSACTIONS_INTERVAL_PROPERTY_NAME = "api.v3.transaction.finish-transactions-interval";
+    public static final String FINISH_TRANSACTIONS_INTERVAL_PROPERTY_NAME = "api.v3.transaction.finish-transactions-interval";
 
-    private static final int FINISH_TRANSACTIONS_INTERVAL_DEFAULT = 600;
+    public static final int FINISH_TRANSACTIONS_INTERVAL_DEFAULT = 600;
 
-    private static final String INTERACTIVE_SESSION_KEY_PROPERTY_NAME = "api.v3.transaction.interactive-session-key";
+    public static final String INTERACTIVE_SESSION_KEY_PROPERTY_NAME = "api.v3.transaction.interactive-session-key";
 
-    private static final String COORDINATOR_KEY_PROPERTY_NAME = "api.v3.transaction.coordinator-key";
+    public static final String COORDINATOR_KEY_PROPERTY_NAME = "api.v3.transaction.coordinator-key";
 
-    private static final String TRANSACTION_LOG_FOLDER_PATH_PROPERTY_NAME = "api.v3.transaction.transaction-log-folder-path";
+    public static final String TRANSACTION_LOG_FOLDER_PATH_PROPERTY_NAME = "api.v3.transaction.transaction-log-folder-path";
 
-    private static final String TRANSACTION_LOG_FOLDER_PATH_DEFAULT = "transaction-logs";
+    public static final String TRANSACTION_LOG_FOLDER_PATH_DEFAULT = "transaction-logs";
 
-    private static final String TRANSACTION_COUNT_LIMIT_PROPERTY_NAME = "api.v3.transaction.transaction-count-limit";
+    public static final String TRANSACTION_COUNT_LIMIT_PROPERTY_NAME = "api.v3.transaction.transaction-count-limit";
 
-    private static final int TRANSACTION_COUNT_LIMIT_DEFAULT = 10;
+    public static final int TRANSACTION_COUNT_LIMIT_DEFAULT = 10;
 
-    private static final String APPLICATION_SERVER_URL_PROPERTY_NAME = "api.v3.transaction.participant.application-server.url";
+    public static final String APPLICATION_SERVER_URL_PROPERTY_NAME = "api.v3.transaction.participant.application-server.url";
 
-    private static final String APPLICATION_SERVER_TIMEOUT_PROPERTY_NAME =
+    public static final String APPLICATION_SERVER_TIMEOUT_PROPERTY_NAME =
             "api.v3.transaction.participant.application-server.timeout";
 
-    private static final int APPLICATION_SERVER_TIMEOUT_DEFAULT = 3600;
+    public static final int APPLICATION_SERVER_TIMEOUT_DEFAULT = 3600;
 
-    private static final String AFS_SERVER_URL_PROPERTY_NAME = "api.v3.transaction.participant.afs-server.url";
+    public static final String AFS_SERVER_URL_PROPERTY_NAME = "api.v3.transaction.participant.afs-server.url";
 
-    private static final String AFS_SERVER_TIMEOUT_PROPERTY_NAME = "api.v3.transaction.participant.afs-server.timeout";
+    public static final String AFS_SERVER_TIMEOUT_PROPERTY_NAME = "api.v3.transaction.participant.afs-server.timeout";
 
-    private static final int AFS_SERVER_TIMEOUT_DEFAULT = 3600;
+    public static final int AFS_SERVER_TIMEOUT_DEFAULT = 3600;
 
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     private ExposablePropertyPlaceholderConfigurer configurer;

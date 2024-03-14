@@ -1,6 +1,6 @@
-package ch.ethz.sis.openbis.systemtests;
+package ch.ethz.sis.openbis.systemtests.common;
 
-public class TestLogger
+public class IntegrationTestLogger
 {
 
     public void log(String message)

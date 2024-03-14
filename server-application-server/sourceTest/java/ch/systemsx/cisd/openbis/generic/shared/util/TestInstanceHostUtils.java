@@ -32,6 +32,11 @@ public class TestInstanceHostUtils
         return OPENBIS_URL + ":" + getOpenBISPort();
     }
 
+    public static String getOpenBISPath()
+    {
+        return "/openbis/openbis";
+    }
+
     public static int getDSSPort()
     {
         return 8800 + getProjectNumber() + 9;
@@ -40,6 +45,26 @@ public class TestInstanceHostUtils
     public static String getDSSUrl()
     {
         return OPENBIS_URL + ":" + getDSSPort();
+    }
+
+    public static String getDSSPath()
+    {
+        return "/datastore_server";
+    }
+
+    public static int getAFSPort()
+    {
+        return 8800 + getProjectNumber() + 7;
+    }
+
+    public static String getAFSUrl()
+    {
+        return OPENBIS_URL + ":" + getAFSPort();
+    }
+
+    public static String getAFSPath()
+    {
+        return "/data-store-server";
     }
 
     private static int getProjectNumber()
