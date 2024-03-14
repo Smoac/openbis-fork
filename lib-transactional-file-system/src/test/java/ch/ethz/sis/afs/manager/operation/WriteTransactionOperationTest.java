@@ -16,6 +16,7 @@
 package ch.ethz.sis.afs.manager.operation;
 
 import static ch.ethz.sis.shared.io.IOUtils.getMD5;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -114,4 +115,33 @@ public class WriteTransactionOperationTest extends AbstractTransactionOperationT
         File afterCommit = IOUtils.getFile(realPath);
         assertEquals(4 + DATA.length, (long) afterCommit.getSize());
     }
+
+    @Test
+    public void operation_writeRandomly_succeed() throws Exception
+    {
+        begin();
+        final String realPath = OperationExecutor.getRealPath(getTransaction(), FILE_B_PATH);
+        write(FILE_B_PATH, 0, DATA, getMD5(DATA));
+        write(0, "12");
+        write(2, "34");
+        write(1, "B");
+        write(3, "D");
+        write(4, "56");
+        prepare();
+        commit();
+
+        final File afterCommit = IOUtils.getFile(realPath);
+        final long fileSize = afterCommit.getSize();
+        assertEquals(6, fileSize);
+
+        final byte[] dataRead = IOUtils.read(realPath, 0, 6);
+        assertArrayEquals("1B3D56".getBytes(), dataRead);
+    }
+
+    private void write(final int offset, final String value) throws Exception
+    {
+        final byte[] data12 = value.getBytes();
+        write(FILE_B_PATH, offset, data12, getMD5(data12));
+    }
+
 }
