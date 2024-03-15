@@ -162,7 +162,7 @@ var ExperimentDataGridUtil = new function() {
                     }
                 }
             }
-            var propertyColumnsToSort = SampleDataGridUtil.createPropertyColumns(foundPropertyCodes);
+            var propertyColumnsToSort = SampleDataGridUtil.createPropertyColumns(foundPropertyCodes, experiments);
             FormUtil.sortPropertyColumns(propertyColumnsToSort, entities.map(function(entity){
                 return {
                     entityKind: "EXPERIMENT",

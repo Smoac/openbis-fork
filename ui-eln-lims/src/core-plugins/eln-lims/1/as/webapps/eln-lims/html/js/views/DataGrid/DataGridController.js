@@ -131,6 +131,11 @@ function DataGridController(
             return column.property
         })
         columns = columns.map(function (column, index) {
+            if(column.asyncLoad) {
+                column.asyncLoad(function(call) {
+                    column.asyncLoadCall = call;
+                });
+            }
             return {
                 label: React.createElement("span", {
                     dangerouslySetInnerHTML: {
@@ -149,12 +154,32 @@ function DataGridController(
                     var value = null
 
                     if (column.render) {
-                        value = column.render(params.row, {
-                            lastReceivedData: _this.lastReceivedData,
-                            lastUsedOptions: _this.lastUsedOptions,
-                            container: params.container,
-                            value: params.value
-                        });
+                        if(column.asyncLoad) {
+                            $(params.container).empty().html(Util.getProgressBarSVG())
+                            value = null;
+                            var aa = column.asyncLoadCall;
+                            if(column.asyncLoadCall) {
+                                column.asyncLoadCall.then(result => {
+                                    var renderedValue = column.render(params.row, {
+                                        lastReceivedData: _this.lastReceivedData,
+                                        lastUsedOptions: _this.lastUsedOptions,
+                                        container: params.container,
+                                        value: params.value,
+                                        displayValues: result
+                                    });
+                                    $(params.container).empty().append(renderedValue);
+                                    return result;
+                                });
+                            }
+
+                        } else {
+                            value = column.render(params.row, {
+                                lastReceivedData: _this.lastReceivedData,
+                                lastUsedOptions: _this.lastUsedOptions,
+                                container: params.container,
+                                value: params.value
+                            });
+                        }
                     } else {
                         value = params.value;
                     }
