@@ -1172,7 +1172,12 @@ function ServerFacade(openbisServer) {
     }
 
     this.isDropboxMonitorUsageAuthorized = function(callback) {
-        this._dropboxApi({"checkAuthorization": true}, callback);
+        var dataStoreCode = profile.getDefaultDataStoreCode();
+        if(dataStoreCode === null) {
+            callback(false);
+        } else {
+            this._dropboxApi({"checkAuthorization": true}, callback);
+        }
     }
 
     this.getDropboxMonitorOverview = function(callback) {
@@ -1189,7 +1194,13 @@ function ServerFacade(openbisServer) {
         var dataStoreCode = profile.getDefaultDataStoreCode();
         this.createReportFromAggregationService(dataStoreCode, parameters, function(data) {
             if (data.error) {
-                Util.showError(data.error.message, Util.unblockUI);
+                var errorCallback = null;
+                if(parameters.checkAuthorization) {
+                    errorCallback = callback(false);
+                } else {
+                    errorCallback = Util.unblockUI;
+                }
+                Util.showError(data.error.message, errorCallback);
             } else if (data && data.result && data.result.columns) {
                 var rows = data.result.rows;
                 if (data.result.columns.length > 1 && data.result.columns[1].title === "Error") {
