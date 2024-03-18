@@ -211,6 +211,28 @@ public class AbstractTransactionTest extends AbstractTest
                     transactionCountLimit);
         }
 
+        public void close()
+        {
+            String sessionToken = v3api.loginAsSystem();
+
+            for (TransactionCoordinator.Transaction transaction : getTransactionMap().values())
+            {
+                try
+                {
+                    if (TransactionStatus.COMMIT_STARTED.equals(transaction.getTransactionStatus()))
+                    {
+                        commitTransaction(transaction.getTransactionId(), sessionToken, TEST_INTERACTIVE_SESSION_KEY);
+                    } else
+                    {
+                        rollbackTransaction(transaction.getTransactionId(), sessionToken, TEST_INTERACTIVE_SESSION_KEY);
+                    }
+                } catch (Exception e)
+                {
+                    operationLog.warn("Could not close transaction '" + transaction.getTransactionId() + "'.", e);
+                }
+            }
+        }
+
     }
 
     public class TestTransactionParticipantApi extends TransactionParticipantApi
@@ -379,15 +401,22 @@ public class AbstractTransactionTest extends AbstractTest
 
         public void close()
         {
-            for (TransactionParticipant.Transaction transaction : super.getTransactionMap().values())
+            String sessionToken = v3api.loginAsSystem();
+
+            getDatabaseTransactionProvider().setRollbackAction(null);
+            getDatabaseTransactionProvider().setCommitAction(null);
+
+            for (TransactionParticipant.Transaction transaction : getTransactionMap().values())
             {
                 try
                 {
-                    transaction.lockOrFail(() ->
+                    if (TransactionStatus.COMMIT_STARTED.equals(transaction.getTransactionStatus()))
                     {
-                        transaction.close();
-                        return null;
-                    }, false);
+                        commitTransaction(transaction.getTransactionId(), sessionToken, TEST_INTERACTIVE_SESSION_KEY);
+                    } else
+                    {
+                        rollbackTransaction(transaction.getTransactionId(), sessionToken, TEST_INTERACTIVE_SESSION_KEY);
+                    }
                 } catch (Exception e)
                 {
                     operationLog.warn("Could not close transaction '" + transaction.getTransactionId() + "'.", e);

@@ -23,7 +23,6 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.ITransactionCoordinatorApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.ITransactionParticipantApi;
-import ch.ethz.sis.transaction.AbstractTransaction;
 import ch.ethz.sis.transaction.IDatabaseTransactionProvider;
 import ch.ethz.sis.transaction.ISessionTokenProvider;
 import ch.ethz.sis.transaction.ITransactionLog;
@@ -275,12 +274,13 @@ public class TransactionParticipantApi extends AbstractTransactionNodeApi implem
                             TransactionStatus transactionStatus = (TransactionStatus) transaction;
                             if (!transactionStatus.isCompleted())
                             {
+                                // The prepared transaction already got rolled back in the database (see above), here we are just releasing the resources (e.g. database connection).
                                 transactionManager.rollback((TransactionStatus) transaction);
                             }
                         } catch (Exception e)
                         {
                             operationLog.warn(
-                                    "Prepared database transaction '" + transactionId + "' could not be rolled back in the transaction manager.",
+                                    "Prepared database transaction '" + transactionId + "' could not be closed in the transaction manager.",
                                     e);
                         }
                     }
@@ -304,20 +304,41 @@ public class TransactionParticipantApi extends AbstractTransactionNodeApi implem
         {
             if (isTwoPhaseTransaction)
             {
-                if (isTransactionPreparedInDatabase(transactionId))
+                try
                 {
-                    try (Connection connection = databaseContext.getDataSource().getConnection();
-                            PreparedStatement commitStatement = connection.prepareStatement("COMMIT PREPARED '" + transactionId + "'"))
+                    if (isTransactionPreparedInDatabase(transactionId))
                     {
-                        commitStatement.execute();
-                        operationLog.info("Prepared database transaction '" + transactionId + "' was committed.");
+                        try (Connection connection = databaseContext.getDataSource().getConnection();
+                                PreparedStatement commitStatement = connection.prepareStatement("COMMIT PREPARED '" + transactionId + "'"))
+                        {
+                            commitStatement.execute();
+                            operationLog.info("Prepared database transaction '" + transactionId + "' was committed.");
+                        }
+                    } else
+                    {
+                        throw new IllegalStateException(
+                                "Prepared database transaction '" + transactionId + "' was not found in the database and could not be committed.");
                     }
-
-                    // Calling transactionManager.commit() after the prepared transaction got committed above is not allowed, therefore we skip it.
-                } else
+                } finally
                 {
-                    throw new IllegalStateException(
-                            "Prepared database transaction '" + transactionId + "' was not found in the database and could not be committed.");
+                    if (transaction != null)
+                    {
+                        try
+                        {
+                            TransactionStatus transactionStatus = (TransactionStatus) transaction;
+                            if (!transactionStatus.isCompleted())
+                            {
+                                // The prepared transaction already got committed in the database (see above), here we are just releasing the resources (e.g. database connection).
+                                // We are intentionally calling rollback as the second commit would fail (the already committed data is safe - it won't be rolled back).
+                                transactionManager.rollback((TransactionStatus) transaction);
+                            }
+                        } catch (Exception e)
+                        {
+                            operationLog.warn(
+                                    "Prepared database transaction '" + transactionId + "' could not be closed in the transaction manager.",
+                                    e);
+                        }
+                    }
                 }
             } else
             {

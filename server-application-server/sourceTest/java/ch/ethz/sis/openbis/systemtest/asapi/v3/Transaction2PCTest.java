@@ -27,7 +27,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOpt
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.search.SpaceSearchCriteria;
-import ch.ethz.sis.transaction.AbstractTransaction;
 import ch.ethz.sis.transaction.ITransactionParticipant;
 import ch.ethz.sis.transaction.TransactionOperationException;
 import ch.ethz.sis.transaction.TransactionStatus;
@@ -88,25 +87,13 @@ public class Transaction2PCTest extends AbstractTransactionTest
     {
         if (coordinator.getTransactionConfiguration().isEnabled())
         {
-            rollbackPreparedDatabaseTransactions();
-
-            String sessionToken = v3api.loginAsSystem();
-
-            for (AbstractTransaction transaction : coordinator.getTransactionMap().values())
-            {
-                try
-                {
-                    coordinator.rollbackTransaction(transaction.getTransactionId(), sessionToken, TEST_INTERACTIVE_SESSION_KEY);
-                } catch (Exception ignored)
-                {
-                }
-            }
-
-            deleteCreatedSpacesAndProjects();
-
+            coordinator.close();
             participant1.close();
             participant2.close();
         }
+
+        rollbackPreparedDatabaseTransactions();
+        deleteCreatedSpacesAndProjects();
     }
 
     @Test
@@ -1041,81 +1028,91 @@ public class Transaction2PCTest extends AbstractTransactionTest
     @Test
     public void testRecoveryOfParticipantWithTransactionToCommit()
     {
-        List<ITransactionParticipant> participants = new ArrayList<>();
-        participants.add(participant1);
-        participants.add(participant2);
+        TestTransactionParticipantApi participant1AfterCrash = null;
 
-        TestTransactionCoordinatorApi coordinator =
-                createCoordinator(createConfiguration(true, 60, 10), participants, TRANSACTION_LOG_COORDINATOR_FOLDER);
-
-        assertTransactions(coordinator.getTransactionMap());
-        assertTransactions(participant1.getTransactionMap());
-        assertTransactions(participant2.getTransactionMap());
-
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
-        coordinator.beginTransaction(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
-
-        SpaceCreation spaceCreation = new SpaceCreation();
-        spaceCreation.setCode(CODE_PREFIX + UUID.randomUUID());
-
-        coordinator.executeOperation(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(),
-                OPERATION_CREATE_SPACES, new Object[] { sessionToken, Collections.singletonList(spaceCreation) });
-
-        // "prepare" should fail
-        RuntimeException exception = new RuntimeException("Test commit exception");
-        participant1.getDatabaseTransactionProvider().setCommitAction(() ->
+        try
         {
-            throw exception;
-        });
+            List<ITransactionParticipant> participants = new ArrayList<>();
+            participants.add(participant1);
+            participants.add(participant2);
 
-        coordinator.commitTransaction(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
+            coordinator = createCoordinator(createConfiguration(true, 60, 10), participants, TRANSACTION_LOG_COORDINATOR_FOLDER);
 
-        assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
-        assertTransactions(participant1.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
-        assertTransactions(participant2.getTransactionMap());
+            assertTransactions(coordinator.getTransactionMap());
+            assertTransactions(participant1.getTransactionMap());
+            assertTransactions(participant2.getTransactionMap());
 
-        TestTransactionParticipantApi participant1AfterCrash =
-                createParticipant(createConfiguration(true, 60, 10), TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER);
-        participant1AfterCrash.setTestTransactionMapping(Map.of(coordinatorTrId, participant1TrId));
-        // replace original participant with a new instance
-        participants.set(0, participant1AfterCrash);
+            String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
-        assertTransactions(participant1AfterCrash.getTransactionMap());
-        assertTransactions(participant2.getTransactionMap());
+            coordinator.beginTransaction(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
 
-        Map<ISpaceId, Space> createdSpaces = v3api.getSpaces(sessionToken,
-                Collections.singletonList(new SpacePermId(spaceCreation.getCode())), new SpaceFetchOptions());
-        assertEquals(createdSpaces.size(), 0);
+            SpaceCreation spaceCreation = new SpaceCreation();
+            spaceCreation.setCode(CODE_PREFIX + UUID.randomUUID());
 
-        participant1AfterCrash.recoverTransactionsFromTransactionLog();
+            coordinator.executeOperation(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY, participant1.getParticipantId(),
+                    OPERATION_CREATE_SPACES, new Object[] { sessionToken, Collections.singletonList(spaceCreation) });
 
-        assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
-        assertTransactions(participant1AfterCrash.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
-        assertTransactions(participant2.getTransactionMap());
+            // "prepare" should fail
+            RuntimeException exception = new RuntimeException("Test commit exception");
+            participant1.getDatabaseTransactionProvider().setCommitAction(() ->
+            {
+                throw exception;
+            });
 
-        participant1AfterCrash.finishFailedOrAbandonedTransactions();
+            coordinator.commitTransaction(coordinatorTrId, sessionToken, TEST_INTERACTIVE_SESSION_KEY);
 
-        createdSpaces = v3api.getSpaces(sessionToken,
-                Collections.singletonList(new SpacePermId(spaceCreation.getCode())), new SpaceFetchOptions());
-        assertEquals(createdSpaces.size(), 1);
+            assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
+            assertTransactions(participant1.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
+            assertTransactions(participant2.getTransactionMap());
 
-        assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
-        assertTransactions(participant1AfterCrash.getTransactionMap());
-        assertTransactions(participant2.getTransactionMap());
+            participant1AfterCrash =
+                    createParticipant(createConfiguration(true, 60, 10), TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER);
+            participant1AfterCrash.setTestTransactionMapping(Map.of(coordinatorTrId, participant1TrId));
+            // replace original participant with a new instance
+            participants.set(0, participant1AfterCrash);
 
-        coordinator.finishFailedOrAbandonedTransactions();
+            assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
+            assertTransactions(participant1AfterCrash.getTransactionMap());
+            assertTransactions(participant2.getTransactionMap());
 
-        assertTransactions(coordinator.getTransactionMap());
-        assertTransactions(participant1AfterCrash.getTransactionMap());
-        assertTransactions(participant2.getTransactionMap());
+            Map<ISpaceId, Space> createdSpaces = v3api.getSpaces(sessionToken,
+                    Collections.singletonList(new SpacePermId(spaceCreation.getCode())), new SpaceFetchOptions());
+            assertEquals(createdSpaces.size(), 0);
 
-        createdSpaces = v3api.getSpaces(sessionToken,
-                Collections.singletonList(new SpacePermId(spaceCreation.getCode())), new SpaceFetchOptions());
-        assertEquals(createdSpaces.size(), 1);
+            participant1AfterCrash.recoverTransactionsFromTransactionLog();
 
-        participant1AfterCrash.close();
+            assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
+            assertTransactions(participant1AfterCrash.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
+            assertTransactions(participant2.getTransactionMap());
+
+            participant1AfterCrash.finishFailedOrAbandonedTransactions();
+
+            createdSpaces = v3api.getSpaces(sessionToken,
+                    Collections.singletonList(new SpacePermId(spaceCreation.getCode())), new SpaceFetchOptions());
+            assertEquals(createdSpaces.size(), 1);
+
+            assertTransactions(coordinator.getTransactionMap(), new TestTransaction(coordinatorTrId, TransactionStatus.COMMIT_STARTED));
+            assertTransactions(participant1AfterCrash.getTransactionMap());
+            assertTransactions(participant2.getTransactionMap());
+
+            coordinator.finishFailedOrAbandonedTransactions();
+
+            assertTransactions(coordinator.getTransactionMap());
+            assertTransactions(participant1AfterCrash.getTransactionMap());
+            assertTransactions(participant2.getTransactionMap());
+
+            createdSpaces = v3api.getSpaces(sessionToken,
+                    Collections.singletonList(new SpacePermId(spaceCreation.getCode())), new SpaceFetchOptions());
+            assertEquals(createdSpaces.size(), 1);
+
+            participant1AfterCrash.close();
+        } finally
+        {
+            if (participant1AfterCrash != null)
+            {
+                participant1AfterCrash.close();
+            }
+        }
     }
 
 }

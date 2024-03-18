@@ -47,11 +47,11 @@ public class Transaction1PCTest extends AbstractTransactionTest
     {
         if (participant.getTransactionConfiguration().isEnabled())
         {
-            rollbackPreparedDatabaseTransactions();
-            deleteCreatedSpacesAndProjects();
-
             participant.close();
         }
+
+        rollbackPreparedDatabaseTransactions();
+        deleteCreatedSpacesAndProjects();
     }
 
     @Test
@@ -645,79 +645,95 @@ public class Transaction1PCTest extends AbstractTransactionTest
     @Test
     public void testRecovery()
     {
-        TestTransactionParticipantApi participantBeforeCrash =
-                createParticipant(createConfiguration(true, 60, 10), TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER);
+        TestTransactionParticipantApi participantBeforeCrash = null;
+        TestTransactionParticipantApi participantAfterCrash = null;
 
-        // "commit" and "rollback" should fail
-        RuntimeException commitException = new RuntimeException("Test commit exception");
-        RuntimeException rollbackException = new RuntimeException("Test rollback exception");
-
-        participantBeforeCrash.getDatabaseTransactionProvider().setCommitAction(() ->
-        {
-            throw commitException;
-        });
-        participantBeforeCrash.getDatabaseTransactionProvider().setRollbackAction(() ->
-        {
-            throw rollbackException;
-        });
-
-        assertTransactions(participantBeforeCrash.getTransactionMap());
-
-        UUID transactionId1 = UUID.randomUUID();
-        UUID transactionId2 = UUID.randomUUID();
-
-        String sessionToken1 = v3api.login(TEST_USER, PASSWORD);
-        String sessionToken2 = v3api.login(TEST_USER, PASSWORD);
-
-        // begin both transactions
-        participantBeforeCrash.beginTransaction(transactionId1, sessionToken1, TEST_INTERACTIVE_SESSION_KEY, null);
-        participantBeforeCrash.beginTransaction(transactionId2, sessionToken2, TEST_INTERACTIVE_SESSION_KEY, null);
-
-        // create a space in tr1
-        SpaceCreation spaceCreation1 = new SpaceCreation();
-        spaceCreation1.setCode(CODE_PREFIX + UUID.randomUUID());
-
-        participantBeforeCrash.executeOperation(transactionId1, sessionToken1, TEST_INTERACTIVE_SESSION_KEY,
-                OPERATION_CREATE_SPACES, new Object[] { sessionToken2, Collections.singletonList(spaceCreation1) });
-
-        // create a space in tr2
-        SpaceCreation spaceCreation2 = new SpaceCreation();
-        spaceCreation2.setCode(CODE_PREFIX + UUID.randomUUID());
-
-        participantBeforeCrash.executeOperation(transactionId2, sessionToken2, TEST_INTERACTIVE_SESSION_KEY,
-                OPERATION_CREATE_SPACES, new Object[] { sessionToken2, Collections.singletonList(spaceCreation2) });
-
-        // failed commit of tr1
         try
         {
-            participantBeforeCrash.commitTransaction(transactionId1, sessionToken1, TEST_INTERACTIVE_SESSION_KEY);
-            fail();
-        } catch (Exception e)
+            participantBeforeCrash =
+                    createParticipant(createConfiguration(true, 60, 10), TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER);
+
+            // "commit" and "rollback" should fail
+            RuntimeException commitException = new RuntimeException("Test commit exception");
+            RuntimeException rollbackException = new RuntimeException("Test rollback exception");
+
+            participantBeforeCrash.getDatabaseTransactionProvider().setCommitAction(() ->
+            {
+                throw commitException;
+            });
+            participantBeforeCrash.getDatabaseTransactionProvider().setRollbackAction(() ->
+            {
+                throw rollbackException;
+            });
+
+            assertTransactions(participantBeforeCrash.getTransactionMap());
+
+            UUID transactionId1 = UUID.randomUUID();
+            UUID transactionId2 = UUID.randomUUID();
+
+            String sessionToken1 = v3api.login(TEST_USER, PASSWORD);
+            String sessionToken2 = v3api.login(TEST_USER, PASSWORD);
+
+            // begin both transactions
+            participantBeforeCrash.beginTransaction(transactionId1, sessionToken1, TEST_INTERACTIVE_SESSION_KEY, null);
+            participantBeforeCrash.beginTransaction(transactionId2, sessionToken2, TEST_INTERACTIVE_SESSION_KEY, null);
+
+            // create a space in tr1
+            SpaceCreation spaceCreation1 = new SpaceCreation();
+            spaceCreation1.setCode(CODE_PREFIX + UUID.randomUUID());
+
+            participantBeforeCrash.executeOperation(transactionId1, sessionToken1, TEST_INTERACTIVE_SESSION_KEY,
+                    OPERATION_CREATE_SPACES, new Object[] { sessionToken2, Collections.singletonList(spaceCreation1) });
+
+            // create a space in tr2
+            SpaceCreation spaceCreation2 = new SpaceCreation();
+            spaceCreation2.setCode(CODE_PREFIX + UUID.randomUUID());
+
+            participantBeforeCrash.executeOperation(transactionId2, sessionToken2, TEST_INTERACTIVE_SESSION_KEY,
+                    OPERATION_CREATE_SPACES, new Object[] { sessionToken2, Collections.singletonList(spaceCreation2) });
+
+            // failed commit of tr1
+            try
+            {
+                participantBeforeCrash.commitTransaction(transactionId1, sessionToken1, TEST_INTERACTIVE_SESSION_KEY);
+                fail();
+            } catch (Exception e)
+            {
+                assertEquals(e.getMessage(), "Commit transaction '" + transactionId1 + "' failed.");
+                assertEquals(e.getCause(), commitException);
+            }
+
+            assertTransactions(participantBeforeCrash.getTransactionMap(), new TestTransaction(transactionId1, TransactionStatus.ROLLBACK_STARTED),
+                    new TestTransaction(transactionId2, TransactionStatus.BEGIN_FINISHED));
+
+            // new participant
+            participantAfterCrash =
+                    createParticipant(createConfiguration(true, 60, 10), TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER);
+
+            assertTransactions(participantAfterCrash.getTransactionMap());
+
+            // only 2PC transactions are recovered
+            participantAfterCrash.recoverTransactionsFromTransactionLog();
+
+            assertTransactions(participantAfterCrash.getTransactionMap());
+
+            Map<ISpaceId, Space> createdSpaces1 = v3api.getSpaces(sessionToken1,
+                    Collections.singletonList(new SpacePermId(spaceCreation2.getCode())), new SpaceFetchOptions());
+            Map<ISpaceId, Space> createdSpaces2 = v3api.getSpaces(sessionToken2,
+                    Collections.singletonList(new SpacePermId(spaceCreation2.getCode())), new SpaceFetchOptions());
+            assertEquals(createdSpaces1.size(), 0);
+            assertEquals(createdSpaces2.size(), 0);
+        } finally
         {
-            assertEquals(e.getMessage(), "Commit transaction '" + transactionId1 + "' failed.");
-            assertEquals(e.getCause(), commitException);
+            if (participantBeforeCrash != null)
+            {
+                participantBeforeCrash.close();
+            }
+            if (participantAfterCrash != null)
+            {
+                participantAfterCrash.close();
+            }
         }
-
-        assertTransactions(participantBeforeCrash.getTransactionMap(), new TestTransaction(transactionId1, TransactionStatus.ROLLBACK_STARTED),
-                new TestTransaction(transactionId2, TransactionStatus.BEGIN_FINISHED));
-
-        // new participant
-        TestTransactionParticipantApi participantAfterCrash =
-                createParticipant(createConfiguration(true, 60, 10), TEST_PARTICIPANT_1_ID, TRANSACTION_LOG_PARTICIPANT_1_FOLDER);
-
-        assertTransactions(participantAfterCrash.getTransactionMap());
-
-        // only 2PC transactions are recovered
-        participantAfterCrash.recoverTransactionsFromTransactionLog();
-
-        assertTransactions(participantAfterCrash.getTransactionMap());
-
-        Map<ISpaceId, Space> createdSpaces1 = v3api.getSpaces(sessionToken1,
-                Collections.singletonList(new SpacePermId(spaceCreation2.getCode())), new SpaceFetchOptions());
-        Map<ISpaceId, Space> createdSpaces2 = v3api.getSpaces(sessionToken2,
-                Collections.singletonList(new SpacePermId(spaceCreation2.getCode())), new SpaceFetchOptions());
-        assertEquals(createdSpaces1.size(), 0);
-        assertEquals(createdSpaces2.size(), 0);
     }
 
 }
