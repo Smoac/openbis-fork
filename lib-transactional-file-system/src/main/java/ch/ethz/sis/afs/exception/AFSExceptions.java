@@ -40,7 +40,7 @@ public enum AFSExceptions implements ExceptionTemplateHolder {
     PathInStore(                    RuntimeException.class,         List.of(ClientDeveloperCodingError),10015,"Path given to: %s - In store: %s"),
     PathInStoreCantBeRelative(      RuntimeException.class,         List.of(ClientDeveloperCodingError),10016,"Path given to: %s - can't contain '/../': %s"),
     PathNotStartWithRoot(           RuntimeException.class,         List.of(ClientDeveloperCodingError),10017,"Path given to: %s - don't starts with root '/' : %s"),
-    MD5NotMatch(                    RuntimeException.class,         List.of(ClientDeveloperCodingError),10018,"MD5 don't match on data given to: %s - for: %s"),
+    MD5NotMatch(                    RuntimeException.class,         List.of(ClientDeveloperCodingError),10018,"MD5 doesn't match on data given to: %s - for: %s"),
     DeadlockDetected(               RuntimeException.class,         List.of(UserUsageError),            10019,"Deadlock detected, %s is already waiting for %s from %s"),
     TransactionReuse(               RuntimeException.class,         List.of(CoreDeveloperCodingError),  10020,"Transaction with uuid: %s and state: %s was going to be reused");
 

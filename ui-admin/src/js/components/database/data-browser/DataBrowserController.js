@@ -167,13 +167,30 @@ export default class DataBrowserController extends ComponentController {
     let offset = 0
 
     while (offset < file.size) {
-      await this.uploadChunk(file, offset)
+      const chunkData = await file.slice(offset, offset + CHUNK_SIZE).arrayBuffer()
+      // console.log(`Uploading chunk: ${offset} - Size: ${chunkData.byteLength}`)
+      await this._uploadChunk(file.name, offset, await this._arrayBufferToBase64(chunkData))
       offset += CHUNK_SIZE
     }
   }
 
-  async uploadChunk(source, offset, data) {
+  async _uploadChunk(source, offset, data) {
+    // console.log(data)
     return await this.component.datastoreServer.write(this.owner, source, offset, data)
+  }
+
+  async _arrayBufferToBase64(buffer) {
+    return new Promise((resolve, reject) => {
+      const blob = new Blob([buffer], {type: 'application/octet-stream'})
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        const dataUrl = reader.result
+        const base64String = dataUrl.split(',')[1]
+        resolve(base64String)
+      };
+      reader.onerror = reject
+      reader.readAsDataURL(blob)
+    });
   }
 
   async download(file) {
@@ -182,7 +199,7 @@ export default class DataBrowserController extends ComponentController {
 
     while (offset < file.size) {
       const blob = await this._download(file, offset)
-      dataArray.push(await blob.arrayBuffer())
+      dataArray.push(await new Uint8Array(blob.arrayBuffer()))
       offset += CHUNK_SIZE
     }
 
