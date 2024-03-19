@@ -61,6 +61,9 @@ public class ExcelParser
                             if (cell != null)
                             {
                                 String value = getFinalValue(importValues, extractCellValue(cell, sheetIndex, rowIndex, cellIndex));
+                                if (value != null && value.isBlank()) {
+                                    value = null;
+                                }
                                 columns.add(value);
                             } else
                             {
