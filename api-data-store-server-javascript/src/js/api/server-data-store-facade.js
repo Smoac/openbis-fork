@@ -77,14 +77,16 @@ _DataStoreServerInternal.prototype.sendHttpRequest = function(httpMethod, conten
 						}
 					}
 				} else if (status >= 400 && status < 600) {
-					if (response.size > 0) {
-						response.text().then((blobResponse) => reject(new Error(JSON.parse(blobResponse).error[1].message)))
-							.catch((error) => reject(error));
-					} else {
-						reject(new Error(xhr.statusText));
-					}
-				} else {
-					reject(new Error("ERROR: " + xhr.responseText));
+					response.text().then((textResponse) => {
+						try {
+							const errorMessage = JSON.parse(textResponse).error[1].message;
+							reject(new Error(errorMessage));
+						} catch (e) {
+							reject(new Error(textResponse || xhr.statusText));
+						}
+					}).catch(() => {
+						reject(new Error("HTTP Error: " + status));
+					});
 				}
 			}
 		};
