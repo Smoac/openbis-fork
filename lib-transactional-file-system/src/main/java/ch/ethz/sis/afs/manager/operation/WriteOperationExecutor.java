@@ -15,7 +15,7 @@
  */
 package ch.ethz.sis.afs.manager.operation;
 
-import static ch.ethz.sis.afs.exception.AFSExceptions.MD5NotMatch;
+import static ch.ethz.sis.afs.exception.AFSExceptions.HashNotMatch;
 import static ch.ethz.sis.afs.exception.AFSExceptions.PathIsDirectory;
 
 import java.util.Arrays;
@@ -63,9 +63,9 @@ public class WriteOperationExecutor implements OperationExecutor<WriteOperation>
         }
 
         // 1. Validate new data
-        byte[] md5Hash = IOUtils.getMD5(operation.getData());
-        if (!Arrays.equals(md5Hash, operation.getMd5Hash())) {
-            AFSExceptions.throwInstance(MD5NotMatch, OperationName.Write.name(), operation.getSource());
+        byte[] hash = IOUtils.getSHA1(operation.getData());
+        if (!Arrays.equals(hash, operation.getHash())) {
+            AFSExceptions.throwInstance(HashNotMatch, OperationName.Write.name(), operation.getSource());
         }
         // 2. Create temporary file if it has not been created already
         boolean tempSourceExists = IOUtils.exists(operation.getTempSource());

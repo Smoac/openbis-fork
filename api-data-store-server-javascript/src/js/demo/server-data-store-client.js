@@ -193,7 +193,7 @@ window.onload = function() {
 			datastoreServer.write(owner, 
 					document.getElementById("fpath").value.trim(),
 					parseInt(document.getElementById("foffset").value.trim()),
-					btoa(document.getElementById("write-text").value.trim()))
+					document.getElementById("write-text").value.trim())
 				.then(() => showEntries());
 		}
 	};

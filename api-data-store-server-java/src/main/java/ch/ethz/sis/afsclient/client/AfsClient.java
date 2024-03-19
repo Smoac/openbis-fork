@@ -42,8 +42,6 @@ public final class AfsClient implements PublicAPI, ClientAPI
 
     private static final int DEFAULT_TIMEOUT_IN_MILLIS = 30000;
 
-    private static final String MD5 = "MD5";
-
     private final int maxReadSizeInBytes;
 
     private final int timeout;
@@ -361,7 +359,18 @@ public final class AfsClient implements PublicAPI, ClientAPI
     {
         try
         {
-            return MessageDigest.getInstance(MD5).digest(data);
+            return MessageDigest.getInstance("MD5").digest(data);
+        } catch (Exception exception)
+        {
+            throw new RuntimeException(exception);
+        }
+    }
+
+    private static byte[] getSHA1(final byte[] data)
+    {
+        try
+        {
+            return MessageDigest.getInstance("SHA-1").digest(data);
         } catch (Exception exception)
         {
             throw new RuntimeException(exception);
@@ -592,7 +601,7 @@ public final class AfsClient implements PublicAPI, ClientAPI
             final byte[] data = result < fullBuffer.length ? Arrays.copyOf(fullBuffer, result) : fullBuffer;
             try
             {
-                final Boolean writeSuccessful = write(owner, destination, this.offset, data, getMD5(data));
+                final Boolean writeSuccessful = write(owner, destination, this.offset, data, getSHA1(data));
                 if (!writeSuccessful)
                 {
                     hasError.set(true);

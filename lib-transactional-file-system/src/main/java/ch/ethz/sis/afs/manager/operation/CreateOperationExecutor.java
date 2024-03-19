@@ -15,17 +15,11 @@
  */
 package ch.ethz.sis.afs.manager.operation;
 
-import static ch.ethz.sis.afs.exception.AFSExceptions.MD5NotMatch;
 import static ch.ethz.sis.afs.exception.AFSExceptions.PathInStore;
-import static ch.ethz.sis.afs.exception.AFSExceptions.PathIsDirectory;
 
-import java.util.Arrays;
-
-import ch.ethz.sis.afs.api.dto.File;
 import ch.ethz.sis.afs.dto.Transaction;
 import ch.ethz.sis.afs.dto.operation.CreateOperation;
 import ch.ethz.sis.afs.dto.operation.OperationName;
-import ch.ethz.sis.afs.dto.operation.WriteOperation;
 import ch.ethz.sis.afs.exception.AFSExceptions;
 import ch.ethz.sis.shared.io.IOUtils;
 import lombok.NonNull;

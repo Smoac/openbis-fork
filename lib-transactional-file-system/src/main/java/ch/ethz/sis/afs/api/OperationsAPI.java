@@ -29,7 +29,7 @@ public interface OperationsAPI {
     @NonNull
     byte[] read(@NonNull String source, @NonNull long offset, @NonNull int limit) throws Exception;
 
-    boolean write(@NonNull String source, @NonNull long offset, @NonNull byte[] data, @NonNull byte[] md5Hash) throws Exception;
+    boolean write(@NonNull String source, @NonNull long offset, @NonNull byte[] data, @NonNull byte[] hash) throws Exception;
 
     boolean delete(@NonNull String source) throws Exception;
 
