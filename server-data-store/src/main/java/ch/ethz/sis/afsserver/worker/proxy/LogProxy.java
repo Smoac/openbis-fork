@@ -79,9 +79,9 @@ public class LogProxy extends AbstractProxy {
     }
 
     @Override
-    public Boolean write(@NonNull String owner, @NonNull String source, @NonNull Long offset, @NonNull byte[] data, @NonNull byte[] hash) throws Exception {
-        logger.traceAccess(null, owner, source, offset, data.length, hash.length);
-        return logger.traceExit(nextProxy.write(owner, source, offset, data, hash));
+    public Boolean write(@NonNull String owner, @NonNull String source, @NonNull Long offset, @NonNull byte[] data, @NonNull byte[] md5Hash) throws Exception {
+        logger.traceAccess(null, owner, source, offset, data.length, md5Hash.length);
+        return logger.traceExit(nextProxy.write(owner, source, offset, data, md5Hash));
     }
 
     @Override

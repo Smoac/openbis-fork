@@ -439,17 +439,16 @@ function hex2a(hexx) {
  * @param {str} owner owner of the file
  * @param {str} source path to file
  * @param {int} offset offset from which to start writing
- * @param {str} base64Data data to write in base64 format
- * @param {str} base64Hash MD5 of the base64 data
+ * @param {str} dataBase64 data to write in base64 format
  */
-DataStoreServer.prototype.write = function(owner, source, offset, base64Data, base64Hash){
+DataStoreServer.prototype.write = function(owner, source, offset, dataBase64){
 	const params =  this.fillCommonParameters({
 		"method": "write",
 		"owner" : owner,
 		"source": source,
 		"offset": offset,
-		"data":  base64Data,
-		"md5Hash": base64Hash
+		"data":  dataBase64,
+		"md5Hash":  btoa(hex2a(md5(atob(dataBase64)))),
 	});
 
 	return this._internal.sendHttpRequest(

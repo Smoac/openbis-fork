@@ -620,17 +620,11 @@ public class IOUtils {
         return pathAStore.equals(pathBStore);
     }
 
+    private static final String MD5 = "MD5";
+
     public static byte[] getMD5(byte[] data) {
         try {
-            return MessageDigest.getInstance("MD5").digest(data);
-        } catch (Exception exception) {
-            throw new RuntimeException(exception);
-        }
-    }
-
-    public static byte[] getSHA1(byte[] data) {
-        try {
-            return MessageDigest.getInstance("SHA-1").digest(data);
+            return MessageDigest.getInstance(MD5).digest(data);
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }

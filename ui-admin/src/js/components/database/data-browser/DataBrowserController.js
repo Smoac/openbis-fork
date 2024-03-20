@@ -169,29 +169,27 @@ export default class DataBrowserController extends ComponentController {
     while (offset < file.size) {
       const chunkData = await file.slice(offset, offset + CHUNK_SIZE).arrayBuffer()
       // console.log(`Uploading chunk: ${offset} - Size: ${chunkData.byteLength}`)
-      await this._uploadChunk(file.name, offset, chunkData)
+      await this._uploadChunk(file.name, offset, await this._arrayBufferToBase64(chunkData))
       offset += CHUNK_SIZE
     }
   }
 
   async _uploadChunk(source, offset, data) {
-    const hash = await crypto.subtle.digest("SHA-1", data)
-    const base64Data = await this._arrayBufferToBase64(data)
-    const base64Hash = await this._arrayBufferToBase64(hash)
-
-    return await this.component.datastoreServer.write(this.owner, source, offset, base64Data, base64Hash)
+    // console.log(data)
+    return await this.component.datastoreServer.write(this.owner, source, offset, data)
   }
 
   async _arrayBufferToBase64(buffer) {
     return new Promise((resolve, reject) => {
-      const blob = new Blob([buffer]);
-      const reader = new FileReader();
+      const blob = new Blob([buffer], {type: 'application/octet-stream'})
+      const reader = new FileReader()
       reader.onloadend = () => {
-        const base64data = reader.result.split(',')[1];
-        resolve(base64data);
+        const dataUrl = reader.result
+        const base64String = dataUrl.split(',')[1]
+        resolve(base64String)
       };
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
+      reader.onerror = reject
+      reader.readAsDataURL(blob)
     });
   }
 
