@@ -336,6 +336,132 @@ public class Integration2PCTest extends AbstractIntegrationTest
         assertEquals(new String(bytesRead, StandardCharsets.UTF_8), CONTENT);
     }
 
+    @Test
+    public void testPrepareFailsAtAS()
+    {
+        // make prepare fail at AS
+        setApplicationServerProxyInterceptor((method, defaultAction) ->
+        {
+            if (method != null && method.equals("prepareTransaction"))
+            {
+                throw new RuntimeException("Test prepare exception");
+            } else
+            {
+                defaultAction.call();
+            }
+        });
+
+        OpenBIS openBIS = createOpenBIS();
+        openBIS.setInteractiveSessionKey(TEST_INTERACTIVE_SESSION_KEY);
+        openBIS.login(USER, PASSWORD);
+
+        openBIS.beginTransaction();
+
+        String owner = OWNER_PREFIX + UUID.randomUUID();
+        String source = SOURCE_PREFIX + UUID.randomUUID();
+        byte[] bytesToWrite = CONTENT.getBytes(StandardCharsets.UTF_8);
+        openBIS.getAfsServerFacade().write(owner, source, 0L, bytesToWrite, calculateMD5(bytesToWrite));
+
+        assertTransactions(coordinatorApi.getTransactionMap(), new TestTransaction(openBIS.getTransactionId(), TransactionStatus.BEGIN_FINISHED));
+
+        SpaceCreation spaceCreation = new SpaceCreation();
+        spaceCreation.setCode(CODE_PREFIX + UUID.randomUUID());
+        SpacePermId spaceId = openBIS.createSpaces(List.of(spaceCreation)).get(0);
+
+        try
+        {
+            openBIS.commitTransaction();
+            fail();
+        } catch (Exception e)
+        {
+            assertEquals(e.getMessage(),
+                    "Commit transaction '" + openBIS.getTransactionId() + "' failed.");
+            assertEquals(e.getCause().getMessage(),
+                    "Prepare transaction '" + openBIS.getTransactionId()
+                            + "' failed for participant 'application-server'. The transaction was rolled back.");
+        }
+
+        assertTransactions(coordinatorApi.getTransactionMap());
+
+        // check data hasn't been committed
+        OpenBIS openBISNoTr = createOpenBIS();
+        openBISNoTr.login(USER, PASSWORD);
+
+        Space createdSpace = openBISNoTr.getSpaces(List.of(spaceId), new SpaceFetchOptions()).get(spaceId);
+        assertNull(createdSpace);
+
+        try
+        {
+            openBISNoTr.getAfsServerFacade().read(owner, source, 0L, bytesToWrite.length);
+            fail();
+        } catch (Exception expected)
+        {
+        }
+    }
+
+    @Test
+    public void testPrepareFailsAtAFS()
+    {
+        // make prepare fail at AFS
+        setAfsServerProxyInterceptor((method, defaultAction) ->
+        {
+            if (method != null && method.equals("prepare"))
+            {
+                throw new RuntimeException("Test prepare exception");
+            } else
+            {
+                defaultAction.call();
+            }
+        });
+
+        OpenBIS openBIS = createOpenBIS();
+        openBIS.setInteractiveSessionKey(TEST_INTERACTIVE_SESSION_KEY);
+        openBIS.login(USER, PASSWORD);
+
+        openBIS.beginTransaction();
+
+        String owner = OWNER_PREFIX + UUID.randomUUID();
+        String source = SOURCE_PREFIX + UUID.randomUUID();
+        byte[] bytesToWrite = CONTENT.getBytes(StandardCharsets.UTF_8);
+        openBIS.getAfsServerFacade().write(owner, source, 0L, bytesToWrite, calculateMD5(bytesToWrite));
+
+        assertTransactions(coordinatorApi.getTransactionMap(), new TestTransaction(openBIS.getTransactionId(), TransactionStatus.BEGIN_FINISHED));
+
+        SpaceCreation spaceCreation = new SpaceCreation();
+        spaceCreation.setCode(CODE_PREFIX + UUID.randomUUID());
+        SpacePermId spaceId = openBIS.createSpaces(List.of(spaceCreation)).get(0);
+
+        try
+        {
+            openBIS.commitTransaction();
+            fail();
+        } catch (Exception e)
+        {
+            assertEquals(e.getMessage(),
+                    "Commit transaction '" + openBIS.getTransactionId() + "' failed.");
+            assertEquals(e.getCause().getMessage(),
+                    "Prepare transaction '" + openBIS.getTransactionId()
+                            + "' failed for participant 'afs-server'. The transaction was rolled back.");
+        }
+
+        assertTransactions(coordinatorApi.getTransactionMap());
+
+        // check data hasn't been committed
+        OpenBIS openBISNoTr = createOpenBIS();
+        openBISNoTr.login(USER, PASSWORD);
+
+        Space createdSpace = openBISNoTr.getSpaces(List.of(spaceId), new SpaceFetchOptions()).get(spaceId);
+        assertNull(createdSpace);
+
+        try
+        {
+            openBISNoTr.getAfsServerFacade().read(owner, source, 0L, bytesToWrite.length);
+            fail();
+        } catch (Exception expected)
+        {
+        }
+    }
+
     private void rollbackPreparedDatabaseTransactions() throws Exception
     {
         try (Connection connection = applicationServerSpringContext.getBean(DataSource.class).getConnection();

@@ -147,6 +147,8 @@ public abstract class AbstractIntegrationTest
     public void beforeMethod(Method method)
     {
         log("BEFORE " + method.getDeclaringClass().getName() + "." + method.getName());
+        setApplicationServerProxyInterceptor(null);
+        setAfsServerProxyInterceptor(null);
     }
 
     @AfterMethod
@@ -271,7 +273,17 @@ public abstract class AbstractIntegrationTest
                                     + Arrays.toString(
                                     remoteInvocation.getArguments()));
 
-                    super.service(proxyRequest, response);
+                    if (applicationServerProxyInterceptor != null)
+                    {
+                        applicationServerProxyInterceptor.invoke(remoteInvocation.getMethodName(), () ->
+                        {
+                            super.service(proxyRequest, response);
+                            return null;
+                        });
+                    } else
+                    {
+                        super.service(proxyRequest, response);
+                    }
                 } catch (Exception e)
                 {
                     System.out.println("[AS PROXY] failed");
@@ -339,7 +351,7 @@ public abstract class AbstractIntegrationTest
 
                     if (afsServerProxyInterceptor != null)
                     {
-                        afsServerProxyInterceptor.invoke(parameters.get("method"), parameters, () ->
+                        afsServerProxyInterceptor.invoke(parameters.get("method"), () ->
                         {
                             super.service(proxyRequest, response);
                             return null;
@@ -409,7 +421,7 @@ public abstract class AbstractIntegrationTest
 
     public interface ProxyInterceptor
     {
-        void invoke(String method, Map<String, String> parameters, Callable<Void> defaultAction) throws Exception;
+        void invoke(String method, Callable<Void> defaultAction) throws Exception;
     }
 
     private static class ProxyRequest extends HttpServletRequestWrapper
