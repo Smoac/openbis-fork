@@ -27,9 +27,19 @@ public class TestInstanceHostUtils
         return 8800 + getProjectNumber() + 8;
     }
 
+    public static int getOpenBISProxyPort()
+    {
+        return getOpenBISPort() + 1000;
+    }
+
     public static String getOpenBISUrl()
     {
         return OPENBIS_URL + ":" + getOpenBISPort();
+    }
+
+    public static String getOpenBISProxyUrl()
+    {
+        return OPENBIS_URL + ":" + getOpenBISProxyPort();
     }
 
     public static String getOpenBISPath()
@@ -57,9 +67,19 @@ public class TestInstanceHostUtils
         return 8800 + getProjectNumber() + 7;
     }
 
+    public static int getAFSProxyPort()
+    {
+        return getAFSPort() + 1000;
+    }
+
     public static String getAFSUrl()
     {
         return OPENBIS_URL + ":" + getAFSPort();
+    }
+
+    public static String getAFSProxyUrl()
+    {
+        return OPENBIS_URL + ":" + getAFSProxyPort();
     }
 
     public static String getAFSPath()

@@ -515,48 +515,6 @@ public class AbstractTransactionTest extends AbstractTest
         }
     }
 
-    public static void assertTransactions(Map<UUID, ? extends AbstractTransaction> actualTransactions, TestTransaction... expectedTransactions)
-    {
-        Map<String, String> actualTransactionsMap = new TreeMap<>();
-        Map<String, String> expectedTransactionsMap = new TreeMap<>();
-
-        for (AbstractTransaction actualTransaction : actualTransactions.values())
-        {
-            actualTransactionsMap.put(actualTransaction.getTransactionId().toString(), actualTransaction.getTransactionStatus().toString());
-        }
-
-        for (TestTransaction expectedTransaction : expectedTransactions)
-        {
-            expectedTransactionsMap.put(expectedTransaction.getTransactionId().toString(), expectedTransaction.getTransactionStatus().toString());
-        }
-
-        assertEquals(actualTransactionsMap.toString(), expectedTransactionsMap.toString());
-    }
-
-    public static class TestTransaction
-    {
-
-        private final UUID transactionId;
-
-        private final TransactionStatus transactionStatus;
-
-        TestTransaction(final UUID transactionId, final TransactionStatus transactionStatus)
-        {
-            this.transactionId = transactionId;
-            this.transactionStatus = transactionStatus;
-        }
-
-        public UUID getTransactionId()
-        {
-            return transactionId;
-        }
-
-        public TransactionStatus getTransactionStatus()
-        {
-            return transactionStatus;
-        }
-    }
-
     public static Set<String> codes(Collection<? extends ICodeHolder> objectsWithCodes)
     {
         return objectsWithCodes.stream().map(ICodeHolder::getCode).collect(Collectors.toSet());

@@ -1,5 +1,7 @@
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
+import static ch.ethz.sis.transaction.TransactionTestUtil.TestTransaction;
+import static ch.ethz.sis.transaction.TransactionTestUtil.assertTransactions;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;
 

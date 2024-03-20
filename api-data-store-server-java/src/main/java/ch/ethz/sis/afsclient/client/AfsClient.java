@@ -465,10 +465,10 @@ public final class AfsClient implements PublicAPI, ClientAPI
             throw ClientExceptions.API_ERROR.getInstance(res);
         } else if (statusCode >= 500 && statusCode < 600)
         {
-            throw ClientExceptions.SERVER_ERROR.getInstance(statusCode);
+            throw ClientExceptions.SERVER_ERROR.getInstance(String.valueOf(statusCode));
         } else
         {
-            throw ClientExceptions.OTHER_ERROR.getInstance(statusCode);
+            throw ClientExceptions.OTHER_ERROR.getInstance(String.valueOf(statusCode));
         }
     }
 

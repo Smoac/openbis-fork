@@ -411,6 +411,11 @@ public class OpenBIS
         return asFacadeNoTransactions.isSessionActive(sessionToken);
     }
 
+    public UUID getTransactionId()
+    {
+        return transactionId;
+    }
+
     public void beginTransaction()
     {
         checkTransactionDoesNotExist();

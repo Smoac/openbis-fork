@@ -15,13 +15,32 @@
  */
 package ch.ethz.sis.openbis.systemtests.common;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.Callable;
 
+import javax.servlet.ReadListener;
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
+import org.eclipse.jetty.http.HttpMethod;
+import org.eclipse.jetty.proxy.ProxyServlet;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
@@ -31,6 +50,8 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.remoting.rmi.CodebaseAwareObjectInputStream;
+import org.springframework.remoting.support.RemoteInvocation;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.GenericWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
@@ -61,11 +82,19 @@ public abstract class AbstractIntegrationTest
 
     public static final String PASSWORD = "password";
 
+    private static Server applicationServerProxy;
+
+    private static ProxyInterceptor applicationServerProxyInterceptor;
+
     private static Server applicationServer;
 
-    private static ch.ethz.sis.afsserver.server.Server<TransactionConnection, Object> afsServer;
-
     protected static GenericWebApplicationContext applicationServerSpringContext;
+
+    private static Server afsServerProxy;
+
+    private static ProxyInterceptor afsServerProxyInterceptor;
+
+    private static ch.ethz.sis.afsserver.server.Server<TransactionConnection, Object> afsServer;
 
     @BeforeSuite
     public void beforeSuite() throws Exception
@@ -76,14 +105,18 @@ public abstract class AbstractIntegrationTest
         cleanupAfsServerFolders();
 
         startApplicationServer();
+        startApplicationServerProxy();
         startAfsServer();
+        startAfsServerProxy();
     }
 
     @AfterSuite
     public void afterSuite() throws Exception
     {
         shutdownApplicationServer();
+        shutdownApplicationServerProxy();
         shutdownAfsServer();
+        shutdownAfsServerProxy();
     }
 
     private void shutdownApplicationServer()
@@ -92,25 +125,38 @@ public abstract class AbstractIntegrationTest
         log("Shut down application server.");
     }
 
+    private void shutdownApplicationServerProxy()
+    {
+        applicationServerProxy.setStopAtShutdown(true);
+        log("Shut down application server proxy.");
+    }
+
     private void shutdownAfsServer() throws Exception
     {
         afsServer.shutdown(false);
         log("Shut down afs server.");
     }
 
+    private void shutdownAfsServerProxy()
+    {
+        afsServerProxy.setStopAtShutdown(true);
+        log("Shut down afs server proxy.");
+    }
+
     @BeforeMethod
-    public void beforeTest(Method method)
+    public void beforeMethod(Method method)
     {
         log("BEFORE " + method.getDeclaringClass().getName() + "." + method.getName());
     }
 
     @AfterMethod
-    public void afterTest(Method method)
+    public void afterMethod(Method method) throws Exception
     {
         log("AFTER  " + method.getDeclaringClass().getName() + "." + method.getName());
     }
 
-    private void initLogging(){
+    private void initLogging()
+    {
         System.setProperty("log4j.configuration", "etc/log4j1.xml");
         System.setProperty("log4j.configurationFile", "etc/log4j1.xml");
     }
@@ -200,12 +246,123 @@ public abstract class AbstractIntegrationTest
         AbstractIntegrationTest.applicationServer = server;
     }
 
+    private void startApplicationServerProxy() throws Exception
+    {
+        Server server = new Server();
+        HttpConfiguration httpConfig = new HttpConfiguration();
+        ServerConnector connector =
+                new ServerConnector(server, new HttpConnectionFactory(httpConfig));
+        connector.setPort(TestInstanceHostUtils.getOpenBISProxyPort());
+        server.addConnector(connector);
+        ProxyServlet proxyServlet = new ProxyServlet.Transparent()
+        {
+            @Override protected void service(final HttpServletRequest request, final HttpServletResponse response)
+            {
+                try
+                {
+                    ProxyRequest proxyRequest = new ProxyRequest(request);
+
+                    CodebaseAwareObjectInputStream objectInputStream =
+                            new CodebaseAwareObjectInputStream(proxyRequest.getInputStream(), getClass().getClassLoader(), true);
+                    RemoteInvocation remoteInvocation = (RemoteInvocation) objectInputStream.readObject();
+
+                    System.out.println(
+                            "[AS PROXY] url: " + proxyRequest.getRequestURL() + ", method: " + remoteInvocation.getMethodName() + ", parameters: "
+                                    + Arrays.toString(
+                                    remoteInvocation.getArguments()));
+
+                    super.service(proxyRequest, response);
+                } catch (Exception e)
+                {
+                    System.out.println("[AS PROXY] failed");
+                    throw new RuntimeException(e);
+                }
+            }
+        };
+        ServletHolder proxyServletHolder = new ServletHolder(proxyServlet);
+        proxyServletHolder.setInitParameter("proxyTo", TestInstanceHostUtils.getOpenBISUrl() + "/");
+        ServletContextHandler servletContext =
+                new ServletContextHandler(server, "/", ServletContextHandler.SESSIONS);
+        servletContext.addServlet(proxyServletHolder, "/*");
+        server.start();
+
+        AbstractIntegrationTest.applicationServerProxy = server;
+    }
+
     private void startAfsServer() throws Exception
     {
         Configuration configuration = getAfsServerConfiguration();
         DummyServerObserver dummyServerObserver = new DummyServerObserver();
 
         AbstractIntegrationTest.afsServer = new ch.ethz.sis.afsserver.server.Server<>(configuration, dummyServerObserver, dummyServerObserver);
+    }
+
+    private void startAfsServerProxy() throws Exception
+    {
+        Server server = new Server();
+        HttpConfiguration httpConfig = new HttpConfiguration();
+        ServerConnector connector =
+                new ServerConnector(server, new HttpConnectionFactory(httpConfig));
+        connector.setPort(TestInstanceHostUtils.getAFSProxyPort());
+        server.addConnector(connector);
+        ProxyServlet proxyServlet = new ProxyServlet.Transparent()
+        {
+            @Override protected void service(final HttpServletRequest request, final HttpServletResponse response)
+            {
+                try
+                {
+                    ProxyRequest proxyRequest = new ProxyRequest(request);
+
+                    Map<String, String> parameters = new HashMap<>();
+
+                    if (HttpMethod.GET.is(proxyRequest.getMethod()))
+                    {
+                        Iterator<String> iterator = proxyRequest.getParameterNames().asIterator();
+                        while (iterator.hasNext())
+                        {
+                            String name = iterator.next();
+                            parameters.put(name, proxyRequest.getParameter(name));
+                        }
+                    } else if (HttpMethod.POST.is(proxyRequest.getMethod()))
+                    {
+                        String parametersString = IOUtils.toString(proxyRequest.getInputStream(), StandardCharsets.UTF_8);
+                        List<NameValuePair> parametersList = URLEncodedUtils.parse(parametersString, StandardCharsets.UTF_8);
+                        for (NameValuePair parameterItem : parametersList)
+                        {
+                            parameters.put(parameterItem.getName(), parameterItem.getValue());
+                        }
+                    }
+
+                    System.out.println(
+                            "[AFS PROXY] url: " + proxyRequest.getRequestURL() + ", method: " + parameters.get("method") + ", parameters: "
+                                    + parameters);
+
+                    if (afsServerProxyInterceptor != null)
+                    {
+                        afsServerProxyInterceptor.invoke(parameters.get("method"), parameters, () ->
+                        {
+                            super.service(proxyRequest, response);
+                            return null;
+                        });
+                    } else
+                    {
+                        super.service(proxyRequest, response);
+                    }
+                } catch (Exception e)
+                {
+                    System.out.println("[AFS PROXY] failed");
+                    throw new RuntimeException(e);
+                }
+            }
+        };
+        ServletHolder proxyServletHolder = new ServletHolder(proxyServlet);
+        proxyServletHolder.setInitParameter("proxyTo", TestInstanceHostUtils.getAFSUrl());
+        ServletContextHandler servletContext =
+                new ServletContextHandler(server, "/", ServletContextHandler.SESSIONS);
+        servletContext.addServlet(proxyServletHolder, "/*");
+        server.start();
+
+        AbstractIntegrationTest.afsServerProxy = server;
     }
 
     private Properties getApplicationServerConfiguration() throws Exception
@@ -219,9 +376,9 @@ public abstract class AbstractIntegrationTest
         configuration.setProperty(TransactionConfiguration.INTERACTIVE_SESSION_KEY_PROPERTY_NAME, TEST_INTERACTIVE_SESSION_KEY);
         configuration.setProperty(TransactionConfiguration.TRANSACTION_LOG_FOLDER_PATH_PROPERTY_NAME, "./targets/transaction-logs");
         configuration.setProperty(TransactionConfiguration.TRANSACTION_TIMEOUT_PROPERTY_NAME, "15");
-        configuration.setProperty(TransactionConfiguration.APPLICATION_SERVER_URL_PROPERTY_NAME, TestInstanceHostUtils.getOpenBISUrl());
+        configuration.setProperty(TransactionConfiguration.APPLICATION_SERVER_URL_PROPERTY_NAME, TestInstanceHostUtils.getOpenBISProxyUrl());
         configuration.setProperty(TransactionConfiguration.AFS_SERVER_URL_PROPERTY_NAME,
-                TestInstanceHostUtils.getAFSUrl() + TestInstanceHostUtils.getAFSPath());
+                TestInstanceHostUtils.getAFSProxyUrl() + TestInstanceHostUtils.getAFSPath());
         return configuration;
     }
 
@@ -237,6 +394,67 @@ public abstract class AbstractIntegrationTest
         configuration.setProperty(AtomicFileSystemServerParameter.httpServerPort, String.valueOf(TestInstanceHostUtils.getAFSPort()));
         configuration.setProperty(AtomicFileSystemServerParameter.httpServerUri, TestInstanceHostUtils.getAFSPath());
         return configuration;
+    }
+
+    public static void setApplicationServerProxyInterceptor(
+            final ProxyInterceptor applicationServerProxyInterceptor)
+    {
+        AbstractIntegrationTest.applicationServerProxyInterceptor = applicationServerProxyInterceptor;
+    }
+
+    public static void setAfsServerProxyInterceptor(final ProxyInterceptor afsServerProxyInterceptor)
+    {
+        AbstractIntegrationTest.afsServerProxyInterceptor = afsServerProxyInterceptor;
+    }
+
+    public interface ProxyInterceptor
+    {
+        void invoke(String method, Map<String, String> parameters, Callable<Void> defaultAction) throws Exception;
+    }
+
+    private static class ProxyRequest extends HttpServletRequestWrapper
+    {
+        private boolean read;
+
+        private byte[] bytes;
+
+        public ProxyRequest(final HttpServletRequest request)
+        {
+            super(request);
+        }
+
+        @Override public ServletInputStream getInputStream() throws IOException
+        {
+            if (!read)
+            {
+                bytes = IOUtils.toByteArray(super.getInputStream());
+                read = true;
+            }
+            return new ServletInputStream()
+            {
+                private final ByteArrayInputStream bytesStream = new ByteArrayInputStream(bytes);
+
+                @Override public int read()
+                {
+                    return bytesStream.read();
+                }
+
+                @Override public boolean isReady()
+                {
+                    return true;
+                }
+
+                @Override public boolean isFinished()
+                {
+                    return bytesStream.available() == 0;
+                }
+
+                @Override public void setReadListener(final ReadListener readListener)
+                {
+                }
+
+            };
+        }
     }
 
     public static OpenBIS createOpenBIS()
