@@ -203,10 +203,77 @@ public class Integration2PCTest extends AbstractIntegrationTest
     }
 
     @Test
+    public void testBeginFailsAtAS()
+    {
+        // make begin fail at AS
+        setApplicationServerProxyInterceptor((method, defaultAction) ->
+        {
+            if (method != null && method.equals("beginTransaction"))
+            {
+                throw new RuntimeException("Test begin exception");
+            } else
+            {
+                defaultAction.call();
+            }
+        });
+
+        OpenBIS openBIS = createOpenBIS();
+        openBIS.setInteractiveSessionKey(TEST_INTERACTIVE_SESSION_KEY);
+        openBIS.login(USER, PASSWORD);
+
+        openBIS.beginTransaction();
+
+        String owner = OWNER_PREFIX + UUID.randomUUID();
+        String source = SOURCE_PREFIX + UUID.randomUUID();
+        byte[] bytesToWrite = CONTENT.getBytes(StandardCharsets.UTF_8);
+        openBIS.getAfsServerFacade().write(owner, source, 0L, bytesToWrite, calculateMD5(bytesToWrite));
+
+        assertTransactions(coordinatorApi.getTransactionMap(), new TestTransaction(openBIS.getTransactionId(), TransactionStatus.BEGIN_FINISHED));
+
+        SpaceCreation spaceCreation = new SpaceCreation();
+        spaceCreation.setCode(CODE_PREFIX + UUID.randomUUID());
+
+        try
+        {
+            // first attempt
+            openBIS.createSpaces(List.of(spaceCreation));
+            fail();
+        } catch (Exception e)
+        {
+            assertEquals(e.getMessage(),
+                    "Transaction '" + openBIS.getTransactionId() + "' execute operation 'createSpaces' for participant 'application-server' failed.");
+            assertEquals(e.getCause().getMessage(),
+                    "Begin transaction '" + openBIS.getTransactionId() + "' failed for participant 'application-server'.");
+        }
+
+        assertTransactions(coordinatorApi.getTransactionMap(), new TestTransaction(openBIS.getTransactionId(), TransactionStatus.BEGIN_FINISHED));
+
+        // make begin succeed at AS
+        setApplicationServerProxyInterceptor((method, defaultAction) -> defaultAction.call());
+
+        // second attempt
+        SpacePermId spaceId = openBIS.createSpaces(List.of(spaceCreation)).get(0);
+
+        openBIS.commitTransaction();
+
+        assertTransactions(coordinatorApi.getTransactionMap());
+
+        // check committed data
+        OpenBIS openBISNoTr = createOpenBIS();
+        openBISNoTr.login(USER, PASSWORD);
+
+        Space createdSpace = openBISNoTr.getSpaces(List.of(spaceId), new SpaceFetchOptions()).get(spaceId);
+        assertNotNull(createdSpace);
+
+        byte[] bytesRead = openBISNoTr.getAfsServerFacade().read(owner, source, 0L, bytesToWrite.length);
+        assertEquals(new String(bytesRead, StandardCharsets.UTF_8), CONTENT);
+    }
+
+    @Test
     public void testBeginFailsAtAFS()
     {
         // make begin fail at AFS
-        setAfsServerProxyInterceptor((method, parameters, defaultAction) ->
+        setAfsServerProxyInterceptor((method, defaultAction) ->
         {
             if (method != null && method.equals("begin"))
             {
@@ -226,7 +293,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
         SpaceCreation spaceCreation = new SpaceCreation();
         spaceCreation.setCode(CODE_PREFIX + UUID.randomUUID());
 
-        openBIS.createSpaces(List.of(spaceCreation));
+        SpacePermId spaceId = openBIS.createSpaces(List.of(spaceCreation)).get(0);
 
         String owner = OWNER_PREFIX + UUID.randomUUID();
         String source = SOURCE_PREFIX + UUID.randomUUID();
@@ -249,10 +316,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
         assertTransactions(coordinatorApi.getTransactionMap(), new TestTransaction(openBIS.getTransactionId(), TransactionStatus.BEGIN_FINISHED));
 
         // make begin succeed at AFS
-        setAfsServerProxyInterceptor((method, parameters, defaultAction) ->
-        {
-            defaultAction.call();
-        });
+        setAfsServerProxyInterceptor((method, defaultAction) -> defaultAction.call());
 
         // second attempt
         openBIS.getAfsServerFacade().write(owner, source, 0L, bytesToWrite, calculateMD5(bytesToWrite));
@@ -260,6 +324,16 @@ public class Integration2PCTest extends AbstractIntegrationTest
         openBIS.commitTransaction();
 
         assertTransactions(coordinatorApi.getTransactionMap());
+
+        // check committed data
+        OpenBIS openBISNoTr = createOpenBIS();
+        openBISNoTr.login(USER, PASSWORD);
+
+        Space createdSpace = openBISNoTr.getSpaces(List.of(spaceId), new SpaceFetchOptions()).get(spaceId);
+        assertNotNull(createdSpace);
+
+        byte[] bytesRead = openBISNoTr.getAfsServerFacade().read(owner, source, 0L, bytesToWrite.length);
+        assertEquals(new String(bytesRead, StandardCharsets.UTF_8), CONTENT);
     }
 
     private void rollbackPreparedDatabaseTransactions() throws Exception
