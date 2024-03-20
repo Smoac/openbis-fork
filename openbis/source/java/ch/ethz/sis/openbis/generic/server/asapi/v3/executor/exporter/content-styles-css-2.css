@@ -25,7 +25,8 @@
     /* Set the styles for "Paragraph". */
     p {
         font-size: 16px;
-        line-height: 25px;
+        line-height: 18.5px;
+        margin: 0 0 10px 0;
     }
 
     /* Make the block quoted text serif with some additional spacing. */
