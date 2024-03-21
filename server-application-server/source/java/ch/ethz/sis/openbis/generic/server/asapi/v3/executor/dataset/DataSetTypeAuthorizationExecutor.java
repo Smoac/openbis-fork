@@ -15,6 +15,10 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.FieldUpdateValue;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetTypeUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.IPluginId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.PluginPermId;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
@@ -30,6 +34,8 @@ import ch.systemsx.cisd.openbis.generic.shared.DatabaseUpdateModification;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 
+import java.util.Map;
+
 /**
  * @author pkupczyk
  */
@@ -43,7 +49,11 @@ public class DataSetTypeAuthorizationExecutor implements IDataSetTypeAuthorizati
     @DatabaseCreateOrDeleteModification(value = ObjectKind.DATASET_TYPE)
     public void canCreate(IOperationContext context, DataSetTypePE entityTypePE)
     {
-        checkDataSetType(context.getSession(), entityTypePE);
+        if (entityTypePE.isManagedInternally() && isSystemUser(context.getSession()) == false)
+        {
+            throw new AuthorizationFailureException(
+                    "Internal entity types can be managed only by the system user.");
+        }
     }
 
     @Override
@@ -64,8 +74,61 @@ public class DataSetTypeAuthorizationExecutor implements IDataSetTypeAuthorizati
     @RolesAllowed({ RoleWithHierarchy.INSTANCE_ADMIN })
     @Capability("UPDATE_DATASET_TYPE")
     @DatabaseUpdateModification(value = ObjectKind.DATASET_TYPE)
-    public void canUpdate(IOperationContext context, DataSetTypePE entityTypePE)
+    public void canUpdate(IOperationContext context, DataSetTypePE entityType,
+            DataSetTypeUpdate update)
     {
+        if (entityType.isManagedInternally() && isSystemUser(context.getSession()) == false)
+        {
+            boolean isModified =
+                    isFieldUpdated(update.getDescription(), entityType.getDescription()) ||
+                            isFieldUpdated(update.getMainDataSetPath(),
+                                    entityType.getMainDataSetPath()) ||
+                            isFieldUpdated(update.getMainDataSetPattern(),
+                                    entityType.getMainDataSetPattern()) ||
+                            isFieldUpdated(update.isDisallowDeletion(),
+                                    entityType.isDeletionDisallow());
+
+            if (!isModified && update.getValidationPluginId() != null && update.getValidationPluginId()
+                    .isModified())
+            {
+                IPluginId updatePluginId = update.getValidationPluginId().getValue();
+                if (updatePluginId == null)
+                {
+                    isModified = entityType.getValidationScript() != null;
+                } else
+                {
+                    if (entityType.getValidationScript() == null)
+                    {
+                        isModified = true;
+                    } else
+                    {
+                        IPluginId permId =
+                                new PluginPermId(entityType.getValidationScript().getPermId());
+                        isModified = !permId.equals(updatePluginId);
+                    }
+                }
+            }
+            if (!isModified && update.getMetaData() != null && update.getMetaData().hasActions())
+            {
+                if (!update.getMetaData().getRemoved().isEmpty() || !update.getMetaData().getAdded()
+                        .isEmpty())
+                {
+                    isModified = true;
+                } else
+                {
+                    for (Map<String, String> m : update.getMetaData().getSet())
+                    {
+                        isModified = isModified || !m.equals(entityType.getMetaData());
+                    }
+                }
+            }
+
+            if (isModified)
+            {
+                throw new AuthorizationFailureException(
+                        "Internal entity type fields can be managed only by the system user.");
+            }
+        }
     }
 
     @Override
@@ -76,25 +139,33 @@ public class DataSetTypeAuthorizationExecutor implements IDataSetTypeAuthorizati
     {
     }
 
-    private void checkDataSetType(Session session, EntityTypePE entityTypePE)
-    {
-        if(entityTypePE.isManagedInternally() && isSystemUser(session) == false)
-        {
-            throw new AuthorizationFailureException("Internal entity types can be managed only by the system user.");
-        }
-    }
-
     private boolean isSystemUser(Session session)
     {
         PersonPE user = session.tryGetPerson();
 
         if (user == null)
         {
-            throw new AuthorizationFailureException("Could not check access because the current session does not have any user assigned.");
+            throw new AuthorizationFailureException(
+                    "Could not check access because the current session does not have any user assigned.");
         } else
         {
             return user.isSystemUser();
         }
+    }
+
+    private boolean isFieldUpdated(FieldUpdateValue<?> field, Object currentValue)
+    {
+        if (field != null && field.isModified())
+        {
+            if (currentValue != null)
+            {
+                return !currentValue.equals(field.getValue());
+            } else
+            {
+                return field.getValue() != null;
+            }
+        }
+        return false;
     }
 
 }

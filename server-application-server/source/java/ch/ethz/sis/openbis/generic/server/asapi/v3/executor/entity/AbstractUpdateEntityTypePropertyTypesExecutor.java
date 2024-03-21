@@ -137,7 +137,8 @@ public abstract class AbstractUpdateEntityTypePropertyTypesExecutor<UPDATE exten
         }
         if(typePE.isManagedInternally() && !isSystemUser(context.getSession()))
         {
-            validateInternalEntityTypeChanges(typePE, updates);
+            //TODO property assignment validation should be introduced during intern assignment implementation
+//            validateInternalEntityTypeChanges(typePE, updates);
         }
 
         if (updates != null && updates.hasActions())
@@ -149,7 +150,7 @@ public abstract class AbstractUpdateEntityTypePropertyTypesExecutor<UPDATE exten
     }
 
     /**
-     * Business logic to validate changes made to internal entity type definition.
+     * Business logic to validate changes made to internal entity type assignments.
      * @param typePE internal entity type
      * @param updates to be performed
      */
@@ -193,7 +194,7 @@ public abstract class AbstractUpdateEntityTypePropertyTypesExecutor<UPDATE exten
                     if(etpt != null)
                     {
                         // modify existing
-                        if(!etpt.isManagedInternally() && creation.isMandatory()) {
+                        if(!etpt.isMandatory() && creation.isMandatory()) {
                             throw new UserFailureException("Only system user can make properties mandatory for internal entity types! Property:" + creation.getPropertyTypeId());
                         }
                         if(!etpt.isScriptable() && creation.getPluginId() != null)

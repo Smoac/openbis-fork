@@ -78,7 +78,7 @@ public class UpdateAuthorizationGroupExecutor
     }
 
     @Override
-    protected void checkAccess(IOperationContext context, IAuthorizationGroupId id, AuthorizationGroupPE entity)
+    protected void checkAccess(IOperationContext context, IAuthorizationGroupId id, AuthorizationGroupPE entity, AuthorizationGroupUpdate update)
     {
         authorizationExecutor.canUpdate(context);
     }

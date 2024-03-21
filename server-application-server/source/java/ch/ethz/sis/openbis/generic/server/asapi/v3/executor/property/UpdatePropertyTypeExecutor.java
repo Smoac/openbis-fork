@@ -108,7 +108,7 @@ public class UpdatePropertyTypeExecutor
     }
 
     @Override
-    protected void checkAccess(IOperationContext context, IPropertyTypeId id, PropertyTypePE entity)
+    protected void checkAccess(IOperationContext context, IPropertyTypeId id, PropertyTypePE entity, PropertyTypeUpdate update)
     {
         authorizationExecutor.canUpdate(context, id, entity);
     }

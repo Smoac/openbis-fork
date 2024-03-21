@@ -75,7 +75,7 @@ public class UpdateExternalDmsExecutor
     }
 
     @Override
-    protected void checkAccess(IOperationContext context, IExternalDmsId id, ExternalDataManagementSystemPE entity)
+    protected void checkAccess(IOperationContext context, IExternalDmsId id, ExternalDataManagementSystemPE entity, ExternalDmsUpdate update)
     {
         authorizationExecutor.canUpdate(context);
     }

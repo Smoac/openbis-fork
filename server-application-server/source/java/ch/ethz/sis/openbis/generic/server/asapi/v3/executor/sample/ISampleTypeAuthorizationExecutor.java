@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.update.SampleTypeUpdate;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IObjectAuthorizationExecutor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
@@ -32,7 +33,7 @@ public interface ISampleTypeAuthorizationExecutor extends IObjectAuthorizationEx
 
     void canSearch(IOperationContext context);
 
-    void canUpdate(IOperationContext context, SampleTypePE entityType);
+    void canUpdate(IOperationContext context, SampleTypePE entityType, SampleTypeUpdate update);
 
     void canDelete(IOperationContext context, EntityTypePE entityTypePE);
 

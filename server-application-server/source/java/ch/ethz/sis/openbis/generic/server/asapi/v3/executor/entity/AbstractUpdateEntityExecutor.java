@@ -135,7 +135,7 @@ public abstract class AbstractUpdateEntityExecutor<UPDATE extends IUpdate, PE ex
                     ID id = getId(update);
                     try
                     {
-                        checkAccess(context, id, entity);
+                        checkAccess(context, id, entity, update);
                     } catch (AuthorizationFailureException ex)
                     {
                         throw new UnauthorizedObjectAccessException(id, ex.getMessage());
@@ -240,7 +240,7 @@ public abstract class AbstractUpdateEntityExecutor<UPDATE extends IUpdate, PE ex
 
     protected abstract void checkData(IOperationContext context, UPDATE update);
 
-    protected abstract void checkAccess(IOperationContext context, ID id, PE entity);
+    protected abstract void checkAccess(IOperationContext context, ID id, PE entity, UPDATE update);
 
     protected abstract void updateBatch(IOperationContext context, MapBatch<UPDATE, PE> batch);
 

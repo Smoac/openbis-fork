@@ -93,7 +93,7 @@ public class UpdateProjectExecutor extends AbstractUpdateEntityExecutor<ProjectU
     }
 
     @Override
-    protected void checkAccess(IOperationContext context, IProjectId id, ProjectPE entity)
+    protected void checkAccess(IOperationContext context, IProjectId id, ProjectPE entity, ProjectUpdate update)
     {
         authorizationExecutor.canUpdate(context, id, entity);
     }
