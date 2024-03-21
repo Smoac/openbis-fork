@@ -676,6 +676,63 @@ public abstract class UpdateEntityTypeTest<CREATION extends IEntityTypeCreation,
     }
 
     @Test
+    public void testUpdateInternalEntityTypeAsUser_fail()
+    {
+        String sessionToken = v3api.loginAsSystem();
+
+        CREATION entityTypeCreation = newTypeCreation();
+        entityTypeCreation.setManagedInternally(true);
+        entityTypeCreation.setCode("NEW_INTERNAL_ENTITY_TYPE");
+        entityTypeCreation.setDescription("Initial description");
+        List<EntityTypePermId> entityTypeIds = createTypes(sessionToken, Arrays.asList(entityTypeCreation));
+
+        EntityTypePermId typeId = entityTypeIds.get(0);
+
+
+        // Given
+        String regularSessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        UPDATE update = newTypeUpdate();
+        update.setTypeId(typeId);
+        update.setDescription("Some description that will fail");
+        assertUserFailureException(new IDelegatedAction()
+                                   {
+                                       @Override
+                                       public void execute()
+                                       {
+                                           // When
+                                           updateTypes(regularSessionToken, Arrays.asList(update));
+                                       }
+                                   },
+                "Internal entity type fields can be managed only by the system user.");
+    }
+
+    @Test
+    public void testUpdateInternalEntityTypeAsSystemUser()
+    { //621359191756
+        String sessionToken = v3api.loginAsSystem();
+
+        CREATION entityTypeCreation = newTypeCreation();
+        entityTypeCreation.setManagedInternally(true);
+        entityTypeCreation.setCode("NEW_INTERNAL_ENTITY_TYPE");
+        entityTypeCreation.setDescription("Initial description");
+        List<EntityTypePermId> entityTypeIds = createTypes(sessionToken, Arrays.asList(entityTypeCreation));
+
+        EntityTypePermId typeId = entityTypeIds.get(0);
+        TYPE type = getType(sessionToken, typeId);
+        assertEquals(type.getDescription(), "Initial description");
+
+        // Given
+        UPDATE update = newTypeUpdate();
+        update.setTypeId(typeId);
+        update.setDescription("New description");
+        updateTypes(sessionToken, Arrays.asList(update));
+
+        type = getType(sessionToken, typeId);
+        assertEquals(type.getDescription(), "New description");
+    }
+
+    @Test
     public void testSetPropertyTypeAssignment()
     {
         // Given

@@ -16,10 +16,13 @@
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 
 import java.util.Arrays;
 import java.util.List;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentTypeCreation;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
@@ -482,6 +485,64 @@ public abstract class CreateEntityTypeTest<CREATION extends IEntityTypeCreation,
                     testCreateWithUser(TEST_SPACE_USER);
                 }
             }, null);
+    }
+
+    @Test
+    public void testCreateInternalTypeByUser_failDueToAuthorization() {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final CREATION type = newTypeCreation();
+        type.setCode("NEW_INTERNAL_ENTITY_TYPE");
+        type.setManagedInternally(true);
+
+        assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
+            {
+                createTypes(sessionToken, Arrays.asList(type));
+            }
+        }, "Authorization failure: Internal entity types can be managed only by the system user.");
+
+    }
+
+    @Test
+    public void testCreateInternalTypeBySystem() {
+        String sessionToken = v3api.loginAsSystem();
+
+        final CREATION typeCreation = newTypeCreation();
+        typeCreation.setCode("NEW_INTERNAL_ENTITY_TYPE");
+        typeCreation.setManagedInternally(true);
+
+        createTypes(sessionToken, Arrays.asList(typeCreation));
+        TYPE type = getType(sessionToken, "$" + typeCreation.getCode());
+
+        assertNotNull(type);
+    }
+
+
+    @Test
+    public void testCreateMultipleTypesBySystem() {
+        String sessionToken = v3api.loginAsSystem();
+
+        final String typeCode = "TEST_NEW_ENTITY_TYPE";
+        final CREATION typeCreation1 = newTypeCreation();
+        typeCreation1.setCode(typeCode);
+        typeCreation1.setManagedInternally(true);
+        typeCreation1.setDescription("internal");
+
+        final CREATION typeCreation2 = newTypeCreation();
+        typeCreation2.setCode(typeCode);
+        typeCreation2.setDescription("non-internal");
+
+        createTypes(sessionToken, Arrays.asList(typeCreation1, typeCreation2));
+        TYPE internalType = getType(sessionToken, "$" + typeCode);
+        assertNotNull(internalType);
+        assertEquals(internalType.getDescription(), "internal");
+
+        TYPE type = getType(sessionToken, typeCode);
+        assertNotNull(type);
+        assertEquals(type.getDescription(), "non-internal");
     }
 
     private void testCreateWithUser(String userId)
