@@ -16,7 +16,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.search.planner;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.fetchoptions.SortOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.AbstractCompositeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.*;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.search.auth.AuthorisationInformation;
@@ -61,6 +61,22 @@ public class SampleTypeSearchManager extends AbstractLocalSearchManager<SampleTy
 
             final AbstractCompositeSearchCriteria parentCriteria, final String idsColumnName)
     {
+        for(ISearchCriteria singleCriteria : criteria.getCriteria())
+        {
+            if(singleCriteria instanceof PermIdSearchCriteria)
+            {
+                final AbstractStringValue fieldValue = ((PermIdSearchCriteria) singleCriteria).getFieldValue();
+                if(fieldValue.getValue() != null && fieldValue.getValue().startsWith("$")) {
+                    fieldValue.setValue(fieldValue.getValue().substring(1));
+                }
+            } else if (singleCriteria instanceof CodeSearchCriteria)
+            {
+                final AbstractStringValue fieldValue = ((CodeSearchCriteria) singleCriteria).getFieldValue();
+                if(fieldValue.getValue() != null && fieldValue.getValue().startsWith("$")) {
+                    fieldValue.setValue(fieldValue.getValue().substring(1));
+                }
+            }
+        }
         return super.searchForIDs(userId, authorisationInformation, criteria, idsColumnName, TableMapper.SAMPLE_TYPE);
     }
 
