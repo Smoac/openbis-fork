@@ -522,7 +522,7 @@ public abstract class CreateEntityTypeTest<CREATION extends IEntityTypeCreation,
 
 
     @Test
-    public void testCreateMultipleTypesBySystem() {
+    public void testCreateMultipleTypesBySystem_failBecauseExists() {
         String sessionToken = v3api.loginAsSystem();
 
         final String typeCode = "TEST_NEW_ENTITY_TYPE";
@@ -535,14 +535,14 @@ public abstract class CreateEntityTypeTest<CREATION extends IEntityTypeCreation,
         typeCreation2.setCode(typeCode);
         typeCreation2.setDescription("non-internal");
 
-        createTypes(sessionToken, Arrays.asList(typeCreation1, typeCreation2));
-        TYPE internalType = getType(sessionToken, "$" + typeCode);
-        assertNotNull(internalType);
-        assertEquals(internalType.getDescription(), "internal");
-
-        TYPE type = getType(sessionToken, typeCode);
-        assertNotNull(type);
-        assertEquals(type.getDescription(), "non-internal");
+        assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
+            {
+                createTypes(sessionToken, Arrays.asList(typeCreation1, typeCreation2));
+            }
+        }, "Entity type 'TEST_NEW_ENTITY_TYPE'  already exists in the database and needs to be unique.");
     }
 
     private void testCreateWithUser(String userId)
