@@ -161,7 +161,7 @@ public class TransactionCoordinatorApi extends AbstractTransactionNodeApi implem
 
         @Override public String getParticipantId()
         {
-            return getApplicationServer().getParticipantId();
+            return ITransactionCoordinatorApi.APPLICATION_SERVER_PARTICIPANT_ID;
         }
 
         @Override public void beginTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
