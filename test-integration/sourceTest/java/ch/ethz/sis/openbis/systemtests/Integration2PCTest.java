@@ -5,6 +5,7 @@ import static ch.ethz.sis.transaction.TransactionTestUtil.assertTransactions;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
 import java.lang.reflect.Method;
@@ -39,6 +40,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSetFileFetchOptions;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.TransactionConfiguration;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.TransactionCoordinatorApi;
 import ch.ethz.sis.openbis.systemtests.common.AbstractIntegrationTest;
 import ch.ethz.sis.transaction.TransactionStatus;
@@ -50,6 +54,8 @@ public class Integration2PCTest extends AbstractIntegrationTest
     private static final String ENTITY_CODE_PREFIX = "TRANSACTION_TEST_";
 
     private static final long WAITING_TIME_FOR_FINISHING_TRANSACTIONS = 2000L;
+
+    private static final long WAITING_TIME_FOR_TIMEOUT = 6000L;
 
     @AfterMethod
     public void afterMethod(Method method) throws Exception
@@ -221,6 +227,137 @@ public class Integration2PCTest extends AbstractIntegrationTest
     }
 
     @Test
+    public void testBeginWithoutSessionToken()
+    {
+        OpenBIS openBIS = createOpenBIS();
+        openBIS.setInteractiveSessionKey(TEST_INTERACTIVE_SESSION_KEY);
+
+        try
+        {
+            openBIS.beginTransaction();
+            fail();
+        } catch (Exception e)
+        {
+            assertEquals(e.getMessage(), "Session token hasn't been set");
+        }
+    }
+
+    @Test
+    public void testBeginWithoutInteractiveSessionKey()
+    {
+        OpenBIS openBIS = createOpenBIS();
+        openBIS.login(USER, PASSWORD);
+
+        try
+        {
+            openBIS.beginTransaction();
+            fail();
+        } catch (Exception e)
+        {
+            assertEquals(e.getMessage(), "Interactive session token hasn't been set");
+        }
+    }
+
+    @Test
+    public void testBeginWithIncorrectInteractiveSessionKey()
+    {
+        OpenBIS openBIS = createOpenBIS();
+        openBIS.setInteractiveSessionKey("this is incorrect");
+        openBIS.login(USER, PASSWORD);
+
+        try
+        {
+            openBIS.beginTransaction();
+            fail();
+        } catch (Exception e)
+        {
+            assertEquals(e.getMessage(), "Invalid interactive session key");
+        }
+    }
+
+    @Test
+    public void testBeginWithAlreadyStartedTransaction()
+    {
+        OpenBIS openBIS = createOpenBIS();
+        openBIS.setInteractiveSessionKey(TEST_INTERACTIVE_SESSION_KEY);
+        openBIS.login(USER, PASSWORD);
+
+        UUID transactionId = openBIS.beginTransaction();
+
+        try
+        {
+            openBIS.beginTransaction();
+            fail();
+        } catch (Exception e)
+        {
+            assertEquals(e.getMessage(),
+                    "Operation cannot be executed. Expected no active transactions, but found transaction '" + transactionId + "'.");
+        } finally
+        {
+            openBIS.rollbackTransaction();
+        }
+    }
+
+    @Test
+    public void testBeginMoreThanOneTransactionPerSessionToken()
+    {
+        OpenBIS openBIS = createOpenBIS();
+        openBIS.setInteractiveSessionKey(TEST_INTERACTIVE_SESSION_KEY);
+
+        OpenBIS openBIS2 = createOpenBIS();
+        openBIS2.setInteractiveSessionKey(TEST_INTERACTIVE_SESSION_KEY);
+
+        String sessionToken = openBIS.login(USER, PASSWORD);
+        openBIS2.setSessionToken(sessionToken);
+
+        UUID transactionId = openBIS.beginTransaction();
+
+        try
+        {
+            openBIS2.beginTransaction();
+            fail();
+        } catch (Exception e)
+        {
+            assertTrue(e.getMessage().matches(
+                    "Cannot create more than one transaction for the same session token. Transaction that could not be created: '.*'. The already existing and still active transaction: '"
+                            + transactionId + "'."));
+        } finally
+        {
+            openBIS.rollbackTransaction();
+        }
+    }
+
+    @Test
+    public void testBeginTooManyTransactions()
+    {
+        List<OpenBIS> openBISes = new ArrayList<>();
+
+        try
+        {
+            for (int i = 0; i < TransactionConfiguration.TRANSACTION_COUNT_LIMIT_DEFAULT + 1; i++)
+            {
+                OpenBIS openBIS = createOpenBIS();
+                openBIS.setInteractiveSessionKey(TEST_INTERACTIVE_SESSION_KEY);
+                openBIS.login(USER, PASSWORD);
+                openBIS.beginTransaction();
+                openBISes.add(openBIS);
+            }
+            fail();
+        } catch (Exception e)
+        {
+            assertTrue(e.getMessage().matches(
+                    "Cannot create transaction '.*' because the transaction count limit has been reached. Number of existing transactions: "
+                            + TransactionConfiguration.TRANSACTION_COUNT_LIMIT_DEFAULT));
+        } finally
+        {
+            for (OpenBIS openBIS : openBISes)
+            {
+                openBIS.rollbackTransaction();
+            }
+        }
+    }
+
+    @Test
     public void testBeginFailsAtAS()
     {
         // make begin fail at AS
@@ -347,6 +484,28 @@ public class Integration2PCTest extends AbstractIntegrationTest
     }
 
     @Test
+    public void testExecuteOldDSSOperation()
+    {
+        OpenBIS openBIS = createOpenBIS();
+        openBIS.setInteractiveSessionKey(TEST_INTERACTIVE_SESSION_KEY);
+        openBIS.login(USER, PASSWORD);
+
+        openBIS.beginTransaction();
+
+        try
+        {
+            openBIS.getDataStoreFacade().searchFiles(new DataSetFileSearchCriteria(), new DataSetFileFetchOptions());
+            fail();
+        } catch (Exception e)
+        {
+            assertEquals(e.getMessage(), "Transactions are not supported for data store methods.");
+        } finally
+        {
+            openBIS.rollbackTransaction();
+        }
+    }
+
+    @Test
     public void testPrepareFailsAtAS()
     {
         // make prepare fail at AS
@@ -463,6 +622,23 @@ public class Integration2PCTest extends AbstractIntegrationTest
             fail();
         } catch (Exception expected)
         {
+        }
+    }
+
+    @Test
+    public void testCommitWithoutTransaction()
+    {
+        OpenBIS openBIS = createOpenBIS();
+        openBIS.setInteractiveSessionKey(TEST_INTERACTIVE_SESSION_KEY);
+        openBIS.login(USER, PASSWORD);
+
+        try
+        {
+            openBIS.commitTransaction();
+            fail();
+        } catch (Exception e)
+        {
+            assertEquals(e.getMessage(), "Operation cannot be executed. No active transaction found.");
         }
     }
 
@@ -710,6 +886,67 @@ public class Integration2PCTest extends AbstractIntegrationTest
 
             assertEquals(trBytesRead, writeData.bytes);
             assertEquals(noTrBytesRead, writeData.bytes);
+        }
+    }
+
+    @Test
+    public void testRollbackWithoutTransaction()
+    {
+        OpenBIS openBIS = createOpenBIS();
+        openBIS.setInteractiveSessionKey(TEST_INTERACTIVE_SESSION_KEY);
+        openBIS.login(USER, PASSWORD);
+
+        try
+        {
+            openBIS.rollbackTransaction();
+            fail();
+        } catch (Exception e)
+        {
+            assertEquals(e.getMessage(), "Operation cannot be executed. No active transaction found.");
+        }
+    }
+
+    @Test
+    public void testTimeout() throws Exception
+    {
+        OpenBIS openBIS = createOpenBIS();
+        openBIS.setInteractiveSessionKey(TEST_INTERACTIVE_SESSION_KEY);
+        openBIS.login(USER, PASSWORD);
+
+        UUID transactionId = openBIS.beginTransaction();
+
+        SpaceCreation spaceCreation = createSpaceCreation();
+        SpacePermId spaceId = openBIS.createSpaces(List.of(spaceCreation)).get(0);
+
+        WriteData writeData = createWriteData();
+        openBIS.getAfsServerFacade().write(writeData.owner, writeData.source, 0L, writeData.bytes, writeData.md5);
+
+        assertTransactions(getTransactionCoordinator().getTransactionMap(), new TestTransaction(transactionId, TransactionStatus.BEGIN_FINISHED));
+
+        Thread.sleep(WAITING_TIME_FOR_TIMEOUT);
+
+        assertTransactions(getTransactionCoordinator().getTransactionMap());
+
+        try
+        {
+            openBIS.getSpaces(Collections.singletonList(spaceId), new SpaceFetchOptions()).get(spaceId);
+        } catch (Exception e)
+        {
+            assertEquals(e.getMessage(), "Transaction '" + transactionId + "' does not exist.");
+        }
+
+        OpenBIS openBIS2 = createOpenBIS();
+        openBIS2.login(USER, PASSWORD);
+
+        Space space = openBIS2.getSpaces(Collections.singletonList(spaceId), new SpaceFetchOptions()).get(spaceId);
+        assertNull(space);
+
+        try
+        {
+            openBIS2.getAfsServerFacade().read(writeData.owner, writeData.source, 0L, writeData.bytes.length);
+            fail();
+        } catch (Exception expected)
+        {
         }
     }
 

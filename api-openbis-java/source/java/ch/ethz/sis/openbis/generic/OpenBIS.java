@@ -417,12 +417,12 @@ public class OpenBIS
 
         if (sessionToken == null)
         {
-            throw new IllegalStateException("Session token hasn't been set yet");
+            throw new IllegalStateException("Session token hasn't been set");
         }
 
         if (interactiveSessionKey == null)
         {
-            throw new IllegalStateException("Interactive session token hasn't been set yet");
+            throw new IllegalStateException("Interactive session token hasn't been set");
         }
 
         transactionId = UUID.randomUUID();
@@ -436,12 +436,12 @@ public class OpenBIS
 
         if (sessionToken == null)
         {
-            throw new IllegalStateException("Session token hasn't been set yet");
+            throw new IllegalStateException("Session token hasn't been set");
         }
 
         if (interactiveSessionKey == null)
         {
-            throw new IllegalStateException("Interactive session token hasn't been set yet");
+            throw new IllegalStateException("Interactive session token hasn't been set");
         }
 
         transactionCoordinator.commitTransaction(transactionId, sessionToken, interactiveSessionKey);
@@ -454,12 +454,12 @@ public class OpenBIS
 
         if (sessionToken == null)
         {
-            throw new IllegalStateException("Session token hasn't been set yet");
+            throw new IllegalStateException("Session token hasn't been set");
         }
 
         if (interactiveSessionKey == null)
         {
-            throw new IllegalStateException("Interactive session token hasn't been set yet");
+            throw new IllegalStateException("Interactive session token hasn't been set");
         }
 
         transactionCoordinator.rollbackTransaction(transactionId, sessionToken, interactiveSessionKey);
@@ -1238,43 +1238,43 @@ public class OpenBIS
 
         public SearchResult<DataSetFile> searchFiles(DataSetFileSearchCriteria searchCriteria, DataSetFileFetchOptions fetchOptions)
         {
-            checkTransactionDoesNotExist();
+            checkTransactionsNotSupported();
             return dssFacade.searchFiles(sessionToken, searchCriteria, fetchOptions);
         }
 
         public InputStream downloadFiles(List<? extends IDataSetFileId> fileIds, DataSetFileDownloadOptions downloadOptions)
         {
-            checkTransactionDoesNotExist();
+            checkTransactionsNotSupported();
             return dssFacade.downloadFiles(sessionToken, fileIds, downloadOptions);
         }
 
         public FastDownloadSession createFastDownloadSession(List<? extends IDataSetFileId> fileIds, FastDownloadSessionOptions options)
         {
-            checkTransactionDoesNotExist();
+            checkTransactionsNotSupported();
             return dssFacade.createFastDownloadSession(sessionToken, fileIds, options);
         }
 
         public DataSetPermId createUploadedDataSet(final UploadedDataSetCreation newDataSet)
         {
-            checkTransactionDoesNotExist();
+            checkTransactionsNotSupported();
             return dssFacade.createUploadedDataSet(sessionToken, newDataSet);
         }
 
         public List<DataSetPermId> createDataSets(List<FullDataSetCreation> newDataSets)
         {
-            checkTransactionDoesNotExist();
+            checkTransactionsNotSupported();
             return dssFacade.createDataSets(sessionToken, newDataSets);
         }
 
         public Object executeCustomDSSService(ICustomDSSServiceId serviceId, CustomDSSServiceExecutionOptions options)
         {
-            checkTransactionDoesNotExist();
+            checkTransactionsNotSupported();
             return dssFacade.executeCustomDSSService(sessionToken, serviceId, options);
         }
 
         public String uploadToSessionWorkspace(final Path fileOrFolder)
         {
-            checkTransactionDoesNotExist();
+            checkTransactionsNotSupported();
             String uploadId = uploadFileWorkspaceDSSEmptyDir(UUID.randomUUID().toString());
             uploadFileWorkspaceDSS(fileOrFolder.toFile(), uploadId);
             return uploadId;
@@ -1421,6 +1421,14 @@ public class OpenBIS
                     };
                 }
             };
+        }
+
+        private void checkTransactionsNotSupported()
+        {
+            if (transactionId != null)
+            {
+                throw new IllegalStateException("Transactions are not supported for data store methods.");
+            }
         }
 
     }
