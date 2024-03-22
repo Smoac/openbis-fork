@@ -22,6 +22,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Value;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,7 +43,7 @@ public class WriteOperation implements Operation {
 
     public WriteOperation(UUID owner, String source, long offset, byte[] data, byte[] md5Hash) {
         this.owner = owner;
-        this.locks = List.of(new Lock<>(owner, source, LockType.Exclusive));
+        this.locks = new ArrayList<>(Collections.singletonList(new Lock<>(owner, source, LockType.Exclusive)));
         this.source = source;
         this.offset = offset;
         this.data = data;
