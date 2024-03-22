@@ -175,6 +175,10 @@ export default class DataBrowserController extends ComponentController {
       await this._uploadChunk(file.name, offset, binaryString)
       offset += CHUNK_SIZE
     }
+
+    if (this.gridController) {
+      await this.gridController.load()
+    }
   }
 
   async _fileSliceToBinaryString(blob) {
