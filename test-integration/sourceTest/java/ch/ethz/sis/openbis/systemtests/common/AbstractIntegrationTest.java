@@ -412,7 +412,7 @@ public abstract class AbstractIntegrationTest
         configuration.setProperty(TransactionConfiguration.COORDINATOR_KEY_PROPERTY_NAME, TEST_TRANSACTION_COORDINATOR_KEY);
         configuration.setProperty(TransactionConfiguration.INTERACTIVE_SESSION_KEY_PROPERTY_NAME, TEST_INTERACTIVE_SESSION_KEY);
         configuration.setProperty(TransactionConfiguration.TRANSACTION_LOG_FOLDER_PATH_PROPERTY_NAME, "./targets/transaction-logs");
-        configuration.setProperty(TransactionConfiguration.TRANSACTION_TIMEOUT_PROPERTY_NAME, "15");
+        configuration.setProperty(TransactionConfiguration.TRANSACTION_TIMEOUT_PROPERTY_NAME, "5");
         configuration.setProperty(TransactionConfiguration.FINISH_TRANSACTIONS_INTERVAL_PROPERTY_NAME, "1");
         configuration.setProperty(TransactionConfiguration.APPLICATION_SERVER_URL_PROPERTY_NAME, TestInstanceHostUtils.getOpenBISProxyUrl());
         configuration.setProperty(TransactionConfiguration.AFS_SERVER_URL_PROPERTY_NAME,
