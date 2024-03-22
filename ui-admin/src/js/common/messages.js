@@ -434,6 +434,8 @@ const messages_en = {
   [keys.ENTITY_REGISTRATOR]: 'Entity Registrator',
   [keys.ENTITY_SPACE]: 'Entity Space',
   [keys.ENTITY_TYPE]: 'Entity Type',
+  [keys.ENTITY_TYPE_IS_INTERNAL]: 'This is a system internal entity type.',
+  [keys.ENTITY_TYPE_CANNOT_BE_CHANGED_OR_REMOVED]: 'The entity type parameters cannot be changed. The entity type cannot be removed.',
   [keys.ENTITY_TYPE_PATTERN]: 'Entity Type Pattern',
   [keys.ENTITY_VALIDATION_PLUGINS]: 'Entity Validation Plugins',
   [keys.ENTITY_VALIDATION_PLUGIN]: 'Entity Validation Plugin',
