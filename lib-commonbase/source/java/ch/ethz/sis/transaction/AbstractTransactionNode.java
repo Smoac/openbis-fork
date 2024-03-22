@@ -118,7 +118,7 @@ public abstract class AbstractTransactionNode<T extends AbstractTransaction>
                             registerTransaction(transaction);
                             operationLog.info(
                                     "Recovered transaction '" + transaction.getTransactionId() + "' found in the transaction log with last status '"
-                                            + transaction.getTransactionStatus() + "' .");
+                                            + transaction.getTransactionStatus() + "'.");
                         }
                     }
                 }

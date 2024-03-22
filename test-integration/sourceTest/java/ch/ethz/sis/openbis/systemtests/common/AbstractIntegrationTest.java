@@ -48,6 +48,7 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.beans.factory.xml.XmlBeanFactory;
+import org.springframework.cache.ehcache.EhCacheManagerFactoryBean;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.remoting.rmi.CodebaseAwareObjectInputStream;
@@ -104,7 +105,7 @@ public abstract class AbstractIntegrationTest
         cleanupApplicationServerFolders();
         cleanupAfsServerFolders();
 
-        startApplicationServer();
+        startApplicationServer(true);
         startApplicationServerProxy();
         startAfsServer();
         startAfsServerProxy();
@@ -117,30 +118,6 @@ public abstract class AbstractIntegrationTest
         shutdownApplicationServerProxy();
         shutdownAfsServer();
         shutdownAfsServerProxy();
-    }
-
-    private void shutdownApplicationServer()
-    {
-        applicationServer.setStopAtShutdown(true);
-        log("Shut down application server.");
-    }
-
-    private void shutdownApplicationServerProxy()
-    {
-        applicationServerProxy.setStopAtShutdown(true);
-        log("Shut down application server proxy.");
-    }
-
-    private void shutdownAfsServer() throws Exception
-    {
-        afsServer.shutdown(false);
-        log("Shut down afs server.");
-    }
-
-    private void shutdownAfsServerProxy()
-    {
-        afsServerProxy.setStopAtShutdown(true);
-        log("Shut down afs server proxy.");
     }
 
     @BeforeMethod
@@ -165,7 +142,7 @@ public abstract class AbstractIntegrationTest
 
     private void cleanupApplicationServerFolders() throws Exception
     {
-        Properties configuration = getApplicationServerConfiguration();
+        Properties configuration = getApplicationServerConfiguration(true);
 
         String transactionLogFolder = configuration.getProperty(TransactionConfiguration.TRANSACTION_LOG_FOLDER_PATH_PROPERTY_NAME);
         cleanupFolderSafely(transactionLogFolder);
@@ -209,9 +186,10 @@ public abstract class AbstractIntegrationTest
         }
     }
 
-    private void startApplicationServer() throws Exception
+    private void startApplicationServer(boolean createDatabase) throws Exception
     {
-        Properties configuration = getApplicationServerConfiguration();
+        log("Starting application server.");
+        Properties configuration = getApplicationServerConfiguration(createDatabase);
 
         for (Object key : configuration.keySet())
         {
@@ -246,10 +224,12 @@ public abstract class AbstractIntegrationTest
         server.start();
 
         AbstractIntegrationTest.applicationServer = server;
+        log("Started application server.");
     }
 
     private void startApplicationServerProxy() throws Exception
     {
+        log("Starting application server proxy.");
         Server server = new Server();
         HttpConfiguration httpConfig = new HttpConfiguration();
         ServerConnector connector =
@@ -299,18 +279,22 @@ public abstract class AbstractIntegrationTest
         server.start();
 
         AbstractIntegrationTest.applicationServerProxy = server;
+        log("Started application server proxy.");
     }
 
     private void startAfsServer() throws Exception
     {
+        log("Starting afs server.");
         Configuration configuration = getAfsServerConfiguration();
         DummyServerObserver dummyServerObserver = new DummyServerObserver();
 
         AbstractIntegrationTest.afsServer = new ch.ethz.sis.afsserver.server.Server<>(configuration, dummyServerObserver, dummyServerObserver);
+        log("Started afs server.");
     }
 
     private void startAfsServerProxy() throws Exception
     {
+        log("Starting afs server proxy.");
         Server server = new Server();
         HttpConfiguration httpConfig = new HttpConfiguration();
         ServerConnector connector =
@@ -375,13 +359,54 @@ public abstract class AbstractIntegrationTest
         server.start();
 
         AbstractIntegrationTest.afsServerProxy = server;
+        log("Started afs server proxy.");
     }
 
-    private Properties getApplicationServerConfiguration() throws Exception
+    private void shutdownApplicationServer() throws Exception
+    {
+        // manually destroy EHCache (without it the new AS won't start in the same VM)
+        applicationServerSpringContext.getBean(EhCacheManagerFactoryBean.class).destroy();
+        applicationServer.stop();
+        log("Shut down application server.");
+    }
+
+    private void shutdownApplicationServerProxy()
+    {
+        applicationServerProxy.setStopAtShutdown(true);
+        log("Shut down application server proxy.");
+    }
+
+    private void shutdownAfsServer() throws Exception
+    {
+        afsServer.shutdown(false);
+        log("Shut down afs server.");
+    }
+
+    private void shutdownAfsServerProxy()
+    {
+        afsServerProxy.setStopAtShutdown(true);
+        log("Shut down afs server proxy.");
+    }
+
+    public void restartApplicationServer() throws Exception
+    {
+        log("Restarting application server.");
+        shutdownApplicationServer();
+        startApplicationServer(false);
+    }
+
+    public void restartAfsServer() throws Exception
+    {
+        log("Restarting afs server.");
+        shutdownAfsServer();
+        startAfsServer();
+    }
+
+    private Properties getApplicationServerConfiguration(boolean createDatabase) throws Exception
     {
         Properties configuration = new Properties();
         configuration.load(new FileInputStream("../server-application-server/source/java/service.properties"));
-        configuration.setProperty("database.create-from-scratch", "true");
+        configuration.setProperty("database.create-from-scratch", String.valueOf(createDatabase));
         configuration.setProperty("database.kind", "integration");
         configuration.setProperty("script-folder", "../server-application-server/source");
         configuration.setProperty(TransactionConfiguration.COORDINATOR_KEY_PROPERTY_NAME, TEST_TRANSACTION_COORDINATOR_KEY);
