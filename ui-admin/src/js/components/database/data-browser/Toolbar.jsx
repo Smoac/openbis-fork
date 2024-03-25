@@ -51,12 +51,12 @@ class Toolbar extends React.Component {
       classes,
       showInfo,
       onShowInfoChange,
-      selectedFile,
       multiselectedFiles,
       datastoreServer,
       sessionToken,
       owner,
-      path
+      path,
+      onDownload
     } = this.props
     return (
       <div className={classes.toolbar}>
@@ -68,6 +68,7 @@ class Toolbar extends React.Component {
           owner={owner}
           path={path}
           controller={this.controller}
+          onDownload={onDownload}
         />
         <RightToolbar
           buttonSize={buttonSize}

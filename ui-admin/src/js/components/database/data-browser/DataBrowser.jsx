@@ -157,6 +157,8 @@ class DataBrowser extends React.Component {
     const { directory, path } = row.data
     if (directory) {
       await this.setPath(path)
+    } else {
+
     }
   }
 
@@ -170,6 +172,24 @@ class DataBrowser extends React.Component {
         Object.values(selectedRow).map(value => value.data)
       )
     })
+  }
+
+  async handleDownload() {
+    const { multiselectedFiles } = this.state
+    const file = multiselectedFiles.values().next().value;
+
+    try {
+      this.setState({ loading: true })
+
+      const dataArray = await this.controller.download(file)
+      const blob = new Blob(dataArray, { type: "application/octet-stream" })
+      const link = document.createElement('a')
+      link.href = window.URL.createObjectURL(blob)
+      link.download = file.name
+      link.click()
+    }  finally {
+      this.setState({ loading: false })
+    }
   }
 
   async onError(error) {
@@ -230,14 +250,14 @@ class DataBrowser extends React.Component {
     return size.toFixed(1) + '\xa0' + unit
   }
 
-  fetchPercentage() {
+  fetchSpaceStatus() {
     this.controller.free().then(space => {
       this.setState({ freeSpace: space.free, totalSpace: space.total })
     })
   }
 
   componentDidMount() {
-    this.fetchPercentage()
+    this.fetchSpaceStatus()
   }
 
   render() {
@@ -262,8 +282,8 @@ class DataBrowser extends React.Component {
           viewType={viewType}
           onViewTypeChange={this.handleViewTypeChange}
           onShowInfoChange={this.handleShowInfoChange}
+          onDownload={this.handleDownload}
           showInfo={showInfo}
-          selectedFile={selectedFile}
           multiselectedFiles={multiselectedFiles}
           datastoreServer={this.datastoreServer}
           sessionToken={sessionToken}
