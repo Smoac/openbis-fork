@@ -163,7 +163,7 @@ export default class DataBrowserController extends ComponentController {
     )
   }
 
-  async upload(file) {
+  async upload(file, onProgressUpdate) {
     let offset = 0
 
     while (offset < file.size) {
@@ -171,6 +171,12 @@ export default class DataBrowserController extends ComponentController {
       const binaryString = await this._fileSliceToBinaryString(blob);
       await this._uploadChunk(file.name, offset, binaryString)
       offset += CHUNK_SIZE
+
+      if (onProgressUpdate) {
+        // Calculate and update progress
+        const progress = Math.round((offset / file.size) * 100)
+        onProgressUpdate(Math.min(progress, 100))
+      }
     }
 
     if (this.gridController) {

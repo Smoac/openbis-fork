@@ -83,17 +83,22 @@ class RightToolbar extends React.Component {
 
     this.state = {
       uploadButtonsPopup: null,
-      loading: false
+      loading: false,
+      progress: 0
     }
   }
 
   async handleUploadFiles(event) {
     try {
-      this.setState({ loading: true })
-      await this.controller.upload(event.target.files[0])
+      this.setState({ loading: true, progress: 0 })
+      await this.controller.upload(event.target.files[0], this.updateProgress)
     } finally {
       this.setState({ loading: false })
     }
+  }
+
+  updateProgress(newProgress) {
+    this.setState({ progress: newProgress })
   }
 
   handleUploadFolders(event) {}
@@ -144,9 +149,9 @@ class RightToolbar extends React.Component {
     logger.log(logger.DEBUG, 'RightToolbar.render')
 
     const { classes, onViewTypeChange, buttonSize } = this.props
-    const { uploadButtonsPopup, loading } = this.state
+    const { uploadButtonsPopup, progress, loading } = this.state
     return ([
-      <div className={[classes.buttons, classes.rightSection].join(' ')}>
+      <div className={classes.buttons}>
         <ToggleButton
           classes={{ root: classes.toggleButton }}
           color={color}
@@ -223,7 +228,7 @@ class RightToolbar extends React.Component {
           <Container square={true}>{this.renderUploadButtons()}</Container>
         </Popover>
       </div>,
-      <LoadingDialog key='loaging-dialog' loading={loading} />
+      <LoadingDialog key='loaging-dialog' variant='determinate' value={progress} loading={loading} />
     ])
   }
 }

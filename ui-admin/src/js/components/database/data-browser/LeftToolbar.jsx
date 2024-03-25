@@ -424,7 +424,7 @@ class LeftToolbar extends React.Component {
             : this.renderNoSelectionContextToolbar()}
         </div>
       </ResizeObserver>,
-      <LoadingDialog key='loaging-dialog' loading={loading} />
+      <LoadingDialog key='loaging-dialog' variant='indeterminate' loading={loading} />
     ])
   }
 }

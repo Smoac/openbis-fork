@@ -22,12 +22,12 @@ class LoadingDialog extends React.Component {
   render() {
     logger.log(logger.DEBUG, 'LoadingDialog.render')
 
-    const { loading, classes } = this.props
+    const { loading, classes, variant, value } = this.props
 
     return (
       <Modal open={loading} BackdropProps={{ className: classes.modal }}>
         <div className={classes.icon}>
-          <CircularProgress />
+          <CircularProgress size={68} variant={variant} value={value} />
         </div>
       </Modal>
     )
