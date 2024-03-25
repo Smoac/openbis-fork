@@ -152,6 +152,7 @@ public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler
                             methodParameters.put(entry.getKey(), UUID.fromString(value));
                             break;
                         case "directory":
+                            // Fall though
                         case "recursively":
                             methodParameters.put(entry.getKey(), Boolean.valueOf(value));
                             break;
@@ -162,10 +163,9 @@ public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler
                             methodParameters.put(entry.getKey(), Integer.valueOf(value));
                             break;
                         case "data":
-                            methodParameters.put(entry.getKey(), Base64.getDecoder().decode(value));
-                            break;
+                            // Fall though
                         case "md5Hash":
-                            methodParameters.put(entry.getKey(), Base64.getDecoder().decode(value));
+                            methodParameters.put(entry.getKey(), Base64.getUrlDecoder().decode(value));
                             break;
                         default:
                             methodParameters.put(entry.getKey(), value);
