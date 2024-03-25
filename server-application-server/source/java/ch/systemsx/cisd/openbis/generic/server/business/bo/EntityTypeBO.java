@@ -99,6 +99,7 @@ public final class EntityTypeBO extends AbstractBusinessObject implements IEntit
         typePE.setCode(entityType.getCode());
         typePE.setDescription(entityType.getDescription());
         typePE.setValidationScript(getValidationScriptPE(entityType));
+        typePE.setManagedInternally(entityType.isManagedInternally());
 
         return typePE;
     }
