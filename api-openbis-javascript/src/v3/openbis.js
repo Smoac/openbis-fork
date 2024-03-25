@@ -1,6 +1,6 @@
 define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria', 'as/dto/datastore/fetchoptions/DataStoreFetchOptions',
-	'as/dto/common/search/SearchResult'], function(jquery,
-		stjsUtil, DataStoreSearchCriteria, DataStoreFetchOptions, SearchResult) {
+	'as/dto/common/search/SearchResult', 'afs'], function(jquery,
+		stjsUtil, DataStoreSearchCriteria, DataStoreFetchOptions, SearchResult, afs) {
 	jquery.noConflict();
 
 	var __private = function() {
@@ -433,6 +433,41 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			}
 			return blob;
 		}
+	}
+
+    var afsServerFacade = function(asFacade) {
+
+        this.afsServer = new DataStoreServer("http://localhost:8085", "/data-store-server");
+        this.afsServer.useSession(asFacade._private.sessionToken)
+
+		this.list = function(owner, source, recursively) {
+		    return this.afsServer.list(owner, source, recursively);
+		}
+
+		this.read = function(owner, source, offset, limit){
+		    return this.afsServer.read(owner, source, offset, limit);
+		}
+
+		this.write = function(owner, source, offset, data){
+		    return this.afsServer.write(owner, source, offset, data);
+		}
+
+		this.delete = function(owner, source){
+		    return this.afsServer.delete(owner, source)
+		}
+
+		this.copy = function(sourceOwner, source, targetOwner, target){
+		    return this.afsServer.copy(sourceOwner, source, targetOwner, target);
+		}
+
+		this.move = function(sourceOwner, source, targetOwner, target){
+		    return this.afsServer.move(sourceOwner, source, targetOwner, target);
+		}
+
+		this.create = function(owner, source, directory){
+		    return this.afsServer.create(owner, source, directory);
+		}
+
 	}
 
 	var facade = function(openbisUrl) {
@@ -2420,6 +2455,10 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 				}
 			}
 			return new dataStoreFacade(this, dataStoreCodes);
+		}
+
+		this.getAfsServerFacade = function() {
+            return new afsServerFacade(this)
 		}
 
 		this.getMajorVersion = function() {

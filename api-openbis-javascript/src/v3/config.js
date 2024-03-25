@@ -27,7 +27,9 @@ var require = (function() {
 			// "openbis" : "../../js/openbis",
 			"openbis-screening" : "../../js/openbis-screening",
 			"bootstrap" : "../../lib/bootstrap/js/bootstrap.min",
-			"bootstrap-slider" : "../../lib/bootstrap-slider/js/bootstrap-slider.min"
+			"bootstrap-slider" : "../../lib/bootstrap-slider/js/bootstrap-slider.min",
+			"afs" : "afs/server-data-store-facade",
+			"afs-md5" : "afs/md5"
 		},
 		shim : {
 			"stjs" : {
@@ -45,6 +47,10 @@ var require = (function() {
 			"openbis-screening" : {
 				deps : [ "openbis" ],
 				exports : "openbis"
+			},
+			"afs" : {
+				deps : [ "afs-md5" ],
+				exports : "DataStoreServer"
 			}
 		}
 	}

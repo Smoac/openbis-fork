@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.lang.reflect.Proxy;
 import java.net.URI;
 import java.nio.file.Path;
+import java.security.MessageDigest;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
@@ -1445,6 +1446,17 @@ public class OpenBIS
     public class AfsServerFacade
     {
 
+        private final MessageDigest digest;
+
+        private AfsServerFacade() {
+            try
+            {
+                this.digest = MessageDigest.getInstance("MD5");
+            } catch (Exception e){
+                throw new RuntimeException("Could not create afs server facade", e);
+            }
+        }
+
         public List<ch.ethz.sis.afsapi.dto.File> list(String owner, String source, Boolean recursively)
         {
             try
@@ -1473,11 +1485,11 @@ public class OpenBIS
             }
         }
 
-        public Boolean write(String owner, String source, Long offset, byte[] data, byte[] md5Hash)
+        public Boolean write(String owner, String source, Long offset, byte[] data)
         {
             try
             {
-                return afsClientWithTransactions.write(owner, source, offset, data, md5Hash);
+                return afsClientWithTransactions.write(owner, source, offset, data, calculateMD5(data));
             } catch (RuntimeException e)
             {
                 throw e;
@@ -1540,6 +1552,19 @@ public class OpenBIS
             } catch (Exception e)
             {
                 throw new RuntimeException(e);
+            }
+        }
+
+        private byte[] calculateMD5(byte[] data)
+        {
+            try
+            {
+                digest.reset();
+                digest.update(data);
+                return digest.digest();
+            } catch (Exception e)
+            {
+                throw new RuntimeException("Checksum calculation failed", e);
             }
         }
 

@@ -10,7 +10,6 @@ import static org.testng.Assert.fail;
 
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -90,10 +89,10 @@ public class Integration2PCTest extends AbstractIntegrationTest
         UUID transactionId = openBISWithTr.beginTransaction();
 
         WriteData writeData = createWriteData();
-        openBISWithTr.getAfsServerFacade().write(writeData.owner, writeData.source, 0L, writeData.bytes, writeData.md5);
+        openBISWithTr.getAfsServerFacade().write(writeData.owner, writeData.source, 0L, writeData.bytes);
 
         WriteData writeData2 = createWriteData();
-        openBISWithTr.getAfsServerFacade().write(writeData2.owner, writeData2.source, 0L, writeData2.bytes, writeData2.md5);
+        openBISWithTr.getAfsServerFacade().write(writeData2.owner, writeData2.source, 0L, writeData2.bytes);
 
         SpaceCreation spaceCreation = createSpaceCreation();
         SpacePermId spaceId = openBISWithTr.createSpaces(List.of(spaceCreation)).get(0);
@@ -379,7 +378,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
         UUID transactionId = openBIS.beginTransaction();
 
         WriteData writeData = createWriteData();
-        openBIS.getAfsServerFacade().write(writeData.owner, writeData.source, 0L, writeData.bytes, writeData.md5);
+        openBIS.getAfsServerFacade().write(writeData.owner, writeData.source, 0L, writeData.bytes);
 
         assertTransactions(getTransactionCoordinator().getTransactionMap(), new TestTransaction(transactionId, TransactionStatus.BEGIN_FINISHED));
 
@@ -451,7 +450,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
         try
         {
             // first attempt
-            openBIS.getAfsServerFacade().write(writeData.owner, writeData.source, 0L, writeData.bytes, writeData.md5);
+            openBIS.getAfsServerFacade().write(writeData.owner, writeData.source, 0L, writeData.bytes);
             fail();
         } catch (Exception e)
         {
@@ -466,7 +465,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
         setAfsServerProxyInterceptor((method, defaultAction) -> defaultAction.call());
 
         // second attempt
-        openBIS.getAfsServerFacade().write(writeData.owner, writeData.source, 0L, writeData.bytes, writeData.md5);
+        openBIS.getAfsServerFacade().write(writeData.owner, writeData.source, 0L, writeData.bytes);
 
         openBIS.commitTransaction();
 
@@ -527,7 +526,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
         UUID transactionId = openBIS.beginTransaction();
 
         WriteData writeData = createWriteData();
-        openBIS.getAfsServerFacade().write(writeData.owner, writeData.source, 0L, writeData.bytes, writeData.md5);
+        openBIS.getAfsServerFacade().write(writeData.owner, writeData.source, 0L, writeData.bytes);
 
         assertTransactions(getTransactionCoordinator().getTransactionMap(), new TestTransaction(transactionId, TransactionStatus.BEGIN_FINISHED));
 
@@ -587,7 +586,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
         UUID transactionId = openBIS.beginTransaction();
 
         WriteData writeData = createWriteData();
-        openBIS.getAfsServerFacade().write(writeData.owner, writeData.source, 0L, writeData.bytes, writeData.md5);
+        openBIS.getAfsServerFacade().write(writeData.owner, writeData.source, 0L, writeData.bytes);
 
         assertTransactions(getTransactionCoordinator().getTransactionMap(), new TestTransaction(transactionId, TransactionStatus.BEGIN_FINISHED));
 
@@ -664,7 +663,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
         UUID transactionId = openBIS.beginTransaction();
 
         WriteData writeData = createWriteData();
-        openBIS.getAfsServerFacade().write(writeData.owner, writeData.source, 0L, writeData.bytes, writeData.md5);
+        openBIS.getAfsServerFacade().write(writeData.owner, writeData.source, 0L, writeData.bytes);
 
         assertTransactions(getTransactionCoordinator().getTransactionMap(), new TestTransaction(transactionId, TransactionStatus.BEGIN_FINISHED));
 
@@ -717,7 +716,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
         UUID transactionId = openBIS.beginTransaction();
 
         WriteData writeData = createWriteData();
-        openBIS.getAfsServerFacade().write(writeData.owner, writeData.source, 0L, writeData.bytes, writeData.md5);
+        openBIS.getAfsServerFacade().write(writeData.owner, writeData.source, 0L, writeData.bytes);
 
         assertTransactions(getTransactionCoordinator().getTransactionMap(), new TestTransaction(transactionId, TransactionStatus.BEGIN_FINISHED));
 
@@ -846,7 +845,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
         UUID transactionId = openBISWithTr.beginTransaction();
 
         WriteData writeData = createWriteData();
-        openBISWithTr.getAfsServerFacade().write(writeData.owner, writeData.source, 0L, writeData.bytes, writeData.md5);
+        openBISWithTr.getAfsServerFacade().write(writeData.owner, writeData.source, 0L, writeData.bytes);
 
         assertTransactions(getTransactionCoordinator().getTransactionMap(), new TestTransaction(transactionId, TransactionStatus.BEGIN_FINISHED));
 
@@ -919,7 +918,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
         SpacePermId spaceId = openBIS.createSpaces(List.of(spaceCreation)).get(0);
 
         WriteData writeData = createWriteData();
-        openBIS.getAfsServerFacade().write(writeData.owner, writeData.source, 0L, writeData.bytes, writeData.md5);
+        openBIS.getAfsServerFacade().write(writeData.owner, writeData.source, 0L, writeData.bytes);
 
         assertTransactions(getTransactionCoordinator().getTransactionMap(), new TestTransaction(transactionId, TransactionStatus.BEGIN_FINISHED));
 
@@ -987,7 +986,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
 
         WriteData writeDataCommitted = createWriteData();
         openBISWithCommittedTransaction.getAfsServerFacade()
-                .write(writeDataCommitted.owner, writeDataCommitted.source, 0L, writeDataCommitted.bytes, writeDataCommitted.md5);
+                .write(writeDataCommitted.owner, writeDataCommitted.source, 0L, writeDataCommitted.bytes);
 
         openBISWithCommittedTransaction.commitTransaction();
 
@@ -1003,7 +1002,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
 
         WriteData writeDataNotCommitted = createWriteData();
         openBISWithNotCommittedTransaction.getAfsServerFacade()
-                .write(writeDataNotCommitted.owner, writeDataNotCommitted.source, 0L, writeDataNotCommitted.bytes, writeDataNotCommitted.md5);
+                .write(writeDataNotCommitted.owner, writeDataNotCommitted.source, 0L, writeDataNotCommitted.bytes);
 
         // let's wait for the task that tries to finish failed or abandoned transactions runs
         Thread.sleep(WAITING_TIME_FOR_FINISHING_TRANSACTIONS);
@@ -1140,21 +1139,7 @@ public class Integration2PCTest extends AbstractIntegrationTest
         writeData.source = "test-source-" + UUID.randomUUID();
         writeData.content = "test-content-" + UUID.randomUUID();
         writeData.bytes = writeData.content.getBytes(StandardCharsets.UTF_8);
-        writeData.md5 = calculateMD5(writeData.bytes);
         return writeData;
-    }
-
-    private static byte[] calculateMD5(byte[] data)
-    {
-        try
-        {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            md.update(data);
-            return md.digest();
-        } catch (Exception e)
-        {
-            throw new RuntimeException("Checksum calculation failed", e);
-        }
     }
 
     private static class WriteData
@@ -1167,7 +1152,6 @@ public class Integration2PCTest extends AbstractIntegrationTest
 
         public byte[] bytes;
 
-        public byte[] md5;
     }
 
 }

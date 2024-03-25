@@ -11,8 +11,12 @@ node {
     nodeModulesDir = file("${projectDir}")
 }
 
+task copyAfsApi(type: Copy) {
+    from("${project(':api-data-store-server-javascript').projectDir}/src/js/api")
+    into file('src/v3/afs')
+}
 
-task bundleOpenbisStaticResources(type: Exec) {
+task bundleOpenbisStaticResources(type: Exec, dependsOn: copyAfsApi) {
     dependsOn 'npmInstall'
     commandLine 'bash', '-c', "${projectDir}/bin/build.sh"
 }
