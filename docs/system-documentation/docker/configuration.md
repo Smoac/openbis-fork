@@ -44,7 +44,7 @@ personal-access-tokens-file-path = /data/openbis/personal-access-tokens.json
 
 3. Create a PAT and monitor the contents of the json file
 
-Please read on here: [personal-access-tokens.html#typical-application-workflow](../../software-developer-documentation/apis/personal-access-tokens.md#typical-application-workflow)
+[personal-access-tokens.html#typical-application-workflow](../../software-developer-documentation/apis/personal-access-tokens.md#typical-application-workflow)
 
 #### Modify the AS capabilities file
 

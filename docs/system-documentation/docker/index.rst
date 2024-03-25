@@ -12,3 +12,4 @@ Docker
    configuration
    verification
    references
+   desktop
