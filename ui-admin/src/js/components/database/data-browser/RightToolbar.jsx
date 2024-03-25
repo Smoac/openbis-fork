@@ -34,6 +34,7 @@ import UploadButton from '@src/js/components/database/data-browser/UploadButton.
 import FileIcon from '@material-ui/icons/InsertDriveFileOutlined'
 import FolderIcon from '@material-ui/icons/FolderOpen'
 import logger from '@src/js/common/logger.js'
+import LoadingDialog from "@src/js/components/common/loading/LoadingDialog.jsx";
 
 const color = 'default'
 const uploadButtonsColor = 'secondary'
@@ -81,12 +82,18 @@ class RightToolbar extends React.Component {
     this.controller = this.props.controller
 
     this.state = {
-      uploadButtonsPopup: null
+      uploadButtonsPopup: null,
+      loading: false
     }
   }
 
-  handleUploadFiles(event) {
-    this.controller.upload(event.target.files[0])
+  async handleUploadFiles(event) {
+    try {
+      this.setState({ loading: true })
+      await this.controller.upload(event.target.files[0])
+    } finally {
+      this.setState({ loading: false })
+    }
   }
 
   handleUploadFolders(event) {}
@@ -137,8 +144,8 @@ class RightToolbar extends React.Component {
     logger.log(logger.DEBUG, 'RightToolbar.render')
 
     const { classes, onViewTypeChange, buttonSize } = this.props
-    const { uploadButtonsPopup } = this.state
-    return (
+    const { uploadButtonsPopup, loading } = this.state
+    return ([
       <div className={[classes.buttons, classes.rightSection].join(' ')}>
         <ToggleButton
           classes={{ root: classes.toggleButton }}
@@ -215,8 +222,9 @@ class RightToolbar extends React.Component {
         >
           <Container square={true}>{this.renderUploadButtons()}</Container>
         </Popover>
-      </div>
-    )
+      </div>,
+      <LoadingDialog key='loaging-dialog' loading={loading} />
+    ])
   }
 }
 
