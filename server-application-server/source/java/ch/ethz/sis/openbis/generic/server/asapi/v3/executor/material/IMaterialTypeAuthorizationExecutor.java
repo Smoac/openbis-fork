@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.material;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.update.MaterialTypeUpdate;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IObjectAuthorizationExecutor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
@@ -31,7 +32,7 @@ public interface IMaterialTypeAuthorizationExecutor extends IObjectAuthorization
 
     void canSearch(IOperationContext context);
 
-    void canUpdate(IOperationContext context, MaterialTypePE materialTypePE);
+    void canUpdate(IOperationContext context, MaterialTypePE materialTypePE, MaterialTypeUpdate update);
 
     void canDelete(IOperationContext context);
 
