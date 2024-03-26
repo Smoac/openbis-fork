@@ -15,6 +15,8 @@
  */
 package ch.ethz.sis.afsserver.http;
 
+import java.util.Arrays;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,7 +30,33 @@ public class HttpResponse {
     public static final String CONTENT_TYPE_BINARY_DATA = "application/octet-stream";
     public static final String CONTENT_TYPE_JSON = "application/json";
 
+    private static final int MAX_TO_STRING_BODY_LENGTH = 1000;
+
     private final boolean error;
     private final String contentType;
     private final byte[] body;
+
+    @Override
+    public String toString()
+    {
+        final String bodyStr;
+
+        if (body.length <= MAX_TO_STRING_BODY_LENGTH)
+        {
+            bodyStr = Arrays.toString(body);
+        } else
+        {
+            final String tempBodyStr = Arrays.toString(Arrays.copyOf(body, MAX_TO_STRING_BODY_LENGTH));
+            bodyStr = String.format("[%s...]", tempBodyStr.substring(1, tempBodyStr.length() - 1));
+        }
+
+        final StringBuilder sb = new StringBuilder("HttpResponse(");
+        sb.append("error=").append(error);
+        sb.append(", contentType='").append(contentType).append('\'');
+        sb.append(", body=").append(bodyStr); // Cropping output to prevent logging too much data
+        sb.append(')');
+        return sb.toString();
+    }
+
+
 }
