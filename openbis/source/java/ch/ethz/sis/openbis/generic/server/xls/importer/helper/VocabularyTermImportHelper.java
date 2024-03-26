@@ -92,7 +92,7 @@ public class VocabularyTermImportHelper extends BasicImportHelper
         String version = getValueByColumnName(header, values, Attribute.Version);
         String code = getValueByColumnName(header, values, Attribute.Code);
 
-        boolean isInternalNamespace = ImportUtils.isInternalNamespace(code);
+        boolean isInternalNamespace = ImportUtils.isInternalNamespace(code) || ImportUtils.isInternalNamespace(vocabularyCode);
         boolean isSystem = delayedExecutor.isSystem();
         boolean canUpdate = (isInternalNamespace == false) || isSystem;
 
