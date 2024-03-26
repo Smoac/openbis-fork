@@ -78,7 +78,7 @@ public class MaterialTypeAuthorizationExecutor implements IMaterialTypeAuthoriza
             if(isModified)
             {
                 throw new AuthorizationFailureException(
-                        "Internal entity types can be managed only by the system user.");
+                        "Internal entity type fields can be managed only by the system user.");
             }
         }
     }
