@@ -64,6 +64,7 @@ class InputDialog extends React.Component {
 
   renderButtons() {
     const { classes } = this.props
+    const { value } = this.state
     return (
       <div>
         <Button
@@ -72,6 +73,7 @@ class InputDialog extends React.Component {
           type={this.getButtonType()}
           styles={{ root: classes.button }}
           onClick={this.handleConfirmClick}
+          disabled={!value || !value.trim()}
         />
         <Button
           name='cancel'

@@ -92,7 +92,9 @@ class LeftToolbar extends React.Component {
 
   async handleNewFolderCreate(folderName) {
     this.closeNewFolderDialog()
-    await this.controller.createNewFolder(folderName)
+    if (folderName && folderName.trim()) {
+      await this.controller.createNewFolder(folderName.trim())
+    }
   }
 
   handleNewFolderCancel() {
@@ -407,7 +409,7 @@ class LeftToolbar extends React.Component {
             : this.renderNoSelectionContextToolbar()}
         </div>
       </ResizeObserver>,
-      <LoadingDialog key='loaging-dialog' variant='indeterminate' loading={loading} />
+      <LoadingDialog key='left-toolbar-loaging-dialog' variant='indeterminate' loading={loading} />
     ])
   }
 }

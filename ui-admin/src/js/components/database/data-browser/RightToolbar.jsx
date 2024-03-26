@@ -151,7 +151,7 @@ class RightToolbar extends React.Component {
     const { classes, onViewTypeChange, buttonSize } = this.props
     const { uploadButtonsPopup, progress, loading } = this.state
     return ([
-      <div className={classes.buttons}>
+      <div key='right-toolbar-main' className={classes.buttons}>
         <ToggleButton
           classes={{ root: classes.toggleButton }}
           color={color}
@@ -228,7 +228,7 @@ class RightToolbar extends React.Component {
           <Container square={true}>{this.renderUploadButtons()}</Container>
         </Popover>
       </div>,
-      <LoadingDialog key='loaging-dialog' variant='determinate' value={progress} loading={loading} />
+      <LoadingDialog key='right-toolbar-loaging-dialog' variant='determinate' value={progress} loading={loading} />
     ])
   }
 }
