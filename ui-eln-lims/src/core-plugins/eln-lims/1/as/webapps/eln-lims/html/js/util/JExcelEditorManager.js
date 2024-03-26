@@ -131,7 +131,13 @@ var JExcelEditorManager = new function() {
 	        var jExcelEditorValue = null;
 	        if(jExcelEditorValueAsStringWithTags) {
 	            var jExcelEditorValueAsStringNoTags = jExcelEditorValueAsStringWithTags.substring(6, jExcelEditorValueAsStringWithTags.length - 7);
-                jExcelEditorValue = JSON.parse(window.decodeURIComponent(window.escape(window.atob(jExcelEditorValueAsStringNoTags))));
+                try {
+                    // Improved decoding, used for the new encoding
+                    jExcelEditorValue = JSON.parse(window.decodeURIComponent(window.escape(window.atob(jExcelEditorValueAsStringNoTags))));
+                } catch (error) {
+                    // Original decoding, used to support systems until they update
+                    jExcelEditorValue = JSON.parse(window.atob(jExcelEditorValueAsStringNoTags));
+                }
 	        }
 	        if(jExcelEditorValue) {
 	            headers = jExcelEditorValue.headers;
