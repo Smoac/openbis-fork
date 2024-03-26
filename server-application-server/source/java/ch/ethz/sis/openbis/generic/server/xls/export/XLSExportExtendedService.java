@@ -57,6 +57,7 @@ public class XLSExportExtendedService
         boolean xlsx = ((Map<String, Boolean>) parameters.get("formats")).get("xlsx");
         boolean data = ((Map<String, Boolean>) parameters.get("formats")).get("data");
         // Inclusions
+        boolean withLevelsAbove = true;
         boolean withLevelsBelow = (boolean) parameters.get("withLevelsBelow");
         boolean withObjectsAndDataSetsParents = (boolean) parameters.get("withObjectsAndDataSetsParents");
         boolean withObjectsAndDataSetsOtherSpaces = (boolean) parameters.get("withObjectsAndDataSetsOtherSpaces");
@@ -65,7 +66,7 @@ public class XLSExportExtendedService
         ExportData exportData = new ExportData();
         ExportableKind rootKind = ExportableKind.valueOf(kind);
         ExportablePermId root = new ExportablePermId(rootKind, permId);
-        Set<ExportablePermId> collection = collectEntities(api, sessionToken, root, withLevelsBelow, withObjectsAndDataSetsParents, withObjectsAndDataSetsOtherSpaces);
+        Set<ExportablePermId> collection = collectEntities(api, sessionToken, root, withLevelsAbove, withLevelsBelow, withObjectsAndDataSetsParents, withObjectsAndDataSetsOtherSpaces);
         exportData.setPermIds(new ArrayList<ExportablePermId>(collection));
         exportData.setFields(new AllFields());
         ExportOptions exportOptions = new ExportOptions();
@@ -171,10 +172,12 @@ public class XLSExportExtendedService
             IApplicationServerInternalApi api,
             String sessionToken,
             ExportablePermId root,
+            boolean withLevelsAbove,
             boolean withLevelsBelow,
             boolean withObjectsAndDataSetsParents,
             boolean withObjectsAndDataSetsOtherSpaces)
     {
+        Set<ExportablePermId> collectedLevelsAbove = new HashSet<>(); // Stores nodes who levels above have been collected to avoid repeating paths
         Set<ExportablePermId> collection = new HashSet<>();
         Deque<ExportablePermId> todo = new LinkedList<>();
         todo.add(root);
@@ -189,6 +192,51 @@ public class XLSExportExtendedService
             }
 
             collection.add(current);
+
+            /*
+             * These are not added to the TO-DO
+             * These will create a lot of redundant queries, a more optimal implementation is doable with bigger changes.
+             */
+            if (withLevelsAbove && !withLevelsBelow && !collectedLevelsAbove.contains(current)) {
+                switch (current.getExportableKind())
+                {
+                    case PROJECT:
+                        ProjectFetchOptions projectFetchOptions = new ProjectFetchOptions();
+                        projectFetchOptions.withSpace();
+                        Map<IProjectId, Project> projects = api.getProjects(sessionToken,
+                                List.of(new ProjectPermId(current.getPermId())),
+                                projectFetchOptions);
+                        collectLevelsAboveProject(projects, collection, collectedLevelsAbove);
+                        break;
+                    case EXPERIMENT:
+                        ExperimentFetchOptions experimentFetchOptions = new ExperimentFetchOptions();
+                        experimentFetchOptions.withProject().withSpace();
+                        Map<IExperimentId, Experiment> experiments =
+                                api.getExperiments(sessionToken,
+                                        List.of(new ExperimentPermId(current.getPermId())),
+                                        experimentFetchOptions);
+                        collectLevelsAboveExperiment(experiments, collection, collectedLevelsAbove);
+                        break;
+                    case SAMPLE:
+                        SampleFetchOptions sampleFetchOptions = new SampleFetchOptions();
+                        sampleFetchOptions.withExperiment().withProject().withSpace();
+                        sampleFetchOptions.withSpace();
+                        Map<ISampleId, Sample> samples = api.getSamples(sessionToken,
+                                List.of(new SamplePermId(current.getPermId())),
+                                sampleFetchOptions);
+                        collectLevelsAboveSample(samples, collection, collectedLevelsAbove);
+                        break;
+                    case DATASET:
+                        DataSetFetchOptions dataSetFetchOptions = new DataSetFetchOptions();
+                        dataSetFetchOptions.withExperiment().withProject().withSpace();
+                        dataSetFetchOptions.withSample().withExperiment().withProject().withSpace();
+                        Map<IDataSetId, DataSet> dataSets = api.getDataSets(sessionToken,
+                                List.of(new DataSetPermId(current.getPermId())),
+                                dataSetFetchOptions);
+                        collectLevelsAboveDataSet(dataSets, collection, collectedLevelsAbove);
+                        break;
+                }
+            }
 
             if (withLevelsBelow)
             {
@@ -207,15 +255,22 @@ public class XLSExportExtendedService
                                 ExportablePermId next = new ExportablePermId(ExportableKind.PROJECT,
                                         project.getPermId().getPermId());
                                 todo.add(next);
+                                collectedLevelsAbove.add(next);
                             }
                         }
                         break;
                     case PROJECT:
                         ProjectFetchOptions projectFetchOptions = new ProjectFetchOptions();
                         projectFetchOptions.withExperiments();
+                        if (withLevelsAbove && !collectedLevelsAbove.contains(current)) {
+                            projectFetchOptions.withSpace();
+                        }
                         Map<IProjectId, Project> projects = api.getProjects(sessionToken,
                                 List.of(new ProjectPermId(current.getPermId())),
                                 projectFetchOptions);
+                        if (withLevelsAbove && !collectedLevelsAbove.contains(current)) {
+                            collectLevelsAboveProject(projects, collection, collectedLevelsAbove);
+                        }
                         for (Project project : projects.values())
                         {
                             for (Experiment experiment : project.getExperiments())
@@ -223,6 +278,7 @@ public class XLSExportExtendedService
                                 ExportablePermId next = new ExportablePermId(ExportableKind.EXPERIMENT,
                                         experiment.getPermId().getPermId());
                                 todo.add(next);
+                                collectedLevelsAbove.add(next);
                             }
                         }
                         break;
@@ -230,11 +286,17 @@ public class XLSExportExtendedService
                         ExperimentFetchOptions experimentFetchOptions =
                                 new ExperimentFetchOptions();
                         experimentFetchOptions.withSamples();
-                        experimentFetchOptions.withDataSets();
+                        experimentFetchOptions.withDataSets().withSample();
+                        if (withLevelsAbove && !collectedLevelsAbove.contains(current)) {
+                            experimentFetchOptions.withProject().withSpace();
+                        }
                         Map<IExperimentId, Experiment> experiments =
                                 api.getExperiments(sessionToken,
                                         List.of(new ExperimentPermId(current.getPermId())),
                                         experimentFetchOptions);
+                        if (withLevelsAbove && !collectedLevelsAbove.contains(current)) {
+                            collectLevelsAboveExperiment(experiments, collection, collectedLevelsAbove);
+                        }
                         for (Experiment experiment : experiments.values())
                         {
                             for (Sample sample : experiment.getSamples())
@@ -248,6 +310,9 @@ public class XLSExportExtendedService
                                 ExportablePermId next = new ExportablePermId(ExportableKind.DATASET,
                                         dataSet.getPermId().getPermId());
                                 todo.add(next);
+                                if (dataSet.getSample() == null) { // DataSet don't belong to a sample, only to this experiment
+                                    collectedLevelsAbove.add(next);
+                                }
                             }
                         }
                         break;
@@ -255,6 +320,10 @@ public class XLSExportExtendedService
                         SampleFetchOptions sampleFetchOptions = new SampleFetchOptions();
                         sampleFetchOptions.withChildren();
                         sampleFetchOptions.withDataSets();
+                        if (withLevelsAbove && !collectedLevelsAbove.contains(current)) {
+                            sampleFetchOptions.withExperiment().withProject().withSpace();
+                            sampleFetchOptions.withSpace();
+                        }
                         if (withObjectsAndDataSetsParents)
                         {
                             sampleFetchOptions.withParents();
@@ -263,15 +332,19 @@ public class XLSExportExtendedService
                         Map<ISampleId, Sample> samples = api.getSamples(sessionToken,
                                 List.of(new SamplePermId(current.getPermId())),
                                 sampleFetchOptions);
-
+                        if (withLevelsAbove && !collectedLevelsAbove.contains(current)) {
+                            collectLevelsAboveSample(samples, collection, collectedLevelsAbove);
+                        }
                         for (Sample sample : samples.values())
                         {
+                            // TODO This optimization can lead to over-include samples. Having shared samples and spaces with the same codes will lead to include samples on the space with the same code as the shared sample.
                             String sampleSpaceCode =
                                     sample.getIdentifier().getIdentifier().split("/")[1];
                             if (withObjectsAndDataSetsParents)
                             {
                                 for (Sample parent : sample.getParents())
                                 {
+                                    // TODO This optimization can lead to over-include samples. Having shared samples and spaces with the same codes will lead to include samples on the space with the same code as the shared sample.
                                     String parentSpaceCode =
                                             parent.getIdentifier().getIdentifier().split("/")[1];
                                     if (sampleSpaceCode.equals(
@@ -285,6 +358,7 @@ public class XLSExportExtendedService
                             }
                             for (Sample child : sample.getChildren())
                             {
+                                // TODO This optimization can lead to over-include samples. Having shared samples and spaces with the same codes will lead to include samples on the space with the same code as the shared sample.
                                 String childSpaceCode =
                                         child.getIdentifier().getIdentifier().split("/")[1];
                                 if (sampleSpaceCode.equals(
@@ -300,17 +374,20 @@ public class XLSExportExtendedService
                                 ExportablePermId next = new ExportablePermId(ExportableKind.DATASET,
                                         dataSet.getPermId().getPermId());
                                 todo.add(next);
+                                collectedLevelsAbove.add(next);
                             }
                         }
                         break;
                     case DATASET:
                         DataSetFetchOptions dataSetFetchOptions = new DataSetFetchOptions();
+                        dataSetFetchOptions.withSample();
                         final DataSetFetchOptions childrenDataSetFetchOptions =
                                 dataSetFetchOptions.withChildren();
                         childrenDataSetFetchOptions.withExperiment();
-                        childrenDataSetFetchOptions.withSample();
-                        dataSetFetchOptions.withSample();
-                        dataSetFetchOptions.withExperiment();
+                        if (withLevelsAbove && !collectedLevelsAbove.contains(current)) {
+                            dataSetFetchOptions.withExperiment().withProject().withSpace();
+                            dataSetFetchOptions.withSample().withExperiment().withProject().withSpace();
+                        }
                         if (withObjectsAndDataSetsParents)
                         {
                             final DataSetFetchOptions parentDataSetFetchOptions =
@@ -318,9 +395,13 @@ public class XLSExportExtendedService
                             parentDataSetFetchOptions.withExperiment();
                             parentDataSetFetchOptions.withSample();
                         }
+
                         Map<IDataSetId, DataSet> dataSets = api.getDataSets(sessionToken,
                                 List.of(new DataSetPermId(current.getPermId())),
                                 dataSetFetchOptions);
+                        if (withLevelsAbove && !collectedLevelsAbove.contains(current)) {
+                            collectLevelsAboveDataSet(dataSets, collection, collectedLevelsAbove);
+                        }
                         for (DataSet dataset : dataSets.values())
                         {
                             String datasetSpaceCode =
@@ -364,5 +445,77 @@ public class XLSExportExtendedService
             }
         }
         return collection;
+    }
+
+    private static void collectLevelsAboveDataSet(Map<IDataSetId, DataSet> dataSets, Set<ExportablePermId> collection, Set<ExportablePermId> collectedLevelsAbove) {
+        for (DataSet dataset : dataSets.values())
+        {
+            Sample sample = dataset.getSample();
+            if (sample != null) {
+                collectLevelsAboveSample(Map.of(sample.getIdentifier(), sample), collection, collectedLevelsAbove);
+            } else {
+                Experiment experiment = dataset.getExperiment();
+                if (experiment != null) {
+                    collectLevelsAboveExperiment(Map.of(experiment.getIdentifier(), experiment), collection, collectedLevelsAbove);
+                }
+            }
+            collectedLevelsAbove.add(new ExportablePermId(ExportableKind.DATASET,
+                    dataset.getPermId().getPermId()));
+        }
+    }
+
+    private static void collectLevelsAboveSample(Map<ISampleId, Sample> samples, Set<ExportablePermId> collection, Set<ExportablePermId> collectedLevelsAbove) {
+        for (Sample sample : samples.values())
+        {
+            Experiment experiment = sample.getExperiment();
+            if (experiment != null) {
+                ExportablePermId previousExperiment = new ExportablePermId(ExportableKind.EXPERIMENT,
+                        experiment.getPermId().getPermId());
+                collection.add(previousExperiment);
+
+                collectLevelsAboveExperiment(Map.of(experiment.getIdentifier(), experiment), collection, collectedLevelsAbove);
+            } else {
+                Space space = sample.getSpace();
+                if (space != null)
+                {
+                    ExportablePermId previousSpace = new ExportablePermId(ExportableKind.SPACE,
+                            space.getPermId().getPermId());
+                    collection.add(previousSpace);
+                }
+            }
+            collectedLevelsAbove.add(new ExportablePermId(ExportableKind.SAMPLE,
+                    sample.getPermId().getPermId()));
+        }
+    }
+
+    private static void collectLevelsAboveExperiment(Map<IExperimentId, Experiment> experiments, Set<ExportablePermId> collection, Set<ExportablePermId> collectedLevelsAbove) {
+        for (Experiment experiment : experiments.values())
+        {
+            Project project = experiment.getProject();
+            if (project != null)
+            {
+                ExportablePermId previousProject = new ExportablePermId(ExportableKind.PROJECT,
+                        project.getPermId().getPermId());
+                collection.add(previousProject);
+
+                collectLevelsAboveProject(Map.of(project.getIdentifier(), project), collection, collectedLevelsAbove);
+            }
+
+            collectedLevelsAbove.add(new ExportablePermId(ExportableKind.EXPERIMENT,
+                    experiment.getPermId().getPermId()));
+        }
+    }
+
+    private static void collectLevelsAboveProject(Map<IProjectId, Project> projects, Set<ExportablePermId> collection, Set<ExportablePermId> collectedLevelsAbove) {
+        for (Project project : projects.values())
+        {
+            Space space = project.getSpace();
+            ExportablePermId previousSpace = new ExportablePermId(ExportableKind.SPACE,
+                    space.getPermId().getPermId());
+            collection.add(previousSpace);
+
+            collectedLevelsAbove.add(new ExportablePermId(ExportableKind.PROJECT,
+                    project.getPermId().getPermId()));
+        }
     }
 }
