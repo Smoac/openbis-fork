@@ -218,7 +218,7 @@ export default class DataBrowserController extends ComponentController {
 
     while (offset < file.size) {
       const blob = await this._download(file, offset)
-      dataArray.push(await new Uint8Array(blob.arrayBuffer()))
+      dataArray.push(await blob.arrayBuffer())
       offset += CHUNK_SIZE
     }
 

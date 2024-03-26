@@ -186,7 +186,9 @@ class DataBrowser extends React.Component {
       const link = document.createElement('a')
       link.href = window.URL.createObjectURL(blob)
       link.download = file.name
+      document.body.appendChild(link);
       link.click()
+      document.body.removeChild(link);
     }  finally {
       this.setState({ loading: false })
     }
