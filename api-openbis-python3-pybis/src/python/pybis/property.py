@@ -146,15 +146,15 @@ class PropertyHolder:
                 if type(value) != list:
                     value = [value]
                 for single_value in value:
-                    if str(single_value).upper() not in terms.df["code"].values:
+                    if single_value != '' and str(single_value).upper() not in terms.df["code"].values:
                         raise ValueError(
                             f"Value for attribute «{name}» must be one of these terms: {', '.join(terms.df['code'].values)}"
                         )
             else:
                 value = str(value).upper()
-                if value not in terms.df["code"].values:
+                if value != '' and value not in terms.df["code"].values:
                     raise ValueError(
-                        f"Value for attribute «{name}» must be one of these terms: {', '.join(terms.df['code'].values)}"
+                        f"Value for attribute «{name}» must be one of these terms: {', '.join(terms.df['code'].values)} VALUE:{value}"
                     )
         elif data_type == "SAMPLE":
             if "multiValue" in property_type and property_type["multiValue"] is True:
