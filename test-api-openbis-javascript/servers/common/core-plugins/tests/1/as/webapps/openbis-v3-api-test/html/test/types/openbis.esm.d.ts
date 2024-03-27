@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-01-29 16:21:05.
+// Generated using typescript-generator version 3.2.1263 on 2024-03-27 12:40:27.
 
 export default openbis;
 
@@ -9501,6 +9501,30 @@ export namespace openbis {
         new <T extends any>(): FieldUpdateValue<T>;
     }
 
+    interface File {
+
+        getCreationTime(): number;
+
+        getDirectory(): boolean;
+
+        getLastAccessTime(): number;
+
+        getLastModifiedTime(): number;
+
+        getName(): string;
+
+        getOwner(): string;
+
+        getPath(): string;
+    }
+
+    /**
+     */
+    interface FileConstructor {
+
+        new (): File;
+    }
+
     /**
      * @deprecated
      */
@@ -13638,6 +13662,23 @@ export namespace openbis {
         new (arg0: number): ObjectTechId;
     }
 
+    interface OpenBISJavaScriptAFSFacade {
+
+        copy(arg0: string, arg1: string, arg2: string, arg3: string): Promise<boolean>;
+
+        create(arg0: string, arg1: string, arg2: boolean): Promise<boolean>;
+
+        delete(arg0: string, arg1: string): Promise<boolean>;
+
+        list(arg0: string, arg1: string, arg2: boolean): Promise<File[]>;
+
+        move(arg0: string, arg1: string, arg2: string, arg3: string): Promise<boolean>;
+
+        read(arg0: string, arg1: string, arg2: number, arg3: number): Promise<string>;
+
+        write(arg0: string, arg1: string, arg2: number, arg3: string): Promise<boolean>;
+    }
+
     interface OpenBISJavaScriptDSSFacade {
 
         createDataSetUpload(arg0: string): Promise<CreateDataSetUploadResult>;
@@ -13774,6 +13815,8 @@ export namespace openbis {
         executeSearchDomainService(arg1: SearchDomainServiceExecutionOptions): Promise<SearchResult<SearchDomainServiceExecutionResult>>;
 
         executeSql(arg1: string, arg2: SqlExecutionOptions): Promise<TableModel>;
+
+        getAfsServerFacade(): OpenBISJavaScriptAFSFacade;
 
         getAuthorizationGroups(arg1: IAuthorizationGroupId[], arg2: AuthorizationGroupFetchOptions): Promise<{ [index: string]: AuthorizationGroup }>;
 
@@ -16701,6 +16744,10 @@ export namespace openbis {
 
         getMetaData(): { [index: string]: string };
 
+        getPattern(): string;
+
+        getPatternType(): string;
+
         getPermId(): PropertyTypePermId;
 
         getRegistrationDate(): number;
@@ -16743,6 +16790,10 @@ export namespace openbis {
 
         setMultiValue(arg0: boolean): void;
 
+        setPattern(arg0: string): void;
+
+        setPatternType(arg0: string): void;
+
         setPermId(arg0: PropertyTypePermId): void;
 
         setRegistrationDate(arg0: number): void;
@@ -16781,6 +16832,10 @@ export namespace openbis {
 
         getMetaData(): { [index: string]: string };
 
+        getPattern(): string;
+
+        getPatternType(): string;
+
         getSampleTypeId(): IEntityTypeId;
 
         getSchema(): string;
@@ -16812,6 +16867,10 @@ export namespace openbis {
         setMetaData(arg0: { [index: string]: string }): void;
 
         setMultiValue(arg0: boolean): void;
+
+        setPattern(arg0: string): void;
+
+        setPatternType(arg0: string): void;
 
         setSampleTypeId(arg0: IEntityTypeId): void;
 
@@ -16975,6 +17034,10 @@ export namespace openbis {
 
         getObjectId(): IPropertyTypeId;
 
+        getPattern(): FieldUpdateValue<string>;
+
+        getPatternType(): FieldUpdateValue<string>;
+
         getSchema(): FieldUpdateValue<string>;
 
         getTransformation(): FieldUpdateValue<string>;
@@ -16986,6 +17049,10 @@ export namespace openbis {
         setLabel(arg0: string): void;
 
         setMetaDataActions(arg0: ListUpdateAction<any>[]): void;
+
+        setPattern(arg0: string): void;
+
+        setPatternType(arg0: string): void;
 
         setSchema(arg0: string): void;
 
@@ -24948,6 +25015,7 @@ export namespace openbis {
         FastDownloadSessionOptions: FastDownloadSessionOptionsConstructor;
         FetchOptions: FetchOptionsConstructor;
         FieldUpdateValue: FieldUpdateValueConstructor;
+        File: FileConstructor;
         FileFormatType: FileFormatTypeConstructor;
         FileFormatTypeFetchOptions: FileFormatTypeFetchOptionsConstructor;
         FileFormatTypePermId: FileFormatTypePermIdConstructor;
@@ -27563,6 +27631,8 @@ SAMPLE : "SAMPLE"} as const
     export const FetchOptions:FetchOptionsConstructor
 
     export const FieldUpdateValue:FieldUpdateValueConstructor
+
+    export const File:FileConstructor
 
     export const FileFormatType:FileFormatTypeConstructor
 
@@ -30305,6 +30375,10 @@ SAMPLE : "SAMPLE"} as const
     export const openbis:OpenBISJavaScriptFacadeConstructor
 
     type  = CreateDataSetUploadResult
+
+    type  = File
+
+    type  = OpenBISJavaScriptAFSFacade
 
     type  = OpenBISJavaScriptDSSFacade
 

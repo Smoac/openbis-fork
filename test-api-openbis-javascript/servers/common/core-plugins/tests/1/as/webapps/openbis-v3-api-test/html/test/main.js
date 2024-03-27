@@ -19,6 +19,7 @@ define([
     "test-compiled/test-archive-unarchive",
     "test-compiled/test-import-export",
     "test-compiled/test-typescript",
+    "test-compiled/test-afs",
 ], function () {
     var testSuites = arguments
     return async function () {

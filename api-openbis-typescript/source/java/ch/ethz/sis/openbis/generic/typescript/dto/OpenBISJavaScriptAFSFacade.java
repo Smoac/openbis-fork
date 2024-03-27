@@ -1,8 +1,8 @@
 package ch.ethz.sis.openbis.generic.typescript.dto;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
-import ch.ethz.sis.afsapi.dto.File;
 import ch.ethz.sis.openbis.generic.typescript.TypeScriptMethod;
 import ch.ethz.sis.openbis.generic.typescript.TypeScriptObject;
 
@@ -15,45 +15,100 @@ public class OpenBISJavaScriptAFSFacade
     }
 
     @TypeScriptMethod(sessionToken = false)
-    public List<File> list(final String owner, final String source, final Boolean recursively)
+    public List<File> list(final String owner, final String source, final boolean recursively)
     {
         return null;
     }
 
     @TypeScriptMethod(sessionToken = false)
-    public byte[] read(final String source, final long offset, final int limit)
+    public byte[] read(final String owner, final String source, final long offset, final int limit)
     {
         return null;
     }
 
     @TypeScriptMethod(sessionToken = false)
-    public boolean write(final String source, final long offset, final byte[] data)
+    public boolean write(final String owner, final String source, final long offset, final byte[] data)
     {
         return false;
     }
 
     @TypeScriptMethod(sessionToken = false)
-    public boolean delete(final String source)
+    public boolean delete(final String owner, final String source)
     {
         return false;
     }
 
     @TypeScriptMethod(sessionToken = false)
-    public boolean copy(final String source, final String target)
+    public boolean copy(final String sourceOwner, final String source, final String targetOwner, final String target)
     {
         return false;
     }
 
     @TypeScriptMethod(sessionToken = false)
-    public boolean move(final String source, final String target)
+    public boolean move(final String sourceOwner, final String source, final String targetOwner, final String target)
     {
         return false;
     }
 
     @TypeScriptMethod(sessionToken = false)
-    public boolean create(final String source, final boolean directory)
+    public boolean create(final String owner, final String source, final boolean directory)
     {
         return false;
+    }
+
+    @TypeScriptObject
+    public static class File
+    {
+        private String owner;
+
+        private String path;
+
+        private String name;
+
+        private Boolean directory;
+
+        private Long size;
+
+        private OffsetDateTime lastModifiedTime;
+
+        private OffsetDateTime creationTime;
+
+        private OffsetDateTime lastAccessTime;
+
+        public String getOwner()
+        {
+            return owner;
+        }
+
+        public String getPath()
+        {
+            return path;
+        }
+
+        public String getName()
+        {
+            return name;
+        }
+
+        public Boolean getDirectory()
+        {
+            return directory;
+        }
+
+        public OffsetDateTime getLastModifiedTime()
+        {
+            return lastModifiedTime;
+        }
+
+        public OffsetDateTime getCreationTime()
+        {
+            return creationTime;
+        }
+
+        public OffsetDateTime getLastAccessTime()
+        {
+            return lastAccessTime;
+        }
     }
 
 }

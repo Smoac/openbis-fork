@@ -29,7 +29,7 @@ var require = (function() {
 			"bootstrap" : "../../lib/bootstrap/js/bootstrap.min",
 			"bootstrap-slider" : "../../lib/bootstrap-slider/js/bootstrap-slider.min",
 			"afs" : "afs/server-data-store-facade",
-			"afs-md5" : "afs/md5"
+			"afsMd5" : "afs/md5"
 		},
 		shim : {
 			"stjs" : {
@@ -49,9 +49,12 @@ var require = (function() {
 				exports : "openbis"
 			},
 			"afs" : {
-				deps : [ "afs-md5" ],
-				exports : "DataStoreServer"
-			}
+				deps : [ "afsMd5" ],
+				exports : "DataStoreServer",
+				init : function(afsMd5){
+				    this.md5 = afsMd5
+				}
+			},
 		}
 	}
 
