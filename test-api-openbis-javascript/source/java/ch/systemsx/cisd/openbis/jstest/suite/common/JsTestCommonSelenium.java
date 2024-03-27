@@ -77,8 +77,6 @@ public class JsTestCommonSelenium extends SeleniumTest
 
     @BeforeSuite @Override public void initialization() throws Exception
     {
-        System.setProperty("log4j.configuration", "etc/log.xml");
-        System.setProperty("log4j.configurationFile", "etc/log.xml");
         super.initialization();
         startAfsServer();
     }
@@ -86,6 +84,10 @@ public class JsTestCommonSelenium extends SeleniumTest
     @Override
     protected String startApplicationServer() throws Exception
     {
+        File configurationFile = new File("etc/log4j1.xml");
+        System.setProperty("log4j.configuration", configurationFile.getAbsolutePath());
+        System.setProperty("log4j.configurationFile", configurationFile.getAbsolutePath());
+
         JsTestCommonApplicationServer as = new JsTestCommonApplicationServer();
         as.setDeamon(true);
         String result = as.start();
