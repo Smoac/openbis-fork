@@ -278,11 +278,12 @@ class DataBrowser extends React.Component {
   }
 
   async handleRowDoubleClick(row) {
-    const { directory, path } = row.data
+    const file = row.data;
+    const { directory, path } = file
     if (directory) {
       await this.setPath(path)
     } else {
-
+      await this.downloadFile(file)
     }
   }
 
@@ -301,19 +302,22 @@ class DataBrowser extends React.Component {
   async handleDownload() {
     const { multiselectedFiles } = this.state
     const file = multiselectedFiles.values().next().value
+    await this.downloadFile(file)
+  }
 
+  async downloadFile(file) {
     try {
       this.setState({ loading: true })
 
       const dataArray = await this.controller.download(file)
-      const blob = new Blob(dataArray, { type: "application/octet-stream" })
+      const blob = new Blob(dataArray, { type: this.inferMimeType(file.name) })
       const link = document.createElement('a')
       link.href = window.URL.createObjectURL(blob)
       link.download = file.name
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
-    }  finally {
+    } finally {
       this.setState({ loading: false })
     }
   }
