@@ -1,6 +1,6 @@
 define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria', 'as/dto/datastore/fetchoptions/DataStoreFetchOptions',
 	'as/dto/common/search/SearchResult', 'afs'], function(jquery,
-		stjsUtil, DataStoreSearchCriteria, DataStoreFetchOptions, SearchResult, afs) {
+		stjsUtil, DataStoreSearchCriteria, DataStoreFetchOptions, SearchResult, AfsServer) {
 	jquery.noConflict();
 
 	var __private = function() {
@@ -437,7 +437,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
     var afsServerFacade = function(asFacade) {
 
-        this.afsServer = new DataStoreServer("http://localhost:8085", "/data-store-server");
+        this.afsServer = new AfsServer("http://localhost:8085", "/data-store-server");
         this.afsServer.useSession(asFacade._private.sessionToken)
 
 		this.list = function(owner, source, recursively) {
