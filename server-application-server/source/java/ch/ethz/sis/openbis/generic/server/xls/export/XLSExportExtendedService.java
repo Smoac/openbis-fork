@@ -381,6 +381,7 @@ public class XLSExportExtendedService
                     case DATASET:
                         DataSetFetchOptions dataSetFetchOptions = new DataSetFetchOptions();
                         dataSetFetchOptions.withSample();
+                        dataSetFetchOptions.withExperiment();
                         final DataSetFetchOptions childrenDataSetFetchOptions =
                                 dataSetFetchOptions.withChildren();
                         childrenDataSetFetchOptions.withExperiment();
