@@ -259,7 +259,9 @@ public class OpenBISJavaScriptFacade implements IApplicationServerApi
 
     public OpenBISJavaScriptFacade(){}
 
-    public OpenBISJavaScriptFacade(String url){}
+    public OpenBISJavaScriptFacade(String openbisUrl){}
+
+    public OpenBISJavaScriptFacade(String openbisUrl, String afsUrl){}
 
     @TypeScriptMethod(sessionToken = false, async = false)
     public OpenBISJavaScriptDSSFacade getDataStoreFacade(){

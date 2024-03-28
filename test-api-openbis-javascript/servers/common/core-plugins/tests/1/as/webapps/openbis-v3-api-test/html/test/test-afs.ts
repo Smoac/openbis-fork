@@ -55,9 +55,10 @@ exports.default = new Promise((resolve) => {
         }
 
         resolve(function () {
-            executeModule("Afs tests (RequireJS)", new openbisRequireJS(), dtos)
-            executeModule("Afs tests (module VAR)", new window.openbis.openbis(), window.openbis)
-            executeModule("Afs tests (module ESM)", new window.openbisESM.openbis(), window.openbisESM)
+            var afsServerUrl = "http://localhost:8085/data-store-server"
+            executeModule("Afs tests (RequireJS)", new openbisRequireJS(null, afsServerUrl), dtos)
+            executeModule("Afs tests (module VAR)", new window.openbis.openbis(null, afsServerUrl), window.openbis)
+            executeModule("Afs tests (module ESM)", new window.openbisESM.openbis(null, afsServerUrl), window.openbisESM)
         })
     })
 })

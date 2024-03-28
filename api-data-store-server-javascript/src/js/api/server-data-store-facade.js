@@ -37,7 +37,7 @@ _DataStoreServerInternal.prototype.normalizeUrl = function(openbisUrlOrNull, htt
 		}
 	}
 	
-	return parts.protocol + "://" + parts.authority + httpServerUri;
+	return parts.protocol + "://" + parts.authority + (httpServerUri || parts.path);
 }
 
 _DataStoreServerInternal.prototype.getUrlForMethod = function(method) {

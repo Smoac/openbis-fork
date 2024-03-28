@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-03-27 12:40:27.
+// Generated using typescript-generator version 3.2.1263 on 2024-03-28 16:04:27.
 
 export default openbis;
 
@@ -14024,6 +14024,8 @@ export namespace openbis {
         new (): OpenBISJavaScriptFacade;
 
         new (arg0: string): OpenBISJavaScriptFacade;
+
+        new (arg0: string, arg1: string): OpenBISJavaScriptFacade;
     }
 
     interface OperationExecution extends Serializable, ICodeHolder, IDescriptionHolder, IPermIdHolder {

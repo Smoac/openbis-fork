@@ -435,42 +435,56 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 		}
 	}
 
-    var afsServerFacade = function(asFacade) {
+    var AfsServerFacade = function(asFacade, afsUrl) {
 
-        this.afsServer = new AfsServer("http://localhost:8085", "/data-store-server");
-        this.afsServer.useSession(asFacade._private.sessionToken)
+        if(!afsUrl){
+            throw Error("Please specify AFS server url");
+        }
+
+        var afsServer = new AfsServer(afsUrl);
 
 		this.list = function(owner, source, recursively) {
-            return this.afsServer.list(owner, source, recursively);
+		    useSession();
+            return afsServer.list(owner, source, recursively);
 		}
 
 		this.read = function(owner, source, offset, limit){
-		    return this.afsServer.read(owner, source, offset, limit);
+		    useSession();
+		    return afsServer.read(owner, source, offset, limit);
 		}
 
 		this.write = function(owner, source, offset, data){
-		    return this.afsServer.write(owner, source, offset, data);
+		    useSession();
+		    return afsServer.write(owner, source, offset, data);
 		}
 
 		this.delete = function(owner, source){
-		    return this.afsServer.delete(owner, source);
+		    useSession();
+		    return afsServer.delete(owner, source);
 		}
 
 		this.copy = function(sourceOwner, source, targetOwner, target){
-		    return this.afsServer.copy(sourceOwner, source, targetOwner, target);
+		    useSession();
+		    return afsServer.copy(sourceOwner, source, targetOwner, target);
 		}
 
 		this.move = function(sourceOwner, source, targetOwner, target){
-		    return this.afsServer.move(sourceOwner, source, targetOwner, target);
+		    useSession();
+		    return afsServer.move(sourceOwner, source, targetOwner, target);
 		}
 
 		this.create = function(owner, source, directory){
-		    return this.afsServer.create(owner, source, directory);
+		    useSession();
+		    return afsServer.create(owner, source, directory);
 		}
+
+		function useSession(){
+            afsServer.useSession(asFacade._private.sessionToken)
+        }
 
 	}
 
-	var facade = function(openbisUrl) {
+	var facade = function(openbisUrl, afsUrl) {
 
 		if (!openbisUrl) {
 			openbisUrl = "/openbis/openbis/rmi-application-server-v3.json";
@@ -2458,7 +2472,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 		}
 
 		this.getAfsServerFacade = function() {
-            return new afsServerFacade(this)
+            return new AfsServerFacade(this, afsUrl)
 		}
 
 		this.getMajorVersion = function() {
