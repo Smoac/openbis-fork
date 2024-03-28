@@ -441,100 +441,32 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
         this.afsServer.useSession(asFacade._private.sessionToken)
 
 		this.list = function(owner, source, recursively) {
-            return handleAfsResponse(this.afsServer.list(owner, source, recursively)).then(function(result){
-                var files = []
-                if(Array.isArray(result)){
-                    result.forEach(function(item){
-                        if(Array.isArray(item) && item.length === 2){
-                            files.push(new File(item[1]));
-                        }
-                    });
-                }
-                return files;
-            });
+            return this.afsServer.list(owner, source, recursively);
 		}
 
 		this.read = function(owner, source, offset, limit){
-		    return handleAfsResponse(this.afsServer.read(owner, source, offset, limit));
+		    return this.afsServer.read(owner, source, offset, limit);
 		}
 
 		this.write = function(owner, source, offset, data){
-		    return handleAfsResponse(this.afsServer.write(owner, source, offset, data));
+		    return this.afsServer.write(owner, source, offset, data);
 		}
 
 		this.delete = function(owner, source){
-		    return handleAfsResponse(this.afsServer.delete(owner, source));
+		    return this.afsServer.delete(owner, source);
 		}
 
 		this.copy = function(sourceOwner, source, targetOwner, target){
-		    return handleAfsResponse(this.afsServer.copy(sourceOwner, source, targetOwner, target));
+		    return this.afsServer.copy(sourceOwner, source, targetOwner, target);
 		}
 
 		this.move = function(sourceOwner, source, targetOwner, target){
-		    return handleAfsResponse(this.afsServer.move(sourceOwner, source, targetOwner, target));
+		    return this.afsServer.move(sourceOwner, source, targetOwner, target);
 		}
 
 		this.create = function(owner, source, directory){
-		    return handleAfsResponse(this.afsServer.create(owner, source, directory));
+		    return this.afsServer.create(owner, source, directory);
 		}
-
-        var File = function(fileObject){
-            this.owner = fileObject.owner;
-            this.path = fileObject.path;
-            this.name = fileObject.name;
-            this.directory = fileObject.directory;
-            this.size = fileObject.size;
-            this.lastModifiedTime = fileObject.lastModifiedTime;
-            this.creationTime = fileObject.creationTime;
-            this.lastAccessTime = fileObject.lastAccessTime;
-
-            this.getOwner = function(){
-                return this.owner;
-            }
-            this.getPath = function(){
-                return this.path;
-            }
-            this.getName = function(){
-                return this.name;
-            }
-            this.getDirectory = function(){
-                return this.directory;
-            }
-            this.getSize = function(){
-                return this.size;
-            }
-            this.getLastModifiedTime = function(){
-                return this.lastModifiedTime;
-            }
-            this.getCreationTime = function(){
-                return this.creationTime;
-            }
-            this.getLastAccessTime = function(){
-                return this.lastAccessTime;
-            }
-        }
-
-        var handleAfsResponse = function(responsePromise){
-            return new Promise(function(resolve, reject){
-                return responsePromise.then(function(response){
-                    if(response.error){
-                        if(Array.isArray(response.error) && response.error.length === 2){
-                            reject(response.error[1])
-                        }else{
-                            reject(response.error)
-                        }
-                    }else{
-                        if(Array.isArray(response.result) && response.result.length === 2){
-                            resolve(response.result[1])
-                        }else{
-                            resolve(response.result)
-                        }
-                    }
-                }, function(error){
-                    reject(error)
-                })
-            });
-        }
 
 	}
 

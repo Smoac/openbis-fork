@@ -400,7 +400,21 @@ DataStoreServer.prototype.list = function(owner, source, recursively){
 		"application/octet-stream",
 		this._internal.buildGetUrl(data),
 		{}
-	).then((response) => parseJsonResponse(response));
+	).then((response) => parseJsonResponse(response)).then((response) => {
+        if(response && Array.isArray(response.result) && response.result.length === 2){
+            var files = []
+            if(Array.isArray(response.result[1])){
+                response.result[1].forEach(function(item){
+                    if(Array.isArray(item) && item.length === 2){
+                        files.push(new File(item[1]));
+                    }
+                });
+            }
+            return files;
+        } else {
+            return response
+        }
+	});
 }
 
 /**
@@ -603,6 +617,54 @@ DataStoreServer.prototype.recover = function(){
 		encodeParams(data)
 	);
 }
+
+/**
+ * ==================================================================================
+ * DTO
+ * ==================================================================================
+ */
+
+var File = function(fileObject){
+    this.owner = fileObject.owner;
+    this.path = fileObject.path;
+    this.name = fileObject.name;
+    this.directory = fileObject.directory;
+    this.size = fileObject.size;
+    this.lastModifiedTime = fileObject.lastModifiedTime;
+    this.creationTime = fileObject.creationTime;
+    this.lastAccessTime = fileObject.lastAccessTime;
+
+    this.getOwner = function(){
+        return this.owner;
+    }
+    this.getPath = function(){
+        return this.path;
+    }
+    this.getName = function(){
+        return this.name;
+    }
+    this.getDirectory = function(){
+        return this.directory;
+    }
+    this.getSize = function(){
+        return this.size;
+    }
+    this.getLastModifiedTime = function(){
+        return this.lastModifiedTime;
+    }
+    this.getCreationTime = function(){
+        return this.creationTime;
+    }
+    this.getLastAccessTime = function(){
+        return this.lastAccessTime;
+    }
+}
+
+/**
+ * ==================================================================================
+ * MD5
+ * ==================================================================================
+ */
 
 var md5 = (function(){
 
@@ -974,6 +1036,12 @@ var md5 = (function(){
 
     return md5;
 })();
+
+/**
+ * ==================================================================================
+ * EXPORT
+ * ==================================================================================
+ */
 
 if (typeof define === 'function' && define.amd) {
   define(function () {
