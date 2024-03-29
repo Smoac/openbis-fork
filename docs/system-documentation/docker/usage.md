@@ -3,8 +3,8 @@
 ## Docker Containers
 
 Our recommendation is to run openBIS within a **three-container setup**, in particular when aiming at [running openBIS in production](environments.md#production):
-1) **openbis-ingress**: Runs a reverse HTTP Proxy for managing and securing HTTP requests in between the client and the application.
-2) **openbis-app**: Runs a Java Runtime Environment, including the openBIS Application Server (AS) and openBIS Data Store Server (DSS).
+1) **openbis-ingress**: Runs a [reverse HTTP Proxy](https://en.wikipedia.org/wiki/Reverse_proxy) for managing and securing HTTP requests in between the client and the application.
+2) **openbis-app**: Runs a [Java Runtime Environment](https://en.wikipedia.org/wiki/Java_virtual_machine), including the openBIS Application Server (AS) and openBIS Data Store Server (DSS).
 3) **openbis-db**: Runs a [PostgreSQL](https://www.postgresql.org/about/) database, to handle all data transactions.
 
 
@@ -20,11 +20,13 @@ Our recommendation is to run openBIS within a **three-container setup**, in part
 
 Docker Compose is a tool for defining and running multi-container applications. It simplifies the control of the entire openBIS service, making it easy to control the application workflow in a single, comprehensible YAML configuration file, allows to create, start and stop all services by issuing a single command.
 
-We are providing a pre-compiled `docker-compose.yml` available for download [here](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/master/hub/openbis-server/compose/docker-compose.yml), which is ready to use out of the box. To run the application, just navigate to the sub-directory where you've downloaded the `docker-compose.yml` to, and then run `docker-compose up -d` (exact command depends on your OS, and the release of docker and docker-compose installed). For advanced use, consider to modify the file according to your needs ([more details](usage.md)). Note that this example does not include an ingress controler. For full examples, proceed to [Ingress](#ingress).
+We are providing a basic [docker-compose.yml](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/master/hub/openbis-server/compose/docker-compose.yml), which is ready to use. 
+To run the application navigate to the sub-directory where you've downloaded the `docker-compose.yml` to and then run `docker-compose up -d`. 
+For advanced use, consider to modify the file according to your needs ([more details](usage.md)). Note that this example does not include an ingress controler. For full examples, proceed to [Ingress](#ingress).
 
-To ensure that the latest images available on docker hub are being pulled prior to starting the application, run `docker-compose pull` prior to `docker-compose up -d`.
+To ensure that the latest images available on Docker Hub are being pulled prior to starting the application, run `docker-compose pull` prior to `docker-compose up -d`.
 
-The sections below provide a brief description of the individual components used in the proposed multi-container setup.
+The sections below provides a brief description of the individual components used in the proposed multi-container setup.
 
 
 ## Docker Network
