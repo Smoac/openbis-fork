@@ -27,10 +27,10 @@
     <script>
       function loadError() {
         window.onload = function () {
-          let text = 'Error: Could not connect to openBIS.'
-          let h2 = document.createElement('h2')
-          var textnode = document.createTextNode(text)
-          h2.appendChild(textnode)
+          const text = 'Error: Could not connect to openBIS.'
+          const h2 = document.createElement('h2')
+          const textNode = document.createTextNode(text)
+          h2.appendChild(textNode)
           document.getElementById('error').appendChild(h2)
         }
       }
@@ -39,6 +39,7 @@
       src="/openbis/resources/api/v3/config.bundle.js"
       onerror="loadError()"
     ></script>
+    <script src="/openbis/resources/api/data-store-server/api/jszip.min.js"></script>
     <script src="/openbis/resources/api/v3/require.js"></script>
     <script src="/openbis/resources/api/data-store-server/api/server-data-store-facade.js"></script>
   </head>

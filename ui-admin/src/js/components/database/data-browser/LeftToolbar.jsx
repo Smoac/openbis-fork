@@ -244,7 +244,7 @@ class LeftToolbar extends React.Component {
         color={color}
         size={buttonSize}
         variant='outlined'
-        disabled={multiselectedFiles.size !== 1 || multiselectedFiles.values().next().value.directory}
+        disabled={multiselectedFiles.size === 0}
         startIcon={<DownloadIcon />}
         onClick={onDownload}
       >

@@ -278,7 +278,7 @@ class DataBrowser extends React.Component {
   }
 
   async handleRowDoubleClick(row) {
-    const file = row.data;
+    const file = row.data
     const { directory, path } = file
     if (directory) {
       await this.setPath(path)
@@ -301,25 +301,57 @@ class DataBrowser extends React.Component {
 
   async handleDownload() {
     const { multiselectedFiles } = this.state
-    const file = multiselectedFiles.values().next().value
-    await this.downloadFile(file)
+    const files = multiselectedFiles.values()
+    const file = files.next().value
+
+    if (multiselectedFiles.size > 1 || file.directory) {
+      // ZIP download
+      await this.downloadFiles()
+    } else {
+      // Single file download
+      await this.downloadFile(file)
+    }
+  }
+
+  async downloadFiles() {
+    const { multiselectedFiles } = this.state
+    const { id } = this.props
+    const zip = new JSZip()
+
+    for (let file of multiselectedFiles) {
+      if (!file.directory) {
+        const dataArray = await this.controller.download(file)
+        zip.file(file.name, new Blob(dataArray, { type: this.inferMimeType(file.name) }))
+      }
+    }
+
+    const zipBlob = await zip.generateAsync({ type: 'blob' })
+    this.downloadBlob(zipBlob, id)
   }
 
   async downloadFile(file) {
     try {
       this.setState({ loading: true })
 
-      const dataArray = await this.controller.download(file)
-      const blob = new Blob(dataArray, { type: this.inferMimeType(file.name) })
-      const link = document.createElement('a')
-      link.href = window.URL.createObjectURL(blob)
-      link.download = file.name
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
+      const blob = await this.fileToBlob(file)
+      this.downloadBlob(blob, file.name)
     } finally {
       this.setState({ loading: false })
     }
+  }
+
+  downloadBlob(blob, fileName) {
+    const link = document.createElement('a')
+    link.href = window.URL.createObjectURL(blob)
+    link.download = fileName
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
+  async fileToBlob(file) {
+    const dataArray = await this.controller.download(file)
+    return new Blob(dataArray, { type: this.inferMimeType(file.name) })
   }
 
   async onError(error) {
