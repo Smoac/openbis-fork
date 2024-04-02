@@ -167,16 +167,17 @@ export default class DataBrowserController extends ComponentController {
 
   async upload(fileList, onProgressUpdate) {
     let totalUploaded = 0
+    const totalSize = Array.from(fileList)
+      .reduce((acc, file) => acc + file.size, 0)
 
-    const files = Array.from(fileList);
-    const totalSize = files.reduce((acc, file) => acc + file.size, 0)
-
-    for (const file of files) {
+    for (const file of fileList) {
       let offset = 0
       while (offset < file.size) {
         const blob = file.slice(offset, offset + CHUNK_SIZE)
         const binaryString = await this._fileSliceToBinaryString(blob)
-        await this._uploadChunk(this.path + '/' + file.name, offset,
+        const filePath = file.webkitRelativePath ? file.webkitRelativePath
+          : file.name
+        await this._uploadChunk(this.path + '/' + filePath, offset,
           binaryString)
         offset += blob.size
         totalUploaded += blob.size

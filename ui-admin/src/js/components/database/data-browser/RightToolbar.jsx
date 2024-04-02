@@ -88,7 +88,7 @@ class RightToolbar extends React.Component {
     }
   }
 
-  async handleUploadFiles(event) {
+  async handleUpload(event) {
     try {
       this.setState({ loading: true, progress: 0 })
       await this.controller.upload(event.target.files, this.updateProgress)
@@ -100,8 +100,6 @@ class RightToolbar extends React.Component {
   updateProgress(newProgress) {
     this.setState({ progress: newProgress })
   }
-
-  handleUploadFolders(event) {}
 
   handleUploadClick(event) {
     this.setState({
@@ -126,7 +124,7 @@ class RightToolbar extends React.Component {
           variant='contained'
           startIcon={<FileIcon />}
           folderSelector={false}
-          onClick={this.handleUploadFiles}
+          onClick={this.handleUpload}
         >
           {messages.get(messages.FILE_UPLOAD)}
         </UploadButton>
@@ -137,7 +135,7 @@ class RightToolbar extends React.Component {
           variant='contained'
           startIcon={<FolderIcon />}
           folderSelector={true}
-          onClick={this.handleUploadFolders}
+          onClick={this.handleUpload}
         >
           {messages.get(messages.FOLDER_UPLOAD)}
         </UploadButton>
