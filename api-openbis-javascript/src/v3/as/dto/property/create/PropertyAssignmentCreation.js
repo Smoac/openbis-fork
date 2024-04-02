@@ -16,6 +16,7 @@ define([ "stjs" ], function(stjs) {
 		prototype.showInEditView = false;
 		prototype.showRawValueInForms = false;
 		prototype.unique = false;
+		prototype.managedInternally = false;
 
 		prototype.getSection = function() {
 			return this.section;
@@ -70,6 +71,12 @@ define([ "stjs" ], function(stjs) {
         };
         prototype.setUnique = function(unique) {
             this.unique = unique;
+        };
+        prototype.isManagedInternally = function() {
+            return this.managedInternally;
+        };
+        prototype.setManagedInternally = function(managedInternally) {
+            this.managedInternally = managedInternally;
         };
 	}, {
 		propertyTypeId : "IPropertyTypeId",
