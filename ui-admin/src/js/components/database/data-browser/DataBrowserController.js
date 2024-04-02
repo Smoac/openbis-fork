@@ -169,7 +169,7 @@ export default class DataBrowserController extends ComponentController {
     while (offset < file.size) {
       const blob = file.slice(offset, offset + CHUNK_SIZE)
       const binaryString = await this._fileSliceToBinaryString(blob);
-      await this._uploadChunk(file.name, offset, binaryString)
+      await this._uploadChunk(this.path + '/' + file.name, offset, binaryString)
       offset += CHUNK_SIZE
 
       if (onProgressUpdate) {
