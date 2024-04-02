@@ -156,7 +156,7 @@ public interface ExperimentQuery extends ObjectQuery
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getValidationPluginIds(LongSet experimentTypeIds);
 
-    @Select(sql = "select pt.code as prty_code, pt.is_managed_internally as prty_is_managed_internally, 'EXPERIMENT' as kind_code, et.id as type_id, et.code as type_code, etpt.* from experiment_type_property_types etpt, property_types pt, experiment_types et where etpt.id = any(?{1}) and etpt.prty_id = pt.id and etpt.exty_id = et.id", parameterBindings = {
+    @Select(sql = "select pt.code as prty_code, pt.is_managed_internally as prty_is_managed_internally, 'EXPERIMENT' as kind_code, et.id as type_id, et.code as type_code, etpt.is_managed_internally_namespace as is_managed_internally_assignment, etpt.* from experiment_type_property_types etpt, property_types pt, experiment_types et where etpt.id = any(?{1}) and etpt.prty_id = pt.id and etpt.exty_id = et.id", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<PropertyAssignmentRecord> getPropertyAssignments(LongSet experimentTypePropertyTypeIds);
 }

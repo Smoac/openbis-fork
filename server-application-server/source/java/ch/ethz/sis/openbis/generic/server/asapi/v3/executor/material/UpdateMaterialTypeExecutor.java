@@ -58,7 +58,7 @@ public class UpdateMaterialTypeExecutor
     }
 
     @Override
-    protected void checkAccess(IOperationContext context, IEntityTypeId id, MaterialTypePE entity, MaterialTypeUpdate update)
+    protected void checkAccessTypeSpecific(IOperationContext context, IEntityTypeId id, MaterialTypePE entity, MaterialTypeUpdate update)
     {
         authorizationExecutor.canUpdate(context, entity, update);
     }

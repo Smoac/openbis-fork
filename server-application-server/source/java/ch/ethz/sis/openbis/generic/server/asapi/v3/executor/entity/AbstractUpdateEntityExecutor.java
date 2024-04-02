@@ -125,6 +125,30 @@ public abstract class AbstractUpdateEntityExecutor<UPDATE extends IUpdate, PE ex
             };
     }
 
+    private void checkBusinessRules(final IOperationContext context, MapBatch<UPDATE, PE> batch)
+    {
+        new MapBatchProcessor<UPDATE, PE>(context, batch)
+        {
+            @Override
+            public void process(UPDATE update, PE entity)
+            {
+                ID id = getId(update);
+                checkBusinessRules(context, id, entity, update);
+            }
+
+            @Override
+            public IProgress createProgress(UPDATE update, PE entity, int objectIndex, int totalObjectCount)
+            {
+                return new CheckDataProgress(update, objectIndex, totalObjectCount);
+            }
+        };
+    }
+
+    protected void checkBusinessRules(IOperationContext context, ID id, PE entity, UPDATE update)
+    {
+        // overwrite in child class if special business rules are to be applied
+    }
+
     private void checkAccess(final IOperationContext context, MapBatch<UPDATE, PE> batch)
     {
         new MapBatchProcessor<UPDATE, PE>(context, batch)
@@ -197,6 +221,7 @@ public abstract class AbstractUpdateEntityExecutor<UPDATE extends IUpdate, PE ex
                 updateToEntityMap, batch.getTotalObjectCount());
 
         checkAccess(context, mapBatch);
+        checkBusinessRules(context, mapBatch);
         updateBatch(context, mapBatch);
 
         save(context, new ArrayList<PE>(updateToEntityMap.values()), false);

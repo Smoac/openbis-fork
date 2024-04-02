@@ -138,7 +138,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
                 createAssignment(newAssignment.isMandatory(), newAssignment.getSection(),
                         newAssignment.getOrdinal(), entityType, propertyType, scriptOrNull,
                         newAssignment.isShownInEditView(), newAssignment.getShowRawValue(),
-                        newAssignment.isUnique());
+                        newAssignment.isUnique(), newAssignment.isManagedInternally());
         String defaultValue = newAssignment.getDefaultValue();
         if (newAssignment.isDynamic())
         {
@@ -323,7 +323,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
     private EntityTypePropertyTypePE createAssignment(final boolean mandatory,
             final String section, final Long previousETPTOrdinal, final EntityTypePE entityType,
             final PropertyTypePE propertyType, ScriptPE scriptOrNull, boolean shownInEditView,
-            boolean showRawValue, boolean unique)
+            boolean showRawValue, boolean unique, boolean isManagedInternally)
     {
         checkAssignmentDoesNotExist(entityType, propertyType);
         Long previousOrdinal =
@@ -345,6 +345,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         etpt.setShownInEditView(shownInEditView);
         etpt.setShowRawValue(showRawValue);
         etpt.setUnique(unique);
+        etpt.setManagedInternallyNamespace(isManagedInternally);
 
         new InternalPropertyTypeAuthorization().canCreatePropertyAssignment(session, etpt.getPropertyType(), etpt);
 

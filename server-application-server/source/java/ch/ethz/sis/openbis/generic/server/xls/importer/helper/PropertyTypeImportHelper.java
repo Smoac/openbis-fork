@@ -71,7 +71,8 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         MultiValued("Multivalued", false),
         Unique("Unique", false),
         Pattern("Pattern", false),
-        PatternType("Pattern Type", false);
+        PatternType("Pattern Type", false),
+        InternalAssignment("Internal Assignment", false);
 
         private final String headerName;
 

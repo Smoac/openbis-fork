@@ -95,7 +95,7 @@ public class CreateSampleTypesExecutor extends AbstractCreateEntityTypeExecutor<
     }
 
     @Override
-    protected void checkAccess(IOperationContext context, SampleTypePE entityType)
+    protected void checkAccessTypeSpecific(IOperationContext context, SampleTypePE entityType)
     {
         authorizationExecutor.canCreate(context, entityType);
     }

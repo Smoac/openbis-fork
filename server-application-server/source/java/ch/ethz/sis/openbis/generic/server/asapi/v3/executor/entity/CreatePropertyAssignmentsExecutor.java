@@ -143,6 +143,7 @@ public class CreatePropertyAssignmentsExecutor
         assignment.setShownInEditView(assignmentCreation.isShowInEditView());
         assignment.setShowRawValue(assignmentCreation.isShowRawValueInForms());
         assignment.setUnique(assignmentCreation.isUnique());
+        assignment.setManagedInternally(assignmentCreation.isManagedInternally());
         return assignment;
     }
 

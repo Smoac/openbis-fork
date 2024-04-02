@@ -16,12 +16,18 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.update.ExperimentTypeUpdate;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.PluginPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.create.PropertyAssignmentCreation;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyAssignmentId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.IPropertyTypeId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyAssignmentPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -181,4 +187,134 @@ public abstract class AbstractUpdateEntityTypeExecutor<UPDATE extends IEntityTyp
     {
         DataAccessExceptionTranslator.throwException(e, getDAOEntityKind().name() + "_TYPE", null);
     }
+
+    @Override
+    protected void checkAccess(IOperationContext context, IEntityTypeId id, TYPE_PE entity, UPDATE update)
+    {
+        checkAccessTypeSpecific(context, id, entity, update);
+
+        if(!isSystemUser(context.getSession()))
+        {
+            PropertyAssignmentListUpdateValue assignmentListUpdateValue = update.getPropertyAssignments();
+            Map<IPropertyAssignmentId, EntityTypePropertyTypePE> assignments = new HashMap<>();
+            Map<IPropertyTypeId, EntityTypePropertyTypePE> propertyTypes = new HashMap<>();
+            for(EntityTypePropertyTypePE etptPE : entity.getEntityTypePropertyTypes())
+            {
+                EntityTypePermId entityTypePermId = new EntityTypePermId(entity.getPermId(), EntityKindConverter.convert(entity.getEntityKind()));
+                PropertyTypePermId
+                        propertyTypePermId = new PropertyTypePermId(etptPE.getPropertyType().getPermId());
+                PropertyAssignmentPermId
+                        pa = new PropertyAssignmentPermId(entityTypePermId, propertyTypePermId);
+                assignments.put(pa, etptPE);
+                propertyTypes.put(propertyTypePermId, etptPE);
+            }
+
+
+            for(IPropertyAssignmentId assignmentId : assignmentListUpdateValue.getRemoved())
+            {
+                EntityTypePropertyTypePE etptPE = assignments.getOrDefault(assignmentId, null);
+                if(etptPE.isManagedInternallyNamespace())
+                {
+                    throw new AuthorizationFailureException(
+                            "Internal property assignments can be managed only by the system user.");
+                }
+            }
+            for(PropertyAssignmentCreation creation : assignmentListUpdateValue.getAdded()) {
+                if(creation.isManagedInternally())
+                {
+                    throw new AuthorizationFailureException(
+                            "Internal property assignments can be managed only by the system user.");
+                }
+            }
+            for(PropertyAssignmentCreation assignmentSet : assignmentListUpdateValue.getSet())
+            {
+                IPropertyTypeId propertyTypeId = assignmentSet.getPropertyTypeId();
+                EntityTypePropertyTypePE etpt = propertyTypes.getOrDefault(propertyTypeId, null);
+                if(etpt == null) // new assignment creation
+                {
+                    if(assignmentSet.isManagedInternally())
+                    {
+                        throw new AuthorizationFailureException(
+                                "Internal property assignments can be managed only by the system user.");
+                    }
+                } else { // modification of existing assignment
+                    if((assignmentSet.isManagedInternally() && !etpt.isManagedInternallyNamespace()) || (!assignmentSet.isManagedInternally() && etpt.isManagedInternallyNamespace()))
+                    {
+                        throw new AuthorizationFailureException(
+                                "Internal property assignments can be managed only by the system user.");
+                    } else if(assignmentSet.isManagedInternally() && etpt.isManagedInternallyNamespace())
+                    {
+                        boolean isModified = assignmentSet.isShowInEditView() != etpt.isShownInEditView();
+                        isModified = isModified || (assignmentSet.isMandatory() != etpt.isMandatory());
+                        isModified = isModified || (assignmentSet.isUnique() != etpt.isUnique());
+                        isModified = isModified || (assignmentSet.isShowRawValueInForms() != etpt.getShowRawValue());
+                        if(etpt.isScriptable()) {
+                            if(assignmentSet.getPluginId() == null)
+                            {
+                                isModified = true;
+                            } else {
+                                IPluginId pluginId = assignmentSet.getPluginId();
+                                IPluginId permId =
+                                        new PluginPermId(etpt.getScript().getPermId());
+                                isModified = isModified || pluginId.equals(permId);
+                            }
+                        } else if(assignmentSet.getPluginId() != null) {
+                            isModified = true;
+                        }
+
+                        if(isModified)
+                        {
+                            throw new AuthorizationFailureException(
+                                    "Internal property assignments can be managed only by the system user.");
+                        }
+
+                    }
+                }
+
+            }
+        }
+
+    }
+
+    @Override
+    protected void checkBusinessRules(IOperationContext context, IEntityTypeId id, TYPE_PE entity, UPDATE update)
+    {
+        if(!entity.isManagedInternally() && update.getPropertyAssignments() != null)
+        {
+            PropertyAssignmentListUpdateValue assignmentListUpdateValue = update.getPropertyAssignments();
+            for(PropertyAssignmentCreation creation : assignmentListUpdateValue.getAdded()) {
+                if(creation.isManagedInternally())
+                {
+                    throw new UserFailureException(
+                            "Internal property assignments can be used for internal entity types");
+                }
+            }
+            for(PropertyAssignmentCreation assignmentSet : assignmentListUpdateValue.getSet())
+            {
+                if(assignmentSet.isManagedInternally())
+                {
+                    throw new UserFailureException(
+                            "Internal property assignments can be used for internal entity types");
+                }
+            }
+
+        }
+    }
+
+    private boolean isSystemUser(Session session)
+    {
+        PersonPE user = session.tryGetPerson();
+
+        if (user == null)
+        {
+            throw new AuthorizationFailureException(
+                    "Could not check access because the current session does not have any user assigned.");
+        } else
+        {
+            return user.isSystemUser();
+        }
+    }
+
+    protected abstract void checkAccessTypeSpecific(IOperationContext context, IEntityTypeId id, TYPE_PE entity, UPDATE update);
+
 }

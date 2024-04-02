@@ -1483,7 +1483,8 @@ CREATE TABLE data_set_type_property_types (
     script_id tech_id,
     is_shown_edit boolean_char DEFAULT true NOT NULL,
     show_raw_value boolean_char DEFAULT false NOT NULL,
-    is_unique boolean_char DEFAULT false NOT NULL
+    is_unique boolean_char DEFAULT false NOT NULL,
+    is_managed_internally_namespace boolean_char DEFAULT false NOT NULL
 );
 CREATE TABLE data_set_types (
     id tech_id NOT NULL,
@@ -1799,7 +1800,8 @@ CREATE TABLE experiment_type_property_types (
     script_id tech_id,
     is_shown_edit boolean_char DEFAULT true NOT NULL,
     show_raw_value boolean_char DEFAULT false NOT NULL,
-    is_unique boolean_char DEFAULT false NOT NULL
+    is_unique boolean_char DEFAULT false NOT NULL,
+    is_managed_internally_namespace boolean_char DEFAULT false NOT NULL
 );
 CREATE TABLE experiment_types (
     id tech_id NOT NULL,
@@ -2047,7 +2049,8 @@ CREATE TABLE material_type_property_types (
     script_id tech_id,
     is_shown_edit boolean_char DEFAULT true NOT NULL,
     show_raw_value boolean_char DEFAULT false NOT NULL,
-    is_unique boolean_char DEFAULT false NOT NULL
+    is_unique boolean_char DEFAULT false NOT NULL,
+    is_managed_internally_namespace boolean_char DEFAULT false NOT NULL
 );
 CREATE TABLE material_types (
     id tech_id NOT NULL,
@@ -2509,7 +2512,8 @@ CREATE TABLE sample_type_property_types (
     script_id tech_id,
     is_shown_edit boolean_char DEFAULT true NOT NULL,
     show_raw_value boolean_char DEFAULT false NOT NULL,
-    is_unique boolean_char DEFAULT false NOT NULL
+    is_unique boolean_char DEFAULT false NOT NULL,
+    is_managed_internally_namespace boolean_char DEFAULT false NOT NULL
 );
 CREATE TABLE sample_types (
     id tech_id NOT NULL,

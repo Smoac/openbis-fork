@@ -190,7 +190,7 @@ public interface SampleQuery extends ObjectQuery
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getPropertyAssignmentIds(LongSet sampleTypeIds);
 
-    @Select(sql = "select pt.code as prty_code, pt.is_managed_internally as prty_is_managed_internally, 'SAMPLE' as kind_code, st.id as type_id, st.code as type_code, stpt.* from sample_type_property_types stpt, property_types pt, sample_types st where stpt.id = any(?{1}) and stpt.prty_id = pt.id and stpt.saty_id = st.id", parameterBindings = {
+    @Select(sql = "select pt.code as prty_code, pt.is_managed_internally as prty_is_managed_internally, 'SAMPLE' as kind_code, st.id as type_id, st.code as type_code, stpt.is_managed_internally_namespace as is_managed_internally_assignment, stpt.* from sample_type_property_types stpt, property_types pt, sample_types st where stpt.id = any(?{1}) and stpt.prty_id = pt.id and stpt.saty_id = st.id", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<PropertyAssignmentRecord> getPropertyAssignments(LongSet sampleTypePropertyTypeIds);
 

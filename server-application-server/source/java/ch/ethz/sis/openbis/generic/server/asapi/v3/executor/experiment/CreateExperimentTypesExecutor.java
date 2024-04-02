@@ -84,7 +84,7 @@ public class CreateExperimentTypesExecutor extends AbstractCreateEntityTypeExecu
     }
 
     @Override
-    protected void checkAccess(IOperationContext context, ExperimentTypePE experimentTypePE)
+    protected void checkAccessTypeSpecific(IOperationContext context, ExperimentTypePE experimentTypePE)
     {
         authorizationExecutor.canCreate(context, experimentTypePE);
     }

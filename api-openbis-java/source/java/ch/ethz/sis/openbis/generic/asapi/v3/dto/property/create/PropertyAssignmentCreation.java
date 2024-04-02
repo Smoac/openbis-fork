@@ -47,6 +47,8 @@ public class PropertyAssignmentCreation implements ICreation
 
     private boolean unique = false;
 
+    private boolean managedInternally = false;
+
     public String getSection()
     {
         return section;
@@ -135,6 +137,16 @@ public class PropertyAssignmentCreation implements ICreation
     public void setUnique(boolean unique)
     {
         this.unique = unique;
+    }
+
+    public boolean isManagedInternally()
+    {
+        return managedInternally;
+    }
+
+    public void setManagedInternally(boolean managedInternally)
+    {
+        this.managedInternally = managedInternally;
     }
 
     @Override

@@ -84,7 +84,7 @@ public class CreateMaterialTypesExecutor extends AbstractCreateEntityTypeExecuto
     }
 
     @Override
-    protected void checkAccess(IOperationContext context, MaterialTypePE materialTypePE)
+    protected void checkAccessTypeSpecific(IOperationContext context, MaterialTypePE materialTypePE)
     {
         authorizationExecutor.canCreate(context, materialTypePE);
     }

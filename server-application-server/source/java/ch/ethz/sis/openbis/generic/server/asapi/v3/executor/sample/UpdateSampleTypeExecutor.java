@@ -56,7 +56,7 @@ public class UpdateSampleTypeExecutor
     }
 
     @Override
-    protected void checkAccess(IOperationContext context, IEntityTypeId id, SampleTypePE entity, SampleTypeUpdate update)
+    protected void checkAccessTypeSpecific(IOperationContext context, IEntityTypeId id, SampleTypePE entity, SampleTypeUpdate update)
     {
         authorizationExecutor.canUpdate(context, entity, update);
     }

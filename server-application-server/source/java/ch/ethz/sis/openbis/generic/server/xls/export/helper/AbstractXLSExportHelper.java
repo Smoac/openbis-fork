@@ -50,7 +50,7 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
 
     protected static final String[] ENTITY_ASSIGNMENT_COLUMNS = new String[] { "Code", "Mandatory",
             "Show in edit views", "Section", "Property label", "Data type", "Vocabulary code", "Description",
-            "Metadata", "Dynamic script", "Multivalued", "Unique", "Pattern", "Pattern Type" };
+            "Metadata", "Dynamic script", "Multivalued", "Unique", "Pattern", "Pattern Type", "Internal Assignment" };
 
     protected static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(BasicConstant.DATE_HOURS_MINUTES_SECONDS_PATTERN);
 

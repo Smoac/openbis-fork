@@ -151,6 +151,8 @@ public final class ColumnNames
 
     public static final String IS_MANAGED_INTERNALLY = "is_managed_internally";
 
+    public static final String IS_MANAGED_INTERNALLY_NAMESPACE = "is_managed_internally_namespace";
+
     public static final String IS_MANDATORY = "is_mandatory";
 
     public static final String IS_DYNAMIC = "is_dynamic";
