@@ -14,24 +14,56 @@ exports.default = new Promise((resolve) => {
         var executeModule = function (moduleName: string, facade: openbis.openbis, dtos: openbis.bundle) {
             QUnit.module(moduleName)
 
+            async function deleteFile(facade: openbis.openbis, owner: string, source: string) {
+                try {
+                    await facade.getAfsServerFacade().delete(owner, source)
+                } catch (error) {
+                    if (!error.includes("NoSuchFileException")) {
+                        throw error
+                    }
+                }
+            }
+
             function assertFileEquals(c: common.CommonClass, actualFile: openbis.File, expectedPath: string, expectedDirectory: boolean) {
                 c.assertEqual(actualFile.getPath(), expectedPath, "File path")
                 c.assertEqual(actualFile.getDirectory(), expectedDirectory, "File directory")
             }
 
+            async function assertFileExists(c: common.CommonClass, owner: string, source: string) {
+                try {
+                    await facade.getAfsServerFacade().read(owner, source, 0, 0)
+                    c.assertTrue(true)
+                } catch (error) {
+                    c.fail()
+                }
+            }
+
+            async function assertFileDoesNotExist(c: common.CommonClass, owner: string, source: string) {
+                try {
+                    await facade.getAfsServerFacade().read(owner, source, 0, 0)
+                    c.fail()
+                } catch (error) {
+                    c.assertTrue(error.includes("NoSuchFileException"))
+                }
+            }
+
             QUnit.test("list()", async function (assert) {
+                const testFolder = "test-list"
+
                 try {
                     var c = new common(assert, dtos)
                     c.start()
 
                     await c.login(facade)
 
-                    await facade.getAfsServerFacade().write("test-list", "test-file-1", 0, "test-content-1")
-                    await facade.getAfsServerFacade().write("test-list/test-folder-1", "test-file-2", 0, "test-content-2")
-                    await facade.getAfsServerFacade().write("test-list/test-folder-1", "test-file-3", 0, "test-content-3")
-                    await facade.getAfsServerFacade().write("test-list/test-folder-2", "test-file-4", 0, "test-content-4")
+                    await deleteFile(facade, testFolder, "")
 
-                    var list = await facade.getAfsServerFacade().list("test-list", "", true)
+                    await facade.getAfsServerFacade().write(testFolder, "test-file-1", 0, "test-content-1")
+                    await facade.getAfsServerFacade().write(testFolder + "/test-folder-1", "test-file-2", 0, "test-content-2")
+                    await facade.getAfsServerFacade().write(testFolder + "/test-folder-1", "test-file-3", 0, "test-content-3")
+                    await facade.getAfsServerFacade().write(testFolder + "/test-folder-2", "test-file-4", 0, "test-content-4")
+
+                    var list = await facade.getAfsServerFacade().list(testFolder, "", true)
 
                     list.sort((file1, file2) => {
                         return file1.getPath().localeCompare(file2.getPath())
@@ -53,18 +85,23 @@ exports.default = new Promise((resolve) => {
                 }
             })
 
-            QUnit.test("read()", async function (assert) {
+            QUnit.test("read() / write()", async function (assert) {
+                const testFolder = "test-read-write"
+                const testFile = "test-file"
+                const testContent = "test-content"
+
                 try {
                     var c = new common(assert, dtos)
                     c.start()
 
                     await c.login(facade)
 
-                    const originalContent = "test-content"
-                    await facade.getAfsServerFacade().write("test-read", "test-file", 0, originalContent)
+                    await deleteFile(facade, testFolder, "")
 
-                    var readContent = await facade.getAfsServerFacade().read("test-read", "test-file", 0, originalContent.length)
-                    c.assertEqual(await readContent.text(), originalContent)
+                    await facade.getAfsServerFacade().write(testFolder, testFile, 0, testContent)
+
+                    var content = await facade.getAfsServerFacade().read(testFolder, testFile, 0, testContent.length)
+                    c.assertEqual(await content.text(), testContent)
 
                     c.finish()
                 } catch (error) {
@@ -73,6 +110,116 @@ exports.default = new Promise((resolve) => {
                 }
             })
 
+            QUnit.test("delete()", async function (assert) {
+                const testFolder = "test-delete"
+                const testFile = "test-file"
+                const testContent = "test-content"
+
+                try {
+                    var c = new common(assert, dtos)
+                    c.start()
+
+                    await c.login(facade)
+
+                    await deleteFile(facade, testFolder, "")
+
+                    await facade.getAfsServerFacade().write(testFolder, testFile, 0, testContent)
+
+                    var content = await facade.getAfsServerFacade().read(testFolder, testFile, 0, testContent.length)
+                    c.assertEqual(await content.text(), testContent)
+
+                    await facade.getAfsServerFacade().delete(testFolder, testFile)
+
+                    await assertFileDoesNotExist(c, testFolder, testFile)
+
+                    c.finish()
+                } catch (error) {
+                    c.fail(error)
+                    c.finish()
+                }
+            })
+
+            QUnit.test("copy()", async function (assert) {
+                const testFolder = "test-copy"
+                const testFileToCopy = "test-file-to-copy"
+                const testFileCopied = "test-file-copied"
+                const testContent = "test-content"
+
+                try {
+                    var c = new common(assert, dtos)
+                    c.start()
+
+                    await c.login(facade)
+
+                    await deleteFile(facade, testFolder, "")
+
+                    await facade.getAfsServerFacade().write(testFolder, testFileToCopy, 0, testContent)
+                    await facade.getAfsServerFacade().copy(testFolder, testFileToCopy, testFolder, testFileCopied)
+
+                    var contentToCopy = await facade.getAfsServerFacade().read(testFolder, testFileToCopy, 0, testContent.length)
+                    c.assertEqual(await contentToCopy.text(), testContent)
+
+                    var contentCopied = await facade.getAfsServerFacade().read(testFolder, testFileCopied, 0, testContent.length)
+                    c.assertEqual(await contentCopied.text(), testContent)
+
+                    c.finish()
+                } catch (error) {
+                    c.fail(error)
+                    c.finish()
+                }
+            })
+
+            QUnit.test("move()", async function (assert) {
+                const testFolder = "test-move"
+                const testFileToMove = "test-file-to-move"
+                const testFileMoved = "test-file-moved"
+                const testContent = "test-content"
+
+                try {
+                    var c = new common(assert, dtos)
+                    c.start()
+
+                    await c.login(facade)
+
+                    await deleteFile(facade, testFolder, "")
+
+                    await facade.getAfsServerFacade().write(testFolder, testFileToMove, 0, testContent)
+                    await facade.getAfsServerFacade().move(testFolder, testFileToMove, testFolder, testFileMoved)
+
+                    await assertFileDoesNotExist(c, testFolder, testFileToMove)
+
+                    var content = await facade.getAfsServerFacade().read(testFolder, testFileMoved, 0, testContent.length)
+                    c.assertEqual(await content.text(), testContent)
+
+                    c.finish()
+                } catch (error) {
+                    c.fail(error)
+                    c.finish()
+                }
+            })
+
+            QUnit.test("create()", async function (assert) {
+                const testFolder = "test-create"
+                const testFile = "test-file"
+
+                try {
+                    var c = new common(assert, dtos)
+                    c.start()
+
+                    await c.login(facade)
+
+                    await deleteFile(facade, testFolder, "")
+                    await assertFileDoesNotExist(c, testFolder, testFile)
+
+                    await facade.getAfsServerFacade().create(testFolder, testFile, false)
+                    await assertFileExists(c, testFolder, testFile)
+
+                    c.finish()
+                } catch (error) {
+                    c.fail(error)
+                    c.finish()
+                }
+            })
         }
 
         resolve(function () {
