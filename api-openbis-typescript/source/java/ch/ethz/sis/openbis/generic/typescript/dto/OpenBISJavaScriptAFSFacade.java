@@ -1,6 +1,5 @@
 package ch.ethz.sis.openbis.generic.typescript.dto;
 
-import java.time.OffsetDateTime;
 import java.util.List;
 
 import ch.ethz.sis.openbis.generic.typescript.TypeScriptMethod;
@@ -70,11 +69,11 @@ public class OpenBISJavaScriptAFSFacade
 
         private Long size;
 
-        private OffsetDateTime lastModifiedTime;
+        private String lastModifiedTime;
 
-        private OffsetDateTime creationTime;
+        private String creationTime;
 
-        private OffsetDateTime lastAccessTime;
+        private String lastAccessTime;
 
         public String getOwner()
         {
@@ -96,17 +95,22 @@ public class OpenBISJavaScriptAFSFacade
             return directory;
         }
 
-        public OffsetDateTime getLastModifiedTime()
+        public Long getSize()
+        {
+            return size;
+        }
+
+        public String getLastModifiedTime()
         {
             return lastModifiedTime;
         }
 
-        public OffsetDateTime getCreationTime()
+        public String getCreationTime()
         {
             return creationTime;
         }
 
-        public OffsetDateTime getLastAccessTime()
+        public String getLastAccessTime()
         {
             return lastAccessTime;
         }

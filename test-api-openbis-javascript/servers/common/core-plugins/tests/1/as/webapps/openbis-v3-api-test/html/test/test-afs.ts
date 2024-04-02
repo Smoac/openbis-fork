@@ -24,9 +24,19 @@ exports.default = new Promise((resolve) => {
                 }
             }
 
-            function assertFileEquals(c: common.CommonClass, actualFile: openbis.File, expectedPath: string, expectedDirectory: boolean) {
-                c.assertEqual(actualFile.getPath(), expectedPath, "File path")
-                c.assertEqual(actualFile.getDirectory(), expectedDirectory, "File directory")
+            function assertFileEquals(c: common.CommonClass, actualFile: openbis.File, expectedFile: Object) {
+                c.assertEqual(actualFile.getPath(), expectedFile["path"], "File path")
+                c.assertEqual(actualFile.getOwner(), expectedFile["owner"], "File owner")
+                c.assertEqual(actualFile.getName(), expectedFile["name"], "File name")
+                c.assertEqual(actualFile.getSize(), expectedFile["size"], "File size")
+                c.assertEqual(actualFile.getDirectory(), expectedFile["directory"], "File directory")
+
+                var now = new Date()
+                var datePrefix = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0") + "-" + String(now.getDate()).padStart(2, "0")
+
+                c.assertTrue(actualFile.getCreationTime().startsWith(datePrefix), "File creation time")
+                c.assertTrue(actualFile.getLastModifiedTime().startsWith(datePrefix), "File modified time")
+                c.assertTrue(actualFile.getLastAccessTime().startsWith(datePrefix), "File access time")
             }
 
             async function assertFileExists(c: common.CommonClass, owner: string, source: string) {
@@ -49,6 +59,10 @@ exports.default = new Promise((resolve) => {
 
             QUnit.test("list()", async function (assert) {
                 const testFolder = "test-list"
+                const testContent1 = "test-content-1-abc"
+                const testContent2 = "test-content-2-abcd"
+                const testContent3 = "test-content-3-abcde"
+                const testContent4 = "test-content-4-abcdef"
 
                 try {
                     var c = new common(assert, dtos)
@@ -58,10 +72,10 @@ exports.default = new Promise((resolve) => {
 
                     await deleteFile(facade, testFolder, "")
 
-                    await facade.getAfsServerFacade().write(testFolder, "test-file-1", 0, "test-content-1")
-                    await facade.getAfsServerFacade().write(testFolder + "/test-folder-1", "test-file-2", 0, "test-content-2")
-                    await facade.getAfsServerFacade().write(testFolder + "/test-folder-1", "test-file-3", 0, "test-content-3")
-                    await facade.getAfsServerFacade().write(testFolder + "/test-folder-2", "test-file-4", 0, "test-content-4")
+                    await facade.getAfsServerFacade().write(testFolder, "test-file-1", 0, testContent1)
+                    await facade.getAfsServerFacade().write(testFolder + "/test-folder-1", "test-file-2", 0, testContent2)
+                    await facade.getAfsServerFacade().write(testFolder + "/test-folder-1", "test-file-3", 0, testContent3)
+                    await facade.getAfsServerFacade().write(testFolder + "/test-folder-2", "test-file-4", 0, testContent4)
 
                     var list = await facade.getAfsServerFacade().list(testFolder, "", true)
 
@@ -71,12 +85,36 @@ exports.default = new Promise((resolve) => {
 
                     c.assertEqual(list.length, 6, "Number of files")
 
-                    assertFileEquals(c, list[0], "/test-file-1", false)
-                    assertFileEquals(c, list[1], "/test-folder-1", true)
-                    assertFileEquals(c, list[2], "/test-folder-1/test-file-2", false)
-                    assertFileEquals(c, list[3], "/test-folder-1/test-file-3", false)
-                    assertFileEquals(c, list[4], "/test-folder-2", true)
-                    assertFileEquals(c, list[5], "/test-folder-2/test-file-4", false)
+                    assertFileEquals(c, list[0], {
+                        path: "/test-file-1",
+                        owner: testFolder,
+                        name: "test-file-1",
+                        size: testContent1.length,
+                        directory: false,
+                    })
+                    assertFileEquals(c, list[1], { path: "/test-folder-1", owner: testFolder, name: "test-folder-1", size: null, directory: true })
+                    assertFileEquals(c, list[2], {
+                        path: "/test-folder-1/test-file-2",
+                        owner: testFolder,
+                        name: "test-file-2",
+                        size: testContent2.length,
+                        directory: false,
+                    })
+                    assertFileEquals(c, list[3], {
+                        path: "/test-folder-1/test-file-3",
+                        owner: testFolder,
+                        name: "test-file-3",
+                        size: testContent3.length,
+                        directory: false,
+                    })
+                    assertFileEquals(c, list[4], { path: "/test-folder-2", owner: testFolder, name: "test-folder-2", size: null, directory: true })
+                    assertFileEquals(c, list[5], {
+                        path: "/test-folder-2/test-file-4",
+                        owner: testFolder,
+                        name: "test-file-4",
+                        size: testContent4.length,
+                        directory: false,
+                    })
 
                     c.finish()
                 } catch (error) {
