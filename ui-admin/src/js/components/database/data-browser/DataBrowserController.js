@@ -55,9 +55,11 @@ export default class DataBrowserController extends ComponentController {
     })
   }
 
-  listFiles() {
+  async listFiles(path) {
+    // Use this.path if path is not specified
+    const pathToList = path ? path : this.path
     return new Promise((resolve, reject) => {
-      this.component.datastoreServer.list(this.owner, this.path, false)
+      this.component.datastoreServer.list(this.owner, pathToList, false)
         .then((data) => {
           if (!data.error) {
             const results = data.result[1]

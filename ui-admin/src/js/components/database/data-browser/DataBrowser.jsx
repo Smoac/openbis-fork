@@ -267,6 +267,7 @@ class DataBrowser extends React.Component {
       freeSpace: -1,
       totalSpace: -1
     }
+    this.zip = new JSZip()
   }
 
   handleViewTypeChange(viewType) {
@@ -316,23 +317,31 @@ class DataBrowser extends React.Component {
   async downloadFiles() {
     const { multiselectedFiles } = this.state
     const { id } = this.props
-    const zip = new JSZip()
+    const zipBlob = await this.prepareZipBlob(multiselectedFiles)
+    this.downloadBlob(zipBlob, id)
+    this.zip = new JSZip()
+  }
 
-    for (let file of multiselectedFiles) {
+  async prepareZipBlob(files) {
+    for (let file of files) {
       if (!file.directory) {
         const dataArray = await this.controller.download(file)
-        zip.file(file.name, new Blob(dataArray, { type: this.inferMimeType(file.name) }))
+        this.zip.file(
+          file.path,
+          new Blob(dataArray, { type: this.inferMimeType(file.path) })
+        )
+      } else {
+        this.zip.folder(file.path)
+        const nestedFiles = await this.controller.listFiles(file.path)
+        await this.prepareZipBlob(nestedFiles)
       }
     }
-
-    const zipBlob = await zip.generateAsync({ type: 'blob' })
-    this.downloadBlob(zipBlob, id)
+    return await this.zip.generateAsync({ type: 'blob' })
   }
 
   async downloadFile(file) {
     try {
       this.setState({ loading: true })
-
       const blob = await this.fileToBlob(file)
       this.downloadBlob(blob, file.name)
     } finally {
@@ -351,7 +360,7 @@ class DataBrowser extends React.Component {
 
   async fileToBlob(file) {
     const dataArray = await this.controller.download(file)
-    return new Blob(dataArray, { type: this.inferMimeType(file.name) })
+    return new Blob(dataArray, { type: this.inferMimeType(file.path) })
   }
 
   async onError(error) {
