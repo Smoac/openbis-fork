@@ -27,7 +27,8 @@ generateTypeScript {
     classPatterns = [
             'ch.ethz.sis.openbis.generic.asapi.v3.dto.**',
             'ch.ethz.sis.openbis.generic.dssapi.v3.dto.**',
-            'ch.ethz.sis.openbis.generic.typescript.dto.**'
+            'ch.ethz.sis.openbis.generic.typescript.dto.**',
+            'ch.ethz.sis.openbis.generic.typescript.type.**'
     ]
     excludeClassPatterns = [
             "ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi",
@@ -49,7 +50,8 @@ generateTypeScript {
             "ch.ethz.sis.openbis.generic.asapi.v3.dto.service.execute.AbstractExecutionOptionsWithParameters:as_dto_service_execute_AbstractExecutionOptionsWithParameters",
             "ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.execute.AbstractExecutionOptionsWithParameters:dss_dto_service_execute_AbstractExecutionOptionsWithParameters",
             "ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult:as_dto_common_operation_IOperationResult",
-            "ch.ethz.sis.openbis.generic.dssapi.v3.dto.common.operation.IOperationResult:dss_dto_common_operation_IOperationResult"
+            "ch.ethz.sis.openbis.generic.dssapi.v3.dto.common.operation.IOperationResult:dss_dto_common_operation_IOperationResult",
+            "ch.ethz.sis.openbis.generic.typescript.type.Blob:Blob"
     ]
     extensionsWithConfiguration = [
             new ConfiguredExtension(className: 'ch.ethz.sis.openbis.generic.typescript.OpenBISExtension')

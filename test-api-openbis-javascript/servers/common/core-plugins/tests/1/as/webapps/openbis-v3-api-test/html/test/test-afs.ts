@@ -26,12 +26,12 @@ exports.default = new Promise((resolve) => {
 
                     await c.login(facade)
 
-                    await facade.getAfsServerFacade().write("test-owner", "test-file-1", 0, "test-content-1")
-                    await facade.getAfsServerFacade().write("test-owner/test-folder-1", "test-file-2", 0, "test-content-2")
-                    await facade.getAfsServerFacade().write("test-owner/test-folder-1", "test-file-3", 0, "test-content-3")
-                    await facade.getAfsServerFacade().write("test-owner/test-folder-2", "test-file-4", 0, "test-content-4")
+                    await facade.getAfsServerFacade().write("test-list", "test-file-1", 0, "test-content-1")
+                    await facade.getAfsServerFacade().write("test-list/test-folder-1", "test-file-2", 0, "test-content-2")
+                    await facade.getAfsServerFacade().write("test-list/test-folder-1", "test-file-3", 0, "test-content-3")
+                    await facade.getAfsServerFacade().write("test-list/test-folder-2", "test-file-4", 0, "test-content-4")
 
-                    var list = await facade.getAfsServerFacade().list("test-owner", "", true)
+                    var list = await facade.getAfsServerFacade().list("test-list", "", true)
 
                     list.sort((file1, file2) => {
                         return file1.getPath().localeCompare(file2.getPath())
@@ -52,6 +52,27 @@ exports.default = new Promise((resolve) => {
                     c.finish()
                 }
             })
+
+            QUnit.test("read()", async function (assert) {
+                try {
+                    var c = new common(assert, dtos)
+                    c.start()
+
+                    await c.login(facade)
+
+                    const originalContent = "test-content"
+                    await facade.getAfsServerFacade().write("test-read", "test-file", 0, originalContent)
+
+                    var readContent = await facade.getAfsServerFacade().read("test-read", "test-file", 0, originalContent.length)
+                    c.assertEqual(await readContent.text(), originalContent)
+
+                    c.finish()
+                } catch (error) {
+                    c.fail(error)
+                    c.finish()
+                }
+            })
+
         }
 
         resolve(function () {

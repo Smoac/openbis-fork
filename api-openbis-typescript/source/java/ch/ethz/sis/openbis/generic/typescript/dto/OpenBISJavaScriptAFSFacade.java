@@ -5,6 +5,7 @@ import java.util.List;
 
 import ch.ethz.sis.openbis.generic.typescript.TypeScriptMethod;
 import ch.ethz.sis.openbis.generic.typescript.TypeScriptObject;
+import ch.ethz.sis.openbis.generic.typescript.type.Blob;
 
 @TypeScriptObject
 public class OpenBISJavaScriptAFSFacade
@@ -21,13 +22,13 @@ public class OpenBISJavaScriptAFSFacade
     }
 
     @TypeScriptMethod(sessionToken = false)
-    public byte[] read(final String owner, final String source, final long offset, final int limit)
+    public Blob read(final String owner, final String source, final long offset, final int limit)
     {
         return null;
     }
 
     @TypeScriptMethod(sessionToken = false)
-    public boolean write(final String owner, final String source, final long offset, final byte[] data)
+    public boolean write(final String owner, final String source, final long offset, final String data)
     {
         return false;
     }
