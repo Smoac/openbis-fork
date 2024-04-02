@@ -161,14 +161,6 @@ class RightToolbar extends React.Component {
         >
           <InfoIcon />
         </ToggleButton>
-        <IconButton
-          classes={{ root: classes.button }}
-          color={color}
-          size={iconButtonSize}
-          variant='outlined'
-        >
-          <SearchIcon />
-        </IconButton>
         {this.props.viewType === 'list' && (
           <IconButton
             classes={{ root: classes.button }}
@@ -191,14 +183,6 @@ class RightToolbar extends React.Component {
             <ViewListIcon />
           </IconButton>
         )}
-        <IconButton
-          classes={{ root: classes.button }}
-          color={color}
-          size={iconButtonSize}
-          variant='outlined'
-        >
-          <SettingsIcon />
-        </IconButton>
         <Button
           classes={{ root: classes.button }}
           color={color}
