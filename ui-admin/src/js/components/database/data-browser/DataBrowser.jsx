@@ -491,6 +491,7 @@ class DataBrowser extends React.Component {
                   name: 'name',
                   label: messages.get(messages.NAME),
                   sortable: true,
+                  visible: true,
                   getValue: ({ row }) => row.name,
                   renderValue: ({ row }) => (
                     <div className={classes.nameCell}>
@@ -508,18 +509,21 @@ class DataBrowser extends React.Component {
                   name: 'type',
                   label: messages.get(messages.TYPE),
                   sortable: true,
+                  visible: false,
                   getValue: ({ row }) => (row.directory ? 'Directory' : 'File')
                 },
                 {
                   name: 'size',
                   label: messages.get(messages.SIZE),
                   sortable: true,
+                  visible: true,
                   getValue: ({ row }) => this.sizeToString(row.size)
                 },
                 {
                   name: 'created',
                   label: messages.get(messages.CREATED),
                   sortable: true,
+                  visible: false,
                   getValue: ({ row }) => row.creationTime,
                   renderValue: ({ row }) => this.timeToString(row.creationTime)
                 },
@@ -527,6 +531,7 @@ class DataBrowser extends React.Component {
                   name: 'modified',
                   label: messages.get(messages.MODIFIED),
                   sortable: true,
+                  visible: true,
                   getValue: ({ row }) => row.lastModifiedTime,
                   renderValue: ({ row }) =>
                     this.timeToString(row.lastModifiedTime)
@@ -535,6 +540,7 @@ class DataBrowser extends React.Component {
                   name: 'accessed',
                   label: messages.get(messages.ACCESSED),
                   sortable: true,
+                  visible: false,
                   getValue: ({ row }) => row.lastAccessTime,
                   renderValue: ({ row }) =>
                     this.timeToString(row.lastAccessTime)
