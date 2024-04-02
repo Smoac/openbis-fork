@@ -299,7 +299,26 @@ public class OpenBISJavaScriptFacade implements IApplicationServerApi
     @TypeScriptMethod
     @Override public void logout(final String sessionToken)
     {
+    }
 
+    @TypeScriptMethod(sessionToken = false)
+    public void setInteractiveSessionKey(String interactiveSessionKey){
+    }
+
+    @TypeScriptMethod(sessionToken = false)
+    public String beginTransaction()
+    {
+        return null;
+    }
+
+    @TypeScriptMethod(sessionToken = false)
+    public void commitTransaction()
+    {
+    }
+
+    @TypeScriptMethod(sessionToken = false)
+    public void rollbackTransaction()
+    {
     }
 
     @TypeScriptMethod

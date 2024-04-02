@@ -87,6 +87,32 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			return dfd.promise();
 		};
 
+		this.checkSessionTokenExists = function(){
+		    if (!this.sessionToken)
+            {
+                throw new Error("Session token hasn't been set");
+            }
+		}
+
+		this.checkInteractiveSessionKeyExists = function(){
+            if (!this.interactiveSessionKey)
+            {
+                throw new Error("Interactive session token hasn't been set");
+            }
+		}
+
+        this.checkTransactionDoesNotExist = function(){
+            if (this.transactionId){
+                throw new Error("Operation cannot be executed. Expected no active transactions, but found transaction '" + this.transactionId + "'.");
+            }
+        }
+
+        this.checkTransactionExists = function(){
+            if (!this.transactionId){
+                throw new Error("Operation cannot be executed. No active transaction found.");
+            }
+        }
+
 		this.log = function(msg) {
 			if (console) {
 				console.log(msg);
@@ -484,10 +510,48 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 	}
 
+    // parseUri 1.2.2 (c) Steven Levithan <stevenlevithan.com> MIT License (see http://blog.stevenlevithan.com/archives/parseuri)
+
+    var parseUri = function(str) {
+        var options = {
+            strictMode: false,
+            key: ["source","protocol","authority","userInfo","user","password","host","port","relative","path","directory","file","query","anchor"],
+            q:   {
+                name:   "queryKey",
+                parser: /(?:^|&)([^&=]*)=?([^&]*)/g
+            },
+            parser: {
+                strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,
+                loose:  /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
+            }
+        };
+
+        var	o   = options,
+            m   = o.parser[o.strictMode ? "strict" : "loose"].exec(str),
+            uri = {},
+            i   = 14;
+
+        while (i--) uri[o.key[i]] = m[i] || "";
+
+        uri[o.q.name] = {};
+        uri[o.key[12]].replace(o.q.parser, function ($0, $1, $2) {
+            if ($1) uri[o.q.name][$1] = $2;
+        });
+
+        return uri;
+    }
+
 	var facade = function(openbisUrl, afsUrl) {
+
+        var transactionCoordinatorUrl = "/openbis/openbis/rmi-transaction-coordinator.json";
 
 		if (!openbisUrl) {
 			openbisUrl = "/openbis/openbis/rmi-application-server-v3.json";
+		} else {
+            var openbisUrlParts = parseUri(openbisUrl)
+            if (openbisUrlParts.protocol && openbisUrlParts.authority) {
+                transactionCoordinatorUrl = openbisUrlParts.protocol + "://" + openbisUrlParts.authority + "/openbis/openbis/rmi-transaction-coordinator.json"
+            }
 		}
 
 		this._private = new __private();
@@ -541,6 +605,60 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 				thisFacade._private.sessionToken = null;
 			});
 		}
+
+		this.setInteractiveSessionKey = function(interactiveSessionKey) {
+		    this._private.interactiveSessionKey = interactiveSessionKey;
+		}
+
+		this.beginTransaction = function() {
+		    var thisFacade = this;
+
+            thisFacade._private.checkTransactionDoesNotExist();
+            thisFacade._private.checkSessionTokenExists();
+            thisFacade._private.checkInteractiveSessionKeyExists();
+
+		    thisFacade._private.transactionId = crypto.randomUUID();
+
+		    return thisFacade._private.ajaxRequest({
+                url : transactionCoordinatorUrl,
+                data : {
+                    "method" : "beginTransaction",
+                    "params" : [ thisFacade._private.transactionId, thisFacade._private.sessionToken, thisFacade._private.interactiveSessionKey ]
+                }
+            });
+		}
+
+		this.commitTransaction = function(){
+		    var thisFacade = this;
+
+		    thisFacade._private.checkTransactionExists();
+            thisFacade._private.checkSessionTokenExists();
+            thisFacade._private.checkInteractiveSessionKeyExists();
+
+		    return thisFacade._private.ajaxRequest({
+                url : transactionCoordinatorUrl,
+                data : {
+                    "method" : "commitTransaction",
+                    "params" : [ thisFacade._private.transactionId, thisFacade._private.sessionToken, thisFacade._private.interactiveSessionKey ]
+                }
+            });
+		}
+
+        this.rollbackTransaction = function(){
+            var thisFacade = this;
+
+		    thisFacade._private.checkTransactionExists();
+            thisFacade._private.checkSessionTokenExists();
+            thisFacade._private.checkInteractiveSessionKeyExists();
+
+		    return thisFacade._private.ajaxRequest({
+                url : transactionCoordinatorUrl,
+                data : {
+                    "method" : "rollbackTransaction",
+                    "params" : [ thisFacade._private.transactionId, thisFacade._private.sessionToken, thisFacade._private.interactiveSessionKey ]
+                }
+            });
+        }
 
 		this.getSessionInformation = function() {
 			var thisFacade = this;

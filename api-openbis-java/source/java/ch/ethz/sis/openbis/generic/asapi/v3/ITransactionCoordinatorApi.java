@@ -10,6 +10,8 @@ public interface ITransactionCoordinatorApi extends ITransactionCoordinator, IRp
 
     String SERVICE_URL = "/rmi-" + SERVICE_NAME;
 
+    String JSON_SERVICE_URL = SERVICE_URL + ".json";
+
     String APPLICATION_SERVER_PARTICIPANT_ID = "application-server";
 
     String AFS_SERVER_PARTICIPANT_ID = "afs-server";

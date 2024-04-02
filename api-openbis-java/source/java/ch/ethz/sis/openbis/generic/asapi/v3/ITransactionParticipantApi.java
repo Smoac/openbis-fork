@@ -10,4 +10,6 @@ public interface ITransactionParticipantApi extends ITransactionParticipant, IRp
 
     String SERVICE_URL = "/rmi-" + SERVICE_NAME;
 
+    String JSON_SERVICE_URL = SERVICE_URL + ".json";
+
 }
