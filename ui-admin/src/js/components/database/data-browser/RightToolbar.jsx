@@ -91,7 +91,7 @@ class RightToolbar extends React.Component {
   async handleUploadFiles(event) {
     try {
       this.setState({ loading: true, progress: 0 })
-      await this.controller.upload(event.target.files[0], this.updateProgress)
+      await this.controller.upload(event.target.files, this.updateProgress)
     } finally {
       this.setState({ loading: false })
     }
