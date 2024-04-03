@@ -634,6 +634,10 @@ public class IOUtils {
         return Base64.getEncoder().encodeToString(input);
     }
 
+    public static String urlEncodeBase64(byte[] input) {
+        return Base64.getUrlEncoder().encodeToString(input);
+    }
+
     public static byte[] decodeBase64(String input) {
         return Base64.getDecoder().decode(input);
     }
