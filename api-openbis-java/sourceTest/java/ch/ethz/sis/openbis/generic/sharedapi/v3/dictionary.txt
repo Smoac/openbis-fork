@@ -1397,6 +1397,7 @@ isShowParents
 isStorageConfirmation
 isSubcodeUnique
 IStorageFormatId
+isUnique
 isUseWildcards
 isWithImportCompatibility
 isWithReferredTypes
@@ -2326,6 +2327,7 @@ setToStringMethod
 setType
 setTypeCode
 setTypeId
+setUnique
 setup
 setUrlTemplate
 setUserId
