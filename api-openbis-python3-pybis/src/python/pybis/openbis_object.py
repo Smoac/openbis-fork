@@ -417,6 +417,25 @@ class Transaction:
                         batch_request["params"][1].append(request["params"][1][0])
 
                     try:
+                        def remove_at_id(request):
+                            if request is not None:
+                                if type(request) == dict:
+                                    for key in list(request.keys()):
+                                        if key == '@id':
+                                            del request[key]
+                                        else:
+                                            request[key] = remove_at_id(request[key])
+                                    return request
+                                elif type(request) == str:
+                                    return request
+                                elif type(request) == list:
+                                    tmp = []
+                                    for element in request:
+                                        tmp += [remove_at_id(element)]
+                                    return tmp
+                            return request
+                        batch_request = remove_at_id(batch_request)
+
                         resp = entity.openbis._post_request(
                             entity.openbis.as_v3, batch_request
                         )

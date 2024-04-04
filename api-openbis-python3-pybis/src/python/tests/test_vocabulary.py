@@ -156,11 +156,11 @@ def test_create_set_and_remove_vocabulary_property(space):
     assert key.lower() == property_type_code.lower()
     assert val == 'term_code1'.upper()
 
-    sample.props[property_type_code.lower()] = ''
+    sample.props[property_type_code.lower()] = None
     sample.save()
 
     assert len(sample.props()) == 1
     key, val = sample.props().popitem()
     assert key.lower() == property_type_code.lower()
-    assert val == ''
+    assert val is None
 
