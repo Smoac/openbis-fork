@@ -354,7 +354,7 @@ are data sets in the scratch share which can be removed because they are
 archived.
 
 Therefore, it is recommended to setup a
-[CleanUpUnarchivingScratchShareTask](../system-admin-documentation/advanced-features/maintenance-tasks.md#cleanupunarchivingscratchsharetask)
+[CleanUpUnarchivingScratchShareTask](../system-documentation/configuration/maintenance-tasks.md#cleanupunarchivingscratchsharetask)
 which removes data sets from the scratch share which fulfill the
 following conditions:
 
@@ -368,7 +368,7 @@ following conditions:
 (Since version 20.10.3) Archived data sets can be deleted permanently.
 But they are still in the container files. In order to remove them also
 from the container files a
-[MultiDataSetDeletionMaintenanceTask](../system-admin-documentation/advanced-features/maintenance-tasks.md#multidatasetdeletionmaintenancetask)
+[MultiDataSetDeletionMaintenanceTask](../system-documentation/configuration/maintenance-tasks.md#multidatasetdeletionmaintenancetask)
 has to be configured.
 
 ## Recovery from corrupted archiving queues

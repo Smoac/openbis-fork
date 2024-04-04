@@ -18,3 +18,5 @@ ivy-repository
 *.eml
 .metadata
 .recommenders
+docs/.python-version
+docs/_build

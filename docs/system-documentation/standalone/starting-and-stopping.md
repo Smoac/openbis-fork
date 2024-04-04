@@ -29,7 +29,7 @@ prompt> <installation folder>/bin/allup.sh
 
 ## Stop Server
 
-The server is stopped as follows:
+The application server is stopped as follows:
 
 ```console
 prompt> <installation folder>/bin/bisdown.sh
