@@ -2354,77 +2354,13 @@ function ServerFacade(openbisServer) {
 			}
 		});
 	}
-
-    this.getResultsWithBrokenEqualsFix = function(hackFixForBrokenEquals, results, operator) {
-        if (!operator) {
-            operator = "AND";
-        }
-
-        if(hackFixForBrokenEquals.length > 0 && results) {
-            var filteredResults = [];
-            var resultsValid = new Array(results.length);
-            for (var vIdx = 0; vIdx < resultsValid.length; vIdx++) {
-                switch(operator) {
-                    case "AND":
-                        resultsValid[vIdx] = true;
-                        break;
-                    case "OR":
-                        resultsValid[vIdx] = false;
-                        break;
-                }
-            }
-
-            for(var rIdx = 0; rIdx < results.length; rIdx++) {
-        	    var result = results[rIdx];
-        	    for(var fIdx = 0; fIdx < hackFixForBrokenEquals.length; fIdx++) {
-        	        var propertyFound = hackFixForBrokenEquals[fIdx].propertyCode && result &&
-                                        result.properties &&
-                                        result.properties[hackFixForBrokenEquals[fIdx].propertyCode] === hackFixForBrokenEquals[fIdx].value;
-
-                    var permIdFound = hackFixForBrokenEquals[fIdx].permId && result &&
-                                        result.permId && result.permId.permId &&
-                                        result.permId.permId === hackFixForBrokenEquals[fIdx].value;
-        		    if(propertyFound || permIdFound) {
-        			    switch(operator) {
-                            case "AND":
-                                resultsValid[rIdx] = resultsValid[rIdx] && true;
-                                break;
-                            case "OR":
-                                resultsValid[rIdx] = resultsValid[rIdx] || true;
-                                break;
-                        }
-        		    } else {
-                        switch(operator) {
-                            case "AND":
-                                resultsValid[rIdx] = resultsValid[rIdx] && false;
-                                break;
-                            case "OR":
-                                resultsValid[rIdx] = resultsValid[rIdx] || false;
-                                break;
-                        }
-        	        }
-                }
-            }
-
-            for(var rIdx = 0; rIdx < results.length; rIdx++) {
-        	    if(resultsValid[rIdx]) {
-        	        filteredResults.push(results[rIdx]);
-        	    }
-            }
-
-            results = filteredResults;
-        }
-
-        return results;
-    }
+	}
 
 	this.searchForEntityAdvanced = function(advancedSearchCriteria, advancedFetchOptions, callback, criteriaClass, fetchOptionsClass, searchMethodName) {
 		var _this = this;
 		var searchFunction = function(searchCriteria, fetchOptions, hackFixForBrokenEquals) {
 			mainController.openbisV3[searchMethodName](searchCriteria, fetchOptions)
 			.done(function(apiResults) {
-                apiResults.objects = _this.getResultsWithBrokenEqualsFix(hackFixForBrokenEquals, apiResults.objects,
-                                        advancedSearchCriteria.logicalOperator);
 				callback(apiResults);
 			})
 			.fail(function(result) {
@@ -2778,7 +2714,6 @@ function ServerFacade(openbisServer) {
 		var _this = this;
 		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, options, function(data) {
 			var results = localReference.getInitializedSamples(data.result);
-            results = _this.getResultsWithBrokenEqualsFix(hackFixForBrokenEquals, results, "AND");
 			callbackFunction(results);
 		});
 	}
