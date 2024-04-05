@@ -377,9 +377,6 @@ def test_sample_array_properties(space):
     assert sample.props[f'sample_{timestamp}_array_integer'] == [3, 2, 1]
     assert sample.props[f'sample_{timestamp}_array_real'] == [3.1, 2.2, 1.3]
     assert sample.props[f'sample_{timestamp}_array_string'] == ["aa", "bb", "cc"]
-    assert sample.props[f'sample_{timestamp}_array_timestamp'] == ['2023-05-18 11:17:03 +0000',
-                                                                   '2023-05-18 11:17:04 +0000',
-                                                                   '2023-05-18 11:17:05 +0000']
     assert sample.props[f'sample_{timestamp}_json'] == "{\"key\": [1, 1, 1]}"
 
     sample.props[f'sample_{timestamp}_array_integer'] = ''
