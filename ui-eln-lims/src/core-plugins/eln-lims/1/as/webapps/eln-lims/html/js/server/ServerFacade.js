@@ -2423,11 +2423,8 @@ function ServerFacade(openbisServer) {
 		var searchFunction = function(searchCriteria, fetchOptions, hackFixForBrokenEquals) {
 			mainController.openbisV3[searchMethodName](searchCriteria, fetchOptions)
 			.done(function(apiResults) {
-				var majorVersion =  profile.openbisVersion.split('.', 1);
-				if (!isNaN(majorVersion) && majorVersion <= 19) {
-					apiResults.objects = _this.getResultsWithBrokenEqualsFix(hackFixForBrokenEquals, apiResults.objects,
-						advancedSearchCriteria.logicalOperator);
-				}
+                apiResults.objects = _this.getResultsWithBrokenEqualsFix(hackFixForBrokenEquals, apiResults.objects,
+                                        advancedSearchCriteria.logicalOperator);
 				callback(apiResults);
 			})
 			.fail(function(result) {
@@ -2781,10 +2778,7 @@ function ServerFacade(openbisServer) {
 		var _this = this;
 		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, options, function(data) {
 			var results = localReference.getInitializedSamples(data.result);
-			var majorVersion =  profile.openbisVersion.split('.', 1);
-			if (!isNaN(majorVersion) && majorVersion <= 19) {
-				results = _this.getResultsWithBrokenEqualsFix(hackFixForBrokenEquals, results, "AND");
-			}
+            results = _this.getResultsWithBrokenEqualsFix(hackFixForBrokenEquals, results, "AND");
 			callbackFunction(results);
 		});
 	}
