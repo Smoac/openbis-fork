@@ -18,6 +18,7 @@ dependencies {
             project(':lib-openbis-common'),
             project(':lib-authentication'),
             project(':lib-dbmigration'),
+            project(':api-data-store-server-javascript'),
             'sencha:gxt:2.2.5',
             'jboss:javassist:3.28.0.GA',
             'hibernate:hibernate-core:5.2.14.Final',
