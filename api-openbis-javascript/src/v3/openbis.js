@@ -1392,7 +1392,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 				}
 			});
 		}
-		
+
 		this.getProjects = function(ids, fetchOptions) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
@@ -2632,7 +2632,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 				}
 			});
 		}
-		
+
 		this.createCodes = function(prefix, entityKind, count) {
 			var thisFacade = this;
 			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
@@ -2717,15 +2717,15 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 		}
 
 		/**
-		 * ======================= 
+		 * =======================
 		 * OpenBIS webapp context
 		 * =======================
-		 * 
+		 *
 		 * Provides a context information for webapps that are embedded inside
 		 * the OpenBIS UI.
-		 * 
+		 *
 		 * @class
-		 * 
+		 *
 		 */
 		var openbisWebAppContext = function() {
 			this.getWebAppParameter = function(parameterName) {
@@ -2788,9 +2788,9 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
         this.name = fileObject.name;
         this.directory = fileObject.directory;
         this.size = fileObject.size;
-        this.lastModifiedTime = fileObject.lastModifiedTime;
-        this.creationTime = fileObject.creationTime;
-        this.lastAccessTime = fileObject.lastAccessTime;
+        this.lastModifiedTime = fileObject.lastModifiedTime ? Date.parse(fileObject.lastModifiedTime) : null;
+        this.creationTime = fileObject.creationTime ? Date.parse(fileObject.creationTime) : null;
+        this.lastAccessTime = fileObject.lastAccessTime ? Date.parse(fileObject.lastAccessTime) : null;
 
         this.getOwner = function(){
             return this.owner;

@@ -1132,18 +1132,26 @@ define([ 'jquery', 'underscore'], function($, _) {
 		}
 
         this.assertFileEquals = function(actualFile, expectedFile) {
+            const _this = this
+
             this.assertEqual(actualFile.getPath(), expectedFile["path"], "File path")
             this.assertEqual(actualFile.getOwner(), expectedFile["owner"], "File owner")
             this.assertEqual(actualFile.getName(), expectedFile["name"], "File name")
             this.assertEqual(actualFile.getSize(), expectedFile["size"], "File size")
             this.assertEqual(actualFile.getDirectory(), expectedFile["directory"], "File directory")
 
-            var now = new Date()
-            var datePrefix = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0") + "-" + String(now.getDate()).padStart(2, "0")
+            function assertDateInRange(dateName, dateValue, expectedRange){
+                if(!expectedRange){
+                    return
+                }
+                // AFS can return times with seconds precision only, let's then ignore anything below a second
+                _this.assertTrue(Math.floor(expectedRange[0].getTime() / 1000) <= Math.floor(dateValue / 1000), "Date " + dateName + " = " + new Date(dateValue) + " is after " + expectedRange[0])
+                _this.assertTrue(Math.floor(expectedRange[1].getTime() / 1000) >= Math.floor(dateValue / 1000), "Date " + dateName + " = " + new Date(dateValue) + " is before " + expectedRange[1])
+            }
 
-            this.assertTrue(actualFile.getCreationTime().startsWith(datePrefix), "File creation time")
-            this.assertTrue(actualFile.getLastModifiedTime().startsWith(datePrefix), "File modified time")
-            this.assertTrue(actualFile.getLastAccessTime().startsWith(datePrefix), "File access time")
+            assertDateInRange("creationTime", actualFile.getCreationTime(), expectedFile["creationTime"])
+            assertDateInRange("lastModifiedTime", actualFile.getLastModifiedTime(), expectedFile["lastModifiedTime"])
+            assertDateInRange("lastAccessTime", actualFile.getLastAccessTime(), expectedFile["lastAccessTime"])
         }
 
         this.assertFileExists = async function(facade, owner, source) {

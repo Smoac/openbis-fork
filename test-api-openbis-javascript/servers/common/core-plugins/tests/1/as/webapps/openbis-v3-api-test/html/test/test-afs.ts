@@ -24,6 +24,8 @@ exports.default = new Promise((resolve) => {
                 const testContent4 = "test-content-4-abcdef"
 
                 try {
+                    var startDate = new Date()
+
                     var c = new common(assert, dtos)
                     c.start()
 
@@ -59,14 +61,29 @@ exports.default = new Promise((resolve) => {
                         name: "test-file-1",
                         size: testContent1.length,
                         directory: false,
+                        creationTime: [startDate, new Date()],
+                        lastModifiedTime: [startDate, new Date()],
+                        lastAccessTime: [startDate, new Date()],
                     })
-                    c.assertFileEquals(list[1], { path: "/test-folder-1", owner: testFolder, name: "test-folder-1", size: null, directory: true })
+                    c.assertFileEquals(list[1], {
+                        path: "/test-folder-1",
+                        owner: testFolder,
+                        name: "test-folder-1",
+                        size: null,
+                        directory: true,
+                        creationTime: [startDate, new Date()],
+                        lastModifiedTime: [startDate, new Date()],
+                        lastAccessTime: [startDate, new Date()],
+                    })
                     c.assertFileEquals(list[2], {
                         path: "/test-folder-1/test-file-2",
                         owner: testFolder,
                         name: "test-file-2",
                         size: testContent2.length,
                         directory: false,
+                        creationTime: [startDate, new Date()],
+                        lastModifiedTime: [startDate, new Date()],
+                        lastAccessTime: [startDate, new Date()],
                     })
                     c.assertFileEquals(list[3], {
                         path: "/test-folder-1/test-file-3",
@@ -74,14 +91,29 @@ exports.default = new Promise((resolve) => {
                         name: "test-file-3",
                         size: testContent3.length,
                         directory: false,
+                        creationTime: [startDate, new Date()],
+                        lastModifiedTime: [startDate, new Date()],
+                        lastAccessTime: [startDate, new Date()],
                     })
-                    c.assertFileEquals(list[4], { path: "/test-folder-2", owner: testFolder, name: "test-folder-2", size: null, directory: true })
+                    c.assertFileEquals(list[4], {
+                        path: "/test-folder-2",
+                        owner: testFolder,
+                        name: "test-folder-2",
+                        size: null,
+                        directory: true,
+                        creationTime: [startDate, new Date()],
+                        lastModifiedTime: [startDate, new Date()],
+                        lastAccessTime: [startDate, new Date()],
+                    })
                     c.assertFileEquals(list[5], {
                         path: "/test-folder-2/test-file-4",
                         owner: testFolder,
                         name: "test-file-4",
                         size: testContent4.length,
                         directory: false,
+                        creationTime: [startDate, new Date()],
+                        lastModifiedTime: [startDate, new Date()],
+                        lastAccessTime: [startDate, new Date()],
                     })
 
                     c.finish()

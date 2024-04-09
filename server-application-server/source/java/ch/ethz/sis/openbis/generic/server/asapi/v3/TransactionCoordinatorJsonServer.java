@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -84,6 +85,8 @@ public class TransactionCoordinatorJsonServer extends AbstractApiJsonServiceExpo
 
     private static class AfsTypesConvertingDecorator implements ITransactionCoordinatorApi
     {
+
+        private static final DateTimeFormatter AFS_DATE_FORMAT = DateTimeFormatter.ISO_INSTANT;
 
         private final ITransactionCoordinatorApi transactionCoordinatorApi;
 
@@ -153,7 +156,7 @@ public class TransactionCoordinatorJsonServer extends AbstractApiJsonServiceExpo
 
             for (Method method : OperationsAPI.class.getDeclaredMethods())
             {
-                if(method.getName().equals(operationName))
+                if (method.getName().equals(operationName))
                 {
                     int index = 0;
 
@@ -218,7 +221,7 @@ public class TransactionCoordinatorJsonServer extends AbstractApiJsonServiceExpo
         {
             if (dateTime != null)
             {
-                return dateTime.toString();
+                return AFS_DATE_FORMAT.format(dateTime);
             } else
             {
                 return null;

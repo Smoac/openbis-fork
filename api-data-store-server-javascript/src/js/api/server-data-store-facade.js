@@ -630,9 +630,9 @@ var File = function(fileObject){
     this.name = fileObject.name;
     this.directory = fileObject.directory;
     this.size = fileObject.size;
-    this.lastModifiedTime = fileObject.lastModifiedTime;
-    this.creationTime = fileObject.creationTime;
-    this.lastAccessTime = fileObject.lastAccessTime;
+    this.lastModifiedTime = fileObject.lastModifiedTime ? Date.parse(fileObject.lastModifiedTime) : null;
+    this.creationTime = fileObject.creationTime ? Date.parse(fileObject.creationTime) : null;
+    this.lastAccessTime = fileObject.lastAccessTime ? Date.parse(fileObject.lastAccessTime) : null;
 
     this.getOwner = function(){
         return this.owner;
