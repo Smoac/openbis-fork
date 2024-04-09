@@ -58,6 +58,7 @@ dependencies {
             project(path: ':lib-authentication', configuration: 'tests'),
             project(path: ':api-openbis-java', configuration: 'tests'),
             project(path: ':lib-openbis-common', configuration: 'tests'),
+            project(path: ':api-data-store-server-javascript', configuration: 'tests'),
             'fjelmer:classycle:1.4.2',
             'testng:testng:6.8-CISD',
             'springframework:spring-test:5.0.17.RELEASE',
