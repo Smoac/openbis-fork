@@ -95,6 +95,7 @@ public class SearchPropertyAssignmentsOperationExecutor extends
             assignmentRecord.show_raw_value = assignment.getShowRawValue();
             assignmentRecord.type_code = assignment.getEntityType().getCode();
             assignmentRecord.type_id = assignment.getEntityType().getId();
+            assignmentRecord.is_managed_internally_assignment = assignment.isManagedInternallyNamespace();
             ScriptPE script = assignment.getScript();
             if (script != null)
             {
