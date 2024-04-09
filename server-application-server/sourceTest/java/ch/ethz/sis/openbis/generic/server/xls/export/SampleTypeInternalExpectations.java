@@ -98,6 +98,7 @@ class SampleTypeInternalExpectations extends Expectations
                 propertyAssignments[0].setMandatory(false);
                 propertyAssignments[0].setShowInEditView(true);
                 propertyAssignments[0].setSection("General info");
+                propertyAssignments[0].setManagedInternally(true);
                 propertyAssignments[0].getPropertyType().setManagedInternally(true);
                 propertyAssignments[0].getPropertyType().setLabel("Name");
                 propertyAssignments[0].getPropertyType().setDataType(DataType.VARCHAR);
