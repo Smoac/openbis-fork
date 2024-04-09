@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-03-28 16:04:27.
+// Generated using typescript-generator version 3.2.1263 on 2024-04-09 13:57:46.
 
 export default openbis;
 
@@ -9503,19 +9503,21 @@ export namespace openbis {
 
     interface File {
 
-        getCreationTime(): number;
+        getCreationTime(): string;
 
         getDirectory(): boolean;
 
-        getLastAccessTime(): number;
+        getLastAccessTime(): string;
 
-        getLastModifiedTime(): number;
+        getLastModifiedTime(): string;
 
         getName(): string;
 
         getOwner(): string;
 
         getPath(): string;
+
+        getSize(): number;
     }
 
     /**
@@ -13674,7 +13676,7 @@ export namespace openbis {
 
         move(arg0: string, arg1: string, arg2: string, arg3: string): Promise<boolean>;
 
-        read(arg0: string, arg1: string, arg2: number, arg3: number): Promise<string>;
+        read(arg0: string, arg1: string, arg2: number, arg3: number): Promise<Blob>;
 
         write(arg0: string, arg1: string, arg2: number, arg3: string): Promise<boolean>;
     }
@@ -13697,6 +13699,10 @@ export namespace openbis {
     interface OpenBISJavaScriptFacade {
 
         archiveDataSets(arg1: IDataSetId[], arg2: DataSetArchiveOptions): Promise<void>;
+
+        beginTransaction(): Promise<string>;
+
+        commitTransaction(): Promise<void>;
 
         confirmDeletions(arg1: IDeletionId[]): Promise<void>;
 
@@ -13896,6 +13902,8 @@ export namespace openbis {
 
         revertDeletions(arg1: IDeletionId[]): Promise<void>;
 
+        rollbackTransaction(): Promise<void>;
+
         searchAggregationServices(arg1: AggregationServiceSearchCriteria, arg2: AggregationServiceFetchOptions): Promise<SearchResult<AggregationService>>;
 
         searchAuthorizationGroups(arg1: AuthorizationGroupSearchCriteria, arg2: AuthorizationGroupFetchOptions): Promise<SearchResult<AuthorizationGroup>>;
@@ -13967,6 +13975,8 @@ export namespace openbis {
         searchVocabularies(arg1: VocabularySearchCriteria, arg2: VocabularyFetchOptions): Promise<SearchResult<Vocabulary>>;
 
         searchVocabularyTerms(arg1: VocabularyTermSearchCriteria, arg2: VocabularyTermFetchOptions): Promise<SearchResult<VocabularyTerm>>;
+
+        setInteractiveSessionKey(arg0: string): Promise<void>;
 
         unarchiveDataSets(arg1: IDataSetId[], arg2: DataSetUnarchiveOptions): Promise<void>;
 

@@ -724,6 +724,18 @@ define([ 'jquery', 'underscore'], function($, _) {
 			return facade.deletePersons([ id ], options);
 		}.bind(this);
 
+        this.deleteFile = async function(facade, owner, source) {
+            try {
+                await facade.getAfsServerFacade().delete(owner, source)
+            } catch (error) {
+                if (error && error.message && error.message.includes("NoSuchFileException")) {
+                    // do nothing
+                }else{
+                    throw error
+                }
+            }
+        }
+
 		this.getObjectProperty = function(object, propertyName) {
 			var propertyNames = propertyName.split('.');
 			for ( var pn in propertyNames) {
@@ -1118,6 +1130,43 @@ define([ 'jquery', 'underscore'], function($, _) {
 			}
 			return result + "]";
 		}
+
+        this.assertFileEquals = function(actualFile, expectedFile) {
+            this.assertEqual(actualFile.getPath(), expectedFile["path"], "File path")
+            this.assertEqual(actualFile.getOwner(), expectedFile["owner"], "File owner")
+            this.assertEqual(actualFile.getName(), expectedFile["name"], "File name")
+            this.assertEqual(actualFile.getSize(), expectedFile["size"], "File size")
+            this.assertEqual(actualFile.getDirectory(), expectedFile["directory"], "File directory")
+
+            var now = new Date()
+            var datePrefix = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0") + "-" + String(now.getDate()).padStart(2, "0")
+
+            this.assertTrue(actualFile.getCreationTime().startsWith(datePrefix), "File creation time")
+            this.assertTrue(actualFile.getLastModifiedTime().startsWith(datePrefix), "File modified time")
+            this.assertTrue(actualFile.getLastAccessTime().startsWith(datePrefix), "File access time")
+        }
+
+        this.assertFileExists = async function(facade, owner, source) {
+            try {
+                await facade.getAfsServerFacade().read(owner, source, 0, 0)
+                this.assertTrue(true)
+            } catch (error) {
+                this.fail(JSON.stringify(error))
+            }
+        }
+
+        this.assertFileDoesNotExist = async function(facade, owner, source) {
+            try {
+                await facade.getAfsServerFacade().read(owner, source, 0, 0)
+                this.fail("File should not exist: " + JSON.stringify({owner: owner, source: source}))
+            } catch (error) {
+                if(error && error.message && error.message.includes("NoSuchFileException")){
+                    this.assertTrue(true)
+                }else{
+                    this.fail(JSON.stringify(error))
+                }
+            }
+        }
 
 		this.assertObjectsCount = function(objects, count) {
 			this.assertEqual(objects.length, count, 'Got ' + count + ' object(s)');

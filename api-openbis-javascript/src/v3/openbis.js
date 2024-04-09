@@ -70,6 +70,27 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			return dfd.promise();
 		};
 
+		this.ajaxRequestTransactional = function(transactionParticipantId, settings) {
+		    if (this.transactionId) {
+		        var transactionalSettings = {
+                    url : this.transactionCoordinatorUrl,
+                    data : {
+                        "method" : "executeOperation",
+                        "params" : [ this.transactionId,
+                                     this.sessionToken,
+                                     this.interactiveSessionKey,
+                                     transactionParticipantId,
+                                     settings.data.method,
+                                     settings.data.params ]
+                    },
+                    returnType : settings.returnType
+		        }
+                return this.ajaxRequest(transactionalSettings)
+		    } else {
+		        return this.ajaxRequest(settings)
+		    }
+		}
+
 		this.loginCommon = function(user, isAnonymousUser, response) {
 			var thisPrivate = this;
 			var dfd = jquery.Deferred();
@@ -461,103 +482,175 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 		}
 	}
 
-    var AfsServerFacade = function(asFacade, afsUrl) {
+    var AfsServerFacade = function(asFacade) {
 
-        if(!afsUrl){
+        if(!asFacade._private.afsUrl){
             throw Error("Please specify AFS server url");
         }
 
-        var afsServer = new AfsServer(afsUrl);
+        var afsServer = new AfsServer(asFacade._private.afsUrl);
+        var afsServerTransactionParticipantId = "afs-server"
 
-		this.list = function(owner, source, recursively) {
-		    useSession();
-            return afsServer.list(owner, source, recursively);
+		this.list = function(owner, source, recursively){
+		    if(asFacade._private.transactionId){
+                return asFacade._private.ajaxRequestTransactional(afsServerTransactionParticipantId, {
+                    data : {
+                        "method" : "list",
+                        "params" : [ owner, source, recursively ]
+                    }
+                }).then(function(response){
+                    if (response && Array.isArray(response)) {
+                        return response.map(function(fileObject){
+                            return new File(fileObject)
+                        });
+                    } else {
+                        return response;
+                    }
+                })
+		    }else{
+		        afsServer.useSession(asFacade._private.sessionToken)
+                return afsServer.list(owner, source, recursively).catch(function(error){
+                    throw {
+                        message: error
+                    }
+                })
+		    }
 		}
 
 		this.read = function(owner, source, offset, limit){
-		    useSession();
-		    return afsServer.read(owner, source, offset, limit);
+		    if(asFacade._private.transactionId){
+                return asFacade._private.ajaxRequestTransactional(afsServerTransactionParticipantId, {
+                    data : {
+                        "method" : "read",
+                        "params" : [ owner, source, offset, limit ]
+                    }
+                }).then(function(response){
+                    return new Blob([atob(response)])
+                });
+            }else{
+                afsServer.useSession(asFacade._private.sessionToken)
+                return afsServer.read(owner, source, offset, limit).catch(function(error){
+                    throw {
+                        message: error
+                    }
+                })
+            }
 		}
 
 		this.write = function(owner, source, offset, data){
-		    useSession();
-		    return afsServer.write(owner, source, offset, data);
+		    if(asFacade._private.transactionId){
+                return asFacade._private.ajaxRequestTransactional(afsServerTransactionParticipantId, {
+                    data : {
+                        "method" : "write",
+                        "params" : [ owner, source, offset, btoa(data), btoa(hex2a(md5(data))) ]
+                    }
+                })
+            }else{
+                afsServer.useSession(asFacade._private.sessionToken)
+                return afsServer.write(owner, source, offset, data).catch(function(error){
+                    throw {
+                       message: error
+                    }
+                })
+            }
 		}
 
 		this.delete = function(owner, source){
-		    useSession();
-		    return afsServer.delete(owner, source);
+		    if(asFacade._private.transactionId){
+                return asFacade._private.ajaxRequestTransactional(afsServerTransactionParticipantId, {
+                    data : {
+                        "method" : "delete",
+                        "params" : [ owner, source ]
+                    }
+                })
+            }else{
+                afsServer.useSession(asFacade._private.sessionToken)
+                return afsServer.delete(owner, source).catch(function(error){
+                    throw {
+                       message: error
+                    }
+                })
+            }
 		}
 
 		this.copy = function(sourceOwner, source, targetOwner, target){
-		    useSession();
-		    return afsServer.copy(sourceOwner, source, targetOwner, target);
-		}
+		    if(asFacade._private.transactionId){
+                return asFacade._private.ajaxRequestTransactional(afsServerTransactionParticipantId, {
+                    data : {
+                        "method" : "copy",
+                        "params" : [ sourceOwner, source, targetOwner, target ]
+                    }
+                })
+            }else{
+                afsServer.useSession(asFacade._private.sessionToken)
+                return afsServer.copy(sourceOwner, source, targetOwner, target).catch(function(error){
+                    throw {
+                       message: error
+                    }
+                })
+            }
+        }
 
 		this.move = function(sourceOwner, source, targetOwner, target){
-		    useSession();
-		    return afsServer.move(sourceOwner, source, targetOwner, target);
+		    if(asFacade._private.transactionId){
+                return asFacade._private.ajaxRequestTransactional(afsServerTransactionParticipantId, {
+                    data : {
+                        "method" : "move",
+                        "params" : [ sourceOwner, source, targetOwner, target ]
+                    }
+                })
+            }else{
+                afsServer.useSession(asFacade._private.sessionToken)
+                return afsServer.move(sourceOwner, source, targetOwner, target).catch(function(error){
+                    throw {
+                       message: error
+                    }
+                })
+            }
 		}
 
 		this.create = function(owner, source, directory){
-		    useSession();
-		    return afsServer.create(owner, source, directory);
+		    if(asFacade._private.transactionId){
+                return asFacade._private.ajaxRequestTransactional(afsServerTransactionParticipantId, {
+                    data : {
+                        "method" : "create",
+                        "params" : [ owner, source, directory ]
+                    }
+                })
+            }else{
+                afsServer.useSession(asFacade._private.sessionToken)
+                return afsServer.create(owner, source, directory).catch(function(error){
+                    throw {
+                       message: error
+                    }
+                })
+            }
 		}
-
-		function useSession(){
-            afsServer.useSession(asFacade._private.sessionToken)
-        }
 
 	}
 
-    // parseUri 1.2.2 (c) Steven Levithan <stevenlevithan.com> MIT License (see http://blog.stevenlevithan.com/archives/parseuri)
+	var facade = function(asUrl, afsUrl) {
 
-    var parseUri = function(str) {
-        var options = {
-            strictMode: false,
-            key: ["source","protocol","authority","userInfo","user","password","host","port","relative","path","directory","file","query","anchor"],
-            q:   {
-                name:   "queryKey",
-                parser: /(?:^|&)([^&=]*)=?([^&]*)/g
-            },
-            parser: {
-                strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,
-                loose:  /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
-            }
-        };
-
-        var	o   = options,
-            m   = o.parser[o.strictMode ? "strict" : "loose"].exec(str),
-            uri = {},
-            i   = 14;
-
-        while (i--) uri[o.key[i]] = m[i] || "";
-
-        uri[o.q.name] = {};
-        uri[o.key[12]].replace(o.q.parser, function ($0, $1, $2) {
-            if ($1) uri[o.q.name][$1] = $2;
-        });
-
-        return uri;
-    }
-
-	var facade = function(openbisUrl, afsUrl) {
-
+        var openbisUrl = "/openbis/openbis/rmi-application-server-v3.json";
         var transactionCoordinatorUrl = "/openbis/openbis/rmi-transaction-coordinator.json";
+        var transactionParticipantId = "application-server"
 
-		if (!openbisUrl) {
-			openbisUrl = "/openbis/openbis/rmi-application-server-v3.json";
-		} else {
-            var openbisUrlParts = parseUri(openbisUrl)
-            if (openbisUrlParts.protocol && openbisUrlParts.authority) {
-                transactionCoordinatorUrl = openbisUrlParts.protocol + "://" + openbisUrlParts.authority + "/openbis/openbis/rmi-transaction-coordinator.json"
+        if(asUrl){
+            var asUrlParts = parseUri(asUrl)
+            if (asUrlParts.protocol && asUrlParts.authority) {
+                openbisUrl = asUrlParts.protocol + "://" + asUrlParts.authority + openbisUrl;
+                transactionCoordinatorUrl = asUrlParts.protocol + "://" + asUrlParts.authority + transactionCoordinatorUrl;
             }
 		}
 
 		this._private = new __private();
+		this._private.openbisUrl = openbisUrl
+		this._private.transactionCoordinatorUrl = transactionCoordinatorUrl
+		this._private.afsUrl = afsUrl
 
 		this.login = function(user, password) {
 			var thisFacade = this;
+			thisFacade._private.checkTransactionDoesNotExist();
 			return thisFacade._private.loginCommon(user, false, thisFacade._private.ajaxRequest({
 				url : openbisUrl,
 				data : {
@@ -569,6 +662,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.loginAs = function(user, password, asUserId) {
 			var thisFacade = this;
+			thisFacade._private.checkTransactionDoesNotExist();
 			return thisFacade._private.loginCommon(asUserId, false, thisFacade._private.ajaxRequest({
 				url : openbisUrl,
 				data : {
@@ -580,6 +674,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.loginAsAnonymousUser = function() {
 			var thisFacade = this;
+			thisFacade._private.checkTransactionDoesNotExist();
 			return thisFacade._private.loginCommon(null, true, thisFacade._private.ajaxRequest({
 				url : openbisUrl,
 				data : {
@@ -590,11 +685,13 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 		}
 
 		this.loginFromContext = function() {
+		    this._private.checkTransactionDoesNotExist();
 			this._private.sessionToken = this.getWebAppContext().getSessionId();
 		}
 
 		this.logout = function() {
 			var thisFacade = this;
+			thisFacade._private.checkTransactionDoesNotExist();
 			return thisFacade._private.ajaxRequest({
 				url : openbisUrl,
 				data : {
@@ -641,6 +738,8 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
                     "method" : "commitTransaction",
                     "params" : [ thisFacade._private.transactionId, thisFacade._private.sessionToken, thisFacade._private.interactiveSessionKey ]
                 }
+            }).then(function(){
+                thisFacade._private.transactionId = null;
             });
 		}
 
@@ -657,6 +756,8 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
                     "method" : "rollbackTransaction",
                     "params" : [ thisFacade._private.transactionId, thisFacade._private.sessionToken, thisFacade._private.interactiveSessionKey ]
                 }
+            }).then(function(){
+                thisFacade._private.transactionId = null;
             });
         }
 
@@ -674,7 +775,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.createSpaces = function(creations) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "createSpaces",
@@ -689,7 +790,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.createProjects = function(creations) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "createProjects",
@@ -704,7 +805,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.createExperiments = function(creations) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "createExperiments",
@@ -719,7 +820,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.createExperimentTypes = function(creations) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "createExperimentTypes",
@@ -737,7 +838,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
          */
 		this.createExternalDms = function(creations) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "createExternalDataManagementSystems",
@@ -752,7 +853,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
         this.createExternalDataManagementSystems = function(creations) {
             var thisFacade = this;
-            return thisFacade._private.ajaxRequest({
+            return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
                 url : openbisUrl,
                 data : {
                     "method" : "createExternalDataManagementSystems",
@@ -767,7 +868,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.createSamples = function(creations) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "createSamples",
@@ -782,7 +883,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.createSampleTypes = function(creations) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "createSampleTypes",
@@ -797,7 +898,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.createDataSetTypes = function(creations) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "createDataSetTypes",
@@ -812,7 +913,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.createDataSets = function(creations) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "createDataSets",
@@ -827,7 +928,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.createMaterials = function(creations) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "createMaterials",
@@ -842,7 +943,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.createMaterialTypes = function(creations) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "createMaterialTypes",
@@ -857,7 +958,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.createPropertyTypes = function(creations) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "createPropertyTypes",
@@ -872,7 +973,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.createPlugins = function(creations) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "createPlugins",
@@ -887,7 +988,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.createVocabularies = function(creations) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "createVocabularies",
@@ -902,7 +1003,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.createVocabularyTerms = function(creations) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "createVocabularyTerms",
@@ -917,7 +1018,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.createTags = function(creations) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "createTags",
@@ -932,7 +1033,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.createAuthorizationGroups = function(creations) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "createAuthorizationGroups",
@@ -947,7 +1048,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.createRoleAssignments = function(creations) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "createRoleAssignments",
@@ -962,7 +1063,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.createPersons = function(creations) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "createPersons",
@@ -977,7 +1078,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.createSemanticAnnotations = function(creations) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "createSemanticAnnotations",
@@ -992,7 +1093,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.createQueries = function(creations) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "createQueries",
@@ -1007,7 +1108,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.createPersonalAccessTokens = function(creations) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "createPersonalAccessTokens",
@@ -1022,7 +1123,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.updateSpaces = function(updates) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "updateSpaces",
@@ -1033,7 +1134,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.updateProjects = function(updates) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "updateProjects",
@@ -1044,7 +1145,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.updateExperiments = function(updates) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "updateExperiments",
@@ -1055,7 +1156,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.updateExperimentTypes = function(updates) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "updateExperimentTypes",
@@ -1066,7 +1167,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.updateSamples = function(updates) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "updateSamples",
@@ -1077,7 +1178,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.updateSampleTypes = function(updates) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "updateSampleTypes",
@@ -1088,7 +1189,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.updateDataSets = function(updates) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "updateDataSets",
@@ -1099,7 +1200,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.updateDataSetTypes = function(updates) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "updateDataSetTypes",
@@ -1110,7 +1211,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.updateMaterials = function(updates) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "updateMaterials",
@@ -1121,7 +1222,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.updateMaterialTypes = function(updates) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "updateMaterialTypes",
@@ -1132,7 +1233,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.updateExternalDataManagementSystems = function(updates) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "updateExternalDataManagementSystems",
@@ -1143,7 +1244,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.updatePropertyTypes = function(updates) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "updatePropertyTypes",
@@ -1154,7 +1255,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.updatePlugins = function(updates) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "updatePlugins",
@@ -1165,7 +1266,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.updateVocabularies = function(updates) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "updateVocabularies",
@@ -1176,7 +1277,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.updateVocabularyTerms = function(updates) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "updateVocabularyTerms",
@@ -1187,7 +1288,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.updateTags = function(updates) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "updateTags",
@@ -1198,7 +1299,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.updateAuthorizationGroups = function(updates) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "updateAuthorizationGroups",
@@ -1209,7 +1310,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.updatePersons = function(updates) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "updatePersons",
@@ -1220,7 +1321,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.updateOperationExecutions = function(updates) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "updateOperationExecutions",
@@ -1231,7 +1332,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.updateSemanticAnnotations = function(updates) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "updateSemanticAnnotations",
@@ -1242,7 +1343,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.updateQueries = function(updates) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "updateQueries",
@@ -1253,7 +1354,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.updatePersonalAccessTokens = function(updates) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "updatePersonalAccessTokens",
@@ -1264,7 +1365,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.getRights = function(ids, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "getRights",
@@ -1279,7 +1380,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.getSpaces = function(ids, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "getSpaces",
@@ -1294,7 +1395,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 		
 		this.getProjects = function(ids, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "getProjects",
@@ -1309,7 +1410,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.getExperiments = function(ids, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "getExperiments",
@@ -1324,7 +1425,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.getExperimentTypes = function(ids, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "getExperimentTypes",
@@ -1339,7 +1440,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.getSamples = function(ids, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "getSamples",
@@ -1354,7 +1455,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.getSampleTypes = function(ids, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "getSampleTypes",
@@ -1369,7 +1470,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.getDataSets = function(ids, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "getDataSets",
@@ -1384,7 +1485,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.getDataSetTypes = function(ids, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "getDataSetTypes",
@@ -1399,7 +1500,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.getMaterials = function(ids, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "getMaterials",
@@ -1414,7 +1515,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.getMaterialTypes = function(ids, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "getMaterialTypes",
@@ -1429,7 +1530,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.getPropertyTypes = function(ids, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "getPropertyTypes",
@@ -1444,7 +1545,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.getPlugins = function(ids, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "getPlugins",
@@ -1459,7 +1560,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.getVocabularies = function(ids, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "getVocabularies",
@@ -1474,7 +1575,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.getVocabularyTerms = function(ids, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "getVocabularyTerms",
@@ -1489,7 +1590,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.getTags = function(ids, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "getTags",
@@ -1504,7 +1605,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.getAuthorizationGroups = function(ids, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "getAuthorizationGroups",
@@ -1519,7 +1620,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.getRoleAssignments = function(ids, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "getRoleAssignments",
@@ -1534,7 +1635,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.getPersons = function(ids, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "getPersons",
@@ -1549,7 +1650,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.getSemanticAnnotations = function(ids, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "getSemanticAnnotations",
@@ -1564,7 +1665,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.getExternalDataManagementSystems = function(ids, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "getExternalDataManagementSystems",
@@ -1579,7 +1680,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.getOperationExecutions = function(ids, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "getOperationExecutions",
@@ -1594,7 +1695,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.getQueries = function(ids, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "getQueries",
@@ -1609,7 +1710,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.getQueryDatabases = function(ids, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "getQueryDatabases",
@@ -1624,7 +1725,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.getPersonalAccessTokens = function(ids, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "getPersonalAccessTokens",
@@ -1639,7 +1740,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.searchSpaces = function(criteria, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "searchSpaces",
@@ -1651,7 +1752,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.searchProjects = function(criteria, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "searchProjects",
@@ -1663,7 +1764,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.searchExperiments = function(criteria, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "searchExperiments",
@@ -1675,7 +1776,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.searchExperimentTypes = function(criteria, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "searchExperimentTypes",
@@ -1687,7 +1788,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.searchSamples = function(criteria, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "searchSamples",
@@ -1699,7 +1800,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.searchSampleTypes = function(criteria, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "searchSampleTypes",
@@ -1711,7 +1812,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.searchDataSets = function(criteria, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "searchDataSets",
@@ -1723,7 +1824,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.searchDataSetTypes = function(criteria, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "searchDataSetTypes",
@@ -1735,7 +1836,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.searchMaterials = function(criteria, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "searchMaterials",
@@ -1747,7 +1848,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.searchMaterialTypes = function(criteria, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "searchMaterialTypes",
@@ -1759,7 +1860,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.searchExternalDataManagementSystems = function(criteria, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "searchExternalDataManagementSystems",
@@ -1771,7 +1872,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.searchPlugins = function(criteria, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "searchPlugins",
@@ -1783,7 +1884,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.searchVocabularies = function(criteria, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "searchVocabularies",
@@ -1795,7 +1896,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.searchVocabularyTerms = function(criteria, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "searchVocabularyTerms",
@@ -1807,7 +1908,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.searchTags = function(criteria, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "searchTags",
@@ -1819,7 +1920,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.searchAuthorizationGroups = function(criteria, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "searchAuthorizationGroups",
@@ -1831,7 +1932,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.searchRoleAssignments = function(criteria, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "searchRoleAssignments",
@@ -1843,7 +1944,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.searchPersons = function(criteria, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "searchPersons",
@@ -1855,7 +1956,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.searchCustomASServices = function(criteria, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "searchCustomASServices",
@@ -1867,7 +1968,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.searchSearchDomainServices = function(criteria, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "searchSearchDomainServices",
@@ -1879,7 +1980,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.searchAggregationServices = function(criteria, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "searchAggregationServices",
@@ -1891,7 +1992,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.searchReportingServices = function(criteria, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "searchReportingServices",
@@ -1903,7 +2004,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.searchProcessingServices = function(criteria, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "searchProcessingServices",
@@ -1915,7 +2016,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.searchObjectKindModifications = function(criteria, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "searchObjectKindModifications",
@@ -1927,7 +2028,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.searchGlobally = function(criteria, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "searchGlobally",
@@ -1939,7 +2040,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.searchOperationExecutions = function(criteria, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "searchOperationExecutions",
@@ -1951,7 +2052,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.searchDataStores = function(criteria, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "searchDataStores",
@@ -1963,7 +2064,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.searchPropertyTypes = function(criteria, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "searchPropertyTypes",
@@ -1975,7 +2076,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.searchPropertyAssignments = function(criteria, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "searchPropertyAssignments",
@@ -1987,7 +2088,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.searchSemanticAnnotations = function(criteria, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "searchSemanticAnnotations",
@@ -1999,7 +2100,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.searchQueries = function(criteria, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "searchQueries",
@@ -2011,7 +2112,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.searchQueryDatabases = function(criteria, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "searchQueryDatabases",
@@ -2023,7 +2124,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.searchPersonalAccessTokens = function(criteria, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "searchPersonalAccessTokens",
@@ -2035,7 +2136,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.searchSessionInformation = function(criteria, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "searchSessionInformation",
@@ -2047,7 +2148,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.deleteSpaces = function(ids, deletionOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "deleteSpaces",
@@ -2058,7 +2159,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.deleteProjects = function(ids, deletionOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "deleteProjects",
@@ -2069,7 +2170,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.deleteExperiments = function(ids, deletionOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "deleteExperiments",
@@ -2081,7 +2182,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.deleteSamples = function(ids, deletionOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "deleteSamples",
@@ -2093,7 +2194,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.deleteDataSets = function(ids, deletionOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "deleteDataSets",
@@ -2105,7 +2206,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.deleteMaterials = function(ids, deletionOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "deleteMaterials",
@@ -2116,7 +2217,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.deleteExternalDataManagementSystems = function(ids, deletionOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "deleteExternalDataManagementSystems",
@@ -2127,7 +2228,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.deletePlugins = function(ids, deletionOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "deletePlugins",
@@ -2138,7 +2239,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.deletePropertyTypes = function(ids, deletionOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "deletePropertyTypes",
@@ -2149,7 +2250,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.deleteVocabularies = function(ids, deletionOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "deleteVocabularies",
@@ -2160,7 +2261,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.deleteVocabularyTerms = function(ids, deletionOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "deleteVocabularyTerms",
@@ -2171,7 +2272,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.deleteExperimentTypes = function(ids, deletionOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "deleteExperimentTypes",
@@ -2182,7 +2283,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.deleteSampleTypes = function(ids, deletionOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "deleteSampleTypes",
@@ -2193,7 +2294,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.deleteDataSetTypes = function(ids, deletionOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "deleteDataSetTypes",
@@ -2204,7 +2305,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.deleteMaterialTypes = function(ids, deletionOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "deleteMaterialTypes",
@@ -2215,7 +2316,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.deleteTags = function(ids, deletionOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "deleteTags",
@@ -2226,7 +2327,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.deleteAuthorizationGroups = function(ids, deletionOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "deleteAuthorizationGroups",
@@ -2237,7 +2338,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.deleteRoleAssignments = function(ids, deletionOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "deleteRoleAssignments",
@@ -2248,7 +2349,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.deleteOperationExecutions = function(ids, deletionOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "deleteOperationExecutions",
@@ -2259,7 +2360,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.deleteSemanticAnnotations = function(ids, deletionOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "deleteSemanticAnnotations",
@@ -2270,7 +2371,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.deleteQueries = function(ids, deletionOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "deleteQueries",
@@ -2281,7 +2382,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.deletePersons = function(ids, deletionOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "deletePersons",
@@ -2292,7 +2393,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.deletePersonalAccessTokens = function(ids, deletionOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "deletePersonalAccessTokens",
@@ -2303,7 +2404,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.searchDeletions = function(criteria, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "searchDeletions",
@@ -2318,7 +2419,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.searchEvents = function(criteria, fetchOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "searchEvents",
@@ -2333,7 +2434,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.revertDeletions = function(ids) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "revertDeletions",
@@ -2344,7 +2445,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.confirmDeletions = function(ids) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "confirmDeletions",
@@ -2355,7 +2456,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.executeCustomASService = function(serviceId, options) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "executeCustomASService",
@@ -2366,7 +2467,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.executeSearchDomainService = function(options) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "executeSearchDomainService",
@@ -2378,7 +2479,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.executeAggregationService = function(serviceId, options) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "executeAggregationService",
@@ -2390,7 +2491,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.executeReportingService = function(serviceId, options) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "executeReportingService",
@@ -2402,7 +2503,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.executeProcessingService = function(serviceId, options) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "executeProcessingService",
@@ -2413,7 +2514,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.executeQuery = function(queryId, options) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "executeQuery",
@@ -2424,7 +2525,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.executeSql = function(sql, options) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "executeSql",
@@ -2435,7 +2536,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.evaluatePlugin = function(options) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "evaluatePlugin",
@@ -2446,7 +2547,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.archiveDataSets = function(ids, options) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "archiveDataSets",
@@ -2457,7 +2558,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.unarchiveDataSets = function(ids, options) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "unarchiveDataSets",
@@ -2468,7 +2569,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.lockDataSets = function(ids, options) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "lockDataSets",
@@ -2479,7 +2580,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.unlockDataSets = function(ids, options) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "unlockDataSets",
@@ -2490,7 +2591,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.executeOperations = function(operations, options) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "executeOperations",
@@ -2501,7 +2602,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.getServerInformation = function() {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "getServerInformation",
@@ -2512,7 +2613,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.getServerPublicInformation = function() {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "getServerPublicInformation",
@@ -2523,7 +2624,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.createPermIdStrings = function(count) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "createPermIdStrings",
@@ -2534,7 +2635,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 		
 		this.createCodes = function(prefix, entityKind, count) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "createCodes",
@@ -2545,7 +2646,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.executeImport = function(importData, importOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "executeImport",
@@ -2556,7 +2657,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 
 		this.executeExport = function(exportData, exportOptions) {
 			var thisFacade = this;
-			return thisFacade._private.ajaxRequest({
+			return thisFacade._private.ajaxRequestTransactional(transactionParticipantId, {
 				url : openbisUrl,
 				data : {
 					"method" : "executeExport",
@@ -2590,7 +2691,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 		}
 
 		this.getAfsServerFacade = function() {
-            return new AfsServerFacade(this, afsUrl)
+            return new AfsServerFacade(this)
 		}
 
 		this.getMajorVersion = function() {
@@ -2677,6 +2778,281 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 		}
 	}
 
-	return facade;
+	/*********
+	    DTO
+	*********/
+
+    var File = function(fileObject){
+        this.owner = fileObject.owner;
+        this.path = fileObject.path;
+        this.name = fileObject.name;
+        this.directory = fileObject.directory;
+        this.size = fileObject.size;
+        this.lastModifiedTime = fileObject.lastModifiedTime;
+        this.creationTime = fileObject.creationTime;
+        this.lastAccessTime = fileObject.lastAccessTime;
+
+        this.getOwner = function(){
+            return this.owner;
+        }
+        this.getPath = function(){
+            return this.path;
+        }
+        this.getName = function(){
+            return this.name;
+        }
+        this.getDirectory = function(){
+            return this.directory;
+        }
+        this.getSize = function(){
+            return this.size;
+        }
+        this.getLastModifiedTime = function(){
+            return this.lastModifiedTime;
+        }
+        this.getCreationTime = function(){
+            return this.creationTime;
+        }
+        this.getLastAccessTime = function(){
+            return this.lastAccessTime;
+        }
+    }
+
+    /*********
+       UTILS
+    *********/
+
+    var md5 = (function(){
+
+        function md5cycle(x, k) {
+            var a = x[0], b = x[1], c = x[2], d = x[3];
+
+            a = ff(a, b, c, d, k[0], 7, -680876936);
+            d = ff(d, a, b, c, k[1], 12, -389564586);
+            c = ff(c, d, a, b, k[2], 17,  606105819);
+            b = ff(b, c, d, a, k[3], 22, -1044525330);
+            a = ff(a, b, c, d, k[4], 7, -176418897);
+            d = ff(d, a, b, c, k[5], 12,  1200080426);
+            c = ff(c, d, a, b, k[6], 17, -1473231341);
+            b = ff(b, c, d, a, k[7], 22, -45705983);
+            a = ff(a, b, c, d, k[8], 7,  1770035416);
+            d = ff(d, a, b, c, k[9], 12, -1958414417);
+            c = ff(c, d, a, b, k[10], 17, -42063);
+            b = ff(b, c, d, a, k[11], 22, -1990404162);
+            a = ff(a, b, c, d, k[12], 7,  1804603682);
+            d = ff(d, a, b, c, k[13], 12, -40341101);
+            c = ff(c, d, a, b, k[14], 17, -1502002290);
+            b = ff(b, c, d, a, k[15], 22,  1236535329);
+
+            a = gg(a, b, c, d, k[1], 5, -165796510);
+            d = gg(d, a, b, c, k[6], 9, -1069501632);
+            c = gg(c, d, a, b, k[11], 14,  643717713);
+            b = gg(b, c, d, a, k[0], 20, -373897302);
+            a = gg(a, b, c, d, k[5], 5, -701558691);
+            d = gg(d, a, b, c, k[10], 9,  38016083);
+            c = gg(c, d, a, b, k[15], 14, -660478335);
+            b = gg(b, c, d, a, k[4], 20, -405537848);
+            a = gg(a, b, c, d, k[9], 5,  568446438);
+            d = gg(d, a, b, c, k[14], 9, -1019803690);
+            c = gg(c, d, a, b, k[3], 14, -187363961);
+            b = gg(b, c, d, a, k[8], 20,  1163531501);
+            a = gg(a, b, c, d, k[13], 5, -1444681467);
+            d = gg(d, a, b, c, k[2], 9, -51403784);
+            c = gg(c, d, a, b, k[7], 14,  1735328473);
+            b = gg(b, c, d, a, k[12], 20, -1926607734);
+
+            a = hh(a, b, c, d, k[5], 4, -378558);
+            d = hh(d, a, b, c, k[8], 11, -2022574463);
+            c = hh(c, d, a, b, k[11], 16,  1839030562);
+            b = hh(b, c, d, a, k[14], 23, -35309556);
+            a = hh(a, b, c, d, k[1], 4, -1530992060);
+            d = hh(d, a, b, c, k[4], 11,  1272893353);
+            c = hh(c, d, a, b, k[7], 16, -155497632);
+            b = hh(b, c, d, a, k[10], 23, -1094730640);
+            a = hh(a, b, c, d, k[13], 4,  681279174);
+            d = hh(d, a, b, c, k[0], 11, -358537222);
+            c = hh(c, d, a, b, k[3], 16, -722521979);
+            b = hh(b, c, d, a, k[6], 23,  76029189);
+            a = hh(a, b, c, d, k[9], 4, -640364487);
+            d = hh(d, a, b, c, k[12], 11, -421815835);
+            c = hh(c, d, a, b, k[15], 16,  530742520);
+            b = hh(b, c, d, a, k[2], 23, -995338651);
+
+            a = ii(a, b, c, d, k[0], 6, -198630844);
+            d = ii(d, a, b, c, k[7], 10,  1126891415);
+            c = ii(c, d, a, b, k[14], 15, -1416354905);
+            b = ii(b, c, d, a, k[5], 21, -57434055);
+            a = ii(a, b, c, d, k[12], 6,  1700485571);
+            d = ii(d, a, b, c, k[3], 10, -1894986606);
+            c = ii(c, d, a, b, k[10], 15, -1051523);
+            b = ii(b, c, d, a, k[1], 21, -2054922799);
+            a = ii(a, b, c, d, k[8], 6,  1873313359);
+            d = ii(d, a, b, c, k[15], 10, -30611744);
+            c = ii(c, d, a, b, k[6], 15, -1560198380);
+            b = ii(b, c, d, a, k[13], 21,  1309151649);
+            a = ii(a, b, c, d, k[4], 6, -145523070);
+            d = ii(d, a, b, c, k[11], 10, -1120210379);
+            c = ii(c, d, a, b, k[2], 15,  718787259);
+            b = ii(b, c, d, a, k[9], 21, -343485551);
+
+            x[0] = add32(a, x[0]);
+            x[1] = add32(b, x[1]);
+            x[2] = add32(c, x[2]);
+            x[3] = add32(d, x[3]);
+
+        }
+
+        function cmn(q, a, b, x, s, t) {
+            a = add32(add32(a, q), add32(x, t));
+            return add32((a << s) | (a >>> (32 - s)), b);
+        }
+
+        function ff(a, b, c, d, x, s, t) {
+            return cmn((b & c) | ((~b) & d), a, b, x, s, t);
+        }
+
+        function gg(a, b, c, d, x, s, t) {
+            return cmn((b & d) | (c & (~d)), a, b, x, s, t);
+        }
+
+        function hh(a, b, c, d, x, s, t) {
+            return cmn(b ^ c ^ d, a, b, x, s, t);
+        }
+
+        function ii(a, b, c, d, x, s, t) {
+            return cmn(c ^ (b | (~d)), a, b, x, s, t);
+        }
+
+        function md51(s) {
+            txt = '';
+            var n = s.length,
+                state = [1732584193, -271733879, -1732584194, 271733878], i;
+            for (i=64; i<=s.length; i+=64) {
+                md5cycle(state, md5blk(s.substring(i-64, i)));
+            }
+            s = s.substring(i-64);
+            var tail = [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0];
+            for (i=0; i<s.length; i++)
+                tail[i>>2] |= s.charCodeAt(i) << ((i%4) << 3);
+            tail[i>>2] |= 0x80 << ((i%4) << 3);
+            if (i > 55) {
+                md5cycle(state, tail);
+                for (i=0; i<16; i++) tail[i] = 0;
+            }
+            tail[14] = n*8;
+            md5cycle(state, tail);
+            return state;
+        }
+
+        /* there needs to be support for Unicode here,
+         * unless we pretend that we can redefine the MD-5
+         * algorithm for multi-byte characters (perhaps
+         * by adding every four 16-bit characters and
+         * shortening the sum to 32 bits). Otherwise
+         * I suggest performing MD-5 as if every character
+         * was two bytes--e.g., 0040 0025 = @%--but then
+         * how will an ordinary MD-5 sum be matched?
+         * There is no way to standardize text to something
+         * like UTF-8 before transformation; speed cost is
+         * utterly prohibitive. The JavaScript standard
+         * itself needs to look at this: it should start
+         * providing access to strings as preformed UTF-8
+         * 8-bit unsigned value arrays.
+         */
+        function md5blk(s) { /* I figured global was faster.   */
+            var md5blks = [], i; /* Andy King said do it this way. */
+            for (i=0; i<64; i+=4) {
+                md5blks[i>>2] = s.charCodeAt(i)
+                    + (s.charCodeAt(i+1) << 8)
+                    + (s.charCodeAt(i+2) << 16)
+                    + (s.charCodeAt(i+3) << 24);
+            }
+            return md5blks;
+        }
+
+        var hex_chr = '0123456789abcdef'.split('');
+
+        function rhex(n)
+        {
+            var s='', j=0;
+            for(; j<4; j++)
+                s += hex_chr[(n >> (j * 8 + 4)) & 0x0F]
+                    + hex_chr[(n >> (j * 8)) & 0x0F];
+            return s;
+        }
+
+        function hex(x) {
+            for (var i=0; i<x.length; i++)
+                x[i] = rhex(x[i]);
+            return x.join('');
+        }
+
+        function md5(s) {
+            return hex(md51(s));
+        }
+
+        /* this function is much faster,
+         so if possible we use it. Some IEs
+         are the only ones I know of that
+         need the idiotic second function,
+         generated by an if clause.  */
+
+        function add32(a, b) {
+            return (a + b) & 0xFFFFFFFF;
+        }
+
+        if (md5('hello') !== '5d41402abc4b2a76b9719d911017c592') {
+            function add32(x, y) {
+                var lsw = (x & 0xFFFF) + (y & 0xFFFF),
+                    msw = (x >> 16) + (y >> 16) + (lsw >> 16);
+                return (msw << 16) | (lsw & 0xFFFF);
+            }
+        }
+
+        return md5;
+
+    })();
+
+    // parseUri 1.2.2 (c) Steven Levithan <stevenlevithan.com> MIT License (see http://blog.stevenlevithan.com/archives/parseuri)
+
+    var parseUri = function(str) {
+        var options = {
+            strictMode: false,
+            key: ["source","protocol","authority","userInfo","user","password","host","port","relative","path","directory","file","query","anchor"],
+            q:   {
+                name:   "queryKey",
+                parser: /(?:^|&)([^&=]*)=?([^&]*)/g
+            },
+            parser: {
+                strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,
+                loose:  /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
+            }
+        };
+
+        var	o   = options,
+            m   = o.parser[o.strictMode ? "strict" : "loose"].exec(str),
+            uri = {},
+            i   = 14;
+
+        while (i--) uri[o.key[i]] = m[i] || "";
+
+        uri[o.q.name] = {};
+        uri[o.key[12]].replace(o.q.parser, function ($0, $1, $2) {
+            if ($1) uri[o.q.name][$1] = $2;
+        });
+
+        return uri;
+    }
+
+    /** Helper function to convert string md5Hash into an array. */
+    var hex2a = function(hexx) {
+        var hex = hexx.toString(); //force conversion
+        var str = '';
+        for (var i = 0; i < hex.length; i += 2)
+            str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+        return str;
+    }
+
+    return facade;
 
 });

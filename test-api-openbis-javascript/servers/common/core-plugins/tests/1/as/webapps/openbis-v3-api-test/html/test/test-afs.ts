@@ -14,50 +14,9 @@ exports.default = new Promise((resolve) => {
         var executeModule = function (moduleName: string, facade: openbis.openbis, dtos: openbis.bundle) {
             QUnit.module(moduleName)
 
-            async function deleteFile(facade: openbis.openbis, owner: string, source: string) {
-                try {
-                    await facade.getAfsServerFacade().delete(owner, source)
-                } catch (error) {
-                    if (!error.includes("NoSuchFileException")) {
-                        throw error
-                    }
-                }
-            }
+            var testInteractiveSessionKey = "test-interactive-session-key"
 
-            function assertFileEquals(c: common.CommonClass, actualFile: openbis.File, expectedFile: Object) {
-                c.assertEqual(actualFile.getPath(), expectedFile["path"], "File path")
-                c.assertEqual(actualFile.getOwner(), expectedFile["owner"], "File owner")
-                c.assertEqual(actualFile.getName(), expectedFile["name"], "File name")
-                c.assertEqual(actualFile.getSize(), expectedFile["size"], "File size")
-                c.assertEqual(actualFile.getDirectory(), expectedFile["directory"], "File directory")
-
-                var now = new Date()
-                var datePrefix = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0") + "-" + String(now.getDate()).padStart(2, "0")
-
-                c.assertTrue(actualFile.getCreationTime().startsWith(datePrefix), "File creation time")
-                c.assertTrue(actualFile.getLastModifiedTime().startsWith(datePrefix), "File modified time")
-                c.assertTrue(actualFile.getLastAccessTime().startsWith(datePrefix), "File access time")
-            }
-
-            async function assertFileExists(c: common.CommonClass, owner: string, source: string) {
-                try {
-                    await facade.getAfsServerFacade().read(owner, source, 0, 0)
-                    c.assertTrue(true)
-                } catch (error) {
-                    c.fail()
-                }
-            }
-
-            async function assertFileDoesNotExist(c: common.CommonClass, owner: string, source: string) {
-                try {
-                    await facade.getAfsServerFacade().read(owner, source, 0, 0)
-                    c.fail()
-                } catch (error) {
-                    c.assertTrue(error.includes("NoSuchFileException"))
-                }
-            }
-
-            QUnit.test("list()", async function (assert) {
+            var testList = async function (assert, useTransaction) {
                 const testFolder = "test-list"
                 const testContent1 = "test-content-1-abc"
                 const testContent2 = "test-content-2-abcd"
@@ -70,14 +29,23 @@ exports.default = new Promise((resolve) => {
 
                     await c.login(facade)
 
-                    await deleteFile(facade, testFolder, "")
+                    await c.deleteFile(facade, testFolder, "")
 
                     await facade.getAfsServerFacade().write(testFolder, "test-file-1", 0, testContent1)
                     await facade.getAfsServerFacade().write(testFolder + "/test-folder-1", "test-file-2", 0, testContent2)
                     await facade.getAfsServerFacade().write(testFolder + "/test-folder-1", "test-file-3", 0, testContent3)
                     await facade.getAfsServerFacade().write(testFolder + "/test-folder-2", "test-file-4", 0, testContent4)
 
+                    if (useTransaction) {
+                        facade.setInteractiveSessionKey(testInteractiveSessionKey)
+                        await facade.beginTransaction()
+                    }
+
                     var list = await facade.getAfsServerFacade().list(testFolder, "", true)
+
+                    if (useTransaction) {
+                        await facade.commitTransaction()
+                    }
 
                     list.sort((file1, file2) => {
                         return file1.getPath().localeCompare(file2.getPath())
@@ -85,30 +53,30 @@ exports.default = new Promise((resolve) => {
 
                     c.assertEqual(list.length, 6, "Number of files")
 
-                    assertFileEquals(c, list[0], {
+                    c.assertFileEquals(list[0], {
                         path: "/test-file-1",
                         owner: testFolder,
                         name: "test-file-1",
                         size: testContent1.length,
                         directory: false,
                     })
-                    assertFileEquals(c, list[1], { path: "/test-folder-1", owner: testFolder, name: "test-folder-1", size: null, directory: true })
-                    assertFileEquals(c, list[2], {
+                    c.assertFileEquals(list[1], { path: "/test-folder-1", owner: testFolder, name: "test-folder-1", size: null, directory: true })
+                    c.assertFileEquals(list[2], {
                         path: "/test-folder-1/test-file-2",
                         owner: testFolder,
                         name: "test-file-2",
                         size: testContent2.length,
                         directory: false,
                     })
-                    assertFileEquals(c, list[3], {
+                    c.assertFileEquals(list[3], {
                         path: "/test-folder-1/test-file-3",
                         owner: testFolder,
                         name: "test-file-3",
                         size: testContent3.length,
                         directory: false,
                     })
-                    assertFileEquals(c, list[4], { path: "/test-folder-2", owner: testFolder, name: "test-folder-2", size: null, directory: true })
-                    assertFileEquals(c, list[5], {
+                    c.assertFileEquals(list[4], { path: "/test-folder-2", owner: testFolder, name: "test-folder-2", size: null, directory: true })
+                    c.assertFileEquals(list[5], {
                         path: "/test-folder-2/test-file-4",
                         owner: testFolder,
                         name: "test-file-4",
@@ -121,10 +89,10 @@ exports.default = new Promise((resolve) => {
                     c.fail(error)
                     c.finish()
                 }
-            })
+            }
 
-            QUnit.test("read() / write()", async function (assert) {
-                const testFolder = "test-read-write"
+            var testRead = async function (assert, useTransaction) {
+                const testFolder = "test-read"
                 const testFile = "test-file"
                 const testContent = "test-content"
 
@@ -134,21 +102,30 @@ exports.default = new Promise((resolve) => {
 
                     await c.login(facade)
 
-                    await deleteFile(facade, testFolder, "")
+                    await c.deleteFile(facade, testFolder, "")
 
                     await facade.getAfsServerFacade().write(testFolder, testFile, 0, testContent)
 
+                    if (useTransaction) {
+                        facade.setInteractiveSessionKey(testInteractiveSessionKey)
+                        await facade.beginTransaction()
+                    }
+
                     var content = await facade.getAfsServerFacade().read(testFolder, testFile, 0, testContent.length)
                     c.assertEqual(await content.text(), testContent)
+
+                    if (useTransaction) {
+                        await facade.commitTransaction()
+                    }
 
                     c.finish()
                 } catch (error) {
                     c.fail(error)
                     c.finish()
                 }
-            })
+            }
 
-            QUnit.test("delete()", async function (assert) {
+            var testDelete = async function (assert, useTransaction) {
                 const testFolder = "test-delete"
                 const testFile = "test-file"
                 const testContent = "test-content"
@@ -159,25 +136,34 @@ exports.default = new Promise((resolve) => {
 
                     await c.login(facade)
 
-                    await deleteFile(facade, testFolder, "")
+                    await c.deleteFile(facade, testFolder, "")
 
                     await facade.getAfsServerFacade().write(testFolder, testFile, 0, testContent)
 
                     var content = await facade.getAfsServerFacade().read(testFolder, testFile, 0, testContent.length)
                     c.assertEqual(await content.text(), testContent)
 
+                    if (useTransaction) {
+                        facade.setInteractiveSessionKey(testInteractiveSessionKey)
+                        await facade.beginTransaction()
+                    }
+
                     await facade.getAfsServerFacade().delete(testFolder, testFile)
 
-                    await assertFileDoesNotExist(c, testFolder, testFile)
+                    if (useTransaction) {
+                        await facade.commitTransaction()
+                    }
+
+                    await c.assertFileDoesNotExist(facade, testFolder, testFile)
 
                     c.finish()
                 } catch (error) {
                     c.fail(error)
                     c.finish()
                 }
-            })
+            }
 
-            QUnit.test("copy()", async function (assert) {
+            var testCopy = async function (assert, useTransaction) {
                 const testFolder = "test-copy"
                 const testFileToCopy = "test-file-to-copy"
                 const testFileCopied = "test-file-copied"
@@ -189,10 +175,20 @@ exports.default = new Promise((resolve) => {
 
                     await c.login(facade)
 
-                    await deleteFile(facade, testFolder, "")
+                    await c.deleteFile(facade, testFolder, "")
 
                     await facade.getAfsServerFacade().write(testFolder, testFileToCopy, 0, testContent)
+
+                    if (useTransaction) {
+                        facade.setInteractiveSessionKey(testInteractiveSessionKey)
+                        await facade.beginTransaction()
+                    }
+
                     await facade.getAfsServerFacade().copy(testFolder, testFileToCopy, testFolder, testFileCopied)
+
+                    if (useTransaction) {
+                        await facade.commitTransaction()
+                    }
 
                     var contentToCopy = await facade.getAfsServerFacade().read(testFolder, testFileToCopy, 0, testContent.length)
                     c.assertEqual(await contentToCopy.text(), testContent)
@@ -205,9 +201,9 @@ exports.default = new Promise((resolve) => {
                     c.fail(error)
                     c.finish()
                 }
-            })
+            }
 
-            QUnit.test("move()", async function (assert) {
+            var testMove = async function (assert, useTransaction) {
                 const testFolder = "test-move"
                 const testFileToMove = "test-file-to-move"
                 const testFileMoved = "test-file-moved"
@@ -219,12 +215,22 @@ exports.default = new Promise((resolve) => {
 
                     await c.login(facade)
 
-                    await deleteFile(facade, testFolder, "")
+                    await c.deleteFile(facade, testFolder, "")
 
                     await facade.getAfsServerFacade().write(testFolder, testFileToMove, 0, testContent)
+
+                    if (useTransaction) {
+                        facade.setInteractiveSessionKey(testInteractiveSessionKey)
+                        await facade.beginTransaction()
+                    }
+
                     await facade.getAfsServerFacade().move(testFolder, testFileToMove, testFolder, testFileMoved)
 
-                    await assertFileDoesNotExist(c, testFolder, testFileToMove)
+                    if (useTransaction) {
+                        await facade.commitTransaction()
+                    }
+
+                    await c.assertFileDoesNotExist(facade, testFolder, testFileToMove)
 
                     var content = await facade.getAfsServerFacade().read(testFolder, testFileMoved, 0, testContent.length)
                     c.assertEqual(await content.text(), testContent)
@@ -234,9 +240,9 @@ exports.default = new Promise((resolve) => {
                     c.fail(error)
                     c.finish()
                 }
-            })
+            }
 
-            QUnit.test("create()", async function (assert) {
+            var testCreate = async function (assert, useTransaction) {
                 const testFolder = "test-create"
                 const testFile = "test-file"
 
@@ -246,17 +252,75 @@ exports.default = new Promise((resolve) => {
 
                     await c.login(facade)
 
-                    await deleteFile(facade, testFolder, "")
-                    await assertFileDoesNotExist(c, testFolder, testFile)
+                    await c.deleteFile(facade, testFolder, "")
+                    await c.assertFileDoesNotExist(facade, testFolder, testFile)
+
+                    if (useTransaction) {
+                        facade.setInteractiveSessionKey(testInteractiveSessionKey)
+                        await facade.beginTransaction()
+                    }
 
                     await facade.getAfsServerFacade().create(testFolder, testFile, false)
-                    await assertFileExists(c, testFolder, testFile)
+
+                    if (useTransaction) {
+                        await facade.commitTransaction()
+                    }
+
+                    await c.assertFileExists(facade, testFolder, testFile)
 
                     c.finish()
                 } catch (error) {
                     c.fail(error)
                     c.finish()
                 }
+            }
+
+            QUnit.test("list() without transaction", async function (assert) {
+                await testList(assert, false)
+            })
+
+            QUnit.test("list() with transaction", async function (assert) {
+                await testList(assert, true)
+            })
+
+            QUnit.test("read() without transaction", async function (assert) {
+                await testRead(assert, false)
+            })
+
+            QUnit.test("read() with transaction", async function (assert) {
+                await testRead(assert, true)
+            })
+
+            QUnit.test("delete() without transaction", async function (assert) {
+                await testDelete(assert, false)
+            })
+
+            QUnit.test("delete() with transaction", async function (assert) {
+                await testDelete(assert, true)
+            })
+
+            QUnit.test("copy() without transaction", async function (assert) {
+                await testCopy(assert, false)
+            })
+
+            QUnit.test("copy() with transaction", async function (assert) {
+                await testCopy(assert, true)
+            })
+
+            QUnit.test("move() without transaction", async function (assert) {
+                await testMove(assert, false)
+            })
+
+            QUnit.test("move() with transaction", async function (assert) {
+                await testMove(assert, true)
+            })
+
+            QUnit.test("create() without transaction", async function (assert) {
+                await testCreate(assert, false)
+            })
+
+            QUnit.test("create() with transaction", async function (assert) {
+                await testCreate(assert, true)
             })
         }
 
