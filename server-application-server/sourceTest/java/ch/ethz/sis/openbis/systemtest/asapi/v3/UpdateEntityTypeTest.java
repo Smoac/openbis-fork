@@ -16,6 +16,7 @@
 package ch.ethz.sis.openbis.systemtest.asapi.v3;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -709,7 +710,7 @@ public abstract class UpdateEntityTypeTest<CREATION extends IEntityTypeCreation,
 
     @Test
     public void testUpdateInternalEntityTypeAsSystemUser()
-    { //621359191756
+    {
         String sessionToken = v3api.loginAsSystem();
 
         CREATION entityTypeCreation = newTypeCreation();
@@ -730,6 +731,89 @@ public abstract class UpdateEntityTypeTest<CREATION extends IEntityTypeCreation,
 
         type = getType(sessionToken, typeId);
         assertEquals(type.getDescription(), "New description");
+    }
+
+    @Test
+    public void testUpdateInternalEntityTypeAssignment_addInternalAssignment()
+    {
+        String sessionToken = v3api.loginAsSystem();
+
+        // Given
+        PropertyTypeCreation propertyTypeCreation = new PropertyTypeCreation();
+        propertyTypeCreation.setCode("$INTERNAL_TYPE");
+        propertyTypeCreation.setManagedInternally(true);
+        propertyTypeCreation.setDataType(DataType.VARCHAR);
+        propertyTypeCreation.setLabel("internal property type");
+        propertyTypeCreation.setDescription("internal property type");
+        v3api.createPropertyTypes(sessionToken, Arrays.asList(propertyTypeCreation));
+
+
+        final CREATION typeCreation = newTypeCreation();
+        typeCreation.setCode("NEW_INTERNAL_ENTITY_TYPE");
+        typeCreation.setManagedInternally(true);
+
+
+
+        PropertyAssignmentCreation assignmentCreation = new PropertyAssignmentCreation();
+        assignmentCreation.setPropertyTypeId(new PropertyTypePermId("DESCRIPTION"));
+
+        typeCreation.setPropertyAssignments(Arrays.asList(assignmentCreation));
+
+        EntityTypePermId typeId = createTypes(sessionToken, Arrays.asList(typeCreation)).get(0);
+        TYPE type = getType(sessionToken, typeId);
+        assertNotNull(type);
+
+        // When
+        UPDATE update = newTypeUpdate();
+        update.setTypeId(typeId);
+        update.setDescription("New description");
+
+        PropertyAssignmentCreation assignmentCreationInternal = new PropertyAssignmentCreation();
+        assignmentCreationInternal.setPropertyTypeId(new PropertyTypePermId("$INTERNAL_TYPE"));
+        assignmentCreationInternal.setManagedInternally(true);
+        update.getPropertyAssignments().add(assignmentCreationInternal);
+
+        updateTypes(sessionToken, Arrays.asList(update));
+
+        type = getType(sessionToken, typeId);
+        assertEquals(type.getDescription(), "New description");
+        assertEquals(type.getPropertyAssignments().size(), 2);
+    }
+
+    @Test
+    public void testUpdateEntityTypeAssignment_addInternalAssignment_shouldFail()
+    {
+        String sessionToken = v3api.loginAsSystem();
+
+        UPDATE update = newTypeUpdate();
+        EntityTypePermId typeId = getTypeId();
+        update.setTypeId(typeId);
+
+        // Given
+        PropertyTypeCreation propertyTypeCreation = new PropertyTypeCreation();
+        propertyTypeCreation.setCode("$INTERNAL_TYPE");
+        propertyTypeCreation.setManagedInternally(true);
+        propertyTypeCreation.setDataType(DataType.VARCHAR);
+        propertyTypeCreation.setLabel("internal property type");
+        propertyTypeCreation.setDescription("internal property type");
+        v3api.createPropertyTypes(sessionToken, Arrays.asList(propertyTypeCreation));
+
+
+        PropertyAssignmentCreation assignmentCreationInternal = new PropertyAssignmentCreation();
+        assignmentCreationInternal.setPropertyTypeId(new PropertyTypePermId("$INTERNAL_TYPE"));
+        assignmentCreationInternal.setManagedInternally(true);
+        update.getPropertyAssignments().add(assignmentCreationInternal);
+
+        assertUserFailureException(new IDelegatedAction()
+                                   {
+                                       @Override
+                                       public void execute()
+                                       {
+                                           // When
+                                           updateTypes(sessionToken, Arrays.asList(update));
+                                       }
+                                   },
+                "Internal property assignments can be used for internal entity types");
     }
 
     @Test
