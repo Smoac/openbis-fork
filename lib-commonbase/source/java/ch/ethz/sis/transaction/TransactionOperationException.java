@@ -9,7 +9,7 @@ public class TransactionOperationException extends RuntimeException
         super(message);
     }
 
-    public TransactionOperationException(String message, Exception cause)
+    public TransactionOperationException(String message, Throwable cause)
     {
         super(message, cause);
     }

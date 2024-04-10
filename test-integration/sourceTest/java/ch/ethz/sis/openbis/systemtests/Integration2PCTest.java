@@ -45,7 +45,6 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.TransactionConfiguration;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.TransactionCoordinatorApi;
 import ch.ethz.sis.openbis.systemtests.common.AbstractIntegrationTest;
 import ch.ethz.sis.transaction.TransactionStatus;
-import ch.systemsx.cisd.common.test.AssertionUtil;
 
 public class Integration2PCTest extends AbstractIntegrationTest
 {
@@ -108,8 +107,8 @@ public class Integration2PCTest extends AbstractIntegrationTest
             fail();
         } catch (Exception e)
         {
-            assertEquals(e.getMessage(), "Operation 'createExperiments' failed.");
-            AssertionUtil.assertContains("Type id cannot be null", e.getCause().getMessage());
+            assertTrue(e.getMessage()
+                    .startsWith("Transaction '" + transactionId + "' execute operation 'createExperiments' for participant 'application-server' failed with error: Type id cannot be null"));
         }
 
         ExperimentCreation experimentCreation2 = createExperimentCreation(spaceCreation.getCode(), projectCreation.getCode(), "UNKNOWN");
@@ -480,6 +479,67 @@ public class Integration2PCTest extends AbstractIntegrationTest
 
         byte[] bytesRead = openBISNoTr.getAfsServerFacade().read(writeData.owner, writeData.source, 0L, writeData.bytes.length);
         assertEquals(bytesRead, writeData.bytes);
+    }
+
+    @Test
+    public void testExecuteOperationFailsAtAS()
+    {
+        OpenBIS openBIS = createOpenBIS();
+        openBIS.setInteractiveSessionKey(TEST_INTERACTIVE_SESSION_KEY);
+        openBIS.login(USER, PASSWORD);
+
+        UUID transactionId = openBIS.beginTransaction();
+
+        try
+        {
+            openBIS.createSpaces(Collections.singletonList(new SpaceCreation()));
+            fail();
+        } catch (Exception e)
+        {
+            assertTrue(e.getMessage().startsWith("Transaction '" + transactionId + "' execute operation 'createSpaces' for participant 'application-server' failed with error: Code cannot be empty"));
+        } finally
+        {
+            openBIS.rollbackTransaction();
+        }
+    }
+
+    @Test
+    public void testExecuteOperationFailsAtAFS()
+    {
+        OpenBIS openBIS = createOpenBIS();
+        openBIS.setInteractiveSessionKey(TEST_INTERACTIVE_SESSION_KEY);
+        openBIS.login(USER, PASSWORD);
+
+        UUID transactionId = openBIS.beginTransaction();
+
+        try
+        {
+            // fails in AfsClient before calling AFS
+            openBIS.getAfsServerFacade().create(null, null, false);
+            fail();
+        } catch (Exception e)
+        {
+            assertTrue(e.getMessage().startsWith("Transaction '" + transactionId + "' execute operation 'create' for participant 'afs-server' failed with error: owner is marked non-null but is null"));
+        } finally
+        {
+            openBIS.rollbackTransaction();
+        }
+
+        UUID transactionId2 = openBIS.beginTransaction();
+
+        try
+        {
+            // fails in AFS
+            openBIS.getAfsServerFacade().read("i-dont-exist", "me-neither", 0L,0);
+            fail();
+        } catch (Exception e)
+        {
+            assertTrue(e.getMessage().startsWith("Transaction '" + transactionId2 + "' execute operation 'read' for participant 'afs-server' failed with error:"));
+            assertTrue(e.getMessage().contains("NoSuchFileException"));
+        } finally
+        {
+            openBIS.rollbackTransaction();
+        }
     }
 
     @Test

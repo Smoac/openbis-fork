@@ -118,7 +118,7 @@ exports.default = new Promise((resolve) => {
 
                     c.finish()
                 } catch (error) {
-                    c.fail(error)
+                    c.fail(JSON.stringify(error))
                     c.finish()
                 }
             }
@@ -152,7 +152,7 @@ exports.default = new Promise((resolve) => {
 
                     c.finish()
                 } catch (error) {
-                    c.fail(error)
+                    c.fail(JSON.stringify(error))
                     c.finish()
                 }
             }
@@ -190,7 +190,7 @@ exports.default = new Promise((resolve) => {
 
                     c.finish()
                 } catch (error) {
-                    c.fail(error)
+                    c.fail(JSON.stringify(error))
                     c.finish()
                 }
             }
@@ -230,7 +230,7 @@ exports.default = new Promise((resolve) => {
 
                     c.finish()
                 } catch (error) {
-                    c.fail(error)
+                    c.fail(JSON.stringify(error))
                     c.finish()
                 }
             }
@@ -269,7 +269,7 @@ exports.default = new Promise((resolve) => {
 
                     c.finish()
                 } catch (error) {
-                    c.fail(error)
+                    c.fail(JSON.stringify(error))
                     c.finish()
                 }
             }
@@ -302,7 +302,7 @@ exports.default = new Promise((resolve) => {
 
                     c.finish()
                 } catch (error) {
-                    c.fail(error)
+                    c.fail(JSON.stringify(error))
                     c.finish()
                 }
             }

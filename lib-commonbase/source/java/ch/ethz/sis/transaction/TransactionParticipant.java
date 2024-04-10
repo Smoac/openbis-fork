@@ -168,16 +168,22 @@ public class TransactionParticipant extends AbstractTransactionNode<TransactionP
                 checkTransactionAccess(transaction, sessionToken);
                 checkTransactionStatus(transaction, TransactionStatus.BEGIN_FINISHED);
 
+                operationLog.info("Transaction '" + transactionId + "' execute operation '" + operationName + "' started.");
+
+                T result;
+
                 try
                 {
-                    operationLog.info("Transaction '" + transactionId + "' execute operation '" + operationName + "' started.");
-                    T result = operationExecutor.executeOperation(sessionToken, operationName, operationArguments);
-                    operationLog.info("Transaction '" + transactionId + "' execute operation '" + operationName + "' finished successfully.");
-                    return result;
+
+                    result = operationExecutor.executeOperation(sessionToken, operationName, operationArguments);
                 } catch (Exception operationException)
                 {
-                    throw new TransactionOperationException("Operation '" + operationName + "' failed.", operationException);
+                    throw new TransactionOperationException(operationException.getMessage(), operationException);
                 }
+
+                operationLog.info("Transaction '" + transactionId + "' execute operation '" + operationName + "' finished successfully.");
+                return result;
+
             }, true);
         } catch (Exception e)
         {

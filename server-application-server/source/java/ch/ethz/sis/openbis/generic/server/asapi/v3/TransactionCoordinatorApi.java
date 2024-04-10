@@ -25,6 +25,7 @@ import ch.ethz.sis.transaction.ITransactionLog;
 import ch.ethz.sis.transaction.ITransactionParticipant;
 import ch.ethz.sis.transaction.TransactionCoordinator;
 import ch.ethz.sis.transaction.TransactionLog;
+import ch.ethz.sis.transaction.TransactionOperationException;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 
@@ -240,61 +241,77 @@ public class TransactionCoordinatorApi extends AbstractTransactionNodeApi implem
         @Override public void beginTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
                 final String transactionCoordinatorKey)
         {
-            executeAfsFunction(sessionToken, interactiveSessionKey, transactionCoordinatorKey, afsClient ->
+            try
             {
-                afsClient.begin(transactionId);
-                return null;
-            });
+                getAfsClient(sessionToken, interactiveSessionKey, transactionCoordinatorKey).begin(transactionId);
+            } catch (Exception e)
+            {
+                throw convertAfsException(e);
+            }
         }
 
         @Override public <T> T executeOperation(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
                 final String operationName, final Object[] operationArguments)
         {
-            return executeAfsFunction(sessionToken, interactiveSessionKey, null, afsClient ->
+            AfsClient afsClient = getAfsClient(sessionToken, interactiveSessionKey, null);
+
+            try
             {
-                try
+                for (Method method : OperationsAPI.class.getDeclaredMethods())
                 {
-                    for (Method method : OperationsAPI.class.getDeclaredMethods())
+                    if (method.getName().equals(operationName) && method.getParameters().length == operationArguments.length)
                     {
-                        if (method.getName().equals(operationName) && method.getParameters().length == operationArguments.length)
-                        {
-                            return (T) method.invoke(afsClient, operationArguments);
-                        }
-                    }
-
-                    throw new UnsupportedOperationException(operationName);
-                } catch (InvocationTargetException e)
-                {
-                    Throwable originalException = e.getTargetException();
-
-                    if (originalException instanceof Exception)
-                    {
-                        throw (Exception) originalException;
-                    } else
-                    {
-                        throw new RuntimeException(originalException);
+                        return (T) method.invoke(afsClient, operationArguments);
                     }
                 }
-            });
+
+                throw new UnsupportedOperationException(operationName);
+            } catch (InvocationTargetException e)
+            {
+                Throwable originalException = e.getTargetException();
+
+                if (originalException.getCause() instanceof ThrowableReason)
+                {
+                    ThrowableReason throwableReason = (ThrowableReason) originalException.getCause();
+                    String reasonString = ReflectionToStringBuilder.toString(throwableReason.getReason());
+                    throw new TransactionOperationException(reasonString, new RuntimeException(reasonString));
+                } else if (originalException instanceof IllegalArgumentException)
+                {
+                    throw new TransactionOperationException(originalException.getMessage(), originalException);
+                } else if (originalException instanceof RuntimeException)
+                {
+                    throw (RuntimeException) originalException;
+                } else
+                {
+                    throw new RuntimeException(originalException);
+                }
+            } catch (IllegalAccessException e)
+            {
+                throw new RuntimeException(e);
+            }
         }
 
         @Override public void prepareTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey,
                 final String transactionCoordinatorKey)
         {
-            executeAfsFunction(sessionToken, interactiveSessionKey, transactionCoordinatorKey, afsClient ->
+            try
             {
-                afsClient.prepare();
-                return null;
-            });
+                getAfsClient(sessionToken, interactiveSessionKey, transactionCoordinatorKey).prepare();
+            } catch (Exception e)
+            {
+                throw convertAfsException(e);
+            }
         }
 
         @Override public void commitTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
         {
-            executeAfsFunction(sessionToken, interactiveSessionKey, null, afsClient ->
+            try
             {
-                afsClient.commit();
-                return null;
-            });
+                getAfsClient(sessionToken, interactiveSessionKey, null).commit();
+            } catch (Exception e)
+            {
+                throw convertAfsException(e);
+            }
         }
 
         @Override public void commitRecoveredTransaction(final UUID transactionId, final String interactiveSessionKey,
@@ -305,12 +322,12 @@ public class TransactionCoordinatorApi extends AbstractTransactionNodeApi implem
             try
             {
                 sessionToken = applicationServerApi.loginAsSystem();
-                executeAfsFunction(sessionToken, interactiveSessionKey, transactionCoordinatorKey, afsClient ->
-                {
-                    afsClient.begin(transactionId);
-                    afsClient.commit();
-                    return null;
-                });
+                AfsClient afsClient = getAfsClient(sessionToken, interactiveSessionKey, transactionCoordinatorKey);
+                afsClient.begin(transactionId);
+                afsClient.commit();
+            } catch (Exception e)
+            {
+                throw convertAfsException(e);
             } finally
             {
                 if (sessionToken != null)
@@ -322,11 +339,13 @@ public class TransactionCoordinatorApi extends AbstractTransactionNodeApi implem
 
         @Override public void rollbackTransaction(final UUID transactionId, final String sessionToken, final String interactiveSessionKey)
         {
-            executeAfsFunction(sessionToken, interactiveSessionKey, null, afsClient ->
+            try
             {
-                afsClient.rollback();
-                return null;
-            });
+                getAfsClient(sessionToken, interactiveSessionKey, null).rollback();
+            } catch (Exception e)
+            {
+                throw convertAfsException(e);
+            }
         }
 
         @Override public void rollbackRecoveredTransaction(final UUID transactionId, final String interactiveSessionKey,
@@ -337,12 +356,12 @@ public class TransactionCoordinatorApi extends AbstractTransactionNodeApi implem
             try
             {
                 sessionToken = applicationServerApi.loginAsSystem();
-                executeAfsFunction(sessionToken, interactiveSessionKey, transactionCoordinatorKey, afsClient ->
-                {
-                    afsClient.begin(transactionId);
-                    afsClient.rollback();
-                    return null;
-                });
+                AfsClient afsClient = getAfsClient(sessionToken, interactiveSessionKey, transactionCoordinatorKey);
+                afsClient.begin(transactionId);
+                afsClient.rollback();
+            } catch (Exception e)
+            {
+                throw convertAfsException(e);
             } finally
             {
                 if (sessionToken != null)
@@ -359,7 +378,10 @@ public class TransactionCoordinatorApi extends AbstractTransactionNodeApi implem
             try
             {
                 sessionToken = applicationServerApi.loginAsSystem();
-                return executeAfsFunction(sessionToken, interactiveSessionKey, transactionCoordinatorKey, AfsClient::recover);
+                return getAfsClient(sessionToken, interactiveSessionKey, transactionCoordinatorKey).recover();
+            } catch (Exception e)
+            {
+                throw convertAfsException(e);
             } finally
             {
                 if (sessionToken != null)
@@ -369,33 +391,29 @@ public class TransactionCoordinatorApi extends AbstractTransactionNodeApi implem
             }
         }
 
-        private <T> T executeAfsFunction(String sessionToken, String interactiveSessionKey, String transactionCoordinatorKey, AfsCall<T> call)
+        private AfsClient getAfsClient(String sessionToken, String interactiveSessionKey, String transactionCoordinatorKey)
         {
             AfsClient afsClient = new AfsClient(URI.create(afsServerUrl), timeoutInSeconds * 1000);
             afsClient.setSessionToken(sessionToken);
             afsClient.setInteractiveSessionKey(interactiveSessionKey);
             afsClient.setTransactionManagerKey(transactionCoordinatorKey);
-
-            try
-            {
-                return call.execute(afsClient);
-            } catch (RuntimeException e)
-            {
-                if (e.getCause() instanceof ThrowableReason)
-                {
-                    ThrowableReason throwableReason = (ThrowableReason) e.getCause();
-                    throw new RuntimeException(ReflectionToStringBuilder.toString(throwableReason.getReason()));
-                }
-                throw e;
-            } catch (Exception e)
-            {
-                throw new RuntimeException(e);
-            }
+            return afsClient;
         }
 
-        private interface AfsCall<T>
+        private RuntimeException convertAfsException(Exception e)
         {
-            T execute(AfsClient client) throws Exception;
+            if (e.getCause() instanceof ThrowableReason)
+            {
+                ThrowableReason throwableReason = (ThrowableReason) e.getCause();
+                String reasonString = ReflectionToStringBuilder.toString(throwableReason.getReason());
+                throw new TransactionOperationException(reasonString, new RuntimeException(reasonString));
+            } else if (e instanceof RuntimeException)
+            {
+                return (RuntimeException) e;
+            } else
+            {
+                return new RuntimeException(e);
+            }
         }
 
     }

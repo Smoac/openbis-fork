@@ -185,7 +185,15 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 			return dataStore.downloadUrl + "/datastore_server/rmi-data-store-server-v3.json";
 		}
 
+		function checkTransactionsNotSupported(){
+		    if(facade._private.transactionId){
+		        throw Error("Transactions are not supported for data store methods.");
+		    }
+		}
+
 		this.searchFiles = function(criteria, fetchOptions) {
+		    checkTransactionsNotSupported()
+
 			var thisFacade = this;
 			return this._getDataStores().then(function(dataStores) {
 				var promises = dataStores.map(function(dataStore) {
@@ -223,6 +231,8 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 		}
 
 		this.createDataSets = function(creations) {
+		    checkTransactionsNotSupported()
+
 			var thisFacade = this;
 			var creationsByStore = {};
 			for (var i = 0; i < creations.length; i++) {
@@ -265,6 +275,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 		}
 
 		this.createDataSetUpload = function(dataSetType) {
+		    checkTransactionsNotSupported()
 
 			var pad = function(value, length) {
 				var result = "" + value;
@@ -318,6 +329,8 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 		}
 
 		this.createUploadedDataSet = function(creation) {
+		    checkTransactionsNotSupported()
+
 			var dfd = jquery.Deferred();
 			this._getDataStores().done(function(dataStores) {
 				if (dataStores.length === 1) {
@@ -343,6 +356,8 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 		}
 
 		this.executeCustomDSSService = function(serviceId, options) {
+		    checkTransactionsNotSupported()
+
 		    var dfd = jquery.Deferred();
             this._getDataStores().done(function(dataStores) {
                 if (dataStores.length === 1) {
@@ -371,6 +386,8 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
 		}
 
 	    this.uploadFilesWorkspaceDSS = function(files) {
+	        checkTransactionsNotSupported()
+
 			var thisFacade = this;
 			var uploadId = getUUID();
 			var dfd = jquery.Deferred();
@@ -722,7 +739,9 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
                     "method" : "beginTransaction",
                     "params" : [ thisFacade._private.transactionId, thisFacade._private.sessionToken, thisFacade._private.interactiveSessionKey ]
                 }
-            });
+            }).then(function(){
+                return thisFacade._private.transactionId;
+            })
 		}
 
 		this.commitTransaction = function(){

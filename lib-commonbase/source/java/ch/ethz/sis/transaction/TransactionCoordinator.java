@@ -171,8 +171,19 @@ public class TransactionCoordinator extends AbstractTransactionNode<TransactionC
                           If the transaction gets abandoned by the client, then it will time out and be automatically rolled back by the coordinator.
                         */
 
-                        T result =
-                                participant.executeOperation(transactionId, sessionToken, interactiveSessionKey, operationName, operationArguments);
+                        T result;
+
+                        try
+                        {
+                            result =
+                                    participant.executeOperation(transactionId, sessionToken, interactiveSessionKey, operationName,
+                                            operationArguments);
+                        } catch (TransactionOperationException e)
+                        {
+                            throw new TransactionOperationException(
+                                    "Transaction '" + transactionId + "' execute operation '" + operationName + "' for participant '" + participantId
+                                            + "' failed with error: " + e.getMessage(), e.getCause());
+                        }
 
                         operationLog.info(
                                 "Transaction '" + transactionId + "' execute operation '" + operationName + "' for participant '" + participantId
