@@ -117,13 +117,20 @@ class DatabaseComponent extends React.PureComponent {
               viewType='list'
               sessionToken={AppController.getInstance().getSessionToken()}
             />,
-            object.type === objectType.DATA_SET && constants.IMAGING_DATA_CONFIG in this.state.json.properties
+            object.type === objectType.DATA_SET
+                && constants.IMAGING_DATA_CONFIG in this.state.json.properties
                 && <ImagingDatasetViewer onUnsavedChanges={this.imagingDatasetChange}
-                                         objId={object.id} objType={object.type} extOpenbis={openbis}/>,
-            (object.type === objectType.COLLECTION || object.type === objectType.OBJECT)
-                && <ImagingGalleryViewer onStoreDisplaySettings={null} onLoadDisplaySettings={null}
+                                         objId={object.id}
+                                         objType={object.type}
+                                         extOpenbis={openbis}/>,
+            (object.type === objectType.COLLECTION
+                || object.type === objectType.OBJECT)
+                && <ImagingGalleryViewer onStoreDisplaySettings={null}
+                                         onLoadDisplaySettings={null}
                                          onOpenPreview={this.datasetOpenTab}
-                                         objId={object.id} objType={object.type} extOpenbis={openbis}/>]
+                                         objId={object.id}
+                                         objType={object.type}
+                                         extOpenbis={openbis}/>]
           )
           : <pre>{JSON.stringify(this.state.json || {}, null, 2)}</pre>
         }

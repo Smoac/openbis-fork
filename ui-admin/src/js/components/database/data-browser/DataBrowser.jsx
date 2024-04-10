@@ -19,7 +19,7 @@ const styles = theme => ({
   columnFlexContainer: {
     flexDirection: 'column',
     display: 'flex',
-    height: 'calc(100vh - ' + theme.spacing(12) + 'px)'
+    height: 'calc(100vh - ' + theme.spacing(32) + 'px)'
   },
   boundary: {
     padding: theme.spacing(1),
