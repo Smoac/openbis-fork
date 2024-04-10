@@ -281,6 +281,58 @@ exports.default = new Promise((resolve) => {
                 }
             })
 
+            QUnit.test("rollback() without transaction", async function (assert) {
+                const testInteractiveSessionKey = "test-interactive-session-key"
+
+                try {
+                    var c = new common(assert, dtos)
+                    c.start()
+
+                    var facade = createFacade()
+
+                    await c.login(facade)
+                    facade.setInteractiveSessionKey(testInteractiveSessionKey)
+
+                    try {
+                        await facade.rollbackTransaction()
+                        c.fail()
+                    } catch (error) {
+                        c.assertEqual(error.message, "Operation cannot be executed. No active transaction found.")
+                    }
+
+                    c.finish()
+                } catch (error) {
+                    c.fail(JSON.stringify(error))
+                    c.finish()
+                }
+            })
+
+            QUnit.test("commit() without transaction", async function (assert) {
+                const testInteractiveSessionKey = "test-interactive-session-key"
+
+                try {
+                    var c = new common(assert, dtos)
+                    c.start()
+
+                    var facade = createFacade()
+
+                    await c.login(facade)
+                    facade.setInteractiveSessionKey(testInteractiveSessionKey)
+
+                    try {
+                        await facade.commitTransaction()
+                        c.fail()
+                    } catch (error) {
+                        c.assertEqual(error.message, "Operation cannot be executed. No active transaction found.")
+                    }
+
+                    c.finish()
+                } catch (error) {
+                    c.fail(JSON.stringify(error))
+                    c.finish()
+                }
+            })
+
             QUnit.test("AS method failing", async function (assert) {
                 const testInteractiveSessionKey = "test-interactive-session-key"
 
