@@ -3,23 +3,23 @@ Multi Group Set Up
 
 
 openBIS can be configured to be used by multiple groups, where every group only sees their own group Spaces.
-This configuration needs to be done by a *system admin*, as described [here](../../../system-admin-documentation/advanced-features/share-ids.md).
+This configuration needs to be done on *system level*, as described [here](../../../system-documentation/configuration/share-ids.md).
 
 
 In the example below we see two groups: **RDM** and **ETHRDH**. For each group, in the Inventory, there area n **Equipment**, a **Materials**, a **Methods** and a **Publications** Spaces with the group prefix. In the lab notebook, each group member has a personal *Space* where the name is the group prefix and the username of the user.
 
 ![image](img/menu-multigroup.png)
 
-It is possible to configure the user management configuration file (*sys admin*) not to create user Spaces for a given group, in case one group prefers to organise their notebook by project, rather than by group members, as described [here](../../../system-admin-documentation/advanced-features/share-ids.md).
+It is possible to configure the user management configuration file (*sys admin*) not to create user Spaces for a given group, in case one group prefers to organise their notebook by project, rather than by group members, as described [here](../../../system-documentation/configuration/share-ids.md).
  
 
-In a multi group instance users are automatically registered and the roles defined in the user management configuration file on the server are automatically assigned to them. There is a maintenance task that runs in the background at a frequency determined by the *system admin*. This can be once per day or several times per day. If there are new users, they will be added to openBIS when the maintenance task runs.
+In a multi group instance users are automatically registered and the roles defined in the user management configuration file on the server are automatically assigned to them. There is a maintenance task that runs in the background at configured frequency. This can be once per day or several times per day. If there are new users, they will be added to openBIS when the maintenance task runs.
  
 
 An *instance admin* can assign additional roles to users from the admin interface ([User Registration](./user-registration.md)). Default roles defined in the user management configuration file and automatically assigned cannot be removed, because they will be assigned again automatically by openBIS when the maintenance task runs.
  
 
-We would recommend to assign *SPACE_USER* rights for the Inventory Spaces to every group user and *SPACE_ADMIN* rights for their own lab notebook. This can be specified in the user management configuration file by the *system admin*.
+We would recommend to assign *SPACE_USER* rights for the Inventory Spaces to every group user and *SPACE_ADMIN* rights for their own lab notebook. This can be specified in the user management configuration file on *system level*.
  
 
 In the user management configuration file, one or more admins for each group can be designated. The *group admin* has by default *SPACE_ADMIN* rights to all the *Spaces* of their group. A *group admin* can customise the [Group ELN Settings](./multi-group-set-up.md#group-eln-settings) for the group.
@@ -124,8 +124,7 @@ and **Horizon**, **Snf** do not belong to any group in the Lab notebook.
         belong to any predefined group. Please note that this is not
         available by default, but the infrastructure for [archiving to
         tapes](../../general-users/data-archiving.md)
-        (StrongBox/StrongLink) needs to be put in place by a *system
-        admin ([Multi data set archiving](../../../uncategorized/multi-data-set-archiving.md))*.
+        (StrongBox/StrongLink) needs to be put in place ([Multi data set archiving](../../../uncategorized/multi-data-set-archiving.md))*.
     2.  Hide sections by default in *Spaces* that not belong to any
         predefined group. By default some sections in some forms are
         hidden:
@@ -212,8 +211,7 @@ In the group settings the following is configurable:
         that this is not available by default, but the infrastructure
         for [archiving to
         tapes](../../general-users/data-archiving.md)
-        (StrongBox/StrongLink) needs to be put in place by a *system
-        admin ([Multi data set
+        (StrongBox/StrongLink) needs to be put in place ([Multi data set
         archiving](../../../uncategorized/multi-data-set-archiving.md))*.
     2.  Hide sections by default. By default some sections in some forms
         are hidden:

@@ -16,6 +16,7 @@
 package ch.systemsx.cisd.openbis.screening.systemtests.authorization.validator;
 
 import ch.systemsx.cisd.openbis.datastoreserver.systemtests.authorization.validator.CommonValidatorSystemTest;
+import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.screening.systemtests.authorization.CommonAuthorizationScreeningSystemTest;
 
 /**
@@ -27,6 +28,7 @@ public abstract class CommonValidatorScreeningSystemTest<O> extends CommonValida
     @Override
     protected void setUpDatabaseProperties()
     {
+        TestInitializer.setForceCreateWithInitialData(true);
         new CommonAuthorizationScreeningSystemTest().setUpDatabaseProperties();
     }
 

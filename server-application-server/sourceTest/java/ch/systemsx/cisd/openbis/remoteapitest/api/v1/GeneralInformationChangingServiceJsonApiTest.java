@@ -69,8 +69,8 @@ public class GeneralInformationChangingServiceJsonApiTest extends RemoteApiTestC
         String vocabularyCode = "ORGANISM";
         Vocabulary vocabulary = fetchVocabularyFromServer(vocabularyCode);
 
-        assertEquals("Vocabulary[ORGANISM,{VocabularyTerm[RAT,RAT],VocabularyTerm[DOG,DOG],"
-                + "VocabularyTerm[HUMAN,HUMAN],VocabularyTerm[GORILLA,GORILLA],VocabularyTerm[FLY,FLY]}]",
+        assertEquals("Vocabulary[ORGANISM,[VocabularyTerm[RAT,RAT], VocabularyTerm[DOG,DOG], " +
+                        "VocabularyTerm[HUMAN,HUMAN], VocabularyTerm[GORILLA,GORILLA], VocabularyTerm[FLY,FLY]]]",
                 vocabulary.toString());
 
         NewVocabularyTerm newTerm = new NewVocabularyTerm();
@@ -84,9 +84,9 @@ public class GeneralInformationChangingServiceJsonApiTest extends RemoteApiTestC
 
         Vocabulary updatedVocabulary = fetchVocabularyFromServer(vocabularyCode);
 
-        assertEquals("Vocabulary[ORGANISM,{VocabularyTerm[RAT,RAT],VocabularyTerm[DOG,DOG],"
-                + "VocabularyTerm[HUMAN,HUMAN],VocabularyTerm[GORILLA,GORILLA],"
-                + "VocabularyTerm[FLY,FLY],VocabularyTerm[ALIEN,Alien species]}]",
+        assertEquals("Vocabulary[ORGANISM,[VocabularyTerm[RAT,RAT], VocabularyTerm[DOG,DOG], " +
+                        "VocabularyTerm[HUMAN,HUMAN], VocabularyTerm[GORILLA,GORILLA], VocabularyTerm[FLY,FLY], " +
+                        "VocabularyTerm[ALIEN,Alien species]]]",
                 updatedVocabulary.toString());
     }
 

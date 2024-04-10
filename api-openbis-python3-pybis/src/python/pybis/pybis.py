@@ -55,6 +55,7 @@ from .entity_type import (
     ExperimentType,
     MaterialType,
     SampleType,
+    PropertyType
 )
 from .experiment import Experiment
 from .group import Group
@@ -1791,8 +1792,10 @@ class Openbis:
                 roles["techId"] = roles["id"].map(extract_id)
                 roles["user"] = roles["user"].map(extract_userId)
                 roles["group"] = roles["authorizationGroup"].map(extract_code)
-                roles["space"] = roles["space"].map(extract_code)
-                roles["project"] = roles["project"].map(extract_code)
+                spaces_s = roles["space"].map(extract_code)
+                spaces_p = roles["project"].map(lambda x: x['space']['code'] if x is not None else '')
+                roles["space"] = spaces_s + spaces_p
+                roles["project"] = roles["project"].map(extract_nested_identifier)
             return roles[roles.columns.intersection(attrs)]
 
         return Things(
@@ -1914,11 +1917,12 @@ class Openbis:
         """
 
         criteria = []
-        for search_arg in ["code"]:
-            # unfortunately, there aren't many search possibilities yet...
+        for search_arg in ["code", "userId"]:
             if search_arg in search_args:
                 if search_arg == "code":
                     criteria.append(_criteria_for_code(search_args[search_arg]))
+                elif search_arg == "userId":
+                    criteria.append(_subcriteria_for_userId(search_args[search_arg]))
 
         search_criteria = get_search_type_for_entity("authorizationGroup")
         search_criteria["criteria"] = criteria
@@ -1929,6 +1933,8 @@ class Openbis:
         fetchopts["count"] = count
         for option in ["roleAssignments", "registrator", "users"]:
             fetchopts[option] = get_fetchoption_for_entity(option)
+        for option in ["space", "project", "user", "authorizationGroup", "registrator"]:
+            fetchopts['roleAssignments'][option] = get_fetchoption_for_entity(option)
         request = {
             "method": "searchAuthorizationGroups",
             "params": [self.token, search_criteria, fetchopts],
@@ -5230,6 +5236,7 @@ class Openbis:
             showParents=True,
             showParentMetadata=False,
             validationPlugin=None,
+            description=None
     ):
         """Creates a new sample type."""
 
@@ -5244,6 +5251,7 @@ class Openbis:
             showParentMetadata=showParentMetadata,
             validationPlugin=validationPlugin,
             method=self.get_sample_type,
+            description=description,
         )
 
     new_object_type = new_sample_type
@@ -5507,11 +5515,6 @@ class ServerInformation:
         """
         return html
 
-
-class PropertyType(
-    OpenBisObject, entity="propertyType", single_item_method_name="get_property_type"
-):
-    pass
 
 
 class Plugin(OpenBisObject, entity="plugin", single_item_method_name="get_plugin"):

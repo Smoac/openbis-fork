@@ -206,6 +206,12 @@ def extract_data_type(obj):
     return "" if obj["dataType"] is None else obj["dataType"]
 
 
+def extract(obj, property_name):
+    if not isinstance(obj, dict):
+        return "" if obj is None else str(obj)
+    return "" if obj[property_name] is None else obj[property_name]
+
+
 def extract_code(obj):
     if not isinstance(obj, dict):
         return "" if obj is None else str(obj)
@@ -249,8 +255,8 @@ def extract_attr(attr):
 
 def extract_identifier(ident):
     if not isinstance(ident, dict):
-        return str(ident)
-    return ident["identifier"]
+        return "" if ident is None else str(ident)
+    return "" if ident["identifier"] is None else ident["identifier"]
 
 
 def extract_identifiers(items):
@@ -269,8 +275,8 @@ def extract_identifiers(items):
 
 def extract_nested_identifier(ident):
     if not isinstance(ident, dict):
-        return str(ident)
-    return ident["identifier"]["identifier"]
+        return "" if ident is None else str(ident)
+    return "" if ident["identifier"]["identifier"] is None else ident["identifier"]["identifier"]
 
 
 def extract_nested_permid(permid):
@@ -335,9 +341,9 @@ def extract_userId(user):
     if isinstance(user, list):
         return ", ".join([u["userId"] for u in user])
     elif isinstance(user, dict):
-        return user["userId"]
+        return "" if user["userId"] is None else user["userId"]
     else:
-        return str(user)
+        return "" if user is None else str(user)
 
 
 def is_number(value):

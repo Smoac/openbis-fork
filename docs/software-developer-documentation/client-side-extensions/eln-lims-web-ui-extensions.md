@@ -158,6 +158,8 @@ An example with only type configurations extensions is show below.
     profile.plugins.push(new MyTechnology());
 ```
 
+*Note: "SAMPLE_TYPE" and "DATASET_TYPE" of the example above should the names of actual types in the system.* 
+
 ### Toolbar Extensions
 
 An example with only toolbar extensions is shown below, variables with a
@@ -183,6 +185,15 @@ dollar sign '$' indicate they are jquery components:
                         toolbarModel.push({ component : $demoButton, tooltip: "Demo" });
                     }
                     return toolbarModel;
+                },
+                extraToolbarDropdown : function(mode, sample) {
+                    return { 
+                        label:"My label",
+                        title:"Title",
+                        action : function() {
+                            //This empty function could be a call to do something in particular
+                        }
+                    }
                 }
             },
        },
@@ -204,6 +215,11 @@ dollar sign '$' indicate they are jquery components:
 
     profile.plugins.push(new MyTechnology());
 ```
+
+*extraToolbar* corresponds to a button on the toolbar menu.
+*extraToolbarDropdown* corresponds to an entry within "More" dropdown in the toolbar menu. 
+
+*Note: "SAMPLE_TYPE" and "DATASET_TYPE" of the example above should the names of actual types. In that way, different toolbars can be specified.*
 
 ### Extra Views as Utilities
 

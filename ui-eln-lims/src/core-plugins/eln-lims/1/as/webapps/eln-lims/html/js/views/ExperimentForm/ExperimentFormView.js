@@ -187,18 +187,22 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 			}
 
 			//Export
-			if(toolbarConfig.EXPORT_METADATA) {
-                dropdownOptionsModel.push({
-                    label : "Export Metadata",
-                    action : FormUtil.getExportAction([{ type: "EXPERIMENT", permId : _this._experimentFormModel.experiment.permId, expand : true }], true)
-                });
-            }
+			dropdownOptionsModel.push(FormUtil.getExportButtonModel("EXPERIMENT", _this._experimentFormModel.experiment.permId));
 
-            if(toolbarConfig.EXPORT_ALL) {
-                dropdownOptionsModel.push({
-                    label : "Export Metadata & Data",
-                    action : FormUtil.getExportAction([{ type: "EXPERIMENT", permId : _this._experimentFormModel.experiment.permId, expand : true }], false)
-                });
+			if(profile.legacyExports.enable) {
+                if(toolbarConfig.EXPORT_METADATA) {
+                    dropdownOptionsModel.push({
+                        label : "Export Metadata",
+                        action : FormUtil.getExportAction([{ type: "EXPERIMENT", permId : _this._experimentFormModel.experiment.permId, expand : true }], true)
+                    });
+                }
+
+                if(toolbarConfig.EXPORT_ALL) {
+                    dropdownOptionsModel.push({
+                        label : "Export Metadata & Data",
+                        action : FormUtil.getExportAction([{ type: "EXPERIMENT", permId : _this._experimentFormModel.experiment.permId, expand : true }], false)
+                    });
+                }
             }
 
 			//Jupyter Button
@@ -359,11 +363,11 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		//
 
 		// Toolbar extension
-		if(experimentTypeDefinitionsExtension && experimentTypeDefinitionsExtension.extraToolbar) {
-		    toolbarModel = toolbarModel.concat(experimentTypeDefinitionsExtension.extraToolbar(_this._experimentFormModel.mode, _this._experimentFormModel.experiment));
+		if(profile.experimentTypeDefinitionsExtension[experimentTypeCode] && profile.experimentTypeDefinitionsExtension[experimentTypeCode].extraToolbar) {
+		    toolbarModel = toolbarModel.concat(profile.experimentTypeDefinitionsExtension[experimentTypeCode].extraToolbar(_this._experimentFormModel.mode, _this._experimentFormModel.experiment));
 		}
-		if(experimentTypeDefinitionsExtension && experimentTypeDefinitionsExtension.extraToolbarDropdown) {
-		    dropdownOptionsModel = dropdownOptionsModel.concat(experimentTypeDefinitionsExtension.extraToolbarDropdown(_this._experimentFormModel.mode, _this._experimentFormModel.experiment));
+		if(profile.experimentTypeDefinitionsExtension[experimentTypeCode] && profile.experimentTypeDefinitionsExtension[experimentTypeCode].extraToolbarDropdown) {
+		    dropdownOptionsModel = dropdownOptionsModel.concat(profile.experimentTypeDefinitionsExtension[experimentTypeCode].extraToolbarDropdown(_this._experimentFormModel.mode, _this._experimentFormModel.experiment));
 		}
 
 		FormUtil.addOptionsToToolbar(toolbarModel, dropdownOptionsModel, hideShowOptionsModel,

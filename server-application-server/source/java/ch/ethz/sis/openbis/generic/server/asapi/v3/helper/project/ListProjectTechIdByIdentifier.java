@@ -48,6 +48,11 @@ public class ListProjectTechIdByIdentifier extends AbstractListTechIdById<Projec
         Map<String, Map<String, ProjectIdentifier>> groupedIdentifiers = new HashMap<>();
         for (ProjectIdentifier projectIdentifier : ids)
         {
+            if(!ProjectIdentifierFactory.isValidIdentifier(projectIdentifier.getIdentifier()))
+            {
+                // skip invalid identifiers
+                continue;
+            }
             ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier projectIdentifier2 =
                     ProjectIdentifierFactory.parse(projectIdentifier.getIdentifier());
             String spaceCode = CodeConverter.tryToDatabase(projectIdentifier2.getSpaceCode());

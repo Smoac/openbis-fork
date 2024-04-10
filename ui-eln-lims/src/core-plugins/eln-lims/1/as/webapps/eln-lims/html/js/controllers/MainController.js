@@ -1211,12 +1211,6 @@ function MainController(profile) {
 				var collectionView = forced || !defaultCollectionView ? forcedView : defaultCollectionView;
 
 				switch (collectionView) {
-					case "FORM_VIEW": {
-                        document.title = ELNDictionary.getExperimentKindName(experiment.experimentTypeCode) + " " +
-							experimentIdentifier;
-						_this._showExperimentPage(experiment, FormMode.VIEW);
-						break;
-					}
 					case "LIST_VIEW": {
 						if (experimentIdentifier === "null") { //Fix for reloads when there is text on the url
 							experimentIdentifier = null;
@@ -1227,6 +1221,13 @@ function MainController(profile) {
 							experimentIdentifier, experimentIdentifier, null, null, experiment);
 						sampleTableController.init(views);
 						_this.currentView = sampleTableController;
+						break;
+					}
+					case "FORM_VIEW":
+					default:{
+						document.title = ELNDictionary.getExperimentKindName(experiment.experimentTypeCode) + " " +
+							experimentIdentifier;
+						_this._showExperimentPage(experiment, FormMode.VIEW);
 						break;
 					}
 				}

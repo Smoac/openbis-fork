@@ -59,6 +59,12 @@ public class PropertyTypeUpdate implements IUpdate, IObjectUpdate<IPropertyTypeI
     @JsonProperty
     private ListUpdateMapValues metaData = new ListUpdateMapValues();
 
+    @JsonProperty
+    private FieldUpdateValue<String> pattern = new FieldUpdateValue<String>();
+
+    @JsonProperty
+    private FieldUpdateValue<String> patternType = new FieldUpdateValue<String>();
+
     @Override
     @JsonIgnore
     public IPropertyTypeId getObjectId()
@@ -136,6 +142,30 @@ public class PropertyTypeUpdate implements IUpdate, IObjectUpdate<IPropertyTypeI
     public void setTransformation(String transformation)
     {
         this.transformation.setValue(transformation);
+    }
+
+    @JsonIgnore
+    public FieldUpdateValue<String> getPattern()
+    {
+        return pattern;
+    }
+
+    @JsonIgnore
+    public void setPattern(String pattern)
+    {
+        this.pattern.setValue(pattern);
+    }
+
+    @JsonIgnore
+    public FieldUpdateValue<String> getPatternType()
+    {
+        return patternType;
+    }
+
+    @JsonIgnore
+    public void setPatternType(String patternType)
+    {
+        this.patternType.setValue(patternType);
     }
 
     @JsonIgnore

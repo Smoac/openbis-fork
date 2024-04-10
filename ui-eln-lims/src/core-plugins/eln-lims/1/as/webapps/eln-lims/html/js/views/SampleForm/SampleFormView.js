@@ -261,57 +261,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				}
 			}
 
-//			dropdownOptionsModel.push({
-//                            label : "Export",
-//                            action : function() {
-//                                var $window = $('<form>', { 'action' : 'javascript:void(0);' });
-//                                    $window.append($('<legend>').append('Export'));
-//                                    if(profile.isAdmin) {
-//                                        var $compatible = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("COMPATIBLE-IMPORT", null, false, false), 'Make import compatible');
-//                                        $window.append($compatible);
-//                                    }
-//                                    var $info_formats = $("<span>")
-//                                    					.append($("<span>", { class: "glyphicon glyphicon-info-sign" }))
-//                                    					.append(" File formats");
-//                                    $window.append($info_formats);
-//                                    var $pdf = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("PDF-EXPORT", null, false, false), 'Export metadata as PDF');
-//                                    $window.append($pdf);
-//                                    if(profile.isAdmin) {
-//                                        var $xlsx = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("XLSX-EXPORT", null, false, false), 'Export metadata as XLSX');
-//                                        $window.append($xlsx);
-//                                    }
-//                                    var $data = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("DATA-EXPORT", null, false, false), 'Export data');
-//                                    $window.append($data);
-//                                    var $hierarchyInclusions = $("<span>")
-//                                                          .append($("<span>", { class: "glyphicon glyphicon-info-sign" }))
-//                                                          .append(" Hierarchy Inclusions");
-//                                    $window.append($hierarchyInclusions);
-//                                    var $levelsBelow = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("LINKED-EXPORT", null, false, false), 'Include levels below');
-//                                    $window.append($levelsBelow);
-//                                    var $includeParents = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("PARENTS-EXPORT", null, false, false), 'Include parents of all objects');
-//                                    $window.append($includeParents);
-//                                    var $includeOtherSpaces = FormUtil.getFieldForComponentWithLabel(FormUtil._getBooleanField("PARENTS-EXPORT", null, false, false), 'Include objects from different spaces');
-//                                    $window.append($includeOtherSpaces);
-//
-//                                    var $btnAccept = $('<input>', { 'type': 'submit', 'class' : 'btn btn-primary', 'value' : 'Accept' , 'id' : 'accept-btn'});
-//                                	var $btnCancel = $('<a>', { 'class' : 'btn btn-default' }).append('Cancel');
-//                                	$btnCancel.click(function() {
-//                                		Util.unblockUI();
-//                                	});
-//
-//                                	$window.append($btnAccept).append('&nbsp;').append($btnCancel);
-//
-//                                	var css = {
-//                                				'text-align' : 'left',
-//                                				'top' : '15%',
-//                                				'width' : '70%',
-//                                				'left' : '15%',
-//                                				'right' : '20%',
-//                                				'overflow' : 'hidden'
-//                                	};
-//
-//                                	Util.blockUI($window, css);
-//                            }});
+            dropdownOptionsModel.push(FormUtil.getExportButtonModel("SAMPLE",_this._sampleFormModel.sample.permId));
 
             if(profile.legacyExports.enable) {
                 if(toolbarConfig.EXPORT_METADATA) {
@@ -687,11 +637,12 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 
         // Toolbar extension
-		if(sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension.extraToolbar) {
-		    toolbarModel = toolbarModel.concat(sampleTypeDefinitionsExtension.extraToolbar(_this._sampleFormModel.mode, _this._sampleFormModel.sample));
+        // TODO Include method extensions in a different plugin method
+		if(profile.sampleTypeDefinitionsExtension[sampleType.code] && profile.sampleTypeDefinitionsExtension[sampleType.code].extraToolbar) {
+		    toolbarModel = toolbarModel.concat(profile.sampleTypeDefinitionsExtension[sampleType.code].extraToolbar(_this._sampleFormModel.mode, _this._sampleFormModel.sample));
 		}
-		if(sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension.extraToolbarDropdown) {
-		    dropdownOptionsModel = dropdownOptionsModel.concat(sampleTypeDefinitionsExtension.extraToolbarDropdown(_this._sampleFormModel.mode, _this._sampleFormModel.sample));
+		if(profile.sampleTypeDefinitionsExtension[sampleType.code] && profile.sampleTypeDefinitionsExtension[sampleType.code].extraToolbarDropdown) {
+		    dropdownOptionsModel = dropdownOptionsModel.concat(profile.sampleTypeDefinitionsExtension[sampleType.code].extraToolbarDropdown(_this._sampleFormModel.mode, _this._sampleFormModel.sample));
 		}
 
 		FormUtil.addOptionsToToolbar(toolbarModel, dropdownOptionsModel, hideShowOptionsModel,

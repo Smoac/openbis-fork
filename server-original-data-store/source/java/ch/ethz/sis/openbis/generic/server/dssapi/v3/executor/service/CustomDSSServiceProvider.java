@@ -34,7 +34,7 @@ import java.util.*;
 public class CustomDSSServiceProvider  implements InitializingBean, ICustomDSSServiceProvider
 {
 
-    public static final String SERVICES_PROPERTY_KEY = "custom-services";
+    public static final String SERVICES_PROPERTY_KEY = "services";
 
     public static final String CLASS_KEY = "class";
 
@@ -59,7 +59,10 @@ public class CustomDSSServiceProvider  implements InitializingBean, ICustomDSSSe
         {
             String code = sectionProperties.getKey();
             Properties properties = sectionProperties.getProperties();
-            String className = PropertyUtils.getMandatoryProperty(properties, CLASS_KEY);
+            String className = properties.getProperty(CLASS_KEY, null);//PropertyUtils.getMandatoryProperty(properties, CLASS_KEY);
+            if(className == null) {
+                continue;
+            }
             CustomDSSService service = new CustomDSSService();
             service.setCode(new CustomDssServiceCode(code));
             service.setLabel(properties.getProperty(LABEL_KEY, code));

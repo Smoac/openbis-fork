@@ -44,7 +44,8 @@ class PropertyReformatter:
             raise ValueError('properties can not be None!')
 
         for key, value in properties.items():
-            if value is None:
+            if value is None or value == '':
+                properties[key] = None
                 continue
             property_type = self.openbis.get_property_type(key)
             if property_type.dataType == 'TIMESTAMP':

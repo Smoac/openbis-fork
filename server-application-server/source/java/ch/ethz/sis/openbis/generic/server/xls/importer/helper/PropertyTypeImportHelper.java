@@ -68,7 +68,10 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         OntologyId("Ontology Id", false),
         OntologyVersion("Ontology Version", false),
         OntologyAnnotationId("Ontology Annotation Id", false),
-        MultiValued("Multivalued", false);
+        MultiValued("Multivalued", false),
+        Unique("Unique", false),
+        Pattern("Pattern", false),
+        PatternType("Pattern Type", false);
 
         private final String headerName;
 
@@ -196,6 +199,8 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         String vocabularyCode = getValueByColumnName(header, values, Attribute.VocabularyCode);
         String metadata = getValueByColumnName(header, values, Attribute.Metadata);
         String multiValued = getValueByColumnName(header, values, Attribute.MultiValued);
+        String pattern = getValueByColumnName(header, values, Attribute.Pattern);
+        String patternType = getValueByColumnName(header, values, Attribute.PatternType);
 
         PropertyTypeCreation creation = new PropertyTypeCreation();
         creation.setCode(code);
@@ -233,6 +238,12 @@ public class PropertyTypeImportHelper extends BasicImportHelper
             creation.setMultiValue(false);
         }
 
+        if(pattern != null && !pattern.isEmpty() && patternType != null && !patternType.isEmpty())
+        {
+            creation.setPattern(pattern);
+            creation.setPatternType(patternType);
+        }
+
         delayedExecutor.createPropertyType(creation, page, line);
     }
 
@@ -246,6 +257,8 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         String dataType = getValueByColumnName(header, values, Attribute.DataType);
         String vocabularyCode = getValueByColumnName(header, values, Attribute.VocabularyCode);
         String metadata = getValueByColumnName(header, values, Attribute.Metadata);
+        String pattern = getValueByColumnName(header, values, Attribute.Pattern);
+        String patternType = getValueByColumnName(header, values, Attribute.PatternType);
 
         PropertyTypePermId propertyTypePermId = new PropertyTypePermId(code);
 
@@ -304,6 +317,13 @@ public class PropertyTypeImportHelper extends BasicImportHelper
         {
             update.getMetaData().add(JSONHandler.parseMetaData(metadata));
         }
+
+        if(pattern != null && !pattern.isEmpty() && patternType != null && !patternType.isEmpty())
+        {
+            update.getPattern().setValue(pattern);
+            update.getPatternType().setValue(patternType);
+        }
+
         delayedExecutor.updatePropertyType(update, page, line);
     }
 

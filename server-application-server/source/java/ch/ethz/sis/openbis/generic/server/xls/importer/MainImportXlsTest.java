@@ -59,7 +59,7 @@ public class MainImportXlsTest
         ImportOptions options = new ImportOptions();
 
         XLSImport importXls =
-                new XLSImport(sessionToken, v3, scripts, ImportModes.UPDATE_IF_EXISTS, options,
+                new XLSImport(sessionToken, v3, scripts, Map.of(), ImportModes.UPDATE_IF_EXISTS, options,
                         "ELN-LIMS");
         Collection<IObjectId> importedIds = new ArrayList<>();
 
@@ -74,7 +74,7 @@ public class MainImportXlsTest
                 getListScripts(LIFE_SCIENCES_MASTER_DATA_PATH.getPath());
         XLSImport lifeSciencesImporter =
                 new XLSImport(sessionToken, v3, lifeSciencesImporterScripts,
-                        ImportModes.UPDATE_IF_EXISTS, options, "ELN-LIMS-LIFE-SCIENCES");
+                        Map.of(), ImportModes.UPDATE_IF_EXISTS, options, "ELN-LIMS-LIFE-SCIENCES");
         File lifeSciencesDataModel =
                 new File(LIFE_SCIENCES_MASTER_DATA_PATH, "/master-data/data-model.xls");
         importedIds.addAll(lifeSciencesImporter.importXLS(

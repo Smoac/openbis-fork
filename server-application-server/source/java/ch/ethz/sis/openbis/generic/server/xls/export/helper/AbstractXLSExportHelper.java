@@ -16,7 +16,6 @@
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
 import java.io.Serializable;
-import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,20 +24,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
-import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.ClientAnchor;
-import org.apache.poi.ss.usermodel.CreationHelper;
-import org.apache.poi.ss.usermodel.Drawing;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.Hyperlink;
-import org.apache.poi.ss.usermodel.Picture;
-import org.apache.poi.ss.usermodel.PictureData;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -59,7 +50,7 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
 
     protected static final String[] ENTITY_ASSIGNMENT_COLUMNS = new String[] { "Code", "Mandatory",
             "Show in edit views", "Section", "Property label", "Data type", "Vocabulary code", "Description",
-            "Metadata", "Dynamic script", "Multivalued" };
+            "Metadata", "Dynamic script", "Multivalued", "Unique", "Pattern", "Pattern Type" };
 
     protected static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(BasicConstant.DATE_HOURS_MINUTES_SECONDS_PATTERN);
 
@@ -125,10 +116,10 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
         final Map<String, String> valueFiles = new HashMap<>();
 
         final Row row = wb.getSheetAt(0).createRow(rowNumber);
-        for (int i = 0; i < values.length; i++)
+        for (int j = 0; j < values.length; j++)
         {
-            final Cell cell = row.createCell(i);
-            final String value = values[i] != null ? values[i] : "";
+            final Cell cell = row.createCell(j);
+            final String value = values[j] != null ? values[j] : "";
 
             if (value.length() <= Short.MAX_VALUE)
             {
@@ -136,14 +127,23 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
                 cell.setCellValue(value);
             } else
             {
-                final String fileName = String.format("value-%c%d.txt", (char) ('A' + i), rowNumber + 1);
-
+                final String fileName = String.format("value-%s.txt", convertNumericToAlphanumeric(rowNumber, j));
                 cell.setCellValue(String.format("__%s__", fileName));
                 valueFiles.put(fileName, value);
             }
         }
 
         return new AddRowResult(warnings, valueFiles);
+    }
+
+    public static String convertNumericToAlphanumeric(final int row, final int col)
+    {
+        final int aCharCode = 'A';
+        final int ord0 = col % 26;
+        final int ord1 = col / 26;
+        final char char0 = (char) (aCharCode + ord0);
+        final char char1 = (char) (aCharCode + ord1 - 1);
+        return String.valueOf(ord1 > 0 ? char1 : "") + char0 + (row + 1);
     }
 
     protected void addRow(int rowNumber, boolean bold, final ExportableKind exportableKind, final String idForWarningsOrErrors,

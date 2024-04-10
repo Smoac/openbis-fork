@@ -57,12 +57,12 @@ public abstract class AbstractIdentifierFactory
 
     // ----
 
-    private static final String ALLOWED_CODE_CHARACTERS = "A-Z0-9_\\-\\.";
+    protected static final String ALLOWED_CODE_CHARACTERS = "A-Z0-9_\\-\\.";
 
-    private static final Pattern ALLOWED_CODE_REGEXP =
+    protected static final Pattern ALLOWED_CODE_REGEXP =
             Pattern.compile("^[" + ALLOWED_CODE_CHARACTERS + "]+$", Pattern.CASE_INSENSITIVE);
 
-    private static final Pattern ALLOWED_PATTERN_REGEXP =
+    protected static final Pattern ALLOWED_PATTERN_REGEXP =
             Pattern
                     .compile("^[" + ALLOWED_CODE_CHARACTERS + "?*" + "]+$",
                             Pattern.CASE_INSENSITIVE);
@@ -83,6 +83,27 @@ public abstract class AbstractIdentifierFactory
     {
         assertValidCharacters(textOrNull, ALLOWED_PATTERN_REGEXP,
                 ILLEGAL_PATTERN_CHARACTERS_TEMPLATE);
+    }
+
+    public static boolean isValidIdentifier(final String text)
+    {
+        if (text == null || StringUtils.isEmpty(text))
+        {
+            return false;
+        }
+        String[] codes = text.split(IDENTIFIER_SEPARARTOR_STRING);
+        if(codes.length == 0 || !codes[0].isEmpty()) {
+            return false;
+        }
+        for(int i=1;i<codes.length; i++)
+        {
+            String code = codes[i];
+            if(ALLOWED_CODE_REGEXP.matcher(code).matches() == false)
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     public final static String assertValidCode(final String textOrNull)

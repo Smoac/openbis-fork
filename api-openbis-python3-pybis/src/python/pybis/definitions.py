@@ -149,9 +149,9 @@ def openbis_definitions(entity):
             "identifier": "typeId",
         },
         "propertyType": {
-            "attrs": "code label description managedInternally dataType vocabulary materialType schema transformation semanticAnnotations registrator registrationDate metaData multiValue".split(),
-            "attrs_new": "code label description managedInternally dataType vocabulary materialType schema transformation metaData multiValue".split(),
-            "attrs_up": "label description schema transformation metaData".split(),
+            "attrs": "code label description managedInternally dataType vocabulary materialType schema transformation semanticAnnotations registrator registrationDate metaData multiValue pattern patternType".split(),
+            "attrs_new": "code label description managedInternally dataType vocabulary materialType schema transformation metaData multiValue pattern patternType".split(),
+            "attrs_up": "label description schema transformation metaData pattern patternType".split(),
             "search": {"@type": "as.dto.property.search.PropertyTypeSearchCriteria"},
             "create": {"@type": "as.dto.property.create.PropertyTypeCreation"},
             "update": {"@type": "as.dto.property.update.PropertyTypeUpdate"},
@@ -162,6 +162,7 @@ def openbis_definitions(entity):
                 "MULTILINE_VARCHAR",
                 "REAL",
                 "TIMESTAMP",
+                "DATE",
                 "BOOLEAN",
                 "CONTROLLEDVOCABULARY",
                 "MATERIAL",
@@ -343,7 +344,10 @@ fetch_option = {
     "modifier": {"@type": "as.dto.person.fetchoptions.PersonFetchOptions"},
     "leader": {"@type": "as.dto.person.fetchoptions.PersonFetchOptions"},
     "authorizationGroup": {
-        "@type": "as.dto.authorizationgroup.fetchoptions.AuthorizationGroupFetchOptions"
+        "@type": "as.dto.authorizationgroup.fetchoptions.AuthorizationGroupFetchOptions",
+         "roleAssignments": {
+            "@type": "as.dto.roleassignment.fetchoptions.RoleAssignmentFetchOptions",
+        }
     },
     "experiment": {
         "@type": "as.dto.experiment.fetchoptions.ExperimentFetchOptions",

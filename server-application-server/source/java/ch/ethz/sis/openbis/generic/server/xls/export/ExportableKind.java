@@ -16,7 +16,13 @@
 package ch.ethz.sis.openbis.generic.server.xls.export;
 
 import java.util.EnumSet;
+import java.util.Map;
 import java.util.Set;
+
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 
 public enum ExportableKind
 {
@@ -27,5 +33,14 @@ public enum ExportableKind
 
     public static final Set<ExportableKind>
             MASTER_DATA_EXPORTABLE_KINDS = EnumSet.of(SAMPLE_TYPE, EXPERIMENT_TYPE, DATASET_TYPE, VOCABULARY_TYPE);
+
+    public static final Map<ExportableKind, ExportableKind> TYPE_BY_ENTITY_EXPORTABLE_KIND = Map.of(SAMPLE, SAMPLE_TYPE,
+            EXPERIMENT, EXPERIMENT_TYPE, DATASET, DATASET_TYPE);
+
+    public static final Map<Class<? extends IEntityType>, ExportableKind> EXPORTABLE_KIND_BY_ENTITY_TYPE = Map.of(
+            ExperimentType.class, EXPERIMENT_TYPE,
+            SampleType.class, SAMPLE_TYPE,
+            DataSetType.class, DATASET_TYPE
+    );
 
 }

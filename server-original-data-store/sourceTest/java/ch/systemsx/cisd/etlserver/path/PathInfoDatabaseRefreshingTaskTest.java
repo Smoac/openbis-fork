@@ -198,8 +198,8 @@ public class PathInfoDatabaseRefreshingTaskTest extends AbstractFileSystemTestCa
 
         task.execute();
 
-        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,{SearchCriteria.TimeAttributeMatchClause[ATTRIBUTE,"
-                + "REGISTRATION_DATE,2017-01-23 15:42:48,LESS_THAN_OR_EQUAL]},[]]",
+        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,[SearchCriteria.TimeAttributeMatchClause[ATTRIBUTE," +
+                        "REGISTRATION_DATE,2017-01-23 15:42:48,LESS_THAN_OR_EQUAL]],[]]",
                 criteriaMatcher.recordedObject().toString());
         AssertionUtil.assertContainsLines(LOG_PREFIX + "Refresh path info for 2 physical data sets.\n" +
                 LOG_PREFIX + "Paths inside data set ds-5 successfully added to database. Data set size: 0\n" +
@@ -232,10 +232,10 @@ public class PathInfoDatabaseRefreshingTaskTest extends AbstractFileSystemTestCa
 
         task.execute();
 
-        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,"
-                + "{SearchCriteria.TimeAttributeMatchClause[ATTRIBUTE,REGISTRATION_DATE,"
-                + "2017-01-21 15:42:49,LESS_THAN_OR_EQUAL],"
-                + "SearchCriteria.AttributeMatchClause[ATTRIBUTE,TYPE,A,EQUALS]},[]]",
+        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES," +
+                        "[SearchCriteria.TimeAttributeMatchClause[ATTRIBUTE,REGISTRATION_DATE,2017-01-21 15:42:49,LESS_THAN_OR_EQUAL], " +
+                        "SearchCriteria.AttributeMatchClause[ATTRIBUTE,TYPE,A,EQUALS]]," +
+                        "[]]",
                 criteriaMatcher.recordedObject().toString());
         AssertionUtil.assertContainsLines(LOG_PREFIX + "Refresh path info for 2 physical data sets.\n" +
                 LOG_PREFIX + "Paths inside data set ds-2 successfully added to database. Data set size: 0\n" +
@@ -264,8 +264,8 @@ public class PathInfoDatabaseRefreshingTaskTest extends AbstractFileSystemTestCa
 
         task.execute();
 
-        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,{SearchCriteria.TimeAttributeMatchClause[ATTRIBUTE,"
-                + "REGISTRATION_DATE,2017-01-23 15:42:48,LESS_THAN_OR_EQUAL]},[]]",
+        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,[SearchCriteria.TimeAttributeMatchClause[ATTRIBUTE," +
+                        "REGISTRATION_DATE,2017-01-23 15:42:48,LESS_THAN_OR_EQUAL]],[]]",
                 criteriaMatcher.recordedObject().toString());
         AssertionUtil.assertContainsLines(LOG_PREFIX + "Refresh path info for 2 physical data sets.\n" +
                 LOG_PREFIX + "Paths inside data set ds-3 successfully added to database. Data set size: 0\n" +
@@ -295,8 +295,9 @@ public class PathInfoDatabaseRefreshingTaskTest extends AbstractFileSystemTestCa
 
         task.execute();
 
-        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,{SearchCriteria.TimeAttributeMatchClause[ATTRIBUTE,"
-                + "REGISTRATION_DATE,2017-01-23 15:42:48,LESS_THAN_OR_EQUAL]},[]]",
+        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES," +
+                        "[SearchCriteria.TimeAttributeMatchClause[ATTRIBUTE,REGISTRATION_DATE," +
+                        "2017-01-23 15:42:48,LESS_THAN_OR_EQUAL]],[]]",
                 criteriaMatcher.recordedObject().toString());
         AssertionUtil.assertContainsLines(LOG_PREFIX + "Refresh path info for 2 physical data sets.\n" +
                 LOG_PREFIX + "Paths inside data set ds-3 successfully added to database. Data set size: 0\n" +
@@ -311,8 +312,8 @@ public class PathInfoDatabaseRefreshingTaskTest extends AbstractFileSystemTestCa
 
         task.execute();
 
-        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,{SearchCriteria.TimeAttributeMatchClause["
-                + "ATTRIBUTE,REGISTRATION_DATE," + T2 + ",LESS_THAN_OR_EQUAL]},[]]",
+        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,[SearchCriteria.TimeAttributeMatchClause["
+                + "ATTRIBUTE,REGISTRATION_DATE," + T2 + ",LESS_THAN_OR_EQUAL]],[]]",
                 criteriaMatcher.recordedObject().toString());
         AssertionUtil.assertContainsLines(LOG_PREFIX + "Refresh path info for 2 physical data sets.\n" +
                 LOG_PREFIX + "Paths inside data set ds-3 successfully added to database. Data set size: 0\n" +
@@ -328,8 +329,8 @@ public class PathInfoDatabaseRefreshingTaskTest extends AbstractFileSystemTestCa
 
         task.execute();
 
-        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,{SearchCriteria.TimeAttributeMatchClause["
-                + "ATTRIBUTE,REGISTRATION_DATE," + T1 + ",LESS_THAN_OR_EQUAL]},[]]",
+        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,[SearchCriteria.TimeAttributeMatchClause["
+                + "ATTRIBUTE,REGISTRATION_DATE," + T1 + ",LESS_THAN_OR_EQUAL]],[]]",
                 criteriaMatcher.recordedObject().toString());
         AssertionUtil.assertContainsLines(LOG_PREFIX + "Refresh path info for 2 physical data sets.\n" +
                 LOG_PREFIX + "Paths inside data set ds-3 successfully added to database. Data set size: 0\n" +

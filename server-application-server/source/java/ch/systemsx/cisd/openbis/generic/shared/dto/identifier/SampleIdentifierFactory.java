@@ -25,13 +25,17 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier.Constants;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
+
 /**
- * Parses the given text in the constructor to extract the database instance, the group and the sample code.
- * 
+ * Parses the given text in the constructor to extract the database instance, the group and the
+ * sample code.
  * <pre>
  * /[&lt;space code&gt;/][&lt;project code&gt;/]&lt;sample code&gt;
  * </pre>
- * 
+ *
  * @author Tomasz Pylak
  */
 public final class SampleIdentifierFactory extends AbstractIdentifierFactory
@@ -81,6 +85,74 @@ public final class SampleIdentifierFactory extends AbstractIdentifierFactory
             throws UserFailureException
     {
         return new SampleIdentifierFactory(textToParse).createPattern();
+    }
+
+    public static boolean isValidIdentifier(final String identifier)
+    {
+        if (identifier == null || StringUtils.isEmpty(identifier))
+        {
+            return false;
+        }
+        String text = identifier;
+        if (text.startsWith("//"))
+        {
+            text = text.substring(2);
+        } else if (text.startsWith("/"))
+        {
+            text = text.substring(1);
+        } else
+        {
+            return false;
+        }
+        String[] codes = text.split(IDENTIFIER_SEPARARTOR_STRING);
+        if(codes.length == 0 || codes.length >= 4) {
+            return false;
+        }
+        for (int i = 0; i < codes.length; i++)
+        {
+            String code = codes[i];
+            if (i == codes.length - 1)
+            {
+                return validateLastCode(code);
+            } else
+            {
+                if (!AbstractIdentifierFactory.ALLOWED_CODE_REGEXP.matcher(code).matches())
+                {
+                    return false;
+                }
+            }
+
+        }
+        return true;
+    }
+
+    private static boolean validateLastCode(String code)
+    {
+        String delim = ":";
+        StringTokenizer tokenizer = new StringTokenizer(code, delim, true);
+        int numberOfDelims = 0;
+        List<String> tokens = new ArrayList<>();
+        while (tokenizer.hasMoreTokens())
+        {
+            String token = tokenizer.nextToken();
+            if (delim.equals(token))
+            {
+                numberOfDelims++;
+            } else
+            {
+                tokens.add(token);
+            }
+        }
+        if (numberOfDelims > 1)
+        {
+            return false;
+        }
+        if (numberOfDelims != tokens.size() - 1)
+        {
+            return false;
+        }
+        return tokens.stream()
+                .allMatch(AbstractIdentifierFactory.ALLOWED_CODE_REGEXP.asMatchPredicate());
     }
 
     public SampleIdentifierFactory(final String textToParse)

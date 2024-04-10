@@ -60,6 +60,7 @@ public abstract class AbstractDBTest
         final DatabaseConfigurationContext context = createDefaultDBContext();
         context.setDatabaseKind("dbtest");
         context.setCreateFromScratch(true);
+//        context.setForceCreateWithInitialData(true);
         return context;
     }
 

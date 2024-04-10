@@ -45,6 +45,16 @@ Otherwise you need to specify the path to your Geckodriver in makeGeckodriverExe
 Some Tips:
 ==========
 
+TypeScript:
+-----------
+
+All tests that have ".ts" extension are written in TypeScript. Therefore, before then can be run, they need to be compiled to JavaScript.
+To do that you need to execute Gradle task named "compileTypeScript" in "test-api-openbis-javascript" module.
+
+The TypeScript compilation task is run automatically as part of the main "test" task that boots up the whole JavaScript tests machinery,
+still if you develop your tests without shutting everything down, after each change of the TypeScript code you need to remember to run the TypeScript compilation again.
+Otherwise, the browser will execute an old JavaScript code that does not contain your change.
+
 Developing:
 -----------
 

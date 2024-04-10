@@ -9,6 +9,8 @@ import GridExportOptions from '@src/js/components/common/grid/GridExportOptions.
 import SelectField from '@src/js/components/common/form/SelectField.jsx'
 import DatePickerProvider from '@src/js/components/common/date/DatePickerProvider.jsx'
 import DateRangeField from '@src/js/components/common/form/DateRangeField.jsx'
+import ImagingDatasetViewer from '@src/js/components/common/imaging/ImagingDatasetViewer.jsx'
+import ImagingGalleryViewer from "@src/js/components/common/imaging/ImagingGalleryViewer.jsx";
 
 export default {
   ThemeProvider,
@@ -21,5 +23,7 @@ export default {
   GridExportOptions,
   SelectField,
   DatePickerProvider,
-  DateRangeField
+  DateRangeField,
+  ImagingDatasetViewer,
+  ImagingGalleryViewer
 }

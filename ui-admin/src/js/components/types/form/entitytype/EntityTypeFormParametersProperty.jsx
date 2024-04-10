@@ -35,6 +35,8 @@ class EntityTypeFormParametersProperty extends React.PureComponent {
       schema: React.createRef(),
       transformation: React.createRef(),
       initialValueForExistingEntities: React.createRef(),
+      pattern: React.createRef(),
+      patternType: React.createRef(),
       mandatory: React.createRef(),
       internal: React.createRef(),
       plugin: React.createRef(),
@@ -117,6 +119,8 @@ class EntityTypeFormParametersProperty extends React.PureComponent {
         {this.renderLabel(property)}
         {this.renderDescription(property)}
         {this.renderDynamicPlugin(property)}
+        {this.renderPattern(property)}
+        {this.renderPatternType(property)}
         {this.renderInternal(property)}
         {this.renderVisible(property)}
         {this.renderMandatory(property)}
@@ -279,7 +283,6 @@ class EntityTypeFormParametersProperty extends React.PureComponent {
     }
 
     const options = []
-
     if (property.originalGlobal || property.original) {
       const {
         dataType: { value: originalValue }
@@ -318,7 +321,7 @@ class EntityTypeFormParametersProperty extends React.PureComponent {
       }
     } else {
       const objectType = this.getType().objectType.value;
-      if(objectType == 'materialType') {
+      if(objectType == 'materialType' || objectType == 'newMaterialType') {
         //Filter out new data types for materials
         const filtered = [openbis.DataType.ARRAY_STRING, openbis.DataType.ARRAY_INTEGER,
             openbis.DataType.ARRAY_REAL, openbis.DataType.ARRAY_TIMESTAMP, openbis.DataType.JSON];
@@ -644,7 +647,10 @@ class EntityTypeFormParametersProperty extends React.PureComponent {
   renderUniqueValue(property) {
    const { visible, enabled, error, value } = { ...property.unique }
 
-   if (!visible) {
+   if (!visible || [openbis.DataType.ARRAY_STRING, openbis.DataType.ARRAY_INTEGER,
+                      openbis.DataType.ARRAY_REAL, openbis.DataType.ARRAY_TIMESTAMP,
+                      openbis.DataType.JSON, openbis.DataType.XML, openbis.DataType.BOOLEAN,
+                      openbis.DataType.MULTILINE_VARCHAR, null].includes(property.dataType.value)) {
        return null
    }
 
@@ -745,6 +751,79 @@ class EntityTypeFormParametersProperty extends React.PureComponent {
           onBlur={this.handleBlur}
         />
       </div>
+    )
+  }
+
+  renderPattern(property) {
+    const { visible, enabled, error, value } = { ...property.pattern }
+
+    if (!visible || [openbis.DataType.ARRAY_STRING, openbis.DataType.ARRAY_INTEGER,
+                      openbis.DataType.ARRAY_REAL, openbis.DataType.ARRAY_TIMESTAMP,
+                      openbis.DataType.JSON, openbis.DataType.XML, openbis.DataType.BOOLEAN,
+                      openbis.DataType.CONTROLLEDVOCABULARY, openbis.DataType.MATERIAL,
+                      openbis.DataType.SAMPLE, null].includes(property.dataType.value)) {
+        return null
+    }
+
+    const { mode, classes } = this.props
+    return (
+    <div className={classes.field}>
+      <TextField
+        reference={this.references.pattern}
+        label={messages.get(messages.PATTERN)}
+        name='pattern'
+        error={error}
+        disabled={!enabled}
+        value={value}
+        mode={mode}
+        onChange={this.handleChange}
+        onFocus={this.handleFocus}
+        onBlur={this.handleBlur}
+      />
+    </div>
+    )
+  }
+
+  renderPatternType(property) {
+    const { visible, enabled, error, value } = { ...property.patternType }
+
+    if (!visible || [openbis.DataType.ARRAY_STRING, openbis.DataType.ARRAY_INTEGER,
+                          openbis.DataType.ARRAY_REAL, openbis.DataType.ARRAY_TIMESTAMP,
+                          openbis.DataType.JSON, openbis.DataType.XML, openbis.DataType.BOOLEAN,
+                          openbis.DataType.CONTROLLEDVOCABULARY, openbis.DataType.MATERIAL,
+                          openbis.DataType.SAMPLE,
+                          null].includes(property.dataType.value)) {
+        return null
+    }
+
+    const { mode, classes, controller } = this.props
+    let patternOptions = ['NONE', 'PATTERN', 'VALUES', 'RANGES' ]
+
+    let options = []
+
+    options = patternOptions.map(option => {
+      return {
+        label: option,
+        value: option
+      }
+      })
+
+    return (
+    <div className={classes.field}>
+      <SelectField
+        reference={this.references.patternType}
+        label={messages.get(messages.PATTERN_TYPE)}
+        name='patternType'
+        error={error}
+        disabled={!enabled}
+        value={value}
+        options={options}
+        mode={mode}
+        onChange={this.handleChange}
+        onFocus={this.handleFocus}
+        onBlur={this.handleBlur}
+      />
+    </div>
     )
   }
 

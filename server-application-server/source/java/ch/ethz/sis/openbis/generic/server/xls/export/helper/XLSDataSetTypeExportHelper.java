@@ -53,12 +53,7 @@ public class XLSDataSetTypeExportHelper extends AbstractXLSEntityTypeExportHelpe
             final String permId)
     {
         final DataSetTypeFetchOptions fetchOptions = new DataSetTypeFetchOptions();
-        fetchOptions.withValidationPlugin().withScript();
-        final PropertyAssignmentFetchOptions propertyAssignmentFetchOptions = fetchOptions.withPropertyAssignments();
-        propertyAssignmentFetchOptions.withPropertyType().withVocabulary();
-        propertyAssignmentFetchOptions.withPropertyType().withSampleType();
-        propertyAssignmentFetchOptions.withPropertyType().withMaterialType();
-        propertyAssignmentFetchOptions.withPlugin().withScript();
+        configureFetchOptions(fetchOptions);
         final Map<IEntityTypeId, DataSetType> dataSetTypes = api.getDataSetTypes(sessionToken,
                 Collections.singletonList(new EntityTypePermId(permId, EntityKind.DATA_SET)), fetchOptions);
 
@@ -66,6 +61,16 @@ public class XLSDataSetTypeExportHelper extends AbstractXLSEntityTypeExportHelpe
 
         final Iterator<DataSetType> iterator = dataSetTypes.values().iterator();
         return iterator.hasNext() ? iterator.next() : null;
+    }
+
+    static void configureFetchOptions(final DataSetTypeFetchOptions fetchOptions)
+    {
+        fetchOptions.withValidationPlugin().withScript();
+        final PropertyAssignmentFetchOptions propertyAssignmentFetchOptions = fetchOptions.withPropertyAssignments();
+        propertyAssignmentFetchOptions.withPropertyType().withVocabulary();
+        propertyAssignmentFetchOptions.withPropertyType().withSampleType();
+        propertyAssignmentFetchOptions.withPropertyType().withMaterialType();
+        propertyAssignmentFetchOptions.withPlugin().withScript();
     }
 
     @Override

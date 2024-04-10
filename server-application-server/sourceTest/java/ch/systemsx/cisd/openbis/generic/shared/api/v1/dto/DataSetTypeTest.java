@@ -114,10 +114,9 @@ public class DataSetTypeTest extends AssertJUnit
     public void testToString()
     {
         String stringRepresentation = dataSetType.toString();
-        assertEquals("DataSetType[dataSet-type,hello,deletionDisallowed=false,mainDataSetPattern=.*,"
-                + "mainDataSetPath=/a/b/c,{PropertyTypeGroup[<null>,{PropertyType[VARCHAR,PROP1,"
-                + "Property 1,<null>,optional],PropertyType[VARCHAR,PROP2,Property 2,"
-                + "Property 2 Description,optional]}]}]",
+        assertEquals("DataSetType[dataSet-type,hello,deletionDisallowed=false,mainDataSetPattern=.*," +
+                        "mainDataSetPath=/a/b/c,[PropertyTypeGroup[<null>,[PropertyType[VARCHAR,PROP1," +
+                        "Property 1,<null>,optional], PropertyType[VARCHAR,PROP2,Property 2,Property 2 Description,optional]]]]]",
                 stringRepresentation);
     }
 }

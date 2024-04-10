@@ -1,4 +1,4 @@
-## Changes with pybis-1.36.4
+## Changes with pybis-1.37.0
 
 - Changes to new_sample method to use v3api in all cases
 - Refactored new_experiment documentation 
@@ -7,6 +7,13 @@
 - Fixed PropertyAssignment data frame creation
 - Improved property data type validation 
 - Improved get_project method 
+- Added missing description parameter to new sample type method
+- Added missing DATE property type
+- Improvement to user.get_roles() method to present proper project identification
+- Improvements to property assignment display
+- Fixed clearing of vocabulary properties
+- Improved setup script
+- Fixed transaction commit function
 
 ## Changes with pybis-1.36.3
 

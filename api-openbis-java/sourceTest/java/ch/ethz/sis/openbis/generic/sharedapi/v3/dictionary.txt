@@ -909,6 +909,7 @@ getIgnoreVersioning
 getImportData
 getImportMode
 getImportOptions
+getImportValues
 getInitialValueForExistingEntities
 getInputs
 getInputStream
@@ -982,6 +983,8 @@ getOwnerId
 getParentIds
 getParents
 getPath
+getPattern
+getPatternType
 getPermId
 getPermIds
 getPermlink
@@ -1298,6 +1301,7 @@ ImportOperation
 ImportOperationResult
 ImportOptions
 ImportScript
+ImportValue
 indent
 indexOf
 INSTANCE
@@ -2178,6 +2182,7 @@ setIgnoreVersioning
 setImportData
 setImportMode
 setImportOptions
+setImportValues
 setInitialValueForExistingEntities
 setInputs
 setIntegerArrayProperty
@@ -2242,6 +2247,8 @@ setParentActions
 setParentIds
 setParents
 setPath
+setPattern
+setPatternType
 setPermId
 setPermIds
 setPermlink
@@ -2332,6 +2339,7 @@ setup
 setUrlTemplate
 setUserId
 setUserName
+setUnique
 setValidationPluginId
 setValidFrom
 setValidFromDate

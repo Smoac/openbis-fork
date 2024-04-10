@@ -67,6 +67,8 @@ public class DatabaseConfigurationContext implements DisposableBean
 
     private boolean createFromScratch;
 
+    private boolean forceCreateWithInitialData;
+
     private boolean scriptSingleStepMode;
 
     private IDataSourceFactory dataSourceFactory = new BasicDataSourceFactory();
@@ -162,6 +164,7 @@ public class DatabaseConfigurationContext implements DisposableBean
             operationLog.info(String.format("owner = %s", getOwner()));
             operationLog.info(String.format("scriptFolder = %s", getScriptFolder()));
             operationLog.info(String.format("createFromScratch = %s", isCreateFromScratch()));
+            operationLog.info(String.format("forceCreateWithInitialData = %s", isForceCreateWithInitialData()));
             operationLog.info(String.format("scriptSingleStepMode = %s", isScriptSingleStepMode()));
             operationLog.info(String.format("maxActiveConnections = %d",
                     dataSourceFactory.getMaxActive()));
@@ -566,6 +569,27 @@ public class DatabaseConfigurationContext implements DisposableBean
     public final void setCreateFromScratch(final boolean createFromScratch)
     {
         this.createFromScratch = createFromScratch;
+    }
+
+    public final boolean isForceCreateWithInitialData()
+    {
+        return forceCreateWithInitialData;
+    }
+
+    /**
+     * Sets the database should be dropped and (re)created from scratch or not.
+     */
+    public final void setForceCreateWithInitialData(final boolean forceCreateWithInitialData)
+    {
+        this.forceCreateWithInitialData = forceCreateWithInitialData;
+    }
+
+    public final void setForceCreateWithInitialDataProp(final String forceCreateWithInitialData)
+    {
+        if (isSet(forceCreateWithInitialData))
+        {
+            setForceCreateWithInitialData(Boolean.parseBoolean(forceCreateWithInitialData));
+        }
     }
 
     /**

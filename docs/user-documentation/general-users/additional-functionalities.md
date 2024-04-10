@@ -1,6 +1,15 @@
 Additional Functionalities
 ==========================
  
+## Print PDF 
+
+For every entity in openBIS it is possible to generate a pdf using the **Print PDF** option from the **More..** dropdown menu.
+
+An example for a Space is shown in the picture below.
+
+![image info](img/print-pdf.png)
+
+
 ## Visualise Relationships
 
 
@@ -26,7 +35,7 @@ and/or children and which types to show.
 
 To view the genealogy of an *Object* in a tabular format, select the **Hierarchy Table** option from the **More…** dropdown.
 
-Updated on March 4, 2022
+
  
 ## Tables
 
@@ -223,7 +232,7 @@ In *Object* tables inside *Experiments/Collections* there is an
 
 ![image info](img/Object-table-operations-column.png)
 
-Updated on April 26, 2023
+
  
 ## Browse Entries by Type
 
@@ -256,7 +265,7 @@ register** or **Batch update** *Objects* using an XLS or TSV template.
 
  
 
-Updated on April 25, 2023
+
  
 ## Trashcan
 
@@ -297,7 +306,16 @@ the **Operations** drop down in the table.
 
 ![image info](img/trashcan-1024x302.png)
 
-Updated on October 9, 2022
+
+ 
+## Visualize Available Storage Space
+
+The storage space available in an openBIS instance can be visualized by navigating to **Other Tools** in the navigation menu and clicking on the **Show available storage space** button.
+
+![image info](img/Tools-available-storage-space.png)
+
+Before uploading large datasets, the available storage space should always be checked.
+
  
 ## Vocabulary Browser
 
@@ -321,7 +339,6 @@ case for XLS Batch registration or update, where labels can be used.
 
 ![image info](img/vocabulary-browser-1024x483.png)
 
-Updated on April 25, 2023
  
 ## Freeze Entities
 
@@ -469,7 +486,7 @@ password and save.
 |Move Dataset||x|
 |Export|x||
 
-Updated on April 25, 2023
+
  
 ## Navigation menu
 
@@ -571,7 +588,7 @@ The state of the menu is saved. Every time you change something in the
 menu, this change will be saved and when you login next time you will
 see the menu in the state you last saved it.
 
-Updated on April 26, 2023
+
  
 ## Custom Imports
 
@@ -630,7 +647,7 @@ download link is shown in the Custom Import page.
 
  
 
-Updated on April 26, 2023
+
  
 ## Entity history
 
@@ -738,7 +755,7 @@ For a *Dataset*, the **PermID** (Permanent Identifier) of the
 from one *Object*/*Collection* to another, the PermID of the old and new
 *Objects*/*Collections* are shown in the history table.
 
-Updated on November 10, 2022
+
 
 ## Spreadsheet
 
@@ -753,4 +770,15 @@ It is possible to import an openBIS Object into the spreadsheet, with the **impo
 
 Please note that if the Object is updated in openBIS, it will NOT be automatically updated in the spreadsheet.
 
-Updated on March 4, 2022
+
+## Session Token
+
+When users log in to openBIS, a session token is generated. The session token is visible in the ELN UI, under the **User Profile**, in the **navigation menu**.
+
+![image info](img/user-profile-main-menu.png) 
+
+![image info](img/session-token-ELN-UI.png) 
+
+
+The session token is needed to connect to openBIS via pyBIS or obis, in cases where SSO (e.g. SWITCHaai) is used for authentication. See [pyBIS](../../software-developer-documentation/apis/python-v3-api.md#connect-to-openbis).
+

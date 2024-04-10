@@ -70,7 +70,7 @@ public class FileServiceServlet extends AbstractServlet
     private static final String DOWNLOAD_CHECK_KEY = KEY_PREFIX + "download-check";
     private static final boolean DEFAULT_DOWNLOAD_CHECK = true;
     
-    private static final String DOWNLOAD_URL_PLACE_HOLDER = "download-url";
+    private static final String DOWNLOAD_URL_PLACE_HOLDER = "download-url-file-server";
     private static final String ERROR_MESSAGE_PLACE_HOLDER = "error-message";
     
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, FileServiceServlet.class);

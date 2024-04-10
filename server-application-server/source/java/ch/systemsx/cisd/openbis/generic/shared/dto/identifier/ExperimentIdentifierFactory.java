@@ -21,6 +21,7 @@ import java.util.List;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Parses the given text in the constructor to extract the database instance, group, project and experiment code. The expected format is the
@@ -95,6 +96,27 @@ public final class ExperimentIdentifierFactory extends AbstractIdentifierFactory
     {
         return ProjectIdentifierFactory.getSchema()
                 + SpaceIdentifier.Constants.IDENTIFIER_SEPARATOR + "<experiment-code>";
+    }
+
+    public static boolean isValidIdentifier(final String identifier)
+    {
+        if (identifier == null || StringUtils.isEmpty(identifier))
+        {
+            return false;
+        }
+        String[] codes = identifier.split(IDENTIFIER_SEPARARTOR_STRING);
+        if(codes.length == 0 || !codes[0].isEmpty() || codes.length > 4) {
+            return false;
+        }
+        for(int i=1;i<codes.length; i++)
+        {
+            String code = codes[i];
+            if(ALLOWED_CODE_REGEXP.matcher(code).matches() == false)
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
 }

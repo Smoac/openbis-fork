@@ -139,34 +139,36 @@ class PropertyHolder:
                 value) == list and data_type.startswith('ARRAY_') is False:
             raise ValueError(
                 f'Property type {property_type["code"]} is not a multi-value property!')
-
-        if data_type == "CONTROLLEDVOCABULARY":
-            terms = property_type["terms"]
-            if "multiValue" in property_type and property_type["multiValue"] is True:
-                if type(value) != list:
-                    value = [value]
-                for single_value in value:
-                    if str(single_value).upper() not in terms.df["code"].values:
-                        raise ValueError(
-                            f"Value for attribute «{name}» must be one of these terms: {', '.join(terms.df['code'].values)}"
-                        )
-            else:
-                value = str(value).upper()
-                if value not in terms.df["code"].values:
-                    raise ValueError(
-                        f"Value for attribute «{name}» must be one of these terms: {', '.join(terms.df['code'].values)}"
-                    )
-        elif data_type == "SAMPLE":
-            if "multiValue" in property_type and property_type["multiValue"] is True:
-                if type(value) != list:
-                    value = [value]
-        elif data_type in ("INTEGER", "BOOLEAN", "VARCHAR", "REAL", "ARRAY_INTEGER", "ARRAY_REAL", "ARRAY_STRING"):
-            is_multi_value = property_type["multiValue"] is True if "multiValue" in property_type else False
-            if not check_datatype(data_type, value, is_multi_value):
-                if is_multi_value:
-                    raise ValueError(f"Multi-value property '{property_type['code']}' must be of type {data_type} - Provided value:{value}")
+        if value == '':
+            value = None
+        if value is not None:
+            if data_type == "CONTROLLEDVOCABULARY":
+                terms = property_type["terms"]
+                if "multiValue" in property_type and property_type["multiValue"] is True:
+                    if type(value) != list:
+                        value = [value]
+                    for single_value in value:
+                        if str(single_value).upper() not in terms.df["code"].values:
+                            raise ValueError(
+                                f"Value for attribute «{name}» must be one of these terms: {', '.join(terms.df['code'].values)}"
+                            )
                 else:
-                    raise ValueError(f"Property '{property_type['code']}' must be of type {data_type} - Provided value:{value}")
+                    value = str(value).upper()
+                    if value not in terms.df["code"].values:
+                        raise ValueError(
+                            f"Value for attribute «{name}» must be one of these terms: {', '.join(terms.df['code'].values)} VALUE:{value}"
+                        )
+            elif data_type == "SAMPLE":
+                if "multiValue" in property_type and property_type["multiValue"] is True:
+                    if type(value) != list:
+                        value = [value]
+            elif data_type in ("INTEGER", "BOOLEAN", "VARCHAR", "REAL", "ARRAY_INTEGER", "ARRAY_REAL", "ARRAY_STRING"):
+                is_multi_value = property_type["multiValue"] is True if "multiValue" in property_type else False
+                if not check_datatype(data_type, value, is_multi_value):
+                    if is_multi_value:
+                        raise ValueError(f"Multi-value property '{property_type['code']}' must be of type {data_type} - Provided value:{value}")
+                    else:
+                        raise ValueError(f"Property '{property_type['code']}' must be of type {data_type} - Provided value:{value}")
         self.__dict__[name] = value
 
     def __setitem__(self, key, value):

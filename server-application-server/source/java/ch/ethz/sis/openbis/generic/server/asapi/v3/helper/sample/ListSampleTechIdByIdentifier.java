@@ -31,6 +31,7 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.AbstractListTec
 import ch.ethz.sis.openbis.generic.server.asapi.v3.helper.common.TechIdStringIdentifierRecord;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import net.lemnik.eodsql.QueryTool;
 
 /**
@@ -85,8 +86,14 @@ public class ListSampleTechIdByIdentifier extends AbstractListTechIdById<SampleI
         Map<SampleIdentifierParts, Map<String, SampleIdentifier>> groupedIdentifiers = new HashMap<>();
         for (SampleIdentifier sampleIdentifier : ids)
         {
+            if(!SampleIdentifierFactory.isValidIdentifier(sampleIdentifier.getIdentifier()))
+            {
+                //skip invalid identifiers
+                continue;
+            }
+
             FullSampleIdentifier fullSampleIdentifier = new FullSampleIdentifier(sampleIdentifier.getIdentifier(),
-                    homeSpaceCodeOrNull);
+                        homeSpaceCodeOrNull);
 
             SampleIdentifierParts key = fullSampleIdentifier.getParts();
             Map<String, SampleIdentifier> identifiersByCode = groupedIdentifiers.get(key);

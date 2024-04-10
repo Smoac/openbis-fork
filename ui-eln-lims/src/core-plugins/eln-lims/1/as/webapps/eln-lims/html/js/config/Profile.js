@@ -77,7 +77,7 @@ $.extend(DefaultProfile.prototype, {
 		}
 
         this.legacyExports = {
-            enable : true
+            enable : false
         }
 
 		this.MainMenuNodeNames = {
@@ -1239,11 +1239,9 @@ $.extend(DefaultProfile.prototype, {
 				//Init Spaces
 				_this.serverFacade.listSpaces(function(spaces) {
 					if($.inArray("INVENTORY", spaces) === -1) {
-						mainController.serverFacade.createReportFromAggregationService(_this.getDefaultDataStoreCode(), {"method" : "init" }, function() {
-							_this.serverFacade.listSpaces(function(spaces) {
-								_this.allSpaces = spaces;
-								callback();
-							});
+                        _this.serverFacade.listSpaces(function(spaces) {
+							_this.allSpaces = spaces;
+							callback();
 						});
 					} else {
 						_this.allSpaces = spaces;
@@ -1280,7 +1278,7 @@ $.extend(DefaultProfile.prototype, {
 			this.serverFacade.listPersons(function(data) {
 				_this.isAdmin = !(data.error);
                 _this.serverFacade.isDropboxMonitorUsageAuthorized(function(result) {
-                    _this.dropboxMonitorUsageAuthorized = result[0][0].value === "true";
+                    _this.dropboxMonitorUsageAuthorized = result !== false && result[0][0].value === "true";
                     callback();
                 });
 			});

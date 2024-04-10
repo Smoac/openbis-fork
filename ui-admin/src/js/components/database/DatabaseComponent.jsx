@@ -5,6 +5,11 @@ import DataBrowser from '@src/js/components/database/data-browser/DataBrowser.js
 import openbis from '@src/js/services/openbis.js'
 import objectType from '@src/js/common/consts/objectType.js'
 import logger from '@src/js/common/logger.js'
+import constants from "@src/js/components/common/imaging/constants.js";
+import pages from "@src/js/common/consts/pages";
+import objectTypes from "@src/js/common/consts/objectType.js";
+import ImagingGalleryViewer from "@src/js/components/common/imaging/ImagingGalleryViewer.jsx";
+import ImagingDatasetViewer from "@src/js/components/common/imaging/ImagingDatasetViewer.jsx";
 
 class DatabaseComponent extends React.PureComponent {
   constructor(props) {
@@ -34,9 +39,12 @@ class DatabaseComponent extends React.PureComponent {
         )
         json = projects[object.id]
       } else if (object.type === objectType.COLLECTION) {
+        const fetchOptions = new openbis.ExperimentFetchOptions()
+        fetchOptions.withProperties()
+        fetchOptions.withDataSets().withProperties()
         const experiments = await openbis.getExperiments(
           [new openbis.ExperimentPermId(object.id)],
-          new openbis.ExperimentFetchOptions()
+             fetchOptions
         )
         json = experiments[object.id]
         showDataBrowser = true
@@ -46,6 +54,8 @@ class DatabaseComponent extends React.PureComponent {
         fetchOptions.withProject()
         fetchOptions.withExperiment()
         fetchOptions.withParents()
+        fetchOptions.withProperties()
+        fetchOptions.withDataSets().withProperties()
         const samples = await openbis.getSamples(
           [new openbis.SamplePermId(object.id)],
           fetchOptions
@@ -57,6 +67,7 @@ class DatabaseComponent extends React.PureComponent {
         fetchOptions.withExperiment()
         fetchOptions.withSample()
         fetchOptions.withParents()
+        fetchOptions.withProperties()
         const dataSets = await openbis.getDataSets(
           [new openbis.DataSetPermId(object.id)],
           fetchOptions
@@ -73,19 +84,49 @@ class DatabaseComponent extends React.PureComponent {
     }
   }
 
+  datasetOpenTab(id) {
+    AppController.getInstance().objectOpen(
+        pages.DATABASE,
+        objectTypes.DATA_SET,
+        id
+    )
+  }
+
+  imagingDatasetChange(id, changed){
+    AppController.getInstance().objectChange(
+        pages.DATABASE,
+        objectTypes.DATA_SET,
+        id,
+        changed
+    )
+  }
+
   render() {
     logger.log(logger.DEBUG, 'DatabaseComponent.render')
-    const { object } = this.props
+    if (!this.state.json) {
+      return null
+    }
 
-    return this.state.showDataBrowser ? (
-      <DataBrowser
-        id={object.type + '-' + object.id}
-        viewType='list'
-        sessionToken={AppController.getInstance().getSessionToken()}
-      />
-    ) : (
+    const { object } = this.props
+    return (
       <Container>
-        <pre>{JSON.stringify(this.state.json || {}, null, 2)}</pre>
+        {
+          this.state.showDataBrowser ? ([
+            <DataBrowser
+              id={object.type + '-' + object.id}
+              viewType='list'
+              sessionToken={AppController.getInstance().getSessionToken()}
+            />,
+            object.type === objectType.DATA_SET && constants.IMAGING_DATA_CONFIG in this.state.json.properties
+                && <ImagingDatasetViewer onUnsavedChanges={this.imagingDatasetChange}
+                                         objId={object.id} objType={object.type} extOpenbis={openbis}/>,
+            (object.type === objectType.COLLECTION || object.type === objectType.OBJECT)
+                && <ImagingGalleryViewer onStoreDisplaySettings={null} onLoadDisplaySettings={null}
+                                         onOpenPreview={this.datasetOpenTab}
+                                         objId={object.id} objType={object.type} extOpenbis={openbis}/>]
+          )
+          : <pre>{JSON.stringify(this.state.json || {}, null, 2)}</pre>
+        }
       </Container>
     )
   }

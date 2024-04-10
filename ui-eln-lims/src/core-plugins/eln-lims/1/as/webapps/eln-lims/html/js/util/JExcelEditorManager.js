@@ -7,16 +7,16 @@ var JExcelEditorManager = new function() {
         return function(el, record, x, y, value) {
             var jExcelEditor = _this.jExcelEditors[guid];
             if(jExcelEditor) {
-                if(value) {
-                    // Change column width
-                    var columnWidth = parseInt(jExcelEditor.getWidth(x));
-                    var td = el.children[1].children[0].children[2].children[y].children[parseInt(x)+1];
-                    var columnScrollWidth = td.scrollWidth;
-
-                    if(columnScrollWidth > columnWidth) {
-                        jExcelEditor.setWidth(x, columnScrollWidth + 10);
-                    }
-                }
+//                if(value) {
+//                    // Change column width
+//                    var columnWidth = parseInt(jExcelEditor.getWidth(x));
+//                    var td = el.children[1].children[0].children[2].children[y].children[parseInt(x)+1];
+//                    var columnScrollWidth = td.scrollWidth;
+//
+//                    if(columnScrollWidth > columnWidth) {
+//                        jExcelEditor.setWidth(x, columnScrollWidth + 10);
+//                    }
+//                }
                 // Save Editor
                 var headers = jExcelEditor.getHeaders(true);
                 var data = jExcelEditor.getData();
@@ -30,7 +30,7 @@ var JExcelEditorManager = new function() {
                     meta : meta,
                     width : width
                 }
-                entity.properties[propertyCode] = "<DATA>" + window.btoa(JSON.stringify(jExcelEditorValue)) + "</DATA>";
+                entity.properties[propertyCode] = "<DATA>" + window.btoa(window.unescape(window.encodeURIComponent(JSON.stringify(jExcelEditorValue)))) + "</DATA>";
             }
         }
     }
@@ -119,6 +119,7 @@ var JExcelEditorManager = new function() {
 
 	this.createField = function($container, mode, propertyCode, entity) {
 	    $container.attr('style', 'width: 100%; height: 450px; overflow-y: scroll; overflow-x: scroll;');
+	    var _this = this;
 
         var headers = null;
 	    var data = [];
@@ -130,7 +131,13 @@ var JExcelEditorManager = new function() {
 	        var jExcelEditorValue = null;
 	        if(jExcelEditorValueAsStringWithTags) {
 	            var jExcelEditorValueAsStringNoTags = jExcelEditorValueAsStringWithTags.substring(6, jExcelEditorValueAsStringWithTags.length - 7);
-                jExcelEditorValue = JSON.parse(window.atob(jExcelEditorValueAsStringNoTags));
+                try {
+                    // Improved decoding, used for the new encoding
+                    jExcelEditorValue = JSON.parse(window.decodeURIComponent(window.escape(window.atob(jExcelEditorValueAsStringNoTags))));
+                } catch (error) {
+                    // Original decoding, used to support systems until they update
+                    jExcelEditorValue = JSON.parse(window.atob(jExcelEditorValueAsStringNoTags));
+                }
 	        }
 	        if(jExcelEditorValue) {
 	            headers = jExcelEditorValue.headers;
@@ -148,7 +155,7 @@ var JExcelEditorManager = new function() {
                     style: style,
                     meta: meta,
                     editable : mode !== FormMode.VIEW,
-                    minDimensions:[30, 30],
+                    minDimensions:[10, 10],
                     toolbar: null,
                     onchangeheader: null,
                     onchange: null,
@@ -173,6 +180,46 @@ var JExcelEditorManager = new function() {
             options.allowDeleteColumn = false;
             options.allowRenameColumn = false;
             options.allowComments = false;
+            options.onload = function(container,spreadsheet) {
+                                    var data = spreadsheet.getData();
+                                    var headers = spreadsheet.getHeaders().split(',');
+                                    var cellsWithIdentifiers = [];
+                                    var identifiers = new Set();
+                                    for (let i=0; i<data.length; i++ ) {
+                                        for(let j=0; j < data[i].length; j++) {
+                                            let cellData = data[i][j];
+                                            if(_this._isIdentifierCell(cellData)) {
+                                                let cellIndex = headers[j] + (i+1);
+                                                let cell = spreadsheet.getCell(cellIndex);
+                                                cellsWithIdentifiers.push({cell: cell, cellData: cellData});
+                                                cellData.split(/\s+/)
+                                                    .filter(_this._isIdentifier)
+                                                    .forEach(id => identifiers.add(id));
+                                                cell.innerHTML = Util.getProgressBarSVG();
+                                            }
+                                        }
+                                    }
+                                    _this._searchByIdentifiers(Array.from(identifiers), function(results) {
+
+                                        for(cell of cellsWithIdentifiers) {
+                                            var stringArray = cell.cellData.split(/(\s+)/);
+                                            var cellText = "";
+                                            for (let word of stringArray) {
+                                                if(results[word]) {
+                                                    cellText += results[word][0].outerHTML;
+                                                } else {
+                                                    cellText += word;
+                                                }
+                                            }
+                                            cell.cell.innerHTML = cellText;
+
+                                            cell.cell.onclick = function(event) {
+                                                results[event.target.innerText].click();
+                                            }
+                                        }
+
+                                    });
+                                }
 
             options.contextMenu = function(obj, x, y, e) {
                 return [];
@@ -214,6 +261,65 @@ var JExcelEditorManager = new function() {
 
         var jexcelField = jspreadsheet($container[0], options);
         this.jExcelEditors[guid] = jexcelField;
+	}
+
+	this._isIdentifierCell = function(cellData) {
+	    if(!cellData || cellData == '') {
+	        return false;
+	    }
+	    var arr = cellData.split(/\s+/).filter(Boolean);
+        for(let element of cellData.split(/\s+/).filter(Boolean)) {
+            if(this._isIdentifier(element)) {
+                return true;
+            }
+        }
+        return false;
+	}
+
+	this._isIdentifier = function(data) {
+        var split = data.split('/');
+        return split[0] == '' && (split.length > 2 && split.length < 6);
+	}
+
+	this._searchByIdentifiers = function(identifiers, callback) {
+
+	    require([ "as/dto/sample/id/SampleIdentifier", "as/dto/sample/fetchoptions/SampleFetchOptions",
+	     "as/dto/experiment/id/ExperimentIdentifier", "as/dto/experiment/fetchoptions/ExperimentFetchOptions"],
+                    function(SampleIdentifier, SampleFetchOptions, ExperimentIdentifier, ExperimentFetchOptions) {
+
+                        var sampleFetchOptions = new SampleFetchOptions();
+
+                        var ids = identifiers.map(id => new SampleIdentifier(id));
+
+                        mainController.openbisV3.getSamples(ids, sampleFetchOptions).done(function(sampleResults) {
+                            let links = {};
+                            let missing = []
+                            for(let id of identifiers) {
+                                if(sampleResults[id]) {
+                                    let sample = sampleResults[id];
+                                    links[id] = FormUtil.getFormLink(sample.identifier.identifier, 'Sample', sample.permId.permId, null);
+                                } else {
+                                    missing.push(id);
+                                }
+                            }
+                            if(missing.length == 0) {
+                                callback(links);
+                            } else {
+                                var experimentFetchOptions = new ExperimentFetchOptions();
+                                var ids = missing.map(id => new ExperimentIdentifier(id));
+                                mainController.openbisV3.getExperiments(ids, experimentFetchOptions).done(function(experimentResults) {
+                                    var experiments = Util.mapValuesToList(experimentResults);
+                                    for ( let experiment of experiments) {
+                                        links[experiment.identifier.identifier] = FormUtil.getFormLink(experiment.identifier.identifier, 'Experiment', experiment.identifier.identifier, null);
+                                    }
+                                    callback(links);
+                                }).fail(function(result) {
+                                    callback(links);
+                                });
+                            }
+                        })
+                    });
+
 	}
 
 	this.getEntityAsTable = function(entity) {

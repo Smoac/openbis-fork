@@ -123,6 +123,12 @@ export default class EntityTypeFormControllerChange extends PageControllerChange
           sampleType: {
             value: _.get(newExisting, 'sampleType.code', null)
           },
+          pattern: {
+            value: _.get(newExisting, 'pattern', null)
+          },
+          patternType: {
+            value: _.get(newExisting, 'patternType', null)
+          },
           isMultiValue: {
             value: _.get(newExisting, 'multiValue', false),
             enabled: false
@@ -347,6 +353,14 @@ export default class EntityTypeFormControllerChange extends PageControllerChange
       plugin: {
         ...dest.plugin,
         value: _.get(src, 'plugin.value', null)
+      },
+      pattern: {
+        ...dest.pattern,
+        value: _.get(src, 'pattern.value', null)
+      },
+      patternType: {
+        ...dest.patternType,
+        value: _.get(src, 'patternType.value', 'NONE')
       },
       mandatory: {
         ...dest.mandatory,
