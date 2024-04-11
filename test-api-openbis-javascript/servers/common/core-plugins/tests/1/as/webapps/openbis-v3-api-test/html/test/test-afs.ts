@@ -157,6 +157,94 @@ exports.default = new Promise((resolve) => {
                 }
             }
 
+            var testWrite = async function (assert, useTransaction) {
+                const testFolder = "test-write"
+                const testFile = "test-file"
+                const chunkSize = 250000 // max content length is configured to 512kB in AFS server and the file is 1MB
+
+                function loadBinaryFile(url): Promise<Blob> {
+                    return new Promise(function (resolve, reject) {
+                        const req = new XMLHttpRequest()
+                        req.open("GET", url, true)
+                        req.responseType = "blob"
+                        req.onload = () => {
+                            resolve(req.response)
+                        }
+                        req.onerror = () => {
+                            reject()
+                        }
+                        req.send(null)
+                    })
+                }
+
+                function arrayBufferToString(buffer: ArrayBuffer, startIndex: number, finishIndex: number) {
+                    var string = ""
+                    var bytes = new Uint8Array(buffer)
+                    for (var i = startIndex; i < finishIndex; i++) {
+                        string += String.fromCharCode(bytes[i])
+                    }
+                    return string
+                }
+
+                try {
+                    var c = new common(assert, dtos)
+                    c.start()
+
+                    var binaryFile = await loadBinaryFile("/openbis/webapp/openbis-v3-api-test/test/data/test-binary-file")
+                    var binaryFileAsBuffer = await binaryFile.arrayBuffer()
+                    var binaryFileAsByteArray = new Uint8Array(binaryFileAsBuffer)
+
+                    await c.login(facade)
+
+                    await c.deleteFile(facade, testFolder, "")
+
+                    if (useTransaction) {
+                        facade.setInteractiveSessionKey(testInteractiveSessionKey)
+                        await facade.beginTransaction()
+                    }
+
+                    // write in chunks
+                    var index = 0
+                    while (index < binaryFileAsBuffer.byteLength) {
+                        var chunkString = arrayBufferToString(binaryFileAsBuffer, index, Math.min(index + chunkSize, binaryFileAsBuffer.byteLength))
+                        await facade.getAfsServerFacade().write(testFolder, testFile, index, chunkString)
+                        index += chunkSize
+                    }
+
+                    if (useTransaction) {
+                        await facade.commitTransaction()
+                    }
+
+                    // read in chunks
+                    var index = 0
+                    var readFileBuffers = []
+                    while (index < binaryFileAsBuffer.byteLength) {
+                        var chunkBlob = await facade
+                            .getAfsServerFacade()
+                            .read(testFolder, testFile, index, Math.min(chunkSize, binaryFileAsBuffer.byteLength - index))
+                        readFileBuffers.push(await chunkBlob.arrayBuffer())
+                        index += chunkSize
+                    }
+
+                    var readFileAsBuffer = await new Blob(readFileBuffers).arrayBuffer()
+                    var readFileAsByteArray = new Uint8Array(readFileAsBuffer)
+
+                    c.assertEqual(binaryFileAsByteArray.length, readFileAsByteArray.length, "Read file length")
+
+                    for (var i = 0; i < binaryFileAsByteArray.length; i++) {
+                        if (binaryFileAsByteArray[i] !== readFileAsByteArray[i]) {
+                            c.fail("Original and read files are different")
+                            break
+                        }
+                    }
+
+                    c.finish()
+                } catch (error) {
+                    c.fail(JSON.stringify(error))
+                    c.finish()
+                }
+            }
+
             var testDelete = async function (assert, useTransaction) {
                 const testFolder = "test-delete"
                 const testFile = "test-file"
@@ -321,6 +409,14 @@ exports.default = new Promise((resolve) => {
 
             QUnit.test("read() with transaction", async function (assert) {
                 await testRead(assert, true)
+            })
+
+            QUnit.test("write() without transaction", async function (assert) {
+                await testWrite(assert, false)
+            })
+
+            QUnit.test("write() with transaction", async function (assert) {
+                await testWrite(assert, true)
             })
 
             QUnit.test("delete() without transaction", async function (assert) {
