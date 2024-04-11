@@ -16,6 +16,7 @@ import Box from '@material-ui/core/Box'
 import { TabContext, TabPanel } from '@material-ui/lab'
 import autoBind from 'auto-bind'
 import { withStyles } from '@material-ui/core/styles'
+import messages from '@src/js/common/messages.js'
 
 const styles = theme => ({
   tabsPanel: {
@@ -130,18 +131,18 @@ class DatabaseComponent extends React.PureComponent {
       <TabContext value={value}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={value} onChange={this.handleTabChange}>
-            <Tab label="Data Browser" value="0"/>
-            <Tab label="Imaging Viewer" value="1"/>
+            <Tab label={messages.get(messages.FILES)} value="0"/>
+            <Tab label={messages.get(messages.IMAGES)} value="1"/>
           </Tabs>
         </Box>
-        <TabPanel classes={{root: classes.tabsPanel}} value="0">
+        <TabPanel classes={{ root: classes.tabsPanel }} value="0">
           <DataBrowser
             id={object.type + '-' + object.id}
             viewType='list'
             sessionToken={AppController.getInstance().getSessionToken()}
           />
         </TabPanel>
-        <TabPanel classes={{root: classes.tabsPanel}} value="1">
+        <TabPanel classes={{ root: classes.tabsPanel }} value="1">
           {object.type === objectType.DATA_SET
             && constants.IMAGING_DATA_CONFIG in this.state.json.properties
             && <ImagingDatasetViewer onUnsavedChanges={this.imagingDatasetChange}
