@@ -2354,7 +2354,6 @@ function ServerFacade(openbisServer) {
 			}
 		});
 	}
-	}
 
 	this.searchForEntityAdvanced = function(advancedSearchCriteria, advancedFetchOptions, callback, criteriaClass, fetchOptionsClass, searchMethodName) {
 		var _this = this;
