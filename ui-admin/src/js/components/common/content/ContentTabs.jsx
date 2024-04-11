@@ -36,6 +36,7 @@ class ContentTabs extends React.PureComponent {
       unsavedChangesDialogOpen: false
     }
   }
+
   handleTabChange = (event, value) => {
     const tab = this.props.tabs[value]
     this.props.tabSelect(tab)
