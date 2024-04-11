@@ -106,7 +106,7 @@ public class ImportUtils
             IProjectId projectId = sampleCreation.getProjectId();
             if (projectId != null)
             {
-                project = ((ProjectIdentifier) projectId).getIdentifier().split("/")[1];
+                project = ((ProjectIdentifier) projectId).getIdentifier().split("/")[2];
             }
 
             if (isProjectSamplesEnabled == false) // If a project code is found => remove it

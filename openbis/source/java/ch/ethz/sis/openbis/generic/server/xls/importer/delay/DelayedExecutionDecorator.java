@@ -511,57 +511,8 @@ public class DelayedExecutionDecorator
         //
 
         // parents/children variable substitution
-        List<ISampleId> parentIds = new ArrayList<>();
-        for (ISampleId id : safe(sampleCreation.getParentIds()))
-        {
-            if (id instanceof IdentifierVariable)
-            {
-                IdentifierVariable idVariable = (IdentifierVariable) id;
-                if (!resolvedVariables.containsKey(idVariable))
-                {
-                    dependencies.add(id);
-                    parentIds.add(id);
-                } else
-                {
-                    ISampleId identifier = (ISampleId) resolvedVariables.get(idVariable);
-                    parentIds.add(identifier);
-                }
-            } else
-            {
-                if (getSample(id, new SampleFetchOptions()) == null)
-                {
-                    dependencies.add(id);
-                }
-                parentIds.add(id);
-            }
-        }
-        sampleCreation.setParentIds(parentIds);
-
-        List<ISampleId> childIds = new ArrayList<>();
-        for (ISampleId id : safe(sampleCreation.getChildIds()))
-        {
-            if (id instanceof IdentifierVariable)
-            {
-                IdentifierVariable idVariable = (IdentifierVariable) id;
-                if (!resolvedVariables.containsKey(idVariable))
-                {
-                    dependencies.add(id);
-                    childIds.add(id);
-                } else
-                {
-                    ISampleId identifier = (ISampleId) resolvedVariables.get(idVariable);
-                    childIds.add(identifier);
-                }
-            } else
-            {
-                if (getSample(id, new SampleFetchOptions()) == null)
-                {
-                    dependencies.add(id);
-                }
-                childIds.add(id);
-            }
-        }
-        sampleCreation.setChildIds(childIds);
+        resolveAndScheduleAssignmentOfSampleParentChildDependencies(sampleId, sampleCreation, page, line);
+        //
 
         if (!dependencies.isEmpty())
         {
@@ -571,6 +522,85 @@ public class DelayedExecutionDecorator
         } else
         {
             addIdsAndExecuteDelayed(v3.createSamples(sessionToken, List.of(sampleCreation)).get(0), ImportTypes.SAMPLE, variable);
+        }
+    }
+
+    private void resolveAndScheduleAssignmentOfSampleParentChildDependencies(ISampleId sampleId, SampleCreation sampleCreation, int page, int line)
+    {
+        List<IObjectId> dependencies = new ArrayList<>();
+        dependencies.add(sampleId);
+
+        SampleUpdate sampleUpdate = new SampleUpdate();
+        sampleUpdate.setSampleId(sampleId);
+
+        for (ISampleId id : safe(sampleCreation.getParentIds()))
+        {
+            if (id instanceof IdentifierVariable)
+            {
+                IdentifierVariable idVariable = (IdentifierVariable) id;
+                if (!resolvedVariables.containsKey(idVariable))
+                {
+                    dependencies.add(id);
+                    sampleUpdate.getParentIds().add(id);
+                } else
+                {
+                    ISampleId identifier = (ISampleId) resolvedVariables.get(idVariable);
+                    sampleUpdate.getParentIds().add(identifier);
+                }
+            } else
+            {
+                if (getSample(id, new SampleFetchOptions()) == null)
+                {
+                    dependencies.add(id);
+                }
+                sampleUpdate.getParentIds().add(id);
+            }
+        }
+
+        for (ISampleId id : safe(sampleCreation.getChildIds()))
+        {
+            if (id instanceof IdentifierVariable)
+            {
+                IdentifierVariable idVariable = (IdentifierVariable) id;
+                if (!resolvedVariables.containsKey(idVariable))
+                {
+                    dependencies.add(id);
+                    sampleUpdate.getChildIds().add(id);
+                } else
+                {
+                    ISampleId identifier = (ISampleId) resolvedVariables.get(idVariable);
+                    sampleUpdate.getChildIds().add(identifier);
+                }
+            } else
+            {
+                if (getSample(id, new SampleFetchOptions()) == null)
+                {
+                    dependencies.add(id);
+                }
+                sampleUpdate.getChildIds().add(id);
+            }
+        }
+
+        if (!safe(sampleCreation.getParentIds()).isEmpty() || !safe(sampleCreation.getChildIds()).isEmpty())
+        {
+            if (!safe(sampleCreation.getParentIds()).isEmpty())
+            {
+                sampleCreation.getParentIds().clear();
+            }
+            if (!safe(sampleCreation.getChildIds()).isEmpty())
+            {
+                sampleCreation.getChildIds().clear();
+            }
+
+            String variable = null;
+            if (sampleId instanceof IdentifierVariable)
+            {
+                variable = ((IdentifierVariable) sampleId).getVariable();
+            }
+
+            DelayedExecution delayedExecution = new DelayedExecution(variable, sampleId, sampleUpdate, page, line);
+            delayedExecution.addDependencies(dependencies);
+            addDelayedExecution(delayedExecution);
         }
     }
 
