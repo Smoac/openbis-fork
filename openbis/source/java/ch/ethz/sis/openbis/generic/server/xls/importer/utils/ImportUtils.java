@@ -20,6 +20,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.server.xls.importer.delay.IdentifierVariable;
@@ -40,25 +41,30 @@ public class ImportUtils
         return property.startsWith("$");
     }
 
-    public static ISampleId buildSampleIdentifier(String identifier)
+    public static ISampleId buildSampleIdentifier(String id)
     {
-        if (identifier == null || identifier.isEmpty())
+        if (id == null || id.isEmpty())
         {
             return null;
         }
 
-        if (isProjectSamplesEnabled == false) // If a project code is found => remove it
-        {
-            String[] identifierParts = identifier.split("/");
-            if (identifierParts.length == 4) {
-                String spaceCode = identifierParts[1];
-                String projectCode = identifierParts[2];
-                String sampleCode = identifierParts[3];
-                identifier = "/" + spaceCode + "/" + sampleCode;
+        if (id.startsWith(PropertyTypeSearcher.VARIABLE_PREFIX)) { // Variable
+            return new IdentifierVariable(id);
+        } else if (id.startsWith("/")) { // Identifier
+            if (isProjectSamplesEnabled == false) // If a project code is found => remove it
+            {
+                String[] identifierParts = id.split("/");
+                if (identifierParts.length == 4) { // If is a project sample
+                    String spaceCode = identifierParts[1];
+                    String projectCode = identifierParts[2];
+                    String sampleCode = identifierParts[3];
+                    id = "/" + spaceCode + "/" + sampleCode;
+                }
             }
+            return new SampleIdentifier(id);
+        } else {
+            return new SamplePermId(id);
         }
-        return new SampleIdentifier(identifier);
-
     }
 
     public static ISampleId buildSampleIdentifier(String code, String space, String project)

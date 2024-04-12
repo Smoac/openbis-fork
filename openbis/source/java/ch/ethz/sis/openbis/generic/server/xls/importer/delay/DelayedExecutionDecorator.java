@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.server.xls.importer.delay;
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.IObjectUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue;
@@ -25,7 +26,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetTypeUpdate;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
@@ -91,7 +91,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyTerm
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyUpdate;
 import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportTypes;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.ImportUtils;
-import ch.ethz.sis.openbis.generic.server.xls.importer.utils.PropertyTypeSearcher;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 import java.io.Serializable;
@@ -374,8 +373,8 @@ public class DelayedExecutionDecorator
                 new ExperimentIdentifier(experimentCreation.getProjectId().toString() + "/" + experimentCreation.getCode());
 
         // Manage Sample properties cyclical dependencies
-        resolveAndScheduleAssignmentOfSamplePropertiesCyclicalDependencies(EntityKind.EXPERIMENT, experimentIdentifier,
-                experimentCreation.getProperties(), page, line);
+        resolveAndScheduleAssignmentOfSampleProperties(experimentIdentifier,
+                experimentCreation, page, line);
         //
 
         // check project
@@ -383,7 +382,6 @@ public class DelayedExecutionDecorator
         if (getProject(projectId, new ProjectFetchOptions()) == null)
         {// Delay
             DelayedExecution delayedExecution = new DelayedExecution(null, experimentIdentifier, experimentCreation, page, line);
-            // TODO Sample properties cyclical dependencies
             delayedExecution.addDependencies(List.of(projectId));
             addDelayedExecution(delayedExecution);
 
@@ -396,8 +394,8 @@ public class DelayedExecutionDecorator
     public void updateExperiment(ExperimentUpdate experimentUpdate, int page, int line)
     {
         // Manage Sample properties cyclical dependencies
-        resolveAndScheduleAssignmentOfSamplePropertiesCyclicalDependencies(EntityKind.EXPERIMENT, experimentUpdate.getExperimentId(),
-                experimentUpdate.getProperties(), page, line);
+        resolveAndScheduleAssignmentOfSampleProperties(experimentUpdate.getExperimentId(),
+                experimentUpdate, page, line);
         //
 
         IExperimentId experimentId = experimentUpdate.getExperimentId();
@@ -507,11 +505,11 @@ public class DelayedExecutionDecorator
         }
 
         // Manage Sample properties cyclical dependencies
-        resolveAndScheduleAssignmentOfSamplePropertiesCyclicalDependencies(EntityKind.SAMPLE, sampleId, sampleCreation.getProperties(), page, line);
+        resolveAndScheduleAssignmentOfSampleProperties(sampleId, sampleCreation, page, line);
         //
 
         // parents/children variable substitution
-        resolveAndScheduleAssignmentOfSampleParentChildDependencies(sampleId, sampleCreation, page, line);
+        createSampleResolvingAndScheduleAssignmentOfSampleParentChildDependencies(sampleId, sampleCreation, page, line);
         //
 
         if (!dependencies.isEmpty())
@@ -525,7 +523,7 @@ public class DelayedExecutionDecorator
         }
     }
 
-    private void resolveAndScheduleAssignmentOfSampleParentChildDependencies(ISampleId sampleId, SampleCreation sampleCreation, int page, int line)
+    private void createSampleResolvingAndScheduleAssignmentOfSampleParentChildDependencies(ISampleId sampleId, SampleCreation sampleCreation, int page, int line)
     {
         List<IObjectId> dependencies = new ArrayList<>();
         dependencies.add(sampleId);
@@ -604,49 +602,108 @@ public class DelayedExecutionDecorator
         }
     }
 
-    private void resolveAndScheduleAssignmentOfSamplePropertiesCyclicalDependencies(EntityKind entityKind, IObjectId id,
-            Map<String, String> properties, int page, int line)
-    {
-        // Manage Sample properties cyclical dependencies
-        List<String> assignmentsToRemove = new ArrayList<>();
+    private void samplePropertiesVariableReplacer(IPropertiesHolder sampleOrExperimentDTO) {
+        Map<String, String> properties = sampleOrExperimentDTO.getProperties();
+        Map<String, String> sampleProperties = new HashMap<>();
+        for (String propertyCode : properties.keySet()) {
+            if (isKeySamplePropertyCode(propertyCode)) {
+                List<String> propertyValues = new ArrayList<>();
+                for (String propertyValue : getProperties(properties.get(propertyCode))) {
+                    ISampleId sampleId = ImportUtils.buildSampleIdentifier(propertyValue);
+                    if (sampleId instanceof IdentifierVariable && resolvedVariables.containsKey(sampleId)) {
+                        sampleId = (ISampleId) resolvedVariables.get(sampleId);
+                        if (sampleId instanceof SampleIdentifier) {
+                            propertyValue = ((SampleIdentifier) sampleId).getIdentifier();
+                        } else if (sampleId instanceof SamplePermId) {
+                            propertyValue = ((SamplePermId) sampleId).getPermId();
+                        }
+                    } else {
+                        // Do nothing
+                    }
+                    propertyValues.add(propertyValue);
+                }
+                sampleProperties.put(propertyCode, propertyValues.get(0));
+            }
+        }
+
+        // Update sample properties on the DTO
+        for (String samplePropertyKey:sampleProperties.keySet()) {
+            sampleOrExperimentDTO.setProperty(samplePropertyKey, sampleProperties.get(samplePropertyKey));
+        }
+    }
+
+    private void resolveAndScheduleAssignmentOfSampleProperties(IObjectId objectId, IPropertiesHolder sampleOrExperimentDTO, int page, int line) {
+        samplePropertiesVariableReplacer(sampleOrExperimentDTO); // Update properties before deciding to schedule anything
+
+        Map<String, String> properties = sampleOrExperimentDTO.getProperties();
+        Map<String, String> sampleProperties = new HashMap<>();
+        List<IObjectId> dependencies = new ArrayList<>();
+
         for (String propertyCode : properties.keySet())
         {
-            for(String propertyValue : getProperties(properties.get(propertyCode)))
-            {
-                if (propertyValue != null && isKeySamplePropertyCode(propertyCode))
+            if (isKeySamplePropertyCode(propertyCode)) {
+                boolean dependencyFound = false;
+                for(String propertyValue : getProperties(properties.get(propertyCode)))
                 {
-                    if (propertyValue.startsWith(PropertyTypeSearcher.VARIABLE_PREFIX))
+                    if (propertyValue != null)
                     {
-                        IdentifierVariable identifierVariable =
-                                new IdentifierVariable(propertyValue);
-                        if (resolvedVariables.containsKey(identifierVariable))
-                        {
-                            // Just replace the Identifier, the Sample is already created.
-                            properties.put(propertyCode,
-                                    resolvedVariables.get(identifierVariable).toString());
-                        } else
-                        {
-                            scheduleAssignmentOfCyclicalDependency(entityKind, id, propertyCode,
-                                    propertyValue, page, line, assignmentsToRemove);
-                        }
-                    } else
-                    {
-                        ISampleId sampleId = propertyValue.startsWith("/")
-                                ? new SampleIdentifier(propertyValue)
-                                : new SamplePermId(propertyValue);
-                        // Check if the sample has been created, if not.
-                        if (getSample(sampleId, new SampleFetchOptions()) == null)
-                        {
-                            scheduleAssignmentOfCyclicalDependency(entityKind, id, propertyCode,
-                                    propertyValue, page, line, assignmentsToRemove);
+                        ISampleId sampleId = ImportUtils.buildSampleIdentifier(propertyValue);
+                        // 1. Check if they are dependencies or not
+                        if (sampleId instanceof IdentifierVariable && !resolvedVariables.containsKey(sampleId)) {
+                            // Not resolved variable => Dependency
+                            dependencies.add(sampleId);
+                            dependencyFound = true;
+                        } else if (sampleId instanceof SampleIdentifier && getSample(sampleId, new SampleFetchOptions()) == null) {
+                            // Not found sample => Dependency
+                            dependencies.add(sampleId);
+                            dependencyFound = true;
+                        } else {
+                            // Not a dependency
                         }
                     }
                 }
+
+                if (dependencyFound) { // We store all sample properties with dependencies to create the update
+                    sampleProperties.put(propertyCode, properties.get(propertyCode));
+                }
             }
         }
-        for (String assignmentToRemove : assignmentsToRemove)
-        {
-            properties.remove(assignmentToRemove);
+
+        if (dependencies.isEmpty() == false) { // We only create an update if dependencies are not resolved
+            IObjectUpdate entityToUpdate = null;
+            if (sampleOrExperimentDTO instanceof SampleCreation || sampleOrExperimentDTO instanceof SampleUpdate)
+            {
+                SampleUpdate entityUpdate = new SampleUpdate();
+                entityUpdate.setSampleId((ISampleId) objectId);
+                entityUpdate.getProperties().putAll(sampleProperties);
+                entityToUpdate = entityUpdate;
+            } else if (sampleOrExperimentDTO instanceof ExperimentCreation || sampleOrExperimentDTO instanceof ExperimentUpdate)
+            {
+                ExperimentUpdate entityUpdate = new ExperimentUpdate();
+                entityUpdate.setExperimentId((IExperimentId) objectId);
+                entityUpdate.getProperties().putAll(sampleProperties);
+                entityToUpdate = entityUpdate;
+            }
+
+            // Remove all sample properties scheduled for update
+            for (String samplePropertyKey:sampleProperties.keySet()) {
+                sampleOrExperimentDTO.getProperties().remove(samplePropertyKey);
+            }
+
+            // If is a creation the entity is a dependency
+            if (sampleOrExperimentDTO instanceof SampleCreation ||
+                    sampleOrExperimentDTO instanceof ExperimentCreation) {
+                dependencies.add(objectId);
+            }
+            String variable = null;
+            if (objectId instanceof IdentifierVariable)
+            {
+                variable = ((IdentifierVariable) objectId).getVariable();
+            }
+
+            DelayedExecution delayedExecution = new DelayedExecution(variable, objectId, (Serializable) entityToUpdate, page, line);
+            delayedExecution.addDependencies(dependencies);
+            addDelayedExecution(delayedExecution);
         }
     }
 
@@ -663,37 +720,6 @@ public class DelayedExecutionDecorator
         } else {
             return new String[] {propertyValue.toString()};
         }
-    }
-
-    private void scheduleAssignmentOfCyclicalDependency(EntityKind entityKind, IObjectId objectId, String propertyCode, String propertyValue,
-            int page, int line, List<String> assignmentsToRemove)
-    {
-        // 1. Remove the PropertyAssignment
-        assignmentsToRemove.add(propertyCode);
-        // 2. Create SampleUpdate and Attach the PropertyAssignment with the Identifier/Variable
-        IObjectUpdate entityToUpdate = null;
-        if (entityKind == EntityKind.SAMPLE)
-        {
-            SampleUpdate entityUpdate = new SampleUpdate();
-            entityUpdate.setSampleId((ISampleId) objectId);
-            entityUpdate.setProperty(propertyCode, propertyValue);
-            entityToUpdate = entityUpdate;
-        } else if (entityKind == EntityKind.EXPERIMENT)
-        {
-            ExperimentUpdate entityUpdate = new ExperimentUpdate();
-            entityUpdate.setExperimentId((IExperimentId) objectId);
-            entityUpdate.setProperty(propertyCode, propertyValue);
-            entityToUpdate = entityUpdate;
-        }
-        // 3. Create DelayedExecution for the new SampleUpdate
-        String variable = null;
-        if (objectId instanceof IdentifierVariable)
-        {
-            variable = ((IdentifierVariable) objectId).getVariable();
-        }
-        DelayedExecution delayedExecution = new DelayedExecution(variable, objectId, (Serializable) entityToUpdate, page, line);
-        delayedExecution.addDependencies(List.of(objectId));
-        addDelayedExecution(delayedExecution);
     }
 
     public void updateSample(String variable, SampleUpdate sampleUpdate, int page, int line)
@@ -730,8 +756,8 @@ public class DelayedExecutionDecorator
         }
 
         // Manage Sample properties cyclical dependencies
-        resolveAndScheduleAssignmentOfSamplePropertiesCyclicalDependencies(EntityKind.SAMPLE, sampleUpdate.getSampleId(),
-                sampleUpdate.getProperties(), page, line);
+        resolveAndScheduleAssignmentOfSampleProperties(sampleUpdate.getSampleId(),
+                sampleUpdate, page, line);
         //
 
         // parents/children variable substitution
