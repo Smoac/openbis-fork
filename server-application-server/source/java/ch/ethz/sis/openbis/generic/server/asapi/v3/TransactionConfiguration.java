@@ -97,7 +97,7 @@ public class TransactionConfiguration
             applicationServerUrl = PropertyUtils.getMandatoryProperty(properties, APPLICATION_SERVER_URL_PROPERTY_NAME);
             applicationServerTimeoutInSeconds =
                     PropertyUtils.getInt(properties, APPLICATION_SERVER_TIMEOUT_PROPERTY_NAME, APPLICATION_SERVER_TIMEOUT_DEFAULT);
-            afsServerUrl = PropertyUtils.getMandatoryProperty(properties, AFS_SERVER_URL_PROPERTY_NAME);
+            afsServerUrl = PropertyUtils.getProperty(properties, AFS_SERVER_URL_PROPERTY_NAME);
             afsServerTimeoutInSeconds = PropertyUtils.getInt(properties, AFS_SERVER_TIMEOUT_PROPERTY_NAME, AFS_SERVER_TIMEOUT_DEFAULT);
         }
     }

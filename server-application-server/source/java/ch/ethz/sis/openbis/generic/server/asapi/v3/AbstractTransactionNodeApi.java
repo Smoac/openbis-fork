@@ -16,7 +16,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 public abstract class AbstractTransactionNodeApi implements ApplicationListener<ApplicationEvent>
 {
 
-    private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
+    protected final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
 
     private static final String FINISH_TRANSACTIONS_THREAD_NAME = "finish-transactions";
 

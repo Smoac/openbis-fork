@@ -332,6 +332,8 @@ public class OpenBIS
 
     private final String dssURL;
 
+    private final String afsURL;
+
     private final int timeout;
 
     public OpenBIS(final String url)
@@ -359,12 +361,20 @@ public class OpenBIS
                 createTransactionalProxy(ITransactionCoordinatorApi.APPLICATION_SERVER_PARTICIPANT_ID, IApplicationServerApi.class,
                         asFacadeNoTransactions);
         this.dssFacade = HttpInvokerUtils.createServiceStub(IDataStoreServerApi.class, dssURL + IDataStoreServerApi.SERVICE_URL, timeout);
-        this.afsClientNoTransactions = new AfsClient(URI.create(afsURL), timeout);
-        this.afsClientWithTransactions = createTransactionalProxy(ITransactionCoordinatorApi.AFS_SERVER_PARTICIPANT_ID, PublicAPI.class,
-                afsClientNoTransactions);
+
+        if(afsURL != null)
+        {
+            this.afsClientNoTransactions = new AfsClient(URI.create(afsURL), timeout);
+            this.afsClientWithTransactions = createTransactionalProxy(ITransactionCoordinatorApi.AFS_SERVER_PARTICIPANT_ID, PublicAPI.class,
+                    afsClientNoTransactions);
+        } else {
+            this.afsClientNoTransactions = null;
+            this.afsClientWithTransactions = null;
+        }
 
         this.asURL = asURL;
         this.dssURL = dssURL;
+        this.afsURL = afsURL;
         this.timeout = timeout;
     }
 
@@ -1440,7 +1450,12 @@ public class OpenBIS
 
     public AfsServerFacade getAfsServerFacade()
     {
-        return new AfsServerFacade();
+        if(this.afsURL != null)
+        {
+            return new AfsServerFacade();
+        } else {
+            throw new IllegalArgumentException("Please specify AFS server url");
+        }
     }
 
     public class AfsServerFacade
@@ -1582,7 +1597,11 @@ public class OpenBIS
     public void setSessionToken(final String sessionToken)
     {
         this.sessionToken = sessionToken;
-        this.afsClientNoTransactions.setSessionToken(sessionToken);
+
+        if(afsClientNoTransactions != null)
+        {
+            this.afsClientNoTransactions.setSessionToken(sessionToken);
+        }
     }
 
     public void setInteractiveSessionKey(final String interactiveSessionKey)

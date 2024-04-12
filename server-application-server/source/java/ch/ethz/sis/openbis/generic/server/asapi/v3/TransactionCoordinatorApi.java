@@ -4,7 +4,7 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -64,11 +64,19 @@ public class TransactionCoordinatorApi extends AbstractTransactionNodeApi implem
     {
         if (transactionConfiguration.isEnabled())
         {
-            List<ITransactionParticipant> participants = Arrays.asList(
-                    new ApplicationServerParticipant(transactionConfiguration.getApplicationServerUrl(),
-                            transactionConfiguration.getApplicationServerTimeoutInSeconds()),
-                    new AfsServerParticipant(applicationServerApi, transactionConfiguration.getAfsServerUrl(),
-                            transactionConfiguration.getAfsServerTimeoutInSeconds()));
+            List<ITransactionParticipant> participants = new ArrayList<>();
+
+            participants.add(new ApplicationServerParticipant(transactionConfiguration.getApplicationServerUrl(),
+                    transactionConfiguration.getApplicationServerTimeoutInSeconds()));
+
+            if (transactionConfiguration.getAfsServerUrl() != null)
+            {
+                participants.add(new AfsServerParticipant(applicationServerApi, transactionConfiguration.getAfsServerUrl(),
+                        transactionConfiguration.getAfsServerTimeoutInSeconds()));
+            } else
+            {
+                operationLog.info("Disabling AFS transaction participant - no AFS url was specified in service.properties");
+            }
 
             this.transactionCoordinator =
                     createCoordinator(transactionConfiguration.getCoordinatorKey(), transactionConfiguration.getInteractiveSessionKey(),
