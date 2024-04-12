@@ -15,6 +15,8 @@
  */
 package ch.ethz.sis.openbis.generic.server.xls.importer.utils;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.IProjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
@@ -67,25 +69,28 @@ public class ImportUtils
         }
     }
 
-    public static ISampleId buildSampleIdentifier(String code, String space, String project)
+    public static ISampleId buildSampleIdentifier(String code, String space, String project, String experiment)
     {
         if (code == null || code.isEmpty())
         {
             return null;
         }
 
-        if (project != null && !project.trim().isEmpty())
+        if (isProjectSamplesEnabled)
         {
-            project = project.split("/")[2];
-        } else
-        {
+            if (project != null && !project.trim().isEmpty())
+            {
+                project = project.split("/")[2];
+            }
+
+            if (experiment != null && !experiment.trim().isEmpty())
+            {
+                project = experiment.split("/")[2];
+            }
+        } else { // If isProjectSamplesEnabled disabled => remove it
             project = null;
         }
 
-        if (isProjectSamplesEnabled == false) // If a project code is found => remove it
-        {
-            project = null;
-        }
         return new SampleIdentifier(space, project, null, code);
     }
 
@@ -109,15 +114,16 @@ public class ImportUtils
                 space = ((SpacePermId) spaceId).getPermId();
             }
             String project = null;
-            IProjectId projectId = sampleCreation.getProjectId();
-            if (projectId != null)
+            if (isProjectSamplesEnabled)
             {
-                project = ((ProjectIdentifier) projectId).getIdentifier().split("/")[2];
-            }
-
-            if (isProjectSamplesEnabled == false) // If a project code is found => remove it
-            {
-                project = null;
+                IProjectId projectId = sampleCreation.getProjectId();
+                IExperimentId experimentId = sampleCreation.getExperimentId();
+                if (projectId != null)
+                {
+                    project = ((ProjectIdentifier) projectId).getIdentifier().split("/")[2];
+                } else if(experimentId != null) {
+                    project = ((ExperimentIdentifier) experimentId).getIdentifier().split("/")[2];
+                }
             }
             return new SampleIdentifier(space, project, null, sampleCreation.getCode());
         }
