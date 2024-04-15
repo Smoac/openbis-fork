@@ -75,7 +75,9 @@ public class LogProxy extends AbstractProxy {
     @Override
     public byte[] read(@NonNull String owner, @NonNull String source, @NonNull Long offset, @NonNull Integer limit) throws Exception {
         logger.traceAccess(null, owner, source, offset, limit);
-        return logger.traceExit(nextProxy.read(owner, source, offset, limit));
+        byte[] read = nextProxy.read(owner, source, offset, limit);
+        logger.traceExit(read.length);
+        return read;
     }
 
     @Override
