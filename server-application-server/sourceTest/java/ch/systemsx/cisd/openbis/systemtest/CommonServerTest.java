@@ -956,7 +956,8 @@ public class CommonServerTest extends SystemTestCase
         commonServer.addVocabularyTerms(termRegistratorSession.getSessionToken(), new TechId(vocabularyPE.getId()), Arrays.asList(term),
                 null);
 
-        VocabularyTermPE termPE = vocabularyPE.tryGetVocabularyTerm(term.getCode());
+        String prefix = managedInternally ? "$" : "";
+        VocabularyTermPE termPE = vocabularyPE.tryGetVocabularyTerm(prefix + term.getCode());
 
         VocabularyTerm updateTerm = new VocabularyTerm();
         updateTerm.setId(termPE.getId());
