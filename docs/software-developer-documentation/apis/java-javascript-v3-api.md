@@ -3428,7 +3428,7 @@ api.v3.transaction.participant.application-server.url = https://localhost:8443
 # A timeout in seconds for the application server operations. Default: 3600
 # api.v3.transaction.participant.application-server.timeout =
 
-# An url of the afs server that participates in the two phase commit (e.g. https://localhost:8085/data-store-server)
+# An url of the afs server that participates in the two phase commit (e.g. http://localhost:8085/data-store-server)
 api.v3.transaction.participant.afs-server.url = http://localhost:8085/data-store-server
 
 # A timeout in seconds for the afs server operations. Default: 3600
