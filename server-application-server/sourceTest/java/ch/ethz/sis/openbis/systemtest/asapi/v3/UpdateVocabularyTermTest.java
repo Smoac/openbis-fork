@@ -62,9 +62,9 @@ public class UpdateVocabularyTermTest extends AbstractVocabularyTest
                 { "$PLATE_GEOMETRY", SYSTEM_USER, SYSTEM_USER, true, false, null },
                 { "$PLATE_GEOMETRY", SYSTEM_USER, SYSTEM_USER, false, false, null },
                 { "$PLATE_GEOMETRY", SYSTEM_USER, TEST_USER, true, true,
-                        "Terms created by the system user that belong to internal vocabularies can be managed only by the system user" },
+                        "Internal vocabulary terms can be managed only by the system user." },
                 { "$PLATE_GEOMETRY", SYSTEM_USER, TEST_USER, false, true,
-                        "Terms created by the system user that belong to internal vocabularies can be managed only by the system user" },
+                        "Internal vocabulary terms can be managed only by the system user." },
 
                 { "$PLATE_GEOMETRY", TEST_USER, TEST_USER, true, false, null },
                 { "$PLATE_GEOMETRY", TEST_USER, TEST_USER, false, false, null },

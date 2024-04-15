@@ -548,8 +548,8 @@ public final class VocabularyBOTest extends AbstractBOTest
 
         VocabularyTermPE term = new VocabularyTermPE();
         term.setRegistrator(systemUser);
-        term.setManagedInternally(true);
         term.setCode("TEST-TERM");
+        term.setManagedInternally(true);
 
         VocabularyPE vocabulary = new VocabularyPE();
         vocabulary.setManagedInternally(true);
@@ -567,7 +567,7 @@ public final class VocabularyBOTest extends AbstractBOTest
         } catch (UserFailureException ex)
         {
             assertEquals(
-                    "Internal vocabulary terms can be managed only by the system user.",
+                    "Authorization failure: Internal vocabulary terms can be managed only by the system user.",
                     ex.getMessage());
         }
     }
