@@ -29,7 +29,12 @@ export default class VocabularyTypeFormControllerAdd {
         visible: false,
         enabled: false
       }),
-      original: null
+      original: null,
+      internal: FormUtil.createField({
+          value: false,
+          visible: false,
+          enabled: false
+        })
     }
 
     const newTerms = Array.from(terms)
