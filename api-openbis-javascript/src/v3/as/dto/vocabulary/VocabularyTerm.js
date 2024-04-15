@@ -19,6 +19,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.registrationDate = null;
 		prototype.registrator = null;
 		prototype.modificationDate = null;
+		prototype.managedInternally = null;
 
 		prototype.getFetchOptions = function() {
 			return this.fetchOptions;
@@ -94,6 +95,12 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setModificationDate = function(modificationDate) {
 			this.modificationDate = modificationDate;
 		};
+		prototype.isManagedInternally = function() {
+            return this.managedInternally;
+        };
+        prototype.setManagedInternally = function(managedInternally) {
+            this.managedInternally = managedInternally;
+        };
 	}, {
 		fetchOptions : "VocabularyTermFetchOptions",
 		permId : "VocabularyTermPermId",
