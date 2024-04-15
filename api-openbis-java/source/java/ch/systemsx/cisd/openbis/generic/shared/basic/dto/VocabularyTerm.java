@@ -56,6 +56,8 @@ public class VocabularyTerm extends CodeWithRegistrationAndModificationDate<Voca
 
     private Date modificationDate;
 
+    private Boolean managedInternally;
+
     public VocabularyTerm()
     {
     }
@@ -163,6 +165,17 @@ public class VocabularyTerm extends CodeWithRegistrationAndModificationDate<Voca
     public void setOfficial(Boolean isOfficial)
     {
         this.isOfficial = isOfficial;
+    }
+
+    @JsonIgnore
+    public Boolean isManagedInternally()
+    {
+        return managedInternally;
+    }
+
+    public void setManagedInternally(Boolean managedInternally)
+    {
+        this.managedInternally = managedInternally;
     }
 
     //
