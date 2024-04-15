@@ -1279,6 +1279,11 @@ define([ 'jquery', 'underscore'], function($, _) {
 		};
 
 		this.fail = function(msg) {
+			if (msg instanceof Error) {
+				msg = msg.message + "\n" + msg.stack
+			} else {
+				msg = JSON.stringify(msg)
+			}
 			this.assert.ok(false, msg);
 		};
 

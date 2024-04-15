@@ -461,7 +461,7 @@ DataStoreServer.prototype.write = function(owner, source, offset, data){
 
 	return this._internal.sendHttpRequest(
 		"POST",
-		"text/plain",
+		"application/octet-stream",
 		this._internal.datastoreUrl,
 		encodeParams(params)
 	);

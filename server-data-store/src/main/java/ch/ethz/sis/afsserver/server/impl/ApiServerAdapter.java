@@ -165,7 +165,7 @@ public class ApiServerAdapter<CONNECTION, API> implements HttpServerHandler
                         case "data":
                             // Fall though
                         case "md5Hash":
-                            methodParameters.put(entry.getKey(), Base64.getUrlDecoder().decode(value));
+                            methodParameters.put(entry.getKey(), Base64.getDecoder().decode(value));
                             break;
                         default:
                             methodParameters.put(entry.getKey(), value);

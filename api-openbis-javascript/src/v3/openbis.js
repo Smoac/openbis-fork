@@ -526,11 +526,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
                 })
 		    }else{
 		        afsServer.useSession(asFacade._private.sessionToken)
-                return afsServer.list(owner, source, recursively).catch(function(error){
-                    throw {
-                        message: error
-                    }
-                })
+                return afsServer.list(owner, source, recursively);
 		    }
 		}
 
@@ -546,11 +542,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
                 });
             }else{
                 afsServer.useSession(asFacade._private.sessionToken)
-                return afsServer.read(owner, source, offset, limit).catch(function(error){
-                    throw {
-                        message: error
-                    }
-                })
+                return afsServer.read(owner, source, offset, limit);
             }
 		}
 
@@ -564,11 +556,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
                 })
             }else{
                 afsServer.useSession(asFacade._private.sessionToken)
-                return afsServer.write(owner, source, offset, data).catch(function(error){
-                    throw {
-                       message: error
-                    }
-                })
+                return afsServer.write(owner, source, offset, data);
             }
 		}
 
@@ -582,11 +570,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
                 })
             }else{
                 afsServer.useSession(asFacade._private.sessionToken)
-                return afsServer.delete(owner, source).catch(function(error){
-                    throw {
-                       message: error
-                    }
-                })
+                return afsServer.delete(owner, source);
             }
 		}
 
@@ -600,11 +584,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
                 })
             }else{
                 afsServer.useSession(asFacade._private.sessionToken)
-                return afsServer.copy(sourceOwner, source, targetOwner, target).catch(function(error){
-                    throw {
-                       message: error
-                    }
-                })
+                return afsServer.copy(sourceOwner, source, targetOwner, target);
             }
         }
 
@@ -618,11 +598,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
                 })
             }else{
                 afsServer.useSession(asFacade._private.sessionToken)
-                return afsServer.move(sourceOwner, source, targetOwner, target).catch(function(error){
-                    throw {
-                       message: error
-                    }
-                })
+                return afsServer.move(sourceOwner, source, targetOwner, target);
             }
 		}
 
@@ -636,11 +612,7 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
                 })
             }else{
                 afsServer.useSession(asFacade._private.sessionToken)
-                return afsServer.create(owner, source, directory).catch(function(error){
-                    throw {
-                       message: error
-                    }
-                })
+                return afsServer.create(owner, source, directory);
             }
 		}
 
