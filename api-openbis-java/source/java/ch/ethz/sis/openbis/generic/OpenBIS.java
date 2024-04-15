@@ -1241,11 +1241,11 @@ public class OpenBIS
     }
 
     public void executeImport(IImportData importData, ImportOptions importOptions) {
-        asFacade.executeImport(sessionToken, importData, importOptions);
+        asFacadeWithTransactions.executeImport(sessionToken, importData, importOptions);
     }
 
     public ExportResult executeExport(ExportData exportData, ExportOptions exportOptions) {
-        return asFacade.executeExport(sessionToken, exportData, exportOptions);
+        return asFacadeWithTransactions.executeExport(sessionToken, exportData, exportOptions);
     }
 
     //
