@@ -305,6 +305,39 @@ public class UpdateVocabularyTermTest extends AbstractVocabularyTest
     }
 
     @Test
+    public void testUpdateInternalTermWithNonSystemUser_fail()
+    {
+        String vocabularyCode = "$PLATE_GEOMETRY";
+
+        VocabularyTermCreation creation = new VocabularyTermCreation();
+        creation.setCode("MY_INTERNAL_CODE");
+        creation.setVocabularyId(new VocabularyPermId(vocabularyCode));
+        creation.setLabel("Original Label");
+        creation.setDescription("Original Description");
+        creation.setManagedInternally(true);
+
+        String sessionToken = v3api.loginAsSystem();
+
+        List<VocabularyTermPermId> result =
+                v3api.createVocabularyTerms(sessionToken, Arrays.asList(creation));
+
+
+        VocabularyTermUpdate update = new VocabularyTermUpdate();
+        update.setVocabularyTermId(new VocabularyTermPermId("$MY_INTERNAL_CODE", vocabularyCode));
+        update.setLabel("a brand new label");
+
+        assertExceptionMessage(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
+            {
+                updateTerms(TEST_USER, PASSWORD, update);
+            }
+        }, "Internal vocabulary terms can be managed only by the system user.");
+
+    }
+
+    @Test
     public void testUpdateWithLabel()
     {
         VocabularyTermUpdate update = new VocabularyTermUpdate();

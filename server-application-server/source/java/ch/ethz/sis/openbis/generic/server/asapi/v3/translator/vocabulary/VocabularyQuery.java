@@ -42,7 +42,7 @@ public interface VocabularyQuery extends ObjectQuery
             + "from controlled_vocabularies v where v.id = any(?{1})", parameterBindings = { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getRegistratorIds(LongSet vocabularyIds);
 
-    @Select(sql = "select v.code as vocabularyCode, v.is_managed_internally as isManagedInternally, t.id, t.code, t.label, t.description, t.ordinal, t.is_official as isOfficial, t.registration_timestamp as registrationDate "
+    @Select(sql = "select v.code as vocabularyCode, v.is_managed_internally as isManagedInternallyVocabulary, t.id, t.code, t.label, t.description, t.ordinal, t.is_official as isOfficial, t.registration_timestamp as registrationDate, t.is_managed_internally as isManagedInternally "
             + "from controlled_vocabulary_terms t, controlled_vocabularies v where t.id = any(?{1}) and t.covo_id = v.id", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<VocabularyTermBaseRecord> getTerms(LongSet termIds);

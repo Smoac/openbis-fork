@@ -27,6 +27,9 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.FieldUpdateValue;
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -98,6 +101,14 @@ public class CreateVocabularyTermExecutor implements ICreateVocabularyTermExecut
             }
         }
 
+        boolean isSystemUser = isSystemUser(context.getSession());
+        for (Map.Entry<IVocabularyId, VocabularyPE> vocabularyEntry : vocabularyMap.entrySet())
+        {
+            IVocabularyId vocabularyId = vocabularyEntry.getKey();
+            VocabularyPE vocabulary = vocabularyEntry.getValue();
+            checkBusinessRules(isSystemUser, vocabulary, termsMap.get(vocabularyId));
+        }
+
         Map<VocabularyTermCreation, VocabularyTermPE> createdTermsMap = new HashMap<VocabularyTermCreation, VocabularyTermPE>();
 
         for (Map.Entry<IVocabularyId, VocabularyPE> vocabularyEntry : vocabularyMap.entrySet())
@@ -159,6 +170,37 @@ public class CreateVocabularyTermExecutor implements ICreateVocabularyTermExecut
         }
     }
 
+    private void checkBusinessRules(boolean isSystemUser, VocabularyPE vocabulary, Collection<VocabularyTermCreation> creations)
+    {
+        if(!isSystemUser)
+        {
+            if(creations != null)
+            {
+                for(VocabularyTermCreation creation : creations)
+                {
+                    if(creation.isManagedInternally())
+                    {
+                        throw new AuthorizationFailureException(
+                                "Internal vocabulary terms can be managed only by the system user.");
+                    }
+                }
+            }
+        } else {
+            if(!vocabulary.isManagedInternally() && creations != null)
+            {
+                for(VocabularyTermCreation creation : creations)
+                {
+                    if(creation.isManagedInternally())
+                    {
+                        throw new AuthorizationFailureException(
+                                "Internal vocabulary terms can be part of internal vocabularies only.");
+                    }
+                }
+            }
+        }
+
+    }
+
     private Map<VocabularyTermCreation, VocabularyTermPE> createTerms(IOperationContext context, VocabularyPE vocabulary,
             Collection<VocabularyTermCreation> creations)
     {
@@ -191,6 +233,7 @@ public class CreateVocabularyTermExecutor implements ICreateVocabularyTermExecut
                 term.setCode(creation.getCode());
                 term.setLabel(creation.getLabel());
                 term.setDescription(creation.getDescription());
+                term.setManagedInternally(creation.isManagedInternally());
 
                 List<VocabularyTermPE> termPEs = vocabularyBO.addNewTerms(Arrays.asList(term), previousTermOrdinal);
 
@@ -198,7 +241,7 @@ public class CreateVocabularyTermExecutor implements ICreateVocabularyTermExecut
             } else
             {
                 VocabularyTermPE termPE = vocabularyBO.addNewUnofficialTerm(creation.getCode(), creation.getLabel(), creation.getDescription(),
-                        previousTermOrdinal);
+                        previousTermOrdinal, creation.isManagedInternally());
 
                 results.put(creation, termPE);
             }
@@ -245,6 +288,35 @@ public class CreateVocabularyTermExecutor implements ICreateVocabularyTermExecut
         {
             return null;
         }
+    }
+
+    private boolean isSystemUser(ch.systemsx.cisd.openbis.generic.shared.dto.Session session)
+    {
+        PersonPE user = session.tryGetPerson();
+
+        if (user == null)
+        {
+            throw new AuthorizationFailureException(
+                    "Could not check access because the current session does not have any user assigned.");
+        } else
+        {
+            return user.isSystemUser();
+        }
+    }
+
+    private boolean isFieldUpdated(FieldUpdateValue<?> field, Object currentValue)
+    {
+        if (field != null && field.isModified())
+        {
+            if (currentValue != null)
+            {
+                return !currentValue.equals(field.getValue());
+            } else
+            {
+                return field.getValue() != null;
+            }
+        }
+        return false;
     }
 
 }

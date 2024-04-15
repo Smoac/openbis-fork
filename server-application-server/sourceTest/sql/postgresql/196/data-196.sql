@@ -471,7 +471,7 @@ pers_id_registerer)
 values
 (
 currval('PROJECT_ID_SEQ'),
-to_char(now(), 'YYYYMMDDHH24MISSMS')||'-'||currval('PROJECT_ID_SEQ'),
+to_char(now(), 'YYYYMMDDHH24MISSMS')||'-'||nextval('PERM_ID_SEQ'),
 'DEFAULT',
 (select id from spaces where code = 'DEFAULT'),
 (select id from persons where user_id ='system')
@@ -493,7 +493,7 @@ tsvector_document)
 values
 (
 currval('EXPERIMENT_ID_SEQ'),
-to_char(now(), 'YYYYMMDDHH24MISSMS')||'-'||currval('EXPERIMENT_ID_SEQ'),
+to_char(now(), 'YYYYMMDDHH24MISSMS')||'-'||nextval('PERM_ID_SEQ'),
 'DEFAULT',
 (select id from projects where code = 'DEFAULT'),
 (select id from experiment_types where code = 'UNKNOWN'),
@@ -519,7 +519,7 @@ tsvector_document)
 values
 (
 currval('SAMPLE_ID_SEQ'),
-to_char(now(), 'YYYYMMDDHH24MISSMS')||'-'||currval('SAMPLE_ID_SEQ'),
+to_char(now(), 'YYYYMMDDHH24MISSMS')||'-'||nextval('PERM_ID_SEQ'),
 'DEFAULT',
 (select id from experiments where code = 'DEFAULT'),
 (select id from spaces where code = 'DEFAULT'),

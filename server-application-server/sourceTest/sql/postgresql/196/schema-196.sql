@@ -1112,6 +1112,7 @@ CREATE TABLE controlled_vocabulary_terms (
     description description_2000,
     ordinal ordinal_int NOT NULL,
     is_official boolean_char DEFAULT true NOT NULL,
+    is_managed_internally boolean_char DEFAULT false NOT NULL,
     CONSTRAINT cvte_ck CHECK (((ordinal)::bigint > 0))
 );
 CREATE SEQUENCE core_plugin_id_seq

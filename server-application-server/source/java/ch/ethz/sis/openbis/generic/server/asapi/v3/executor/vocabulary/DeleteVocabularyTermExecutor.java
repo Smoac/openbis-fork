@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -79,6 +81,17 @@ public class DeleteVocabularyTermExecutor
         Map<VocabularyPE, List<VocabularyTerm>> termsToBeDeletedMap = new HashMap<VocabularyPE, List<VocabularyTerm>>();
         Map<VocabularyPE, List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement>> termsToBeReplacedMap =
                 new HashMap<VocabularyPE, List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement>>();
+
+        if(!isSystemUser(context.getSession()))
+        {
+            for (VocabularyTermPE term : terms)
+            {
+                if(term.isManagedInternally())
+                {
+                    throw new UserFailureException("Only system user can delete internal vocabulary terms!");
+                }
+            }
+        }
 
         for (VocabularyTermPE term : terms)
         {
@@ -195,6 +208,20 @@ public class DeleteVocabularyTermExecutor
         VocabularyTerm deleted = new VocabularyTerm();
         deleted.setCode(code);
         return deleted;
+    }
+
+    private boolean isSystemUser(ch.systemsx.cisd.openbis.generic.shared.dto.Session session)
+    {
+        PersonPE user = session.tryGetPerson();
+
+        if (user == null)
+        {
+            throw new AuthorizationFailureException(
+                    "Could not check access because the current session does not have any user assigned.");
+        } else
+        {
+            return user.isSystemUser();
+        }
     }
 
 }

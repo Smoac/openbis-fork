@@ -1597,7 +1597,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final Session session = getSession(sessionToken);
         final IVocabularyBO vocabularyBO = businessObjectFactory.createVocabularyBO(session);
         vocabularyBO.loadDataByTechId(vocabularyId);
-        vocabularyBO.addNewUnofficialTerm(code, label, description, previousTermOrdinal);
+        vocabularyBO.addNewUnofficialTerm(code, label, description, previousTermOrdinal, false);
         vocabularyBO.save();
     }
 

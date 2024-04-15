@@ -166,7 +166,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
 
     @Override
     public VocabularyTermPE addNewUnofficialTerm(String code, String label, String description,
-            Long previousTermOrdinal)
+            Long previousTermOrdinal, boolean isManagedInternally)
     {
         assert vocabularyPE != null : UNSPECIFIED_VOCABULARY;
         assert code != null : "Unspecified vocabulary term code";
@@ -182,7 +182,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
             increaseVocabularyTermOrdinals(currentTermOrdinal, 1);
         }
 
-        return addTerm(code, description, label, currentTermOrdinal, false);
+        return addTerm(code, description, label, currentTermOrdinal, false, isManagedInternally);
     }
 
     /** shift terms in vocabulary by specified increment starting from term with specified ordinal */
@@ -193,7 +193,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
     }
 
     private VocabularyTermPE addTerm(String code, String description, String label, Long ordinal,
-            Boolean isOfficial)
+            Boolean isOfficial, boolean isManagedInternally)
     {
         final VocabularyTermPE existingTermPE = vocabularyPE.tryGetVocabularyTerm(code);
 
@@ -207,6 +207,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
                 existingTermPE.setLabel(label);
                 existingTermPE.setOrdinal(ordinal);
                 existingTermPE.setOfficial(isOfficial);
+                existingTermPE.setManagedInternally(isManagedInternally);
                 getVocabularyTermDAO().updateRegistrator(existingTermPE, user);
 
                 return existingTermPE;
@@ -223,6 +224,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         vocabularyTermPE.setRegistrator(findPerson());
         vocabularyTermPE.setOrdinal(ordinal);
         vocabularyTermPE.setOfficial(isOfficial);
+        vocabularyTermPE.setManagedInternally(isManagedInternally);
 
         new InternalVocabularyAuthorization().canCreateTerm(session, vocabularyPE, vocabularyTermPE);
 
@@ -233,7 +235,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
 
     private VocabularyTermPE addTerm(VocabularyTerm term, Long ordinal, Boolean isOfficial)
     {
-        return addTerm(term.getCode(), term.getDescription(), term.getLabel(), ordinal, isOfficial);
+        return addTerm(term.getCode(), term.getDescription(), term.getLabel(), ordinal, isOfficial, term.isManagedInternally());
     }
 
     @Override
@@ -394,7 +396,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
 
         for (NewVocabularyTerm t : updates.getNewTerms())
         {
-            addTerm(t.getCode(), t.getDescription(), t.getLabel(), t.getOrdinal(), true);
+            addTerm(t.getCode(), t.getDescription(), t.getLabel(), t.getOrdinal(), true, false);
         }
 
         validateAndSave();

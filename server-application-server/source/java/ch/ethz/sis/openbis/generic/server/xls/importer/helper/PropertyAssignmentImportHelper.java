@@ -157,10 +157,6 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
         creation.setSection(section);
         creation.setUnique(Boolean.parseBoolean(unique));
         creation.setManagedInternally(Boolean.parseBoolean(internalAssignment));
-        if(internalAssignment != null && internalAssignment.toUpperCase().equals("TRUE"))
-        {
-            int a  = 1;
-        }
 
         if (script != null && !script.isEmpty())
         {

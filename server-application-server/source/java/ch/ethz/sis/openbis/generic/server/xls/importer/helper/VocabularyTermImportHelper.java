@@ -144,6 +144,7 @@ public class VocabularyTermImportHelper extends BasicImportHelper
         creation.setCode(code);
         creation.setLabel(label);
         creation.setDescription(description);
+        // import internal
 
         this.delayedExecutor.createVocabularyTerm(creation);
     }

@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.update.VocabularyTermUpdate;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -527,6 +528,40 @@ public class DeleteVocabularyTermTest extends AbstractVocabularyTest
         assertVocabularyTermPermIds(terms, termIdRat, termIdDog, termIdHuman, termIdGorilla);
 
         assertMaterialsExists(new MaterialPermId(materialCode, materialTypeCode));
+    }
+
+    @Test
+    public void testDeleteInternalTermWithNonSystemUser_fail()
+    {
+        String vocabularyCode = "$PLATE_GEOMETRY";
+
+        VocabularyTermCreation creation = new VocabularyTermCreation();
+        creation.setCode("MY_INTERNAL_CODE");
+        creation.setVocabularyId(new VocabularyPermId(vocabularyCode));
+        creation.setLabel("Original Label");
+        creation.setDescription("Original Description");
+        creation.setManagedInternally(true);
+
+        String systemSessionToken = v3api.loginAsSystem();
+
+        List<VocabularyTermPermId> result =
+                v3api.createVocabularyTerms(systemSessionToken, Arrays.asList(creation));
+
+
+        VocabularyTermDeletionOptions options = new VocabularyTermDeletionOptions();
+        options.setReason("Just for testing");
+
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        assertExceptionMessage(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
+            {
+                v3api.deleteVocabularyTerms(sessionToken, result, options);
+            }
+        }, "Only system user can delete internal vocabulary terms!");
+
     }
 
     @Test
