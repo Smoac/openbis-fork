@@ -711,13 +711,13 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
             String description, Long previousTermOrdinal)
     {
         changingService.addUnofficialVocabularyTerm(sessionToken, vocabularyId, code, label,
-                description, previousTermOrdinal);
+                description, previousTermOrdinal, false);
     }
 
     @Override
     public void addAdHocVocabularyTerm(Long vocabularyId, NewVocabularyTerm term)
     {
-        changingService.addUnofficialVocabularyTerm(sessionToken, vocabularyId, term);
+        changingService.addUnofficialVocabularyTerm(sessionToken, vocabularyId, term, false);
     }
 
     @Override
