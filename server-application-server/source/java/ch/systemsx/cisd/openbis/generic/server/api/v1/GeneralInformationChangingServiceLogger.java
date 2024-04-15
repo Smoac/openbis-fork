@@ -53,19 +53,19 @@ class GeneralInformationChangingServiceLogger extends AbstractServerLogger imple
 
     @Override
     public void addUnofficialVocabularyTerm(String sessionToken, TechId vocabularyId, String code,
-            String label, String description, Long previousTermOrdinal)
+            String label, String description, Long previousTermOrdinal, boolean managedInternally)
     {
         logTracking(sessionToken, "add_unofficial_vocabulary_term",
                 "ID(%s) CODE(%s), LABEL(%s), DESCRIPTION(%s), PREVIOUS_ORDINAL(%s)", vocabularyId,
-                code, label, description, Long.toString(previousTermOrdinal));
+                code, label, description, Long.toString(previousTermOrdinal), managedInternally);
     }
 
     @Override
     public void addUnofficialVocabularyTerm(String sessionToken, Long vocabularyId,
-            NewVocabularyTerm term)
+            NewVocabularyTerm term, boolean managedInternally)
     {
         logTracking(sessionToken, "add-unofficial-vocabulary-term", "VOCABULARY_ID(%s) TERM(%s)",
-                vocabularyId, term);
+                vocabularyId, term, managedInternally);
 
     }
 

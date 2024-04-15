@@ -80,7 +80,7 @@ public class GeneralInformationChangingServiceJsonApiTest extends RemoteApiTestC
         newTerm.setPreviousTermOrdinal(0L);
 
         generalInfoChangingService.addUnofficialVocabularyTerm(sessionToken, vocabulary.getId(),
-                newTerm);
+                newTerm, false);
 
         Vocabulary updatedVocabulary = fetchVocabularyFromServer(vocabularyCode);
 
