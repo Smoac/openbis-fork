@@ -35,7 +35,7 @@ public final class ExceptionUtils
      * Default packages (and subpackages) for not been masqueraded.
      */
     private final static String[] ACCEPTED_PACKAGE_NAME_DEPENDENCIES =
-            { "java.lang", "ch.systemsx.cisd.base", "ch.systemsx.cisd.common.exceptions" };
+            { "java.lang", "ch.systemsx.cisd.base", "ch.systemsx.cisd.common.exceptions", "ch.ethz.sis.transaction" };
 
     ExceptionUtils()
     {

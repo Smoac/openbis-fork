@@ -63,10 +63,14 @@ public final class AfsClient implements PublicAPI, ClientAPI
         this(serverUri, DEFAULT_PACKAGE_SIZE_IN_BYTES, DEFAULT_TIMEOUT_IN_MILLIS);
     }
 
-    public AfsClient(final URI serverUri, final int maxReadSizeInBytes, final int timeout)
+    public AfsClient(final URI serverUri, final int timeoutInMillis){
+        this(serverUri, DEFAULT_PACKAGE_SIZE_IN_BYTES, timeoutInMillis);
+    }
+
+    public AfsClient(final URI serverUri, final int maxReadSizeInBytes, final int timeoutInMillis)
     {
         this.maxReadSizeInBytes = maxReadSizeInBytes;
-        this.timeout = timeout;
+        this.timeout = timeoutInMillis;
         this.serverUri = serverUri;
     }
 
@@ -469,10 +473,10 @@ public final class AfsClient implements PublicAPI, ClientAPI
             throw ClientExceptions.API_ERROR.getInstance(res);
         } else if (statusCode >= 500 && statusCode < 600)
         {
-            throw ClientExceptions.SERVER_ERROR.getInstance(statusCode);
+            throw ClientExceptions.SERVER_ERROR.getInstance(String.valueOf(statusCode));
         } else
         {
-            throw ClientExceptions.OTHER_ERROR.getInstance(statusCode);
+            throw ClientExceptions.OTHER_ERROR.getInstance(String.valueOf(statusCode));
         }
     }
 

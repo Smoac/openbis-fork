@@ -1,10 +1,11 @@
 evaluationDependsOn(':lib-commonbase')
 evaluationDependsOn(':lib-common')
+evaluationDependsOn(':api-data-store-server-java')
 
 apply from: '../build/javaproject.gradle'
 
 dependencies {
-    api project(':lib-common'),
+    api project(':lib-common'), project(':api-data-store-server-java'),
             'sis:sis-file-transfer:19.03.1',
             'fasterxml:jackson-core:2.9.10',
             'fasterxml:jackson-annotations:2.9.10'

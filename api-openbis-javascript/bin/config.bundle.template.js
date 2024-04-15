@@ -23,6 +23,7 @@ var require = (function () {
         'underscore',
         'moment',
         'openbis',
+        'afs',
         //
         __FILES__
         //

@@ -15,12 +15,7 @@
  */
 package ch.systemsx.cisd.openbis.test.server;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.InputStreamReader;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import java.io.PrintStream;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AllowSymLinkAliasChecker;
@@ -48,73 +43,28 @@ public class TestApplicationServer
     {
         TestDatabase.restoreDumps(getDumpsPath());
 
-        Runnable r = new Runnable()
-            {
-                @SuppressWarnings({ "unchecked", "rawtypes" })
-                @Override
-                public void run()
-                {
-                    Server server = new Server(getPort());
+        Server server = new Server(getPort());
 
-                    WebAppContext context = new WebAppContext();
+        WebAppContext context = new WebAppContext();
 
-                    File war = new File("../../../targets/gradle/openbis-war/openbis.war");
-                    if (war.exists())
-                    {
-                        context.setWar(war.getAbsolutePath());
-                        context.setExtractWAR(true);
-                        context.setTempDirectory(new File(System.getProperty("jetty.home") + "/webapps"));
-                        context.addAliasCheck(new AllowSymLinkAliasChecker());
-                    } else
-                    {
-                        context.setDescriptor(getWebXmlPath());
-                        context.setResourceBase(getRootPath());
-                    }
-                    context.setContextPath(getContextPath());
-                    context.setParentLoaderPriority(true);
-
-                    server.setHandler(context);
-
-                    try
-                    {
-                        server.start();
-                        server.join();
-                    } catch (Exception ex)
-                    {
-                        ex.printStackTrace();
-                    }
-                }
-            };
-
-        PrintStream originalOut = System.out;
-
-        PipedOutputStream outpipe = new PipedOutputStream();
-        PipedInputStream inpipe = new PipedInputStream(outpipe);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inpipe));
-        PrintStream newOut = new PrintStream(outpipe);
-        System.setOut(newOut);
-
-        Thread t = new Thread(r);
-        t.setDaemon(true);
-        t.start();
-
-        String line;
-        while ((line = reader.readLine()) != null)
+        File war = new File("../../../targets/gradle/openbis-war/openbis.war");
+        if (war.exists())
         {
-            originalOut.println(line);
-
-            if (line.contains("SERVER STARTED"))
-            {
-                originalOut.println("SERVER START DETECTED");
-                break;
-            }
+            context.setWar(war.getAbsolutePath());
+            context.setExtractWAR(true);
+            context.setTempDirectory(new File(System.getProperty("jetty.home") + "/webapps"));
+            context.addAliasCheck(new AllowSymLinkAliasChecker());
+        } else
+        {
+            context.setDescriptor(getWebXmlPath());
+            context.setResourceBase(getRootPath());
         }
-        outpipe.close();
-        inpipe.close();
-        reader.close();
-        newOut.close();
+        context.setContextPath(getContextPath());
+        context.setParentLoaderPriority(true);
 
-        System.setOut(originalOut);
+        server.setHandler(context);
+
+        server.start();
 
         return "http://localhost:" + getPort();
     }

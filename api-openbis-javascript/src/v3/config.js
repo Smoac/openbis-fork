@@ -27,7 +27,8 @@ var require = (function() {
 			// "openbis" : "../../js/openbis",
 			"openbis-screening" : "../../js/openbis-screening",
 			"bootstrap" : "../../lib/bootstrap/js/bootstrap.min",
-			"bootstrap-slider" : "../../lib/bootstrap-slider/js/bootstrap-slider.min"
+			"bootstrap-slider" : "../../lib/bootstrap-slider/js/bootstrap-slider.min",
+			"afs" : "afs/server-data-store-facade"
 		},
 		shim : {
 			"stjs" : {

@@ -16,7 +16,34 @@
  */
 package ch.ethz.sis.openbis.generic;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Proxy;
+import java.net.URI;
+import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
+
+import org.eclipse.jetty.client.api.ContentResponse;
+import org.eclipse.jetty.client.api.Request;
+import org.eclipse.jetty.client.util.BytesContentProvider;
+import org.eclipse.jetty.http.HttpMethod;
+
+import ch.ethz.sis.afsapi.api.OperationsAPI;
+import ch.ethz.sis.afsapi.api.PublicAPI;
+import ch.ethz.sis.afsclient.client.AfsClient;
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.ITransactionCoordinatorApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.AuthorizationGroup;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.create.AuthorizationGroupCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.authorizationgroup.delete.AuthorizationGroupDeletionOptions;
@@ -207,16 +234,29 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.id.SemanticAn
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.search.SemanticAnnotationSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.semanticannotation.update.SemanticAnnotationUpdate;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.server.ServerInformation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.*;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.AggregationService;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASService;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.CustomASServiceExecutionOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.ProcessingService;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.ReportingService;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.SearchDomainService;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.SearchDomainServiceExecutionResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.execute.AggregationServiceExecutionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.execute.ProcessingServiceExecutionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.execute.ReportingServiceExecutionOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.execute.SearchDomainServiceExecutionOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.*;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.AggregationServiceFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.CustomASServiceFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.ProcessingServiceFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.ReportingServiceFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.fetchoptions.SearchDomainServiceFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.ICustomASServiceId;
-import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.id.ICustomDSSServiceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id.IDssServiceId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.*;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.AggregationServiceSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.CustomASServiceSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.ProcessingServiceSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.ReportingServiceSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.service.search.SearchDomainServiceSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.SessionInformation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.fetchoptions.SessionInformationFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.session.search.SessionInformationSearchCriteria;
@@ -263,62 +303,83 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSe
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.CustomDSSServiceExecutionOptions;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.service.id.ICustomDSSServiceId;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.http.JettyHttpClientFactory;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
-
-import org.eclipse.jetty.client.api.ContentResponse;
-import org.eclipse.jetty.client.api.Request;
-import org.eclipse.jetty.client.util.BytesContentProvider;
-import org.eclipse.jetty.http.HttpMethod;
-
-public class OpenBIS {
+public class OpenBIS
+{
 
     private static final int DEFAULT_TIMEOUT_IN_MILLIS = 30000; //30 seconds
 
     private static final int CHUNK_SIZE = 1048576; // 1 MiB
 
-    private final IApplicationServerApi asFacade;
+    private final ITransactionCoordinatorApi transactionCoordinator;
+
+    private final IApplicationServerApi asFacadeNoTransactions;
+
+    private final IApplicationServerApi asFacadeWithTransactions;
 
     private final IDataStoreServerApi dssFacade;
 
+    private final AfsClient afsClientNoTransactions;
+
+    private final OperationsAPI afsClientWithTransactions;
+
+    private String interactiveSessionKey;
+
     private String sessionToken;
+
+    private UUID transactionId;
 
     private final String asURL;
 
     private final String dssURL;
 
+    private final String afsURL;
+
     private final int timeout;
 
-    public OpenBIS(final String url) {
+    public OpenBIS(final String url)
+    {
         this(url, DEFAULT_TIMEOUT_IN_MILLIS);
     }
 
-    public OpenBIS(final String url, final int timeout) {
-        this(url + "/openbis/openbis", url + "/datastore_server", 30000);
+    public OpenBIS(final String url, final int timeout)
+    {
+        this(url + "/openbis/openbis", url + "/datastore_server", url + "/afs_server", timeout);
     }
 
-    public OpenBIS(final String asURL, final String dssURL)
+    public OpenBIS(final String asURL, final String dssURL, final String afsURL)
     {
-        this(asURL, dssURL, DEFAULT_TIMEOUT_IN_MILLIS);
+        this(asURL, dssURL, afsURL, DEFAULT_TIMEOUT_IN_MILLIS);
     }
 
-    public OpenBIS(final String asURL, final String dssURL, final int timeout)
+    public OpenBIS(final String asURL, final String dssURL, final String afsURL, final int timeout)
     {
-        this.asFacade = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, asURL + IApplicationServerApi.SERVICE_URL, timeout);
+        this.transactionCoordinator =
+                HttpInvokerUtils.createServiceStub(ITransactionCoordinatorApi.class, asURL + ITransactionCoordinatorApi.SERVICE_URL, timeout);
+        this.asFacadeNoTransactions =
+                HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, asURL + IApplicationServerApi.SERVICE_URL, timeout);
+        this.asFacadeWithTransactions =
+                createTransactionalProxy(ITransactionCoordinatorApi.APPLICATION_SERVER_PARTICIPANT_ID, IApplicationServerApi.class,
+                        asFacadeNoTransactions);
         this.dssFacade = HttpInvokerUtils.createServiceStub(IDataStoreServerApi.class, dssURL + IDataStoreServerApi.SERVICE_URL, timeout);
+
+        if(afsURL != null)
+        {
+            this.afsClientNoTransactions = new AfsClient(URI.create(afsURL), timeout);
+            this.afsClientWithTransactions = createTransactionalProxy(ITransactionCoordinatorApi.AFS_SERVER_PARTICIPANT_ID, PublicAPI.class,
+                    afsClientNoTransactions);
+        } else {
+            this.afsClientNoTransactions = null;
+            this.afsClientWithTransactions = null;
+        }
+
         this.asURL = asURL;
         this.dssURL = dssURL;
+        this.afsURL = afsURL;
         this.timeout = timeout;
     }
 
@@ -326,622 +387,857 @@ public class OpenBIS {
     // AS Facade methods
     //
 
-    public String login(String userId, String password) {
-        String sessionToken = asFacade.login(userId, password);
+    public String login(String userId, String password)
+    {
+        checkTransactionDoesNotExist();
+        String sessionToken = asFacadeNoTransactions.login(userId, password);
         setSessionToken(sessionToken);
         return sessionToken;
     }
 
-    public String loginAs(String userId, String password, String asUserId) {
-        String sessionToken = asFacade.loginAs(userId, password, asUserId);
+    public String loginAs(String userId, String password, String asUserId)
+    {
+        checkTransactionDoesNotExist();
+        String sessionToken = asFacadeNoTransactions.loginAs(userId, password, asUserId);
         setSessionToken(sessionToken);
         return sessionToken;
     }
 
-    public String loginAsAnonymousUser() {
-        String sessionToken = asFacade.loginAsAnonymousUser();
+    public String loginAsAnonymousUser()
+    {
+        checkTransactionDoesNotExist();
+        String sessionToken = asFacadeNoTransactions.loginAsAnonymousUser();
         setSessionToken(sessionToken);
         return sessionToken;
     }
 
-    public void logout() {
-        asFacade.logout(sessionToken);
+    public void logout()
+    {
+        checkTransactionDoesNotExist();
+        asFacadeNoTransactions.logout(sessionToken);
     }
 
-    public SessionInformation getSessionInformation() {
-        return asFacade.getSessionInformation(sessionToken);
+    public SessionInformation getSessionInformation()
+    {
+        return asFacadeNoTransactions.getSessionInformation(sessionToken);
     }
 
-    public boolean isSessionActive() {
-        return asFacade.isSessionActive(sessionToken);
+    public boolean isSessionActive()
+    {
+        return asFacadeNoTransactions.isSessionActive(sessionToken);
     }
 
-    public List<SpacePermId> createSpaces(List<SpaceCreation> newSpaces) {
-        return asFacade.createSpaces(sessionToken, newSpaces);
+    public UUID beginTransaction()
+    {
+        checkTransactionDoesNotExist();
+
+        if (sessionToken == null)
+        {
+            throw new IllegalStateException("Session token hasn't been set");
+        }
+
+        if (interactiveSessionKey == null)
+        {
+            throw new IllegalStateException("Interactive session token hasn't been set");
+        }
+
+        transactionId = UUID.randomUUID();
+        transactionCoordinator.beginTransaction(transactionId, sessionToken, interactiveSessionKey);
+        return transactionId;
+    }
+
+    public void commitTransaction()
+    {
+        checkTransactionExists();
+
+        if (sessionToken == null)
+        {
+            throw new IllegalStateException("Session token hasn't been set");
+        }
+
+        if (interactiveSessionKey == null)
+        {
+            throw new IllegalStateException("Interactive session token hasn't been set");
+        }
+
+        transactionCoordinator.commitTransaction(transactionId, sessionToken, interactiveSessionKey);
+        transactionId = null;
+    }
+
+    public void rollbackTransaction()
+    {
+        checkTransactionExists();
+
+        if (sessionToken == null)
+        {
+            throw new IllegalStateException("Session token hasn't been set");
+        }
+
+        if (interactiveSessionKey == null)
+        {
+            throw new IllegalStateException("Interactive session token hasn't been set");
+        }
+
+        transactionCoordinator.rollbackTransaction(transactionId, sessionToken, interactiveSessionKey);
+        transactionId = null;
+    }
+
+    public List<SpacePermId> createSpaces(List<SpaceCreation> newSpaces)
+    {
+        return asFacadeWithTransactions.createSpaces(sessionToken, newSpaces);
     }
 
-    public List<ProjectPermId> createProjects(List<ProjectCreation> newProjects) {
-        return asFacade.createProjects(sessionToken, newProjects);
+    public List<ProjectPermId> createProjects(List<ProjectCreation> newProjects)
+    {
+        return asFacadeWithTransactions.createProjects(sessionToken, newProjects);
     }
 
-    public List<ExperimentPermId> createExperiments(List<ExperimentCreation> newExperiments) {
-        return asFacade.createExperiments(sessionToken, newExperiments);
+    public List<ExperimentPermId> createExperiments(List<ExperimentCreation> newExperiments)
+    {
+        return asFacadeWithTransactions.createExperiments(sessionToken, newExperiments);
     }
 
-    public List<EntityTypePermId> createExperimentTypes(List<ExperimentTypeCreation> newExperimentTypes) {
-        return asFacade.createExperimentTypes(sessionToken, newExperimentTypes);
+    public List<EntityTypePermId> createExperimentTypes(List<ExperimentTypeCreation> newExperimentTypes)
+    {
+        return asFacadeWithTransactions.createExperimentTypes(sessionToken, newExperimentTypes);
     }
 
-    public List<SamplePermId> createSamples(List<SampleCreation> newSamples) {
-        return asFacade.createSamples(sessionToken, newSamples);
+    public List<SamplePermId> createSamples(List<SampleCreation> newSamples)
+    {
+        return asFacadeWithTransactions.createSamples(sessionToken, newSamples);
     }
 
-    public List<EntityTypePermId> createSampleTypes(List<SampleTypeCreation> newSampleTypes) {
-        return asFacade.createSampleTypes(sessionToken, newSampleTypes);
+    public List<EntityTypePermId> createSampleTypes(List<SampleTypeCreation> newSampleTypes)
+    {
+        return asFacadeWithTransactions.createSampleTypes(sessionToken, newSampleTypes);
     }
 
-    public List<DataSetPermId> createDataSetsAS(List<DataSetCreation> newDataSets) {
-        return asFacade.createDataSets(sessionToken, newDataSets);
+    public List<DataSetPermId> createDataSetsAS(List<DataSetCreation> newDataSets)
+    {
+        return asFacadeWithTransactions.createDataSets(sessionToken, newDataSets);
     }
 
-    public List<EntityTypePermId> createDataSetTypes(List<DataSetTypeCreation> newDataSetTypes) {
-        return asFacade.createDataSetTypes(sessionToken, newDataSetTypes);
+    public List<EntityTypePermId> createDataSetTypes(List<DataSetTypeCreation> newDataSetTypes)
+    {
+        return asFacadeWithTransactions.createDataSetTypes(sessionToken, newDataSetTypes);
     }
 
-    public List<MaterialPermId> createMaterials(List<MaterialCreation> newMaterials) {
-        return asFacade.createMaterials(sessionToken, newMaterials);
+    public List<MaterialPermId> createMaterials(List<MaterialCreation> newMaterials)
+    {
+        return asFacadeWithTransactions.createMaterials(sessionToken, newMaterials);
     }
 
-    public List<EntityTypePermId> createMaterialTypes(List<MaterialTypeCreation> newMaterialTypes) {
-        return asFacade.createMaterialTypes(sessionToken, newMaterialTypes);
+    public List<EntityTypePermId> createMaterialTypes(List<MaterialTypeCreation> newMaterialTypes)
+    {
+        return asFacadeWithTransactions.createMaterialTypes(sessionToken, newMaterialTypes);
     }
 
-    public List<PropertyTypePermId> createPropertyTypes(List<PropertyTypeCreation> newPropertyTypes) {
-        return asFacade.createPropertyTypes(sessionToken, newPropertyTypes);
+    public List<PropertyTypePermId> createPropertyTypes(List<PropertyTypeCreation> newPropertyTypes)
+    {
+        return asFacadeWithTransactions.createPropertyTypes(sessionToken, newPropertyTypes);
     }
 
-    public List<PluginPermId> createPlugins(List<PluginCreation> newPlugins) {
-        return asFacade.createPlugins(sessionToken, newPlugins);
+    public List<PluginPermId> createPlugins(List<PluginCreation> newPlugins)
+    {
+        return asFacadeWithTransactions.createPlugins(sessionToken, newPlugins);
     }
 
-    public List<VocabularyPermId> createVocabularies(List<VocabularyCreation> newVocabularies) {
-        return asFacade.createVocabularies(sessionToken, newVocabularies);
+    public List<VocabularyPermId> createVocabularies(List<VocabularyCreation> newVocabularies)
+    {
+        return asFacadeWithTransactions.createVocabularies(sessionToken, newVocabularies);
     }
 
-    public List<VocabularyTermPermId> createVocabularyTerms(List<VocabularyTermCreation> newVocabularyTerms) {
-        return asFacade.createVocabularyTerms(sessionToken, newVocabularyTerms);
+    public List<VocabularyTermPermId> createVocabularyTerms(List<VocabularyTermCreation> newVocabularyTerms)
+    {
+        return asFacadeWithTransactions.createVocabularyTerms(sessionToken, newVocabularyTerms);
     }
 
-    public List<TagPermId> createTags(List<TagCreation> newTags) {
-        return asFacade.createTags(sessionToken, newTags);
+    public List<TagPermId> createTags(List<TagCreation> newTags)
+    {
+        return asFacadeWithTransactions.createTags(sessionToken, newTags);
     }
 
-    public List<AuthorizationGroupPermId> createAuthorizationGroups(List<AuthorizationGroupCreation> newAuthorizationGroups) {
-        return asFacade.createAuthorizationGroups(sessionToken, newAuthorizationGroups);
+    public List<AuthorizationGroupPermId> createAuthorizationGroups(List<AuthorizationGroupCreation> newAuthorizationGroups)
+    {
+        return asFacadeWithTransactions.createAuthorizationGroups(sessionToken, newAuthorizationGroups);
     }
 
-    public List<RoleAssignmentTechId> createRoleAssignments(List<RoleAssignmentCreation> newRoleAssignments) {
-        return asFacade.createRoleAssignments(sessionToken, newRoleAssignments);
+    public List<RoleAssignmentTechId> createRoleAssignments(List<RoleAssignmentCreation> newRoleAssignments)
+    {
+        return asFacadeWithTransactions.createRoleAssignments(sessionToken, newRoleAssignments);
     }
 
-    public List<PersonPermId> createPersons(List<PersonCreation> newPersons) {
-        return asFacade.createPersons(sessionToken, newPersons);
+    public List<PersonPermId> createPersons(List<PersonCreation> newPersons)
+    {
+        return asFacadeWithTransactions.createPersons(sessionToken, newPersons);
     }
 
-    public List<ExternalDmsPermId> createExternalDataManagementSystems(List<ExternalDmsCreation> newExternalDataManagementSystems) {
-        return asFacade.createExternalDataManagementSystems(sessionToken, newExternalDataManagementSystems);
+    public List<ExternalDmsPermId> createExternalDataManagementSystems(List<ExternalDmsCreation> newExternalDataManagementSystems)
+    {
+        return asFacadeWithTransactions.createExternalDataManagementSystems(sessionToken, newExternalDataManagementSystems);
     }
 
-    public List<QueryTechId> createQueries(List<QueryCreation> newQueries) {
-        return asFacade.createQueries(sessionToken, newQueries);
+    public List<QueryTechId> createQueries(List<QueryCreation> newQueries)
+    {
+        return asFacadeWithTransactions.createQueries(sessionToken, newQueries);
     }
 
-    public List<SemanticAnnotationPermId> createSemanticAnnotations(List<SemanticAnnotationCreation> newAnnotations) {
-        return asFacade.createSemanticAnnotations(sessionToken, newAnnotations);
+    public List<SemanticAnnotationPermId> createSemanticAnnotations(List<SemanticAnnotationCreation> newAnnotations)
+    {
+        return asFacadeWithTransactions.createSemanticAnnotations(sessionToken, newAnnotations);
     }
 
-    public List<PersonalAccessTokenPermId> createPersonalAccessTokens(List<PersonalAccessTokenCreation> newPersonalAccessTokens) {
-        return asFacade.createPersonalAccessTokens(sessionToken, newPersonalAccessTokens);
+    public List<PersonalAccessTokenPermId> createPersonalAccessTokens(List<PersonalAccessTokenCreation> newPersonalAccessTokens)
+    {
+        return asFacadeWithTransactions.createPersonalAccessTokens(sessionToken, newPersonalAccessTokens);
     }
 
-    public void updateSpaces(List<SpaceUpdate> spaceUpdates) {
-        asFacade.updateSpaces(sessionToken, spaceUpdates);
+    public void updateSpaces(List<SpaceUpdate> spaceUpdates)
+    {
+        asFacadeWithTransactions.updateSpaces(sessionToken, spaceUpdates);
     }
 
-    public void updateProjects(List<ProjectUpdate> projectUpdates) {
-        asFacade.updateProjects(sessionToken, projectUpdates);
+    public void updateProjects(List<ProjectUpdate> projectUpdates)
+    {
+        asFacadeWithTransactions.updateProjects(sessionToken, projectUpdates);
     }
 
-    public void updateExperiments(List<ExperimentUpdate> experimentUpdates) {
-        asFacade.updateExperiments(sessionToken, experimentUpdates);
+    public void updateExperiments(List<ExperimentUpdate> experimentUpdates)
+    {
+        asFacadeWithTransactions.updateExperiments(sessionToken, experimentUpdates);
     }
 
-    public void updateExperimentTypes(List<ExperimentTypeUpdate> experimentTypeUpdates) {
-        asFacade.updateExperimentTypes(sessionToken, experimentTypeUpdates);
+    public void updateExperimentTypes(List<ExperimentTypeUpdate> experimentTypeUpdates)
+    {
+        asFacadeWithTransactions.updateExperimentTypes(sessionToken, experimentTypeUpdates);
     }
 
-    public void updateSamples(List<SampleUpdate> sampleUpdates) {
-        asFacade.updateSamples(sessionToken, sampleUpdates);
+    public void updateSamples(List<SampleUpdate> sampleUpdates)
+    {
+        asFacadeWithTransactions.updateSamples(sessionToken, sampleUpdates);
     }
 
-    public void updateSampleTypes(List<SampleTypeUpdate> sampleTypeUpdates) {
-        asFacade.updateSampleTypes(sessionToken, sampleTypeUpdates);
+    public void updateSampleTypes(List<SampleTypeUpdate> sampleTypeUpdates)
+    {
+        asFacadeWithTransactions.updateSampleTypes(sessionToken, sampleTypeUpdates);
     }
 
-    public void updateDataSets(List<DataSetUpdate> dataSetUpdates) {
-        asFacade.updateDataSets(sessionToken, dataSetUpdates);
+    public void updateDataSets(List<DataSetUpdate> dataSetUpdates)
+    {
+        asFacadeWithTransactions.updateDataSets(sessionToken, dataSetUpdates);
     }
 
-    public void updateDataSetTypes(List<DataSetTypeUpdate> dataSetTypeUpdates) {
-        asFacade.updateDataSetTypes(sessionToken, dataSetTypeUpdates);
+    public void updateDataSetTypes(List<DataSetTypeUpdate> dataSetTypeUpdates)
+    {
+        asFacadeWithTransactions.updateDataSetTypes(sessionToken, dataSetTypeUpdates);
     }
 
-    public void updateMaterials(List<MaterialUpdate> materialUpdates) {
-        asFacade.updateMaterials(sessionToken, materialUpdates);
+    public void updateMaterials(List<MaterialUpdate> materialUpdates)
+    {
+        asFacadeWithTransactions.updateMaterials(sessionToken, materialUpdates);
     }
 
-    public void updateMaterialTypes(List<MaterialTypeUpdate> materialTypeUpdates) {
-        asFacade.updateMaterialTypes(sessionToken, materialTypeUpdates);
+    public void updateMaterialTypes(List<MaterialTypeUpdate> materialTypeUpdates)
+    {
+        asFacadeWithTransactions.updateMaterialTypes(sessionToken, materialTypeUpdates);
     }
 
-    public void updateExternalDataManagementSystems(List<ExternalDmsUpdate> externalDmsUpdates) {
-        asFacade.updateExternalDataManagementSystems(sessionToken, externalDmsUpdates);
+    public void updateExternalDataManagementSystems(List<ExternalDmsUpdate> externalDmsUpdates)
+    {
+        asFacadeWithTransactions.updateExternalDataManagementSystems(sessionToken, externalDmsUpdates);
     }
 
-    public void updatePropertyTypes(List<PropertyTypeUpdate> propertyTypeUpdates) {
-        asFacade.updatePropertyTypes(sessionToken, propertyTypeUpdates);
+    public void updatePropertyTypes(List<PropertyTypeUpdate> propertyTypeUpdates)
+    {
+        asFacadeWithTransactions.updatePropertyTypes(sessionToken, propertyTypeUpdates);
     }
 
-    public void updatePlugins(List<PluginUpdate> pluginUpdates) {
-        asFacade.updatePlugins(sessionToken, pluginUpdates);
+    public void updatePlugins(List<PluginUpdate> pluginUpdates)
+    {
+        asFacadeWithTransactions.updatePlugins(sessionToken, pluginUpdates);
     }
 
-    public void updateVocabularies(List<VocabularyUpdate> vocabularyUpdates) {
-        asFacade.updateVocabularies(sessionToken, vocabularyUpdates);
+    public void updateVocabularies(List<VocabularyUpdate> vocabularyUpdates)
+    {
+        asFacadeWithTransactions.updateVocabularies(sessionToken, vocabularyUpdates);
     }
 
-    public void updateVocabularyTerms(List<VocabularyTermUpdate> vocabularyTermUpdates) {
-        asFacade.updateVocabularyTerms(sessionToken, vocabularyTermUpdates);
+    public void updateVocabularyTerms(List<VocabularyTermUpdate> vocabularyTermUpdates)
+    {
+        asFacadeWithTransactions.updateVocabularyTerms(sessionToken, vocabularyTermUpdates);
     }
 
-    public void updateTags(List<TagUpdate> tagUpdates) {
-        asFacade.updateTags(sessionToken, tagUpdates);
+    public void updateTags(List<TagUpdate> tagUpdates)
+    {
+        asFacadeWithTransactions.updateTags(sessionToken, tagUpdates);
     }
 
-    public void updateAuthorizationGroups(List<AuthorizationGroupUpdate> authorizationGroupUpdates) {
-        asFacade.updateAuthorizationGroups(sessionToken, authorizationGroupUpdates);
+    public void updateAuthorizationGroups(List<AuthorizationGroupUpdate> authorizationGroupUpdates)
+    {
+        asFacadeWithTransactions.updateAuthorizationGroups(sessionToken, authorizationGroupUpdates);
     }
 
-    public void updatePersons(List<PersonUpdate> personUpdates) {
-        asFacade.updatePersons(sessionToken, personUpdates);
+    public void updatePersons(List<PersonUpdate> personUpdates)
+    {
+        asFacadeWithTransactions.updatePersons(sessionToken, personUpdates);
     }
 
-    public void updateOperationExecutions(List<OperationExecutionUpdate> executionUpdates) {
-        asFacade.updateOperationExecutions(sessionToken, executionUpdates);
+    public void updateOperationExecutions(List<OperationExecutionUpdate> executionUpdates)
+    {
+        asFacadeWithTransactions.updateOperationExecutions(sessionToken, executionUpdates);
     }
 
-    public void updateSemanticAnnotations(List<SemanticAnnotationUpdate> annotationUpdates) {
-        asFacade.updateSemanticAnnotations(sessionToken, annotationUpdates);
+    public void updateSemanticAnnotations(List<SemanticAnnotationUpdate> annotationUpdates)
+    {
+        asFacadeWithTransactions.updateSemanticAnnotations(sessionToken, annotationUpdates);
     }
 
-    public void updateQueries(List<QueryUpdate> queryUpdates) {
-        asFacade.updateQueries(sessionToken, queryUpdates);
+    public void updateQueries(List<QueryUpdate> queryUpdates)
+    {
+        asFacadeWithTransactions.updateQueries(sessionToken, queryUpdates);
     }
 
-    public void updatePersonalAccessTokens(List<PersonalAccessTokenUpdate> personalAccessTokenUpdates) {
-        asFacade.updatePersonalAccessTokens(sessionToken, personalAccessTokenUpdates);
+    public void updatePersonalAccessTokens(List<PersonalAccessTokenUpdate> personalAccessTokenUpdates)
+    {
+        asFacadeWithTransactions.updatePersonalAccessTokens(sessionToken, personalAccessTokenUpdates);
     }
 
-    public Map<IObjectId, Rights> getRights(List<? extends IObjectId> ids, RightsFetchOptions fetchOptions) {
-        return asFacade.getRights(sessionToken, ids, fetchOptions);
+    public Map<IObjectId, Rights> getRights(List<? extends IObjectId> ids, RightsFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.getRights(sessionToken, ids, fetchOptions);
     }
 
-    public Map<ISpaceId, Space> getSpaces(List<? extends ISpaceId> spaceIds, SpaceFetchOptions fetchOptions) {
-        return asFacade.getSpaces(sessionToken, spaceIds, fetchOptions);
+    public Map<ISpaceId, Space> getSpaces(List<? extends ISpaceId> spaceIds, SpaceFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.getSpaces(sessionToken, spaceIds, fetchOptions);
     }
 
-    public Map<IProjectId, Project> getProjects(List<? extends IProjectId> projectIds, ProjectFetchOptions fetchOptions) {
-        return asFacade.getProjects(sessionToken, projectIds, fetchOptions);
+    public Map<IProjectId, Project> getProjects(List<? extends IProjectId> projectIds, ProjectFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.getProjects(sessionToken, projectIds, fetchOptions);
     }
 
-    public Map<IExperimentId, Experiment> getExperiments(List<? extends IExperimentId> experimentIds, ExperimentFetchOptions fetchOptions) {
-        return asFacade.getExperiments(sessionToken, experimentIds, fetchOptions);
+    public Map<IExperimentId, Experiment> getExperiments(List<? extends IExperimentId> experimentIds, ExperimentFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.getExperiments(sessionToken, experimentIds, fetchOptions);
     }
 
-    public Map<IEntityTypeId, ExperimentType> getExperimentTypes(List<? extends IEntityTypeId> experimentTypeIds, ExperimentTypeFetchOptions fetchOptions) {
-        return asFacade.getExperimentTypes(sessionToken, experimentTypeIds, fetchOptions);
+    public Map<IEntityTypeId, ExperimentType> getExperimentTypes(List<? extends IEntityTypeId> experimentTypeIds,
+            ExperimentTypeFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.getExperimentTypes(sessionToken, experimentTypeIds, fetchOptions);
     }
 
-    public Map<ISampleId, Sample> getSamples(List<? extends ISampleId> sampleIds, SampleFetchOptions fetchOptions) {
-        return asFacade.getSamples(sessionToken, sampleIds, fetchOptions);
+    public Map<ISampleId, Sample> getSamples(List<? extends ISampleId> sampleIds, SampleFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.getSamples(sessionToken, sampleIds, fetchOptions);
     }
 
-    public Map<IEntityTypeId, SampleType> getSampleTypes(List<? extends IEntityTypeId> sampleTypeIds, SampleTypeFetchOptions fetchOptions) {
-        return asFacade.getSampleTypes(sessionToken, sampleTypeIds, fetchOptions);
+    public Map<IEntityTypeId, SampleType> getSampleTypes(List<? extends IEntityTypeId> sampleTypeIds, SampleTypeFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.getSampleTypes(sessionToken, sampleTypeIds, fetchOptions);
     }
 
-    public Map<IDataSetId, DataSet> getDataSets(List<? extends IDataSetId> dataSetIds, DataSetFetchOptions fetchOptions) {
-        return asFacade.getDataSets(sessionToken, dataSetIds, fetchOptions);
+    public Map<IDataSetId, DataSet> getDataSets(List<? extends IDataSetId> dataSetIds, DataSetFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.getDataSets(sessionToken, dataSetIds, fetchOptions);
     }
 
-    public Map<IEntityTypeId, DataSetType> getDataSetTypes(List<? extends IEntityTypeId> dataSetTypeIds, DataSetTypeFetchOptions fetchOptions) {
-        return asFacade.getDataSetTypes(sessionToken, dataSetTypeIds, fetchOptions);
+    public Map<IEntityTypeId, DataSetType> getDataSetTypes(List<? extends IEntityTypeId> dataSetTypeIds, DataSetTypeFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.getDataSetTypes(sessionToken, dataSetTypeIds, fetchOptions);
     }
 
-    public Map<IMaterialId, Material> getMaterials(List<? extends IMaterialId> materialIds, MaterialFetchOptions fetchOptions) {
-        return asFacade.getMaterials(sessionToken, materialIds, fetchOptions);
+    public Map<IMaterialId, Material> getMaterials(List<? extends IMaterialId> materialIds, MaterialFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.getMaterials(sessionToken, materialIds, fetchOptions);
     }
 
-    public Map<IEntityTypeId, MaterialType> getMaterialTypes(List<? extends IEntityTypeId> materialTypeIds, MaterialTypeFetchOptions fetchOptions) {
-        return asFacade.getMaterialTypes(sessionToken, materialTypeIds, fetchOptions);
+    public Map<IEntityTypeId, MaterialType> getMaterialTypes(List<? extends IEntityTypeId> materialTypeIds, MaterialTypeFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.getMaterialTypes(sessionToken, materialTypeIds, fetchOptions);
     }
 
-    public Map<IPropertyTypeId, PropertyType> getPropertyTypes(List<? extends IPropertyTypeId> typeIds, PropertyTypeFetchOptions fetchOptions) {
-        return asFacade.getPropertyTypes(sessionToken, typeIds, fetchOptions);
+    public Map<IPropertyTypeId, PropertyType> getPropertyTypes(List<? extends IPropertyTypeId> typeIds, PropertyTypeFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.getPropertyTypes(sessionToken, typeIds, fetchOptions);
     }
 
-    public Map<IPluginId, Plugin> getPlugins(List<? extends IPluginId> pluginIds, PluginFetchOptions fetchOptions) {
-        return asFacade.getPlugins(sessionToken, pluginIds, fetchOptions);
+    public Map<IPluginId, Plugin> getPlugins(List<? extends IPluginId> pluginIds, PluginFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.getPlugins(sessionToken, pluginIds, fetchOptions);
     }
 
-    public Map<IVocabularyId, Vocabulary> getVocabularies(List<? extends IVocabularyId> vocabularyIds, VocabularyFetchOptions fetchOptions) {
-        return asFacade.getVocabularies(sessionToken, vocabularyIds, fetchOptions);
+    public Map<IVocabularyId, Vocabulary> getVocabularies(List<? extends IVocabularyId> vocabularyIds, VocabularyFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.getVocabularies(sessionToken, vocabularyIds, fetchOptions);
     }
 
-    public Map<IVocabularyTermId, VocabularyTerm> getVocabularyTerms(List<? extends IVocabularyTermId> vocabularyTermIds, VocabularyTermFetchOptions fetchOptions) {
-        return asFacade.getVocabularyTerms(sessionToken, vocabularyTermIds, fetchOptions);
+    public Map<IVocabularyTermId, VocabularyTerm> getVocabularyTerms(List<? extends IVocabularyTermId> vocabularyTermIds,
+            VocabularyTermFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.getVocabularyTerms(sessionToken, vocabularyTermIds, fetchOptions);
     }
 
-    public Map<ITagId, Tag> getTags(List<? extends ITagId> tagIds, TagFetchOptions fetchOptions) {
-        return asFacade.getTags(sessionToken, tagIds, fetchOptions);
+    public Map<ITagId, Tag> getTags(List<? extends ITagId> tagIds, TagFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.getTags(sessionToken, tagIds, fetchOptions);
     }
 
-    public Map<IAuthorizationGroupId, AuthorizationGroup> getAuthorizationGroups(List<? extends IAuthorizationGroupId> groupIds, AuthorizationGroupFetchOptions fetchOptions) {
-        return asFacade.getAuthorizationGroups(sessionToken, groupIds, fetchOptions);
+    public Map<IAuthorizationGroupId, AuthorizationGroup> getAuthorizationGroups(List<? extends IAuthorizationGroupId> groupIds,
+            AuthorizationGroupFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.getAuthorizationGroups(sessionToken, groupIds, fetchOptions);
     }
 
-    public Map<IRoleAssignmentId, RoleAssignment> getRoleAssignments(List<? extends IRoleAssignmentId> ids, RoleAssignmentFetchOptions fetchOptions) {
-        return asFacade.getRoleAssignments(sessionToken, ids, fetchOptions);
+    public Map<IRoleAssignmentId, RoleAssignment> getRoleAssignments(List<? extends IRoleAssignmentId> ids, RoleAssignmentFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.getRoleAssignments(sessionToken, ids, fetchOptions);
     }
 
-    public Map<IPersonId, Person> getPersons(List<? extends IPersonId> ids, PersonFetchOptions fetchOptions) {
-        return asFacade.getPersons(sessionToken, ids, fetchOptions);
+    public Map<IPersonId, Person> getPersons(List<? extends IPersonId> ids, PersonFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.getPersons(sessionToken, ids, fetchOptions);
     }
 
-    public Map<IExternalDmsId, ExternalDms> getExternalDataManagementSystems(List<? extends IExternalDmsId> externalDmsIds, ExternalDmsFetchOptions fetchOptions) {
-        return asFacade.getExternalDataManagementSystems(sessionToken, externalDmsIds, fetchOptions);
+    public Map<IExternalDmsId, ExternalDms> getExternalDataManagementSystems(List<? extends IExternalDmsId> externalDmsIds,
+            ExternalDmsFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.getExternalDataManagementSystems(sessionToken, externalDmsIds, fetchOptions);
     }
 
-    public Map<ISemanticAnnotationId, SemanticAnnotation> getSemanticAnnotations(List<? extends ISemanticAnnotationId> annotationIds, SemanticAnnotationFetchOptions fetchOptions) {
-        return asFacade.getSemanticAnnotations(sessionToken, annotationIds, fetchOptions);
+    public Map<ISemanticAnnotationId, SemanticAnnotation> getSemanticAnnotations(List<? extends ISemanticAnnotationId> annotationIds,
+            SemanticAnnotationFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.getSemanticAnnotations(sessionToken, annotationIds, fetchOptions);
     }
 
-    public Map<IOperationExecutionId, OperationExecution> getOperationExecutions(List<? extends IOperationExecutionId> executionIds, OperationExecutionFetchOptions fetchOptions) {
-        return asFacade.getOperationExecutions(sessionToken, executionIds, fetchOptions);
+    public Map<IOperationExecutionId, OperationExecution> getOperationExecutions(List<? extends IOperationExecutionId> executionIds,
+            OperationExecutionFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.getOperationExecutions(sessionToken, executionIds, fetchOptions);
     }
 
-    public Map<IQueryId, Query> getQueries(List<? extends IQueryId> queryIds, QueryFetchOptions fetchOptions) {
-        return asFacade.getQueries(sessionToken, queryIds, fetchOptions);
+    public Map<IQueryId, Query> getQueries(List<? extends IQueryId> queryIds, QueryFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.getQueries(sessionToken, queryIds, fetchOptions);
     }
 
-    public Map<IQueryDatabaseId, QueryDatabase> getQueryDatabases(List<? extends IQueryDatabaseId> queryDatabaseIds, QueryDatabaseFetchOptions fetchOptions) {
-        return asFacade.getQueryDatabases(sessionToken, queryDatabaseIds, fetchOptions);
+    public Map<IQueryDatabaseId, QueryDatabase> getQueryDatabases(List<? extends IQueryDatabaseId> queryDatabaseIds,
+            QueryDatabaseFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.getQueryDatabases(sessionToken, queryDatabaseIds, fetchOptions);
     }
 
-    public Map<IPersonalAccessTokenId, PersonalAccessToken> getPersonalAccessTokens(List<? extends IPersonalAccessTokenId> personalAccessTokenIds, PersonalAccessTokenFetchOptions fetchOptions) {
-        return asFacade.getPersonalAccessTokens(sessionToken, personalAccessTokenIds, fetchOptions);
+    public Map<IPersonalAccessTokenId, PersonalAccessToken> getPersonalAccessTokens(List<? extends IPersonalAccessTokenId> personalAccessTokenIds,
+            PersonalAccessTokenFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.getPersonalAccessTokens(sessionToken, personalAccessTokenIds, fetchOptions);
     }
 
-    public SearchResult<Space> searchSpaces(SpaceSearchCriteria searchCriteria, SpaceFetchOptions fetchOptions) {
-        return asFacade.searchSpaces(sessionToken, searchCriteria, fetchOptions);
+    public SearchResult<Space> searchSpaces(SpaceSearchCriteria searchCriteria, SpaceFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.searchSpaces(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<Project> searchProjects(ProjectSearchCriteria searchCriteria, ProjectFetchOptions fetchOptions) {
-        return asFacade.searchProjects(sessionToken, searchCriteria, fetchOptions);
+    public SearchResult<Project> searchProjects(ProjectSearchCriteria searchCriteria, ProjectFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.searchProjects(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<Experiment> searchExperiments(ExperimentSearchCriteria searchCriteria, ExperimentFetchOptions fetchOptions) {
-        return asFacade.searchExperiments(sessionToken, searchCriteria, fetchOptions);
+    public SearchResult<Experiment> searchExperiments(ExperimentSearchCriteria searchCriteria, ExperimentFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.searchExperiments(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<ExperimentType> searchExperimentTypes(ExperimentTypeSearchCriteria searchCriteria, ExperimentTypeFetchOptions fetchOptions) {
-        return asFacade.searchExperimentTypes(sessionToken, searchCriteria, fetchOptions);
+    public SearchResult<ExperimentType> searchExperimentTypes(ExperimentTypeSearchCriteria searchCriteria, ExperimentTypeFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.searchExperimentTypes(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<Sample> searchSamples(SampleSearchCriteria searchCriteria, SampleFetchOptions fetchOptions) {
-        return asFacade.searchSamples(sessionToken, searchCriteria, fetchOptions);
+    public SearchResult<Sample> searchSamples(SampleSearchCriteria searchCriteria, SampleFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.searchSamples(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<SampleType> searchSampleTypes(SampleTypeSearchCriteria searchCriteria, SampleTypeFetchOptions fetchOptions) {
-        return asFacade.searchSampleTypes(sessionToken, searchCriteria, fetchOptions);
+    public SearchResult<SampleType> searchSampleTypes(SampleTypeSearchCriteria searchCriteria, SampleTypeFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.searchSampleTypes(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<DataSet> searchDataSets(DataSetSearchCriteria searchCriteria, DataSetFetchOptions fetchOptions) {
-        return asFacade.searchDataSets(sessionToken, searchCriteria, fetchOptions);
+    public SearchResult<DataSet> searchDataSets(DataSetSearchCriteria searchCriteria, DataSetFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.searchDataSets(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<DataSetType> searchDataSetTypes(DataSetTypeSearchCriteria searchCriteria, DataSetTypeFetchOptions fetchOptions) {
-        return asFacade.searchDataSetTypes(sessionToken, searchCriteria, fetchOptions);
+    public SearchResult<DataSetType> searchDataSetTypes(DataSetTypeSearchCriteria searchCriteria, DataSetTypeFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.searchDataSetTypes(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<Material> searchMaterials(MaterialSearchCriteria searchCriteria, MaterialFetchOptions fetchOptions) {
-        return asFacade.searchMaterials(sessionToken, searchCriteria, fetchOptions);
+    public SearchResult<Material> searchMaterials(MaterialSearchCriteria searchCriteria, MaterialFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.searchMaterials(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<ExternalDms> searchExternalDataManagementSystems(ExternalDmsSearchCriteria searchCriteria, ExternalDmsFetchOptions fetchOptions) {
-        return asFacade.searchExternalDataManagementSystems(sessionToken, searchCriteria, fetchOptions);
+    public SearchResult<ExternalDms> searchExternalDataManagementSystems(ExternalDmsSearchCriteria searchCriteria,
+            ExternalDmsFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.searchExternalDataManagementSystems(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<MaterialType> searchMaterialTypes(MaterialTypeSearchCriteria searchCriteria, MaterialTypeFetchOptions fetchOptions) {
-        return asFacade.searchMaterialTypes(sessionToken, searchCriteria, fetchOptions);
+    public SearchResult<MaterialType> searchMaterialTypes(MaterialTypeSearchCriteria searchCriteria, MaterialTypeFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.searchMaterialTypes(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<Plugin> searchPlugins(PluginSearchCriteria searchCriteria, PluginFetchOptions fetchOptions) {
-        return asFacade.searchPlugins(sessionToken, searchCriteria, fetchOptions);
+    public SearchResult<Plugin> searchPlugins(PluginSearchCriteria searchCriteria, PluginFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.searchPlugins(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<Vocabulary> searchVocabularies(VocabularySearchCriteria searchCriteria, VocabularyFetchOptions fetchOptions) {
-        return asFacade.searchVocabularies(sessionToken, searchCriteria, fetchOptions);
+    public SearchResult<Vocabulary> searchVocabularies(VocabularySearchCriteria searchCriteria, VocabularyFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.searchVocabularies(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<VocabularyTerm> searchVocabularyTerms(VocabularyTermSearchCriteria searchCriteria, VocabularyTermFetchOptions fetchOptions) {
-        return asFacade.searchVocabularyTerms(sessionToken, searchCriteria, fetchOptions);
+    public SearchResult<VocabularyTerm> searchVocabularyTerms(VocabularyTermSearchCriteria searchCriteria, VocabularyTermFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.searchVocabularyTerms(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<Tag> searchTags(TagSearchCriteria searchCriteria, TagFetchOptions fetchOptions) {
-        return asFacade.searchTags(sessionToken, searchCriteria, fetchOptions);
+    public SearchResult<Tag> searchTags(TagSearchCriteria searchCriteria, TagFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.searchTags(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<AuthorizationGroup> searchAuthorizationGroups(AuthorizationGroupSearchCriteria searchCriteria, AuthorizationGroupFetchOptions fetchOptions) {
-        return asFacade.searchAuthorizationGroups(sessionToken, searchCriteria, fetchOptions);
+    public SearchResult<AuthorizationGroup> searchAuthorizationGroups(AuthorizationGroupSearchCriteria searchCriteria,
+            AuthorizationGroupFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.searchAuthorizationGroups(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<RoleAssignment> searchRoleAssignments(RoleAssignmentSearchCriteria searchCriteria, RoleAssignmentFetchOptions fetchOptions) {
-        return asFacade.searchRoleAssignments(sessionToken, searchCriteria, fetchOptions);
+    public SearchResult<RoleAssignment> searchRoleAssignments(RoleAssignmentSearchCriteria searchCriteria, RoleAssignmentFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.searchRoleAssignments(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<Person> searchPersons(PersonSearchCriteria searchCriteria, PersonFetchOptions fetchOptions) {
-        return asFacade.searchPersons(sessionToken, searchCriteria, fetchOptions);
+    public SearchResult<Person> searchPersons(PersonSearchCriteria searchCriteria, PersonFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.searchPersons(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<CustomASService> searchCustomASServices(CustomASServiceSearchCriteria searchCriteria, CustomASServiceFetchOptions fetchOptions) {
-        return asFacade.searchCustomASServices(sessionToken, searchCriteria, fetchOptions);
+    public SearchResult<CustomASService> searchCustomASServices(CustomASServiceSearchCriteria searchCriteria,
+            CustomASServiceFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.searchCustomASServices(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<SearchDomainService> searchSearchDomainServices(SearchDomainServiceSearchCriteria searchCriteria, SearchDomainServiceFetchOptions fetchOptions) {
-        return asFacade.searchSearchDomainServices(sessionToken, searchCriteria, fetchOptions);
+    public SearchResult<SearchDomainService> searchSearchDomainServices(SearchDomainServiceSearchCriteria searchCriteria,
+            SearchDomainServiceFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.searchSearchDomainServices(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<AggregationService> searchAggregationServices(AggregationServiceSearchCriteria searchCriteria, AggregationServiceFetchOptions fetchOptions) {
-        return asFacade.searchAggregationServices(sessionToken, searchCriteria, fetchOptions);
+    public SearchResult<AggregationService> searchAggregationServices(AggregationServiceSearchCriteria searchCriteria,
+            AggregationServiceFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.searchAggregationServices(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<ReportingService> searchReportingServices(ReportingServiceSearchCriteria searchCriteria, ReportingServiceFetchOptions fetchOptions) {
-        return asFacade.searchReportingServices(sessionToken, searchCriteria, fetchOptions);
+    public SearchResult<ReportingService> searchReportingServices(ReportingServiceSearchCriteria searchCriteria,
+            ReportingServiceFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.searchReportingServices(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<ProcessingService> searchProcessingServices(ProcessingServiceSearchCriteria searchCriteria, ProcessingServiceFetchOptions fetchOptions) {
-        return asFacade.searchProcessingServices(sessionToken, searchCriteria, fetchOptions);
+    public SearchResult<ProcessingService> searchProcessingServices(ProcessingServiceSearchCriteria searchCriteria,
+            ProcessingServiceFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.searchProcessingServices(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<ObjectKindModification> searchObjectKindModifications(ObjectKindModificationSearchCriteria searchCriteria, ObjectKindModificationFetchOptions fetchOptions) {
-        return asFacade.searchObjectKindModifications(sessionToken, searchCriteria, fetchOptions);
+    public SearchResult<ObjectKindModification> searchObjectKindModifications(ObjectKindModificationSearchCriteria searchCriteria,
+            ObjectKindModificationFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.searchObjectKindModifications(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<GlobalSearchObject> searchGlobally(GlobalSearchCriteria searchCriteria, GlobalSearchObjectFetchOptions fetchOptions) {
-        return asFacade.searchGlobally(sessionToken, searchCriteria, fetchOptions);
+    public SearchResult<GlobalSearchObject> searchGlobally(GlobalSearchCriteria searchCriteria, GlobalSearchObjectFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.searchGlobally(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<OperationExecution> searchOperationExecutions(OperationExecutionSearchCriteria searchCriteria, OperationExecutionFetchOptions fetchOptions) {
-        return asFacade.searchOperationExecutions(sessionToken, searchCriteria, fetchOptions);
+    public SearchResult<OperationExecution> searchOperationExecutions(OperationExecutionSearchCriteria searchCriteria,
+            OperationExecutionFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.searchOperationExecutions(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<DataStore> searchDataStores(DataStoreSearchCriteria searchCriteria, DataStoreFetchOptions fetchOptions) {
-        return asFacade.searchDataStores(sessionToken, searchCriteria, fetchOptions);
+    public SearchResult<DataStore> searchDataStores(DataStoreSearchCriteria searchCriteria, DataStoreFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.searchDataStores(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<SemanticAnnotation> searchSemanticAnnotations(SemanticAnnotationSearchCriteria searchCriteria, SemanticAnnotationFetchOptions fetchOptions) {
-        return asFacade.searchSemanticAnnotations(sessionToken, searchCriteria, fetchOptions);
+    public SearchResult<SemanticAnnotation> searchSemanticAnnotations(SemanticAnnotationSearchCriteria searchCriteria,
+            SemanticAnnotationFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.searchSemanticAnnotations(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<PropertyType> searchPropertyTypes(PropertyTypeSearchCriteria searchCriteria, PropertyTypeFetchOptions fetchOptions) {
-        return asFacade.searchPropertyTypes(sessionToken, searchCriteria, fetchOptions);
+    public SearchResult<PropertyType> searchPropertyTypes(PropertyTypeSearchCriteria searchCriteria, PropertyTypeFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.searchPropertyTypes(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<PropertyAssignment> searchPropertyAssignments(PropertyAssignmentSearchCriteria searchCriteria, PropertyAssignmentFetchOptions fetchOptions) {
-        return asFacade.searchPropertyAssignments(sessionToken, searchCriteria, fetchOptions);
+    public SearchResult<PropertyAssignment> searchPropertyAssignments(PropertyAssignmentSearchCriteria searchCriteria,
+            PropertyAssignmentFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.searchPropertyAssignments(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<Query> searchQueries(QuerySearchCriteria searchCriteria, QueryFetchOptions fetchOptions) {
-        return asFacade.searchQueries(sessionToken, searchCriteria, fetchOptions);
+    public SearchResult<Query> searchQueries(QuerySearchCriteria searchCriteria, QueryFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.searchQueries(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<QueryDatabase> searchQueryDatabases(QueryDatabaseSearchCriteria searchCriteria, QueryDatabaseFetchOptions fetchOptions) {
-        return asFacade.searchQueryDatabases(sessionToken, searchCriteria, fetchOptions);
+    public SearchResult<QueryDatabase> searchQueryDatabases(QueryDatabaseSearchCriteria searchCriteria, QueryDatabaseFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.searchQueryDatabases(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public void deleteSpaces(List<? extends ISpaceId> spaceIds, SpaceDeletionOptions deletionOptions) {
-        asFacade.deleteSpaces(sessionToken, spaceIds, deletionOptions);
+    public void deleteSpaces(List<? extends ISpaceId> spaceIds, SpaceDeletionOptions deletionOptions)
+    {
+        asFacadeWithTransactions.deleteSpaces(sessionToken, spaceIds, deletionOptions);
     }
 
-    public void deleteProjects(List<? extends IProjectId> projectIds, ProjectDeletionOptions deletionOptions) {
-        asFacade.deleteProjects(sessionToken, projectIds, deletionOptions);
+    public void deleteProjects(List<? extends IProjectId> projectIds, ProjectDeletionOptions deletionOptions)
+    {
+        asFacadeWithTransactions.deleteProjects(sessionToken, projectIds, deletionOptions);
     }
 
-    public IDeletionId deleteExperiments(List<? extends IExperimentId> experimentIds, ExperimentDeletionOptions deletionOptions) {
-        return asFacade.deleteExperiments(sessionToken, experimentIds, deletionOptions);
+    public IDeletionId deleteExperiments(List<? extends IExperimentId> experimentIds, ExperimentDeletionOptions deletionOptions)
+    {
+        return asFacadeWithTransactions.deleteExperiments(sessionToken, experimentIds, deletionOptions);
     }
 
-    public IDeletionId deleteSamples(List<? extends ISampleId> sampleIds, SampleDeletionOptions deletionOptions) {
-        return asFacade.deleteSamples(sessionToken, sampleIds, deletionOptions);
+    public IDeletionId deleteSamples(List<? extends ISampleId> sampleIds, SampleDeletionOptions deletionOptions)
+    {
+        return asFacadeWithTransactions.deleteSamples(sessionToken, sampleIds, deletionOptions);
     }
 
-    public IDeletionId deleteDataSets(List<? extends IDataSetId> dataSetIds, DataSetDeletionOptions deletionOptions) {
-        return asFacade.deleteDataSets(sessionToken, dataSetIds, deletionOptions);
+    public IDeletionId deleteDataSets(List<? extends IDataSetId> dataSetIds, DataSetDeletionOptions deletionOptions)
+    {
+        return asFacadeWithTransactions.deleteDataSets(sessionToken, dataSetIds, deletionOptions);
     }
 
-    public void deleteMaterials(List<? extends IMaterialId> materialIds, MaterialDeletionOptions deletionOptions) {
-        asFacade.deleteMaterials(sessionToken, materialIds, deletionOptions);
+    public void deleteMaterials(List<? extends IMaterialId> materialIds, MaterialDeletionOptions deletionOptions)
+    {
+        asFacadeWithTransactions.deleteMaterials(sessionToken, materialIds, deletionOptions);
     }
 
-    public void deletePlugins(List<? extends IPluginId> pluginIds, PluginDeletionOptions deletionOptions) {
-        asFacade.deletePlugins(sessionToken, pluginIds, deletionOptions);
+    public void deletePlugins(List<? extends IPluginId> pluginIds, PluginDeletionOptions deletionOptions)
+    {
+        asFacadeWithTransactions.deletePlugins(sessionToken, pluginIds, deletionOptions);
     }
 
-    public void deletePropertyTypes(List<? extends IPropertyTypeId> propertyTypeIds, PropertyTypeDeletionOptions deletionOptions) {
-        asFacade.deletePropertyTypes(sessionToken, propertyTypeIds, deletionOptions);
+    public void deletePropertyTypes(List<? extends IPropertyTypeId> propertyTypeIds, PropertyTypeDeletionOptions deletionOptions)
+    {
+        asFacadeWithTransactions.deletePropertyTypes(sessionToken, propertyTypeIds, deletionOptions);
     }
 
-    public void deleteVocabularies(List<? extends IVocabularyId> ids, VocabularyDeletionOptions deletionOptions) {
-        asFacade.deleteVocabularies(sessionToken, ids, deletionOptions);
+    public void deleteVocabularies(List<? extends IVocabularyId> ids, VocabularyDeletionOptions deletionOptions)
+    {
+        asFacadeWithTransactions.deleteVocabularies(sessionToken, ids, deletionOptions);
     }
 
-    public void deleteVocabularyTerms(List<? extends IVocabularyTermId> termIds, VocabularyTermDeletionOptions deletionOptions) {
-        asFacade.deleteVocabularyTerms(sessionToken, termIds, deletionOptions);
+    public void deleteVocabularyTerms(List<? extends IVocabularyTermId> termIds, VocabularyTermDeletionOptions deletionOptions)
+    {
+        asFacadeWithTransactions.deleteVocabularyTerms(sessionToken, termIds, deletionOptions);
     }
 
-    public void deleteExperimentTypes(List<? extends IEntityTypeId> experimentTypeIds, ExperimentTypeDeletionOptions deletionOptions) {
-        asFacade.deleteExperimentTypes(sessionToken, experimentTypeIds, deletionOptions);
+    public void deleteExperimentTypes(List<? extends IEntityTypeId> experimentTypeIds, ExperimentTypeDeletionOptions deletionOptions)
+    {
+        asFacadeWithTransactions.deleteExperimentTypes(sessionToken, experimentTypeIds, deletionOptions);
     }
 
-    public void deleteSampleTypes(List<? extends IEntityTypeId> sampleTypeIds, SampleTypeDeletionOptions deletionOptions) {
-        asFacade.deleteSampleTypes(sessionToken, sampleTypeIds, deletionOptions);
+    public void deleteSampleTypes(List<? extends IEntityTypeId> sampleTypeIds, SampleTypeDeletionOptions deletionOptions)
+    {
+        asFacadeWithTransactions.deleteSampleTypes(sessionToken, sampleTypeIds, deletionOptions);
     }
 
-    public void deleteDataSetTypes(List<? extends IEntityTypeId> dataSetTypeIds, DataSetTypeDeletionOptions deletionOptions) {
-        asFacade.deleteDataSetTypes(sessionToken, dataSetTypeIds, deletionOptions);
+    public void deleteDataSetTypes(List<? extends IEntityTypeId> dataSetTypeIds, DataSetTypeDeletionOptions deletionOptions)
+    {
+        asFacadeWithTransactions.deleteDataSetTypes(sessionToken, dataSetTypeIds, deletionOptions);
     }
 
-    public void deleteMaterialTypes(List<? extends IEntityTypeId> materialTypeIds, MaterialTypeDeletionOptions deletionOptions) {
-        asFacade.deleteMaterialTypes(sessionToken, materialTypeIds, deletionOptions);
+    public void deleteMaterialTypes(List<? extends IEntityTypeId> materialTypeIds, MaterialTypeDeletionOptions deletionOptions)
+    {
+        asFacadeWithTransactions.deleteMaterialTypes(sessionToken, materialTypeIds, deletionOptions);
     }
 
-    public void deleteExternalDataManagementSystems(List<? extends IExternalDmsId> externalDmsIds, ExternalDmsDeletionOptions deletionOptions) {
-        asFacade.deleteExternalDataManagementSystems(sessionToken, externalDmsIds, deletionOptions);
+    public void deleteExternalDataManagementSystems(List<? extends IExternalDmsId> externalDmsIds, ExternalDmsDeletionOptions deletionOptions)
+    {
+        asFacadeWithTransactions.deleteExternalDataManagementSystems(sessionToken, externalDmsIds, deletionOptions);
     }
 
-    public void deleteTags(List<? extends ITagId> tagIds, TagDeletionOptions deletionOptions) {
-        asFacade.deleteTags(sessionToken, tagIds, deletionOptions);
+    public void deleteTags(List<? extends ITagId> tagIds, TagDeletionOptions deletionOptions)
+    {
+        asFacadeWithTransactions.deleteTags(sessionToken, tagIds, deletionOptions);
     }
 
-    public void deleteAuthorizationGroups(List<? extends IAuthorizationGroupId> groupIds, AuthorizationGroupDeletionOptions deletionOptions) {
-        asFacade.deleteAuthorizationGroups(sessionToken, groupIds, deletionOptions);
+    public void deleteAuthorizationGroups(List<? extends IAuthorizationGroupId> groupIds, AuthorizationGroupDeletionOptions deletionOptions)
+    {
+        asFacadeWithTransactions.deleteAuthorizationGroups(sessionToken, groupIds, deletionOptions);
     }
 
-    public void deleteRoleAssignments(List<? extends IRoleAssignmentId> assignmentIds, RoleAssignmentDeletionOptions deletionOptions) {
-        asFacade.deleteRoleAssignments(sessionToken, assignmentIds, deletionOptions);
+    public void deleteRoleAssignments(List<? extends IRoleAssignmentId> assignmentIds, RoleAssignmentDeletionOptions deletionOptions)
+    {
+        asFacadeWithTransactions.deleteRoleAssignments(sessionToken, assignmentIds, deletionOptions);
     }
 
-    public void deleteOperationExecutions(List<? extends IOperationExecutionId> executionIds, OperationExecutionDeletionOptions deletionOptions) {
-        asFacade.deleteOperationExecutions(sessionToken, executionIds, deletionOptions);
+    public void deleteOperationExecutions(List<? extends IOperationExecutionId> executionIds, OperationExecutionDeletionOptions deletionOptions)
+    {
+        asFacadeWithTransactions.deleteOperationExecutions(sessionToken, executionIds, deletionOptions);
     }
 
-    public void deleteSemanticAnnotations(List<? extends ISemanticAnnotationId> annotationIds, SemanticAnnotationDeletionOptions deletionOptions) {
-        asFacade.deleteSemanticAnnotations(sessionToken, annotationIds, deletionOptions);
+    public void deleteSemanticAnnotations(List<? extends ISemanticAnnotationId> annotationIds, SemanticAnnotationDeletionOptions deletionOptions)
+    {
+        asFacadeWithTransactions.deleteSemanticAnnotations(sessionToken, annotationIds, deletionOptions);
     }
 
-    public void deleteQueries(List<? extends IQueryId> queryIds, QueryDeletionOptions deletionOptions) {
-        asFacade.deleteQueries(sessionToken, queryIds, deletionOptions);
+    public void deleteQueries(List<? extends IQueryId> queryIds, QueryDeletionOptions deletionOptions)
+    {
+        asFacadeWithTransactions.deleteQueries(sessionToken, queryIds, deletionOptions);
     }
 
-    public void deletePersons(List<? extends IPersonId> personIds, PersonDeletionOptions deletionOptions) {
-        asFacade.deletePersons(sessionToken, personIds, deletionOptions);
+    public void deletePersons(List<? extends IPersonId> personIds, PersonDeletionOptions deletionOptions)
+    {
+        asFacadeWithTransactions.deletePersons(sessionToken, personIds, deletionOptions);
     }
 
-    public void deletePersonalAccessTokens(List<? extends IPersonalAccessTokenId> personalAccessTokenIds, PersonalAccessTokenDeletionOptions deletionOptions) {
-        asFacade.deletePersonalAccessTokens(sessionToken, personalAccessTokenIds, deletionOptions);
+    public void deletePersonalAccessTokens(List<? extends IPersonalAccessTokenId> personalAccessTokenIds,
+            PersonalAccessTokenDeletionOptions deletionOptions)
+    {
+        asFacadeWithTransactions.deletePersonalAccessTokens(sessionToken, personalAccessTokenIds, deletionOptions);
     }
 
-    public SearchResult<Deletion> searchDeletions(DeletionSearchCriteria searchCriteria, DeletionFetchOptions fetchOptions) {
-        return asFacade.searchDeletions(sessionToken, searchCriteria, fetchOptions);
+    public SearchResult<Deletion> searchDeletions(DeletionSearchCriteria searchCriteria, DeletionFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.searchDeletions(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<Event> searchEvents(EventSearchCriteria searchCriteria, EventFetchOptions fetchOptions) {
-        return asFacade.searchEvents(sessionToken, searchCriteria, fetchOptions);
+    public SearchResult<Event> searchEvents(EventSearchCriteria searchCriteria, EventFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.searchEvents(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<PersonalAccessToken> searchPersonalAccessTokens(PersonalAccessTokenSearchCriteria searchCriteria, PersonalAccessTokenFetchOptions fetchOptions) {
-        return asFacade.searchPersonalAccessTokens(sessionToken, searchCriteria, fetchOptions);
+    public SearchResult<PersonalAccessToken> searchPersonalAccessTokens(PersonalAccessTokenSearchCriteria searchCriteria,
+            PersonalAccessTokenFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.searchPersonalAccessTokens(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public SearchResult<SessionInformation> searchSessionInformation(SessionInformationSearchCriteria searchCriteria, SessionInformationFetchOptions fetchOptions) {
-        return asFacade.searchSessionInformation(sessionToken, searchCriteria, fetchOptions);
+    public SearchResult<SessionInformation> searchSessionInformation(SessionInformationSearchCriteria searchCriteria,
+            SessionInformationFetchOptions fetchOptions)
+    {
+        return asFacadeWithTransactions.searchSessionInformation(sessionToken, searchCriteria, fetchOptions);
     }
 
-    public void revertDeletions(List<? extends IDeletionId> deletionIds) {
-        asFacade.revertDeletions(sessionToken, deletionIds);
+    public void revertDeletions(List<? extends IDeletionId> deletionIds)
+    {
+        asFacadeWithTransactions.revertDeletions(sessionToken, deletionIds);
     }
 
-    public void confirmDeletions(List<? extends IDeletionId> deletionIds) {
-        asFacade.confirmDeletions(sessionToken, deletionIds);
+    public void confirmDeletions(List<? extends IDeletionId> deletionIds)
+    {
+        asFacadeWithTransactions.confirmDeletions(sessionToken, deletionIds);
     }
 
-    public Object executeCustomASService(ICustomASServiceId serviceId, CustomASServiceExecutionOptions options) {
-        return asFacade.executeCustomASService(sessionToken, serviceId, options);
+    public Object executeCustomASService(ICustomASServiceId serviceId, CustomASServiceExecutionOptions options)
+    {
+        return asFacadeWithTransactions.executeCustomASService(sessionToken, serviceId, options);
     }
 
-    public SearchResult<SearchDomainServiceExecutionResult> executeSearchDomainService(SearchDomainServiceExecutionOptions options) {
-        return asFacade.executeSearchDomainService(sessionToken, options);
+    public SearchResult<SearchDomainServiceExecutionResult> executeSearchDomainService(SearchDomainServiceExecutionOptions options)
+    {
+        return asFacadeWithTransactions.executeSearchDomainService(sessionToken, options);
     }
 
-    public TableModel executeAggregationService(IDssServiceId serviceId, AggregationServiceExecutionOptions options) {
-        return asFacade.executeAggregationService(sessionToken, serviceId, options);
+    public TableModel executeAggregationService(IDssServiceId serviceId, AggregationServiceExecutionOptions options)
+    {
+        return asFacadeWithTransactions.executeAggregationService(sessionToken, serviceId, options);
     }
 
-    public TableModel executeReportingService(IDssServiceId serviceId, ReportingServiceExecutionOptions options) {
-        return asFacade.executeReportingService(sessionToken, serviceId, options);
+    public TableModel executeReportingService(IDssServiceId serviceId, ReportingServiceExecutionOptions options)
+    {
+        return asFacadeWithTransactions.executeReportingService(sessionToken, serviceId, options);
     }
 
-    public void executeProcessingService(IDssServiceId serviceId, ProcessingServiceExecutionOptions options) {
-        asFacade.executeProcessingService(sessionToken, serviceId, options);
+    public void executeProcessingService(IDssServiceId serviceId, ProcessingServiceExecutionOptions options)
+    {
+        asFacadeWithTransactions.executeProcessingService(sessionToken, serviceId, options);
     }
 
-    public TableModel executeQuery(IQueryId queryId, QueryExecutionOptions options) {
-        return asFacade.executeQuery(sessionToken, queryId, options);
+    public TableModel executeQuery(IQueryId queryId, QueryExecutionOptions options)
+    {
+        return asFacadeWithTransactions.executeQuery(sessionToken, queryId, options);
     }
 
-    public TableModel executeSql(String sql, SqlExecutionOptions options) {
-        return asFacade.executeSql(sessionToken, sql, options);
+    public TableModel executeSql(String sql, SqlExecutionOptions options)
+    {
+        return asFacadeWithTransactions.executeSql(sessionToken, sql, options);
     }
 
-    public PluginEvaluationResult evaluatePlugin(PluginEvaluationOptions options) {
-        return asFacade.evaluatePlugin(sessionToken, options);
+    public PluginEvaluationResult evaluatePlugin(PluginEvaluationOptions options)
+    {
+        return asFacadeWithTransactions.evaluatePlugin(sessionToken, options);
     }
 
-    public void archiveDataSets(List<? extends IDataSetId> dataSetIds, DataSetArchiveOptions options) {
-        asFacade.archiveDataSets(sessionToken, dataSetIds, options);
+    public void archiveDataSets(List<? extends IDataSetId> dataSetIds, DataSetArchiveOptions options)
+    {
+        asFacadeWithTransactions.archiveDataSets(sessionToken, dataSetIds, options);
     }
 
-    public void unarchiveDataSets(List<? extends IDataSetId> dataSetIds, DataSetUnarchiveOptions options) {
-        asFacade.unarchiveDataSets(sessionToken, dataSetIds, options);
+    public void unarchiveDataSets(List<? extends IDataSetId> dataSetIds, DataSetUnarchiveOptions options)
+    {
+        asFacadeWithTransactions.unarchiveDataSets(sessionToken, dataSetIds, options);
     }
 
-    public void lockDataSets(List<? extends IDataSetId> dataSetIds, DataSetLockOptions options) {
-        asFacade.lockDataSets(sessionToken, dataSetIds, options);
+    public void lockDataSets(List<? extends IDataSetId> dataSetIds, DataSetLockOptions options)
+    {
+        asFacadeWithTransactions.lockDataSets(sessionToken, dataSetIds, options);
     }
 
-    public void unlockDataSets(List<? extends IDataSetId> dataSetIds, DataSetUnlockOptions options) {
-        asFacade.unlockDataSets(sessionToken, dataSetIds, options);
+    public void unlockDataSets(List<? extends IDataSetId> dataSetIds, DataSetUnlockOptions options)
+    {
+        asFacadeWithTransactions.unlockDataSets(sessionToken, dataSetIds, options);
     }
 
-    public IOperationExecutionResults executeOperations(String sessionToken, List<? extends IOperation> operations, IOperationExecutionOptions options) {
-        return asFacade.executeOperations(sessionToken, operations, options);
+    public IOperationExecutionResults executeOperations(String sessionToken, List<? extends IOperation> operations,
+            IOperationExecutionOptions options)
+    {
+        return asFacadeWithTransactions.executeOperations(sessionToken, operations, options);
     }
 
-    public Map<String, String> getServerInformation() {
-        return asFacade.getServerInformation(sessionToken);
+    public Map<String, String> getServerInformation()
+    {
+        return asFacadeWithTransactions.getServerInformation(sessionToken);
     }
 
-    public Map<String, String> getServerPublicInformation() {
-        return asFacade.getServerPublicInformation();
+    public Map<String, String> getServerPublicInformation()
+    {
+        return asFacadeWithTransactions.getServerPublicInformation();
     }
 
-    public List<String> createPermIdStrings(int count) {
-        return asFacade.createPermIdStrings(sessionToken, count);
+    public List<String> createPermIdStrings(int count)
+    {
+        return asFacadeWithTransactions.createPermIdStrings(sessionToken, count);
     }
 
-    public List<String> createCodes(String prefix, EntityKind entityKind, int count) {
-        return asFacade.createCodes(sessionToken, prefix, entityKind, count);
+    public List<String> createCodes(String prefix, EntityKind entityKind, int count)
+    {
+        return asFacadeWithTransactions.createCodes(sessionToken, prefix, entityKind, count);
     }
 
     public void executeImport(IImportData importData, ImportOptions importOptions) {
@@ -956,29 +1252,350 @@ public class OpenBIS {
     // DSS Facade methods
     //
 
-    public SearchResult<DataSetFile> searchFiles(DataSetFileSearchCriteria searchCriteria, DataSetFileFetchOptions fetchOptions) {
-        return dssFacade.searchFiles(sessionToken, searchCriteria, fetchOptions);
-    }
-
-    public InputStream downloadFiles(List<? extends IDataSetFileId> fileIds, DataSetFileDownloadOptions downloadOptions) {
-        return dssFacade.downloadFiles(sessionToken, fileIds, downloadOptions);
-    }
-
-    public FastDownloadSession createFastDownloadSession(List<? extends IDataSetFileId> fileIds, FastDownloadSessionOptions options) {
-        return dssFacade.createFastDownloadSession(sessionToken, fileIds, options);
-    }
-
-    public DataSetPermId createUploadedDataSet(final UploadedDataSetCreation newDataSet)
+    public DataStoreFacade getDataStoreFacade()
     {
-        return dssFacade.createUploadedDataSet(sessionToken, newDataSet);
+        return new DataStoreFacade();
     }
 
-    public List<DataSetPermId> createDataSetsDSS(List<FullDataSetCreation> newDataSets) {
-        return dssFacade.createDataSets(sessionToken, newDataSets);
+    public class DataStoreFacade
+    {
+
+        public SearchResult<DataSetFile> searchFiles(DataSetFileSearchCriteria searchCriteria, DataSetFileFetchOptions fetchOptions)
+        {
+            checkTransactionsNotSupported();
+            return dssFacade.searchFiles(sessionToken, searchCriteria, fetchOptions);
+        }
+
+        public InputStream downloadFiles(List<? extends IDataSetFileId> fileIds, DataSetFileDownloadOptions downloadOptions)
+        {
+            checkTransactionsNotSupported();
+            return dssFacade.downloadFiles(sessionToken, fileIds, downloadOptions);
+        }
+
+        public FastDownloadSession createFastDownloadSession(List<? extends IDataSetFileId> fileIds, FastDownloadSessionOptions options)
+        {
+            checkTransactionsNotSupported();
+            return dssFacade.createFastDownloadSession(sessionToken, fileIds, options);
+        }
+
+        public DataSetPermId createUploadedDataSet(final UploadedDataSetCreation newDataSet)
+        {
+            checkTransactionsNotSupported();
+            return dssFacade.createUploadedDataSet(sessionToken, newDataSet);
+        }
+
+        public List<DataSetPermId> createDataSets(List<FullDataSetCreation> newDataSets)
+        {
+            checkTransactionsNotSupported();
+            return dssFacade.createDataSets(sessionToken, newDataSets);
+        }
+
+        public Object executeCustomDSSService(ICustomDSSServiceId serviceId, CustomDSSServiceExecutionOptions options)
+        {
+            checkTransactionsNotSupported();
+            return dssFacade.executeCustomDSSService(sessionToken, serviceId, options);
+        }
+
+        public String uploadToSessionWorkspace(final Path fileOrFolder)
+        {
+            checkTransactionsNotSupported();
+            String uploadId = uploadFileWorkspaceDSSEmptyDir(UUID.randomUUID().toString());
+            uploadFileWorkspaceDSS(fileOrFolder.toFile(), uploadId);
+            return uploadId;
+        }
+
+        //
+        // Internal Helper Methods to upload files to DSS Session Workspace
+        //
+
+        /**
+         * Upload file or folder to the DSS SessionWorkspaceFileUploadServlet and return the ID to be used by createUploadedDataSet
+         * This method hides the complexities of uploading a folder with many files and does the uploads in chunks.
+         */
+        private String uploadFileWorkspaceDSS(final File fileOrFolder, final String parentsOrNull)
+        {
+            if (fileOrFolder.exists() == false)
+            {
+                throw new UserFailureException("Path doesn't exist: " + fileOrFolder);
+            }
+            String fileNameOrFolderName = "";
+            if (parentsOrNull != null)
+            {
+                fileNameOrFolderName = parentsOrNull + "/";
+            }
+            fileNameOrFolderName += fileOrFolder.getName();
+
+            if (fileOrFolder.isDirectory())
+            {
+                uploadFileWorkspaceDSSEmptyDir(fileNameOrFolderName);
+                for (File file : fileOrFolder.listFiles())
+                {
+                    uploadFileWorkspaceDSS(file, fileNameOrFolderName);
+                }
+            } else
+            {
+                uploadFileWorkspaceDSSFile(fileNameOrFolderName, fileOrFolder);
+            }
+            return fileNameOrFolderName;
+        }
+
+        private String uploadFileWorkspaceDSSEmptyDir(String pathToDir)
+        {
+            final org.eclipse.jetty.client.HttpClient client = JettyHttpClientFactory.getHttpClient();
+            final Request httpRequest = client.newRequest(dssURL + "/session_workspace_file_upload")
+                    .method(HttpMethod.POST);
+            httpRequest.param("sessionID", sessionToken);
+            httpRequest.param("id", "1");
+            httpRequest.param("filename", pathToDir);
+            httpRequest.param("startByte", Long.toString(0));
+            httpRequest.param("endByte", Long.toString(0));
+            httpRequest.param("size", Long.toString(0));
+            httpRequest.param("emptyFolder", Boolean.TRUE.toString());
+
+            try
+            {
+                final ContentResponse response = httpRequest.send();
+                final int status = response.getStatus();
+                if (status != 200)
+                {
+                    throw new IOException(response.getContentAsString());
+                }
+            } catch (final IOException | TimeoutException | InterruptedException | ExecutionException e)
+            {
+                throw new RuntimeException(e);
+            }
+            return pathToDir;
+        }
+
+        private String uploadFileWorkspaceDSSFile(String pathToFile, File file)
+        {
+            try
+            {
+                long start = 0;
+                for (byte[] chunk : streamFile(file, CHUNK_SIZE))
+                {
+                    final long end = start + chunk.length;
+
+                    final org.eclipse.jetty.client.HttpClient client = JettyHttpClientFactory.getHttpClient();
+                    final Request httpRequest = client.newRequest(dssURL + "/session_workspace_file_upload")
+                            .method(HttpMethod.POST);
+                    httpRequest.param("sessionID", sessionToken);
+                    httpRequest.param("id", "1");
+                    httpRequest.param("filename", pathToFile);
+                    httpRequest.param("startByte", Long.toString(start));
+                    httpRequest.param("endByte", Long.toString(end));
+                    httpRequest.param("size", Long.toString(file.length()));
+                    httpRequest.content(new BytesContentProvider(chunk));
+                    final ContentResponse response = httpRequest.send();
+                    final int status = response.getStatus();
+                    if (status != 200)
+                    {
+                        throw new IOException(response.getContentAsString());
+                    }
+                    start += CHUNK_SIZE;
+                }
+            } catch (final IOException | TimeoutException | InterruptedException | ExecutionException e)
+            {
+                throw new RuntimeException(e);
+            }
+            return pathToFile;
+        }
+
+        private Iterable<byte[]> streamFile(final File file, final int chunkSize) throws FileNotFoundException
+        {
+            final InputStream inputStream = new FileInputStream(file);
+
+            return new Iterable<byte[]>()
+            {
+                @Override
+                public Iterator<byte[]> iterator()
+                {
+                    return new Iterator<byte[]>()
+                    {
+                        public boolean hasMore = true;
+
+                        public boolean hasNext()
+                        {
+                            return hasMore;
+                        }
+
+                        public byte[] next()
+                        {
+                            try
+                            {
+                                byte[] bytes = inputStream.readNBytes(chunkSize);
+                                if (bytes.length < chunkSize)
+                                {
+                                    hasMore = false;
+                                    inputStream.close();
+                                }
+                                return bytes;
+                            } catch (final IOException e)
+                            {
+                                try
+                                {
+                                    inputStream.close();
+                                } catch (final IOException ex)
+                                {
+                                    throw new RuntimeException(ex);
+                                }
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    };
+                }
+            };
+        }
+
+        private void checkTransactionsNotSupported()
+        {
+            if (transactionId != null)
+            {
+                throw new IllegalStateException("Transactions are not supported for data store methods.");
+            }
+        }
+
     }
 
-    public Object executeCustomDSSService(ICustomDSSServiceId serviceId, CustomDSSServiceExecutionOptions options) {
-        return dssFacade.executeCustomDSSService(sessionToken, serviceId, options);
+    //
+    // AFS Server methods
+    //
+
+    public AfsServerFacade getAfsServerFacade()
+    {
+        if(this.afsURL != null)
+        {
+            return new AfsServerFacade();
+        } else {
+            throw new IllegalArgumentException("Please specify AFS server url");
+        }
+    }
+
+    public class AfsServerFacade
+    {
+
+        private final MessageDigest digest;
+
+        private AfsServerFacade() {
+            try
+            {
+                this.digest = MessageDigest.getInstance("MD5");
+            } catch (Exception e){
+                throw new RuntimeException("Could not create afs server facade", e);
+            }
+        }
+
+        public List<ch.ethz.sis.afsapi.dto.File> list(String owner, String source, Boolean recursively)
+        {
+            try
+            {
+                return afsClientWithTransactions.list(owner, source, recursively);
+            } catch (RuntimeException e)
+            {
+                throw e;
+            } catch (Exception e)
+            {
+                throw new RuntimeException(e);
+            }
+        }
+
+        public byte[] read(String owner, String source, Long offset, Integer limit)
+        {
+            try
+            {
+                return afsClientWithTransactions.read(owner, source, offset, limit);
+            } catch (RuntimeException e)
+            {
+                throw e;
+            } catch (Exception e)
+            {
+                throw new RuntimeException(e);
+            }
+        }
+
+        public Boolean write(String owner, String source, Long offset, byte[] data)
+        {
+            try
+            {
+                return afsClientWithTransactions.write(owner, source, offset, data, calculateMD5(data));
+            } catch (RuntimeException e)
+            {
+                throw e;
+            } catch (Exception e)
+            {
+                throw new RuntimeException(e);
+            }
+        }
+
+        public Boolean delete(String owner, String source)
+        {
+            try
+            {
+                return afsClientWithTransactions.delete(owner, source);
+            } catch (RuntimeException e)
+            {
+                throw e;
+            } catch (Exception e)
+            {
+                throw new RuntimeException(e);
+            }
+        }
+
+        public Boolean copy(String sourceOwner, String source, String targetOwner, String target)
+        {
+            try
+            {
+                return afsClientWithTransactions.copy(sourceOwner, source, targetOwner, target);
+            } catch (RuntimeException e)
+            {
+                throw e;
+            } catch (Exception e)
+            {
+                throw new RuntimeException(e);
+            }
+        }
+
+        public Boolean move(String sourceOwner, String source, String targetOwner, String target)
+        {
+            try
+            {
+                return afsClientWithTransactions.move(sourceOwner, source, targetOwner, target);
+            } catch (RuntimeException e)
+            {
+                throw e;
+            } catch (Exception e)
+            {
+                throw new RuntimeException(e);
+            }
+        }
+
+        public Boolean create(String owner, String source, Boolean directory)
+        {
+            try
+            {
+                return afsClientWithTransactions.create(owner, source, directory);
+            } catch (RuntimeException e)
+            {
+                throw e;
+            } catch (Exception e)
+            {
+                throw new RuntimeException(e);
+            }
+        }
+
+        private byte[] calculateMD5(byte[] data)
+        {
+            try
+            {
+                digest.reset();
+                digest.update(data);
+                return digest.digest();
+            } catch (Exception e)
+            {
+                throw new RuntimeException("Checksum calculation failed", e);
+            }
+        }
+
     }
 
     //
@@ -993,13 +1610,21 @@ public class OpenBIS {
     public void setSessionToken(final String sessionToken)
     {
         this.sessionToken = sessionToken;
+
+        if(afsClientNoTransactions != null)
+        {
+            this.afsClientNoTransactions.setSessionToken(sessionToken);
+        }
     }
 
-    public String uploadFileWorkspaceDSS(final Path fileOrFolder)
+    public void setInteractiveSessionKey(final String interactiveSessionKey)
     {
-        String uploadId = uploadFileWorkspaceDSSEmptyDir(UUID.randomUUID().toString());
-        uploadFileWorkspaceDSS(fileOrFolder.toFile(), uploadId);
-        return uploadId;
+        this.interactiveSessionKey = interactiveSessionKey;
+    }
+
+    public String getInteractiveSessionKey()
+    {
+        return interactiveSessionKey;
     }
 
     /**
@@ -1013,14 +1638,16 @@ public class OpenBIS {
         final int SECONDS_PER_DAY = 24 * 60 * 60;
 
         // Obtain servers renewal information
-        Map<String, String> information = asFacade.getServerInformation(sessionToken);
-        int personalAccessTokensRenewalPeriodInSeconds = Integer.parseInt(information.get(ServerInformation.PERSONAL_ACCESS_TOKENS_VALIDITY_WARNING_PERIOD));
+        Map<String, String> information = asFacadeWithTransactions.getServerInformation(sessionToken);
+        int personalAccessTokensRenewalPeriodInSeconds =
+                Integer.parseInt(information.get(ServerInformation.PERSONAL_ACCESS_TOKENS_VALIDITY_WARNING_PERIOD));
         int personalAccessTokensRenewalPeriodInDays = personalAccessTokensRenewalPeriodInSeconds / SECONDS_PER_DAY;
-        int personalAccessTokensMaxValidityPeriodInSeconds = Integer.parseInt(information.get(ServerInformation.PERSONAL_ACCESS_TOKENS_MAX_VALIDITY_PERIOD));
+        int personalAccessTokensMaxValidityPeriodInSeconds =
+                Integer.parseInt(information.get(ServerInformation.PERSONAL_ACCESS_TOKENS_MAX_VALIDITY_PERIOD));
         int personalAccessTokensMaxValidityPeriodInDays = personalAccessTokensMaxValidityPeriodInSeconds / SECONDS_PER_DAY;
 
         // Obtain user id
-        SessionInformation sessionInformation = asFacade.getSessionInformation(sessionToken);
+        SessionInformation sessionInformation = asFacadeWithTransactions.getSessionInformation(sessionToken);
 
         // Search for PAT for this user and application
         // NOTE: Standard users only get their PAT but admins get all, filtering with the user solves this corner case
@@ -1028,7 +1655,9 @@ public class OpenBIS {
         personalAccessTokenSearchCriteria.withSessionName().thatEquals(sessionName);
         personalAccessTokenSearchCriteria.withOwner().withUserId().thatEquals(sessionInformation.getPerson().getUserId());
 
-        SearchResult<PersonalAccessToken> personalAccessTokenSearchResult = asFacade.searchPersonalAccessTokens(sessionToken, personalAccessTokenSearchCriteria, new PersonalAccessTokenFetchOptions());
+        SearchResult<PersonalAccessToken> personalAccessTokenSearchResult =
+                asFacadeWithTransactions.searchPersonalAccessTokens(sessionToken, personalAccessTokenSearchCriteria,
+                        new PersonalAccessTokenFetchOptions());
         PersonalAccessToken bestTokenFound = null;
         PersonalAccessTokenPermId bestTokenFoundPermId = null;
 
@@ -1072,13 +1701,13 @@ public class OpenBIS {
 
     /**
      * This utility method provides a simplified API to create subject semantic annotations
-     *
      */
-    public static SemanticAnnotationCreation getSemanticSubjectCreation(    EntityKind subjectEntityKind,
-                                                                            String subjectClass,
-                                                                            String subjectClassOntologyId,
-                                                                            String subjectClassOntologyVersion,
-                                                                            String subjectClassId) {
+    public static SemanticAnnotationCreation getSemanticSubjectCreation(EntityKind subjectEntityKind,
+            String subjectClass,
+            String subjectClassOntologyId,
+            String subjectClassOntologyVersion,
+            String subjectClassId)
+    {
         SemanticAnnotationCreation semanticAnnotationCreation = new SemanticAnnotationCreation();
         // Subject: Type matching an ontology class
         semanticAnnotationCreation.setEntityTypeId(new EntityTypePermId(subjectClass, subjectEntityKind));
@@ -1096,14 +1725,14 @@ public class OpenBIS {
 
     /**
      * This utility method provides a simplified API to create predicate semantic annotations
-     *
      */
-    public static SemanticAnnotationCreation getSemanticPredicateWithSubjectCreation( EntityKind subjectEntityKind,
-                                                                                      String subjectClass,
-                                                                                      String predicateProperty,
-                                                                                      String predicatePropertyOntologyId,
-                                                                                      String predicatePropertyOntologyVersion,
-                                                                                      String predicatePropertyId) {
+    public static SemanticAnnotationCreation getSemanticPredicateWithSubjectCreation(EntityKind subjectEntityKind,
+            String subjectClass,
+            String predicateProperty,
+            String predicatePropertyOntologyId,
+            String predicatePropertyOntologyVersion,
+            String predicatePropertyId)
+    {
         SemanticAnnotationCreation semanticAnnotationCreation = new SemanticAnnotationCreation();
         // Subject: Type matching an ontology class
         // Predicate: Property matching an ontology class property
@@ -1121,12 +1750,12 @@ public class OpenBIS {
 
     /**
      * This utility method provides a simplified API to create predicate semantic annotations
-     *
      */
-    public static SemanticAnnotationCreation getSemanticPredicateCreation( String predicateProperty,
-                                                                           String predicatePropertyOntologyId,
-                                                                           String predicatePropertyOntologyVersion,
-                                                                           String predicatePropertyId) {
+    public static SemanticAnnotationCreation getSemanticPredicateCreation(String predicateProperty,
+            String predicatePropertyOntologyId,
+            String predicatePropertyOntologyVersion,
+            String predicatePropertyId)
+    {
         SemanticAnnotationCreation semanticAnnotationCreation = new SemanticAnnotationCreation();
         // Predicate: Property matching an ontology class property
         semanticAnnotationCreation.setPropertyTypeId(new PropertyTypePermId(predicateProperty));
@@ -1144,7 +1773,7 @@ public class OpenBIS {
     //
 
     private PersonalAccessTokenPermId createManagedPersonalAccessToken(String applicationName,
-                                                                       int personalAccessTokensMaxValidityPeriodInDays)
+            int personalAccessTokensMaxValidityPeriodInDays)
     {
         final long SECONDS_PER_DAY = 24 * 60 * 60;
         final long MILLIS_PER_DAY = SECONDS_PER_DAY * 1000;
@@ -1153,132 +1782,41 @@ public class OpenBIS {
         creation.setSessionName(applicationName);
         creation.setValidFromDate(new Date(System.currentTimeMillis() - MILLIS_PER_DAY));
         creation.setValidToDate(new Date(System.currentTimeMillis() + MILLIS_PER_DAY * personalAccessTokensMaxValidityPeriodInDays));
-        List<PersonalAccessTokenPermId> personalAccessTokens = asFacade.createPersonalAccessTokens(sessionToken, List.of(creation));
+        List<PersonalAccessTokenPermId> personalAccessTokens = asFacadeWithTransactions.createPersonalAccessTokens(sessionToken, List.of(creation));
         return personalAccessTokens.get(0);
     }
 
-    //
-    // Internal Helper Methods to upload files to DSS Session Workspace
-    //
-
-    /**
-     * Upload file or folder to the DSS SessionWorkspaceFileUploadServlet and return the ID to be used by createUploadedDataSet
-     * This method hides the complexities of uploading a folder with many files and does the uploads in chunks.
-     */
-    private String uploadFileWorkspaceDSS(final File fileOrFolder, final String parentsOrNull)
+    private void checkTransactionDoesNotExist()
     {
-        if (fileOrFolder.exists() == false)
+        if (transactionId != null)
         {
-            throw new UserFailureException("Path doesn't exist: " + fileOrFolder);
+            throw new IllegalStateException(
+                    "Operation cannot be executed. Expected no active transactions, but found transaction '" + transactionId + "'.");
         }
-        String fileNameOrFolderName = "";
-        if (parentsOrNull != null)
-        {
-            fileNameOrFolderName = parentsOrNull + "/";
-        }
-        fileNameOrFolderName += fileOrFolder.getName();
-
-        if (fileOrFolder.isDirectory())
-        {
-            uploadFileWorkspaceDSSEmptyDir(fileNameOrFolderName);
-            for (File file:fileOrFolder.listFiles())
-            {
-                uploadFileWorkspaceDSS(file, fileNameOrFolderName);
-            }
-        } else {
-            uploadFileWorkspaceDSSFile(fileNameOrFolderName, fileOrFolder);
-        }
-        return fileNameOrFolderName;
     }
 
-    private String uploadFileWorkspaceDSSEmptyDir(String pathToDir) {
-        final org.eclipse.jetty.client.HttpClient client = JettyHttpClientFactory.getHttpClient();
-        final Request httpRequest = client.newRequest(dssURL + "/session_workspace_file_upload")
-                .method(HttpMethod.POST);
-        httpRequest.param("sessionID", sessionToken);
-        httpRequest.param("id", "1");
-        httpRequest.param("filename", pathToDir);
-        httpRequest.param("startByte", Long.toString(0));
-        httpRequest.param("endByte", Long.toString(0));
-        httpRequest.param("size", Long.toString(0));
-        httpRequest.param("emptyFolder", Boolean.TRUE.toString());
-
-        try {
-            final ContentResponse response = httpRequest.send();
-            final int status = response.getStatus();
-            if (status != 200)
-            {
-                throw new IOException(response.getContentAsString());
-            }
-        } catch (final IOException | TimeoutException | InterruptedException | ExecutionException e)
-        {
-            throw new RuntimeException(e);
-        }
-        return pathToDir;
-    }
-
-    private String uploadFileWorkspaceDSSFile(String pathToFile, File file) {
-        try {
-            long start = 0;
-            for (byte[] chunk : streamFile(file, CHUNK_SIZE)) {
-                final long end = start + chunk.length;
-
-                final org.eclipse.jetty.client.HttpClient client = JettyHttpClientFactory.getHttpClient();
-                final Request httpRequest = client.newRequest(dssURL + "/session_workspace_file_upload")
-                        .method(HttpMethod.POST);
-                httpRequest.param("sessionID", sessionToken);
-                httpRequest.param("id", "1");
-                httpRequest.param("filename", pathToFile);
-                httpRequest.param("startByte", Long.toString(start));
-                httpRequest.param("endByte", Long.toString(end));
-                httpRequest.param("size", Long.toString(file.length()));
-                httpRequest.content(new BytesContentProvider(chunk));
-                final ContentResponse response = httpRequest.send();
-                final int status = response.getStatus();
-                if (status != 200) {
-                    throw new IOException(response.getContentAsString());
-                }
-                start += CHUNK_SIZE;
-            }
-        } catch (final IOException | TimeoutException | InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
-        }
-        return pathToFile;
-    }
-
-    private Iterable<byte[]> streamFile(final File file, final int chunkSize) throws FileNotFoundException
+    private void checkTransactionExists()
     {
-        final InputStream inputStream = new FileInputStream(file);
-
-        return new Iterable<byte[]>() {
-            @Override
-            public Iterator<byte[]> iterator() {
-                return new Iterator<byte[]>() {
-                    public boolean hasMore = true;
-
-                    public boolean hasNext() {
-                        return hasMore;
-                    }
-
-                    public byte[] next() {
-                        try {
-                            byte[] bytes = inputStream.readNBytes(chunkSize);
-                            if (bytes.length < chunkSize) {
-                                hasMore = false;
-                                inputStream.close();
-                            }
-                            return bytes;
-                        } catch (final IOException e) {
-                            try {
-                                inputStream.close();
-                            } catch (final IOException ex) {
-                                throw new RuntimeException(ex);
-                            }
-                            throw new RuntimeException(e);
-                        }
-                    }
-                };
-            }
-        };
+        if (transactionId == null)
+        {
+            throw new IllegalStateException("Operation cannot be executed. No active transaction found.");
+        }
     }
+
+    private <T> T createTransactionalProxy(String transactionParticipantId, Class<T> serviceInterface, T service)
+    {
+        return (T) Proxy.newProxyInstance(serviceInterface.getClassLoader(), new Class[] { serviceInterface },
+                (proxy, method, args) ->
+                {
+                    if (transactionId != null)
+                    {
+                        return transactionCoordinator.executeOperation(transactionId, sessionToken, interactiveSessionKey,
+                                transactionParticipantId, method.getName(), args);
+                    } else
+                    {
+                        return method.invoke(service, args);
+                    }
+                });
+    }
+
 }

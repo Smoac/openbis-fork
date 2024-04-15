@@ -17,6 +17,8 @@
 
 package ch.ethz.sis.afsapi.dto;
 
+import java.io.Serializable;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,7 +27,7 @@ import lombok.Value;
 @Value
 @Builder(toBuilder = true)
 @AllArgsConstructor(access = AccessLevel.PUBLIC)
-public class ApiResponse implements DTO
+public class ApiResponse implements DTO, Serializable
 {
 
     String id;

@@ -3301,6 +3301,150 @@ service.properties file.
 More details on what exactly can be configured can be found in the file
 itself.
 
+### Two-phase commit transactions (AS and AFS, no DSS)
+
+All V3 API methods by default are executed in separate transactions. Therefore, if you are making multiple calls to the API, then each of these calls will be executed in a different transaction. These transactions can succeed or fail independently (e.g. some may succeed while the others may fail).
+
+In case multiple API calls should either all succeeed or all fail (not to leave the system in an inconsisten state) then these calls must be executed in one common transaction. openBIS offers two ways of doing that:
+
+* "executeOperations" method of IApplicationServerApi (described in more detail in its own section of this documentation)
+
+* "two-phase commit" transactions (described in more detail here)
+
+There are some important differences between these two approaches with respect to the following areas:
+
+* Supported operations:
+
+    - "executeOperations" method : can only execute operations from IApplicationServerApi (AS)
+
+    - "two-phase commit" transactions : can execute operations from both IApplicationServerApi (AS) and OperationsAPI (AFS); within a single transaction you can mix operations from both APIs
+
+* Flexibility:
+
+    - "executeOperations" method : can execute multiple operations in one transaction, but all the operations to be executed need to be known upfront. Therefore, if your logic is more complex and preparing such list is not possible (e.g. which operation to execute next depends on the result of the previous operation) then "executeOperations" cannot be used.
+
+    - "two-phase commit" : gives you a full freedom of implementing a complex logic and deciding which parts of your code should be executed as one transaction.
+
+* Potential risks:
+
+    - "executeOperations" method : depending on the operations which are executed, a transaction may hold database locks and therefore block other operations in the system (outside of the transaction) from being executed until the transaction is finished. The transaction finishes as soon as all its operations are successfully executed or any of the operations fails.
+
+    - "two-phase commit" : just like with "executeOperations" method, operations executed within a transaction may block other operations in the system until the transaction finishes. The transaction is started by calling "beginTransaction()" method and finishes as soon as "commitTransaction()" or "rollbackTransaction()" methods are invoked. If the client's code never does commit or rollback the transaction will hang until it times out. Depending on how the system is configured (the timeout period) the database locks may be held for a significant amount of time and potentially block other operations in the system. Therefore, with "two-phase commit" transactions the risk of harming the instance is higher than with "executeOperations" method as the time the locks are held is potentiall longer. In order to address that, creating such transactions requires a so called "transaction interactive key". It is a secret (like a password) which should be given out only to chosen users that are aware of the potential risks and know how to handle them.
+
+#### Protocol
+
+More information about the "two-phase commit" protocol itself can be found here: https://en.wikipedia.org/wiki/Two-phase_commit_protocol
+
+#### APIs
+
+The "two-phase commit" transactions can be used with both Java and JavaScript APIs. In Java, please use "OpenBIS" (ch.ethz.sis.openbis.generic.OpenBIS) facade. In JavaScript, please use our "openbis" facade. In both languages the methods used for manipulating the transactions and the behaviour of these methods is exactly the same.
+
+#### Code Example
+
+```java
+    OpenBIS openBIS =
+            new OpenBIS("http://localhost:8888/openbis/openbis", 
+            "http://localhost:8889/datastore_server",
+            "http://localhost:8085/data-store-server",
+            3600 * 1000);
+
+    try
+    {
+        openBIS.login("admin", "admin");
+        openBIS.setInteractiveSessionKey("test-interactive-session-key");
+
+        // begin transaction
+        openBIS.beginTransaction();
+
+        // execute AS operations
+        SpaceCreation spaceCreation = new SpaceCreation();
+        spaceCreation.setCode("2PT_TEST");
+
+        SpacePermId spaceId = openBIS.createSpaces(List.of(spaceCreation)).get(0);
+
+        ProjectCreation projectCreation = new ProjectCreation();
+        projectCreation.setSpaceId(spaceId);
+        projectCreation.setCode("2PT_TEST");
+
+        ProjectPermId projectId = openBIS.createProjects(List.of(projectCreation)).get(0);
+
+        ExperimentCreation experimentCreation = new ExperimentCreation();
+        experimentCreation.setTypeId(new EntityTypePermId("UNKNOWN"));
+        experimentCreation.setProjectId(projectId);
+        experimentCreation.setCode("2PT_TEST");
+
+        openBIS.createExperiments(List.of(experimentCreation));
+
+        // execute AFS operation
+        openBIS.getAfsServerFacade().write("2PT_TEST", "test-dir/test-file", 0L, "Hello World!".getBytes(StandardCharsets.UTF_8));
+
+        // commit transaction
+        openBIS.commitTransaction();
+    } catch (Exception e)
+    {
+        // rollback transaction
+        openBIS.rollbackTransaction();
+    }
+```
+
+#### Configuration
+
+IMPORTANT: by default the "two-phase commit" transactions are disabled.
+
+The "two-phase commit" transactions are configured in AS (Application Server) "service.properties" file. If AFS (Atomic File Server) is also to be used within the transactions, then "apiServerInteractiveSessionKey" and "apiServerTransactionManagerKey" properties need to be set in "server-data-store-config.properties" AFS configuration file.
+
+Basic AS configuration (service.properties):
+
+```properties
+
+#
+# Transactions
+#
+
+# Global switch to enable or disabled the transaction functionality. Default: false.
+api.v3.transaction.enabled = true
+
+# A secret known only to the transaction coordinator that proves its identity to the transaction participants. Default: a secure random key gets generated at startup.
+api.v3.transaction.coordinator-key = test-interactive-session-key
+
+# A secret known only to chosen users of the API that proves they are allowed to use transactions. Default: a secure random key gets generated at startup.
+api.v3.transaction.interactive-session-key = test-transaction-coordinator-key
+
+# A maximum number of simultaneous transactions. Default: 10.
+# api.v3.transaction.transaction-count-limit =
+
+# A timeout in seconds for transactions. After such an inactivity period a transaction will be regarded as abandoned and will be automatically rolled back. Default: 3600.
+# api.v3.transaction.transaction-timeout =
+
+# An interval in seconds that controls how often a task that finishes failed and abandoned transactions runs. Default: 600.
+# api.v3.transaction.finish-transactions-interval =
+
+# A path to a folder where transaction statuses are stored. Default: transaction-logs.
+# api.v3.transaction.transaction-log-folder-path =
+
+# An url of the application server that participates in the two phase commit (e.g. https://localhost:8443)
+api.v3.transaction.participant.application-server.url = https://localhost:8443
+
+# A timeout in seconds for the application server operations. Default: 3600
+# api.v3.transaction.participant.application-server.timeout =
+
+# An url of the afs server that participates in the two phase commit (e.g. http://localhost:8085/data-store-server)
+api.v3.transaction.participant.afs-server.url = http://localhost:8085/data-store-server
+
+# A timeout in seconds for the afs server operations. Default: 3600
+# api.v3.transaction.participant.afs-server.timeout =
+
+```
+
+Basic AFS configuration (server-data-store-config.properties)
+
+```properties
+
+apiServerInteractiveSessionKey=test-interactive-session-key
+apiServerTransactionManagerKey=test-transaction-coordinator-key
+
+```
+
 ### Semantic Annotations 
 
 If terms like: semantic web, RDF, OWL are new to you, then it is highly
