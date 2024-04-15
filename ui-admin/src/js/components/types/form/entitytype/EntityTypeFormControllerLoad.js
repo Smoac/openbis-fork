@@ -174,7 +174,7 @@ export default class EntityTypeFormControllerLoad extends PageControllerLoad {
     const propertyTypeInternal = _.get(propertyType, 'managedInternally', false)
 
     const assignmentInternal =
-      propertyTypeInternal && assignmentRegistrator === users.SYSTEM
+      propertyTypeInternal && _.get(loadedAssignment, 'managedInternally', false)
 
     return {
       id: id,
