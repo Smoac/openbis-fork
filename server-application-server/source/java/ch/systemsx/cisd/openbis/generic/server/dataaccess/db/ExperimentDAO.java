@@ -301,7 +301,7 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         List<ExperimentPropertyPE> properties1 =
                 cast(getHibernateTemplate().find(queryPropertySimpleValue, arguments));
 
-        String queryPropertyVocabularyTerm = String.format(queryFormat, "vocabularyTerm.code");
+        String queryPropertyVocabularyTerm = String.format(queryFormat, "vocabularyTerm.simpleCode");
         List<ExperimentPropertyPE> properties2 =
                 cast(getHibernateTemplate().find(queryPropertyVocabularyTerm, arguments));
 

@@ -46,38 +46,38 @@ public class UpdateVocabularyTermTest extends AbstractVocabularyTest
     private Object[][] providerTestUpdateAuthorization()
     {
         return new Object[][] {
-                { "ORGANISM", SYSTEM_USER, SYSTEM_USER, true, null },
-                { "ORGANISM", SYSTEM_USER, SYSTEM_USER, false, null },
-                { "ORGANISM", SYSTEM_USER, TEST_USER, true, null },
-                { "ORGANISM", SYSTEM_USER, TEST_USER, false, null },
+                { "ORGANISM", SYSTEM_USER, SYSTEM_USER, true, false, null },
+                { "ORGANISM", SYSTEM_USER, SYSTEM_USER, false, false, null },
+                { "ORGANISM", SYSTEM_USER, TEST_USER, true, false, null },
+                { "ORGANISM", SYSTEM_USER, TEST_USER, false, false, null },
 
-                { "ORGANISM", TEST_USER, TEST_USER, true, null },
-                { "ORGANISM", TEST_USER, TEST_USER, false, null },
+                { "ORGANISM", TEST_USER, TEST_USER, true, false, null },
+                { "ORGANISM", TEST_USER, TEST_USER, false, false, null },
 
-                { "ORGANISM", TEST_POWER_USER_CISD, SYSTEM_USER, false, null },
-                { "ORGANISM", TEST_POWER_USER_CISD, TEST_USER, false, null },
-                { "ORGANISM", TEST_POWER_USER_CISD, TEST_POWER_USER_CISD, false,
+                { "ORGANISM", TEST_POWER_USER_CISD, SYSTEM_USER, false, false, null },
+                { "ORGANISM", TEST_POWER_USER_CISD, TEST_USER, false, false, null },
+                { "ORGANISM", TEST_POWER_USER_CISD, TEST_POWER_USER_CISD, false, false,
                         "None of method roles '[INSTANCE_ADMIN, INSTANCE_ETL_SERVER]' could be found in roles of user" },
 
-                { "$PLATE_GEOMETRY", SYSTEM_USER, SYSTEM_USER, true, null },
-                { "$PLATE_GEOMETRY", SYSTEM_USER, SYSTEM_USER, false, null },
-                { "$PLATE_GEOMETRY", SYSTEM_USER, TEST_USER, true,
+                { "$PLATE_GEOMETRY", SYSTEM_USER, SYSTEM_USER, true, false, null },
+                { "$PLATE_GEOMETRY", SYSTEM_USER, SYSTEM_USER, false, false, null },
+                { "$PLATE_GEOMETRY", SYSTEM_USER, TEST_USER, true, true,
                         "Terms created by the system user that belong to internal vocabularies can be managed only by the system user" },
-                { "$PLATE_GEOMETRY", SYSTEM_USER, TEST_USER, false,
+                { "$PLATE_GEOMETRY", SYSTEM_USER, TEST_USER, false, true,
                         "Terms created by the system user that belong to internal vocabularies can be managed only by the system user" },
 
-                { "$PLATE_GEOMETRY", TEST_USER, TEST_USER, true, null },
-                { "$PLATE_GEOMETRY", TEST_USER, TEST_USER, false, null },
+                { "$PLATE_GEOMETRY", TEST_USER, TEST_USER, true, false, null },
+                { "$PLATE_GEOMETRY", TEST_USER, TEST_USER, false, false, null },
 
-                { "$PLATE_GEOMETRY", TEST_POWER_USER_CISD, SYSTEM_USER, false, null },
-                { "$PLATE_GEOMETRY", TEST_POWER_USER_CISD, TEST_USER, false, null },
-                { "$PLATE_GEOMETRY", TEST_POWER_USER_CISD, TEST_POWER_USER_CISD, false,
+                { "$PLATE_GEOMETRY", TEST_POWER_USER_CISD, SYSTEM_USER, false, false, null },
+                { "$PLATE_GEOMETRY", TEST_POWER_USER_CISD, TEST_USER, false, false, null },
+                { "$PLATE_GEOMETRY", TEST_POWER_USER_CISD, TEST_POWER_USER_CISD, false, false,
                         "None of method roles '[INSTANCE_ADMIN, INSTANCE_ETL_SERVER]' could be found in roles of user" },
         };
     }
 
     @Test(dataProvider = "providerTestUpdateAuthorization")
-    public void testUpdateAuthorization(String vocabularyCode, String termRegistrator, String termUpdater, boolean termOfficial,
+    public void testUpdateAuthorization(String vocabularyCode, String termRegistrator, String termUpdater, boolean termOfficial, boolean managedInternally,
             String expectedError)
     {
         String sessionTokenRegistrator = termRegistrator.equals(SYSTEM_USER) ? v3api.loginAsSystem() : v3api.login(termRegistrator, PASSWORD);
@@ -86,6 +86,7 @@ public class UpdateVocabularyTermTest extends AbstractVocabularyTest
         creation.setCode("TEST-CODE");
         creation.setVocabularyId(new VocabularyPermId(vocabularyCode));
         creation.setOfficial(termOfficial);
+        creation.setManagedInternally(managedInternally);
 
         List<VocabularyTermPermId> permIds = v3api.createVocabularyTerms(sessionTokenRegistrator, Arrays.asList(creation));
 
@@ -109,24 +110,24 @@ public class UpdateVocabularyTermTest extends AbstractVocabularyTest
     private Object[][] providerTestUpdateAndTakeOverTerm()
     {
         return new Object[][] {
-                { "ORGANISM", SYSTEM_USER, SYSTEM_USER, SYSTEM_USER, null },
-                { "ORGANISM", SYSTEM_USER, TEST_USER, SYSTEM_USER, null },
+                { "ORGANISM", SYSTEM_USER, SYSTEM_USER, SYSTEM_USER, false, null },
+                { "ORGANISM", SYSTEM_USER, TEST_USER, SYSTEM_USER, false, null },
 
-                { "ORGANISM", TEST_USER, SYSTEM_USER, TEST_USER, null },
-                { "ORGANISM", TEST_USER, TEST_USER, TEST_USER, null },
+                { "ORGANISM", TEST_USER, SYSTEM_USER, TEST_USER, false, null },
+                { "ORGANISM", TEST_USER, TEST_USER, TEST_USER, false, null },
 
-                { "$PLATE_GEOMETRY", SYSTEM_USER, SYSTEM_USER, SYSTEM_USER, null },
-                { "$PLATE_GEOMETRY", SYSTEM_USER, TEST_USER, SYSTEM_USER,
-                        "Terms created by the system user that belong to internal vocabularies can be managed only by the system user" },
+                { "$PLATE_GEOMETRY", SYSTEM_USER, SYSTEM_USER, SYSTEM_USER, false, null },
+                { "$PLATE_GEOMETRY", SYSTEM_USER, TEST_USER, SYSTEM_USER, true,
+                        "Internal vocabulary terms can be managed only by the system user." },
 
-                { "$PLATE_GEOMETRY", TEST_USER, SYSTEM_USER, SYSTEM_USER, null },
-                { "$PLATE_GEOMETRY", TEST_USER, TEST_USER, TEST_USER, null },
+                { "$PLATE_GEOMETRY", TEST_USER, SYSTEM_USER, SYSTEM_USER, false,null },
+                { "$PLATE_GEOMETRY", TEST_USER, TEST_USER, TEST_USER, false, null },
         };
     }
 
     @Test(dataProvider = "providerTestUpdateAndTakeOverTerm")
     public void testUpdateAndTakeOverTerm(String vocabularyCode, String termRegistrator, String termUpdater,
-            String expectedTermRegistratorAfterUpdate, String expectedError)
+            String expectedTermRegistratorAfterUpdate, boolean managedInternally, String expectedError)
     {
         String termRegistratorSessionToken =
                 termRegistrator.equals(SYSTEM_USER) ? v3api.loginAsSystem() : v3api.login(termRegistrator, PASSWORD);
@@ -139,6 +140,7 @@ public class UpdateVocabularyTermTest extends AbstractVocabularyTest
         termCreation.setVocabularyId(new VocabularyPermId(vocabularyCode));
         termCreation.setLabel("Original Label");
         termCreation.setDescription("Original Description");
+        termCreation.setManagedInternally(managedInternally);
 
         List<VocabularyTermPermId> termIds = v3api.createVocabularyTerms(termRegistratorSessionToken, Arrays.asList(termCreation));
 
