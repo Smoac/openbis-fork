@@ -56,7 +56,7 @@ public class VocabularyTerm extends CodeWithRegistrationAndModificationDate<Voca
 
     private Date modificationDate;
 
-    private Boolean managedInternally;
+    private boolean managedInternally = false;
 
     public VocabularyTerm()
     {
