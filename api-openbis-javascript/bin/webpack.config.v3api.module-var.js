@@ -32,6 +32,7 @@ module.exports = {
         __dirname,
         '../src/v3/lib/underscore/js/underscore.js'
       ),
+      afs: path.resolve(__dirname, '../src/v3/afs/server-data-store-facade.js'),
       'util/DateFormat': path.resolve(__dirname, '../src/v3/util/DateFormat.js'),
       'util/Exceptions': path.resolve(__dirname, '../src/v3/util/Exceptions.js'),
       'util/Json': path.resolve(__dirname, '../src/v3/util/Json.js')

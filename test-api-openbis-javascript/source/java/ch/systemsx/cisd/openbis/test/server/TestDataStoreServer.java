@@ -61,7 +61,7 @@ public abstract class TestDataStoreServer
                 @Override
                 public void newLine(String line)
                 {
-                    System.out.println("DATA STORE " + getName() + ": " + line);
+                    System.out.println("[" + getName() + "] " + line);
                 }
             });
         LogLineReader reader = new LogLineReader();

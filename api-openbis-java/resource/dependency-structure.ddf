@@ -10,7 +10,8 @@
                ${cisd}.common.reflection.ClassUtils \
                ${cisd}.common.shared.basic.string.CommaSeparatedListBuilder \
                ${cisd}.common.http.* \
-               ${sis}.filetransfer.*
+               ${sis}.filetransfer.* \
+               ${sis}.transaction.*
 
 [v3-api] = ${sis}.openbis.generic.asapi.v3.* \
            ${sis}.openbis.generic.dssapi.v3.*

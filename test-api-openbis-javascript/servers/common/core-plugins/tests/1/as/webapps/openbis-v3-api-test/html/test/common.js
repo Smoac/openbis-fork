@@ -724,6 +724,18 @@ define([ 'jquery', 'underscore'], function($, _) {
 			return facade.deletePersons([ id ], options);
 		}.bind(this);
 
+        this.deleteFile = async function(facade, owner, source) {
+            try {
+                await facade.getAfsServerFacade().delete(owner, source)
+            } catch (error) {
+                if (error && error.message && error.message.includes("NoSuchFileException")) {
+                    // do nothing
+                }else{
+                    throw error
+                }
+            }
+        }
+
 		this.getObjectProperty = function(object, propertyName) {
 			var propertyNames = propertyName.split('.');
 			for ( var pn in propertyNames) {
@@ -1119,6 +1131,51 @@ define([ 'jquery', 'underscore'], function($, _) {
 			return result + "]";
 		}
 
+        this.assertFileEquals = function(actualFile, expectedFile) {
+            const _this = this
+
+            this.assertEqual(actualFile.getPath(), expectedFile["path"], "File path")
+            this.assertEqual(actualFile.getOwner(), expectedFile["owner"], "File owner")
+            this.assertEqual(actualFile.getName(), expectedFile["name"], "File name")
+            this.assertEqual(actualFile.getSize(), expectedFile["size"], "File size")
+            this.assertEqual(actualFile.getDirectory(), expectedFile["directory"], "File directory")
+
+            function assertDateInRange(dateName, dateValue, expectedRange){
+                if(!expectedRange){
+                    return
+                }
+                // AFS can return times with seconds precision only, let's then ignore anything below a second
+                _this.assertTrue(Math.floor(expectedRange[0].getTime() / 1000) <= Math.floor(dateValue / 1000), "Date " + dateName + " = " + new Date(dateValue) + " is after " + expectedRange[0])
+                _this.assertTrue(Math.floor(expectedRange[1].getTime() / 1000) >= Math.floor(dateValue / 1000), "Date " + dateName + " = " + new Date(dateValue) + " is before " + expectedRange[1])
+            }
+
+            assertDateInRange("creationTime", actualFile.getCreationTime(), expectedFile["creationTime"])
+            assertDateInRange("lastModifiedTime", actualFile.getLastModifiedTime(), expectedFile["lastModifiedTime"])
+            assertDateInRange("lastAccessTime", actualFile.getLastAccessTime(), expectedFile["lastAccessTime"])
+        }
+
+        this.assertFileExists = async function(facade, owner, source) {
+            try {
+                await facade.getAfsServerFacade().read(owner, source, 0, 0)
+                this.assertTrue(true)
+            } catch (error) {
+                this.fail(JSON.stringify(error))
+            }
+        }
+
+        this.assertFileDoesNotExist = async function(facade, owner, source) {
+            try {
+                await facade.getAfsServerFacade().read(owner, source, 0, 0)
+                this.fail("File should not exist: " + JSON.stringify({owner: owner, source: source}))
+            } catch (error) {
+                if(error && error.message && error.message.includes("NoSuchFileException")){
+                    this.assertTrue(true)
+                }else{
+                    this.fail(JSON.stringify(error))
+                }
+            }
+        }
+
 		this.assertObjectsCount = function(objects, count) {
 			this.assertEqual(objects.length, count, 'Got ' + count + ' object(s)');
 		};
@@ -1222,6 +1279,11 @@ define([ 'jquery', 'underscore'], function($, _) {
 		};
 
 		this.fail = function(msg) {
+			if (msg instanceof Error) {
+				msg = msg.message + "\n" + msg.stack
+			} else {
+				msg = JSON.stringify(msg)
+			}
 			this.assert.ok(false, msg);
 		};
 

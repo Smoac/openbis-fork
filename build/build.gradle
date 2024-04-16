@@ -15,6 +15,7 @@ evaluationDependsOn(':test-api-openbis-javascript')
 evaluationDependsOn(':lib-image-readers')
 evaluationDependsOn(':server-external-data-store')
 evaluationDependsOn(':api-openbis-typescript')
+evaluationDependsOn(':test-integration')
 apply from: '../build/javaproject.gradle'
 
 

@@ -27,9 +27,24 @@ public class TestInstanceHostUtils
         return 8800 + getProjectNumber() + 8;
     }
 
+    public static int getOpenBISProxyPort()
+    {
+        return getOpenBISPort() + 1000;
+    }
+
     public static String getOpenBISUrl()
     {
         return OPENBIS_URL + ":" + getOpenBISPort();
+    }
+
+    public static String getOpenBISProxyUrl()
+    {
+        return OPENBIS_URL + ":" + getOpenBISProxyPort();
+    }
+
+    public static String getOpenBISPath()
+    {
+        return "/openbis/openbis";
     }
 
     public static int getDSSPort()
@@ -40,6 +55,36 @@ public class TestInstanceHostUtils
     public static String getDSSUrl()
     {
         return OPENBIS_URL + ":" + getDSSPort();
+    }
+
+    public static String getDSSPath()
+    {
+        return "/datastore_server";
+    }
+
+    public static int getAFSPort()
+    {
+        return 8800 + getProjectNumber() + 7;
+    }
+
+    public static int getAFSProxyPort()
+    {
+        return getAFSPort() + 1000;
+    }
+
+    public static String getAFSUrl()
+    {
+        return OPENBIS_URL + ":" + getAFSPort();
+    }
+
+    public static String getAFSProxyUrl()
+    {
+        return OPENBIS_URL + ":" + getAFSProxyPort();
+    }
+
+    public static String getAFSPath()
+    {
+        return "/data-store-server";
     }
 
     private static int getProjectNumber()
@@ -61,6 +106,9 @@ public class TestInstanceHostUtils
         } else if (projectName.equals("openbis_oai_pmh"))
         {
             return 40;
+        } else if (projectName.equals("test-integration"))
+        {
+            return 50;
         }
 
         return 80;

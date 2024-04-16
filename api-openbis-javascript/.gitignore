@@ -1,3 +1,4 @@
 /node
 /node_modules
+/src/v3/afs
 package-lock.json

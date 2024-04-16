@@ -16,14 +16,20 @@
 package ch.systemsx.cisd.openbis.jstest.suite.common;
 
 import java.io.File;
+import java.util.List;
 
 import org.openqa.selenium.logging.LogEntries;
 import org.openqa.selenium.logging.LogEntry;
 import org.openqa.selenium.logging.LogType;
 import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.afsserver.server.Server;
+import ch.ethz.sis.afsserver.server.observer.impl.DummyServerObserver;
+import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
+import ch.ethz.sis.shared.startup.Configuration;
 import ch.systemsx.cisd.base.unix.Unix;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.jstest.layout.OpenbisJsWebappLocation;
@@ -39,13 +45,19 @@ import junit.framework.Assert;
 public class JsTestCommonSelenium extends SeleniumTest
 {
 
-    /** Duration of sleep in milliseconds before next check for JUnit report. */
+    /**
+     * Duration of sleep in milliseconds before next check for JUnit report.
+     */
     private static final int JUNIT_REPORT_SLEEP_DURATION = 2000;
 
-    /** Total duration in milliseconds for JUnit report. */
+    /**
+     * Total duration in milliseconds for JUnit report.
+     */
     private static final int JUNIT_REPORT_TOTAL_DURATION = 15 * 60 * 1000;
 
-    /** How many checks for report should be performed. */
+    /**
+     * How many checks for report should be performed.
+     */
     private static final int CHECKS_COUNT =
             JUNIT_REPORT_TOTAL_DURATION / JUNIT_REPORT_SLEEP_DURATION;
 
@@ -63,9 +75,20 @@ public class JsTestCommonSelenium extends SeleniumTest
         }
     }
 
+    @BeforeSuite @Override public void initialization() throws Exception
+    {
+        super.initialization();
+        startAfsServer();
+    }
+
     @Override
     protected String startApplicationServer() throws Exception
     {
+        File configurationFile = new File("etc/log4j1.xml");
+        System.setProperty("log4j.configuration", configurationFile.getAbsolutePath());
+        System.setProperty("log4j.configurationFile", configurationFile.getAbsolutePath());
+        System.setProperty("org.eclipse.jetty.LEVEL", "INFO");
+
         JsTestCommonApplicationServer as = new JsTestCommonApplicationServer();
         as.setDeamon(true);
         String result = as.start();
@@ -87,6 +110,14 @@ public class JsTestCommonSelenium extends SeleniumTest
         JsTestCommonDataStoreServer2 dss = new JsTestCommonDataStoreServer2();
         dss.setDeamon(true);
         return dss.start();
+    }
+
+    protected void startAfsServer() throws Exception
+    {
+        Configuration configuration = new Configuration(List.of(AtomicFileSystemServerParameter.class),
+                "../afs-server/etc/server-data-store-config.properties");
+        DummyServerObserver dummyServerObserver = new DummyServerObserver();
+        new Server<>(configuration, dummyServerObserver, dummyServerObserver);
     }
 
     @BeforeTest

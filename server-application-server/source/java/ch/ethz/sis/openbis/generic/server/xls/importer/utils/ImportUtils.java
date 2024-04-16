@@ -15,11 +15,14 @@
  */
 package ch.ethz.sis.openbis.generic.server.xls.importer.utils;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.IProjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.ISpaceId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
 import ch.ethz.sis.openbis.generic.server.xls.importer.delay.IdentifierVariable;
@@ -40,46 +43,54 @@ public class ImportUtils
         return property.startsWith("$");
     }
 
-    public static ISampleId buildSampleIdentifier(String identifier)
+    public static ISampleId buildSampleIdentifier(String id)
     {
-        if (identifier == null || identifier.isEmpty())
+        if (id == null || id.isEmpty())
         {
             return null;
         }
 
-        if (isProjectSamplesEnabled == false) // If a project code is found => remove it
-        {
-            String[] identifierParts = identifier.split("/");
-            if (identifierParts.length == 4) {
-                String spaceCode = identifierParts[1];
-                String projectCode = identifierParts[2];
-                String sampleCode = identifierParts[3];
-                identifier = "/" + spaceCode + "/" + sampleCode;
+        if (id.startsWith(PropertyTypeSearcher.VARIABLE_PREFIX)) { // Variable
+            return new IdentifierVariable(id);
+        } else if (id.startsWith("/")) { // Identifier
+            if (isProjectSamplesEnabled == false) // If a project code is found => remove it
+            {
+                String[] identifierParts = id.split("/");
+                if (identifierParts.length == 4) { // If is a project sample
+                    String spaceCode = identifierParts[1];
+                    String projectCode = identifierParts[2];
+                    String sampleCode = identifierParts[3];
+                    id = "/" + spaceCode + "/" + sampleCode;
+                }
             }
+            return new SampleIdentifier(id);
+        } else {
+            return new SamplePermId(id);
         }
-        return new SampleIdentifier(identifier);
-
     }
 
-    public static ISampleId buildSampleIdentifier(String code, String space, String project)
+    public static ISampleId buildSampleIdentifier(String code, String space, String project, String experiment)
     {
         if (code == null || code.isEmpty())
         {
             return null;
         }
 
-        if (project != null && !project.trim().isEmpty())
+        if (isProjectSamplesEnabled)
         {
-            project = project.split("/")[2];
-        } else
-        {
+            if (project != null && !project.trim().isEmpty())
+            {
+                project = project.split("/")[2];
+            }
+
+            if (experiment != null && !experiment.trim().isEmpty())
+            {
+                project = experiment.split("/")[2];
+            }
+        } else { // If isProjectSamplesEnabled disabled => remove it
             project = null;
         }
 
-        if (isProjectSamplesEnabled == false) // If a project code is found => remove it
-        {
-            project = null;
-        }
         return new SampleIdentifier(space, project, null, code);
     }
 
@@ -103,15 +114,16 @@ public class ImportUtils
                 space = ((SpacePermId) spaceId).getPermId();
             }
             String project = null;
-            IProjectId projectId = sampleCreation.getProjectId();
-            if (projectId != null)
+            if (isProjectSamplesEnabled)
             {
-                project = ((ProjectIdentifier) projectId).getIdentifier().split("/")[2];
-            }
-
-            if (isProjectSamplesEnabled == false) // If a project code is found => remove it
-            {
-                project = null;
+                IProjectId projectId = sampleCreation.getProjectId();
+                IExperimentId experimentId = sampleCreation.getExperimentId();
+                if (projectId != null)
+                {
+                    project = ((ProjectIdentifier) projectId).getIdentifier().split("/")[2];
+                } else if(experimentId != null) {
+                    project = ((ExperimentIdentifier) experimentId).getIdentifier().split("/")[2];
+                }
             }
             return new SampleIdentifier(space, project, null, sampleCreation.getCode());
         }

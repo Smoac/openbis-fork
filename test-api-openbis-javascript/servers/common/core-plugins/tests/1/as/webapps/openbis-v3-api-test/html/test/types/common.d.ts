@@ -92,6 +92,7 @@ export namespace common {
         deleteQuery(facade: openbis.openbis, id): Promise<void>
         deletePersonalAccessToken(facade: openbis.openbis, id): Promise<void>
         deletePerson(facade: openbis.openbis, id): Promise<void>
+        deleteFile(facade: openbis.openbis, owner: string, source: string): Promise<void>
         getObjectProperty(object: any, propertyName: string): any
         login(facade: openbis.openbis): jquery.JQueryPromise<unknown>
         createSpaceFetchOptions(): openbis.SpaceFetchOptions
@@ -134,6 +135,9 @@ export namespace common {
         assertNotEqual(actual, expected, msg?): void
         assertDate(millis, msg, year, month, day, hour, minute): void
         assertToday(millis, msg?): void
+        assertFileEquals(actualFile: openbis.File, expectedFile: Object): void
+        assertFileExists(facade: openbis.openbis, owner: string, source: string): Promise<void>
+        assertFileDoesNotExist(facade: openbis.openbis, owner: string, source: string): Promise<void>
         assertEqualDictionary(actual, expected, msg?): void
         renderDictionary(dictionary): string
         assertObjectsCount(objects: any[], count: number): void

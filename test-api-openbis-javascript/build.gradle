@@ -40,6 +40,8 @@ configurations.create('blast_tar')
 dependencies {
     api project(path: ':server-screening'),
             project(path: ':core-plugin-openbis'),
+            project(path: ':server-data-store'),
+            project(path: ':lib-transactional-file-system'),
             project(path: ':test-ui-core', configuration: 'tests'),
             'reflections:reflections:0.9.10',
             'fasterxml:jackson-core:2.9.10',

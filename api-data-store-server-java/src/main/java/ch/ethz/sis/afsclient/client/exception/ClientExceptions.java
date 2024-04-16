@@ -19,13 +19,13 @@ public enum ClientExceptions implements ExceptionTemplateHolder {
             "Unknown error of type %s, please contact support, this error comes with message: %s"),
 
     CLIENT_ERROR(RuntimeException.class, List.of(ClientDeveloperCodingError), 50002,
-            "Client error HTTP response. Response code: %d"),
+            "Client error HTTP response. Response code: %s"),
 
     SERVER_ERROR(RuntimeException.class, List.of(CoreDeveloperCodingError), 50003,
-            "Server error HTTP response. Response code: %d"),
+            "Server error HTTP response. Response code: %s"),
 
     OTHER_ERROR(RuntimeException.class, List.of(UnknownError), 50004,
-            "Unexpected HTTP response. Response code: %d"),
+            "Unexpected HTTP response. Response code: %s"),
 
     API_ERROR(IllegalArgumentException.class, List.of(UserUsageError), 50005,
             "API error. Error message: '%s'");

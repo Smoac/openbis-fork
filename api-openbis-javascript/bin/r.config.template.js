@@ -9,7 +9,8 @@
     jquery: 'lib/jquery/js/jquery',
     stjs: 'lib/stjs/js/stjs',
     underscore: 'lib/underscore/js/underscore',
-    moment: 'lib/moment/js/moment'
+    moment: 'lib/moment/js/moment',
+    afs : 'afs/server-data-store-facade'
   },
   shim: {
     stjs: {

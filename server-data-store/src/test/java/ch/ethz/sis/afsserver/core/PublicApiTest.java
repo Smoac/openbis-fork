@@ -16,7 +16,7 @@
 package ch.ethz.sis.afsserver.core;
 
 import ch.ethz.sis.afsapi.dto.File;
-import ch.ethz.sis.afsapi.dto.Space;
+import ch.ethz.sis.afsapi.dto.FreeSpace;
 import ch.ethz.sis.afsserver.AbstractTest;
 import ch.ethz.sis.afsserver.ServerClientEnvironmentFS;
 import ch.ethz.sis.afsapi.api.PublicAPI;
@@ -166,7 +166,7 @@ public abstract class PublicApiTest extends AbstractTest
     @Test
     public void free() throws Exception
     {
-        final Space space = getPublicAPI().free(owner, ROOT);
+        final FreeSpace space = getPublicAPI().free(owner, ROOT);
         assertTrue(space.getFree() >= 0);
         assertTrue(space.getTotal() > 0);
         assertTrue(space.getFree() <= space.getTotal());

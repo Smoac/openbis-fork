@@ -21,7 +21,7 @@ import java.util.UUID;
 
 import ch.ethz.sis.afsapi.api.PublicAPI;
 import ch.ethz.sis.afsapi.dto.File;
-import ch.ethz.sis.afsapi.dto.Space;
+import ch.ethz.sis.afsapi.dto.FreeSpace;
 import lombok.NonNull;
 
 public abstract class AbstractPublicAPIWrapper implements PublicAPI
@@ -110,12 +110,12 @@ public abstract class AbstractPublicAPIWrapper implements PublicAPI
     }
 
     @Override
-    public @NonNull Space free(@NonNull final String owner, @NonNull final String source) throws Exception
+    public @NonNull FreeSpace free(@NonNull final String owner, @NonNull final String source) throws Exception
     {
         final Map<String, Object> args = Map.of(
                 "owner", owner,
                 "source", source);
-        return process(Space.class, "free", args);
+        return process(FreeSpace.class, "free", args);
     }
 
     @Override
