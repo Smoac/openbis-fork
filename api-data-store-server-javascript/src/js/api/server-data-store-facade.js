@@ -556,7 +556,13 @@ DataStoreServer.prototype.free = function(owner, source){
 		"application/octet-stream",
 		this._internal.buildGetUrl(data),
 		{}
-	).then((response) => parseJsonResponse(response));
+	).then((response) => parseJsonResponse(response)).then((response) => {
+        if(response && Array.isArray(response.result) && response.result.length === 2){
+            return new FreeSpace(response.result[1])
+        } else {
+            return response
+        }
+    });
 }
 
 /**
@@ -667,6 +673,20 @@ var File = function(fileObject){
     this.getLastAccessTime = function(){
         return this.lastAccessTime;
     }
+}
+
+var FreeSpace = function(freeSpaceObject){
+
+    this.free = freeSpaceObject.free;
+    this.total = freeSpaceObject.total;
+
+    this.getFree = function(){
+        return this.free;
+    }
+    this.getTotal = function(){
+        return this.total;
+    }
+
 }
 
 /**

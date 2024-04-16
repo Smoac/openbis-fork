@@ -616,6 +616,26 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
             }
 		}
 
+		this.free = function(owner, source){
+		    if(asFacade._private.transactionId){
+                return asFacade._private.ajaxRequestTransactional(afsServerTransactionParticipantId, {
+                    data : {
+                        "method" : "free",
+                        "params" : [ owner, source ]
+                    }
+                }).then(function(response){
+                    if (response) {
+                        return new FreeSpace(response)
+                    } else {
+                        return response;
+                    }
+                })
+            }else{
+                afsServer.useSession(asFacade._private.sessionToken)
+                return afsServer.free(owner, source);
+            }
+		}
+
 	}
 
 	var facade = function(asUrl, afsUrl) {
@@ -2807,6 +2827,20 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
         this.getLastAccessTime = function(){
             return this.lastAccessTime;
         }
+    }
+
+    var FreeSpace = function(freeSpaceObject){
+
+        this.free = freeSpaceObject.free;
+        this.total = freeSpaceObject.total;
+
+        this.getFree = function(){
+            return this.free;
+        }
+        this.getTotal = function(){
+            return this.total;
+        }
+
     }
 
     /*********

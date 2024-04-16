@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-04-09 13:57:46.
+// Generated using typescript-generator version 3.2.1263 on 2024-04-16 11:00:10.
 
 export default openbis;
 
@@ -9678,6 +9678,20 @@ export namespace openbis {
         new (): FirstNameSearchCriteria;
     }
 
+    interface FreeSpace {
+
+        getFree(): number;
+
+        getTotal(): number;
+    }
+
+    /**
+     */
+    interface FreeSpaceConstructor {
+
+        new (): FreeSpace;
+    }
+
     interface FullDataSetCreation extends ICreation {
 
         getFileMetadata(): DataSetFileCreation[];
@@ -13671,6 +13685,8 @@ export namespace openbis {
         create(arg0: string, arg1: string, arg2: boolean): Promise<boolean>;
 
         delete(arg0: string, arg1: string): Promise<boolean>;
+
+        free(arg0: string, arg1: string): Promise<FreeSpace>;
 
         list(arg0: string, arg1: string, arg2: boolean): Promise<File[]>;
 
@@ -25034,6 +25050,7 @@ export namespace openbis {
         FileFormatTypeSearchCriteria: FileFormatTypeSearchCriteriaConstructor;
         FileFormatTypeSortOptions: FileFormatTypeSortOptionsConstructor;
         FirstNameSearchCriteria: FirstNameSearchCriteriaConstructor;
+        FreeSpace: FreeSpaceConstructor;
         FullDataSetCreation: FullDataSetCreationConstructor;
         GetAuthorizationGroupsOperation: GetAuthorizationGroupsOperationConstructor;
         GetAuthorizationGroupsOperationResult: GetAuthorizationGroupsOperationResultConstructor;
@@ -27657,6 +27674,8 @@ SAMPLE : "SAMPLE"} as const
     export const FileFormatTypeSortOptions:FileFormatTypeSortOptionsConstructor
 
     export const FirstNameSearchCriteria:FirstNameSearchCriteriaConstructor
+
+    export const FreeSpace:FreeSpaceConstructor
 
     export const FullDataSetCreation:FullDataSetCreationConstructor
 
@@ -30389,6 +30408,8 @@ SAMPLE : "SAMPLE"} as const
     type  = CreateDataSetUploadResult
 
     type  = File
+
+    type  = FreeSpace
 
     type  = OpenBISJavaScriptAFSFacade
 

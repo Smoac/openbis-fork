@@ -1583,6 +1583,20 @@ public class OpenBIS
             }
         }
 
+        public ch.ethz.sis.afsapi.dto.Space free(String owner, String source)
+        {
+            try
+            {
+                return afsClientWithTransactions.free(owner, source);
+            } catch (RuntimeException e)
+            {
+                throw e;
+            } catch (Exception e)
+            {
+                throw new RuntimeException(e);
+            }
+        }
+
         private byte[] calculateMD5(byte[] data)
         {
             try

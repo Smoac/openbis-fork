@@ -56,6 +56,12 @@ public class OpenBISJavaScriptAFSFacade
         return false;
     }
 
+    @TypeScriptMethod(sessionToken = false)
+    public FreeSpace free(final String owner, final String source)
+    {
+        return null;
+    }
+
     @TypeScriptObject
     public static class File
     {
@@ -114,6 +120,26 @@ public class OpenBISJavaScriptAFSFacade
         {
             return lastAccessTime;
         }
+    }
+
+    @TypeScriptObject
+    public static class FreeSpace
+    {
+
+        private Long total;
+
+        private Long free;
+
+        public Long getFree()
+        {
+            return free;
+        }
+
+        public Long getTotal()
+        {
+            return total;
+        }
+
     }
 
 }

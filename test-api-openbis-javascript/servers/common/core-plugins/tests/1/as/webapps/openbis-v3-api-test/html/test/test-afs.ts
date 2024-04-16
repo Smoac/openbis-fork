@@ -395,6 +395,44 @@ exports.default = new Promise((resolve) => {
                 }
             }
 
+            var testFree = async function (assert, useTransaction) {
+                const testFolder = "test-free"
+                const testFile = "test-file"
+                const testContent = "test-content"
+
+                try {
+                    var c = new common(assert, dtos)
+                    c.start()
+
+                    await c.login(facade)
+
+                    await c.deleteFile(facade, testFolder, "")
+
+                    await facade.getAfsServerFacade().write(testFolder, testFile, 0, testContent)
+
+                    if (useTransaction) {
+                        facade.setInteractiveSessionKey(testInteractiveSessionKey)
+                        await facade.beginTransaction()
+                    }
+
+                    var freeSpace = await facade.getAfsServerFacade().free(testFolder, testFile)
+
+                    if (useTransaction) {
+                        await facade.commitTransaction()
+                    }
+
+                    c.assertNotNull(freeSpace, "Free space not null")
+                    c.assertTrue(freeSpace.getFree() > 0, "Free space > 0")
+                    c.assertTrue(freeSpace.getTotal() > 0, "Total space > 0")
+                    c.assertTrue(freeSpace.getFree() < freeSpace.getTotal(), "Free space < Total space")
+
+                    c.finish()
+                } catch (error) {
+                    c.fail(error)
+                    c.finish()
+                }
+            }
+
             QUnit.test("list() without transaction", async function (assert) {
                 await testList(assert, false)
             })
@@ -449,6 +487,14 @@ exports.default = new Promise((resolve) => {
 
             QUnit.test("create() with transaction", async function (assert) {
                 await testCreate(assert, true)
+            })
+
+            QUnit.test("free() without transaction", async function (assert) {
+                await testFree(assert, false)
+            })
+
+            QUnit.test("free() with transaction", async function (assert) {
+                await testFree(assert, true)
             })
         }
 
