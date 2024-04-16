@@ -20,7 +20,7 @@ import java.util.Set;
 
 import ch.ethz.sis.afs.dto.operation.OperationName;
 import ch.ethz.sis.afsapi.dto.File;
-import ch.ethz.sis.afsapi.dto.Space;
+import ch.ethz.sis.afsapi.dto.FreeSpace;
 import ch.ethz.sis.afsserver.exception.FSExceptions;
 import ch.ethz.sis.afsserver.worker.AbstractProxy;
 import ch.ethz.sis.afsserver.worker.providers.AuthorizationInfoProvider;
@@ -94,7 +94,7 @@ public class AuthorizationProxy extends AbstractProxy {
     }
 
     @Override
-    public Space free(@NonNull final String owner, @NonNull final String source) throws Exception
+    public FreeSpace free(@NonNull final String owner, @NonNull final String source) throws Exception
     {
         validateUserRights(owner, source, IOUtils.readPermissions, OperationName.Free);
         return nextProxy.free(owner, source);

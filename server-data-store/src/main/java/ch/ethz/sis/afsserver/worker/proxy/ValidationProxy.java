@@ -18,7 +18,7 @@ package ch.ethz.sis.afsserver.worker.proxy;
 import java.util.List;
 
 import ch.ethz.sis.afsapi.dto.File;
-import ch.ethz.sis.afsapi.dto.Space;
+import ch.ethz.sis.afsapi.dto.FreeSpace;
 import ch.ethz.sis.afsserver.exception.FSExceptions;
 import ch.ethz.sis.afsserver.worker.AbstractProxy;
 import lombok.NonNull;
@@ -71,7 +71,7 @@ public class ValidationProxy extends AbstractProxy {
     }
 
     @Override
-    public @NonNull Space free(@NonNull final String owner, @NonNull final String source) throws Exception
+    public @NonNull FreeSpace free(@NonNull final String owner, @NonNull final String source) throws Exception
     {
         return nextProxy.free(owner, source);
     }

@@ -27,7 +27,7 @@ import lombok.Value;
 @Value
 @Builder(toBuilder = true)
 @AllArgsConstructor(access = AccessLevel.PUBLIC)
-public class Space implements DTO, Serializable
+public class FreeSpace implements DTO, Serializable
 {
     Long total;
     Long free;

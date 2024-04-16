@@ -42,7 +42,7 @@ import org.junit.Test;
 
 import ch.ethz.sis.afs.manager.TransactionConnection;
 import ch.ethz.sis.afsapi.dto.File;
-import ch.ethz.sis.afsapi.dto.Space;
+import ch.ethz.sis.afsapi.dto.FreeSpace;
 import ch.ethz.sis.afsclient.client.AfsClient;
 import ch.ethz.sis.afsserver.server.Server;
 import ch.ethz.sis.shared.io.IOUtils;
@@ -177,7 +177,7 @@ public abstract class BaseApiClientTest
     {
         login();
 
-        final Space space = afsClient.free(owner, "");
+        final FreeSpace space = afsClient.free(owner, "");
         assertTrue(space.getFree() >= 0);
         assertTrue(space.getTotal() > 0);
         assertTrue(space.getFree() <= space.getTotal());

@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.UUID;
 
 import ch.ethz.sis.afsapi.dto.File;
-import ch.ethz.sis.afsapi.dto.Space;
+import ch.ethz.sis.afsapi.dto.FreeSpace;
 import ch.ethz.sis.afsserver.worker.AbstractProxy;
 import ch.ethz.sis.shared.log.LogManager;
 import ch.ethz.sis.shared.log.Logger;
@@ -113,7 +113,7 @@ public class LogProxy extends AbstractProxy {
     }
 
     @Override
-    public @NonNull Space free(@NonNull final String owner, @NonNull final String source) throws Exception
+    public @NonNull FreeSpace free(@NonNull final String owner, @NonNull final String source) throws Exception
     {
         logger.traceAccess(null, owner, source);
         return logger.traceExit(nextProxy.free(owner, source));

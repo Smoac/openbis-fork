@@ -20,7 +20,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import ch.ethz.sis.afsapi.dto.File;
-import ch.ethz.sis.afsapi.dto.Space;
+import ch.ethz.sis.afsapi.dto.FreeSpace;
 import ch.ethz.sis.afsserver.worker.AbstractProxy;
 import ch.ethz.sis.shared.io.IOUtils;
 import lombok.NonNull;
@@ -115,10 +115,10 @@ public class ExecutorProxy extends AbstractProxy {
     }
 
     @Override
-    public @NonNull Space free(@NonNull final String owner, @NonNull final String source) throws Exception
+    public @NonNull FreeSpace free(@NonNull final String owner, @NonNull final String source) throws Exception
     {
         final ch.ethz.sis.afs.api.dto.Space space = workerContext.getConnection().free(getPath(owner, source));
-        return new Space(space.getTotal(), space.getFree());
+        return new FreeSpace(space.getTotal(), space.getFree());
     }
 
 }

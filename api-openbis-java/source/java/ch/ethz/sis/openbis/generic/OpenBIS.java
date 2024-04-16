@@ -41,6 +41,7 @@ import org.eclipse.jetty.http.HttpMethod;
 
 import ch.ethz.sis.afsapi.api.OperationsAPI;
 import ch.ethz.sis.afsapi.api.PublicAPI;
+import ch.ethz.sis.afsapi.dto.FreeSpace;
 import ch.ethz.sis.afsclient.client.AfsClient;
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.ITransactionCoordinatorApi;
@@ -1583,7 +1584,7 @@ public class OpenBIS
             }
         }
 
-        public ch.ethz.sis.afsapi.dto.Space free(String owner, String source)
+        public FreeSpace free(String owner, String source)
         {
             try
             {
