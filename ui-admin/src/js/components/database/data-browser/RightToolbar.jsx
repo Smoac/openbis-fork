@@ -102,13 +102,13 @@ class RightToolbar extends React.Component {
     }
   }
 
-  updateProgress(newProgress) {
-    this.setState({ progress: newProgress })
+  updateProgress(progress) {
+    this.setState({ progress })
   }
 
-  async resolveNameConflict(newFile) {
+  async resolveNameConflict(newFile, allowResume) {
     return new Promise((resolve) => {
-      debugger
+      this.setState({ allowResume })
       this.openFileExistsDialog(newFile)
       this.resolveConflict = resolve
     })

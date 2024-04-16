@@ -175,12 +175,19 @@ export default class DataBrowserController extends ComponentController {
         : file.name
       const targetFilePath = this.path + '/' + filePath
       const existingFiles = await this.listFiles(targetFilePath)
+
+      const existingFileSize = existingFiles.length === 0 ? 0
+        : existingFiles[0].size
+      // If the file is smaller than 2 chunks we better replace it
+      const allowResume = file.size >= 2 * CHUNK_SIZE
+        && file.size >= existingFileSize
       const resolutionResult = existingFiles.length === 0 ? 'replace'
-        : await onNameConflictFound(file)
+        : await onNameConflictFound(file, allowResume)
 
       if (resolutionResult !== 'cancel') {
         // Replace or resume upload from the last point in the file
-        let offset = resolutionResult === 'replace' ? 0 : existingFiles[0].size
+        let offset = resolutionResult === 'replace' ? 0 : existingFileSize
+        totalUploaded += Math.min(offset, file.size)
         while (offset < file.size) {
           const blob = file.slice(offset, offset + CHUNK_SIZE)
           const binaryString = await this._fileSliceToBinaryString(blob)
