@@ -87,6 +87,7 @@ public class JsTestCommonSelenium extends SeleniumTest
         File configurationFile = new File("etc/log4j1.xml");
         System.setProperty("log4j.configuration", configurationFile.getAbsolutePath());
         System.setProperty("log4j.configurationFile", configurationFile.getAbsolutePath());
+        System.setProperty("org.eclipse.jetty.LEVEL", "INFO");
 
         JsTestCommonApplicationServer as = new JsTestCommonApplicationServer();
         as.setDeamon(true);
