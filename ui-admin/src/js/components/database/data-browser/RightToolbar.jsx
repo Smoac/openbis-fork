@@ -35,6 +35,7 @@ import FileIcon from '@material-ui/icons/InsertDriveFileOutlined'
 import FolderIcon from '@material-ui/icons/FolderOpen'
 import logger from '@src/js/common/logger.js'
 import LoadingDialog from "@src/js/components/common/loading/LoadingDialog.jsx";
+import FileExistsDialog from "@src/js/components/common/dialog/FileExistsDialog.jsx";
 
 const color = 'default'
 const uploadButtonsColor = 'secondary'
@@ -80,18 +81,22 @@ class RightToolbar extends React.Component {
     autoBind(this)
 
     this.controller = this.props.controller
+    this.resolveConflict = null // This function will be shared
 
     this.state = {
       uploadButtonsPopup: null,
       loading: false,
-      progress: 0
+      progress: 0,
+      allowResume: true,
+      fileExistsDialogFile: null
     }
   }
 
   async handleUpload(event) {
     try {
       this.setState({ loading: true, progress: 0 })
-      await this.controller.upload(event.target.files, this.updateProgress)
+      await this.controller.upload(event.target.files, this.resolveNameConflict,
+        this.updateProgress)
     } finally {
       this.setState({ loading: false })
     }
@@ -99,6 +104,22 @@ class RightToolbar extends React.Component {
 
   updateProgress(newProgress) {
     this.setState({ progress: newProgress })
+  }
+
+  async resolveNameConflict(newFile) {
+    return new Promise((resolve) => {
+      debugger
+      this.openFileExistsDialog(newFile)
+      this.resolveConflict = resolve
+    })
+  }
+
+  openFileExistsDialog(newFile) {
+    this.setState({ fileExistsDialogFile: newFile })
+  }
+
+  closeFileExistsDialog() {
+    this.setState({ fileExistsDialogFile: null })
   }
 
   handleUploadClick(event) {
@@ -111,6 +132,21 @@ class RightToolbar extends React.Component {
     this.setState({
       uploadButtonsPopup: null
     })
+  }
+
+  handleFileExistsReplace() {
+    this.closeFileExistsDialog()
+    this.resolveConflict && this.resolveConflict('replace')
+  }
+
+  handleFileExistsResume() {
+    this.closeFileExistsDialog()
+    this.resolveConflict && this.resolveConflict('resume')
+  }
+
+  handleFileExistsCancel() {
+    this.closeFileExistsDialog()
+    this.resolveConflict && this.resolveConflict('cancel')
   }
 
   renderUploadButtons() {
@@ -147,7 +183,8 @@ class RightToolbar extends React.Component {
     logger.log(logger.DEBUG, 'RightToolbar.render')
 
     const { classes, onViewTypeChange, buttonSize } = this.props
-    const { uploadButtonsPopup, progress, loading } = this.state
+    const { uploadButtonsPopup, progress, loading, allowResume,
+      fileExistsDialogFile } = this.state
     return ([
       <div key='right-toolbar-main' className={classes.buttons}>
         <ToggleButton
@@ -210,7 +247,18 @@ class RightToolbar extends React.Component {
           <Container square={true}>{this.renderUploadButtons()}</Container>
         </Popover>
       </div>,
-      <LoadingDialog key='right-toolbar-loaging-dialog' variant='determinate' value={progress} loading={loading} />
+      <LoadingDialog key='right-toolbar-loaging-dialog' variant='determinate'
+                     value={progress} loading={loading} />,
+      <FileExistsDialog
+        key='file-exists-dialog'
+        open={!!fileExistsDialogFile}
+        onReplace={this.handleFileExistsReplace}
+        onResume={allowResume ? this.handleFileExistsResume : null}
+        onCancel={this.handleFileExistsCancel}
+        title={messages.get(messages.DELETE)}
+        content={messages.get(messages.CONFIRMATION_FILE_NAME_CONFLICT,
+          fileExistsDialogFile ? fileExistsDialogFile.name : '')}
+      />
     ])
   }
 }

@@ -165,28 +165,37 @@ export default class DataBrowserController extends ComponentController {
     )
   }
 
-  async upload(fileList, onProgressUpdate) {
+  async upload(fileList, onNameConflictFound, onProgressUpdate) {
     let totalUploaded = 0
     const totalSize = Array.from(fileList)
       .reduce((acc, file) => acc + file.size, 0)
 
     for (const file of fileList) {
-      let offset = 0
-      while (offset < file.size) {
-        const blob = file.slice(offset, offset + CHUNK_SIZE)
-        const binaryString = await this._fileSliceToBinaryString(blob)
-        const filePath = file.webkitRelativePath ? file.webkitRelativePath
-          : file.name
-        await this._uploadChunk(this.path + '/' + filePath, offset,
-          binaryString)
-        offset += blob.size
-        totalUploaded += blob.size
+      const filePath = file.webkitRelativePath ? file.webkitRelativePath
+        : file.name
+      const targetFilePath = this.path + '/' + filePath
+      const existingFiles = await this.listFiles(targetFilePath)
+      const resolutionResult = existingFiles.length === 0 ? 'replace'
+        : await onNameConflictFound(file)
 
-        if (onProgressUpdate) {
+      if (resolutionResult !== 'cancel') {
+        // Replace or resume upload from the last point in the file
+        let offset = resolutionResult === 'replace' ? 0 : existingFiles[0].size
+        while (offset < file.size) {
+          const blob = file.slice(offset, offset + CHUNK_SIZE)
+          const binaryString = await this._fileSliceToBinaryString(blob)
+          await this._uploadChunk(targetFilePath, offset, binaryString)
+          offset += blob.size
+          totalUploaded += blob.size
+
           // Calculate and update progress
           const progress = Math.round((totalUploaded / totalSize) * 100)
           onProgressUpdate(Math.min(progress, 100))
         }
+      } else {
+        // We stop uploading after cancel
+        onProgressUpdate(100)
+        break
       }
     }
 
@@ -205,7 +214,6 @@ export default class DataBrowserController extends ComponentController {
   }
 
   async _uploadChunk(source, offset, data) {
-    // console.log(data)
     return await this.component.datastoreServer.write(this.owner, source, offset, data)
   }
 
