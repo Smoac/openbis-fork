@@ -153,6 +153,12 @@ public class ExperimentTypeAuthorizationExecutor implements IExperimentTypeAutho
         {
             if (currentValue != null)
             {
+                if(currentValue instanceof String) {
+                    String value = (String) currentValue;
+                    if(value.trim().isEmpty() && field.getValue() == null) {
+                        return false;
+                    }
+                }
                 return !currentValue.equals(field.getValue());
             } else
             {
