@@ -294,7 +294,17 @@ DataStoreServer.prototype.fillCommonParameters = function(params) {
 	return params;
 }
 
-const encodeParams = p =>  Object.entries(p).map(kv => kv.map(encodeURIComponent).join("=")).join("&");
+const encodeParams = (params) => {
+	return Object.entries(params)
+		.map(kv => {
+			const key = kv[0]
+			const value =  kv[1]
+			const encodedValue = (key === "data" || key === "md5Hash")
+				? value : encodeURIComponent(value)
+			return `${encodeURIComponent(key)}=${encodedValue}`
+		})
+		.join("&")
+};
 
 /**
  * Log into DSS.
@@ -455,8 +465,8 @@ DataStoreServer.prototype.write = function(owner, source, offset, data){
 		"owner" : owner,
 		"source": source,
 		"offset": offset,
-		"data":  btoa(data),
-		"md5Hash":  btoa(hex2a(md5(data))),
+		"data":  base64URLencode(data),
+		"md5Hash":  base64URLencode(hex2a(md5(data))),
 	});
 
 	return this._internal.sendHttpRequest(
@@ -631,6 +641,11 @@ DataStoreServer.prototype.recover = function(){
 		this._internal.datastoreUrl,
 		encodeParams(data)
 	);
+}
+
+function base64URLencode(str) {
+	const base64Encoded = btoa(str);
+	return base64Encoded.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
 /**
