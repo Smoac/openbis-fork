@@ -251,6 +251,30 @@ export default class DataBrowserController extends ComponentController {
     return dataArray
   }
 
+  async downloadFile(file) {
+    // Check if StreamSaver's service worker is correctly set up
+    if (!navigator.serviceWorker.controller) {
+      const registration = await navigator.serviceWorker.register('/sw.js'); // Path to your service worker file
+      await navigator.serviceWorker.ready; // Wait for the service worker to be ready
+    }
+
+    const streamSaver = window.streamSaver
+    streamSaver.mitm = 'https://cdn.jsdelivr.net/npm/streamsaver@2/mitm.html'
+    const fileStream = streamSaver.createWriteStream(file.name);
+    const writer = fileStream.getWriter();
+
+    let offset = 0;
+
+    while (offset < file.size) {
+      const chunk = await this._download(file, offset)
+      const buffer = await chunk.arrayBuffer()
+      await writer.write(new Uint8Array(buffer))
+      offset += CHUNK_SIZE
+    }
+
+    writer.close()
+  }
+
   async _download(file, offset) {
     const limit = Math.min(CHUNK_SIZE, file.size - offset)
     return await this.component.datastoreServer.read(this.owner, file.path, offset, limit)

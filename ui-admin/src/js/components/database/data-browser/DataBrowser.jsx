@@ -359,7 +359,7 @@ class DataBrowser extends React.Component {
   }
 
   async fileToBlob(file) {
-    const dataArray = await this.controller.download(file)
+    const dataArray = await this.controller.downloadFile(file)
     return new Blob(dataArray, { type: this.inferMimeType(file.path) })
   }
 
