@@ -578,9 +578,8 @@ public class ExportExecutor implements IExportExecutor
             final String dataSetName = getEntityName(dataSet);
             final String dataDirectorySuffix = "#" + UUID.randomUUID();
 
-            final File metadataJsonFile = createMetadataJsonFile(parentDataDirectory, prefix, spaceCode, projectCode, containerCode, code,
+            createMetadataJsonFile(parentDataDirectory, prefix, spaceCode, projectCode, containerCode, code,
                     dataSetTypeCode, dataSetCode, dataSetName, dataDirectorySuffix, codeHolderJson, compatibleWithImport);
-            createDocFilesForDataSet(sessionToken, metadataJsonFile.getParentFile(), null, dataSet, EnumSet.of(ExportFormat.PDF));
 
             if (dataSet.getKind() != DataSetKind.LINK)
             {
@@ -1091,12 +1090,11 @@ public class ExportExecutor implements IExportExecutor
     }
 
     private void createDocFilesForDataSet(final String sessionToken, final File docDirectory,
-            final Map<String, List<Map<String, String>>> entityTypeExportFieldsMap,
             final DataSet dataSet, final Set<ExportFormat> exportFormats) throws IOException
     {
         final boolean hasHtmlFormat = exportFormats.contains(ExportFormat.HTML);
         final boolean hasPdfFormat = exportFormats.contains(ExportFormat.PDF);
-        final String html = getHtml(sessionToken, dataSet, entityTypeExportFieldsMap);
+        final String html = getHtml(sessionToken, dataSet, null);
         final byte[] htmlBytes = html.getBytes(StandardCharsets.UTF_8);
 
         if (hasHtmlFormat)
