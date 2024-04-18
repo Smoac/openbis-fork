@@ -30,7 +30,7 @@ errorMessages = []
 
 def process(transaction):
     incoming = transaction.getIncoming();
-    folderName = incoming.getName();
+    folderName = substring_up_to_hash(incoming.getName().split("#"));
     emailAddress = None
 
     try:
@@ -197,6 +197,11 @@ def process(transaction):
                 transaction.moveFile(datasetItem.getAbsolutePath(), dataSet);
     finally:
         reportAllIssues(transaction, emailAddress)
+
+
+def substring_up_to_hash(input_string):
+    hash_index = input_string.rfind('#')
+    return input_string[:hash_index] if hash_index >=0 else input_string
 
 
 def pathListToStr(list):

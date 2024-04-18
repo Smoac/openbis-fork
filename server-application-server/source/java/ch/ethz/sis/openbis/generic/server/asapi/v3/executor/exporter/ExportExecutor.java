@@ -79,8 +79,6 @@ import java.util.zip.ZipEntry;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import com.openhtmltopdf.extend.FSSupplier;
-
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.log4j.Logger;
@@ -97,6 +95,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.node.TextNode;
+import com.openhtmltopdf.extend.FSSupplier;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
@@ -175,15 +174,11 @@ public class ExportExecutor implements IExportExecutor
 
     public static final String EXPORT_FILE_PREFIX = "export";
 
-    public static final String METADATA_FILE_NAME = "metadata" + XLSExport.XLSX_EXTENSION;
-
     public static final String XLSX_DIRECTORY = "xlsx";
 
     public static final String PDF_DIRECTORY = "pdf";
 
     public static final String DATA_DIRECTORY = "data";
-
-    public static final String META_FILE_NAME = "meta.json";
 
     public static final String SHARED_SAMPLES_DIRECTORY = "(shared)";
 
@@ -192,6 +187,10 @@ public class ExportExecutor implements IExportExecutor
     public static final String PDF_EXTENSION = ".pdf";
 
     public static final String JSON_EXTENSION = ".json";
+
+    public static final String METADATA_FILE_NAME = "metadata" + XLSExport.XLSX_EXTENSION;
+
+    public static final String METADATA_JSON_FILE_NAME = "metadata" + JSON_EXTENSION;
 
     static final String NAME_PROPERTY_NAME = "$NAME";
 
@@ -577,9 +576,10 @@ public class ExportExecutor implements IExportExecutor
             final String dataSetCode = dataSet.getCode();
             final String dataSetTypeCode = dataSet.getType().getCode();
             final String dataSetName = getEntityName(dataSet);
+            final String dataDirectorySuffix = "#" + UUID.randomUUID();
 
             final File metadataJsonFile = createMetadataJsonFile(parentDataDirectory, prefix, spaceCode, projectCode, containerCode, code,
-                    dataSetTypeCode, dataSetCode, dataSetName, codeHolderJson, compatibleWithImport);
+                    dataSetTypeCode, dataSetCode, dataSetName, dataDirectorySuffix, codeHolderJson, compatibleWithImport);
             createDocFilesForDataSet(sessionToken, metadataJsonFile.getParentFile(), null, dataSet, EnumSet.of(ExportFormat.PDF));
 
             if (dataSet.getKind() != DataSetKind.LINK)
@@ -604,7 +604,7 @@ public class ExportExecutor implements IExportExecutor
                     while ((file = reader.read()) != null)
                     {
                         createNextDataFile(parentDataDirectory, prefix, spaceCode, projectCode,
-                                containerCode, code, dataSetTypeCode, dataSetCode, dataSetName, file, compatibleWithImport);
+                                containerCode, code, dataSetTypeCode, dataSetCode, dataSetName, dataDirectorySuffix, file, compatibleWithImport);
                     }
                 }
             } else
@@ -628,33 +628,34 @@ public class ExportExecutor implements IExportExecutor
 
     private static File createMetadataJsonFile(final File parentDataDirectory, final char prefix,
             final String spaceCode, final String projectCode, final String containerCode, final String code, final String dataSetTypeCode,
-            final String dataSetCode, final String dataSetName, final String codeHolderJson, final boolean compatibleWithImport) throws IOException
+            final String dataSetCode, final String dataSetName, final String dataDirectorySuffix, final String codeHolderJson,
+            final boolean compatibleWithImport) throws IOException
     {
-        final File metadataFile;
+        final File metadataJsonFile;
 
         if (compatibleWithImport)
         {
             final File dataDirectory = new File(parentDataDirectory, DATA_DIRECTORY + '/');
             mkdirs(dataDirectory);
-            metadataFile = new File(dataDirectory,
-                    getDataDirectoryName(prefix, spaceCode, projectCode, containerCode, code, dataSetTypeCode, dataSetCode, dataSetName,
-                            META_FILE_NAME));
+            metadataJsonFile = new File(dataDirectory,
+                    getDataDirectoryName(prefix, spaceCode, projectCode, containerCode, code, dataSetTypeCode,
+                            dataDirectorySuffix, METADATA_JSON_FILE_NAME));
         } else
         {
             final File dataDirectory = new File(parentDataDirectory, getFullEntityName(dataSetCode, dataSetName));
             mkdirs(dataDirectory);
-            metadataFile = new File(new File(dataDirectory, DATA_DIRECTORY), META_FILE_NAME);
+            metadataJsonFile = new File(new File(dataDirectory, DATA_DIRECTORY), METADATA_JSON_FILE_NAME);
         }
 
-        final File dataSubdirectory = metadataFile.getParentFile();
+        final File dataSubdirectory = metadataJsonFile.getParentFile();
         mkdirs(dataSubdirectory);
 
-        try (final OutputStream os = new BufferedOutputStream(new FileOutputStream(metadataFile)))
+        try (final OutputStream os = new BufferedOutputStream(new FileOutputStream(metadataJsonFile)))
         {
             writeInChunks(os, codeHolderJson.getBytes(StandardCharsets.UTF_8));
         }
 
-        return metadataFile;
+        return metadataJsonFile;
     }
 
     private void exportSpacesDoc(final String sessionToken, final Map<String, Map<String, List<Map<String, String>>>> exportFields,
@@ -1232,7 +1233,8 @@ public class ExportExecutor implements IExportExecutor
 
     private static void createNextDataFile(final File parentDataDirectory, final char prefix, final String spaceCode, final String projectCode,
             final String containerCode, final String entityCode, final String dataSetTypeCode, final String dataSetCode,
-            final String dataSetName, final DataSetFileDownload dataSetFileDownload, final boolean compatibleWithImport) throws IOException
+            final String dataSetName, final String dataDirectorySuffix, final DataSetFileDownload dataSetFileDownload,
+            final boolean compatibleWithImport) throws IOException
     {
         final DataSetFile dataSetFile = dataSetFileDownload.getDataSetFile();
         final String filePath = dataSetFile.getPath();
@@ -1244,7 +1246,7 @@ public class ExportExecutor implements IExportExecutor
             final File dataDirectory = new File(parentDataDirectory, DATA_DIRECTORY + '/');
             mkdirs(dataDirectory);
             dataSetFsEntry = new File(dataDirectory, getDataDirectoryName(prefix, spaceCode, projectCode, containerCode, entityCode,
-                    dataSetTypeCode, dataSetCode, dataSetName, filePath) + (isDirectory ? "/" : ""));
+                    dataSetTypeCode, dataDirectorySuffix, filePath) + (isDirectory ? "/" : ""));
         } else
         {
             final File datasetDirectory = new File(parentDataDirectory, getFullEntityName(dataSetCode, dataSetName));
@@ -1272,7 +1274,7 @@ public class ExportExecutor implements IExportExecutor
 
     static String getDataDirectoryName(final char prefix, final String spaceCode, final String projectCode,
             final String containerCode, final String entityCode, final String dataSetTypeCode,
-            final String dataSetCode, final String dataSetName, final String fileName)
+            final String dataDirectorySuffix, final String fileName)
     {
         if (prefix != 'O' && prefix != 'E')
         {
@@ -1322,13 +1324,9 @@ public class ExportExecutor implements IExportExecutor
             throw new IllegalArgumentException("Data set type code is mandatory");
         }
 
-        if (dataSetCode != null)
+        if (dataDirectorySuffix != null)
         {
-            entryBuilder.append('+');
-            addFullEntityName(entryBuilder, null, dataSetCode, dataSetName);
-        } else
-        {
-            throw new IllegalArgumentException("Data set code is mandatory");
+            entryBuilder.append(dataDirectorySuffix);
         }
 
         if (fileName != null)
