@@ -29,7 +29,7 @@ public class WorkerFactory extends AbstractFactory<Configuration, Configuration,
     public Worker create(Configuration configuration) throws Exception {
 
         // 5. Execute the operation
-        AuditorProxy executorProxy = new AuditorProxy(new ExecutorProxy());
+        AuditorProxy executorProxy = new AuditorProxy(new ExecutorProxy(configuration));
 
         // 4. Check that the user have rights to do the operation
         AuthorizationInfoProvider authorizationInfoProvider = configuration.getInstance(AtomicFileSystemServerParameter.authorizationInfoProviderClass);

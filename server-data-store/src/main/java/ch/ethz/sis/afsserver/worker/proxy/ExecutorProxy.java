@@ -15,20 +15,42 @@
  */
 package ch.ethz.sis.afsserver.worker.proxy;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import ch.ethz.sis.afs.exception.AFSExceptions;
 import ch.ethz.sis.afsapi.dto.File;
 import ch.ethz.sis.afsapi.dto.FreeSpace;
+import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
 import ch.ethz.sis.afsserver.worker.AbstractProxy;
+import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.shared.io.IOUtils;
+import ch.ethz.sis.shared.startup.Configuration;
+import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import lombok.NonNull;
 
-public class ExecutorProxy extends AbstractProxy {
+public class ExecutorProxy extends AbstractProxy
+{
 
-    public ExecutorProxy() {
+    private final IApplicationServerApi v3;
+
+    private final String storageRoot;
+
+    private final String storageUuid;
+
+    public ExecutorProxy(final Configuration configuration)
+    {
         super(null);
+        String openBISUrl = configuration.getStringProperty(AtomicFileSystemServerParameter.openBISUrl);
+        int openBISTimeout = configuration.getIntegerProperty(AtomicFileSystemServerParameter.openBISTimeout);
+        v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, openBISUrl, openBISTimeout);
+        storageRoot = configuration.getStringProperty(AtomicFileSystemServerParameter.storageRoot);
+        storageUuid = configuration.getStringProperty(AtomicFileSystemServerParameter.storageUuid);
     }
 
     //
@@ -36,28 +58,33 @@ public class ExecutorProxy extends AbstractProxy {
     //
 
     @Override
-    public void begin(UUID transactionId) throws Exception {
+    public void begin(UUID transactionId) throws Exception
+    {
         workerContext.setTransactionId(transactionId);
         workerContext.getConnection().begin(transactionId);
     }
 
     @Override
-    public Boolean prepare() throws Exception {
+    public Boolean prepare() throws Exception
+    {
         return workerContext.getConnection().prepare();
     }
 
     @Override
-    public void commit() throws Exception {
+    public void commit() throws Exception
+    {
         workerContext.getConnection().commit();
     }
 
     @Override
-    public void rollback() throws Exception {
+    public void rollback() throws Exception
+    {
         workerContext.getConnection().rollback();
     }
 
     @Override
-    public List<UUID> recover() throws Exception {
+    public List<UUID> recover() throws Exception
+    {
         return workerContext.getConnection().recover();
     }
 
@@ -65,45 +92,95 @@ public class ExecutorProxy extends AbstractProxy {
     // File System Operations
     //
 
-    public String getPath(String owner, String source) {
-        return String.join(""+IOUtils.PATH_SEPARATOR, "", owner.toString(), source);
+    public String getPath(String owner, String source)
+    {
+        if (storageUuid == null)
+        {
+            // AFS does not reuse DSS store folder
+            return String.join("" + IOUtils.PATH_SEPARATOR, "", owner.toString(), source);
+        } else
+        {
+            // AFS reuses DSS store folder
+            IPermIdHolder foundOwner = ProxyUtil.findOwner(v3, workerContext.getSessionToken(), owner);
+
+            if (foundOwner == null)
+            {
+                throw AFSExceptions.NotAPath.getInstance(owner);
+            }
+
+            String foundOwnerPath = null;
+
+            if (foundOwner instanceof DataSet)
+            {
+                DataSet foundDataSet = (DataSet) foundOwner;
+                foundOwnerPath = foundDataSet.getPhysicalData().getShareId() + "/" + foundDataSet.getPhysicalData().getLocation();
+            } else
+            {
+                String[] shares = IOUtils.getShares(storageRoot);
+                String[] shards = IOUtils.getShards(owner);
+
+                for (String share : shares)
+                {
+                    String potentialOwnerPath = share + "/" + storageUuid + String.join("/", shards) + "/" + foundOwner.getPermId().toString();
+                    if (Files.exists(Paths.get(potentialOwnerPath)))
+                    {
+                        foundOwnerPath = potentialOwnerPath;
+                        break;
+                    }
+                }
+            }
+
+            if (foundOwnerPath == null)
+            {
+                throw AFSExceptions.NotAPath.getInstance(owner);
+            }
+
+            return String.join("" + IOUtils.PATH_SEPARATOR, "", foundOwnerPath, source);
+        }
     }
 
     @Override
-    public List<File> list(String owner, String source, Boolean recursively) throws Exception {
+    public List<File> list(String owner, String source, Boolean recursively) throws Exception
+    {
         return workerContext.getConnection().list(getPath(owner, source), recursively)
                 .stream()
                 .map(file -> convertToFile(owner, file))
                 .collect(Collectors.toList());
     }
 
-    private File convertToFile(String owner, ch.ethz.sis.afs.api.dto.File file) {
+    private File convertToFile(String owner, ch.ethz.sis.afs.api.dto.File file)
+    {
         return new File(owner, file.getPath().substring(owner.length() + 1), file.getName(), file.getDirectory(), file.getSize(),
                 file.getLastModifiedTime(), file.getCreationTime(), file.getLastAccessTime());
     }
 
     @Override
-    public byte[] read(String owner, String source, Long offset, Integer limit) throws Exception {
+    public byte[] read(String owner, String source, Long offset, Integer limit) throws Exception
+    {
         return workerContext.getConnection().read(getPath(owner, source), offset, limit);
     }
 
     @Override
-    public Boolean write(String owner, String source, Long offset, byte[] data, byte[] md5Hash) throws Exception {
+    public Boolean write(String owner, String source, Long offset, byte[] data, byte[] md5Hash) throws Exception
+    {
         return workerContext.getConnection().write(getPath(owner, source), offset, data, md5Hash);
     }
 
     @Override
-    public Boolean delete(String owner, String source) throws Exception {
+    public Boolean delete(String owner, String source) throws Exception
+    {
         return workerContext.getConnection().delete(getPath(owner, source));
     }
 
     @Override
-    public Boolean copy(String sourceOwner, String source, String targetOwner, String target) throws Exception {
+    public Boolean copy(String sourceOwner, String source, String targetOwner, String target) throws Exception
+    {
         return workerContext.getConnection().copy(getPath(sourceOwner, source), getPath(targetOwner, target));
     }
 
     @Override
-    public Boolean move(String sourceOwner, String source, String targetOwner, String target) throws Exception {
+    public Boolean move(String sourceOwner, String source, String targetOwner, String target) throws Exception
+    {
         return workerContext.getConnection().move(getPath(sourceOwner, source), getPath(targetOwner, target));
     }
 
