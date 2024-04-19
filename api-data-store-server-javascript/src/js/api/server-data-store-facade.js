@@ -1,5 +1,5 @@
-;(function(global){
-  'use strict'
+// ;(function(global){
+//   'use strict'
 
 /**
  * ======================================================
@@ -908,21 +908,21 @@ var md5 = (function(){
 
     return md5;
 })();
-
-/**
- * ==================================================================================
- * EXPORT
- * ==================================================================================
- */
-
-if (typeof define === 'function' && define.amd) {
-  define(function () {
-    return DataStoreServer
-  })
-} else if (typeof module === 'object' && module.exports) {
-  module.exports = DataStoreServer
-} else {
-  global.DataStoreServer = DataStoreServer
-}
-
-})(this);
+//
+// /**
+//  * ==================================================================================
+//  * EXPORT
+//  * ==================================================================================
+//  */
+//
+// if (typeof define === 'function' && define.amd) {
+//   define(function () {
+//     return DataStoreServer
+//   })
+// } else if (typeof module === 'object' && module.exports) {
+//   module.exports = DataStoreServer
+// } else {
+//   global.DataStoreServer = DataStoreServer
+// }
+//
+// })(this);

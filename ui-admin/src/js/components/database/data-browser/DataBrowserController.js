@@ -40,7 +40,7 @@ export default class DataBrowserController extends ComponentController {
       this.component.datastoreServer.free(this.owner, this.path)
         .then((data) => {
           if (!data.error) {
-            resolve(data.result[1]);
+            resolve(data);
           } else {
             reject(data.error)
           }
@@ -62,8 +62,7 @@ export default class DataBrowserController extends ComponentController {
       this.component.datastoreServer.list(this.owner, pathToList, false)
         .then((data) => {
           if (!data.error) {
-            const results = data.result[1]
-            resolve(results.map(result => result[1]))
+            resolve(data)
           } else {
             reject(data.error)
           }
