@@ -148,17 +148,6 @@ class ExportData
                     false, // withImportCompatibility
                     true
             },
-//            {
-//                    // Sample: /MP:A03
-//                    "export-sample-contained-xlsx.zip",
-//                    EnumSet.of(ExportFormat.XLSX),
-//                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("200811050947161-653"))),
-//                    new AllFields(),
-//                    XlsTextFormat.RICH,
-//                    false, // withReferredTypes
-//                    false, // withImportCompatibility
-//                    true
-//            },
             {
                     // Data set: "ROOT_CONTAINER"
                     "export-data-set-xlsx.zip",
@@ -405,17 +394,6 @@ class ExportData
                     false, // withImportCompatibility
                     true
             },
-//            {
-//                    // Sample: /MP:A03
-//                    "export-sample-contained-html.zip",
-//                    EnumSet.of(ExportFormat.HTML),
-//                    List.of(new ExportablePermId(ExportableKind.SAMPLE, new SamplePermId("200811050947161-653"))),
-//                    new AllFields(),
-//                    XlsTextFormat.RICH,
-//                    false, // withReferredTypes
-//                    false, // withImportCompatibility
-//                    true
-//            },
             {
                     // Data set: "ROOT_CONTAINER"
                     "export-data-set-html.zip",
