@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -169,6 +170,7 @@ public abstract class BaseApiClientTest
 
         List<File> list = afsClient.list(owner, "", Boolean.TRUE);
         assertEquals(2, list.size());
+        list.sort(Comparator.comparing(File::getPath));
         assertEquals(FILE_A, list.get(0).getName());
     }
 

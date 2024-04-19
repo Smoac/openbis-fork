@@ -58,7 +58,7 @@ public class ProxyUtil
 
         if (!experiments.isEmpty())
         {
-            return experiments.get(experimentId);
+            return experiments.values().iterator().next();
         } else
         {
             return null;
@@ -81,7 +81,7 @@ public class ProxyUtil
 
         if (!samples.isEmpty())
         {
-            return samples.get(sampleId);
+            return samples.values().iterator().next();
         } else
         {
             return null;
@@ -99,7 +99,7 @@ public class ProxyUtil
 
         if (!dataSets.isEmpty())
         {
-            return dataSets.get(dataSetId);
+            return dataSets.values().iterator().next();
         } else
         {
             return null;

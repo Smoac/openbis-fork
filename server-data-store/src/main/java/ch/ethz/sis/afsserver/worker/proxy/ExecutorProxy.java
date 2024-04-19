@@ -46,11 +46,36 @@ public class ExecutorProxy extends AbstractProxy
     public ExecutorProxy(final Configuration configuration)
     {
         super(null);
-        String openBISUrl = configuration.getStringProperty(AtomicFileSystemServerParameter.openBISUrl);
-        int openBISTimeout = configuration.getIntegerProperty(AtomicFileSystemServerParameter.openBISTimeout);
-        v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, openBISUrl, openBISTimeout);
+
         storageRoot = configuration.getStringProperty(AtomicFileSystemServerParameter.storageRoot);
         storageUuid = configuration.getStringProperty(AtomicFileSystemServerParameter.storageUuid);
+
+        if (storageUuid != null && !storageUuid.isBlank())
+        {
+            String openBISUrl = configuration.getStringProperty(AtomicFileSystemServerParameter.openBISUrl);
+
+            if (openBISUrl == null || openBISUrl.isBlank())
+            {
+                throw new RuntimeException(
+                        "Incorrect configuration. '" + AtomicFileSystemServerParameter.openBISUrl + "' property is mandatory when '"
+                                + AtomicFileSystemServerParameter.storageUuid + "' is set.");
+            }
+
+            String openBISTimeout = configuration.getStringProperty(AtomicFileSystemServerParameter.openBISTimeout);
+
+            if (openBISTimeout == null || openBISTimeout.isBlank())
+            {
+                throw new RuntimeException(
+                        "Incorrect configuration. '" + AtomicFileSystemServerParameter.openBISTimeout + "' property is mandatory when '"
+                                + AtomicFileSystemServerParameter.storageUuid + "' is set.");
+            }
+
+            v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, openBISUrl,
+                    configuration.getIntegerProperty(AtomicFileSystemServerParameter.openBISTimeout));
+        } else
+        {
+            v3 = null;
+        }
     }
 
     //
@@ -97,7 +122,7 @@ public class ExecutorProxy extends AbstractProxy
         if (storageUuid == null || storageUuid.isBlank())
         {
             // AFS does not reuse DSS store folder
-            return String.join("" + IOUtils.PATH_SEPARATOR, "", owner.toString(), source);
+            return String.join("" + IOUtils.PATH_SEPARATOR, "", owner, source);
         } else
         {
             // AFS reuses DSS store folder

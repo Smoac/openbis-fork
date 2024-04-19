@@ -17,10 +17,15 @@
 
 package ch.ethz.sis.afsserver.client;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.rights.Right;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.rights.Rights;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
+
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import org.springframework.remoting.httpinvoker.SimpleHttpInvokerServiceExporter;
@@ -102,7 +107,13 @@ public final class DummyOpenBisServer
                             resultObj = true;
                             break;
                         case "getSamples":
-                            resultObj = Map.of(new SampleIdentifier(""), new Sample());
+                            Sample sample = new Sample();
+                            sample.setPermId(new SamplePermId(""));
+                            resultObj = Map.of(new SampleIdentifier(""), sample);
+                            break;
+                        case "getExperiments":
+                        case "getDataSets":
+                            resultObj = Map.of();
                             break;
                         case "getRights":
                             Object param = ((List<?>) invocation.getArguments()[1]).get(0);
