@@ -1,5 +1,5 @@
 import jquery from "./types/jquery"
-import underscore, { create } from "./types/underscore"
+import underscore from "./types/underscore"
 import common from "./types/common"
 import openbis from "./types/openbis.esm"
 
@@ -34,7 +34,7 @@ exports.default = new Promise((resolve) => {
 
                     c.finish()
                 } catch (error) {
-                    c.fail(JSON.stringify(error))
+                    c.fail(error)
                     c.finish()
                 }
             })
@@ -57,7 +57,7 @@ exports.default = new Promise((resolve) => {
 
                     c.finish()
                 } catch (error) {
-                    c.fail(JSON.stringify(error))
+                    c.fail(error)
                     c.finish()
                 }
             })
@@ -83,7 +83,7 @@ exports.default = new Promise((resolve) => {
 
                     c.finish()
                 } catch (error) {
-                    c.fail(JSON.stringify(error))
+                    c.fail(error)
                     c.finish()
                 }
             })
@@ -114,7 +114,7 @@ exports.default = new Promise((resolve) => {
 
                     c.finish()
                 } catch (error) {
-                    c.fail(JSON.stringify(error))
+                    c.fail(error)
                     c.finish()
                 }
             })
@@ -151,14 +151,13 @@ exports.default = new Promise((resolve) => {
 
                     c.finish()
                 } catch (error) {
-                    c.fail(JSON.stringify(error))
+                    c.fail(error)
                     c.finish()
                 }
             })
 
             QUnit.test("begin() and rollback() with AS and AFS methods", async function (assert) {
                 const testInteractiveSessionKey = "test-interactive-session-key"
-                const testFolder = "test-begin-rollback"
                 const testFile = "test-file"
                 const testContent = "test-content"
 
@@ -170,7 +169,8 @@ exports.default = new Promise((resolve) => {
 
                     await c.login(facade)
 
-                    await c.deleteFile(facade, testFolder, "")
+                    var ownerPermId = (await c.createSample(facade)).getPermId()
+                    await c.deleteFile(facade, ownerPermId, "")
 
                     facade.setInteractiveSessionKey(testInteractiveSessionKey)
 
@@ -193,7 +193,7 @@ exports.default = new Promise((resolve) => {
                     const projectsBeforeRollback = await facade.getProjects(projectIds, new dtos.ProjectFetchOptions())
                     c.assertEqual(Object.keys(projectsBeforeRollback).length, 1, "Project exists in the transction")
 
-                    await facade.getAfsServerFacade().write(testFolder, testFile, 0, testContent)
+                    await facade.getAfsServerFacade().write(ownerPermId, testFile, 0, testContent)
 
                     await facade.rollbackTransaction()
 
@@ -203,18 +203,17 @@ exports.default = new Promise((resolve) => {
                     const projectsAfterRollback = await facade.getProjects(projectIds, new dtos.ProjectFetchOptions())
                     c.assertEqual(Object.keys(projectsAfterRollback).length, 0, "Project does not exist after a rollback")
 
-                    await c.assertFileDoesNotExist(facade, testFolder, testFile)
+                    await c.assertFileDoesNotExist(facade, ownerPermId, testFile)
 
                     c.finish()
                 } catch (error) {
-                    c.fail(JSON.stringify(error))
+                    c.fail(error)
                     c.finish()
                 }
             })
 
             QUnit.test("begin() and commit() with AS and AFS methods", async function (assert) {
                 const testInteractiveSessionKey = "test-interactive-session-key"
-                const testFolder = "test-begin-commit"
                 const testFile = "test-file"
                 const testContent = "test-content"
 
@@ -226,7 +225,8 @@ exports.default = new Promise((resolve) => {
 
                     await c.login(facade)
 
-                    await c.deleteFile(facade, testFolder, "")
+                    var ownerPermId = (await c.createSample(facade)).getPermId()
+                    await c.deleteFile(facade, ownerPermId, "")
 
                     facade.setInteractiveSessionKey(testInteractiveSessionKey)
 
@@ -249,7 +249,7 @@ exports.default = new Promise((resolve) => {
                     const projectsBeforeCommit = await facade.getProjects(projectIds, new dtos.ProjectFetchOptions())
                     c.assertEqual(Object.keys(projectsBeforeCommit).length, 1, "Project exists in the transction")
 
-                    await facade.getAfsServerFacade().write(testFolder, testFile, 0, testContent)
+                    await facade.getAfsServerFacade().write(ownerPermId, testFile, 0, testContent)
 
                     await facade.commitTransaction()
 
@@ -259,24 +259,24 @@ exports.default = new Promise((resolve) => {
                     const projectsAfterCommit = await facade.getProjects(projectIds, new dtos.ProjectFetchOptions())
                     c.assertEqual(Object.keys(projectsAfterCommit).length, 1, "Project exists after commit")
 
-                    await c.assertFileExists(facade, testFolder, testFile)
+                    await c.assertFileExists(facade, ownerPermId, testFile)
 
-                    var filesAfterCommit = await facade.getAfsServerFacade().list(testFolder, "", false)
+                    var filesAfterCommit = await facade.getAfsServerFacade().list(ownerPermId, "", false)
 
                     c.assertFileEquals(filesAfterCommit[0], {
                         path: "/" + testFile,
-                        owner: testFolder,
+                        owner: ownerPermId,
                         name: testFile,
                         size: testContent.length,
                         directory: false,
                     })
 
-                    var fileContentAfterCommit = await facade.getAfsServerFacade().read(testFolder, testFile, 0, testContent.length)
+                    var fileContentAfterCommit = await facade.getAfsServerFacade().read(ownerPermId, testFile, 0, testContent.length)
                     c.assertEqual(await fileContentAfterCommit.text(), testContent)
 
                     c.finish()
                 } catch (error) {
-                    c.fail(JSON.stringify(error))
+                    c.fail(error)
                     c.finish()
                 }
             })
@@ -302,7 +302,7 @@ exports.default = new Promise((resolve) => {
 
                     c.finish()
                 } catch (error) {
-                    c.fail(JSON.stringify(error))
+                    c.fail(error)
                     c.finish()
                 }
             })
@@ -328,7 +328,7 @@ exports.default = new Promise((resolve) => {
 
                     c.finish()
                 } catch (error) {
-                    c.fail(JSON.stringify(error))
+                    c.fail(error)
                     c.finish()
                 }
             })
@@ -365,7 +365,7 @@ exports.default = new Promise((resolve) => {
 
                     c.finish()
                 } catch (error) {
-                    c.fail(JSON.stringify(error))
+                    c.fail(error)
                     c.finish()
                 }
             })
@@ -381,12 +381,15 @@ exports.default = new Promise((resolve) => {
 
                     await c.login(facade)
 
+                    var ownerPermId = (await c.createSample(facade)).getPermId()
+                    await c.deleteFile(facade, ownerPermId, "")
+
                     facade.setInteractiveSessionKey(testInteractiveSessionKey)
 
                     var transactionId = await facade.beginTransaction()
 
                     try {
-                        await facade.getAfsServerFacade().read("i-dont-exist", "me-neither", 0, 0)
+                        await facade.getAfsServerFacade().read(ownerPermId, "i-dont-exist", 0, 0)
                         c.fail()
                     } catch (error) {
                         c.assertTrue(
@@ -401,7 +404,7 @@ exports.default = new Promise((resolve) => {
 
                     c.finish()
                 } catch (error) {
-                    c.fail(JSON.stringify(error))
+                    c.fail(error)
                     c.finish()
                 }
             })
@@ -432,7 +435,7 @@ exports.default = new Promise((resolve) => {
 
                     c.finish()
                 } catch (error) {
-                    c.fail(JSON.stringify(error))
+                    c.fail(error)
                     c.finish()
                 }
             })

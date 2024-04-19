@@ -94,7 +94,7 @@ public class ExecutorProxy extends AbstractProxy
 
     public String getPath(String owner, String source)
     {
-        if (storageUuid == null)
+        if (storageUuid == null || storageUuid.isBlank())
         {
             // AFS does not reuse DSS store folder
             return String.join("" + IOUtils.PATH_SEPARATOR, "", owner.toString(), source);
@@ -117,22 +117,29 @@ public class ExecutorProxy extends AbstractProxy
             } else
             {
                 String[] shares = IOUtils.getShares(storageRoot);
+
+                if (shares.length == 0)
+                {
+                    throw AFSExceptions.NotAPath.getInstance(owner);
+                }
+
                 String[] shards = IOUtils.getShards(owner);
 
                 for (String share : shares)
                 {
-                    String potentialOwnerPath = share + "/" + storageUuid + String.join("/", shards) + "/" + foundOwner.getPermId().toString();
+                    String potentialOwnerPath = share + "/" + storageUuid + "/" + String.join("/", shards) + "/" + foundOwner.getPermId().toString();
                     if (Files.exists(Paths.get(potentialOwnerPath)))
                     {
                         foundOwnerPath = potentialOwnerPath;
                         break;
                     }
                 }
-            }
 
-            if (foundOwnerPath == null)
-            {
-                throw AFSExceptions.NotAPath.getInstance(owner);
+                if (foundOwnerPath == null)
+                {
+                    // if we don't find an existing owner folder at any share, then we will create it on the first share
+                    foundOwnerPath = shares[0] + "/" + storageUuid + "/" + String.join("/", shards) + "/" + foundOwner.getPermId().toString();
+                }
             }
 
             return String.join("" + IOUtils.PATH_SEPARATOR, "", foundOwnerPath, source);
