@@ -30,7 +30,7 @@ errorMessages = []
 
 def process(transaction):
     incoming = transaction.getIncoming();
-    folderName = substring_up_to_hash(incoming.getName().split("#"));
+    folderName = substring_up_to_hash(incoming.getName());
     emailAddress = None
 
     try:
