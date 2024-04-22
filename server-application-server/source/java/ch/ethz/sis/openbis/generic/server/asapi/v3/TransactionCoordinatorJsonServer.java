@@ -168,7 +168,7 @@ public class TransactionCoordinatorJsonServer extends AbstractApiJsonServiceExpo
                                 && operationArgument instanceof String)
                         {
                             // for byte[] operation arguments accept also String values
-                            convertedOperationArguments[index] = Base64.getDecoder().decode((String) operationArgument);
+                            convertedOperationArguments[index] = Base64.getUrlDecoder().decode((String) operationArgument);
                         } else if (methodParameter.getType().equals(Long.class) && operationArgument instanceof Number)
                         {
                             // for Long operation arguments accept also other Number values
