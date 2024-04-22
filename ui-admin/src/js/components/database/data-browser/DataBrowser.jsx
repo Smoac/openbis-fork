@@ -12,6 +12,7 @@ import InfoPanel from '@src/js/components/database/data-browser/InfoPanel.jsx'
 import DataBrowserController from '@src/js/components/database/data-browser/DataBrowserController.js'
 import messages from '@src/js/common/messages.js'
 import InfoBar from '@src/js/components/database/data-browser/InfoBar.jsx'
+import LoadingDialog from "@src/js/components/common/loading/LoadingDialog.jsx";
 
 const styles = theme => ({
   columnFlexContainer: {
@@ -258,7 +259,9 @@ class DataBrowser extends React.Component {
       showInfo: false,
       path: '/',
       freeSpace: -1,
-      totalSpace: -1
+      totalSpace: -1,
+      loading: false,
+      progress: 0
     }
     this.zip = new JSZip()
   }
@@ -334,12 +337,15 @@ class DataBrowser extends React.Component {
 
   async downloadFile(file) {
     try {
-      this.setState({ loading: true })
-      const blob = await this.fileToBlob(file)
-      this.downloadBlob(blob, file.name)
+      this.setState({ loading: true, progress: 0 })
+      await this.controller.downloadAndSaveFile(file, this.updateProgress)
     } finally {
-      this.setState({ loading: false })
+      this.setState({ loading: false, progress: 0 })
     }
+  }
+
+  updateProgress(progress) {
+    this.setState({ progress })
   }
 
   downloadBlob(blob, fileName) {
@@ -439,10 +445,12 @@ class DataBrowser extends React.Component {
       showInfo,
       path,
       freeSpace,
-      totalSpace
+      totalSpace,
+      loading,
+      progress
     } = this.state
 
-    return (
+    return ([
       <div
         className={[classes.boundary, classes.columnFlexContainer].join(' ')}
       >
@@ -573,8 +581,10 @@ class DataBrowser extends React.Component {
             />
           )}
         </div>
-      </div>
-    )
+      </div>,
+      <LoadingDialog key='data-browser-loaging-dialog' variant='determinate'
+                     value={progress} loading={loading} />
+    ])
   }
 }
 
