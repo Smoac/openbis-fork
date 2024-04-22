@@ -216,7 +216,6 @@ class LeftToolbar extends React.Component {
       classes,
       buttonSize,
       multiselectedFiles,
-      datastoreServer,
       sessionToken,
       owner,
       path,
@@ -356,7 +355,6 @@ class LeftToolbar extends React.Component {
           open={!!locationDialogMode}
           title={locationDialogMode === moveLocationMode ? messages.get(messages.MOVE) : messages.get(messages.COPY)}
           content={messages.get(messages.FILE_OR_FILES, multiselectedFiles.size)}
-          datastoreServer={datastoreServer}
           sessionToken={sessionToken}
           owner={owner}
           path={path}

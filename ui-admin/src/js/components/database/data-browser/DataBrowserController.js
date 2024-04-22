@@ -16,6 +16,7 @@
 
 import ComponentController from '@src/js/components/common/ComponentController.js'
 import autoBind from 'auto-bind'
+import openbis from '@src/js/services/openbis.js'
 
 const CHUNK_SIZE = 1024 * 1024 // 1MiB
 
@@ -31,50 +32,30 @@ export default class DataBrowserController extends ComponentController {
     this.fileNames = []
   }
 
-  setSessionToken(sessionToken) {
-    this.component.datastoreServer.useSession(sessionToken)
-  }
-
-  free() {
-    return new Promise((resolve, reject) => {
-      this.component.datastoreServer.free(this.owner, this.path)
-        .then((data) => {
-          if (!data.error) {
-            resolve(data);
-          } else {
-            reject(data.error)
-          }
-        })
-        .catch((error) => {
-          if (error.message.includes('NoSuchFileException')) {
-            resolve([])
-          } else {
-            reject(error)
-          }
-        })
-    })
+  async free() {
+    try {
+      return await openbis.free(this.owner, this.path);
+    } catch (error) {
+      if (error.message.includes('NoSuchFileException')) {
+        return []
+      } else {
+        throw error
+      }
+    }
   }
 
   async listFiles(path) {
     // Use this.path if path is not specified
     const pathToList = path ? path : this.path
-    return new Promise((resolve, reject) => {
-      this.component.datastoreServer.list(this.owner, pathToList, false)
-        .then((data) => {
-          if (!data.error) {
-            resolve(data)
-          } else {
-            reject(data.error)
-          }
-        })
-        .catch((error) => {
-          if (error.message.includes('NoSuchFileException')) {
-            resolve([])
-          } else {
-            reject(error)
-          }
-        })
-    })
+    try {
+      return await openbis.list(this.owner, pathToList, false)
+    } catch (error) {
+      if (error.message.includes('NoSuchFileException')) {
+        return []
+      } else {
+        throw error
+      }
+    }
   }
 
   async load() {
@@ -90,14 +71,14 @@ export default class DataBrowserController extends ComponentController {
   }
 
   async createNewFolder(name) {
-    await this.component.datastoreServer.create(this.owner, this.path + name, true)
+    await openbis.create(this.owner, this.path + name, true)
     if (this.gridController) {
       await this.gridController.load()
     }
   }
 
   async rename(oldName, newName) {
-    await this.component.datastoreServer.move(this.owner, this.path + oldName, this.owner, this.path + newName)
+    await openbis.move(this.owner, this.path + oldName, this.owner, this.path + newName)
     if (this.gridController) {
       await this.gridController.load()
     }
@@ -114,7 +95,7 @@ export default class DataBrowserController extends ComponentController {
   }
 
   async _delete(file) {
-    await this.component.datastoreServer.delete(this.owner, file.path)
+    await openbis.delete(this.owner, file.path)
   }
 
   async copy(files, newLocation) {
@@ -130,7 +111,7 @@ export default class DataBrowserController extends ComponentController {
   async _copy(file, newLocation){
     if (!this.isSubdirectory(file.path, newLocation)) {
       const cleanNewLocation = this._removeLeadingSlash(newLocation) + file.name
-      await this.component.datastoreServer.copy(this.owner, file.path, this.owner, cleanNewLocation)
+      await openbis.copy(this.owner, file.path, this.owner, cleanNewLocation)
     }
   }
 
@@ -147,7 +128,7 @@ export default class DataBrowserController extends ComponentController {
   async _move(file, newLocation){
     if (!this.isSubdirectory(file.path, newLocation)) {
       const cleanNewLocation = this._removeLeadingSlash(newLocation) + file.name
-      await this.component.datastoreServer.move(this.owner, file.path, this.owner, cleanNewLocation)
+      await openbis.move(this.owner, file.path, this.owner, cleanNewLocation)
     }
   }
 
@@ -220,7 +201,7 @@ export default class DataBrowserController extends ComponentController {
   }
 
   async _uploadChunk(source, offset, data) {
-    return await this.component.datastoreServer.write(this.owner, source, offset, data)
+    return await openbis.write(this.owner, source, offset, data)
   }
 
   async _arrayBufferToBase64(buffer) {
@@ -276,7 +257,7 @@ export default class DataBrowserController extends ComponentController {
 
   async _download(file, offset) {
     const limit = Math.min(CHUNK_SIZE, file.size - offset)
-    return await this.component.datastoreServer.read(this.owner, file.path, offset, limit)
+    return await openbis.read(this.owner, file.path, offset, limit)
   }
 
   _removeLeadingSlash(path) {

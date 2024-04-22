@@ -13,8 +13,6 @@ import DataBrowserController from '@src/js/components/database/data-browser/Data
 import messages from '@src/js/common/messages.js'
 import InfoBar from '@src/js/components/database/data-browser/InfoBar.jsx'
 
-const HTTP_SERVER_URI = '/data-store-server'
-
 const styles = theme => ({
   columnFlexContainer: {
     flexDirection: 'column',
@@ -251,11 +249,6 @@ class DataBrowser extends React.Component {
 
     this.controller = controller || new DataBrowserController(id)
     this.controller.attach(this)
-    this.datastoreServer = new DataStoreServer(
-      'http://localhost:8085',
-      HTTP_SERVER_URI
-    )
-    this.controller.setSessionToken(sessionToken)
 
     this.state = {
       viewType: props.viewType,
@@ -461,7 +454,6 @@ class DataBrowser extends React.Component {
           onDownload={this.handleDownload}
           showInfo={showInfo}
           multiselectedFiles={multiselectedFiles}
-          datastoreServer={this.datastoreServer}
           sessionToken={sessionToken}
           owner={id}
           path={path}

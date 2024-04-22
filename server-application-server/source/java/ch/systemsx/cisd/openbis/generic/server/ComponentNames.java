@@ -54,4 +54,6 @@ public final class ComponentNames
     public static final String JYTHON_EVALUATOR_POOL = "jython-evaluator-pool";
 
     public static final String OPENBIS_SUPPORT_EMAIL = "openbis.support.email";
+
+    public static final String SERVER_PUBLIC_INFORMATION = "server-public-information.";
 }

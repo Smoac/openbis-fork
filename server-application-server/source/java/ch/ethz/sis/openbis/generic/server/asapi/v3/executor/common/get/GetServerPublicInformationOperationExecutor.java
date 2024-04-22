@@ -16,6 +16,7 @@
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.get;
 
 import java.util.Map;
+import java.util.Properties;
 import java.util.TreeMap;
 
 import javax.annotation.Resource;
@@ -51,12 +52,24 @@ public class GetServerPublicInformationOperationExecutor
     protected GetServerPublicInformationOperationResult doExecute(IOperationContext context, GetServerPublicInformationOperation operation)
     {
         Map<String, String> info = new TreeMap<>();
-        info.put("authentication-service", configurer.getResolvedProps().getProperty(ComponentNames.AUTHENTICATION_SERVICE));
+        final Properties props = configurer.getResolvedProps();
+        info.put("authentication-service", props.getProperty(ComponentNames.AUTHENTICATION_SERVICE));
         info.put("authentication-service.switch-aai.link",
-                configurer.getResolvedProps().getProperty(ComponentNames.AUTHENTICATION_SERVICE + "." + Constants.SWITCH_AAI_LINK));
+                props.getProperty(ComponentNames.AUTHENTICATION_SERVICE + "." + Constants.SWITCH_AAI_LINK));
         info.put("authentication-service.switch-aai.label",
-                configurer.getResolvedProps().getProperty(ComponentNames.AUTHENTICATION_SERVICE + "." + Constants.SWITCH_AAI_LABEL));
-        info.put("openbis.support.email", configurer.getResolvedProps().getProperty(ComponentNames.OPENBIS_SUPPORT_EMAIL));
+                props.getProperty(ComponentNames.AUTHENTICATION_SERVICE + "." + Constants.SWITCH_AAI_LABEL));
+        info.put("openbis.support.email", props.getProperty(ComponentNames.OPENBIS_SUPPORT_EMAIL));
+
+        // Put all properties of the format "server-public-information.x", where x is the rest of the string
+        for (final Map.Entry<?, ?> propEntry : props.entrySet())
+        {
+            final String key = (String) propEntry.getKey();
+            if (key.startsWith(ComponentNames.SERVER_PUBLIC_INFORMATION))
+            {
+                info.put(key, propEntry.getValue().toString());
+            }
+        }
+
         return new GetServerPublicInformationOperationResult(info);
     }
 
