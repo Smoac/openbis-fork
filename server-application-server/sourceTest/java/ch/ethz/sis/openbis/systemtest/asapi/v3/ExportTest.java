@@ -54,6 +54,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -625,8 +626,11 @@ public class ExportTest extends AbstractTest
         )
         {
             final Set<String> expectedZipEntries = extectedZipFile.stream().map(ZipEntry::getName).collect(Collectors.toSet());
-            final Set<String> actualZipEntries = actualZipFile.stream().map(ZipEntry::getName).collect(Collectors.toSet());
-            assertEquals(actualZipEntries, expectedZipEntries);
+            final Set<String> cleanedExpectedZipEntries = expectedZipEntries.stream().map(this::removeUuid).collect(Collectors.toSet());
+            final Set<String> cleanedActualZipEntries = actualZipFile.stream().map(zipEntry -> removeUuid(zipEntry.getName()))
+                    .collect(Collectors.toSet());
+
+            assertEquals(cleanedActualZipEntries, cleanedExpectedZipEntries);
 
             for (final String expectedZipEntry : expectedZipEntries)
             {
@@ -644,7 +648,7 @@ public class ExportTest extends AbstractTest
                     // We ignore PDF and JSON files in comparison
                     try (
                             final InputStream expectedInputStream = extectedZipFile.getInputStream(extectedZipFile.getEntry(expectedZipEntry));
-                            final InputStream actualInputStream = actualZipFile.getInputStream(actualZipFile.getEntry(expectedZipEntry));
+                            final InputStream actualInputStream = actualZipFile.getInputStream(findEntry(actualZipFile, expectedZipEntry));
                     )
                     {
                         compareStreams(expectedInputStream, actualInputStream);
@@ -652,6 +656,28 @@ public class ExportTest extends AbstractTest
                 }
             }
         }
+    }
+
+    private ZipEntry findEntry(final ZipFile actualZipFile, final String expectedZipEntryName)
+    {
+        final Enumeration<? extends ZipEntry> entries = actualZipFile.entries();
+        while (entries.hasMoreElements())
+        {
+            final ZipEntry entry = entries.nextElement();
+            final String entryName = entry.getName();
+            final String cleanedActualEntryName = removeUuid(entryName);
+            if (cleanedActualEntryName.equals(removeUuid(expectedZipEntryName)))
+            {
+                return entry;
+            }
+        }
+
+        throw new IllegalArgumentException("Entry (with removed UUID) not found: " + expectedZipEntryName);
+    }
+
+    private String removeUuid(final String inputString)
+    {
+        return inputString.replaceFirst("#[0-9a-fA-F]{8}\\b-[0-9a-fA-F]{4}\\b-[0-9a-fA-F]{4}\\b-[0-9a-fA-F]{4}\\b-[0-9a-fA-F]{12}", "");
     }
 
     private void compareDirectories(final File expectedDirectory, final File actualDirectory) throws IOException

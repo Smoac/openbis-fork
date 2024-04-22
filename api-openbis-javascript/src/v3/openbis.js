@@ -551,7 +551,8 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
                 return asFacade._private.ajaxRequestTransactional(afsServerTransactionParticipantId, {
                     data : {
                         "method" : "write",
-                        "params" : [ owner, source, offset, btoa(data), btoa(hex2a(md5(data))) ]
+		                // use base64 url version of encoding that produces url safe characters only (default version of base64 produces "+" and "/" which need to be further converted by encodeURIComponent to "%2B" and "%2F" and therefore they unnecessarily increase the request size)
+                        "params" : [ owner, source, offset, base64URLEncode(data), base64URLEncode(hex2a(md5(data))) ]
                     }
                 })
             }else{
@@ -3076,6 +3077,11 @@ define([ 'jquery', 'util/Json', 'as/dto/datastore/search/DataStoreSearchCriteria
         for (var i = 0; i < hex.length; i += 2)
             str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
         return str;
+    }
+
+    function base64URLEncode(str) {
+        const base64Encoded = btoa(str);
+        return base64Encoded.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
     }
 
     return facade;

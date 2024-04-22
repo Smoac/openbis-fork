@@ -172,8 +172,8 @@ public final class AfsClient implements PublicAPI, ClientAPI
     {
         validateSessionToken();
         return request("POST", "write", Boolean.class, Map.of("owner", owner, "source", source,
-                "offset", offset.toString(), "data", Base64.getEncoder().encodeToString(data),
-                "md5Hash", Base64.getEncoder().encodeToString(md5Hash)));
+                "offset", offset.toString(), "data", Base64.getUrlEncoder().encodeToString(data),
+                "md5Hash", Base64.getUrlEncoder().encodeToString(md5Hash)));
     }
 
     @Override
