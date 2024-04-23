@@ -43,19 +43,19 @@ exports.default = new Promise((resolve) => {
                         await facade.beginTransaction()
                     }
 
-                    var list = await facade.getAfsServerFacade().list(ownerPermId, "", true)
+                    var listAll = await facade.getAfsServerFacade().list(ownerPermId, "", true)
 
                     if (useTransaction) {
                         await facade.commitTransaction()
                     }
 
-                    list.sort((file1, file2) => {
+                    listAll.sort((file1, file2) => {
                         return file1.getPath().localeCompare(file2.getPath())
                     })
 
-                    c.assertEqual(list.length, 6, "Number of files")
+                    c.assertEqual(listAll.length, 6, "Number of files")
 
-                    c.assertFileEquals(list[0], {
+                    c.assertFileEquals(listAll[0], {
                         path: "/test-file-1",
                         owner: ownerPermId,
                         name: "test-file-1",
@@ -65,7 +65,7 @@ exports.default = new Promise((resolve) => {
                         lastModifiedTime: [startDate, new Date()],
                         lastAccessTime: [startDate, new Date()],
                     })
-                    c.assertFileEquals(list[1], {
+                    c.assertFileEquals(listAll[1], {
                         path: "/test-folder-1",
                         owner: ownerPermId,
                         name: "test-folder-1",
@@ -75,7 +75,7 @@ exports.default = new Promise((resolve) => {
                         lastModifiedTime: [startDate, new Date()],
                         lastAccessTime: [startDate, new Date()],
                     })
-                    c.assertFileEquals(list[2], {
+                    c.assertFileEquals(listAll[2], {
                         path: "/test-folder-1/test-file-2",
                         owner: ownerPermId,
                         name: "test-file-2",
@@ -85,7 +85,7 @@ exports.default = new Promise((resolve) => {
                         lastModifiedTime: [startDate, new Date()],
                         lastAccessTime: [startDate, new Date()],
                     })
-                    c.assertFileEquals(list[3], {
+                    c.assertFileEquals(listAll[3], {
                         path: "/test-folder-1/test-file-3",
                         owner: ownerPermId,
                         name: "test-file-3",
@@ -95,7 +95,7 @@ exports.default = new Promise((resolve) => {
                         lastModifiedTime: [startDate, new Date()],
                         lastAccessTime: [startDate, new Date()],
                     })
-                    c.assertFileEquals(list[4], {
+                    c.assertFileEquals(listAll[4], {
                         path: "/test-folder-2",
                         owner: ownerPermId,
                         name: "test-folder-2",
@@ -105,11 +105,63 @@ exports.default = new Promise((resolve) => {
                         lastModifiedTime: [startDate, new Date()],
                         lastAccessTime: [startDate, new Date()],
                     })
-                    c.assertFileEquals(list[5], {
+                    c.assertFileEquals(listAll[5], {
                         path: "/test-folder-2/test-file-4",
                         owner: ownerPermId,
                         name: "test-file-4",
                         size: testContent4.length,
+                        directory: false,
+                        creationTime: [startDate, new Date()],
+                        lastModifiedTime: [startDate, new Date()],
+                        lastAccessTime: [startDate, new Date()],
+                    })
+
+                    var listFile1WithoutSlash = await facade.getAfsServerFacade().list(ownerPermId, "test-file-1", false)
+
+                    c.assertFileEquals(listFile1WithoutSlash[0], {
+                        path: "/test-file-1",
+                        owner: ownerPermId,
+                        name: "test-file-1",
+                        size: testContent1.length,
+                        directory: false,
+                        creationTime: [startDate, new Date()],
+                        lastModifiedTime: [startDate, new Date()],
+                        lastAccessTime: [startDate, new Date()],
+                    })
+
+                    var listFile1WithSlash = await facade.getAfsServerFacade().list(ownerPermId, "/test-file-1", false)
+
+                    c.assertFileEquals(listFile1WithSlash[0], {
+                        path: "/test-file-1",
+                        owner: ownerPermId,
+                        name: "test-file-1",
+                        size: testContent1.length,
+                        directory: false,
+                        creationTime: [startDate, new Date()],
+                        lastModifiedTime: [startDate, new Date()],
+                        lastAccessTime: [startDate, new Date()],
+                    })
+
+                    var listFile2WithoutSlash = await facade.getAfsServerFacade().list(ownerPermId, "test-folder-1/test-file-2", false)
+
+                    c.assertFileEquals(listFile2WithoutSlash[0], {
+                        path: "/test-folder-1/test-file-2",
+                        owner: ownerPermId,
+                        name: "test-file-2",
+                        size: testContent2.length,
+                        directory: false,
+                        creationTime: [startDate, new Date()],
+                        lastModifiedTime: [startDate, new Date()],
+                        lastAccessTime: [startDate, new Date()],
+                    })
+
+                    var listFile2WithSlash = await facade.getAfsServerFacade().list(ownerPermId, "/test-folder-1/test-file-2", false)
+
+                    c.assertFileEquals(listFile2WithSlash[0], {
+                        path: "/test-folder-1/test-file-2",
+                        owner: ownerPermId,
+                        name: "test-file-2",
+                        size: testContent2.length,
                         directory: false,
                         creationTime: [startDate, new Date()],
                         lastModifiedTime: [startDate, new Date()],

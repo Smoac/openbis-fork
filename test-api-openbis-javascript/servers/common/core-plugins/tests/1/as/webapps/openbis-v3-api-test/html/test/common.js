@@ -1134,8 +1134,7 @@ define([ 'jquery', 'underscore'], function($, _) {
         this.assertFileEquals = function(actualFile, expectedFile) {
             const _this = this
 
-            // TODO: paths returned by AFS are currently incorrect
-            // this.assertEqual(actualFile.getPath(), expectedFile["path"], "File path")
+            this.assertEqual(actualFile.getPath(), expectedFile["path"], "File path")
             this.assertEqual(actualFile.getOwner(), expectedFile["owner"], "File owner")
             this.assertEqual(actualFile.getName(), expectedFile["name"], "File name")
             this.assertEqual(actualFile.getSize(), expectedFile["size"], "File size")

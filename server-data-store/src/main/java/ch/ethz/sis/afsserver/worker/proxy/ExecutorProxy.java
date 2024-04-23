@@ -15,6 +15,7 @@
  */
 package ch.ethz.sis.afsserver.worker.proxy;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
@@ -117,12 +118,12 @@ public class ExecutorProxy extends AbstractProxy
     // File System Operations
     //
 
-    public String getPath(String owner, String source)
+    private String getOwnerPath(String owner)
     {
         if (storageUuid == null || storageUuid.isBlank())
         {
             // AFS does not reuse DSS store folder
-            return String.join("" + IOUtils.PATH_SEPARATOR, "", owner, source);
+            return joinPaths("", owner);
         } else
         {
             // AFS reuses DSS store folder
@@ -167,66 +168,95 @@ public class ExecutorProxy extends AbstractProxy
                 }
             }
 
-            return String.join("" + IOUtils.PATH_SEPARATOR, "", foundOwnerPath, source);
+            return joinPaths("", foundOwnerPath);
         }
+    }
+
+    private String getSourcePath(String owner, String source)
+    {
+        return joinPaths(getOwnerPath(owner), source);
+    }
+
+    private String joinPaths(String... paths)
+    {
+        return String.join("" + IOUtils.PATH_SEPARATOR, paths);
     }
 
     @Override
     public List<File> list(String owner, String source, Boolean recursively) throws Exception
     {
-        return workerContext.getConnection().list(getPath(owner, source), recursively)
+        String ownerPath = getOwnerPath(owner);
+        String sourcePath = joinPaths(ownerPath, source);
+        return workerContext.getConnection().list(sourcePath, recursively)
                 .stream()
-                .map(file -> convertToFile(owner, file))
+                .map(file -> convertToFile(owner, ownerPath, file))
                 .collect(Collectors.toList());
     }
 
-    private File convertToFile(String owner, ch.ethz.sis.afs.api.dto.File file)
+    private File convertToFile(String owner, String ownerPath, ch.ethz.sis.afs.api.dto.File file)
     {
-        return new File(owner, file.getPath().substring(owner.length() + 1), file.getName(), file.getDirectory(), file.getSize(),
-                file.getLastModifiedTime(), file.getCreationTime(), file.getLastAccessTime());
+        try
+        {
+            String ownerFullPath = new java.io.File(joinPaths(this.storageRoot, ownerPath)).getCanonicalPath();
+            String fileFullPath;
+
+            if (file.getPath().startsWith(this.storageRoot))
+            {
+                fileFullPath = new java.io.File(file.getPath()).getCanonicalPath();
+            } else
+            {
+                fileFullPath = new java.io.File(joinPaths(this.storageRoot, file.getPath())).getCanonicalPath();
+            }
+
+            return new File(owner, fileFullPath.substring(ownerFullPath.length()), file.getName(), file.getDirectory(), file.getSize(),
+                    file.getLastModifiedTime(), file.getCreationTime(), file.getLastAccessTime());
+        } catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public byte[] read(String owner, String source, Long offset, Integer limit) throws Exception
     {
-        return workerContext.getConnection().read(getPath(owner, source), offset, limit);
+        return workerContext.getConnection().read(getSourcePath(owner, source), offset, limit);
     }
 
     @Override
     public Boolean write(String owner, String source, Long offset, byte[] data, byte[] md5Hash) throws Exception
     {
-        return workerContext.getConnection().write(getPath(owner, source), offset, data, md5Hash);
+        return workerContext.getConnection().write(getSourcePath(owner, source), offset, data, md5Hash);
     }
 
     @Override
     public Boolean delete(String owner, String source) throws Exception
     {
-        return workerContext.getConnection().delete(getPath(owner, source));
+        return workerContext.getConnection().delete(getSourcePath(owner, source));
     }
 
     @Override
     public Boolean copy(String sourceOwner, String source, String targetOwner, String target) throws Exception
     {
-        return workerContext.getConnection().copy(getPath(sourceOwner, source), getPath(targetOwner, target));
+        return workerContext.getConnection().copy(getSourcePath(sourceOwner, source), getSourcePath(targetOwner, target));
     }
 
     @Override
     public Boolean move(String sourceOwner, String source, String targetOwner, String target) throws Exception
     {
-        return workerContext.getConnection().move(getPath(sourceOwner, source), getPath(targetOwner, target));
+        return workerContext.getConnection().move(getSourcePath(sourceOwner, source), getSourcePath(targetOwner, target));
     }
 
     @Override
     public @NonNull Boolean create(@NonNull final String owner, @NonNull final String source, @NonNull final Boolean directory)
             throws Exception
     {
-        return workerContext.getConnection().create(getPath(owner, source), directory);
+        return workerContext.getConnection().create(getSourcePath(owner, source), directory);
     }
 
     @Override
     public @NonNull FreeSpace free(@NonNull final String owner, @NonNull final String source) throws Exception
     {
-        final ch.ethz.sis.afs.api.dto.Space space = workerContext.getConnection().free(getPath(owner, source));
+        final ch.ethz.sis.afs.api.dto.Space space = workerContext.getConnection().free(getSourcePath(owner, source));
         return new FreeSpace(space.getTotal(), space.getFree());
     }
 
