@@ -566,8 +566,6 @@ public class ExportExecutor implements IExportExecutor
             final String projectCode = getProjectCode(codeHolder);
             final char prefix = codeHolder instanceof Sample ? 'O' : 'E';
 
-            final String codeHolderJson = objectWriter.writeValueAsString(codeHolder);
-
             final File parentDataDirectory = compatibleWithImport
                     ? exportWorkspaceDirectory
                     : createDirectoriesForSampleOrExperiment(prefix, new File(exportWorkspaceDirectory, PDF_DIRECTORY), codeHolder);
@@ -578,8 +576,10 @@ public class ExportExecutor implements IExportExecutor
             final String dataSetName = getEntityName(dataSet);
             final String dataDirectorySuffix = "#" + UUID.randomUUID();
 
+            final String datasetJson = objectWriter.writeValueAsString(dataSet);
+
             createMetadataJsonFile(parentDataDirectory, prefix, spaceCode, projectCode, containerCode, code,
-                    dataSetTypeCode, dataSetCode, dataSetName, dataDirectorySuffix, codeHolderJson, compatibleWithImport);
+                    dataSetTypeCode, dataSetCode, dataSetName, dataDirectorySuffix, datasetJson, compatibleWithImport);
 
             if (dataSet.getKind() != DataSetKind.LINK)
             {
