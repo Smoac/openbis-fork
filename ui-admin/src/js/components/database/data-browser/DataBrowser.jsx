@@ -12,7 +12,8 @@ import InfoPanel from '@src/js/components/database/data-browser/InfoPanel.jsx'
 import DataBrowserController from '@src/js/components/database/data-browser/DataBrowserController.js'
 import messages from '@src/js/common/messages.js'
 import InfoBar from '@src/js/components/database/data-browser/InfoBar.jsx'
-import LoadingDialog from "@src/js/components/common/loading/LoadingDialog.jsx";
+import LoadingDialog from '@src/js/components/common/loading/LoadingDialog.jsx'
+import ErrorDialog from '@src/js/components/common/error/ErrorDialog.jsx'
 
 const styles = theme => ({
   columnFlexContainer: {
@@ -261,7 +262,8 @@ class DataBrowser extends React.Component {
       freeSpace: -1,
       totalSpace: -1,
       loading: false,
-      progress: 0
+      progress: 0,
+      errorMessage: null
     }
     this.zip = new JSZip()
   }
@@ -313,6 +315,8 @@ class DataBrowser extends React.Component {
   async downloadFiles() {
     const { multiselectedFiles } = this.state
     const { id } = this.props
+
+    // TODO: implement download by chunks
     const zipBlob = await this.prepareZipBlob(multiselectedFiles)
     this.downloadBlob(zipBlob, id)
     this.zip = new JSZip()
@@ -336,11 +340,15 @@ class DataBrowser extends React.Component {
   }
 
   async downloadFile(file) {
-    try {
-      this.setState({ loading: true, progress: 0 })
-      await this.controller.downloadAndSaveFile(file, this.updateProgress)
-    } finally {
-      this.setState({ loading: false, progress: 0 })
+    if ('showSaveFilePicker' in window) {
+      try {
+        this.setState({ loading: true, progress: 0 })
+        await this.controller.downloadAndSaveFile(file, this.updateProgress)
+      } finally {
+        this.setState({ loading: false, progress: 0 })
+      }
+    } else {
+      this.openErrorDialog(messages.get(messages.DOWNLOADS_NOT_SUPPORTED))
     }
   }
 
@@ -435,6 +443,14 @@ class DataBrowser extends React.Component {
     this.fetchSpaceStatus()
   }
 
+  openErrorDialog(errorMessage) {
+    this.setState({ errorMessage })
+  }
+
+  closeErrorDialog() {
+    this.setState({ errorMessage: null })
+  }
+
   render() {
     const { classes, sessionToken, id } = this.props
     const {
@@ -447,7 +463,8 @@ class DataBrowser extends React.Component {
       freeSpace,
       totalSpace,
       loading,
-      progress
+      progress,
+      errorMessage
     } = this.state
 
     return ([
@@ -583,7 +600,9 @@ class DataBrowser extends React.Component {
         </div>
       </div>,
       <LoadingDialog key='data-browser-loaging-dialog' variant='determinate'
-                     value={progress} loading={loading} />
+                     value={progress} loading={loading} />,
+      <ErrorDialog open={!!errorMessage} error={errorMessage}
+                   onClose={this.closeErrorDialog} />
     ])
   }
 }

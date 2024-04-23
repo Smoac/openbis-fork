@@ -34,7 +34,7 @@ export default class DataBrowserController extends ComponentController {
 
   async free() {
     try {
-      return await openbis.free(this.owner, this.path);
+      return await openbis.free(this.owner, this.path)
     } catch (error) {
       if (error.message.includes('NoSuchFileException')) {
         return []
@@ -100,7 +100,7 @@ export default class DataBrowserController extends ComponentController {
 
   async copy(files, newLocation) {
     for (const file of files) {
-      await this._copy(file, newLocation);
+      await this._copy(file, newLocation)
     }
 
     if (this.gridController) {
@@ -193,29 +193,15 @@ export default class DataBrowserController extends ComponentController {
 
   async _fileSliceToBinaryString(blob) {
     return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = (error) => reject(error);
-      reader.readAsBinaryString(blob);
-    });
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result)
+      reader.onerror = (error) => reject(error)
+      reader.readAsBinaryString(blob)
+    })
   }
 
   async _uploadChunk(source, offset, data) {
     return await openbis.write(this.owner, source, offset, data)
-  }
-
-  async _arrayBufferToBase64(buffer) {
-    return new Promise((resolve, reject) => {
-      const blob = new Blob([buffer], {type: 'application/octet-stream'})
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        const dataUrl = reader.result
-        const base64String = dataUrl.split(',')[1]
-        resolve(base64String)
-      };
-      reader.onerror = reject
-      reader.readAsDataURL(blob)
-    });
   }
 
   async download(file) {
@@ -232,50 +218,37 @@ export default class DataBrowserController extends ComponentController {
   }
 
   async downloadAndSaveFile(file, onProgressUpdate) {
-    const fileHandle = await window.showSaveFilePicker()
-    const writable = await fileHandle.createWritable()
-
     try {
-      let offset = 0;
+      const fileHandle = await window.showSaveFilePicker(
+        {
+          startIn: 'downloads',
+          id: 'download-file-picker',
+          suggestedName: file.name
+        })
+      const writable = await fileHandle.createWritable()
 
-      const size = file.size;
-      while (offset < size) {
-        const chunk = await this._download(file, offset)
-        await writable.write(chunk)
-        offset += CHUNK_SIZE
+      try {
+        let offset = 0
 
-        const progress = Math.round((offset / size) * 100)
-        onProgressUpdate(Math.min(progress, 100))
+        const size = file.size
+        while (offset < size) {
+          const chunk = await this._download(file, offset)
+          await writable.write(chunk)
+          offset += CHUNK_SIZE
+
+          const progress = Math.round((offset / size) * 100)
+          onProgressUpdate(Math.min(progress, 100))
+        }
+      } finally {
+        onProgressUpdate(100)
+        await writable.close()
       }
-    } finally {
-      onProgressUpdate(100)
-      await writable.close()
+    } catch (error) {
+      if (error.name !== 'AbortError') {
+        throw error
+      }
     }
   }
-
-  // async downloadFile(file) {
-  //   // Check if StreamSaver's service worker is correctly set up
-  //   if (!navigator.serviceWorker.controller) {
-  //     const registration = await navigator.serviceWorker.register('/sw.js'); // Path to your service worker file
-  //     await navigator.serviceWorker.ready; // Wait for the service worker to be ready
-  //   }
-  //
-  //   const streamSaver = window.streamSaver
-  //   streamSaver.mitm = 'https://cdn.jsdelivr.net/npm/streamsaver@2/mitm.html'
-  //   const fileStream = streamSaver.createWriteStream(file.name);
-  //   const writer = fileStream.getWriter();
-  //
-  //   let offset = 0;
-  //
-  //   while (offset < file.size) {
-  //     const chunk = await this._download(file, offset)
-  //     const buffer = await chunk.arrayBuffer()
-  //     await writer.write(new Uint8Array(buffer))
-  //     offset += CHUNK_SIZE
-  //   }
-  //
-  //   writer.close()
-  // }
 
   async _download(file, offset) {
     const limit = Math.min(CHUNK_SIZE, file.size - offset)
@@ -284,10 +257,6 @@ export default class DataBrowserController extends ComponentController {
 
   _removeLeadingSlash(path) {
     return path && path[0] === '/' ? path.substring(1) : path
-  }
-
-  handleUploadClick(event) {
-    console.log(event.target)
   }
 
   setPath(path) {
