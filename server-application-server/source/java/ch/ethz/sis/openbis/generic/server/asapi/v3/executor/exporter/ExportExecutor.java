@@ -1249,7 +1249,7 @@ public class ExportExecutor implements IExportExecutor
             final boolean compatibleWithImport) throws IOException
     {
         final DataSetFile dataSetFile = dataSetFileDownload.getDataSetFile();
-        final String filePath = dataSetFile.getPath();
+        final String filePath = fixFilePath(dataSetFile);
         final boolean isDirectory = dataSetFile.isDirectory();
 
         final File dataSetFsEntry;
@@ -1281,6 +1281,25 @@ public class ExportExecutor implements IExportExecutor
         } else
         {
             mkdirs(dataSetFsEntry);
+        }
+    }
+
+    /**
+     * Replaces "original" with "default" directory name.
+     *
+     * @param dataSetFile the file object that contains the path information.
+     * @return <code>dataSetFile.getPath()</code> as is or with "original" replaced with "default".
+     */
+    private static String fixFilePath(final DataSetFile dataSetFile)
+    {
+        final String originalPath = dataSetFile.getPath();
+        if (dataSetFile.isDirectory() && Objects.equals(originalPath, "original"))
+        {
+            return "default";
+        } else if (originalPath.startsWith("original/")) {
+            return "default" + originalPath.substring("original".length());
+        } else {
+            return originalPath;
         }
     }
 
