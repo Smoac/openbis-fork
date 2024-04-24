@@ -90,10 +90,13 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.openhtmltopdf.extend.FSSupplier;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
@@ -576,7 +579,7 @@ public class ExportExecutor implements IExportExecutor
             final String dataSetName = getEntityName(dataSet);
             final String dataDirectorySuffix = "#" + UUID.randomUUID();
 
-            final String datasetJson = objectWriter.writeValueAsString(dataSet);
+            final String datasetJson = datasetToJson(dataSet);
 
             createMetadataJsonFile(parentDataDirectory, prefix, spaceCode, projectCode, containerCode, code,
                     dataSetTypeCode, dataSetCode, dataSetName, dataDirectorySuffix, datasetJson, compatibleWithImport);
@@ -611,6 +614,17 @@ public class ExportExecutor implements IExportExecutor
                 OPERATION_LOG.info(String.format("Omitted data export for link dataset with permId: %s", dataSetPermId));
             }
         }
+    }
+
+    private String datasetToJson(final DataSet dataSet) throws JsonProcessingException
+    {
+        final ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+
+        final ObjectNode propertiesNode = objectMapper.createObjectNode();
+        propertiesNode.set("properties", objectMapper.valueToTree(dataSet.getProperties()));
+
+        return objectMapper.writeValueAsString(propertiesNode);
     }
 
     private static File createDirectoriesForSampleOrExperiment(final char prefix, final File documentDirectory, final ICodeHolder codeHolder)
