@@ -17,6 +17,9 @@ The repository contains these kind of modules used to build the openBIS distribu
 - JDK 17
 - Postgres 15
 
+# Change log
+Change log is available [here](CHANGELOG.md) 
+
 # Building openBIS
 
 ## Step By Step:
