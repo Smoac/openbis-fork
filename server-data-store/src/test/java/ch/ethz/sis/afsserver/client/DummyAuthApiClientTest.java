@@ -29,6 +29,11 @@ import ch.ethz.sis.shared.startup.Configuration;
 public final class DummyAuthApiClientTest extends BaseApiClientTest
 {
 
+    @Override protected String getOwnerPath(final String owner)
+    {
+        return owner;
+    }
+
     @BeforeClass
     public static void classSetUp() throws Exception
     {

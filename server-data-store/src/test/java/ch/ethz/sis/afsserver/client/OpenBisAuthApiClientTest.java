@@ -17,7 +17,18 @@
 
 package ch.ethz.sis.afsserver.client;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import ch.ethz.sis.afsapi.dto.ExceptionReason;
 import ch.ethz.sis.afsapi.exception.ThrowableReason;
@@ -27,14 +38,6 @@ import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.rights.Rights;
 import ch.ethz.sis.shared.io.IOUtils;
 import ch.ethz.sis.shared.startup.Configuration;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class OpenBisAuthApiClientTest extends BaseApiClientTest
 {
@@ -45,6 +48,11 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
     private static final String OPENBIS_DUMMY_SERVER_PATH = "/";
 
     private DummyOpenBisServer dummyOpenBisServer;
+
+    @Override protected String getOwnerPath(final String owner)
+    {
+        return "1/" + storageUuid + "/" + String.join("/", IOUtils.getShards(owner.toUpperCase())) + "/" + owner.toUpperCase();
+    }
 
     @BeforeClass
     public static void classSetUp() throws Exception
@@ -60,6 +68,7 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
         httpServerPath =
                 configuration.getStringProperty(AtomicFileSystemServerParameter.httpServerUri);
         storageRoot = configuration.getStringProperty(AtomicFileSystemServerParameter.storageRoot);
+        storageUuid = configuration.getStringProperty(AtomicFileSystemServerParameter.storageUuid);
     }
 
     @Before

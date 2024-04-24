@@ -60,6 +60,8 @@ public abstract class BaseApiClientTest
 
     protected static String storageRoot;
 
+    protected static String storageUuid;
+
     protected static final String FILE_A = "A.txt";
 
     protected static final byte[] DATA = "ABCD".getBytes();
@@ -85,7 +87,7 @@ public abstract class BaseApiClientTest
     @Before
     public void setUp() throws Exception
     {
-        testDataRoot = IOUtils.getPath(storageRoot, owner);
+        testDataRoot = IOUtils.getPath(storageRoot, getOwnerPath(owner));
         IOUtils.createDirectories(testDataRoot);
         String testDataFile = IOUtils.getPath(testDataRoot, FILE_A);
         IOUtils.createFile(testDataFile);
@@ -104,6 +106,8 @@ public abstract class BaseApiClientTest
         afsClient = new AfsClient(
                 new URI("http", null, "localhost", httpServerPort, httpServerPath, null, null));
     }
+
+    protected abstract String getOwnerPath(String owner);
 
     @After
     public void deleteTestData() throws IOException

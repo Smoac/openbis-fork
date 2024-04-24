@@ -107,9 +107,10 @@ public final class DummyOpenBisServer
                             resultObj = true;
                             break;
                         case "getSamples":
+                            Object sampleId = ((List<?>) invocation.getArguments()[1]).get(0);
                             Sample sample = new Sample();
-                            sample.setPermId(new SamplePermId(""));
-                            resultObj = Map.of(new SampleIdentifier(""), sample);
+                            sample.setPermId((SamplePermId) sampleId);
+                            resultObj = Map.of(sampleId, sample);
                             break;
                         case "getExperiments":
                         case "getDataSets":
