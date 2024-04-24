@@ -18,6 +18,8 @@ package ch.ethz.sis.afsserver.worker.proxy;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -27,18 +29,12 @@ import ch.ethz.sis.afsapi.dto.File;
 import ch.ethz.sis.afsapi.dto.FreeSpace;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
 import ch.ethz.sis.afsserver.worker.AbstractProxy;
-import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.shared.io.IOUtils;
 import ch.ethz.sis.shared.startup.Configuration;
-import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import lombok.NonNull;
 
 public class ExecutorProxy extends AbstractProxy
 {
-
-    private final IApplicationServerApi v3;
 
     private final String storageRoot;
 
@@ -47,36 +43,8 @@ public class ExecutorProxy extends AbstractProxy
     public ExecutorProxy(final Configuration configuration)
     {
         super(null);
-
         storageRoot = configuration.getStringProperty(AtomicFileSystemServerParameter.storageRoot);
         storageUuid = configuration.getStringProperty(AtomicFileSystemServerParameter.storageUuid);
-
-        if (storageUuid != null && !storageUuid.isBlank())
-        {
-            String openBISUrl = configuration.getStringProperty(AtomicFileSystemServerParameter.openBISUrl);
-
-            if (openBISUrl == null || openBISUrl.isBlank())
-            {
-                throw new RuntimeException(
-                        "Incorrect configuration. '" + AtomicFileSystemServerParameter.openBISUrl + "' property is mandatory when '"
-                                + AtomicFileSystemServerParameter.storageUuid + "' is set.");
-            }
-
-            String openBISTimeout = configuration.getStringProperty(AtomicFileSystemServerParameter.openBISTimeout);
-
-            if (openBISTimeout == null || openBISTimeout.isBlank())
-            {
-                throw new RuntimeException(
-                        "Incorrect configuration. '" + AtomicFileSystemServerParameter.openBISTimeout + "' property is mandatory when '"
-                                + AtomicFileSystemServerParameter.storageUuid + "' is set.");
-            }
-
-            v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, openBISUrl,
-                    configuration.getIntegerProperty(AtomicFileSystemServerParameter.openBISTimeout));
-        } else
-        {
-            v3 = null;
-        }
     }
 
     //
@@ -118,57 +86,50 @@ public class ExecutorProxy extends AbstractProxy
     // File System Operations
     //
 
+    private String getOwnerPath(String shareId, String storageUuid, String[] shards, String ownerFolder)
+    {
+        List<String> elements = new LinkedList<>();
+        elements.add("");
+        elements.add(shareId);
+        elements.add(storageUuid);
+        elements.addAll(Arrays.asList(shards));
+        elements.add(ownerFolder);
+        return joinPaths(elements.toArray(new String[0]));
+    }
+
     private String getOwnerPath(String owner)
     {
-        if (storageUuid == null || storageUuid.isBlank())
+        if (workerContext.getOwnerShards() != null && workerContext.getOwnerFolder() != null)
         {
-            // AFS does not reuse DSS store folder
-            return joinPaths("", owner);
-        } else
-        {
-            // AFS reuses DSS store folder
-            IPermIdHolder foundOwner = ProxyUtil.findOwner(v3, workerContext.getSessionToken(), owner);
-
-            if (foundOwner == null)
+            if (workerContext.getOwnerShareId() != null)
             {
-                throw AFSExceptions.NotAPath.getInstance(owner);
-            }
-
-            String foundOwnerPath = null;
-
-            if (foundOwner instanceof DataSet)
-            {
-                DataSet foundDataSet = (DataSet) foundOwner;
-                foundOwnerPath = foundDataSet.getPhysicalData().getShareId() + "/" + foundDataSet.getPhysicalData().getLocation();
+                return getOwnerPath(workerContext.getOwnerShareId(), storageUuid, workerContext.getOwnerShards(), workerContext.getOwnerFolder());
             } else
             {
                 String[] shares = IOUtils.getShares(storageRoot);
 
-                if (shares.length == 0)
-                {
-                    throw AFSExceptions.NotAPath.getInstance(owner);
-                }
-
-                String[] shards = IOUtils.getShards(owner);
-
                 for (String share : shares)
                 {
-                    String potentialOwnerPath = share + "/" + storageUuid + "/" + String.join("/", shards) + "/" + foundOwner.getPermId().toString();
+                    String potentialOwnerPath = getOwnerPath(share, storageUuid, workerContext.getOwnerShards(), workerContext.getOwnerFolder());
+
                     if (Files.exists(Paths.get(potentialOwnerPath)))
                     {
-                        foundOwnerPath = potentialOwnerPath;
-                        break;
+                        return potentialOwnerPath;
                     }
                 }
 
-                if (foundOwnerPath == null)
+                if (shares.length > 0)
                 {
                     // if we don't find an existing owner folder at any share, then we will create it on the first share
-                    foundOwnerPath = shares[0] + "/" + storageUuid + "/" + String.join("/", shards) + "/" + foundOwner.getPermId().toString();
+                    return getOwnerPath(shares[0], storageUuid, workerContext.getOwnerShards(), workerContext.getOwnerFolder());
+                } else
+                {
+                    throw AFSExceptions.NoSharesFound.getInstance();
                 }
             }
-
-            return joinPaths("", foundOwnerPath);
+        } else
+        {
+            return joinPaths("", owner);
         }
     }
 
@@ -185,19 +146,17 @@ public class ExecutorProxy extends AbstractProxy
     @Override
     public List<File> list(String owner, String source, Boolean recursively) throws Exception
     {
-        String ownerPath = getOwnerPath(owner);
-        String sourcePath = joinPaths(ownerPath, source);
-        return workerContext.getConnection().list(sourcePath, recursively)
+        return workerContext.getConnection().list(getSourcePath(owner, source), recursively)
                 .stream()
-                .map(file -> convertToFile(owner, ownerPath, file))
+                .map(file -> convertToFile(owner, file))
                 .collect(Collectors.toList());
     }
 
-    private File convertToFile(String owner, String ownerPath, ch.ethz.sis.afs.api.dto.File file)
+    private File convertToFile(String owner, ch.ethz.sis.afs.api.dto.File file)
     {
         try
         {
-            String ownerFullPath = new java.io.File(joinPaths(this.storageRoot, ownerPath)).getCanonicalPath();
+            String ownerFullPath = new java.io.File(joinPaths(this.storageRoot, getOwnerPath(owner))).getCanonicalPath();
             String fileFullPath;
 
             if (file.getPath().startsWith(this.storageRoot))
