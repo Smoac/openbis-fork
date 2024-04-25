@@ -397,6 +397,43 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
     }
 
     @Test
+    public void write_withDataSetOwner_failsDueToMissingPermission_noFileCreated() throws Exception
+    {
+        login();
+
+        dummyOpenBisServer.setOperationExecutor((methodName, methodArguments) ->
+        {
+            switch (methodName)
+            {
+                case "getExperiments":
+                case "getSamples":
+                    // only the default implementation of "getDataSets" will return results
+                    return Map.of();
+                case "getRights":
+                    Object param = ((List<?>) methodArguments[1]).get(0);
+                    // these are rights to manipulate data set metadata, still the data set files should be immutable
+                    return Map.of(param, new Rights(Set.of(Right.CREATE, Right.UPDATE, Right.DELETE)));
+            }
+
+            return getDefaultOperationExecutor().executeOperation(methodName, methodArguments);
+        });
+
+        try
+        {
+            afsClient.write(owner, FILE_B, 0L, DATA, IOUtils.getMD5(DATA));
+            fail();
+        } catch (Exception e)
+        {
+            ThrowableReason reason = (ThrowableReason) e.getCause();
+            String message = ((ExceptionReason) reason.getReason()).getMessage();
+            assertTrue(message.matches(
+                    "(?s).*Session .* don't have rights \\[Write\\] over .* to perform the operation Write(?s).*"));
+        }
+
+        assertFalse(IOUtils.exists(IOUtils.getPath(testDataRoot, FILE_B)));
+    }
+
+    @Test
     public void move_failsDueToMissingPermissions() throws Exception
     {
         login();
@@ -486,23 +523,6 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
         {
             super("Method: '" + methodName + ", arguments: '" + Arrays.toString(methodArguments) + "'");
         }
-    }
-
-    private List<File> sortFiles(Collection<File> files)
-    {
-        List<File> sortedFiles = new ArrayList<>(files);
-        sortedFiles.sort(Comparator.comparing(File::getPath));
-        return sortedFiles;
-    }
-
-    private void assertFileEquals(File actualFile, String expectedOwner, String expectedPath, String expectedName, Boolean expectedDirectory,
-            Long expectedSize)
-    {
-        assertEquals(expectedOwner, actualFile.getOwner());
-        assertEquals(expectedPath, actualFile.getPath());
-        assertEquals(expectedName, actualFile.getName());
-        assertEquals(expectedDirectory, actualFile.getDirectory());
-        assertEquals(expectedSize, actualFile.getSize());
     }
 
 }

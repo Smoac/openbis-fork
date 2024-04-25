@@ -31,6 +31,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -64,11 +66,25 @@ public abstract class BaseApiClientTest
 
     protected static final String FILE_A = "A.txt";
 
+    protected static final String FILE_A_NAME = FILE_A;
+
     protected static final byte[] DATA = "ABCD".getBytes();
 
-    protected static final String FILE_B = "B.txt";
+    protected static final String FILE_B_NAME = "B.txt";
 
-    protected static final String FILE_BINARY = "test.png";
+    protected static final String FILE_B = FILE_B_NAME;
+
+    protected static final String FILE_BINARY_FOLDER_NAME = "test-folder";
+
+    protected static final String FILE_BINARY_FOLDER = FILE_BINARY_FOLDER_NAME;
+
+    protected static final String FILE_BINARY_SUBFOLDER_NAME = "test-subfolder";
+
+    protected static final String FILE_BINARY_SUBFOLDER = FILE_BINARY_FOLDER_NAME + "/" + FILE_BINARY_SUBFOLDER_NAME;
+
+    protected static final String FILE_BINARY_NAME = "test.png";
+
+    protected static final String FILE_BINARY = FILE_BINARY_SUBFOLDER + "/" + FILE_BINARY_NAME;
 
     protected static String owner = UUID.randomUUID().toString();
 
@@ -172,14 +188,76 @@ public abstract class BaseApiClientTest
     }
 
     @Test
-    public void list_getsDataListFromTemporaryFolder() throws Exception
+    public void list_rootRecursive() throws Exception
     {
         login();
 
-        List<File> list = afsClient.list(owner, "", Boolean.TRUE);
-        assertEquals(2, list.size());
-        list.sort(Comparator.comparing(File::getPath));
-        assertEquals(FILE_A, list.get(0).getName());
+        List<File> files = afsClient.list(owner, "", Boolean.TRUE);
+        assertEquals(4, files.size());
+
+        files = sortFiles(files);
+        assertFileEquals(files.get(0), owner, "/" + FILE_A , FILE_A_NAME, false, (long) DATA.length);
+        assertFileEquals(files.get(1), owner, "/" + FILE_BINARY_FOLDER, FILE_BINARY_FOLDER_NAME, true, null);
+        assertFileEquals(files.get(2), owner, "/" + FILE_BINARY_SUBFOLDER, FILE_BINARY_SUBFOLDER_NAME, true, null);
+        assertFileEquals(files.get(3), owner, "/" + FILE_BINARY, FILE_BINARY_NAME, false, (long) binaryData.length);
+    }
+
+    @Test
+    public void list_rootNonRecursive() throws Exception
+    {
+        login();
+
+        List<File> files = afsClient.list(owner, "", Boolean.FALSE);
+        assertEquals(2, files.size());
+
+        files = sortFiles(files);
+        assertFileEquals(files.get(0), owner, "/" + FILE_A , FILE_A_NAME, false, (long) DATA.length);
+        assertFileEquals(files.get(1), owner, "/" + FILE_BINARY_FOLDER, FILE_BINARY_FOLDER_NAME, true, null);
+    }
+
+    @Test
+    public void list_folderRecursive() throws Exception
+    {
+        login();
+
+        List<File> files = afsClient.list(owner, FILE_BINARY_FOLDER, Boolean.TRUE);
+        assertEquals(2, files.size());
+
+        files = sortFiles(files);
+        assertFileEquals(files.get(0), owner, "/" + FILE_BINARY_SUBFOLDER, FILE_BINARY_SUBFOLDER_NAME, true, null);
+        assertFileEquals(files.get(1), owner, "/" + FILE_BINARY, FILE_BINARY_NAME, false, (long) binaryData.length);
+    }
+
+    @Test
+    public void list_folderNonRecursive() throws Exception
+    {
+        login();
+
+        List<File> files = afsClient.list(owner, FILE_BINARY_FOLDER, Boolean.FALSE);
+        assertEquals(1, files.size());
+
+        assertFileEquals(files.get(0), owner, "/" + FILE_BINARY_SUBFOLDER, FILE_BINARY_SUBFOLDER_NAME, true, null);
+    }
+
+    @Test
+    public void list_withLeadingSlash() throws Exception
+    {
+        login();
+
+        List<File> files = afsClient.list(owner, "/" + FILE_BINARY, Boolean.FALSE);
+        assertEquals(1, files.size());
+        assertFileEquals(files.get(0), owner, "/" + FILE_BINARY, FILE_BINARY_NAME, false, (long) binaryData.length);
+
+    }
+
+    @Test
+    public void list_withoutLeadingSlash() throws Exception
+    {
+        login();
+
+        List<File> files = afsClient.list(owner, FILE_BINARY, Boolean.FALSE);
+        assertEquals(1, files.size());
+        assertFileEquals(files.get(0), owner, "/" + FILE_BINARY, FILE_BINARY_NAME, false, (long) binaryData.length);
     }
 
     @Test
@@ -287,7 +365,7 @@ public abstract class BaseApiClientTest
         assertTrue(deleted);
 
         List<ch.ethz.sis.afs.api.dto.File> list = IOUtils.list(testDataRoot, true);
-        assertEquals(1, list.size());
+        assertEquals(3, list.size());
     }
 
     @Test
@@ -307,12 +385,24 @@ public abstract class BaseApiClientTest
     {
         login();
 
+        List<File> filesBefore = afsClient.list(owner, "", true);
+        assertEquals(4, filesBefore.size());
+
+        filesBefore = sortFiles(filesBefore);
+        assertFileEquals(filesBefore.get(0), owner, "/" + FILE_A , FILE_A_NAME, false, (long) DATA.length);
+        assertFileEquals(filesBefore.get(1), owner, "/" + FILE_BINARY_FOLDER, FILE_BINARY_FOLDER_NAME, true, null);
+        assertFileEquals(filesBefore.get(2), owner, "/" + FILE_BINARY_SUBFOLDER, FILE_BINARY_SUBFOLDER_NAME, true, null);
+        assertFileEquals(filesBefore.get(3), owner, "/" + FILE_BINARY, FILE_BINARY_NAME, false, (long) binaryData.length);
+
         Boolean result = afsClient.move(owner, FILE_A, owner, FILE_B);
         assertTrue(result);
 
-        List<ch.ethz.sis.afs.api.dto.File> list = IOUtils.list(testDataRoot, true);
-        assertEquals(2, list.size());
-        assertEquals(Set.of(FILE_B, FILE_BINARY), Set.of(list.get(0).getName(), list.get(1).getName()));
+        List<File> filesAfter = afsClient.list(owner, "", true);
+        filesAfter = sortFiles(filesAfter);
+        assertFileEquals(filesAfter.get(0), owner, "/" + FILE_B , FILE_B_NAME, false, (long) DATA.length);
+        assertFileEquals(filesAfter.get(1), owner, "/" + FILE_BINARY_FOLDER, FILE_BINARY_FOLDER_NAME, true, null);
+        assertFileEquals(filesAfter.get(2), owner, "/" + FILE_BINARY_SUBFOLDER, FILE_BINARY_SUBFOLDER_NAME, true, null);
+        assertFileEquals(filesAfter.get(3), owner, "/" + FILE_BINARY, FILE_BINARY_NAME, false, (long) binaryData.length);
 
         byte[] testDataFile = IOUtils.readFully(IOUtils.getPath(testDataRoot, FILE_B));
         assertArrayEquals(DATA, testDataFile);
@@ -321,6 +411,23 @@ public abstract class BaseApiClientTest
     protected String login() throws Exception
     {
         return afsClient.login("test", "test");
+    }
+
+    protected List<File> sortFiles(Collection<File> files)
+    {
+        List<File> sortedFiles = new ArrayList<>(files);
+        sortedFiles.sort(Comparator.comparing(File::getPath));
+        return sortedFiles;
+    }
+
+    protected void assertFileEquals(File actualFile, String expectedOwner, String expectedPath, String expectedName, Boolean expectedDirectory,
+            Long expectedSize)
+    {
+        assertEquals(expectedOwner, actualFile.getOwner());
+        assertEquals(expectedPath, actualFile.getPath());
+        assertEquals(expectedName, actualFile.getName());
+        assertEquals(expectedDirectory, actualFile.getDirectory());
+        assertEquals(expectedSize, actualFile.getSize());
     }
 
 }
