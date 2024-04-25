@@ -49,6 +49,8 @@ public class ExportExecutorTest
 
     private static final String DATA_SET_CODE = "TEST_DATA_SET";
 
+    public static final String UUID_SUFFIX = "#123e4567-e89b-12d3-a456-426614174000";
+
     private static final Object[][] NEXT_ZIP_ENTRY_DATA = {
             {
                     null, null, null, null, null, null, null, null, null, "/"
@@ -237,82 +239,58 @@ public class ExportExecutorTest
 
     private static final Object[][] FOLDER_NAME_DATA = {
             {
-                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, "OBJ1", "ANALYZED_DATA", "20231201115004780-27", "my dataset", null,
-                    "O+DEFAULT_LAB_NOTEBOOK+DEFAULT_PROJECT+OBJ1+ANALYZED_DATA+my dataset (20231201115004780-27)"
+                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, "OBJ1", "ANALYZED_DATA", null,
+                    "O+DEFAULT_LAB_NOTEBOOK+DEFAULT_PROJECT+OBJ1+ANALYZED_DATA" + UUID_SUFFIX
             },
             {
-                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, "OBJ1", "ANALYZED_DATA", "20231201115004780-27", "my dataset", "file",
-                    "O+DEFAULT_LAB_NOTEBOOK+DEFAULT_PROJECT+OBJ1+ANALYZED_DATA+my dataset (20231201115004780-27)/file"
+                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, "OBJ1", "ANALYZED_DATA", "file",
+                    "O+DEFAULT_LAB_NOTEBOOK+DEFAULT_PROJECT+OBJ1+ANALYZED_DATA"  + UUID_SUFFIX + "/file"
             },
             {
-                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, "OBJ1", "ANALYZED_DATA", "20231201115004780-27", null, "file",
-                    "O+DEFAULT_LAB_NOTEBOOK+DEFAULT_PROJECT+OBJ1+ANALYZED_DATA+20231201115004780-27/file"
+                    'O', "DEFAULT_LAB_NOTEBOOK", null, null, "OBJ1", "ANALYZED_DATA", "file",
+                    "O+DEFAULT_LAB_NOTEBOOK+OBJ1+ANALYZED_DATA"  + UUID_SUFFIX + "/file"
             },
             {
-                    'O', "DEFAULT_LAB_NOTEBOOK", null, null, "OBJ1", "ANALYZED_DATA", "20231201115004780-27", "my dataset", "file",
-                    "O+DEFAULT_LAB_NOTEBOOK+OBJ1+ANALYZED_DATA+my dataset (20231201115004780-27)/file"
+                    'O', null, null, null, "OBJ1", "ANALYZED_DATA", "file",
+                    "O+OBJ1+ANALYZED_DATA" + UUID_SUFFIX + "/file"
             },
             {
-                    'O', "DEFAULT_LAB_NOTEBOOK", null, null, "OBJ1", "ANALYZED_DATA", "20231201115004780-27", null, "file",
-                    "O+DEFAULT_LAB_NOTEBOOK+OBJ1+ANALYZED_DATA+20231201115004780-27/file"
+                    'E', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, "EXP1", "ANALYZED_DATA", "file",
+                    "E+DEFAULT_LAB_NOTEBOOK+DEFAULT_PROJECT+EXP1+ANALYZED_DATA" + UUID_SUFFIX + "/file"
             },
             {
-                    'O', null, null, null, "OBJ1", "ANALYZED_DATA", "20231201115004780-27", "my dataset", "file",
-                    "O+OBJ1+ANALYZED_DATA+my dataset (20231201115004780-27)/file"
-            },
-            {
-                    'O', null, null, null, "OBJ1", "ANALYZED_DATA", "20231201115004780-27", null, "file",
-                    "O+OBJ1+ANALYZED_DATA+20231201115004780-27/file"
-            },
-            {
-                    'E', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, "EXP1", "ANALYZED_DATA", "20231201115004780-27", "my dataset", "file",
-                    "E+DEFAULT_LAB_NOTEBOOK+DEFAULT_PROJECT+EXP1+ANALYZED_DATA+my dataset (20231201115004780-27)/file"
-            },
-            {
-                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", "OBJ_CONTAINER", "OBJ1", "ANALYZED_DATA", "20231201115004780-27", "my dataset",
-                    "file", "O+DEFAULT_LAB_NOTEBOOK+DEFAULT_PROJECT+OBJ_CONTAINER*OBJ1+ANALYZED_DATA+my dataset (20231201115004780-27)/file"
+                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", "OBJ_CONTAINER", "OBJ1", "ANALYZED_DATA",
+                    "file", "O+DEFAULT_LAB_NOTEBOOK+DEFAULT_PROJECT+OBJ_CONTAINER*OBJ1+ANALYZED_DATA" + UUID_SUFFIX + "/file"
             },
     };
 
     private static final Object[][] ERRONEOUS_FOLDER_NAME_DATA = {
             {
-                    'P', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, "OBJ1", "ANALYZED_DATA", "20231201115004780-27", "my dataset", "file"
+                    'P', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, "OBJ1", "ANALYZED_DATA", "file"
             },
             {
-                    'O', null, "DEFAULT_PROJECT", null, "OBJ1", "ANALYZED_DATA", "20231201115004780-27", "my dataset", "file"
+                    'O', null, "DEFAULT_PROJECT", null, "OBJ1", "ANALYZED_DATA", "file"
             },
             {
-                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, null, "ANALYZED_DATA", "20231201115004780-27", "my dataset", "file"
+                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, null, "ANALYZED_DATA", "file"
             },
             {
-                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", "OBJ_CONTAINER", null, "ANALYZED_DATA", "20231201115004780-27", "my dataset",
-                    "file"
+                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", "OBJ_CONTAINER", null, "ANALYZED_DATA", "file"
             },
             {
-                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, "OBJ1", null, "20231201115004780-27", "my dataset", "file"
+                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, "OBJ1", null, "file"
             },
-            {
-                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, "OBJ1", "ANALYZED_DATA", null, "my dataset", "file"
-            },
-            {
-                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, "OBJ1", "ANALYZED_DATA", null, null, "file"
-            },
-            {
-                    'O', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", null, "OBJ1", "ANALYZED_DATA", null, null, null
-            },
-
             {
                     // Experiments cannot have containers
-                    'E', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", "EXP_CONTAINER", "EXP1", "ANALYZED_DATA", "20231201115004780-27", "my dataset",
-                    "file"
+                    'E', "DEFAULT_LAB_NOTEBOOK", "DEFAULT_PROJECT", "EXP_CONTAINER", "EXP1", "ANALYZED_DATA", "file"
             },
             {
                     // Experiments cannot be on the space level
-                    'E', "DEFAULT_LAB_NOTEBOOK", null, null, "EXP1", "ANALYZED_DATA", "20231201115004780-27", "my dataset", "file"
+                    'E', "DEFAULT_LAB_NOTEBOOK", null, null, "EXP1", "ANALYZED_DATA", "file"
             },
             {
                     // Experiments cannot be shared (w/o space)
-                    'E', null, null, null, "EXP1", "ANALYZED_DATA", "20231201115004780-27", "my dataset", "file"
+                    'E', null, null, null, "EXP1", "ANALYZED_DATA", "file"
             },
     };
 
@@ -360,19 +338,20 @@ public class ExportExecutorTest
 
     @Test(dataProvider = FOLDER_NAME_DATA_PROVIDER)
     public void testGetDataDirectoryName(final char prefix, final String spaceCode, final String projectCode,
-            final String containerCode, final String entityCode, final String dataSetTypeCode, final String dataSetCode,
-            final String dataSetName, final String fileName, final String expectedResult)
+            final String containerCode, final String entityCode, final String dataSetTypeCode,
+            final String fileName, final String expectedResult)
     {
-        assertEquals(ExportExecutor.getDataDirectoryName(prefix, spaceCode, projectCode, containerCode, entityCode, dataSetTypeCode, dataSetCode,
-                dataSetName, fileName), expectedResult);
+        assertEquals(ExportExecutor.getDataDirectoryName(prefix, spaceCode, projectCode, containerCode, entityCode, dataSetTypeCode,
+                UUID_SUFFIX, fileName), expectedResult);
     }
 
     @Test(dataProvider = ERRONEOUS_FOLDER_NAME_DATA_PROVIDER, expectedExceptions = IllegalArgumentException.class)
     public void testGetDataDirectoryNameError(final char prefix, final String spaceCode, final String projectCode,
-            final String containerCode, final String entityCode, final String dataSetTypeCode, final String dataSetCode,
-            final String dataSetName, final String fileName)
+            final String containerCode, final String entityCode, final String dataSetTypeCode,
+            final String fileName)
     {
-        ExportExecutor.getDataDirectoryName(prefix, spaceCode, projectCode, containerCode, entityCode, dataSetTypeCode, dataSetCode, dataSetName, fileName);
+        ExportExecutor.getDataDirectoryName(prefix, spaceCode, projectCode, containerCode, entityCode, dataSetTypeCode,
+                UUID_SUFFIX, fileName);
     }
 
     @Test()
