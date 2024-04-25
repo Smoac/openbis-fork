@@ -32,7 +32,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.IDataSetId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.IExperimentId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.rights.Right;
@@ -41,7 +40,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.rights.fetchoptions.RightsFetchO
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.shared.io.FilePermission;
 import ch.ethz.sis.shared.io.IOUtils;
@@ -174,19 +172,9 @@ public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvid
         return findDataSet(sessionToken, owner);
     }
 
-    public Experiment findExperiment(String sessionToken, String experimentPermIdOrIdentifier)
+    public Experiment findExperiment(String sessionToken, String experimentPermId)
     {
-        IExperimentId experimentId;
-
-        if (experimentPermIdOrIdentifier.contains("/"))
-        { // Is Identifier
-            experimentId = new ExperimentIdentifier(experimentPermIdOrIdentifier);
-        } else
-        { // Is permId
-            experimentId = new ExperimentPermId(experimentPermIdOrIdentifier);
-        }
-
-        Map<IExperimentId, Experiment> experiments = v3.getExperiments(sessionToken, List.of(experimentId), new ExperimentFetchOptions());
+        Map<IExperimentId, Experiment> experiments = v3.getExperiments(sessionToken, List.of(new ExperimentPermId(experimentPermId)), new ExperimentFetchOptions());
 
         if (!experiments.isEmpty())
         {
@@ -197,19 +185,9 @@ public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvid
         }
     }
 
-    public Sample findSample(String sessionToken, String samplePermIdOrIdentifier)
+    public Sample findSample(String sessionToken, String samplePermId)
     {
-        ISampleId sampleId;
-
-        if (samplePermIdOrIdentifier.contains("/"))
-        { // Is Identifier
-            sampleId = new SampleIdentifier(samplePermIdOrIdentifier);
-        } else
-        { // Is permId
-            sampleId = new SamplePermId(samplePermIdOrIdentifier);
-        }
-
-        Map<ISampleId, Sample> samples = v3.getSamples(sessionToken, List.of(sampleId), new SampleFetchOptions());
+        Map<ISampleId, Sample> samples = v3.getSamples(sessionToken, List.of(new SamplePermId(samplePermId)), new SampleFetchOptions());
 
         if (!samples.isEmpty())
         {

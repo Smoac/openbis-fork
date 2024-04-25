@@ -87,27 +87,31 @@ public abstract class BaseApiClientTest
     @Before
     public void setUp() throws Exception
     {
-        testDataRoot = IOUtils.getPath(storageRoot, getOwnerPath(owner));
-        IOUtils.createDirectories(testDataRoot);
-        String testDataFile = IOUtils.getPath(testDataRoot, FILE_A);
-        IOUtils.createFile(testDataFile);
-        IOUtils.write(testDataFile, 0, DATA);
+        testDataRoot = IOUtils.getPath(storageRoot, getTestDataFolder(owner));
 
-        final String binaryTestDataFile = IOUtils.getPath(testDataRoot, FILE_BINARY);
         final URL resource = getClass().getClassLoader().getResource("ch/ethz/sis/afsserver/client/test.png");
         final java.io.File file = new java.io.File(resource.toURI());
-        this.binarySize = (int) file.length();
-        IOUtils.copy(resource.getPath(), binaryTestDataFile);
-
         try (final FileInputStream fis = new FileInputStream(file)) {
             binaryData = fis.readAllBytes();
         }
+        binarySize = (int) file.length();
+
+        createTestDataFile(owner, FILE_A, DATA);
+        createTestDataFile(owner, FILE_BINARY, binaryData);
 
         afsClient = new AfsClient(
                 new URI("http", null, "localhost", httpServerPort, httpServerPath, null, null));
     }
 
-    protected abstract String getOwnerPath(String owner);
+    protected abstract String getTestDataFolder(String owner);
+
+    public void createTestDataFile(String owner, String source, byte[] data) throws Exception {
+        String testDataRoot = IOUtils.getPath(storageRoot, getTestDataFolder(owner));
+        String testDataFile = IOUtils.getPath(testDataRoot, source);
+        IOUtils.createDirectories(new java.io.File(testDataFile).getParent());
+        IOUtils.createFile(testDataFile);
+        IOUtils.write(testDataFile, 0, data);
+    }
 
     @After
     public void deleteTestData() throws IOException

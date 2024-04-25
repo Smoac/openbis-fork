@@ -29,7 +29,7 @@ import ch.ethz.sis.shared.startup.Configuration;
 public final class DummyAuthApiClientTest extends BaseApiClientTest
 {
 
-    @Override protected String getOwnerPath(final String owner)
+    @Override protected String getTestDataFolder(final String owner)
     {
         return owner;
     }

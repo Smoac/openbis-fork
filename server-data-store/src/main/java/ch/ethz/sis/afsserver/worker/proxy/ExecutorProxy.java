@@ -89,12 +89,11 @@ public class ExecutorProxy extends AbstractProxy
     private String getOwnerPath(String shareId, String storageUuid, String[] shards, String ownerFolder)
     {
         List<String> elements = new LinkedList<>();
-        elements.add("");
         elements.add(shareId);
         elements.add(storageUuid);
         elements.addAll(Arrays.asList(shards));
         elements.add(ownerFolder);
-        return joinPaths(elements.toArray(new String[0]));
+        return IOUtils.getPath("", elements.toArray(new String[]{}));
     }
 
     private String getOwnerPath(String owner)
@@ -112,7 +111,7 @@ public class ExecutorProxy extends AbstractProxy
                 {
                     String potentialOwnerPath = getOwnerPath(share, storageUuid, workerContext.getOwnerShards(), workerContext.getOwnerFolder());
 
-                    if (Files.exists(Paths.get(potentialOwnerPath)))
+                    if (Files.exists(Paths.get(storageRoot, potentialOwnerPath)))
                     {
                         return potentialOwnerPath;
                     }
@@ -129,18 +128,13 @@ public class ExecutorProxy extends AbstractProxy
             }
         } else
         {
-            return joinPaths("", owner);
+            return IOUtils.getPath("", owner);
         }
     }
 
     private String getSourcePath(String owner, String source)
     {
-        return joinPaths(getOwnerPath(owner), source);
-    }
-
-    private String joinPaths(String... paths)
-    {
-        return String.join("" + IOUtils.PATH_SEPARATOR, paths);
+        return IOUtils.getPath(getOwnerPath(owner), source);
     }
 
     @Override
@@ -156,7 +150,7 @@ public class ExecutorProxy extends AbstractProxy
     {
         try
         {
-            String ownerFullPath = new java.io.File(joinPaths(this.storageRoot, getOwnerPath(owner))).getCanonicalPath();
+            String ownerFullPath = new java.io.File(IOUtils.getPath(this.storageRoot, getOwnerPath(owner))).getCanonicalPath();
             String fileFullPath;
 
             if (file.getPath().startsWith(this.storageRoot))
@@ -164,7 +158,7 @@ public class ExecutorProxy extends AbstractProxy
                 fileFullPath = new java.io.File(file.getPath()).getCanonicalPath();
             } else
             {
-                fileFullPath = new java.io.File(joinPaths(this.storageRoot, file.getPath())).getCanonicalPath();
+                fileFullPath = new java.io.File(IOUtils.getPath(this.storageRoot, file.getPath())).getCanonicalPath();
             }
 
             return new File(owner, fileFullPath.substring(ownerFullPath.length()), file.getName(), file.getDirectory(), file.getSize(),
