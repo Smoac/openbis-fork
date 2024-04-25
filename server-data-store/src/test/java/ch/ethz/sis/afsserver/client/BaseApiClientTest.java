@@ -35,7 +35,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import org.junit.After;
@@ -44,8 +43,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ch.ethz.sis.afs.manager.TransactionConnection;
+import ch.ethz.sis.afsapi.dto.ExceptionReason;
 import ch.ethz.sis.afsapi.dto.File;
 import ch.ethz.sis.afsapi.dto.FreeSpace;
+import ch.ethz.sis.afsapi.exception.ThrowableReason;
 import ch.ethz.sis.afsclient.client.AfsClient;
 import ch.ethz.sis.afsserver.server.Server;
 import ch.ethz.sis.shared.io.IOUtils;
@@ -258,6 +259,22 @@ public abstract class BaseApiClientTest
         List<File> files = afsClient.list(owner, FILE_BINARY, Boolean.FALSE);
         assertEquals(1, files.size());
         assertFileEquals(files.get(0), owner, "/" + FILE_BINARY, FILE_BINARY_NAME, false, (long) binaryData.length);
+    }
+
+    @Test
+    public void list_withRelativePath() throws Exception
+    {
+        login();
+
+        try
+        {
+            afsClient.list(owner, "/../" + FILE_BINARY, Boolean.FALSE);
+        }catch(Exception e){
+            ThrowableReason reason = (ThrowableReason) e.getCause();
+            String message = ((ExceptionReason) reason.getReason()).getMessage();
+            assertTrue(message.contains(
+                    "Path given to: List - can't contain '/../'"));
+        }
     }
 
     @Test
