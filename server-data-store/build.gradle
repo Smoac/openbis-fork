@@ -41,3 +41,7 @@ task AFSServerDevelopmentEnvironmentStart(type: JavaExec) {
              '-Dio.netty.tryReflectionSetAccessible=true',
              '-Xmx256M', '-ea'])
 }
+
+distZip {
+    baseName 'afs-server'
+}

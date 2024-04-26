@@ -38,6 +38,7 @@ evaluationDependsOn(':server-application-server')
 evaluationDependsOn(':server-original-data-store')
 evaluationDependsOn(':server-screening')
 evaluationDependsOn(':server-external-data-store')
+evaluationDependsOn(':server-data-store')
 evaluationDependsOn(':ui-admin')
 evaluationDependsOn(':ui-eln-lims')
 
@@ -465,6 +466,11 @@ task zipDss(type: Zip, dependsOn: copyJarsForWebStart) {
 task zipBdlServer(type: Zip, dependsOn: project(':server-external-data-store').tasks.distZip) {
     baseName 'big_data_link_server'
     from zipTree('../server-external-data-store/build/distributions/server-external-data-store.zip')
+}
+
+task zipAfsServer(type: Zip, dependsOn: project(':server-data-store').tasks.distZip) {
+    baseName 'afs_server'
+    from zipTree('../server-data-store/build/distributions/afs-server.zip')
 }
 
 task pybisZip(type: Zip) {
