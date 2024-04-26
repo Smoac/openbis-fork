@@ -17,34 +17,28 @@
 
 package ch.ethz.sis.afsserver.client;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.rights.Right;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.rights.Rights;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpServer;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+
 import org.springframework.remoting.httpinvoker.SimpleHttpInvokerServiceExporter;
 import org.springframework.remoting.support.RemoteInvocation;
 import org.springframework.remoting.support.RemoteInvocationResult;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpServer;
 
 public final class DummyOpenBisServer
 {
     private final HttpServer httpServer;
 
-    private Map<String, Object> responses = Map.of();
+    private OperationExecutor operationExecutor;
 
     public DummyOpenBisServer(int httpServerPort, String httpServerPath) throws IOException
     {
         httpServer = HttpServer.create(new InetSocketAddress(httpServerPort), 0);
         httpServer.createContext(httpServerPath, exchange ->
         {
-            DummyInvoker inv = new DummyInvoker(responses);
+            DummyInvoker inv = new DummyInvoker();
             inv.handle(exchange);
         });
     }
@@ -59,20 +53,13 @@ public final class DummyOpenBisServer
         httpServer.stop(0);
     }
 
-    public void setResponses(Map<String, Object> responses)
+    public void setOperationExecutor(OperationExecutor operationExecutor)
     {
-        this.responses = responses;
+        this.operationExecutor = operationExecutor;
     }
 
-    private static class DummyInvoker extends SimpleHttpInvokerServiceExporter
+    private class DummyInvoker extends SimpleHttpInvokerServiceExporter
     {
-        private final Map<String, Object> result;
-
-        public DummyInvoker(Map<String, Object> result)
-        {
-            super();
-            this.result = result;
-        }
 
         @Override
         public void handle(HttpExchange exchange) throws IOException
@@ -80,41 +67,20 @@ public final class DummyOpenBisServer
             try
             {
                 RemoteInvocation invocation = super.readRemoteInvocation(exchange);
+
                 final String method = invocation.getMethodName();
-                Object resultObj;
-                if (result.containsKey(method))
+                final Object[] arguments = invocation.getArguments();
+
+                RemoteInvocationResult remoteInvocationResult;
+
+                try
                 {
-                    if("getRights".equals(method)) {
-                        Object param = ((List<?>) invocation.getArguments()[1]).get(0);
-                        resultObj = Map.of(param, (Rights) result.get(method));
-                    } else {
-                        resultObj = result.get(method);
-                    }
-                } else
-                {
-                    switch (method)
-                    {
-                        case "login":
-                            resultObj = "test-login-token";
-                            break;
-                        case "logout":
-                        case "isSessionActive":
-                            resultObj = true;
-                            break;
-                        case "getSamples":
-                            resultObj = Map.of(new SampleIdentifier(""), new Sample());
-                            break;
-                        case "getRights":
-                            Object param = ((List<?>) invocation.getArguments()[1]).get(0);
-                            resultObj = Map.of(param, new Rights(Set.of(Right.UPDATE)));
-                            break;
-                        default:
-                            throw new IllegalStateException(
-                                    "Unknown method: " + invocation.getMethodName());
-                    }
+                    final Object result = operationExecutor.executeOperation(method, arguments);
+                    remoteInvocationResult = new RemoteInvocationResult(result);
+                }catch(Throwable e){
+                    remoteInvocationResult = new RemoteInvocationResult(e);
                 }
-                RemoteInvocationResult remoteInvocationResult =
-                        new RemoteInvocationResult(resultObj);
+
                 this.writeRemoteInvocationResult(exchange, remoteInvocationResult);
                 exchange.close();
             } catch (ClassNotFoundException var4)
@@ -124,6 +90,10 @@ public final class DummyOpenBisServer
             }
         }
 
+    }
+
+    public interface OperationExecutor {
+        Object executeOperation(String methodName, Object[] methodArguments);
     }
 
 }

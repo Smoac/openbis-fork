@@ -42,7 +42,8 @@ public enum AFSExceptions implements ExceptionTemplateHolder {
     PathNotStartWithRoot(           RuntimeException.class,         List.of(ClientDeveloperCodingError),10017,"Path given to: %s - don't starts with root '/' : %s"),
     MD5NotMatch(                    RuntimeException.class,         List.of(ClientDeveloperCodingError),10018,"MD5 doesn't match on data given to: %s - for: %s"),
     DeadlockDetected(               RuntimeException.class,         List.of(UserUsageError),            10019,"Deadlock detected, %s is already waiting for %s from %s"),
-    TransactionReuse(               RuntimeException.class,         List.of(CoreDeveloperCodingError),  10020,"Transaction with uuid: %s and state: %s was going to be reused");
+    TransactionReuse(               RuntimeException.class,         List.of(CoreDeveloperCodingError),  10020,"Transaction with uuid: %s and state: %s was going to be reused"),
+    NoSharesFound(                  RuntimeException.class,         List.of(AdminConfigError),          10021,"No shares found");
 
     private RuntimeExceptionTemplate template;
 

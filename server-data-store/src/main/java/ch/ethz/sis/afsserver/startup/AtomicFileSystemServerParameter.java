@@ -27,6 +27,7 @@ public enum AtomicFileSystemServerParameter {
     jsonObjectMapperClass,
     writeAheadLogRoot,
     storageRoot,
+    storageUuid,
     //
     // Parameters for the HTTP server
     //

@@ -39,7 +39,7 @@ public class AuthorizationProxy extends AbstractProxy {
     }
 
     private void validateUserRights(String owner, String source, Set<FilePermission> permissions, OperationName operationName) throws Exception {
-        boolean doesSessionHaveRights = authorizationInfoProvider.doesSessionHaveRights(workerContext.getSessionToken(),
+        boolean doesSessionHaveRights = authorizationInfoProvider.doesSessionHaveRights(workerContext,
                 owner,
                 permissions);
         if (!doesSessionHaveRights) {

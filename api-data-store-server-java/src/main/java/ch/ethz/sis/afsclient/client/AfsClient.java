@@ -372,6 +372,14 @@ public final class AfsClient implements PublicAPI, ClientAPI
         }
     }
 
+    private static String getQueryString(String apiMethod, Map<String, String> params, boolean encode){
+        return Stream.concat(
+                        Stream.of(new AbstractMap.SimpleImmutableEntry<>("method", apiMethod)),
+                        params.entrySet().stream())
+                .map(entry -> (encode ? urlEncode(entry.getKey()) : entry.getKey()) + "=" + (encode ? urlEncode(entry.getValue()) : entry.getValue()))
+                .reduce((s1, s2) -> s1 + "&" + s2).get();
+    }
+
     @SuppressWarnings({ "OptionalGetWithoutIsPresent", "unchecked" })
     private <T> T request(@NonNull final String httpMethod, @NonNull final String apiMethod,
             Class<T> responseType,
@@ -400,12 +408,6 @@ public final class AfsClient implements PublicAPI, ClientAPI
             params.put("transactionManagerKey", transactionManagerKey);
         }
 
-        String parameters = Stream.concat(
-                        Stream.of(new AbstractMap.SimpleImmutableEntry<>("method", apiMethod)),
-                        params.entrySet().stream())
-                .map(entry -> urlEncode(entry.getKey()) + "=" + urlEncode(entry.getValue()))
-                .reduce((s1, s2) -> s1 + "&" + s2).get();
-
         //
         // GET Request - Parameters on the query string
         //
@@ -413,7 +415,8 @@ public final class AfsClient implements PublicAPI, ClientAPI
         String queryParameters = null;
         if (httpMethod.equals("GET"))
         {
-            queryParameters = parameters;
+            // skip the encoding as it is later done by URI class (we don't want to encode twice as the server will get wrong values)
+            queryParameters = getQueryString(apiMethod, params, false);
         }
 
         //
@@ -423,7 +426,7 @@ public final class AfsClient implements PublicAPI, ClientAPI
         byte[] body = null;
         if (httpMethod.equals("POST") || httpMethod.equals("DELETE"))
         {
-            body = parameters.getBytes(StandardCharsets.UTF_8);
+            body = getQueryString(apiMethod, params, true).getBytes(StandardCharsets.UTF_8);
         } else
         {
             body = new byte[0];
