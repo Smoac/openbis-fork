@@ -501,6 +501,51 @@ exports.default = new Promise((resolve) => {
                 await testRead(assert, true)
             })
 
+            QUnit.test("read() original DSS data set", async function (assert) {
+                const testContent = "Hello World!"
+
+                try {
+                    var c = new common(assert, dtos)
+                    c.start()
+
+                    await c.login(facade)
+
+                    var dataSetPermId = await c.createDataSet(facade, "UNKNOWN", testContent)
+
+                    var files = await facade.getAfsServerFacade().list(dataSetPermId.getPermId(), "", true)
+
+                    files.sort((file1, file2) => {
+                        return file1.getPath().localeCompare(file2.getPath())
+                    })
+
+                    c.assertEqual(files.length, 2, "Number of files")
+
+                    c.assertFileEquals(files[0], {
+                        path: "/original",
+                        owner: dataSetPermId.getPermId(),
+                        name: "original",
+                        size: null,
+                        directory: true,
+                    })
+                    c.assertFileEquals(files[1], {
+                        path: "/original/test",
+                        owner: dataSetPermId.getPermId(),
+                        name: "test",
+                        size: testContent.length,
+                        directory: false,
+                    })
+
+                    var content = await facade.getAfsServerFacade().read(dataSetPermId.getPermId(), "/original/test", 0, testContent.length)
+
+                    c.assertEqual(await content.text(), testContent)
+
+                    c.finish()
+                } catch (error) {
+                    c.fail(error)
+                    c.finish()
+                }
+            })
+
             QUnit.test("write() without transaction", async function (assert) {
                 await testWrite(assert, false)
             })

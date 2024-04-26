@@ -35,7 +35,11 @@ def process(tr, parameters, tableBuilder):
 		if dataSetType is None:
 			dataSetType = "ALIGNMENT"
 
-		dataSet = createDataSet(tr, sample, dataSetType)
+		data = parameters.get("data")
+		if data is None:
+			data = ""
+
+		dataSet = createDataSet(tr, sample, dataSetType, data)
 		
 		tableBuilder.addHeader("DATA_SET_CODE")
 		row = tableBuilder.addRow()
@@ -78,8 +82,17 @@ def findSample(tr):
 	samples = tr.getSearchService().searchForSamples(criteria)
 	return samples[0]
 	
-def createDataSet(tr, sample, dataSetType):
+def createDataSet(tr, sample, dataSetType, data):
 	dataSet = tr.createNewDataSet(dataSetType)
 	dataSet.setSample(sample)
-	tr.createNewFile(dataSet, "test")
+	newFilePath = tr.createNewFile(dataSet, "test")
+	newFile = None
+
+	try:
+		newFile = open(newFilePath,'w')
+		newFile.write(data)
+	finally:
+		if newFile:
+			newFile.close()
+
 	return dataSet

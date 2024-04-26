@@ -1,6 +1,5 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-04-16 11:00:10.
 
 export default openbis;
 
@@ -4734,6 +4733,8 @@ export namespace openbis {
 
         isDisallowDeletion(): boolean;
 
+        isManagedInternally(): boolean;
+
         setCode(arg0: string): void;
 
         setDescription(arg0: string): void;
@@ -4745,6 +4746,8 @@ export namespace openbis {
         setMainDataSetPath(arg0: string): void;
 
         setMainDataSetPattern(arg0: string): void;
+
+        setManagedInternally(arg0: boolean): void;
 
         setMetaData(arg0: { [index: string]: string }): void;
 
@@ -4782,6 +4785,8 @@ export namespace openbis {
 
         isDisallowDeletion(): boolean;
 
+        isManagedInternally(): boolean;
+
         setCode(arg0: string): void;
 
         setDescription(arg0: string): void;
@@ -4791,6 +4796,8 @@ export namespace openbis {
         setMainDataSetPath(arg0: string): void;
 
         setMainDataSetPattern(arg0: string): void;
+
+        setManagedInternally(arg0: boolean): void;
 
         setMetaData(arg0: { [index: string]: string }): void;
 
@@ -8662,11 +8669,15 @@ export namespace openbis {
 
         getValidationPlugin(): Plugin;
 
+        isManagedInternally(): boolean;
+
         setCode(arg0: string): void;
 
         setDescription(arg0: string): void;
 
         setFetchOptions(arg0: ExperimentTypeFetchOptions): void;
+
+        setManagedInternally(arg0: boolean): void;
 
         setMetaData(arg0: { [index: string]: string }): void;
 
@@ -8698,9 +8709,13 @@ export namespace openbis {
 
         getValidationPluginId(): IPluginId;
 
+        isManagedInternally(): boolean;
+
         setCode(arg0: string): void;
 
         setDescription(arg0: string): void;
+
+        setManagedInternally(arg0: boolean): void;
 
         setMetaData(arg0: { [index: string]: string }): void;
 
@@ -11049,9 +11064,13 @@ export namespace openbis {
 
         getValidationPluginId(): IPluginId;
 
+        isManagedInternally(): boolean;
+
         setCode(arg0: string): void;
 
         setDescription(arg0: string): void;
+
+        setManagedInternally(arg0: boolean): void;
 
         setPropertyAssignments(arg0: PropertyAssignmentCreation[]): void;
 
@@ -12828,11 +12847,15 @@ export namespace openbis {
 
         getValidationPlugin(): Plugin;
 
+        isManagedInternally(): boolean;
+
         setCode(arg0: string): void;
 
         setDescription(arg0: string): void;
 
         setFetchOptions(arg0: MaterialTypeFetchOptions): void;
+
+        setManagedInternally(arg0: boolean): void;
 
         setModificationDate(arg0: number): void;
 
@@ -12860,9 +12883,13 @@ export namespace openbis {
 
         getValidationPluginId(): IPluginId;
 
+        isManagedInternally(): boolean;
+
         setCode(arg0: string): void;
 
         setDescription(arg0: string): void;
+
+        setManagedInternally(arg0: boolean): void;
 
         setPropertyAssignments(arg0: PropertyAssignmentCreation[]): void;
 
@@ -16442,6 +16469,8 @@ export namespace openbis {
 
         getSemanticAnnotations(): SemanticAnnotation[];
 
+        isManagedInternally(): boolean;
+
         isMandatory(): boolean;
 
         isSemanticAnnotationsInherited(): boolean;
@@ -16455,6 +16484,8 @@ export namespace openbis {
         setEntityType(arg0: IEntityType): void;
 
         setFetchOptions(arg0: PropertyAssignmentFetchOptions): void;
+
+        setManagedInternally(arg0: boolean): void;
 
         setMandatory(arg0: boolean): void;
 
@@ -16502,6 +16533,8 @@ export namespace openbis {
 
         getSection(): string;
 
+        isManagedInternally(): boolean;
+
         isMandatory(): boolean;
 
         isShowInEditView(): boolean;
@@ -16511,6 +16544,8 @@ export namespace openbis {
         isUnique(): boolean;
 
         setInitialValueForExistingEntities(arg0: string): void;
+
+        setManagedInternally(arg0: boolean): void;
 
         setMandatory(arg0: boolean): void;
 
@@ -19403,6 +19438,8 @@ export namespace openbis {
 
         isListable(): boolean;
 
+        isManagedInternally(): boolean;
+
         isShowContainer(): boolean;
 
         isShowParentMetadata(): boolean;
@@ -19422,6 +19459,8 @@ export namespace openbis {
         setGeneratedCodePrefix(arg0: string): void;
 
         setListable(arg0: boolean): void;
+
+        setManagedInternally(arg0: boolean): void;
 
         setMetaData(arg0: { [index: string]: string }): void;
 
@@ -19469,6 +19508,8 @@ export namespace openbis {
 
         isListable(): boolean;
 
+        isManagedInternally(): boolean;
+
         isShowContainer(): boolean;
 
         isShowParentMetadata(): boolean;
@@ -19486,6 +19527,8 @@ export namespace openbis {
         setGeneratedCodePrefix(arg0: string): void;
 
         setListable(arg0: boolean): void;
+
+        setManagedInternally(arg0: boolean): void;
 
         setMetaData(arg0: { [index: string]: string }): void;
 
@@ -24116,6 +24159,8 @@ export namespace openbis {
 
         getVocabulary(): Vocabulary;
 
+        isManagedInternally(): boolean;
+
         isOfficial(): boolean;
 
         setCode(arg0: string): void;
@@ -24125,6 +24170,8 @@ export namespace openbis {
         setFetchOptions(arg0: VocabularyTermFetchOptions): void;
 
         setLabel(arg0: string): void;
+
+        setManagedInternally(arg0: boolean): void;
 
         setModificationDate(arg0: number): void;
 
@@ -24160,6 +24207,8 @@ export namespace openbis {
 
         getVocabularyId(): IVocabularyId;
 
+        isManagedInternally(): boolean;
+
         isOfficial(): boolean;
 
         setCode(arg0: string): void;
@@ -24167,6 +24216,8 @@ export namespace openbis {
         setDescription(arg0: string): void;
 
         setLabel(arg0: string): void;
+
+        setManagedInternally(arg0: boolean): void;
 
         setOfficial(arg0: boolean): void;
 
@@ -24332,11 +24383,15 @@ export namespace openbis {
 
         getVocabularyTermId(): IVocabularyTermId;
 
+        isManagedInternally(): FieldUpdateValue<boolean>;
+
         isOfficial(): FieldUpdateValue<boolean>;
 
         setDescription(arg0: string): void;
 
         setLabel(arg0: string): void;
+
+        setManagedInternally(arg0: boolean): void;
 
         setOfficial(arg0: boolean): void;
 

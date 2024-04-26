@@ -23,6 +23,7 @@ dependencies {
 apply plugin: "cz.habarta.typescript-generator"
 
 generateTypeScript {
+    noFileComment = true
     jsonLibrary = 'jackson2'
     classPatterns = [
             'ch.ethz.sis.openbis.generic.asapi.v3.dto.**',
