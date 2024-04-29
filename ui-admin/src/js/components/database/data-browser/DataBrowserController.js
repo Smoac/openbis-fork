@@ -217,39 +217,6 @@ export default class DataBrowserController extends ComponentController {
     return dataArray
   }
 
-  async downloadAndSaveFile(file, onProgressUpdate) {
-    try {
-      const fileHandle = await window.showSaveFilePicker(
-        {
-          startIn: 'downloads',
-          id: 'download-file-picker',
-          suggestedName: file.name
-        })
-      const writable = await fileHandle.createWritable()
-
-      try {
-        let offset = 0
-
-        const size = file.size
-        while (offset < size) {
-          const chunk = await this._download(file, offset)
-          await writable.write(chunk)
-          offset += CHUNK_SIZE
-
-          const progress = Math.round((offset / size) * 100)
-          onProgressUpdate(Math.min(progress, 100))
-        }
-      } finally {
-        onProgressUpdate(100)
-        await writable.close()
-      }
-    } catch (error) {
-      if (error.name !== 'AbortError') {
-        throw error
-      }
-    }
-  }
-
   async _download(file, offset) {
     const limit = Math.min(CHUNK_SIZE, file.size - offset)
     return await openbis.read(this.owner, file.path, offset, limit)

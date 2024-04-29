@@ -340,15 +340,12 @@ class DataBrowser extends React.Component {
   }
 
   async downloadFile(file) {
-    if ('showSaveFilePicker' in window) {
-      try {
-        this.setState({ loading: true, progress: 0 })
-        await this.controller.downloadAndSaveFile(file, this.updateProgress)
-      } finally {
-        this.setState({ loading: false, progress: 0 })
-      }
-    } else {
-      this.openErrorDialog(messages.get(messages.DOWNLOADS_NOT_SUPPORTED))
+    try {
+      this.setState({ loading: true, progress: 0 })
+      const blob = await this.fileToBlob(file)
+      this.downloadBlob(blob, file.name)
+    } finally {
+      this.setState({ loading: false, progress: 0 })
     }
   }
 
@@ -366,7 +363,7 @@ class DataBrowser extends React.Component {
   }
 
   async fileToBlob(file) {
-    const dataArray = await this.controller.downloadFile(file)
+    const dataArray = await this.controller.download(file)
     return new Blob(dataArray, { type: this.inferMimeType(file.path) })
   }
 
