@@ -100,26 +100,53 @@ When registering new properties, the fields below need to be filled in.
 7.  **Mandatory**: Field can be set as mandatory.
  
 
+### Additional fields
+Depending on the property types, additional optional features may be included.
+
+![](img/new-property-additional.png)
+
+1. **Multivalued**. true/false. Whether given property should be able to hold multiple values of the same type. Every single value **Note:** ELN UI is not yet supporting input for all multivalue types.
+2. **Unique**. true/false. Enables validation of value inserted into this property to be unique among all entities of this type.
+3. **Pattern Type**. NONE/PATTERN/RANGES/VALUES. Selection of pattern validation for values inserted into this property
+4. **Pattern**. text field. Validation rules to validate value of the given property.
+ 
+
 ### Property Data Types
  
 
 ![](img/property-types.png)
 
-
-1.  **BOOLEAN**: yes or no
-2.  **CONTROLLEDVOCABULARY**: list of predefined values
-3.  **DATE**. Date field
-4.  **HYPERLINK**: URL
-5.  **INTEGER**: integer number
-6.  **MATERIAL**. Not used in ELN. It will be dismissed.
-7.  **MULTILINE\_VARCHAR**: long text. It is possible to enable a Rich
+1. **ARRAY_INTEGER**: comma-separated list of integers
+2. **ARRAY_REAL**: comma-separated list of decimal numbers
+3. **ARRAY_STRING**: comma-separated list of string values
+4. **ARRAY_TIMESTAMP**: comma-separated list of dates with timestamps
+5. **BOOLEAN**: yes or no
+6. **CONTROLLEDVOCABULARY**: list of predefined values
+7. **DATE**. Date field
+8. **HYPERLINK**: URL
+9. **INTEGER**: integer number
+10. **JSON**: json-validated text field
+11. **MATERIAL**. Not used in ELN. It will be dismissed.
+12. **MULTILINE\_VARCHAR**: long text. It is possible to enable a Rich
     Text Editor for this type of property. This is described
     here: [Enable Rich Text Editor or Spreadsheet Widgets](./new-entity-type-registration.md#enable-rich-text-editor-or-spreadsheet-widgets)
-8.  **REAL**: decimal number
-9.  **OBJECT**. 1-1 connection to a specific object type.
+12. **OBJECT**. 1-1 connection to a specific object type. 
+13. **REAL**: decimal number
 10. **TIMESTAMP**: date with timestamp
 11. **VARCHAR**: one-line text
 12. **XML**: to be used by *Managed Properties* (see [openBIS Managed Properties](../properties-handled-by-scripts.md#managed-properties) and for *Spreadsheet component*s, as described here:[Enable Rich Text Editor or Spreadsheet Widgets](./new-entity-type-registration.md#enable-rich-text-editor-or-spreadsheet-widgets)
+ 
+
+
+### Pattern Validation
+
+![](img/new-property-pattern-validation.png)
+
+Some property types allow to specify a pattern to validate values of a property, there are a few pattern types that can be specified:
+1. **NONE**: Disables pattern validation
+2. **PATTERN**: Allows to specify RegExp.
+3. **RANGES**: Comma-separated list of strings in quotes, e.g "a", "b", "c"
+4. **VALUES**: Comma-separated list of ranges in %d-%d format, e.g 1-10, 12-15
  
 
 ### Considerations on properties registration
@@ -144,9 +171,9 @@ field.
 
 Existing Vocabularies can be visualised from the Types -&gt;
 Vocabularies Tab. Vocabularies starting with the “**$**” symbol are
-internal: they cannot be deleted and their terms cannot be deleted.
-However, it is possible to add new terms to these vocabularies and these
-can also be deleted.
+internal: they cannot be deleted and their terms annotated with the “**$**” 
+symbol cannot be deleted. However, it is possible to add new terms 
+to these vocabularies and these can also be deleted.
 
 
 New Vocabularies can be added, by clicking the **Add** button at the

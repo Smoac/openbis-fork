@@ -76,9 +76,9 @@ public class UpdateDataSetTypeExecutor
     }
 
     @Override
-    protected void checkAccess(IOperationContext context, IEntityTypeId id, DataSetTypePE entity)
+    protected void checkAccessTypeSpecific(IOperationContext context, IEntityTypeId id, DataSetTypePE entity, DataSetTypeUpdate update)
     {
-        authorizationExecutor.canUpdate(context);
+        authorizationExecutor.canUpdate(context, entity, update);
     }
 
 }

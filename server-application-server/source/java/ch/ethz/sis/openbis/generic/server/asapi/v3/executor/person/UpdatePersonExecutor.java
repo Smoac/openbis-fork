@@ -94,7 +94,7 @@ public class UpdatePersonExecutor
     }
 
     @Override
-    protected void checkAccess(IOperationContext context, IPersonId id, PersonPE entity)
+    protected void checkAccess(IOperationContext context, IPersonId id, PersonPE entity, PersonUpdate update)
     {
         if (entity.isActive() == false)
         {

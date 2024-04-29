@@ -77,6 +77,7 @@ public abstract class EntityTypePropertyTypePE extends HibernateAbstractRegistra
     private Date modificationDate;
 
     private boolean unique;
+    private boolean managedInternallyNamespace;
 
     final public static <T extends EntityTypePropertyTypePE> T createEntityTypePropertyType(
             final EntityKind entityKind)
@@ -193,6 +194,18 @@ public abstract class EntityTypePropertyTypePE extends HibernateAbstractRegistra
     public void setManagedInternally(final boolean managedInternally)
     {
         this.managedInternally = managedInternally;
+    }
+
+    @NotNull
+    @Column(name = ColumnNames.IS_MANAGED_INTERNALLY_NAMESPACE)
+    public boolean isManagedInternallyNamespace()
+    {
+        return managedInternallyNamespace;
+    }
+
+    public void setManagedInternallyNamespace(final boolean managedInternallyNamespace)
+    {
+        this.managedInternallyNamespace = managedInternallyNamespace;
     }
 
     @Column(name = ColumnNames.ORDINAL_COLUMN)

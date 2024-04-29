@@ -21,6 +21,10 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -64,7 +68,7 @@ public abstract class AbstractCreateEntityTypeExecutor<CREATION extends IEntityT
 
     @Autowired
     private CreatePropertyAssignmentsExecutor createPropertyAssignmentsExecutor;
-    
+
     @Autowired
     private SetEntityTypeValidationScriptExecutor setEntityTypeValidationScriptExecutor;
 
@@ -81,30 +85,32 @@ public abstract class AbstractCreateEntityTypeExecutor<CREATION extends IEntityT
     protected abstract void defineType(IOperationContext context, TYPE type);
 
     @Override
-    protected List<TYPE_PE> createEntities(final IOperationContext context, CollectionBatch<CREATION> typeCreations)
+    protected List<TYPE_PE> createEntities(final IOperationContext context,
+            CollectionBatch<CREATION> typeCreations)
     {
         final List<TYPE_PE> typePEs = new LinkedList<TYPE_PE>();
 
         new CollectionBatchProcessor<CREATION>(context, typeCreations)
+        {
+            @Override
+            public void process(CREATION typeCreation)
             {
-                @Override
-                public void process(CREATION typeCreation)
-                {
-                    TYPE_PE typePE = createType(context, typeCreation);
-                    typePEs.add(typePE);
+                TYPE_PE typePE = createType(context, typeCreation);
+                typePEs.add(typePE);
 
-                    String entityTypeCode = typeCreation.getCode();
-                    List<PropertyAssignmentCreation> propertyAssignments = typeCreation.getPropertyAssignments();
-                    createPropertyAssignmentsExecutor.createPropertyAssignments(context, entityTypeCode, 
-                            propertyAssignments, getPEEntityKind());
-                }
+                String entityTypeCode = typeCreation.getCode();
+                List<PropertyAssignmentCreation> propertyAssignments =
+                        typeCreation.getPropertyAssignments();
+                createPropertyAssignmentsExecutor.createPropertyAssignments(context, entityTypeCode,
+                        propertyAssignments, getPEEntityKind());
+            }
 
-                @Override
-                public IProgress createProgress(CREATION object, int objectIndex, int totalObjectCount)
-                {
-                    return new CreateProgress(object, objectIndex, totalObjectCount);
-                }
-            };
+            @Override
+            public IProgress createProgress(CREATION object, int objectIndex, int totalObjectCount)
+            {
+                return new CreateProgress(object, objectIndex, totalObjectCount);
+            }
+        };
 
         return typePEs;
     }
@@ -115,18 +121,21 @@ public abstract class AbstractCreateEntityTypeExecutor<CREATION extends IEntityT
         TYPE type = newType();
         type.setCode(typeCreation.getCode());
         type.setDescription(typeCreation.getDescription());
+        type.setManagedInternally(typeCreation.isManagedInternally());
 
         fillTypeSpecificFields(type, typeCreation);
 
         defineType(context, type);
 
-        return (TYPE_PE) daoFactory.getEntityTypeDAO(getDAOEntityKind()).tryToFindEntityTypeByCode(typeCreation.getCode());
+        return (TYPE_PE) daoFactory.getEntityTypeDAO(getDAOEntityKind())
+                .tryToFindEntityTypeByCode(typeCreation.getCode());
     }
 
     @Override
     protected EntityTypePermId createPermId(IOperationContext context, TYPE_PE entity)
     {
-        return new EntityTypePermId(entity.getCode(), EntityKindConverter.convert(entity.getEntityKind()));
+        return new EntityTypePermId(entity.getCode(),
+                EntityKindConverter.convert(entity.getEntityKind()));
     }
 
     @Override
@@ -138,6 +147,18 @@ public abstract class AbstractCreateEntityTypeExecutor<CREATION extends IEntityT
         }
 
         checkTypeSpecificFields(creation);
+
+        if (!creation.isManagedInternally() && creation.getPropertyAssignments() != null)
+        {
+            for (PropertyAssignmentCreation assignmentCreation : creation.getPropertyAssignments())
+            {
+                if (assignmentCreation.isManagedInternally())
+                {
+                    throw new UserFailureException(
+                            "Only internal entity types can have internal property assignments!");
+                }
+            }
+        }
 
         EntityTypeUtils.checkPropertyAssignmentCreations(creation.getPropertyAssignments());
     }
@@ -152,27 +173,56 @@ public abstract class AbstractCreateEntityTypeExecutor<CREATION extends IEntityT
     @Override
     protected void checkAccess(IOperationContext context, TYPE_PE entity)
     {
-        // nothing to do
+        checkAccessTypeSpecific(context, entity);
+        if (!isSystemUser(context.getSession()))
+        {
+            for (EntityTypePropertyTypePE propertyAssignments : entity.getEntityTypePropertyTypes())
+            {
+                if (propertyAssignments.isManagedInternally())
+                {
+                    throw new AuthorizationFailureException(
+                            "Internal property assignments can be managed only by the system user.");
+                }
+            }
+
+        }
+    }
+
+    protected abstract void checkAccessTypeSpecific(IOperationContext context, TYPE_PE entity);
+
+    private boolean isSystemUser(Session session)
+    {
+        PersonPE user = session.tryGetPerson();
+
+        if (user == null)
+        {
+            throw new AuthorizationFailureException(
+                    "Could not check access because the current session does not have any user assigned.");
+        } else
+        {
+            return user.isSystemUser();
+        }
     }
 
     @Override
     protected void updateBatch(IOperationContext context, MapBatch<CREATION, TYPE_PE> batch)
     {
         IPluginIdProvider<CREATION> pluginIdProvider = new IPluginIdProvider<CREATION>()
+        {
+            @Override
+            public IPluginId getPluginId(CREATION pluginIdHolder)
             {
-                @Override
-                public IPluginId getPluginId(CREATION pluginIdHolder)
-                {
-                    return pluginIdHolder.getValidationPluginId();
-                }
+                return pluginIdHolder.getValidationPluginId();
+            }
 
-                @Override
-                public boolean isModified(CREATION pluginIdHolder)
-                {
-                    return true;
-                }
-            };
-        setEntityTypeValidationScriptExecutor.setValidationPlugin(context, batch, pluginIdProvider, getPEEntityKind());
+            @Override
+            public boolean isModified(CREATION pluginIdHolder)
+            {
+                return true;
+            }
+        };
+        setEntityTypeValidationScriptExecutor.setValidationPlugin(context, batch, pluginIdProvider,
+                getPEEntityKind());
     }
 
     @Override

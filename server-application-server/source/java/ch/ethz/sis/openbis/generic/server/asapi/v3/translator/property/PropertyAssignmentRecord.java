@@ -54,4 +54,7 @@ public class PropertyAssignmentRecord extends ObjectBaseRecord
     public Long script_id;
 
     public Boolean is_unique;
+
+    // IS_MANAGED_INTERNALLY_NAMESPACE
+    public Boolean is_managed_internally_assignment;
 }

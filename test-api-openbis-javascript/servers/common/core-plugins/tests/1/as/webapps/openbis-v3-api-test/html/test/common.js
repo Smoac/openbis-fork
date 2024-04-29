@@ -98,10 +98,11 @@ define([ 'jquery', 'underscore'], function($, _) {
 			});
 		}.bind(this);
 
-		this.createDataSet = function(facade, dataSetType) {
+		this.createDataSet = function(facade, dataSetType, data) {
 			var c = this;
 			return this.getResponseFromJSTestAggregationService(facade, {
-				"dataSetType" : dataSetType
+				"dataSetType" : dataSetType,
+                "data" : data
 			}, function(response) {
 				return new dtos.DataSetPermId(response.result.rows[0][0].value);
 			});

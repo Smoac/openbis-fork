@@ -73,6 +73,7 @@ public class MaterialTypeTranslator
         result.setModificationDate(entityTypeOrNull.getModificationDate());
         result.setValidationScript(ScriptTranslator.translate(entityTypeOrNull
                 .getValidationScript()));
+        result.setManagedInternally(entityTypeOrNull.isManagedInternally());
         return result;
     }
 

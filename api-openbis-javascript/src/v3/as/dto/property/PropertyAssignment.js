@@ -19,6 +19,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.registrationDate = null;
 		prototype.plugin = null;
 		prototype.unique = null;
+		prototype.managedInternally = null;
 
 		prototype.getFetchOptions = function() {
 			return this.fetchOptions;
@@ -133,6 +134,12 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
         };
 		prototype.isUnique = function() {
             return this.unique;
+        };
+        prototype.isManagedInternally = function() {
+            return this.managedInternally;
+        };
+        prototype.setManagedInternally = function(managedInternally) {
+            this.managedInternally = managedInternally;
         };
 	}, {
 		fetchOptions : "PropertyAssignmentFetchOptions",

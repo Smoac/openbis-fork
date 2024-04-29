@@ -75,6 +75,9 @@ public class DataSetType implements Serializable, ICodeHolder, IDescriptionHolde
     @JsonProperty
     private Map<String, String> metaData;
 
+    @JsonProperty
+    private Boolean managedInternally;
+
     // Method automatically generated with DtoGenerator
     @JsonIgnore
     public DataSetTypeFetchOptions getFetchOptions()
@@ -233,7 +236,17 @@ public class DataSetType implements Serializable, ICodeHolder, IDescriptionHolde
         this.metaData = metaData;
     }
 
-    // Method automatically generated with DtoGenerator
+    @JsonIgnore
+    public Boolean isManagedInternally()
+    {
+        return managedInternally;
+    }
+
+    public void setManagedInternally(Boolean managedInternally)
+    {
+        this.managedInternally = managedInternally;
+    }
+
     @Override
     public String toString()
     {

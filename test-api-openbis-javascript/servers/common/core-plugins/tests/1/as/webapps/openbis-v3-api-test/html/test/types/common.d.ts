@@ -22,6 +22,7 @@ export namespace common {
             gitCommitHash: string,
             gitRepositoryId: string
         ): jquery.Promise<openbis.DataSetPermId>
+        createDataSet(facade: openbis.openbis, dataSetType, data): Promise<openbis.DataSetPermId>
         createDataSet(facade: openbis.openbis, dataSetType): Promise<openbis.DataSetPermId>
         waitUntilEmailWith(facade: openbis.openbis, textSnippet, timeout): jquery.JQueryPromise<any>
         waitUntilIndexed(facade: openbis.openbis, dataSetCode, timeout): jquery.JQueryPromise<unknown>

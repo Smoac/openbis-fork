@@ -690,6 +690,9 @@ var Util = new function() {
 	
 	this.getDisplayNameFromCode = function(openBISCode) {
 		var normalizedCodeParts = openBISCode.toLowerCase().split('_');
+		if(normalizedCodeParts.length > 0 && normalizedCodeParts[0] && normalizedCodeParts[0].startsWith("$")) {
+		    normalizedCodeParts[0] = normalizedCodeParts[0].substring(1);
+		}
 		var displayName = "";
 		for(var i = 0; i < normalizedCodeParts.length; i++) {
 			if(i > 0) {

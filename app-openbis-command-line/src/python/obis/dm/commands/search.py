@@ -202,9 +202,7 @@ class Search(OpenbisCommand):
 
         if self.recursive:
             click_echo("Recursive search enabled. It may take time to produce results.")
-            output2 = _dfs_samples(results['objects'], 'identifier', self._get_sample_with_datasets)
-
-            search_results = output2
+            search_results = _dfs_samples(results['objects'], 'identifier', self._get_sample_with_datasets)
         else:
             if raw_response:
                 search_results = results['objects']
@@ -264,8 +262,8 @@ class Search(OpenbisCommand):
                                                                    parsed=True)
             else:
                 if "dataset_id" in self.filters:
-                    results = self.openbis.get_sample(self.filters['dataset_id']).get_datasets(
-                        attrs=["parents", "children"], props=self.props)
+                    results = self.openbis.get_datasets(self.filters['dataset_id'],
+                                                        attrs=["parents", "children"], props=self.props)
                 else:
                     args = self._get_filtering_args(self.props, ["parents", "children"])
                     results = self.openbis.get_datasets(**args)

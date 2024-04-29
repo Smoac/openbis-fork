@@ -32,6 +32,8 @@ public class BasicEntityType extends AbstractType
 
     private Script validationScript;
 
+    private boolean managedInternally;
+
     public BasicEntityType()
     {
     }
@@ -59,6 +61,16 @@ public class BasicEntityType extends AbstractType
     public void setValidationScript(Script validationScript)
     {
         this.validationScript = validationScript;
+    }
+
+    public boolean isManagedInternally()
+    {
+        return managedInternally;
+    }
+
+    public void setManagedInternally(final boolean managedInternally)
+    {
+        this.managedInternally = managedInternally;
     }
 
     @Override

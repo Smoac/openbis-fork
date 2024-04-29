@@ -221,11 +221,12 @@ class AbstractDataMgmt(metaclass=abc.ABCMeta):
         return
 
     @abc.abstractmethod
-    def upload(self, sample_id, data_set_type, files):
+    def upload(self, sample_id, data_set_type, files, properties=None):
         """Upload files/directories into a new data set.
         :param sample_id: permId or sample path of the parent sample
         :param data_set_type: type of created data set
         :param files: list of files/directories to upload
+        :param properties: list of properties to set
         """
         return
 
@@ -641,8 +642,8 @@ class PhysicalDataMgmt(AbstractDataMgmt):
         cmd = DownloadPhysical(self, data_set_id, from_file, file, skip_integrity_check)
         return cmd.run()
 
-    def upload(self, sample_id, data_set_type, files):
-        cmd = Upload(self, sample_id, data_set_type, files)
+    def upload(self, sample_id, data_set_type, files, properties=None):
+        cmd = Upload(self, sample_id, data_set_type, files, properties)
         return cmd.run()
 
     def search_object(self, filters, recursive, save):

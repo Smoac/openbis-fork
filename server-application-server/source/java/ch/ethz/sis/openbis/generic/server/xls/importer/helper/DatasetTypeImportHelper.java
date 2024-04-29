@@ -126,6 +126,7 @@ public class DatasetTypeImportHelper extends BasicImportHelper
         {
             creation.setValidationPluginId(new PluginPermId(ImportUtils.getScriptName(creation.getCode(), validationScript)));
         }
+        creation.setManagedInternally(ImportUtils.isInternalNamespace(creation.getCode()));
 
         delayedExecutor.createDataSetType(creation, page, line);
     }

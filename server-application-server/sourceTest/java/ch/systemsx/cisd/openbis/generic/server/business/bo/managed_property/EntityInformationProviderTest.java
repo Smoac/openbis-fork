@@ -91,7 +91,7 @@ public class EntityInformationProviderTest extends AbstractBOTest
         assertEquals(dataSet.getIdentifier(), dIdentifier);
 
         String mIdentifier = provider.getIdentifier(materialLink);
-        assertEquals(MaterialIdentifier.print(mCode, mTypeCode), mIdentifier);
+        assertEquals(MaterialIdentifier.print(mCode, mTypeCode.toUpperCase()), mIdentifier);
 
         // get identifiers of missing entities
         final String fakePermId = "fakePermId";

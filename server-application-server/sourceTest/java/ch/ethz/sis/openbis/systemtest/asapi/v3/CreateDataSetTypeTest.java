@@ -24,11 +24,9 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetTypeCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 
@@ -73,7 +71,8 @@ public class CreateDataSetTypeTest extends CreateEntityTypeTest<DataSetTypeCreat
         fo.withPropertyAssignments().withRegistrator();
 
         final EntityTypePermId permId = new EntityTypePermId(code);
-        return v3api.getDataSetTypes(sessionToken, Collections.singletonList(permId), fo).get(permId);
+        return v3api.getDataSetTypes(sessionToken, Collections.singletonList(permId), fo)
+                .get(permId);
     }
 
     @Override
@@ -110,8 +109,8 @@ public class CreateDataSetTypeTest extends CreateEntityTypeTest<DataSetTypeCreat
         creation.setCode("META_DATA_TEST_1");
         creation.setMetaData(Map.of("key", "value"));
 
-
-        List<EntityTypePermId> ids = v3api.createDataSetTypes(sessionToken, Arrays.asList(creation));
+        List<EntityTypePermId> ids =
+                v3api.createDataSetTypes(sessionToken, Arrays.asList(creation));
 
         DataSetType type = getType(sessionToken, "META_DATA_TEST_1");
 

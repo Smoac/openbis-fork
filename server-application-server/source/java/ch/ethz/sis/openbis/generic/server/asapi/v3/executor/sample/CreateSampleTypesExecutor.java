@@ -15,6 +15,8 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.sample;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -76,6 +78,7 @@ public class CreateSampleTypesExecutor extends AbstractCreateEntityTypeExecutor<
         type.setShowParents(creation.isShowParents());
         type.setShowParentMetadata(creation.isShowParentMetadata());
         type.setMetaData(creation.getMetaData());
+        type.setManagedInternally(creation.isManagedInternally());
     }
 
     @Override
@@ -89,7 +92,18 @@ public class CreateSampleTypesExecutor extends AbstractCreateEntityTypeExecutor<
     @Override
     protected void checkAccess(IOperationContext context)
     {
-        authorizationExecutor.canCreate(context);
+    }
+
+    @Override
+    protected void checkAccessTypeSpecific(IOperationContext context, SampleTypePE entityType)
+    {
+        authorizationExecutor.canCreate(context, entityType);
+    }
+
+    @Override
+    protected IObjectId getId(SampleTypePE entityType)
+    {
+        return new EntityTypePermId(entityType.getPermId());
     }
 
 }

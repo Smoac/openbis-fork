@@ -82,7 +82,7 @@ public interface IVocabularyBO extends IEntityBusinessObject
      * @param previousTermOrdinal ordinal of term after which new terms should be added
      */
     VocabularyTermPE addNewUnofficialTerm(String code, String label, String description,
-            Long previousTermOrdinal);
+            Long previousTermOrdinal, boolean isManagedInternally);
 
     /**
      * Deletes the specified terms from a loaded vocabulary and replaces terms which are used.

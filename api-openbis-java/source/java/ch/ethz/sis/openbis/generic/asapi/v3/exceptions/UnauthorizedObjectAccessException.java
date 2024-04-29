@@ -39,6 +39,12 @@ public class UnauthorizedObjectAccessException extends UserFailureException
         this.objectId = id;
     }
 
+    public UnauthorizedObjectAccessException(IObjectId id, String message)
+    {
+        super("Access denied to object with " + id.getClass().getSimpleName() + " = [" + id + "]. " + message);
+        this.objectId = id;
+    }
+
     public UnauthorizedObjectAccessException(List<? extends IObjectId> ids)
     {
         super("Access denied to at least one of the " + ids.size() + " = [" + abbreviate(ids, 100) + "].");

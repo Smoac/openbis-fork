@@ -25,6 +25,8 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -66,6 +68,19 @@ public class UpdateVocabularyTermExecutor implements IUpdateVocabularyTermExecut
 
         final Map<IVocabularyTermId, VocabularyTermPE> terms = getTermsMap(context, updates);
         final Map<IVocabularyTermId, VocabularyTermPE> previousTerms = getPreviousTermsMap(context, updates);
+
+        for (final VocabularyTermUpdate update : updates)
+        {
+            final VocabularyTermPE newTermPE = terms.get(update.getVocabularyTermId());
+            final VocabularyTermPE prevTermPE = previousTerms.get(update.getVocabularyTermId());
+
+            if(prevTermPE != null && ((newTermPE.isManagedInternally() && !prevTermPE.isManagedInternally())
+                    || (!newTermPE.isManagedInternally() && prevTermPE.isManagedInternally())))
+            {
+                throw new UserFailureException(
+                    "Internal management of vocabulary terms can not be changed.");
+            }
+        }
 
         IVocabularyTermBO termBO = businessObjectFactory.createVocabularyTermBO(context.getSession());
         List<VocabularyTermPermId> permIds = new ArrayList<VocabularyTermPermId>();

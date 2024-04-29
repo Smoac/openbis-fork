@@ -921,6 +921,8 @@ def download(ctx, data_set_id, from_file, file, skip_integrity_check):
 _upload_params = [
     click.option(
         '-f', '--file', "files", help='file or directory to upload.', required=True, multiple=True),
+    click.option(
+        '-p', '--property', "properties", help='property to set for the uploaded dataset.', required=False, multiple=True, default=[]),
     click.argument('sample_id'),
     click.argument('data_set_type'),
 ]
@@ -929,14 +931,14 @@ _upload_params = [
 @cli.command("upload", short_help="Upload files to form a data set.")
 @add_params(_upload_params)
 @click.pass_context
-def upload(ctx, sample_id, data_set_type, files):
+def upload(ctx, sample_id, data_set_type, files, properties):
     """ Creates data set under object and upload files to it.\n
     SAMPLE_ID       Unique identifier an object in OpenBIS.\n
     DATA_SET_TYPE   Newly created data set type.
     """
     ctx.obj['runner'] = DataMgmtRunner(ctx.obj, halt_on_error_log=False)
     ctx.obj['runner'].run("upload",
-                          lambda dm: dm.upload(sample_id, data_set_type, files))
+                          lambda dm: dm.upload(sample_id, data_set_type, files, properties))
 
 
 # clone

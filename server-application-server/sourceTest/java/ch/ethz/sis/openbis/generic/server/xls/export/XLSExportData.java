@@ -192,6 +192,21 @@ public class XLSExportData
                                     false
                             },
                             {
+                                    "export-sample-type-internal.xlsx",
+                                    Map.of(
+                                            "test", TEST_SCRIPT_CONTENT,
+                                            "test-dynamic", TEST_SCRIPT_CONTENT
+                                    ),
+                                    SampleTypeInternalExpectations.class,
+                                    List.of(new ExportablePermId(SAMPLE_TYPE,
+                                            new EntityTypePermId("$INTERNAL_ENTRY", EntityKind.SAMPLE))),
+                                    true,
+                                    null,
+                                    XLSExport.TextFormatting.PLAIN,
+                                    List.of(),
+                                    false
+                            },
+                            {
                                     "export-sample-type-compatible-with-import.xlsx",
                                     Map.of(
                                             "test", TEST_SCRIPT_CONTENT,
@@ -249,6 +264,18 @@ public class XLSExportData
                                     false
                             },
                             {
+                                    "export-experiment-type-internal.xlsx",
+                                    Map.of("test", TEST_SCRIPT_CONTENT),
+                                    ExperimentTypeInternalExpectations.class,
+                                    List.of(new ExportablePermId(EXPERIMENT_TYPE,
+                                            new EntityTypePermId("$INTERNAL_DEFAULT_EXPERIMENT", EntityKind.EXPERIMENT))),
+                                    true,
+                                    null,
+                                    XLSExport.TextFormatting.PLAIN,
+                                    List.of(),
+                                    false
+                            },
+                            {
                                     "export-experiment-type-filtered-attributes.xlsx",
                                     Map.of("test", TEST_SCRIPT_CONTENT),
                                     ExperimentTypeExpectations.class,
@@ -290,6 +317,18 @@ public class XLSExportData
                                     DataSetTypeExpectations.class,
                                     List.of(new ExportablePermId(DATASET_TYPE,
                                             new EntityTypePermId("ATTACHMENT", EntityKind.DATA_SET))),
+                                    true,
+                                    null,
+                                    XLSExport.TextFormatting.PLAIN,
+                                    List.of(),
+                                    false
+                            },
+                            {
+                                    "export-data-set-type-internal.xlsx",
+                                    Map.of(),
+                                    DataSetTypeInternalExpectations.class,
+                                    List.of(new ExportablePermId(DATASET_TYPE,
+                                            new EntityTypePermId("$INTERNAL_ATTACHMENT", EntityKind.DATA_SET))),
                                     true,
                                     null,
                                     XLSExport.TextFormatting.PLAIN,

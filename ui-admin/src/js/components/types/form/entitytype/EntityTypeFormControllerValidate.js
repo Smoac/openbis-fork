@@ -40,7 +40,12 @@ export default class EntityTypeFormControllerValidate extends PageControllerVali
   _validateType(validator, type) {
     const strategy = this._getStrategy()
     validator.validateNotEmpty(type, 'code', messages.get(messages.CODE))
-    validator.validateCode(type, 'code', messages.get(messages.CODE))
+
+    if(type.internal.value) {
+        validator.validateInternalCode(type, 'code', messages.get(messages.CODE))
+    } else {
+        validator.validateCode(type, 'code', messages.get(messages.CODE))
+    }
     strategy.validateTypeAttributes(validator, type)
     return validator.withErrors(type)
   }

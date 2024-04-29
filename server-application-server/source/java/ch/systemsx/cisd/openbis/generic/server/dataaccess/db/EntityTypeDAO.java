@@ -98,7 +98,10 @@ final class EntityTypeDAO extends AbstractTypeDAO<EntityTypePE> implements IEnti
         final HibernateTemplate hibernateTemplate = getHibernateTemplate();
 
         validatePE(entityType);
-        entityType.setCode(CodeConverter.tryToDatabase(entityType.getCode()));
+        String strippedCode = CodeConverter.tryToDatabase(entityType.getCode());
+        boolean isInternalNamespace = entityType.isManagedInternally();
+        entityType.setCode(strippedCode);
+        entityType.setManagedInternally(isInternalNamespace);
         hibernateTemplate.saveOrUpdate(entityType);
         hibernateTemplate.flush();
         if (operationLog.isInfoEnabled())

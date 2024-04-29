@@ -76,7 +76,7 @@ public class UpdateSemanticAnnotationExecutor extends
     }
 
     @Override
-    protected void checkAccess(IOperationContext context, ISemanticAnnotationId id, SemanticAnnotationPE entity)
+    protected void checkAccess(IOperationContext context, ISemanticAnnotationId id, SemanticAnnotationPE entity, SemanticAnnotationUpdate update)
     {
         authorizationExecutor.canUpdate(context, id, entity);
     }

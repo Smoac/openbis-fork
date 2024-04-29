@@ -110,10 +110,10 @@ public class GeneralInformationChangingService extends
     @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY_TERM)
     public void addUnofficialVocabularyTerm(String sessionToken, TechId vocabularyId, String code,
-            String label, String description, Long previousTermOrdinal)
+            String label, String description, Long previousTermOrdinal, boolean managedInternally)
     {
         server.addUnofficialVocabularyTerm(sessionToken, vocabularyId, code, label, description,
-                previousTermOrdinal);
+                previousTermOrdinal, managedInternally);
     }
 
     @Override
@@ -121,11 +121,11 @@ public class GeneralInformationChangingService extends
     @RolesAllowed(RoleWithHierarchy.PROJECT_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY_TERM)
     public void addUnofficialVocabularyTerm(String sessionToken, Long vocabularyId,
-            NewVocabularyTerm term)
+            NewVocabularyTerm term, boolean managedInternally)
     {
         TechId vocabularyTechId = new TechId(vocabularyId);
         server.addUnofficialVocabularyTerm(sessionToken, vocabularyTechId, term.getCode(),
-                term.getLabel(), term.getDescription(), term.getPreviousTermOrdinal());
+                term.getLabel(), term.getDescription(), term.getPreviousTermOrdinal(), managedInternally);
     }
 
     @Override

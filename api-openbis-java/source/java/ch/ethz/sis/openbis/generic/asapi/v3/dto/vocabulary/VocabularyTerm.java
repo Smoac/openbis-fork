@@ -73,6 +73,9 @@ public class VocabularyTerm implements Serializable, ICodeHolder, IDescriptionHo
     @JsonProperty
     private Date modificationDate;
 
+    @JsonProperty
+    private boolean managedInternally;
+
     // Method automatically generated with DtoGenerator
     @JsonIgnore
     public VocabularyTermFetchOptions getFetchOptions()
@@ -234,6 +237,17 @@ public class VocabularyTerm implements Serializable, ICodeHolder, IDescriptionHo
     public void setModificationDate(Date modificationDate)
     {
         this.modificationDate = modificationDate;
+    }
+
+    @JsonIgnore
+    public Boolean isManagedInternally()
+    {
+        return managedInternally;
+    }
+
+    public void setManagedInternally(boolean managedInternally)
+    {
+        this.managedInternally = managedInternally;
     }
 
     // Method automatically generated with DtoGenerator

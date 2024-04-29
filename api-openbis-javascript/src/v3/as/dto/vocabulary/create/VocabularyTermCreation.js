@@ -10,6 +10,7 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.description = null;
 		prototype.official = true;
 		prototype.previousTermId = null;
+		prototype.managedInternally = null;
 		prototype.getVocabularyId = function() {
 			return this.vocabularyId;
 		};
@@ -46,6 +47,12 @@ define([ "stjs", "util/Exceptions" ], function(stjs, exceptions) {
 		prototype.setPreviousTermId = function(previousTermId) {
 			this.previousTermId = previousTermId;
 		};
+		prototype.isManagedInternally = function() {
+            return this.managedInternally;
+        };
+        prototype.setManagedInternally = function(managedInternally) {
+            this.managedInternally = managedInternally;
+        };
 	}, {});
 	return VocabularyTermCreation;
 })

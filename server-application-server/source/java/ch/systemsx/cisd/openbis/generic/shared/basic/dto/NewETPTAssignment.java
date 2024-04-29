@@ -56,6 +56,9 @@ public class NewETPTAssignment implements Serializable
 
     private boolean unique;
 
+    // IS_MANAGED_INTERNALLY_NAMESPACE
+    private boolean isManagedInternally;
+
     public NewETPTAssignment()
     {
     }
@@ -233,5 +236,15 @@ public class NewETPTAssignment implements Serializable
 
     public void setUnique(boolean unique) {
         this.unique = unique;
+    }
+
+    public boolean isManagedInternally()
+    {
+        return isManagedInternally;
+    }
+
+    public void setManagedInternally(boolean managedInternally)
+    {
+        isManagedInternally = managedInternally;
     }
 }

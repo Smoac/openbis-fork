@@ -111,7 +111,7 @@ public class UpdateDataSetExecutor extends AbstractUpdateEntityExecutor<DataSetU
     }
 
     @Override
-    protected void checkAccess(IOperationContext context, IDataSetId id, DataPE entity)
+    protected void checkAccess(IOperationContext context, IDataSetId id, DataPE entity, DataSetUpdate update)
     {
         authorizationExecutor.canUpdate(context, id, entity);
     }

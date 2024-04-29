@@ -66,6 +66,7 @@ public class SampleTypeTranslator
         result.setModificationDate(sampleTypePE.getModificationDate());
         result.setValidationScript(ScriptTranslator.translate(sampleTypePE.getValidationScript()));
         result.setMetaData(sampleTypePE.getMetaData());
+        result.setManagedInternally(sampleTypePE.isManagedInternally());
         return result;
 
     }

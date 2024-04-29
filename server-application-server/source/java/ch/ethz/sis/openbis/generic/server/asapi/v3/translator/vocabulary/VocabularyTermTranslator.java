@@ -82,9 +82,10 @@ public class VocabularyTermTranslator extends AbstractCachingTranslator<Long, Vo
         TranslationResults relations = (TranslationResults) objectRelations;
         VocabularyTermBaseRecord baseRecord = relations.get(IVocabularyTermBaseTranslator.class, termId);
 
-        result.setPermId(new VocabularyTermPermId(baseRecord.code,
-                CodeConverter.tryToBusinessLayer(baseRecord.vocabularyCode, baseRecord.isManagedInternally)));
-        result.setCode(baseRecord.code);
+        String termCode = CodeConverter.tryToBusinessLayer(baseRecord.code, baseRecord.isManagedInternally);
+        result.setPermId(new VocabularyTermPermId(termCode,
+                CodeConverter.tryToBusinessLayer(baseRecord.vocabularyCode, baseRecord.isManagedInternallyVocabulary)));
+        result.setCode(termCode);
         result.setLabel(baseRecord.label);
         result.setDescription(baseRecord.description);
         result.setOrdinal(baseRecord.ordinal);
@@ -92,6 +93,7 @@ public class VocabularyTermTranslator extends AbstractCachingTranslator<Long, Vo
         // TODO: add modification date to vocabulary terms table
         result.setModificationDate(baseRecord.registrationDate);
         result.setRegistrationDate(baseRecord.registrationDate);
+        result.setManagedInternally(baseRecord.isManagedInternally);
 
         if (fetchOptions.hasRegistrator())
         {

@@ -34,6 +34,7 @@ The complete solution for managing your research data.
    Standalone </system-documentation/standalone/index>
    Docker </system-documentation/docker/index>
    Configuration </system-documentation/configuration/index>
+   Change Log </../CHANGELOG.md>
 
 User Documentation
 ^^^^^^^^^^^^^^^^^^

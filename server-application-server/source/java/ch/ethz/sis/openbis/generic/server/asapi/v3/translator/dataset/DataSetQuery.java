@@ -93,7 +93,7 @@ public interface DataSetQuery extends ObjectQuery
     public List<ObjectRelationRecord> getTypeIds(LongSet dataSetIds);
 
     @Select(sql = "select dt.id, dt.code, dt.description, dt.main_ds_pattern as mainDataSetPattern, dt.main_ds_path as mainDataSetPath, "
-            + "dt.deletion_disallow as disallowDeletion, dt.modification_timestamp as modificationDate, dt.meta_data as metaData from data_set_types dt where dt.id = any(?{1})", parameterBindings = {
+            + "dt.deletion_disallow as disallowDeletion, dt.modification_timestamp as modificationDate, dt.meta_data as metaData, dt.is_managed_internally as managedInternally from data_set_types dt where dt.id = any(?{1})", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<DataSetTypeBaseRecord> getTypes(LongSet dataSetTypeIds);
 
@@ -234,7 +234,7 @@ public interface DataSetQuery extends ObjectQuery
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<ObjectRelationRecord> getPropertyAssignmentIds(LongSet dataSetTypeIds);
 
-    @Select(sql = "select pt.code as prty_code, pt.is_managed_internally as prty_is_managed_internally, 'DATA_SET' as kind_code, dt.id as type_id, dt.code as type_code, dtpt.* from data_set_type_property_types dtpt, property_types pt, data_set_types dt where dtpt.id = any(?{1}) and dtpt.prty_id = pt.id and dtpt.dsty_id = dt.id", parameterBindings = {
+    @Select(sql = "select pt.code as prty_code, pt.is_managed_internally as prty_is_managed_internally, 'DATA_SET' as kind_code, dt.id as type_id, dt.code as type_code, dtpt.is_managed_internally_namespace as is_managed_internally_assignment, dtpt.* from data_set_type_property_types dtpt, property_types pt, data_set_types dt where dtpt.id = any(?{1}) and dtpt.prty_id = pt.id and dtpt.dsty_id = dt.id", parameterBindings = {
             LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<PropertyAssignmentRecord> getPropertyAssignments(LongSet dataSetTypePropertyTypeIds);
 

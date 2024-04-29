@@ -35,7 +35,7 @@ public abstract class AbstractProxy implements Worker<TransactionalFileSystem> {
 
     @Override
     public void createContext(PerformanceAuditor performanceAuditor) {
-        setWorkerContext(new WorkerContext(performanceAuditor, null, null, null, null, false));
+        setWorkerContext(new WorkerContext(performanceAuditor, null, null, null, null, false, null, null, null));
     }
 
     @Override

@@ -48,6 +48,9 @@ public class VocabularyTermUpdate implements IUpdate, IObjectUpdate<IVocabularyT
     @JsonProperty
     private FieldUpdateValue<Boolean> official = new FieldUpdateValue<Boolean>();
 
+    @JsonProperty
+    private FieldUpdateValue<Boolean> managedInternally = new FieldUpdateValue<Boolean>();
+
     @Override
     @JsonIgnore
     public IVocabularyTermId getObjectId()
@@ -113,6 +116,18 @@ public class VocabularyTermUpdate implements IUpdate, IObjectUpdate<IVocabularyT
     public FieldUpdateValue<Boolean> isOfficial()
     {
         return official;
+    }
+
+    @JsonIgnore
+    public void setManagedInternally(Boolean managedInternally)
+    {
+        this.managedInternally.setValue(managedInternally);
+    }
+
+    @JsonIgnore
+    public FieldUpdateValue<Boolean> isManagedInternally()
+    {
+        return managedInternally;
     }
 
     @Override

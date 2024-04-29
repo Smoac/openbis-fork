@@ -15,8 +15,11 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.update.DataSetTypeUpdate;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IObjectAuthorizationExecutor;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 
 /**
  * @author pkupczyk
@@ -24,14 +27,14 @@ import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.IObjectAuthor
 public interface IDataSetTypeAuthorizationExecutor extends IObjectAuthorizationExecutor
 {
 
-    void canCreate(IOperationContext context);
+    void canCreate(IOperationContext context, DataSetTypePE entityTypePE);
 
     void canGet(IOperationContext context);
 
     void canSearch(IOperationContext context);
 
-    void canUpdate(IOperationContext context);
+    void canUpdate(IOperationContext context, DataSetTypePE entityTypePE, DataSetTypeUpdate update);
 
-    void canDelete(IOperationContext context);
+    void canDelete(IOperationContext context, EntityTypePE entityTypePE);
 
 }

@@ -90,10 +90,13 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.openhtmltopdf.extend.FSSupplier;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
@@ -566,8 +569,6 @@ public class ExportExecutor implements IExportExecutor
             final String projectCode = getProjectCode(codeHolder);
             final char prefix = codeHolder instanceof Sample ? 'O' : 'E';
 
-            final String codeHolderJson = objectWriter.writeValueAsString(codeHolder);
-
             final File parentDataDirectory = compatibleWithImport
                     ? exportWorkspaceDirectory
                     : createDirectoriesForSampleOrExperiment(prefix, new File(exportWorkspaceDirectory, PDF_DIRECTORY), codeHolder);
@@ -578,8 +579,10 @@ public class ExportExecutor implements IExportExecutor
             final String dataSetName = getEntityName(dataSet);
             final String dataDirectorySuffix = "#" + UUID.randomUUID();
 
+            final String datasetJson = datasetToJson(dataSet);
+
             createMetadataJsonFile(parentDataDirectory, prefix, spaceCode, projectCode, containerCode, code,
-                    dataSetTypeCode, dataSetCode, dataSetName, dataDirectorySuffix, codeHolderJson, compatibleWithImport);
+                    dataSetTypeCode, dataSetCode, dataSetName, dataDirectorySuffix, datasetJson, compatibleWithImport);
 
             if (dataSet.getKind() != DataSetKind.LINK)
             {
@@ -611,6 +614,17 @@ public class ExportExecutor implements IExportExecutor
                 OPERATION_LOG.info(String.format("Omitted data export for link dataset with permId: %s", dataSetPermId));
             }
         }
+    }
+
+    private String datasetToJson(final DataSet dataSet) throws JsonProcessingException
+    {
+        final ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+
+        final ObjectNode propertiesNode = objectMapper.createObjectNode();
+        propertiesNode.set("properties", objectMapper.valueToTree(dataSet.getProperties()));
+
+        return objectMapper.writeValueAsString(propertiesNode);
     }
 
     private static File createDirectoriesForSampleOrExperiment(final char prefix, final File documentDirectory, final ICodeHolder codeHolder)
@@ -1235,7 +1249,7 @@ public class ExportExecutor implements IExportExecutor
             final boolean compatibleWithImport) throws IOException
     {
         final DataSetFile dataSetFile = dataSetFileDownload.getDataSetFile();
-        final String filePath = dataSetFile.getPath();
+        final String filePath = fixFilePath(dataSetFile);
         final boolean isDirectory = dataSetFile.isDirectory();
 
         final File dataSetFsEntry;
@@ -1267,6 +1281,25 @@ public class ExportExecutor implements IExportExecutor
         } else
         {
             mkdirs(dataSetFsEntry);
+        }
+    }
+
+    /**
+     * Replaces "original" with "default" directory name.
+     *
+     * @param dataSetFile the file object that contains the path information.
+     * @return <code>dataSetFile.getPath()</code> as is or with "original" replaced with "default".
+     */
+    private static String fixFilePath(final DataSetFile dataSetFile)
+    {
+        final String originalPath = dataSetFile.getPath();
+        if (dataSetFile.isDirectory() && Objects.equals(originalPath, "original"))
+        {
+            return "default";
+        } else if (originalPath.startsWith("original/")) {
+            return "default" + originalPath.substring("original".length());
+        } else {
+            return originalPath;
         }
     }
 

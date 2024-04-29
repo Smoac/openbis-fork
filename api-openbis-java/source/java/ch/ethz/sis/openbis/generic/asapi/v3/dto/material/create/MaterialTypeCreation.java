@@ -38,6 +38,8 @@ public class MaterialTypeCreation implements IEntityTypeCreation
 
     private IPluginId validationPluginId;
 
+    private boolean managedInternally;
+
     private List<PropertyAssignmentCreation> propertyAssignments;
 
     @Override
@@ -86,6 +88,18 @@ public class MaterialTypeCreation implements IEntityTypeCreation
     public void setPropertyAssignments(List<PropertyAssignmentCreation> propertyAssignments)
     {
         this.propertyAssignments = propertyAssignments;
+    }
+
+    @Override
+    public boolean isManagedInternally()
+    {
+        return managedInternally;
+    }
+
+    @Override
+    public void setManagedInternally(boolean managedInternally)
+    {
+        this.managedInternally = managedInternally;
     }
 
     @Override

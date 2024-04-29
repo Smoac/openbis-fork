@@ -15,6 +15,8 @@
  */
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.dataset;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -91,7 +93,18 @@ public class CreateDataSetTypesExecutor extends AbstractCreateEntityTypeExecutor
     @Override
     protected void checkAccess(IOperationContext context)
     {
-        authorizationExecutor.canCreate(context);
+    }
+
+    @Override
+    protected void checkAccessTypeSpecific(IOperationContext context, DataSetTypePE entityType)
+    {
+        authorizationExecutor.canCreate(context, entityType);
+    }
+
+    @Override
+    protected IObjectId getId(DataSetTypePE entityType)
+    {
+        return new EntityTypePermId(entityType.getPermId());
     }
 
 }

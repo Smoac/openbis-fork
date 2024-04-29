@@ -249,6 +249,7 @@ export default class EntityTypeFormControllerSave extends PageControllerSave {
     creation.setShowRawValueInForms(property.showRawValueInForms.value)
     creation.setSection(property.section)
     creation.setUnique(property.unique.value);
+    creation.setManagedInternally(property.assignmentInternal.value);
 
     if (property.code.value) {
       creation.setPropertyTypeId(

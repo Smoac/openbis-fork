@@ -129,7 +129,7 @@ public abstract class AbstractCreateEntityExecutor<CREATION extends ICreation, P
                         checkAccess(context, entity);
                     } catch (AuthorizationFailureException ex)
                     {
-                        throw new UnauthorizedObjectAccessException(getId(entity));
+                        throw new UnauthorizedObjectAccessException(getId(entity), ex.getMessage());
                     }
                 }
 

@@ -633,7 +633,7 @@ public interface ICommonServer extends IServer
     @Transactional
     @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY_TERM)
     public void addUnofficialVocabularyTerm(String sessionToken, TechId vocabularyId, String code,
-            String label, String description, Long previousTermOrdinal);
+            String label, String description, Long previousTermOrdinal, boolean managedInternally);
 
     /**
      * Updates a vocabulary term.

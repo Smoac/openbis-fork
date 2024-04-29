@@ -90,6 +90,9 @@ public class PropertyAssignment
     @JsonProperty
     private Boolean unique;
 
+    @JsonProperty
+    private boolean managedInternally;
+
     // Method automatically generated with DtoGenerator
     @JsonIgnore
     public PropertyAssignmentFetchOptions getFetchOptions()
@@ -320,6 +323,17 @@ public class PropertyAssignment
     public void setUnique(Boolean unique)
     {
         this.unique = unique;
+    }
+
+    @JsonIgnore
+    public Boolean isManagedInternally()
+    {
+        return managedInternally;
+    }
+
+    public void setManagedInternally(boolean managedInternally)
+    {
+        this.managedInternally = managedInternally;
     }
 
     // Method automatically generated with DtoGenerator

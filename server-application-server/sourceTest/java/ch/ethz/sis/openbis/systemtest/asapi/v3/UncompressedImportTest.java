@@ -25,6 +25,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetTypeSearchCriteria;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentTypeSearchCriteria;
+import ch.systemsx.cisd.common.action.IDelegatedAction;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
@@ -228,6 +235,68 @@ public class UncompressedImportTest extends AbstractImportTest
 
         assertEquals(plugin.getName(), propertyAssignment.getPropertyType().getCode() + "." + pluginBareName);
         assertEquals(plugin.getScript(), source);
+    }
+
+    @Test
+    public void testInternalTypes_failForNormalUser()
+    {
+        final IImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("import_internal_type.xlsx"), null, null);
+        final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
+
+        assertUserFailureException(new IDelegatedAction()
+                                   {
+                                       @Override
+                                       public void execute()
+                                       {
+                                           v3api.executeImport(sessionToken, importData, importOptions);
+                                       }
+                                   },
+                "Authorization failure: Internal entity types can be managed only by the system user.");
+    }
+
+    @Test
+    public void testInternalTypes()
+    {
+        final IImportData importData = new UncompressedImportData(ImportFormat.XLS, getFileContent("import_internal_type.xlsx"), null, null);
+        final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
+
+        final String systemSessionToken = v3api.loginAsSystem();
+
+        v3api.executeImport(systemSessionToken, importData, importOptions);
+
+        final DataSetTypeSearchCriteria dataSetTypeSearchCriteria = new DataSetTypeSearchCriteria();
+        dataSetTypeSearchCriteria.withCode().thatEquals("$INTERNAL_DATASET_TYPE");
+
+        final DataSetTypeFetchOptions dataSetTypeFetchOptions = new DataSetTypeFetchOptions();
+
+        SearchResult<DataSetType> dataSetTypeSearchResult =
+                v3api.searchDataSetTypes(sessionToken, dataSetTypeSearchCriteria, dataSetTypeFetchOptions);
+
+        assertEquals(dataSetTypeSearchResult.getTotalCount(), 1);
+        assertEquals(dataSetTypeSearchResult.getObjects().get(0).getDescription(), "Internal Dataset Type");
+
+        final SampleTypeSearchCriteria sampleTypeSearchCriteria = new SampleTypeSearchCriteria();
+        sampleTypeSearchCriteria.withPermId().thatEquals("$INTERNAL_SAMPLE_TYPE");
+
+        final SampleTypeFetchOptions sampleTypeFetchOptions = new SampleTypeFetchOptions();
+
+        SearchResult<SampleType> sampleTypeSearchResult =
+                v3api.searchSampleTypes(sessionToken, sampleTypeSearchCriteria, sampleTypeFetchOptions);
+
+        assertEquals(sampleTypeSearchResult.getTotalCount(), 1);
+        assertEquals(sampleTypeSearchResult.getObjects().get(0).getDescription(), "Internal Sample Type");
+
+
+        final ExperimentTypeSearchCriteria experimentTypeSearchCriteria = new ExperimentTypeSearchCriteria();
+        experimentTypeSearchCriteria.withCode().thatEquals("$INTERNAL_EXPERIMENT_TYPE");
+
+        final ExperimentTypeFetchOptions experimentTypeFetchOptions = new ExperimentTypeFetchOptions();
+
+        SearchResult<ExperimentType> experimentTypeSearchResult =
+                v3api.searchExperimentTypes(sessionToken, experimentTypeSearchCriteria, experimentTypeFetchOptions);
+
+        assertEquals(experimentTypeSearchResult.getTotalCount(), 1);
+        assertEquals(experimentTypeSearchResult.getObjects().get(0).getDescription(), "Internal Experiment Type");
     }
 
 }

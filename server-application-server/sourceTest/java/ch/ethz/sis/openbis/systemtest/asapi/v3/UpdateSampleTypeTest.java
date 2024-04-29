@@ -89,7 +89,8 @@ public class UpdateSampleTypeTest extends UpdateEntityTypeTest<SampleTypeCreatio
     protected SampleType getType(String sessionToken, EntityTypePermId typeId)
     {
         SampleTypeSearchCriteria searchCriteria = new SampleTypeSearchCriteria();
-        searchCriteria.withPermId().thatEquals(typeId.getPermId());
+//        searchCriteria.withPermId().thatEquals(typeId.getPermId());
+        searchCriteria.withCode().thatEquals(typeId.getPermId());
         SampleTypeFetchOptions fetchOptions = new SampleTypeFetchOptions();
         fetchOptions.withPropertyAssignments().withEntityType();
         fetchOptions.withPropertyAssignments().withPropertyType();

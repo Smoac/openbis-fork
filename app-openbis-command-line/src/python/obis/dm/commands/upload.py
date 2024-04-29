@@ -24,7 +24,7 @@ class Upload(OpenbisCommand):
     Command to upload physical files to form a data set.
     """
 
-    def __init__(self, dm, sample_id, data_set_type, files):
+    def __init__(self, dm, sample_id, data_set_type, files, properties=None):
         """
         :param dm: data management
         :param sample_id: permId or sample path of the parent sample
@@ -34,13 +34,22 @@ class Upload(OpenbisCommand):
         self.data_set_type = data_set_type
         self.files = files
         self.sample_id = sample_id
+        self.properties = {}
+        if properties is not None:
+            props = {}
+            for prop in properties:
+                split = prop.split('=', 1)
+                props[split[0].lower()] = split[1]
+            self.properties = props
+            print(self.properties)
         self.load_global_config(dm)
         super(Upload, self).__init__(dm)
 
     def run(self):
         with cd(self.data_mgmt.invocation_path):
             click_echo(f"Uploading files {list(self.files)} under {self.sample_id}")
+
             ds = self.openbis.new_dataset(type=self.data_set_type, sample=self.sample_id,
-                                          files=self.files)
+                                          files=self.files, props=self.properties)
             result = ds.save()
             return CommandResult(returncode=0, output=f"Upload finished. New dataset: {result}")
