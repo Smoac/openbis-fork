@@ -666,7 +666,7 @@ public class IOUtils {
         };
     }
 
-    private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+    private static final char[] HEX_ARRAY = "0123456789abcdef".toCharArray();
 
     public static String asHex(byte[] bytes) {
         char[] hex = new char[bytes.length * 2];
