@@ -19,7 +19,7 @@ async function testInternal() {
   await doTestInternal(false, false, fixture.SYSTEM_USER_DTO, fixture.SYSTEM_USER_DTO)
   await doTestInternal(true, false, fixture.SYSTEM_USER_DTO, fixture.TEST_USER_DTO)
   await doTestInternal(false, false, fixture.SYSTEM_USER_DTO, fixture.TEST_USER_DTO)
-  await doTestInternal(true, false fixture.TEST_USER_DTO, fixture.TEST_USER_DTO)
+  await doTestInternal(true, false, fixture.TEST_USER_DTO, fixture.TEST_USER_DTO)
   await doTestInternal(false, false, fixture.TEST_USER_DTO, fixture.TEST_USER_DTO)
   await doTestInternal(true, true, fixture.TEST_USER_DTO, fixture.SYSTEM_USER_DTO)
   await doTestInternal(false, false, fixture.TEST_USER_DTO, fixture.SYSTEM_USER_DTO)
