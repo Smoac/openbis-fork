@@ -44,6 +44,7 @@ async function doTestInternal(
   propertyAssignment.setPropertyType(propertyType)
   propertyAssignment.setPlugin(fixture.TEST_PLUGIN_DTO)
   propertyAssignment.setRegistrator(propertyAssignmentRegistrator)
+  propertyAssignment.setManagedInternally(propertyAssignmentInternal)
 
   const type = new openbis.SampleType()
   type.setCode('TEST_TYPE')
