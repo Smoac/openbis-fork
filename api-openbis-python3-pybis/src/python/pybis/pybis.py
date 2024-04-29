@@ -1030,7 +1030,7 @@ class Openbis:
 
     def _get_username(self):
         if self.token:
-            match = re.search(r"(?P<username>.*)-.*", self.token)
+            match = re.search(r"(\$pat-)?(?P<username>.*)-.*", self.token)
             username = match.groupdict()["username"]
             return username
         return ""
@@ -1500,15 +1500,20 @@ class Openbis:
 
         check_sshfs_is_installed()
 
-        if username is None:
-            username = self._get_username()
-        if not username:
-            raise ValueError("no token available - please provide a username")
-
-        if password is None:
-            password = self._password()
-        if not password:
-            raise ValueError("please provide a password")
+        is_pat = self.token is not None and self.token.startswith('$pat')
+        if is_pat is True:
+            username = '?'
+            # PAT start with '$' so an escape character is needed
+            password = '\\' + self.token
+        else:
+            if username is None:
+                username = self._get_username()
+            if not username:
+                raise ValueError("no token available - please provide a username")
+            if password is None:
+                password = self._password()
+            if not password:
+                raise ValueError("please provide a password")
 
         if hostname is None:
             hostname = self.hostname
@@ -3443,6 +3448,7 @@ class Openbis:
             vocabularyCode=vocabularyCode,
             label=label,
             description=description,
+            managedInternally=code.startsWith('$')
         )
 
     def get_term(self, code, vocabularyCode, only_data=False):
