@@ -33,8 +33,9 @@ public class Main
     public static void main(String[] args) throws Exception
     {
         System.out.println("Current Working Directory: " + (new File("")).getCanonicalPath());
-        Configuration configuration = new Configuration(getParameterClasses(),
-                "../server-data-store/src/main/resources/server-data-store-config.properties");
+        System.out.println("Configuration Location: " + (new File(args[0])).getCanonicalPath());
+
+        Configuration configuration = new Configuration(getParameterClasses(), args[0]);
         DummyServerObserver dummyServerObserver = new DummyServerObserver();
         Server server = new Server(configuration, dummyServerObserver, dummyServerObserver);
         Thread.currentThread().join();

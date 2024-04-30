@@ -36,12 +36,22 @@ dependencies {
 task AFSServerDevelopmentEnvironmentStart(type: JavaExec) {
     main = 'ch.ethz.sis.afsserver.startup.Main'
     classpath = sourceSets.main.runtimeClasspath
+    args(["../server-data-store/src/main/resources/server-data-store-config.properties"])
     jvmArgs(['--add-opens=java.base/jdk.internal.misc=ALL-UNNAMED',
              '--add-opens=java.base/java.nio=ALL-UNNAMED',
              '-Dio.netty.tryReflectionSetAccessible=true',
              '-Xmx256M', '-ea'])
 }
 
-distZip {
+task AFSServerZip(type: Zip, dependsOn: compileJava) {
     baseName 'afs-server'
+    from (jar) {
+        into ('lib/')
+    }
+    from (configurations.runtimeClasspath) {
+        into ('lib/')
+    }
+    from('dist') {
+        into '/'
+    }
 }
