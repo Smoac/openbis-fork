@@ -56,3 +56,4 @@ System Documentation
    - :doc:`Standalone </system-documentation/standalone/index>`
    - :doc:`Docker </system-documentation/docker/index>`
    - :doc:`Advanced configuration </system-documentation/configuration/index>`
+   - :doc:`Change Log </../CHANGELOG.md>`
