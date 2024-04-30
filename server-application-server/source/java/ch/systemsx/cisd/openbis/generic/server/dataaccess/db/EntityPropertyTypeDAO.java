@@ -549,11 +549,15 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         assert propertyTypeCode != null : "Unspecified property type.";
 
         String query =
-                String.format("SELECT count(pv) FROM %s pa join pa.propertyValues pv "
-                        + "WHERE pa.propertyTypeInternal.simpleCode = ? "
-                        + "AND pa.entityTypeInternal.code = ?",
+                String.format("SELECT count(pv.id) FROM %s pa join %s pv "
+                            + " ON pa.id = pv.entityTypePropertyType.id "
+                            + " WHERE pa.propertyTypeInternal.simpleCode = ? "
+                            + " AND pa.entityTypeInternal.code = ?",
                         entityKind
-                                .getEntityTypePropertyTypeAssignmentClass().getSimpleName());
+                                .getEntityTypePropertyTypeAssignmentClass().getSimpleName(),
+                        entityKind.getEntityPropertyClass().getSimpleName()
+                        );
+
         return ((Long) (getHibernateTemplate().find(query,
                 toArray(propertyTypeCode, entityTypeCode)).get(0))).intValue();
     }
