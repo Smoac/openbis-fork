@@ -4,6 +4,7 @@ Docker
 .. toctree::
    :maxdepth: 4
 
+   quickstart
    architecture
    environments
    release-cycle
@@ -12,4 +13,3 @@ Docker
    configuration
    verification
    references
-   desktop
