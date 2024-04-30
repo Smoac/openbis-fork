@@ -1231,6 +1231,14 @@ var FormUtil = new function() {
             value.indexOf("<figure") === -1) {
             value = this.ckEditor4to5ImageStyleMigration(value);
         }
+
+        var identifiers = [];
+        var links = {};
+        if(isReadOnly)
+        {
+            identifierRegexp = /(?:\/[A-Z_\d]+){3,5}/g
+            identifiers = value.match(identifierRegexp)
+        }
 	    var Builder = null;
 // CK Editor 34
 //	    if(toolbarContainer) {
@@ -1254,6 +1262,29 @@ var FormUtil = new function() {
                     .then( editor => {
                         editor.acceptedData = ""; // Is used to undo paste events containing images coming from a different domain
                         if (value) {
+                            if(isReadOnly && identifiers.length > 0)
+                            {
+                                this._searchByIdentifiers(identifiers, function(checkedLinks) {
+                                    for(let l in checkedLinks){
+                                        // insert links for collection/object identifiers
+                                        value = value.replaceAll(l, '<a href="'+l +'">' + l + '</a>');
+                                    }
+                                    links = checkedLinks;
+                                    var editorNew = CKEditorManager.getEditorById($component.attr('id'));
+
+                                    editorNew.isReadOnly = false;
+                                    editorNew.setData(value);
+                                    editorNew.acceptedData = editorNew.getData();
+                                    var root = editor.editing.view.getDomRoot();
+                                    for(let l in checkedLinks){
+                                        $(root).find('a[href="'+l+'"]').click(function() {
+                                                checkedLinks[l].click();
+                                            });
+                                        $(root).find('a[href="'+l+'"]').attr('href', "javascript:void(0)");
+                                    }
+                                    editorNew.isReadOnly = true;
+                                });
+                            }
                             value = this.prepareCkeditorData(value);
                             editor.setData(value);
                             editor.acceptedData = editor.getData();
@@ -1266,7 +1297,9 @@ var FormUtil = new function() {
                                 var isDataValid = CKEditorManager.isDataValid(newData);
                                 if(isDataValid) {
                                     editor.acceptedData = newData;
-                                    componentOnChange(event, newData); // Store changes on original model
+                                    if(componentOnChange) {
+                                        componentOnChange(event, newData); // Store changes on original model
+                                    }
                                 } else {
                                     editor.setData(editor.acceptedData);
                                     Util.showUserError("It is not possible to copy an image directly from a website.");
@@ -1289,6 +1322,43 @@ var FormUtil = new function() {
                         Util.showError(error);
                     });
 	}
+
+	this._searchByIdentifiers = function(identifiers, callback) {
+        require([ "as/dto/sample/id/SampleIdentifier", "as/dto/sample/fetchoptions/SampleFetchOptions",
+         "as/dto/experiment/id/ExperimentIdentifier", "as/dto/experiment/fetchoptions/ExperimentFetchOptions"],
+                    function(SampleIdentifier, SampleFetchOptions, ExperimentIdentifier, ExperimentFetchOptions) {
+                        var sampleFetchOptions = new SampleFetchOptions();
+                        var ids = identifiers.map(id => new SampleIdentifier(id));
+
+                        mainController.openbisV3.getSamples(ids, sampleFetchOptions).done(function(sampleResults) {
+                            let links = {};
+                            let missing = []
+                            for(let id of identifiers) {
+                                if(sampleResults[id]) {
+                                    let sample = sampleResults[id];
+                                    links[id] = FormUtil.getFormLink(sample.identifier.identifier, 'Sample', sample.permId.permId, null);
+                                } else {
+                                    missing.push(id);
+                                }
+                            }
+                            if(missing.length == 0) {
+                                callback(links);
+                            } else {
+                                var experimentFetchOptions = new ExperimentFetchOptions();
+                                var ids = missing.map(id => new ExperimentIdentifier(id));
+                                mainController.openbisV3.getExperiments(ids, experimentFetchOptions).done(function(experimentResults) {
+                                    var experiments = Util.mapValuesToList(experimentResults);
+                                    for ( let experiment of experiments) {
+                                        links[experiment.identifier.identifier] = FormUtil.getFormLink(experiment.identifier.identifier, 'Experiment', experiment.identifier.identifier, null);
+                                    }
+                                    callback(links);
+                                }).fail(function(result) {
+                                    callback(links);
+                                });
+                            }
+                        })
+                    });
+    }
 
 	this.prepareCkeditorData = function(value) {
 	    value = value.replace(/(font-size:\d+\.*\d+)pt/g, "$1" + "px"); // https://ckeditor.com/docs/ckeditor5/latest/features/font.html#using-numerical-values
