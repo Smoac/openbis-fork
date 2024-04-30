@@ -2,7 +2,7 @@
 
 ## Docker Containers
 
-Our recommendation is to run openBIS within a **three-container setup**, in particular when aiming at [running openBIS in production](environments.md#production):
+Our recommendation is to run openBIS within a **three-container setup**, in particular when aiming at [running openBIS in production](environments.md):
 1) **openbis-ingress**: Runs a [reverse HTTP Proxy](https://en.wikipedia.org/wiki/Reverse_proxy) for managing and securing HTTP requests in between the client and the application.
 2) **openbis-app**: Runs a [Java Runtime Environment](https://en.wikipedia.org/wiki/Java_virtual_machine), including the openBIS Application Server (AS) and openBIS Data Store Server (DSS).
 3) **openbis-db**: Runs a [PostgreSQL](https://www.postgresql.org/about/) database, to handle all data transactions.
@@ -21,10 +21,14 @@ Our recommendation is to run openBIS within a **three-container setup**, in part
 Docker Compose is a tool for defining and running multi-container applications. It simplifies the control of the entire openBIS service, making it easy to control the application workflow in a single, comprehensible YAML configuration file, allows to create, start and stop all services by issuing a single command.
 
 We are providing a basic [docker-compose.yml](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/master/hub/openbis-server/compose/docker-compose.yml), which is ready to use. 
-To run the application navigate to the sub-directory where you've downloaded the `docker-compose.yml` to and then run `docker-compose up -d`. 
-For advanced use, consider to modify the file according to your needs ([more details](usage.md)). Note that this example does not include an ingress controler. For full examples, proceed to [Ingress](#ingress).
+To run the application navigate to the sub-directory where you've downloaded the `docker-compose.yml` to and then execute
 
-To ensure that the latest images available on Docker Hub are being pulled prior to starting the application, run `docker-compose pull` prior to `docker-compose up -d`.
+```
+docker-compose pull
+docker-compose up -d
+```
+
+For advanced use, consider to modify the file according to your needs ([more details](usage.md)). Note that this example does not include an ingress controler. For full examples, proceed to [Ingress].
 
 The sections below provides a brief description of the individual components used in the proposed multi-container setup.
 
@@ -33,7 +37,11 @@ The sections below provides a brief description of the individual components use
 
 The virtual bridge network `openbis-network` allows all containers deployed with openBIS to connect to each other. The following example creates a network using the bridge network driver, which all running containers will be communicating accross.
 
-To manually create the network, use: `docker network create openbis-network --driver bridge`
+To manually create the network, execute: 
+
+```
+docker network create openbis-network --driver bridge
+```
 
 
 ## Storage Volumes
@@ -53,7 +61,7 @@ The use of Docker volumes is preferred for **persisting data** generated and uti
 The **database container** `openbis-db` provides a relational database through **PostgreSQL server** to guarantee persistence for any data created while running openBIS. This includes user and authorization data, openBIS entities and their metadata, as well as index information about all datasets. It is required to have database superuser privileges.
 
 ```
-$ docker run -d \
+$ docker run --detach \
   --name openbis-db \
   --hostname openbis-db \
   --network openbis-network \
@@ -114,7 +122,7 @@ $ docker run --detach \
   -e OPENBIS_HOME="/home/openbis" \
   -e OPENBIS_LOG="/var/log/openbis" \
   -e OPENBIS_FQDN="openbis.domain" \
-  openbis/openbis-server:20.10.7;
+  openbis/openbis-server:latest;
 ```
 
 The state of the running application container can be inspected by fetching the container logs:
