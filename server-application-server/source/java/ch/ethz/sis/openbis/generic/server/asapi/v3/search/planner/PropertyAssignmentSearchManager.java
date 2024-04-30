@@ -107,7 +107,7 @@ public class PropertyAssignmentSearchManager extends
             finalResults = mainCriteriaIntermediateResults;
         }
 
-        return filterIDsByUserRights(userId, authorisationInformation, finalResults);
+        return filterIDsByUserRights(authorisationInformation, finalResults);
     }
 
     private static boolean isSampleTypeWithSemanticAnnotationsCriteria(final AbstractCompositeSearchCriteria parentCriteria,

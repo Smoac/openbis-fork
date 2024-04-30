@@ -170,7 +170,7 @@ public abstract class AbstractLocalSearchManager<CRITERIA extends ISearchCriteri
             resultBeforeFiltering = Collections.emptySet();
         }
 
-        return filterIDsByUserRights(userId, authorisationInformation, resultBeforeFiltering);
+        return filterIDsByUserRights(authorisationInformation, resultBeforeFiltering);
     }
 
     protected Set<Long> searchForIDsByCriteriaCollection(final Long userId,
@@ -184,7 +184,7 @@ public abstract class AbstractLocalSearchManager<CRITERIA extends ISearchCriteri
                     new DummyCompositeSearchCriterion(criteria, finalSearchOperator);
             final Set<Long> mainCriteriaNotFilteredResults = getSearchDAO().queryDBForIdsWithGlobalSearchMatchCriteria(userId,
                     containerCriterion, tableMapper, idsColumnName, authorisationInformation);
-            return filterIDsByUserRights(userId, authorisationInformation, mainCriteriaNotFilteredResults);
+            return filterIDsByUserRights(authorisationInformation, mainCriteriaNotFilteredResults);
         } else
         {
             return Collections.emptySet();
