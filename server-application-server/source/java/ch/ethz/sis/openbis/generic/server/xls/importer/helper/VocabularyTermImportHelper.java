@@ -137,6 +137,8 @@ public class VocabularyTermImportHelper extends BasicImportHelper
         String label = getValueByColumnName(header, values, Attribute.Label);
         String description = getValueByColumnName(header, values, Attribute.Description);
 
+        boolean isInternalNamespace = ImportUtils.isInternalNamespace(code);
+
         VocabularyPermId vocabularyPermId = new VocabularyPermId(vocabularyCode);
 
         VocabularyTermCreation creation = new VocabularyTermCreation();
@@ -144,6 +146,7 @@ public class VocabularyTermImportHelper extends BasicImportHelper
         creation.setCode(code);
         creation.setLabel(label);
         creation.setDescription(description);
+        creation.setManagedInternally(isInternalNamespace);
         // import internal
 
         this.delayedExecutor.createVocabularyTerm(creation);
@@ -158,6 +161,7 @@ public class VocabularyTermImportHelper extends BasicImportHelper
         VocabularyTermPermId termId = new VocabularyTermPermId(code, vocabularyCode);
 
         VocabularyTermUpdate update = new VocabularyTermUpdate();
+        update.setManagedInternally(ImportUtils.isInternalNamespace(code));
         update.setVocabularyTermId(termId);
         if (label != null)
         {
