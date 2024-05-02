@@ -90,4 +90,31 @@ public class JoinInformation
         this.joinType = joinType;
     }
 
+    @Override
+    public boolean equals(final Object o)
+    {
+        if (this == o)
+        {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass())
+        {
+            return false;
+        }
+
+        final JoinInformation that = (JoinInformation) o;
+        return mainTable.equals(that.mainTable) && mainTableIdField.equals(that.mainTableIdField) && subTable.equals(that.subTable)
+                && subTableIdField.equals(that.subTableIdField);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result = mainTable.hashCode();
+        result = 31 * result + mainTableIdField.hashCode();
+        result = 31 * result + subTable.hashCode();
+        result = 31 * result + subTableIdField.hashCode();
+        return result;
+    }
+
 }

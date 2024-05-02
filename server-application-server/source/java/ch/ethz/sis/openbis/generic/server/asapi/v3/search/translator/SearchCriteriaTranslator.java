@@ -25,9 +25,12 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.*;
@@ -100,6 +103,7 @@ public class SearchCriteriaTranslator
         sqlBuilder.append(FROM).append(SP).append(entitiesTableName).append(SP).append(MAIN_TABLE_ALIAS);
 
         final AtomicInteger indexCounter = new AtomicInteger(1);
+        final Set<JoinInformation> usedJoinInformation = new HashSet<>();
         translationContext.getCriteria().forEach(criterion ->
         {
             if (!(CriteriaMapper.getCriteriaToManagerMap().containsKey(criterion.getClass()) || criterion instanceof EntityTypeSearchCriteria))
@@ -113,9 +117,14 @@ public class SearchCriteriaTranslator
 
                     if (joinInformationMap != null)
                     {
-                        joinInformationMap.values().forEach((joinInformation) ->
-                                TranslatorUtils.appendJoin(sqlBuilder, joinInformation));
-                        translationContext.getAliases().put(criterion, joinInformationMap);
+                        final Collection<JoinInformation> filteredJoinInformationCollection = new HashSet(joinInformationMap.values());
+                        filteredJoinInformationCollection.removeAll(usedJoinInformation);
+                        if (!filteredJoinInformationCollection.isEmpty())
+                        {
+                            filteredJoinInformationCollection.forEach((joinInformation) -> TranslatorUtils.appendJoin(sqlBuilder, joinInformation));
+                            usedJoinInformation.addAll(filteredJoinInformationCollection);
+                            translationContext.getAliases().put(criterion, joinInformationMap);
+                        }
                     }
                 } else
                 {
@@ -137,7 +146,7 @@ public class SearchCriteriaTranslator
             final StringBuilder resultSqlBuilder = new StringBuilder(WHERE + SP);
             final TableMapper tableMapper = translationContext.getTableMapper();
             final Map<String, JoinInformation> joinInformationMap =
-                    translationContext.getAliases().get(translationContext.getCriteria().iterator().next());
+                    findCriterionInAliases(translationContext, translationContext.getCriteria().iterator().next());
 
             TranslatorUtils.appendPropertyValueCoalesce(resultSqlBuilder, tableMapper, joinInformationMap);
             resultSqlBuilder.append(SP).append(IS_NOT_NULL);
@@ -242,7 +251,7 @@ public class SearchCriteriaTranslator
                 if (conditionTranslator != null)
                 {
                     conditionTranslator.translate(criterion, tableMapper, translationContext.getArgs(), sqlBuilder,
-                            translationContext.getAliases().get(criterion),
+                            findCriterionInAliases(translationContext, criterion),
                             translationContext.getDataTypeByPropertyCode());
                 } else
                 {
@@ -253,6 +262,17 @@ public class SearchCriteriaTranslator
         {
             sqlBuilder.append(FALSE);
         }
+    }
+
+    private static Map<String, JoinInformation> findCriterionInAliases(final TranslationContext translationContext, final ISearchCriteria criterion)
+    {
+        // More sophisticated search is needed because we don't want to modify equals and hashcode of criteria
+        return translationContext.getAliases().entrySet().stream().filter(mapEntry -> {
+            final Object searchCriteria = mapEntry.getKey();
+            return (criterion instanceof AbstractFieldSearchCriteria) && (searchCriteria instanceof AbstractFieldSearchCriteria) &&
+                    ((AbstractFieldSearchCriteria<?>) searchCriteria).getFieldType() == ((AbstractFieldSearchCriteria<?>) criterion).getFieldType() &&
+                    ((AbstractFieldSearchCriteria<?>) searchCriteria).getFieldValue() == ((AbstractFieldSearchCriteria<?>) criterion).getFieldValue();
+        }).map(Map.Entry::getValue).findFirst().orElse(null);
     }
 
     private static ISearchCriteria convertCriterionIfNeeded(final ISearchCriteria criterion, final EntityKind entityKind)
