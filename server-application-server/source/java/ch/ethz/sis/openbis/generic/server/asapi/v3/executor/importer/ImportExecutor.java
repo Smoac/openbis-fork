@@ -55,8 +55,6 @@ public class ImportExecutor implements IImportExecutor
 
     private static final String XLSX_EXTENSION = "." + "xlsx";
 
-    private static final long DATA_LIMIT = 104857600L;
-
     @Override
     public void doImport(final IOperationContext context, final ImportOperation operation)
     {
