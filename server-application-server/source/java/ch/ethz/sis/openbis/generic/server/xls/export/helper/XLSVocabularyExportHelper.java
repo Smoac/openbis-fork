@@ -55,9 +55,9 @@ public class XLSVocabularyExportHelper extends AbstractXLSExportHelper<IEntityTy
 
     protected static final String[] VOCABULARY_ASSIGNMENT_COLUMNS = new String[] { "Code", "Label", "Description" };
 
-    public XLSVocabularyExportHelper(final Workbook wb)
+    public XLSVocabularyExportHelper(final Workbook wb, final String protocolWithDomain)
     {
-        super(wb);
+        super(wb, protocolWithDomain);
     }
 
     @Override

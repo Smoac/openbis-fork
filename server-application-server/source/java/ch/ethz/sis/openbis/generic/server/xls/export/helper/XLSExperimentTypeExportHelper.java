@@ -40,9 +40,9 @@ import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 public class XLSExperimentTypeExportHelper extends AbstractXLSEntityTypeExportHelper<ExperimentType>
 {
 
-    public XLSExperimentTypeExportHelper(final Workbook wb)
+    public XLSExperimentTypeExportHelper(final Workbook wb, final String protocolWithDomain)
     {
-        super(wb);
+        super(wb, protocolWithDomain);
     }
 
     @Override

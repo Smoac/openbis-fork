@@ -259,7 +259,7 @@ public class XLSExportTest
         {
             final XLSExport.PrepareWorkbookResult actualResult = XLSExport.prepareWorkbook(
                     api, SESSION_TOKEN, exportablePermIds, exportReferred, exportFields,
-                    textFormatting, compatibleWithImport);
+                    textFormatting, compatibleWithImport, null);
             assertEquals(actualResult.getScripts(), expectedScripts);
             assertEquals(new HashSet<>(actualResult.getWarnings()), new HashSet<>(expectedWarnings));
 
@@ -293,7 +293,7 @@ public class XLSExportTest
 
         final XLSExport.PrepareWorkbookResult actualResult = XLSExport.prepareWorkbook(
                 api, SESSION_TOKEN, List.of(new ExportablePermId(SAMPLE, new SpacePermId("200001010000000-0001"))),
-                false, null, XLSExport.TextFormatting.PLAIN, false);
+                false, null, XLSExport.TextFormatting.PLAIN, false, null);
         assertTrue(actualResult.getScripts().isEmpty());
         assertTrue(actualResult.getWarnings().isEmpty());
 
