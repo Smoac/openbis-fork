@@ -468,7 +468,7 @@ task zipBdlServer(type: Zip, dependsOn: project(':server-external-data-store').t
     from zipTree('../server-external-data-store/build/distributions/server-external-data-store.zip')
 }
 
-task zipAfsServer(type: Zip, dependsOn: project(':server-data-store').tasks.distZip) {
+task zipAfsServer(type: Zip, dependsOn: project(':server-data-store').tasks.AFSServerZip) {
     baseName 'afs_server'
     from zipTree('../server-data-store/build/distributions/afs-server.zip')
 }

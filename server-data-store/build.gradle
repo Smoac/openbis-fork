@@ -46,12 +46,12 @@ task AFSServerDevelopmentEnvironmentStart(type: JavaExec) {
 task AFSServerZip(type: Zip, dependsOn: compileJava) {
     baseName 'afs-server'
     from (jar) {
-        into ('lib/')
+        into ('afs-server/lib/')
     }
     from (configurations.runtimeClasspath) {
-        into ('lib/')
+        into ('afs-server/lib/')
     }
     from('dist') {
-        into '/'
+        into 'afs-server/'
     }
 }
