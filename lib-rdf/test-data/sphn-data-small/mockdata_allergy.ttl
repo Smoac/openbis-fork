@@ -1,0 +1,126 @@
+@prefix : <https://biomedit.ch/rdf/sphn-rml/sphn#> .
+@prefix GENO: <http://purl.obolibrary.org/obo/GENO_> .
+@prefix SO: <http://purl.obolibrary.org/obo/SO_> .
+@prefix atc: <https://www.whocc.no/atc_ddd_index/?code=> .
+@prefix cdt: <http://w3id.org/lindt/custom_datatypes#> .
+@prefix chop: <https://biomedit.ch/rdf/sphn-resource/chop/> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix hgnc: <https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/> .
+@prefix icd-10-gm: <https://biomedit.ch/rdf/sphn-resource/icd-10-gm/> .
+@prefix loinc: <https://loinc.org/rdf/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix ql: <http://semweb.mmlab.be/ns/ql#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix resource: <https://biomedit.ch/rdf/sphn-resource/> .
+@prefix rml: <http://semweb.mmlab.be/ns/rml#> .
+@prefix rr: <http://www.w3.org/ns/r2rml#> .
+@prefix snomed: <http://snomed.info/id/> .
+@prefix so: <http://purl.obolibrary.org/obo/so#> .
+@prefix sphn: <https://biomedit.ch/rdf/sphn-ontology/sphn#> .
+@prefix sphn-atc: <https://biomedit.ch/rdf/sphn-resource/atc/> .
+@prefix sphn-geno: <https://biomedit.ch/rdf/sphn-resource/geno/> .
+@prefix sphn-hgnc: <https://biomedit.ch/rdf/sphn-resource/hgnc/> .
+@prefix sphn-loinc: <https://biomedit.ch/rdf/sphn-resource/loinc/> .
+@prefix sphn-so: <https://biomedit.ch/rdf/sphn-resource/so/> .
+@prefix ucum: <https://biomedit.ch/rdf/sphn-resource/ucum/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+resource:CHE-229_707_417-Allergen-de1b372a-d3fb-447a-be5b-1e7f9ca5499d a sphn:Allergen;
+  sphn:hasCode resource:Code-SNOMED-CT-1255069002 .
+
+resource:CHE-229_707_417-Allergen-f77383c1-3458-4748-a9bb-17bca3f2c9bf a sphn:Allergen;
+  sphn:hasCode resource:Code-SNOMED-CT-396327004 .
+
+resource:CHE-229_707_417-Allergy-6f25e2a2-5a92-4187-99c7-8df48f4ff31e a sphn:Allergy;
+  sphn:hasAllergen resource:CHE-229_707_417-Allergen-f77383c1-3458-4748-a9bb-17bca3f2c9bf;
+  sphn:hasDataProviderInstitute resource:CHE-229_707_417-DataProviderInstitute-c8a70639-eb11-47b3-a7a9-c3787c65c1e5;
+  sphn:hasFirstRecordDateTime "1991-07-09T02:40:42+00:00"^^xsd:dateTime;
+  sphn:hasLastReactionDateTime "2011-07-28T16:16:28+00:00"^^xsd:dateTime;
+  sphn:hasReactionTypeCode resource:Code-SNOMED-CT-419199007;
+  sphn:hasSeverityCode resource:Code-SNOMED-CT-723507007;
+  sphn:hasSubjectPseudoIdentifier resource:CHE-229_707_417-SubjectPseudoIdentifier-fcbd04c3-4021-4ef7-8ca5-a5a19e4d6e3c;
+  sphn:hasVerificationStatusCode resource:Code-SNOMED-CT-723511001 .
+
+resource:CHE-229_707_417-AllergyEpisode-dd84f39e-7154-4a13-ba1d-50068d723104 a sphn:AllergyEpisode;
+  sphn:hasAdministrativeCase resource:CHE-229_707_417-AdministrativeCase-e3e70682-c209-4cac-a29f-6fbed82c07cd;
+  sphn:hasAllergen resource:CHE-229_707_417-Allergen-de1b372a-d3fb-447a-be5b-1e7f9ca5499d;
+  sphn:hasCertaintyCode resource:Code-SNOMED-CT-410592001;
+  sphn:hasDataProviderInstitute resource:CHE-229_707_417-DataProviderInstitute-c8a70639-eb11-47b3-a7a9-c3787c65c1e5;
+  sphn:hasExposureDateTime "2005-06-24T07:33:33+00:00"^^xsd:dateTime;
+  sphn:hasExposureDuration resource:CHE-229_707_417-Quantity-534097ca-baf3-497a-be70-f16a55485822;
+  sphn:hasExposureRouteCode resource:Code-SNOMED-CT-372459003;
+  sphn:hasManifestationBodySite resource:CHE-229_707_417-BodySite-d3290a4c-b5d3-4b16-a619-4cb1d71037d1;
+  sphn:hasManifestationCode resource:Code-SNOMED-CT-65872000;
+  sphn:hasManifestationDateTime "1987-09-23T13:42:57+00:00"^^xsd:dateTime;
+  sphn:hasManifestationDuration resource:CHE-229_707_417-Quantity-8c778ea6-eb20-43e6-8e16-4dba0ff18e02;
+  sphn:hasManifestationSeverityCode resource:Code-SNOMED-CT-255604002;
+  sphn:hasSubjectPseudoIdentifier resource:CHE-229_707_417-SubjectPseudoIdentifier-fcbd04c3-4021-4ef7-8ca5-a5a19e4d6e3c .
+
+resource:CHE-229_707_417-BodySite-d3290a4c-b5d3-4b16-a619-4cb1d71037d1 a sphn:BodySite;
+  sphn:hasCode resource:Code-SNOMED-CT-308829001;
+  sphn:hasLaterality resource:CHE-229_707_417-Laterality-004ae545-a011-4be5-ab0c-1681c8f8e3d0 .
+
+resource:CHE-229_707_417-Code-7a024204-f7c1-4d87-8da5-e709d4713d60 a sphn:Code;
+  sphn:hasCodingSystemAndVersion "adipisicing adipisicing adipisicing reprehenderit";
+  sphn:hasIdentifier "ID-593824-iWg";
+  sphn:hasName "odit reprehenderit Lorem accusantium" .
+
+resource:CHE-229_707_417-DataProviderInstitute-c8a70639-eb11-47b3-a7a9-c3787c65c1e5
+  a sphn:DataProviderInstitute;
+  sphn:hasCode resource:CHE-229_707_417-Code-7a024204-f7c1-4d87-8da5-e709d4713d60 .
+
+resource:CHE-229_707_417-DataRelease-f728b4fa-4248-4e3a-8a5d-2f346baa9455 a sphn:DataRelease;
+  dct:conformsTo <https://biomedit.ch/rdf/sphn-ontology/sphn/2023/2>;
+  sphn:hasDataProviderInstitute resource:CHE-229_707_417-DataProviderInstitute-c8a70639-eb11-47b3-a7a9-c3787c65c1e5;
+  sphn:hasExtractionDateTime "2004-10-16T19:14:57+00:00"^^xsd:dateTime .
+
+resource:CHE-229_707_417-Laterality-004ae545-a011-4be5-ab0c-1681c8f8e3d0 a sphn:Laterality;
+  sphn:hasCode resource:Code-SNOMED-CT-7771000 .
+
+resource:CHE-229_707_417-Quantity-534097ca-baf3-497a-be70-f16a55485822 a sphn:Quantity;
+  sphn:hasComparator sphn:LessThan;
+  sphn:hasUnit resource:CHE-229_707_417-Unit-30e9c5cc-101f-4ccc-9ed7-33e8b421eaeb;
+  sphn:hasValue 5.523E3 .
+
+resource:CHE-229_707_417-Quantity-8c778ea6-eb20-43e6-8e16-4dba0ff18e02 a sphn:Quantity;
+  sphn:hasComparator sphn:GreaterThan;
+  sphn:hasUnit resource:CHE-229_707_417-Unit-b83e90ec-17e0-4a3c-8398-3ca8ea7e9d49;
+  sphn:hasValue 2.845E3 .
+
+resource:CHE-229_707_417-SubjectPseudoIdentifier-fcbd04c3-4021-4ef7-8ca5-a5a19e4d6e3c
+  a sphn:SubjectPseudoIdentifier;
+  sphn:hasDataProviderInstitute resource:CHE-229_707_417-DataProviderInstitute-c8a70639-eb11-47b3-a7a9-c3787c65c1e5;
+  sphn:hasIdentifier "ID-892411-RvE" .
+
+resource:CHE-229_707_417-Unit-30e9c5cc-101f-4ccc-9ed7-33e8b421eaeb a sphn:Unit;
+  sphn:hasCode ucum:Torr .
+
+resource:CHE-229_707_417-Unit-b83e90ec-17e0-4a3c-8398-3ca8ea7e9d49 a sphn:Unit;
+  sphn:hasCode ucum:Lperh .
+
+resource:Code-SNOMED-CT-1255069002 a snomed:1255069002 .
+
+resource:Code-SNOMED-CT-255604002 a snomed:255604002 .
+
+resource:Code-SNOMED-CT-308829001 a snomed:308829001 .
+
+resource:Code-SNOMED-CT-372459003 a snomed:372459003 .
+
+resource:Code-SNOMED-CT-396327004 a snomed:396327004 .
+
+resource:Code-SNOMED-CT-410592001 a snomed:410592001 .
+
+resource:Code-SNOMED-CT-419199007 a snomed:419199007 .
+
+resource:Code-SNOMED-CT-65872000 a snomed:65872000 .
+
+resource:Code-SNOMED-CT-723507007 a snomed:723507007 .
+
+resource:Code-SNOMED-CT-723511001 a snomed:723511001 .
+
+resource:Code-SNOMED-CT-7771000 a snomed:7771000 .
+
+resource:Code-UCUM-Lperh a ucum:Lperh .
+
+resource:Code-UCUM-Torr a ucum:Torr .
