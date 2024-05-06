@@ -85,6 +85,7 @@ public class XLSDataSetExportHelper extends AbstractXLSEntityExportHelper<DataSe
         fetchOptions.withExperiment();
         fetchOptions.withType().withPropertyAssignments().withPropertyType();
         fetchOptions.withProperties();
+        fetchOptions.withSampleProperties();
         fetchOptions.withRegistrator();
         fetchOptions.withModifier();
         fetchOptions.withPhysicalData();

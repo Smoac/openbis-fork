@@ -41,6 +41,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.DataType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.FieldType;
@@ -207,21 +208,21 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
     private static String getProperty(final Map<String, Serializable> properties, final PropertyType propertyType)
     {
         Serializable propertyValue = properties.get(propertyType.getCode());
-        if(propertyValue == null)
+        if (propertyValue == null)
         {
             return null;
         }
-        if(propertyValue.getClass().isArray())
+        if (propertyValue.getClass().isArray())
         {
             StringBuilder sb = new StringBuilder();
             Serializable[] values = (Serializable[]) propertyValue;
-            for(Serializable value : values)
+            for (Serializable value : values)
             {
-                if(sb.length() > 0)
+                if (sb.length() > 0)
                 {
                     sb.append(", ");
                 }
-                sb.append(value);
+                sb.append(value instanceof Sample ? ((Sample) value).getIdentifier().getIdentifier() : value);
             }
             return sb.toString();
         } else
