@@ -102,12 +102,15 @@ public class ScriptImportHelper extends BasicImportHelper
     @Override protected void updateObject(Map<String, Integer> header, List<String> values, int page, int line)
     {
         String scriptPath = getValueByColumnName(header, values, scriptType.getColumnName());
-
-        PluginUpdate update = new PluginUpdate();
-        PluginPermId permId = new PluginPermId(getScriptName(header, values));
-        update.setPluginId(permId);
-        update.setScript(this.scripts.get(scriptPath));
-        delayedExecutor.updatePlugin(update);
+        String script = this.scripts.get(scriptPath);
+        if (script != null)
+        {
+            PluginUpdate update = new PluginUpdate();
+            PluginPermId permId = new PluginPermId(getScriptName(header, values));
+            update.setPluginId(permId);
+            update.setScript(this.scripts.get(scriptPath));
+            delayedExecutor.updatePlugin(update);
+        }
     }
 
     @Override protected void validateHeader(Map<String, Integer> header)
