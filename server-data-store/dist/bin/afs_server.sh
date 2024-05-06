@@ -110,12 +110,12 @@ printStatus()
 #
 
 
-PID_FILE=../afs_server.pid
-LIB_FOLDER=../lib
-CONF_FILE=../etc/afs_server.conf
-SERVICE_PROPERTIES_FILE=../etc/service.properties
-LOG_FILE=../log/afs_server_log.txt
-STARTUP_LOG=../log/startup_log.txt
+PID_FILE=./afs_server.pid
+LIB_FOLDER=./lib
+CONF_FILE=./etc/afs_server.conf
+SERVICE_PROPERTIES_FILE=./etc/service.properties
+LOG_FILE=./log/afs_server_log.txt
+STARTUP_LOG=./log/startup_log.txt
 SUCCESS_MSG="=== Server ready ==="
 MAX_LOOPS=20
 
@@ -127,9 +127,9 @@ bin=$0
 if [ -L $bin ]; then
   bin=`dirname $bin`/`readlink $bin`
 fi
-WD=`dirname $bin`
+WD=`dirname $bin`/../
 cd $WD
-SCRIPT=./`basename $0`
+SCRIPT=./bin/`basename $0`
 
 #
 # source configuration script
