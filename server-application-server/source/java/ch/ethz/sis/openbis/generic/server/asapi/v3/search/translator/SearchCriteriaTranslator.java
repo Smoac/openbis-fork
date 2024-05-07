@@ -121,7 +121,7 @@ public class SearchCriteriaTranslator
 
     private static String buildSelect(final TranslationContext translationContext)
     {
-        return SELECT + SP + (translationContext.getParentCriterion().isNegated() ? "" : DISTINCT) + SP +
+        return SELECT + SP + DISTINCT + SP +
                 MAIN_TABLE_ALIAS + PERIOD + translationContext.getIdColumnName();
     }
 
