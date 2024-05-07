@@ -82,35 +82,25 @@ public class OntClassObject
     private String printRestriction(List<Restriction> restrictions) {
         StringBuilder sb = new StringBuilder();
         for (Restriction restriction : restrictions) {
-            switch(RestrictionClassEnum.valueOf(restriction.getClass().getSimpleName())){
-                case CARDINALITY:
-                    //System.out.println("   - Cardinality Restriction on " + restriction.getOnProperty().getURI() + " value: " + restriction.asCardinalityRestriction().getCardinality());
-                    sb.append(restriction.asCardinalityRestriction().getCardinality());
-                    break;
-                case MIN_CARDINALITY:
-                    sb.append(" MinCardinalityRestriction [").append(restriction.asMinCardinalityRestriction().getMinCardinality()).append("]");
-                    break;
-                case MAX_CARDINALITY:
-                    sb.append(" MaxCardinalityRestriction [").append(restriction.asMaxCardinalityRestriction().getMaxCardinality()).append("]");
-                    break;
-                case SOME_VALUES_FROM:
-                    StringBuilder values = new StringBuilder();
-                    Resource resource = restriction.asSomeValuesFromRestriction().getSomeValuesFrom();
-                    assert resource != null;
-                    if (this.unions.get(resource) != null) {
-                        values.append(resource)
-                                .append(": ")
-                                .append(String.join(", ", this.unions.get(resource)));
-                    } else {
-                        values.append(resource);
-                    }
-                    sb.append(" SomeValuesFromRestriction [").append(values).append("]");
-                    break;
-                default:
-                    //System.out.println(" x ");
-                    sb.append("NONE");
-                    break;
+            if(restriction.isCardinalityRestriction()) sb.append(restriction.asCardinalityRestriction().getCardinality());
+            else if(restriction.isMinCardinalityRestriction()) sb.append(" MinCardinalityRestriction [").append(restriction.asMinCardinalityRestriction().getMinCardinality()).append("]");
+            else if(restriction.isMaxCardinalityRestriction()) sb.append(" MaxCardinalityRestriction [").append(restriction.asMaxCardinalityRestriction().getMaxCardinality()).append("]");
+            else if(restriction.isSomeValuesFromRestriction()) {
+                StringBuilder values = new StringBuilder();
+                Resource resource = restriction.asSomeValuesFromRestriction().getSomeValuesFrom();
+                assert resource != null;
+                if (this.unions.get(resource) != null)
+                {
+                    values.append(resource)
+                            .append(": ")
+                            .append(String.join(", ", this.unions.get(resource)));
+                } else
+                {
+                    values.append(resource);
+                }
+                sb.append(" SomeValuesFromRestriction [").append(values).append("]");
             }
+            else sb.append("NONE");
         }
         return sb.toString();
     }
