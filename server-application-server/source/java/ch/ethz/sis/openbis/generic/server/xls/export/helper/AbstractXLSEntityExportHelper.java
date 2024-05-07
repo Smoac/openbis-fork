@@ -229,12 +229,17 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
         } else if (entity instanceof DataSet)
         {
             sampleProperties = ((DataSet) entity).getSampleProperties();
-        } else {
-            sampleProperties = new HashMap<>();
+        } else
+        {
+            sampleProperties = null;
         }
 
         final Map<String, Serializable> properties = new HashMap<>(entity.getProperties());
-        properties.putAll(sampleProperties);
+        if (sampleProperties != null)
+        {
+            properties.putAll(sampleProperties);
+        }
+
         return properties;
     }
 
