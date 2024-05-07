@@ -36,6 +36,6 @@ public class GetServerPublicInformationTest extends AbstractTest
         assertEquals(result.get("authentication-service.switch-aai.link"), null);
         assertEquals(result.get("authentication-service.switch-aai.label"), null);
         assertEquals(result.get("openbis.support.email"), "openbis-support@id.ethz.ch");
-        assertEquals(result.get("server-public-information.afs-server.url"), "http://localhost:8085/data-store-server");
+        assertEquals(result.get("server-public-information.afs-server.url"), "http://localhost:8085/afs-server");
     }
 }

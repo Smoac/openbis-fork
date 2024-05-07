@@ -1,7 +1,7 @@
 /** Default owner/source */
 const owner = "demo-sample";
 const source = "";
-const HTTP_SERVER_URI = "/data-store-server";
+const HTTP_SERVER_URI = "/afs-server";
 
 /// The datastoreServer we use for our data
 // datastoreServer = new datastore('https://localhost:8443/openbis', 'https://localhost:8444/datastore_server');

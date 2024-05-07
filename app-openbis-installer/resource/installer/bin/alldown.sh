@@ -16,6 +16,7 @@ if [ ${BASE#/} == ${BASE} ]; then
     BASE="`pwd`/${BASE}"
 fi
 
+$BASE/afsdown.sh
 $BASE/dssdown.sh
 $BASE/bisdown.sh
-$BASE/afsdown.sh
+
