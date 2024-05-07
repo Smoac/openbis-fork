@@ -255,6 +255,11 @@ public class ExportExecutor implements IExportExecutor
 
     private static final Pattern FILE_SERVICE_PATTERN = Pattern.compile("/openbis/" + FileServiceServlet.FILE_SERVICE_PATH + "/");
 
+    /** Used to replace possible illegal characters in the HTML. */
+    private static final String XML_10_REGEXP = "[^\\u0009\\u000A\\u000D\\u0020-\\uD7FF\\uE000-\\uFFFD]";
+
+    private static final String UNPRINTABLE_CHARACTER_REFERENCES_REGEXP = "&#x[0-1]?[0-9A-Fa-f];";
+
     @Resource(name = ObjectMapperResource.NAME)
     private ObjectMapper objectMapper;
 
@@ -431,19 +436,23 @@ public class ExportExecutor implements IExportExecutor
 
     private String getDownloadPath(final String sessionToken, final String fileName)
     {
-        final String protocolWithDomain = getProtocolWithDomain();
+        final String protocolWithDomain = configurer.getResolvedProps().getProperty(DOWNLOAD_URL);
+        if (protocolWithDomain == null || protocolWithDomain.isBlank())
+        {
+            throw new UserFailureException(String.format("The property '%s' is not configured for the application server.", DOWNLOAD_URL));
+        }
 
         return String.format("%s/openbis/openbis/download?sessionID=%s&filePath=%s", protocolWithDomain, sessionToken,
                 URLEncoder.encode(fileName, StandardCharsets.UTF_8));
     }
 
-    private void exportXlsx(final IApplicationServerApi api, final String sessionToken, final File exportWorkspaceDirectory,
+    private static void exportXlsx(final IApplicationServerApi api, final String sessionToken, final File exportWorkspaceDirectory,
             final List<ExportablePermId> exportablePermIds, final boolean exportReferredMasterData,
             final Map<String, Map<String, List<Map<String, String>>>> exportFields,
             final TextFormatting textFormatting, final boolean compatibleWithImport, final Collection<String> warnings) throws IOException
     {
         final XLSExport.PrepareWorkbookResult xlsExportResult = XLSExport.prepareWorkbook(api, sessionToken, exportablePermIds,
-                exportReferredMasterData, exportFields, textFormatting, compatibleWithImport, getProtocolWithDomain());
+                exportReferredMasterData, exportFields, textFormatting, compatibleWithImport);
 
         final File xlsxDirectory = new File(exportWorkspaceDirectory, XLSX_DIRECTORY);
         mkdirs(xlsxDirectory);
@@ -470,16 +479,6 @@ public class ExportExecutor implements IExportExecutor
         }
 
         warnings.addAll(xlsExportResult.getWarnings());
-    }
-
-    private String getProtocolWithDomain()
-    {
-        final String protocolWithDomain = configurer.getResolvedProps().getProperty(DOWNLOAD_URL);
-        if (protocolWithDomain == null || protocolWithDomain.isBlank())
-        {
-            throw new UserFailureException(String.format("The property '%s' is not configured for the application server.", DOWNLOAD_URL));
-        }
-        return protocolWithDomain;
     }
 
     private static void exportFiles(final Map<String, String> fileNameToContentsMap, final File directory,

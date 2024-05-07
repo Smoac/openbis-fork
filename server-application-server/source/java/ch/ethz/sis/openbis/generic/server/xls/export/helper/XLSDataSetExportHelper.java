@@ -60,9 +60,9 @@ import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 public class XLSDataSetExportHelper extends AbstractXLSEntityExportHelper<DataSet, DataSetType>
 {
 
-    public XLSDataSetExportHelper(final Workbook wb, final String protocolWithDomain)
+    public XLSDataSetExportHelper(final Workbook wb)
     {
-        super(wb, protocolWithDomain);
+        super(wb);
     }
 
     @Override

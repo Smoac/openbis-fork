@@ -45,9 +45,9 @@ import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 public class XLSProjectExportHelper extends AbstractXLSExportHelper<IEntityType>
 {
 
-    public XLSProjectExportHelper(final Workbook wb, final String protocolWithDomain)
+    public XLSProjectExportHelper(final Workbook wb)
     {
-        super(wb, protocolWithDomain);
+        super(wb);
     }
 
     @Override

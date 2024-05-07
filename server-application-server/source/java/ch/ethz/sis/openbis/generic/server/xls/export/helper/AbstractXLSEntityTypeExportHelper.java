@@ -45,9 +45,9 @@ import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 public abstract class AbstractXLSEntityTypeExportHelper<ENTITY_TYPE extends IEntityType> extends AbstractXLSExportHelper<ENTITY_TYPE>
 {
 
-    public AbstractXLSEntityTypeExportHelper(final Workbook wb, final String protocolWithDomain)
+    public AbstractXLSEntityTypeExportHelper(final Workbook wb)
     {
-        super(wb, protocolWithDomain);
+        super(wb);
     }
 
     @Override

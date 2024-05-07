@@ -53,9 +53,9 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
         ENTITY_TYPE extends IEntityType> extends AbstractXLSExportHelper<ENTITY_TYPE>
 {
 
-    public AbstractXLSEntityExportHelper(final Workbook wb, final String protocolWithDomain)
+    public AbstractXLSEntityExportHelper(final Workbook wb)
     {
-        super(wb, protocolWithDomain);
+        super(wb);
     }
 
     @Override

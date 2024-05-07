@@ -42,9 +42,9 @@ import ch.ethz.sis.openbis.generic.server.xls.export.XLSExport;
 public class XLSSpaceExportHelper extends AbstractXLSExportHelper<IEntityType>
 {
 
-    public XLSSpaceExportHelper(final Workbook wb, final String protocolWithDomain)
+    public XLSSpaceExportHelper(final Workbook wb)
     {
-        super(wb, protocolWithDomain);
+        super(wb);
     }
 
     @Override

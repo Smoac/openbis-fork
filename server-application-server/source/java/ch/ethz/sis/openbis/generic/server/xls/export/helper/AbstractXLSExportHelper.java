@@ -23,8 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
@@ -69,17 +67,14 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
 
     private final CellStyle errorCellStyle;
 
-    private final String protocolWithDomain;
-
-    public AbstractXLSExportHelper(final Workbook wb, final String protocolWithDomain)
+    public AbstractXLSExportHelper(final Workbook wb)
     {
         this.wb = wb;
         
         normalCellStyle = wb.createCellStyle();
         boldCellStyle = wb.createCellStyle();
         errorCellStyle = wb.createCellStyle();
-        this.protocolWithDomain = protocolWithDomain;
-
+        
         final Font boldFont = wb.createFont();
         boldFont.setBold(true);
         boldCellStyle.setFont(boldFont);
@@ -125,7 +120,7 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
         for (int j = 0; j < values.length; j++)
         {
             final Cell cell = row.createCell(j);
-            final String value = values[j] != null ? updateImgSrc(values[j]) : "";
+            final String value = values[j] != null ? values[j] : "";
 
             if (value.length() <= Short.MAX_VALUE)
             {
@@ -140,33 +135,6 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
         }
 
         return new AddRowResult(warnings, valueFiles);
-    }
-
-    public String updateImgSrc(final String input)
-    {
-        if (this.protocolWithDomain != null)
-        {
-            // Regular expression to match <img src='...' or <img src="..."
-            final String regex = "<img\\s+src=[\"'](/[^\"']*)[\"']";
-            final Pattern pattern = Pattern.compile(regex);
-            final Matcher matcher = pattern.matcher(input);
-
-            // Construct the replacement
-            final StringBuffer result = new StringBuffer();
-
-            while (matcher.find())
-            {
-                // Create the replacement string
-                final String replacement = "<img src=\"" + this.protocolWithDomain + matcher.group(1) + "\"";
-                matcher.appendReplacement(result, replacement);
-            }
-
-            matcher.appendTail(result);
-            return result.toString();
-        } else
-        {
-            return input;
-        }
     }
 
     public static String convertNumericToAlphanumeric(final int row, final int col)

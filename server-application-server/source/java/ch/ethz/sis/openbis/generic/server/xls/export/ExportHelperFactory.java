@@ -52,19 +52,19 @@ public class ExportHelperFactory
 
     final Workbook wb;
 
-    ExportHelperFactory(final Workbook wb, final String protocolWithDomain)
+    ExportHelperFactory(final Workbook wb)
     {
         this.wb = wb;
 
-        sampleTypeExportHelper = new XLSSampleTypeExportHelper(wb, protocolWithDomain);
-        experimentTypeExportHelper = new XLSExperimentTypeExportHelper(wb, protocolWithDomain);
-        dataSetTypeExportHelper = new XLSDataSetTypeExportHelper(wb, protocolWithDomain);
-        vocabularyExportHelper = new XLSVocabularyExportHelper(wb, protocolWithDomain);
-        spaceExportHelper = new XLSSpaceExportHelper(wb, protocolWithDomain);
-        projectExportHelper = new XLSProjectExportHelper(wb, protocolWithDomain);
-        experimentExportHelper = new XLSExperimentExportHelper(wb, protocolWithDomain);
-        sampleExportHelper = new XLSSampleExportHelper(wb, protocolWithDomain);
-        dataSetExportHelper = new XLSDataSetExportHelper(wb, protocolWithDomain);
+        sampleTypeExportHelper = new XLSSampleTypeExportHelper(wb);
+        experimentTypeExportHelper = new XLSExperimentTypeExportHelper(wb);
+        dataSetTypeExportHelper = new XLSDataSetTypeExportHelper(wb);
+        vocabularyExportHelper = new XLSVocabularyExportHelper(wb);
+        spaceExportHelper = new XLSSpaceExportHelper(wb);
+        projectExportHelper = new XLSProjectExportHelper(wb);
+        experimentExportHelper = new XLSExperimentExportHelper(wb);
+        sampleExportHelper = new XLSSampleExportHelper(wb);
+        dataSetExportHelper = new XLSDataSetExportHelper(wb);
     }
 
     IXLSExportHelper<? extends IEntityType> getHelper(final ExportableKind exportableKind)

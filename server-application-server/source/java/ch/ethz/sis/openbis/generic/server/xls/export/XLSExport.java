@@ -25,6 +25,7 @@ import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.SPACE
 import static ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind.VOCABULARY_TYPE;
 
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -76,14 +77,27 @@ public class XLSExport
         throw new UnsupportedOperationException("Instantiation of a utility class.");
     }
 
+    private static File createDirectory(final File parentDirectory, final String directoryName) throws IOException
+    {
+        final File scriptsDirectory = new File(parentDirectory, directoryName);
+        final boolean directoryCreated = scriptsDirectory.mkdir();
+
+        if (!directoryCreated)
+        {
+            throw new IOException(String.format("Failed create directory %s.", scriptsDirectory.getAbsolutePath()));
+        }
+
+        return scriptsDirectory;
+    }
+
     public static ExportResult export(final String filePrefix, final IApplicationServerApi api,
             final String sessionToken, final List<ExportablePermId> exportablePermIds,
             final boolean exportReferredMasterData,
             final Map<String, Map<String, List<Map<String, String>>>> exportFields,
-            final TextFormatting textFormatting, final boolean compatibleWithImport, final String protocolWithDomain) throws IOException
+            final TextFormatting textFormatting, final boolean compatibleWithImport) throws IOException
     {
         final PrepareWorkbookResult exportResult = prepareWorkbook(api, sessionToken, exportablePermIds,
-                exportReferredMasterData, exportFields, textFormatting, compatibleWithImport, protocolWithDomain);
+                exportReferredMasterData, exportFields, textFormatting, compatibleWithImport);
         final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
         final Map<String, String> scripts = exportResult.getScripts();
 
@@ -95,16 +109,6 @@ public class XLSExport
             writeToOutputStream(os, filePrefix, exportResult);
         }
         return new ExportResult(fullFileName, exportResult.getWarnings());
-    }
-
-    public static ExportResult export(final String filePrefix, final IApplicationServerApi api,
-            final String sessionToken, final List<ExportablePermId> exportablePermIds,
-            final boolean exportReferredMasterData,
-            final Map<String, Map<String, List<Map<String, String>>>> exportFields,
-            final TextFormatting textFormatting, final boolean compatibleWithImport) throws IOException
-    {
-        return export(filePrefix, api, sessionToken, exportablePermIds, exportReferredMasterData, exportFields, textFormatting, compatibleWithImport,
-                null);
     }
 
     private static void writeToOutputStream(final FileOutputStream os, final String filePrefix,
@@ -147,7 +151,7 @@ public class XLSExport
     public static PrepareWorkbookResult prepareWorkbook(final IApplicationServerApi api, final String sessionToken,
             List<ExportablePermId> exportablePermIds, final boolean exportReferredMasterData,
             final Map<String, Map<String, List<Map<String, String>>>> exportFields,
-            final TextFormatting textFormatting, final boolean compatibleWithImport, final String protocolWithDomain)
+            final TextFormatting textFormatting, final boolean compatibleWithImport)
     {
         if (!isValid(exportablePermIds))
         {
@@ -157,7 +161,7 @@ public class XLSExport
         final Workbook wb = new XSSFWorkbook();
         wb.createSheet();
 
-        final ExportHelperFactory exportHelperFactory = new ExportHelperFactory(wb, protocolWithDomain);
+        final ExportHelperFactory exportHelperFactory = new ExportHelperFactory(wb);
 
         if (exportReferredMasterData)
         {

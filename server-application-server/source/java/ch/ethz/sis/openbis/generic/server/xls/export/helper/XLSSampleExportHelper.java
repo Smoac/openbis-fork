@@ -58,9 +58,9 @@ import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 public class XLSSampleExportHelper extends AbstractXLSEntityExportHelper<Sample, SampleType>
 {
 
-    public XLSSampleExportHelper(final Workbook wb, final String protocolWithDomain)
+    public XLSSampleExportHelper(final Workbook wb)
     {
-        super(wb, protocolWithDomain);
+        super(wb);
     }
 
     @Override
