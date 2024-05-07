@@ -255,26 +255,13 @@ public class ExportExecutor implements IExportExecutor
 
     private static final Pattern FILE_SERVICE_PATTERN = Pattern.compile("/openbis/" + FileServiceServlet.FILE_SERVICE_PATH + "/");
 
-    /** Used to replace possible illegal characters in the HTML. */
-    private static final String XML_10_REGEXP = "[^\\u0009\\u000A\\u000D\\u0020-\\uD7FF\\uE000-\\uFFFD]";
-
-    private static final String UNPRINTABLE_CHARACTER_REFERENCES_REGEXP = "&#x[0-1]?[0-9A-Fa-f];";
-
     @Resource(name = ObjectMapperResource.NAME)
     private ObjectMapper objectMapper;
 
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     private ExposablePropertyPlaceholderConfigurer configurer;
 
-    private ObjectWriter objectWriter;
-
     private long dataLimit = -1;
-
-    @PostConstruct
-    private void postConstruct()
-    {
-        objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
-    }
 
     @Override
     public ExportResult doExport(final IOperationContext context, final ExportOperation operation)

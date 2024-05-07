@@ -77,19 +77,6 @@ public class XLSExport
         throw new UnsupportedOperationException("Instantiation of a utility class.");
     }
 
-    private static File createDirectory(final File parentDirectory, final String directoryName) throws IOException
-    {
-        final File scriptsDirectory = new File(parentDirectory, directoryName);
-        final boolean directoryCreated = scriptsDirectory.mkdir();
-
-        if (!directoryCreated)
-        {
-            throw new IOException(String.format("Failed create directory %s.", scriptsDirectory.getAbsolutePath()));
-        }
-
-        return scriptsDirectory;
-    }
-
     public static ExportResult export(final String filePrefix, final IApplicationServerApi api,
             final String sessionToken, final List<ExportablePermId> exportablePermIds,
             final boolean exportReferredMasterData,
