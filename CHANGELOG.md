@@ -1,14 +1,14 @@
 # OpenBIS Change Log
 
 ## Version 20.10.7.3 (23 November 2023)
-### ELN:
+### ELN
 
 - Bugfix: Circular Annotations deletion (SSDM-14135)
-### Admin:
+### Admin
 
 - Improvement: XLS Master Data Importer: Make Version Optional, vocabularies bug fix (SSDM-14129)
 ## Version 20.10.7.2 (13 October 2023)
-### ELN:
+### ELN
 
 - Improvement: Make object property a link (SSDM-13901)
 - Improvement: Support spaces for identifiers separation in the PASTE ANY search (SSDM-13829)
@@ -22,10 +22,10 @@
 - Bugfix: Remove system pop up from the back button (support issues on mobile/tablets) (SSDM-13894)
 - Bugfix: Sample form can't update Objects when project-samples is disabled (SSDM-13962)
 - Bugfix: Explicit "false" is not saved for "boolean" properties (SSDM-14093)
-### Admin:
+### Admin
 
 - Improvement: XLS Master Data Importer: Make Version Optional (SSDM-13961)
-### Core:
+### Core
 
 - New Feature: V3 API : Import (BIS-771)
 - New Feature: V3 API : Provide bundles with all V3 API JS files (BIS-761)
@@ -35,18 +35,18 @@
 - Bugfix: Properties : Fix properties that contain both a value and a link to a controlled vocabulary term (SSDM-13843)
 - Bugfix: PAT : Remove hash from validity PAT warning emails (SSDM-14099)
 ## Version 20.10.7.1 (25 July 2023)
-### ELN:
+### ELN
 
 - Improvement: ELN Dropbox provides now a report with all error messages when registration fails. (SSDM-13794)
 - Improvement: Navigation further avoids to show empty folders in some situations. (SSDM-13827)
 - Bugfix: Back button behaviour was in some situations incorrect. Example: pressing back after navigating to an experiment from an identifier in a table. (SSDM-13811)
 - Bugfix: Zenodo Export form did break in two situations, now fixed. (SSDM-13813, SSDM-13824)
 - Bugfix: Dataset Viewer was not showing the list of files on the DataSet form, only on the Collection/Sample forms, is now fixed. (SSDM-13827)
-### Admin:
+### Admin
 
 - Improvement: Vocabulary term template now provides an explanation on how to use it. (SSDM-13817)
 ## Version 20.10.7 (5 July 2023)
-### Core:
+### Core
 
 - Improvement: Improved SFTP Folder listing performance (SSDM-13489)
 - Improvement: Improved SFTP download performance (SSDM-13490)
@@ -56,7 +56,7 @@
 - Bugfix: User Management maintenance task now reuses the same space for a user if it gets deactivated/activated again (SSDM-13421)
 - Bugfix: User Management maintenance task now assign rights correctly when moving a user from one group to another instead of rights getting lost (SSDM-13716)
 - Bugfix: DataSetArchiverOrphanFinderTask fix erroneous reporting of missing tar files when using archivers on multi-group instances with sub-folders (SSDM-13725)
-### ELN:
+### ELN
 
 - Removal: Plasmapper 2.0 integration since the external service was been decommissioned (SSDM-13664)
 - New Feature: New Barcode / QR Code widget supporting scanner and camera in all places where barcodes could be used on the UI (SSDM-12100)
@@ -75,7 +75,7 @@
 - Bugfix: Some glitches with repeated columns tables fixed (SSDM-13712)
 - Bugfix: XLS Dataset exports (SSDM-13693)
 - Bugfix: Windows Postgres version detection (SSDM-13709)
-### Admin UI:
+### Admin UI
 
 - Improvement: XLS Imports now skips DB sanity check used by large migration greatly lowering import times (SSDM-13788)
 - Bugfix: Now unofficial terms stay unofficial if the official checkbox is not checked. (SSDM-13730)
@@ -85,7 +85,7 @@
 - Improvement: High resolution logos and icons (SSDM-13504)
 - Improvement: Navigation, removal of empty nodes (SSDM-13671)
 ## Version 20.10.6 (26 April 2023)
-### Core:
+### Core
 
 - New Feature: OpenBIS class to interact with AS and DSS with methods to handle uploads and semantic annotations. (SSDM-13017)
 - New Feature: Dataset Creation from V3 API: Java, javascript and python3 facades support. (SSDM-13253) right arrow openBISV3API-RegisterDataSets
@@ -100,16 +100,16 @@
 - Bugfix: MultiDataSetArchiver : make unarchiving more robust with StrongLink (SSDM-13084)
 - Bugfix: DSS registration on AS -  Wait for safe registration (SSDM-13327)
 - Bugfix: PAT support for single sign on setups (SSDM-13362)
-### Admin UI / ELN:
+### Admin UI / ELN
 
 - New Feature: New navigation component. (SSDM-12451, SSDM-11608, SSDM-12480, SSDM-13274, SSDM-13118, SSDM-12479, SSDM-12098)right arrow User Documentation - Navigation Menu
 - New Feature: Table XLS Exports of metadata and master data. (SSDM-13206, SSDM-13163, SSDM-13256, SSDM-13450, SSDM-13463, SSDM-13414, SSDM-13420) right arrow User Documentation - Tables
 - New Feature: XLS Imports, zip support (SSDM-13422)
 - Bugfix: XLS Imports, Allow ""-"" in codes.  Allow updating properties if the file contains a $property. All deletions to require delete tag and other bug fixes  (SSDM-13320, SSDM-13343, SSDM-13447, SSDM-13446)
-### Admin UI:
+### Admin UI
 
 - New Feature: Info view. (SSDM-13133)
-### ELN:
+### ELN
 
 - New Feature: Dropbox monitor (SSDM-13135)right arrow User Documentation - Dropbox Monitor
 - New Feature: Barcode Scanner using camera from the main menu right arrow User Documentation - Barcodes
@@ -137,7 +137,7 @@
 - Bugfix: UnicodeEncodeError in OPERATION.generalExports.py (SSDM-13367)
 - Bugfix: file-authentication: having special characters in name prevents editing in User profile (SSDM-13171)
 ## Version 20.10.5 (29 November 2022)
-### Core:
+### Core
 
 - (SSDM-11550) New Feature : Personal Access Tokens (PAT)
 - (SSDM-12514) New Feature : API Event listener for integrations
@@ -167,7 +167,7 @@
 ### Jupyter Integration:
 
 - (SSDM-12909) Bugfix : Session token not automatically saved in Jupyter notebook
-### Admin UI:
+### Admin UI
 
 - (SSDM-11675) Improvement : Get rid of Redux and Redux-Saga
 - (SSDM-12451) New Feature : New database navigation component in Admin UI (tech preview)
@@ -198,7 +198,7 @@
 - (SSDM-13159) Improvement : Load improvements for Parents Table and Storage Views
 - (SSDM-13152) New Feature : Exports for Master data and Metadata - UI
 ## Version 20.10.4 (3 August 2022)
-### Core:
+### Core
 
 - (SSDM-9831)  New Feature: Sample FK Properties : Materials Migration
 - (SSDM-10984) New Feature: Excel masterdata spreadsheet rewrite in Java with parser giving error messages by line
@@ -216,7 +216,7 @@
 - (SSDM-12703) Bugfix: SFTP shows non-existing files as empty files/folders
 - (SSDM-12655) Bugfix: Search complete openBIS repo for places where we open a v3 api session internally and close them
 - (SSDM-12782) Bugfix: Fix Vocabulary from Property Type Conversion
-### ELN:
+### ELN
 
 - (SSDM-12621) New Feature : Creation of spaces
 - (SSDM-12622) New Feature : New Processing Plugin Tool View
@@ -234,14 +234,14 @@
 - (SSDM-12651) Bugfix: Batch upload of storage positions avoids repeating box names
 - (SSDM-12732) Bugfix: SFTP shows non-existing files as empty files/folders
 ## Version 20.10.3.1 (13 June 2022)
-### Core:
+### Core
 
 - (SSDM-12045) Improvement : UserManagementMaintenanceTask - Improved template
 - (SSDM-12485) Improvement : UserManagementMaintenanceTask - Create empty mapping file
 - (SSDM-12081) Bugfix : freezing affects trashcan
 - (SSDM-12530) Bugfix : poor performance of events search maintenance task - memory leak
 - (SSDM-12556) Bugfix : poor performance of events search maintenance task - fetching too many events
-### ELN:
+### ELN
 
 - (SSDM-11623) Improvement : Multi Group Support - Group configuration is only applied to its spaces
 - (SSDM-12370) Improvement : Truncate long lists of parents/children displayed in tables
@@ -256,7 +256,7 @@
 - (SSDM-12522) Bugfix : selection of experiments to show in project overview does not work properly
 - (SSDM-12526) Bugfix : delete message for object type ENTRY shows html tags
 ## Version 20.10.3 (7 March 2022)
-### Core:
+### Core
 
 - (SSDM-11728) Bugfix : Dynamic Properties evaluation fails if sample components are accessed
 - (SSDM-12059) Bugfix : SFTP : datasets connected only to samples are not shown
@@ -272,7 +272,7 @@
 - (SSDM-11354) New Feature : Query Engine : Caching Implementation
 - (SSDM-11954) New Feature : Maintenance task which removed deleted data sets from the archive
 - (SSDM-12110) Remove CIFEX from openBIS
-### ELN:
+### ELN
 
 - (SSDM-9305) Bugfix : Hints for children set in Settings are not shown when editing objects
 - (SSDM-12184) Bugfix : Plain Text Widget and Monospace font saves HTML tags
@@ -310,20 +310,20 @@
 - (SSDM-12025) Table Widget : Dropdown filter for Boolean properties
 - (SSDM-12149) Table Widget : Show by default more columns in ELN tables
 - (SSDM-12250) Table Widget : Sticky first column
-### pyBIS:
+### pyBIS
 
 - (SSDM-11738) : get_samples() with children
-### New Admin UI:
+### New Admin UI
 
 - (SSDM-12150) : New Feature : XLS Import
 - (SSDM-11169) : New Feature : Property types overview
 - (SSDM-11727) : Remove the concept of local property types
 ## Version 20.10.2.3 (15 November 2021)
-### ELN:
+### ELN
 
 - Fix security vulnerability.
 ## Version 20.10.2.2 (30 November 2021)
-### Core:
+### Core
 
 - (SSDM-11586) Bugfix: Pybis - uses session from last login when used in JupyterHub
 - (SSDM-11792) Bugfix: Pybis - remove the usage of environment variables in Jupyter Authenticator and Pybis
@@ -337,7 +337,7 @@
 - (SSDM-11602) V3 API - getRights: Adding DELETE and updating EDIT
 - (SSDM-11884) Permanent deletion should show dependent deletion sets
 - (SSDM-11885) Improve postregistration in case of error
-### ELN:
+### ELN
 
 - (SSDM-10078) Bugfix: Non deletable datasets can't be moved to trashcan
 - (SSDM-10301) Bugfix: 2nd level of Parents/Children now shows on Parents/Children table
@@ -362,14 +362,14 @@
 
 
 ## Version 20.10.2.1 (6 October 2021)
-### Core:
+### Core
 
 - (SSDM-11740) Fix SFTP to use session token
-### ELN:
+### ELN
 
 - (SSDM-11799) Can not create copy of an object with children
 ## Version 20.10.2 GA (General Availability) (22 September 2021)
-### Core:
+### Core
 
 - (SSDM-10942) V3 API search : Improve partial match search
 - (SSDM-10941) V3 API search : Searching for several words does not scale efficiently
@@ -399,7 +399,7 @@
 - (SSDM-11420) Bugfix : Widget for addition of datasets when creating new jupyter notebook does not have scrollbar
 - (SSDM-11577) Bugfix : Moving objects to space called SHARED_MATERIALS does not work
 - (SSDM-11559) Bugfix : Cannot remove widget assignment in ELN settings
-### ELN:
+### ELN
 
 - (SSDM-10940) Warning when searching for more than 3 words in global search
 - (SSDM-10986) Anonymous login in ELN
@@ -425,7 +425,7 @@
 - (SSDM-11341) Bugfix: Hide Nagios dataset type from ELN UI
 - (SSDM-11555) Bugfix : Export ignores first 3 digits of MULTILINE_VARCHAR fields
 - (SSDM-11540) Bugfix : Export does not always work if objects contain a spreadheet
-### New Admin UI:
+### New Admin UI
 
 - (SSDM-10936) Bugfix : Bug with Order of Requests with missing quantity
 - (SSDM-11346) Bugfix : Remove user in new admin UI does not work
@@ -433,7 +433,7 @@
 - (SSDM-10939) Add SWITCH aai login to NG UI
 - (SSDM-11178) Make new admin UI and ELN consistent
 ## Version 20.10.1 EA (Early Access) (12 March 2021)
-### Core:
+### Core
 
 - (SSDM-10320) Bugfix : Installer fails to Upgrade
 - (SSDM-10316) Bugfix : SWITCH AAI user management tasks adds user folders each time it runs
@@ -483,19 +483,19 @@
 - (SSDM-10411) V3 API - a method for plugins evaluation is missing
 - (SSDM-10390) Search Engine : minor performance issues found during the new UI performance testing
 - (SSDM-10196) New Search engine : Missing criteria methods
-### ELN:
+### ELN
 
 - (SSDM-10000) ELN - Barcodes Follow Up
 - (SSDM-10149) Plugin Toolbar Extension
 - (SSDM-10309) User Manager Improvements
 - (SSDM-10387) Bugfix : ELN success message of batch uploads says 'samples' instead of 'objects'
 - (SSDM-10931) Bugfix : ELN Navigation tree doesn't show data sets
-- (SSDM-10913) Bugfix : ### ELN: Global search compatibility fixes (UI)
+- (SSDM-10913) Bugfix : ### ELN Global search compatibility fixes (UI)
 - (SSDM-10904) Bugfix : Fix bug in DSS eln-lims-api reporting-plugin: openBIS java.lang.IllegalStateException: zip file closed
 - (SSDM-10940) Warning when searching for more than 3 words in global search
 - (SSDM-10936) Bugfix : Bug with Order of Requests with missing quantity
 - (SSDM-10519) ELN UI : Fix Full Text Search sorting to score and show rank
-### New Admin UI:
+### New Admin UI
 
 - (SSDM-10186) NEW openBIS UI - Group Management page
 - (SSDM-10401) NEW openBIS UI - Plugins management page
@@ -517,8 +517,8 @@
 - Changes to the data model:
 - The Internally Managed and Internal Namespace concepts for properties have been merged. Now there is only Internally managed. Only the SYSTEM user can modify these.
 - Search engine: Completely rewritten to be faster, scale better and lower memory consumption. Queries will now behave like classic database queries instead of fuzzy full text search queries.
-### Admin UI: Currently a preview, will replace the Core UI on the future.
-### ELN-LIMS UI:
+### Admin UI Currently a preview, will replace the Core UI on the future.
+### ELN-LIMS UI
 - Improved plugin system for the UI.
 - Microscopy and Flow Cytometry UI are now ELN plugins.
 - Mayor Technology Upgrades, now using:
@@ -541,7 +541,7 @@ As a rule of a thumb, deprecated features should stop being used since they can 
 - GeneralInformationService
 - GeneralInformationChangingService
 
-### V3 API:
+### V3 API
 - isInternalNamesSpace & setInternalNameSpace : Now manage the same flag "Internally Managed"
 - FetchOptions.cacheMode : The new search engine ignores this, always getting the results from the database.
 - EntityWithPropertiesSortOptions.fetchedFieldsScore : The new search engine ignores this, only full text search has a weights system to sort results, non usable on standard queries.

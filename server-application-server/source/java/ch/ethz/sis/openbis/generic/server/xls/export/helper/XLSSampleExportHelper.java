@@ -58,9 +58,9 @@ import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 public class XLSSampleExportHelper extends AbstractXLSEntityExportHelper<Sample, SampleType>
 {
 
-    public XLSSampleExportHelper(final Workbook wb)
+    public XLSSampleExportHelper(final Workbook wb, final String protocolWithDomain)
     {
-        super(wb);
+        super(wb, protocolWithDomain);
     }
 
     @Override
@@ -113,6 +113,7 @@ public class XLSSampleExportHelper extends AbstractXLSEntityExportHelper<Sample,
         fetchOptions.withParents();
         fetchOptions.withChildren();
         fetchOptions.withType().withPropertyAssignments().withPropertyType();
+        fetchOptions.withSampleProperties();
         fetchOptions.withProperties();
         fetchOptions.withRegistrator();
         fetchOptions.withModifier();

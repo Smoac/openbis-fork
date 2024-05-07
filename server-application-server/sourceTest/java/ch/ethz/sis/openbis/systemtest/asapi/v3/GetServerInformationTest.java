@@ -38,7 +38,7 @@ public class GetServerInformationTest extends AbstractTest
         Map<String, String> result = v3api.getServerInformation(sessionToken);
 
         // Then
-        assertEquals(result.size(), 13);
+        assertEquals(result.size(), 14);
         assertEquals(result.get("api-version"), "3.6");
         assertEquals(result.get("archiving-configured"), "false");
         assertEquals(result.get("authentication-service"), "dummy-authentication-service");
@@ -52,6 +52,7 @@ public class GetServerInformationTest extends AbstractTest
         assertEquals(result.get("create-continuous-sample-codes"), "false");
         assertEquals(result.get("openbis-version"), BuildAndEnvironmentInfo.INSTANCE.getVersion());
         assertEquals(result.get("openbis.support.email"), "openbis-support@id.ethz.ch");
+        assertEquals(result.get("server-public-information.afs-server.url"), "http://localhost:8085/data-store-server");
 
         v3api.logout(sessionToken);
     }

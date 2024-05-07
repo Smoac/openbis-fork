@@ -17,6 +17,7 @@
 
 package ch.ethz.sis.openbis.generic.server.xls.export.helper;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -38,8 +39,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPropertiesHolder;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyAssignment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.PropertyType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.server.xls.export.Attribute;
 import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 import ch.ethz.sis.openbis.generic.server.xls.export.FieldType;
@@ -49,9 +53,9 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
         ENTITY_TYPE extends IEntityType> extends AbstractXLSExportHelper<ENTITY_TYPE>
 {
 
-    public AbstractXLSEntityExportHelper(final Workbook wb)
+    public AbstractXLSEntityExportHelper(final Workbook wb, final String protocolWithDomain)
     {
-        super(wb);
+        super(wb, protocolWithDomain);
     }
 
     @Override
@@ -109,7 +113,7 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
                 {
                     final String[] values = Stream.concat(
                             Arrays.stream(attributes).map(attribute -> getAttributeValue(entity, attribute)),
-                            propertyTypes.stream().map(getPropertiesMappingFunction(textFormatting, entity.getProperties()))
+                            propertyTypes.stream().map(getPropertiesMappingFunction(textFormatting, getMergedProperties(entity)))
                     ).toArray(String[]::new);
 
                     addRow(rowNumber++, true, exportableKind, getIdentifier(entity), warnings, valueFiles, values);
@@ -193,7 +197,7 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
                                     {
                                         final PropertyType propertyType = codeToPropertyTypeMap.get(fieldId);
                                         return propertyType != null
-                                                ? Stream.of(getPropertiesMappingFunction(textFormatting, entity.getProperties()).apply(propertyType))
+                                                ? Stream.of(getPropertiesMappingFunction(textFormatting, getMergedProperties(entity)).apply(propertyType))
                                                 : Stream.of();
                                     }
                                     default:
@@ -211,6 +215,32 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
         }
 
         return new AdditionResult(rowNumber, warnings, valueFiles);
+    }
+
+    private static <ENTITY extends IPermIdHolder & IPropertiesHolder> Map<String, Serializable> getMergedProperties(final ENTITY entity)
+    {
+        final Map<String, Sample[]> sampleProperties;
+        if (entity instanceof Sample)
+        {
+            sampleProperties = ((Sample) entity).getSampleProperties();
+        } else if (entity instanceof Experiment)
+        {
+            sampleProperties = ((Experiment) entity).getSampleProperties();
+        } else if (entity instanceof DataSet)
+        {
+            sampleProperties = ((DataSet) entity).getSampleProperties();
+        } else
+        {
+            sampleProperties = null;
+        }
+
+        final Map<String, Serializable> properties = new HashMap<>(entity.getProperties());
+        if (sampleProperties != null)
+        {
+            properties.putAll(sampleProperties);
+        }
+
+        return properties;
     }
 
     protected abstract ExportableKind getExportableKind();

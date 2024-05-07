@@ -50,9 +50,9 @@ import ch.ethz.sis.openbis.generic.server.xls.export.ExportableKind;
 public class XLSExperimentExportHelper extends AbstractXLSEntityExportHelper<Experiment, ExperimentType>
 {
 
-    public XLSExperimentExportHelper(final Workbook wb)
+    public XLSExperimentExportHelper(final Workbook wb, final String protocolWithDomain)
     {
-        super(wb);
+        super(wb, protocolWithDomain);
     }
 
     @Override
@@ -149,6 +149,7 @@ public class XLSExperimentExportHelper extends AbstractXLSEntityExportHelper<Exp
         fetchOptions.withProject();
         fetchOptions.withType().withPropertyAssignments().withPropertyType();
         fetchOptions.withProperties();
+        fetchOptions.withSampleProperties();
         fetchOptions.withRegistrator();
         fetchOptions.withModifier();
         return api.getExperiments(sessionToken, experimentPermIds, fetchOptions).values();
