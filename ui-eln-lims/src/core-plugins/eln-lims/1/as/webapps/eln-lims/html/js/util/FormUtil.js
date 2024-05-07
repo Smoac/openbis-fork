@@ -1234,10 +1234,12 @@ var FormUtil = new function() {
 
         var identifiers = [];
         var links = {};
-        if(isReadOnly)
-        {
+        if(isReadOnly) {
             identifierRegexp = /(?:\/[A-Z_\d]+){3,5}/g
             identifiers = value.match(identifierRegexp)
+					if ( !identifiers) {
+						identifiers = [];
+					}
         }
 	    var Builder = null;
 // CK Editor 34
