@@ -174,7 +174,7 @@ def process(transaction):
                             raise UserFailureException(NAME_PROPERTY_SET_IN_TWO_PLACES_ERROR_MESSAGE)
                         propertyValue = properties.get(propertyKey)
                         if propertyValue is not None:
-                            propertyValueString = str(propertyValue)
+                            propertyValueString = unicode(propertyValue)
                             dataSet.setPropertyValue(propertyKey, propertyValueString)
                 else:
                     itemsInFolder = itemsInFolder + 1;
