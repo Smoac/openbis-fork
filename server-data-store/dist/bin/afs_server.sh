@@ -114,8 +114,9 @@ PID_FILE=./afs_server.pid
 LIB_FOLDER=./lib
 CONF_FILE=./etc/afs_server.conf
 SERVICE_PROPERTIES_FILE=./etc/service.properties
-LOG_FILE=./log/afs_server_log.txt
-STARTUP_LOG=./log/startup_log.txt
+LOG_FOLDER=./log
+LOG_FILE=$LOG_FOLDER/afs_server_log.txt
+STARTUP_LOG=$LOG_FOLDER/startup_log.txt
 SUCCESS_MSG="=== Server ready ==="
 MAX_LOOPS=20
 
@@ -132,6 +133,12 @@ cd $WD
 SCRIPT=./bin/`basename $0`
 
 #
+# create log directory
+#
+
+mkdir -p $LOG_FOLDER
+
+#
 # source configuration script
 #
 
@@ -144,7 +151,7 @@ else
 fi
 
 JAVA_CLASS_PATH=`echo $LIB_FOLDER/*.jar | sed 's/ /:/g'`
-JAVA_OPTIONS="${JAVA_OPTS} ${JAVA_MEM_OPTS} --add-opens=java.base/jdk.internal.misc=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED -classpath $JAVA_CLASS_PATH ch.ethz.sis.afsserver.startup.Main $SERVICE_PROPERTIES_FILE"
+JAVA_OPTIONS="${JAVA_OPTS} ${JAVA_MEM_OPTS} -Dio.netty.tryReflectionSetAccessible=true --add-opens=java.base/jdk.internal.misc=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED -classpath $JAVA_CLASS_PATH ch.ethz.sis.afsserver.startup.Main $SERVICE_PROPERTIES_FILE"
 
 #
 # ensure that we ignore a possible prefix "--" for any command
