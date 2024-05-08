@@ -6,7 +6,8 @@
         </File>
     </Appenders>
     <Loggers>
-        <Root level="ALL">
+        <Root>
+            <ThresholdFilter level="INFO"/>
             <AppenderRef ref="File"/>
         </Root>
     </Loggers>
