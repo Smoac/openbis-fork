@@ -54,13 +54,15 @@ println "installerDir:${installerDistDir}"
 println "buildDir:${buildDir}"
 println "installer:${project.projectDir}/resource/installer"
 
-task copyResources(type: Copy, dependsOn: [compileJava, ':core-plugin-openbis:zip', ':core-plugin-openbis:zipDss', ':core-plugin-openbis:zipBdlServer']) {
+task copyResources(type: Copy, dependsOn: [compileJava, ':core-plugin-openbis:zip', ':core-plugin-openbis:zipDss', ':core-plugin-openbis:zipBdlServer', ':core-plugin-openbis:zipAfsServer']) {
     duplicatesStrategy 'include'
     from "${project.projectDir}/resource/installer"
     from "${project.projectDir}/../core-plugin-openbis/dist/tarball/installer"
     from zipTree(project(':core-plugin-openbis').zipDss.archivePath)
     into installerDistDir
     from zipTree(project(':core-plugin-openbis').zipBdlServer.archivePath)
+    into installerDistDir
+    from zipTree(project(':core-plugin-openbis').zipAfsServer.archivePath)
     into installerDistDir
     from("${installerDistDir}/../BUILD-app-openbis-installer.INFO") {
         into 'bin'

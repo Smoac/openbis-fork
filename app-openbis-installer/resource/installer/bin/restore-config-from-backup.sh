@@ -57,3 +57,8 @@ restore $CONF/dss-log.xml $ROOT/datastore_server/etc log.xml
 restore $CONF/datastore_server.conf $ROOT/datastore_server/etc datastore_server.conf
 restore $CONF/.keystore $ROOT/datastore_server/etc openBIS.keystore
 copyIfExists $CONF/ext-lib $ROOT/datastore_server
+
+# -- AFS
+restore $CONF/afs_server.conf $ROOT/afs-server/etc afs_server.conf
+restore $CONF/afs-log.xml $ROOT/afs-server/etc log.xml
+restore $CONF/afs-service.properties $ROOT/afs-server/etc service.properties

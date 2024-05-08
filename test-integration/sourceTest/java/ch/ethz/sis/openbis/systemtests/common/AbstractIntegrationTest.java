@@ -423,7 +423,7 @@ public abstract class AbstractIntegrationTest
     private Configuration getAfsServerConfiguration()
     {
         Configuration configuration = new Configuration(List.of(AtomicFileSystemServerParameter.class),
-                "../server-data-store/src/main/resources/server-data-store-config.properties");
+                "../server-data-store/src/main/resources/service.properties");
         configuration.setProperty(AtomicFileSystemServerParameter.logConfigFile, "etc/log4j2.xml");
         configuration.setProperty(AtomicFileSystemServerParameter.writeAheadLogRoot, "./targets/afs/transaction-logs");
         configuration.setProperty(AtomicFileSystemServerParameter.storageRoot, "./targets/afs/storage");

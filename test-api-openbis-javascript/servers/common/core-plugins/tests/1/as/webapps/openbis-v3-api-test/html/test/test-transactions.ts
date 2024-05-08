@@ -442,7 +442,7 @@ exports.default = new Promise((resolve) => {
         }
 
         resolve(function () {
-            var afsServerUrl = "http://localhost:8085/data-store-server"
+            var afsServerUrl = "http://localhost:8085/afs-server"
             executeModule("Transactions tests (RequireJS)", () => new openbisRequireJS(null, afsServerUrl), dtos)
             executeModule("Transactions tests (module VAR)", () => new window.openbis.openbis(null, afsServerUrl), window.openbis)
             executeModule("Transactions tests (module ESM)", () => new window.openbisESM.openbis(null, afsServerUrl), window.openbisESM)

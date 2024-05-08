@@ -84,7 +84,7 @@ public class TestInstanceHostUtils
 
     public static String getAFSPath()
     {
-        return "/data-store-server";
+        return "/afs-server";
     }
 
     private static int getProjectNumber()

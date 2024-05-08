@@ -1,5 +1,5 @@
 #!/bin/bash
-# Starts up openBIS, DSS and AFS
+# Shows AFS log
 
 if [ -n "$(readlink $0)" ]; then
    # handle symbolic links
@@ -16,6 +16,4 @@ if [ ${BASE#/} == ${BASE} ]; then
     BASE="`pwd`/${BASE}"
 fi
 
-$BASE/bisup.sh || exit 1;
-$BASE/dssup.sh || exit 2;
-$BASE/afsup.sh || exit 3;
+less $BASE/../servers/afs-server/log/afs_server_log.txt

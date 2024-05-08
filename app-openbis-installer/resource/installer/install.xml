@@ -224,6 +224,12 @@
                   targetdir="$INSTALL_PATH/servers"/>
         </pack>
 
+        <pack name="AFS Server" required="yes" loose="yes">
+            <description>The atomic filesystem server managing raw data</description>
+            <file src="@{installer.dist.dir}/afs-server"
+                  targetdir="$INSTALL_PATH/servers"/>
+            <parsable targetfile="$INSTALL_PATH/servers/afs-server/etc/service.properties"/>
+        </pack>
 
         <pack name="Administration Scripts" required="yes" loose="yes">
             <description>Scripts to facilitate openBIS administration</description>
