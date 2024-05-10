@@ -183,6 +183,8 @@ public class ExportExecutor implements IExportExecutor
 
     public static final String DATA_DIRECTORY = "data";
 
+    public static final String MISCELLANEOUS_DIRECTORY = "miscellaneous";
+
     public static final String SHARED_SAMPLES_DIRECTORY = "(shared)";
 
     public static final String HTML_EXTENSION = ".html";
@@ -456,6 +458,12 @@ public class ExportExecutor implements IExportExecutor
             exportFiles(valueFiles, new File(xlsxDirectory, DATA_DIRECTORY), Function.identity());
         }
 
+        final Map<String, byte[]> miscellaneousFiles = xlsExportResult.getMiscellaneousFiles();
+        if (!miscellaneousFiles.isEmpty())
+        {
+            exportBinaryFiles(miscellaneousFiles, new File(xlsxDirectory, MISCELLANEOUS_DIRECTORY), Function.identity());
+        }
+
         try (
                 final Workbook wb = xlsExportResult.getWorkbook();
                 final BufferedOutputStream bos = new BufferedOutputStream(
@@ -472,12 +480,27 @@ public class ExportExecutor implements IExportExecutor
             final Function<String, String> fileNameTransformer) throws IOException
     {
         mkdirs(directory);
-        for (final Map.Entry<String, String> fileName : fileNameToContentsMap.entrySet())
+        for (final Map.Entry<String, String> fileNameToContentsEntry : fileNameToContentsMap.entrySet())
         {
-            final File scriptFile = new File(directory, fileNameTransformer.apply(fileName.getKey()));
+            final File scriptFile = new File(directory, fileNameTransformer.apply(fileNameToContentsEntry.getKey()));
             try (final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(scriptFile), BUFFER_SIZE))
             {
-                bos.write(fileName.getValue().getBytes());
+                bos.write(fileNameToContentsEntry.getValue().getBytes());
+                bos.flush();
+            }
+        }
+    }
+
+    private static void exportBinaryFiles(final Map<String, byte[]> fileNameToContentsMap, final File directory,
+            final Function<String, String> fileNameTransformer) throws IOException
+    {
+        mkdirs(directory);
+        for (final Map.Entry<String, byte[]> fileEntry : fileNameToContentsMap.entrySet())
+        {
+            final File scriptFile = new File(directory, fileNameTransformer.apply(fileEntry.getKey()));
+            try (final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(scriptFile), BUFFER_SIZE))
+            {
+                bos.write(fileEntry.getValue());
                 bos.flush();
             }
         }

@@ -67,6 +67,7 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
         final Collection<ENTITY> entities = getEntities(api, sessionToken, permIds);
         final Collection<String> warnings = new ArrayList<>();
         final Map<String, String> valueFiles = new HashMap<>();
+        final Map<String, byte[]> miscellaneousFiles = new HashMap<>();
 
         // Sorting after grouping is needed only to make sure that the tests pass, because entrySet() can have elements
         // in arbitrary order.
@@ -111,12 +112,17 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
                 // Values
                 for (final ENTITY entity : entry.getValue())
                 {
-                    final String[] values = Stream.concat(
-                            Arrays.stream(attributes).map(attribute -> getAttributeValue(entity, attribute)),
-                            propertyTypes.stream().map(getPropertiesMappingFunction(textFormatting, getMergedProperties(entity)))
-                    ).toArray(String[]::new);
+                    final PropertyValue[] entityValues = Stream.concat(
+                            Arrays.stream(attributes).map(attribute -> new PropertyValue(getAttributeValue(entity, attribute), Map.of())),
+                            propertyTypes.stream().map(getPropertiesMappingFunction(textFormatting, getMergedProperties(entity), warnings))
+                    ).toArray(PropertyValue[]::new);
 
-                    addRow(rowNumber++, true, exportableKind, getIdentifier(entity), warnings, valueFiles, values);
+                    Arrays.stream(entityValues).filter(Objects::nonNull)
+                            .forEach(propertyValue -> miscellaneousFiles.putAll(propertyValue.getMiscellaneousFiles()));
+                    final String[] stringValues = Arrays.stream(entityValues).filter(Objects::nonNull).map(PropertyValue::getValue)
+                            .collect(Collectors.toList()).toArray(String[]::new);
+
+                    addRow(rowNumber++, true, exportableKind, getIdentifier(entity), warnings, valueFiles, stringValues);
                 }
             } else
             {
@@ -181,7 +187,7 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
 
                 for (final ENTITY entity : entry.getValue())
                 {
-                    final String[] entityValues = Stream.concat(selectedExportFields.stream(),
+                    final PropertyValue[] entityValues = Stream.concat(selectedExportFields.stream(),
                                     extraExportFields.stream())
                             .filter(field -> isFieldAcceptable(possibleAttributeNameSet, field))
                             .flatMap(field ->
@@ -191,13 +197,14 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
                                 {
                                     case ATTRIBUTE:
                                     {
-                                        return Stream.of(getAttributeValue(entity, Attribute.valueOf(fieldId)));
+                                        return Stream.of(new PropertyValue(getAttributeValue(entity, Attribute.valueOf(fieldId)), Map.of()));
                                     }
                                     case PROPERTY:
                                     {
                                         final PropertyType propertyType = codeToPropertyTypeMap.get(fieldId);
                                         return propertyType != null
-                                                ? Stream.of(getPropertiesMappingFunction(textFormatting, getMergedProperties(entity)).apply(propertyType))
+                                                ? Stream.of(getPropertiesMappingFunction(textFormatting, getMergedProperties(entity), warnings)
+                                                        .apply(propertyType))
                                                 : Stream.of();
                                     }
                                     default:
@@ -205,16 +212,21 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
                                         throw new IllegalArgumentException();
                                     }
                                 }
-                            }).toArray(String[]::new);
+                            }).toArray(PropertyValue[]::new);
 
-                    addRow(rowNumber++, false, exportableKind, getIdentifier(entity), warnings, valueFiles, entityValues);
+                    Arrays.stream(entityValues).filter(Objects::nonNull)
+                            .forEach(propertyValue -> miscellaneousFiles.putAll(propertyValue.getMiscellaneousFiles()));
+                    final String[] stringValues = Arrays.stream(entityValues).filter(Objects::nonNull).map(PropertyValue::getValue)
+                            .collect(Collectors.toList()).toArray(String[]::new);
+
+                    addRow(rowNumber++, false, exportableKind, getIdentifier(entity), warnings, valueFiles, stringValues);
                 }
             }
 
             rowNumber++;
         }
 
-        return new AdditionResult(rowNumber, warnings, valueFiles);
+        return new AdditionResult(rowNumber, warnings, valueFiles, miscellaneousFiles);
     }
 
     private static <ENTITY extends IPermIdHolder & IPropertiesHolder> Map<String, Serializable> getMergedProperties(final ENTITY entity)

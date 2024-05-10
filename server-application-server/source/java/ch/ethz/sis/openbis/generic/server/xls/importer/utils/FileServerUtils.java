@@ -10,7 +10,7 @@ import java.nio.file.Path;
 
 public class FileServerUtils
 {
-    private Path getFilePath(String filePath) throws IOException
+    private static Path getFilePath(String filePath) throws IOException
     {
         String repositoryPathAsString = CommonServiceProvider.tryToGetProperty(
                 FileServiceServlet.REPO_PATH_KEY);
@@ -24,12 +24,12 @@ public class FileServerUtils
         return repositoryFilePath;
     }
 
-    public byte[] read(String filePath) throws IOException
+    public static byte[] read(String filePath) throws IOException
     {
         return Files.readAllBytes(getFilePath(filePath));
     }
 
-    public Path write(String filePath, byte[] bytes) throws IOException
+    public static Path write(String filePath, byte[] bytes) throws IOException
     {
         return Files.write(getFilePath(filePath), bytes);
     }
