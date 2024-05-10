@@ -1,6 +1,22 @@
-apply from: '../build/javaproject.gradle'
+plugins {
+    id 'java'
+    id 'application'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs << '-parameters'
+}
 
 repositories {
+    ivy {
+        ivyPattern "https://sissource.ethz.ch/openbis/openbis-public/openbis-ivy/-/raw/main/[organisation]/[module]/[revision]/ivy.xml"
+        artifactPattern "https://sissource.ethz.ch/openbis/openbis-public/openbis-ivy/-/raw/main/[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
+    }
     mavenCentral()
 }
 
@@ -9,5 +25,24 @@ dependencies {
             'openbis:openbis-v3-api-batteries-included:6.5.0',
             'apache:poi:3.17',
             'apache:poi-ooxml:3.17',
-            'apache:poi-ooxml-schemas:3.17'
+            'apache:poi-ooxml-schemas:3.17',
+            'commons-cli:commons-cli:1.4'
+    //compileOnly 'org.apache.jena:apache-jena-libs:5.0.0'
+}
+
+task rdfTool(type: Jar, dependsOn: [jar]) {
+    duplicatesStrategy 'include'
+    manifest {
+        attributes(
+                'Main-Class': 'ch.ethz.sis.rdf.main.RDFCommandLine'
+        )
+    }
+    baseName 'lib-rdf-tool'
+    includeEmptyDirs false
+    from(zipTree(jar.archivePath)) {
+        include '**/*'
+    }
+    from(configurations.runtimeClasspath.collect{ zipTree(it) }) {
+        include '**/*'
+    }
 }
