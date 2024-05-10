@@ -4,7 +4,6 @@ import ch.ethz.sis.rdf.main.mappers.OntClassObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.jena.ontology.*;
-import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -13,7 +12,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
 
-import static ch.ethz.sis.rdf.main.ClassCollector.collectClassDetails;
 import static ch.ethz.sis.rdf.main.mappers.DatatypeMapper.toOpenBISDataTypes;
 import static ch.ethz.sis.rdf.main.mappers.ObjectPropertyMapper.toObjects;
 
@@ -126,7 +124,7 @@ public class ExcelWriter {
         // Iterate over restrictions to create additional rows
         if (ontClassObject.restrictions != null) {
             for (Map.Entry<OntProperty, List<Restriction>> entry : ontClassObject.restrictions.entrySet()) {
-                System.out.println("-- " + entry + " " + entry.getValue());
+                //System.out.println("-- " + entry + " " + entry.getValue());
                 boolean isMultivalued = false;
                 Map<String, String> metadata = new HashMap<>();
                 for (Restriction restriction : entry.getValue()) {
@@ -141,27 +139,27 @@ public class ExcelWriter {
                         RDFNode someValuesFrom = restriction.asSomeValuesFromRestriction().getSomeValuesFrom();
                         if (someValuesFrom.isURIResource()) {
                             // Here, you handle URIResource cases, possibly adding them directly as restrictions
-                            System.out.println("     - Class URI Resource: " + someValuesFrom.asResource().getURI());
+                            //System.out.println("     - Class URI Resource: " + someValuesFrom.asResource().getURI());
                             metadata.put("SomeValuesFromRestriction", someValuesFrom.asResource().getURI());
                         } else if (someValuesFrom.isAnon() && someValuesFrom.canAs(OntClass.class)){
                             OntClass anonClass = someValuesFrom.as(OntClass.class);
                             // Recursively handle the anonymous class, be it union, intersection, etc.
                             if (anonClass.isUnionClass()) {
                                 UnionClass unionClass = anonClass.asUnionClass();
-                                System.out.println("- Union "+unionClass+" Of: " + unionClass.getOperands().size());
-                                System.out.println(ontClassObject.unions.get(unionClass));
+                                //System.out.println("- Union "+unionClass+" Of: " + unionClass.getOperands().size());
+                                //System.out.println(ontClassObject.unions.get(unionClass));
                                 metadata.put("SomeValuesFromRestriction", ontClassObject.unions.get(unionClass).toString());
                             }
                         }
                     }
                 }
                 List <String> possibleCodesTypes = mappedObjectProperty.getOrDefault(entry.getKey().getURI(),  Collections.singletonList(entry.getKey().getURI()));
-                System.out.println("Types: " + possibleCodesTypes + " - SomeValuesFromRestriction: " + metadata);
+                //System.out.println("Types: " + possibleCodesTypes + " - SomeValuesFromRestriction: " + metadata);
                 String dataType = mappedDataTypes.getOrDefault(entry.getKey().getURI(), Collections.singletonList("SAMPLE:"+possibleCodesTypes.get(0).split("#")[1])).get(0);
                 if (possibleCodesTypes.size() > 1) {
                     for (String possibleCode : possibleCodesTypes) {
                         if(metadata.values().contains(possibleCode)){
-                            System.out.println("Possible code: " + possibleCode + " in metadata: " + metadata);
+                            //System.out.println("Possible code: " + possibleCode + " in metadata: " + metadata);
                             dataType = "SAMPLE:"+ possibleCode.split("#")[1];
                         }
                     }

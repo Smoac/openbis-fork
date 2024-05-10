@@ -2,12 +2,9 @@ package ch.ethz.sis.rdf.main.mappers;
 
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.ontology.OntModel;
-import org.apache.jena.ontology.OntModelSpec;
 import org.apache.jena.ontology.UnionClass;
-import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 
-import java.io.FileNotFoundException;
 import java.util.*;
 
 public class DatatypeMapper {
