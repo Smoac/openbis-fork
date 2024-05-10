@@ -461,7 +461,8 @@ public class ExportExecutor implements IExportExecutor
         final Map<String, byte[]> miscellaneousFiles = xlsExportResult.getMiscellaneousFiles();
         if (!miscellaneousFiles.isEmpty())
         {
-            exportBinaryFiles(miscellaneousFiles, new File(xlsxDirectory, MISCELLANEOUS_DIRECTORY), Function.identity());
+            exportBinaryFiles(miscellaneousFiles, new File(xlsxDirectory, MISCELLANEOUS_DIRECTORY),
+                    fileName -> fileName.startsWith("/openbis/openbis") ? fileName.substring("/openbis/openbis".length()) : fileName);
         }
 
         try (
@@ -497,8 +498,9 @@ public class ExportExecutor implements IExportExecutor
         mkdirs(directory);
         for (final Map.Entry<String, byte[]> fileEntry : fileNameToContentsMap.entrySet())
         {
-            final File scriptFile = new File(directory, fileNameTransformer.apply(fileEntry.getKey()));
-            try (final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(scriptFile), BUFFER_SIZE))
+            final File file = new File(directory, fileNameTransformer.apply(fileEntry.getKey()));
+            mkdirs(file.getParentFile());
+            try (final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file), BUFFER_SIZE))
             {
                 bos.write(fileEntry.getValue());
                 bos.flush();

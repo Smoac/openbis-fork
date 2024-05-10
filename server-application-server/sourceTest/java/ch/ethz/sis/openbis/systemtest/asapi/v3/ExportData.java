@@ -52,13 +52,12 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.property.id.PropertyTypePermId;
 class ExportData
 {
     static final String RICH_TEXT_PROPERTY_NAME = "MULTILINE";
+
     static final String RICH_TEXT_WITH_IMAGE_PROPERTY_NAME = "MULTILINE_WITH_IMAGE";
 
     static final String RICH_TEXT_WITH_SPREADSHEET_PROPERTY_NAME = "MULTILINE_WITH_SPREADSHEET";
 
-    static final String BIG_CELL_PROPERTY_NAME = "BIG_CELL";
-
-    static final Object[][] EXPORT_DATA = {
+        static final Object[][] EXPORT_DATA = {
             // XLS: All fields
             {
                     // Non-existing sample

@@ -119,7 +119,8 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
 
                     Arrays.stream(entityValues).filter(Objects::nonNull)
                             .forEach(propertyValue -> miscellaneousFiles.putAll(propertyValue.getMiscellaneousFiles()));
-                    final String[] stringValues = Arrays.stream(entityValues).filter(Objects::nonNull).map(PropertyValue::getValue)
+                    final String[] stringValues = Arrays.stream(entityValues)
+                            .map(propertyValue -> propertyValue != null ? propertyValue.getValue() : null)
                             .collect(Collectors.toList()).toArray(String[]::new);
 
                     addRow(rowNumber++, true, exportableKind, getIdentifier(entity), warnings, valueFiles, stringValues);
@@ -216,7 +217,8 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
 
                     Arrays.stream(entityValues).filter(Objects::nonNull)
                             .forEach(propertyValue -> miscellaneousFiles.putAll(propertyValue.getMiscellaneousFiles()));
-                    final String[] stringValues = Arrays.stream(entityValues).filter(Objects::nonNull).map(PropertyValue::getValue)
+                    final String[] stringValues = Arrays.stream(entityValues)
+                            .map(propertyValue -> propertyValue != null ? propertyValue.getValue() : null)
                             .collect(Collectors.toList()).toArray(String[]::new);
 
                     addRow(rowNumber++, false, exportableKind, getIdentifier(entity), warnings, valueFiles, stringValues);
