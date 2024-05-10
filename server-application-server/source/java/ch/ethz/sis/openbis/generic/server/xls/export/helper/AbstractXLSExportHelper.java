@@ -204,6 +204,11 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
 
     public static Map<String, byte[]> findImageFiles(final String input, final Collection<String> warnings)
     {
+        if (input == null)
+        {
+            return null;
+        }
+
         // Regular expression to match <img src='/openbis/openbis/file-service/...' or <img src="/openbis/openbis/file-service/..."
         final String regex = "<img\\s+src=[\"'](/openbis/openbis/file-service/[^\"']*)[\"']";
         final Pattern pattern = Pattern.compile(regex);
