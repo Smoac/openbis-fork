@@ -11,8 +11,8 @@ Our recommendation is to run openBIS within a **three-container setup**, in part
 | Container | Image | Port | Description |
 | ----------|------ | ---- | ----------- |
 |`openbis-db`|`postgres15`|`5432/tcp`|PostgreSQL database listens on port 5432 and accepts connection from openbis-app.|
-|`openbis-app`|`openbis-server`|`8080/tcp`|Java Virtual Machine with openBIS Application Server listens on port 8080.| 
-|`openbis-app`|`openbis-server`|`8081/tcp`|Java Virtual Machine with openBIS Data Store Server listens on port 8081.|
+|`openbis-app`|`openbis-app`|`8080/tcp`|Java Virtual Machine with openBIS Application Server listens on port 8080.| 
+|`openbis-app`|`openbis-app`|`8081/tcp`|Java Virtual Machine with openBIS Data Store Server listens on port 8081.|
 |`openbis-ingress`|`apache2`|`443/tcp`|Apache HTTP server listens on port 443 and is configured as reverse proxy to ports 8080 and 8081.|
 
 
@@ -20,7 +20,7 @@ Our recommendation is to run openBIS within a **three-container setup**, in part
 
 Docker Compose is a tool for defining and running multi-container applications. It simplifies the control of the entire openBIS service, making it easy to control the application workflow in a single, comprehensible YAML configuration file, allows to create, start and stop all services by issuing a single command.
 
-We are providing a basic [docker-compose.yml](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/master/hub/openbis-server/compose/docker-compose.yml), which is ready to use. 
+We are providing a basic [docker-compose.yml](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/master/hub/openbis-app/compose/docker-compose.yml), which is ready to use. 
 To run the application navigate to the sub-directory where you've downloaded the `docker-compose.yml` to and then execute
 
 ```
@@ -122,7 +122,7 @@ $ docker run --detach \
   -e OPENBIS_HOME="/home/openbis" \
   -e OPENBIS_LOG="/var/log/openbis" \
   -e OPENBIS_FQDN="openbis.domain" \
-  openbis/openbis-server:latest;
+  openbis/openbis-app:20.10.7;
 ```
 
 The state of the running application container can be inspected by fetching the container logs:
@@ -175,8 +175,8 @@ An **ingress container** acts as reverse proxy and performs Transport Layer Secu
 ### Nginx
 
 In order to use nginx as an ingress container, it is required to deploy the following files, as provided on our [source repository](source-repositories.md):
-- [docker-compose-nginx.yml](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/master/hub/openbis-server/compose/docker-compose-nginx.yml)
-- [nginx config](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/master/hub/openbis-server/compose/nginx/my-nginx.conf), to be placed in sub-directory `nginx`
+- [docker-compose-nginx.yml](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/master/hub/openbis-app/compose/docker-compose-nginx.yml)
+- [nginx config](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/master/hub/openbis-app/compose/nginx/my-nginx.conf), to be placed in sub-directory `nginx`
 
 To run the application, you need to:
 - have docker and docker-compose installed
@@ -186,8 +186,8 @@ To run the application, you need to:
 ### Apache httpd
 
 In order to use apache-httpd as an ingress container, it is required to deploy the following files, as provided on our [source repository](source-repositories.md):
-- [docker-compose-httpd.yml](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/master/hub/openbis-server/compose/docker-compose-httpd.yml)
-- [apache-httpd config](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/master/hub/openbis-server/compose/httpd/my-httpd.conf), to be placed in sub-directory `httpd`
+- [docker-compose-httpd.yml](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/master/hub/openbis-app/compose/docker-compose-httpd.yml)
+- [apache-httpd config](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/master/hub/openbis-app/compose/httpd/my-httpd.conf), to be placed in sub-directory `httpd`
 
 To run the application, you need to:
 - have docker and docker-compose installed
@@ -197,8 +197,8 @@ To run the application, you need to:
 ### HAProxy
 
 In order to use haproxy as an ingress container, it is required to deploy the following files, as provided on our [source repository](source-repositories.md):
-- [docker-compose-haproxy.yml](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/master/hub/openbis-server/compose/docker-compose-haproxy.yml)
-- [haproxy config](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/master/hub/openbis-server/compose/haproxy/my-haproxy.conf), to be placed in sub-directory `haproxy`
+- [docker-compose-haproxy.yml](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/master/hub/openbis-app/compose/docker-compose-haproxy.yml)
+- [haproxy config](https://sissource.ethz.ch/sispub/openbis-continuous-integration/-/blob/master/hub/openbis-app/compose/haproxy/my-haproxy.conf), to be placed in sub-directory `haproxy`
 
 To run the application, you need to:
 - have docker and docker-compose installed
