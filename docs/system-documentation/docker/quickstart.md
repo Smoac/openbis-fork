@@ -40,10 +40,10 @@ $ docker run --detach \
   -e OPENBIS_HOME="/home/openbis" \
   -e OPENBIS_LOG="/var/log/openbis" \
   -e OPENBIS_FQDN="local.openbis.ch" \
-  openbis/openbis-server:latest;
+  openbis/openbis-app:20.10.7;
 ```
 
-Run ingress container.
+Run local ingress container.
 ```
 $ docker run --detach \
   --name openbis-ingress \
