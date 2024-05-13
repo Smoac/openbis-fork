@@ -210,14 +210,14 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
         }
 
         // Regular expression to match <img src='/openbis/openbis/file-service/...' or <img src="/openbis/openbis/file-service/..."
-        final String regex = "<img\\s+src=[\"'](/openbis/openbis/file-service/[^\"']*)[\"']";
-        final Pattern pattern = Pattern.compile(regex);
+        final String regex = "<img\\s+src=[\"'](http)?.*?(/openbis/openbis/file-service)(/[^\"']*?)[\"']";
+        final Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE);
         final Matcher matcher = pattern.matcher(input);
         final Map<String, byte[]> imageFiles = new HashMap<>();
 
         while (matcher.find())
         {
-            final String filePath = matcher.group(1);
+            final String filePath = matcher.group(3);
             try
             {
                 final byte[] fileContent = FileServerUtils.read(filePath);

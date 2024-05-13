@@ -185,6 +185,8 @@ public class ExportExecutor implements IExportExecutor
 
     public static final String MISCELLANEOUS_DIRECTORY = "miscellaneous";
 
+    public static final String FILE_SERVICE_SUBDIRECTORY = "file-service";
+
     public static final String SHARED_SAMPLES_DIRECTORY = "(shared)";
 
     public static final String HTML_EXTENSION = ".html";
@@ -461,8 +463,8 @@ public class ExportExecutor implements IExportExecutor
         final Map<String, byte[]> miscellaneousFiles = xlsExportResult.getMiscellaneousFiles();
         if (!miscellaneousFiles.isEmpty())
         {
-            exportBinaryFiles(miscellaneousFiles, new File(xlsxDirectory, MISCELLANEOUS_DIRECTORY),
-                    fileName -> fileName.startsWith("/openbis/openbis") ? fileName.substring("/openbis/openbis".length()) : fileName);
+            exportBinaryFiles(miscellaneousFiles, new File(xlsxDirectory, MISCELLANEOUS_DIRECTORY + '/' + FILE_SERVICE_SUBDIRECTORY),
+                    Function.identity());
         }
 
         try (
