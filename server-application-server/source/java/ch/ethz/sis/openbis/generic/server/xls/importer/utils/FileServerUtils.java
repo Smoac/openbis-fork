@@ -12,16 +12,28 @@ public class FileServerUtils
 {
     private static Path getFilePath(String filePath) throws IOException
     {
-        String repositoryPathAsString = CommonServiceProvider.tryToGetProperty(
-                FileServiceServlet.REPO_PATH_KEY);
-        String repositoryFilePathAsString = repositoryPathAsString + filePath;
-        Path repositoryPath = Path.of(new File(repositoryPathAsString).getCanonicalPath());
-        Path repositoryFilePath =  Path.of(new File(repositoryFilePathAsString).getCanonicalPath());
-        //Security Test that repositoryFilePath is indeed inside repositoryPath
-        if(!repositoryFilePath.startsWith(repositoryPath)) {
-            throw new IllegalArgumentException("File Path is not inside the Repository Path");
+        if (CommonServiceProvider.getApplicationContext() != null)
+        {
+            // Runtime mode.
+            String repositoryPathAsString = CommonServiceProvider.tryToGetProperty(
+                    FileServiceServlet.REPO_PATH_KEY);
+            String repositoryFilePathAsString = repositoryPathAsString + filePath;
+            Path repositoryPath = Path.of(new File(repositoryPathAsString).getCanonicalPath());
+            Path repositoryFilePath = Path.of(new File(repositoryFilePathAsString).getCanonicalPath());
+            //Security Test that repositoryFilePath is indeed inside repositoryPath
+            if (!repositoryFilePath.startsWith(repositoryPath))
+            {
+                throw new IllegalArgumentException("File Path is not inside the Repository Path");
+            }
+
+            return repositoryFilePath;
+        } else
+        {
+            // Testing mode.
+
+            // Return some default testing path.
+            return Path.of(new File("./sourceTest/java/ch/ethz/sis/openbis/generic/server/xls/importer/utils/" + filePath).getCanonicalPath());
         }
-        return repositoryFilePath;
     }
 
     public static byte[] read(String filePath) throws IOException

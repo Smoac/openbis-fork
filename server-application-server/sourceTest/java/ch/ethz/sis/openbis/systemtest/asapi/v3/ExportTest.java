@@ -287,11 +287,11 @@ public class ExportTest extends AbstractTest
         bigCellSampleCreation.setProperty(RICH_TEXT_PROPERTY_NAME, "<p>This is some text.</p>"
                 + "<figure class=\"image\">"
                 + "<img src=\"/openbis/openbis/file-service/eln-lims/c1/b2/91/"
-                + "c1b2912a-2ed6-40d6-8d9f-8c3ec2b29c5c/c1b2912a-2ed6-40d6-8d9f-8c3ec2b29c5c.png\">"
+                + "c1b2912a-2ed6-40d6-8d9f-8c3ec2b29c5c/c1b2912a-2ed6-40d6-8d9f-8c3ec2b29c5c.jpg\">"
                 + "</figure>"
                 + "<p>Then we have more text between images.</p>"
                 + "<figure class=\"image\"><img src=\"/openbis/openbis/file-service/eln-lims/46/63/05/"
-                + "466305f0-4842-441f-b21c-777ea82079b4/466305f0-4842-441f-b21c-777ea82079b4.png\">"
+                + "466305f0-4842-441f-b21c-777ea82079b4/466305f0-4842-441f-b21c-777ea82079b4.jpg\">"
                 + "</figure>"
                 + "<p>And some text at the end.</p>");
 
