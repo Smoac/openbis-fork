@@ -43,6 +43,8 @@ public class FileServerUtils
 
     public static Path write(String filePath, byte[] bytes) throws IOException
     {
-        return Files.write(getFilePath(filePath), bytes);
+        Path filePathAsPath = getFilePath(filePath);
+        Files.createDirectories(filePathAsPath);
+        return Files.write(filePathAsPath, bytes);
     }
 }

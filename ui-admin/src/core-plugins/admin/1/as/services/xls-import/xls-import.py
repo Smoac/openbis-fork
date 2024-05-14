@@ -10,6 +10,7 @@ from java.io import File
 from java.lang import Long
 from java.lang import System
 from java.nio.file import Path
+from ch.ethz.sis.openbis.generic.server.asapi.v3.executor.importer import ImportExecutor
 
 def get_update_mode(parameters):
     update_mode = parameters.get('update_mode', 'FAIL_IF_EXISTS')
@@ -48,6 +49,7 @@ def process(context, parameters):
     if method == "import":
         zip = parameters.get('zip', False)
         temp = None
+        zip_bytes = None
         if zip: # Zip mode uses xls_base64 for all multiple XLS + script files
             zip_bytes = base64.b64decode(parameters.get('xls_base64'))
             temp = File.createTempFile("temp", Long.toString(System.nanoTime()))
@@ -73,13 +75,13 @@ def process(context, parameters):
             xls_base64_string = parameters.get('xls_base64', None)
             if xls_base64_string is not None:
                 parameters.put('xls', [ base64.b64decode(xls_base64_string) ])
-        result = _import(context, parameters)
+        result = _import(context, parameters, zip_bytes)
         if temp is not None:
             FileUtils.deleteDirectory(temp)
     return result
 
 
-def _import(context, parameters):
+def _import(context, parameters, zip_bytes):
     """
         Excel import AS service.
         For extensive documentation of usage and Excel layout,
@@ -120,5 +122,7 @@ def _import(context, parameters):
     xls_byte_arrays = parameters.get('xls', None)
     for xls_byte_array in xls_byte_arrays:
         ids.addAll(importXls.importXLS(xls_byte_array))
+    if zip_bytes is not None:
+        ImportExecutor.importZipData(zip_bytes)
 
     return ids

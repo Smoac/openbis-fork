@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import ch.ethz.sis.openbis.generic.server.xls.importer.utils.FileServerUtils;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.ImportOperation;
@@ -51,6 +52,10 @@ public class ImportExecutor implements IImportExecutor
 
     private static final String DATA_FOLDER_NAME = "data" + ZIP_PATH_SEPARATOR;
 
+    private static final String MISCELLANEOUS_FOLDER_NAME = "miscellaneous" + ZIP_PATH_SEPARATOR;
+
+    private static final String FILE_SERVICES_FOLDER_NAME = MISCELLANEOUS_FOLDER_NAME + "file-service" + ZIP_PATH_SEPARATOR;
+
     private static final String XLS_EXTENSION = "." + "xls";
 
     private static final String XLSX_EXTENSION = "." + "xlsx";
@@ -74,25 +79,24 @@ public class ImportExecutor implements IImportExecutor
                 final Map<String, String> importValues = uncompressedImportData.getImportValues() != null
                         ? uncompressedImportData.getImportValues().stream().collect(Collectors.toMap(ImportValue::getName, ImportValue::getValue))
                         : null;
-                importXls(context, operation, scripts, importValues, uncompressedImportData.getFile());
+                importXls(context, operation, scripts, importValues, uncompressedImportData.getFile(), null);
             } else if (importData instanceof ZipImportData)
             {
                 // ZIP file
+                final Map<String, String> scripts = new HashMap<>();
+                final Map<String, String> importValues = new HashMap<>();
+                byte[] xlsFileContent = null;
 
                 final ZipImportData zipImportData = (ZipImportData) importData;
                 try (final ZipInputStream zip = new ZipInputStream(new ByteArrayInputStream(zipImportData.getFile())))
                 {
-                    final Map<String, String> scripts = new HashMap<>();
-                    final Map<String, String> importValues = new HashMap<>();
-                    byte[] xlsFileContent = null;
-
                     ZipEntry entry;
                     while ((entry = zip.getNextEntry()) != null)
                     {
                         final String entryName = entry.getName();
                         if (entry.isDirectory())
                         {
-                            if (!SCRIPTS_FOLDER_NAME.equals(entryName) && !DATA_FOLDER_NAME.equals(entryName))
+                            if (!SCRIPTS_FOLDER_NAME.equals(entryName) && !DATA_FOLDER_NAME.equals(entryName) && !MISCELLANEOUS_FOLDER_NAME.equals(entryName))
                             {
                                 throw UserFailureException.fromTemplate("Illegal directory '%s' is found inside the imported file.", entryName);
                             }
@@ -121,15 +125,16 @@ public class ImportExecutor implements IImportExecutor
                             }
                         }
                     }
-
-                    if (xlsFileContent != null)
-                    {
-                        importXls(context, operation, scripts, importValues, xlsFileContent);
-                    } else
-                    {
-                        throw UserFailureException.fromTemplate("XLS file not found in the root of the imported ZIP file.");
-                    }
                 }
+
+                if (xlsFileContent != null)
+                {
+                    importXls(context, operation, scripts, importValues, xlsFileContent, zipImportData.getFile());
+                } else
+                {
+                    throw UserFailureException.fromTemplate("XLS file not found in the root of the imported ZIP file.");
+                }
+
             } else
             {
                 throw UserFailureException.fromTemplate("Unknown instance of import data '%s'.",
@@ -142,7 +147,8 @@ public class ImportExecutor implements IImportExecutor
     }
 
     private static void importXls(final IOperationContext context, final ImportOperation operation, final Map<String, String> scripts,
-            final Map<String, String> importValues, final byte[] xlsContent)
+            final Map<String, String> importValues, final byte[] xlsContent, byte[] zipImportDataOrNull)
+            throws IOException
     {
         final IApplicationServerInternalApi applicationServerApi = CommonServiceProvider.getApplicationServerApi();
         final ImportOptions importOptions = operation.getImportOptions();
@@ -158,6 +164,27 @@ public class ImportExecutor implements IImportExecutor
                 importValues, ImportModes.valueOf(importOptions.getMode().name()), importerImportOptions, "DEFAULT");
 
         xlsImport.importXLS(xlsContent);
+        if (zipImportDataOrNull != null)
+        {
+            importZipData(zipImportDataOrNull);
+        }
     }
 
+    public static void importZipData(byte[] zipImportDataOrNull) throws IOException
+    {
+        try (final ZipInputStream zip = new ZipInputStream(new ByteArrayInputStream(zipImportDataOrNull)))
+        {
+            ZipEntry entry;
+            while ((entry = zip.getNextEntry()) != null)
+            {
+                final String filePath = entry.getName();
+                if (!entry.isDirectory() && filePath.startsWith(FILE_SERVICES_FOLDER_NAME))
+                {
+                    String fileServicePath = ZIP_PATH_SEPARATOR + filePath.substring(FILE_SERVICES_FOLDER_NAME.length());
+                    byte[] fileBytes = zip.readAllBytes();
+                    FileServerUtils.write(fileServicePath, fileBytes);
+                }
+            }
+        }
+    }
 }
