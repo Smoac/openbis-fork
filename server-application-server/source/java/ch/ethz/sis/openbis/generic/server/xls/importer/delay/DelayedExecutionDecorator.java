@@ -480,6 +480,11 @@ public class DelayedExecutionDecorator
     public void createSample(String variable, SampleCreation sampleCreation, int page, int line)
     {
         ISampleId sampleId = ImportUtils.buildSampleIdentifier(variable, sampleCreation);
+        if (sampleId instanceof IdentifierVariable && variable == null)
+        {
+            variable = ((IdentifierVariable) sampleId).getVariable();
+        }
+
         List<IObjectId> dependencies = new ArrayList<>();
 
         ISpaceId spaceId = sampleCreation.getSpaceId();
