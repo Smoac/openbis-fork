@@ -774,6 +774,17 @@ var Util = new function() {
 		} else {
 		    viewData = argsForView;
 		}
+        //
+        if(menuId) {
+            menuId = menuId.replace(/{/g, "%7B");
+            menuId = menuId.replace(/}/g, "%7D");
+        }
+        //
+        if(viewData) {
+            viewData = viewData.replace(/{/g, "%7B");
+            viewData = viewData.replace(/}/g, "%7D");
+        }
+        //
 		return window.location.href.split("?")[0] + "?menuUniqueId=" +  menuId+ "&viewName=" + view + "&viewData=" +
 				viewData;
 	}
