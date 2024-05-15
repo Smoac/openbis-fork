@@ -137,7 +137,7 @@ class DatabaseComponent extends React.PureComponent {
         </Box>
         <TabPanel classes={{ root: classes.tabsPanel }} value="0">
           <DataBrowser
-            id={object.type + '-' + object.id}
+            id={object.id}
             viewType='list'
             sessionToken={AppController.getInstance().getSessionToken()}
           />
