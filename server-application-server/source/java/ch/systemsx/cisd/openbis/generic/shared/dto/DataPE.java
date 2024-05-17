@@ -145,6 +145,8 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
 
     private Map<String, String> metaData;
 
+    private boolean afsData;
+
     @OptimisticLock(excluded = true)
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentDataSet")
     @Fetch(FetchMode.SUBSELECT)
@@ -1055,4 +1057,14 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         this.metaData = metaData;
     }
 
+    @Column(name = "afs_data")
+    public boolean isAfsData()
+    {
+        return afsData;
+    }
+
+    public void setAfsData(final boolean afsData)
+    {
+        this.afsData = afsData;
+    }
 }

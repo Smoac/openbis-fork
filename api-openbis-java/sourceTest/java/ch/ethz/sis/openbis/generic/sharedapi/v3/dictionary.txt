@@ -2908,3 +2908,5 @@ I Transaction Coordinator Api
 I Transaction Participant Api
 APPLICATION_SERVER_PARTICIPANT_ID
 AFS_SERVER_PARTICIPANT_ID
+is Afs Data
+set Afs Data
