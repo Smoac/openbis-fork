@@ -22,10 +22,10 @@ public class ExcelWriter {
         Description("Description", true),
         AutoGenerateCodes("Auto generate codes", true),
         ValidationScript("Validation script", true),
-        GeneratedCodePrefix("Generated code prefix", true);
-        //OntologyId("Ontology Id", false),
-        //OntologyVersion("Ontology Version", false),
-        //OntologyAnnotationId("Ontology Annotation Id", false);
+        GeneratedCodePrefix("Generated code prefix", true),
+        OntologyId("Ontology Id", false),
+        OntologyVersion("Ontology Version", false),
+        OntologyAnnotationId("Ontology Annotation Id", false);
 
         private final String headerName;
 
@@ -56,9 +56,9 @@ public class ExcelWriter {
         Description("Description", true),
         Metadata("Metadata", false),
         DynamicScript("Dynamic script", false),
-        //OntologyId("Ontology Id", false),
-        //OntologyVersion("Ontology Version", false),
-        //OntologyAnnotationId("Ontology Annotation Id", false),
+        OntologyId("Ontology Id", false),
+        OntologyVersion("Ontology Version", false),
+        OntologyAnnotationId("Ontology Annotation Id", false),
         MultiValued("Multivalued", false),
         Unique("Unique", false),
         Pattern("Pattern", false),
@@ -104,6 +104,9 @@ public class ExcelWriter {
         sampleTypeRowValues.createCell(2).setCellValue(1); //AutoGenerateCodes("Auto generate codes", true),
         //sampleTypeRowValues.createCell(3).setCellValue("");//ValidationScript("Validation script", true),
         sampleTypeRowValues.createCell(4).setCellValue(code.substring(0,3));//GeneratedCodePrefix("Generated code prefix", true);
+        sampleTypeRowValues.createCell(5).setCellValue(ontClassObject.ontClass.getURI());  // //OntologyId("Ontology Id", false),
+        sampleTypeRowValues.createCell(6).setCellValue(1);  // //OntologyVersion("Ontology Version", false),
+        sampleTypeRowValues.createCell(7).setCellValue(ontClassObject.ontClass.getURI());  // //OntologyAnnotationId("Ontology Annotation Id", false),
         return rowNum;
     }
 
@@ -171,7 +174,6 @@ public class ExcelWriter {
                     });*/
                 }
 
-
                 //System.out.println(code + " " + restriction);
                 Row resRow = sheet.createRow(rowNum++);
                 resRow.createCell(0).setCellValue(sample_type + "." + entry.getKey().getLocalName().toUpperCase(Locale.ROOT));  // Code("Code", true),
@@ -182,19 +184,19 @@ public class ExcelWriter {
                 resRow.createCell(4).setCellValue(entry.getKey().getLocalName());  // PropertyLabel("Property label", true),
                 resRow.createCell(5).setCellValue(dataType.toUpperCase(Locale.ROOT));  // DataType("Data type", true),
                 //resRow.createCell(6).setCellValue("No");  // VocabularyCode("Vocabulary code", true),
-                resRow.createCell(7).setCellValue(entry.getKey().getURI());  // Description("Description", true),
+                //resRow.createCell(7).setCellValue(entry.getKey().getURI());  // Description("Description", true),
                 if (!metadata.isEmpty()) {
                     String jacksonFormat = new ObjectMapper().writeValueAsString(metadata);
                     resRow.createCell(8).setCellValue(jacksonFormat);  // Metadata("Metadata", false),
                 }
                 //resRow.createCell(9).setCellValue("No");  // DynamicScript("Dynamic script", false),
-                //resRow.createCell(10).setCellValue("No");  // //OntologyId("Ontology Id", false),
-                //resRow.createCell(11).setCellValue("No");  // //OntologyVersion("Ontology Version", false),
-                //resRow.createCell(12).setCellValue("No");  // //OntologyAnnotationId("Ontology Annotation Id", false),
-                resRow.createCell(10).setCellValue(isMultivalued);  // MultiValued("Multivalued", false),
-                //resRow.createCell(11).setCellValue("No");  // Unique("Unique", false),
-                //resRow.createCell(12).setCellValue("No");  // Pattern("Pattern", false),
-                //resRow.createCell(13).setCellValue("No");  // PatternType("Pattern Type", false);
+                resRow.createCell(10).setCellValue(entry.getKey().getURI());  // //OntologyId("Ontology Id", false),
+                resRow.createCell(11).setCellValue(0);  // //OntologyVersion("Ontology Version", false),
+                resRow.createCell(12).setCellValue(entry.getKey().getURI());  // //OntologyAnnotationId("Ontology Annotation Id", false),
+                resRow.createCell(13).setCellValue(isMultivalued);  // MultiValued("Multivalued", false),
+                //resRow.createCell(14).setCellValue("No");  // Unique("Unique", false),
+                //resRow.createCell(15).setCellValue("No");  // Pattern("Pattern", false),
+                //resRow.createCell(16).setCellValue("No");  // PatternType("Pattern Type", false);
             }
         }
         // add empty row
