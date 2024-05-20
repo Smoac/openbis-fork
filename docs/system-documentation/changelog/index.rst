@@ -5,3 +5,4 @@ Changelog
    :maxdepth: 4
 
    CHANGELOG
+   pending-configuration-changes
