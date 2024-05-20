@@ -23,7 +23,7 @@ Allows you to set instance admins on the global configuration and they will be c
 
 openBIS can now run using Postgres 15. Upgrades of Postgres should be taken carefully and with proper backup procedures in place.
 
-It is required to upgrade the database directory format manually. Please check the official documentation: https://www.postgresql.org/docs/15/upgrading.html
+It is required to upgrade the database directory format manually. Please check the [official documentation](https://www.postgresql.org/docs/15/upgrading.html)
 
 ## Version 20.10.3
 After migrating to 20.10.3 please make sure you don't have in ELN settings properties that have BOTH custom widget set to "Word Processor" and at the same time they are listed in "Forced Disable RTF" section. If your ELN instance happens to have such properties please remove them from both "Custom Widgets" as well as "Forced Disable RTF" sections. This way they will behave as normal text fields. In case you would like to allow styling/formatting of your property values (rich text), please make sure the custom widget is set to "Word Processor" and the property is not listed in "Force Disable RTF" section. 
@@ -67,7 +67,7 @@ Before you upgrade, you need to take care of:
 
 ### Technology Upgrade: Postgres 11
 
-If the installer was used: It is required to upgrade the database directory format manually. Please check the official documentation: https://www.postgresql.org/docs/11/upgrading.html
+If the installer was used: It is required to upgrade the database directory format manually. Please check the [official documentation](https://www.postgresql.org/docs/11/upgrading.html)
 
 If the docker image was used:
 
@@ -91,10 +91,11 @@ Upgrading to Java 11 forces to remove some old flags on the next files, Java 11 
 
 Now configuration keys related with the old one are ignored, the next configuration keys will be ignored and can be removed from AS service.properties:
 
+```
 hibernate.search.index-base
 hibernate.search.index-mode
 hibernate.search.batch-size
 hibernate.search.maxResults
 hibernate.search.worker.execution
 hibernate.batch.sessionCache.maxEntities
-
+```
