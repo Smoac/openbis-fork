@@ -346,7 +346,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     }
 
     @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false, insertable = false)
-    @Generated(GenerationTime.ALWAYS)
+    @Generated(GenerationTime.INSERT)
     public Date getRegistrationDate()
     {
         return HibernateAbstractRegistrationHolder.getDate(registrationDate);
@@ -620,7 +620,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     }
 
     @Column(name = ColumnNames.ACCESS_TIMESTAMP, nullable = false, insertable = false)
-    @Generated(GenerationTime.ALWAYS)
+    @Generated(GenerationTime.INSERT)
     public Date getAccessDate()
     {
         return accessDate;

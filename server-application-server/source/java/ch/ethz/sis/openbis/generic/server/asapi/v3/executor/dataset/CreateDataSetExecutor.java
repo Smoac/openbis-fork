@@ -153,7 +153,6 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
                 dataSet.setDataProducerCode(creation.getDataProducer());
                 dataSet.setProductionDate(creation.getDataProductionDate());
                 dataSet.setMetaData(creation.getMetaData());
-                dataSet.setAfsData(creation.isAfsData());
 
                 PersonPE person = context.getSession().tryGetPerson();
                 dataSet.setRegistrator(person);
@@ -284,6 +283,16 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
         {
             DataSetCreation creation = entry.getKey();
             DataPE entity = entry.getValue();
+
+            if (creation.isAfsData())
+            {
+                // Update the afs_data flag here i.e. once a row in the data_all table has been already inserted.
+                // Inserting the row with this flag set from the beginning would make Hibernate fail.
+                // Hibernate would try to fetch the inserted row to get the generated PK value,
+                // but it wouldn't be to do so as the database view filters out rows with afs_data = 'T'.
+                entity.setAfsData(true);
+            }
+
             tagMap.put(entity, creation.getTagIds());
         }
 

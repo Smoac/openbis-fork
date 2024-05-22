@@ -812,7 +812,8 @@ CREATE OR REPLACE RULE data_insert AS
        samp_frozen,
        version,
        data_set_kind,
-       meta_data
+       meta_data,
+       afs_data
      ) VALUES (
        NEW.id,
        NEW.frozen,
@@ -840,7 +841,8 @@ CREATE OR REPLACE RULE data_insert AS
        NEW.samp_frozen,
        NEW.version,
        NEW.data_set_kind,
-       NEW.meta_data
+       NEW.meta_data,
+       NEW.afs_data
      );
 
 CREATE OR REPLACE RULE data_update AS
@@ -871,7 +873,8 @@ CREATE OR REPLACE RULE data_update AS
               samp_frozen = NEW.samp_frozen,
               version = NEW.version,
               data_set_kind = NEW.data_set_kind,
-              meta_data = NEW.meta_data
+              meta_data = NEW.meta_data,
+              afs_data = NEW.afs_data
        WHERE id = NEW.id;
 
 CREATE OR REPLACE RULE data_all AS
