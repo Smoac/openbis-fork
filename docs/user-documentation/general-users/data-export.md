@@ -45,7 +45,7 @@ In each case, the following export options are available: 
 
 - **Export metadata as pdf**. Metadata are exported in a **pdf** folder that keeps the folder structure of the ELN. At each level, one pdf file for each exported entity is generated.
 
-- **Export metadata as XLSX**. Metadata are exported in one **xlsx** folder. The folder contains the metadata of all exported entities and the corresponding masterdata in a **masterdata.xlsx** file. If **Make import compatible** is selected, this file is suitable for re-import in openBIS. If not, the file contains some fields which are not compatible with re-imports. These fields are: PermId of entities, registrator, registration date, modifier, modification date. In addition to the masterdata.xlsx file, the **xlsx** folder might contain a **scripts** folder, which contains scripts associated with types in the masterdata.xlsx file, if these are present, and a **data** folder which holds the content of spreadsheet fields and large text fields that exceed the size of an Excel cell.
+- **Export metadata as XLSX**. Metadata are exported in one **xlsx** folder. The folder contains the metadata of all exported entities and the corresponding masterdata in a **metadata.xlsx** file. If **Make import compatible** is selected, this file is suitable for re-import in openBIS. If not, the file contains some fields which are not compatible with re-imports. These fields are: PermId of entities, registrator, registration date, modifier, modification date. In addition to the metadata.xlsx file, the **xlsx** folder might contain a **scripts** folder, which contains scripts associated with types in the metadata.xlsx file, if these are present, and a **data** folder which holds the content of spreadsheet fields and large text fields that exceed the size of an Excel cell.
 
 - **Export data**. Default size limit is 10GB. If **Make import compatible** is selected, datasets are exported in a **data** folder in a format ready to be uploaded in openBIS using the default eln-lims dropbox. If not, the datasets are exported in a **pdf** folder that matches the ELN hierarchy.
 
@@ -114,8 +114,8 @@ C. **xlsx** folder.
 
 This contains:
 
-- a **masterdata.xlsx** file which has the metadata of the exported entities and the corresponding masterdata (types and properties) in the correct format to be re-imported in another openBIS instance;
-- a **scripts** folder that contains evaluation plugins associated to two types defined in the masterdata.xlsx file;
+- a **metadata.xlsx** file which has the metadata of the exported entities and the corresponding masterdata (types and properties) in the correct format to be re-imported in another openBIS instance;
+- a **scripts** folder that contains evaluation plugins associated to two types defined in the metadata.xlsx file;
 - a **data** folder that contains the information stored in the spreadsheet field of one of the Objects in this Space.
 
 ![image info](img/IC-xlsx-folder-data.png)
@@ -142,7 +142,7 @@ This contains the same folder structure as described above. In addition, in this
 
 B. **xlsx** folder 
 
-This contains the same files and folders as described in Example 1 (see below). The only difference in this case is that the masterdata.xlsx is not import-compatible. It contains some fields which are not compatible with openBIS re-import, as explained above.
+This contains the same files and folders as described in Example 1 (see below). The only difference in this case is that the metadata.xlsx is not import-compatible. It contains some fields which are not compatible with openBIS re-import, as explained above.
 
 ![image info](img/NIC-xlsx-folder-data.png)
 
