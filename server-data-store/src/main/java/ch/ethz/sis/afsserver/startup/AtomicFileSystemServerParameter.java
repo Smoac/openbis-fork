@@ -28,6 +28,7 @@ public enum AtomicFileSystemServerParameter {
     writeAheadLogRoot,
     storageRoot,
     storageUuid,
+    storageIncomingShareId,
     //
     // Parameters for the HTTP server
     //
@@ -48,6 +49,7 @@ public enum AtomicFileSystemServerParameter {
     apiServerInteractiveSessionKey,
     apiServerTransactionManagerKey,
     apiServerWorkerTimeout,
+    apiServerObserver,
     //
     // openBIS connection
     //

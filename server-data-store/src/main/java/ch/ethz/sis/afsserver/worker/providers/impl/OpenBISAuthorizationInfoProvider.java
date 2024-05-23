@@ -20,12 +20,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
+import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameterUtil;
 import ch.ethz.sis.afsserver.worker.WorkerContext;
 import ch.ethz.sis.afsserver.worker.providers.AuthorizationInfoProvider;
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.ObjectPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IPermIdHolder;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
@@ -44,25 +43,19 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.shared.io.FilePermission;
 import ch.ethz.sis.shared.io.IOUtils;
 import ch.ethz.sis.shared.startup.Configuration;
-import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 
 public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvider
 {
 
-    private IApplicationServerApi v3 = null;
+    private IApplicationServerApi applicationServerApi;
 
     @Override
     public void init(Configuration initParameter) throws Exception
     {
-        String openBISUrl = initParameter.getStringProperty(AtomicFileSystemServerParameter.openBISUrl);
-        int openBISTimeout = initParameter.getIntegerProperty(AtomicFileSystemServerParameter.openBISTimeout);
-        v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, openBISUrl, openBISTimeout);
+        applicationServerApi = AtomicFileSystemServerParameterUtil.getApplicationServerApi(initParameter);
 
-        String storageUuid = initParameter.getStringProperty(AtomicFileSystemServerParameter.storageUuid);
-        if (storageUuid == null || storageUuid.isBlank())
-        {
-            throw new RuntimeException("Configuration parameter '" + AtomicFileSystemServerParameter.storageUuid + "' cannot be null or empty.");
-        }
+        // just check that storage uuid is set
+        AtomicFileSystemServerParameterUtil.getStorageUuid(initParameter);
     }
 
     @Override
@@ -135,7 +128,7 @@ public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvid
             return true;
         }
 
-        Rights rights = v3.getRights(workerContext.getSessionToken(), List.of(ownerPermId), new RightsFetchOptions()).get(ownerPermId);
+        Rights rights = applicationServerApi.getRights(workerContext.getSessionToken(), List.of(ownerPermId), new RightsFetchOptions()).get(ownerPermId);
 
         if (rights.getRights().contains(Right.UPDATE))
         {
@@ -153,28 +146,9 @@ public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvid
         return true;
     }
 
-    public IPermIdHolder findOwner(String sessionToken, String owner)
+    private Experiment findExperiment(String sessionToken, String experimentPermId)
     {
-        Experiment foundExperiment = findExperiment(sessionToken, owner);
-
-        if (foundExperiment != null)
-        {
-            return foundExperiment;
-        }
-
-        Sample foundSample = findSample(sessionToken, owner);
-
-        if (foundSample != null)
-        {
-            return foundSample;
-        }
-
-        return findDataSet(sessionToken, owner);
-    }
-
-    public Experiment findExperiment(String sessionToken, String experimentPermId)
-    {
-        Map<IExperimentId, Experiment> experiments = v3.getExperiments(sessionToken, List.of(new ExperimentPermId(experimentPermId)), new ExperimentFetchOptions());
+        Map<IExperimentId, Experiment> experiments = applicationServerApi.getExperiments(sessionToken, List.of(new ExperimentPermId(experimentPermId)), new ExperimentFetchOptions());
 
         if (!experiments.isEmpty())
         {
@@ -185,9 +159,9 @@ public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvid
         }
     }
 
-    public Sample findSample(String sessionToken, String samplePermId)
+    private Sample findSample(String sessionToken, String samplePermId)
     {
-        Map<ISampleId, Sample> samples = v3.getSamples(sessionToken, List.of(new SamplePermId(samplePermId)), new SampleFetchOptions());
+        Map<ISampleId, Sample> samples = applicationServerApi.getSamples(sessionToken, List.of(new SamplePermId(samplePermId)), new SampleFetchOptions());
 
         if (!samples.isEmpty())
         {
@@ -198,14 +172,14 @@ public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvid
         }
     }
 
-    public DataSet findDataSet(String sessionToken, String dataSetPermId)
+    private DataSet findDataSet(String sessionToken, String dataSetPermId)
     {
         IDataSetId dataSetId = new DataSetPermId(dataSetPermId);
 
         DataSetFetchOptions fo = new DataSetFetchOptions();
         fo.withPhysicalData();
 
-        Map<IDataSetId, DataSet> dataSets = v3.getDataSets(sessionToken, List.of(dataSetId), fo);
+        Map<IDataSetId, DataSet> dataSets = applicationServerApi.getDataSets(sessionToken, List.of(dataSetId), fo);
 
         if (!dataSets.isEmpty())
         {
