@@ -218,6 +218,7 @@ public class OpenBISServerObserver implements ServerObserver<TransactionConnecti
         physicalCreation.setStorageFormatId(new ProprietaryStorageFormatPermId());
 
         DataSetCreation creation = new DataSetCreation();
+        creation.setAfsData(true);
         creation.setDataStoreId(new DataStorePermId("AFS"));
         creation.setDataSetKind(DataSetKind.PHYSICAL);
         creation.setTypeId(new EntityTypePermId("UNKNOWN"));
