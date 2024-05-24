@@ -31,6 +31,7 @@ public class WorkerContext {
     private String sessionToken;
     private Boolean sessionExists;
     private boolean transactionManagerMode;
+    private boolean interactiveSessionMode;
     private String ownerShareId;
     private String[] ownerShards;
     private String ownerFolder;

@@ -1,14 +1,25 @@
 package ch.ethz.sis.afsserver.server.observer.impl;
 
+import java.nio.file.NoSuchFileException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
-import ch.ethz.sis.afs.api.dto.File;
+import ch.ethz.sis.afs.dto.operation.CopyOperation;
+import ch.ethz.sis.afs.dto.operation.CreateOperation;
+import ch.ethz.sis.afs.dto.operation.MoveOperation;
 import ch.ethz.sis.afs.dto.operation.Operation;
+import ch.ethz.sis.afs.dto.operation.WriteOperation;
 import ch.ethz.sis.afs.manager.TransactionConnection;
+import ch.ethz.sis.afsapi.dto.File;
 import ch.ethz.sis.afsserver.server.APIServer;
+import ch.ethz.sis.afsserver.server.Request;
 import ch.ethz.sis.afsserver.server.Worker;
 import ch.ethz.sis.afsserver.server.observer.APIServerObserver;
 import ch.ethz.sis.afsserver.server.observer.ServerObserver;
@@ -20,6 +31,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.PhysicalDataCreat
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.FileFormatTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.ProprietaryStorageFormatPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.RelativeLocationLocatorTypePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.id.DataStorePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
@@ -53,80 +65,6 @@ public class OpenBISServerObserver implements ServerObserver<TransactionConnecti
     }
 
     @Override
-    public void beforeAPICall(Worker<TransactionConnection> worker, String method, Map<String, Object> params) throws Exception
-    {
-
-    }
-
-    @Override
-    public void afterAPICall(Worker<TransactionConnection> worker, String method, Map<String, Object> params) throws Exception
-    {
-        String owner = null;
-
-        if (worker.isTransactionManagerMode())
-        {
-            // two-phase transaction (i.e. AS and AFS transaction with the AS coordinator)
-            if (method.equals("prepare"))
-            {
-                List<Operation> operations = worker.getConnection().getTransaction().getOperations();
-
-                for(Operation operation : operations){
-
-                }
-            } else
-            {
-                return;
-            }
-        } else
-        {
-            // one-phase transaction (i.e. AFS only transaction without the AS coordinator) or no transaction (i.e. single method call)
-            switch (method)
-            {
-                case "write":
-                case "create":
-                    owner = (String) params.get("owner");
-                    break;
-                case "copy":
-                case "move":
-                    owner = (String) params.get("targetOwner");
-                    break;
-            }
-        }
-
-        if (owner == null || owner.isBlank())
-        {
-            return;
-        }
-
-        List<File> files = worker.getConnection().list(owner, false);
-
-        if (files.isEmpty())
-        {
-            String sessionToken = (String) params.get("sessionToken");
-
-            if (sessionToken == null || sessionToken.isBlank())
-            {
-                return;
-            }
-
-            Experiment foundExperiment = findExperiment(sessionToken, owner);
-
-            if (foundExperiment != null)
-            {
-                createDataSet(sessionToken, owner, null);
-            } else
-            {
-                Sample foundSample = findSample(sessionToken, owner);
-
-                if (foundSample != null)
-                {
-                    createDataSet(sessionToken, null, owner);
-                }
-            }
-        }
-    }
-
-    @Override
     public void beforeStartup() throws Exception
     {
 
@@ -136,6 +74,158 @@ public class OpenBISServerObserver implements ServerObserver<TransactionConnecti
     public void beforeShutdown() throws Exception
     {
 
+    }
+
+    @Override
+    public void beforeAPICall(Worker<TransactionConnection> worker, Request request) throws Exception
+    {
+        boolean isOnePhaseTransaction = worker.isInteractiveSessionMode();
+        boolean isTwoPhaseTransaction = worker.isTransactionManagerMode();
+
+        // handle only transactional calls
+        if (!isOnePhaseTransaction && !isTwoPhaseTransaction)
+        {
+            return;
+        }
+
+        if ((isOnePhaseTransaction && request.getMethod().equals("commit")) || (isTwoPhaseTransaction && request.getMethod().equals("prepare")))
+        {
+            List<String> paths = new ArrayList<>();
+
+            if (worker.getConnection().getTransaction().getOperations() != null)
+            {
+                for (Operation operation : worker.getConnection().getTransaction().getOperations())
+                {
+                    if (operation instanceof CreateOperation)
+                    {
+                        paths.add(((CreateOperation) operation).getSource());
+                    } else if (operation instanceof WriteOperation)
+                    {
+                        paths.add(((WriteOperation) operation).getSource());
+                    } else if (operation instanceof CopyOperation)
+                    {
+                        paths.add(((CopyOperation) operation).getTarget());
+                    } else if (operation instanceof MoveOperation)
+                    {
+                        paths.add(((MoveOperation) operation).getTarget());
+                    }
+                }
+            }
+
+            List<String> owners = paths.stream().map(this::extractOwnerFromPath).filter(Objects::nonNull).collect(Collectors.toList());
+
+            createDataSets(worker, request, owners);
+        }
+    }
+
+    @Override
+    public void afterAPICall(Worker<TransactionConnection> worker, Request request) throws Exception
+    {
+        boolean isOnePhaseTransaction = worker.isInteractiveSessionMode();
+        boolean isTwoPhaseTransaction = worker.isTransactionManagerMode();
+
+        // handle only non-transactional calls
+        if (isOnePhaseTransaction || isTwoPhaseTransaction)
+        {
+            return;
+        }
+
+        List<String> owners = new ArrayList<>();
+
+        switch (request.getMethod())
+        {
+            case "write":
+            case "create":
+                owners.add((String) request.getParams().get("owner"));
+                break;
+            case "copy":
+            case "move":
+                owners.add((String) request.getParams().get("targetOwner"));
+                break;
+        }
+
+        createDataSets(worker, request, owners);
+    }
+
+    private void createDataSets(Worker<TransactionConnection> worker, Request request, List<String> owners) throws Exception
+    {
+        if (owners == null || owners.isEmpty())
+        {
+            return;
+        }
+
+        List<DataSetCreation> creations = new ArrayList<>();
+
+        for (String owner : owners)
+        {
+            try
+            {
+                List<File> ownerFiles = worker.list(owner, "", false);
+
+                if (!ownerFiles.isEmpty())
+                {
+                    continue;
+                }
+            } catch (NoSuchFileException e)
+            {
+                // good, the folder does not exist yet i.e. we should create a data set
+            }
+
+            Experiment foundExperiment = findExperiment(request.getSessionToken(), owner);
+
+            if (foundExperiment != null)
+            {
+                creations.add(createDataSetCreation(request.getSessionToken(), owner, null));
+            } else
+            {
+                Sample foundSample = findSample(request.getSessionToken(), owner);
+
+                if (foundSample != null)
+                {
+                    creations.add(createDataSetCreation(request.getSessionToken(), null, owner));
+                }
+            }
+        }
+
+        if (!creations.isEmpty())
+        {
+            applicationServerApi.createDataSets(request.getSessionToken(), creations);
+        }
+    }
+
+    private DataSetCreation createDataSetCreation(String sessionToken, String experimentPermId, String samplePermId)
+    {
+        PhysicalDataCreation physicalCreation = new PhysicalDataCreation();
+        physicalCreation.setFileFormatTypeId(new FileFormatTypePermId("PROPRIETARY"));
+        physicalCreation.setLocatorTypeId(new RelativeLocationLocatorTypePermId());
+        physicalCreation.setStorageFormatId(new ProprietaryStorageFormatPermId());
+
+        DataSetCreation creation = new DataSetCreation();
+        creation.setDataStoreId(new DataStorePermId("AFS"));
+        creation.setDataSetKind(DataSetKind.PHYSICAL);
+        creation.setTypeId(new EntityTypePermId("UNKNOWN"));
+        creation.setPhysicalData(physicalCreation);
+
+        if (experimentPermId != null)
+        {
+            creation.setCode(experimentPermId);
+            creation.setExperimentId(new ExperimentPermId(experimentPermId));
+            physicalCreation.setLocation(createDataSetLocation(experimentPermId));
+        } else if (samplePermId != null)
+        {
+            creation.setCode(samplePermId);
+            creation.setSampleId(new SamplePermId(samplePermId));
+            physicalCreation.setLocation(createDataSetLocation(samplePermId));
+        }
+
+        return creation;
+    }
+
+    private String createDataSetLocation(String dataSetCode)
+    {
+        List<String> elements = new LinkedList<>(Arrays.asList(IOUtils.getShards(dataSetCode)));
+        elements.add(dataSetCode);
+        return IOUtils.getPath(storageUuid, elements.toArray(new String[] {}));
     }
 
     private Experiment findExperiment(String sessionToken, String experimentPermId)
@@ -166,38 +256,18 @@ public class OpenBISServerObserver implements ServerObserver<TransactionConnecti
         }
     }
 
-    private void createDataSet(String sessionToken, String experimentPermId, String samplePermId)
+    private String extractOwnerFromPath(String ownerPath)
     {
-        PhysicalDataCreation physicalCreation = new PhysicalDataCreation();
-        physicalCreation.setFileFormatTypeId(new FileFormatTypePermId("PROPRIETARY"));
-        physicalCreation.setLocatorTypeId(new RelativeLocationLocatorTypePermId());
-        physicalCreation.setStorageFormatId(new ProprietaryStorageFormatPermId());
+        Pattern compile = Pattern.compile("\\d+/.+/../../../(\\d+-\\d+)/.*");
+        Matcher matcher = compile.matcher(ownerPath);
 
-        DataSetCreation creation = new DataSetCreation();
-        creation.setDataSetKind(DataSetKind.PHYSICAL);
-        creation.setTypeId(new EntityTypePermId("UNKNOWN"));
-        creation.setPhysicalData(physicalCreation);
-
-        if (experimentPermId != null)
+        if (matcher.matches())
         {
-            creation.setCode(experimentPermId);
-            creation.setExperimentId(new ExperimentPermId(experimentPermId));
-            physicalCreation.setLocation(createDataSetLocation(experimentPermId));
-        } else if (samplePermId != null)
+            return matcher.group();
+        } else
         {
-            creation.setCode(samplePermId);
-            creation.setSampleId(new SamplePermId(samplePermId));
-            physicalCreation.setLocation(createDataSetLocation(samplePermId));
+            return null;
         }
-
-        applicationServerApi.createDataSets(sessionToken, List.of(creation));
-    }
-
-    private String createDataSetLocation(String dataSetCode)
-    {
-        List<String> elements = new LinkedList<>(Arrays.asList(IOUtils.getShards(dataSetCode)));
-        elements.add(dataSetCode);
-        return IOUtils.getPath(storageUuid, elements.toArray(new String[] {}));
     }
 
 }

@@ -35,7 +35,7 @@ public abstract class AbstractProxy implements Worker<TransactionalFileSystem> {
 
     @Override
     public void createContext(PerformanceAuditor performanceAuditor) {
-        setWorkerContext(new WorkerContext(performanceAuditor, null, null, null, null, false, null, null, null));
+        setWorkerContext(new WorkerContext(performanceAuditor, null, null, null, null, false, false, null, null, null));
     }
 
     @Override
@@ -91,6 +91,16 @@ public abstract class AbstractProxy implements Worker<TransactionalFileSystem> {
     @Override
     public boolean isTransactionManagerMode() {
         return workerContext.isTransactionManagerMode();
+    }
+
+    @Override public void setInteractiveSessionMode(final boolean interactiveSessionMode)
+    {
+        workerContext.setInteractiveSessionMode(interactiveSessionMode);
+    }
+
+    @Override public boolean isInteractiveSessionMode()
+    {
+        return workerContext.isInteractiveSessionMode();
     }
 
     @Override
