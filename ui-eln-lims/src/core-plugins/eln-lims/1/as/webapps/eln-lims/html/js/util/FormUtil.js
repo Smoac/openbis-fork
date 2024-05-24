@@ -1232,14 +1232,19 @@ var FormUtil = new function() {
             value = this.ckEditor4to5ImageStyleMigration(value);
         }
 
-        var identifiers = [];
-        var links = {};
+        var ids = [];
         if(isReadOnly) {
             identifierRegexp = /(?:\/[A-Z_\d]+){3,5}/g
-            identifiers = value.match(identifierRegexp)
-					if ( !identifiers) {
-						identifiers = [];
-					}
+            ids = value.match(identifierRegexp);
+            if ( !ids) {
+                ids = [];
+            }
+            permIdRegexp = /\d{17}-\d+/g
+            var permIds = value.match(permIdRegexp);
+            if ( !permIds) {
+                permIds = [];
+            }
+            ids = ids.concat(permIds);
         }
 	    var Builder = null;
 // CK Editor 34
@@ -1264,32 +1269,55 @@ var FormUtil = new function() {
                     .then( editor => {
                         editor.acceptedData = ""; // Is used to undo paste events containing images coming from a different domain
                         if (value) {
-                            if(isReadOnly && identifiers.length > 0)
+                            if(isReadOnly && ids.length > 0)
                             {
-                                this._searchByIdentifiers(identifiers, function(checkedLinks) {
-                                    for(let l in checkedLinks){
-                                        // insert links for collection/object identifiers
-                                        value = value.replaceAll(l, '<a href="'+l +'">' + l + '</a>');
+                                this._searchByIds(ids, function(checkedLinks) {
+                                    // Replace identifiers/permIds with links to forms. Just .replace wont work because some identifiers could be a subset of others, e.g /X/X/X is a subset of /X/X/X_EXP_1
+                                    let arrayOfMatchedIds = [];
+                                    for(let l in checkedLinks) {
+                                        let re = new RegExp(l+"\\b", 'g');
+                                        while ((match = re.exec(value)) != null) {
+                                            arrayOfMatchedIds.push({index: match.index, value: l, href: checkedLinks[l].link, identifier: checkedLinks[l].identifier});
+                                        }
                                     }
-                                    links = checkedLinks;
-                                    var editorNew = CKEditorManager.getEditorById($component.attr('id'));
+                                    arrayOfMatchedIds = arrayOfMatchedIds.sort((a,b) => a.index - b.index);
+                                    var ind = 0;
+                                    for(let matchedId of arrayOfMatchedIds) {
+                                        // </span> is a hack to display links as proper links in CKEditor
+                                        var newLink = '</span>' + checkedLinks[matchedId.value].link[0].outerHTML
+                                                                    .replace('class="browser-compatible-javascript-link"', '')
+                                                                    .replace('>' + matchedId.identifier + '<', '>' + checkedLinks[matchedId.value].name + '<')
+                                               + '<span style="background-color:rgb(255,255,255);color:rgb(51,51,51);font-size:14px;">';
+                                        newLink = decodeURIComponent(newLink);
+                                        value = value.substring(0, matchedId.index + ind) + newLink + value.substring(matchedId.index + ind + matchedId.value.length, value.length);
+                                        ind += newLink.length - matchedId.value.length;
+                                    }
 
-                                    editorNew.isReadOnly = false;
-                                    editorNew.setData(value);
-                                    editorNew.acceptedData = editorNew.getData();
+                                    editor.isReadOnly = false;
+                                    editor.setData('');
+                                    var vF = editor.data.processor.toView(value);
+                                    const modelFragment = editor.data.toModel( vF );
+                                    editor.model.insertContent( modelFragment );
+                                    editor.acceptedData = editor.getData();
+
                                     var root = editor.editing.view.getDomRoot();
                                     for(let l in checkedLinks){
-                                        $(root).find('a[href="'+l+'"]').click(function() {
-                                                checkedLinks[l].click();
-                                            });
-                                        $(root).find('a[href="'+l+'"]').attr('href', "javascript:void(0)");
+                                         $(root).find('a[href]')
+                                                .filter((x, y) => y.text === checkedLinks[l].name)
+                                                .attr('href', "javascript:void(0)")
+                                                .click(function() {
+                                                    checkedLinks[l].link.click();
+                                                });
                                     }
-                                    editorNew.isReadOnly = true;
+
+                                    editor.isReadOnly = true;
                                 });
+
+                            } else {
+                                value = this.prepareCkeditorData(value);
+                                editor.setData(value);
+                                editor.acceptedData = editor.getData();
                             }
-                            value = this.prepareCkeditorData(value);
-                            editor.setData(value);
-                            editor.acceptedData = editor.getData();
                         }
 
                         editor.isReadOnly = isReadOnly;
@@ -1325,33 +1353,57 @@ var FormUtil = new function() {
                     });
 	}
 
-	this._searchByIdentifiers = function(identifiers, callback) {
-        require([ "as/dto/sample/id/SampleIdentifier", "as/dto/sample/fetchoptions/SampleFetchOptions",
-         "as/dto/experiment/id/ExperimentIdentifier", "as/dto/experiment/fetchoptions/ExperimentFetchOptions"],
-                    function(SampleIdentifier, SampleFetchOptions, ExperimentIdentifier, ExperimentFetchOptions) {
+
+	this._searchByIds = function(identifiers, callback) {
+	    //search Experiments and Samples by a would-be identifiers and returns links to them
+        require([ "as/dto/sample/id/SampleIdentifier", "as/dto/sample/id/SamplePermId", "as/dto/sample/fetchoptions/SampleFetchOptions",
+         "as/dto/experiment/id/ExperimentIdentifier", "as/dto/experiment/id/ExperimentPermId", "as/dto/experiment/fetchoptions/ExperimentFetchOptions"],
+                    function(SampleIdentifier, SamplePermId, SampleFetchOptions, ExperimentIdentifier, ExperimentPermId, ExperimentFetchOptions) {
                         var sampleFetchOptions = new SampleFetchOptions();
-                        var ids = identifiers.map(id => new SampleIdentifier(id));
+                        sampleFetchOptions.withProperties();
+                        var ids = identifiers.map(id => {
+                            if(id.startsWith('/')) {
+                                return new SampleIdentifier(id);
+                            }
+                            return new SamplePermId(id);
+                        });
 
                         mainController.openbisV3.getSamples(ids, sampleFetchOptions).done(function(sampleResults) {
                             let links = {};
                             let missing = []
-                            for(let id of identifiers) {
-                                if(sampleResults[id]) {
-                                    let sample = sampleResults[id];
-                                    links[id] = FormUtil.getFormLink(sample.identifier.identifier, 'Sample', sample.permId.permId, null);
-                                } else {
-                                    missing.push(id);
+                            var samples = Util.mapValuesToList(sampleResults);
+                            for ( let sample of samples) {
+                                if(identifiers.includes(sample.permId.permId)) {
+                                    identifiers = identifiers.filter(x => x != sample.permId.permId);
+                                } else if(identifiers.includes(sample.identifier.identifier)) {
+                                    identifiers = identifiers.filter(x => x != sample.identifier.identifier);
                                 }
+                                var link = FormUtil.getFormLink(sample.identifier.identifier, 'Sample', sample.permId.permId, null);
+                                var name = sample.properties['$NAME'] ?? null;
+                                name = sample.identifier.identifier + (name ? '(' + name + ')' : '');
+                                links[sample.identifier.identifier] = {link: link, name: name, identifier: sample.identifier.identifier};
+                                links[sample.permId.permId] = {link: link, name: name, identifier: sample.identifier.identifier};
                             }
-                            if(missing.length == 0) {
+                            if(identifiers.length == 0) {
                                 callback(links);
                             } else {
                                 var experimentFetchOptions = new ExperimentFetchOptions();
-                                var ids = missing.map(id => new ExperimentIdentifier(id));
+                                experimentFetchOptions.withProperties();
+                                var ids = identifiers.map(id => {
+                                    if(id.startsWith('/')) {
+                                        return new ExperimentIdentifier(id);
+                                    }
+                                    return new ExperimentPermId(id);
+                                });
+
                                 mainController.openbisV3.getExperiments(ids, experimentFetchOptions).done(function(experimentResults) {
                                     var experiments = Util.mapValuesToList(experimentResults);
                                     for ( let experiment of experiments) {
-                                        links[experiment.identifier.identifier] = FormUtil.getFormLink(experiment.identifier.identifier, 'Experiment', experiment.identifier.identifier, null);
+                                        var link = FormUtil.getFormLink(experiment.identifier.identifier, 'Experiment', experiment.identifier.identifier, null);
+                                        var name = experiment.properties['$NAME'] ?? null;
+                                        name = experiment.identifier.identifier + (name ? '(' + name + ')' : '');
+                                        links[experiment.identifier.identifier] = {link: link, name: name, identifier: experiment.identifier.identifier};
+                                        links[experiment.permId.permId] = {link: link, name: name, identifier: experiment.identifier.identifier };
                                     }
                                     callback(links);
                                 }).fail(function(result) {

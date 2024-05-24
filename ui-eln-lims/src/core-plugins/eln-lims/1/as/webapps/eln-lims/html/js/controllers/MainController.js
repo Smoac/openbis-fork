@@ -687,6 +687,9 @@ function MainController(profile) {
 				case "showExperimentPageFromIdentifier":
 					var _this = this;
 					var argsArray = arg ? arg : [null, null];
+					if(typeof(argsArray) === 'string') {
+					    argsArray = [argsArray, false];
+					}
 					this._showExperimentView(argsArray[0], argsArray[1], "FORM_VIEW");
 					break;
 				case "showCreateDataSetPageFromExpPermId":
