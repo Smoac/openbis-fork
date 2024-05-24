@@ -1809,7 +1809,12 @@ public class ExportExecutor implements IExportExecutor
 
     private static String convertJsonToHtml(final TreeNode node) throws IOException
     {
-        final TreeNode data = node.get("data");
+
+        TreeNode data = node.get("values");
+        if(data == null) {
+            // backwards compatibility
+            data = node.get("data");
+        }
         final TreeNode styles = node.get("style");
 
         final StringBuilder tableBody = new StringBuilder();
