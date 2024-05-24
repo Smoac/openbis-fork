@@ -43,9 +43,12 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.shared.io.IOUtils;
 import ch.ethz.sis.shared.startup.Configuration;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 public class OpenBISServerObserver implements ServerObserver<TransactionConnection>, APIServerObserver<TransactionConnection>
 {
+
+    private String storageRoot;
 
     private String storageUuid;
 
@@ -54,6 +57,7 @@ public class OpenBISServerObserver implements ServerObserver<TransactionConnecti
     @Override
     public void init(Configuration initParameter) throws Exception
     {
+        storageRoot = AtomicFileSystemServerParameterUtil.getStorageRoot(initParameter);
         storageUuid = AtomicFileSystemServerParameterUtil.getStorageUuid(initParameter);
         applicationServerApi = AtomicFileSystemServerParameterUtil.getApplicationServerApi(initParameter);
     }
@@ -189,7 +193,20 @@ public class OpenBISServerObserver implements ServerObserver<TransactionConnecti
 
         if (!creations.isEmpty())
         {
-            applicationServerApi.createDataSets(request.getSessionToken(), creations);
+            for (DataSetCreation creation : creations)
+            {
+                try
+                {
+                    applicationServerApi.createDataSets(request.getSessionToken(), List.of(creation));
+                } catch (UserFailureException e)
+                {
+                    if (e.getMessage() == null || !e.getMessage().contains("DataSet already exists in the database and needs to be unique"))
+                    {
+                        throw e;
+                    }
+                }
+
+            }
         }
     }
 
@@ -258,12 +275,17 @@ public class OpenBISServerObserver implements ServerObserver<TransactionConnecti
 
     private String extractOwnerFromPath(String ownerPath)
     {
-        Pattern compile = Pattern.compile("\\d+/.+/../../../(\\d+-\\d+)/.*");
+        if (ownerPath.startsWith(storageRoot))
+        {
+            ownerPath = ownerPath.substring(storageRoot.length());
+        }
+
+        Pattern compile = Pattern.compile("/\\d+/.+/../../../(\\d+-\\d+)/.*");
         Matcher matcher = compile.matcher(ownerPath);
 
         if (matcher.matches())
         {
-            return matcher.group();
+            return matcher.group(1);
         } else
         {
             return null;
