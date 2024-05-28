@@ -13,8 +13,8 @@ Exported metadata (and masterdata) is contained in a **xlsx** folder, as shown b
 ![image info](img/xlxs-folder.png)
 
 
-If a **data** folder and/or a **scripts** folder are present in the exported **xlsx** folder, the **xlsx** folder needs to be zipped before import via admin UI (**xlsx.zip**).
-If only the metadata.xlsx file is contained in the **xlsx** folder, this can be directly uploaded via admin UI.
+If a **data** folder and/or a **scripts** folder are present in the exported **xlsx** folder, the **xlsx** folder needs to be zipped and the **xlsx.zip** file can be imported via admin UI.
+If only the metadata.xlsx file is contained in the **xlsx** folder, the metadata.xlsx file can be directly uploaded via admin UI.
 
 
 
