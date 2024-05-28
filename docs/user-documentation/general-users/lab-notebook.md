@@ -54,7 +54,7 @@ openBIS provides by default 2 options for registering Experiments:
  
 
 1.  Navigate to the relevant *Project* in the **Lab Notebook** menu
-2.  Select **Default Experiment** from the **+New** dropdown, as shown below. *Please note* that your openBIS instance might have different types of Experiments, depending on 
+2.  Select **Default Experiment** from the **+New** dropdown, as shown below. *Please note* that your openBIS instance might have different types of Experiments, depending on how it has been configured by the Instance admin.
 ![image info](img/ELN-register-experiments.png)
 3.  Fill in the relevant fields in the form.
 4.  Select **Show in project overview = true** if the *Experiment* is
@@ -67,7 +67,7 @@ openBIS provides by default 2 options for registering Experiments:
 ### Register a Collection:
 
 1.  Navigate to the relevant *Project* in the **Lab Notebook** menu
-2.  Select **Collection** from the **+New** dropdown, as shown below. *Please note* that your openBIS instance might have different types of Experiments, depending on 
+2.  Select **Collection** from the **+New** dropdown, as shown below. *Please note* that your openBIS instance might have different types of Experiments, depending on how it has been configured by the Instance admin.
 ![image info](img/labnotebook-create-collection.png)
 3.  Fill in the **Name** of the Collection and choose the **Default Object Type** and **Default collection view**. For more info about Collections, see [Customize Collection View](../general-users/inventory-of-materials-and-methods.html#customise-collection-view) and [Collections of Materials](../general-admin-users/admins-documentation/customise-inventory-of-materials-and-samples.html#create-collections-of-materials)
 4.  Click **Save** on top of the form.
