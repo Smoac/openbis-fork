@@ -66,6 +66,8 @@ Server](../../system-documentation/configuration/optional-datastore-server-confi
 > **Known limitation of openBIS 20.10.8**: images embedded in text fields are not currently exported. This limitation will be fixed in the upcoming 20.10.8.1 release. 
 
 
+
+
 We provide below a couple of examples of the export, to clarify how it works.
 
 ### **1. Import-compatible export of a Space selecting all options**
