@@ -135,7 +135,7 @@ In this case the exported zip file contains only 2 folders: **pdf** and **xlsx**
 
 **A.** **pdf** folder
 
-This contains the same folder structure as described above. In addition, in this case, inside the Object **Step A (EXP4)** folder there is a **data** folder that contains the dataset belonging to this Object, as shown below.
+This contains the same folder structure as described above. In addition, in this case, inside the Object **Step A (EXP4)** folder there is a **data** folder that contains the dataset belonging to this Object, as shown below. The metadata of the dataset is provided as a metadata.json file inside the data folder and as pdf file inside the Object folder.
 
 
 ![image info](img/NIC-pdf-folder.png)
