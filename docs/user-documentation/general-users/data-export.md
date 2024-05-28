@@ -60,7 +60,7 @@ If **Make import compatible** is selected, datasets are exported in a **data** f
 
 _Note: ensure that pop-ups are not disabled in your browser_.
 - **Receive results by email**. If this option is selected, when the export is ready, you will receive an email notification with a download link.  Email notification needs to be configured on *system level* during or after installation, as explained in [Configure Data Store
-Server](../../system-documentation/standalone/optional-datastore-server-configuration.md)
+Server](../../system-documentation/configuration/optional-datastore-server-configuration.md)
 
 We provide below a couple of examples of the export, to clarify how it works.
 
