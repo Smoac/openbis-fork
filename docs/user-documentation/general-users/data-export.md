@@ -43,7 +43,7 @@ In each case, the following export options are available: 
  
 - **Make import compatible**. If selected, datasets are exported in a **data** folder and are in a format ready to be uploaded in openBIS using the default eln-lims dropbox; the metadata are exported in a **xlsx** folder which contains information in a format ready to be uploaded via the openBIS admin UI.
 
-- **Export metadata as pdf**. Metadata are exported in a **pdf** folder that keeps the folder structure of the ELN. At each level, one pdf file for each exported entity is generated.
+- **Export metadata as PDF**. Metadata are exported in a **pdf** folder that keeps the folder structure of the ELN. At each level, one pdf file for each exported entity is generated.
 
 - **Export metadata as XLSX**. Metadata are exported in one **xlsx** folder. The folder contains the metadata of all exported entities and the corresponding masterdata in a **metadata.xlsx** file. If **Make import compatible** is selected, this file is suitable for re-import in openBIS. If not, the file contains some fields which are not compatible with re-imports. These fields are: PermId of entities, registrator, registration date, modifier, modification date. In addition to the metadata.xlsx file, the **xlsx** folder might contain a **scripts** folder, which contains scripts associated with types in the metadata.xlsx file, if these are present, and a **data** folder which holds the content of spreadsheet fields and large text fields that exceed the size of an Excel cell.
 
@@ -63,7 +63,7 @@ Server](../../system-documentation/standalone/optional-datastore-server-configur
 
 We provide below a couple of examples of the export, to clarify how it works.
 
-**1. Import-compatible export of a Space selecting all options**
+### **1. Import-compatible export of a Space selecting all options**
 
 We select all options from the export widget, as shown below.
 
@@ -124,7 +124,7 @@ This contains:
 
 
 
-**2. Non import-compatible export of a Space selecting all options**
+### **2. Non import-compatible export of a Space selecting all options**
 
 We export the same Space as described in Example 1, with all options selected, but the export this time is not import-compatible, as shown below.
 
