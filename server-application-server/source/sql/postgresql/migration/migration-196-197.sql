@@ -3,7 +3,7 @@
 -- modify data_all table
 
 ALTER TABLE data_all ADD COLUMN afs_data boolean_char NOT NULL DEFAULT 'F';
-CREATE UNIQUE INDEX data_afs_data_expe_id_samp_id_uk ON data_all (expe_id, samp_id) WHERE (afs_data = 'T');
+CREATE UNIQUE INDEX data_afs_data_expe_id_samp_id_uk ON data_all (COALESCE(expe_id,-1), COALESCE(samp_id,-1)) WHERE (afs_data = 'T');
 
 -- recreate data and data_deleted views
 

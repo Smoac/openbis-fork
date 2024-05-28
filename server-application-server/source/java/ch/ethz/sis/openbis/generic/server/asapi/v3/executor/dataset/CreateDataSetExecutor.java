@@ -154,6 +154,9 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
                 dataSet.setProductionDate(creation.getDataProductionDate());
                 dataSet.setMetaData(creation.getMetaData());
 
+                // set afs_data flag here for checkAccess to work properly
+                dataSet.setAfsData(creation.isAfsData());
+
                 PersonPE person = context.getSession().tryGetPerson();
                 dataSet.setRegistrator(person);
                 Date timeStamp = daoFactory.getTransactionTimestamp();
@@ -313,6 +316,12 @@ public class CreateDataSetExecutor extends AbstractCreateEntityExecutor<DataSetC
     @Override
     protected void save(IOperationContext context, List<DataPE> entities, boolean clearCache)
     {
+        for (DataPE entity : entities)
+        {
+            // clear the afs_data flag (it will be set later)
+            entity.setAfsData(false);
+        }
+
         daoFactory.getDataDAO().createDataSets(entities, context.getSession().tryGetPerson());
     }
 
