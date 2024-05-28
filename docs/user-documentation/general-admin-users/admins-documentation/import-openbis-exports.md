@@ -14,7 +14,7 @@ Exported metadata (and masterdata) is contained in a **xlsx** folder, as shown b
 
 
 If a **data** folder and/or a **scripts** folder are present in the exported **xlsx** folder, the **xlsx** folder needs to be zipped and the **xlsx.zip** file can be imported via admin UI.
-If only the metadata.xlsx file is contained in the **xlsx** folder, the metadata.xlsx file can be directly uploaded via admin UI.
+If only the **metadata.xlsx** file is contained in the **xlsx** folder, the metadata.xlsx file can be directly uploaded via admin UI.
 
 
 
@@ -24,7 +24,7 @@ Exported datasets are contained in a **data** folder in a format ready to be imp
 
 ![image info](img/import-data-folder.png)
 
-The folders contained in the **data** folder need to be placed in the eln-lims incoming directory and from here will be uploaded to the corresponsing openBIS entities. The metadata of the datasets is read from the metadata.json file contained inside each dataset folder.
+The folders contained in the **data** folder need to be placed in the **eln-lims incoming directory** and from here will be uploaded to the corresponsing openBIS entities. The metadata of the datasets is read from the **metadata.json** file contained inside each dataset folder.
 
 When importing both metadata and data in a different openBIS instance, first the metadata need to be imported and afterwards the data. 
 
