@@ -62,6 +62,10 @@ _Note: ensure that pop-ups are not disabled in your browser_.
 - **Receive results by email**. If this option is selected, when the export is ready, you will receive an email notification with a download link.  Email notification needs to be configured on *system level* during or after installation, as explained in [Configure Data Store
 Server](../../system-documentation/configuration/optional-datastore-server-configuration.md)
 
+
+> **Known limitation of openBIS 20.10.8**: images embedded in text fields are not currently exported. This limitation will be fixed in the upcoming 20.10.8.1 release. 
+
+
 We provide below a couple of examples of the export, to clarify how it works.
 
 ### **1. Import-compatible export of a Space selecting all options**
