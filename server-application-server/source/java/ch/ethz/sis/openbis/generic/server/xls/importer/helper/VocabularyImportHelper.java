@@ -15,6 +15,9 @@
  */
 package ch.ethz.sis.openbis.generic.server.xls.importer.helper;
 
+import java.util.List;
+import java.util.Map;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.VocabularyCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
@@ -27,9 +30,7 @@ import ch.ethz.sis.openbis.generic.server.xls.importer.utils.AttributeValidator;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.IAttribute;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.ImportUtils;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.VersionUtils;
-
-import java.util.List;
-import java.util.Map;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 public class VocabularyImportHelper extends BasicImportHelper
 {
@@ -78,6 +79,11 @@ public class VocabularyImportHelper extends BasicImportHelper
     {
         String version = getValueByColumnName(header, values, Attribute.Version);
         String code = getValueByColumnName(header, values, Attribute.Code);
+
+        if (code == null)
+        {
+            throw new UserFailureException("Mandatory field is missing or empty: " + Attribute.Code);
+        }
 
         boolean isInternalNamespace = ImportUtils.isInternalNamespace(code);
         boolean isSystem = delayedExecutor.isSystem();

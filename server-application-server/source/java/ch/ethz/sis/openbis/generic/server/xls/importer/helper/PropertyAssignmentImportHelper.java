@@ -15,6 +15,13 @@
  */
 package ch.ethz.sis.openbis.generic.server.xls.importer.helper;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.interfaces.IEntityType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.update.ListUpdateValue;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
@@ -43,13 +50,7 @@ import ch.ethz.sis.openbis.generic.server.xls.importer.utils.AttributeValidator;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.IAttribute;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.ImportUtils;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.VersionUtils;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 public class PropertyAssignmentImportHelper extends BasicImportHelper
 {
@@ -123,8 +124,14 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
 
     @Override protected boolean isNewVersion(Map<String, Integer> header, List<String> values)
     {
-        String version = getValueByColumnName(header, values, PropertyAssignmentImportHelper.Attribute.Version);
         String code = getValueByColumnName(header, values, PropertyAssignmentImportHelper.Attribute.Code);
+
+        if (code == null)
+        {
+            throw new UserFailureException("Mandatory field is missing or empty: " + Attribute.Code);
+        }
+
+        String version = getValueByColumnName(header, values, PropertyAssignmentImportHelper.Attribute.Version);
 
         if (version == null || version.isEmpty()) {
             return true;

@@ -75,7 +75,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.externaldms.update.ExternalDmsUp
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.GlobalSearchObject;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.fetchoptions.GlobalSearchObjectFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.GlobalSearchCriteria;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.IImportData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.ImportResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.ImportData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options.ImportOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType;
@@ -1322,15 +1323,20 @@ public class OpenBISJavaScriptFacade implements IApplicationServerApi
     }
 
     @TypeScriptMethod
-    @Override public void executeImport(final String sessionToken, final IImportData importData, final ImportOptions importOptions)
+    @Override public ImportResult executeImport(final String sessionToken, final ImportData importData, final ImportOptions importOptions)
     {
-
+        return null;
     }
 
     @TypeScriptMethod
     @Override public ExportResult executeExport(final String sessionToken, final ExportData exportData, final ExportOptions exportOptions)
     {
         return null;
+    }
+
+    @TypeScriptMethod(sessionToken = false)
+    public void uploadToSessionWorkspace(final Object file)
+    {
     }
 
     @TypeScriptMethod(sessionToken = false)

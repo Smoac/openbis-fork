@@ -173,7 +173,9 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.GlobalSearchCriter
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.SearchGloballyOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.global.search.SearchGloballyOperationResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.ImportOperation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.IImportData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.ImportOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.ImportResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.ImportData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options.ImportOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.Material;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.material.MaterialType;
@@ -1818,9 +1820,10 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     @Override
-    public void executeImport(final String sessionToken, final IImportData importData, final ImportOptions importOptions)
+    public ImportResult executeImport(final String sessionToken, final ImportData importData, final ImportOptions importOptions)
     {
-        executeOperation(sessionToken, new ImportOperation(importData, importOptions));
+        final ImportOperationResult operationResult = executeOperation(sessionToken, new ImportOperation(importData, importOptions));
+        return operationResult.getImportResult();
     }
 
     @Override

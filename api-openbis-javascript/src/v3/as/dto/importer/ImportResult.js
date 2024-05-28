@@ -15,40 +15,36 @@
  *
  */
 
-define(["stjs"],
-  function (stjs) {
-    var ImportScript = function() {
+define(["stjs"], function (stjs) {
+    var ImportResult = function(objectIds) {
+      this.objectIds = objectIds;
     }
 
     stjs.extend(
-      ImportScript,
+      ImportResult,
       null,
       [],
       function (constructor, prototype) {
-        prototype["@type"] = "as.dto.importer.data.ImportScript";
+        prototype["@type"] = "as.dto.importer.ImportResult";
 
         constructor.serialVersionUID = 1;
-        prototype.name = null;
-        prototype.source = null;
+        prototype.objectIds = null;
 
-        prototype.getName = function() {
-          return this.name;
+        prototype.getObjectIds = function() {
+          return this.objectIds;
         };
 
-        prototype.setName = function(name) {
-          this.name = name;
-        };
-
-        prototype.getSource = function() {
-          return this.source;
-        };
-
-        prototype.setSource = function(source) {
-          this.source = source;
+        prototype.setObjectIds = function(objectIds) {
+          this.objectIds = objectIds;
         };
       },
-      {}
+      {
+        objectIds: {
+          name: "List",
+          arguments: ["IObjectId"]
+        }
+      }
     );
 
-    return ImportScript;
+    return ImportResult;
   });

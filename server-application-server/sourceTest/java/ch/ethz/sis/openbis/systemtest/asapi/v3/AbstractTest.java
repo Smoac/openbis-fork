@@ -20,6 +20,9 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.fail;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -161,6 +164,8 @@ import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.test.AssertionUtil;
+import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
+import ch.systemsx.cisd.openbis.generic.shared.ISessionWorkspaceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;

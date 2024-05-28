@@ -15,6 +15,10 @@
  */
 package ch.ethz.sis.openbis.generic.server.xls.importer.helper;
 
+import java.io.File;
+import java.util.List;
+import java.util.Map;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.PluginType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.create.PluginCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.fetchoptions.PluginFetchOptions;
@@ -26,9 +30,6 @@ import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportModes;
 import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ImportTypes;
 import ch.ethz.sis.openbis.generic.server.xls.importer.enums.ScriptTypes;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.ImportUtils;
-
-import java.util.List;
-import java.util.Map;
 
 public class ScriptImportHelper extends BasicImportHelper
 {
@@ -80,36 +81,42 @@ public class ScriptImportHelper extends BasicImportHelper
     {
         String scriptPath = getValueByColumnName(header, values, scriptType.getColumnName());
 
-        if (scriptPath == null || scriptPath.isEmpty())
+        if (scriptPath != null && !scriptPath.isEmpty())
         {
-            return;
+            String script = this.scripts.get(new File(scriptPath).getName());
+            if (script != null)
+            {
+                PluginCreation creation = new PluginCreation();
+                creation.setName(getScriptName(header, values));
+                creation.setScript(script);
+                switch (scriptType)
+                {
+                    case VALIDATION_SCRIPT:
+                        creation.setPluginType(PluginType.ENTITY_VALIDATION);
+                        break;
+                    case DYNAMIC_SCRIPT:
+                        creation.setPluginType(PluginType.DYNAMIC_PROPERTY);
+                        break;
+                }
+                delayedExecutor.createPlugin(creation);
+            }
         }
-
-        PluginCreation creation = new PluginCreation();
-        creation.setName(getScriptName(header, values));
-        creation.setScript(this.scripts.get(scriptPath));
-        switch (scriptType) {
-            case VALIDATION_SCRIPT:
-                creation.setPluginType(PluginType.ENTITY_VALIDATION);
-                break;
-            case DYNAMIC_SCRIPT:
-                creation.setPluginType(PluginType.DYNAMIC_PROPERTY);
-                break;
-        }
-        delayedExecutor.createPlugin(creation);
     }
 
     @Override protected void updateObject(Map<String, Integer> header, List<String> values, int page, int line)
     {
         String scriptPath = getValueByColumnName(header, values, scriptType.getColumnName());
-        String script = this.scripts.get(scriptPath);
-        if (script != null)
+        if (scriptPath != null && !scriptPath.isEmpty())
         {
-            PluginUpdate update = new PluginUpdate();
-            PluginPermId permId = new PluginPermId(getScriptName(header, values));
-            update.setPluginId(permId);
-            update.setScript(this.scripts.get(scriptPath));
-            delayedExecutor.updatePlugin(update);
+            String script = this.scripts.get(new File(scriptPath).getName());
+            if (script != null)
+            {
+                PluginUpdate update = new PluginUpdate();
+                PluginPermId permId = new PluginPermId(getScriptName(header, values));
+                update.setPluginId(permId);
+                update.setScript(script);
+                delayedExecutor.updatePlugin(update);
+            }
         }
     }
 

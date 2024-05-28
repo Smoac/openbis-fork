@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.ImportOperation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.ImportOperationResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.ImportResult;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.common.OperationExecutor;
 
@@ -41,8 +42,8 @@ public class ImportOperationExecutor extends OperationExecutor<ImportOperation, 
     @Override
     protected ImportOperationResult doExecute(final IOperationContext context, final ImportOperation operation)
     {
-        executor.doImport(context, operation);
-        return new ImportOperationResult();
+        final ImportResult importResult = executor.doImport(context, operation);
+        return new ImportOperationResult(importResult);
     }
 
 }

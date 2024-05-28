@@ -11139,9 +11139,6 @@ export namespace openbis {
         getIdentifier(): ObjectIdentifier;
     }
 
-    interface IImportData extends Serializable {
-    }
-
     interface ILabelHolder {
 
         getLabel(): string;
@@ -11619,12 +11616,32 @@ export namespace openbis {
         new <T extends IObjectId>(): IdsSearchCriteria<T>;
     }
 
+    interface ImportData extends Serializable {
+
+        getFormat(): ImportFormat;
+
+        getSessionWorkspaceFiles(): string[];
+
+        setFormat(arg0: ImportFormat): void;
+
+        setSessionWorkspaceFiles(arg0: string[]): void;
+    }
+
+    /**
+     */
+    interface ImportDataConstructor {
+
+        new (): ImportData;
+
+        new (arg0: ImportFormat, arg1: string[]): ImportData;
+    }
+
     /**
      */
     interface ImportFormatObject {
         /**
          */
-        XLS: ImportFormat<> = "XLS";
+        EXCEL: ImportFormat<> = "EXCEL";
     }
 
     /**
@@ -11643,13 +11660,13 @@ export namespace openbis {
 
     interface ImportOperation extends Serializable, IOperation {
 
-        getImportData(): IImportData;
+        getImportData(): ImportData;
 
         getImportOptions(): ImportOptions;
 
         getMessage(): string;
 
-        setImportData(arg0: IImportData): void;
+        setImportData(arg0: ImportData): void;
 
         setImportOptions(arg0: ImportOptions): void;
     }
@@ -11660,12 +11677,16 @@ export namespace openbis {
 
         new (): ImportOperation;
 
-        new (arg0: IImportData, arg1: ImportOptions): ImportOperation;
+        new (arg0: ImportData, arg1: ImportOptions): ImportOperation;
     }
 
     interface ImportOperationResult extends Serializable, as_dto_common_operation_IOperationResult {
 
+        getImportResult(): ImportResult;
+
         getMessage(): string;
+
+        setImportResult(arg0: ImportResult): void;
     }
 
     /**
@@ -11673,6 +11694,8 @@ export namespace openbis {
     interface ImportOperationResultConstructor {
 
         new (): ImportOperationResult;
+
+        new (arg0: ImportResult): ImportOperationResult;
     }
 
     interface ImportOptions extends Serializable {
@@ -11691,44 +11714,20 @@ export namespace openbis {
         new (arg0: ImportMode): ImportOptions;
     }
 
-    interface ImportScript extends Serializable {
+    interface ImportResult extends Serializable {
 
-        getName(): string;
+        getObjectIds(): IObjectId[];
 
-        getSource(): string;
-
-        setName(arg0: string): void;
-
-        setSource(arg0: string): void;
+        setObjectIds(arg0: IObjectId[]): void;
     }
 
     /**
      */
-    interface ImportScriptConstructor {
+    interface ImportResultConstructor {
 
-        new (): ImportScript;
+        new (): ImportResult;
 
-        new (arg0: string, arg1: string): ImportScript;
-    }
-
-    interface ImportValue extends Serializable {
-
-        getName(): string;
-
-        getValue(): string;
-
-        setName(arg0: string): void;
-
-        setValue(arg0: string): void;
-    }
-
-    /**
-     */
-    interface ImportValueConstructor {
-
-        new (): ImportValue;
-
-        new (arg0: string, arg1: string): ImportValue;
+        new (arg0: IObjectId[]): ImportResult;
     }
 
     interface LabelSearchCriteria extends StringFieldSearchCriteria {
@@ -13851,7 +13850,7 @@ export namespace openbis {
 
         executeExport(arg1: ExportData, arg2: ExportOptions): Promise<ExportResult>;
 
-        executeImport(arg1: IImportData, arg2: ImportOptions): Promise<void>;
+        executeImport(arg1: ImportData, arg2: ImportOptions): Promise<ImportResult>;
 
         executeOperations(arg1: IOperation[], arg2: IOperationExecutionOptions): Promise<IOperationExecutionResults>;
 
@@ -14068,6 +14067,8 @@ export namespace openbis {
         updateVocabularies(arg1: VocabularyUpdate[]): Promise<void>;
 
         updateVocabularyTerms(arg1: VocabularyTermUpdate[]): Promise<void>;
+
+        uploadToSessionWorkspace(arg0: any): Promise<void>;
     }
 
     /**
@@ -23027,34 +23028,6 @@ export namespace openbis {
         new (): UnarchiveDataSetsOperationResult;
     }
 
-    interface UncompressedImportData extends Serializable, IImportData {
-
-        getFile(): string;
-
-        getFormat(): ImportFormat;
-
-        getImportValues(): ImportValue[];
-
-        getScripts(): ImportScript[];
-
-        setFile(arg0: string): void;
-
-        setFormat(arg0: ImportFormat): void;
-
-        setImportValues(arg0: ImportValue[]): void;
-
-        setScripts(arg0: ImportScript[]): void;
-    }
-
-    /**
-     */
-    interface UncompressedImportDataConstructor {
-
-        new (): UncompressedImportData;
-
-        new (arg0: ImportFormat, arg1: string, arg2: ImportScript[], arg3: ImportValue[]): UncompressedImportData;
-    }
-
     interface UnknownRelatedObjectId extends IObjectId {
 
         getRelatedObjectId(): string;
@@ -24590,26 +24563,6 @@ export namespace openbis {
         RICH: XlsTextFormat<> = "RICH";
     }
 
-    interface ZipImportData extends Serializable, IImportData {
-
-        getFile(): string;
-
-        getFormat(): ImportFormat;
-
-        setFile(arg0: string): void;
-
-        setFormat(arg0: ImportFormat): void;
-    }
-
-    /**
-     */
-    interface ZipImportDataConstructor {
-
-        new (): ZipImportData;
-
-        new (arg0: ImportFormat, arg1: string): ZipImportData;
-    }
-
     interface as_dto_common_operation_IOperationResult extends Serializable {
 
         getMessage(): string;
@@ -25182,13 +25135,13 @@ export namespace openbis {
         IdSearchCriteria: IdSearchCriteriaConstructor;
         IdentifierSearchCriteria: IdentifierSearchCriteriaConstructor;
         IdsSearchCriteria: IdsSearchCriteriaConstructor;
+        ImportData: ImportDataConstructor;
         ImportFormat: ImportFormatObject;
         ImportMode: ImportModeObject;
         ImportOperation: ImportOperationConstructor;
         ImportOperationResult: ImportOperationResultConstructor;
         ImportOptions: ImportOptionsConstructor;
-        ImportScript: ImportScriptConstructor;
-        ImportValue: ImportValueConstructor;
+        ImportResult: ImportResultConstructor;
         LabelSearchCriteria: LabelSearchCriteriaConstructor;
         LastNameSearchCriteria: LastNameSearchCriteriaConstructor;
         LinkedData: LinkedDataConstructor;
@@ -25571,7 +25524,6 @@ export namespace openbis {
         TimeZone: TimeZoneConstructor;
         UnarchiveDataSetsOperation: UnarchiveDataSetsOperationConstructor;
         UnarchiveDataSetsOperationResult: UnarchiveDataSetsOperationResultConstructor;
-        UncompressedImportData: UncompressedImportDataConstructor;
         UnknownRelatedObjectId: UnknownRelatedObjectIdConstructor;
         UnlockDataSetsOperation: UnlockDataSetsOperationConstructor;
         UnlockDataSetsOperationResult: UnlockDataSetsOperationResultConstructor;
@@ -25649,7 +25601,6 @@ export namespace openbis {
         WebAppSettingsSortOptions: WebAppSettingsSortOptionsConstructor;
         WebAppSettingsUpdateValue: WebAppSettingsUpdateValueConstructor;
         XlsTextFormat: XlsTextFormatObject;
-        ZipImportData: ZipImportDataConstructor;
         as_dto_attachment_Attachment: AttachmentConstructor;
         as_dto_attachment_create_AttachmentCreation: AttachmentCreationConstructor;
         as_dto_attachment_fetchoptions_AttachmentFetchOptions: AttachmentFetchOptionsConstructor;
@@ -26024,11 +25975,9 @@ export namespace openbis {
         as_dto_history_id_UnknownRelatedObjectId: UnknownRelatedObjectIdConstructor;
         as_dto_importer_ImportOperation: ImportOperationConstructor;
         as_dto_importer_ImportOperationResult: ImportOperationResultConstructor;
+        as_dto_importer_ImportResult: ImportResultConstructor;
+        as_dto_importer_data_ImportData: ImportDataConstructor;
         as_dto_importer_data_ImportFormat: ImportFormatObject;
-        as_dto_importer_data_ImportScript: ImportScriptConstructor;
-        as_dto_importer_data_ImportValue: ImportValueConstructor;
-        as_dto_importer_data_UncompressedImportData: UncompressedImportDataConstructor;
-        as_dto_importer_data_ZipImportData: ZipImportDataConstructor;
         as_dto_importer_options_ImportMode: ImportModeObject;
         as_dto_importer_options_ImportOptions: ImportOptionsConstructor;
         as_dto_material_Material: MaterialConstructor;
@@ -26695,7 +26644,7 @@ MATERIAL : "MATERIAL",
 SAMPLE : "SAMPLE"} as const
 
     const ImportFormat = {
-XLS : "XLS"} as const
+EXCEL : "EXCEL"} as const
 
     const ImportMode = {
 FAIL_IF_EXISTS : "FAIL_IF_EXISTS",
@@ -26979,7 +26928,7 @@ MATERIAL : "MATERIAL",
 SAMPLE : "SAMPLE"} as const
 
     const as_dto_importer_data_ImportFormat = {
-XLS : "XLS"} as const
+EXCEL : "EXCEL"} as const
 
     const as_dto_importer_options_ImportMode = {
 FAIL_IF_EXISTS : "FAIL_IF_EXISTS",
@@ -27882,15 +27831,15 @@ SAMPLE : "SAMPLE"} as const
 
     export const IdsSearchCriteria:IdsSearchCriteriaConstructor
 
+    export const ImportData:ImportDataConstructor
+
     export const ImportOperation:ImportOperationConstructor
 
     export const ImportOperationResult:ImportOperationResultConstructor
 
     export const ImportOptions:ImportOptionsConstructor
 
-    export const ImportScript:ImportScriptConstructor
-
-    export const ImportValue:ImportValueConstructor
+    export const ImportResult:ImportResultConstructor
 
     export const LabelSearchCriteria:LabelSearchCriteriaConstructor
 
@@ -28624,8 +28573,6 @@ SAMPLE : "SAMPLE"} as const
 
     export const UnarchiveDataSetsOperationResult:UnarchiveDataSetsOperationResultConstructor
 
-    export const UncompressedImportData:UncompressedImportDataConstructor
-
     export const UnknownRelatedObjectId:UnknownRelatedObjectIdConstructor
 
     export const UnlockDataSetsOperation:UnlockDataSetsOperationConstructor
@@ -28777,8 +28724,6 @@ SAMPLE : "SAMPLE"} as const
     export const WebAppSettingsSortOptions:WebAppSettingsSortOptionsConstructor
 
     export const WebAppSettingsUpdateValue:WebAppSettingsUpdateValueConstructor
-
-    export const ZipImportData:ZipImportDataConstructor
 
     export const as_dto_attachment_Attachment:AttachmentConstructor
 
@@ -29490,13 +29435,9 @@ SAMPLE : "SAMPLE"} as const
 
     export const as_dto_importer_ImportOperationResult:ImportOperationResultConstructor
 
-    export const as_dto_importer_data_ImportScript:ImportScriptConstructor
+    export const as_dto_importer_ImportResult:ImportResultConstructor
 
-    export const as_dto_importer_data_ImportValue:ImportValueConstructor
-
-    export const as_dto_importer_data_UncompressedImportData:UncompressedImportDataConstructor
-
-    export const as_dto_importer_data_ZipImportData:ZipImportDataConstructor
+    export const as_dto_importer_data_ImportData:ImportDataConstructor
 
     export const as_dto_importer_options_ImportOptions:ImportOptionsConstructor
 
@@ -31466,17 +31407,11 @@ SAMPLE : "SAMPLE"} as const
 
     type as_dto_importer_ImportOperationResult = ImportOperationResult
 
-    type as_dto_importer_data_IImportData = IImportData
+    type as_dto_importer_ImportResult = ImportResult
+
+    type as_dto_importer_data_ImportData = ImportData
 
     type as_dto_importer_data_ImportFormat = typeof as_dto_importer_data_ImportFormat[keyof typeof as_dto_importer_data_ImportFormat]
-
-    type as_dto_importer_data_ImportScript = ImportScript
-
-    type as_dto_importer_data_ImportValue = ImportValue
-
-    type as_dto_importer_data_UncompressedImportData = UncompressedImportData
-
-    type as_dto_importer_data_ZipImportData = ZipImportData
 
     type as_dto_importer_options_ImportMode = typeof as_dto_importer_options_ImportMode[keyof typeof as_dto_importer_options_ImportMode]
 

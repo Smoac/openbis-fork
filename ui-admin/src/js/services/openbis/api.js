@@ -252,6 +252,10 @@ class Facade {
     return this.promise(this.v3.evaluatePlugin(options))
   }
 
+  uploadToSessionWorkspace(file) {
+    return this.promise(this.v3.uploadToSessionWorkspace(file))
+  }
+
   executeCustomDSSService(serviceId, options) {
     return this.promise(this.v3.getDataStoreFacade().executeCustomDSSService(serviceId, options));
   }

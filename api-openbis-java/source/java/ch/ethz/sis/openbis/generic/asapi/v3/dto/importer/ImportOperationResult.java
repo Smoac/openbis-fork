@@ -19,6 +19,9 @@ package ch.ethz.sis.openbis.generic.asapi.v3.dto.importer;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.operation.IOperationResult;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -28,10 +31,33 @@ public class ImportOperationResult implements Serializable, IOperationResult
 
     private static final long serialVersionUID = 1L;
 
+    @JsonProperty
+    private ImportResult importResult;
+
+    public ImportOperationResult()
+    {
+    }
+
+    public ImportOperationResult(final ImportResult importResult)
+    {
+        this.importResult = importResult;
+    }
+
     @Override
     public String getMessage()
     {
         return toString();
+    }
+
+    @JsonIgnore
+    public ImportResult getImportResult()
+    {
+        return importResult;
+    }
+
+    public void setImportResult(final ImportResult importResult)
+    {
+        this.importResult = importResult;
     }
 
     @Override

@@ -70,13 +70,16 @@ public class ImportDatasetTypesTest extends AbstractImportTest
         sessionToken = v3api.loginAsSystem();
 
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, DATASET_TYPES_XLS)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, DATASET_TYPES_XLS));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
+
         // WHEN
         DataSetType rawData = TestUtils.getDatasetType(v3api, sessionToken, "RAW_DATA");
         List<String> propertyNames = Arrays.asList("$NAME", "NOTES");
         List<PropertyAssignment> propertyAssignments = TestUtils.extractAndSortPropertyAssignmentsPerGivenPropertyName(rawData, propertyNames);
         PropertyAssignment nameProperty = propertyAssignments.get(0);
         PropertyAssignment notesProperty = propertyAssignments.get(1);
+
         // THEN
         assertEquals(rawData.getCode(), "RAW_DATA");
         assertEquals(rawData.getPropertyAssignments().size(), 2);
@@ -101,9 +104,12 @@ public class ImportDatasetTypesTest extends AbstractImportTest
     public void testDatasetTypesWithoutPropertiesTypesAreCreated() throws IOException
     {
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, DATASET_WITHOUT_PROPERTIES)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, DATASET_WITHOUT_PROPERTIES));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
+
         // WHEN
         DataSetType rawData = TestUtils.getDatasetType(v3api, sessionToken, "RAW_DATA");
+
         // THEN
         assertEquals(rawData.getCode(), "RAW_DATA");
         assertEquals(rawData.getPropertyAssignments().size(), 0);
@@ -114,10 +120,13 @@ public class ImportDatasetTypesTest extends AbstractImportTest
     public void testDatasetTypesWithValidationScript() throws Exception
     {
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, TestUtils.getValidationPluginMap(),
-                Paths.get(FilenameUtils.concat(FILES_DIR, DATASET_WITH_VALIDATION_SCRIPT)));
+        final String[] sessionWorkspaceFilePaths = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, DATASET_WITH_VALIDATION_SCRIPT), FilenameUtils.concat(FILES_DIR, VALIDATION_SCRIPT));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePaths[0]));
+
         // WHEN
         DataSetType rawData = TestUtils.getDatasetType(v3api, sessionToken, "RAW_DATA");
+
         // THEN
         assertEquals(rawData.getValidationPlugin().getName().toUpperCase(), "RAW_DATA.VALID");
     }
@@ -130,15 +139,19 @@ public class ImportDatasetTypesTest extends AbstractImportTest
         sessionToken = v3api.loginAsSystem();
 
         // GIVEN
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, DATASET_TYPES_XLS)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, DATASET_TYPES_XLS));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
+
         // WHEN
-        TestUtils.createFrom(v3api, sessionToken, TestUtils.getDynamicPluginMap(), UpdateMode.UPDATE_IF_EXISTS,
-                Paths.get(FilenameUtils.concat(FILES_DIR, DATASET_TYPES_UPDATE)));
+        final String[] sessionWorkspaceFilePaths = uploadToAsSessionWorkspace(sessionToken,
+                FilenameUtils.concat(FILES_DIR, DATASET_TYPES_UPDATE), FilenameUtils.concat(FILES_DIR, DYNAMIC_SCRIPT));
+        TestUtils.createFrom(v3api, sessionToken, UpdateMode.UPDATE_IF_EXISTS, Paths.get(sessionWorkspaceFilePaths[0]));
         DataSetType rawData = TestUtils.getDatasetType(v3api, sessionToken, "RAW_DATA");
         List<String> propertyNames = Arrays.asList("$NAME", "NOTES");
         List<PropertyAssignment> propertyAssignments = TestUtils.extractAndSortPropertyAssignmentsPerGivenPropertyName(rawData, propertyNames);
         PropertyAssignment nameProperty = propertyAssignments.get(0);
         PropertyAssignment notesProperty = propertyAssignments.get(1);
+
         // THEN
         // Property Assignment updates are not supported, no change here between updates.
         assertTrue(nameProperty.isMandatory());
@@ -157,10 +170,11 @@ public class ImportDatasetTypesTest extends AbstractImportTest
         assertEquals(notesProperty.getPlugin(), null);
     }
 
-    @Test(expectedExceptions = UserFailureException.class)
+    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = "(?s).*Header should contain 'Code'.*")
     public void shouldThrowExceptionIfNoSampleCode() throws IOException
     {
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(FilenameUtils.concat(FILES_DIR, DATASET_NO_CODE)));
+        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken, FilenameUtils.concat(FILES_DIR, DATASET_NO_CODE));
+        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
     }
 
 }

@@ -17,7 +17,7 @@
 
 define(["stjs", "as/dto/common/Enum"], function (stjs, Enum) {
   var ImportFormat = function() {
-    Enum.call(this, ["XLS"]);
+    Enum.call(this, ["EXCEL"]);
   }
 
   stjs.extend(

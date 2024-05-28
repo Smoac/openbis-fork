@@ -220,8 +220,7 @@ public abstract class AbstractXLSExportHelper<ENTITY_TYPE extends IEntityType> i
             final String filePath = matcher.group(3);
             try
             {
-                final byte[] fileContent = FileServerUtils.read(filePath);
-                imageFiles.put(filePath, fileContent);
+                imageFiles.put(filePath, FileServerUtils.readAllBytes(filePath));
             } catch (final IOException e)
             {
                 warnings.add(String.format("Could not read the file at path '%s'.", filePath));

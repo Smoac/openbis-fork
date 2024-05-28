@@ -15,6 +15,9 @@
  */
 package ch.ethz.sis.openbis.generic.server.xls.importer.helper;
 
+import java.util.List;
+import java.util.Map;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.id.PluginPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.create.SampleTypeCreation;
@@ -28,9 +31,7 @@ import ch.ethz.sis.openbis.generic.server.xls.importer.utils.AttributeValidator;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.IAttribute;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.ImportUtils;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.VersionUtils;
-
-import java.util.List;
-import java.util.Map;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 public class SampleTypeImportHelper extends BasicImportHelper
 {
@@ -83,8 +84,14 @@ public class SampleTypeImportHelper extends BasicImportHelper
 
     @Override protected boolean isNewVersion(Map<String, Integer> header, List<String> values)
     {
-        String version = getValueByColumnName(header, values, Attribute.Version);
         String code = getValueByColumnName(header, values, Attribute.Code);
+
+        if (code == null)
+        {
+            throw new UserFailureException("Mandatory field is missing or empty: " + Attribute.Code);
+        }
+
+        String version = getValueByColumnName(header, values, Attribute.Version);
 
         if (version == null || version.isEmpty()) {
             return true;
@@ -110,6 +117,12 @@ public class SampleTypeImportHelper extends BasicImportHelper
     @Override protected boolean isObjectExist(Map<String, Integer> header, List<String> values)
     {
         String code = getValueByColumnName(header, values, Attribute.Code);
+
+        if (code == null)
+        {
+            throw new UserFailureException("Mandatory field is missing or empty: " + Attribute.Code);
+        }
+
         EntityTypePermId id = new EntityTypePermId(code);
 
         return delayedExecutor.getSampleType(id, new SampleTypeFetchOptions()) != null;

@@ -173,13 +173,13 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
         var allowSampleTypeSelection = experimentIdentifier == null;
         var batchController = new BatchController(title, "REGISTRATION", allowedSampleTypes, allowSampleTypeSelection, function(file, selectedSampleTypes) {
             Util.blockUI();
-            mainController.serverFacade.fileUpload(file, function() {
-                mainController.serverFacade.registerSamples(selectedSampleTypes, experimentsByType, spacesByType,
-                        _this.getBarcodeValidationInfo(), file.name,
-                function(result) {
+            mainController.openbisV3.uploadToSessionWorkspace(file)
+              .done(function() {
+                mainController.serverFacade.importSamples("FAIL_IF_EXISTS", file.name, selectedSampleTypes, experimentsByType, spacesByType,
+                  function(result) {
                     _this._handleResult(result, "created", experimentIdentifier);
-                });
-            });
+                  });
+              });
         });
         batchController.init();
     }
@@ -196,11 +196,11 @@ function SampleTableController(parentController, title, experimentIdentifier, pr
         var allowSampleTypeSelection = experimentIdentifier == null;
         var batchController = new BatchController(title, "UPDATE", allowedSampleTypes, allowSampleTypeSelection, function(file, selectedSampleTypes) {
             Util.blockUI();
-            mainController.serverFacade.fileUpload(file, function() {
-                mainController.serverFacade.updateSamples(selectedSampleTypes,
-                        _this.getBarcodeValidationInfo(), file.name,
-                        function(result) {
-                    _this._handleResult(result, "updated", experimentIdentifier);
+          mainController.openbisV3.uploadToSessionWorkspace(file)
+            .done(function() {
+              mainController.serverFacade.importSamples("UPDATE_IF_EXISTS", file.name, selectedSampleTypes, experimentsByType, spacesByType,
+                function(result) {
+                  _this._handleResult(result, "updated", experimentIdentifier);
                 });
             });
         });

@@ -25,19 +25,17 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.testng.annotations.Test;
+
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.search.DataSetTypeSearchCriteria;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.search.ExperimentTypeSearchCriteria;
-import ch.systemsx.cisd.common.action.IDelegatedAction;
-import org.testng.annotations.Test;
-
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.IImportData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.ImportData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.ImportFormat;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.ZipImportData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options.ImportMode;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options.ImportOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
@@ -53,15 +51,18 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.Vocabulary;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.VocabularyTerm;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.search.VocabularySearchCriteria;
+import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 public class ZipImportTest extends AbstractImportTest
 {
 
     @Test
-    public void testDataImport()
+    public void testDataImport() throws Exception
     {
-        final IImportData importData = new ZipImportData(ImportFormat.XLS, getFileContent("import.zip"));
+        final String[] sessionWorkspaceFiles = uploadToAsSessionWorkspace(sessionToken, "import.zip");
+
+        final ImportData importData = new ImportData(ImportFormat.EXCEL, sessionWorkspaceFiles);
         final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
 
         v3api.executeImport(sessionToken, importData, importOptions);
@@ -82,9 +83,11 @@ public class ZipImportTest extends AbstractImportTest
     }
 
     @Test
-    public void testDataImportInternalTypes_failForNormalUser()
+    public void testDataImportInternalTypes_failForNormalUser() throws Exception
     {
-        final IImportData importData = new ZipImportData(ImportFormat.XLS, getFileContent("import_internal_type.zip"));
+        final String[] sessionWorkspaceFiles = uploadToAsSessionWorkspace(sessionToken, "import_internal_type.zip");
+
+        final ImportData importData = new ImportData(ImportFormat.EXCEL, sessionWorkspaceFiles);
         final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
 
         assertUserFailureException(new IDelegatedAction()
@@ -99,12 +102,14 @@ public class ZipImportTest extends AbstractImportTest
     }
 
     @Test
-    public void testDataImportInternalTypes_systemUser()
+    public void testDataImportInternalTypes_systemUser() throws Exception
     {
-        final IImportData importData = new ZipImportData(ImportFormat.XLS, getFileContent("import_internal_type.zip"));
-        final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
-
         final String systemSessionToken = v3api.loginAsSystem();
+
+        final String[] sessionWorkspaceFiles = uploadToAsSessionWorkspace(systemSessionToken, "import_internal_type.zip");
+
+        final ImportData importData = new ImportData(ImportFormat.EXCEL, sessionWorkspaceFiles);
+        final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
 
         v3api.executeImport(systemSessionToken, importData, importOptions);
 
@@ -130,7 +135,6 @@ public class ZipImportTest extends AbstractImportTest
         assertEquals(sampleTypeSearchResult.getTotalCount(), 1);
         assertEquals(sampleTypeSearchResult.getObjects().get(0).getDescription(), "Internal Sample Type");
 
-
         final ExperimentTypeSearchCriteria experimentTypeSearchCriteria = new ExperimentTypeSearchCriteria();
         experimentTypeSearchCriteria.withCode().thatEquals("$INTERNAL_EXPERIMENT_TYPE");
 
@@ -144,9 +148,11 @@ public class ZipImportTest extends AbstractImportTest
     }
 
     @Test
-    public void testLargeDataImport()
+    public void testLargeDataImport() throws Exception
     {
-        final IImportData importData = new ZipImportData(ImportFormat.XLS, getFileContent("import_large_cell.zip"));
+        final String[] sessionWorkspaceFiles = uploadToAsSessionWorkspace(sessionToken, "import_large_cell.zip");
+
+        final ImportData importData = new ImportData(ImportFormat.EXCEL, sessionWorkspaceFiles);
         final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
 
         v3api.executeImport(sessionToken, importData, importOptions);
@@ -168,9 +174,11 @@ public class ZipImportTest extends AbstractImportTest
     }
 
     @Test
-    public void testImportOptionsUpdateIfExists()
+    public void testImportOptionsUpdateIfExists() throws Exception
     {
-        final IImportData importData = new ZipImportData(ImportFormat.XLS, getFileContent("existing_vocabulary.zip"));
+        final String[] sessionWorkspaceFiles = uploadToAsSessionWorkspace(sessionToken, "existing_vocabulary.zip");
+
+        final ImportData importData = new ImportData(ImportFormat.EXCEL, sessionWorkspaceFiles);
         final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
 
         v3api.executeImport(sessionToken, importData, importOptions);
@@ -195,9 +203,11 @@ public class ZipImportTest extends AbstractImportTest
     }
 
     @Test
-    public void testImportOptionsIgnoreExisting()
+    public void testImportOptionsIgnoreExisting() throws Exception
     {
-        final IImportData importData = new ZipImportData(ImportFormat.XLS, getFileContent("existing_vocabulary.zip"));
+        final String[] sessionWorkspaceFiles = uploadToAsSessionWorkspace(sessionToken, "existing_vocabulary.zip");
+
+        final ImportData importData = new ImportData(ImportFormat.EXCEL, sessionWorkspaceFiles);
         final ImportOptions importOptions = new ImportOptions(ImportMode.IGNORE_EXISTING);
 
         v3api.executeImport(sessionToken, importData, importOptions);
@@ -222,20 +232,24 @@ public class ZipImportTest extends AbstractImportTest
     }
 
     @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = ".*FAIL_IF_EXISTS.*")
-    public void testImportOptionsFailIfExists()
+    public void testImportOptionsFailIfExists() throws Exception
     {
-        final IImportData importData = new ZipImportData(ImportFormat.XLS, getFileContent("existing_vocabulary.zip"));
+        final String[] sessionWorkspaceFiles = uploadToAsSessionWorkspace(sessionToken, "existing_vocabulary.zip");
+
+        final ImportData importData = new ImportData(ImportFormat.EXCEL, sessionWorkspaceFiles);
         final ImportOptions importOptions = new ImportOptions(ImportMode.FAIL_IF_EXISTS);
 
         v3api.executeImport(sessionToken, importData, importOptions);
     }
 
     @Test
-    public void testWithValidationScript()
+    public void testWithValidationScript() throws Exception
     {
+        final String[] sessionWorkspaceFiles = uploadToAsSessionWorkspace(sessionToken, "validation_script.zip");
+
         final String name = "valid.py";
         final String source = "print 'Test validation script'";
-        final IImportData importData = new ZipImportData(ImportFormat.XLS, getFileContent("validation_script.zip"));
+        final ImportData importData = new ImportData(ImportFormat.EXCEL, sessionWorkspaceFiles);
         final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
 
         v3api.executeImport(sessionToken, importData, importOptions);
@@ -260,11 +274,13 @@ public class ZipImportTest extends AbstractImportTest
     }
 
     @Test
-    public void testWithDynamicScript()
+    public void testWithDynamicScript() throws Exception
     {
+        final String[] sessionWorkspaceFiles = uploadToAsSessionWorkspace(sessionToken, "dynamic_script.zip");
+
         final String name = "dynamic.py";
         final String source = "1+1";
-        final IImportData importData = new ZipImportData(ImportFormat.XLS, getFileContent("dynamic_script.zip"));
+        final ImportData importData = new ImportData(ImportFormat.EXCEL, sessionWorkspaceFiles);
         final ImportOptions importOptions = new ImportOptions(ImportMode.UPDATE_IF_EXISTS);
 
         v3api.executeImport(sessionToken, importData, importOptions);

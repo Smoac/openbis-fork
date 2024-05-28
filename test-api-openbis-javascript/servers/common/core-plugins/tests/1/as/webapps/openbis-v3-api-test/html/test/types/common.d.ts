@@ -152,5 +152,6 @@ export namespace common {
         ok(msg?): void
         section(msg): void
         fail(msg?): void
+        base64ToBlob(b64Data: string, contentType: string='', sliceSize: number=512): Blob
     }
 }

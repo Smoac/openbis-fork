@@ -15,6 +15,9 @@
  */
 package ch.ethz.sis.openbis.generic.server.xls.importer.helper;
 
+import java.util.List;
+import java.util.Map;
+
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.create.VocabularyTermCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.fetchoptions.VocabularyTermFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.vocabulary.id.VocabularyPermId;
@@ -28,9 +31,7 @@ import ch.ethz.sis.openbis.generic.server.xls.importer.utils.AttributeValidator;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.IAttribute;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.ImportUtils;
 import ch.ethz.sis.openbis.generic.server.xls.importer.utils.VersionUtils;
-
-import java.util.List;
-import java.util.Map;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 public class VocabularyTermImportHelper extends BasicImportHelper
 {
@@ -91,6 +92,11 @@ public class VocabularyTermImportHelper extends BasicImportHelper
     {
         String version = getValueByColumnName(header, values, Attribute.Version);
         String code = getValueByColumnName(header, values, Attribute.Code);
+
+        if (code == null)
+        {
+            throw new UserFailureException("Mandatory field is missing or empty: " + Attribute.Code);
+        }
 
         boolean isInternalNamespace = ImportUtils.isInternalNamespace(code) || ImportUtils.isInternalNamespace(vocabularyCode);
         boolean isSystem = delayedExecutor.isSystem();

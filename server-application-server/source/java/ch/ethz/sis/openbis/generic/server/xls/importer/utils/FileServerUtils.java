@@ -5,6 +5,8 @@ import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Set;
@@ -47,15 +49,27 @@ public class FileServerUtils
         }
     }
 
-    public static byte[] read(String filePath) throws IOException
+    public static InputStream read(String src) throws IOException
     {
-        return Files.readAllBytes(getFilePath(filePath));
+        return Files.newInputStream(getFilePath(src));
     }
 
-    public static Path write(String filePath, byte[] bytes) throws IOException
+    public static byte[] readAllBytes(final String src) throws IOException
     {
-        Path filePathAsPath = getFilePath(filePath);
-        Files.createDirectories(filePathAsPath);
-        return Files.write(filePathAsPath, bytes);
+        final Path filePathAsPath = getFilePath(src);
+        return Files.readAllBytes(filePathAsPath);
     }
+
+    public static long write(final InputStream src, final String dst) throws IOException
+    {
+        final Path filePathAsPath = getFilePath(dst);
+        return Files.copy(src, filePathAsPath);
+    }
+
+    public static OutputStream newOutputStream(String dst) throws IOException
+    {
+        final Path filePathAsPath = getFilePath(dst);
+        return Files.newOutputStream(filePathAsPath);
+    }
+
 }

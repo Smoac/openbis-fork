@@ -31,6 +31,8 @@ public interface ISessionWorkspaceProvider
 
     File getSessionWorkspace(String sessionToken);
 
+    File getCanonicalFile(String sessionToken, String relativePathToFile) throws IOException;
+
     void deleteSessionWorkspace(String sessionToken);
 
     void write(String sessionToken, String relativePathToFile, InputStream inputStream) throws IOException;
@@ -38,6 +40,8 @@ public interface ISessionWorkspaceProvider
     FileOutputStream getFileOutputStream(String sessionToken, String relativePathToFile) throws IOException;
 
     InputStream read(String sessionToken, String relativePathToFile) throws IOException;
+
+    byte[] readAllBytes(String sessionToken, String relativePathToFile) throws IOException;
 
     void delete(String sessionToken, String relativePathToFile) throws IOException;
 
