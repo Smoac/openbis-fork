@@ -10,10 +10,10 @@ The exported metadata (and related masterdata) can be imported in another openBI
 
 Exported metadata (and masterdata) is contained in a **xlsx** folder, as shown below.
 
-![image info](img/xlsx-folder.png)
+![image info](img/xlxs-folder.png)
 
 
-If a data folder and/or a scripts folder are present in the exported **xlsx** folder, this needs to be zipped before import via admin UI (**xlsx.zip**).
+If a **data** folder and/or a **scripts** folder are present in the exported **xlsx** folder, this needs to be zipped before import via admin UI (**xlsx.zip**).
 If only the metadata.xlsx file is contained in the **xlsx** folder, this can be directly uploaded via admin UI.
 
 
