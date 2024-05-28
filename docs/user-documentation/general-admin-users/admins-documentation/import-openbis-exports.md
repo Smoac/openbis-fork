@@ -13,7 +13,8 @@ Exported metadata (and masterdata) are contained in a **xlsx** folder, as shown 
 ![image info](img/xlxs-folder.png)
 
 
-Metadata and masterdata are contained in the **metadata.xlsx** file. If some of the exported types have validation plugins or dynamic property plugins, these are exported to a **scripts** folder inside the **xlsx** folder. If some exported entities contain either large text fields that exceed the length of an Excel cell or metadata in spreadheets, these are exprted to a **data** folder inside the **xlsx** folder.
+Metadata and masterdata are contained in the **metadata.xlsx** file. If some of the exported types have validation plugins or dynamic property plugins, these are exported to a **scripts** folder inside the **xlsx** folder. If some exported entities contain either large text fields that exceed the length of an Excel cell or metadata in spreadheets, these are exported to a **data** folder inside the **xlsx** folder.
+
 If a **data** folder and/or a **scripts** folder are present in the exported **xlsx** folder, the **xlsx** folder needs to be zipped and the **xlsx.zip** file can be imported via admin UI.
 If only the **metadata.xlsx** file is contained in the **xlsx** folder, the metadata.xlsx file can be directly uploaded via admin UI.
 
