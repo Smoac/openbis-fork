@@ -1,6 +1,6 @@
 # Imports of openBIS exports
 
-It is possible to export metadata and data from one openBIS instance to another.
+It is possible to export metadata and data from one openBIS instance and import them to another openBIS instance.
 The export process is described [here](../../general-users/data-export.md).
 
 
@@ -13,18 +13,18 @@ Exported metadata (and masterdata) is contained in a **xlsx** folder, as shown b
 ![image info](img/xlxs-folder.png)
 
 
-If a **data** folder and/or a **scripts** folder are present in the exported **xlsx** folder, this needs to be zipped before import via admin UI (**xlsx.zip**).
+If a **data** folder and/or a **scripts** folder are present in the exported **xlsx** folder, the **xlsx** folder needs to be zipped before import via admin UI (**xlsx.zip**).
 If only the metadata.xlsx file is contained in the **xlsx** folder, this can be directly uploaded via admin UI.
 
 
 
 ## Datasets import
 
-Exported datasets are contained in a data folder in a format ready to be imported via [eln-lims default dropbox](../../general-users/data-upload.md#data-upload-via-dropbox).
+Exported datasets are contained in a **data** folder in a format ready to be imported via [eln-lims default dropbox](../../general-users/data-upload.md#data-upload-via-dropbox).
 
 ![image info](img/import-data-folder.png)
 
-The folders contained in the data folder need to be placed in the eln-lims incoming directory and from here will be uploaded to the corresponsing openBIS entities.
+The folders contained in the **data** folder need to be placed in the eln-lims incoming directory and from here will be uploaded to the corresponsing openBIS entities. The metadata of the datasets is read from the metadata.json file contained inside each dataset folder.
 
 When importing both metadata and data in a different openBIS instance, first the metadata need to be imported and afterwards the data. 
 
