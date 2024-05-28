@@ -1,13 +1,6 @@
 package ch.ethz.sis.rdf.main;
 
-import ch.ethz.sis.openbis.generic.OpenBISExtended;
-import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.ImportFormat;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.UncompressedImportData;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options.ImportMode;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options.ImportOptions;
 import ch.ethz.sis.rdf.main.mappers.OntClassObject;
-import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import org.apache.commons.cli.*;
 import org.apache.jena.ontology.OntClass;
 import org.apache.jena.ontology.OntModel;
@@ -16,17 +9,13 @@ import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 
-import java.io.Console;
-import java.io.IOException;
-import java.io.Reader;
-import java.nio.file.Files;
+import java.io.*;
 import java.nio.file.Path;
 import java.util.Map;
 
 import static ch.ethz.sis.rdf.main.ClassCollector.collectClassDetails;
 
-public class RDFCommandLine
-{
+public class RDFCommandLine {
 
     public static void main(String[] args)
     {
@@ -36,8 +25,7 @@ public class RDFCommandLine
         HelpFormatter formatter = new HelpFormatter();
         CommandLine cmd = null;
 
-        try
-        {
+        try {
             cmd = parser.parse(options, args);
             if (cmd.hasOption("help"))
             {
@@ -47,15 +35,13 @@ public class RDFCommandLine
                 return;
             }
             validateAndExecute(cmd);
-        } catch (ParseException e)
-        {
+        } catch (ParseException e) {
             System.out.println(e.getMessage());
             formatter.printHelp(
                     "java -jar lib-rdf-tool.jar -i <TTL> -o <XLSX, OPENBIS, OPENBIS-DEV> <TTL input file path> [<XLSX output file path>] [[[-u <username> -p] <openBIS AS URL>] <openBIS DSS URL>]",
                     options);
             System.exit(1);
-        } catch (IOException e)
-        {
+        } catch (IOException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -136,34 +122,33 @@ public class RDFCommandLine
                 {
                     throw new IllegalArgumentException(
                             "For XLSX output, specify the input and output file path. \n " +
-                                    "Usage: java -jar lib-rdf-tool.jar -i <input format> -o XLSX <<input format> file path> <XLSX file path>");
+                                    "Usage: java -jar lib-rdf-tool.jar -i <input format> -o XLSX <<input format> file path> <XLSX output file path>");
                 }
                 inputFilePath = remainingArgs[0];
                 String outputFilePath = remainingArgs[1];
-                System.out.println("Handling XLSX: " + inputFormatValue + " -> " + outputFormatValue);
+                System.out.println("Handling: " + inputFormatValue + " -> " + outputFormatValue);
                 handleXlsxOutput(inputFormatValue, inputFilePath, outputFilePath);
                 break;
             case "OPENBIS":
                 if (remainingArgs.length != 2 && !cmd.hasOption("username") && !cmd.hasOption("password"))
                 {
-                    throw new IllegalArgumentException("For OPENBIS output, specify input file path, username, password and AS openBIS URL. \n " +
-                            "Usage: java -jar lib-rdf-tool.jar -i <input format> -o OPENBIS <<input format> file path> -u <username> -p <openBIS AS URL>");
+                    throw new IllegalArgumentException("For OPENBIS output, specify input file path, username, password and openBIS URL. \n " +
+                            "Usage: java -jar lib-rdf-tool.jar -i <input format> -o OPENBIS <<input format> file path> -u <username> -p <openBIS URL>");
                 }
                 username = cmd.getOptionValue("user");
                 password = getPassword(cmd);
                 inputFilePath = remainingArgs[0];
                 openbisASURL = remainingArgs[1];
 
-                System.out.println("Handling OPENBIS: " + inputFormatValue + " -> " + outputFormatValue);
-                System.out.println("Connect to openBIS instance " + openbisASURL + " with username[" + username + "] and password[" + new String(
-                        password) + "]");
+                System.out.println("Handling: " + inputFormatValue + " -> " + outputFormatValue);
+                System.out.println("Connect to openBIS instance " + openbisASURL + " with username[" + username + "]"); // and password[" + new String(password) + "]");
                 handleOpenBISOutput(inputFormatValue, inputFilePath, openbisASURL, username, new String(password));
                 break;
             case "OPENBIS-DEV":
                 if (remainingArgs.length != 3 && !cmd.hasOption("username") && !cmd.hasOption("password"))
                 {
                     throw new IllegalArgumentException(
-                            "For OPENBIS output, specify input file path, username, password, AS openBIS URL and DSS openBIS URL. \n " +
+                            "For OPENBIS-DEV output, specify input file path, username, password, AS openBIS URL and DSS openBIS URL. \n " +
                                     "Usage: java -jar lib-rdf-tool.jar -i <input format> -o OPENBIS-DEV <<input format> file path> -u <username> -p <openBIS AS URL> <openBIS DSS URL>");
                 }
                 username = cmd.getOptionValue("user");
@@ -172,7 +157,7 @@ public class RDFCommandLine
                 openbisASURL = remainingArgs[1];
                 openBISDSSURL = remainingArgs[2];
 
-                System.out.println("Handling OPENBIS-DEV: " + inputFormatValue + " -> " + outputFormatValue);
+                System.out.println("Handling: " + inputFormatValue + " -> " + outputFormatValue);
                 handleOpenBISDevOutput(inputFormatValue, inputFilePath, openbisASURL, openBISDSSURL, username, new String(password));
                 break;
             default:
@@ -182,11 +167,10 @@ public class RDFCommandLine
 
     private static void handleXlsxOutput(String inputFormatValue, String inputFilePath, String outputFilePath) throws IOException
     {
-        System.out.println("Handling XLSX from [" + inputFilePath + "] to [" + outputFilePath + "]");
-
         System.out.println("Creating Ontology Model...");
 
         OntModel model = ModelFactory.createOntologyModel(OntModelSpec.OWL_DL_MEM);
+
         if (inputFormatValue.equals("TTL")) {
             //model.read(inputFilePath, "TURTLE");
             RDFDataMgr.read(model, inputFilePath, Lang.TTL);
@@ -202,68 +186,36 @@ public class RDFCommandLine
         System.out.println("Writing XLSX file...");
         ExcelWriter.createExcelFile(model, classDetailsMap.values(), outputFilePath);
 
-        System.out.println("Done. Excel at " + outputFilePath);
+        System.out.println("XLSX created successfully!");
     }
-
-    //private static final String asURL = "http://localhost:8888/openbis/openbis";
-    //private static final String dssURL = "http://localhost:8889/datastore_server";
-    private static final int TIMEOUT = 30000;
 
     private static void handleOpenBISOutput(String inputFormatValue, String inputFilePath, String openbisASURL, String username, String password)
             throws IOException
     {
-        String tempFileOutput = "/home/mdanaila/Projects/master/openbis/lib-rdf/test-data/sphn-model/output.xlsx";
+        //String tempFileOutput = "/home/mdanaila/Projects/master/openbis/lib-rdf/test-data/sphn-model/output.xlsx";
+        Path tempFile = Utils.createTemporaryFile();
+        String tempFileOutput = tempFile.toString();
+        System.out.println("Created temporary XLSX output file: " + tempFileOutput);
         handleXlsxOutput(inputFormatValue, inputFilePath, tempFileOutput);
 
         System.out.println(
                 "Connect to openBIS instance " + openbisASURL + " with username[" + username + "]"); //and password[" + new String(password) +"]");
-        String serviceURL = openbisASURL + IApplicationServerApi.SERVICE_URL;
 
-        // 4. Call openBIS V3 API executeImport with the Excel file
-        IApplicationServerApi v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, serviceURL, TIMEOUT);
-        String sessionToken = v3.login(username, password);
-        System.out.println("sessionToken: " + sessionToken);
-
-        // Call excel import
-        UncompressedImportData uncompressedImportData = new UncompressedImportData();
-        uncompressedImportData.setFormat(ImportFormat.XLS);
-        uncompressedImportData.setFile(Files.readAllBytes(Path.of(tempFileOutput)));
-
-        ImportOptions importOptions = new ImportOptions();
-        importOptions.setMode(ImportMode.UPDATE_IF_EXISTS);
-
-        OpenBISExtended openBIS = new OpenBISExtended(openbisASURL, null, TIMEOUT);
-
-        openBIS.executeImport(uncompressedImportData, importOptions, sessionToken);
+        Utils.connectAndExport(openbisASURL, null, username, password, tempFile);
     }
 
     private static void handleOpenBISDevOutput(String inputFormatValue, String inputFilePath, String openbisASURL, String openBISDSSURL,
             String username, String password)
             throws IOException
     {
-
-        String tempFileOutput = "/home/mdanaila/Projects/master/openbis/lib-rdf/test-data/sphn-model/output.xlsx";
+        //String tempFileOutput = "/home/mdanaila/Projects/master/openbis/lib-rdf/test-data/sphn-model/output.xlsx";
+        Path tempFile = Utils.createTemporaryFile();
+        String tempFileOutput = tempFile.toString();
+        System.out.println("Created temporary XLSX output file: " + tempFileOutput);
         handleXlsxOutput(inputFormatValue, inputFilePath, tempFileOutput);
 
-        System.out.println(
-                "Connect to openBIS-DEV instance AS[" + openbisASURL + "] DSS[" + openBISDSSURL + "] with username[" + username + "]"); //and password[" + new String(password) +"]");
-        String serviceURL = openbisASURL + IApplicationServerApi.SERVICE_URL;
+        System.out.println("Connect to openBIS-DEV instance AS[" + openbisASURL + "] DSS[" + openBISDSSURL + "] with username[" + username + "]"); //and password[" + new String(password) +"]");
 
-        // 4. Call openBIS V3 API executeImport with the Excel file
-        IApplicationServerApi v3 = HttpInvokerUtils.createServiceStub(IApplicationServerApi.class, serviceURL, TIMEOUT);
-        String sessionToken = v3.login(username, password);
-        System.out.println("sessionToken: " + sessionToken);
-
-        // Call excel import
-        UncompressedImportData uncompressedImportData = new UncompressedImportData();
-        uncompressedImportData.setFormat(ImportFormat.XLS);
-        uncompressedImportData.setFile(Files.readAllBytes(Path.of(tempFileOutput)));
-
-        ImportOptions importOptions = new ImportOptions();
-        importOptions.setMode(ImportMode.UPDATE_IF_EXISTS);
-
-        OpenBISExtended openBIS = new OpenBISExtended(openbisASURL, openBISDSSURL, TIMEOUT);
-
-        openBIS.executeImport(uncompressedImportData, importOptions, sessionToken);
+        Utils.connectAndExport(openbisASURL, openBISDSSURL, username, password, tempFile);
     }
 }
