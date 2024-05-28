@@ -79,7 +79,7 @@ One Object in this Space has a parent in a Space called METHODS (see below).
 
 The exported zip file contains 3 folders:
 
-A. **data** folder
+**A.** **data** folder
 
 This contains the datasets in the correct format to be uploaded via eln-lims dropbox, as shown below.
 
@@ -88,7 +88,7 @@ This contains the datasets in the correct format to be uploaded via eln-lims dro
 
 ![image info](img/IC-data-folder-2.png)
 
-B. **pdf** folder
+**B.** **pdf** folder
 
 This contains folders that match the openBIS hierarchy (Space/Project/Experiment/Object).
 
@@ -110,7 +110,7 @@ Inside each folder, there is a pdf of the corresponding entity. Example:
 - in the Object folder **Step A (EXP4)**  there is a **Step A(EXP4).pdf** file with the metadata of the Object and a **20240523100301019-55.pdf** file that contains the metadata of the dataset that belongs to this Object.
 
 
-C. **xlsx** folder. 
+**C.** **xlsx** folder. 
 
 This contains:
 
@@ -131,16 +131,16 @@ We export the same Space as described in Example 1, with all options selected, b
  ![image info](img/space-export-all-options-non-import-compatible.png)
 
  
-In this case there are only 2 folders: **pdf** and **xlsx**. Data are exported inside the pdf folder, instead of being in a separate **data** folder.
+In this case the exported zip file contains only 2 folders: **pdf** and **xlsx**. Data are exported inside the pdf folder, instead of being in a separate **data** folder.
 
-A. **pdf** folder
+**A.** **pdf** folder
 
 This contains the same folder structure as described above. In addition, in this case, inside the Object **Step A (EXP4)** folder there is a **data** folder that contains the dataset belonging to this Object, as shown below.
 
 
 ![image info](img/NIC-pdf-folder.png)
 
-B. **xlsx** folder 
+**B.** **xlsx** folder 
 
 This contains the same files and folders as described in Example 1 (see below). The only difference in this case is that the metadata.xlsx is not import-compatible. It contains some fields which are not compatible with openBIS re-import, as explained above.
 
