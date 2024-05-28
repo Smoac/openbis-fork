@@ -9,6 +9,9 @@ public class OpenBISExtended extends OpenBIS {
 
     private final IApplicationServerApi asFacadeNoTransactions;
 
+    public OpenBISExtended(String url, int timeout) {
+        this(url + "/openbis/openbis", url + "/datastore_server", timeout);
+    }
 
     public OpenBISExtended(final String asURL, final String dssURL, final int timeout)
     {
@@ -22,5 +25,4 @@ public class OpenBISExtended extends OpenBIS {
     public void executeImport(IImportData importData, ImportOptions importOptions, String sessionToken) {
         asFacadeNoTransactions.executeImport(sessionToken, importData, importOptions);
     }
-
 }
