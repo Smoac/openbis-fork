@@ -17,7 +17,7 @@
 - Bugfix: Excel Import - Keep Dynamic Properties Dynamic (SSDM-14224)
 - Bugfix: UserManagementMaintenanceTask: role assignment error (SSDM-14261)
 - Bugfix: Deadlock on display settings (SSDM-14263)
-- Bugfix: DataSetAndPathInfoDBConsistencyCheckTask causing endless repetitions of `tryGetDataSetLocation`, causing AS logs to dramatically blow up (SSDM-14237)
+- Bugfix: DataSetAndPathInfoDBConsistencyCheckTask causing endless repetitions of tryGetDataSetLocation, causing AS logs to dramatically blow up (SSDM-14237)
 - Bugfix: DSS Becomes Zombie when Dropbox folder is unreachable (SSDM-14074)
 - Bugfix: MultiDataSetArchiveSanityCheckMaintenanceTask fails for h5ar files (SSDM-14124)
 - Bugfix: MultiDataSetArchiver sanity check skips checksum verification if pathinfo db entries are missing (SSDM-14125)
