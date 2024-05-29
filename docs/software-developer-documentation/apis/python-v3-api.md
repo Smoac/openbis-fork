@@ -109,6 +109,30 @@ o.logout()
 print(f"Session is active: {o.is_session_active()"}
 ```
 
+### Authentication without user/password
+In some configurations Openbis can be accessible via Single Sign On technology (SSO), in that case users may not have their own user/password.
+
+Upon login, Openbis generates a unique access token that can be used to allow pybis log into the active user session. You may find this token in cookies of the ELN UI.
+
+To log in with a session token, you need to use `set_token` method:
+
+```python
+from pybis import Openbis
+o = Openbis('https://test-openbis-instance.com')
+
+o.set_token("some_user-220808165456793xA3D0357C5DE66A5BAD647E502355FE2C")
+# logged into 'some_user' session!
+
+```
+
+```{note}
+Keep you access tokens safe and don't share it with others! They are invalidated when one of the following situations happen:
+- Explicit logout() call.
+- Number of sessions per user has reached beyond configured limit.
+- Session timeout is reached.
+- Openbis instance is restarted.
+```
+
 ### Personal access token (PAT)
 
 As an (new) alternative to login every time you run a script, you can create tokens which
@@ -621,8 +645,7 @@ The new name for **experiment** is **collection**. You can use boths names inter
 exp = o.new_experiment
     code='MY_NEW_EXPERIMENT',
     type='DEFAULT_EXPERIMENT',
-    space='MY_SPACE',
-    project='YEASTS'
+    project='/MY_SPACE/YEASTS'
 )
 exp.save()
 ```
@@ -1610,3 +1633,177 @@ Currently, the value of the `custom_widget` key can be set to either
 
 - `Spreadsheet` (for tabular, Excel-like data)
 - `Word Processor` (for rich text data)
+
+## Things object
+
+General flow of data processing in PyBIS consists of:
+- preparing a JSON request to OpenBIS
+- receiving a JSON response and validating it
+- packing it in user-friendly `class` containing some helper methods. 
+
+
+There are multiple classes implemented, depending on the initial PyBIS call it may change (e.g. pybis.sample.Sample for `get_sample()` or pybis.experiment.Experiment for `get_experiment()`). 
+```python
+In[1]: experiment = o.get_experiment('/DEFAULT/DEFAULT/DEFAULT')
+In[2]: type(experiment)
+
+Out[3]: pybis.experiment.Experiment
+```
+
+For methods returning multiple results (e.g. `get_samples()`, `get_experiments()`, `get_groups()`), a special class has been designed to hold the response. This class is pybis.things.Things.
+```python
+In[1]: experiments = o.get_experiments()
+In[2]: type(experiments)
+
+Out[3]: pybis.things.Things
+```
+`Things` class offers three main ways to access the received data:
+- Json response
+- Objects
+- DataFrame
+
+Accessing the Json response (`things.response['objects']`) directly bypasses the need to build additional Python objects; its main use case is for integrations where there are numerous results returned.
+
+On the other hand, Objects (`things.objects`) and DataFrame (`things.df`) will build the needed Python objects the first time they are used; they offer a more pretty output, and their main use case is to be used in
+Interactive applications like Jupyter Notebooks.
+
+### JSON response
+All `Things` objects contain parsed JSON response from the OpenBIS, it may help with advanced searches and validation schemes.
+It is accessible via `response` attribute.
+
+**Example**
+```python
+experiments = o.get_experiments()
+for experiment in experiments.response['objects']:
+    print(experiment['properties'])
+
+```
+Would produce following output:
+```python
+{}
+{'$NAME': 'Storages Collection'}
+{'$NAME': 'Template Collection'}
+{'$NAME': 'Storage Positions Collection'}
+{'$NAME': 'General Protocols', '$DEFAULT_OBJECT_TYPE': 'GENERAL_PROTOCOL'}
+{'$NAME': 'Product Collection', '$DEFAULT_OBJECT_TYPE': 'PRODUCT'}
+```
+
+### DataFrame
+`df` attribute returns `pandas.core.frame.DataFrame` object with columns defined adequate to the response it is containing.
+
+```{note}
+DataFrame building can be time-consuming depending on the size of data. Therefore its loading has been deferred to the first access to `df` attribute (i.e. DataFrame is being lazy-loaded) 
+```
+**Example**
+```python
+experiments = o.get_experiments()
+experiments.df
+
+```
+Would produce following output:
+```python
+
+                  permId                                         identifier         registrationDate    modificationDate                type  registrator
+0    20240209011800684-1                           /DEFAULT/DEFAULT/DEFAULT     2024-02-09 02:18:01  2024-02-09 02:18:01             UNKNOWN      system
+1    20240209011808121-4         /ELN_SETTINGS/STORAGES/STORAGES_COLLECTION     2024-02-09 02:18:08  2024-02-09 02:18:08          COLLECTION      system
+2    20240209011808121-5       /ELN_SETTINGS/TEMPLATES/TEMPLATES_COLLECTION     2024-02-09 02:18:08  2024-02-09 02:18:08          COLLECTION      system
+3    20240209011808121-6  /STORAGE/STORAGE_POSITIONS/STORAGE_POSITIONS_C...     2024-02-09 02:18:08  2024-02-09 02:18:08          COLLECTION      system
+4   20240209011808121-17               /METHODS/PROTOCOLS/GENERAL_PROTOCOLS     2024-02-09 02:18:08  2024-02-09 02:18:08          COLLECTION      system
+5   20240209011808121-18         /STOCK_CATALOG/PRODUCTS/PRODUCT_COLLECTION     2024-02-09 02:18:08  2024-02-09 02:18:08          COLLECTION      system
+6   20240209011822486-24  /DEFAULT_LAB_NOTEBOOK/DEFAULT_PROJECT/DEFAULT_...     2024-02-09 02:18:22  2024-02-09 02:18:22  DEFAULT_EXPERIMENT      system
+```
+
+### Objects
+`objects` attribute, similarly to `df` builds a list of objects in a lazy way to easily access underlying data. 
+```{note}
+Not all PyBIS methods implements objects creation. 
+```
+**Example**
+```python
+st = o.get_sample_type('EXPERIMENTAL_STEP')
+type(st.get_property_assignments().objects[0])
+
+st.get_property_assignments().objects[0]
+
+```
+Would produce following output:
+```python
+pybis.entity_type.PropertyAssignment
+
+attribute                        value
+-------------------------------  -------------------
+propertyType                     $NAME
+dataType                         VARCHAR
+section                          General info
+ordinal                          1
+mandatory                        False
+initialValueForExistingEntities
+showInEditView                   True
+showRawValueInForms              False
+registrator
+registrationDate                 2024-02-09 02:18:24
+plugin
+unique                           False
+
+```
+
+## Best practices
+
+### Logout
+
+Every PyBIS `login()` call makes OpenBIS create a special session object and allocate resources to keep it alive. These sessions are terminated only when:
+
+- Explicit `logout()` call is performed.
+- Number of sessions per user has reached beyond configured limit.
+- Session timeout is reached.
+
+Keeping large number of idle concurrent sessions may influence your OpenBIS instance. Please use `logout()` in your scripts whenever you feel like OpenBIS connection is no longer required.
+
+### Iteration over tree structure
+
+OpenBIS data model is constructed in a tree structure, iterating over it ban be done in at least 2 ways:
+
+1. By method chaining (i.e. using the result of the previous call):
+```python
+for space in o.get_spaces():
+    print(space.code)
+    for project in space.get_projects():
+        print(f'\t{project.code}')
+        for experiment in project.get_experiments():
+            print(f'\t\t{experiment.code}')
+            for sample in experiment.get_samples():
+                print(f'\t\t\t{sample.code}')
+                for dataset in sample.get_datasets():
+                    print(f'\t\t\t\t{dataset.code}')
+```
+2. By individual call of Openbis object:
+```python
+for space in o.get_spaces():
+    print(space.code)
+    for project in o.get_projects(space=space.code):
+        print(f'\t{project.code}')
+        for experiment in o.get_experiments(space=space.code, project=project.code):
+            print(f'\t\t{experiment.code}')
+            for sample in o.get_samples(space=space.code, project=project.code, experiment=experiment.code):
+                print(f'\t\t\t{sample.code}')
+                for dataset in o.get_datasets(sample=sample.code):
+                    print(f'\t\t\t\t{dataset.code}')
+```
+First solution is faster and cleaner to use, it is a recommended way to iterate over the data structure.
+
+
+#### Iteration over raw data
+If performance is of the higher priority, iterating over the raw data would be recommended solution:
+
+```python
+for space in o.get_spaces().response['objects']:
+    print(space['code'])
+    for project in o.get_projects(space=space['code']).response['objects']:
+        print(f'\t{project["code"]}')
+        for experiment in o.get_experiments(space=space['code'], project=project['code']).response['objects']:
+            print(f'\t\t{experiment["code"]}')
+            for sample in o.get_samples(space=space['code'], project=project['code'], experiment=experiment['code']).response:
+                print(f'\t\t\t{sample["code"]}')
+                for dataset in o.get_datasets(sample=sample['code']).response:
+                    print(f'\t\t\t\t{dataset["code"]}')
+```
