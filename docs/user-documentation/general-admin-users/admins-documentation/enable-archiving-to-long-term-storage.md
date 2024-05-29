@@ -9,11 +9,11 @@
 openBIS supports archiving of datasets to Strongbox and StronLink
 ([https://www.strongboxdata.com/](https://www.strongboxdata.com/)) as
 described in [Datasets
-Archiving](../../../system-documentation/configuration/archive-datasets.md)
+Archiving](../../../system-admin-documentation/advanced-features/archive-datasets.md)
 
  
 
-This needs to be set up and configured on *system level*.
+This needs to be set up and configured by a *system admin*.
 
  
 

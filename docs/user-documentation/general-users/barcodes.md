@@ -1,10 +1,10 @@
-# Barcodes and QR codes
+# Barcodes
 
-## Barcodes and QR codes
+## Barcodes
 
 The barcode functionality must be enabled in openBIS by a *lab manager*
 or *group admin*: [Enable
-Barcodes and QR codes](../general-admin-users/admins-documentation/enable-barcodes.md).
+Barcodes](../general-admin-users/admins-documentation/enable-barcodes.md).
 
 ### Barcodes for individual samples
 

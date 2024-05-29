@@ -4,7 +4,6 @@ Admins Documentation
 .. toctree::
    :maxdepth: 4
 
-   general-overview
    inventory-overview
    customise-inventory-of-materials-and-samples
    customise-inventory-of-protocols
@@ -15,7 +14,6 @@ Admins Documentation
    user-registration
    new-entity-type-registration
    masterdata-exports-and-imports
-   import-openbis-exports
    create-templates-for-objects
    enable-transfer-to-data-repositories
    enable-barcodes

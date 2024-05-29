@@ -29,7 +29,7 @@ to adopt the following steps:
 
  
 
-### Create the Project folder
+ 
 
 To create the *Project* folder:
 
@@ -48,16 +48,13 @@ To create the *Project* folder:
 ![image info](img/new-project-form.png)
 
  
-### Create the Collection folder
 
 To register the *Collection* folder, inside the *Project* folder:
 
-1.
-1.   Click on the *Project* folder, in this case **Samples**.
+1.  Click on the *Project* folder, in this case **Samples**.
 2.  Click the **+ New** button in the main form and choose **Collection** from the dropdown.
 
 ![image info](img/create-collection-materials-1024x403.png)
-
 3.  Replace the automatically generated **Code** with something pertinent to the collection (e.g RAW\_SAMPLES)
 4.  Fill in the **Name** field (e.g. Raw Samples). Note that by default, the navigation menu on the left shows the name. If the name is not provided, the code is shown.
 5.  Select the **Default object type** from the list of available types. This is the *Object* for which the *Collection* is used. In this case, **Sample**.
@@ -70,19 +67,8 @@ To register the *Collection* folder, inside the *Project* folder:
 ![image info](img/new-collection-form.png)
 
  
-### Add the "+Object type" button in the Collection percentage
 
-If you use a Collection for one Object type, you can display a button to add that type to the Collection, as shown below.
-
-
-![image info](img/Collection-new-chemical-button.png)
-
-For this you need to edit the Collection form and set the Default Object type, as shown below.
-
-![image info](img/Edit-collection.png)
-
-![image info](img/Collection-default-object-type.png)
-
+Updated on April 26, 2023
  
 ## Delete Collections
 
@@ -108,7 +94,7 @@ To delete an existing Collection:
 
 ![image info](img/delete-collection-2.png)
 
-
+Updated on February 6, 2023
  
 ## Enable Storage Widget on Sample Forms
 
@@ -133,7 +119,7 @@ For this, follow the steps below:
 
 ![image info](img/settings-enable-storage-1024x509.png)
 
-
+Updated on April 26, 2023
 
 
 ## Configure Lab Storage
@@ -165,7 +151,7 @@ Fridges and freezers can be configured in the **Settings**, under **Utilities**.
     2. **Box validation**. In addition to **a**, a box name needs to be specified.
     3. **Box position validation**. In addition to **a** and **b**, the position in the box needs to be specified.
 
-
+Updated on April 26, 2023
  
 ## Add metadata to Storage Positions
  
@@ -186,4 +172,4 @@ It is possible to add additional information. This can be done by an
 *Instance Admin* by editing the *Object* Type **STORAGE\_POSITION** in
 the admin interface (see [New Entity Type Registration](./new-entity-type-registration.md)).
 
-
+Updated on February 6, 2023
