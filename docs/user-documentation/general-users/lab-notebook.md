@@ -32,7 +32,7 @@ in the Project folder, as shown below.
 
 ![image info](img/project-more-dropdown.png)
 
-Updated on April 25, 2023
+
  
 ## Register Experiments
 
@@ -41,25 +41,48 @@ Updated on April 25, 2023
   
 Inside one *Project*, a user can register several *Experiments*, which can in turn be divided into single *Experimental Steps.*
 
+openBIS provides by default 2 options for registering Experiments:
+
+- **Default Experiment**: The form of the Default Experment contains several metedata fields that can be filled in by the user.
+- **Collection**: This form has limited metadata fields. It should be considered as a folder, to be used in cases where a user only needs to group subsequent steps, and does not need any relevant information at this folder level.
+
+
  
 
-To register one Experiment:
+### Register a Default Experiment:
 
  
 
 1.  Navigate to the relevant *Project* in the **Lab Notebook** menu
-2.  Select **Default Experiment** from the **+New** dropdown, as shown below. *Please note* that your openBIS instance might have different types of Experiments, depending on 
+
+2.  Select **Default Experiment** from the **+New** dropdown, as shown below. *Please note* that your openBIS instance might have different types of Experiments, depending on how it has been configured by the Instance admin.
+
 ![image info](img/ELN-register-experiments.png)
+
 3.  Fill in the relevant fields in the form.
+
 4.  Select **Show in project overview = true** if the *Experiment* is
     important and should be shown in the *Project* form.
+
 5.  Click **Save** on top of the form.
 
 ![image info](img/default-experiment-form.png)
 
  
+### Register a Collection:
 
-Updated on April 25, 2023
+1.  Navigate to the relevant *Project* in the **Lab Notebook** menu
+
+2.  Select **Collection** from the **+New** dropdown, as shown below. *Please note* that your openBIS instance might have different types of Experiments, depending on how it has been configured by the Instance admin.
+
+![image info](img/labnotebook-create-collection.png)
+
+3.  Fill in the **Name** of the Collection and choose the **Default Object Type** and **Default collection view**. For more info about Collections, see [Customize Collection View](../general-users/inventory-of-materials-and-methods.html#customise-collection-view) and [Collections of Materials](../general-admin-users/admins-documentation/customise-inventory-of-materials-and-samples.html#create-collections-of-materials)
+
+4.  Click **Save** on top of the form.
+
+![image info](img/labnotebbok-collection-form.png)
+
  
 ## Register Experimental Steps
 
@@ -109,7 +132,7 @@ Several comments can be added by different users who have write-access to a give
 
 
 
-Updated on April 25, 2023
+
  
 ## Add parents and children to Experimental Steps
 
@@ -255,7 +278,7 @@ below.
 
 ![](img/ELN-new-exp-step-from-experiment.png) 
 
-Updated on July 5, 2023
+
  
 ## How to use protocols in Experimental Steps
 
@@ -282,7 +305,7 @@ To create a local copy under the current Experiment of a template protocol store
 ![image info](img/copy-protocol-exp-step-1024x233.png)
 
 
-Updated on April 26, 2023
+
  
 ## Move Experimental Steps
 
@@ -309,7 +332,7 @@ can move to an existing *Experiment*/*Collection* or create a new one.
 
 ![image info](img/move-objects-from-object-table-in-collection-1024x527.png)
 
-Updated on April 25, 2023
+
  
 ## Copy Experimental Steps
 
@@ -332,7 +355,7 @@ comments log.** The *Experimental Step* is copied inside the same
 
 ![image info](img/copy-object-options-1024x191.png)
 
-Updated on April 25, 2023
+
  
 ## Use templates for Experimental Steps
 
@@ -354,7 +377,7 @@ like to have default values for those parameters.  
 ![image info](img/Exp-Ste-templates-1024x598.png)
 
 
-Updated on December 8, 2022
+
 
 ## Datasets tables
 
@@ -518,7 +541,7 @@ The session token can be copied from the **User Profile** under
 
 ![image info](img/session-token-1024x329.png)
 
-Updated on May 5, 2023
+
  
 ## Move Datasets
 
@@ -552,7 +575,7 @@ another *Experiment/Object*.
 
  
 
-Updated on April 25, 2023
+
  
 ## Move one Experiment to a different Project
 
@@ -593,7 +616,7 @@ there.
 
 ![image info](img/move-experiment-accept-1024x120.png)
 
-Updated on April 25, 2023
+
  
 ## Project Overview
 
@@ -616,7 +639,7 @@ Collections in a Project page.
 
 ![](img/project-page-experiments-view-1024x488.png)
 
-Updated on July 5, 2023
+
  
 ## Edit and Delete Projects, Experiments, Experimental Steps
 
@@ -651,7 +674,7 @@ be modified on *system level* (see [Changing the openBIS
 capability role
 map](../../system-documentation/standalone/installation-and-configuration-guide.md#changing-the-capability-role-map))
 
-Updated on April 25, 2023
+
  
 ## Share Lab Notebooks and Projects
 
@@ -686,7 +709,7 @@ The roles can be granted to:
 
 ![image info](img/manage-access-project.png)
 
-Updated on April 25, 2023
+
 
 ## Rich Text Editor
 
