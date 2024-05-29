@@ -983,8 +983,8 @@ public class AbstractTest extends SystemTestCase
         PropertyHistoryEntry relationEntry = (PropertyHistoryEntry) entry;
         assertEquals(relationEntry.getPropertyName(), propertyName);
         assertEquals(relationEntry.getPropertyValue(), propertyValue);
-        assertEquals(relationEntry.getValidFrom(), validFrom);
-        assertEquals(relationEntry.getValidTo(), validTo);
+        assertEqualsDate(relationEntry.getValidFrom(), validFrom);
+        assertEqualsDate(relationEntry.getValidTo(), validTo);
     }
 
     protected void assertRelationshipHistory(HistoryEntry entry, IObjectId id, IRelationType type)
@@ -999,8 +999,8 @@ public class AbstractTest extends SystemTestCase
         RelationHistoryEntry relationEntry = (RelationHistoryEntry) entry;
         assertEquals(relationEntry.getRelatedObjectId(), id);
         assertEquals(relationEntry.getRelationType(), type);
-        assertEquals(relationEntry.getValidFrom(), validFrom);
-        assertEquals(relationEntry.getValidTo(), validTo);
+        assertEqualsDate(relationEntry.getValidFrom(), validFrom);
+        assertEqualsDate(relationEntry.getValidTo(), validTo);
     }
 
     protected Map<String, Attachment> assertAttachments(Collection<Attachment> attachments, AttachmentCreation... expectedAttachments)
@@ -1045,7 +1045,13 @@ public class AbstractTest extends SystemTestCase
 
     protected void assertEqualsDate(Date actualDate, Date expectedDate)
     {
-        assertEquals(createTimestampFormat().format(actualDate), createTimestampFormat().format(expectedDate));
+        if (actualDate != null && expectedDate != null)
+        {
+            assertEquals(createTimestampFormat().format(actualDate), createTimestampFormat().format(expectedDate));
+        } else
+        {
+            assertEquals(actualDate, expectedDate);
+        }
     }
 
     private SimpleDateFormat createTimestampFormat()
