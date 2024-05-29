@@ -1,7 +1,6 @@
-openBIS Data Modelling
-======================
+# openBIS Data Modelling
 
-# Overview
+## Overview
 
 openBIS has the following data structure:
 
@@ -72,7 +71,7 @@ correspond to a lab Project and an openBIS *Project* could be a
 sub-project or a user folder (one folder per user working on the same project). 
   
 
-# openBIS parents and children
+## openBIS parents and children
 ----------------------------
 
 *Objects* can be linked to other *Objects*, *Datasets* to other *Datasets* with
