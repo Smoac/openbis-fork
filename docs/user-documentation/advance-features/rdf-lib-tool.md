@@ -1,5 +1,6 @@
 RDF lib tool
 ===========================
+https://openbis.readthedocs.io/en/latest/user-documentation/advance-features/rdf-lib-tool.html
 
 `rdf-lib-tool` is a Java library that converts input RDF files into XLSX files that are easly ingested by openBIS. 
 
