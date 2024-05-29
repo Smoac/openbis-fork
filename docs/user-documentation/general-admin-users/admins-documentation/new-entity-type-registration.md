@@ -100,26 +100,53 @@ When registering new properties, the fields below need to be filled in.
 7.  **Mandatory**: Field can be set as mandatory.
  
 
+### Additional fields
+Depending on the property types, additional optional features may be included.
+
+![](img/new-property-additional.png)
+
+1. **Multivalued**. true/false. Whether given property should be able to hold multiple values of the same type. Every single value **Note:** ELN UI is not yet supporting input for all multivalue types.
+2. **Unique**. true/false. Enables validation of value inserted into this property to be unique among all entities of this type.
+3. **Pattern Type**. NONE/PATTERN/RANGES/VALUES. Selection of pattern validation for values inserted into this property
+4. **Pattern**. text field. Validation rules to validate value of the given property.
+ 
+
 ### Property Data Types
  
 
 ![](img/property-types.png)
 
-
-1.  **BOOLEAN**: yes or no
-2.  **CONTROLLEDVOCABULARY**: list of predefined values
-3.  **DATE**. Date field
-4.  **HYPERLINK**: URL
-5.  **INTEGER**: integer number
-6.  **MATERIAL**. Not used in ELN. It will be dismissed.
-7.  **MULTILINE\_VARCHAR**: long text. It is possible to enable a Rich
+1. **ARRAY_INTEGER**: comma-separated list of integers
+2. **ARRAY_REAL**: comma-separated list of decimal numbers
+3. **ARRAY_STRING**: comma-separated list of string values
+4. **ARRAY_TIMESTAMP**: comma-separated list of dates with timestamps
+5. **BOOLEAN**: yes or no
+6. **CONTROLLEDVOCABULARY**: list of predefined values
+7. **DATE**. Date field
+8. **HYPERLINK**: URL
+9. **INTEGER**: integer number
+10. **JSON**: json-validated text field
+11. **MATERIAL**. Not used in ELN. It will be dismissed.
+12. **MULTILINE\_VARCHAR**: long text. It is possible to enable a Rich
     Text Editor for this type of property. This is described
     here: [Enable Rich Text Editor or Spreadsheet Widgets](./new-entity-type-registration.md#enable-rich-text-editor-or-spreadsheet-widgets)
-8.  **REAL**: decimal number
-9.  **OBJECT**. 1-1 connection to a specific object type.
+12. **OBJECT**. 1-1 connection to a specific object type. 
+13. **REAL**: decimal number
 10. **TIMESTAMP**: date with timestamp
 11. **VARCHAR**: one-line text
 12. **XML**: to be used by *Managed Properties* (see [openBIS Managed Properties](../properties-handled-by-scripts.md#managed-properties) and for *Spreadsheet component*s, as described here:[Enable Rich Text Editor or Spreadsheet Widgets](./new-entity-type-registration.md#enable-rich-text-editor-or-spreadsheet-widgets)
+ 
+
+
+### Pattern Validation
+
+![](img/new-property-pattern-validation.png)
+
+Some property types allow to specify a pattern to validate values of a property, there are a few pattern types that can be specified:
+1. **NONE**: Disables pattern validation
+2. **PATTERN**: Allows to specify RegExp.
+3. **RANGES**: Comma-separated list of strings in quotes, e.g "a", "b", "c"
+4. **VALUES**: Comma-separated list of ranges in %d-%d format, e.g 1-10, 12-15
  
 
 ### Considerations on properties registration
@@ -143,10 +170,10 @@ field.
  
 
 Existing Vocabularies can be visualised from the Types -&gt;
-Vocabularies Tab. Vocabularies staring with the “**$**” symbol are
-internal: they cannot be deleted and their terms cannot be deleted.
-However, it is possible to add new terms to these vocabularies and these
-can also be deleted.
+Vocabularies Tab. Vocabularies starting with the “**$**” symbol are
+internal: they cannot be deleted and their terms annotated with the “**$**” 
+symbol cannot be deleted. However, it is possible to add new terms 
+to these vocabularies and these can also be deleted.
 
 
 New Vocabularies can be added, by clicking the **Add** button at the
@@ -281,7 +308,7 @@ below. Three options can be chosen for the import:
  
 
 An example template of an Excel masterdata file can be found here:
-[masterdata-template](att/masterdata-template.xls)
+[masterdata-template](att/masterdata-template-no-version.xls)
 
 Please note that in the template we used separate spreadsheets for each
 type (Sample, Experiment, Dataset), but it is also possible to have
@@ -296,20 +323,16 @@ If you wish to add a new property to an existing
 
 1\. add the property in the file
 
-2\. increase the version number of the *Collection/Object/Dataset* type
-
- 
-
-![image info](img/masterdata-type-version.png)
-
-3\. use **Ignore if exists** as upload method. In this case, only the
+2\. use **Ignore if exists** as upload method. In this case, only the
 new property is added to the type.
 
  
 
-The import on the admin UI allows to register entities in addition to
+### Masterdata and metadata import
+
+The import on the admin UI allows also to register entities in addition to
 masterdata. An example template file for this can be found here:
-[masterdata-metadata](att/masterdata-metadata.xls)
+[masterdata-metadata](att/masterdata-metadata-no-version.xls)
 
  
 
@@ -317,7 +340,7 @@ More extensive documentation on the XLS format for masterdata and
 metadata registration can be found
 [here](../../advance-features/excel-import-service.md).
 
-Updated on January 13, 2023
+
  
 ## Properties overview
 
@@ -333,11 +356,10 @@ admin UI, as shown below.
 
 ![image info](img/properties-overview-admin-UI-1024x640.png)
 
-Updated on March 1, 2022
+
+
  
 ## Internal properties and vocabularies
-
-
 
  
 
@@ -354,8 +376,16 @@ modified, not even by an instance admin.
 
 Internal vocabularies (e.g. $DEFAULT\_COLLECTION\_VIEWS, etc), cannot be
 deleted and their existing terms cannot be deleted nor modified, however
-an instance admin can add new terms to an internal vocabulary.
+an instance admin can add new terms to an internal vocabulary. The terma added by an admin can be modified and/or deleted.
 
- 
+## Default openBIS Types
 
-Updated on January 5, 2023
+Certain Collection, Object and Dataset types are provided with the default openBIS installation.
+These types often use $properties, which cannot be deleted nor modified.
+
+It is however possible to add new properties to these types. The newly added properties must NOT be made mandatory, as this might cause the system not to function correctly and will create problems during an upgrade.
+
+Default types should also not be deleted and re-created with the same code and different properties, as this might cause the system not to function correctly and will create problems during an upgrade.
+
+In openBIS 7.0 these actions will be prevented by introducing internal types and internal property assignments.
+
