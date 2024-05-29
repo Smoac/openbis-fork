@@ -718,6 +718,8 @@ define([], function() {
                 return results.getResults()[0].getExportResult()
             })
         }
+
+        this.uploadToSessionWorkspace = facade.uploadToSessionWorkspace;
     }
 
 	return executeOperationsFacade;
