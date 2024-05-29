@@ -11,7 +11,7 @@ openBIS has the following data structure:
 4.  **Object**: entity with *user-defined properties* 
 5.  **Dataset**: folder where data files are stored. A dataset has *user-defined properties*      
       
-![image info](img/openbis-data-model.png)
+![image info](img/openbis-data-model-v3.png)
 
 
 *Space* is the top level. Below *Spaces* there are *Projects* and below *Projects* there are *Experiments/Collections*. 
@@ -32,7 +32,7 @@ Access to openBIS is controlled at the *Space* level, *Project* level or openBIS
 
 In the openBIS ELN-LIMS a simplified data model is used, as shown below.  
 
-![image info](img/ELN-data-model.png). 
+![image info](img/ELN-data-model-v2.png). 
 
 In this case, *Objects* can only belong to *Experiments/Collections*.
 
