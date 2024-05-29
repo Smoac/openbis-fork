@@ -37,6 +37,8 @@ public class AfsRegistrator implements IAfsRegistrator, ApplicationListener<Appl
 
     @Autowired IAfsRegistrator self;
 
+    private boolean registered;
+
     @Override public void onApplicationEvent(final ApplicationEvent event)
     {
         Object source = event.getSource();
@@ -45,11 +47,8 @@ public class AfsRegistrator implements IAfsRegistrator, ApplicationListener<Appl
             AbstractApplicationContext appContext = (AbstractApplicationContext) source;
             if ((event instanceof ContextStartedEvent) || (event instanceof ContextRefreshedEvent))
             {
-                if (appContext.getParent() != null)
-                {
-                    // call the bean with transaction support
-                    self.registerAfs();
-                }
+                // call the bean with transaction support
+                self.registerAfs();
             }
         }
     }
@@ -57,6 +56,15 @@ public class AfsRegistrator implements IAfsRegistrator, ApplicationListener<Appl
     @Transactional
     public void registerAfs()
     {
+        synchronized (this)
+        {
+            if (registered)
+            {
+                return;
+            }
+            registered = true;
+        }
+
         IDataStoreDAO dataStoreDAO = daoFactory.getDataStoreDAO();
 
         DataStorePE existingDataStore = dataStoreDAO.tryToFindDataStoreByCode(AFS_DATA_STORE_CODE);

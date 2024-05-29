@@ -35,7 +35,7 @@ public class SearchDataStoreTest extends AbstractTest
     @Test
     public void testSearchWithEmptyCriteria()
     {
-        testSearch(TEST_USER, new DataStoreSearchCriteria(), "STANDARD");
+        testSearch(TEST_USER, new DataStoreSearchCriteria(), "AFS", "STANDARD");
     }
 
     @Test
