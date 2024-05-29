@@ -1,5 +1,42 @@
 # OpenBIS Change Log
 
+## Version 20.10.8 (29 May 2024)
+
+### Core
+
+- New Feature: Additional configuration parameters for MultiDataSetArchiveSanityCheckMaintenanceTask (SSDM-14098)
+- New Feature: Registration of shared/space objects can be prevented at the system level (SSDM-14067)
+- New Feature: Extend User and Email field length in PersonPE and Database (BIS-799)
+- New Feature: Timezone of timestamp changed to database timezone (SSDM-14228) 
+- New Feature: EXCEL Master Data Importer API (preview, non final) (BIS-772, BIS-773, BIS-994, BIS-999, BIS-1010, BIS-1011, BIS-1025, BIS-1040)
+- New Feature: EXCEL Master Data Exporter API (preview, to be changed) (BIS-772, BIS-773, BIS-994, BIS-999, BIS-1010, BIS-1011, BIS-1025, BIS-1040)
+
+- Improvement: Excel Export - Add support for cells bigger than 32k (BIS-789, BIS-790)
+- Improvement: Excel Export - internal name space types are skipped from updates done by non system users (BIS-793)
+
+- Bugfix: Excel Import - Keep Dynamic Properties Dynamic (SSDM-14224)
+- Bugfix: UserManagementMaintenanceTask: role assignment error (SSDM-14261)
+- Bugfix: Deadlock on display settings (SSDM-14263)
+- Bugfix: DataSetAndPathInfoDBConsistencyCheckTask causing endless repetitions of `tryGetDataSetLocation`, causing AS logs to dramatically blow up (SSDM-14237)
+- Bugfix: DSS Becomes Zombie when Dropbox folder is unreachable (SSDM-14074)
+- Bugfix: MultiDataSetArchiveSanityCheckMaintenanceTask fails for h5ar files (SSDM-14124)
+- Bugfix: MultiDataSetArchiver sanity check skips checksum verification if pathinfo db entries are missing (SSDM-14125)
+- Bugfix: Enabling extra logging switches causes problems on AS start up (SSDM-14207)
+- Bugfix: FastDownloadServlet and V3.searchFiles do not release data set locks (SSDM-14203)
+- Bugfix: DSS threads do not release data set locks before dying (SSDM-14204)
+
+### ELN
+
+- Bugfix: Problem with selecting checkboxes at Object Browser > Register Objects popup in Firefox (SSDM-14195)
+- Bugfix: ELN: not clickable checkboxes in multi-select dropdowns in popups (SSDM-14226)
+- Bugfix: Typo in create inventory space form (SSDM-14133)
+- Bugfix: Fix Toolbar Plugin Not Loading (BIS-991)
+- Bugfix: Login screen disabled on small width screens / Android (BIS-984)
+- Bugfix: Remove Life Sciences and Basic ELN Types from Installer, Link on Community Github (BIS-800)
+
+### Admin
+- Improvement: Improve the error message shown when a user with an already existing userid is attempted to be created (SSDM-14194)
+
 ## Version 20.10.7.3 (23 November 2023)
 ### ELN
 
