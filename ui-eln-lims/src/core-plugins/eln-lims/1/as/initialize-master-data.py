@@ -16,9 +16,11 @@
 # MasterDataRegistrationTransaction Class
 from ch.ethz.sis.openbis.generic.server.asapi.v3 import ApplicationServerApi
 from ch.systemsx.cisd.openbis.generic.server import CommonServiceProvider
-from ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id import CustomASServiceCode
-from ch.ethz.sis.openbis.generic.asapi.v3.dto.service import CustomASServiceExecutionOptions
 from ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl import MasterDataRegistrationHelper
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data import ImportData
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options import ImportOptions
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data import ImportFormat
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options import ImportMode
 import sys
 
 from ch.systemsx.cisd.openbis.generic.server.hotfix import ELNFixes
@@ -34,16 +36,18 @@ if ELNFixes.isELNInstalled():
     ELNCollectionTypeMigration.beforeUpgrade(sessionToken)
 
 helper = MasterDataRegistrationHelper(sys.path)
-props = CustomASServiceExecutionOptions().withParameter('xls', helper.getByteArray("common-data-model.xls"))\
-    .withParameter('method', 'import').withParameter('zip', False).withParameter('xls_name', 'ELN-LIMS').withParameter('update_mode', 'UPDATE_IF_EXISTS')\
-    .withParameter('scripts', helper.getAllScripts())
-result = api.executeCustomASService(sessionToken, CustomASServiceCode("xls-import"), props)
+sessionWorkspaceFiles = helper.uploadToAsSessionWorkspace(sessionToken, "common-data-model.xls", "scripts/date_range_validation.py",
+                                                          "scripts/storage_position_validation.py")
+importData = ImportData(ImportFormat.EXCEL, sessionWorkspaceFiles[0])
+importOptions = ImportOptions(ImportMode.UPDATE_IF_EXISTS)
+importResult = api.executeImport(sessionToken, importData, importOptions)
 
 if not ELNFixes.isMultiGroup():
-    props = CustomASServiceExecutionOptions().withParameter('xls', helper.getByteArray("single-group-data-model.xls"))\
-        .withParameter('method', 'import').withParameter('zip', False).withParameter('xls_name', 'ELN-LIMS').withParameter('update_mode', 'UPDATE_IF_EXISTS')\
-        .withParameter('scripts', helper.getAllScripts())
-    result = api.executeCustomASService(sessionToken, CustomASServiceCode("xls-import"), props)
+    sessionWorkspaceFiles = helper.uploadToAsSessionWorkspace(sessionToken, "single-group-data-model.xls", "scripts/date_range_validation.py",
+                                                              "storage_position_validation.py")
+    importData = ImportData(ImportFormat.EXCEL, sessionWorkspaceFiles[0])
+    importOptions = ImportOptions(ImportMode.UPDATE_IF_EXISTS)
+    importResult = api.executeImport(sessionToken, importData, importOptions)
 
 ELNCollectionTypeMigration.afterUpgrade()
 api.logout(sessionToken)

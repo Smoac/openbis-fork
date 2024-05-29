@@ -16,6 +16,8 @@
 package ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -23,6 +25,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -31,6 +34,8 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
+import ch.systemsx.cisd.openbis.generic.shared.ISessionWorkspaceProvider;
 
 /**
  * Helper class to be used in initialize-master-data.py.
@@ -72,6 +77,43 @@ public class MasterDataRegistrationHelper {
             }
         }
         return result;
+    }
+
+    public Map<String, InputStream> getXlsInputStreamMap()
+    {
+        return Arrays.stream(masterDataFolder.listFiles()).filter(file -> file.getName().endsWith(".xls") || file.getName().endsWith(".xlsx"))
+                .collect(Collectors.toMap(File::getName, file1 ->
+                {
+                    try
+                    {
+                        return new FileInputStream(file1);
+                    } catch (final FileNotFoundException e)
+                    {
+                        throw new RuntimeException(e);
+                    }
+                }));
+    }
+
+    private static String[] getFilePaths(final String... fileNames)
+    {
+        return Arrays.stream(fileNames).map(fileName -> MasterDataRegistrationHelper.class.getResource("test_files/import/" + fileName).getPath())
+                .toArray(String[]::new);
+    }
+
+    protected String[] uploadToAsSessionWorkspace(final String sessionToken, final String... relativeFilePaths) throws IOException
+    {
+        final String[] canonicalFilePaths = getFilePaths(relativeFilePaths);
+        final ISessionWorkspaceProvider sessionWorkspaceProvider = CommonServiceProvider.getSessionWorkspaceProvider();
+        final String uploadId = UUID.randomUUID().toString();
+        final String[] destinations = new String[canonicalFilePaths.length];
+
+        for (int i = 0; i < canonicalFilePaths.length; i++)
+        {
+            destinations[i] = uploadId + "/" + relativeFilePaths[i];
+            sessionWorkspaceProvider.write(sessionToken, destinations[i], new FileInputStream(canonicalFilePaths[i]));
+        }
+
+        return destinations;
     }
 
     public List<byte[]> getByteArray(String findName) {

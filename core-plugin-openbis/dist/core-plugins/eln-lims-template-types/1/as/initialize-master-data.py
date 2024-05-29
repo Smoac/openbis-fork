@@ -15,9 +15,11 @@
 # MasterDataRegistrationTransaction Class
 from ch.ethz.sis.openbis.generic.server.asapi.v3 import ApplicationServerApi
 from ch.systemsx.cisd.openbis.generic.server import CommonServiceProvider
-from ch.ethz.sis.openbis.generic.asapi.v3.dto.service.id import CustomASServiceCode
-from ch.ethz.sis.openbis.generic.asapi.v3.dto.service import CustomASServiceExecutionOptions
 from ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl import MasterDataRegistrationHelper
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data import ImportData
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options import ImportOptions
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data import ImportFormat
+from ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options import ImportMode
 import sys
 
 print("======================== eln-lims-template-types-master-data xls import ========================")
@@ -25,13 +27,14 @@ print("======================== eln-lims-template-types-master-data xls import =
 helper = MasterDataRegistrationHelper(sys.path)
 api = CommonServiceProvider.getApplicationContext().getBean(ApplicationServerApi.INTERNAL_SERVICE_NAME)
 sessionToken = api.loginAsSystem()
-props = CustomASServiceExecutionOptions().withParameter('xls', helper.listXlsByteArrays()) \
-    .withParameter('method', 'import').withParameter('zip', False).withParameter('xls_name', 'TEMPLATE_TYPES').withParameter('update_mode', 'UPDATE_IF_EXISTS') \
-    .withParameter('scripts', helper.getAllScripts())
-result = api.executeCustomASService(sessionToken, CustomASServiceCode("xls-import"), props)
+
+sessionWorkspaceFiles = helper.uploadToAsSessionWorkspace(sessionToken, "eln-types-template.xlsx", "scripts/date_range_validation.py")
+importData = ImportData(ImportFormat.EXCEL, sessionWorkspaceFiles[0])
+importOptions = ImportOptions(ImportMode.UPDATE_IF_EXISTS)
+importResult = api.executeImport(sessionToken, importData, importOptions)
 
 print("======================== eln-lims-template-types-master-data xls ingestion result ========================")
-print(result)
+print(importResult.getObjectIds())
 
 
 
