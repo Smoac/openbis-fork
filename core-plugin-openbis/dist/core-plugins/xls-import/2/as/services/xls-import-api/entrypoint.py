@@ -5,7 +5,7 @@ from ch.systemsx.cisd.common.exceptions import UserFailureException
 from java.util import ArrayList
 
 def getMode(parameters):
-    update_mode = parameters.get('mode', 'FAIL_IF_EXISTS')
+    update_mode = parameters.get("mode", "FAIL_IF_EXISTS")
     if update_mode == "IGNORE_EXISTING":
         return ImportModes.IGNORE_EXISTING
     elif update_mode == "FAIL_IF_EXISTS":
@@ -13,16 +13,16 @@ def getMode(parameters):
     elif update_mode == "UPDATE_IF_EXISTS":
         return ImportModes.UPDATE_IF_EXISTS
     else:
-        raise UserFailureException('Update mode has to be one of following: IGNORE_EXISTING FAIL_IF_EXISTS UPDATE_IF_EXISTS but was ' + (
-            str(update_mode) if update_mode else 'None'))
+        raise UserFailureException("Update mode has to be one of following: IGNORE_EXISTING FAIL_IF_EXISTS UPDATE_IF_EXISTS but was " + (
+            str(update_mode) if update_mode else "None"))
 
 
 def getImportOptions(parameters):
     options = ImportOptions()
     allowedSampleTypes = parameters.get("allowedSampleTypes")
 
-    options.setExperimentsByType(parameters.get('experimentsByType', None))
-    options.setSpacesByType(parameters.get('spacesByType', None))
+    options.setExperimentsByType(parameters.get("experimentsByType", None))
+    options.setSpacesByType(parameters.get("spacesByType", None))
     options.setDefinitionsOnly(False)
     options.setDisallowEntityCreations(False)
     options.setIgnoreVersioning(False)
@@ -41,6 +41,9 @@ def process(context, parameters):
 
 def _import(context, parameters):
     fileName = parameters.get("fileName")
+
+    if not fileName:
+        raise UserFailureException("fileName parameter is mandatory.")
 
     session_token = context.sessionToken
     api = context.applicationService
