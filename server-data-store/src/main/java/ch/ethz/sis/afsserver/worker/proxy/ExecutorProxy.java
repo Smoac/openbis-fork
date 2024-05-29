@@ -16,15 +16,10 @@
 package ch.ethz.sis.afsserver.worker.proxy;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import ch.ethz.sis.afs.exception.AFSExceptions;
 import ch.ethz.sis.afsapi.dto.File;
 import ch.ethz.sis.afsapi.dto.FreeSpace;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
@@ -38,13 +33,10 @@ public class ExecutorProxy extends AbstractProxy
 
     private final String storageRoot;
 
-    private final String storageUuid;
-
     public ExecutorProxy(final Configuration configuration)
     {
         super(null);
         storageRoot = configuration.getStringProperty(AtomicFileSystemServerParameter.storageRoot);
-        storageUuid = configuration.getStringProperty(AtomicFileSystemServerParameter.storageUuid);
     }
 
     //
@@ -86,46 +78,11 @@ public class ExecutorProxy extends AbstractProxy
     // File System Operations
     //
 
-    private String getOwnerPath(String shareId, String storageUuid, String[] shards, String ownerFolder)
-    {
-        List<String> elements = new LinkedList<>();
-        elements.add(shareId);
-        elements.add(storageUuid);
-        elements.addAll(Arrays.asList(shards));
-        elements.add(ownerFolder);
-        return IOUtils.getPath("", elements.toArray(new String[]{}));
-    }
-
     private String getOwnerPath(String owner)
     {
-        if (workerContext.getOwnerShards() != null && workerContext.getOwnerFolder() != null)
+        if (workerContext.getOwnerPathMap().containsKey(owner))
         {
-            if (workerContext.getOwnerShareId() != null)
-            {
-                return getOwnerPath(workerContext.getOwnerShareId(), storageUuid, workerContext.getOwnerShards(), workerContext.getOwnerFolder());
-            } else
-            {
-                String[] shares = IOUtils.getShares(storageRoot);
-
-                for (String share : shares)
-                {
-                    String potentialOwnerPath = getOwnerPath(share, storageUuid, workerContext.getOwnerShards(), workerContext.getOwnerFolder());
-
-                    if (Files.exists(Paths.get(storageRoot, potentialOwnerPath)))
-                    {
-                        return potentialOwnerPath;
-                    }
-                }
-
-                if (shares.length > 0)
-                {
-                    // if we don't find an existing owner folder at any share, then we will create it on the first share
-                    return getOwnerPath(shares[0], storageUuid, workerContext.getOwnerShards(), workerContext.getOwnerFolder());
-                } else
-                {
-                    throw AFSExceptions.NoSharesFound.getInstance();
-                }
-            }
+            return workerContext.getOwnerPathMap().get(owner);
         } else
         {
             return IOUtils.getPath("", owner);

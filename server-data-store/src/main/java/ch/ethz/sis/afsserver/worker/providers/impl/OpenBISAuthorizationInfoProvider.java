@@ -15,11 +15,16 @@
  */
 package ch.ethz.sis.afsserver.worker.providers.impl;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ch.ethz.sis.afs.exception.AFSExceptions;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameterUtil;
 import ch.ethz.sis.afsserver.worker.WorkerContext;
 import ch.ethz.sis.afsserver.worker.providers.AuthorizationInfoProvider;
@@ -47,15 +52,28 @@ import ch.ethz.sis.shared.startup.Configuration;
 public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvider
 {
 
+    private String storageRoot;
+
+    private String storageUuid;
+
+    private String[] storageShares;
+
+    private String storageIncomingShareId;
+
     private IApplicationServerApi applicationServerApi;
 
     @Override
     public void init(Configuration initParameter) throws Exception
     {
+        storageRoot = AtomicFileSystemServerParameterUtil.getStorageRoot(initParameter);
+        storageUuid = AtomicFileSystemServerParameterUtil.getStorageUuid(initParameter);
+        storageShares = IOUtils.getShares(storageRoot);
+        if (storageShares.length == 0)
+        {
+            throw AFSExceptions.NoSharesFound.getInstance();
+        }
+        storageIncomingShareId = AtomicFileSystemServerParameterUtil.getStorageIncomingShareId(initParameter);
         applicationServerApi = AtomicFileSystemServerParameterUtil.getApplicationServerApi(initParameter);
-
-        // just check that storage uuid is set
-        AtomicFileSystemServerParameterUtil.getStorageUuid(initParameter);
     }
 
     @Override
@@ -99,9 +117,8 @@ public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvid
 
         if (hasPermissions(workerContext, ownerPermId, ownerSupportedPermissions, permissions))
         {
-            workerContext.setOwnerShareId(ownerShare);
-            workerContext.setOwnerShards(IOUtils.getShards(ownerPermId.getPermId()));
-            workerContext.setOwnerFolder(ownerPermId.getPermId());
+            String ownerPath = findOwnerPath(ownerPermId, ownerShare);
+            workerContext.getOwnerPathMap().put(owner, ownerPath);
             return true;
         } else
         {
@@ -128,7 +145,8 @@ public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvid
             return true;
         }
 
-        Rights rights = applicationServerApi.getRights(workerContext.getSessionToken(), List.of(ownerPermId), new RightsFetchOptions()).get(ownerPermId);
+        Rights rights =
+                applicationServerApi.getRights(workerContext.getSessionToken(), List.of(ownerPermId), new RightsFetchOptions()).get(ownerPermId);
 
         if (rights.getRights().contains(Right.UPDATE))
         {
@@ -148,7 +166,8 @@ public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvid
 
     private Experiment findExperiment(String sessionToken, String experimentPermId)
     {
-        Map<IExperimentId, Experiment> experiments = applicationServerApi.getExperiments(sessionToken, List.of(new ExperimentPermId(experimentPermId)), new ExperimentFetchOptions());
+        Map<IExperimentId, Experiment> experiments =
+                applicationServerApi.getExperiments(sessionToken, List.of(new ExperimentPermId(experimentPermId)), new ExperimentFetchOptions());
 
         if (!experiments.isEmpty())
         {
@@ -161,7 +180,8 @@ public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvid
 
     private Sample findSample(String sessionToken, String samplePermId)
     {
-        Map<ISampleId, Sample> samples = applicationServerApi.getSamples(sessionToken, List.of(new SamplePermId(samplePermId)), new SampleFetchOptions());
+        Map<ISampleId, Sample> samples =
+                applicationServerApi.getSamples(sessionToken, List.of(new SamplePermId(samplePermId)), new SampleFetchOptions());
 
         if (!samples.isEmpty())
         {
@@ -188,6 +208,39 @@ public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvid
         {
             return null;
         }
+    }
+
+    private String findOwnerPath(ObjectPermId ownerPermId, String ownerShare)
+    {
+        final String[] shards = IOUtils.getShards(ownerPermId.getPermId());
+
+        if (ownerShare != null)
+        {
+            return createOwnerPath(ownerShare, storageUuid, shards, ownerPermId.getPermId());
+        } else
+        {
+            for (String share : storageShares)
+            {
+                String potentialOwnerPath = createOwnerPath(share, storageUuid, shards, ownerPermId.getPermId());
+
+                if (Files.exists(Paths.get(storageRoot, potentialOwnerPath)))
+                {
+                    return potentialOwnerPath;
+                }
+            }
+
+            return createOwnerPath(storageIncomingShareId, storageUuid, shards, ownerPermId.getPermId());
+        }
+    }
+
+    private String createOwnerPath(String shareId, String storageUuid, String[] shards, String ownerFolder)
+    {
+        List<String> elements = new LinkedList<>();
+        elements.add(shareId);
+        elements.add(storageUuid);
+        elements.addAll(Arrays.asList(shards));
+        elements.add(ownerFolder);
+        return IOUtils.getPath("", elements.toArray(new String[] {}));
     }
 
 }

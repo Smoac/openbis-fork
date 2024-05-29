@@ -52,6 +52,8 @@ public class OpenBISServerObserver implements ServerObserver<TransactionConnecti
 
     private String storageUuid;
 
+    private String storageIncomingShareId;
+
     private IApplicationServerApi applicationServerApi;
 
     @Override
@@ -59,6 +61,7 @@ public class OpenBISServerObserver implements ServerObserver<TransactionConnecti
     {
         storageRoot = AtomicFileSystemServerParameterUtil.getStorageRoot(initParameter);
         storageUuid = AtomicFileSystemServerParameterUtil.getStorageUuid(initParameter);
+        storageIncomingShareId = AtomicFileSystemServerParameterUtil.getStorageIncomingShareId(initParameter);
         applicationServerApi = AtomicFileSystemServerParameterUtil.getApplicationServerApi(initParameter);
     }
 
@@ -213,9 +216,12 @@ public class OpenBISServerObserver implements ServerObserver<TransactionConnecti
     private DataSetCreation createDataSetCreation(String sessionToken, String experimentPermId, String samplePermId)
     {
         PhysicalDataCreation physicalCreation = new PhysicalDataCreation();
+        physicalCreation.setShareId(storageIncomingShareId);
         physicalCreation.setFileFormatTypeId(new FileFormatTypePermId("PROPRIETARY"));
         physicalCreation.setLocatorTypeId(new RelativeLocationLocatorTypePermId());
         physicalCreation.setStorageFormatId(new ProprietaryStorageFormatPermId());
+        physicalCreation.setH5arFolders(false);
+        physicalCreation.setH5Folders(false);
 
         DataSetCreation creation = new DataSetCreation();
         creation.setAfsData(true);

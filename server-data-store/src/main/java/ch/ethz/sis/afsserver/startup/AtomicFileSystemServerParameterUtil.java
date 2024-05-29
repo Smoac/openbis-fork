@@ -64,7 +64,7 @@ public class AtomicFileSystemServerParameterUtil
         return storageUuid;
     }
 
-    public static String getStoreIncomingShareId(Configuration configuration)
+    public static String getStorageIncomingShareId(Configuration configuration)
     {
         String storageIncomingShareId = configuration.getStringProperty(AtomicFileSystemServerParameter.storageIncomingShareId);
         String storageRoot = getStorageRoot(configuration);
