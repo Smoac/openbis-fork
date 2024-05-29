@@ -1,6 +1,16 @@
 Optional Application Server Configuration
 =========================================
 
+### The base URL for Web client access to the data store server.
+
+    download-url = ${host-address}:${port}
+
+
+### Export data limit in bytes, default to 10Gib
+
+    export.data-limit=10485760
+
+
 ### Deleted Entity History
 
 Logging the history of deleted entities can be enabled / disabled in the AS service.properties using setting
