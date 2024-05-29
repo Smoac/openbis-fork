@@ -1,0 +1,64 @@
+@prefix ex: <http://example.org/ex#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+owl:maxCardinality a owl:AnnotationProperty .
+
+owl:minCardinality a owl:AnnotationProperty .
+
+
+ex:hasProtein a owl:ObjectProperty ;
+    rdfs:label "has protein" ;
+    rdfs:comment "protein product of the concept" ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( ex:Gene ) ] ;
+    rdfs:range ex:Protein ;
+    skos:definition "protein product of the concept" .
+
+ex:Code a owl:Class ;
+    rdfs:label "Code" ;
+    rdfs:comment "symbols and/or expressions defined in a coding system" ;
+    skos:definition "symbols and/or expressions defined in a coding system" .
+
+ex:Protein a owl:Class ;
+    rdfs:label "Protein" ;
+    rdfs:comment "molecule composed by one or more chains of amino acids" ;
+    rdfs:subClassOf [ a owl:Class ;
+            owl:intersectionOf ( [ a owl:Restriction ;
+                        owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                        owl:onProperty ex:hasCode ] [ a owl:Restriction ;
+                        owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                        owl:onProperty ex:hasCode ] ) ],
+        ex:EXConcept ;
+    skos:definition "molecule composed by one or more chains of amino acids" .
+
+ex:Gene a owl:Class ;
+    rdfs:label "Gene" ;
+    rdfs:comment "fundamental unit of heredity that contains necessary elements to encore for a transcript" ;
+    rdfs:subClassOf [ a owl:Class ;
+            owl:intersectionOf ( [ a owl:Restriction ;
+                        owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+                        owl:onProperty ex:hasCode ] [ a owl:Restriction ;
+                        owl:maxCardinality "1"^^xsd:nonNegativeInteger ;
+                        owl:onProperty ex:hasCode ] ) ],
+        [ a owl:Restriction ;
+            owl:minCardinality "0"^^xsd:nonNegativeInteger ;
+            owl:onProperty ex:hasProtein ],
+        ex:EXConcept ;
+    skos:definition "fundamental unit of heredity that contains necessary elements to encore for a transcript" .
+
+ex:EXConcept a owl:Class ;
+    rdfs:label "EX Concept" ;
+    rdfs:comment "EX Concepts defined by the EX dataset" ;
+    skos:definition "EX Concepts defined by the EX dataset" .
+
+ex:hasCode a owl:ObjectProperty ;
+    rdfs:label "has code" ;
+    rdfs:comment "code, name, coding system and version describing the concept" ;
+    rdfs:domain [ a owl:Class ;
+            owl:unionOf ( ex:Protein ex:Gene ) ] ;
+    rdfs:range [ a owl:Class ;
+            owl:unionOf ( ex:Code ) ] ;
+    skos:definition "code, name, coding system and version describing the concept" .
