@@ -22,6 +22,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -37,12 +38,15 @@ import ch.ethz.sis.afsapi.dto.ExceptionReason;
 import ch.ethz.sis.afsapi.dto.File;
 import ch.ethz.sis.afsapi.exception.ThrowableReason;
 import ch.ethz.sis.afsserver.server.Server;
+import ch.ethz.sis.afsserver.server.observer.APIServerObserver;
 import ch.ethz.sis.afsserver.server.observer.impl.DummyServerObserver;
 import ch.ethz.sis.afsserver.startup.AtomicFileSystemServerParameter;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.PhysicalData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.create.DataSetCreation;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.datastore.id.DataStorePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.rights.Right;
@@ -51,6 +55,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.shared.io.IOUtils;
 import ch.ethz.sis.shared.startup.Configuration;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 public class OpenBisAuthApiClientTest extends BaseApiClientTest
 {
@@ -111,7 +116,12 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
                         "src/test/resources/test-server-with-auth-config.properties");
         final DummyServerObserver dummyServerObserver = new DummyServerObserver();
 
-        afsServer = new Server<>(configuration, dummyServerObserver, dummyServerObserver);
+        APIServerObserver apiServerObserver = configuration.getInstance(AtomicFileSystemServerParameter.apiServerObserver);
+        if (apiServerObserver == null)
+        {
+            apiServerObserver = new DummyServerObserver();
+        }
+
         httpServerPort =
                 configuration.getIntegerProperty(AtomicFileSystemServerParameter.httpServerPort);
         httpServerPath =
@@ -123,6 +133,8 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
         IOUtils.createDirectories(storageRoot + "/" + SHARE_1);
         IOUtils.createDirectories(storageRoot + "/" + SHARE_2);
         IOUtils.createDirectories(storageRoot + "/" + SHARE_3);
+
+        afsServer = new Server<>(configuration, dummyServerObserver, apiServerObserver);
     }
 
     @Before
@@ -428,6 +440,64 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
         }
 
         assertFalse(IOUtils.exists(IOUtils.getPath(testDataRoot, FILE_B)));
+    }
+
+    @Test
+    public void write_createsDataSetInASThatDoesNotExist() throws Exception
+    {
+        login();
+
+        String ownerWithoutFiles = UUID.randomUUID().toString();
+
+        List<DataSetCreation> dataSetCreations = new ArrayList<>();
+
+        dummyOpenBisServer.setOperationExecutor((methodName, methodArguments) ->
+        {
+            switch (methodName)
+            {
+                case "createDataSets":
+                    dataSetCreations.addAll((List<DataSetCreation>) methodArguments[1]);
+                    return List.of(new DataSetPermId(ownerWithoutFiles));
+            }
+
+            return getDefaultOperationExecutor().executeOperation(methodName, methodArguments);
+        });
+
+        afsClient.write(ownerWithoutFiles, FILE_A, 0L, DATA, IOUtils.getMD5(DATA));
+
+        // dataset gets created on first write
+        assertEquals(1, dataSetCreations.size());
+        assertEquals(ownerWithoutFiles, dataSetCreations.get(0).getCode());
+        assertEquals(new DataStorePermId("AFS"), dataSetCreations.get(0).getDataStoreId());
+
+        afsClient.write(ownerWithoutFiles, FILE_B, 0L, DATA, IOUtils.getMD5(DATA));
+
+        // no more datasets get created on subsequent writes
+        assertEquals(1, dataSetCreations.size());
+        assertEquals(ownerWithoutFiles, dataSetCreations.get(0).getCode());
+        assertEquals(new DataStorePermId("AFS"), dataSetCreations.get(0).getDataStoreId());
+    }
+
+    @Test
+    public void write_createsDataSetInASThatAlreadyExists() throws Exception
+    {
+        login();
+
+        String ownerWithoutFiles = UUID.randomUUID().toString();
+
+        dummyOpenBisServer.setOperationExecutor((methodName, methodArguments) ->
+        {
+            switch (methodName)
+            {
+                case "createDataSets":
+                    throw new UserFailureException("DataSet already exists in the database and needs to be unique");
+            }
+
+            return getDefaultOperationExecutor().executeOperation(methodName, methodArguments);
+        });
+
+        // even though AS throws an exception this does not fail
+        afsClient.write(ownerWithoutFiles, FILE_A, 0L, DATA, IOUtils.getMD5(DATA));
     }
 
     @Test
