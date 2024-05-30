@@ -48,7 +48,7 @@ The following Object types are created if the **eln-lims-template-types** is ena
 
 ## Life science types
 
-The following Object types are provided with the **eln-lims-life-science** data model which can be downloaded from [Community data model](https://github.com/openbis/community-data-models). An instance admin can upload these types from the admin UI, as explained  [here](docs/user-documentation/general-admin-users/admins-documentation/masterdata-exports-and-imports.md#masterdata-import).
+The following Object types are provided with the **eln-lims-life-science** data model which can be downloaded from [Community data model](https://github.com/openbis/community-data-models). An openBIS _instance admin_ can upload these types from the admin UI, as explained  [here](docs/user-documentation/general-admin-users/admins-documentation/masterdata-exports-and-imports.md#masterdata-import).
 
 - Antibodies
 - Chemicals
