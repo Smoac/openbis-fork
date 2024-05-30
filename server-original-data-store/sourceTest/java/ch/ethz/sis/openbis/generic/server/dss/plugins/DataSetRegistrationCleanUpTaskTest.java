@@ -37,6 +37,7 @@ import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.MockTimeProvider;
 import ch.systemsx.cisd.etlserver.DssUniqueFilenameGenerator;
@@ -141,7 +142,7 @@ public class DataSetRegistrationCleanUpTaskTest extends AbstractFileSystemTestCa
         task.execute();
 
         // Then
-        assertEquals("pre-staging directory " + storeRoot.getAbsolutePath()
+        AssertionUtil.assertContainsLines("pre-staging directory " + storeRoot.getAbsolutePath()
                 + "/1/pre-staging has 1 files which are older than 70 days:\n"
                 + "1970-01-01_01-00-00-000_test_test (last modified: 1970-01-01 01:00:50)\n"
                 + "Deleting directory '" + storeRoot + "/1/pre-staging/1970-01-01_01-00-00-000_test_test'\n"
@@ -176,7 +177,7 @@ public class DataSetRegistrationCleanUpTaskTest extends AbstractFileSystemTestCa
         task.execute();
 
         // Then
-        assertEquals("staging directory " + storeRoot.getAbsolutePath()
+        AssertionUtil.assertContainsLines("staging directory " + storeRoot.getAbsolutePath()
                 + "/1/staging has 1 files which are older than 70 days:\n"
                 + "19700101010000000-0 (last modified: 1970-01-01 01:00:00)\n"
                 + "Deleting directory '" + storeRoot + "/1/staging/19700101010000000-0'\n"
@@ -218,7 +219,7 @@ public class DataSetRegistrationCleanUpTaskTest extends AbstractFileSystemTestCa
         task.execute();
 
         // Then
-        assertEquals("pre-commit directory " + storeRoot.getAbsolutePath()
+        AssertionUtil.assertContainsLines("pre-commit directory " + storeRoot.getAbsolutePath()
                 + "/1/pre-commit has 1 files which are older than 70 days:\n"
                 + "19700101010000000-0 (last modified: 1970-01-01 01:00:00)\n"
                 + "Deleting directory '" + storeRoot + "/1/pre-commit/19700101010000000-0'\n"
@@ -245,7 +246,7 @@ public class DataSetRegistrationCleanUpTaskTest extends AbstractFileSystemTestCa
         task.execute();
 
         // Then
-        assertEquals("ELN temporary registration directory " + storeRoot.getAbsolutePath()
+        AssertionUtil.assertContainsLines("ELN temporary registration directory " + storeRoot.getAbsolutePath()
                 + "/1/" + elnTmpDir + " has 1 files which are older than 70 days:\n"
                 + "19700101010000000-0 (last modified: 1970-01-01 01:00:00)\n"
                 + "Deleting directory '" + storeRoot + "/1/" + elnTmpDir + "/19700101010000000-0'\n"
@@ -282,22 +283,22 @@ public class DataSetRegistrationCleanUpTaskTest extends AbstractFileSystemTestCa
         task.execute();
 
         // Then
-        assertEquals("2 empty data set folders found in share 3 which are older than 30 days: ["
-                + dir5 + ", " + dir7 + "]\n"
-                + "Deleting directory '" + dir5 + "'\n"
-                + "Stale data set folder deleted: " + dir5.getAbsolutePath()
-                + " (last modified: 1970-01-01T00:00:00Z)\n"
-                + "3 empty sharding folders found in share 3 which are older than 30 days: ["
-                + dir1 + ", " + dir4 + ", " + dir3 + "]\n"
-                + "Deleting directory '" + dir1 + "'\n"
-                + "Empty sharding folder deleted: " + dir1.getAbsolutePath()
-                + " (last modified: 1970-01-01T00:00:00Z)\n"
-                + "Deleting directory '" + dir4 + "'\n"
-                + "Empty sharding folder deleted: " + dir4.getAbsolutePath()
-                + " (last modified: 1970-01-01T00:00:00Z)\n"
-                + "Deleting directory '" + dir3 + "'\n"
-                + "Empty sharding folder deleted: " + dir3.getAbsolutePath()
-                + " (last modified: 1970-01-01T00:00:00Z)",
+        AssertionUtil.assertContainsLines("2 empty data set folders found in share 3 which are older than 30 days: ["
+                        + dir5 + ", " + dir7 + "]\n"
+                        + "Deleting directory '" + dir5 + "'\n"
+                        + "Stale data set folder deleted: " + dir5.getAbsolutePath()
+                        + " (last modified: 1970-01-01T00:00:00Z)\n"
+                        + "3 empty sharding folders found in share 3 which are older than 30 days: ["
+                        + dir1 + ", " + dir4 + ", " + dir3 + "]\n"
+                        + "Deleting directory '" + dir1 + "'\n"
+                        + "Empty sharding folder deleted: " + dir1.getAbsolutePath()
+                        + " (last modified: 1970-01-01T00:00:00Z)\n"
+                        + "Deleting directory '" + dir4 + "'\n"
+                        + "Empty sharding folder deleted: " + dir4.getAbsolutePath()
+                        + " (last modified: 1970-01-01T00:00:00Z)\n"
+                        + "Deleting directory '" + dir3 + "'\n"
+                        + "Empty sharding folder deleted: " + dir3.getAbsolutePath()
+                        + " (last modified: 1970-01-01T00:00:00Z)",
                 logRecorder.getLogContent());
         assertEquals(false, dir1.exists());
         assertEquals(true, dir2.exists());
@@ -338,22 +339,22 @@ public class DataSetRegistrationCleanUpTaskTest extends AbstractFileSystemTestCa
     private void prepareGetHomeDatabaseInstance()
     {
         context.checking(new Expectations()
+        {
             {
-                {
-                    allowing(service).getHomeDatabaseInstance();
-                    will(returnValue(databaseInstance));
-                }
-            });
+                allowing(service).getHomeDatabaseInstance();
+                will(returnValue(databaseInstance));
+            }
+        });
     }
 
     private void prepareListDataSetsByCode(List<String> dataSetCodes, List<AbstractExternalData> dataSets)
     {
         context.checking(new Expectations()
+        {
             {
-                {
-                    allowing(service).listDataSetsByCode(dataSetCodes);
-                    will(returnValue(dataSets));
-                }
-            });
+                allowing(service).listDataSetsByCode(dataSetCodes);
+                will(returnValue(dataSets));
+            }
+        });
     }
 }
