@@ -49,9 +49,9 @@ where *openbis-xxx* is the name of the server specified in the openBIS
 configuration file, during the installation by a system admin.
 
 
-# Login
+## Login
 
-## File based and/or LDAP authentication
+### File based and/or LDAP authentication
 
 When file based and/or LDAP authentication are used in openBIS, the login interface is as shown below. Users need to provide their username and password to login.
 Only registered users with assigned rights can login to openBIS.
@@ -61,7 +61,7 @@ Only registered users with assigned rights can login to openBIS.
 
 
 
-## SWITCHaai authentication
+### SWITCHaai authentication
 
 When SWITCHaai (SSO) authentication is used in addition to file based and/or LDAP authentication, the login interface is as shown below. 
 
