@@ -103,7 +103,7 @@ public class MasterDataRegistrationHelper {
 
     private static String[] getFilePaths(final String... fileNames)
     {
-        return Arrays.stream(fileNames).map(fileName -> MasterDataRegistrationHelper.class.getResource("test_files/import/" + fileName).getPath())
+        return Arrays.stream(fileNames).map(fileName -> MasterDataRegistrationHelper.class.getResource("master-data/" + fileName).getPath())
                 .toArray(String[]::new);
     }
 
