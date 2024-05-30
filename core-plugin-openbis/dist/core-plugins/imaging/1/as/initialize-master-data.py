@@ -27,7 +27,7 @@ helper = MasterDataRegistrationHelper(sys.path)
 api = CommonServiceProvider.getApplicationContext().getBean(ApplicationServerApi.INTERNAL_SERVICE_NAME)
 sessionToken = api.loginAsSystem()
 sessionWorkspaceFiles = helper.uploadToAsSessionWorkspace(sessionToken, "imaging-data-model.xls")
-importData = ImportData(ImportFormat.EXCEL, sessionWorkspaceFiles[0])
+importData = ImportData(ImportFormat.EXCEL, [sessionWorkspaceFiles[0]])
 importOptions = ImportOptions(ImportMode.UPDATE_IF_EXISTS)
 importResult = api.executeImport(sessionToken, importData, importOptions)
 

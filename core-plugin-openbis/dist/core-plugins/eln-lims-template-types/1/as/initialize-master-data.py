@@ -29,7 +29,7 @@ api = CommonServiceProvider.getApplicationContext().getBean(ApplicationServerApi
 sessionToken = api.loginAsSystem()
 
 sessionWorkspaceFiles = helper.uploadToAsSessionWorkspace(sessionToken, "eln-types-template.xlsx", "scripts/date_range_validation.py")
-importData = ImportData(ImportFormat.EXCEL, sessionWorkspaceFiles[0])
+importData = ImportData(ImportFormat.EXCEL, [sessionWorkspaceFiles[0]])
 importOptions = ImportOptions(ImportMode.UPDATE_IF_EXISTS)
 importResult = api.executeImport(sessionToken, importData, importOptions)
 

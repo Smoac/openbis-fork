@@ -38,19 +38,19 @@ if ELNFixes.isELNInstalled():
 helper = MasterDataRegistrationHelper(sys.path)
 sessionWorkspaceFiles = helper.uploadToAsSessionWorkspace(sessionToken, "common-data-model.xls", "scripts/date_range_validation.py",
                                                           "scripts/storage_position_validation.py")
-importData = ImportData(ImportFormat.EXCEL, sessionWorkspaceFiles[0])
+importData = ImportData(ImportFormat.EXCEL, [sessionWorkspaceFiles[0]])
 importOptions = ImportOptions(ImportMode.UPDATE_IF_EXISTS)
 importResult = api.executeImport(sessionToken, importData, importOptions)
 
 if not ELNFixes.isMultiGroup():
     sessionWorkspaceFiles = helper.uploadToAsSessionWorkspace(sessionToken, "single-group-data-model.xls", "scripts/date_range_validation.py",
-                                                              "storage_position_validation.py")
-    importData = ImportData(ImportFormat.EXCEL, sessionWorkspaceFiles[0])
+                                                              "scripts/storage_position_validation.py")
+    importData = ImportData(ImportFormat.EXCEL, [sessionWorkspaceFiles[0]])
     importOptions = ImportOptions(ImportMode.UPDATE_IF_EXISTS)
     importResult = api.executeImport(sessionToken, importData, importOptions)
 
 ELNCollectionTypeMigration.afterUpgrade()
 api.logout(sessionToken)
 print("======================== master-data xls ingestion result ========================")
-print(result)
+print(importResult.getObjectIds())
 print("======================== master-data xls ingestion result ========================")
