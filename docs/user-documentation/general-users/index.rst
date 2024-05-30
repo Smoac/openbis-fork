@@ -5,6 +5,7 @@ General Users
    :maxdepth: 4
 
    general-overview
+   ELN-types
    inventory-of-materials-and-methods
    managing-storage-of-samples
    barcodes

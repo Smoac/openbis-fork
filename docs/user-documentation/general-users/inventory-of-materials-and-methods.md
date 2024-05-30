@@ -7,7 +7,7 @@ These are used to organise respectively samples and materials of any type and la
 
 Samples, materials and protocols are modelled in openBIS as **Objects.**
 
-In the **openBIS ELN-LIMS for life sciences**, the following Object types are preconfigured in the database:
+In the **openBIS ELN-LIMS for life sciences**, the following Object types are provided:
 
 *Antibodies, Chemicals, Enzymes, Media, Solutions and Buffers, Plasmids, Plants, Oligos, RNAs, Bacteria, Cell lines, Flies, Yeasts, General protocols, PCR protocols, Western blotting protocols.*
 
@@ -17,7 +17,7 @@ These Objects are organised in **Collections** in the **Materials** and **Method
 
 ![image](img/inventory-methods-life-sciences-2.png)
 
-The generic openBIS ELN-LIMS only has one predefined Object type for the Inventory, General Protocol, in the General Protocols Collection in the Methods folder. The Material folder is empty. Additional Object types and Collections must be created by an openBIS instance admin, based on the needs of the lab(s).
+The generic openBIS ELN-LIMS only has one predefined Object type for the Inventory, _General Protocol_, in the General Protocols Collection in the Methods folder. The Material folder is empty. Additional Object types and Collections must be created by an openBIS instance admin, based on the needs of the lab(s).
 
  
 ## Customise Collection View
