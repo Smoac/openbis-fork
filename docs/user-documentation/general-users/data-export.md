@@ -63,7 +63,7 @@ _Note: ensure that pop-ups are not disabled in your browser_.
 Server](../../system-documentation/configuration/optional-datastore-server-configuration.md)
 
 
-> ![image info](img/warning.png) **Known limitation of openBIS 20.10.8**: images embedded in text fields are not currently exported. This limitation will be fixed in the upcoming 20.10.8.1 release. 
+> ![image info](img/warning.png) **Known limitation of openBIS 20.10.8**: images embedded in text fields are not currently exported. This limitation will be fixed in the release aftre 20.10.8. 
 
 
 
