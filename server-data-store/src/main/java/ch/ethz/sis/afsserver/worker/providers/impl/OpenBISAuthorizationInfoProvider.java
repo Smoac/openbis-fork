@@ -88,7 +88,14 @@ public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvid
         if (foundExperiment != null)
         {
             ownerPermId = foundExperiment.getPermId();
-            ownerSupportedPermissions = Set.of(FilePermission.Read, FilePermission.Write);
+
+            if (foundExperiment.isFrozen())
+            {
+                ownerSupportedPermissions = Set.of(FilePermission.Read);
+            } else
+            {
+                ownerSupportedPermissions = Set.of(FilePermission.Read, FilePermission.Write);
+            }
         } else
         {
             Sample foundSample = findSample(workerContext.getSessionToken(), owner);
@@ -96,7 +103,14 @@ public class OpenBISAuthorizationInfoProvider implements AuthorizationInfoProvid
             if (foundSample != null)
             {
                 ownerPermId = foundSample.getPermId();
-                ownerSupportedPermissions = Set.of(FilePermission.Read, FilePermission.Write);
+
+                if (foundSample.isFrozen())
+                {
+                    ownerSupportedPermissions = Set.of(FilePermission.Read);
+                } else
+                {
+                    ownerSupportedPermissions = Set.of(FilePermission.Read, FilePermission.Write);
+                }
             } else
             {
                 DataSet foundDataSet = findDataSet(workerContext.getSessionToken(), owner);
