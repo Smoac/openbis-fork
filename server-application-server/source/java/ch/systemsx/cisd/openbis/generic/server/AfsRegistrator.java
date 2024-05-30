@@ -1,7 +1,5 @@
 package ch.systemsx.cisd.openbis.generic.server;
 
-import javax.annotation.Resource;
-
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEvent;
@@ -14,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
@@ -27,13 +24,8 @@ public class AfsRegistrator implements IAfsRegistrator, ApplicationListener<Appl
 
     private static final String AFS_DATA_STORE_CODE = "AFS";
 
-    private static final String AFS_URL_PROPERTY_NAME = ComponentNames.SERVER_PUBLIC_INFORMATION + "afs-server.url";
-
     @Autowired
     private IDAOFactory daoFactory;
-
-    @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
-    private ExposablePropertyPlaceholderConfigurer configurer;
 
     @Autowired IAfsRegistrator self;
 
@@ -75,12 +67,10 @@ public class AfsRegistrator implements IAfsRegistrator, ApplicationListener<Appl
             return;
         }
 
-        String afsUrl = configurer.getResolvedProps().getProperty(AFS_URL_PROPERTY_NAME, "");
-
         DataStorePE dataStore = new DataStorePE();
         dataStore.setCode(AFS_DATA_STORE_CODE);
-        dataStore.setDownloadUrl(afsUrl);
-        dataStore.setRemoteUrl(afsUrl);
+        dataStore.setDownloadUrl("");
+        dataStore.setRemoteUrl("");
         dataStore.setDatabaseInstanceUUID("");
         dataStore.setSessionToken("");
         dataStore.setArchiverConfigured(false);
