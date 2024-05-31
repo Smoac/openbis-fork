@@ -1269,6 +1269,7 @@ var FormUtil = new function() {
                     .then( editor => {
                         editor.acceptedData = ""; // Is used to undo paste events containing images coming from a different domain
                         if (value) {
+                            editor.preprocessingFinished = false;
                             if(isReadOnly && ids.length > 0)
                             {
                                 this._searchByIds(ids, function(checkedLinks) {
@@ -1294,10 +1295,7 @@ var FormUtil = new function() {
                                     }
 
                                     editor.isReadOnly = false;
-                                    editor.setData('');
-                                    var vF = editor.data.processor.toView(value);
-                                    const modelFragment = editor.data.toModel( vF );
-                                    editor.model.insertContent( modelFragment );
+                                    editor.setData(value);
                                     editor.acceptedData = editor.getData();
 
                                     var root = editor.editing.view.getDomRoot();
@@ -1309,11 +1307,12 @@ var FormUtil = new function() {
                                                     checkedLinks[l].link.click();
                                                 });
                                     }
-
+                                    editor.preprocessingFinished = true;
                                     editor.isReadOnly = true;
                                 });
 
                             } else {
+                                editor.preprocessingFinished = true;
                                 value = this.prepareCkeditorData(value);
                                 editor.setData(value);
                                 editor.acceptedData = editor.getData();
@@ -1323,7 +1322,8 @@ var FormUtil = new function() {
                         editor.isReadOnly = isReadOnly;
                         editor.model.document.on('change:data', function (event, data) {
                             var newData = editor.getData();
-                            if(newData !== editor.acceptedData) {
+                            var preprocessing = editor.preprocessingFinished ?? true;
+                            if(preprocessing && newData !== editor.acceptedData) {
                                 var isDataValid = CKEditorManager.isDataValid(newData);
                                 if(isDataValid) {
                                     editor.acceptedData = newData;
