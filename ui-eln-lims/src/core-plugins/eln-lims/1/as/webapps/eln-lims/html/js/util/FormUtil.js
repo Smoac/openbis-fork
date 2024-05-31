@@ -1380,7 +1380,7 @@ var FormUtil = new function() {
                                 }
                                 var link = FormUtil.getFormLink(sample.identifier.identifier, 'Sample', sample.permId.permId, null);
                                 var name = sample.properties['$NAME'] ?? null;
-                                name = sample.identifier.identifier + (name ? '(' + name + ')' : '');
+                                name = sample.identifier.identifier + (name ? ' (' + name + ')' : '');
                                 links[sample.identifier.identifier] = {link: link, name: name, identifier: sample.identifier.identifier};
                                 links[sample.permId.permId] = {link: link, name: name, identifier: sample.identifier.identifier};
                             }
@@ -1401,7 +1401,7 @@ var FormUtil = new function() {
                                     for ( let experiment of experiments) {
                                         var link = FormUtil.getFormLink(experiment.identifier.identifier, 'Experiment', experiment.identifier.identifier, null);
                                         var name = experiment.properties['$NAME'] ?? null;
-                                        name = experiment.identifier.identifier + (name ? '(' + name + ')' : '');
+                                        name = experiment.identifier.identifier + (name ? ' (' + name + ')' : '');
                                         links[experiment.identifier.identifier] = {link: link, name: name, identifier: experiment.identifier.identifier};
                                         links[experiment.permId.permId] = {link: link, name: name, identifier: experiment.identifier.identifier };
                                     }
