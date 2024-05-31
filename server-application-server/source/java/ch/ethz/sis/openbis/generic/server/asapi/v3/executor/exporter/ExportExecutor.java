@@ -179,7 +179,7 @@ public class ExportExecutor implements IExportExecutor
 
     public static final String XLSX_DIRECTORY = "xlsx";
 
-    public static final String PDF_DIRECTORY = "pdf";
+    public static final String PDF_DIRECTORY = "hierarchy";
 
     public static final String DATA_DIRECTORY = "data";
 
