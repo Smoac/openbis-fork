@@ -1,53 +1,33 @@
 package ch.ethz.sis.openbis.systemtests;
 
-import static ch.ethz.sis.transaction.TransactionTestUtil.TestTransaction;
-import static ch.ethz.sis.transaction.TransactionTestUtil.assertTransactions;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
-import static org.testng.Assert.fail;
 
 import java.io.File;
-import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
+import java.util.stream.Collectors;
 
-import javax.sql.DataSource;
-
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.OpenBIS;
-import ch.ethz.sis.openbis.generic.asapi.v3.ITransactionCoordinatorApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.Experiment;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.create.ExperimentCreation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.fetchoptions.ExperimentFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.experiment.id.ExperimentPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.Project;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.create.ProjectCreation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.fetchoptions.ProjectFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectIdentifier;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.project.id.ProjectPermId;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.Space;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.create.SpaceCreation;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.fetchoptions.SpaceFetchOptions;
-import ch.ethz.sis.openbis.generic.asapi.v3.dto.space.id.SpacePermId;
-import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSetFileFetchOptions;
-import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.TransactionConfiguration;
-import ch.ethz.sis.openbis.generic.server.asapi.v3.TransactionCoordinatorApi;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.ImportData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.ImportFormat;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options.ImportMode;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options.ImportOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.plugin.Plugin;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
 import ch.ethz.sis.openbis.systemtests.common.AbstractIntegrationTest;
-import ch.ethz.sis.transaction.TransactionStatus;
 
 public class IntegrationSessionWorkspaceTest extends AbstractIntegrationTest
 {
@@ -83,6 +63,58 @@ public class IntegrationSessionWorkspaceTest extends AbstractIntegrationTest
         final byte[] uploadedFileContent = Files.readAllBytes(uploadedFilePath);
 
         assertEquals(uploadedFileContent, originalFileContent);
+
+        openBIS.logout();
+    }
+
+    @Test
+    public void testImport() throws Exception
+    {
+        final OpenBIS openBIS = createOpenBIS();
+        final String fileName = "import-test.zip";
+        final Path originalFilePath = Path.of("sourceTest/java/ch/ethz/sis/openbis/systemtests/" + fileName);
+
+        openBIS.login(USER, PASSWORD);
+        openBIS.uploadToSessionWorkspace(originalFilePath);
+
+        // Executing import
+
+        final List<IObjectId> objectIds = openBIS.executeImport(new ImportData(ImportFormat.EXCEL, fileName),
+                new ImportOptions(ImportMode.UPDATE_IF_EXISTS)).getObjectIds();
+
+        // Verifying imported sample
+
+        final List<ISampleId> sampleIdentifiers = objectIds.stream().filter(objectId -> objectId instanceof ISampleId)
+                .map(objectId -> (ISampleId) objectId).collect(Collectors.toList());
+
+        System.out.println("objectIds: " + objectIds);
+        assertEquals(sampleIdentifiers.size(), 1);
+
+        final SampleFetchOptions sampleFetchOptions = new SampleFetchOptions();
+        sampleFetchOptions.withProperties();
+        final Sample sample = openBIS.getSamples(sampleIdentifiers, sampleFetchOptions).values().iterator().next();
+        assertEquals(sample.getIdentifier().getIdentifier(), "/DEFAULT/DEFAULT/TEST");
+
+        final String notes = sample.getStringProperty("NOTES");
+        assertEquals(notes, "Test");
+
+        // Verifying imported sample type
+
+        final List<IEntityTypeId> sampleTypes = objectIds.stream()
+                .filter(objectId -> (objectId instanceof EntityTypePermId) && ((EntityTypePermId) objectId).getEntityKind() == EntityKind.SAMPLE)
+                .map(objectId -> (IEntityTypeId) objectId).collect(Collectors.toList());
+
+        assertEquals(sampleTypes.size(), 1);
+
+        final SampleTypeFetchOptions sampleTypeFetchOptions = new SampleTypeFetchOptions();
+        sampleTypeFetchOptions.withValidationPlugin().withScript();
+        final SampleType sampleType = openBIS.getSampleTypes(sampleTypes, sampleTypeFetchOptions).values().iterator().next();
+        final Plugin validationPlugin = sampleType.getValidationPlugin();
+
+        assertNotNull(validationPlugin);
+
+        assertEquals(validationPlugin.getName(), "EXPERIMENTAL_STEP.EXPERIMENTAL_STEP.EXPERIMENTAL_STEP.EXPERIMENTAL_STEP.date_range_validation");
+        assertTrue(validationPlugin.getScript().contains("\"End date cannot be before start date!\""));
 
         openBIS.logout();
     }
