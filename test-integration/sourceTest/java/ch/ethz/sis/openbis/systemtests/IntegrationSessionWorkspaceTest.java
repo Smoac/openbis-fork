@@ -1,13 +1,16 @@
 package ch.ethz.sis.openbis.systemtests;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.testng.annotations.Test;
@@ -17,6 +20,14 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.id.IObjectId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.EntityKind;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.entitytype.id.IEntityTypeId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.ExportResult;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.AllFields;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportData;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportableKind;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.data.ExportablePermId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportFormat;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.ExportOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.exporter.options.XlsTextFormat;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.ImportData;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.data.ImportFormat;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.importer.options.ImportMode;
@@ -27,6 +38,8 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.SampleType;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleTypeFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.ISampleId;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SampleIdentifier;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.id.SamplePermId;
 import ch.ethz.sis.openbis.systemtests.common.AbstractIntegrationTest;
 
 public class IntegrationSessionWorkspaceTest extends AbstractIntegrationTest
@@ -77,12 +90,12 @@ public class IntegrationSessionWorkspaceTest extends AbstractIntegrationTest
         openBIS.login(USER, PASSWORD);
         openBIS.uploadToSessionWorkspace(originalFilePath);
 
-        // Executing import
+        // Execute import
 
         final List<IObjectId> objectIds = openBIS.executeImport(new ImportData(ImportFormat.EXCEL, fileName),
                 new ImportOptions(ImportMode.UPDATE_IF_EXISTS)).getObjectIds();
 
-        // Verifying imported sample
+        // Verify imported sample
 
         final List<ISampleId> sampleIdentifiers = objectIds.stream().filter(objectId -> objectId instanceof ISampleId)
                 .map(objectId -> (ISampleId) objectId).collect(Collectors.toList());
@@ -98,7 +111,7 @@ public class IntegrationSessionWorkspaceTest extends AbstractIntegrationTest
         final String notes = sample.getStringProperty("NOTES");
         assertEquals(notes, "Test");
 
-        // Verifying imported sample type
+        // Verify imported sample type
 
         final List<IEntityTypeId> sampleTypes = objectIds.stream()
                 .filter(objectId -> (objectId instanceof EntityTypePermId) && ((EntityTypePermId) objectId).getEntityKind() == EntityKind.SAMPLE)
@@ -117,6 +130,55 @@ public class IntegrationSessionWorkspaceTest extends AbstractIntegrationTest
         assertTrue(validationPlugin.getScript().contains("\"End date cannot be before start date!\""));
 
         openBIS.logout();
+    }
+
+    @Test
+    public void testExport() throws Exception
+    {
+        final OpenBIS openBIS = createOpenBIS();
+        final String sessionId = openBIS.login(USER, PASSWORD);
+        final String sampleIdentifierString = "/DEFAULT/DEFAULT/DEFAULT";
+
+        // Execute export
+
+        final SamplePermId samplePermId = openBIS.getSamples(
+                List.of(new SampleIdentifier(sampleIdentifierString)), new SampleFetchOptions()).values().iterator().next().getPermId();
+
+        final ExportResult exportResult = openBIS.executeExport(
+                new ExportData(List.of(new ExportablePermId(ExportableKind.SAMPLE, samplePermId.getPermId())), AllFields.INSTANCE),
+                new ExportOptions(Set.of(ExportFormat.HTML), XlsTextFormat.PLAIN, true, false, false));
+
+        // Verify result
+
+        final Collection<String> warnings = exportResult.getWarnings();
+
+        assertTrue(warnings.isEmpty());
+
+        final String downloadURL = exportResult.getDownloadURL();
+
+        assertNotNull(downloadURL);
+        assertFalse(downloadURL.isBlank());
+
+        final File exportedFile = new File(String.format("targets/sessionWorkspace/%s/%s",
+                sessionId, getBareFileName(downloadURL)));
+
+        assertTrue(exportedFile.exists());
+
+        final byte[] exportedFileContents = Files.readAllBytes(exportedFile.toPath());
+
+        assertTrue(exportedFileContents.length > 0);
+
+        final String exportedFileString = new String(exportedFileContents);
+
+        assertTrue(exportedFileString.startsWith("<!DOCTYPE html PUBLIC"));
+        assertTrue(exportedFileString.contains(sampleIdentifierString));
+
+        openBIS.logout();
+    }
+
+    private static String getBareFileName(final String url)
+    {
+        return url.substring(url.lastIndexOf("=") + 1);
     }
 
 }
