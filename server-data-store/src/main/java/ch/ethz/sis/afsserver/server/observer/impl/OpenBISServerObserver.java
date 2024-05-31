@@ -86,14 +86,14 @@ public class OpenBISServerObserver implements ServerObserver<TransactionConnecti
     @Override
     public void beforeAPICall(Worker<TransactionConnection> worker, Request request) throws Exception
     {
-        boolean isOnePhaseTransaction = worker.isInteractiveSessionMode();
-        boolean isTwoPhaseTransaction = worker.isTransactionManagerMode();
-
         // handle only transactional calls
-        if (!isOnePhaseTransaction && !isTwoPhaseTransaction)
+        if (!worker.isInteractiveSessionMode())
         {
             return;
         }
+
+        boolean isOnePhaseTransaction = !worker.isTransactionManagerMode();
+        boolean isTwoPhaseTransaction = worker.isTransactionManagerMode();
 
         if ((isOnePhaseTransaction && request.getMethod().equals("commit")) || (isTwoPhaseTransaction && request.getMethod().equals("prepare")))
         {
@@ -128,11 +128,8 @@ public class OpenBISServerObserver implements ServerObserver<TransactionConnecti
     @Override
     public void afterAPICall(Worker<TransactionConnection> worker, Request request) throws Exception
     {
-        boolean isOnePhaseTransaction = worker.isInteractiveSessionMode();
-        boolean isTwoPhaseTransaction = worker.isTransactionManagerMode();
-
         // handle only non-transactional calls
-        if (isOnePhaseTransaction || isTwoPhaseTransaction)
+        if (worker.isInteractiveSessionMode())
         {
             return;
         }
@@ -287,7 +284,7 @@ public class OpenBISServerObserver implements ServerObserver<TransactionConnecti
             ownerPath = ownerPath.substring(storageRoot.length());
         }
 
-        Pattern compile = Pattern.compile("/\\d+/.+/../../../(\\d+-\\d+)/.*");
+        Pattern compile = Pattern.compile("/\\d+/.+/../../../(.+)/.*");
         Matcher matcher = compile.matcher(ownerPath);
 
         if (matcher.matches())

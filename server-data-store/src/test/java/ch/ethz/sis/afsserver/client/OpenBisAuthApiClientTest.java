@@ -67,6 +67,10 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
 
     private static final String OPENBIS_DUMMY_SERVER_PATH = "/";
 
+    private static final String TRANSACTION_MANAGER_KEY = "5678";
+
+    private static final String INTERACTIVE_SESSION_KEY = "1234";
+
     private static final String SHARE_1 = "1";
 
     private static final String SHARE_2 = "2";
@@ -474,8 +478,6 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
 
         // no more datasets get created on subsequent writes
         assertEquals(1, dataSetCreations.size());
-        assertEquals(ownerWithoutFiles, dataSetCreations.get(0).getCode());
-        assertEquals(new DataStorePermId("AFS"), dataSetCreations.get(0).getDataStoreId());
     }
 
     @Test
@@ -498,6 +500,104 @@ public class OpenBisAuthApiClientTest extends BaseApiClientTest
 
         // even though AS throws an exception this does not fail
         afsClient.write(ownerWithoutFiles, FILE_A, 0L, DATA, IOUtils.getMD5(DATA));
+    }
+
+    @Test
+    public void write_createsDataSetInAS_1PCTransaction() throws Exception
+    {
+        login();
+
+        String ownerWithoutFiles = UUID.randomUUID().toString();
+
+        List<DataSetCreation> dataSetCreations = new ArrayList<>();
+
+        dummyOpenBisServer.setOperationExecutor((methodName, methodArguments) ->
+        {
+            switch (methodName)
+            {
+                case "createDataSets":
+                    dataSetCreations.addAll((List<DataSetCreation>) methodArguments[1]);
+                    return List.of(new DataSetPermId(ownerWithoutFiles));
+            }
+
+            return getDefaultOperationExecutor().executeOperation(methodName, methodArguments);
+        });
+
+        UUID transactionId = UUID.randomUUID();
+        afsClient.setInteractiveSessionKey(INTERACTIVE_SESSION_KEY);
+
+        afsClient.begin(transactionId);
+        assertEquals(0, dataSetCreations.size());
+
+        afsClient.write(ownerWithoutFiles, FILE_A, 0L, DATA, IOUtils.getMD5(DATA));
+        assertEquals(0, dataSetCreations.size());
+
+        afsClient.commit();
+
+        // dataset gets created on commit
+        assertEquals(1, dataSetCreations.size());
+        assertEquals(ownerWithoutFiles.toUpperCase(), dataSetCreations.get(0).getCode());
+        assertEquals(new DataStorePermId("AFS"), dataSetCreations.get(0).getDataStoreId());
+
+        UUID transactionId2 = UUID.randomUUID();
+
+        afsClient.begin(transactionId2);
+        afsClient.write(ownerWithoutFiles, FILE_B, 0L, DATA, IOUtils.getMD5(DATA));
+        afsClient.commit();
+
+        // no more datasets get created on subsequent writes
+        assertEquals(1, dataSetCreations.size());
+    }
+
+    @Test
+    public void write_createsDataSetInAS_2PCTransaction() throws Exception
+    {
+        login();
+
+        String ownerWithoutFiles = UUID.randomUUID().toString();
+
+        List<DataSetCreation> dataSetCreations = new ArrayList<>();
+
+        dummyOpenBisServer.setOperationExecutor((methodName, methodArguments) ->
+        {
+            switch (methodName)
+            {
+                case "createDataSets":
+                    dataSetCreations.addAll((List<DataSetCreation>) methodArguments[1]);
+                    return List.of(new DataSetPermId(ownerWithoutFiles));
+            }
+
+            return getDefaultOperationExecutor().executeOperation(methodName, methodArguments);
+        });
+
+        UUID transactionId = UUID.randomUUID();
+        afsClient.setTransactionManagerKey(TRANSACTION_MANAGER_KEY);
+        afsClient.setInteractiveSessionKey(INTERACTIVE_SESSION_KEY);
+
+        afsClient.begin(transactionId);
+        assertEquals(0, dataSetCreations.size());
+
+        afsClient.write(ownerWithoutFiles, FILE_A, 0L, DATA, IOUtils.getMD5(DATA));
+        assertEquals(0, dataSetCreations.size());
+
+        afsClient.prepare();
+
+        // dataset gets created on prepare
+        assertEquals(1, dataSetCreations.size());
+        assertEquals(ownerWithoutFiles.toUpperCase(), dataSetCreations.get(0).getCode());
+        assertEquals(new DataStorePermId("AFS"), dataSetCreations.get(0).getDataStoreId());
+
+        afsClient.commit();
+
+        UUID transactionId2 = UUID.randomUUID();
+
+        afsClient.begin(transactionId2);
+        afsClient.write(ownerWithoutFiles, FILE_B, 0L, DATA, IOUtils.getMD5(DATA));
+        afsClient.prepare();
+        afsClient.commit();
+
+        // no more datasets get created on subsequent writes
+        assertEquals(1, dataSetCreations.size());
     }
 
     @Test
