@@ -136,8 +136,8 @@ public abstract class AbstractIntegrationTest
 
     private void initLogging()
     {
-        System.setProperty("log4j.configuration", "etc/log4j1.xml");
-        System.setProperty("log4j.configurationFile", "etc/log4j1.xml");
+        System.setProperty("log4j.configuration", "etc/as/log4j1.xml");
+        System.setProperty("log4j.configurationFile", "etc/as/log4j1.xml");
     }
 
     private void cleanupApplicationServerFolders() throws Exception
@@ -405,7 +405,7 @@ public abstract class AbstractIntegrationTest
     private Properties getApplicationServerConfiguration(boolean createDatabase) throws Exception
     {
         Properties configuration = new Properties();
-        configuration.load(new FileInputStream("../server-application-server/source/java/service.properties"));
+        configuration.load(new FileInputStream("etc/as/service.properties"));
         configuration.setProperty("database.create-from-scratch", String.valueOf(createDatabase));
         configuration.setProperty("database.kind", "integration");
         configuration.setProperty("script-folder", "../server-application-server/source");
@@ -423,8 +423,8 @@ public abstract class AbstractIntegrationTest
     private Configuration getAfsServerConfiguration()
     {
         Configuration configuration = new Configuration(List.of(AtomicFileSystemServerParameter.class),
-                "../server-data-store/src/main/resources/service.properties");
-        configuration.setProperty(AtomicFileSystemServerParameter.logConfigFile, "etc/log4j2.xml");
+                "etc/afs/service.properties");
+        configuration.setProperty(AtomicFileSystemServerParameter.logConfigFile, "etc/afs/log4j2.xml");
         configuration.setProperty(AtomicFileSystemServerParameter.writeAheadLogRoot, "./targets/afs/transaction-logs");
         configuration.setProperty(AtomicFileSystemServerParameter.storageRoot, "./targets/afs/storage");
         configuration.setProperty(AtomicFileSystemServerParameter.apiServerTransactionManagerKey, TEST_TRANSACTION_COORDINATOR_KEY);
