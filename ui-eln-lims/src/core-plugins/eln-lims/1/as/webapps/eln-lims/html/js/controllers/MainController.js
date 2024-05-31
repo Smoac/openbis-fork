@@ -1151,7 +1151,7 @@ function MainController(profile) {
 	
 	this._showBlancPage = function() {
 		var content = this._getBackwardsCompatibleMainContainer();
-		content.append("Welcome to openBIS ELN-LIMS.");
+		content.load("./etc/welcome.html");
 		this.currentView = {
 		    content : content
 		}
