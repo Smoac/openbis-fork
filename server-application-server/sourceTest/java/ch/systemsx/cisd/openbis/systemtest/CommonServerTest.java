@@ -3549,10 +3549,8 @@ public class CommonServerTest extends SystemTestCase
         if (user.isInstanceUserOrSpaceUserOrEnabledProjectUser())
         {
             List<DataStore> stores = commonServer.listDataStores(session.getSessionToken());
-            stores.sort(Comparator.comparing(DataStore::getCode));
-            assertEquals(stores.size(), 2);
-            assertEquals(stores.get(0).getCode(), "AFS");
-            assertEquals(stores.get(1).getCode(), "STANDARD");
+            assertEquals(stores.size(), 1);
+            assertEquals(stores.get(0).getCode(), "STANDARD");
         } else
         {
             try
