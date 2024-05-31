@@ -14,6 +14,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 
 @Component
@@ -21,8 +22,6 @@ public class AfsRegistrator implements IAfsRegistrator, ApplicationListener<Appl
 {
 
     private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, AfsRegistrator.class);
-
-    private static final String AFS_DATA_STORE_CODE = "AFS";
 
     @Autowired
     private IDAOFactory daoFactory;
@@ -59,7 +58,7 @@ public class AfsRegistrator implements IAfsRegistrator, ApplicationListener<Appl
 
         IDataStoreDAO dataStoreDAO = daoFactory.getDataStoreDAO();
 
-        DataStorePE existingDataStore = dataStoreDAO.tryToFindDataStoreByCode(AFS_DATA_STORE_CODE);
+        DataStorePE existingDataStore = dataStoreDAO.tryToFindDataStoreByCode(DataStoreDAO.AFS_DATA_STORE_CODE);
 
         if (existingDataStore != null)
         {
@@ -68,7 +67,7 @@ public class AfsRegistrator implements IAfsRegistrator, ApplicationListener<Appl
         }
 
         DataStorePE dataStore = new DataStorePE();
-        dataStore.setCode(AFS_DATA_STORE_CODE);
+        dataStore.setCode(DataStoreDAO.AFS_DATA_STORE_CODE);
         dataStore.setDownloadUrl("");
         dataStore.setRemoteUrl("");
         dataStore.setDatabaseInstanceUUID("");
