@@ -17,6 +17,8 @@ define([ "stjs" ], function(stjs) {
 		prototype.showRawValueInForms = false;
 		prototype.unique = false;
 		prototype.managedInternally = false;
+		prototype.pattern = null;
+        prototype.patternType = null;
 
 		prototype.getSection = function() {
 			return this.section;
@@ -77,6 +79,18 @@ define([ "stjs" ], function(stjs) {
         };
         prototype.setManagedInternally = function(managedInternally) {
             this.managedInternally = managedInternally;
+        };
+        prototype.getPattern = function() {
+            return this.pattern;
+        };
+        prototype.setPattern = function(pattern) {
+            this.pattern = pattern;
+        };
+        prototype.getPatternType = function() {
+            return this.patternType;
+        };
+        prototype.setPatternType = function(patternType) {
+            this.patternType = patternType;
         };
 	}, {
 		propertyTypeId : "IPropertyTypeId",
