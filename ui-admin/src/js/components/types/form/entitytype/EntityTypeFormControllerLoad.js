@@ -241,14 +241,14 @@ export default class EntityTypeFormControllerLoad extends PageControllerLoad {
           (!assignmentInternal || AppController.getInstance().isSystemUser())
       }),
       pattern: FormUtil.createField({
-        value: _.get(propertyType, 'pattern', null),
+        value: _.get(loadedAssignment, 'pattern', null),
         enabled:
-          !propertyTypeInternal || AppController.getInstance().isSystemUser()
+          !assignmentInternal || AppController.getInstance().isSystemUser()
       }),
       patternType: FormUtil.createField({
-        value: _.get(propertyType, 'patternType', null),
+        value: _.get(loadedAssignment, 'patternType', null),
         enabled:
-          !propertyTypeInternal || AppController.getInstance().isSystemUser()
+          !assignmentInternal || AppController.getInstance().isSystemUser()
       }),
       mandatory: FormUtil.createField({
         value: _.get(loadedAssignment, 'mandatory', false),

@@ -203,14 +203,12 @@ export default class EntityTypeFormControllerChange extends PageControllerChange
         pattern: {
           ...newProperty.pattern,
           enabled:
-            !newProperty.internal.value ||
-            AppController.getInstance().isSystemUser()
+            true
         },
         patternType: {
           ...newProperty.patternType,
           enabled:
-            !newProperty.internal.value ||
-            AppController.getInstance().isSystemUser()
+            true
         },
       })
 
