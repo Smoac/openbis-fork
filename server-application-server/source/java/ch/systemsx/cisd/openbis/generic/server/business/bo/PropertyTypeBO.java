@@ -87,11 +87,6 @@ public final class PropertyTypeBO extends VocabularyBO implements IPropertyTypeB
         propertyTypePE.setRegistrator(findPerson());
         propertyTypePE.setManagedInternally(propertyType.isManagedInternally());
         propertyTypePE.setMultiValue(propertyType.isMultiValue());
-        propertyTypePE.setPattern(propertyType.getPattern());
-        propertyTypePE.setPatternType(propertyType.getPatternType());
-        propertyTypePE.setPatternRegex(propertyType.getPattern() != null
-                ? "REGEX:" + propertyType.getPattern()
-                : null);
 
         if (DataTypeCode.CONTROLLEDVOCABULARY.equals(dataTypePE.getCode()))
         {

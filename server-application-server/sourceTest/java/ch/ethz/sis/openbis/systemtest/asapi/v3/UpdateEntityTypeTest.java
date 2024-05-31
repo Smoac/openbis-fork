@@ -934,6 +934,57 @@ public abstract class UpdateEntityTypeTest<CREATION extends IEntityTypeCreation,
             }, typeId, patternContains("checking access"));
     }
 
+    @Test
+    public void testUpdatePatternForEntity()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        // Given
+        PropertyTypeCreation propertyTypeCreation = new PropertyTypeCreation();
+        propertyTypeCreation.setCode("PATTERN_ASSIGNMENT_TYPE_TEST");
+        propertyTypeCreation.setManagedInternally(false);
+        propertyTypeCreation.setDataType(DataType.VARCHAR);
+        propertyTypeCreation.setLabel("some property type");
+        propertyTypeCreation.setDescription("some property type");
+        v3api.createPropertyTypes(sessionToken, Arrays.asList(propertyTypeCreation));
+
+
+        final CREATION typeCreation = newTypeCreation();
+        typeCreation.setCode("PATTERN_ASSIGNMENT_ENTITY_TYPE");
+        typeCreation.setManagedInternally(false);
+
+        PropertyAssignmentCreation assignmentCreation = new PropertyAssignmentCreation();
+        assignmentCreation.setPropertyTypeId(new PropertyTypePermId("DESCRIPTION"));
+        assignmentCreation.setPatternType("PATTERN");
+        assignmentCreation.setPattern(".*");
+
+        typeCreation.setPropertyAssignments(Arrays.asList(assignmentCreation));
+
+        EntityTypePermId typeId = createTypes(sessionToken, Arrays.asList(typeCreation)).get(0);
+        TYPE type = getType(sessionToken, typeId);
+        assertNotNull(type);
+        assertEquals(type.getPropertyAssignments().size(), 1);
+        assertEquals(type.getPropertyAssignments().get(0).getPatternType(), "PATTERN");
+        assertEquals(type.getPropertyAssignments().get(0).getPattern(), ".*");
+
+        // When
+        UPDATE update = newTypeUpdate();
+        update.setTypeId(typeId);
+        update.setDescription("New description");
+
+        assignmentCreation.setPatternType("RANGES");
+        assignmentCreation.setPattern("(-3)-(-1), 1-10, 100-200");
+        update.getPropertyAssignments().set(assignmentCreation);
+
+        updateTypes(sessionToken, Arrays.asList(update));
+
+        type = getType(sessionToken, typeId);
+        assertEquals(type.getDescription(), "New description");
+        assertEquals(type.getPropertyAssignments().size(), 1);
+        assertEquals(type.getPropertyAssignments().get(0).getPatternType(), "RANGES");
+        assertEquals(type.getPropertyAssignments().get(0).getPattern(), "(-3)-(-1), 1-10, 100-200");
+    }
+
     @DataProvider
     Object[][] usersNotAllowedToUpdate()
     {

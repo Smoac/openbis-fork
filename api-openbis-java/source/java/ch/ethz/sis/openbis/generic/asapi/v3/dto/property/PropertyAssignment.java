@@ -93,6 +93,12 @@ public class PropertyAssignment
     @JsonProperty
     private boolean managedInternally;
 
+    @JsonProperty
+    private String pattern;
+
+    @JsonProperty
+    private String patternType;
+
     // Method automatically generated with DtoGenerator
     @JsonIgnore
     public PropertyAssignmentFetchOptions getFetchOptions()
@@ -334,6 +340,28 @@ public class PropertyAssignment
     public void setManagedInternally(boolean managedInternally)
     {
         this.managedInternally = managedInternally;
+    }
+
+    @JsonIgnore
+    public String getPattern()
+    {
+        return pattern;
+    }
+
+    public void setPattern(String pattern)
+    {
+        this.pattern = pattern;
+    }
+
+    @JsonIgnore
+    public String getPatternType()
+    {
+        return patternType;
+    }
+
+    public void setPatternType(String patternType)
+    {
+        this.patternType = patternType;
     }
 
     // Method automatically generated with DtoGenerator

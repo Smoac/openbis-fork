@@ -15,7 +15,7 @@
  *
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity;
 
 import java.util.regex.Pattern;
 

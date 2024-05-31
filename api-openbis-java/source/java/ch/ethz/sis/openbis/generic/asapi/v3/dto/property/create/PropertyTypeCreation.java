@@ -72,12 +72,6 @@ public class PropertyTypeCreation implements ICreation, IObjectCreation
     @JsonProperty
     private Boolean multiValue;
 
-    @JsonProperty
-    private String pattern;
-
-    @JsonProperty
-    private String patternType;
-
     @JsonIgnore
     public String getCode()
     {
@@ -229,28 +223,6 @@ public class PropertyTypeCreation implements ICreation, IObjectCreation
     public void setMultiValue(Boolean multiValue)
     {
         this.multiValue = multiValue;
-    }
-
-    @JsonIgnore
-    public String getPattern()
-    {
-        return pattern;
-    }
-
-    public void setPattern(String pattern)
-    {
-        this.pattern = pattern;
-    }
-
-    @JsonIgnore
-    public String getPatternType()
-    {
-        return patternType;
-    }
-
-    public void setPatternType(String patternType)
-    {
-        this.patternType = patternType;
     }
 
     @Override

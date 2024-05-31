@@ -17,6 +17,8 @@
 
 package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property;
 
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.IPatternCompiler;
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.PatternCompiler;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -73,6 +75,23 @@ public class PatternCompilerTest
     public void testValues_withWhitespaces()
     {
         Pattern pattern = compiler.compilePattern("\"Alice\",  \"B o b\"   ,    \" Cynthia \"", "VALUES");
+        assertTrue(pattern.matcher("Alice").matches());
+        assertFalse(pattern.matcher(" Alice ").matches());
+        assertFalse(pattern.matcher(" Alice").matches());
+
+        assertTrue(pattern.matcher("B o b").matches());
+        assertFalse(pattern.matcher("Bob").matches());
+        assertFalse(pattern.matcher("Bo b").matches());
+
+        assertTrue(pattern.matcher(" Cynthia ").matches());
+        assertFalse(pattern.matcher(" Cynthia").matches());
+        assertFalse(pattern.matcher("Cynthia").matches());
+    }
+
+    @Test
+    public void testValues_withDifferentQuotes()
+    {
+        Pattern pattern = compiler.compilePattern("“Alice”,  “B o b”   ,    “ Cynthia ”", "VALUES");
         assertTrue(pattern.matcher("Alice").matches());
         assertFalse(pattern.matcher(" Alice ").matches());
         assertFalse(pattern.matcher(" Alice").matches());

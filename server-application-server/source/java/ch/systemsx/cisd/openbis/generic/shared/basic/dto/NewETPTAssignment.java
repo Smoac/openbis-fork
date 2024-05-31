@@ -59,6 +59,12 @@ public class NewETPTAssignment implements Serializable
     // IS_MANAGED_INTERNALLY_NAMESPACE
     private boolean isManagedInternally;
 
+    private String patternType;
+
+    private String pattern;
+
+    private String patternRegex;
+
     public NewETPTAssignment()
     {
     }
@@ -246,5 +252,35 @@ public class NewETPTAssignment implements Serializable
     public void setManagedInternally(boolean managedInternally)
     {
         isManagedInternally = managedInternally;
+    }
+
+    public String getPatternType()
+    {
+        return patternType;
+    }
+
+    public void setPatternType(String patternType)
+    {
+        this.patternType = patternType;
+    }
+
+    public String getPattern()
+    {
+        return pattern;
+    }
+
+    public void setPattern(String pattern)
+    {
+        this.pattern = pattern;
+    }
+
+    public String getPatternRegex()
+    {
+        return patternRegex;
+    }
+
+    public void setPatternRegex(String patternRegex)
+    {
+        this.patternRegex = patternRegex;
     }
 }

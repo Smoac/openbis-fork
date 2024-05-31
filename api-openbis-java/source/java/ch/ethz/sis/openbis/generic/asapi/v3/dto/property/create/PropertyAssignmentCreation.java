@@ -49,6 +49,10 @@ public class PropertyAssignmentCreation implements ICreation
 
     private boolean managedInternally = false;
 
+    private String patternType;
+
+    private String pattern;
+
     public String getSection()
     {
         return section;
@@ -147,6 +151,26 @@ public class PropertyAssignmentCreation implements ICreation
     public void setManagedInternally(boolean managedInternally)
     {
         this.managedInternally = managedInternally;
+    }
+
+    public String getPattern()
+    {
+        return pattern;
+    }
+
+    public void setPattern(String pattern)
+    {
+        this.pattern = pattern;
+    }
+
+    public String getPatternType()
+    {
+        return patternType;
+    }
+
+    public void setPatternType(String patternType)
+    {
+        this.patternType = patternType;
     }
 
     @Override

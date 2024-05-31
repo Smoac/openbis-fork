@@ -15,7 +15,7 @@
  *
  */
 
-package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.property;
+package ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import org.springframework.stereotype.Component;
@@ -65,7 +65,8 @@ public final class PatternCompiler implements IPatternCompiler
     private String prepareValue(String value)
     {
         String result = value.strip();
-        if(result.charAt(0) != '"' || result.charAt(result.length()-1) != '"')
+        if((result.charAt(0) != '"' && result.charAt(0) != '“')
+                || (result.charAt(result.length()-1) != '"' && result.charAt(result.length()-1) != '”'))
         {
             throw new UserFailureException("Wrong value format: '" + value + "'");
         }

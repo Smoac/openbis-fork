@@ -154,6 +154,8 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
         String section = getValueByColumnName(headers, values, Attribute.Section);
         String script = getValueByColumnName(headers, values, Attribute.DynamicScript);
         String unique = getValueByColumnName(headers, values, Attribute.Unique);
+        String pattern = getValueByColumnName(headers, values, Attribute.Pattern);
+        String patternType = getValueByColumnName(headers, values, Attribute.PatternType);
         String internalAssignment = getValueByColumnName(headers, values, Attribute.InternalAssignment);
 
         PropertyAssignmentCreation creation = new PropertyAssignmentCreation();
@@ -163,6 +165,8 @@ public class PropertyAssignmentImportHelper extends BasicImportHelper
         creation.setShowInEditView(Boolean.parseBoolean(showInEditViews));
         creation.setSection(section);
         creation.setUnique(Boolean.parseBoolean(unique));
+        creation.setPattern(pattern);
+        creation.setPatternType(patternType);
         creation.setManagedInternally(Boolean.parseBoolean(internalAssignment));
 
         if (script != null && !script.isEmpty())

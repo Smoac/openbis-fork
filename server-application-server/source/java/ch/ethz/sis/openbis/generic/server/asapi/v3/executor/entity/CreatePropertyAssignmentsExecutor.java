@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 
@@ -61,6 +62,9 @@ public class CreatePropertyAssignmentsExecutor
 
     @Autowired
     private IMapPluginByIdExecutor mapPluginByIdExecutor;
+
+    @Autowired
+    private IPatternCompiler patternCompiler;
     
     public void createPropertyAssignments(final IOperationContext context, String entityTypeCode,
             Collection<? extends PropertyAssignmentCreation> propertyAssignments, ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind entityKind)
@@ -144,6 +148,16 @@ public class CreatePropertyAssignmentsExecutor
         assignment.setShowRawValue(assignmentCreation.isShowRawValueInForms());
         assignment.setUnique(assignmentCreation.isUnique());
         assignment.setManagedInternally(assignmentCreation.isManagedInternally());
+        //if only one element out of pair (pattern, patternType) is empty, throw exception
+        if(((assignmentCreation.getPattern() == null || assignmentCreation.getPattern().trim().isEmpty()) && (assignmentCreation.getPatternType() != null && !assignmentCreation.getPatternType().trim().isEmpty()))
+                || ((assignmentCreation.getPattern() != null && !assignmentCreation.getPattern().trim().isEmpty()) && (assignmentCreation.getPatternType() == null || assignmentCreation.getPatternType().trim().isEmpty())))
+        {
+            throw new UserFailureException("Pattern and Pattern Type must be both either empty or non-empty!");
+        }
+        assignment.setPatternType(assignmentCreation.getPatternType());
+        assignment.setPattern(assignmentCreation.getPattern());
+        Pattern pattern = patternCompiler.compilePattern(assignmentCreation.getPattern(), assignmentCreation.getPatternType());
+        assignment.setPatternRegex(pattern == null ? null : pattern.pattern());
         return assignment;
     }
 

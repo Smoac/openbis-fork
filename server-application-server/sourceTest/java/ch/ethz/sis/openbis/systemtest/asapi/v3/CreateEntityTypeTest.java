@@ -267,6 +267,54 @@ public abstract class CreateEntityTypeTest<CREATION extends IEntityTypeCreation,
     }
 
     @Test
+    public void testCreateWithPropertyAssignmentsWithOnlyPatternTypeFilled_throwsException()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        PropertyAssignmentCreation assignmentCreation = new PropertyAssignmentCreation();
+        assignmentCreation.setPropertyTypeId(new PropertyTypePermId("DESCRIPTION"));
+        assignmentCreation.setPatternType("PATTERN");
+
+        final CREATION typeCreation = newTypeCreation();
+        typeCreation.setCode("NEW_ENITTY_TYPE");
+        typeCreation.setPropertyAssignments(Arrays.asList(assignmentCreation));
+
+        assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
+            {
+                createTypes(sessionToken, Arrays.asList(typeCreation));
+            }
+        }, "Pattern and Pattern Type must be both either empty or non-empty!");
+
+    }
+
+    @Test
+    public void testCreateWithPropertyAssignmentsWithOnlyPatternFilled_throwsException()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        PropertyAssignmentCreation assignmentCreation = new PropertyAssignmentCreation();
+        assignmentCreation.setPropertyTypeId(new PropertyTypePermId("DESCRIPTION"));
+        assignmentCreation.setPattern("SomePattern");
+
+        final CREATION typeCreation = newTypeCreation();
+        typeCreation.setCode("NEW_ENITTY_TYPE");
+        typeCreation.setPropertyAssignments(Arrays.asList(assignmentCreation));
+
+        assertUserFailureException(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
+            {
+                createTypes(sessionToken, Arrays.asList(typeCreation));
+            }
+        }, "Pattern and Pattern Type must be both either empty or non-empty!");
+
+    }
+
+    @Test
     public void testCreateWithPropertyAssignmentsWithIncorrectOrdinal()
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);

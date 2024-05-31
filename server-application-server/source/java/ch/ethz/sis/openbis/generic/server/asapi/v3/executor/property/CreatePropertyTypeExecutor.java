@@ -23,6 +23,7 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import ch.ethz.sis.openbis.generic.server.asapi.v3.executor.entity.IPatternCompiler;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -129,12 +130,6 @@ public class CreatePropertyTypeExecutor
         {
             throw new UserFailureException("Vocabulary id has been specified but data type is " + dataType + ".");
         }
-        //if only one element out of pair (pattern, patternType) is empty, throw exception
-        if(((creation.getPattern() == null || creation.getPattern().trim().isEmpty()) && (creation.getPatternType() != null && !creation.getPatternType().trim().isEmpty()))
-        || ((creation.getPattern() != null && !creation.getPattern().trim().isEmpty()) && (creation.getPatternType() == null || creation.getPatternType().trim().isEmpty())))
-        {
-            throw new UserFailureException("Pattern and Pattern Type must be both either empty or non-empty!");
-        }
         validateMaterialType(creation, dataType);
         validateSampleType(creation, dataType);
         validateSchemaAndDataType(dataType.name(), creation.getSchema());
@@ -219,10 +214,6 @@ public class CreatePropertyTypeExecutor
                     propertyType.setMetaData(creation.getMetaData());
                     propertyType.setMultiValue(
                             creation.isMultiValue() != null && creation.isMultiValue());
-                    propertyType.setPattern(creation.getPattern());
-                    propertyType.setPatternType(creation.getPatternType());
-                    Pattern pattern = patternCompiler.compilePattern(creation.getPattern(), creation.getPatternType());
-                    propertyType.setPatternRegex(pattern == null ? null : pattern.pattern());
                     propertyTypes.add(propertyType);
                 }
 

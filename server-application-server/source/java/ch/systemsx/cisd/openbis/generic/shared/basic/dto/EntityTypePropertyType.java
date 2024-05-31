@@ -54,6 +54,14 @@ public abstract class EntityTypePropertyType<T extends EntityType> implements Se
 
     private Date modificationDate;
 
+    private String pattern;
+
+    private String patternType;
+
+    private String patternRegex;
+
+    private boolean managedInternallyNamespace;
+
     public Date getModificationDate()
     {
         return modificationDate;
@@ -207,6 +215,46 @@ public abstract class EntityTypePropertyType<T extends EntityType> implements Se
     public void setSection(String section)
     {
         this.section = section;
+    }
+
+    public String getPattern()
+    {
+        return pattern;
+    }
+
+    public void setPattern(String pattern)
+    {
+        this.pattern = pattern;
+    }
+
+    public String getPatternType()
+    {
+        return patternType;
+    }
+
+    public void setPatternType(String patternType)
+    {
+        this.patternType = patternType;
+    }
+
+    public String getPatternRegex()
+    {
+        return patternRegex;
+    }
+
+    public void setPatternRegex(String patternRegex)
+    {
+        this.patternRegex = patternRegex;
+    }
+
+    public boolean isManagedInternallyNamespace()
+    {
+        return managedInternallyNamespace;
+    }
+
+    public void setManagedInternallyNamespace(boolean managedInternallyNamespace)
+    {
+        this.managedInternallyNamespace = managedInternallyNamespace;
     }
 
     //
