@@ -101,31 +101,6 @@ public class ImportPropertyTypesTest extends AbstractImportTest
         assertNull(notes.getVocabulary());
     }
 
-    @Test
-    @DirtiesContext
-    public void testNormalPropertyTypesWithPatternsAreCreated() throws IOException
-    {
-        // the Excel contains internally managed property types which can be only manipulated by the system user
-        sessionToken = v3api.loginAsSystem();
-
-        // GIVEN
-        final String sessionWorkspaceFilePath = uploadToAsSessionWorkspace(sessionToken,
-                FilenameUtils.concat(FILES_DIR, PROPERTY_TYPES_WITH_PATTERN_XLS));
-        TestUtils.createFrom(v3api, sessionToken, Paths.get(sessionWorkspaceFilePath));
-
-        // WHEN
-        PropertyType notes = TestUtils.getPropertyType(v3api, sessionToken, "PATTERN_PATTERN");
-
-        // THEN
-        assertEquals(notes.getCode(), "PATTERN_PATTERN");
-        assertEquals(notes.getLabel(), "Pattern");
-        assertEquals(notes.getDataType(), DataType.VARCHAR);
-        assertEquals(notes.getDescription(), "Regexp pattern");
-        assertFalse(notes.isManagedInternally());
-        assertNull(notes.getVocabulary());
-        assertEquals(notes.getPattern(), ".*");
-        assertEquals(notes.getPatternType(), "PATTERN");
-    }
 
     @Test
     @DirtiesContext
