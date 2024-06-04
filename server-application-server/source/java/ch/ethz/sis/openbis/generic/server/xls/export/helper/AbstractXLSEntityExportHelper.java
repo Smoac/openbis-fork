@@ -231,7 +231,7 @@ public abstract class AbstractXLSEntityExportHelper<ENTITY extends IPermIdHolder
         return new AdditionResult(rowNumber, warnings, valueFiles, miscellaneousFiles);
     }
 
-    private static <ENTITY extends IPermIdHolder & IPropertiesHolder> Map<String, Serializable> getMergedProperties(final ENTITY entity)
+    private static Map<String, Serializable> getMergedProperties(final IPropertiesHolder entity)
     {
         final Map<String, Sample[]> sampleProperties;
         if (entity instanceof Sample)

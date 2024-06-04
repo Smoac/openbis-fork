@@ -62,6 +62,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -1172,7 +1173,6 @@ public class ExportExecutor implements IExportExecutor
                 }
             }, "NotoEmoji");
 
-            //String replacedHtml = html.replaceAll(XML_10_REGEXP, "").replaceAll(UNPRINTABLE_CHARACTER_REFERENCES_REGEXP, "");
             String replacedHtml = ExportPDFUtils.addStyleHeader(html);
             replacedHtml = ExportPDFUtils.replaceHSLToHex(replacedHtml, "color", ExportPDFUtils.hslColorPattern);
             replacedHtml = ExportPDFUtils.insertPagePagebreak(replacedHtml, "<h2>Identification Info</h2>");
@@ -1477,7 +1477,7 @@ public class ExportExecutor implements IExportExecutor
             final List<PropertyAssignment> propertyAssignments = typeObj.getPropertyAssignments();
             if (propertyAssignments != null)
             {
-                final Map<String, Serializable> properties = ((IPropertiesHolder) entityObj).getProperties();
+                final Map<String, Serializable> properties = getMergedProperties((IPropertiesHolder) entityObj);
                 for (final PropertyAssignment propertyAssignment : propertyAssignments)
                 {
                     System.out.println(selectedExportFields);
@@ -1488,10 +1488,25 @@ public class ExportExecutor implements IExportExecutor
 
                     if (rawPropertyValue != null && allowsValue(selectedExportProperties, propertyTypeCode))
                     {
-                        final String initialPropertyValue = String.valueOf(rawPropertyValue);
+                        final String initialPropertyValue = String.valueOf(rawPropertyValue instanceof Sample
+                                ? ((Sample) rawPropertyValue).getIdentifier().getIdentifier()
+                                : rawPropertyValue);
                         final String propertyValue;
 
-                        if (propertyType.getDataType() == DataType.MULTILINE_VARCHAR &&
+                        if (propertyType.getDataType() == DataType.SAMPLE)
+                        {
+                            if (rawPropertyValue instanceof Sample[])
+                            {
+                                propertyValue = Arrays.stream(((Sample[]) rawPropertyValue)).map(sample -> sample.getIdentifier().getIdentifier())
+                                        .collect(Collectors.joining(", "));
+                            } else if (rawPropertyValue instanceof Sample)
+                            {
+                                propertyValue = ((Sample) rawPropertyValue).getIdentifier().getIdentifier();
+                            } else
+                            {
+                                throw new IllegalArgumentException("Sample property value is not of type Sample or Sample[].");
+                            }
+                        } else if (propertyType.getDataType() == DataType.MULTILINE_VARCHAR &&
                                 Objects.equals(propertyType.getMetaData().get("custom_widget"), "Word Processor"))
                         {
                             propertyValue = encodeImages(initialPropertyValue);
@@ -1963,6 +1978,32 @@ public class ExportExecutor implements IExportExecutor
         } catch (final MalformedURLException e) {
             return false;
         }
+    }
+
+    private static Map<String, Serializable> getMergedProperties(final IPropertiesHolder entity)
+    {
+        final Map<String, Sample[]> sampleProperties;
+        if (entity instanceof Sample)
+        {
+            sampleProperties = ((Sample) entity).getSampleProperties();
+        } else if (entity instanceof Experiment)
+        {
+            sampleProperties = ((Experiment) entity).getSampleProperties();
+        } else if (entity instanceof DataSet)
+        {
+            sampleProperties = ((DataSet) entity).getSampleProperties();
+        } else
+        {
+            sampleProperties = null;
+        }
+
+        final Map<String, Serializable> properties = new HashMap<>(entity.getProperties());
+        if (sampleProperties != null)
+        {
+            properties.putAll(sampleProperties);
+        }
+
+        return properties;
     }
 
     private static class EntitiesVo

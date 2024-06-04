@@ -139,7 +139,7 @@ class EntitiesFinder
         final List<DataSetPermId> dataSetPermIds = permIds.stream().map(DataSetPermId::new)
                 .collect(Collectors.toList());
         final DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
-
+        fetchOptions.withSampleProperties();
         configureFetchOptions(fetchOptions);
         configureFetchOptions(fetchOptions.withParents());
         configureFetchOptions(fetchOptions.withChildren());
@@ -217,6 +217,7 @@ class EntitiesFinder
         final List<SamplePermId> samplePermIds = permIds.stream().map(SamplePermId::new)
                 .collect(Collectors.toList());
         final SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.withSampleProperties();
         configureFetchOptions(fetchOptions);
         configureFetchOptions(fetchOptions.withParents());
         configureFetchOptions(fetchOptions.withChildren());
